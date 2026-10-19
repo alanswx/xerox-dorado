@@ -1,0 +1,123 @@
+{
+  "scope": "Isolated six SN74123 parameter modes (SYSPER1 TW_NS0/30 and SYSPER2/4/8/16 TW_NS3000), including actual DskEth4/3000. Original signed timers, trigger history, clear/retrigger priority and tick arithmetic retained verbatim. Matched50MHz negative-edge external staging/positive-edge launch/capture,20ns embedded paths,2ns max0ns min virtual I/O. Counts include shell/admin/pruning; no timer behavior/rate change/full board/global snapshot or speed claim.",
+  "manifest": {
+    "module": "cell_SN74123_snapshot",
+    "logical_state_bits": 70,
+    "fields": [
+      {
+        "name": "t1",
+        "width": 32,
+        "lsb": 0,
+        "signed": true
+      },
+      {
+        "name": "t2",
+        "width": 32,
+        "lsb": 32,
+        "signed": true
+      },
+      {
+        "name": "a1_d",
+        "width": 1,
+        "lsb": 64,
+        "signed": false
+      },
+      {
+        "name": "b1_d",
+        "width": 1,
+        "lsb": 65,
+        "signed": false
+      },
+      {
+        "name": "c1_d",
+        "width": 1,
+        "lsb": 66,
+        "signed": false
+      },
+      {
+        "name": "a2_d",
+        "width": 1,
+        "lsb": 67,
+        "signed": false
+      },
+      {
+        "name": "b2_d",
+        "width": 1,
+        "lsb": 68,
+        "signed": false
+      },
+      {
+        "name": "c2_d",
+        "width": 1,
+        "lsb": 69,
+        "signed": false
+      }
+    ],
+    "words": [
+      {
+        "index": 0,
+        "width": 18
+      },
+      {
+        "index": 1,
+        "width": 18
+      },
+      {
+        "index": 2,
+        "width": 18
+      },
+      {
+        "index": 3,
+        "width": 16
+      }
+    ],
+    "valid_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "invalid_indices": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "original_sha256": "df8a9267e3af37fb8de2f4c3f5d83d73ba4315dd58bcad87d3c1c319b8ec880b",
+    "generated_sha256": "c5c77398edce445cfe88c392200ff7f7c0e9f9e090861297aa6d4a3c165de0be",
+    "scope": "Preserve both signed SN74123 timers and six trigger histories in70bits.\n\nFour18bit words, valid0..3, invalid4..7; final word has16data bits. Caller\nholds every consumer. Original timing arithmetic/parameters are unchanged.\n"
+  },
+  "builder_sha256": "c1b380b1cfae1df43edd7051f475d4f8e4da6430cd87d7814380f428dd189817",
+  "source_hashes": {
+    "fpga/mister/snapshot/fit_sn74123.py": "c1b380b1cfae1df43edd7051f475d4f8e4da6430cd87d7814380f428dd189817",
+    "fpga/mister/snapshot/generate_sn74123.py": "419c2cbf73db8bad0251a39e73c9de667f1693374b83c3eb0db1347cfa95b13c",
+    "fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "verilog/cells/cell_SN74123.v": "df8a9267e3af37fb8de2f4c3f5d83d73ba4315dd58bcad87d3c1c319b8ec880b"
+  },
+  "compiled_files": {
+    "snapshot/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "snapshot/cell_SN74123.v": "df8a9267e3af37fb8de2f4c3f5d83d73ba4315dd58bcad87d3c1c319b8ec880b",
+    "snapshot/top.sv": "c432244071233ebb24105df61f9b78113243044441476c6771f80490001393a0",
+    "snapshot/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "snapshot/cell_SN74123_snapshot.sv": "c5c77398edce445cfe88c392200ff7f7c0e9f9e090861297aa6d4a3c165de0be",
+    "snapshot/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "snapshot/snapshot_fit.qsf": "26e1dfb4d083ee30bcb639ad0d0cadf8f1bf0f0dfb46d2c44d02496e0d87989e",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/cell_SN74123.v": "df8a9267e3af37fb8de2f4c3f5d83d73ba4315dd58bcad87d3c1c319b8ec880b",
+    "baseline/top.sv": "c432244071233ebb24105df61f9b78113243044441476c6771f80490001393a0",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/cell_SN74123_snapshot.sv": "c5c77398edce445cfe88c392200ff7f7c0e9f9e090861297aa6d4a3c165de0be",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/snapshot_fit.qsf": "6ec200c29c768167864856a2b313ca6bea5c960d957a3ac9cd8670f434e79193",
+    "executed-sources/cell_SN74123.v": "df8a9267e3af37fb8de2f4c3f5d83d73ba4315dd58bcad87d3c1c319b8ec880b",
+    "executed-sources/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "executed-sources/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "executed-sources/generate_sn74123.py": "419c2cbf73db8bad0251a39e73c9de667f1693374b83c3eb0db1347cfa95b13c",
+    "executed-sources/fit_sn74123.py": "c1b380b1cfae1df43edd7051f475d4f8e4da6430cd87d7814380f428dd189817"
+  },
+  "expected_qsf": {
+    "baseline": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE cell_SN74123_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_SN74123.v\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze\nset_instance_assignment -name VIRTUAL_PIN ON -to held\nset_instance_assignment -name VIRTUAL_PIN ON -to request\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to pins[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to outputs[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to done[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to error[*]\n",
+    "snapshot": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE cell_SN74123_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_SN74123.v\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze\nset_instance_assignment -name VIRTUAL_PIN ON -to held\nset_instance_assignment -name VIRTUAL_PIN ON -to request\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to pins[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to outputs[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to done[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to error[*]\nset_global_assignment -name VERILOG_MACRO \"SNAPSHOT_BANK_EXPERIMENT=1\"\n"
+  }
+}

@@ -1,0 +1,17 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "sn74123_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-sn74123-20261019/wrong_clear/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-sn74123-20261019/wrong_clear/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-sn74123-20261019/wrong_clear/cell_SN74123_snapshot.sv",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74123.v",
+  "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_sn74123.cpp"
+]

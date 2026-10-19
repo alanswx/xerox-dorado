@@ -1,0 +1,12 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_SN74123",
+  "-GSYSPER=4",
+  "-GTW_NS=3000",
+  "-Wno-fatal",
+  "--xml-output",
+  "build/rtl-executive/snapshot-sn74123-xml-review-20261019/cell.xml",
+  "verilog/cells/cell_SN74123.v"
+]

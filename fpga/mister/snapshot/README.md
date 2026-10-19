@@ -431,3 +431,10 @@ Oscillator simulation now additionally covers actualDskEth23530/SYSPER8, with
 original/generator unchanged (report snapshot-oscillator-dsketh); the added pair
 requires full-board fit and later timer calibration. SN74123 timers, full
 DskEth board/monitor/phase restore and global/ARM state remain open.
+
+SN74123 timers now pass complete70bit export/restore, original/independent
+signed oracle, six actual/boundary parameter modes, freshXML signed types and
+matched50MHz isolated fits(+0.140ns/fourconditions).9brokenRTL,17bad schemas per
+mode and5badfitcontrols reject. Sources generate/test/classify/fit_sn74123;
+report snapshot-sn74123. No timer-rate/production change. Full DskEth/monitor/
+phase state integration and global/ARM snapshot boundaries remain open.

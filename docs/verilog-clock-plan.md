@@ -42,6 +42,30 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**SN74123 complete timer primitive qualification PASS; full DskEth adapter assembly in progress.**
+Original/frozen58source match; all70bits (two signed32bit counters/six histories)
+in four18bit words. Six parameter modes incl actualSYSPER4/TW_NS3000/TW400:
+110,122hostedges/2,880held/2,872requests/4,800cellwrites, expiry/retrigger/negative
+boundaries/destructive restore/quiet/firstedge/20Kmore PASS.9brokenRTL/2changed
+source guards reject. FreshXMLactualbindings/signedtypes/allfields;17bad schemas
+permode reject. Matched50MHz fits13703 TERMINAL/read-onlyauditPASS/fourconditions/
+min+0.140ns;522->602ALM/520->904regs/noRAM/noillegal/unconstrainedIO;5badfit
+controls reject. Exact rawreport/source evidence snapshot-sn74123. No production
+cell/rate/clock or global snapshot change.
+
+Live Native58 Main27199/server27195/RBFeebc0e1f unchanged; actualNo accepted and
+BootEssentials/TiogaFonts/PressFonts/Fontmetrics progressing in captures. No
+Viewers/input qualification yet; observer27455 remains terminal/absent. Last
+idle1.947767Missues/s, no gain. Keepbootrunning/no extra login input. Allour
+Quartus jobs TERMINAL. Next full DskEth classification/restore/isolated timing
+including34bit passive receive monitor, all18small files/write windows,117FF
+packages, twoCRCs/twoSNtimers/oscillator/ninephasebits. Draftgenerators currently
+unqualified. Initial source guard rejected MC10170's older explanatory comment;
+review confirms exact Verilog token stream unchanged. Actual compiled file is
+retained and both hashes recorded, no cell logic changed.14immutable PROMs.
+Then finish58desktop/input and full DskEth/native integration, remaining global/
+ARM snapshots, original60ns/timers and final gates. Goal remains ACTIVE.
+
 **Latest Native58 base34/final guestACK PASS; profileNo accepted, BootEssentials advancing.**
 Same Main27199/server27195/RBFeebc0e1f. Idle mean1,947,767.345issues/s unchanged57.
 Actual34files/33BCD/1,345,843bytes/finalACK322.790994587..322.958138693s, whole

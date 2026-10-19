@@ -1,0 +1,12 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_SN74123",
+  "-GSYSPER=1",
+  "-GTW_NS=30",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-sn74123-classify-20261019/sp1-ns30/cell.xml",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74123.v"
+]

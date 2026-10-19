@@ -1,0 +1,185 @@
+{
+  "status": "PASS",
+  "manifest": {
+    "module": "cell_SN74123_snapshot",
+    "logical_state_bits": 70,
+    "fields": [
+      {
+        "name": "t1",
+        "width": 32,
+        "lsb": 0,
+        "signed": true
+      },
+      {
+        "name": "t2",
+        "width": 32,
+        "lsb": 32,
+        "signed": true
+      },
+      {
+        "name": "a1_d",
+        "width": 1,
+        "lsb": 64,
+        "signed": false
+      },
+      {
+        "name": "b1_d",
+        "width": 1,
+        "lsb": 65,
+        "signed": false
+      },
+      {
+        "name": "c1_d",
+        "width": 1,
+        "lsb": 66,
+        "signed": false
+      },
+      {
+        "name": "a2_d",
+        "width": 1,
+        "lsb": 67,
+        "signed": false
+      },
+      {
+        "name": "b2_d",
+        "width": 1,
+        "lsb": 68,
+        "signed": false
+      },
+      {
+        "name": "c2_d",
+        "width": 1,
+        "lsb": 69,
+        "signed": false
+      }
+    ],
+    "words": [
+      {
+        "index": 0,
+        "width": 18
+      },
+      {
+        "index": 1,
+        "width": 18
+      },
+      {
+        "index": 2,
+        "width": 18
+      },
+      {
+        "index": 3,
+        "width": 16
+      }
+    ],
+    "valid_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "invalid_indices": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "original_sha256": "df8a9267e3af37fb8de2f4c3f5d83d73ba4315dd58bcad87d3c1c319b8ec880b",
+    "generated_sha256": "c5c77398edce445cfe88c392200ff7f7c0e9f9e090861297aa6d4a3c165de0be",
+    "scope": "Preserve both signed SN74123 timers and six trigger histories in70bits.\n\nFour18bit words, valid0..3, invalid4..7; final word has16data bits. Caller\nholds every consumer. Original timing arithmetic/parameters are unchanged.\n"
+  },
+  "parameter_modes": [
+    {
+      "sysper": 1,
+      "tw_ns": 0
+    },
+    {
+      "sysper": 1,
+      "tw_ns": 30
+    },
+    {
+      "sysper": 2,
+      "tw_ns": 3000
+    },
+    {
+      "sysper": 4,
+      "tw_ns": 3000
+    },
+    {
+      "sysper": 8,
+      "tw_ns": 3000
+    },
+    {
+      "sysper": 16,
+      "tw_ns": 3000
+    }
+  ],
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "ungated",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "ignore_freeze",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "running_access",
+      "returncode": 1,
+      "expected_failure": "request handshake differs"
+    },
+    {
+      "case": "invalid_alias",
+      "returncode": 1,
+      "expected_failure": "request handshake differs"
+    },
+    {
+      "case": "lost_timer_sign",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "lost_history",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "unsigned_timer",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "wrong_clear",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "no_retrigger",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    }
+  ],
+  "source_controls": [
+    {
+      "case": "extra_state",
+      "rejected": true
+    },
+    {
+      "case": "changed_priority",
+      "rejected": true
+    }
+  ],
+  "source_hashes": {
+    "fpga/mister/snapshot/generate_sn74123.py": "419c2cbf73db8bad0251a39e73c9de667f1693374b83c3eb0db1347cfa95b13c",
+    "fpga/mister/snapshot/test_sn74123.py": "4ae7230dbbc7676a732d304d8bf9eec97e9b3f8500d7aab9325e48f7003c5012",
+    "fpga/mister/snapshot/test_sn74123.cpp": "f0deb23017e832db998f8d67dcaff346428169bf37556a11a36d5d782522fb48",
+    "fpga/mister/snapshot/generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "verilog/cells/cell_SN74123.v": "df8a9267e3af37fb8de2f4c3f5d83d73ba4315dd58bcad87d3c1c319b8ec880b"
+  }
+}

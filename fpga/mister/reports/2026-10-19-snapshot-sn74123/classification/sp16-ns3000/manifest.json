@@ -1,0 +1,87 @@
+{
+  "module": "cell_SN74123_snapshot",
+  "logical_state_bits": 70,
+  "fields": [
+    {
+      "name": "t1",
+      "width": 32,
+      "lsb": 0,
+      "signed": true
+    },
+    {
+      "name": "t2",
+      "width": 32,
+      "lsb": 32,
+      "signed": true
+    },
+    {
+      "name": "a1_d",
+      "width": 1,
+      "lsb": 64,
+      "signed": false
+    },
+    {
+      "name": "b1_d",
+      "width": 1,
+      "lsb": 65,
+      "signed": false
+    },
+    {
+      "name": "c1_d",
+      "width": 1,
+      "lsb": 66,
+      "signed": false
+    },
+    {
+      "name": "a2_d",
+      "width": 1,
+      "lsb": 67,
+      "signed": false
+    },
+    {
+      "name": "b2_d",
+      "width": 1,
+      "lsb": 68,
+      "signed": false
+    },
+    {
+      "name": "c2_d",
+      "width": 1,
+      "lsb": 69,
+      "signed": false
+    }
+  ],
+  "words": [
+    {
+      "index": 0,
+      "width": 18
+    },
+    {
+      "index": 1,
+      "width": 18
+    },
+    {
+      "index": 2,
+      "width": 18
+    },
+    {
+      "index": 3,
+      "width": 16
+    }
+  ],
+  "valid_indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "invalid_indices": [
+    4,
+    5,
+    6,
+    7
+  ],
+  "original_sha256": "df8a9267e3af37fb8de2f4c3f5d83d73ba4315dd58bcad87d3c1c319b8ec880b",
+  "generated_sha256": "c5c77398edce445cfe88c392200ff7f7c0e9f9e090861297aa6d4a3c165de0be",
+  "scope": "Preserve both signed SN74123 timers and six trigger histories in70bits.\n\nFour18bit words, valid0..3, invalid4..7; final word has16data bits. Caller\nholds every consumer. Original timing arithmetic/parameters are unchanged.\n"
+}

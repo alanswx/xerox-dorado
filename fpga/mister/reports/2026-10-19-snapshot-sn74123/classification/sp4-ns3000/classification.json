@@ -1,0 +1,260 @@
+{
+  "status": "PASS",
+  "modeled_state_bits": 70,
+  "xml_sha256": "7b773fd371f2a3d542302ce73c2c62cb14f8e215006ed9a2523a8a0d7e596011",
+  "timer_types": {
+    "t1": {
+      "name": "integer",
+      "left": "31",
+      "right": "0",
+      "signed": "true"
+    },
+    "t2": {
+      "name": "integer",
+      "left": "31",
+      "right": "0",
+      "signed": "true"
+    }
+  },
+  "decisions": [
+    {
+      "path": "cell_SN74123.a1_d",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": [
+        {
+          "word": 3,
+          "lsb": 10,
+          "field_lsb": 0,
+          "width": 1
+        }
+      ]
+    },
+    {
+      "path": "cell_SN74123.a2_d",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": [
+        {
+          "word": 3,
+          "lsb": 13,
+          "field_lsb": 0,
+          "width": 1
+        }
+      ]
+    },
+    {
+      "path": "cell_SN74123.b1_d",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": [
+        {
+          "word": 3,
+          "lsb": 11,
+          "field_lsb": 0,
+          "width": 1
+        }
+      ]
+    },
+    {
+      "path": "cell_SN74123.b2_d",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": [
+        {
+          "word": 3,
+          "lsb": 14,
+          "field_lsb": 0,
+          "width": 1
+        }
+      ]
+    },
+    {
+      "path": "cell_SN74123.c1_d",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": [
+        {
+          "word": 3,
+          "lsb": 12,
+          "field_lsb": 0,
+          "width": 1
+        }
+      ]
+    },
+    {
+      "path": "cell_SN74123.c2_d",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": [
+        {
+          "word": 3,
+          "lsb": 15,
+          "field_lsb": 0,
+          "width": 1
+        }
+      ]
+    },
+    {
+      "path": "cell_SN74123.p13",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": "Pinned continuous expression"
+    },
+    {
+      "path": "cell_SN74123.p5",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": "Pinned continuous expression"
+    },
+    {
+      "path": "cell_SN74123.t1",
+      "decision": "SAVE",
+      "bits": 32,
+      "access": [
+        {
+          "word": 0,
+          "lsb": 0,
+          "field_lsb": 0,
+          "width": 18
+        },
+        {
+          "word": 1,
+          "lsb": 0,
+          "field_lsb": 18,
+          "width": 14
+        }
+      ]
+    },
+    {
+      "path": "cell_SN74123.t2",
+      "decision": "SAVE",
+      "bits": 32,
+      "access": [
+        {
+          "word": 1,
+          "lsb": 14,
+          "field_lsb": 0,
+          "width": 4
+        },
+        {
+          "word": 2,
+          "lsb": 0,
+          "field_lsb": 4,
+          "width": 18
+        },
+        {
+          "word": 3,
+          "lsb": 0,
+          "field_lsb": 22,
+          "width": 10
+        }
+      ]
+    },
+    {
+      "path": "cell_SN74123.trig1",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": "Pinned continuous expression"
+    },
+    {
+      "path": "cell_SN74123.trig2",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": "Pinned continuous expression"
+    }
+  ],
+  "scope": "Complete modeled cell only; no calibrated real time, board/global barrier or machine snapshot",
+  "parameters": {
+    "TW_NS": 3000,
+    "SYSPER": 4,
+    "TW": 400
+  },
+  "failure_controls": [
+    {
+      "case": "lost_t1",
+      "rejected": true,
+      "diagnostic": "missing timer field"
+    },
+    {
+      "case": "lost_t2",
+      "rejected": true,
+      "diagnostic": "missing timer field"
+    },
+    {
+      "case": "lost_a1_d",
+      "rejected": true,
+      "diagnostic": "missing timer field"
+    },
+    {
+      "case": "lost_b1_d",
+      "rejected": true,
+      "diagnostic": "missing timer field"
+    },
+    {
+      "case": "lost_c1_d",
+      "rejected": true,
+      "diagnostic": "missing timer field"
+    },
+    {
+      "case": "lost_a2_d",
+      "rejected": true,
+      "diagnostic": "missing timer field"
+    },
+    {
+      "case": "lost_b2_d",
+      "rejected": true,
+      "diagnostic": "missing timer field"
+    },
+    {
+      "case": "lost_c2_d",
+      "rejected": true,
+      "diagnostic": "missing timer field"
+    },
+    {
+      "case": "wrong_width",
+      "rejected": true,
+      "diagnostic": "timer field differs:t1"
+    },
+    {
+      "case": "new_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate timer candidate"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate timer candidate"
+    },
+    {
+      "case": "derived_state",
+      "rejected": true,
+      "diagnostic": "timer field differs:trig1"
+    },
+    {
+      "case": "unsigned_timer",
+      "rejected": true,
+      "diagnostic": "timer signed integer type differs"
+    },
+    {
+      "case": "short_timer",
+      "rejected": true,
+      "diagnostic": "timer signed integer type differs"
+    },
+    {
+      "case": "schema_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed SN74123 schema/source"
+    },
+    {
+      "case": "schema_signed",
+      "rejected": true,
+      "diagnostic": "unreviewed SN74123 schema/source"
+    },
+    {
+      "case": "source_hash",
+      "rejected": true,
+      "diagnostic": "unreviewed SN74123 schema/source"
+    }
+  ]
+}
