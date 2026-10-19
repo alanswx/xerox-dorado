@@ -1,0 +1,262 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "2365b87e105aabe69aff2b2856122b240cc3d8d3038188ec367ce3953202361e",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "sequential": 14,
+    "combinational_review": 6
+  },
+  "candidate_bits": {
+    "sequential": 1097,
+    "combinational_review": 20
+  },
+  "candidates": [
+    {
+      "path": "M6532.@e,101,1,101,10.old_pa7",
+      "module": "M6532",
+      "name": "@e,101,1,101,10.old_pa7",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 129,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.IRQ_n",
+      "module": "M6532",
+      "name": "IRQ_n",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 38,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.PA_out",
+      "module": "M6532",
+      "name": "PA_out",
+      "category": "combinational_review",
+      "width": 8,
+      "unpacked_dimensions": [],
+      "bits": 8,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 42,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.PB_out",
+      "module": "M6532",
+      "name": "PB_out",
+      "category": "combinational_review",
+      "width": 8,
+      "unpacked_dimensions": [],
+      "bits": 8,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 44,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.d_out",
+      "module": "M6532",
+      "name": "d_out",
+      "category": "sequential",
+      "width": 8,
+      "unpacked_dimensions": [],
+      "bits": 8,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 36,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.dir_a",
+      "module": "M6532",
+      "name": "dir_a",
+      "category": "sequential",
+      "width": 8,
+      "unpacked_dimensions": [],
+      "bits": 8,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 52,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.dir_b",
+      "module": "M6532",
+      "name": "dir_b",
+      "category": "sequential",
+      "width": 8,
+      "unpacked_dimensions": [],
+      "bits": 8,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 52,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.edge_detect",
+      "module": "M6532",
+      "name": "edge_detect",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 60,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.incr",
+      "module": "M6532",
+      "name": "incr",
+      "category": "sequential",
+      "width": 2,
+      "unpacked_dimensions": [],
+      "bits": 2,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 57,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.interrupt",
+      "module": "M6532",
+      "name": "interrupt",
+      "category": "sequential",
+      "width": 8,
+      "unpacked_dimensions": [],
+      "bits": 8,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 53,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.irq_en",
+      "module": "M6532",
+      "name": "irq_en",
+      "category": "sequential",
+      "width": 2,
+      "unpacked_dimensions": [],
+      "bits": 2,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 59,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.oe",
+      "module": "M6532",
+      "name": "oe",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 45,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.out_a",
+      "module": "M6532",
+      "name": "out_a",
+      "category": "sequential",
+      "width": 8,
+      "unpacked_dimensions": [],
+      "bits": 8,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 51,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.out_b",
+      "module": "M6532",
+      "name": "out_b",
+      "category": "sequential",
+      "width": 8,
+      "unpacked_dimensions": [],
+      "bits": 8,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 51,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.pa7",
+      "module": "M6532",
+      "name": "pa7",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 94,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.prescaler",
+      "module": "M6532",
+      "name": "prescaler",
+      "category": "sequential",
+      "width": 10,
+      "unpacked_dimensions": [],
+      "bits": 10,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 55,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.riot_ram",
+      "module": "M6532",
+      "name": "riot_ram",
+      "category": "sequential",
+      "width": 8,
+      "unpacked_dimensions": [
+        [
+          0,
+          127
+        ]
+      ],
+      "bits": 1024,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 50,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.rollover",
+      "module": "M6532",
+      "name": "rollover",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 58,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.tick_inc",
+      "module": "M6532",
+      "name": "tick_inc",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 99,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "M6532.timer",
+      "module": "M6532",
+      "name": "timer",
+      "category": "sequential",
+      "width": 8,
+      "unpacked_dimensions": [],
+      "bits": 8,
+      "source": "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv",
+      "line": 54,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

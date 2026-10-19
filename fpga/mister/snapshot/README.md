@@ -6,6 +6,14 @@ in the running MiSTer core. This directory now qualifies bounded RAM access
 and complete modeled ContB state restore in isolated RTL/routed experiments.
 Machine-wide state access, coherent barriers and physical restore remain open.
 
+Latest RIOT qualification: `generate_riot.py` / `test_riot.py` /
+`classify_riot.py` / `fit_riot.py` / `audit_riot.py` now qualify all1,097bits
+of the actual MOS RIOT, including RAM/read output/timers and block-local PA7
+history. Four-condition matched timing passes minimum+0.176ns. The enclosing
+MCS6532 phase-history bit remains required; full BaseBoard/global save/load
+are not implemented. Native59 has completed the base-loader final ACK and
+is installing fonts; see the current handoff before historical notes.
+
 Latest physical update: Native59 is now normally loaded on MiSTer14 after
 pushed full-core qualification; original firmware boot is running. The actual
 netlist6502 adapter now also passes matched50MHz routed qualification with

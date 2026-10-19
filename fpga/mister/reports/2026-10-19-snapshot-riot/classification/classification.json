@@ -1,0 +1,420 @@
+{
+  "status": "PASS",
+  "modeled_state_bits": 1097,
+  "xml_sha256": "2365b87e105aabe69aff2b2856122b240cc3d8d3038188ec367ce3953202361e",
+  "decisions": [
+    {
+      "path": "M6532.@e,101,1,101,10.old_pa7",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": [
+        {
+          "index": 132,
+          "word_lsb": 0,
+          "field_lsb": 0,
+          "width": 1
+        }
+      ]
+    },
+    {
+      "path": "M6532.IRQ_n",
+      "decision": "RECOMPUTE",
+      "bits": 1
+    },
+    {
+      "path": "M6532.PA_out",
+      "decision": "RECOMPUTE",
+      "bits": 8
+    },
+    {
+      "path": "M6532.PB_out",
+      "decision": "RECOMPUTE",
+      "bits": 8
+    },
+    {
+      "path": "M6532.d_out",
+      "decision": "SAVE",
+      "bits": 8,
+      "access": [
+        {
+          "index": 128,
+          "word_lsb": 0,
+          "field_lsb": 0,
+          "width": 8
+        }
+      ]
+    },
+    {
+      "path": "M6532.dir_a",
+      "decision": "SAVE",
+      "bits": 8,
+      "access": [
+        {
+          "index": 129,
+          "word_lsb": 6,
+          "field_lsb": 0,
+          "width": 8
+        }
+      ]
+    },
+    {
+      "path": "M6532.dir_b",
+      "decision": "SAVE",
+      "bits": 8,
+      "access": [
+        {
+          "index": 129,
+          "word_lsb": 14,
+          "field_lsb": 0,
+          "width": 4
+        },
+        {
+          "index": 130,
+          "word_lsb": 0,
+          "field_lsb": 4,
+          "width": 4
+        }
+      ]
+    },
+    {
+      "path": "M6532.edge_detect",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": [
+        {
+          "index": 131,
+          "word_lsb": 16,
+          "field_lsb": 0,
+          "width": 1
+        }
+      ]
+    },
+    {
+      "path": "M6532.incr",
+      "decision": "SAVE",
+      "bits": 2,
+      "access": [
+        {
+          "index": 131,
+          "word_lsb": 12,
+          "field_lsb": 0,
+          "width": 2
+        }
+      ]
+    },
+    {
+      "path": "M6532.interrupt",
+      "decision": "SAVE",
+      "bits": 8,
+      "access": [
+        {
+          "index": 130,
+          "word_lsb": 4,
+          "field_lsb": 0,
+          "width": 8
+        }
+      ]
+    },
+    {
+      "path": "M6532.irq_en",
+      "decision": "SAVE",
+      "bits": 2,
+      "access": [
+        {
+          "index": 131,
+          "word_lsb": 14,
+          "field_lsb": 0,
+          "width": 2
+        }
+      ]
+    },
+    {
+      "path": "M6532.oe",
+      "decision": "RECOMPUTE",
+      "bits": 1
+    },
+    {
+      "path": "M6532.out_a",
+      "decision": "SAVE",
+      "bits": 8,
+      "access": [
+        {
+          "index": 128,
+          "word_lsb": 8,
+          "field_lsb": 0,
+          "width": 8
+        }
+      ]
+    },
+    {
+      "path": "M6532.out_b",
+      "decision": "SAVE",
+      "bits": 8,
+      "access": [
+        {
+          "index": 128,
+          "word_lsb": 16,
+          "field_lsb": 0,
+          "width": 2
+        },
+        {
+          "index": 129,
+          "word_lsb": 0,
+          "field_lsb": 2,
+          "width": 6
+        }
+      ]
+    },
+    {
+      "path": "M6532.pa7",
+      "decision": "RECOMPUTE",
+      "bits": 1
+    },
+    {
+      "path": "M6532.prescaler",
+      "decision": "SAVE",
+      "bits": 10,
+      "access": [
+        {
+          "index": 131,
+          "word_lsb": 2,
+          "field_lsb": 0,
+          "width": 10
+        }
+      ]
+    },
+    {
+      "path": "M6532.riot_ram",
+      "decision": "SAVE",
+      "bits": 1024,
+      "access": {
+        "kind": "RAM",
+        "indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127
+        ],
+        "width": 8
+      }
+    },
+    {
+      "path": "M6532.rollover",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": [
+        {
+          "index": 131,
+          "word_lsb": 17,
+          "field_lsb": 0,
+          "width": 1
+        }
+      ]
+    },
+    {
+      "path": "M6532.tick_inc",
+      "decision": "RECOMPUTE",
+      "bits": 1
+    },
+    {
+      "path": "M6532.timer",
+      "decision": "SAVE",
+      "bits": 8,
+      "access": [
+        {
+          "index": 130,
+          "word_lsb": 12,
+          "field_lsb": 0,
+          "width": 6
+        },
+        {
+          "index": 131,
+          "word_lsb": 0,
+          "field_lsb": 6,
+          "width": 2
+        }
+      ]
+    }
+  ],
+  "parameters": {
+    "init_7800": 0
+  },
+  "scope": "Actual MOS RIOT only:128x8RAM+73control/history bits in133words; enclosing cell_MCS6532 phase_d is separate and remains required. No complete BaseBoard/machine snapshot claim.",
+  "failure_controls": [
+    {
+      "case": "lost_ram",
+      "rejected": true,
+      "diagnostic": "missing RIOT fields:riot_ram"
+    },
+    {
+      "case": "lost_pa7",
+      "rejected": true,
+      "diagnostic": "missing RIOT fields:old_pa7"
+    },
+    {
+      "case": "lost_read_output",
+      "rejected": true,
+      "diagnostic": "missing RIOT fields:d_out"
+    },
+    {
+      "case": "wrong_depth",
+      "rejected": true,
+      "diagnostic": "RIOT field geometry/category differs:riot_ram"
+    },
+    {
+      "case": "wrong_width",
+      "rejected": true,
+      "diagnostic": "RIOT field geometry/category differs:prescaler"
+    },
+    {
+      "case": "new_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate/unreviewed RIOT field:M6532.hidden"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate/unreviewed RIOT field:M6532.@e,101,1,101,10.old_pa7"
+    },
+    {
+      "case": "derived_state",
+      "rejected": true,
+      "diagnostic": "RIOT field geometry/category differs:pa7"
+    },
+    {
+      "case": "schema_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed RIOT source/schema"
+    },
+    {
+      "case": "source_hash",
+      "rejected": true,
+      "diagnostic": "unreviewed RIOT source/schema"
+    }
+  ],
+  "source_sha256": "43c9d1670fcbb98ad4681883981930817e2882a5ab32790f8285961c3ae0c1b1"
+}

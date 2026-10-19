@@ -1,0 +1,11 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "M6532",
+  "-Ginit_7800=0",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-riot-classify-v1-20261019/original.xml",
+  "/Users/alans/dev2/Dorado/verilog/vendor/riot/M6532.sv"
+]

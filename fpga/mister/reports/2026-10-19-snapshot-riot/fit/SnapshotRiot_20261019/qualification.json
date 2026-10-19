@@ -1,0 +1,141 @@
+{
+  "status": "PASS",
+  "scope": "Isolated actual MOS RIOT init_7800=0,128x8RAM plus73control/history bits in133words. Original reset/ce/timer/read/interrupt priority retained. Matched50MHz negative-edge external staging/positive-edge launch/capture,20ns embedded paths,2ns max0ns min virtual I/O. Counts include shell/admin/pruning; enclosing phase_d, full BaseBoard/global snapshot or speed not qualified.",
+  "results": {
+    "baseline": {
+      "resources": {
+        "alms": 660,
+        "registers": 1206,
+        "ram_blocks": 0
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 8.036,
+          "hold": 0.354,
+          "mpw": 9.265
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 7.832,
+          "hold": 0.365,
+          "mpw": 9.182
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 8.37,
+          "hold": 0.167,
+          "mpw": 9.052
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 8.25,
+          "hold": 0.181,
+          "mpw": 9.111
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 7,
+          "13024": 1,
+          "13410": 21
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    },
+    "snapshot": {
+      "resources": {
+        "alms": 1645,
+        "registers": 1350,
+        "ram_blocks": 0
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 7.614,
+          "hold": 0.326,
+          "mpw": 9.258
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 7.486,
+          "hold": 0.397,
+          "mpw": 9.176
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 8.252,
+          "hold": 0.176,
+          "mpw": 9.05
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 8.146,
+          "hold": 0.189,
+          "mpw": 9.11
+        }
+      },
+      "warnings": {
+        "map": {},
+        "fit": {
+          "292013": 1
+        }
+      }
+    }
+  },
+  "delta": {
+    "alms": 985,
+    "registers": 144,
+    "ram_blocks": 0
+  },
+  "minimum_snapshot_slack_ns": 0.176,
+  "state_retention": {
+    "baseline": {
+      "synthesis_registers": 1090,
+      "block_memory_bits": 0,
+      "meaning": "1090normal-state registers after original netlist constant/alias pruning"
+    },
+    "snapshot": {
+      "synthesis_registers": 1118,
+      "block_memory_bits": 0,
+      "meaning": "1097RAM/control/history bits plus18response/3handshake registers"
+    }
+  },
+  "limits": "Isolated enabled CPU adapter/shell. Synthesis entity counts checked; Fitter totals include duplication/shell. No enclosing wrapper phase_d/full BaseBoard/global FPGA save/load or speed qualification.",
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/M6532_snapshot.sv"
+    },
+    {
+      "case": "constraint",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/bank.sdc"
+    },
+    {
+      "case": "macro",
+      "rejected": true,
+      "diagnostic": "project source/macro/constraint differs"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation/missing path hold/7_slow_1100mv_-40c"
+    },
+    {
+      "case": "warning",
+      "rejected": true,
+      "diagnostic": "('unreviewed warnings', 'map', Counter({'10999': 1}))"
+    },
+    {
+      "case": "node_register",
+      "rejected": true,
+      "diagnostic": "RIOT state register retention differs"
+    },
+    {
+      "case": "missing_corner",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "schema",
+      "rejected": true,
+      "diagnostic": "qualified simulation schema differs"
+    }
+  ]
+}

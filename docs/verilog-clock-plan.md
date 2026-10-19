@@ -42,6 +42,58 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Native59 base loader qualified; complete RIOT primitive qualified.**
+
+Native59 remains on MiSTer14 (Main 29511, server 29510, RBF db6883e4,
+DDR epoch aa846a314ec45d23). The uninterrupted original-firmware boot has
+completed all 34 transfers / 33 BCDs / 1,345,843 bytes and the exact End.bcd
+peer/probe guest ACK. Visibility interval: 334.464367174–334.714855993 s.
+Three damaged ACK/data/peer controls reject. Observer local 68059 / remote
+29777 exited normally after the ACK; PID absence was independently checked.
+Do not restart it. Bounded SD-spooled collector 77615 is terminal and verifies
+all 34 served-source hashes after timing, plus retired58 pack 8b5777e6 and
+107,856 closed disk records / barrier_end. No recorded disk errors or trace
+loss; this is not physical received-payload hashing or a machine snapshot.
+
+Whole-loader issue bounds: 553,796,638–557,144,415. Interior rate:
+1,662,555.10–1,662,761.55 issues/s. There were 112 protocol replay records:
+56 in AMTypes, 56 in Tioga (58 had 46 in EditTool). CRC/RX/abort remain zero;
+drops are nonzero. This single manually gated first boot does not establish
+a speed gain or a causal replay regression. Idle remains 1,947,654.12 issues/s.
+
+The actual profile prompt was captured; lowercase n + Return selected No.
+BootEssentials finished, and TiogaFonts is installing normally. Do not send
+more login/profile input or reset. Full59 Viewers/input/warm marker remains
+pending. Evidence: native59-field/post-loader; all captures retained.
+
+The actual MOS RIOT init_7800=0 now passes complete 1,097-bit state access:
+128x8 RAM + 73 control/read/timer/PA7-history bits in 133 words. Accepted v2:
+54,701 host / 4,448 held / 4,109 requests / 2,593 writes, every bit/index,
+all RAM words/four prescalers, 27 underflows / 2,113 PA7 events, late input
+changes with advance asserted during hold, dense saved state, destructive
+continuation/restore/first edge/20,000 more. Nine broken RTL variants and
+two changed sources reject. Fresh actual XML classification rejects ten
+bad schemas. First fixture is retained as rejected (advance stayed low in
+freeze, so ignore_freeze survived); corrected tests, not RTL, close that gap.
+
+Matched RIOT fits (19536 / builder 1685860) and independent audit are terminal
+PASS across four conditions, minimum +0.176 ns, no illegal/unconstrained I/O
+or extra exceptions; eight damaged-fit controls reject. Enabled synthesis
+retains 1,118 = 1,097 state + 18 response + 3 handshake registers. Baseline
+normal pruning leaves 1,090. Fitter shell 660 ALM / 1,206 regs -> 1,645 ALM /
+1,350 regs, zero block RAM. These are isolated counts, not global snapshot
+cost. All 19 compiled fit inputs were archived/read-back verified. Evidence:
+snapshot-riot. Wrapper phase_d is separate required state, not yet covered
+by this vendor primitive. No production BaseBoard/clock change was made.
+
+Next: finish this same59 Viewers/mouse/exact keyboard/warm marker test;
+qualify each MCS6532 wrapper's phase history and state routing; finish
+remaining BaseBoard RAM/EPROM read pipelines/clock-reset families and full
+board state qualification. Then wrapper/backends/input/ARM/server/matching
+disk generation/global atomic bundle and actual FPGA restore. Original
+60 ns phases/timers, final three fresh boots/cold persistence/pinned repeats/
+two-hour combined stress remain required. Goal ACTIVE.
+
 **Native59 fresh original-firmware Cedar login PASS; Guest/base loader running.**
 Live Main29511/server29510/RBFdb6883e4/newDDR aa846a314ec45d23 unchanged.
 Actual login screenshot and real Guest/Grapevine-down/Basic.Loadees entry
