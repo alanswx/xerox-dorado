@@ -2,7 +2,52 @@
 
 ## Current objective (2026-10-18 UTC)
 
-**19Oct09:30UTC: Native53 full-core timing PASS, not yet deployed.**
+**Live update19Oct09:54UTC: Native53 original firmware/login/base loader PASS.**
+Normal deployment28438 TERMINAL09:34:06UTC, Main17783/21e67a3f/server17782/
+c5996249, RBFc323f163. Actual Main SPI74 flags0x16/fault/errors0, fresh epoch
+9501221728fd84ec; server alone maps64KiB1FF00000, no Main ring/probe DSO.
+Same50MHz/SYSPER4/SDRAM/no cache/direct DDR and selected memory policies,
+now ContA+ContB+ProcH+ProcL exact-advance adapters, all admin INACTIVE. Original
+f3seed checked untouched before final cache. Setup46920, three CoolBoot pushes
+57478 and C watcher97178 TERMINAL after actual new BFN113/release. The early
+counter1 plateau also lasted145status samples in working52; no retry/reset.
+Original Pilot/germ812/Cedar login PASS. Measurement+real Guest14611 TERMINAL;
+three10s windows mean1,947,681.730issues/s, matching52 within0.0055%, no gain.
+Same33-sample measurement->Guest recipe; preceding manual login gate still
+varies. All34/33BCD/1,345,843bytes and actual final ACK PASS311.447031..
+311.698212s. Whole-loader issues509221156..514480338, interior1.642263..
+1.642483M/s, zero protocol replays.52 had56/more issued work; unchanged49b
+had0/similar time. Cause/any adapter effect remains open; do not speed-promote.
+Observer22501/remote18045 TERMINAL after actual final ACK/stop, independently
+absent. All34 served source hashes match after timing, not physical payload
+hashes. Explicit No accepted; actual BootEssentials advancing. Full53desktop/
+input pending. No snapshot/60ns claim. Main/tmp/dorado53-main.log,
+disk/tmp/dorado53-disk.jsonl, volume/serverCedar53_20261019, localcedar53-launch.
+Deployment evidence native53-field. Do not restart completed helpers.
+
+Reproducible analyse_loader_progress.py now matches earlier49b/52 whole-loader
+issue bounds/rates/replay counts exactly; two historical fixtures/six damaged
+counter/clock/gap/CRC/coverage controls pass. Baseline test_loader_trace passes.
+Report native53-field keeps earlier startup raw files at root and later exact
+field archive names/metadata in post-loader/; do not confuse their historical
+through-deployment filenames. No raw data normalization or physical payload proof.
+
+Next IFUM pin/fanout review PASS (audit_ifu_im.py, snapshot-ifum-grouping):
+27x1024RAM bits plus27read-pipeline bits,24data/3parity; original programming
+words11/16bits. Stateful address replicas remain independent, so preserve11
+groups widths1/5/1/1/4/1/5/2/1/4/2. Seven changed-board controls reject. All27
+original CE ports are omitted in both wire list/generated board; no zero tie
+introduced or qualified. No state adapter/IFU coverage/timing claim. Next add
+width-correct old-data RAM/pipeline access, full IFU FF/phase classification/
+restore/fit, then remaining boards and global coherent snapshot interfaces.
+
+Native52 normally retired after its actual guest812 boundary. Main16101,
+server16100 and temporary17760 independently absent; actual Main network/disk
+barriers and normal temporary exit preserve63578624-byte52pack SHA
+d12f56883a0cfe3e7c5e1f2c08207c812f79aa9a05b481dc70817240da6eed48.
+Trace ends barrier_end, no errors/loss. No cold rtl52persist readback claimed.
+
+**19Oct09:30UTC: Native53 full-core timing PASS, subsequently deployed above.**
 New build_native_processor.py/audit_native_processor.py use exact frozen52,
 eight byte-identical shared adapters and six new processor RTL files. Same
 50MHz/SYSPER4, actual network_step advance, all admin INACTIVE, outer wrapper/
@@ -13,14 +58,14 @@ Existing framework I/O unchanged3ports13input/50ports154output paths.12processor
 MLABs/9216bits/288cells and8 OLD_DATA instruction banks retained; only new map
 warning10036 unused object.30232ALMs/52845regs/330M10Ks/35DSP, admin inactive,
 not enabled snapshot budget. RBFc323f163b0c43ad8ce332096c9509e7e1b19b02a0dfe454260f6b4453ed77391.
-Sources/full evidence native53-processors. Original hardware boot pending.
+Sources/full evidence native53-processors. Original hardware boot status above.
 
 Live52 full Viewers/Ready/Watch/Edit/Clock, real mouse/Cmd then separate focus,
 exact short/alphabet/digit echo and rtl52persist.txt create/close/type readback
 PASS.85180 complete live disk trace records have no errors/loss. Normal guest
 Boot captured actual812; host disk/network barriers/cold marker readback are
 not supplied by that guest Boot. Desktop/Boot evidence native52-field. Prepared
-normal52->53 recipe cedar53-launch/deploy.py, not yet executed. No reload yet.
+normal52->53 recipe cedar53-launch/deploy.py subsequently executed above.
 
 Next IFU MC10135 primitive simulation/classification PASS:7 modeled bits,
 four PRECAP modes,92195 host edges, all128 state values, exact first resume
@@ -1869,6 +1914,19 @@ and has unreviewed hold violations; never deploy it.
 <a id="current-todos-2026-10-17-native23"></a>
 
 ## Current TODOs (2026-10-17, FPGA boot)
+
+### Active continuation (2026-10-19, Native53)
+
+- [x] Finish52 full Viewers/mouse/exact keyboard/warm marker; normal guest812 and actual Main barriers preserve its volume.
+- [x] Integrate ProcH/ProcL exact-advance adapters with admin inactive; qualify full53 timing31summary/100detailed/four conditions, min+0.115ns.
+- [x] Normally load53, verify fresh DDR epoch and original firmware/BFN113/Pilot/Cedar login/base34/final ACK; repeat idle issue measurement and whole-loader/replay accounting.
+- [ ] Finish53 BootEssentials/fonts/STARTs, desktop/mouse/Cmd/focus/exact keyboard and rtl53persist marker readback; leave the current original boot running.
+- [x] Qualify MC10135 seven-bit adapter simulation/XML/isolated timing; preserve both failed shell fits.
+- [x] Review all27 IFUM RAM packages against original wire list; preserve eleven separately addressed groups and omitted CE semantics.
+- [ ] Add width-correct IFUM old-data RAM/read-pipeline access; full IFU state classification/restore/timing, then remaining board/device/ARM state and atomic snapshot bundle.
+- [ ] Finish original60ns clock/enable and timer migration; final three fresh boots, coherent snapshot restore, persistence, pinned measurements and two-hour combined stress.
+
+### Earlier bring-up ledger
 
 - [x] Fix MemX j01 module-switch timing; qualify original source copy and Native21.
 - [x] Trace the first germ fault and fix ProcH d13 signed-overflow polarity.

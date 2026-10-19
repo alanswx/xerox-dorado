@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "fixtures": [
+    {
+      "fixture": "2026-10-19-native49b-repeat",
+      "issue_bounds": [
+        510928930,
+        514372068
+      ],
+      "replay_events": 0
+    },
+    {
+      "fixture": "2026-10-19-native52-field",
+      "issue_bounds": [
+        530134786,
+        533504938
+      ],
+      "replay_events": 56
+    }
+  ],
+  "failure_controls": [
+    {
+      "case": "live_observer",
+      "rejected": true,
+      "diagnostic": "terminal bounded observer required"
+    },
+    {
+      "case": "counter_jump",
+      "rejected": true,
+      "diagnostic": "counter gap/reset/rate guard failed"
+    },
+    {
+      "case": "host_reset",
+      "rejected": true,
+      "diagnostic": "host progress inconsistent with declared clock"
+    },
+    {
+      "case": "large_gap",
+      "rejected": true,
+      "diagnostic": "counter gap/reset/rate guard failed"
+    },
+    {
+      "case": "crc_error",
+      "rejected": true,
+      "diagnostic": "physical CRC/RX/abort error"
+    },
+    {
+      "case": "missing_bracket",
+      "rejected": true,
+      "diagnostic": "missing whole-loader counter brackets"
+    }
+  ],
+  "scope": "Actual recorded view1 loader counters and split log bounds; no FPGA changes, physical payload or performance promotion"
+}

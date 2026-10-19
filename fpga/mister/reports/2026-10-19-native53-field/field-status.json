@@ -1,0 +1,22 @@
+{
+  "status": "PASS: original firmware/Pilot/Cedar login and34 base transfers/final ACK; full53desktop/input pending",
+  "main_pid": 17783,
+  "server_pid": 17782,
+  "rbf_sha256": "c323f163b0c43ad8ce332096c9509e7e1b19b02a0dfe454260f6b4453ed77391",
+  "idle_issues_per_s": 1947681.7295176208,
+  "observer_pid": 18045,
+  "observer_handle": 22501,
+  "measurement_handle": 14611,
+  "observer_terminal": "Graceful stop after actual final ACK, independently absent",
+  "loader_elapsed_s": [
+    311.447031498,
+    311.698212159
+  ],
+  "loader_issue_bounds": [
+    509221156,
+    514480338
+  ],
+  "replays_by_phase": {},
+  "profile": "Explicit No accepted; actual BootEssentials advancing. Full Viewers/input pending.",
+  "limits": "One fresh53 boot; manual pre-Guest gate still varies. Same50MHz/SYSPER4, all snapshot admin inactive. No speed gain, full snapshot, physical payload hash, original60ns or final3boots/2h stress claim. No causal clearance of replay variability."
+}

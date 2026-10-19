@@ -42,6 +42,27 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+19Oct09:54UTC: Native53 original firmware/Pilot/login and34base transfers/final
+guestACK PASS311.447031..311.698212s. Idle1,947,681.730issues/s matches52 within
+0.0055%; no speed gain. Whole-loader issues509.221..514.480M/interior1.642263..
+1.642483M/s, zero protocol replays.52 had56/more issued work; unchanged49b
+also had0/similar time. Any adapter effect/replay cause remains unproven. Same
+33-sample measurement->Guest cadence; earlier manual gate varies, not final
+pinned repeat benchmark. Observer18045/22501 TERMINAL/absent after actual final
+ACK. All34 source hashes match after timing, not physical-payload hashes.
+No accepted; actual BootEssentials advancing, full53Viewers/input pending.
+New counter analyser reproduces49b/52 whole-loader results and rejects six
+damaged evidence controls. IFUM review preserves11separate address groups
+and omitted CE ports; not snapshot4a completion or original60ns migration.
+
+19Oct09:38UTC: qualified53 normally loaded09:34:06UTC, Main17783/server17782,
+all state admin inactive. Actual fresh DDR epoch9501221728fd84ec, flags0x16/
+fault/errors0, originalf3seed untouched before final caching. Original firmware
+new BFN113/release and visible Pilot germ812 pass; Cedar login/loader/input and
+speed measurements pending. Retired52 preserved after real Main barriers,
+63578624-byte pack SHAd12f56883a0cfe3e7c5e1f2c08207c812f79aa9a05b481dc70817240da6eed48.
+No reset/retry of original boot; no whole snapshot or60ns claim.
+
 19Oct09:30UTC: Native53 processor-adapter full-core timing PASS31summary/
 100detailed checks/four conditions,min+0.115ns. All state admin inactive,
 exact frozen52 clocks/wrapper/SDCs, no new cuts/unconstrained clocks; framework

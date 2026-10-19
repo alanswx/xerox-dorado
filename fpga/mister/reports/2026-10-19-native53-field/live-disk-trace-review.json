@@ -1,0 +1,7 @@
+{
+  "status": "PASS: complete live disk trace records contain no error/loss",
+  "complete_records": 36399,
+  "ignored_partial_tail_bytes": 0,
+  "last_event": "fsync_end",
+  "limits": "Read-only live trace validation; no live pack copy, host barrier, complete snapshot or cold persistence claim"
+}

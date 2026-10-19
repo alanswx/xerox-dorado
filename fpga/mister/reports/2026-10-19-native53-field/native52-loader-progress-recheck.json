@@ -1,0 +1,292 @@
+{
+  "status": "PASS: terminal whole-loader counter and protocol accounting",
+  "loader": {
+    "status": "PASS: observed base-loader transfer chain and final guest ACK",
+    "files": 34,
+    "bcd_files": 33,
+    "payload_bytes": 1345843,
+    "start": {
+      "text": "STP_TRANSFER Cedar6.1/Top/Basic.Loadees (2361 bytes)",
+      "earliest_ns": 33008408157302,
+      "latest_ns": 33008428980483
+    },
+    "end": {
+      "earliest_ns": 33330303773054,
+      "latest_ns": 33330491848548
+    },
+    "elapsed_lower_s": 321.874792571,
+    "elapsed_upper_s": 322.083691246,
+    "final_peer": [
+      290,
+      18,
+      30732
+    ],
+    "final_probe": "00271ac1",
+    "final_data_ranges": {
+      "0": 1478,
+      "1478": 1478,
+      "2956": 1478,
+      "4434": 198
+    },
+    "transfers": {
+      "Cedar6.1/Top/Basic.Loadees": {
+        "text": "STP_TRANSFER Cedar6.1/Top/Basic.Loadees (2361 bytes)",
+        "earliest_ns": 33008408157302,
+        "latest_ns": 33008428980483,
+        "bytes": 2361
+      },
+      "Cedar6.1/RPCRuntime/RPCRuntime.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/RPCRuntime/RPCRuntime.bcd (18432 bytes)",
+        "earliest_ns": 33013268664275,
+        "latest_ns": 33013289567866,
+        "bytes": 18432
+      },
+      "Cedar6.1/UserProfile/UserProfileImpl.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/UserProfile/UserProfileImpl.bcd (19520 bytes)",
+        "earliest_ns": 33019190533224,
+        "latest_ns": 33019211425325,
+        "bytes": 19520
+      },
+      "Cedar6.1/Idle/IdleImpl.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/Idle/IdleImpl.bcd (17800 bytes)",
+        "earliest_ns": 33024570100399,
+        "latest_ns": 33024590857169,
+        "bytes": 17800
+      },
+      "Cedar6.1/DFPackage/DFPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/DFPackage/DFPackage.bcd (32256 bytes)",
+        "earliest_ns": 33030271292819,
+        "latest_ns": 33030292143310,
+        "bytes": 32256
+      },
+      "Cedar6.1/BasicPackages/BasicPackages.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/BasicPackages/BasicPackages.bcd (19968 bytes)",
+        "earliest_ns": 33037303124491,
+        "latest_ns": 33037323956831,
+        "bytes": 19968
+      },
+      "Cedar6.1/Installer/InstallerImpl.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/Installer/InstallerImpl.bcd (32244 bytes)",
+        "earliest_ns": 33043720295406,
+        "latest_ns": 33043741164247,
+        "bytes": 32244
+      },
+      "Cedar6.1/Inscript/InscriptPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/Inscript/InscriptPackage.bcd (9728 bytes)",
+        "earliest_ns": 33049583294688,
+        "latest_ns": 33049604062088,
+        "bytes": 9728
+      },
+      "Cedar6.1/VersionMap/VersionMapImpl.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/VersionMap/VersionMapImpl.bcd (21942 bytes)",
+        "earliest_ns": 33054480501070,
+        "latest_ns": 33054501297941,
+        "bytes": 21942
+      },
+      "Cedar6.1/VersionMap/VersionMapDefaultsImpl.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/VersionMap/VersionMapDefaultsImpl.bcd (9418 bytes)",
+        "earliest_ns": 33059218535383,
+        "latest_ns": 33059239425055,
+        "bytes": 9418
+      },
+      "Cedar6.1/WorldVM/WorldVMPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/WorldVM/WorldVMPackage.bcd (23040 bytes)",
+        "earliest_ns": 33064096816006,
+        "latest_ns": 33064117799648,
+        "bytes": 23040
+      },
+      "Cedar6.1/AMTypes/AMTypesPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/AMTypes/AMTypesPackage.bcd (102912 bytes)",
+        "earliest_ns": 33073302154598,
+        "latest_ns": 33073322948578,
+        "bytes": 102912
+      },
+      "Cedar6.1/AMModel/AMModelPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/AMModel/AMModelPackage.bcd (30720 bytes)",
+        "earliest_ns": 33099607193160,
+        "latest_ns": 33099627993040,
+        "bytes": 30720
+      },
+      "Cedar6.1/AMEvents/AMEventsPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/AMEvents/AMEventsPackage.bcd (9216 bytes)",
+        "earliest_ns": 33106540553996,
+        "latest_ns": 33106561450337,
+        "bytes": 9216
+      },
+      "Cedar6.1/AMProcess/AMProcessPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/AMProcess/AMProcessPackage.bcd (4608 bytes)",
+        "earliest_ns": 33111397748375,
+        "latest_ns": 33111418629706,
+        "bytes": 4608
+      },
+      "Cedar6.1/PrintTV/PrintTVPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/PrintTV/PrintTVPackage.bcd (18432 bytes)",
+        "earliest_ns": 33115950320313,
+        "latest_ns": 33115971167174,
+        "bytes": 18432
+      },
+      "Cedar6.1/Interpreter/InterpreterPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/Interpreter/InterpreterPackage.bcd (55808 bytes)",
+        "earliest_ns": 33123439833362,
+        "latest_ns": 33123460713113,
+        "bytes": 55808
+      },
+      "Cedar6.1/Imager/ImagerPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/Imager/ImagerPackage.bcd (164352 bytes)",
+        "earliest_ns": 33138932287662,
+        "latest_ns": 33138953154783,
+        "bytes": 164352
+      },
+      "Cedar6.1/TIP/TIPPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/TIP/TIPPackage.bcd (31744 bytes)",
+        "earliest_ns": 33164341176076,
+        "latest_ns": 33164361978587,
+        "bytes": 31744
+      },
+      "Cedar6.1/Viewers/ViewersPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/Viewers/ViewersPackage.bcd (75264 bytes)",
+        "earliest_ns": 33173380534797,
+        "latest_ns": 33173401458768,
+        "bytes": 75264
+      },
+      "Cedar6.1/TRope/TRope.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/TRope/TRope.bcd (5120 bytes)",
+        "earliest_ns": 33187030664961,
+        "latest_ns": 33187051542432,
+        "bytes": 5120
+      },
+      "Cedar6.1/TJaM/TJaMPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/TJaM/TJaMPackage.bcd (20480 bytes)",
+        "earliest_ns": 33191847297736,
+        "latest_ns": 33191868150257,
+        "bytes": 20480
+      },
+      "Cedar6.1/Rosary/RosaryImpl.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/Rosary/RosaryImpl.bcd (21438 bytes)",
+        "earliest_ns": 33198124979441,
+        "latest_ns": 33198145833552,
+        "bytes": 21438
+      },
+      "Cedar6.1/Tioga/TiogaPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/Tioga/TiogaPackage.bcd (287232 bytes)",
+        "earliest_ns": 33212872618269,
+        "latest_ns": 33212893514531,
+        "bytes": 287232
+      },
+      "Cedar6.1/ViewerIO/ViewerIOImpl.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/ViewerIO/ViewerIOImpl.bcd (31518 bytes)",
+        "earliest_ns": 33256773692906,
+        "latest_ns": 33256794573518,
+        "bytes": 31518
+      },
+      "Cedar6.1/EditTool/EditTool.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/EditTool/EditTool.bcd (57344 bytes)",
+        "earliest_ns": 33264247831263,
+        "latest_ns": 33264268688524,
+        "bytes": 57344
+      },
+      "Cedar6.1/ReadEvalPrint/ReadEvalPrintImpl.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/ReadEvalPrint/ReadEvalPrintImpl.bcd (18806 bytes)",
+        "earliest_ns": 33275518115960,
+        "latest_ns": 33275538946281,
+        "bytes": 18806
+      },
+      "Cedar6.1/CommandTool/CommandToolPackage.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/CommandTool/CommandToolPackage.bcd (61440 bytes)",
+        "earliest_ns": 33282227150754,
+        "latest_ns": 33282247942505,
+        "bytes": 61440
+      },
+      "Cedar6.1/InterpreterTool/InterpreterTool.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/InterpreterTool/InterpreterTool.bcd (22016 bytes)",
+        "earliest_ns": 33294602640961,
+        "latest_ns": 33294623467522,
+        "bytes": 22016
+      },
+      "Cedar6.1/DebugTool/DebugTool.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/DebugTool/DebugTool.bcd (48738 bytes)",
+        "earliest_ns": 33302244799681,
+        "latest_ns": 33302265677662,
+        "bytes": 48738
+      },
+      "Cedar6.1/DFCommands/DFCommands.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/DFCommands/DFCommands.bcd (16264 bytes)",
+        "earliest_ns": 33310555139169,
+        "latest_ns": 33310575972310,
+        "bytes": 16264
+      },
+      "Cedar6.1/Watch/Watch.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/Watch/Watch.bcd (49002 bytes)",
+        "earliest_ns": 33317566317663,
+        "latest_ns": 33317587504638,
+        "bytes": 49002
+      },
+      "Cedar6.1/ComputeServerUser/ComputeServerStubImpl.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/ComputeServerUser/ComputeServerStubImpl.bcd (2048 bytes)",
+        "earliest_ns": 33325379607393,
+        "latest_ns": 33325400520364,
+        "bytes": 2048
+      },
+      "Cedar6.1/Viewers/End.bcd": {
+        "text": "STP_TRANSFER Cedar6.1/Viewers/End.bcd (4632 bytes)",
+        "earliest_ns": 33329253631288,
+        "latest_ns": 33329274494599,
+        "bytes": 4632
+      }
+    },
+    "limits": "Unbuffered protocol-log visibility bounds; not direct wire timestamps, file-byte hashes, module START or desktop qualification. Requires independent repeated matching workloads for a speed claim."
+  },
+  "counter_scope": "Previously qualified view1 StartCycle issues, not pipeline-drained retirement. Unwrap adjacent32bit deltas with <32s gap, reset/rate/host-clock guards.",
+  "loader_issue_bounds": [
+    530134786,
+    533504938
+  ],
+  "interior": {
+    "samples": 322,
+    "issued": 530134786,
+    "host_edges": 16051288340,
+    "elapsed_visibility_bounds_s": [
+      321.010346167,
+      321.051428043
+    ],
+    "issues_per_s_bounds": [
+      1651245.6874323464,
+      1651457.0085669658
+    ],
+    "host_hz_bounds": [
+      49996003.56192832,
+      50002401.89034156
+    ],
+    "issues_per_host_edge": 0.03302755360009937,
+    "issues_per_s_from_declared_clock": 1651377.6800049683
+  },
+  "wire_log_prefix_counts": {
+    "FTP_MARK": 133,
+    "FTP_CMD": 67,
+    "STP_TRANSFER": 34,
+    "FTP_QUEUE": 1385,
+    "FTP_WINDOW": 1172,
+    "STP_PROBE": 79,
+    "TX": 765,
+    "[bootdir]": 765,
+    "FTP_IN": 731,
+    "FTP_ACK": 531,
+    "STP_LOOKUP": 33,
+    "FTP_RETRIEVE": 33,
+    "STP_SERVE": 33,
+    "STP_NO_DF_DATE": 6,
+    "STP_PLIST": 33,
+    "FTP_STALL": 16,
+    "FTP_REPLAY": 56,
+    "FTP_UNSERVED": 2
+  },
+  "replays_by_phase": {
+    "Cedar6.1/AMTypes/AMTypesPackage.bcd": 56
+  },
+  "limits": "One observed boot. Whole-loader issue bounds and regular-file visibility only; no physical payload hashes, causal replay diagnosis, pinned repeat benchmark, speed promotion or desktop qualification.",
+  "inputs_sha256": {
+    "fpga/mister/reports/2026-10-19-native52-field/loader-observer.jsonl.gz": "57792aad7261173723aebdba60dcb2215d96de3800a038596e03cb66e0840b24",
+    "fpga/mister/reports/2026-10-19-native52-field/idle-login-issues.json": "3ef0981045962fa0f66cc96804399a64c5afbfbf489892234fc3c518b6af6cdc",
+    "/Users/alans/dev2/Dorado/fpga/mister/server/analyse_loader_progress.py": "85e37d1d57ea4b932db28fe1cf298882c21b6dfb289272820cbcc2fecef3030b"
+  }
+}

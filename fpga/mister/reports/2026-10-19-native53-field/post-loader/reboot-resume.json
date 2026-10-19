@@ -1,0 +1,39 @@
+{
+  "server": {
+    "exe": "/media/fat/games/DoradoRTL/System_20261018_DDRNetwork/dorado-server-c59962490772f12d",
+    "cwd": "/media/fat/games/DoradoRTL/System_20261017/dorado",
+    "argv": [
+      "/media/fat/games/DoradoRTL/System_20261018_DDRNetwork/dorado-server-c59962490772f12d",
+      "/tmp/dorado-net.sock",
+      "/media/fat/games/DoradoRTL/System_20261017/dorado/worlds/aemu.eb",
+      "/media/fat/games/DoradoRTL/System_20261017/chm/bootfiles/NETEXEC.BOOT!8",
+      "/media/fat/games/DoradoRTL/System_20261017/chm/cedar/stp-root"
+    ],
+    "env": {
+      "DORADO_BOOTDIR_DEBUG": "1",
+      "DORADO_ETH_TX_TRACE": "1",
+      "DORADO_FTP_TRACE": "1",
+      "DORADO_FAKE_TIME": "1792324800",
+      "DORADO_NET_DDR": "1",
+      "DORADO_NET_CONTROL": "/tmp/dorado-net.sock.control"
+    }
+  },
+  "main": {
+    "exe": "/media/fat/games/DoradoRTL/System_20261018_DDRNetwork/MiSTer-21e67a3f5588a875",
+    "cwd": "/root",
+    "argv": [
+      "/media/fat/games/DoradoRTL/System_20261018_DDRNetwork/MiSTer-21e67a3f5588a875",
+      "/media/fat/_Computer/DoradoRTL_Cedar53_20261019/Dorado.rbf",
+      "/media/fat/_Computer/DoradoRTL_Cedar53_20261019/Cedar53.mgl"
+    ],
+    "env": {
+      "DORADO_NET_TRACE": "1",
+      "DORADO_DISK_CACHE": "1",
+      "DORADO_DISK_TRACE": "/tmp/dorado53-disk.jsonl",
+      "DORADO_NET_DDR": "1",
+      "DORADO_NET_CONTROL": "/tmp/dorado-net.sock.control"
+    }
+  },
+  "main_stdout": "/tmp/dorado53-main.log",
+  "main_stderr": "same as stdout"
+}

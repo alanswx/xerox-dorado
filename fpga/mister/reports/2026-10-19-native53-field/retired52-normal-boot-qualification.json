@@ -1,0 +1,18 @@
+{
+  "status": "PASS: normal guest Boot after qualified desktop/input and warm marker readback",
+  "main_pid": 16101,
+  "server_pid": 16100,
+  "rbf_sha256": "be80e03f26e5b9e5e7984a0d9b5df15b84d264a1f526e95149e085d25a08768c",
+  "observed": "germ812",
+  "meaning": "germInLoad in original Cedar6.1 MPCodes",
+  "checked_utc": "2026-10-19T09:27:42.568980+00:00",
+  "captures": {
+    "normal-boot-0.png": "3a5ce69ef5c94230dc798f699657c6a343b379250e3552291fcba500e33f1688",
+    "normal-boot-1.png": "e87db7f06caf81ca8821d5a9b99f5c688f3b75957b844feda106c7e2f2f6b352",
+    "normal-boot-2.png": "e87db7f06caf81ca8821d5a9b99f5c688f3b75957b844feda106c7e2f2f6b352",
+    "normal-boot-3.png": "e87db7f06caf81ca8821d5a9b99f5c688f3b75957b844feda106c7e2f2f6b352",
+    "normal-boot-4.png": "e87db7f06caf81ca8821d5a9b99f5c688f3b75957b844feda106c7e2f2f6b352",
+    "normal-boot-5.png": "e87db7f06caf81ca8821d5a9b99f5c688f3b75957b844feda106c7e2f2f6b352"
+  },
+  "limits": "Normal guest Boot boundary; not clean OS shutdown, host disk barrier, cold marker readback or machine snapshot"
+}

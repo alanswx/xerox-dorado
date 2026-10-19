@@ -211,7 +211,11 @@ six RTL files. Routed timing passes31summary/100detailed checks/four conditions,
 min+0.115ns, no new cuts or illegal/unconstrained clocks; unchanged framework I/O.
 All12processor MLAB RAMs/9216bits/288cells and eight OLD_DATA instruction banks
 are retained.30232ALMs/52845regs/330M10Ks/35DSP with admin inactive. Evidence
-reports/2026-10-19-native53-processors; original hardware boot remains pending.
+reports/2026-10-19-native53-processors. Normally loaded53 now passes original
+firmware/new BFN113/release/Pilot/Cedar login and all34base transfers/final ACK.
+Idle1.947682Missues/s matches52; zero protocol replays in this loader interval,
+311.447..311.698s. Full desktop/input and final performance qualification remain
+pending. See native53-field/handoff; no speed promotion from this single boot.
 `audit_native_processor.py` checks100 detailed timing categories across four
 conditions, including both directions for all four adapted boards. No complete
 snapshot, enabled snapshot resource budget or speed gain is claimed.
@@ -229,3 +233,13 @@ edge launch/positive-edge capture50MHz shell passes four conditions,min+0.164ns,
 cell RTL/SDC,10ns into cell/20ns output paths and2ns max0ns min I/O. Earlier
 positive-edge shell failed virtual-input hold at-0.465ns; multi-corner option
 alone did not repair it. Both failed fits are rejected/preserved in the report.
+
+IFUM grouping review `audit_ifu_im.py` now pins all27 RAM packages against the
+original wire list. Although programming words contain11/16bits (24data/3parity
+total), separately registered address replicas remain independent. Preserve
+eleven groups widths1/5/1/1/4/1/5/2/1/4/2 and all27 read-pipeline bits. All27 CE
+ports are omitted in the original generated board/wire list; no explicit zero
+tie-off is introduced or qualified. Seven damaged boards reject. Evidence:
+reports/2026-10-19-snapshot-ifum-grouping. This is logical grouping review only;
+next implement width-correct old-data RAM/state access and full IFU coverage,
+restore and timing. Physical machine snapshots/global barriers remain open.
