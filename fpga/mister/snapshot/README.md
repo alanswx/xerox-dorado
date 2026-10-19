@@ -438,3 +438,15 @@ matched50MHz isolated fits(+0.140ns/fourconditions).9brokenRTL,17bad schemas per
 mode and5badfitcontrols reject. Sources generate/test/classify/fit_sn74123;
 report snapshot-sn74123. No timer-rate/production change. Full DskEth/monitor/
 phase state integration and global/ARM snapshot boundaries remain open.
+
+Complete modeled actual DskEth, including34bit passive monitor, now passes
+all2,656mutable/12,032immutablePROMbits, all18normal RAM writers, destructive
+per-word shadow restore/quiet/firstedge/20Kmore, freshXML and four-condition
+isolated50MHz timing(+0.147ns).9brokenRTL/16bad schemas/11badfitcontrols reject.
+Baseline5M10Ks hold immutable ROMs; candidate PROMs are LUTs, with all14assets
+unchanged; all141statehelper synthesis register counts are checked. Full native59
+build/hardware/global snapshots remain unqualified. Sources generate/test/
+classify/fit/audit_dsketh_full and generate_receive_monitor; report
+snapshot-dsketh-full. build_native_dsketh prepares frozen58+qualified adapter
+using11byte-identical helpers/8newfiles, all administrative inputs inactive.
+No clock/speed gain, timer calibration or complete-machine save/load claim.

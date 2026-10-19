@@ -42,6 +42,42 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Native58 full Viewers/mouse/exact keyboard/warm file PASS; complete DskEth modeled state qualification PASS.**
+Same Main27199/server27195/RBFeebc0e1f/50MHz-SYSPER4/adminOFF. Ready/Viewers/
+Clock/Watch/Edit visible; mouse toCmd912,8/click/initialized secondCommandTool/
+separatefocus737,608; exactshort and alphabet/digits, normal ///rtl58persist.txt
+create/type return rtl58persist. Collector50038 TERMINAL/SDspooled97,870complete
+diskrecords/no recordederror/loss. Warmreadback only; no normal58Boot/coldmarker/
+cleanOSshutdown/fullsnapshot. Freed23,532,399tmpfsbytes onlyfromclosed56b/57trace
+duplicates after exactSDhash/no-open-descriptor checks; current58logs untouched.
+Evidence native58-field/desktop; localcedar58-launch. Lastidle1.947767Missues/s,
+no gain. Leave this core running until next qualified normal load/preservation.
+
+FullactualDskEth2,656mutable/12,032immutablePROMbits PASS:117FFpackages/18small
+files+writewindows/twoSNtimers/twoCRCs/oscillator/34monitor/ninephasebits.
+256,389hostedges/50,293held/25,232requests/all2,656bits/all8,192indices/destructive
+per-wordshadowrestore/quiet/firstedge/20Kmore; all18normalRAMwriters exercised;
+9brokenRTL reject. Firstfixture randompinsmissedTxFIFO, v2C++forwarddeclerror,
+v3missingMemSHphase; acceptedv4 adds actual4-sample clocks+memoryhalfcycle and
+stableI/Osetup. NoRTLfix to passcoverage. FreshactualXML16badschemasreject;
+tied outputwiresliteral0/1 classifiedreconstructible, otherunknownstate rejects.
+Compile141statehelperregistercounts/mutablefileslogicregs verified. Fullfit55672
+TERMINAL/read-onlyaudit26852PASS, all4conditions/min+0.147ns;11badfitcontrols
+reject. Baseline1054ALM/2213regs/5M10Ks(immutableROMs) vs enabledisolatedcandidate
+3480ALM/3699regs/0M10Ks(PROMsLUTs), same14assethashes. Not wholecore cost.
+Evidence snapshot-dsketh-full preserves exact sources/rawreports/earlierattempts.
+Timerqualification PUSHED2f33f30c. No native59 hardware or globalsnapshotclaim.
+
+Native59 builder/assets PREPARED, not running yet: actual frozen58sources in
+native58-dsketh-baseline-src; native59-dsketh-inputs-v2-20261019.11existinghelpers
+byte-identical/8newfiles, exactqualifiedschema guard, DskEthSYSPERbinding retained,
+all10adapters adminOFF, no clocks/wrapper/SDC/policy/nativeMemDdelay2changes.
+Next checkin/push qualification, build59 onmisterubuntu, audit31summary/196detailed/
+fourconditions/40board-corner crossings/allRAM/PROM/sourcebeforeload. Then normal
+58guestBoot/Mainbarriers/preservepack and fresh59firmware/Cedar/input. Complete
+BaseBoard/backends/wrapper/input/ARMserver/diskgeneration/globalatomicFPGArestore,
+60ns/timers and final3boots/coldpersist/pinnedperf/2hstress remain required.
+
 **SN74123 complete timer primitive qualification PASS; full DskEth adapter assembly in progress.**
 Original/frozen58source match; all70bits (two signed32bit counters/six histories)
 in four18bit words. Six parameter modes incl actualSYSPER4/TW_NS3000/TW400:

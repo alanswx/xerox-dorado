@@ -1,7 +1,7 @@
 # Native58 normal hardware deployment and original firmware progress
 
 Latest: actual Cedar login/Guest/base34/finalACK pass; idle1.947767Missues/s,
-unchanged57. ProfileNo accepted, BootEssentials advancing. Viewers/input pending.
+unchanged57. ProfileNo accepted, BootEssentials advancing. Full Viewers/mouse/exact keyboard/warm file now PASS; see desktop/.
 See post-loader/ for exact terminal transfer/timing/source-hash evidence.
 
 Normal load77345 TERMINAL2026-10-19 15:14:18UTC; Main27199/server27195,

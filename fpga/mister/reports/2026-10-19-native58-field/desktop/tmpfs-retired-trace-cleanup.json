@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-19 15:59:20 UTC",
+  "retained_copies_verified": true,
+  "no_open_descriptors": true,
+  "bytes_freed": 23532399,
+  "files": [
+    {
+      "temporary": "/tmp/dorado56b-disk.jsonl",
+      "retained": "/media/fat/games/DoradoRTL/Cedar56b_20261019/disk-through-native57-load.jsonl",
+      "bytes": 11216614,
+      "sha256": "712b51c52bc02120dc0aa8a001d011df775205e3204b93c7381936e43b95ab53"
+    },
+    {
+      "temporary": "/tmp/dorado56b-main.log",
+      "retained": "/media/fat/games/DoradoRTL/Cedar56b_20261019/main-through-native57-loader.log",
+      "bytes": 572684,
+      "sha256": "cc2ea919f18235e876471b61ba90ef5a92de30642ea2f3b3cfcafe3d9102160a"
+    },
+    {
+      "temporary": "/tmp/dorado57-disk.jsonl",
+      "retained": "/media/fat/games/DoradoRTL/Cedar57_20261019/disk-through-native58-load.jsonl",
+      "bytes": 11186188,
+      "sha256": "e06feae411856028b97b53f4683f62bab39e037459f754582524df329879edcd"
+    },
+    {
+      "temporary": "/tmp/dorado57-main.log",
+      "retained": "/media/fat/games/DoradoRTL/Cedar57_20261019/main-through-native58-loader.log",
+      "bytes": 556913,
+      "sha256": "648cb4f47d367c21a43c2f537e98647693deea1a022e56a3bc17b86b872de8e0"
+    }
+  ]
+}

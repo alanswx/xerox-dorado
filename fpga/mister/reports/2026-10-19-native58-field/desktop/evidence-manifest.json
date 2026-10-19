@@ -1,0 +1,85 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 1079,
+      "sha256": "4cda7f265dde0045aac9bc818367e766f0aed0586c5f2f632d0b1e61217df992"
+    },
+    "clean-retired-traces.py.gz": {
+      "bytes": 760,
+      "sha256": "c2fb377f666b195e39421e10d784b012ae07dbf241f80b6e91ab4ca131df5a1b"
+    },
+    "click-cmd.log.gz": {
+      "bytes": 40,
+      "sha256": "fb8cd034427b43e4ae4e357e3df5def55be768de5b58aee3eb0b565a26dfcc57"
+    },
+    "collect-desktop.log.gz": {
+      "bytes": 619,
+      "sha256": "55db5e278d1462a75112e90ecad9fd8450d71b9b6e822e121c9db58f416e97bb"
+    },
+    "collect-desktop.py.gz": {
+      "bytes": 1563,
+      "sha256": "6e21f9a5b693d80b881c71ef861fbfe3754b99dbf6ba0efcfb9b8cdffcdf7444"
+    },
+    "desktop-collection.json": {
+      "bytes": 1111,
+      "sha256": "89f2454c1fbd887da69585386bbfee35a811bf7e70234d429bd1cc02b7ed40c9"
+    },
+    "desktop-qualification.json": {
+      "bytes": 2122,
+      "sha256": "c7ea0b533bcbcedbcb2cfb358a64caf1bd6145895507e96106197c2cd2115155"
+    },
+    "disk-through-desktop.jsonl.gz": {
+      "bytes": 857367,
+      "sha256": "ec9796a18b65a52ae735d50208ae5a7afe2ce5c169edb09dd22fd216480ecb1e"
+    },
+    "dorado58-desktop-latest-20261019.png": {
+      "bytes": 516931,
+      "sha256": "e1c9654bf2917c2d63bfaa082e2a62ce902a20dcf801d8ab78f7f816e1d07da1"
+    },
+    "dorado58-keyboard-short-20261019.png": {
+      "bytes": 406359,
+      "sha256": "f4d56ff47f52764813a70b95fb3feac63ab8ccc1cb499f64046df903e839468d"
+    },
+    "dorado58-marker-check-20261019.png": {
+      "bytes": 426969,
+      "sha256": "ba0cd434f6c6a1681a70913d00a7c394ef7f4308ea9f4c009d43aac67b9bd6a5"
+    },
+    "dorado58-mouse-on-cmd-20261019.png": {
+      "bytes": 535894,
+      "sha256": "4249142f9c7aab9876be7a2ab18bfe921c09b2e96981ddb75cc7215acf436f7c"
+    },
+    "dorado58-second-cmd-check-20261019.png": {
+      "bytes": 413699,
+      "sha256": "2854643e80488e6bda45d4eb01663f0a09754b135996f51d90b17a9dffd0a58e"
+    },
+    "focus-command.log.gz": {
+      "bytes": 58,
+      "sha256": "d0c1179c3ab570a0289a2d3703017481cbecd373384f38d0feef2b00fc79e8d2"
+    },
+    "keyboard-alphabet-file.log.gz": {
+      "bytes": 137,
+      "sha256": "0547f784b84c0ec15ab45bd406c70636bcf92b9980c6ce3d6f2ce787adb5ee69"
+    },
+    "keyboard-short.log.gz": {
+      "bytes": 77,
+      "sha256": "3ee1dcaa683268c4db1da2eb8232b1b18682efb287eb83ba9b09c429b44ed0c4"
+    },
+    "main-through-desktop.log.gz": {
+      "bytes": 47295,
+      "sha256": "b90bbc174cc4cdd6370550734039025c55d2d4c993214d5afd9c2a4dc838f242"
+    },
+    "move-to-cmd.log.gz": {
+      "bytes": 45,
+      "sha256": "a9e6c22e5277f48b1963ec321bbad24401b4ac8983e6bea2328e2494201ad0a4"
+    },
+    "server-through-desktop.log.gz": {
+      "bytes": 123881,
+      "sha256": "499d7e451bc3876f73ac6e52484eb60a121f1450c1fbd596240ee168a999bcb7"
+    },
+    "tmpfs-retired-trace-cleanup.json": {
+      "bytes": 1210,
+      "sha256": "33d0ca71e2ca69f8db7eae69fb379aa7b85a8e665b047797ff83287bb87fd82d"
+    }
+  },
+  "scope": "Reviewed captures and unchanged raw log/driver gzip bytes; live prefixes only"
+}

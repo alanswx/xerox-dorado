@@ -1,0 +1,44 @@
+{
+  "status": "PASS: original-firmware fresh Viewers desktop, mouse/click, exact short and alphabet/digit echoes; normal warm file create/close/type",
+  "main_pid": 27199,
+  "server_pid": 27195,
+  "rbf_sha256": "eebc0e1fa669ba48ae35ebfe7ba93161afa48eca40247ff79cee9e9853293ae2",
+  "clock": "50MHz/SYSPER4 unchanged; all nine snapshot administration inputs inactive",
+  "desktop": "Ready/Viewers, CommandTool, Clock, WatchTool and EditTool visible",
+  "input": "Real virtual USB mouse to native912,8 Cmd, click, wait for initialized second CommandTool, separate focus737,608, actual paced keyboard .2 seconds/event",
+  "short_echo": "rtl58 keyboard ok",
+  "alphabet_echo": "abcdefghijklmnopqrstuvwxyz0123456789",
+  "warm_marker": {
+    "path": "///rtl58persist.txt",
+    "expected": "rtl58persist",
+    "status": "PASS: normal echo redirected and type returns exact marker"
+  },
+  "captures": {
+    "dorado58-desktop-latest-20261019.png": {
+      "sha256": "e1c9654bf2917c2d63bfaa082e2a62ce902a20dcf801d8ab78f7f816e1d07da1",
+      "bytes": 516931,
+      "mtime_utc": "2026-10-19T15:51:59.455029+00:00"
+    },
+    "dorado58-mouse-on-cmd-20261019.png": {
+      "sha256": "4249142f9c7aab9876be7a2ab18bfe921c09b2e96981ddb75cc7215acf436f7c",
+      "bytes": 535894,
+      "mtime_utc": "2026-10-19T15:54:05.151073+00:00"
+    },
+    "dorado58-second-cmd-check-20261019.png": {
+      "sha256": "2854643e80488e6bda45d4eb01663f0a09754b135996f51d90b17a9dffd0a58e",
+      "bytes": 413699,
+      "mtime_utc": "2026-10-19T15:55:34.141181+00:00"
+    },
+    "dorado58-keyboard-short-20261019.png": {
+      "sha256": "f4d56ff47f52764813a70b95fb3feac63ab8ccc1cb499f64046df903e839468d",
+      "bytes": 406359,
+      "mtime_utc": "2026-10-19T15:58:07.238254+00:00"
+    },
+    "dorado58-marker-check-20261019.png": {
+      "sha256": "ba0cd434f6c6a1681a70913d00a7c394ef7f4308ea9f4c009d43aac67b9bd6a5",
+      "bytes": 426969,
+      "mtime_utc": "2026-10-19T16:00:02.526201+00:00"
+    }
+  },
+  "scope": "Reviewed actual captures and input logs; no clean OS shutdown/cold marker/full snapshot/original60ns/speed improvement/final stability claim"
+}
