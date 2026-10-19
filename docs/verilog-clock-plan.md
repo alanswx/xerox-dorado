@@ -42,6 +42,45 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Native59 full-core qualification PASS; hardware test next.**
+The original Native59 builder (1544016/local87022) is terminal. Independent
+read-only audit99108 is terminal PASS:31 summaries/196 detailed timing
+categories/four conditions/40 board-corner crossing sets, minimum+0.114ns.
+All413 compiled input hashes were verified after extraction.31 damaged
+controls reject. Resources with all ten adapters administratively inactive:
+30,431ALMs/52,887regs/332M10Ks/35DSP. Native59 separates Native58's paired
+cache groups:40 versus38 distinct blocks, same14 logical banks/294,912bits/
+OLD_DATA. DskEth133 surviving mutable helpers match normal-state retention;
+same eight disconnected helpers pruned. One zero-state MC10174 hierarchy
+label differs. Nine immutable ROMs retain nine separate blocks;24PROMassets
+across DskEth/MemX/DispY match. No clock/policy/speed or global snapshot claim.
+RBF db6883e495bacd51c188f0b22c459937071d4860516ae102bb84c4c7bf441cad,
+local build/rtl-executive/native59-candidate; evidence native59-dsketh.
+Not deployed yet. Next checkin/push, normal58guestBoot/captureactualMP,
+realMainbarriers/preserve58pack, then fresh59originalfirmware/Cedar/input.
+Native58 remains interactive Main27199/server27195/RBFeebc0e1f, lastidle
+1.947767Missues/s; no new speed measurement.
+
+Actual BaseBoard inventory is reproducible/archived:40,366sequential bits
+BEFORE classification,32i2125RAMs/registered reads, actual1725node6502,
+fiveRIOTs including block-local old_pa7, clock/reset/edge histories. Eight
+EPROM sockets/fourexplicit images; empty-socket semantics still need review.
+Evidence snapshot-baseboard-inventory; no board completeness claim.
+
+Actual netlist6502 primitive SIMULATION+CLASSIFICATION PASS:50,972host/
+7,832held/6,747requests/4,218writes/all1725bits/all128indices/all16384pin
+vectors/destructive restore/firstedge/20Kmore. Eight brokenRTL/two source
+changes/eight damaged schemas reject. Vendor CRLF bytes and combinational
+netlist/relaxation preserved; no behavioral CPU substitute. Evidence
+snapshot-netlist6502-simulation. First isolated matched fit REJECTED by
+critical169085:three scalar outputs were not matched by vector virtual-pin
+patterns. Fixed fixture declarations only; fresh v2 build local27664,
+/home/alans/mister/SnapshotNetlist6502_v2_20261019. Observe same job;
+no standalone timing qualification yet. Then RIOT/remaining BaseBoard,
+wrapper/backends/input/ARMserver/diskgeneration/globalatomicbundle/actual
+FPGArestore. Original60ns/timers/final3freshboots/coldpersist/pinnedperf/
+2hstress remain required. Goal ACTIVE.
+
 **Native59 full-core build LIVE; Native58 remains qualified and interactive on MiSTer14.**
 Full DskEth+58desktop milestone PUSHED80247606. Native59 job87022/local, remote
 builder1544016/Quartusmap1544037 confirmed live; /home/alans/mister/Dorado_Native59_20261019,

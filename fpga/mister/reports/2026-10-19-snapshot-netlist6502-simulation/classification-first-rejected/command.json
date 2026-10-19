@@ -1,0 +1,10 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "chip_6502",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-netlist6502-classify-v2-20261019/original.xml",
+  "/Users/alans/dev2/Dorado/verilog/vendor/6502/chip_6502.v"
+]

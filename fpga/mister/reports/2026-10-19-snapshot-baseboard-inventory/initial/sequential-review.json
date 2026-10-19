@@ -1,0 +1,606 @@
+{
+  "status": "REVIEW ONLY",
+  "scope": "Exact actual Native58 BaseBd_nominal with explicit SYSPER4 and both vendor6502/RIOT dependencies; external wrapper/backends/ARM state excluded",
+  "sequential": {
+    "cell_MC10176": {
+      "entries": 3,
+      "bits": 13,
+      "fields": {
+        "ck_d": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "d_pre": {
+          "bits": 6,
+          "width": 6,
+          "dimensions": []
+        },
+        "q": {
+          "bits": 6,
+          "width": 6,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_a01"
+      ]
+    },
+    "cell_MC10136": {
+      "entries": 18,
+      "bits": 36,
+      "fields": {
+        "cin_pre": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "ck_d": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "d_pre": {
+          "bits": 4,
+          "width": 4,
+          "dimensions": []
+        },
+        "q": {
+          "bits": 4,
+          "width": 4,
+          "dimensions": []
+        },
+        "sd_pre": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "su_pre": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_b02",
+        "BaseBd_m_Rev_m_Am_nominal.u_k02",
+        "BaseBd_m_Rev_m_Am_nominal.u_k03"
+      ]
+    },
+    "cell_i2125": {
+      "entries": 64,
+      "bits": 32800,
+      "fields": {
+        "dout_r": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "mem": {
+          "bits": 1024,
+          "width": 1,
+          "dimensions": [
+            [
+              0,
+              1023
+            ]
+          ]
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_b11",
+        "BaseBd_m_Rev_m_Am_nominal.u_b12",
+        "BaseBd_m_Rev_m_Am_nominal.u_b13",
+        "BaseBd_m_Rev_m_Am_nominal.u_b14",
+        "BaseBd_m_Rev_m_Am_nominal.u_c11",
+        "BaseBd_m_Rev_m_Am_nominal.u_c12",
+        "BaseBd_m_Rev_m_Am_nominal.u_c13",
+        "BaseBd_m_Rev_m_Am_nominal.u_c14",
+        "BaseBd_m_Rev_m_Am_nominal.u_d11",
+        "BaseBd_m_Rev_m_Am_nominal.u_d12",
+        "BaseBd_m_Rev_m_Am_nominal.u_d13",
+        "BaseBd_m_Rev_m_Am_nominal.u_d14",
+        "BaseBd_m_Rev_m_Am_nominal.u_e11",
+        "BaseBd_m_Rev_m_Am_nominal.u_e12",
+        "BaseBd_m_Rev_m_Am_nominal.u_e13",
+        "BaseBd_m_Rev_m_Am_nominal.u_e14",
+        "BaseBd_m_Rev_m_Am_nominal.u_h11",
+        "BaseBd_m_Rev_m_Am_nominal.u_h12",
+        "BaseBd_m_Rev_m_Am_nominal.u_h13",
+        "BaseBd_m_Rev_m_Am_nominal.u_h14",
+        "BaseBd_m_Rev_m_Am_nominal.u_i11",
+        "BaseBd_m_Rev_m_Am_nominal.u_i12",
+        "BaseBd_m_Rev_m_Am_nominal.u_i13",
+        "BaseBd_m_Rev_m_Am_nominal.u_i14",
+        "BaseBd_m_Rev_m_Am_nominal.u_j11",
+        "BaseBd_m_Rev_m_Am_nominal.u_j12",
+        "BaseBd_m_Rev_m_Am_nominal.u_j13",
+        "BaseBd_m_Rev_m_Am_nominal.u_j14",
+        "BaseBd_m_Rev_m_Am_nominal.u_k11",
+        "BaseBd_m_Rev_m_Am_nominal.u_k12",
+        "BaseBd_m_Rev_m_Am_nominal.u_k13",
+        "BaseBd_m_Rev_m_Am_nominal.u_k14"
+      ]
+    },
+    "cell_i2716": {
+      "entries": 8,
+      "bits": 36,
+      "fields": {
+        "d": {
+          "bits": 8,
+          "width": 8,
+          "dimensions": []
+        },
+        "en_q": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_b60",
+        "BaseBd_m_Rev_m_Am_nominal.u_c60",
+        "BaseBd_m_Rev_m_Am_nominal.u_h61",
+        "BaseBd_m_Rev_m_Am_nominal.u_i61"
+      ]
+    },
+    "cell_i2716__Iz1": {
+      "entries": 2,
+      "bits": 9,
+      "fields": {
+        "d": {
+          "bits": 8,
+          "width": 8,
+          "dimensions": []
+        },
+        "en_q": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_b61"
+      ]
+    },
+    "cell_SN74LS259": {
+      "entries": 1,
+      "bits": 8,
+      "fields": {
+        "q": {
+          "bits": 8,
+          "width": 8,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_c20"
+      ]
+    },
+    "cell_i2716__Iz2": {
+      "entries": 2,
+      "bits": 9,
+      "fields": {
+        "d": {
+          "bits": 8,
+          "width": 8,
+          "dimensions": []
+        },
+        "en_q": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_c61"
+      ]
+    },
+    "cell_MCS6532": {
+      "entries": 5,
+      "bits": 5,
+      "fields": {
+        "phase_d": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_c62",
+        "BaseBd_m_Rev_m_Am_nominal.u_f62",
+        "BaseBd_m_Rev_m_Am_nominal.u_f63",
+        "BaseBd_m_Rev_m_Am_nominal.u_i62",
+        "BaseBd_m_Rev_m_Am_nominal.u_l62"
+      ]
+    },
+    "M6532": {
+      "entries": 70,
+      "bits": 5485,
+      "fields": {
+        "@fg,101,1,101,10.old_pa7": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "d_out": {
+          "bits": 8,
+          "width": 8,
+          "dimensions": []
+        },
+        "dir_a": {
+          "bits": 8,
+          "width": 8,
+          "dimensions": []
+        },
+        "dir_b": {
+          "bits": 8,
+          "width": 8,
+          "dimensions": []
+        },
+        "edge_detect": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "incr": {
+          "bits": 2,
+          "width": 2,
+          "dimensions": []
+        },
+        "interrupt": {
+          "bits": 8,
+          "width": 8,
+          "dimensions": []
+        },
+        "irq_en": {
+          "bits": 2,
+          "width": 2,
+          "dimensions": []
+        },
+        "out_a": {
+          "bits": 8,
+          "width": 8,
+          "dimensions": []
+        },
+        "out_b": {
+          "bits": 8,
+          "width": 8,
+          "dimensions": []
+        },
+        "prescaler": {
+          "bits": 10,
+          "width": 10,
+          "dimensions": []
+        },
+        "riot_ram": {
+          "bits": 1024,
+          "width": 8,
+          "dimensions": [
+            [
+              0,
+              127
+            ]
+          ]
+        },
+        "rollover": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "timer": {
+          "bits": 8,
+          "width": 8,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_c62.u_riot",
+        "BaseBd_m_Rev_m_Am_nominal.u_c62.u_riot.@fg,101,1,101,10",
+        "BaseBd_m_Rev_m_Am_nominal.u_f62.u_riot",
+        "BaseBd_m_Rev_m_Am_nominal.u_f62.u_riot.@fg,101,1,101,10",
+        "BaseBd_m_Rev_m_Am_nominal.u_f63.u_riot",
+        "BaseBd_m_Rev_m_Am_nominal.u_f63.u_riot.@fg,101,1,101,10",
+        "BaseBd_m_Rev_m_Am_nominal.u_i62.u_riot",
+        "BaseBd_m_Rev_m_Am_nominal.u_i62.u_riot.@fg,101,1,101,10",
+        "BaseBd_m_Rev_m_Am_nominal.u_l62.u_riot",
+        "BaseBd_m_Rev_m_Am_nominal.u_l62.u_riot.@fg,101,1,101,10"
+      ]
+    },
+    "cell_CLOCKGEN__N4": {
+      "entries": 1,
+      "bits": 2,
+      "fields": {
+        "phase": {
+          "bits": 2,
+          "width": 2,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_clockgen"
+      ]
+    },
+    "cell_MC12061": {
+      "entries": 1,
+      "bits": 3,
+      "fields": {
+        "osc_div": {
+          "bits": 3,
+          "width": 3,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_d08"
+      ]
+    },
+    "cell_SN74LS163": {
+      "entries": 2,
+      "bits": 5,
+      "fields": {
+        "ck_d": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "q": {
+          "bits": 4,
+          "width": 4,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_e07"
+      ]
+    },
+    "cell_i2716__Iz3": {
+      "entries": 2,
+      "bits": 9,
+      "fields": {
+        "d": {
+          "bits": 8,
+          "width": 8,
+          "dimensions": []
+        },
+        "en_q": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_e60"
+      ]
+    },
+    "cell_SN74LS174": {
+      "entries": 27,
+      "bits": 117,
+      "fields": {
+        "ck_d": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "d_pre": {
+          "bits": 6,
+          "width": 6,
+          "dimensions": []
+        },
+        "q": {
+          "bits": 6,
+          "width": 6,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_f19",
+        "BaseBd_m_Rev_m_Am_nominal.u_f20",
+        "BaseBd_m_Rev_m_Am_nominal.u_g20",
+        "BaseBd_m_Rev_m_Am_nominal.u_h20",
+        "BaseBd_m_Rev_m_Am_nominal.u_k07",
+        "BaseBd_m_Rev_m_Am_nominal.u_k08",
+        "BaseBd_m_Rev_m_Am_nominal.u_k09",
+        "BaseBd_m_Rev_m_Am_nominal.u_l07",
+        "BaseBd_m_Rev_m_Am_nominal.u_l08"
+      ]
+    },
+    "cell_i2716__Iz4": {
+      "entries": 2,
+      "bits": 9,
+      "fields": {
+        "d": {
+          "bits": 8,
+          "width": 8,
+          "dimensions": []
+        },
+        "en_q": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_f60"
+      ]
+    },
+    "chip_6502": {
+      "entries": 1,
+      "bits": 1725,
+      "fields": {
+        "q": {
+          "bits": 1725,
+          "width": 1725,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_f61.u_cpu"
+      ]
+    },
+    "cell_MC1690": {
+      "entries": 8,
+      "bits": 8,
+      "fields": {
+        "ck_d": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "q": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_g03",
+        "BaseBd_m_Rev_m_Am_nominal.u_g04",
+        "BaseBd_m_Rev_m_Am_nominal.u_h03",
+        "BaseBd_m_Rev_m_Am_nominal.u_h04"
+      ]
+    },
+    "cell_SN74LS175": {
+      "entries": 4,
+      "bits": 6,
+      "fields": {
+        "ck_d": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "q": {
+          "bits": 2,
+          "width": 2,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_g07",
+        "BaseBd_m_Rev_m_Am_nominal.u_l18"
+      ]
+    },
+    "cell_SN74LS74": {
+      "entries": 12,
+      "bits": 12,
+      "fields": {
+        "cka_d": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "ckb_d": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "qa": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "qb": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_g08",
+        "BaseBd_m_Rev_m_Am_nominal.u_g22",
+        "BaseBd_m_Rev_m_Am_nominal.u_j08"
+      ]
+    },
+    "cell_MC14521B": {
+      "entries": 2,
+      "bits": 25,
+      "fields": {
+        "ck_d": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "cnt": {
+          "bits": 24,
+          "width": 24,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_g21"
+      ]
+    },
+    "cell_MPQ3303": {
+      "entries": 2,
+      "bits": 18,
+      "fields": {
+        "por": {
+          "bits": 16,
+          "width": 16,
+          "dimensions": []
+        },
+        "vco": {
+          "bits": 2,
+          "width": 2,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_h06"
+      ]
+    },
+    "cell_SN74LS174__P1": {
+      "entries": 6,
+      "bits": 26,
+      "fields": {
+        "ck_d": {
+          "bits": 1,
+          "width": 1,
+          "dimensions": []
+        },
+        "d_pre": {
+          "bits": 6,
+          "width": 6,
+          "dimensions": []
+        },
+        "q": {
+          "bits": 6,
+          "width": 6,
+          "dimensions": []
+        }
+      },
+      "packages": [
+        "BaseBd_m_Rev_m_Am_nominal.u_l21",
+        "BaseBd_m_Rev_m_Am_nominal.u_l22"
+      ]
+    }
+  },
+  "bindings": [
+    {
+      "module": "BaseBd_m_Rev_m_Am_nominal",
+      "parameters": {
+        "SYSPER": 4
+      }
+    },
+    {
+      "module": "cell_MCS6532",
+      "parameters": {}
+    },
+    {
+      "module": "cell_CLOCKGEN__N4",
+      "parameters": {
+        "N": 4,
+        "W": 2,
+        "HALF": 2,
+        "ECP_LO": 0,
+        "SCP_LO": 1
+      }
+    },
+    {
+      "module": "M6532",
+      "parameters": {
+        "init_7800": 0
+      }
+    }
+  ]
+}

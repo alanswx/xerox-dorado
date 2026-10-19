@@ -1,0 +1,6 @@
+ethernet-parity-before.log
+[36000] %Fatal: tb_ethernet_fifo_parity.sv:35: Assertion failed in tb_ethernet_fifo_parity.unnamedblk1: valid Ethernet FIFO word 00ff parity=11 rejected: checker=1 latch=1
+ethernet-parity-after.log
+tb_ethernet_fifo_parity: PASS -- valid bytes transmit; corrupt bytes latch TxFifoPE only on read
+tb_disk_fifo_parity: PASS -- both FIFO checkers reject corrupt parity and accept all byte values
+tb_parity170: PASS -- all 2048 data/control combinations

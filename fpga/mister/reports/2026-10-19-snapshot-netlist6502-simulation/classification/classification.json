@@ -1,0 +1,1994 @@
+{
+  "status": "PASS",
+  "modeled_state_bits": 1725,
+  "xml_sha256": "26909f2161007149ba75d19c2a2df80a12c067a4a9b1edcdcf9b1d54a144eb05",
+  "save": [
+    {
+      "path": "chip_6502.q",
+      "bits": 1725,
+      "words": [
+        {
+          "index": 0,
+          "lsb": 0,
+          "width": 18
+        },
+        {
+          "index": 1,
+          "lsb": 18,
+          "width": 18
+        },
+        {
+          "index": 2,
+          "lsb": 36,
+          "width": 18
+        },
+        {
+          "index": 3,
+          "lsb": 54,
+          "width": 18
+        },
+        {
+          "index": 4,
+          "lsb": 72,
+          "width": 18
+        },
+        {
+          "index": 5,
+          "lsb": 90,
+          "width": 18
+        },
+        {
+          "index": 6,
+          "lsb": 108,
+          "width": 18
+        },
+        {
+          "index": 7,
+          "lsb": 126,
+          "width": 18
+        },
+        {
+          "index": 8,
+          "lsb": 144,
+          "width": 18
+        },
+        {
+          "index": 9,
+          "lsb": 162,
+          "width": 18
+        },
+        {
+          "index": 10,
+          "lsb": 180,
+          "width": 18
+        },
+        {
+          "index": 11,
+          "lsb": 198,
+          "width": 18
+        },
+        {
+          "index": 12,
+          "lsb": 216,
+          "width": 18
+        },
+        {
+          "index": 13,
+          "lsb": 234,
+          "width": 18
+        },
+        {
+          "index": 14,
+          "lsb": 252,
+          "width": 18
+        },
+        {
+          "index": 15,
+          "lsb": 270,
+          "width": 18
+        },
+        {
+          "index": 16,
+          "lsb": 288,
+          "width": 18
+        },
+        {
+          "index": 17,
+          "lsb": 306,
+          "width": 18
+        },
+        {
+          "index": 18,
+          "lsb": 324,
+          "width": 18
+        },
+        {
+          "index": 19,
+          "lsb": 342,
+          "width": 18
+        },
+        {
+          "index": 20,
+          "lsb": 360,
+          "width": 18
+        },
+        {
+          "index": 21,
+          "lsb": 378,
+          "width": 18
+        },
+        {
+          "index": 22,
+          "lsb": 396,
+          "width": 18
+        },
+        {
+          "index": 23,
+          "lsb": 414,
+          "width": 18
+        },
+        {
+          "index": 24,
+          "lsb": 432,
+          "width": 18
+        },
+        {
+          "index": 25,
+          "lsb": 450,
+          "width": 18
+        },
+        {
+          "index": 26,
+          "lsb": 468,
+          "width": 18
+        },
+        {
+          "index": 27,
+          "lsb": 486,
+          "width": 18
+        },
+        {
+          "index": 28,
+          "lsb": 504,
+          "width": 18
+        },
+        {
+          "index": 29,
+          "lsb": 522,
+          "width": 18
+        },
+        {
+          "index": 30,
+          "lsb": 540,
+          "width": 18
+        },
+        {
+          "index": 31,
+          "lsb": 558,
+          "width": 18
+        },
+        {
+          "index": 32,
+          "lsb": 576,
+          "width": 18
+        },
+        {
+          "index": 33,
+          "lsb": 594,
+          "width": 18
+        },
+        {
+          "index": 34,
+          "lsb": 612,
+          "width": 18
+        },
+        {
+          "index": 35,
+          "lsb": 630,
+          "width": 18
+        },
+        {
+          "index": 36,
+          "lsb": 648,
+          "width": 18
+        },
+        {
+          "index": 37,
+          "lsb": 666,
+          "width": 18
+        },
+        {
+          "index": 38,
+          "lsb": 684,
+          "width": 18
+        },
+        {
+          "index": 39,
+          "lsb": 702,
+          "width": 18
+        },
+        {
+          "index": 40,
+          "lsb": 720,
+          "width": 18
+        },
+        {
+          "index": 41,
+          "lsb": 738,
+          "width": 18
+        },
+        {
+          "index": 42,
+          "lsb": 756,
+          "width": 18
+        },
+        {
+          "index": 43,
+          "lsb": 774,
+          "width": 18
+        },
+        {
+          "index": 44,
+          "lsb": 792,
+          "width": 18
+        },
+        {
+          "index": 45,
+          "lsb": 810,
+          "width": 18
+        },
+        {
+          "index": 46,
+          "lsb": 828,
+          "width": 18
+        },
+        {
+          "index": 47,
+          "lsb": 846,
+          "width": 18
+        },
+        {
+          "index": 48,
+          "lsb": 864,
+          "width": 18
+        },
+        {
+          "index": 49,
+          "lsb": 882,
+          "width": 18
+        },
+        {
+          "index": 50,
+          "lsb": 900,
+          "width": 18
+        },
+        {
+          "index": 51,
+          "lsb": 918,
+          "width": 18
+        },
+        {
+          "index": 52,
+          "lsb": 936,
+          "width": 18
+        },
+        {
+          "index": 53,
+          "lsb": 954,
+          "width": 18
+        },
+        {
+          "index": 54,
+          "lsb": 972,
+          "width": 18
+        },
+        {
+          "index": 55,
+          "lsb": 990,
+          "width": 18
+        },
+        {
+          "index": 56,
+          "lsb": 1008,
+          "width": 18
+        },
+        {
+          "index": 57,
+          "lsb": 1026,
+          "width": 18
+        },
+        {
+          "index": 58,
+          "lsb": 1044,
+          "width": 18
+        },
+        {
+          "index": 59,
+          "lsb": 1062,
+          "width": 18
+        },
+        {
+          "index": 60,
+          "lsb": 1080,
+          "width": 18
+        },
+        {
+          "index": 61,
+          "lsb": 1098,
+          "width": 18
+        },
+        {
+          "index": 62,
+          "lsb": 1116,
+          "width": 18
+        },
+        {
+          "index": 63,
+          "lsb": 1134,
+          "width": 18
+        },
+        {
+          "index": 64,
+          "lsb": 1152,
+          "width": 18
+        },
+        {
+          "index": 65,
+          "lsb": 1170,
+          "width": 18
+        },
+        {
+          "index": 66,
+          "lsb": 1188,
+          "width": 18
+        },
+        {
+          "index": 67,
+          "lsb": 1206,
+          "width": 18
+        },
+        {
+          "index": 68,
+          "lsb": 1224,
+          "width": 18
+        },
+        {
+          "index": 69,
+          "lsb": 1242,
+          "width": 18
+        },
+        {
+          "index": 70,
+          "lsb": 1260,
+          "width": 18
+        },
+        {
+          "index": 71,
+          "lsb": 1278,
+          "width": 18
+        },
+        {
+          "index": 72,
+          "lsb": 1296,
+          "width": 18
+        },
+        {
+          "index": 73,
+          "lsb": 1314,
+          "width": 18
+        },
+        {
+          "index": 74,
+          "lsb": 1332,
+          "width": 18
+        },
+        {
+          "index": 75,
+          "lsb": 1350,
+          "width": 18
+        },
+        {
+          "index": 76,
+          "lsb": 1368,
+          "width": 18
+        },
+        {
+          "index": 77,
+          "lsb": 1386,
+          "width": 18
+        },
+        {
+          "index": 78,
+          "lsb": 1404,
+          "width": 18
+        },
+        {
+          "index": 79,
+          "lsb": 1422,
+          "width": 18
+        },
+        {
+          "index": 80,
+          "lsb": 1440,
+          "width": 18
+        },
+        {
+          "index": 81,
+          "lsb": 1458,
+          "width": 18
+        },
+        {
+          "index": 82,
+          "lsb": 1476,
+          "width": 18
+        },
+        {
+          "index": 83,
+          "lsb": 1494,
+          "width": 18
+        },
+        {
+          "index": 84,
+          "lsb": 1512,
+          "width": 18
+        },
+        {
+          "index": 85,
+          "lsb": 1530,
+          "width": 18
+        },
+        {
+          "index": 86,
+          "lsb": 1548,
+          "width": 18
+        },
+        {
+          "index": 87,
+          "lsb": 1566,
+          "width": 18
+        },
+        {
+          "index": 88,
+          "lsb": 1584,
+          "width": 18
+        },
+        {
+          "index": 89,
+          "lsb": 1602,
+          "width": 18
+        },
+        {
+          "index": 90,
+          "lsb": 1620,
+          "width": 18
+        },
+        {
+          "index": 91,
+          "lsb": 1638,
+          "width": 18
+        },
+        {
+          "index": 92,
+          "lsb": 1656,
+          "width": 18
+        },
+        {
+          "index": 93,
+          "lsb": 1674,
+          "width": 18
+        },
+        {
+          "index": 94,
+          "lsb": 1692,
+          "width": 18
+        },
+        {
+          "index": 95,
+          "lsb": 1710,
+          "width": 15
+        }
+      ]
+    }
+  ],
+  "recompute": [
+    {
+      "path": "chip_6502.ab",
+      "bits": 16,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.dbo",
+      "bits": 8,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_0",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_1",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_10",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_100",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_101",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_102",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_103",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_104",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_105",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_106",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_107",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_108",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_109",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_11",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_110",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_111",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_112",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_113",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_114",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_115",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_116",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_117",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_118",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_119",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_12",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_120",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_121",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_122",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_123",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_124",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_125",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_126",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_127",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_128",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_129",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_13",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_130",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_131",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_132",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_133",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_134",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_135",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_136",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_137",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_138",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_139",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_14",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_140",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_141",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_142",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_143",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_144",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_145",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_146",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_147",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_148",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_149",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_15",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_150",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_151",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_152",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_153",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_154",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_155",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_156",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_157",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_158",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_159",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_16",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_160",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_161",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_162",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_163",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_164",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_165",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_166",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_167",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_168",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_169",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_17",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_170",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_171",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_172",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_173",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_174",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_175",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_176",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_177",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_178",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_179",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_18",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_180",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_181",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_182",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_183",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_184",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_185",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_186",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_187",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_188",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_189",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_19",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_190",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_191",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_192",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_193",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_194",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_195",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_196",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_197",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_2",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_20",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_21",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_22",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_23",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_24",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_25",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_26",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_27",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_28",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_29",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_3",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_30",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_31",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_32",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_33",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_34",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_35",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_36",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_37",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_38",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_39",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_4",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_40",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_41",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_42",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_43",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_44",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_45",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_46",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_47",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_48",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_49",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_5",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_50",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_51",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_52",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_53",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_54",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_55",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_56",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_57",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_58",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_59",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_6",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_60",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_61",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_62",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_63",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_64",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_65",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_66",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_67",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_68",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_69",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_7",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_70",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_71",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_72",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_73",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_74",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_75",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_76",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_77",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_78",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_79",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_8",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_80",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_81",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_82",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_83",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_84",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_85",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_86",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_87",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_88",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_89",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_9",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_90",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_91",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_92",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_93",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_94",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_95",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_96",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_97",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_98",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_0_99",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_1_0",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_1_1",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_1_2",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_1_3",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.__VdfgRegularize_h852b33e4_1_4",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.adh2sb_1287",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.adh2sb_54",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.db2sb_1287",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.db2sb_166",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adh_1160.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adh_13.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adh_1539.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adh_1651.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adh_315.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adh_407.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adh_483.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adh_52.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adl_121.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adl_1242.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adl_1282.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adl_1299.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adl_1437.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adl_1630.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adl_413.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_adl_684.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alu_out_1123.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alu_out_1490.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alu_out_276.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alu_out_394.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alu_out_495.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alu_out_68.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alu_out_697.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alu_out_893.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alua_1142.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alua_1167.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alua_1248.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alua_1332.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alua_1522.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alua_1627.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alua_1680.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alua_530.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alub_1432.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alub_1535.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alub_1645.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alub_1678.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alub_235.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alub_704.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alub_96.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_alub_977.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_idb_1108.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_idb_1302.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_idb_1473.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_idb_1503.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_idb_493.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_idb_833.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_idb_892.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_idb_991.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pch_1551.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pch_1670.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pch_205.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pch_292.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pch_49.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pch_502.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pch_584.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pch_948.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pcl_1022.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pcl_1139.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pcl_1359.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pcl_1611.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pcl_377.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pcl_622.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pcl_655.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_pcl_900.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_sb_1001.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_sb_1150.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_sb_1188.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_sb_1287.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_sb_1336.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_sb_1405.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_sb_166.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.mux_sb_54.o",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.o",
+      "bits": 1725,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.sb2adh_1539",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.sb2adh_1651",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.sb2db_1473",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.sb2db_493",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.sb_local_1001",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.logic_00.sb_local_1287",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.ni",
+      "bits": 1725,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.rw",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    },
+    {
+      "path": "chip_6502.sync",
+      "bits": 1,
+      "decision": "RECOMPUTE from pinned vendor combinational expressions"
+    }
+  ],
+  "scope": "Actual pinned iterative vendor core: all1725 q nodes saved in96nonaliased words; combinational netlist recomputes without a guest advance. No behavioral6502 substitution or full machine restore claim.",
+  "failure_controls": [
+    {
+      "case": "lost_nodes",
+      "rejected": true,
+      "diagnostic": "missing node vector"
+    },
+    {
+      "case": "narrow_nodes",
+      "rejected": true,
+      "diagnostic": "node vector shape/category differs"
+    },
+    {
+      "case": "array_nodes",
+      "rejected": true,
+      "diagnostic": "node vector shape/category differs"
+    },
+    {
+      "case": "extra_state",
+      "rejected": true,
+      "diagnostic": "extra state or unreviewed node field:chip_6502.hidden"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "duplicate/foreign node field"
+    },
+    {
+      "case": "derived_state",
+      "rejected": true,
+      "diagnostic": "extra state or unreviewed node field:chip_6502.ni"
+    },
+    {
+      "case": "schema_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed node-state schema/source"
+    },
+    {
+      "case": "source_hash",
+      "rejected": true,
+      "diagnostic": "unreviewed node-state schema/source"
+    }
+  ],
+  "source_sha256": "8ae05dff81a1c2971e03d2e01c4c3cb09b4f111c40e54b7e9e437f1d8add46da"
+}

@@ -1,0 +1,17 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "netlist6502_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-netlist6502-v1-20261019/invalid_alias/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-netlist6502-v1-20261019/invalid_alias/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-netlist6502-v1-20261019/invalid_alias/chip_6502_snapshot.sv",
+  "/Users/alans/dev2/Dorado/verilog/vendor/6502/chip_6502.v",
+  "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_6502.cpp"
+]

@@ -1,0 +1,51 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native58_20261019",
+  "candidate": "/home/alans/mister/Dorado_Native59_20261019",
+  "change": "Frozen58 plus complete exact-advance DskEth adapter, actual SYSPER4/CRC0+1/timerTW400/oscillator23530-SYSPER8/passive monitor; shared qualified cell adapters reused byte-identically. All state admin inactive; no global save/load or speed claim.",
+  "snapshot_admin": "INACTIVE; no physical save/load",
+  "extra_timing_exceptions": "None",
+  "source_changes": [
+    "build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+  ],
+  "added_sources": [
+    "fpga/mister/snapshot_native_dsketh/cell_F9401_snapshot.sv",
+    "fpga/mister/snapshot_native_dsketh/DskEth_full_snapshot.sv",
+    "fpga/mister/snapshot_native_dsketh/cell_SN74LS174_snapshot.sv",
+    "fpga/mister/snapshot_native_dsketh/cell_SN74LS169_snapshot.sv",
+    "fpga/mister/snapshot_native_dsketh/dorado_receive_monitor_snapshot.sv",
+    "fpga/mister/snapshot_native_dsketh/cell_MC10136_snapshot.sv",
+    "fpga/mister/snapshot_native_dsketh/cell_SN74123_snapshot.sv",
+    "fpga/mister/snapshot_native_dsketh/assets.json",
+    "fpga/mister/snapshot_native_dsketh/cell_MC1650_snapshot.sv"
+  ],
+  "shared_sources": {
+    "cell_F10016_snapshot.v": "fpga/mister/snapshot_native_conta/cell_F10016_snapshot.v",
+    "cell_MC10176_snapshot.v": "fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+    "cell_MC10231_snapshot.v": "fpga/mister/snapshot_native/cell_MC10231_snapshot.v",
+    "cell_MC10135_snapshot.v": "fpga/mister/snapshot_native_ifu/cell_MC10135_snapshot.v",
+    "cell_MC10173_snapshot.v": "fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+    "cell_MC10175_snapshot.v": "fpga/mister/snapshot_native_processor/cell_MC10175_snapshot.v",
+    "cell_F10000_snapshot.v": "fpga/mister/snapshot_native_conta/cell_F10000_snapshot.v",
+    "cell_MC10141_snapshot.v": "fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v",
+    "cell_SE10231_snapshot.v": "fpga/mister/snapshot_native_conta/cell_SE10231_snapshot.v",
+    "cell_F10145A_snapshot.sv": "fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv",
+    "cell_K1115A_snapshot.sv": "fpga/mister/snapshot_native_dispy/cell_K1115A_snapshot.sv"
+  },
+  "speed": "Same50MHz/SYSPER4; no speed claim. Protocol replay variability remains open.",
+  "source_hashes": {
+    "core/Dorado.sv": "6e00eb03e3428b4c1f594609d1f1d3ef82a188e036954f4f14fc9e982fcd8ec9",
+    "core/Dorado.qsf": "47ccc57a39073319a9bd500b0faf1d9c08b21ca099f1b402f44f6cdd77092b0f",
+    "core/device-corners.tcl": "a9ccfc892bf9ad12c0bdcc177bd5703e367a2e0d50e70c225f6bc99c6d9fd714",
+    "core/audit-adapter-crossings.tcl": "9cd7b9a455583e25f2e65ab77de4446a8107eefc47fd6a6a9306fd467fbf429c",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "d0ebc92d4568ab4795059d10cbd27cf08ae51b2ec4aed1b8c2f43303adc6a6c1",
+    "src/fpga/mister/snapshot_native_dsketh/cell_F9401_snapshot.sv": "e2b51e76b8db2aa35266adee73dd83a57e28d6fd05c9ed43951ae8c4a29b9027",
+    "src/fpga/mister/snapshot_native_dsketh/DskEth_full_snapshot.sv": "fd0df9c6006b9152f7101c6210ba8223b297102201ec6222e7603b7d17f2c1ca",
+    "src/fpga/mister/snapshot_native_dsketh/cell_SN74LS174_snapshot.sv": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3",
+    "src/fpga/mister/snapshot_native_dsketh/cell_SN74LS169_snapshot.sv": "20ca2ee252d5f61f3f73243450255998736678922fe68a1e0b0243c87896b16d",
+    "src/fpga/mister/snapshot_native_dsketh/dorado_receive_monitor_snapshot.sv": "98094794fe8db887978bfd0028dadd1e538fde53dc6faa58a5d6ccfbb5cbc523",
+    "src/fpga/mister/snapshot_native_dsketh/cell_MC10136_snapshot.sv": "ff9d6691af62ffeead8320fbfe8da3c3a2b349166b6c1939086bf8b42ead62c6",
+    "src/fpga/mister/snapshot_native_dsketh/cell_SN74123_snapshot.sv": "c5c77398edce445cfe88c392200ff7f7c0e9f9e090861297aa6d4a3c165de0be",
+    "src/fpga/mister/snapshot_native_dsketh/assets.json": "36f172df7e4dfdf4a40440e0e613f2c02c93cb7aaca48e2afc142e3f7e189bff",
+    "src/fpga/mister/snapshot_native_dsketh/cell_MC1650_snapshot.sv": "d6caa1c14efcd1f34d2a0935904235beed606d679e7534e20070e219ed4fe567"
+  }
+}

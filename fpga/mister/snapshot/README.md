@@ -6,6 +6,14 @@ in the running MiSTer core. This directory now qualifies bounded RAM access
 and complete modeled ContB state restore in isolated RTL/routed experiments.
 Machine-wide state access, coherent barriers and physical restore remain open.
 
+Latest qualification (2026-10-19): Native59 now passes complete full-core
+source/memory and four-condition timing checks with ten board adapters
+administratively inactive. Native58 remains the interactive hardware core;
+Native59 hardware boot is next. The actual BaseBoard inventory and all-node
+6502 simulation/classification are archived. A corrected matched6502 fit is
+running; no full BaseBoard/global machine save/load is installed. See the
+current [handoff](../../../docs/verilog-handoff.md) before historical notes.
+
 Update2026-10-19: the qualified ContB host-clock/exact-advance adapters are
 qualified in the full Native51 core on MiSTer14. Native49c is now the live
 matched control historically; live Native52 adds ContA adapters and now passes

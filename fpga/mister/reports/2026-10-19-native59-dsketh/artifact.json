@@ -1,0 +1,6 @@
+{
+  "rbf_sha256": "db6883e495bacd51c188f0b22c459937071d4860516ae102bb84c4c7bf441cad",
+  "rbf_local_path": "/Users/alans/dev2/Dorado/build/rtl-executive/native59-candidate/Dorado.rbf",
+  "status": "PASS: build/source/memory/timing; NOT DEPLOYED",
+  "compiled_inputs_verified": 413
+}
