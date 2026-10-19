@@ -1,0 +1,153 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 1771,
+      "sha256": "0de69758e791825710f00da488db5d6f5d84a1f01b28c79710946355146118ee"
+    },
+    "collect-post-loader.log.gz": {
+      "bytes": 1327,
+      "sha256": "d72e2dd67358b1a3b24a6e5555cd4f5bd68511a71cd02b2d9f121d99d483aa82"
+    },
+    "collect-post-loader.py.gz": {
+      "bytes": 1984,
+      "sha256": "f6f00100227320780ce41cd87b9d0c06ac75f3a406ec6af9a260c9eb731f8a63"
+    },
+    "deployment.json": {
+      "bytes": 1231,
+      "sha256": "1b0367bcaf5a9718f70791cee7968b0342274586dfcfc1ace017af3fb50ca02b"
+    },
+    "disk-through-deployment.jsonl.gz": {
+      "bytes": 262669,
+      "sha256": "4a00d03bf1bf5a59719aae8a245a558fe1feccb22887717480dd465beca61a3d"
+    },
+    "dorado58-after-guest-20261019.png": {
+      "bytes": 231633,
+      "sha256": "95c03bc0633a1964df91446bd9a3a2f9f90deb6fefbbbb2f7d55176e86d2d5a3"
+    },
+    "dorado58-bootessentials-progress-20261019.png": {
+      "bytes": 584657,
+      "sha256": "ac7aaa0ba5119119a1efd6ff0d0141b6c46eac9910aa67c2a489696c17247569"
+    },
+    "dorado58-loader-latest-20261019.png": {
+      "bytes": 437254,
+      "sha256": "4e0f4f29c2b84b69081edf20685a1329eee806009504497d7420742d9be7b92c"
+    },
+    "dorado58-login-progress-20261019.png": {
+      "bytes": 123291,
+      "sha256": "9575ced5000904451fd4b0441dc458c46914cc06f15c282a35e836a92893ba96"
+    },
+    "dorado58-profile-check-20261019.png": {
+      "bytes": 515069,
+      "sha256": "ac3681eadd1923278a9c038831eb20c00f77f2dec07c445fc6ab7bc5248e07fb"
+    },
+    "guest-login.log.gz": {
+      "bytes": 69,
+      "sha256": "70f3904bcd6ddfbec8e9abfaaa8ee1a9fd6a2ea3a2367f699dcee19e4933fddd"
+    },
+    "idle-login-issues.json": {
+      "bytes": 9999,
+      "sha256": "db719a9514f327088b8b3725bca6f8335507bc15cb01f5cc635d683023ab544e"
+    },
+    "idle-measure.log.gz": {
+      "bytes": 91,
+      "sha256": "fbdb46ce7a4d79a75b1323e0bc8b58e13d84194e6d73964443f5db08b6d9ea35"
+    },
+    "loader-analysis.log.gz": {
+      "bytes": 105,
+      "sha256": "9fd28af56716b63cd033a60bd4bff173cabdc9e017cce09aa1984e6d1f706085"
+    },
+    "loader-counter-comparison.json": {
+      "bytes": 34744,
+      "sha256": "6e9a2a136e57489514e657dc6e93d811600cf2fd992ea4ba9e0213c15c13ba01"
+    },
+    "loader-counter-comparison.log.gz": {
+      "bytes": 180,
+      "sha256": "7710dd387b7aff1d11868a1d7c2fc940b97372f875fb6e517a24325905f4be79"
+    },
+    "loader-observer.jsonl.gz": {
+      "bytes": 259332,
+      "sha256": "99a12e4043a8c0cacc509b00e9e760dc2896d2aad3d46d0b8e3ef52b69cfd487"
+    },
+    "loader-observer.log.gz": {
+      "bytes": 121,
+      "sha256": "4eb27556eaa0a2da57bd9bd7e4ebc78e6e89bb986f58c97f203b7aef577071f5"
+    },
+    "loader-observer.py.gz": {
+      "bytes": 1079,
+      "sha256": "ee0c117739b7fae6cd8a550708dc79ee65495c3d1b0308ce1ab612d6d15d9663"
+    },
+    "loader-timing.json": {
+      "bytes": 8916,
+      "sha256": "eea283d8d01f8f2ad7835580d856a4b0e62f16848e1a80342f886f9fa445756c"
+    },
+    "main-through-deployment.log.gz": {
+      "bytes": 18816,
+      "sha256": "a87e1356464b41dd1d430890b8f6524bb44575ce29e4d5f30357df20cfd4554e"
+    },
+    "measure-login.py.gz": {
+      "bytes": 1844,
+      "sha256": "18cad565e66a8c541bdc761e4d68d0e6d7a90d11e413fb1d2f55627ef479d47f"
+    },
+    "measurement-to-input.json": {
+      "bytes": 665,
+      "sha256": "c7c39d1aef9edcfaca3c264ad9faaa006c44a56969745e6a8dc3de009292a7bb"
+    },
+    "post-loader-collection.json": {
+      "bytes": 3452,
+      "sha256": "2957e5e135c8a4160b77fe5955a620ecf97055ed526055ea0639cf73c2522571"
+    },
+    "profile-no.log.gz": {
+      "bytes": 63,
+      "sha256": "99097610b40b51676781fe5a51f0d3f4d3ca701c9f98ab972028d2c6ec1b13a8"
+    },
+    "qualification.json": {
+      "bytes": 342902,
+      "sha256": "483cca51c9e2b72bc4b01e38740b8b656d15697e1ccc17233b332aac66ec4755"
+    },
+    "reboot-resume.json": {
+      "bytes": 1478,
+      "sha256": "96f8001005f4248db6ef9b9b1e71e81c006f5b4f224ba26483edb214897298ee"
+    },
+    "remote-source-hashes.json": {
+      "bytes": 5496,
+      "sha256": "cc4ca7e437c35aa4bf511aac382781b4c2cc8e09e573751a87fe350f660143c6"
+    },
+    "retired57-desktop-qualification.json": {
+      "bytes": 2119,
+      "sha256": "b814aab53d035c60687a8d41d216f8a0ddad0c8a840717637ffde85e55736d2a"
+    },
+    "retired57-disk-through-load.jsonl.gz": {
+      "bytes": 953265,
+      "sha256": "c3a14bf40f7d6d74203ed2662743568e40173212af94a459dd3e7e245601e8c2"
+    },
+    "retired57-main-through-load.log.gz": {
+      "bytes": 63768,
+      "sha256": "559501e4368aef8329fa56c3cf136c36e5933937209f9876816bf8684b4efc9f"
+    },
+    "retired57-normal-boot-qualification.json": {
+      "bytes": 641,
+      "sha256": "f8a8045ac9c828935c1f4a7169ef2b5f8646fe4584038440700660be5cb7857b"
+    },
+    "retired57-preservation.json": {
+      "bytes": 523,
+      "sha256": "8bbe034850368b98de88ae38de49e840ed57125908cc0358ffaa0dd3ee68fbaa"
+    },
+    "run-measured-loader.py.gz": {
+      "bytes": 756,
+      "sha256": "f89f04cdc6bc1703efded8c668bc3b28259aecba5f4adee48f3f7d37fb4f66da"
+    },
+    "select-issued-control.log.gz": {
+      "bytes": 561,
+      "sha256": "03211cba9722f35fba05c289f9d2804264f18246015d218761b4554932ba5565"
+    },
+    "select-issued.gdb.gz": {
+      "bytes": 244,
+      "sha256": "23e8f3b5d468fa8194821adb826fb01d5dce66a9d12090cb40c9ad1ee0a53040"
+    },
+    "server-through-deployment.log.gz": {
+      "bytes": 46254,
+      "sha256": "c09ba1652f3f5a19631e902196ba457459fecb317218bf48e750ccbdae399b7a"
+    }
+  },
+  "scope": "Exact raw gzip prefixes/drivers and reviewed captures; no physical payload-hash or atomic state claim"
+}

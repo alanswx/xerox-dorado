@@ -2,6 +2,28 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**Latest Native58 base34/final guestACK PASS; profileNo accepted, BootEssentials advancing.**
+Same Main27199/server27195/RBFeebc0e1f. Idle mean1,947,767.345issues/s unchanged57.
+Actual34files/33BCD/1,345,843bytes/finalACK322.790994587..322.958138693s, whole
+issues532,207,991..535,653,632/interior1.652349..1.652559M/s.46replays, ALLduring
+EditTool, versus57's12acrossDFPackage/AMModel; nonzeroqueue/drop10, CRC/RX/abort0.
+This single first-boot/manual-login-gate comparison is not a pinnedrepeat,
+speedgain or causalreplay/RTLregression diagnosis. Observer11019/27455 TERMINAL
+explicitstopAFTERACK/independentlyabsent; do not restart. Actualn/Return accepted
+No at visible profileprompt; BootEssentials importingnormally. Collector42659
+TERMINAL boundedSDspooling/source34hashesPASS AFTERtiming (not received-payload
+hashes). Retired57trace108,830/endbarrier/noerrors/loss and pack7fb124ae reverified.
+Exact finalobserver/counterbounds/analysernegativecontrols/sources/captures in
+native58-field/post-loader; localcedar58-launch. No new desktop/input claim yet.
+
+DskEth smallFF/actualoscillator coverage PUSHED f2a5b02c; allourQuartus/testjobs
+TERMINAL. Next finish58BootEssentials/fonts/STARTs/Viewers/mouse/exactkeyboard/
+warmmarker; implement/qualify SN74123 full70bit timers+histories, thencomplete
+DskEthboard/monitor/phase restore/timing/integration and remaining BaseBoard/
+backends/wrapper/input/ARMserver/diskgeneration/globalatomicbundle/actualFPGA
+snapshotrestore. Original60ns/timers, pinnedrepeats,3freshboots/coldpersistence/
+2hstress stillrequired. Goal ACTIVE; no completion/speedpromotion.
+
 **Latest Native58 login/Guest and idle measurement PASS; new DskEth primitives qualified.**
 Same live Main27199/server27195/RBFeebc0e1f. Actuallogin captured; observer11019/
 remote27455 LIVE, bounded20minutes, started before fixed33sample measurement.
@@ -2429,7 +2451,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify complete DispY state restore/classification/isolated timing and Native58 fullcore timing/source/RAM audit; all admin inactive.
 - [x] Archive Native57 desktop/input evidence, normal guest Boot812 and preserve pack through Main barriers; normally deploy qualified58 and observe new original BFN113/C release.
 - [x] Complete fresh58Cedar login/Guest and idle issue measurement;1.947767Missues/s, unchanged.
-- [ ] Complete58base34/finalACK, profileNo/BootEssentials/desktop/input/warm marker.
+- [x] Complete58base34/finalACK and bounded issues/replay accounting; observer stopped after ACK and absent, all34served sources hash-match after timing; profileNo accepted.
+- [ ] Complete58BootEssentials/full Viewers/mouse/exactkeyboard/warm marker.
 - [x] Qualify complete CRC9401 primitive in both actual PRECAP modes: original/oracle/restore/freshXML/matched timing(+0.170ns).
 - [x] Qualify DskEth MC1650/MC10136/SN169/SN174 local state primitives and actual oscillator23530/SYSPER8 simulation coverage.
 - [ ] Qualify SN74123 full timer state; complete DskEth board classification/restore/timing/integration, then BaseBoard/backends/wrapper/input/ARM server and disk generation.

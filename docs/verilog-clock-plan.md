@@ -42,6 +42,28 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Latest Native58 base34/final guestACK PASS; profileNo accepted, BootEssentials advancing.**
+Same Main27199/server27195/RBFeebc0e1f. Idle mean1,947,767.345issues/s unchanged57.
+Actual34files/33BCD/1,345,843bytes/finalACK322.790994587..322.958138693s, whole
+issues532,207,991..535,653,632/interior1.652349..1.652559M/s.46replays, ALLduring
+EditTool, versus57's12acrossDFPackage/AMModel; nonzeroqueue/drop10, CRC/RX/abort0.
+This single first-boot/manual-login-gate comparison is not a pinnedrepeat,
+speedgain or causalreplay/RTLregression diagnosis. Observer11019/27455 TERMINAL
+explicitstopAFTERACK/independentlyabsent; do not restart. Actualn/Return accepted
+No at visible profileprompt; BootEssentials importingnormally. Collector42659
+TERMINAL boundedSDspooling/source34hashesPASS AFTERtiming (not received-payload
+hashes). Retired57trace108,830/endbarrier/noerrors/loss and pack7fb124ae reverified.
+Exact finalobserver/counterbounds/analysernegativecontrols/sources/captures in
+native58-field/post-loader; localcedar58-launch. No new desktop/input claim yet.
+
+DskEth smallFF/actualoscillator coverage PUSHED f2a5b02c; allourQuartus/testjobs
+TERMINAL. Next finish58BootEssentials/fonts/STARTs/Viewers/mouse/exactkeyboard/
+warmmarker; implement/qualify SN74123 full70bit timers+histories, thencomplete
+DskEthboard/monitor/phase restore/timing/integration and remaining BaseBoard/
+backends/wrapper/input/ARMserver/diskgeneration/globalatomicbundle/actualFPGA
+snapshotrestore. Original60ns/timers, pinnedrepeats,3freshboots/coldpersistence/
+2hstress stillrequired. Goal ACTIVE; no completion/speedpromotion.
+
 **Latest Native58 login/Guest and idle measurement PASS; new DskEth primitives qualified.**
 Same live Main27199/server27195/RBFeebc0e1f. Actuallogin captured; observer11019/
 remote27455 LIVE, bounded20minutes, started before fixed33sample measurement.

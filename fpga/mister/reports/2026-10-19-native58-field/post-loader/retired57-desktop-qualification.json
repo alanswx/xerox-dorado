@@ -1,0 +1,44 @@
+{
+  "status": "PASS: original-firmware fresh Viewers desktop, mouse/click, exact short and alphabet/digit echoes; normal warm file create/close/type",
+  "main_pid": 25287,
+  "server_pid": 25286,
+  "rbf_sha256": "064e37848a123cbc0affeeb07ff309d242aff8b8deca9c0992c78e8ee56bc268",
+  "clock": "50MHz/SYSPER4, unchanged; all snapshot administration inactive",
+  "desktop": "Ready/Viewers, CommandTool, Clock, WatchTool, EditTool visible",
+  "input": "Actual virtual USB mouse moved to Cmd and clicked, second CommandTool initialized, separate focus, paced real keyboard at .2 seconds per event",
+  "short_echo": "rtl57 keyboard ok",
+  "alphabet_echo": "abcdefghijklmnopqrstuvwxyz0123456789",
+  "warm_marker": {
+    "path": "///rtl57persist.txt",
+    "expected": "rtl57persist",
+    "status": "PASS: echo redirected normally and type returns exact marker"
+  },
+  "captures": {
+    "dorado57-desktop-check-20261019.png": {
+      "sha256": "f381bc7118d27868ed341a365214a39619f2ecc70187eb3830673f87567ae766",
+      "bytes": 506095,
+      "mtime_utc": "2026-10-19T14:54:09.308616+00:00"
+    },
+    "dorado57-mouse-on-cmd-20261019.png": {
+      "sha256": "f36e5d5ccb46c47ff2ba72649ed41cbdb4cb710a5b1e7b5f98ba47359f028ad1",
+      "bytes": 513131,
+      "mtime_utc": "2026-10-19T14:55:02.051931+00:00"
+    },
+    "dorado57-commandtool-check-20261019.png": {
+      "sha256": "25e04c2ff70f294bda39a62ce254381d14818b8115fa4ddbfabb16ddc1ad629e",
+      "bytes": 405798,
+      "mtime_utc": "2026-10-19T14:56:57.030770+00:00"
+    },
+    "dorado57-keyboard-short-20261019.png": {
+      "sha256": "e6e154c27a08ec30207eb355d05cf97c5b3730e7959337d1b521e2e07622ddb7",
+      "bytes": 445695,
+      "mtime_utc": "2026-10-19T14:58:29.657814+00:00"
+    },
+    "dorado57-marker-check-20261019.png": {
+      "sha256": "67f2de3b3e01cda9fb93a35c99be3b8f6ae5e13cddd023a5e4c2652242c6f93d",
+      "bytes": 432220,
+      "mtime_utc": "2026-10-19T15:03:43.582130+00:00"
+    }
+  },
+  "scope": "Visual capture inspection and original input logs; no cold marker readback, clean OS shutdown, host barrier, full machine snapshot or speed improvement claimed"
+}

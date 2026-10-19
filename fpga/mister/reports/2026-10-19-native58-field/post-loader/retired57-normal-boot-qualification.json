@@ -1,0 +1,13 @@
+{
+  "status": "PASS: normal guest Boot after qualified desktop/input and warm marker readback",
+  "main_pid": 25287,
+  "server_pid": 25286,
+  "rbf_sha256": "064e37848a123cbc0affeeb07ff309d242aff8b8deca9c0992c78e8ee56bc268",
+  "observed": "germ812",
+  "meaning": "Actual812 visually captured during normal guest Boot; legacy field name",
+  "checked_utc": "2026-10-19T15:13:12.968526+00:00",
+  "captures": {
+    "dorado57-normal-boot-20261019.png": "e87db7f06caf81ca8821d5a9b99f5c688f3b75957b844feda106c7e2f2f6b352"
+  },
+  "limits": "Normal guest Boot boundary; not clean OS shutdown, host barrier, cold marker readback or machine snapshot"
+}
