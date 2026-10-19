@@ -1,0 +1,2266 @@
+{
+  "status": "PASS",
+  "hardware": "Native54 ContA+ContB+ProcH+ProcL+IFU exact-advance adapters with all state admin inactive; fresh original seed and original firmware boot pending",
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "timing_checks": 31,
+  "path_categories_checked": 116,
+  "operating_conditions_checked": 4,
+  "minimum_slack_ns": 0.114,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "unconstrained_io_summary": {
+    "Illegal Clocks": [
+      0,
+      0
+    ],
+    "Unconstrained Clocks": [
+      0,
+      0
+    ],
+    "Unconstrained Input Ports": [
+      3,
+      3
+    ],
+    "Unconstrained Input Port Paths": [
+      13,
+      13
+    ],
+    "Unconstrained Output Ports": [
+      50,
+      50
+    ],
+    "Unconstrained Output Port Paths": [
+      154,
+      154
+    ]
+  },
+  "extra_timing_exceptions": "None",
+  "resources": {
+    "alms": 30342,
+    "registers": 53052,
+    "ram_blocks": 330,
+    "dsp_blocks": 35
+  },
+  "unconstrained_io_scope": "Unchanged MiSTer framework I/O coverage; all SDRAM and five adapter crossing categories timed.",
+  "snapshot_admin": "INACTIVE; normal-operation integration only, no machine snapshot or speed qualification",
+  "change": "Frozen53 plus complete exact-advance IFU adapter; five shared qualified FF files reused byte-identically. All state admin inactive; no global save/load or speed claim.",
+  "instruction_memories": [
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_0|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_1|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_2|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_3|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_4|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_5|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_6|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_7|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    }
+  ],
+  "processor_memories": {
+    "baseline": {
+      "Analysis & Synthesis RAM Summary": [
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_F10414_snapshot:u_i08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Size": "256",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_F10414_snapshot:u_j08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Size": "256",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_h06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_i06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_j06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_k06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_F10414_snapshot:u_i08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Size": "256",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_F10414_snapshot:u_j08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Size": "256",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_h06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_i06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_j06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_k06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        }
+      ],
+      "Fitter RAM Summary": [
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_F10414_snapshot:u_i08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "256",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "1",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "1",
+          "Implementation Bits": "256",
+          "M10K blocks": "0",
+          "MLAB cells": "8",
+          "MIF": "None",
+          "Location": "LAB_X8_Y54_N0, LAB_X15_Y53_N0, LAB_X6_Y53_N0, LAB_X8_Y53_N0, LAB_X6_Y54_N0, LAB_X3_Y52_N0, LAB_X3_Y54_N0, LAB_X3_Y53_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_F10414_snapshot:u_j08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "256",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "1",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "1",
+          "Implementation Bits": "256",
+          "M10K blocks": "0",
+          "MLAB cells": "8",
+          "MIF": "None",
+          "Location": "LAB_X3_Y50_N0, LAB_X6_Y50_N0, LAB_X8_Y50_N0, LAB_X8_Y52_N0, LAB_X8_Y51_N0, LAB_X6_Y51_N0, LAB_X6_Y52_N0, LAB_X3_Y51_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_h06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X3_Y50_N0, LAB_X6_Y50_N0, LAB_X8_Y50_N0, LAB_X8_Y52_N0, LAB_X8_Y51_N0, LAB_X6_Y51_N0, LAB_X6_Y52_N0, LAB_X3_Y51_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_i06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X8_Y54_N0, LAB_X15_Y53_N0, LAB_X6_Y53_N0, LAB_X8_Y53_N0, LAB_X6_Y54_N0, LAB_X3_Y52_N0, LAB_X3_Y54_N0, LAB_X3_Y53_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_j06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X3_Y50_N0, LAB_X6_Y50_N0, LAB_X8_Y50_N0, LAB_X8_Y52_N0, LAB_X8_Y51_N0, LAB_X6_Y51_N0, LAB_X6_Y52_N0, LAB_X3_Y51_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_k06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X8_Y54_N0, LAB_X15_Y53_N0, LAB_X6_Y53_N0, LAB_X8_Y53_N0, LAB_X6_Y54_N0, LAB_X3_Y52_N0, LAB_X3_Y54_N0, LAB_X3_Y53_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_F10414_snapshot:u_i08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "256",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "1",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "1",
+          "Implementation Bits": "256",
+          "M10K blocks": "0",
+          "MLAB cells": "8",
+          "MIF": "None",
+          "Location": "LAB_X6_Y45_N0, LAB_X3_Y45_N0, LAB_X6_Y44_N0, LAB_X3_Y43_N0, LAB_X8_Y46_N0, LAB_X3_Y46_N0, LAB_X6_Y46_N0, LAB_X3_Y44_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_F10414_snapshot:u_j08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "256",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "1",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "1",
+          "Implementation Bits": "256",
+          "M10K blocks": "0",
+          "MLAB cells": "8",
+          "MIF": "None",
+          "Location": "LAB_X6_Y47_N0, LAB_X8_Y47_N0, LAB_X3_Y48_N0, LAB_X6_Y48_N0, LAB_X8_Y48_N0, LAB_X6_Y49_N0, LAB_X8_Y49_N0, LAB_X3_Y49_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_h06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X6_Y47_N0, LAB_X8_Y47_N0, LAB_X3_Y47_N0, LAB_X6_Y48_N0, LAB_X8_Y48_N0, LAB_X6_Y49_N0, LAB_X8_Y49_N0, LAB_X3_Y49_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_i06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X6_Y45_N0, LAB_X3_Y45_N0, LAB_X6_Y44_N0, LAB_X3_Y43_N0, LAB_X8_Y46_N0, LAB_X3_Y46_N0, LAB_X6_Y46_N0, LAB_X3_Y44_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_j06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X6_Y47_N0, LAB_X8_Y47_N0, LAB_X3_Y47_N0, LAB_X6_Y48_N0, LAB_X8_Y48_N0, LAB_X6_Y49_N0, LAB_X8_Y49_N0, LAB_X3_Y49_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_k06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X6_Y45_N0, LAB_X3_Y45_N0, LAB_X6_Y44_N0, LAB_X3_Y43_N0, LAB_X8_Y46_N0, LAB_X3_Y46_N0, LAB_X6_Y46_N0, LAB_X3_Y44_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        }
+      ]
+    },
+    "snapshot": {
+      "Analysis & Synthesis RAM Summary": [
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_F10414_snapshot:u_i08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Size": "256",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_F10414_snapshot:u_j08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Size": "256",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_h06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_i06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_j06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_k06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_F10414_snapshot:u_i08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Size": "256",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_F10414_snapshot:u_j08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Size": "256",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_h06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_i06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_j06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_k06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Size": "1024",
+          "MIF": "None"
+        }
+      ],
+      "Fitter RAM Summary": [
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_F10414_snapshot:u_i08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "256",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "1",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "1",
+          "Implementation Bits": "256",
+          "M10K blocks": "0",
+          "MLAB cells": "8",
+          "MIF": "None",
+          "Location": "LAB_X3_Y51_N0, LAB_X8_Y51_N0, LAB_X3_Y52_N0, LAB_X3_Y55_N0, LAB_X6_Y51_N0, LAB_X8_Y52_N0, LAB_X6_Y52_N0, LAB_X6_Y55_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_F10414_snapshot:u_j08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "256",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "1",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "1",
+          "Implementation Bits": "256",
+          "M10K blocks": "0",
+          "MLAB cells": "8",
+          "MIF": "None",
+          "Location": "LAB_X8_Y50_N0, LAB_X8_Y53_N0, LAB_X6_Y53_N0, LAB_X3_Y53_N0, LAB_X3_Y49_N0, LAB_X8_Y49_N0, LAB_X6_Y49_N0, LAB_X15_Y49_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_h06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X8_Y50_N0, LAB_X8_Y53_N0, LAB_X6_Y53_N0, LAB_X3_Y53_N0, LAB_X3_Y49_N0, LAB_X8_Y49_N0, LAB_X6_Y49_N0, LAB_X15_Y49_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_i06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X3_Y51_N0, LAB_X8_Y51_N0, LAB_X3_Y52_N0, LAB_X3_Y55_N0, LAB_X6_Y51_N0, LAB_X8_Y52_N0, LAB_X6_Y52_N0, LAB_X6_Y55_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_j06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X8_Y50_N0, LAB_X8_Y53_N0, LAB_X6_Y53_N0, LAB_X3_Y53_N0, LAB_X3_Y49_N0, LAB_X8_Y49_N0, LAB_X6_Y49_N0, LAB_X15_Y49_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MB7071H_snapshot:u_k06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X3_Y51_N0, LAB_X8_Y51_N0, LAB_X3_Y52_N0, LAB_X3_Y55_N0, LAB_X6_Y51_N0, LAB_X8_Y52_N0, LAB_X6_Y52_N0, LAB_X6_Y55_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_F10414_snapshot:u_i08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "256",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "1",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "1",
+          "Implementation Bits": "256",
+          "M10K blocks": "0",
+          "MLAB cells": "8",
+          "MIF": "None",
+          "Location": "LAB_X8_Y44_N0, LAB_X6_Y44_N0, LAB_X3_Y44_N0, LAB_X3_Y45_N0, LAB_X8_Y45_N0, LAB_X15_Y45_N0, LAB_X15_Y46_N0, LAB_X6_Y45_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_F10414_snapshot:u_j08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "1",
+          "Port B Depth": "256",
+          "Port B Width": "1",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "256",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "1",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "1",
+          "Implementation Bits": "256",
+          "M10K blocks": "0",
+          "MLAB cells": "8",
+          "MIF": "None",
+          "Location": "LAB_X6_Y46_N0, LAB_X3_Y46_N0, LAB_X8_Y48_N0, LAB_X8_Y46_N0, LAB_X8_Y47_N0, LAB_X6_Y47_N0, LAB_X6_Y48_N0, LAB_X3_Y47_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_h06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X8_Y47_N0, LAB_X6_Y47_N0, LAB_X6_Y48_N0, LAB_X3_Y47_N0, LAB_X6_Y46_N0, LAB_X3_Y46_N0, LAB_X8_Y48_N0, LAB_X8_Y46_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_i06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X8_Y45_N0, LAB_X15_Y45_N0, LAB_X15_Y46_N0, LAB_X6_Y45_N0, LAB_X8_Y44_N0, LAB_X6_Y44_N0, LAB_X3_Y44_N0, LAB_X3_Y45_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_j06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X6_Y46_N0, LAB_X3_Y46_N0, LAB_X8_Y48_N0, LAB_X8_Y46_N0, LAB_X8_Y47_N0, LAB_X6_Y47_N0, LAB_X6_Y48_N0, LAB_X3_Y47_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MB7071H_snapshot:u_k06|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "256",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "256",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "1024",
+          "M10K blocks": "0",
+          "MLAB cells": "32",
+          "MIF": "None",
+          "Location": "LAB_X8_Y45_N0, LAB_X15_Y45_N0, LAB_X15_Y46_N0, LAB_X6_Y45_N0, LAB_X8_Y44_N0, LAB_X6_Y44_N0, LAB_X3_Y44_N0, LAB_X3_Y45_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        }
+      ]
+    }
+  },
+  "ifu_memories": {
+    "macros": [
+      {
+        "bank": 10,
+        "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_10|altsyncram:mem_rtl_0",
+        "parameters": {
+          "OPERATION_MODE": "DUAL_PORT",
+          "RAM_BLOCK_TYPE": "M10K",
+          "WIDTH_A": "2",
+          "WIDTH_B": "2",
+          "NUMWORDS_A": "1024",
+          "NUMWORDS_B": "1024",
+          "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+        }
+      },
+      {
+        "bank": 9,
+        "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_9|altsyncram:mem_rtl_0",
+        "parameters": {
+          "OPERATION_MODE": "DUAL_PORT",
+          "RAM_BLOCK_TYPE": "M10K",
+          "WIDTH_A": "4",
+          "WIDTH_B": "4",
+          "NUMWORDS_A": "1024",
+          "NUMWORDS_B": "1024",
+          "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+        }
+      },
+      {
+        "bank": 8,
+        "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_8|altsyncram:mem_rtl_0",
+        "parameters": {
+          "OPERATION_MODE": "DUAL_PORT",
+          "RAM_BLOCK_TYPE": "M10K",
+          "WIDTH_A": "1",
+          "WIDTH_B": "1",
+          "NUMWORDS_A": "1024",
+          "NUMWORDS_B": "1024",
+          "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+        }
+      },
+      {
+        "bank": 7,
+        "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_7|altsyncram:mem_rtl_0",
+        "parameters": {
+          "OPERATION_MODE": "DUAL_PORT",
+          "RAM_BLOCK_TYPE": "M10K",
+          "WIDTH_A": "2",
+          "WIDTH_B": "2",
+          "NUMWORDS_A": "1024",
+          "NUMWORDS_B": "1024",
+          "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+        }
+      },
+      {
+        "bank": 6,
+        "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_6|altsyncram:mem_rtl_0",
+        "parameters": {
+          "OPERATION_MODE": "DUAL_PORT",
+          "RAM_BLOCK_TYPE": "M10K",
+          "WIDTH_A": "5",
+          "WIDTH_B": "5",
+          "NUMWORDS_A": "1024",
+          "NUMWORDS_B": "1024",
+          "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+        }
+      },
+      {
+        "bank": 5,
+        "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_5|altsyncram:mem_rtl_0",
+        "parameters": {
+          "OPERATION_MODE": "DUAL_PORT",
+          "RAM_BLOCK_TYPE": "M10K",
+          "WIDTH_A": "1",
+          "WIDTH_B": "1",
+          "NUMWORDS_A": "1024",
+          "NUMWORDS_B": "1024",
+          "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+        }
+      },
+      {
+        "bank": 4,
+        "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_4|altsyncram:mem_rtl_0",
+        "parameters": {
+          "OPERATION_MODE": "DUAL_PORT",
+          "RAM_BLOCK_TYPE": "M10K",
+          "WIDTH_A": "4",
+          "WIDTH_B": "4",
+          "NUMWORDS_A": "1024",
+          "NUMWORDS_B": "1024",
+          "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+        }
+      },
+      {
+        "bank": 3,
+        "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_3|altsyncram:mem_rtl_0",
+        "parameters": {
+          "OPERATION_MODE": "DUAL_PORT",
+          "RAM_BLOCK_TYPE": "M10K",
+          "WIDTH_A": "1",
+          "WIDTH_B": "1",
+          "NUMWORDS_A": "1024",
+          "NUMWORDS_B": "1024",
+          "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+        }
+      },
+      {
+        "bank": 2,
+        "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_2|altsyncram:mem_rtl_0",
+        "parameters": {
+          "OPERATION_MODE": "DUAL_PORT",
+          "RAM_BLOCK_TYPE": "M10K",
+          "WIDTH_A": "1",
+          "WIDTH_B": "1",
+          "NUMWORDS_A": "1024",
+          "NUMWORDS_B": "1024",
+          "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+        }
+      },
+      {
+        "bank": 1,
+        "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_1|altsyncram:mem_rtl_0",
+        "parameters": {
+          "OPERATION_MODE": "DUAL_PORT",
+          "RAM_BLOCK_TYPE": "M10K",
+          "WIDTH_A": "5",
+          "WIDTH_B": "5",
+          "NUMWORDS_A": "1024",
+          "NUMWORDS_B": "1024",
+          "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+        }
+      },
+      {
+        "bank": 0,
+        "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_0|altsyncram:mem_rtl_0",
+        "parameters": {
+          "OPERATION_MODE": "DUAL_PORT",
+          "RAM_BLOCK_TYPE": "M10K",
+          "WIDTH_A": "1",
+          "WIDTH_B": "1",
+          "NUMWORDS_A": "1024",
+          "NUMWORDS_B": "1024",
+          "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+        }
+      }
+    ],
+    "physical": [
+      {
+        "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_0|altsyncram:mem_rtl_0|altsyncram_j2s1:auto_generated|ALTSYNCRAM",
+        "Type": "M10K block",
+        "Mode": "Simple Dual Port",
+        "Clock Mode": "Single Clock",
+        "Port A Depth": "1024",
+        "Port A Width": "1",
+        "Port B Depth": "1024",
+        "Port B Width": "1",
+        "Port A Input Registers": "yes",
+        "Port A Output Registers": "no",
+        "Port B Input Registers": "yes",
+        "Port B Output Registers": "no",
+        "Size": "1024",
+        "Implementation Port A Depth": "1024",
+        "Implementation Port A Width": "1",
+        "Implementation Port B Depth": "1024",
+        "Implementation Port B Width": "1",
+        "Implementation Bits": "1024",
+        "M10K blocks": "1",
+        "MLAB cells": "0",
+        "MIF": "None",
+        "Location": "M10K_X14_Y41_N0",
+        "Mixed Width RDW Mode": "Old data",
+        "Port A RDW Mode": "New data",
+        "Port B RDW Mode": "New data",
+        "ECC Mode": "Off",
+        "ECC Pipeline Registers": "No",
+        "Fits in MLABs": "No - Address Too Wide"
+      },
+      {
+        "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_10|altsyncram:mem_rtl_0|altsyncram_l2s1:auto_generated|ALTSYNCRAM",
+        "Type": "M10K block",
+        "Mode": "Simple Dual Port",
+        "Clock Mode": "Single Clock",
+        "Port A Depth": "1024",
+        "Port A Width": "2",
+        "Port B Depth": "1024",
+        "Port B Width": "2",
+        "Port A Input Registers": "yes",
+        "Port A Output Registers": "no",
+        "Port B Input Registers": "yes",
+        "Port B Output Registers": "no",
+        "Size": "2048",
+        "Implementation Port A Depth": "1024",
+        "Implementation Port A Width": "2",
+        "Implementation Port B Depth": "1024",
+        "Implementation Port B Width": "2",
+        "Implementation Bits": "2048",
+        "M10K blocks": "1",
+        "MLAB cells": "0",
+        "MIF": "None",
+        "Location": "M10K_X5_Y42_N0",
+        "Mixed Width RDW Mode": "Old data",
+        "Port A RDW Mode": "New data",
+        "Port B RDW Mode": "New data",
+        "ECC Mode": "Off",
+        "ECC Pipeline Registers": "No",
+        "Fits in MLABs": "No - Address Too Wide"
+      },
+      {
+        "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_1|altsyncram:mem_rtl_0|altsyncram_r2s1:auto_generated|ALTSYNCRAM",
+        "Type": "M10K block",
+        "Mode": "Simple Dual Port",
+        "Clock Mode": "Single Clock",
+        "Port A Depth": "1024",
+        "Port A Width": "5",
+        "Port B Depth": "1024",
+        "Port B Width": "5",
+        "Port A Input Registers": "yes",
+        "Port A Output Registers": "no",
+        "Port B Input Registers": "yes",
+        "Port B Output Registers": "no",
+        "Size": "5120",
+        "Implementation Port A Depth": "1024",
+        "Implementation Port A Width": "5",
+        "Implementation Port B Depth": "1024",
+        "Implementation Port B Width": "5",
+        "Implementation Bits": "5120",
+        "M10K blocks": "1",
+        "MLAB cells": "0",
+        "MIF": "None",
+        "Location": "M10K_X14_Y42_N0",
+        "Mixed Width RDW Mode": "Old data",
+        "Port A RDW Mode": "New data",
+        "Port B RDW Mode": "New data",
+        "ECC Mode": "Off",
+        "ECC Pipeline Registers": "No",
+        "Fits in MLABs": "No - Address Too Wide"
+      },
+      {
+        "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_2|altsyncram:mem_rtl_0|altsyncram_j2s1:auto_generated|ALTSYNCRAM",
+        "Type": "M10K block",
+        "Mode": "Simple Dual Port",
+        "Clock Mode": "Single Clock",
+        "Port A Depth": "1024",
+        "Port A Width": "1",
+        "Port B Depth": "1024",
+        "Port B Width": "1",
+        "Port A Input Registers": "yes",
+        "Port A Output Registers": "no",
+        "Port B Input Registers": "yes",
+        "Port B Output Registers": "no",
+        "Size": "1024",
+        "Implementation Port A Depth": "1024",
+        "Implementation Port A Width": "1",
+        "Implementation Port B Depth": "1024",
+        "Implementation Port B Width": "1",
+        "Implementation Bits": "1024",
+        "M10K blocks": "1",
+        "MLAB cells": "0",
+        "MIF": "None",
+        "Location": "M10K_X14_Y43_N0",
+        "Mixed Width RDW Mode": "Old data",
+        "Port A RDW Mode": "New data",
+        "Port B RDW Mode": "New data",
+        "ECC Mode": "Off",
+        "ECC Pipeline Registers": "No",
+        "Fits in MLABs": "No - Address Too Wide"
+      },
+      {
+        "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_3|altsyncram:mem_rtl_0|altsyncram_j2s1:auto_generated|ALTSYNCRAM",
+        "Type": "M10K block",
+        "Mode": "Simple Dual Port",
+        "Clock Mode": "Single Clock",
+        "Port A Depth": "1024",
+        "Port A Width": "1",
+        "Port B Depth": "1024",
+        "Port B Width": "1",
+        "Port A Input Registers": "yes",
+        "Port A Output Registers": "no",
+        "Port B Input Registers": "yes",
+        "Port B Output Registers": "no",
+        "Size": "1024",
+        "Implementation Port A Depth": "1024",
+        "Implementation Port A Width": "1",
+        "Implementation Port B Depth": "1024",
+        "Implementation Port B Width": "1",
+        "Implementation Bits": "1024",
+        "M10K blocks": "1",
+        "MLAB cells": "0",
+        "MIF": "None",
+        "Location": "M10K_X14_Y42_N0",
+        "Mixed Width RDW Mode": "Old data",
+        "Port A RDW Mode": "New data",
+        "Port B RDW Mode": "New data",
+        "ECC Mode": "Off",
+        "ECC Pipeline Registers": "No",
+        "Fits in MLABs": "No - Address Too Wide"
+      },
+      {
+        "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_4|altsyncram:mem_rtl_0|altsyncram_p2s1:auto_generated|ALTSYNCRAM",
+        "Type": "M10K block",
+        "Mode": "Simple Dual Port",
+        "Clock Mode": "Single Clock",
+        "Port A Depth": "1024",
+        "Port A Width": "4",
+        "Port B Depth": "1024",
+        "Port B Width": "4",
+        "Port A Input Registers": "yes",
+        "Port A Output Registers": "no",
+        "Port B Input Registers": "yes",
+        "Port B Output Registers": "no",
+        "Size": "4096",
+        "Implementation Port A Depth": "1024",
+        "Implementation Port A Width": "4",
+        "Implementation Port B Depth": "1024",
+        "Implementation Port B Width": "4",
+        "Implementation Bits": "4096",
+        "M10K blocks": "1",
+        "MLAB cells": "0",
+        "MIF": "None",
+        "Location": "M10K_X14_Y43_N0",
+        "Mixed Width RDW Mode": "Old data",
+        "Port A RDW Mode": "New data",
+        "Port B RDW Mode": "New data",
+        "ECC Mode": "Off",
+        "ECC Pipeline Registers": "No",
+        "Fits in MLABs": "No - Address Too Wide"
+      },
+      {
+        "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_5|altsyncram:mem_rtl_0|altsyncram_j2s1:auto_generated|ALTSYNCRAM",
+        "Type": "M10K block",
+        "Mode": "Simple Dual Port",
+        "Clock Mode": "Single Clock",
+        "Port A Depth": "1024",
+        "Port A Width": "1",
+        "Port B Depth": "1024",
+        "Port B Width": "1",
+        "Port A Input Registers": "yes",
+        "Port A Output Registers": "no",
+        "Port B Input Registers": "yes",
+        "Port B Output Registers": "no",
+        "Size": "1024",
+        "Implementation Port A Depth": "1024",
+        "Implementation Port A Width": "1",
+        "Implementation Port B Depth": "1024",
+        "Implementation Port B Width": "1",
+        "Implementation Bits": "1024",
+        "M10K blocks": "1",
+        "MLAB cells": "0",
+        "MIF": "None",
+        "Location": "M10K_X5_Y43_N0",
+        "Mixed Width RDW Mode": "Old data",
+        "Port A RDW Mode": "New data",
+        "Port B RDW Mode": "New data",
+        "ECC Mode": "Off",
+        "ECC Pipeline Registers": "No",
+        "Fits in MLABs": "No - Address Too Wide"
+      },
+      {
+        "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_6|altsyncram:mem_rtl_0|altsyncram_r2s1:auto_generated|ALTSYNCRAM",
+        "Type": "M10K block",
+        "Mode": "Simple Dual Port",
+        "Clock Mode": "Single Clock",
+        "Port A Depth": "1024",
+        "Port A Width": "5",
+        "Port B Depth": "1024",
+        "Port B Width": "5",
+        "Port A Input Registers": "yes",
+        "Port A Output Registers": "no",
+        "Port B Input Registers": "yes",
+        "Port B Output Registers": "no",
+        "Size": "5120",
+        "Implementation Port A Depth": "1024",
+        "Implementation Port A Width": "5",
+        "Implementation Port B Depth": "1024",
+        "Implementation Port B Width": "5",
+        "Implementation Bits": "5120",
+        "M10K blocks": "1",
+        "MLAB cells": "0",
+        "MIF": "None",
+        "Location": "M10K_X14_Y40_N0",
+        "Mixed Width RDW Mode": "Old data",
+        "Port A RDW Mode": "New data",
+        "Port B RDW Mode": "New data",
+        "ECC Mode": "Off",
+        "ECC Pipeline Registers": "No",
+        "Fits in MLABs": "No - Address Too Wide"
+      },
+      {
+        "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_7|altsyncram:mem_rtl_0|altsyncram_l2s1:auto_generated|ALTSYNCRAM",
+        "Type": "M10K block",
+        "Mode": "Simple Dual Port",
+        "Clock Mode": "Single Clock",
+        "Port A Depth": "1024",
+        "Port A Width": "2",
+        "Port B Depth": "1024",
+        "Port B Width": "2",
+        "Port A Input Registers": "yes",
+        "Port A Output Registers": "no",
+        "Port B Input Registers": "yes",
+        "Port B Output Registers": "no",
+        "Size": "2048",
+        "Implementation Port A Depth": "1024",
+        "Implementation Port A Width": "2",
+        "Implementation Port B Depth": "1024",
+        "Implementation Port B Width": "2",
+        "Implementation Bits": "2048",
+        "M10K blocks": "1",
+        "MLAB cells": "0",
+        "MIF": "None",
+        "Location": "M10K_X5_Y40_N0",
+        "Mixed Width RDW Mode": "Old data",
+        "Port A RDW Mode": "New data",
+        "Port B RDW Mode": "New data",
+        "ECC Mode": "Off",
+        "ECC Pipeline Registers": "No",
+        "Fits in MLABs": "No - Address Too Wide"
+      },
+      {
+        "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_8|altsyncram:mem_rtl_0|altsyncram_j2s1:auto_generated|ALTSYNCRAM",
+        "Type": "M10K block",
+        "Mode": "Simple Dual Port",
+        "Clock Mode": "Single Clock",
+        "Port A Depth": "1024",
+        "Port A Width": "1",
+        "Port B Depth": "1024",
+        "Port B Width": "1",
+        "Port A Input Registers": "yes",
+        "Port A Output Registers": "no",
+        "Port B Input Registers": "yes",
+        "Port B Output Registers": "no",
+        "Size": "1024",
+        "Implementation Port A Depth": "1024",
+        "Implementation Port A Width": "1",
+        "Implementation Port B Depth": "1024",
+        "Implementation Port B Width": "1",
+        "Implementation Bits": "1024",
+        "M10K blocks": "1",
+        "MLAB cells": "0",
+        "MIF": "None",
+        "Location": "M10K_X5_Y42_N0",
+        "Mixed Width RDW Mode": "Old data",
+        "Port A RDW Mode": "New data",
+        "Port B RDW Mode": "New data",
+        "ECC Mode": "Off",
+        "ECC Pipeline Registers": "No",
+        "Fits in MLABs": "No - Address Too Wide"
+      },
+      {
+        "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|IFU_full_snapshot_experiment:b_IFU|dorado_snapshot_f10415_word_bank:snapshot_bank_9|altsyncram:mem_rtl_0|altsyncram_p2s1:auto_generated|ALTSYNCRAM",
+        "Type": "M10K block",
+        "Mode": "Simple Dual Port",
+        "Clock Mode": "Single Clock",
+        "Port A Depth": "1024",
+        "Port A Width": "4",
+        "Port B Depth": "1024",
+        "Port B Width": "4",
+        "Port A Input Registers": "yes",
+        "Port A Output Registers": "no",
+        "Port B Input Registers": "yes",
+        "Port B Output Registers": "no",
+        "Size": "4096",
+        "Implementation Port A Depth": "1024",
+        "Implementation Port A Width": "4",
+        "Implementation Port B Depth": "1024",
+        "Implementation Port B Width": "4",
+        "Implementation Bits": "4096",
+        "M10K blocks": "1",
+        "MLAB cells": "0",
+        "MIF": "None",
+        "Location": "M10K_X5_Y41_N0",
+        "Mixed Width RDW Mode": "Old data",
+        "Port A RDW Mode": "New data",
+        "Port B RDW Mode": "New data",
+        "ECC Mode": "Off",
+        "ECC Pipeline Registers": "No",
+        "Fits in MLABs": "No - Address Too Wide"
+      }
+    ],
+    "scope": "11 address groups/27,648bits, OLD_DATA; admin inactive, not enabled whole-core snapshot cost"
+  },
+  "ifu_memory_bits": 27648,
+  "processor_memory_bits": 9216,
+  "processor_mlab_cells": 288,
+  "warning_comparison": {
+    "map": {
+      "increased": {
+        "10036": 2
+      },
+      "decreased": {},
+      "review": "Only unused-object10036 increases permitted; other categories unchanged or reduced."
+    },
+    "fit": {
+      "increased": {},
+      "decreased": {},
+      "review": "Only unused-object10036 increases permitted; other categories unchanged or reduced."
+    }
+  },
+  "failure_controls": [
+    {
+      "case": "extra_macro",
+      "rejected": true,
+      "diagnostic": "project assignments changed"
+    },
+    {
+      "case": "extra_sdc",
+      "rejected": true,
+      "diagnostic": "project assignments changed"
+    },
+    {
+      "case": "wrong_source",
+      "rejected": true,
+      "diagnostic": "project assignments changed"
+    },
+    {
+      "case": "violated_hold",
+      "rejected": true,
+      "diagnostic": "('corrupted-hold', ('12', '1', '0.492'))"
+    },
+    {
+      "case": "map_wrong_processor_ram",
+      "rejected": true,
+      "diagnostic": "('processor RAM differs', ('ProcH', 'u_i08'), 'Type', 'M10K')"
+    },
+    {
+      "case": "fit_wrong_processor_ram",
+      "rejected": true,
+      "diagnostic": "('processor RAM differs', ('ProcH', 'u_i08'), 'Type', 'M10K')"
+    },
+    {
+      "case": "ifu_new_data",
+      "rejected": true,
+      "diagnostic": "('IFUM macro differs', 10, 'READ_DURING_WRITE_MODE_MIXED_PORTS', ['NEW_DATA'])"
+    }
+  ],
+  "reports": [
+    {
+      "report": "native54-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 1.508
+    },
+    {
+      "report": "native54-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.238
+    },
+    {
+      "report": "native54-recovery-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 10.018
+    },
+    {
+      "report": "native54-removal-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.696
+    },
+    {
+      "report": "native54-mpw-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 1,
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native54-sdram-input-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 5.489
+    },
+    {
+      "report": "native54-sdram-input-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.565
+    },
+    {
+      "report": "native54-sdram-output-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 2.77
+    },
+    {
+      "report": "native54-sdram-output-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 6.447
+    },
+    {
+      "report": "native54-conta-in-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.595
+    },
+    {
+      "report": "native54-conta-in-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.532
+    },
+    {
+      "report": "native54-conta-out-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.328
+    },
+    {
+      "report": "native54-conta-out-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.545
+    },
+    {
+      "report": "native54-contb-in-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.53
+    },
+    {
+      "report": "native54-contb-in-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.614
+    },
+    {
+      "report": "native54-contb-out-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.888
+    },
+    {
+      "report": "native54-contb-out-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.532
+    },
+    {
+      "report": "native54-proch-in-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.134
+    },
+    {
+      "report": "native54-proch-in-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.492
+    },
+    {
+      "report": "native54-proch-out-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.701
+    },
+    {
+      "report": "native54-proch-out-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.614
+    },
+    {
+      "report": "native54-procl-in-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.509
+    },
+    {
+      "report": "native54-procl-in-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.597
+    },
+    {
+      "report": "native54-procl-out-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.594
+    },
+    {
+      "report": "native54-procl-out-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.492
+    },
+    {
+      "report": "native54-ifu-in-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.525
+    },
+    {
+      "report": "native54-ifu-in-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.533
+    },
+    {
+      "report": "native54-ifu-out-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.964
+    },
+    {
+      "report": "native54-ifu-out-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.877
+    },
+    {
+      "report": "native54-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 1.377
+    },
+    {
+      "report": "native54-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.245
+    },
+    {
+      "report": "native54-recovery-7_slow_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 9.791
+    },
+    {
+      "report": "native54-removal-7_slow_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.725
+    },
+    {
+      "report": "native54-mpw-7_slow_1100mv_100c.rpt.gz",
+      "paths": 1,
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native54-sdram-input-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 5.096
+    },
+    {
+      "report": "native54-sdram-input-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.947
+    },
+    {
+      "report": "native54-sdram-output-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 2.683
+    },
+    {
+      "report": "native54-sdram-output-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 6.357
+    },
+    {
+      "report": "native54-conta-in-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.507
+    },
+    {
+      "report": "native54-conta-in-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.499
+    },
+    {
+      "report": "native54-conta-out-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.236
+    },
+    {
+      "report": "native54-conta-out-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.611
+    },
+    {
+      "report": "native54-contb-in-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.263
+    },
+    {
+      "report": "native54-contb-in-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.633
+    },
+    {
+      "report": "native54-contb-out-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.64
+    },
+    {
+      "report": "native54-contb-out-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.499
+    },
+    {
+      "report": "native54-proch-in-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 2.767
+    },
+    {
+      "report": "native54-proch-in-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.485
+    },
+    {
+      "report": "native54-proch-out-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.6
+    },
+    {
+      "report": "native54-proch-out-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.635
+    },
+    {
+      "report": "native54-procl-in-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.232
+    },
+    {
+      "report": "native54-procl-in-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.624
+    },
+    {
+      "report": "native54-procl-out-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.424
+    },
+    {
+      "report": "native54-procl-out-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.485
+    },
+    {
+      "report": "native54-ifu-in-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.252
+    },
+    {
+      "report": "native54-ifu-in-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.531
+    },
+    {
+      "report": "native54-ifu-out-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.743
+    },
+    {
+      "report": "native54-ifu-out-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.946
+    },
+    {
+      "report": "native54-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 5.224
+    },
+    {
+      "report": "native54-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.114
+    },
+    {
+      "report": "native54-recovery-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 11.58
+    },
+    {
+      "report": "native54-removal-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.321
+    },
+    {
+      "report": "native54-mpw-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 1,
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native54-sdram-input-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 8.636
+    },
+    {
+      "report": "native54-sdram-input-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 4.469
+    },
+    {
+      "report": "native54-sdram-output-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 5.224
+    },
+    {
+      "report": "native54-sdram-output-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 7.263
+    },
+    {
+      "report": "native54-conta-in-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.903
+    },
+    {
+      "report": "native54-conta-in-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.195
+    },
+    {
+      "report": "native54-conta-out-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 12.55
+    },
+    {
+      "report": "native54-conta-out-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.252
+    },
+    {
+      "report": "native54-contb-in-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.748
+    },
+    {
+      "report": "native54-contb-in-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.264
+    },
+    {
+      "report": "native54-contb-out-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 12.816
+    },
+    {
+      "report": "native54-contb-out-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.195
+    },
+    {
+      "report": "native54-proch-in-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.521
+    },
+    {
+      "report": "native54-proch-in-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.239
+    },
+    {
+      "report": "native54-proch-out-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 12.501
+    },
+    {
+      "report": "native54-proch-out-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.263
+    },
+    {
+      "report": "native54-procl-in-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.882
+    },
+    {
+      "report": "native54-procl-in-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.263
+    },
+    {
+      "report": "native54-procl-out-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 12.549
+    },
+    {
+      "report": "native54-procl-out-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.239
+    },
+    {
+      "report": "native54-ifu-in-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.905
+    },
+    {
+      "report": "native54-ifu-in-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.218
+    },
+    {
+      "report": "native54-ifu-out-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 12.708
+    },
+    {
+      "report": "native54-ifu-out-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.399
+    },
+    {
+      "report": "native54-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 4.963
+    },
+    {
+      "report": "native54-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.13
+    },
+    {
+      "report": "native54-recovery-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 11.157
+    },
+    {
+      "report": "native54-removal-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.379
+    },
+    {
+      "report": "native54-mpw-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 1,
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native54-sdram-input-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 8.201
+    },
+    {
+      "report": "native54-sdram-input-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 4.945
+    },
+    {
+      "report": "native54-sdram-output-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 4.963
+    },
+    {
+      "report": "native54-sdram-output-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 7.233
+    },
+    {
+      "report": "native54-conta-in-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.321
+    },
+    {
+      "report": "native54-conta-in-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.24
+    },
+    {
+      "report": "native54-conta-out-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 11.449
+    },
+    {
+      "report": "native54-conta-out-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.301
+    },
+    {
+      "report": "native54-contb-in-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.058
+    },
+    {
+      "report": "native54-contb-in-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.285
+    },
+    {
+      "report": "native54-contb-out-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 11.671
+    },
+    {
+      "report": "native54-contb-out-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.24
+    },
+    {
+      "report": "native54-proch-in-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 5.806
+    },
+    {
+      "report": "native54-proch-in-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.26
+    },
+    {
+      "report": "native54-proch-out-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 11.285
+    },
+    {
+      "report": "native54-proch-out-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.317
+    },
+    {
+      "report": "native54-procl-in-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.254
+    },
+    {
+      "report": "native54-procl-in-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.317
+    },
+    {
+      "report": "native54-procl-out-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 11.442
+    },
+    {
+      "report": "native54-procl-out-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.26
+    },
+    {
+      "report": "native54-ifu-in-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.322
+    },
+    {
+      "report": "native54-ifu-in-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.269
+    },
+    {
+      "report": "native54-ifu-out-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 11.558
+    },
+    {
+      "report": "native54-ifu-out-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.462
+    }
+  ],
+  "rbf_sha256": "80d67e1212b944cdb235040f26b5d794a7c4451d8302b24888c342caf16bdb77",
+  "storage_prefetch": true,
+  "storage_interleave": true,
+  "storage_defer_reads": false,
+  "network_ddr": true,
+  "raw_line_cache_entries": 0,
+  "required_sdram_mb": 128,
+  "guest_ram_mib": 8,
+  "raw_backing_mib": 16,
+  "raw_backend": "SDRAM, no raw line buffer",
+  "policy_scope": "Inherited from qualified53, with exact unchanged outer wrapper, project assignments and all other source bytes verified above.",
+  "assistance": "None; untouched seed before final cache-ready",
+  "source_run": "Cedar53_20261019",
+  "disk_trace": "/tmp/dorado54-disk.jsonl"
+}

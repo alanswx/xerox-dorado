@@ -1,0 +1,26 @@
+{
+  "status": "PASS: original firmware/Pilot/Cedar login and34 base transfers/final ACK; full54desktop/input pending",
+  "main_pid": 20155,
+  "server_pid": 20154,
+  "rbf_sha256": "80d67e1212b944cdb235040f26b5d794a7c4451d8302b24888c342caf16bdb77",
+  "idle_issues_per_s": 1947774.2161087047,
+  "observer_pid": 20367,
+  "observer_handle": 54671,
+  "measurement_handle": 89980,
+  "measurement_terminal": true,
+  "limits": "One fresh54 boot; earlier manual login gate varies. Same50MHz/SYSPER4 and inactive admin. No speed gain/causal replay diagnosis, physical-payload hashes, complete snapshots, original60ns or final3boots/2h stress claim.",
+  "observer_terminal": "Graceful stop after actual final guest ACK; independently absent",
+  "loader_elapsed_s": [
+    332.810528453,
+    333.019019058
+  ],
+  "loader_issue_bounds": [
+    551667178,
+    555195598
+  ],
+  "replays_by_phase": {
+    "Cedar6.1/Tioga/TiogaPackage.bcd": 46,
+    "Cedar6.1/CommandTool/CommandToolPackage.bcd": 56
+  },
+  "profile": "Explicit No accepted; BootEssentials advancing"
+}

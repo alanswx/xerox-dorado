@@ -1,0 +1,16 @@
+{
+  "status": "PASS: normal guest Boot after qualified desktop/input and warm marker readback",
+  "main_pid": 17783,
+  "server_pid": 17782,
+  "rbf_sha256": "c323f163b0c43ad8ce332096c9509e7e1b19b02a0dfe454260f6b4453ed77391",
+  "observed": "germ845",
+  "meaning": "845 mesaRuntimeInitialized in Cedar6.1 MPCodes; no unobserved germ812/855 claim",
+  "checked_utc": "2026-10-19T10:59:24.209652+00:00",
+  "captures": {
+    "normal-boot-0.png": "8a1275063137a299c765e36722dca26c48c0ade2c48ab891ec00cd78b693ce7d",
+    "normal-boot-1.png": "ca7ec2a8263d145139c47e244d62557f4942167c6d1b290512a741aa0cb8c703",
+    "normal-boot-2.png": "ca7ec2a8263d145139c47e244d62557f4942167c6d1b290512a741aa0cb8c703",
+    "normal-boot-3.png": "ca7ec2a8263d145139c47e244d62557f4942167c6d1b290512a741aa0cb8c703"
+  },
+  "limits": "Normal guest Boot boundary; not clean OS shutdown, host disk barrier, cold marker readback or machine snapshot"
+}

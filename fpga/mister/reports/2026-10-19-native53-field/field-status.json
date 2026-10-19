@@ -20,5 +20,7 @@
   "profile": "Explicit No accepted; BootEssentials/fonts/STARTs and full Viewers pass.",
   "limits": "One fresh53 boot; manual pre-Guest gate still varies. Same50MHz/SYSPER4, all snapshot admin inactive. No speed gain, full snapshot, physical payload hash, original60ns or final3boots/2h stress claim. No causal clearance of replay variability.",
   "desktop_qualification": "desktop-qualification.json",
-  "cold_marker_readback": "NOT TESTED for rtl53persist"
+  "cold_marker_readback": "NOT TESTED for rtl53persist",
+  "normal_guest_boot": "Observed845 mesaRuntimeInitialized; see normal-boot-qualification.json",
+  "live_state": "Retired normally for54 after actual Main network/disk barriers; pack preserved"
 }

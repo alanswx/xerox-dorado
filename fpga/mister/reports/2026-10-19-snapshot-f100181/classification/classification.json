@@ -1,0 +1,271 @@
+{
+  "status": "PASS",
+  "modeled_state_bits": 4,
+  "xml_sha256": "f34e0f1ed1af22e3c99b7a2d9a8d13fb1aac1c9df76748da1c29b93a1cd47d3b",
+  "decisions": [
+    {
+      "path": "cell_F100181.__VdfgExtracted_h24b1ec8d__0",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgExtracted_h3d5cd30f__0",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgExtracted_h8748e70c__0",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgExtracted_h87589a14__0",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgExtracted_hae3b2ad5__0",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgExtracted_hc505ec39__0",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgExtracted_hc50ab728__0",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgExtracted_hc5159b45__0",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgExtracted_hcd89e62c__0",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgExtracted_hcd9b5c5f__0",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgExtracted_hcdabce5a__0",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgExtracted_hdb27e163__0",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgExtracted_he91c2fc5__0",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgRegularize_h2f68a40d_0_1",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.__VdfgRegularize_h2f68a40d_0_2",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181._unused",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned AND with literal zero"
+    },
+    {
+      "path": "cell_F100181.a",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.arith",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.b",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.cin",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.f",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.gn",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.grp_g",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.grp_p",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.lg",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.p10",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.p2",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.p3",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.p4",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.p5",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.p8",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.p9",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.pn",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.q",
+      "decision": "SAVE",
+      "bits": 4,
+      "lsb": 0
+    },
+    {
+      "path": "cell_F100181.s",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    },
+    {
+      "path": "cell_F100181.sum",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Source-pinned continuous expression or complete original combinational function table"
+    }
+  ],
+  "scope": "One sampled ALU output latch; carry/lookahead remain combinational. No complete MemC/global snapshot or original BCD accuracy claim.",
+  "failure_controls": [
+    {
+      "case": "missing_q",
+      "rejected": true,
+      "diagnostic": "missing latch/derived source coverage"
+    },
+    {
+      "case": "wrong_width",
+      "rejected": true,
+      "diagnostic": "latch geometry differs"
+    },
+    {
+      "case": "new_state",
+      "rejected": true,
+      "diagnostic": "unclassified ALU candidate: lost"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "duplicate/unexpected ALU candidate"
+    },
+    {
+      "case": "combin_state",
+      "rejected": true,
+      "diagnostic": "derived ALU expression became state: sum"
+    },
+    {
+      "case": "new_combin",
+      "rejected": true,
+      "diagnostic": "unclassified ALU candidate: new_comb"
+    },
+    {
+      "case": "constant_state",
+      "rejected": true,
+      "diagnostic": "constant became state"
+    },
+    {
+      "case": "aliased_schema",
+      "rejected": true,
+      "diagnostic": "unreviewed ALU latch schema/source"
+    },
+    {
+      "case": "source_hash",
+      "rejected": true,
+      "diagnostic": "unreviewed ALU latch schema/source"
+    }
+  ]
+}

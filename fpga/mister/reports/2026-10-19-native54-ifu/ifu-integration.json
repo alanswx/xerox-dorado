@@ -1,0 +1,35 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native53_20261019",
+  "candidate": "/home/alans/mister/Dorado_Native54_20261019",
+  "change": "Frozen53 plus complete exact-advance IFU adapter; five shared qualified FF files reused byte-identically. All state admin inactive; no global save/load or speed claim.",
+  "snapshot_admin": "INACTIVE; no physical save/load",
+  "extra_timing_exceptions": "None",
+  "source_changes": [
+    "build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+  ],
+  "added_sources": [
+    "fpga/mister/snapshot_native_ifu/cell_MC10135_snapshot.v",
+    "fpga/mister/snapshot_native_ifu/f10415_word_bank.sv",
+    "fpga/mister/snapshot_native_ifu/assets.json",
+    "fpga/mister/snapshot_native_ifu/IFU_full_snapshot.sv"
+  ],
+  "shared_sources": {
+    "cell_MC10176_snapshot.v": "fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+    "cell_MC10231_snapshot.v": "fpga/mister/snapshot_native/cell_MC10231_snapshot.v",
+    "cell_F10016_snapshot.v": "fpga/mister/snapshot_native_conta/cell_F10016_snapshot.v",
+    "cell_MC10141_snapshot.v": "fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v",
+    "cell_MC10173_snapshot.v": "fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v"
+  },
+  "speed": "Same50MHz/SYSPER4; no speed claim. Protocol replay variability remains open.",
+  "source_hashes": {
+    "core/Dorado.sv": "6e00eb03e3428b4c1f594609d1f1d3ef82a188e036954f4f14fc9e982fcd8ec9",
+    "core/Dorado.qsf": "7637fe101c95f5f1da9b9d74fb1dcf836b8641f29db651eb42a11847ea2ec708",
+    "core/device-corners.tcl": "8e367ab161bcdd268836c68303909248ee842a3c2c2365d2275bc61f946407ba",
+    "core/audit-adapter-crossings.tcl": "201d8701586367d308d26fd2a8d86840e622371a13497c5e5f1109f4e266ec91",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "5a9917d9aad483683b668187ab18b16932a1e42387195c0d32e3d7b027c08159",
+    "src/fpga/mister/snapshot_native_ifu/cell_MC10135_snapshot.v": "b46aec0a301d13133994a844321cdb352bc01a200dd898002e9641000ac0a389",
+    "src/fpga/mister/snapshot_native_ifu/f10415_word_bank.sv": "d5e0649f392cfdbc116de9bbc5b615ba923526704357ddfb0888ace111fea5ca",
+    "src/fpga/mister/snapshot_native_ifu/assets.json": "278700aaca392b418960395cd299154c92e98b03469146c0874b64c443f8592d",
+    "src/fpga/mister/snapshot_native_ifu/IFU_full_snapshot.sv": "78a2101a21acef03e028165dc87572bf1644775171d8a79a11ce8b5f086e9c06"
+  }
+}

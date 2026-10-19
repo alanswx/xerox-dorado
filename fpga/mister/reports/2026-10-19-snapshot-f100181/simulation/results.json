@@ -1,0 +1,59 @@
+{
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "ungated",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "ignore_hold",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "lost_restore",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "wrong_latch",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "wrong_carry",
+      "returncode": 1,
+      "expected_failure": "pin oracle differs"
+    }
+  ],
+  "source_controls": [
+    {
+      "case": "extra_state",
+      "rejected": true,
+      "diagnostic": "unreviewed F100181 source"
+    },
+    {
+      "case": "wrong_latch",
+      "rejected": true,
+      "diagnostic": "unreviewed F100181 source"
+    },
+    {
+      "case": "wrong_logic",
+      "rejected": true,
+      "diagnostic": "unreviewed F100181 source"
+    }
+  ],
+  "source_hashes": {
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_f100181.py": "f45493deeb5e96ddf1c91285dcf06b92da291d13625c55ad6d7ee7a203a2493c",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_f100181.cpp": "307d40f5e35438f39ee120bd645abf6ba8bb82fdd8d2c9bd33ffa8dafb5fa96e",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_f100181.py": "871eb042b1d4dfcbc24184f6a221e580fdd549159b5e1d56c74dd8bc8018545a",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_contb_full.py": "9058fedbfec998ee4217a758cd7030f00941a7740952715ebbe7cb0801293a5d",
+    "/Users/alans/dev2/Dorado/verilog/cells/cell_F100181.v": "70e30781ed4372459bb63580fd1b955bb54568e70bc722e0b73ce9e46546cc27"
+  }
+}

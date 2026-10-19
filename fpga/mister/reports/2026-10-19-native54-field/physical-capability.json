@@ -1,0 +1,27 @@
+{
+  "words": [
+    53460,
+    1,
+    0,
+    8176,
+    0,
+    1,
+    22,
+    0,
+    0,
+    48517,
+    25859,
+    5926,
+    47445,
+    2048,
+    8,
+    16,
+    0,
+    0
+  ],
+  "epoch": "b95517266503bd85",
+  "source": "Actual sole-owner Main SPI74 call at verified input_poll",
+  "flags": 22,
+  "fault": 0,
+  "errors": 0
+}

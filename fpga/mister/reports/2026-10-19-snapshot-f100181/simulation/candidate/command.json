@@ -1,0 +1,17 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "f100181_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-f100181-v2-20261019/candidate/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-f100181-v2-20261019/candidate/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-f100181-v2-20261019/candidate/cell_F100181_snapshot.sv",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_F100181.v",
+  "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_f100181.cpp"
+]

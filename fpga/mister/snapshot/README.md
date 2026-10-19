@@ -262,3 +262,38 @@ fixtures/auditors. Two-state qualification; no new CE tie or four-state proof.
 `build_native_ifu.py` prepares Native54 against frozen53, reusing five shared
 FFs and adding three RTL files. Full-core timing/firmware qualification is next;
 all admin remains inactive, so this provides no physical machine save/load.
+
+Native54 full-core IFU timing now passes31summary/116detailed checks/four
+conditions,min+0.114ns, no new cuts/clock or framework-I/O coverage changes.
+All11IFUM groups retain OLD_DATA; processor MLABs and eight IM banks are
+unchanged.30342ALMs/53052regs/330M10Ks/35DSP with administration inactive.
+Normal fresh-seed deployment is under original-firmware qualification; see
+native54-ifu/handoff. No speed gain or enabled-snapshot resource claim.
+
+Next `generate_f100181.py` preserves the four-bit sampled ALU latch without
+changing arithmetic/lookahead or adding BCD correction. Original/ripple-oracle/
+all16384pin combinations/all16states/holds/restore/20,000continuation tests,
+freshXML classification and matched isolated timing pass,min+0.150ns. Five
+badRTL/three changed-source/nine schema/five fit controls reject. Initial
+positive-edge virtual-input hold failures are rejected/preserved; accepted
+matched negative-edge launch/positive-edge capture gives10ns into cell/20ns
+output paths with unchanged RTL/SDC. Evidence snapshot-f100181.
+
+Complete frozen MemC model generation/test/classification now passes23,718
+mutable bits:507FF, five phase,21,504asyncRAM,1472smallRAM/230write-window bits.
+Its44original writers all fire through normal board pins, including directed
+clock/decoder/bank sequences.682,448host/177,507requests, complete bit/invalid
+walks, destructive restore/first edge/recapture/20,000continuation, ten badRTL
+and16schema controls pass.44RAM responses use a six-bit selection index;
+five-phase transport is padded to18bits. Verilator's encoded double-underscore
+package names are accounted for in XML paths. Isolated timing subsequently passes as recorded below; full-core integration,
+device/ARM coherence and whole snapshots remain.
+
+MemC isolated matched timing now passes all four conditions,min+0.152ns,
+21,504MLABbits/672cells/zeroM10Ks retained,2294->5390ALMs/2340->3357regs.
+Both variants add a negative-edge external input stage before positive-edge
+launch/capture, retaining20ns embedded paths and unchanged cellRTL/SDC.
+Earlier original-only virtual-input hold(-1.960ns) rejected/preserved; eight
+bad-fit controls reject. Report snapshot-memc-full. Native55 full-core build
+adds only MemC board/F100181clone, reuses13existing adapters and keeps admin
+inactive. Full-core timing/original hardware remains required; no speed claim.

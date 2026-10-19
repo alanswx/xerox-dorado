@@ -1,0 +1,117 @@
+{
+  "status": "PASS",
+  "scope": "Isolated sampled four-bit ALU output latch; original full-advance vs exact-advance/state adapter; same50MHz negative-edge launch/positive-edge capture shell,10ns into cell/20ns output paths,2ns max0ns min I/O, no cuts or production timing changes. Counts include shell/admin/pruning; no complete MemC, global barrier or physical snapshot claim.",
+  "results": {
+    "baseline": {
+      "resources": {
+        "alms": 49,
+        "registers": 29,
+        "ram_blocks": 0
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 5.611,
+          "hold": 0.456,
+          "mpw": 9.243
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 5.709,
+          "hold": 0.43,
+          "mpw": 9.195
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 7.573,
+          "hold": 0.221,
+          "mpw": 9.056
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 7.463,
+          "hold": 0.242,
+          "mpw": 9.117
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 5,
+          "13024": 1,
+          "13410": 18
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    },
+    "snapshot": {
+      "resources": {
+        "alms": 51,
+        "registers": 42,
+        "ram_blocks": 0
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 6.108,
+          "hold": 0.295,
+          "mpw": 9.269
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 6.293,
+          "hold": 0.313,
+          "mpw": 9.18
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 7.777,
+          "hold": 0.15,
+          "mpw": 9.05
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 7.621,
+          "hold": 0.171,
+          "mpw": 9.11
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 1,
+          "13024": 1,
+          "13410": 14
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    }
+  },
+  "delta": {
+    "alms": 2,
+    "registers": 13,
+    "ram_blocks": 0
+  },
+  "minimum_snapshot_slack_ns": 0.15,
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/cell_F100181_snapshot.sv"
+    },
+    {
+      "case": "constraint",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/bank.sdc"
+    },
+    {
+      "case": "macro",
+      "rejected": true,
+      "diagnostic": "project source/macro/constraint differs"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation/missing path hold/7_slow_1100mv_-40c"
+    },
+    {
+      "case": "warning",
+      "rejected": true,
+      "diagnostic": "('unreviewed warnings', 'map', Counter({'10999': 1}))"
+    }
+  ]
+}

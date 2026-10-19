@@ -42,6 +42,27 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+Native54 now passes original firmware/login/base34/exact final guestACK:
+332.810528..333.019019s,551.667..555.196M whole-loader issues/interior1.661338..
+1.661545M/s,102protocol replays(Tioga46,CommandTool56). Idle1,947,774.216issues/s
+matches53, no gain. More issued work/replay variation remains open; unchanged49
+also retries. Same33-sample measurement->Guest cadence, earlier manual gate
+varies. Observer20367/54671 TERMINAL/absent after actual finalACK; all34source
+hashes verified after timing, not physical received hashes. No accepted;
+BootEssentials advancing, full54desktop/input pending. Complete MemC isolated
+state/restore/classification/matched timing now pass,min+0.152ns,21,504MLABbits/
+672cells retained; rejected original-only input-hold shell preserved. Native55
+full-core integration building99325, same clocks/policies/admininactive. No
+snapshot4a/original60ns or final repeat/stress completion claim.
+Native54 full-core IFU timing now PASS31summary/116detailed/four conditions,
+min+0.114ns. Normal fresh-seed load11:00:58UTC, Main20155/server20154, fresh
+actual DDR epochb95517266503bd85/flags0x16/fault/errors0. All state admin inactive;
+unchanged50MHz/SYSPER4/wrapper/SDCs/policies. Original firmware qualification
+in progress; no new instruction rate, speed gain or60ns claim. Retired53
+normal guest Boot845 and actual Main barriers preserve its volume, SHA52bd3634;
+no cold marker readback. Complete MemC model23,718bits/44writers/restore and
+classification now pass; isolated fits51478 running, not FPGA qualification.
+
 19Oct10:39UTC: Native53 full Viewers/mouse/Cmd/separate focus/exact short and
 alphabet/digit echo and warm rtl53persist file create/close/readback PASS.
 No new speed measurement or cold53 marker readback. Full IFU isolated simulation/

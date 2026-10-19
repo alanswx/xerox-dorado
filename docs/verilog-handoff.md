@@ -2,6 +2,66 @@
 
 ## Current objective (2026-10-18 UTC)
 
+**Native54 original firmware/login/base34/final ACK PASS; Native55 building.**
+Three idle10s windows mean1,947,774.216issues/s, matching53; no gain. Timed
+34transfers/33BCD/1,345,843bytes/final guest ACK332.810528..333.019019s,
+whole-loader issues551,667,178..555,195,598, interior1.661338..1.661545M/s.
+102protocol replays(Tioga46,CommandTool56) and more issued work versus53;
+similar51 variation/unchanged49 replays remain causally unresolved. Same
+33-sample measurement->Guest recipe; preceding manual gate varies, no final
+pinned benchmark/speed promotion. Observer20367/54671 TERMINAL by stop after
+actual final ACK, independently absent; measurement89980/C94543/push2876
+TERMINAL. All34served source hashes match after timing, not payload hashes.
+Explicit No accepted; BootEssentials advancing. Full54Viewers/input pending.
+Evidence native54-field keeps initial raw collection at root, exact second
+archive/metadata in post-loader/. No snapshot/60ns/final release claim.
+
+Complete MemC simulation/classification/isolated matched fits now PASS. Same
+23,718modeled bits/all44original writers, ten brokenRTL/16schema/eight bad-fit
+controls. Accepted shell adds matched negative-edge external input staging,
+retains positive-edge20ns embedded paths/unchanged cellRTL/SDC; all four
+conditions min+0.152ns,21,504MLABbits/672cells/zeroM10Ks.2294->5390ALMs/
+2340->3357regs include shell/admin/pruning. First original-only virtual-input
+hold failure(-1.960ns) rejected/preserved. Evidence snapshot-memc-full.
+
+Native55 build99325 RUNNING /home/alans/mister/Dorado_Native55_20261019.
+Exact frozen54 plus MemC board/F100181clone only,13shared adapters reused
+byte-identically, all admin inactive. Same50MHz/SYSPER4/wrapper/SDCs/policies.
+Six-board crossing report planned(132detailed categories); no concurrent STA.
+Do not load before terminal timing/source audit and current54desktop gate.
+
+**Native54 loaded11:00:58UTC; original firmware qualification in progress.**
+Full-core IFU integration and read-only audit36993 PASS:31summary/116detailed
+checks/four conditions,min+0.114ns. Same50MHz/SYSPER4/wrapper/SDCs/memory policies,
+all admin inactive. All11IFUM groups retain OLD_DATA;12processor MLABs/9216bits/
+288cells and eight OLD_DATA instruction banks retained.30342ALMs/53052regs/
+330M10Ks/35DSP, not enabled snapshot costs. RBF80d67e1212b944cdb235040f26b5d794a7c4451d8302b24888c342caf16bdb77.
+Evidence native54-ifu; builder84906 TERMINAL before final audit. No speed gain.
+
+Normal deploy4768 TERMINAL, new Main20155/server20154, temporary20140 normally
+retired. Sole Main SPI74 [53460,1,0,8176,0,1,22,0,0,48517,25859,5926,47445,
+2048,8,16,0,0], flags0x16/fault/errors0, fresh epochb95517266503bd85. Setup99992
+TERMINAL. C watcher94543 live after READY; original three CoolBoot pushes2876
+TERMINAL. Do not restart watcher or reset boot because early status pauses.
+Current logs/tmp/dorado54-main.log,/tmp/dorado54-disk.jsonl; server/volume
+Cedar54_20261019; localcedar54-launch. Login/loader/Viewers/input/speed pending.
+
+Retired53 full desktop/input/warm marker passes. One normal guest Boot command
+captured actual845(mesaRuntimeInitialized), not an unobserved812/855. Actual
+normal Main network/disk barriers and temporary Main exit preserve63578624-byte
+53pack SHA52bd363450b7a16db75d4adfaf19c491ad3b2bba777d6124bc9c841d5f287224.
+No clean OS shutdown, cold marker readback or machine snapshot claim.
+
+Next MemC ALU four-bit latch original/oracle/restore/XML/matched timing PASS,
+min+0.150ns; rejected positive-edge virtual-input hold fits preserved. Complete
+MemC model simulation/classification now PASS23,718modeled bits,682,448host
+edges/177,507requests, all44original RAM writers, first resume/recapture/20,000
+subsequent cycles. Ten brokenRTL/16schema controls reject. Matched isolated
+MemC fits51478 running /home/alans/mister/SnapshotMemC_20261019; no board
+timing/physical integration claim yet. Sources generate/test/classify_memc_full
+and fit_memc_full; next audit completed fits before proceeding. Remaining
+memory/device/ARM state/global bundle, original60ns and final gates stay open.
+
 **19Oct10:39UTC: Native53 full desktop/input PASS; complete IFU isolated qualification PASS.**
 Live53 reaches Ready/Clock/WatchTool/EditTool. Real mouse opens a CommandTool;
 separate focus after its initialized prompt gives exact short and alphabet/digit
@@ -22,7 +82,7 @@ All11actual macros/physical RAMs OLD_DATA; nine damaged fits reject. Reports
 snapshot-f10415-word/snapshot-ifu-full retain exact sources/raw earlier failures.
 Original CE omissions remain unchanged,2-state qualification only.
 
-Native54 full-core IFU integration build84906 is running on misterubuntu,
+Native54 full-core IFU integration build84906 subsequently completed on misterubuntu,
 /home/alans/mister/Dorado_Native54_20261019. Frozen53 plus three newRTL files,
 five existingFF adapters reused byte-identically. Same50MHz/SYSPER4/wrapper/SDCs/
 memory policies, all admin inactive. Sequential build includes all-device timing
@@ -1952,7 +2012,12 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify MC10135 seven-bit adapter simulation/XML/isolated timing; preserve both failed shell fits.
 - [x] Review all27 IFUM RAM packages against original wire list; preserve eleven separately addressed groups and omitted CE semantics.
 - [x] Add width-correct IFUM old-data RAM/read-pipeline access; qualify full IFU state classification/restore and isolated four-condition timing.
-- [ ] Complete Native54 full-core IFU build/audit (running84906), then original firmware/Viewers/input qualification; all admin remains inactive.
+- [x] Complete Native54 full-core IFU build/audit31summary/116detailed/four conditions,min+0.114ns; normally load with fresh seed/DDR epoch, all admin inactive.
+- [x] Finish Native54 original firmware/login/base loader/final ACK and measured issue/replay accounting; no speed gain.
+- [ ] Finish Native54 BootEssentials/fonts/STARTs, full Viewers/mouse/exact keyboard/warm marker.
+- [x] Qualify MemC F100181 four-bit latch primitive; full MemC original/restore/state coverage and all44writers pass.
+- [x] Complete matched MemC staged-input fits10872 and audit; preserve rejected original-only input-hold fit.
+- [ ] Complete Native55 full-core MemC integration build99325/audit and original firmware/desktop/input qualification; all admin inactive.
 - [ ] Finish remaining board/device/ARM state and atomic snapshot bundle with actual FPGA Cedar restore.
 - [ ] Finish original60ns clock/enable and timer migration; final three fresh boots, coherent snapshot restore, persistence, pinned measurements and two-hour combined stress.
 
