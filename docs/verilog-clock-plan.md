@@ -42,6 +42,36 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Latest: Native57 full desktop/input/warm marker PASS; Native58 full-core audit PASS, not yet deployed.**
+The captured desktop shows Ready/Viewers, mouse Cmd click, initialized second
+CommandTool, exact short and alphabet/digit echoes, and normal create/type of
+///rtl57persist.txt. Main25287/server25286/RBF064e3784 unchanged. No cold marker
+or complete snapshot claim. Desktop collection now spools bounded prefixes on
+SD: /tmp was almost full and the first disk-spooled attempt ran out of tmpfs;
+that failure is preserved, no guest pack touched. Accepted SD-spooled collector
+11288 TERMINAL; desktop/ retains exact fixed prefixes and reviewed captures.
+
+Native58 build60721 and read-only audit v3 TERMINAL PASS:31summary/180detailed/
+fourconditions/36crossing checks, min+0.116ns;30,688ALM/52,887regs/330M10Ks/35DSP.
+All9adapters adminOFF, original clocks/wrapper/SDCs/policies/nativeMemDdelay2
+unchanged. TenPROMs match. Native-only cache audit verifies all14banks and
+294,912bits/OLD_DATA: banks3/5 and8/10 share3M10Ks perpair,38unique versus40
+baseline (44per-row allocations double-count sharing). First strict isolated
+packing audit rejected; v2fault injector matched a non-table line; v3restricts
+to physical table and27corrupt controls reject. No RTL/SDC/refit to fix audit.
+Exact source/reports/earlier attempts in2026-10-19-native58-dispy. CandidateRBF
+ eebc0e1fa669ba48ae35ebfe7ba93161afa48eca40247ff79cee9e9853293ae2
+at build/rtl-executive/native58-candidate. Not deployed. Next archive/commit/push,
+normal57guestBoot/capture actual code, Mainbarriers/preservepack, normal58load
+and fresh originalfirmware/Cedar/input/speed qualification. No speed gain claimed.
+
+Remaining snapshot state includes DskEth/BaseBoard/backends/wrapper/input/ARM
+server/diskgeneration/global atomic bundle/actualFPGArestore. Fresh actual DskEth
+inventory v2 includes receive_monitor omitted in first failed elaboration;
+CRC9401 two-PRECAP19bit primitive simulation/mutation controls pass, classification
+and isolated fit pending. These new primitive files are not yet qualified/committed.
+Then original60ns/timers, pinned performance,3freshboots/coldpersistence/2hstress.
+
 **Latest57 login/Guest/base34/finalACK and new measurement PASS; Display state qualification PASS; Native58 building.**
 Main25287/server25286/RBF064e3784 unchanged. Idle three10s mean1,947,741.199
 issues/s matches56b; no gain. Base34/33BCD/1,345,843bytes/finalACK314.016264..

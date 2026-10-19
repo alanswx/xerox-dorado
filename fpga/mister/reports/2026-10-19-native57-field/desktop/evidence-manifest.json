@@ -1,0 +1,85 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 1116,
+      "sha256": "2ec26cf1b7604afac851d7c0abf57359bf52313ad808e965da098e98ba29f5ca"
+    },
+    "click-cmd.log.gz": {
+      "bytes": 40,
+      "sha256": "fb8cd034427b43e4ae4e357e3df5def55be768de5b58aee3eb0b565a26dfcc57"
+    },
+    "collect-desktop-sd.log.gz": {
+      "bytes": 619,
+      "sha256": "2790996f05bb1966a343bc114222876cbbb6762bc4a119c14942f3a02dffa08a"
+    },
+    "collect-desktop-tmpfs-attempt.log.gz": {
+      "bytes": 179,
+      "sha256": "18a72c9168c9bc9811ae300f8cb94dedcec5e062a0ae0cef8c832a8941ac8ca1"
+    },
+    "collect-desktop-tmpfs-attempt.py.gz": {
+      "bytes": 1563,
+      "sha256": "06d2923601c722981c5347ca96d8a90de05c25674bab0ef6d84c4b63d6e8d1a8"
+    },
+    "collect-desktop.py.gz": {
+      "bytes": 1566,
+      "sha256": "a156a880d4978a508e9371912d3f0aea52c3ea2177943266db993cf8f609f1d6"
+    },
+    "desktop-collection.json": {
+      "bytes": 1112,
+      "sha256": "17ce2cf815ee666c2af13236a5ad0522b92fe1c1e6994076ab8289eab8742cad"
+    },
+    "desktop-qualification.json": {
+      "bytes": 2119,
+      "sha256": "b814aab53d035c60687a8d41d216f8a0ddad0c8a840717637ffde85e55736d2a"
+    },
+    "disk-through-desktop.jsonl.gz": {
+      "bytes": 935131,
+      "sha256": "9215110a166240ba6905e83248cdeb6ac2c93797050d7bcd46222bfdf281fdc2"
+    },
+    "dorado57-commandtool-check-20261019.png": {
+      "bytes": 405798,
+      "sha256": "25e04c2ff70f294bda39a62ce254381d14818b8115fa4ddbfabb16ddc1ad629e"
+    },
+    "dorado57-desktop-check-20261019.png": {
+      "bytes": 506095,
+      "sha256": "f381bc7118d27868ed341a365214a39619f2ecc70187eb3830673f87567ae766"
+    },
+    "dorado57-keyboard-short-20261019.png": {
+      "bytes": 445695,
+      "sha256": "e6e154c27a08ec30207eb355d05cf97c5b3730e7959337d1b521e2e07622ddb7"
+    },
+    "dorado57-marker-check-20261019.png": {
+      "bytes": 432220,
+      "sha256": "67f2de3b3e01cda9fb93a35c99be3b8f6ae5e13cddd023a5e4c2652242c6f93d"
+    },
+    "dorado57-mouse-on-cmd-20261019.png": {
+      "bytes": 513131,
+      "sha256": "f36e5d5ccb46c47ff2ba72649ed41cbdb4cb710a5b1e7b5f98ba47359f028ad1"
+    },
+    "focus-command.log.gz": {
+      "bytes": 58,
+      "sha256": "d0c1179c3ab570a0289a2d3703017481cbecd373384f38d0feef2b00fc79e8d2"
+    },
+    "keyboard-alphabet-file.log.gz": {
+      "bytes": 137,
+      "sha256": "b5fc8456ad3fddf85b34dfb34ebb045b66b8b62bb1fe4d42275f0669c132d61f"
+    },
+    "keyboard-short.log.gz": {
+      "bytes": 77,
+      "sha256": "93d7a3715674d35b1ce792d04cca4ef10f85b06717fb6fa33a2b5db8b9b1e54d"
+    },
+    "main-through-desktop.log.gz": {
+      "bytes": 56311,
+      "sha256": "8cc702d4d8412d23fb78839003633cc0f53a96d06cfabe1c335b3b1a26f37caf"
+    },
+    "move-to-cmd.log.gz": {
+      "bytes": 45,
+      "sha256": "a9e6c22e5277f48b1963ec321bbad24401b4ac8983e6bea2328e2494201ad0a4"
+    },
+    "server-through-desktop.log.gz": {
+      "bytes": 134818,
+      "sha256": "33d1d082a6778237788074775b9bfd9699c3710c191e09734543d8bf3f5b55a0"
+    }
+  },
+  "scope": "Unchanged raw logs/drivers gzip compressed; captures hash-match reviewed proof"
+}

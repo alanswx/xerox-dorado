@@ -10,7 +10,7 @@ or pinned repeated speed comparison. Queue refusals are nonzero; CRC/RX/abort0.
 Observer56194/25586 terminal by explicit stop after finalACK and independently
 absent. All34served source hashes match after timing, not physical payload hashes.
 Actual lowercase n accepted profile No directly; BootEssentials/fonts advance.
-Full Viewers/input/warm marker remain pending. See post-loader/.
+Full Viewers/input/warm marker subsequently PASS; see desktop/ and post-loader/.
 
 The first read-only collector was OOM-killed while retaining the retired disk
 trace's parsed dictionaries and hashing a full pack. Main/server stayed alive.

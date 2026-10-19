@@ -1,0 +1,38 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native57_20261019",
+  "candidate": "/home/alans/mister/Dorado_Native58_20261019",
+  "change": "Frozen57 plus complete exact-advance actual field DispY adapter, default board/oscillator SYSPER16, all private RAM pipelines; shared qualified cell adapters reused byte-identically. All state admin inactive; no global save/load or speed claim.",
+  "snapshot_admin": "INACTIVE; no physical save/load",
+  "extra_timing_exceptions": "None",
+  "source_changes": [
+    "build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+  ],
+  "added_sources": [
+    "fpga/mister/snapshot_native_dispy/DispY_full_snapshot.sv",
+    "fpga/mister/snapshot_native_dispy/assets.json",
+    "fpga/mister/snapshot_native_dispy/cell_K1115A_snapshot.sv"
+  ],
+  "shared_sources": {
+    "cell_F10016_snapshot.v": "fpga/mister/snapshot_native_conta/cell_F10016_snapshot.v",
+    "cell_MC10231_snapshot.v": "fpga/mister/snapshot_native/cell_MC10231_snapshot.v",
+    "cell_F10000_snapshot.v": "fpga/mister/snapshot_native_conta/cell_F10000_snapshot.v",
+    "cell_MC10176_snapshot.v": "fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+    "cell_MC10135_snapshot.v": "fpga/mister/snapshot_native_ifu/cell_MC10135_snapshot.v",
+    "cell_MC10141_snapshot.v": "fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v",
+    "cell_SE10231_snapshot.v": "fpga/mister/snapshot_native_conta/cell_SE10231_snapshot.v",
+    "cell_F10145A_snapshot.sv": "fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv",
+    "cell_MB7071H_snapshot.sv": "fpga/mister/snapshot_native_processor/cell_MB7071H_snapshot.sv",
+    "f10415_word_bank.sv": "fpga/mister/snapshot_native_ifu/f10415_word_bank.sv"
+  },
+  "speed": "Same50MHz/SYSPER4; no speed claim. Protocol replay variability remains open.",
+  "source_hashes": {
+    "core/Dorado.sv": "6e00eb03e3428b4c1f594609d1f1d3ef82a188e036954f4f14fc9e982fcd8ec9",
+    "core/Dorado.qsf": "a664e45a10d45ff5a0d8260bca6d3b00da0726b7f3ea173d3dcf7513a8de0e28",
+    "core/device-corners.tcl": "1ef30b2d9c447868762a94a08e1083f1f6698e5186f8755ac1801f3002c2264d",
+    "core/audit-adapter-crossings.tcl": "b6ac76408abf010d926b43a8dccabf020c19e69b35b117b8193703a8cef99612",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "2474fbaad22075430409ebbdaf266afe92fc0c6db5970c80010aef5e510fdd6a",
+    "src/fpga/mister/snapshot_native_dispy/DispY_full_snapshot.sv": "9e04029cb5704cdd6c45a75f0b4825815b126712a62d3d27d9093e58f1dab8e8",
+    "src/fpga/mister/snapshot_native_dispy/assets.json": "1464ce563d92ae047d439a3af7fa14e3becf3ade220baf190da2b23950b110e3",
+    "src/fpga/mister/snapshot_native_dispy/cell_K1115A_snapshot.sv": "5ed342ecfb0535656f450edbb2233e5df7b384c53c4abf244b326cb42591f439"
+  }
+}

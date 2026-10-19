@@ -2,6 +2,36 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**Latest: Native57 full desktop/input/warm marker PASS; Native58 full-core audit PASS, not yet deployed.**
+The captured desktop shows Ready/Viewers, mouse Cmd click, initialized second
+CommandTool, exact short and alphabet/digit echoes, and normal create/type of
+///rtl57persist.txt. Main25287/server25286/RBF064e3784 unchanged. No cold marker
+or complete snapshot claim. Desktop collection now spools bounded prefixes on
+SD: /tmp was almost full and the first disk-spooled attempt ran out of tmpfs;
+that failure is preserved, no guest pack touched. Accepted SD-spooled collector
+11288 TERMINAL; desktop/ retains exact fixed prefixes and reviewed captures.
+
+Native58 build60721 and read-only audit v3 TERMINAL PASS:31summary/180detailed/
+fourconditions/36crossing checks, min+0.116ns;30,688ALM/52,887regs/330M10Ks/35DSP.
+All9adapters adminOFF, original clocks/wrapper/SDCs/policies/nativeMemDdelay2
+unchanged. TenPROMs match. Native-only cache audit verifies all14banks and
+294,912bits/OLD_DATA: banks3/5 and8/10 share3M10Ks perpair,38unique versus40
+baseline (44per-row allocations double-count sharing). First strict isolated
+packing audit rejected; v2fault injector matched a non-table line; v3restricts
+to physical table and27corrupt controls reject. No RTL/SDC/refit to fix audit.
+Exact source/reports/earlier attempts in2026-10-19-native58-dispy. CandidateRBF
+ eebc0e1fa669ba48ae35ebfe7ba93161afa48eca40247ff79cee9e9853293ae2
+at build/rtl-executive/native58-candidate. Not deployed. Next archive/commit/push,
+normal57guestBoot/capture actual code, Mainbarriers/preservepack, normal58load
+and fresh originalfirmware/Cedar/input/speed qualification. No speed gain claimed.
+
+Remaining snapshot state includes DskEth/BaseBoard/backends/wrapper/input/ARM
+server/diskgeneration/global atomic bundle/actualFPGArestore. Fresh actual DskEth
+inventory v2 includes receive_monitor omitted in first failed elaboration;
+CRC9401 two-PRECAP19bit primitive simulation/mutation controls pass, classification
+and isolated fit pending. These new primitive files are not yet qualified/committed.
+Then original60ns/timers, pinned performance,3freshboots/coldpersistence/2hstress.
+
 **Latest57 login/Guest/base34/finalACK and new measurement PASS; Display state qualification PASS; Native58 building.**
 Main25287/server25286/RBF064e3784 unchanged. Idle three10s mean1,947,741.199
 issues/s matches56b; no gain. Base34/33BCD/1,345,843bytes/finalACK314.016264..
@@ -2314,7 +2344,7 @@ and has unreviewed hold violations; never deploy it.
 
 ## Current TODOs (2026-10-17, FPGA boot)
 
-### Active continuation (2026-10-19, Native55)
+### Active continuation (2026-10-19, Native58)
 
 - [x] Finish52 full Viewers/mouse/exact keyboard/warm marker; normal guest812 and actual Main barriers preserve its volume.
 - [x] Integrate ProcH/ProcL exact-advance adapters with admin inactive; qualify full53 timing31summary/100detailed/four conditions, min+0.115ns.
@@ -2338,9 +2368,12 @@ and has unreviewed hold violations; never deploy it.
 - [x] Integrate actual native2 MemD into56b; full-core31summary/148detailed/four-condition timing(+0.116ns)/RAM inference/source audit pass, all admin inactive.
 - [x] Normal55Boot812 and actual Main barriers preserve volume; fresh-seed56b load/new DDR epoch/original firmware/new BFN113/C release/actual845 pass.
 - [x] Complete56bCedar login/idle measurement/base34/finalACK; observer57449/23698 terminal/absent, No accepted.
-- [ ] Complete56bBootEssentials/full desktop/input/warm marker.
+- [x] Complete56bBootEssentials/full desktop/input/warm marker; normal812 and Main barriers preserve its volume.
 - [x] Qualify independent MosRam14/16 complete-state primitive original/oracle/restore/freshXML/matched timing(+0.166ns).
-- [ ] Complete MemX board-state classification/restore/timing and fullcore hardware qualification; then remaining device/ARM/global state.
+- [x] Complete MemX board-state classification/restore/timing and Native57 fullcore hardware desktop/input/warm marker qualification.
+- [x] Qualify complete DispY state restore/classification/isolated timing and Native58 fullcore timing/source/RAM audit; all admin inactive.
+- [ ] Archive Native57 desktop/input evidence, normal guest Boot, preserve pack through Main barriers; deploy qualified58 and test fresh firmware/Cedar/input.
+- [ ] Complete DskEth state primitives/board qualification, then BaseBoard/backends/wrapper/input/ARM server and disk generation.
 - [ ] Finish remaining board/device/ARM state and atomic snapshot bundle with actual FPGA Cedar restore.
 - [ ] Finish original60ns clock/enable and timer migration; final three fresh boots, coherent snapshot restore, persistence, pinned measurements and two-hour combined stress.
 
