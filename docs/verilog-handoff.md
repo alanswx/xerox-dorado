@@ -392,6 +392,34 @@ integrate both control boards in full core, all cross-board timing and actual
 firmware/Cedar; other boards/global freeze/raw SDRAM/Main/server/atomic bundle,
 actual Cedar restore,60ns clocks and final repeated/stress gates remain open.
 
+**Native52 full-core ContA+ContB integration BUILD RUNNING, NOT QUALIFIED.**
+Committed builder5e1da91a prepares qualified ContA assets against frozen51;
+two existing ContB FF clones are reused byte-identically, seven new RTL files
+added. Only active backplane ContA instantiation changes; same existing
+falling-edge contb_advance mirror drives both boards. Outer wrapper/clocks/
+storage/ARM/constraints unchanged; ALL snapshot admin remains inactive. The
+original ContA SYSPER parameter is unused (declaration only), explicitly
+checked; native instance binding is preserved. Frozen parity full-line-comment
+equivalence is recorded; no code difference permitted.
+
+Actual project /home/alans/mister/Dorado_Native52_20261019; inputs
+Dorado_Native52_inputs_20261019. Handle19107 RUNNING, driver836787 and
+fitter839746 independently confirmed live; successful placement, routing in
+progress. Do not restart. Builder runs map/fit/asm/STA/device audit and only
+THEN both-control crossing audit sequentially; no concurrent STA. Planned
+31 summary/68 detailed/four-condition checks include16 ContA and16 ContB
+crossing reports in addition to36 device/SDRAM checks. Native52 is NOT
+deployed or timing-qualified; no speed/no-regression/physical snapshot claim.
+Source/QSF-only preflight and extra-macro/extra-SDC/wrong-source controls pass
+without opening timing DB. audit_native_conta.py is staged remotely in inputs;
+run its full collector ONLY AFTER19107 is terminal. Inspect all reports,
+fitted sources/RAM geometry/coverage/warnings before any hardware load. Local
+native52-assets-20261019 and native52-inputs-20261019.tar.gz preserve inputs.
+Live51b continues font installation. Prepared local cedar49c-launch/deploy.py
+is NOT executed: it deliberately requires actual51b desktop and observed
+normal-Boot code before replacement. Fresh49 control remains next for the
+loader slowdown; the52 build itself does not resolve that result.
+
 **Retired47: direct-DDR original-firmware interactive Cedar Viewers PASS.**
 Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,
 server1506 isc5996249; staging Main1504 exited normally. RBF3df4a799,
