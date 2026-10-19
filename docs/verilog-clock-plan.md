@@ -53,7 +53,11 @@ capture. A fresh Main is required after the resident qualification DSO.
 49 interleaving timing passes min+0.115ns; normal load completed02:41UTC,
 fresh Main6414/server6413/DDR epoch5cea2e754bd0665f. Original firmware/login
 PASS; idle mean1,947,687.412 issues/s (+14.9453% versus48,+22.0639% versus47b,
-11.6861% nominal), one boot each/three adjacent windows. Full software pending.
+11.6861% nominal), one boot each/three adjacent windows. Full base-loader
+chain now passes312.55875..312.87163s vs48's373.07180..373.32199s: preliminary
+16.136..16.276% less time. Source corpus34 hashes match after timing; exact
+final guest ACK and every visible Load ok pass. Observer retired; No accepted,
+fonts progressing. Full Viewers/input and repeated qualification pending.
 50 deferred reads timing31/36/four conditions passes min+0.035ns,81%ALMs;
 not deployed/speed-qualified. Source hashes match all34 served files;
 independent physical bytes, repeated comparisons and sustained final gates
@@ -381,6 +385,16 @@ single write port. These results apply only to the isolated bank. Actual
 board grouping/strobes/history, machine-wide freeze, external RAM/device/ARM
 state, atomic bundles and physical Cedar restore remain unimplemented.
 Source: fpga/mister/snapshot; evidence: reports/2026-10-19-snapshot-ram.
+
+Actual ContB grouping now follows the original wire list and generated
+combinational fanout:144 F10415A slices,34 data+2 stored parity bits per
+physical word,147456 RAM bits and144 read-pipeline bits. Literal pin names
+produce124 tiny groups; proven expressions reduce these to eight18-bit
+groups, two independently written halves per bank. Independent Boolean truth
+checks and six damaged-board controls pass. Common inversion of all address
+copies is outside this grouping proof. No board ports/RAM/clock change or
+new fit is claimed; next qualify actual18-bit strobes/access and preserve
+read outputs during ordinary backend holds. Evidence: snapshot-contb reports.
 
 ### DDR control integration and matched idle evidence (2026-10-18)
 

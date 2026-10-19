@@ -1,0 +1,23 @@
+{
+  "scope": "Preliminary ONE fresh boot each; same original seed, binaries, direct-DDR transport, clocks, observer policy and34-file corpus. Basic.Loadees transfer to exact final End.bcd guest ACK. Not repeated or full desktop speed.",
+  "control48_s": [
+    373.071798158,
+    373.321992639
+  ],
+  "candidate49_s": [
+    312.558749954,
+    312.871632978
+  ],
+  "time_reduction_percent_bounds": [
+    16.13634841261965,
+    16.276363001136563
+  ],
+  "rate_gain_percent_bounds": [
+    19.241170766105565,
+    19.440582832489127
+  ],
+  "payload_bytes": 1345843,
+  "files": 34,
+  "bcd_files": 33,
+  "remote_source_hashes": "All34 match after timed transfer; remote-source-hashes.json. Not direct physical payload hashes."
+}

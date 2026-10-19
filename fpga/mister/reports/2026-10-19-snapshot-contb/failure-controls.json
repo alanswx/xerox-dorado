@@ -1,0 +1,41 @@
+{
+  "status": "PASS",
+  "boolean_expressions": 1506,
+  "truth_comparisons": 48192,
+  "actual_board_groups": 8,
+  "group_width": 18,
+  "failure_controls": [
+    {
+      "case": "missing_parity",
+      "rejected": true,
+      "diagnostic": "all144 original IM packages, including parity, are required"
+    },
+    {
+      "case": "wrong_address",
+      "rejected": true,
+      "diagnostic": "original pin mismatch a06.2"
+    },
+    {
+      "case": "wrong_write_enable",
+      "rejected": true,
+      "diagnostic": "original pin mismatch a06.13"
+    },
+    {
+      "case": "wrong_output",
+      "rejected": true,
+      "diagnostic": "original output mismatch a06.1"
+    },
+    {
+      "case": "wrong_clock",
+      "rejected": true,
+      "diagnostic": "IM guest clock changed: u_a06"
+    },
+    {
+      "case": "wrong_fanout_source",
+      "rejected": true,
+      "diagnostic": "actual IM fanout does not prove eight18-bit groups"
+    }
+  ],
+  "uncovered_control": "Common inversion of all address fanouts preserves grouping and is not rejected; this is not a cell/bank-address correctness proof",
+  "scope": "Logical fanout/coverage only; no RAM replacement, freeze, fit or physical snapshot"
+}

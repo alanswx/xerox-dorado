@@ -26,8 +26,14 @@ A second GDB control selects the same issue view before timing. Three adjacent
 clean47b and11.6861% of nominal16.667M/s. All three means are ONE fresh boot
 each; adjacent windows are not independent boots or end-to-end qualification.
 
-After timing, read-only loader observer6672/Mac47764 starts with the same
-policy as48; real Guest login is sent. Full software/input remain pending.
+After timing, read-only loader observer6672/Mac47764 uses the same policy as48.
+It has now COMPLETED after the visible profile prompt; no reader remains.
+The list plus33 BCDs,1,345,843 source bytes and exact final guest ACK qualify
+312.55875..312.87163s, versus48's373.07180..373.32199s: preliminary16.136..
+16.276% less time (19.241..19.441% rate gain), ONE boot each. All34 actual
+remote source hashes match AFTER timing; this is not physical payload hashing.
+The capture shows every Load ok. Profile No visibly accepted; BootEssentials
+advances into later packages. Full Viewers/input remain pending.
 Do not restart completed boot/watchers. Current helpers: build/rtl-executive/cedar49-launch;
 Main /tmp/dorado49-main.log, disk /tmp/dorado49-disk.jsonl. No end-to-end
 speed gain or complete snapshot claim is made. The gain is idle-login only.

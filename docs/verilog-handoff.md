@@ -64,8 +64,13 @@ C watcher21086 and three CoolBoot pulses98326 COMPLETED; do not restart.
 Fresh original BFN113/Pilot/Cedar login PASS. Three adjacent10s windows mean
 1,947,687.412 issues/s,14.9453% above48 and22.0639% above clean47b,11.6861%
 nominal. ONE boot each, not repeated or end-to-end qualification. No probeDSO.
-Read-only loader observer47764 LIVE, remote pid6672; inspect readiness log
-for actual pid before stopping. Guest login sent; full software gate pending.
+Read-only loader observer47764/remote6672 COMPLETED after stop and collection;
+process missing independently verified. Real Guest accepted, all33BCD+list
+loads and exact final guest ACK pass. Actual timing312.55875..312.87163s vs48
+373.07180..373.32199s:16.136..16.276% less time, one fresh boot each, not
+repeated/full desktop qualification. All34 remote source hashes match after
+timing. Profile No visibly accepted; BootEssentials/installer advancing.
+Current good1512/TX drops13, CRC/RX/abort0; full Viewers/input remain pending.
 Main /tmp/dorado49-main.log, disk /tmp/dorado49-disk.jsonl;
 Cedar49_20261019. Helpers cedar49-launch; evidence native49-field.
 
@@ -1529,6 +1534,7 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Deploy/qualify instruction diagnostics, including maintenance/reset/task switching, and measure actual issue rates with external waits separately.
 - [x] Begin4a with generated per-instance logical-path state inventory; actual-cell/read-pipeline/task-write/ROM-load/array/hierarchy coverage and failure controls pass.
 - [x] Qualify isolated34-bit IM bank state access: exact RAM/read pipeline/first-edge resume, independent original cells and broken controls; matched four-condition fit retains fourM10Ks, +62 ALMs/+43 registers.
+- [x] Prove actual ContB IM fanout grouping against wire list/cell expressions:144 slices, parity and144 read registers, eight18-bit half-banks; truth oracle and six damaged controls pass.
 - [ ] Extend/classify full snapshot inventory including wrapper/raw memory/Main/server; prototype bounded state access on one board and qualify area/timing before wide integration.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [x] Preserve/decode41b post-desktop host-write timeout and unchanged physical pack; exact blocking syscall remains unobserved.
@@ -1566,7 +1572,7 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify completed input during actual delayed Main worker on Native48.
 - [ ] Qualify independent physical packet bytes and sustained hardware operation.
 - [x] Native48 all-device timing31/36/four conditions and clean47b/48 DDR-network idle comparison; bounded48 full base-loader trace and visible successful loads.
-- [x] Native49 physical interleaving on matched DDR network: all-device31/36/four conditions, min+0.115ns, not deployed.
+- [x] Native49 matched DDR-network timing/login/idle(+14.9453%) and full base-loader timing(16.136..16.276% less time versus48), one boot each; full Viewers/input pending.
 - [x] Native48 full original Viewers/mouse/exact keyboard and warm marker readback.
 - [x] Native50 deferred-read all-device31/36/four-condition timing, minimum+0.035ns; not deployed.
 - [ ] Qualify49 and50 hardware; repeat matched measurements with full software gates.

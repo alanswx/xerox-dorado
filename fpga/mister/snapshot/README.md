@@ -57,6 +57,16 @@ bundle must pair a matching disk generation, validate schema/build/hashes
 before changing live state, and pass actual Cedar desktop restore tests.
 No physical snapshot, fast-boot timing or cross-build compatibility is claimed.
 
+Actual ContB grouping is now checked by `audit_contb_im.py` and
+`test_contb_im.py`. The physical IM is4096x36:34 instruction bits and2 stored
+parity bits,144 original RAM packages and144 registered read bits. Following
+actual buffered address/WE/CE expressions proves eight18-bit groups, two
+independently written halves per bank. This is the grouping for the next
+board-access experiment; the qualified34-bit bank above remains an isolated
+prototype. Six damaged-board controls reject; a common inversion of all
+address copies is explicitly outside a grouping proof's coverage. Evidence:
+reports/2026-10-19-snapshot-contb. Neither production RAM nor clocks change.
+
 The remaining delivery order is:
 
 1. Classify the generated inventory and prove bounded access on an actual

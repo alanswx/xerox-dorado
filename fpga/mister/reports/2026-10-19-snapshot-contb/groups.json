@@ -1,0 +1,6034 @@
+{
+  "scope": "Logical actual ContB IM grouping only; no hardware state access/freeze/timing qualification",
+  "ram_packages": 144,
+  "ram_bits": 147456,
+  "physical_word_bits": 36,
+  "data_bits": 34,
+  "parity_bits": 2,
+  "read_pipeline_bits": 144,
+  "literal_groups": 124,
+  "canonical_groups": 8,
+  "groups": [
+    {
+      "width": 18,
+      "bank": 0,
+      "members": [
+        {
+          "package": "a06",
+          "field": "dASEL.0",
+          "bank": 0,
+          "we": "WEL'Aa",
+          "ce": "CS0'ACa"
+        },
+        {
+          "package": "b06",
+          "field": "dASEL.1",
+          "bank": 0,
+          "we": "WEL'Ab",
+          "ce": "CS0'ACa"
+        },
+        {
+          "package": "c06",
+          "field": "dASEL.2",
+          "bank": 0,
+          "we": "WEL'Ab",
+          "ce": "CS0'ACb"
+        },
+        {
+          "package": "d06",
+          "field": "dIMLH",
+          "bank": 0,
+          "we": "WEL'Ad",
+          "ce": "CS0'ACb"
+        },
+        {
+          "package": "f06",
+          "field": "dBSEL.0",
+          "bank": 0,
+          "we": "WEL'Ad",
+          "ce": "CS0'ACc"
+        },
+        {
+          "package": "g06",
+          "field": "dBSEL.1",
+          "bank": 0,
+          "we": "WEL'Ad",
+          "ce": "CS0'BDa"
+        },
+        {
+          "package": "h06",
+          "field": "dBSEL.2",
+          "bank": 0,
+          "we": "WEL'Bg",
+          "ce": "CS0'BDa"
+        },
+        {
+          "package": "i06",
+          "field": "dRSTK.0",
+          "bank": 0,
+          "we": "WEL'Bh",
+          "ce": "CS0'BDb"
+        },
+        {
+          "package": "i10",
+          "field": "dALUF.0",
+          "bank": 0,
+          "we": "WEL'Bi",
+          "ce": "CS0'BDb"
+        },
+        {
+          "package": "j06",
+          "field": "dRSTK.1",
+          "bank": 0,
+          "we": "WEL'Bj",
+          "ce": "CS0'BDb"
+        },
+        {
+          "package": "j10",
+          "field": "dALUF.1",
+          "bank": 0,
+          "we": "WEL'Bj",
+          "ce": "CS0'BDc"
+        },
+        {
+          "package": "j16",
+          "field": "dLC.0",
+          "bank": 0,
+          "we": "WEL'Dj",
+          "ce": "CS0'BDc"
+        },
+        {
+          "package": "k06",
+          "field": "dRSTK.2",
+          "bank": 0,
+          "we": "WEL'Bk",
+          "ce": "CS0'BDc"
+        },
+        {
+          "package": "k10",
+          "field": "dALUF.2",
+          "bank": 0,
+          "we": "WEL'Bk",
+          "ce": "CS0'BDd"
+        },
+        {
+          "package": "k16",
+          "field": "dLC.1",
+          "bank": 0,
+          "we": "WEL'Dk",
+          "ce": "CS0'BDd"
+        },
+        {
+          "package": "l06",
+          "field": "dRSTK.3",
+          "bank": 0,
+          "we": "WEL'Bl",
+          "ce": "CS0'BDc"
+        },
+        {
+          "package": "l10",
+          "field": "dALUF.3",
+          "bank": 0,
+          "we": "WEL'Bl",
+          "ce": "CS0'BDd"
+        },
+        {
+          "package": "l16",
+          "field": "dLC.2",
+          "bank": 0,
+          "we": "WEL'Dl",
+          "ce": "CS0'BDd"
+        }
+      ],
+      "canonical_pins": [
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_05"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_05"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_06"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_06"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_07"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_07"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_08"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_08"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_09"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_09"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_10"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_10"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_11"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_11"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_12"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_12"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_13"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_13"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_14"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_14"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "CRamClock"
+              ],
+              [
+                "net",
+                "MidasCRamClock"
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "MidasRSTK_3"
+              ],
+              [
+                "~",
+                [
+                  "net",
+                  "RSTK_3_p_"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "DoCBr"
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "BNPC_04"
+                  ],
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "MidasSW"
+                      ],
+                      [
+                        "net",
+                        "SW"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "MidasSW"
+                  ],
+                  [
+                    "net",
+                    "SW"
+                  ],
+                  [
+                    "net",
+                    "TNIA_04"
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "BNPC_15"
+                  ],
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "MidasSW"
+                      ],
+                      [
+                        "net",
+                        "SW"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "MidasSW"
+                  ],
+                  [
+                    "net",
+                    "SW"
+                  ],
+                  [
+                    "net",
+                    "TNIA_15"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "half": "left"
+    },
+    {
+      "width": 18,
+      "bank": 0,
+      "members": [
+        {
+          "package": "a10",
+          "field": "dFF.0",
+          "bank": 0,
+          "we": "WER'Aa",
+          "ce": "CS0'ACa"
+        },
+        {
+          "package": "a16",
+          "field": "dFF.4",
+          "bank": 0,
+          "we": "WER'Ca",
+          "ce": "CS0'ACa"
+        },
+        {
+          "package": "b10",
+          "field": "dFF.1",
+          "bank": 0,
+          "we": "WER'Aa",
+          "ce": "CS0'ACa"
+        },
+        {
+          "package": "b16",
+          "field": "dFF.5",
+          "bank": 0,
+          "we": "WER'Cb",
+          "ce": "CS0'ACa"
+        },
+        {
+          "package": "c10",
+          "field": "dFF.2",
+          "bank": 0,
+          "we": "WER'Aa",
+          "ce": "CS0'ACb"
+        },
+        {
+          "package": "c16",
+          "field": "dFF.6",
+          "bank": 0,
+          "we": "WER'Cc",
+          "ce": "CS0'ACb"
+        },
+        {
+          "package": "d10",
+          "field": "dFF.3",
+          "bank": 0,
+          "we": "WER'Ab",
+          "ce": "CS0'ACb"
+        },
+        {
+          "package": "d16",
+          "field": "dFF.7",
+          "bank": 0,
+          "we": "WER'Cd",
+          "ce": "CS0'ACb"
+        },
+        {
+          "package": "e06",
+          "field": "dJCN.0",
+          "bank": 0,
+          "we": "WER'Ab",
+          "ce": "CS0'ACc"
+        },
+        {
+          "package": "e10",
+          "field": "dJCN.1",
+          "bank": 0,
+          "we": "WER'Ac",
+          "ce": "CS0'ACc"
+        },
+        {
+          "package": "e16",
+          "field": "dIMRH",
+          "bank": 0,
+          "we": "WER'Ce",
+          "ce": "CS0'ACc"
+        },
+        {
+          "package": "f10",
+          "field": "dJCN.2",
+          "bank": 0,
+          "we": "WER'Ac",
+          "ce": "CS0'ACc"
+        },
+        {
+          "package": "f16",
+          "field": "dBlock'",
+          "bank": 0,
+          "we": "WER'Cf",
+          "ce": "CS0'ACd"
+        },
+        {
+          "package": "g10",
+          "field": "dJCN.3",
+          "bank": 0,
+          "we": "WER'Ac",
+          "ce": "CS0'BDa"
+        },
+        {
+          "package": "g16",
+          "field": "dJCN.5",
+          "bank": 0,
+          "we": "WER'Da",
+          "ce": "CS0'BDa"
+        },
+        {
+          "package": "h10",
+          "field": "dJCN.4",
+          "bank": 0,
+          "we": "WER'Dc",
+          "ce": "CS0'BDa"
+        },
+        {
+          "package": "h16",
+          "field": "dJCN.6",
+          "bank": 0,
+          "we": "WER'Db",
+          "ce": "CS0'BDb"
+        },
+        {
+          "package": "i16",
+          "field": "dJCN.7",
+          "bank": 0,
+          "we": "WER'Dc",
+          "ce": "CS0'BDb"
+        }
+      ],
+      "canonical_pins": [
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_05"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_05"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_06"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_06"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_07"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_07"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_08"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_08"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_09"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_09"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_10"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_10"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_11"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_11"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_12"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_12"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_13"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_13"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_14"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_14"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MidasRSTK_3"
+          ],
+          [
+            "~",
+            [
+              "net",
+              "RSTK_3_p_"
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "CRamClock"
+              ],
+              [
+                "net",
+                "MidasCRamClock"
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "DoCBr"
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "BNPC_04"
+                  ],
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "MidasSW"
+                      ],
+                      [
+                        "net",
+                        "SW"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "MidasSW"
+                  ],
+                  [
+                    "net",
+                    "SW"
+                  ],
+                  [
+                    "net",
+                    "TNIA_04"
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "BNPC_15"
+                  ],
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "MidasSW"
+                      ],
+                      [
+                        "net",
+                        "SW"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "MidasSW"
+                  ],
+                  [
+                    "net",
+                    "SW"
+                  ],
+                  [
+                    "net",
+                    "TNIA_15"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "half": "right"
+    },
+    {
+      "width": 18,
+      "bank": 1,
+      "members": [
+        {
+          "package": "a07",
+          "field": "dASEL.0",
+          "bank": 1,
+          "we": "WEL'Aa",
+          "ce": "CS1'ACa"
+        },
+        {
+          "package": "b07",
+          "field": "dASEL.1",
+          "bank": 1,
+          "we": "WEL'Ab",
+          "ce": "CS1'ACa"
+        },
+        {
+          "package": "c07",
+          "field": "dASEL.2",
+          "bank": 1,
+          "we": "WEL'Ab",
+          "ce": "CS1'ACb"
+        },
+        {
+          "package": "d07",
+          "field": "dIMLH",
+          "bank": 1,
+          "we": "WEL'Ad",
+          "ce": "CS1'ACb"
+        },
+        {
+          "package": "f07",
+          "field": "dBSEL.0",
+          "bank": 1,
+          "we": "WEL'Bg",
+          "ce": "CS1'ACc"
+        },
+        {
+          "package": "g07",
+          "field": "dBSEL.1",
+          "bank": 1,
+          "we": "WEL'Bg",
+          "ce": "CS1'BDa"
+        },
+        {
+          "package": "h07",
+          "field": "dBSEL.2",
+          "bank": 1,
+          "we": "WEL'Bg",
+          "ce": "CS1'BDa"
+        },
+        {
+          "package": "i07",
+          "field": "dRSTK.0",
+          "bank": 1,
+          "we": "WEL'Bh",
+          "ce": "CS1'BDb"
+        },
+        {
+          "package": "i11",
+          "field": "dALUF.0",
+          "bank": 1,
+          "we": "WEL'Bi",
+          "ce": "CS1'BDb"
+        },
+        {
+          "package": "j07",
+          "field": "dRSTK.1",
+          "bank": 1,
+          "we": "WEL'Bj",
+          "ce": "CS1'BDb"
+        },
+        {
+          "package": "j11",
+          "field": "dALUF.1",
+          "bank": 1,
+          "we": "WEL'Bj",
+          "ce": "CS1'BDc"
+        },
+        {
+          "package": "j17",
+          "field": "dLC.0",
+          "bank": 1,
+          "we": "WEL'Dj",
+          "ce": "CS1'BDc"
+        },
+        {
+          "package": "k07",
+          "field": "dRSTK.2",
+          "bank": 1,
+          "we": "WEL'Bk",
+          "ce": "CS1'BDc"
+        },
+        {
+          "package": "k11",
+          "field": "dALUF.2",
+          "bank": 1,
+          "we": "WEL'Bk",
+          "ce": "CS1'BDd"
+        },
+        {
+          "package": "k17",
+          "field": "dLC.1",
+          "bank": 1,
+          "we": "WEL'Dk",
+          "ce": "CS1'BDd"
+        },
+        {
+          "package": "l07",
+          "field": "dRSTK.3",
+          "bank": 1,
+          "we": "WEL'Bl",
+          "ce": "CS1'BDc"
+        },
+        {
+          "package": "l11",
+          "field": "dALUF.3",
+          "bank": 1,
+          "we": "WEL'Bl",
+          "ce": "CS1'BDd"
+        },
+        {
+          "package": "l17",
+          "field": "dLC.2",
+          "bank": 1,
+          "we": "WEL'Dl",
+          "ce": "CS1'BDd"
+        }
+      ],
+      "canonical_pins": [
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_05"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_05"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_06"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_06"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_07"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_07"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_08"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_08"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_09"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_09"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_10"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_10"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_11"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_11"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_12"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_12"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_13"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_13"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_14"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_14"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "CRamClock"
+              ],
+              [
+                "net",
+                "MidasCRamClock"
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "MidasRSTK_3"
+              ],
+              [
+                "~",
+                [
+                  "net",
+                  "RSTK_3_p_"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "DoCBr"
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "BNPC_15"
+                      ],
+                      [
+                        "~",
+                        [
+                          "|",
+                          [
+                            "net",
+                            "MidasSW"
+                          ],
+                          [
+                            "net",
+                            "SW"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "MidasSW"
+                      ],
+                      [
+                        "net",
+                        "SW"
+                      ],
+                      [
+                        "net",
+                        "TNIA_15"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "BNPC_04"
+                  ],
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "MidasSW"
+                      ],
+                      [
+                        "net",
+                        "SW"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "MidasSW"
+                  ],
+                  [
+                    "net",
+                    "SW"
+                  ],
+                  [
+                    "net",
+                    "TNIA_04"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "half": "left"
+    },
+    {
+      "width": 18,
+      "bank": 1,
+      "members": [
+        {
+          "package": "a11",
+          "field": "dFF.0",
+          "bank": 1,
+          "we": "WER'Aa",
+          "ce": "CS1'ACa"
+        },
+        {
+          "package": "a17",
+          "field": "dFF.4",
+          "bank": 1,
+          "we": "WER'Ca",
+          "ce": "CS1'ACa"
+        },
+        {
+          "package": "b11",
+          "field": "dFF.1",
+          "bank": 1,
+          "we": "WER'Aa",
+          "ce": "CS1'ACa"
+        },
+        {
+          "package": "b17",
+          "field": "dFF.5",
+          "bank": 1,
+          "we": "WER'Cb",
+          "ce": "CS1'ACa"
+        },
+        {
+          "package": "c11",
+          "field": "dFF.2",
+          "bank": 1,
+          "we": "WER'Aa",
+          "ce": "CS1'ACb"
+        },
+        {
+          "package": "c17",
+          "field": "dFF.6",
+          "bank": 1,
+          "we": "WER'Cc",
+          "ce": "CS1'ACb"
+        },
+        {
+          "package": "d11",
+          "field": "dFF.3",
+          "bank": 1,
+          "we": "WER'Ab",
+          "ce": "CS1'ACb"
+        },
+        {
+          "package": "d17",
+          "field": "dFF.7",
+          "bank": 1,
+          "we": "WER'Cd",
+          "ce": "CS1'ACb"
+        },
+        {
+          "package": "e07",
+          "field": "dJCN.0",
+          "bank": 1,
+          "we": "WER'Ab",
+          "ce": "CS1'ACc"
+        },
+        {
+          "package": "e11",
+          "field": "dJCN.1",
+          "bank": 1,
+          "we": "WER'Ac",
+          "ce": "CS1'ACc"
+        },
+        {
+          "package": "e17",
+          "field": "dIMRH",
+          "bank": 1,
+          "we": "WER'Ce",
+          "ce": "CS1'ACc"
+        },
+        {
+          "package": "f11",
+          "field": "dJCN.2",
+          "bank": 1,
+          "we": "WER'Ac",
+          "ce": "CS1'ACc"
+        },
+        {
+          "package": "f17",
+          "field": "dBlock'",
+          "bank": 1,
+          "we": "WER'Cf",
+          "ce": "CS1'ACd"
+        },
+        {
+          "package": "g11",
+          "field": "dJCN.3",
+          "bank": 1,
+          "we": "WER'Ac",
+          "ce": "CS1'BDa"
+        },
+        {
+          "package": "g17",
+          "field": "dJCN.5",
+          "bank": 1,
+          "we": "WER'Da",
+          "ce": "CS1'BDa"
+        },
+        {
+          "package": "h11",
+          "field": "dJCN.4",
+          "bank": 1,
+          "we": "WER'Dc",
+          "ce": "CS1'BDa"
+        },
+        {
+          "package": "h17",
+          "field": "dJCN.6",
+          "bank": 1,
+          "we": "WER'Db",
+          "ce": "CS1'BDb"
+        },
+        {
+          "package": "i17",
+          "field": "dJCN.7",
+          "bank": 1,
+          "we": "WER'Dc",
+          "ce": "CS1'BDb"
+        }
+      ],
+      "canonical_pins": [
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_05"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_05"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_06"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_06"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_07"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_07"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_08"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_08"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_09"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_09"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_10"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_10"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_11"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_11"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_12"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_12"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_13"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_13"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_14"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_14"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MidasRSTK_3"
+          ],
+          [
+            "~",
+            [
+              "net",
+              "RSTK_3_p_"
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "CRamClock"
+              ],
+              [
+                "net",
+                "MidasCRamClock"
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "DoCBr"
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "BNPC_15"
+                      ],
+                      [
+                        "~",
+                        [
+                          "|",
+                          [
+                            "net",
+                            "MidasSW"
+                          ],
+                          [
+                            "net",
+                            "SW"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "MidasSW"
+                      ],
+                      [
+                        "net",
+                        "SW"
+                      ],
+                      [
+                        "net",
+                        "TNIA_15"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "BNPC_04"
+                  ],
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "MidasSW"
+                      ],
+                      [
+                        "net",
+                        "SW"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "MidasSW"
+                  ],
+                  [
+                    "net",
+                    "SW"
+                  ],
+                  [
+                    "net",
+                    "TNIA_04"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "half": "right"
+    },
+    {
+      "width": 18,
+      "bank": 2,
+      "members": [
+        {
+          "package": "a08",
+          "field": "dASEL.0",
+          "bank": 2,
+          "we": "WEL'Aa",
+          "ce": "CS2'ACa"
+        },
+        {
+          "package": "b08",
+          "field": "dASEL.1",
+          "bank": 2,
+          "we": "WEL'Ab",
+          "ce": "CS2'ACa"
+        },
+        {
+          "package": "c08",
+          "field": "dASEL.2",
+          "bank": 2,
+          "we": "WEL'Ab",
+          "ce": "CS2'ACb"
+        },
+        {
+          "package": "d08",
+          "field": "dIMLH",
+          "bank": 2,
+          "we": "WEL'Ad",
+          "ce": "CS2'ACb"
+        },
+        {
+          "package": "f08",
+          "field": "dBSEL.0",
+          "bank": 2,
+          "we": "WEL'Bg",
+          "ce": "CS2'ACc"
+        },
+        {
+          "package": "g08",
+          "field": "dBSEL.1",
+          "bank": 2,
+          "we": "WEL'Bg",
+          "ce": "CS2'BDa"
+        },
+        {
+          "package": "h08",
+          "field": "dBSEL.2",
+          "bank": 2,
+          "we": "WEL'Bh",
+          "ce": "CS2'BDa"
+        },
+        {
+          "package": "i08",
+          "field": "dRSTK.0",
+          "bank": 2,
+          "we": "WEL'Bi",
+          "ce": "CS2'BDb"
+        },
+        {
+          "package": "i14",
+          "field": "dALUF.0",
+          "bank": 2,
+          "we": "WEL'Bi",
+          "ce": "CS2'BDb"
+        },
+        {
+          "package": "j08",
+          "field": "dRSTK.1",
+          "bank": 2,
+          "we": "WEL'Bj",
+          "ce": "CS2'BDb"
+        },
+        {
+          "package": "j14",
+          "field": "dALUF.1",
+          "bank": 2,
+          "we": "WEL'Dj",
+          "ce": "CS2'BDc"
+        },
+        {
+          "package": "j18",
+          "field": "dLC.0",
+          "bank": 2,
+          "we": "WEL'Dj",
+          "ce": "CS2'BDc"
+        },
+        {
+          "package": "k08",
+          "field": "dRSTK.2",
+          "bank": 2,
+          "we": "WEL'Bk",
+          "ce": "CS2'BDc"
+        },
+        {
+          "package": "k14",
+          "field": "dALUF.2",
+          "bank": 2,
+          "we": "WEL'Dk",
+          "ce": "CS2'BDd"
+        },
+        {
+          "package": "k18",
+          "field": "dLC.1",
+          "bank": 2,
+          "we": "WEL'Dk",
+          "ce": "CS2'BDd"
+        },
+        {
+          "package": "l08",
+          "field": "dRSTK.3",
+          "bank": 2,
+          "we": "WEL'Bl",
+          "ce": "CS2'BDc"
+        },
+        {
+          "package": "l14",
+          "field": "dALUF.3",
+          "bank": 2,
+          "we": "WEL'Dl",
+          "ce": "CS2'BDd"
+        },
+        {
+          "package": "l18",
+          "field": "dLC.2",
+          "bank": 2,
+          "we": "WEL'Dl",
+          "ce": "CS2'BDd"
+        }
+      ],
+      "canonical_pins": [
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_05"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_05"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_06"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_06"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_07"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_07"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_08"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_08"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_09"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_09"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_10"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_10"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_11"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_11"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_12"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_12"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_13"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_13"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_14"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_14"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "CRamClock"
+              ],
+              [
+                "net",
+                "MidasCRamClock"
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "MidasRSTK_3"
+              ],
+              [
+                "~",
+                [
+                  "net",
+                  "RSTK_3_p_"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "DoCBr"
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "BNPC_04"
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "MidasSW"
+                  ],
+                  [
+                    "net",
+                    "SW"
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "MidasSW"
+              ],
+              [
+                "net",
+                "SW"
+              ],
+              [
+                "net",
+                "TNIA_04"
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "BNPC_15"
+                  ],
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "MidasSW"
+                      ],
+                      [
+                        "net",
+                        "SW"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "MidasSW"
+                  ],
+                  [
+                    "net",
+                    "SW"
+                  ],
+                  [
+                    "net",
+                    "TNIA_15"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "half": "left"
+    },
+    {
+      "width": 18,
+      "bank": 2,
+      "members": [
+        {
+          "package": "a14",
+          "field": "dFF.0",
+          "bank": 2,
+          "we": "WER'Ca",
+          "ce": "CS2'ACa"
+        },
+        {
+          "package": "a18",
+          "field": "dFF.4",
+          "bank": 2,
+          "we": "WER'Ca",
+          "ce": "CS2'ACa"
+        },
+        {
+          "package": "b14",
+          "field": "dFF.1",
+          "bank": 2,
+          "we": "WER'Cb",
+          "ce": "CS2'ACa"
+        },
+        {
+          "package": "b18",
+          "field": "dFF.5",
+          "bank": 2,
+          "we": "WER'Cb",
+          "ce": "CS2'ACa"
+        },
+        {
+          "package": "c14",
+          "field": "dFF.2",
+          "bank": 2,
+          "we": "WER'Cc",
+          "ce": "CS2'ACb"
+        },
+        {
+          "package": "c18",
+          "field": "dFF.6",
+          "bank": 2,
+          "we": "WER'Cc",
+          "ce": "CS2'ACb"
+        },
+        {
+          "package": "d14",
+          "field": "dFF.3",
+          "bank": 2,
+          "we": "WER'Cd",
+          "ce": "CS2'ACb"
+        },
+        {
+          "package": "d18",
+          "field": "dFF.7",
+          "bank": 2,
+          "we": "WER'Cd",
+          "ce": "CS2'ACb"
+        },
+        {
+          "package": "e08",
+          "field": "dJCN.0",
+          "bank": 2,
+          "we": "WER'Ab",
+          "ce": "CS2'ACc"
+        },
+        {
+          "package": "e14",
+          "field": "dJCN.1",
+          "bank": 2,
+          "we": "WER'Ce",
+          "ce": "CS2'ACc"
+        },
+        {
+          "package": "e18",
+          "field": "dIMRH",
+          "bank": 2,
+          "we": "WER'Ce",
+          "ce": "CS2'ACc"
+        },
+        {
+          "package": "f14",
+          "field": "dJCN.2",
+          "bank": 2,
+          "we": "WER'Cf",
+          "ce": "CS2'ACc"
+        },
+        {
+          "package": "f18",
+          "field": "dBlock'",
+          "bank": 2,
+          "we": "WER'Cf",
+          "ce": "CS2'ACd"
+        },
+        {
+          "package": "g14",
+          "field": "dJCN.3",
+          "bank": 2,
+          "we": "WER'Da",
+          "ce": "CS2'BDa"
+        },
+        {
+          "package": "g18",
+          "field": "dJCN.5",
+          "bank": 2,
+          "we": "WER'Da",
+          "ce": "CS2'BDa"
+        },
+        {
+          "package": "h14",
+          "field": "dJCN.4",
+          "bank": 2,
+          "we": "WER'Db",
+          "ce": "CS2'BDa"
+        },
+        {
+          "package": "h18",
+          "field": "dJCN.6",
+          "bank": 2,
+          "we": "WER'Db",
+          "ce": "CS2'BDd"
+        },
+        {
+          "package": "i18",
+          "field": "dJCN.7",
+          "bank": 2,
+          "we": "WER'Dc",
+          "ce": "CS2'BDb"
+        }
+      ],
+      "canonical_pins": [
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_05"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_05"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_06"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_06"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_07"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_07"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_08"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_08"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_09"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_09"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_10"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_10"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_11"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_11"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_12"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_12"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_13"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_13"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_14"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_14"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MidasRSTK_3"
+          ],
+          [
+            "~",
+            [
+              "net",
+              "RSTK_3_p_"
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "CRamClock"
+              ],
+              [
+                "net",
+                "MidasCRamClock"
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "DoCBr"
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "BNPC_04"
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "MidasSW"
+                  ],
+                  [
+                    "net",
+                    "SW"
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "MidasSW"
+              ],
+              [
+                "net",
+                "SW"
+              ],
+              [
+                "net",
+                "TNIA_04"
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "BNPC_15"
+                  ],
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "MidasSW"
+                      ],
+                      [
+                        "net",
+                        "SW"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "MidasSW"
+                  ],
+                  [
+                    "net",
+                    "SW"
+                  ],
+                  [
+                    "net",
+                    "TNIA_15"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "half": "right"
+    },
+    {
+      "width": 18,
+      "bank": 3,
+      "members": [
+        {
+          "package": "a09",
+          "field": "dASEL.0",
+          "bank": 3,
+          "we": "WEL'Aa",
+          "ce": "CS3'ACa"
+        },
+        {
+          "package": "b09",
+          "field": "dASEL.1",
+          "bank": 3,
+          "we": "WEL'Aa",
+          "ce": "CS3'ACa"
+        },
+        {
+          "package": "c09",
+          "field": "dASEL.2",
+          "bank": 3,
+          "we": "WEL'Aa",
+          "ce": "CS3'ACb"
+        },
+        {
+          "package": "d09",
+          "field": "dIMLH",
+          "bank": 3,
+          "we": "WEL'Ad",
+          "ce": "CS3'ACb"
+        },
+        {
+          "package": "f09",
+          "field": "dBSEL.0",
+          "bank": 3,
+          "we": "WEL'Bh",
+          "ce": "CS3'ACc"
+        },
+        {
+          "package": "g09",
+          "field": "dBSEL.1",
+          "bank": 3,
+          "we": "WEL'Bh",
+          "ce": "CS3'BDa"
+        },
+        {
+          "package": "h09",
+          "field": "dBSEL.2",
+          "bank": 3,
+          "we": "WEL'Bh",
+          "ce": "CS3'BDa"
+        },
+        {
+          "package": "i09",
+          "field": "dRSTK.0",
+          "bank": 3,
+          "we": "WEL'Bi",
+          "ce": "CS3'BDb"
+        },
+        {
+          "package": "i15",
+          "field": "dALUF.0",
+          "bank": 3,
+          "we": "WEL'Bi",
+          "ce": "CS3'BDb"
+        },
+        {
+          "package": "j09",
+          "field": "dRSTK.1",
+          "bank": 3,
+          "we": "WEL'Bj",
+          "ce": "CS3'BDb"
+        },
+        {
+          "package": "j15",
+          "field": "dALUF.1",
+          "bank": 3,
+          "we": "WEL'Dj",
+          "ce": "CS3'BDc"
+        },
+        {
+          "package": "j19",
+          "field": "dLC.0",
+          "bank": 3,
+          "we": "WEL'Dj",
+          "ce": "CS3'BDc"
+        },
+        {
+          "package": "k09",
+          "field": "dRSTK.2",
+          "bank": 3,
+          "we": "WEL'Bk",
+          "ce": "CS3'BDc"
+        },
+        {
+          "package": "k15",
+          "field": "dALUF.2",
+          "bank": 3,
+          "we": "WEL'Dk",
+          "ce": "CS3'BDd"
+        },
+        {
+          "package": "k19",
+          "field": "dLC.1",
+          "bank": 3,
+          "we": "WEL'Dk",
+          "ce": "CS3'BDd"
+        },
+        {
+          "package": "l09",
+          "field": "dRSTK.3",
+          "bank": 3,
+          "we": "WEL'Bl",
+          "ce": "CS3'BDc"
+        },
+        {
+          "package": "l15",
+          "field": "dALUF.3",
+          "bank": 3,
+          "we": "WEL'Dl",
+          "ce": "CS3'BDd"
+        },
+        {
+          "package": "l19",
+          "field": "dLC.2",
+          "bank": 3,
+          "we": "WEL'Dl",
+          "ce": "CS3'BDd"
+        }
+      ],
+      "canonical_pins": [
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_05"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_05"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_06"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_06"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_07"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_07"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_08"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_08"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_09"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_09"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_10"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_10"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_11"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_11"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_12"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_12"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_13"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_13"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_14"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_14"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "CRamClock"
+              ],
+              [
+                "net",
+                "MidasCRamClock"
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "MidasRSTK_3"
+              ],
+              [
+                "~",
+                [
+                  "net",
+                  "RSTK_3_p_"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "BNPC_04"
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "MidasSW"
+                  ],
+                  [
+                    "net",
+                    "SW"
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "DoCBr"
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "BNPC_15"
+                      ],
+                      [
+                        "~",
+                        [
+                          "|",
+                          [
+                            "net",
+                            "MidasSW"
+                          ],
+                          [
+                            "net",
+                            "SW"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "MidasSW"
+                      ],
+                      [
+                        "net",
+                        "SW"
+                      ],
+                      [
+                        "net",
+                        "TNIA_15"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "MidasSW"
+              ],
+              [
+                "net",
+                "SW"
+              ],
+              [
+                "net",
+                "TNIA_04"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "half": "left"
+    },
+    {
+      "width": 18,
+      "bank": 3,
+      "members": [
+        {
+          "package": "a15",
+          "field": "dFF.0",
+          "bank": 3,
+          "we": "WER'Ca",
+          "ce": "CS3'ACa"
+        },
+        {
+          "package": "a19",
+          "field": "dFF.4",
+          "bank": 3,
+          "we": "WER'Ca",
+          "ce": "CS3'ACa"
+        },
+        {
+          "package": "b15",
+          "field": "dFF.1",
+          "bank": 3,
+          "we": "WER'Cb",
+          "ce": "CS3'ACa"
+        },
+        {
+          "package": "b19",
+          "field": "dFF.5",
+          "bank": 3,
+          "we": "WER'Cb",
+          "ce": "CS3'ACa"
+        },
+        {
+          "package": "c15",
+          "field": "dFF.2",
+          "bank": 3,
+          "we": "WER'Cc",
+          "ce": "CS3'ACb"
+        },
+        {
+          "package": "c19",
+          "field": "dFF.6",
+          "bank": 3,
+          "we": "WER'Cc",
+          "ce": "CS3'ACb"
+        },
+        {
+          "package": "d15",
+          "field": "dFF.3",
+          "bank": 3,
+          "we": "WER'Cd",
+          "ce": "CS3'ACb"
+        },
+        {
+          "package": "d19",
+          "field": "dFF.7",
+          "bank": 3,
+          "we": "WER'Cd",
+          "ce": "CS3'ACb"
+        },
+        {
+          "package": "e09",
+          "field": "dJCN.0",
+          "bank": 3,
+          "we": "WER'Ab",
+          "ce": "CS3'ACc"
+        },
+        {
+          "package": "e15",
+          "field": "dJCN.1",
+          "bank": 3,
+          "we": "WER'Ce",
+          "ce": "CS3'ACc"
+        },
+        {
+          "package": "e19",
+          "field": "dIMRH",
+          "bank": 3,
+          "we": "WER'Ce",
+          "ce": "CS3'ACc"
+        },
+        {
+          "package": "f15",
+          "field": "dJCN.2",
+          "bank": 3,
+          "we": "WER'Cf",
+          "ce": "CS3'ACc"
+        },
+        {
+          "package": "f19",
+          "field": "dBlock'",
+          "bank": 3,
+          "we": "WER'Cf",
+          "ce": "CS3'ACd"
+        },
+        {
+          "package": "g15",
+          "field": "dJCN.3",
+          "bank": 3,
+          "we": "WER'Da",
+          "ce": "CS3'BDa"
+        },
+        {
+          "package": "g19",
+          "field": "dJCN.5",
+          "bank": 3,
+          "we": "WER'Da",
+          "ce": "CS3'BDa"
+        },
+        {
+          "package": "h15",
+          "field": "dJCN.4",
+          "bank": 3,
+          "we": "WER'Db",
+          "ce": "CS3'BDa"
+        },
+        {
+          "package": "h19",
+          "field": "dJCN.6",
+          "bank": 3,
+          "we": "WER'Db",
+          "ce": "CS3'BDd"
+        },
+        {
+          "package": "i19",
+          "field": "dJCN.7",
+          "bank": 3,
+          "we": "WER'Dc",
+          "ce": "CS3'BDb"
+        }
+      ],
+      "canonical_pins": [
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_05"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_05"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_06"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_06"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_07"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_07"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_08"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_08"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_09"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_09"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_10"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_10"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_11"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_11"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_12"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_12"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_13"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_13"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "BNPC_14"
+                ],
+                [
+                  "~",
+                  [
+                    "|",
+                    [
+                      "net",
+                      "MidasSW"
+                    ],
+                    [
+                      "net",
+                      "SW"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "~",
+              [
+                "|",
+                [
+                  "net",
+                  "MidasSW"
+                ],
+                [
+                  "net",
+                  "SW"
+                ],
+                [
+                  "net",
+                  "TNIA_14"
+                ]
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MidasRSTK_3"
+          ],
+          [
+            "~",
+            [
+              "net",
+              "RSTK_3_p_"
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "CRamClock"
+              ],
+              [
+                "net",
+                "MidasCRamClock"
+              ]
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "BNPC_04"
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "net",
+                    "MidasSW"
+                  ],
+                  [
+                    "net",
+                    "SW"
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "DoCBr"
+              ],
+              [
+                "~",
+                [
+                  "|",
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "BNPC_15"
+                      ],
+                      [
+                        "~",
+                        [
+                          "|",
+                          [
+                            "net",
+                            "MidasSW"
+                          ],
+                          [
+                            "net",
+                            "SW"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "~",
+                    [
+                      "|",
+                      [
+                        "net",
+                        "MidasSW"
+                      ],
+                      [
+                        "net",
+                        "SW"
+                      ],
+                      [
+                        "net",
+                        "TNIA_15"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            "~",
+            [
+              "|",
+              [
+                "net",
+                "MidasSW"
+              ],
+              [
+                "net",
+                "SW"
+              ],
+              [
+                "net",
+                "TNIA_04"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "half": "right"
+    }
+  ],
+  "sources": {
+    "verilog/cells/cell_F10415A.v": "44cb1c6eee73b8507f7a66e5781073f916d0c02a221618dedf4d09879a9a7227",
+    "verilog/cells/cell_MC10211.v": "5dff5af0f55a1f63dbfc7e98047f1f0fd18491ac1e06980c7991fc09a060272d",
+    "verilog/cells/cell_LM3911_20K.v": "7bac5b0e7235f7840a51a6ab47321745bceda31c5216652cb4550eae83d32ecc",
+    "verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+    "verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "verilog/cells/cell_MC10164.v": "5e8978b4ceed6b2e5dee8a4c9f5dd841bfe175059e5dcc19f1b6099e8e156e0c",
+    "verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+    "verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "verilog/cells/cell_MC10101.v": "d7cce11dd4c6c75b83d1d40287144fffc35ac6df2b9f490a45aeb740dcab862f",
+    "verilog/cells/cell_SE10211.v": "4f7c8607bdaad0f3fa7b0a49c679c004817b3032c3d37b20cb0a46f3ab1cb11d",
+    "verilog/cells/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+    "verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "verilog/cells/cell_MC10172.v": "559a7747f2e4b967edf4a8651dfb1e7bb286210d70b9aa6f8c6a64ae4f87231b",
+    "verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+    "verilog/cells/cell_MC10170.v": "90dc10079db3d5611562f4454534221971d98606de64ac33a0e9cc335478d910",
+    "verilog/cells/cell_MC10161.v": "816c7d2eb044c210d256c32ce1f4215a988e312d02df81b527d6ba001795788b",
+    "verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+    "verilog/cells/cell_MC10107.v": "dadd09a4dc0e4e6e126aa6f30c5b3fd92acbba8aaf25e94cb2f399b779011065",
+    "verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0"
+  },
+  "generated_sha256": "172f68891c2ad75dd8f69a9d8a8a3d369bc83d4f6db1d54b77a7b0be595add58",
+  "wirelist_sha256": "25e82daa80f25dce0986b269ce0a145981fbb7d2be24b80e3d6c649d2e02ba68",
+  "locations_sha256": "8ce7eb1bb436c11583a3bb95fe4e04bb96f7f898656a3e9751a0e0f9f7e4c80e"
+}
