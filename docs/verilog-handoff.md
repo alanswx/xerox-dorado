@@ -2,6 +2,42 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**All eleven board state interfaces are connected; transport and source integration pass. Full-core fitting is running.**
+
+The new bounded fabric and diagnostic EXT_BUS commands 76–79 enable all eleven
+qualified adapters, including the complete BaseBoard: 1,944,744 modeled board
+state bits. Exact packet validation, full-width index checks, one outstanding
+owner, all-board frozen acknowledgments and timeout/lost-boundary quarantine
+are implemented. Status is coherent and explicitly identifies board-only scope.
+This does not yet capture raw memory, wrapper/input state, ARM work/server
+connections or the matching disk generation.
+
+Four-state simulation v6 passes 9,974 host ticks, 433 packets and 201 checks,
+including actual unchanged Native59 Ethernet UIO coexistence. All 13 broken
+RTL controls reject. An initial index-zero decode unknown was fixed with
+always_comb; earlier diagnostic attempts are retained. The independent source
+audit checks all 413 frozen receipt files, 2,137 original board pins, complete
+ordinary backplane equations, 85 other core files, all state routes, original
+clock/memory policies and unchanged constraints. Fifteen damaged integrations
+reject. Both local staging and the exact remote build inputs pass. Quartus's
+complete set of relative source aliases resolves to the same eighteen files.
+All 398 archived raw files pass lossless readback. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-board-state/`.
+
+The enabled experiment is `/home/alans/mister/Dorado_Enabled60_20261019` on
+misterubuntu, builder PID 1827796 / fitter PID 1835666. Synthesis passed; fitter
+is confirmed actively using CPU. Observe this same job rather than restarting.
+No assembler/deployment runs. Capacity and routed timing remain unqualified.
+Live Native59 is unchanged; last qualified idle rate is 1,947,654.12 issues/s.
+No clock, timer or speed improvement is claimed.
+
+Next: finish this fit and independently audit all-device/eleven-board timing,
+state retention and memory placement. Resolve capacity/timing costs while
+preserving complete state coverage. Then implement coherent backend/input/
+ARM/server/disk barriers, the atomic bundle and actual FPGA Cedar restore.
+Original 60 ns clocks/timers and final three fresh boots, cold persistence,
+pinned performance and two-hour combined stress remain open. Goal ACTIVE.
+
 **Complete BaseBoard save/restore qualification passes; it is not yet installed in the live core.**
 
 The actual nominal board now has a single bounded interface for all 40,366

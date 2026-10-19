@@ -1,0 +1,83 @@
+{
+  "status": "PASS",
+  "scope": "Board-only diagnostic transport and stub-board routing, not machine/global snapshot; unchanged native59Ethernet coexistence",
+  "executed_inputs": {
+    "board_state_uio.sv": "b72d47d5cbafb21ad7cd10ad30c349a327da38e472fe54800d0704fa283171ee",
+    "dorado_ethernet_uio.sv": "0c6512a485420a7bc73b6b2e19a273ec6378d67983cfc3fcd4bb68f13b23d278",
+    "test_board_state.py": "219e786810035245ca0fe570e1e4394fef09137dc86867e045a81d9b0cc2359a",
+    "test_board_state.sv": "e3e820e7db7b10519add49165835e7a518afc0f6c101f14df3f1233cb5325d36",
+    "board_state_fabric.sv": "b0a43cf71410296654acc514cac6b02d004396356c327ed5b25fe5049914e9a9"
+  },
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "width_alias",
+      "returncode": 1,
+      "expected_failure": "result differs"
+    },
+    {
+      "case": "running_port",
+      "returncode": 1,
+      "expected_failure": "unheld child request"
+    },
+    {
+      "case": "early_control",
+      "returncode": 1,
+      "expected_failure": "short control accepted"
+    },
+    {
+      "case": "short_request",
+      "returncode": 1,
+      "expected_failure": "short request accepted"
+    },
+    {
+      "case": "all_boards",
+      "returncode": 1,
+      "expected_failure": "nononehot child request"
+    },
+    {
+      "case": "owner_alias",
+      "returncode": 1,
+      "expected_failure": "result differs"
+    },
+    {
+      "case": "write_leak",
+      "returncode": 1,
+      "expected_failure": "result differs"
+    },
+    {
+      "case": "lost_quarantine",
+      "returncode": 1,
+      "expected_failure": "timeout did not quarantine port"
+    },
+    {
+      "case": "torn_reply",
+      "returncode": 1,
+      "expected_failure": "incoherent status snapshot"
+    },
+    {
+      "case": "busy_release",
+      "returncode": 1,
+      "expected_failure": "busy boundary release accepted"
+    },
+    {
+      "case": "incomplete_boundary",
+      "returncode": 1,
+      "expected_failure": "incomplete boundary accepted"
+    },
+    {
+      "case": "command_collision",
+      "returncode": 1,
+      "expected_failure": "EXT_BUS ownership collision"
+    },
+    {
+      "case": "padding",
+      "returncode": 1,
+      "expected_failure": "malformed request accepted"
+    }
+  ]
+}

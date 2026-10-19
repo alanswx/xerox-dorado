@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "raw_files": 398,
+  "raw_bytes": 4119290,
+  "stored_bytes": 889649,
+  "scope": "Lossless readback of every archived raw file; no simulator objects or machine snapshot."
+}

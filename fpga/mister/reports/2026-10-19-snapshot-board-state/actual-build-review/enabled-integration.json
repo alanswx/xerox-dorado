@@ -1,0 +1,145 @@
+{
+  "scope": "Board state only; all11adapters active, Main/wrapper/backends/input/server/disk generation not captured; no machine snapshot or deployment qualification.",
+  "baseline": "/home/alans/mister/Dorado_Native59_20261019",
+  "output": "/home/alans/mister/Dorado_Enabled60_20261019",
+  "catalog": [
+    {
+      "id": 0,
+      "board": "ContA",
+      "index_bits": 12,
+      "module": "ContA_full_snapshot_experiment",
+      "logical_state_bits": 1353
+    },
+    {
+      "id": 1,
+      "board": "ContB",
+      "index_bits": 15,
+      "module": "ContB_full_snapshot_experiment",
+      "logical_state_bits": 147809
+    },
+    {
+      "id": 2,
+      "board": "ProcH",
+      "index_bits": 16,
+      "module": "ProcH_full_snapshot_experiment",
+      "logical_state_bits": 5712
+    },
+    {
+      "id": 3,
+      "board": "ProcL",
+      "index_bits": 16,
+      "module": "ProcL_full_snapshot_experiment",
+      "logical_state_bits": 5581
+    },
+    {
+      "id": 4,
+      "board": "IFU",
+      "index_bits": 18,
+      "module": "IFU_full_snapshot_experiment",
+      "logical_state_bits": 28653
+    },
+    {
+      "id": 5,
+      "board": "MemC",
+      "index_bits": 16,
+      "module": "MemC_full_snapshot_experiment",
+      "logical_state_bits": 23718
+    },
+    {
+      "id": 6,
+      "board": "MemD",
+      "index_bits": 20,
+      "module": "MemD_full_snapshot_experiment",
+      "logical_state_bits": 296591
+    },
+    {
+      "id": 7,
+      "board": "MemX",
+      "index_bits": 24,
+      "module": "MemX_full_snapshot_experiment",
+      "logical_state_bits": 1378312
+    },
+    {
+      "id": 8,
+      "board": "DskEth",
+      "index_bits": 13,
+      "module": "DskEth_full_snapshot_experiment",
+      "logical_state_bits": 2656
+    },
+    {
+      "id": 9,
+      "board": "DispY",
+      "index_bits": 19,
+      "module": "DispY_full_snapshot_experiment",
+      "logical_state_bits": 13993
+    },
+    {
+      "id": 10,
+      "board": "BaseBd",
+      "index_bits": 17,
+      "module": "BaseBd_full_snapshot_experiment",
+      "logical_state_bits": 40366
+    }
+  ],
+  "board_state_bits": 1944744,
+  "source_changes": [
+    "build/rtl-executive/native16-tx-cable/dorado_native_machine.sv",
+    "build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+  ],
+  "core_changes": [
+    "Dorado.sv",
+    "Dorado.qsf",
+    "device-corners.tcl",
+    "audit-adapter-crossings.tcl"
+  ],
+  "added_sources": [
+    "fpga/mister/snapshot_enabled/board_state_uio.sv",
+    "fpga/mister/snapshot_enabled/chip_6502_snapshot.sv",
+    "fpga/mister/snapshot_enabled/cell_SN74LS175_snapshot.sv",
+    "fpga/mister/snapshot_enabled/cell_MC14521B_snapshot.sv",
+    "fpga/mister/snapshot_enabled/cell_CLOCKGEN_snapshot.sv",
+    "fpga/mister/snapshot_enabled/cell_SN74LS163_snapshot.sv",
+    "fpga/mister/snapshot_enabled/BaseBd_full_snapshot.sv",
+    "fpga/mister/snapshot_enabled/cell_MCS6532_snapshot.sv",
+    "fpga/mister/snapshot_enabled/M6532_snapshot.sv",
+    "fpga/mister/snapshot_enabled/cell_MC12061_snapshot.sv",
+    "fpga/mister/snapshot_enabled/cell_MC1690_snapshot.sv",
+    "fpga/mister/snapshot_enabled/cell_SN74LS259_snapshot.sv",
+    "fpga/mister/snapshot_enabled/i2125_byte_bank.sv",
+    "fpga/mister/snapshot_enabled/cell_MPQ3303_snapshot.sv",
+    "fpga/mister/snapshot_enabled/cell_MCS6502_snapshot.sv",
+    "fpga/mister/snapshot_enabled/assets.json",
+    "fpga/mister/snapshot_enabled/cell_i2716_snapshot.sv",
+    "fpga/mister/snapshot_enabled/board_state_fabric.sv",
+    "fpga/mister/snapshot_enabled/cell_SN74LS74_snapshot.sv"
+  ],
+  "timing_changes": "None; identical clocks/SDC/operating conditions",
+  "snapshot_admin": "ENABLED through bounded76..79UIO diagnostics; not a whole-machine snapshot",
+  "source_hashes": {
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "0af8a58754be62f47bab44738089cceebe2bc753af15407e83cecebd01c99bff",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv": "5e521cab0c94647f7a62c23d4c89d790170821857a40cf26df6fcb3685f31eab",
+    "core/Dorado.sv": "63bde5a5f0fa67d9b6e9d6a52acd4cf9c27c279ef1da8c238a6b145f7c77f2b6",
+    "core/Dorado.qsf": "a4559704b8c2bae1962389232db9b5e6b95337d5e38a612fc39c58ca51e49cae",
+    "core/device-corners.tcl": "1fa3dc92df7e5c2ba1b87501cf662ea2619bed3d50db6335a990ec803cfd07f3",
+    "core/audit-adapter-crossings.tcl": "d1343061a4aa0b14d64dee116068bc801a129bfb3c38bec57cb243b7bf07e521",
+    "src/fpga/mister/snapshot_enabled/board_state_uio.sv": "b72d47d5cbafb21ad7cd10ad30c349a327da38e472fe54800d0704fa283171ee",
+    "src/fpga/mister/snapshot_enabled/chip_6502_snapshot.sv": "652df2e5744a79ac26f5e0358de7d419e8993e24454b531d541515ff51cebbee",
+    "src/fpga/mister/snapshot_enabled/cell_SN74LS175_snapshot.sv": "e0abc2d0e9edd2016e974e0deda46e55aa7a1fe72b996a6a97135e194a1a2376",
+    "src/fpga/mister/snapshot_enabled/cell_MC14521B_snapshot.sv": "88975feee2a09e1c554e3d6252df826dd59cd749a6e203b5ebe6053295615b75",
+    "src/fpga/mister/snapshot_enabled/cell_CLOCKGEN_snapshot.sv": "f63361d579ee1b4270ffc2e0cd1f30751cecbd3a1f571b2997a017b1b0fe414a",
+    "src/fpga/mister/snapshot_enabled/cell_SN74LS163_snapshot.sv": "4426d4de5f8610c96344e15f04f9fcfa7d39e3edf1764c0b33c518d8dec8859f",
+    "src/fpga/mister/snapshot_enabled/BaseBd_full_snapshot.sv": "52e3ff9e49c5074fc0bef41ae248326c320e79f0987c8c8207adaf2e4582b210",
+    "src/fpga/mister/snapshot_enabled/cell_MCS6532_snapshot.sv": "4e5315987bc803272c6ff1aa1ca444d4cf93333acea4d224ad98dd1a0a3ffbbb",
+    "src/fpga/mister/snapshot_enabled/M6532_snapshot.sv": "c8435f56312d982023ddf12ef3119ddbd3591254603beb4037d33a459b5941e8",
+    "src/fpga/mister/snapshot_enabled/cell_MC12061_snapshot.sv": "433ccfc2123e0a2c2749fecff109d26f803a26d4c3b0c4993b0b3e11acf36e87",
+    "src/fpga/mister/snapshot_enabled/cell_MC1690_snapshot.sv": "ec88d9c0cbba6716374e19c3e90e95179d8d98c057b14b28c0aa531100b343b1",
+    "src/fpga/mister/snapshot_enabled/cell_SN74LS259_snapshot.sv": "817be57756dfbf0cd139345fe1b1fc7f046f12980d7415648797d2fefe8a876a",
+    "src/fpga/mister/snapshot_enabled/i2125_byte_bank.sv": "723abdeb7224522eb3eb2f7502b0321744383bc76eebeccc677a2b7ccf8b6752",
+    "src/fpga/mister/snapshot_enabled/cell_MPQ3303_snapshot.sv": "0f2ee15778be7ac7abc6543358d78510b93c767c2a282af5803eec023184792e",
+    "src/fpga/mister/snapshot_enabled/cell_MCS6502_snapshot.sv": "439fdd48f5887cca8829c44ef3850bb87b7800d4139f3649dcbee51f190a8d14",
+    "src/fpga/mister/snapshot_enabled/assets.json": "9299138524ec1e474b813d698c3e5d2d1c09b5d13852d128d6c2fd8eb83c2978",
+    "src/fpga/mister/snapshot_enabled/cell_i2716_snapshot.sv": "e4ca317c677ced4c3a1b82db5061f3120c7b3666fc4d294bfe3e2fc81ddd341f",
+    "src/fpga/mister/snapshot_enabled/board_state_fabric.sv": "b0a43cf71410296654acc514cac6b02d004396356c327ed5b25fe5049914e9a9",
+    "src/fpga/mister/snapshot_enabled/cell_SN74LS74_snapshot.sv": "0973ae83bc29c8a16d8581cebe72cb28e53c8de6a843a50c514c8a2391bd98a4"
+  }
+}

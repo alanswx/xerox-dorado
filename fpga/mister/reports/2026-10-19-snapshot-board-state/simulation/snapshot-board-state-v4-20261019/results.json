@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "scope": "Board-only diagnostic transport and stub-board routing, not machine/global snapshot; unchanged native59Ethernet coexistence",
+  "executed_inputs": {
+    "board_state_uio.sv": "b72d47d5cbafb21ad7cd10ad30c349a327da38e472fe54800d0704fa283171ee",
+    "dorado_ethernet_uio.sv": "0c6512a485420a7bc73b6b2e19a273ec6378d67983cfc3fcd4bb68f13b23d278",
+    "test_board_state.py": "0ee2370d6ad8a1541418ed2e57e3d9e3bd8a4799fd862e52d95e1fd369383fe0",
+    "test_board_state.sv": "54f7ecad0e9987a2b25aeba94f002347a2e6be1b38fdff27ee23a970f091bb5c",
+    "board_state_fabric.sv": "b0a43cf71410296654acc514cac6b02d004396356c327ed5b25fe5049914e9a9"
+  }
+}

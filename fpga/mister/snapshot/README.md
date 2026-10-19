@@ -511,3 +511,57 @@ classify/fit/audit_dsketh_full and generate_receive_monitor; report
 snapshot-dsketh-full. build_native_dsketh prepares frozen58+qualified adapter
 using11byte-identical helpers/8newfiles, all administrative inputs inactive.
 No clock/speed gain, timer calibration or complete-machine save/load claim.
+
+## Enabled eleven-board diagnostic transport (2026-10-19)
+
+`board_state_fabric.sv` routes one outstanding 18-bit operation to all eleven
+qualified adapters. It requires freeze, the stopped guest-enable boundary and
+all eleven frozen acknowledgments. It checks board ID and the complete 24-bit
+index before narrowing to the selected board. A registered owner selects the
+reply; writes and errors return zero. Missing replies time out after sixteen
+waiting edges. A timeout or lost boundary quarantines requests until thaw.
+
+`board_state_uio.sv` uses EXT_BUS commands76..79, beside unchanged Ethernet
+commands70..75. Commands mutate state only on deselection after an exact
+packet, including its command word. Words are16bits:
+
+| Command | Request words after command |
+| --- | --- |
+| 77: hold/release boards | B04D, mode0/1, ABI1 |
+| 78: read/write state | B04D, operation0/1, boardID, indexLow16, indexHigh8, dataLow16, dataHigh2 |
+| 76 or79: coherent status | Clock eleven further words after the initial reply |
+
+Nonzero padding, wrong key/ABI/operation, short/overlong packets, running
+requests and requests while busy are rejected. Busy release is rejected too.
+Status is captured on the command word: D0B0, ABI1, flags, boardCount11,
+frozenMask, sequenceLow/High, resultLow/High, error, controlErrorsLow/High.
+Flag bits0..6 are freeze, guestHeld, allFrozen, busy, complete, replyError,
+quarantined. Bit8 is permanently1 to identify board-only scope. Errors1..5
+mean bad board, index high bits, child error, timeout, lost boundary.
+
+The board order and index widths are ContA12, ContB15, ProcH16, ProcL16,
+IFU18, MemC16, MemD20, MemX24, DskEth13, DispY19, BaseBd17. The actual child
+adapter additionally checks its selector/row validity. This interface is
+diagnostic access, not a complete machine pause: raw memory, device wrappers,
+input, ARM work/server connections and disk generation are not captured.
+
+Four-state simulation v6 passes9,974ticks/433packets/201checks with all eleven
+stub boards, delayed/error replies, timeout/re-entry, lost boundary, counter
+rollover, a completion during status and the actual unchanged Native59 Ethernet
+UIO. All13broken RTL controls reject. Initial index0/board0 exposed an Icarus
+initial-sensitivity issue; `always_comb` supplies the required initial decode.
+
+`build_enabled_core.py` prepares the complete BaseBoard plus22asset files,
+reuses4byte-identical shared helpers and adds18sources. It enables every board
+interface (1,944,744modeled bits) in a frozen Native59-derived experiment.
+Original clocks, SDRAM/ECC and timing constraints stay unchanged. The builder
+does not assemble/deploy an RBF. `audit_enabled_core.py` independently checks
+all413baseline receipt files,2,137original board pins,85other core files,
+state routes, boundary/bus wiring and source/constraint policies;15broken
+integrations reject. The audit also passes against the actual remote build.
+Quartus17's optional complete set of relative source aliases is checked to
+resolve exactly to the18new files. Evidence: reports/2026-10-19-snapshot-board-state.
+
+Full-core synthesis passes; fitting is running in
+`misterubuntu:/home/alans/mister/Dorado_Enabled60_20261019`. Capacity/routed
+timing and hardware operation remain unqualified. Live Native59 is unchanged.

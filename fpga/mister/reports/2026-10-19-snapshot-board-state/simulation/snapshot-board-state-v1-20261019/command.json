@@ -1,0 +1,12 @@
+[
+  "iverilog",
+  "-g2012",
+  "-s",
+  "board_state_fixture",
+  "-o",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-board-state-v1-20261019/test.vvp",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-board-state-v1-20261019/executed-inputs/test_board_state.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-board-state-v1-20261019/executed-inputs/board_state_fabric.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-board-state-v1-20261019/executed-inputs/board_state_uio.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-board-state-v1-20261019/executed-inputs/dorado_ethernet_uio.sv"
+]
