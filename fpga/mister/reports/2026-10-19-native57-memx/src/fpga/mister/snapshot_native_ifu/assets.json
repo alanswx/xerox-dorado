@@ -1,0 +1,4815 @@
+{
+  "manifests": {
+    "IFU": {
+      "module": "IFU_full_snapshot_experiment",
+      "original_module": "IFU_m_Rev_m_Ch",
+      "original_sha256": "b7f3b3275e8428fe03d6f3f645259a67205bcc382223267578503d492667d161",
+      "ff": [
+        {
+          "index": 0,
+          "word": 0,
+          "package": "u_a04",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "word": 2048,
+          "package": "u_a05",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "word": 4096,
+          "package": "u_a08",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "word": 6144,
+          "package": "u_a11",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "word": 8192,
+          "package": "u_a13",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "word": 10240,
+          "package": "u_a15",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "word": 12288,
+          "package": "u_a16",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "word": 14336,
+          "package": "u_a17",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "word": 16384,
+          "package": "u_a18",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "word": 18432,
+          "package": "u_a20",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "word": 20480,
+          "package": "u_a21",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "word": 22528,
+          "package": "u_b01",
+          "kind": "cell_MC10173",
+          "width": 4,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            }
+          ]
+        },
+        {
+          "index": 12,
+          "word": 24576,
+          "package": "u_b04",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 13,
+          "word": 26624,
+          "package": "u_b05",
+          "kind": "cell_MC10141",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 4,
+              "lsb": 4
+            },
+            {
+              "name": "s_pre",
+              "width": 2,
+              "lsb": 8
+            },
+            {
+              "name": "dr_pre",
+              "width": 1,
+              "lsb": 10
+            },
+            {
+              "name": "dl_pre",
+              "width": 1,
+              "lsb": 11
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 14,
+          "word": 28672,
+          "package": "u_b06",
+          "kind": "cell_MC10141",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 4,
+              "lsb": 4
+            },
+            {
+              "name": "s_pre",
+              "width": 2,
+              "lsb": 8
+            },
+            {
+              "name": "dr_pre",
+              "width": 1,
+              "lsb": 10
+            },
+            {
+              "name": "dl_pre",
+              "width": 1,
+              "lsb": 11
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 15,
+          "word": 30720,
+          "package": "u_b08",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 16,
+          "word": 32768,
+          "package": "u_b11",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 17,
+          "word": 34816,
+          "package": "u_b13",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 18,
+          "word": 36864,
+          "package": "u_b15",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 19,
+          "word": 38912,
+          "package": "u_b16",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 20,
+          "word": 40960,
+          "package": "u_b18",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 21,
+          "word": 43008,
+          "package": "u_b20",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 22,
+          "word": 45056,
+          "package": "u_c01",
+          "kind": "cell_MC10173",
+          "width": 4,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            }
+          ]
+        },
+        {
+          "index": 23,
+          "word": 47104,
+          "package": "u_c04",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 24,
+          "word": 49152,
+          "package": "u_c08",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 25,
+          "word": 51200,
+          "package": "u_c11",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 26,
+          "word": 53248,
+          "package": "u_c13",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 27,
+          "word": 55296,
+          "package": "u_c14",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 28,
+          "word": 57344,
+          "package": "u_c15",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 29,
+          "word": 59392,
+          "package": "u_c16",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 30,
+          "word": 61440,
+          "package": "u_c17",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 31,
+          "word": 63488,
+          "package": "u_c20",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 32,
+          "word": 65536,
+          "package": "u_c22",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 33,
+          "word": 67584,
+          "package": "u_d04",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 34,
+          "word": 69632,
+          "package": "u_d08",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 35,
+          "word": 71680,
+          "package": "u_d11",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 36,
+          "word": 73728,
+          "package": "u_d13",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 37,
+          "word": 75776,
+          "package": "u_d14",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 38,
+          "word": 77824,
+          "package": "u_d16",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 39,
+          "word": 79872,
+          "package": "u_e01",
+          "kind": "cell_MC10173",
+          "width": 4,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            }
+          ]
+        },
+        {
+          "index": 40,
+          "word": 81920,
+          "package": "u_e04",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 41,
+          "word": 83968,
+          "package": "u_e06",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 42,
+          "word": 86016,
+          "package": "u_e07",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 43,
+          "word": 88064,
+          "package": "u_e13",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 44,
+          "word": 90112,
+          "package": "u_e17",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 45,
+          "word": 92160,
+          "package": "u_f01",
+          "kind": "cell_MC10173",
+          "width": 4,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            }
+          ]
+        },
+        {
+          "index": 46,
+          "word": 94208,
+          "package": "u_f03",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 47,
+          "word": 96256,
+          "package": "u_f04",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 48,
+          "word": 98304,
+          "package": "u_f06",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 49,
+          "word": 100352,
+          "package": "u_f14",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 50,
+          "word": 102400,
+          "package": "u_f20",
+          "kind": "cell_MC10135",
+          "width": 7,
+          "fields": [
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "jk_pre",
+              "width": 4,
+              "lsb": 2
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 6
+            }
+          ]
+        },
+        {
+          "index": 51,
+          "word": 104448,
+          "package": "u_f21",
+          "kind": "cell_MC10135",
+          "width": 7,
+          "fields": [
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "jk_pre",
+              "width": 4,
+              "lsb": 2
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 6
+            }
+          ]
+        },
+        {
+          "index": 52,
+          "word": 106496,
+          "package": "u_f24",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 53,
+          "word": 108544,
+          "package": "u_g04",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 54,
+          "word": 110592,
+          "package": "u_g05",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 55,
+          "word": 112640,
+          "package": "u_g07",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 56,
+          "word": 114688,
+          "package": "u_g19",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 57,
+          "word": 116736,
+          "package": "u_h03",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 58,
+          "word": 118784,
+          "package": "u_h04",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 59,
+          "word": 120832,
+          "package": "u_h07",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 60,
+          "word": 122880,
+          "package": "u_h11",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 61,
+          "word": 124928,
+          "package": "u_h12",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 62,
+          "word": 126976,
+          "package": "u_h13",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 63,
+          "word": 129024,
+          "package": "u_h17",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 64,
+          "word": 131072,
+          "package": "u_i03",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 65,
+          "word": 133120,
+          "package": "u_i04",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 66,
+          "word": 135168,
+          "package": "u_i11",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 67,
+          "word": 137216,
+          "package": "u_i12",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 68,
+          "word": 139264,
+          "package": "u_i16",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 69,
+          "word": 141312,
+          "package": "u_i20",
+          "kind": "cell_MC10135",
+          "width": 7,
+          "fields": [
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "jk_pre",
+              "width": 4,
+              "lsb": 2
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 6
+            }
+          ]
+        },
+        {
+          "index": 70,
+          "word": 143360,
+          "package": "u_i24",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 71,
+          "word": 145408,
+          "package": "u_j06",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 72,
+          "word": 147456,
+          "package": "u_j08",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 73,
+          "word": 149504,
+          "package": "u_j11",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 74,
+          "word": 151552,
+          "package": "u_j12",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 75,
+          "word": 153600,
+          "package": "u_j20",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 76,
+          "word": 155648,
+          "package": "u_j24",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 77,
+          "word": 157696,
+          "package": "u_k03",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 78,
+          "word": 159744,
+          "package": "u_k05",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 79,
+          "word": 161792,
+          "package": "u_k06",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 80,
+          "word": 163840,
+          "package": "u_k08",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 81,
+          "word": 165888,
+          "package": "u_k11",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 82,
+          "word": 167936,
+          "package": "u_k12",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 83,
+          "word": 169984,
+          "package": "u_k17",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 84,
+          "word": 172032,
+          "package": "u_k22",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 85,
+          "word": 174080,
+          "package": "u_k23",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 86,
+          "word": 176128,
+          "package": "u_k24",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 87,
+          "word": 178176,
+          "package": "u_l01",
+          "kind": "cell_MC10231",
+          "width": 6,
+          "fields": [
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "d_pre_b",
+              "width": 1,
+              "lsb": 2
+            },
+            {
+              "name": "d_pre_a",
+              "width": 1,
+              "lsb": 3
+            },
+            {
+              "name": "ckb_d",
+              "width": 1,
+              "lsb": 4
+            },
+            {
+              "name": "cka_d",
+              "width": 1,
+              "lsb": 5
+            }
+          ]
+        },
+        {
+          "index": 88,
+          "word": 180224,
+          "package": "u_l03",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 89,
+          "word": 182272,
+          "package": "u_l04",
+          "kind": "cell_F10016",
+          "width": 11,
+          "fields": [
+            {
+              "name": "q",
+              "width": 4,
+              "lsb": 0
+            },
+            {
+              "name": "setup_pre",
+              "width": 6,
+              "lsb": 4
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 10
+            }
+          ]
+        },
+        {
+          "index": 90,
+          "word": 184320,
+          "package": "u_l06",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 91,
+          "word": 186368,
+          "package": "u_l19",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        },
+        {
+          "index": 92,
+          "word": 188416,
+          "package": "u_l21",
+          "kind": "cell_MC10135",
+          "width": 7,
+          "fields": [
+            {
+              "name": "qa",
+              "width": 1,
+              "lsb": 0
+            },
+            {
+              "name": "qb",
+              "width": 1,
+              "lsb": 1
+            },
+            {
+              "name": "jk_pre",
+              "width": 4,
+              "lsb": 2
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 6
+            }
+          ]
+        },
+        {
+          "index": 93,
+          "word": 190464,
+          "package": "u_l22",
+          "kind": "cell_MC10176",
+          "width": 13,
+          "fields": [
+            {
+              "name": "q",
+              "width": 6,
+              "lsb": 0
+            },
+            {
+              "name": "d_pre",
+              "width": 6,
+              "lsb": 6
+            },
+            {
+              "name": "ck_d",
+              "width": 1,
+              "lsb": 12
+            }
+          ]
+        }
+      ],
+      "banks": [
+        {
+          "index": 94,
+          "word": 192512,
+          "bank": 0,
+          "width": 1,
+          "members": [
+            {
+              "package": "g09",
+              "field": "TwoAlphaK",
+              "data": "RcvdBMux.05",
+              "we": "DecHi_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0a",
+                "J.1a",
+                "J.2a",
+                "J.3a",
+                "J.4a",
+                "J.5a",
+                "J.6a",
+                "J.7a"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            }
+          ],
+          "address": [
+            "InstrSet_0a",
+            "InstrSet_1a",
+            "J_0a",
+            "J_1a",
+            "J_2a",
+            "J_3a",
+            "J_4a",
+            "J_5a",
+            "J_6a",
+            "J_7a"
+          ],
+          "data": [
+            "RcvdBMux_05"
+          ],
+          "outputs": [
+            "TwoAlphaK"
+          ],
+          "we": "DecHi_u__p_",
+          "ce": "OMITTED",
+          "ram_words": 1024,
+          "pipeline_word": 1024
+        },
+        {
+          "index": 95,
+          "word": 194560,
+          "bank": 1,
+          "width": 5,
+          "members": [
+            {
+              "package": "g10",
+              "field": "TypePauseK'",
+              "data": "RcvdBMux.10",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0b",
+                "InstrSet.1b",
+                "J.0a",
+                "J.1a",
+                "J.2a",
+                "J.3a",
+                "J.4a",
+                "J.5a",
+                "J.6a",
+                "J.7a"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "g11",
+              "field": "TypeJumpK'",
+              "data": "RcvdBMux.11",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0b",
+                "InstrSet.1b",
+                "J.0a",
+                "J.1a",
+                "J.2a",
+                "J.3a",
+                "J.4a",
+                "J.5a",
+                "J.6a",
+                "J.7a"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "g14",
+              "field": "RBaseSelK'",
+              "data": "RcvdBMux.06",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0b",
+                "InstrSet.1b",
+                "J.0a",
+                "J.1a",
+                "J.2a",
+                "J.3a",
+                "J.4a",
+                "J.5a",
+                "J.6a",
+                "J.7a"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "g15",
+              "field": "LengthK.0'",
+              "data": "RcvdBMux.04",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0b",
+                "InstrSet.1b",
+                "J.0a",
+                "J.1a",
+                "J.2a",
+                "J.3a",
+                "J.4a",
+                "J.5a",
+                "J.6a",
+                "J.7a"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "h14",
+              "field": "MemBK34",
+              "data": "RcvdBMux.07",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0b",
+                "InstrSet.1b",
+                "J.0a",
+                "J.1a",
+                "J.2a",
+                "J.3a",
+                "J.4a",
+                "J.5a",
+                "J.6a",
+                "J.7a"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            }
+          ],
+          "address": [
+            "InstrSet_0b",
+            "InstrSet_1b",
+            "J_0a",
+            "J_1a",
+            "J_2a",
+            "J_3a",
+            "J_4a",
+            "J_5a",
+            "J_6a",
+            "J_7a"
+          ],
+          "data": [
+            "RcvdBMux_10",
+            "RcvdBMux_11",
+            "RcvdBMux_06",
+            "RcvdBMux_04",
+            "RcvdBMux_07"
+          ],
+          "outputs": [
+            "TypePauseK_p_",
+            "TypeJumpK_p_",
+            "RBaseSelK_p_",
+            "LengthK_0_p_",
+            "MemBK34"
+          ],
+          "we": "DecLo_u__p_",
+          "ce": "OMITTED",
+          "ram_words": 1024,
+          "pipeline_word": 1024
+        },
+        {
+          "index": 96,
+          "word": 196608,
+          "bank": 2,
+          "width": 1,
+          "members": [
+            {
+              "package": "h09",
+              "field": "SignK",
+              "data": "RcvdBMux.00",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0b",
+                "J.1b",
+                "J.2b",
+                "J.3b",
+                "J.4b",
+                "J.5b",
+                "J.6b",
+                "J.7b"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            }
+          ],
+          "address": [
+            "InstrSet_0a",
+            "InstrSet_1a",
+            "J_0b",
+            "J_1b",
+            "J_2b",
+            "J_3b",
+            "J_4b",
+            "J_5b",
+            "J_6b",
+            "J_7b"
+          ],
+          "data": [
+            "RcvdBMux_00"
+          ],
+          "outputs": [
+            "SignK"
+          ],
+          "we": "DecLo_u__p_",
+          "ce": "OMITTED",
+          "ram_words": 1024,
+          "pipeline_word": 1024
+        },
+        {
+          "index": 97,
+          "word": 198656,
+          "bank": 3,
+          "width": 1,
+          "members": [
+            {
+              "package": "h10",
+              "field": "RamParity.2",
+              "data": "RcvdBMux.03",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0a",
+                "J.1a",
+                "J.2a",
+                "J.3a",
+                "J.4a",
+                "J.5a",
+                "J.6a",
+                "J.7a"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            }
+          ],
+          "address": [
+            "InstrSet_0a",
+            "InstrSet_1a",
+            "J_0a",
+            "J_1a",
+            "J_2a",
+            "J_3a",
+            "J_4a",
+            "J_5a",
+            "J_6a",
+            "J_7a"
+          ],
+          "data": [
+            "RcvdBMux_03"
+          ],
+          "outputs": [
+            "RamParity_2"
+          ],
+          "we": "DecLo_u__p_",
+          "ce": "OMITTED",
+          "ram_words": 1024,
+          "pipeline_word": 1024
+        },
+        {
+          "index": 98,
+          "word": 200704,
+          "bank": 4,
+          "width": 4,
+          "members": [
+            {
+              "package": "i09",
+              "field": "NK.0",
+              "data": "RcvdBMux.12",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0b",
+                "InstrSet.1b",
+                "J.0b",
+                "J.1b",
+                "J.2b",
+                "J.3b",
+                "J.4b",
+                "J.5b",
+                "J.6b",
+                "J.7b"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "i10",
+              "field": "MemBK.0",
+              "data": "RcvdBMux.08",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0b",
+                "InstrSet.1b",
+                "J.0b",
+                "J.1b",
+                "J.2b",
+                "J.3b",
+                "J.4b",
+                "J.5b",
+                "J.6b",
+                "J.7b"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "i15",
+              "field": "LengthK.1'",
+              "data": "RcvdBMux.05",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0b",
+                "InstrSet.1b",
+                "J.0b",
+                "J.1b",
+                "J.2b",
+                "J.3b",
+                "J.4b",
+                "J.5b",
+                "J.6b",
+                "J.7b"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "j09",
+              "field": "NK.1",
+              "data": "RcvdBMux.13",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0b",
+                "InstrSet.1b",
+                "J.0b",
+                "J.1b",
+                "J.2b",
+                "J.3b",
+                "J.4b",
+                "J.5b",
+                "J.6b",
+                "J.7b"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            }
+          ],
+          "address": [
+            "InstrSet_0b",
+            "InstrSet_1b",
+            "J_0b",
+            "J_1b",
+            "J_2b",
+            "J_3b",
+            "J_4b",
+            "J_5b",
+            "J_6b",
+            "J_7b"
+          ],
+          "data": [
+            "RcvdBMux_12",
+            "RcvdBMux_08",
+            "RcvdBMux_05",
+            "RcvdBMux_13"
+          ],
+          "outputs": [
+            "NK_0",
+            "MemBK_0",
+            "LengthK_1_p_",
+            "NK_1"
+          ],
+          "we": "DecLo_u__p_",
+          "ce": "OMITTED",
+          "ram_words": 1024,
+          "pipeline_word": 1024
+        },
+        {
+          "index": 99,
+          "word": 202752,
+          "bank": 5,
+          "width": 1,
+          "members": [
+            {
+              "package": "i14",
+              "field": "InstrAddrK.2'",
+              "data": "RcvdBMux.08",
+              "we": "DecHi_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0b",
+                "J.1b",
+                "J.2b",
+                "J.3b",
+                "J.4b",
+                "J.5b",
+                "J.6b",
+                "J.7b"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            }
+          ],
+          "address": [
+            "InstrSet_0a",
+            "InstrSet_1a",
+            "J_0b",
+            "J_1b",
+            "J_2b",
+            "J_3b",
+            "J_4b",
+            "J_5b",
+            "J_6b",
+            "J_7b"
+          ],
+          "data": [
+            "RcvdBMux_08"
+          ],
+          "outputs": [
+            "InstrAddrK_2_p_"
+          ],
+          "we": "DecHi_u__p_",
+          "ce": "OMITTED",
+          "ram_words": 1024,
+          "pipeline_word": 1024
+        },
+        {
+          "index": 100,
+          "word": 204800,
+          "bank": 6,
+          "width": 5,
+          "members": [
+            {
+              "package": "j10",
+              "field": "InstrAddrK.3'",
+              "data": "RcvdBMux.09",
+              "we": "DecHi_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0c",
+                "J.1c",
+                "J.2c",
+                "J.3c",
+                "J.4c",
+                "J.5c",
+                "J.6c",
+                "J.7c"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "j14",
+              "field": "InstrAddrK.4'",
+              "data": "RcvdBMux.10",
+              "we": "DecHi_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0c",
+                "J.1c",
+                "J.2c",
+                "J.3c",
+                "J.4c",
+                "J.5c",
+                "J.6c",
+                "J.7c"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "j15",
+              "field": "InstrAddrK.5'",
+              "data": "RcvdBMux.11",
+              "we": "DecHi_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0c",
+                "J.1c",
+                "J.2c",
+                "J.3c",
+                "J.4c",
+                "J.5c",
+                "J.6c",
+                "J.7c"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "k14",
+              "field": "InstrAddrK.6'",
+              "data": "RcvdBMux.12",
+              "we": "DecHi_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0c",
+                "J.1c",
+                "J.2c",
+                "J.3c",
+                "J.4c",
+                "J.5c",
+                "J.6c",
+                "J.7c"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "k15",
+              "field": "InstrAddrK.7'",
+              "data": "RcvdBMux.13",
+              "we": "DecHi_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0c",
+                "J.1c",
+                "J.2c",
+                "J.3c",
+                "J.4c",
+                "J.5c",
+                "J.6c",
+                "J.7c"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            }
+          ],
+          "address": [
+            "InstrSet_0a",
+            "InstrSet_1a",
+            "J_0c",
+            "J_1c",
+            "J_2c",
+            "J_3c",
+            "J_4c",
+            "J_5c",
+            "J_6c",
+            "J_7c"
+          ],
+          "data": [
+            "RcvdBMux_09",
+            "RcvdBMux_10",
+            "RcvdBMux_11",
+            "RcvdBMux_12",
+            "RcvdBMux_13"
+          ],
+          "outputs": [
+            "InstrAddrK_3_p_",
+            "InstrAddrK_4_p_",
+            "InstrAddrK_5_p_",
+            "InstrAddrK_6_p_",
+            "InstrAddrK_7_p_"
+          ],
+          "we": "DecHi_u__p_",
+          "ce": "OMITTED",
+          "ram_words": 1024,
+          "pipeline_word": 1024
+        },
+        {
+          "index": 101,
+          "word": 206848,
+          "bank": 7,
+          "width": 2,
+          "members": [
+            {
+              "package": "k09",
+              "field": "NK.2",
+              "data": "RcvdBMux.14",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0b",
+                "InstrSet.1b",
+                "J.0c",
+                "J.1c",
+                "J.2c",
+                "J.3c",
+                "J.4c",
+                "J.5c",
+                "J.6c",
+                "J.7c"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "k10",
+              "field": "MemBK.1",
+              "data": "RcvdBMux.09",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0b",
+                "InstrSet.1b",
+                "J.0c",
+                "J.1c",
+                "J.2c",
+                "J.3c",
+                "J.4c",
+                "J.5c",
+                "J.6c",
+                "J.7c"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            }
+          ],
+          "address": [
+            "InstrSet_0b",
+            "InstrSet_1b",
+            "J_0c",
+            "J_1c",
+            "J_2c",
+            "J_3c",
+            "J_4c",
+            "J_5c",
+            "J_6c",
+            "J_7c"
+          ],
+          "data": [
+            "RcvdBMux_14",
+            "RcvdBMux_09"
+          ],
+          "outputs": [
+            "NK_2",
+            "MemBK_1"
+          ],
+          "we": "DecLo_u__p_",
+          "ce": "OMITTED",
+          "ram_words": 1024,
+          "pipeline_word": 1024
+        },
+        {
+          "index": 102,
+          "word": 208896,
+          "bank": 8,
+          "width": 1,
+          "members": [
+            {
+              "package": "l09",
+              "field": "NK.3",
+              "data": "RcvdBMux.15",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0b",
+                "InstrSet.1b",
+                "J.0d",
+                "J.1d",
+                "J.2d",
+                "J.3d",
+                "J.4d",
+                "J.5d",
+                "J.6d",
+                "J.7d"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            }
+          ],
+          "address": [
+            "InstrSet_0b",
+            "InstrSet_1b",
+            "J_0d",
+            "J_1d",
+            "J_2d",
+            "J_3d",
+            "J_4d",
+            "J_5d",
+            "J_6d",
+            "J_7d"
+          ],
+          "data": [
+            "RcvdBMux_15"
+          ],
+          "outputs": [
+            "NK_3"
+          ],
+          "we": "DecLo_u__p_",
+          "ce": "OMITTED",
+          "ram_words": 1024,
+          "pipeline_word": 1024
+        },
+        {
+          "index": 103,
+          "word": 210944,
+          "bank": 9,
+          "width": 4,
+          "members": [
+            {
+              "package": "l10",
+              "field": "InstrAddrK.0'",
+              "data": "RcvdBMux.06",
+              "we": "DecHi_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0d",
+                "J.1d",
+                "J.2d",
+                "J.3d",
+                "J.4d",
+                "J.5d",
+                "J.6d",
+                "J.7d"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "l11",
+              "field": "InstrAddrK.1'",
+              "data": "RcvdBMux.07",
+              "we": "DecHi_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0d",
+                "J.1d",
+                "J.2d",
+                "J.3d",
+                "J.4d",
+                "J.5d",
+                "J.6d",
+                "J.7d"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "l14",
+              "field": "InstrAddrK.8'",
+              "data": "RcvdBMux.14",
+              "we": "DecHi_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0d",
+                "J.1d",
+                "J.2d",
+                "J.3d",
+                "J.4d",
+                "J.5d",
+                "J.6d",
+                "J.7d"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "l15",
+              "field": "InstrAddrK.9'",
+              "data": "RcvdBMux.15",
+              "we": "DecHi_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0d",
+                "J.1d",
+                "J.2d",
+                "J.3d",
+                "J.4d",
+                "J.5d",
+                "J.6d",
+                "J.7d"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            }
+          ],
+          "address": [
+            "InstrSet_0a",
+            "InstrSet_1a",
+            "J_0d",
+            "J_1d",
+            "J_2d",
+            "J_3d",
+            "J_4d",
+            "J_5d",
+            "J_6d",
+            "J_7d"
+          ],
+          "data": [
+            "RcvdBMux_06",
+            "RcvdBMux_07",
+            "RcvdBMux_14",
+            "RcvdBMux_15"
+          ],
+          "outputs": [
+            "InstrAddrK_0_p_",
+            "InstrAddrK_1_p_",
+            "InstrAddrK_8_p_",
+            "InstrAddrK_9_p_"
+          ],
+          "we": "DecHi_u__p_",
+          "ce": "OMITTED",
+          "ram_words": 1024,
+          "pipeline_word": 1024
+        },
+        {
+          "index": 104,
+          "word": 212992,
+          "bank": 10,
+          "width": 2,
+          "members": [
+            {
+              "package": "l12",
+              "field": "RamParity.0",
+              "data": "RcvdBMux.01",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0d",
+                "J.1d",
+                "J.2d",
+                "J.3d",
+                "J.4d",
+                "J.5d",
+                "J.6d",
+                "J.7d"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            },
+            {
+              "package": "l13",
+              "field": "RamParity.1",
+              "data": "RcvdBMux.02",
+              "we": "DecLo_'",
+              "address": [
+                "InstrSet.0a",
+                "InstrSet.1a",
+                "J.0d",
+                "J.1d",
+                "J.2d",
+                "J.3d",
+                "J.4d",
+                "J.5d",
+                "J.6d",
+                "J.7d"
+              ],
+              "ce": "OMITTED in both wire list and generated instance"
+            }
+          ],
+          "address": [
+            "InstrSet_0a",
+            "InstrSet_1a",
+            "J_0d",
+            "J_1d",
+            "J_2d",
+            "J_3d",
+            "J_4d",
+            "J_5d",
+            "J_6d",
+            "J_7d"
+          ],
+          "data": [
+            "RcvdBMux_01",
+            "RcvdBMux_02"
+          ],
+          "outputs": [
+            "RamParity_0",
+            "RamParity_1"
+          ],
+          "we": "DecLo_u__p_",
+          "ce": "OMITTED",
+          "ram_words": 1024,
+          "pipeline_word": 1024
+        }
+      ],
+      "phase": {
+        "package_index": 105,
+        "word": 215040,
+        "fields": [
+          "clk1_p_Aa",
+          "clk1_p_Ab",
+          "clk1_p_Ac",
+          "clk1_p_Da"
+        ],
+        "width": 4
+      },
+      "logical_state_bits": 28653,
+      "ff_bits": 974,
+      "ram_bits": 27648,
+      "read_pipeline_bits": 27,
+      "phase_bits": 4,
+      "index_bits": 18,
+      "row_bits": 11,
+      "immutable_proms": [
+        {
+          "package": "u_a06",
+          "file": "verilog/proms/packages/IFU-a06.mem",
+          "sha256": "691f366c2aeaf7241f9b30868f225b0a49508a0954c23e561db73bcf9ac0fc0c",
+          "words": 32,
+          "width": 8
+        }
+      ],
+      "original_sources": {
+        "verilog/cells/cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+        "verilog/cells/cell_F10415A.v": "44cb1c6eee73b8507f7a66e5781073f916d0c02a221618dedf4d09879a9a7227",
+        "verilog/cells/cell_LM3911_20K.v": "7bac5b0e7235f7840a51a6ab47321745bceda31c5216652cb4550eae83d32ecc",
+        "verilog/cells/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+        "verilog/cells/cell_MC10101.v": "d7cce11dd4c6c75b83d1d40287144fffc35ac6df2b9f490a45aeb740dcab862f",
+        "verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+        "verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+        "verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+        "verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+        "verilog/cells/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+        "verilog/cells/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+        "verilog/cells/cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+        "verilog/cells/cell_MC10118.v": "db67c73173b2707f29f6160b12572b0f0a3192beea1eb95b74ddfb03fd3b23ac",
+        "verilog/cells/cell_MC10119.v": "852a85246f0f5d9a2d3b9f9cbf97e3b070a09e7643934f370e139c518f95abf8",
+        "verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+        "verilog/cells/cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+        "verilog/cells/cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+        "verilog/cells/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+        "verilog/cells/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+        "verilog/cells/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+        "verilog/cells/cell_MC10161.v": "816c7d2eb044c210d256c32ce1f4215a988e312d02df81b527d6ba001795788b",
+        "verilog/cells/cell_MC10164.v": "5e8978b4ceed6b2e5dee8a4c9f5dd841bfe175059e5dcc19f1b6099e8e156e0c",
+        "verilog/cells/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+        "verilog/cells/cell_MC10173.v": "e5a5b884cc2aa3cc7dd3a547bb5722f1528f9a1e907a789545f85a3cf5eae530",
+        "verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+        "verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+        "verilog/cells/cell_MC10181.v": "6d12fa3385eec395899363453743d0665bbdc2ee6a455739001e6f4fc7e0eee0",
+        "verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+        "verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+        "verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+        "verilog/cells/cell_MC10212.v": "592b5a4ad9cf64bc846b3619f85d268cac4123e5893bdc2f93e520ff1e45b39f",
+        "verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+        "verilog/cells/cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+        "verilog/cells/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+        "verilog/cells/cell_MC1664.v": "ce9217e73068f27571aa032ddfb2a80393fb340a9648be1618c3af5d5e6be8a6",
+        "verilog/cells/cell_MC1672.v": "47d2593da342d5090c5bc33802300695b1d1ba3627f9507e92a26199dd52334b",
+        "verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+        "verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+        "verilog/cells/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+        "verilog/cells/cell_SG10139.v": "bcf5d25bac812a4143cb6e7fc893ab746837711d7038d3b4a496e7f228b9189d"
+      },
+      "grouping": {
+        "status": "PASS: logical pin/fanout grouping only",
+        "ram_packages": 27,
+        "ram_bits": 27648,
+        "read_pipeline_bits": 27,
+        "data_bits": 24,
+        "parity_bits": 3,
+        "literal_groups": 11,
+        "canonical_groups": 11,
+        "program_word_widths": {
+          "high": 11,
+          "low": 16
+        },
+        "groups": [
+          {
+            "group": "g09",
+            "program_word": "high",
+            "width": 1,
+            "canonical_pins": [
+              [
+                "net",
+                "InstrSet_0a"
+              ],
+              [
+                "net",
+                "InstrSet_1a"
+              ],
+              [
+                "net",
+                "J_0a"
+              ],
+              [
+                "net",
+                "J_1a"
+              ],
+              [
+                "net",
+                "J_2a"
+              ],
+              [
+                "net",
+                "J_3a"
+              ],
+              [
+                "net",
+                "J_4a"
+              ],
+              [
+                "net",
+                "J_5a"
+              ],
+              [
+                "net",
+                "J_6a"
+              ],
+              [
+                "net",
+                "J_7a"
+              ],
+              [
+                "~",
+                [
+                  "^",
+                  [
+                    "net",
+                    "ifu04_sil_pl_13"
+                  ],
+                  [
+                    "unconnected",
+                    "u_c21",
+                    "p9"
+                  ]
+                ]
+              ]
+            ],
+            "members": [
+              {
+                "package": "g09",
+                "field": "TwoAlphaK",
+                "data": "RcvdBMux.05",
+                "we": "DecHi_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0a",
+                  "J.1a",
+                  "J.2a",
+                  "J.3a",
+                  "J.4a",
+                  "J.5a",
+                  "J.6a",
+                  "J.7a"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              }
+            ]
+          },
+          {
+            "group": "g10",
+            "program_word": "low",
+            "width": 5,
+            "canonical_pins": [
+              [
+                "net",
+                "InstrSet_0b"
+              ],
+              [
+                "net",
+                "InstrSet_1b"
+              ],
+              [
+                "net",
+                "J_0a"
+              ],
+              [
+                "net",
+                "J_1a"
+              ],
+              [
+                "net",
+                "J_2a"
+              ],
+              [
+                "net",
+                "J_3a"
+              ],
+              [
+                "net",
+                "J_4a"
+              ],
+              [
+                "net",
+                "J_5a"
+              ],
+              [
+                "net",
+                "J_6a"
+              ],
+              [
+                "net",
+                "J_7a"
+              ],
+              [
+                "~",
+                [
+                  "^",
+                  [
+                    "net",
+                    "ifu04_sil_pl_14"
+                  ],
+                  [
+                    "unconnected",
+                    "u_c21",
+                    "p9"
+                  ]
+                ]
+              ]
+            ],
+            "members": [
+              {
+                "package": "g10",
+                "field": "TypePauseK'",
+                "data": "RcvdBMux.10",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0b",
+                  "InstrSet.1b",
+                  "J.0a",
+                  "J.1a",
+                  "J.2a",
+                  "J.3a",
+                  "J.4a",
+                  "J.5a",
+                  "J.6a",
+                  "J.7a"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "g11",
+                "field": "TypeJumpK'",
+                "data": "RcvdBMux.11",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0b",
+                  "InstrSet.1b",
+                  "J.0a",
+                  "J.1a",
+                  "J.2a",
+                  "J.3a",
+                  "J.4a",
+                  "J.5a",
+                  "J.6a",
+                  "J.7a"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "g14",
+                "field": "RBaseSelK'",
+                "data": "RcvdBMux.06",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0b",
+                  "InstrSet.1b",
+                  "J.0a",
+                  "J.1a",
+                  "J.2a",
+                  "J.3a",
+                  "J.4a",
+                  "J.5a",
+                  "J.6a",
+                  "J.7a"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "g15",
+                "field": "LengthK.0'",
+                "data": "RcvdBMux.04",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0b",
+                  "InstrSet.1b",
+                  "J.0a",
+                  "J.1a",
+                  "J.2a",
+                  "J.3a",
+                  "J.4a",
+                  "J.5a",
+                  "J.6a",
+                  "J.7a"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "h14",
+                "field": "MemBK34",
+                "data": "RcvdBMux.07",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0b",
+                  "InstrSet.1b",
+                  "J.0a",
+                  "J.1a",
+                  "J.2a",
+                  "J.3a",
+                  "J.4a",
+                  "J.5a",
+                  "J.6a",
+                  "J.7a"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              }
+            ]
+          },
+          {
+            "group": "h09",
+            "program_word": "low",
+            "width": 1,
+            "canonical_pins": [
+              [
+                "net",
+                "InstrSet_0a"
+              ],
+              [
+                "net",
+                "InstrSet_1a"
+              ],
+              [
+                "net",
+                "J_0b"
+              ],
+              [
+                "net",
+                "J_1b"
+              ],
+              [
+                "net",
+                "J_2b"
+              ],
+              [
+                "net",
+                "J_3b"
+              ],
+              [
+                "net",
+                "J_4b"
+              ],
+              [
+                "net",
+                "J_5b"
+              ],
+              [
+                "net",
+                "J_6b"
+              ],
+              [
+                "net",
+                "J_7b"
+              ],
+              [
+                "~",
+                [
+                  "^",
+                  [
+                    "net",
+                    "ifu04_sil_pl_14"
+                  ],
+                  [
+                    "unconnected",
+                    "u_c21",
+                    "p9"
+                  ]
+                ]
+              ]
+            ],
+            "members": [
+              {
+                "package": "h09",
+                "field": "SignK",
+                "data": "RcvdBMux.00",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0b",
+                  "J.1b",
+                  "J.2b",
+                  "J.3b",
+                  "J.4b",
+                  "J.5b",
+                  "J.6b",
+                  "J.7b"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              }
+            ]
+          },
+          {
+            "group": "h10",
+            "program_word": "low",
+            "width": 1,
+            "canonical_pins": [
+              [
+                "net",
+                "InstrSet_0a"
+              ],
+              [
+                "net",
+                "InstrSet_1a"
+              ],
+              [
+                "net",
+                "J_0a"
+              ],
+              [
+                "net",
+                "J_1a"
+              ],
+              [
+                "net",
+                "J_2a"
+              ],
+              [
+                "net",
+                "J_3a"
+              ],
+              [
+                "net",
+                "J_4a"
+              ],
+              [
+                "net",
+                "J_5a"
+              ],
+              [
+                "net",
+                "J_6a"
+              ],
+              [
+                "net",
+                "J_7a"
+              ],
+              [
+                "~",
+                [
+                  "^",
+                  [
+                    "net",
+                    "ifu04_sil_pl_14"
+                  ],
+                  [
+                    "unconnected",
+                    "u_c21",
+                    "p9"
+                  ]
+                ]
+              ]
+            ],
+            "members": [
+              {
+                "package": "h10",
+                "field": "RamParity.2",
+                "data": "RcvdBMux.03",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0a",
+                  "J.1a",
+                  "J.2a",
+                  "J.3a",
+                  "J.4a",
+                  "J.5a",
+                  "J.6a",
+                  "J.7a"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              }
+            ]
+          },
+          {
+            "group": "i09",
+            "program_word": "low",
+            "width": 4,
+            "canonical_pins": [
+              [
+                "net",
+                "InstrSet_0b"
+              ],
+              [
+                "net",
+                "InstrSet_1b"
+              ],
+              [
+                "net",
+                "J_0b"
+              ],
+              [
+                "net",
+                "J_1b"
+              ],
+              [
+                "net",
+                "J_2b"
+              ],
+              [
+                "net",
+                "J_3b"
+              ],
+              [
+                "net",
+                "J_4b"
+              ],
+              [
+                "net",
+                "J_5b"
+              ],
+              [
+                "net",
+                "J_6b"
+              ],
+              [
+                "net",
+                "J_7b"
+              ],
+              [
+                "~",
+                [
+                  "^",
+                  [
+                    "net",
+                    "ifu04_sil_pl_14"
+                  ],
+                  [
+                    "unconnected",
+                    "u_c21",
+                    "p9"
+                  ]
+                ]
+              ]
+            ],
+            "members": [
+              {
+                "package": "i09",
+                "field": "NK.0",
+                "data": "RcvdBMux.12",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0b",
+                  "InstrSet.1b",
+                  "J.0b",
+                  "J.1b",
+                  "J.2b",
+                  "J.3b",
+                  "J.4b",
+                  "J.5b",
+                  "J.6b",
+                  "J.7b"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "i10",
+                "field": "MemBK.0",
+                "data": "RcvdBMux.08",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0b",
+                  "InstrSet.1b",
+                  "J.0b",
+                  "J.1b",
+                  "J.2b",
+                  "J.3b",
+                  "J.4b",
+                  "J.5b",
+                  "J.6b",
+                  "J.7b"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "i15",
+                "field": "LengthK.1'",
+                "data": "RcvdBMux.05",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0b",
+                  "InstrSet.1b",
+                  "J.0b",
+                  "J.1b",
+                  "J.2b",
+                  "J.3b",
+                  "J.4b",
+                  "J.5b",
+                  "J.6b",
+                  "J.7b"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "j09",
+                "field": "NK.1",
+                "data": "RcvdBMux.13",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0b",
+                  "InstrSet.1b",
+                  "J.0b",
+                  "J.1b",
+                  "J.2b",
+                  "J.3b",
+                  "J.4b",
+                  "J.5b",
+                  "J.6b",
+                  "J.7b"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              }
+            ]
+          },
+          {
+            "group": "i14",
+            "program_word": "high",
+            "width": 1,
+            "canonical_pins": [
+              [
+                "net",
+                "InstrSet_0a"
+              ],
+              [
+                "net",
+                "InstrSet_1a"
+              ],
+              [
+                "net",
+                "J_0b"
+              ],
+              [
+                "net",
+                "J_1b"
+              ],
+              [
+                "net",
+                "J_2b"
+              ],
+              [
+                "net",
+                "J_3b"
+              ],
+              [
+                "net",
+                "J_4b"
+              ],
+              [
+                "net",
+                "J_5b"
+              ],
+              [
+                "net",
+                "J_6b"
+              ],
+              [
+                "net",
+                "J_7b"
+              ],
+              [
+                "~",
+                [
+                  "^",
+                  [
+                    "net",
+                    "ifu04_sil_pl_13"
+                  ],
+                  [
+                    "unconnected",
+                    "u_c21",
+                    "p9"
+                  ]
+                ]
+              ]
+            ],
+            "members": [
+              {
+                "package": "i14",
+                "field": "InstrAddrK.2'",
+                "data": "RcvdBMux.08",
+                "we": "DecHi_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0b",
+                  "J.1b",
+                  "J.2b",
+                  "J.3b",
+                  "J.4b",
+                  "J.5b",
+                  "J.6b",
+                  "J.7b"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              }
+            ]
+          },
+          {
+            "group": "j10",
+            "program_word": "high",
+            "width": 5,
+            "canonical_pins": [
+              [
+                "net",
+                "InstrSet_0a"
+              ],
+              [
+                "net",
+                "InstrSet_1a"
+              ],
+              [
+                "net",
+                "J_0c"
+              ],
+              [
+                "net",
+                "J_1c"
+              ],
+              [
+                "net",
+                "J_2c"
+              ],
+              [
+                "net",
+                "J_3c"
+              ],
+              [
+                "net",
+                "J_4c"
+              ],
+              [
+                "net",
+                "J_5c"
+              ],
+              [
+                "net",
+                "J_6c"
+              ],
+              [
+                "net",
+                "J_7c"
+              ],
+              [
+                "~",
+                [
+                  "^",
+                  [
+                    "net",
+                    "ifu04_sil_pl_13"
+                  ],
+                  [
+                    "unconnected",
+                    "u_c21",
+                    "p9"
+                  ]
+                ]
+              ]
+            ],
+            "members": [
+              {
+                "package": "j10",
+                "field": "InstrAddrK.3'",
+                "data": "RcvdBMux.09",
+                "we": "DecHi_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0c",
+                  "J.1c",
+                  "J.2c",
+                  "J.3c",
+                  "J.4c",
+                  "J.5c",
+                  "J.6c",
+                  "J.7c"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "j14",
+                "field": "InstrAddrK.4'",
+                "data": "RcvdBMux.10",
+                "we": "DecHi_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0c",
+                  "J.1c",
+                  "J.2c",
+                  "J.3c",
+                  "J.4c",
+                  "J.5c",
+                  "J.6c",
+                  "J.7c"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "j15",
+                "field": "InstrAddrK.5'",
+                "data": "RcvdBMux.11",
+                "we": "DecHi_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0c",
+                  "J.1c",
+                  "J.2c",
+                  "J.3c",
+                  "J.4c",
+                  "J.5c",
+                  "J.6c",
+                  "J.7c"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "k14",
+                "field": "InstrAddrK.6'",
+                "data": "RcvdBMux.12",
+                "we": "DecHi_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0c",
+                  "J.1c",
+                  "J.2c",
+                  "J.3c",
+                  "J.4c",
+                  "J.5c",
+                  "J.6c",
+                  "J.7c"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "k15",
+                "field": "InstrAddrK.7'",
+                "data": "RcvdBMux.13",
+                "we": "DecHi_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0c",
+                  "J.1c",
+                  "J.2c",
+                  "J.3c",
+                  "J.4c",
+                  "J.5c",
+                  "J.6c",
+                  "J.7c"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              }
+            ]
+          },
+          {
+            "group": "k09",
+            "program_word": "low",
+            "width": 2,
+            "canonical_pins": [
+              [
+                "net",
+                "InstrSet_0b"
+              ],
+              [
+                "net",
+                "InstrSet_1b"
+              ],
+              [
+                "net",
+                "J_0c"
+              ],
+              [
+                "net",
+                "J_1c"
+              ],
+              [
+                "net",
+                "J_2c"
+              ],
+              [
+                "net",
+                "J_3c"
+              ],
+              [
+                "net",
+                "J_4c"
+              ],
+              [
+                "net",
+                "J_5c"
+              ],
+              [
+                "net",
+                "J_6c"
+              ],
+              [
+                "net",
+                "J_7c"
+              ],
+              [
+                "~",
+                [
+                  "^",
+                  [
+                    "net",
+                    "ifu04_sil_pl_14"
+                  ],
+                  [
+                    "unconnected",
+                    "u_c21",
+                    "p9"
+                  ]
+                ]
+              ]
+            ],
+            "members": [
+              {
+                "package": "k09",
+                "field": "NK.2",
+                "data": "RcvdBMux.14",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0b",
+                  "InstrSet.1b",
+                  "J.0c",
+                  "J.1c",
+                  "J.2c",
+                  "J.3c",
+                  "J.4c",
+                  "J.5c",
+                  "J.6c",
+                  "J.7c"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "k10",
+                "field": "MemBK.1",
+                "data": "RcvdBMux.09",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0b",
+                  "InstrSet.1b",
+                  "J.0c",
+                  "J.1c",
+                  "J.2c",
+                  "J.3c",
+                  "J.4c",
+                  "J.5c",
+                  "J.6c",
+                  "J.7c"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              }
+            ]
+          },
+          {
+            "group": "l09",
+            "program_word": "low",
+            "width": 1,
+            "canonical_pins": [
+              [
+                "net",
+                "InstrSet_0b"
+              ],
+              [
+                "net",
+                "InstrSet_1b"
+              ],
+              [
+                "net",
+                "J_0d"
+              ],
+              [
+                "net",
+                "J_1d"
+              ],
+              [
+                "net",
+                "J_2d"
+              ],
+              [
+                "net",
+                "J_3d"
+              ],
+              [
+                "net",
+                "J_4d"
+              ],
+              [
+                "net",
+                "J_5d"
+              ],
+              [
+                "net",
+                "J_6d"
+              ],
+              [
+                "net",
+                "J_7d"
+              ],
+              [
+                "~",
+                [
+                  "^",
+                  [
+                    "net",
+                    "ifu04_sil_pl_14"
+                  ],
+                  [
+                    "unconnected",
+                    "u_c21",
+                    "p9"
+                  ]
+                ]
+              ]
+            ],
+            "members": [
+              {
+                "package": "l09",
+                "field": "NK.3",
+                "data": "RcvdBMux.15",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0b",
+                  "InstrSet.1b",
+                  "J.0d",
+                  "J.1d",
+                  "J.2d",
+                  "J.3d",
+                  "J.4d",
+                  "J.5d",
+                  "J.6d",
+                  "J.7d"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              }
+            ]
+          },
+          {
+            "group": "l10",
+            "program_word": "high",
+            "width": 4,
+            "canonical_pins": [
+              [
+                "net",
+                "InstrSet_0a"
+              ],
+              [
+                "net",
+                "InstrSet_1a"
+              ],
+              [
+                "net",
+                "J_0d"
+              ],
+              [
+                "net",
+                "J_1d"
+              ],
+              [
+                "net",
+                "J_2d"
+              ],
+              [
+                "net",
+                "J_3d"
+              ],
+              [
+                "net",
+                "J_4d"
+              ],
+              [
+                "net",
+                "J_5d"
+              ],
+              [
+                "net",
+                "J_6d"
+              ],
+              [
+                "net",
+                "J_7d"
+              ],
+              [
+                "~",
+                [
+                  "^",
+                  [
+                    "net",
+                    "ifu04_sil_pl_13"
+                  ],
+                  [
+                    "unconnected",
+                    "u_c21",
+                    "p9"
+                  ]
+                ]
+              ]
+            ],
+            "members": [
+              {
+                "package": "l10",
+                "field": "InstrAddrK.0'",
+                "data": "RcvdBMux.06",
+                "we": "DecHi_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0d",
+                  "J.1d",
+                  "J.2d",
+                  "J.3d",
+                  "J.4d",
+                  "J.5d",
+                  "J.6d",
+                  "J.7d"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "l11",
+                "field": "InstrAddrK.1'",
+                "data": "RcvdBMux.07",
+                "we": "DecHi_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0d",
+                  "J.1d",
+                  "J.2d",
+                  "J.3d",
+                  "J.4d",
+                  "J.5d",
+                  "J.6d",
+                  "J.7d"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "l14",
+                "field": "InstrAddrK.8'",
+                "data": "RcvdBMux.14",
+                "we": "DecHi_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0d",
+                  "J.1d",
+                  "J.2d",
+                  "J.3d",
+                  "J.4d",
+                  "J.5d",
+                  "J.6d",
+                  "J.7d"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "l15",
+                "field": "InstrAddrK.9'",
+                "data": "RcvdBMux.15",
+                "we": "DecHi_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0d",
+                  "J.1d",
+                  "J.2d",
+                  "J.3d",
+                  "J.4d",
+                  "J.5d",
+                  "J.6d",
+                  "J.7d"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              }
+            ]
+          },
+          {
+            "group": "l12",
+            "program_word": "low",
+            "width": 2,
+            "canonical_pins": [
+              [
+                "net",
+                "InstrSet_0a"
+              ],
+              [
+                "net",
+                "InstrSet_1a"
+              ],
+              [
+                "net",
+                "J_0d"
+              ],
+              [
+                "net",
+                "J_1d"
+              ],
+              [
+                "net",
+                "J_2d"
+              ],
+              [
+                "net",
+                "J_3d"
+              ],
+              [
+                "net",
+                "J_4d"
+              ],
+              [
+                "net",
+                "J_5d"
+              ],
+              [
+                "net",
+                "J_6d"
+              ],
+              [
+                "net",
+                "J_7d"
+              ],
+              [
+                "~",
+                [
+                  "^",
+                  [
+                    "net",
+                    "ifu04_sil_pl_14"
+                  ],
+                  [
+                    "unconnected",
+                    "u_c21",
+                    "p9"
+                  ]
+                ]
+              ]
+            ],
+            "members": [
+              {
+                "package": "l12",
+                "field": "RamParity.0",
+                "data": "RcvdBMux.01",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0d",
+                  "J.1d",
+                  "J.2d",
+                  "J.3d",
+                  "J.4d",
+                  "J.5d",
+                  "J.6d",
+                  "J.7d"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              },
+              {
+                "package": "l13",
+                "field": "RamParity.1",
+                "data": "RcvdBMux.02",
+                "we": "DecLo_'",
+                "address": [
+                  "InstrSet.0a",
+                  "InstrSet.1a",
+                  "J.0d",
+                  "J.1d",
+                  "J.2d",
+                  "J.3d",
+                  "J.4d",
+                  "J.5d",
+                  "J.6d",
+                  "J.7d"
+                ],
+                "ce": "OMITTED in both wire list and generated instance"
+              }
+            ]
+          }
+        ],
+        "sources": {
+          "verilog/cells/cell_MC10101.v": "d7cce11dd4c6c75b83d1d40287144fffc35ac6df2b9f490a45aeb740dcab862f",
+          "verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+          "verilog/cells/cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+          "verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+          "verilog/cells/cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+          "verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+          "verilog/cells/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+          "verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+          "verilog/cells/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+          "verilog/cells/cell_MC10161.v": "816c7d2eb044c210d256c32ce1f4215a988e312d02df81b527d6ba001795788b",
+          "verilog/cells/cell_MC10173.v": "e5a5b884cc2aa3cc7dd3a547bb5722f1528f9a1e907a789545f85a3cf5eae530",
+          "verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+          "verilog/cells/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+          "verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+          "verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+          "verilog/cells/cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+          "verilog/cells/cell_MC1664.v": "ce9217e73068f27571aa032ddfb2a80393fb340a9648be1618c3af5d5e6be8a6",
+          "verilog/cells/cell_MC10181.v": "6d12fa3385eec395899363453743d0665bbdc2ee6a455739001e6f4fc7e0eee0",
+          "verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+          "verilog/cells/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+          "verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+          "verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+          "verilog/cells/cell_MC1672.v": "47d2593da342d5090c5bc33802300695b1d1ba3627f9507e92a26199dd52334b",
+          "verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+          "verilog/cells/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+          "verilog/cells/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+          "verilog/cells/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+          "verilog/cells/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+          "verilog/cells/cell_MC10119.v": "852a85246f0f5d9a2d3b9f9cbf97e3b070a09e7643934f370e139c518f95abf8",
+          "verilog/cells/cell_MC10212.v": "592b5a4ad9cf64bc846b3619f85d268cac4123e5893bdc2f93e520ff1e45b39f",
+          "verilog/cells/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+          "verilog/cells/cell_LM3911_20K.v": "7bac5b0e7235f7840a51a6ab47321745bceda31c5216652cb4550eae83d32ecc",
+          "verilog/cells/cell_F10415A.v": "44cb1c6eee73b8507f7a66e5781073f916d0c02a221618dedf4d09879a9a7227",
+          "verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+          "verilog/cells/cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+          "verilog/cells/cell_MC10164.v": "5e8978b4ceed6b2e5dee8a4c9f5dd841bfe175059e5dcc19f1b6099e8e156e0c",
+          "verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+          "verilog/cells/cell_MC10118.v": "db67c73173b2707f29f6160b12572b0f0a3192beea1eb95b74ddfb03fd3b23ac",
+          "verilog/cells/cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e"
+        },
+        "board_sha256": "b7f3b3275e8428fe03d6f3f645259a67205bcc382223267578503d492667d161",
+        "wirelist_sha256": "2aa3e51ebec792f96e865ea2978d2033670f1662784b1d6c96d4b3cbaef96ac0",
+        "locations_sha256": "ad1d67bf958b2c0bb3b4caa7a1893473c51112f2cfda4bd256885dd07ef3fd0a",
+        "limits": "Pure scalar address/write fanout equality only. Two11/16-bit programming words do not justify merging the eleven separately addressed groups; stateful/unknown outputs remain independent. No global hold, restore or timing qualification. All27 original CE ports are omitted, not rewritten to zero; any explicit tie-off requires separate qualification."
+      },
+      "generated_sha256": "78a2101a21acef03e028165dc87572bf1644775171d8a79a11ce8b5f086e9c06",
+      "cloned_sources": {
+        "cell_F10016_snapshot.v": "6e4a8a7a9693da4d75ce9b8f935687e0df187a257659792e252f1ba37d3190c4",
+        "cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e",
+        "cell_MC10231_snapshot.v": "17bf1e9fd267e3b0325c7c4794d6818eef2f50bd1cf27c7f536b0cbda26048e2",
+        "cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+        "cell_MC10141_snapshot.v": "2ce357063c805920ce1f4583f4d3d22e9fe32a01fbd3782b9ab06c6c85502df0",
+        "cell_MC10135_snapshot.v": "b46aec0a301d13133994a844321cdb352bc01a200dd898002e9641000ac0a389",
+        "f10415_word_bank.sv": "d5e0649f392cfdbc116de9bbc5b615ba923526704357ddfb0888ace111fea5ca"
+      },
+      "scope": "Complete modeled frozen IFU only;2-state model with original CE omission preserved. No external/global phase/barrier/device/ARM state or physical machine snapshot."
+    }
+  },
+  "assets": {
+    "IFU_full_snapshot.sv": "78a2101a21acef03e028165dc87572bf1644775171d8a79a11ce8b5f086e9c06",
+    "cell_F10016_snapshot.v": "6e4a8a7a9693da4d75ce9b8f935687e0df187a257659792e252f1ba37d3190c4",
+    "cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e",
+    "cell_MC10231_snapshot.v": "17bf1e9fd267e3b0325c7c4794d6818eef2f50bd1cf27c7f536b0cbda26048e2",
+    "cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+    "cell_MC10141_snapshot.v": "2ce357063c805920ce1f4583f4d3d22e9fe32a01fbd3782b9ab06c6c85502df0",
+    "cell_MC10135_snapshot.v": "b46aec0a301d13133994a844321cdb352bc01a200dd898002e9641000ac0a389",
+    "f10415_word_bank.sv": "d5e0649f392cfdbc116de9bbc5b615ba923526704357ddfb0888ace111fea5ca"
+  },
+  "expected_original_sources": {
+    "verilog/generated/IFU-Rev-Ch.v": "b7f3b3275e8428fe03d6f3f645259a67205bcc382223267578503d492667d161",
+    "verilog/cells/cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+    "verilog/cells/cell_F10415A.v": "44cb1c6eee73b8507f7a66e5781073f916d0c02a221618dedf4d09879a9a7227",
+    "verilog/cells/cell_LM3911_20K.v": "7bac5b0e7235f7840a51a6ab47321745bceda31c5216652cb4550eae83d32ecc",
+    "verilog/cells/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+    "verilog/cells/cell_MC10101.v": "d7cce11dd4c6c75b83d1d40287144fffc35ac6df2b9f490a45aeb740dcab862f",
+    "verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+    "verilog/cells/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+    "verilog/cells/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+    "verilog/cells/cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+    "verilog/cells/cell_MC10118.v": "db67c73173b2707f29f6160b12572b0f0a3192beea1eb95b74ddfb03fd3b23ac",
+    "verilog/cells/cell_MC10119.v": "852a85246f0f5d9a2d3b9f9cbf97e3b070a09e7643934f370e139c518f95abf8",
+    "verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+    "verilog/cells/cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "verilog/cells/cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "verilog/cells/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+    "verilog/cells/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "verilog/cells/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+    "verilog/cells/cell_MC10161.v": "816c7d2eb044c210d256c32ce1f4215a988e312d02df81b527d6ba001795788b",
+    "verilog/cells/cell_MC10164.v": "5e8978b4ceed6b2e5dee8a4c9f5dd841bfe175059e5dcc19f1b6099e8e156e0c",
+    "verilog/cells/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+    "verilog/cells/cell_MC10173.v": "e5a5b884cc2aa3cc7dd3a547bb5722f1528f9a1e907a789545f85a3cf5eae530",
+    "verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "verilog/cells/cell_MC10181.v": "6d12fa3385eec395899363453743d0665bbdc2ee6a455739001e6f4fc7e0eee0",
+    "verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+    "verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "verilog/cells/cell_MC10212.v": "592b5a4ad9cf64bc846b3619f85d268cac4123e5893bdc2f93e520ff1e45b39f",
+    "verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "verilog/cells/cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+    "verilog/cells/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+    "verilog/cells/cell_MC1664.v": "ce9217e73068f27571aa032ddfb2a80393fb340a9648be1618c3af5d5e6be8a6",
+    "verilog/cells/cell_MC1672.v": "47d2593da342d5090c5bc33802300695b1d1ba3627f9507e92a26199dd52334b",
+    "verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+    "verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "verilog/cells/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+    "verilog/cells/cell_SG10139.v": "bcf5d25bac812a4143cb6e7fc893ab746837711d7038d3b4a496e7f228b9189d",
+    "verilog/proms/packages/IFU-a06.mem": "691f366c2aeaf7241f9b30868f225b0a49508a0954c23e561db73bcf9ac0fc0c"
+  },
+  "shared_assets": {
+    "cell_MC10176_snapshot.v": "fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+    "cell_MC10231_snapshot.v": "fpga/mister/snapshot_native/cell_MC10231_snapshot.v",
+    "cell_F10016_snapshot.v": "fpga/mister/snapshot_native_conta/cell_F10016_snapshot.v",
+    "cell_MC10141_snapshot.v": "fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v",
+    "cell_MC10173_snapshot.v": "fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v"
+  },
+  "builder_sha256": "38fa0eb076f10dd270cefe1919543bfda93095608575317c8d28f7af7ba11daa",
+  "scope": "Frozen53 plus complete exact-advance IFU adapter; five shared qualified FF files reused byte-identically. All state admin inactive; no global save/load or speed claim."
+}

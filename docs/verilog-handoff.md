@@ -2,6 +2,21 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**Native57 full-core audit PASS; ready for normal load, not deployed yet.**
+Build40422/audit50821 TERMINAL.31summary/164detailed/fourconditions/32board-corner
+coverage,min+0.116ns;30,734ALM/52,945regs/332M10Ks/35DSP. All8adapters adminOFF.
+All21MemXplanes retain1,376,256bits/168uniqueM10Ks/OLD_DATA in baseline+candidate,
+all8actualPROMbytes match; inheritedMemD/IFUM/IM/MLAB geometry retained.
+18corruptcontrols reject; source/clock/SDC/policy/nativeMemDdelay2 unchanged.
+RBF064e37848a123cbc0affeeb07ff309d242aff8b8deca9c0992c78e8ee56bc268,
+localnative57-candidate; exact evidence native57-memx. No speed/snapshotclaim.
+Normal56bguestBoot command after warm marker now PASS: actual812 captured,
+proof uploaded, Main23403/server23400 stillown oldcore. Hostbarrier/pack
+preservation happens only during next normal57loader. No cleanOSshutdown/
+coldmarker claim. Next commit/push qualification, normal57load/preserve56b,
+actualMaincapability/newDDRgrant, Cwatcher before originalCoolBoot and fresh
+Cedar/input/speed. Localcedar57-launch prepared; do not rerun deploy on timeout.
+
 Latest follow-up: K1115A oscillator primitive complete-state simulation/freshXML/
 matched isolated50MHz fits now PASS. Nine parameter modes,33bits each, signed
 wrap/comparison boundaries, destructive restore/quietrecapture/firstedge/20Kmore;
