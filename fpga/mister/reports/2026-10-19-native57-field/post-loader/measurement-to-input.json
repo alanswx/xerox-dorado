@@ -1,0 +1,11 @@
+{
+  "scope": "One first Native57 hardware qualification: fixed33-log-sample idle collection, then immediate Guest.\n\nStart only after visual login verification and separate observer READY.\nThis fixes measurement-to-input cadence, not the preceding manual login gate.\n",
+  "utc": "2026-10-19T14:22:15.539176+00:00",
+  "start_ns": 1869388087895125,
+  "key_interval_s": 0.2,
+  "main_pid": 25287,
+  "limits": "Prior manual login-screen gate varied; this is an observed first Native57 hardware qualification, not the final3-run automated benchmark",
+  "measurement_end_ns": 1869424468438791,
+  "guest_start_ns": 1869424468440791,
+  "guest_end_ns": 1869428353447791
+}

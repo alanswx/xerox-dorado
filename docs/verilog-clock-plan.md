@@ -42,6 +42,43 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Latest57 login/Guest/base34/finalACK and new measurement PASS; Display state qualification PASS; Native58 building.**
+Main25287/server25286/RBF064e3784 unchanged. Idle three10s mean1,947,741.199
+issues/s matches56b; no gain. Base34/33BCD/1,345,843bytes/finalACK314.016264..
+314.224719s, issuebounds514,614,872..518,073,064, interior1.643766..1.643981M/s.
+12replays(DFPackage1,AMModel11), nonzeroqueue/drop; CRC/RX/abort0. Observer56194/
+25586 TERMINAL stopafterfinalACK/absent; neverrestart. All34servedsourcehashes
+matchaftertiming. Same33sample recipe butmanualgatevaried; no causalreplay/
+pinnedrepeat/speedpromotion. lowercase n acceptedactualNo; BootEssentials/fonts
+advance; full57desktop/mouse/keyboard/warmmarker pending. post-loader evidence.
+FirstcollectorOOM-killed26048whilematerializingretiredJSONrecords/hashpack;
+Main/serverlive. Streamingvalidation+1MiBhashing retry32590TERMINAL validates
+109,152retiredrecords/noerrors/loss and oldpack928d73a9. Correcteddriver+dmesg
+retained; aftertimedloader/no guestpatch. Native57 LinuxOOM not a corefault claim.
+
+ActualDispY complete13,993mutable/2,048PROMbits original/oracle/physical probes/
+all524,288indices/destructive restore/recapture/firstedge/20Kmore PASS;8brokenRTL
+reject. Freshnative-macro/default XML14badcontrols reject. Actualbackplane omits
+boardSYSPER too: boardANDoscillator default16, fabric4; boardparameterunused under
+pinnedsource. Earlierfixture4 andmacro-freeXML retained as earlier attempts;
+acceptedfixturesuseactualdefaults/nativeF10415M10K. Readonlyaudit passes all4,
+min+0.121ns;8corruptcontrolsreject. Enabledisolatedsnapshot nine256x4MLABs/
+three1024x1M10Ks. Baselinef04prunes3unusedbits andpacks3wordplanesin1M10K;
+snapshotadminretains4bits andrequires3M10Ks. Originalno_rw_check baseline
+DONT_CARE becomes tested modeledNBA OLD_DATA.1159->2966ALM/1358->2434regs,
+not enabledwholecorecost. Evidence snapshot-dispy-full. Earlier displayreview
+README corrected to distinguish fixture4 from actualdefault16. NoRTLtimerfix.
+
+Native58 build60721 LIVE /home/alans/mister/Dorado_Native58_20261019;
+localnative58-dispy-inputs, frozen actual57source native57-dispy-baseline-src.
+NewDispYboard/K1115Ahelper only;10sharedhelpers byte-identical. Same clocks/
+SDCs/wrapper/policies/nativeMemDdelay2, all9adapters adminOFF. Need full180paths/
+31summary/fourconditions/36board-corner audit and RAM/source proof before load,
+plus finish57desktop/input/preservation. NoNative58audit yet; do not deploy or
+restartbuild on timeout. Next remaining DskEth/BaseBoard/wrapper/backends/input/
+ARMserver/diskgeneration/globalbundle/FPGArestore, then original60ns/timers/
+final3freshboots/coldpersistence/pinnedperformance/2hstress. Goal remains active.
+
 Latest57firmware progress: original newBFN113 observed, C released normally;
 watcher13824 TERMINAL, remote25347 expected absent. Earlyissue1pause ended
 normally withoutreset/retry. Actual845 nowvisible in capture. OriginalCedar

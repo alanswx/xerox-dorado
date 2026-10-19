@@ -1,5 +1,24 @@
 # Native57 initial hardware deployment
 
+Latest: visible Cedar login and actual Guest input pass. Three10s idle windows
+measure 1,947,819.59 / 1,947,634.04 / 1,947,769.96 issues/s, mean1,947,741.199,
+matching56b with no gain. Same33-sample measurement-to-input recipe; prior
+manual login gate varied. Base34files/33BCD/1,345,843bytes/final guest ACK pass
+314.016264..314.224719s; whole issues514,614,872..518,073,064, interior1.643766..
+1.643981M/s.12protocol replays (DFPackage1,AMModel11); not a causal replay fix
+or pinned repeated speed comparison. Queue refusals are nonzero; CRC/RX/abort0.
+Observer56194/25586 terminal by explicit stop after finalACK and independently
+absent. All34served source hashes match after timing, not physical payload hashes.
+Actual lowercase n accepted profile No directly; BootEssentials/fonts advance.
+Full Viewers/input/warm marker remain pending. See post-loader/.
+
+The first read-only collector was OOM-killed while retaining the retired disk
+trace's parsed dictionaries and hashing a full pack. Main/server stayed alive.
+The collector now validates records incrementally and hashes packs in1MiB
+chunks; retry succeeds, verifying109,152retired records/no recorded errors/loss.
+The OOM and correction occurred after the terminal timed transfer. Exact first
+attempt, dmesg, corrected driver and result are retained. No guest state patched.
+
 Latest: original new BFN113 request observed; C released and watcher terminal.
 The initial pause ended normally; actual845 is visible. Capture/log proof is
 in firmware-progress/. Login/loader/Viewers/input/new speed remain pending.

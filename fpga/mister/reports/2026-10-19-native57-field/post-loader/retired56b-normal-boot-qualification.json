@@ -1,0 +1,13 @@
+{
+  "status": "PASS: normal guest Boot after qualified desktop/input and warm marker readback",
+  "main_pid": 23403,
+  "server_pid": 23400,
+  "rbf_sha256": "0bbe092f1e10476dc3cc465418836f94a3e06c04ce5f08530c055fbfc52dd7cf",
+  "observed": "germ812",
+  "meaning": "Actual812 captured during normal guest Boot; legacy observed field naming, no unobserved845/855 claim",
+  "checked_utc": "2026-10-19T14:03:24.220754+00:00",
+  "captures": {
+    "normal-boot-0.png": "e87db7f06caf81ca8821d5a9b99f5c688f3b75957b844feda106c7e2f2f6b352"
+  },
+  "limits": "Normal guest Boot boundary; not clean OS shutdown, host barrier, cold marker readback or machine snapshot"
+}
