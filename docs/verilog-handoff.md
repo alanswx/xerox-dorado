@@ -2,6 +2,27 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**Native59 full-core build LIVE; Native58 remains qualified and interactive on MiSTer14.**
+Full DskEth+58desktop milestone PUSHED80247606. Native59 job87022/local, remote
+builder1544016/Quartusmap1544037 confirmed live; /home/alans/mister/Dorado_Native59_20261019,
+parentDorado_Native58_20261019; inputsDorado_Native59_inputs_20261019. Exactexecuted
+builder localnative59-build_native_dsketh-executed.py and remote build_native_dsketh_20261019.py.
+All11sharedhelpers byte-identical,8newfiles, samewrapper/clocks/SDCs/policies/
+nativeMemDdelay2. All10adapters admininactive; no full snapshot or speed claim.
+Observe samejob/PID; never restart from timeout. Need terminalmap/fit/asm/STA/
+audit/devicecorners/adaptercrossings, then independent31summary/196detailed/
+fourcondition/40board-corner checks and allsource/RAM/PROM retention beforeload.
+
+Current14 Main27199/server27195/RBFeebc0e1f passed originalfirmware/fullViewers/
+mouse/exactshort+alphabetdigits/warmrtl58persist create/type. No normal58guestBoot,
+coldmarker/cleanOSshutdown or fullsnapshot yet. Lastidle1.947767Missues/s/no gain.
+When59qualified, issue normalguestBoot/captureactualcode, preserve58viarealMain
+barriers, then fresh59originalseed/firmware/Cedar/input. Allourisolatedfits/tests/
+collectors/inputjobs TERMINAL; no staleCwatcher/loaderobserver running. Remaining
+snapshot work afterDskEth integration: actual BaseBoard/vendor6502, wrapper and
+backends/input/ARMserver/diskgeneration/globalatomicbundle/actualFPGArestore.
+Then original60ns/timers/final3freshboots/coldpersist/pinnedperf/2hstress. GoalACTIVE.
+
 **Native58 full Viewers/mouse/exact keyboard/warm file PASS; complete DskEth modeled state qualification PASS.**
 Same Main27199/server27195/RBFeebc0e1f/50MHz-SYSPER4/adminOFF. Ready/Viewers/
 Clock/Watch/Edit visible; mouse toCmd912,8/click/initialized secondCommandTool/
@@ -2517,7 +2538,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify DskEth MC1650/MC10136/SN169/SN174 local state primitives and actual oscillator23530/SYSPER8 simulation coverage.
 - [x] Qualify SN74123 full70bit timer state/original+oracle/restore/fresh XML signed types/matched timing(+0.140ns).
 - [x] Complete full DskEth board+monitor2,656bit classification/restore/isolated timing(+0.147ns) and native59 assets preparation.
-- [ ] Build/audit native59fullcore, preserve58throughnormalBoot/barriers and test fresh original59firmware/Cedar/input; then BaseBoard/backends/wrapper/input/ARM server/diskgeneration/global snapshot.
+- [ ] Finish running59fullcore build87022, audit196detailed/fourconditions/40crossings/allmemory/source; preserve58throughnormalBoot/barriers and test fresh59firmware/Cedar/input.
+- [ ] Complete BaseBoard/vendor6502 and backends/wrapper/input/ARM server/diskgeneration/global atomic snapshot with actual FPGA restore.
 - [ ] Finish remaining board/device/ARM state and atomic snapshot bundle with actual FPGA Cedar restore.
 - [ ] Finish original60ns clock/enable and timer migration; final three fresh boots, coherent snapshot restore, persistence, pinned measurements and two-hour combined stress.
 

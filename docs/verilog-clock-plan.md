@@ -42,6 +42,27 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Native59 full-core build LIVE; Native58 remains qualified and interactive on MiSTer14.**
+Full DskEth+58desktop milestone PUSHED80247606. Native59 job87022/local, remote
+builder1544016/Quartusmap1544037 confirmed live; /home/alans/mister/Dorado_Native59_20261019,
+parentDorado_Native58_20261019; inputsDorado_Native59_inputs_20261019. Exactexecuted
+builder localnative59-build_native_dsketh-executed.py and remote build_native_dsketh_20261019.py.
+All11sharedhelpers byte-identical,8newfiles, samewrapper/clocks/SDCs/policies/
+nativeMemDdelay2. All10adapters admininactive; no full snapshot or speed claim.
+Observe samejob/PID; never restart from timeout. Need terminalmap/fit/asm/STA/
+audit/devicecorners/adaptercrossings, then independent31summary/196detailed/
+fourcondition/40board-corner checks and allsource/RAM/PROM retention beforeload.
+
+Current14 Main27199/server27195/RBFeebc0e1f passed originalfirmware/fullViewers/
+mouse/exactshort+alphabetdigits/warmrtl58persist create/type. No normal58guestBoot,
+coldmarker/cleanOSshutdown or fullsnapshot yet. Lastidle1.947767Missues/s/no gain.
+When59qualified, issue normalguestBoot/captureactualcode, preserve58viarealMain
+barriers, then fresh59originalseed/firmware/Cedar/input. Allourisolatedfits/tests/
+collectors/inputjobs TERMINAL; no staleCwatcher/loaderobserver running. Remaining
+snapshot work afterDskEth integration: actual BaseBoard/vendor6502, wrapper and
+backends/input/ARMserver/diskgeneration/globalatomicbundle/actualFPGArestore.
+Then original60ns/timers/final3freshboots/coldpersist/pinnedperf/2hstress. GoalACTIVE.
+
 **Native58 full Viewers/mouse/exact keyboard/warm file PASS; complete DskEth modeled state qualification PASS.**
 Same Main27199/server27195/RBFeebc0e1f/50MHz-SYSPER4/adminOFF. Ready/Viewers/
 Clock/Watch/Edit visible; mouse toCmd912,8/click/initialized secondCommandTool/
