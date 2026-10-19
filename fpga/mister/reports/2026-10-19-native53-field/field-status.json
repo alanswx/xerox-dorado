@@ -1,5 +1,5 @@
 {
-  "status": "PASS: original firmware/Pilot/Cedar login and34 base transfers/final ACK; full53desktop/input pending",
+  "status": "PASS: original firmware/Pilot/Cedar full Viewers, mouse, exact keyboard and warm marker readback",
   "main_pid": 17783,
   "server_pid": 17782,
   "rbf_sha256": "c323f163b0c43ad8ce332096c9509e7e1b19b02a0dfe454260f6b4453ed77391",
@@ -17,6 +17,8 @@
     514480338
   ],
   "replays_by_phase": {},
-  "profile": "Explicit No accepted; actual BootEssentials advancing. Full Viewers/input pending.",
-  "limits": "One fresh53 boot; manual pre-Guest gate still varies. Same50MHz/SYSPER4, all snapshot admin inactive. No speed gain, full snapshot, physical payload hash, original60ns or final3boots/2h stress claim. No causal clearance of replay variability."
+  "profile": "Explicit No accepted; BootEssentials/fonts/STARTs and full Viewers pass.",
+  "limits": "One fresh53 boot; manual pre-Guest gate still varies. Same50MHz/SYSPER4, all snapshot admin inactive. No speed gain, full snapshot, physical payload hash, original60ns or final3boots/2h stress claim. No causal clearance of replay variability.",
+  "desktop_qualification": "desktop-qualification.json",
+  "cold_marker_readback": "NOT TESTED for rtl53persist"
 }

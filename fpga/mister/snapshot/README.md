@@ -214,8 +214,9 @@ are retained.30232ALMs/52845regs/330M10Ks/35DSP with admin inactive. Evidence
 reports/2026-10-19-native53-processors. Normally loaded53 now passes original
 firmware/new BFN113/release/Pilot/Cedar login and all34base transfers/final ACK.
 Idle1.947682Missues/s matches52; zero protocol replays in this loader interval,
-311.447..311.698s. Full desktop/input and final performance qualification remain
-pending. See native53-field/handoff; no speed promotion from this single boot.
+311.447..311.698s. Full desktop/mouse/exact keyboard/warm marker readback now
+pass; final performance qualification remains pending. See native53-field/handoff;
+no speed promotion from this single boot.
 `audit_native_processor.py` checks100 detailed timing categories across four
 conditions, including both directions for all four adapted boards. No complete
 snapshot, enabled snapshot resource budget or speed gain is claimed.
@@ -241,5 +242,23 @@ eleven groups widths1/5/1/1/4/1/5/2/1/4/2 and all27 read-pipeline bits. All27 CE
 ports are omitted in the original generated board/wire list; no explicit zero
 tie-off is introduced or qualified. Seven damaged boards reject. Evidence:
 reports/2026-10-19-snapshot-ifum-grouping. This is logical grouping review only;
-next implement width-correct old-data RAM/state access and full IFU coverage,
-restore and timing. Physical machine snapshots/global barriers remain open.
+width-correct old-data RAM/state access and full IFU coverage/restore/isolated
+timing now pass as recorded below. Physical machine snapshots/global barriers
+remain open.
+
+`f10415_word_bank.sv` qualifies widths1/2/4/5/18, raw read pipelines, clipped
+transport padding, invalid addresses and first-edge restore against untouched
+originals/oracle. Eight faulty RTL/11schema/seven fit controls reject. Matched
+five-bank50MHz fits retain30,720bits/sixM10Ks,min+0.171ns/all four conditions.
+`generate_ifu_full.py` then preserves28,653mutable bits/256immutable PROM bits,
+all eleven independently addressed RAM groups and original omitted CE. Complete
+original/oracle/bit/invalid/destructive restore/first-edge tests pass498,875host
+edges/448,849requests/20,000post-restore cycles; seven brokenRTL/14schema
+controls reject. Positive-edge50MHz matched fits pass min+0.157ns/four conditions,
+27,648RAMbits/four->elevenM10Ks,466->1474ALMs/867->1832regs including shell/admin.
+Nine bad fits reject; all11physical banks/macros OLD_DATA. Reports
+snapshot-f10415-word/snapshot-ifu-full preserve exact sources and earlier failed
+fixtures/auditors. Two-state qualification; no new CE tie or four-state proof.
+`build_native_ifu.py` prepares Native54 against frozen53, reusing five shared
+FFs and adding three RTL files. Full-core timing/firmware qualification is next;
+all admin remains inactive, so this provides no physical machine save/load.

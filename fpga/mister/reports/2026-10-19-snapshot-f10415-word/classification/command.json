@@ -1,0 +1,11 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_F10415A",
+  "-Wno-fatal",
+  "-DDORADO_F10415_M10K",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-f10415-word-classify-20261019/cell.xml",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_F10415A.v"
+]

@@ -19,7 +19,15 @@ had none and similar elapsed time. No causal replay diagnosis or speed claim.
 Observer18045/handle22501 ended by stop file after actual final ACK and was
 independently absent. Do not restart. All34 served source hashes match after
 timing; these are not physical received-payload hashes. Explicit profile No
-accepted; actual BootEssentials progressing. Full53Viewers/input pending.
+accepted; BootEssentials/full53Viewers/input subsequently pass.
+
+Desktop captures show Ready/Clock/WatchTool/EditTool. Real mouse opens Cmd,
+then separate focus after the initialized prompt produces exact short and
+alphabet/digit echoes. Normal guest create/close/type of ///rtl53persist.txt
+returns the expected marker and prompt. desktop-qualification.json records
+this gate; desktop-collection.json identifies exact collected paths/hashes.
+92,430 complete disk records through desktop have no errors or trace loss.
+No cold readback of this marker or normal guest Boot53 is claimed.
 
 Root deployment-collection.json and its companion files are the earlier
 startup collection. post-loader/ retains the exact second archive names and

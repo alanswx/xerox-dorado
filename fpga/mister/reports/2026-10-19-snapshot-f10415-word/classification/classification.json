@@ -1,0 +1,272 @@
+{
+  "status": "PASS",
+  "widths": {
+    "1": {
+      "status": "PASS",
+      "modeled_state_bits": 1025,
+      "original_cell_bits": 1025,
+      "xml_sha256": "c0ede887ba6fb88a5417bd25641f317c352aaf01c626dbf2e50a84ee550918b5",
+      "decisions": [
+        {
+          "path": "cell_F10415A.a",
+          "bits": 10,
+          "decision": "RECOMPUTE",
+          "reason": "Pinned original continuous address/output expression; CE not rewritten"
+        },
+        {
+          "path": "cell_F10415A.dout_r",
+          "bits": 1,
+          "decision": "SAVE",
+          "access": {
+            "word": 1024,
+            "bit": "original cell index0..width-1"
+          }
+        },
+        {
+          "path": "cell_F10415A.mem",
+          "bits": 1024,
+          "decision": "SAVE",
+          "access": {
+            "words": [
+              0,
+              1023
+            ],
+            "bit": "original cell index0..width-1"
+          }
+        },
+        {
+          "path": "cell_F10415A.p1",
+          "bits": 1,
+          "decision": "RECOMPUTE",
+          "reason": "Pinned original continuous address/output expression; CE not rewritten"
+        }
+      ],
+      "scope": "Pinned original one-bit RAM+read pipeline repeated across distinct width planes; not fitted state count, full IFU coverage, global barrier or physical snapshot"
+    },
+    "2": {
+      "status": "PASS",
+      "modeled_state_bits": 2050,
+      "original_cell_bits": 1025,
+      "xml_sha256": "c0ede887ba6fb88a5417bd25641f317c352aaf01c626dbf2e50a84ee550918b5",
+      "decisions": [
+        {
+          "path": "cell_F10415A.a",
+          "bits": 10,
+          "decision": "RECOMPUTE",
+          "reason": "Pinned original continuous address/output expression; CE not rewritten"
+        },
+        {
+          "path": "cell_F10415A.dout_r",
+          "bits": 1,
+          "decision": "SAVE",
+          "access": {
+            "word": 1024,
+            "bit": "original cell index0..width-1"
+          }
+        },
+        {
+          "path": "cell_F10415A.mem",
+          "bits": 1024,
+          "decision": "SAVE",
+          "access": {
+            "words": [
+              0,
+              1023
+            ],
+            "bit": "original cell index0..width-1"
+          }
+        },
+        {
+          "path": "cell_F10415A.p1",
+          "bits": 1,
+          "decision": "RECOMPUTE",
+          "reason": "Pinned original continuous address/output expression; CE not rewritten"
+        }
+      ],
+      "scope": "Pinned original one-bit RAM+read pipeline repeated across distinct width planes; not fitted state count, full IFU coverage, global barrier or physical snapshot"
+    },
+    "4": {
+      "status": "PASS",
+      "modeled_state_bits": 4100,
+      "original_cell_bits": 1025,
+      "xml_sha256": "c0ede887ba6fb88a5417bd25641f317c352aaf01c626dbf2e50a84ee550918b5",
+      "decisions": [
+        {
+          "path": "cell_F10415A.a",
+          "bits": 10,
+          "decision": "RECOMPUTE",
+          "reason": "Pinned original continuous address/output expression; CE not rewritten"
+        },
+        {
+          "path": "cell_F10415A.dout_r",
+          "bits": 1,
+          "decision": "SAVE",
+          "access": {
+            "word": 1024,
+            "bit": "original cell index0..width-1"
+          }
+        },
+        {
+          "path": "cell_F10415A.mem",
+          "bits": 1024,
+          "decision": "SAVE",
+          "access": {
+            "words": [
+              0,
+              1023
+            ],
+            "bit": "original cell index0..width-1"
+          }
+        },
+        {
+          "path": "cell_F10415A.p1",
+          "bits": 1,
+          "decision": "RECOMPUTE",
+          "reason": "Pinned original continuous address/output expression; CE not rewritten"
+        }
+      ],
+      "scope": "Pinned original one-bit RAM+read pipeline repeated across distinct width planes; not fitted state count, full IFU coverage, global barrier or physical snapshot"
+    },
+    "5": {
+      "status": "PASS",
+      "modeled_state_bits": 5125,
+      "original_cell_bits": 1025,
+      "xml_sha256": "c0ede887ba6fb88a5417bd25641f317c352aaf01c626dbf2e50a84ee550918b5",
+      "decisions": [
+        {
+          "path": "cell_F10415A.a",
+          "bits": 10,
+          "decision": "RECOMPUTE",
+          "reason": "Pinned original continuous address/output expression; CE not rewritten"
+        },
+        {
+          "path": "cell_F10415A.dout_r",
+          "bits": 1,
+          "decision": "SAVE",
+          "access": {
+            "word": 1024,
+            "bit": "original cell index0..width-1"
+          }
+        },
+        {
+          "path": "cell_F10415A.mem",
+          "bits": 1024,
+          "decision": "SAVE",
+          "access": {
+            "words": [
+              0,
+              1023
+            ],
+            "bit": "original cell index0..width-1"
+          }
+        },
+        {
+          "path": "cell_F10415A.p1",
+          "bits": 1,
+          "decision": "RECOMPUTE",
+          "reason": "Pinned original continuous address/output expression; CE not rewritten"
+        }
+      ],
+      "scope": "Pinned original one-bit RAM+read pipeline repeated across distinct width planes; not fitted state count, full IFU coverage, global barrier or physical snapshot"
+    },
+    "18": {
+      "status": "PASS",
+      "modeled_state_bits": 18450,
+      "original_cell_bits": 1025,
+      "xml_sha256": "c0ede887ba6fb88a5417bd25641f317c352aaf01c626dbf2e50a84ee550918b5",
+      "decisions": [
+        {
+          "path": "cell_F10415A.a",
+          "bits": 10,
+          "decision": "RECOMPUTE",
+          "reason": "Pinned original continuous address/output expression; CE not rewritten"
+        },
+        {
+          "path": "cell_F10415A.dout_r",
+          "bits": 1,
+          "decision": "SAVE",
+          "access": {
+            "word": 1024,
+            "bit": "original cell index0..width-1"
+          }
+        },
+        {
+          "path": "cell_F10415A.mem",
+          "bits": 1024,
+          "decision": "SAVE",
+          "access": {
+            "words": [
+              0,
+              1023
+            ],
+            "bit": "original cell index0..width-1"
+          }
+        },
+        {
+          "path": "cell_F10415A.p1",
+          "bits": 1,
+          "decision": "RECOMPUTE",
+          "reason": "Pinned original continuous address/output expression; CE not rewritten"
+        }
+      ],
+      "scope": "Pinned original one-bit RAM+read pipeline repeated across distinct width planes; not fitted state count, full IFU coverage, global barrier or physical snapshot"
+    }
+  },
+  "failure_controls": [
+    {
+      "case": "missing_pipeline",
+      "rejected": true,
+      "diagnostic": "missing original RAM/read-pipeline state"
+    },
+    {
+      "case": "wrong_depth",
+      "rejected": true,
+      "diagnostic": "unclassified/different original state: mem"
+    },
+    {
+      "case": "wrong_width",
+      "rejected": true,
+      "diagnostic": "unclassified/different original state: mem"
+    },
+    {
+      "case": "new_state",
+      "rejected": true,
+      "diagnostic": "unclassified/different original state: lost"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "unexpected/duplicate original field"
+    },
+    {
+      "case": "derived_state",
+      "rejected": true,
+      "diagnostic": "unclassified/different original state: a"
+    },
+    {
+      "case": "pipeline_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed RAM/pipeline access schema"
+    },
+    {
+      "case": "valid_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed RAM/pipeline access schema"
+    },
+    {
+      "case": "wrong_padding",
+      "rejected": true,
+      "diagnostic": "unreviewed RAM/pipeline access schema"
+    },
+    {
+      "case": "unqualified_width",
+      "rejected": true,
+      "diagnostic": "unqualified word width"
+    },
+    {
+      "case": "wrong_source_hash",
+      "rejected": true,
+      "diagnostic": "unreviewed RAM/pipeline access schema"
+    }
+  ]
+}

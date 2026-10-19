@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "widths": [
+    1,
+    2,
+    4,
+    5,
+    18
+  ],
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "ungated_read",
+      "returncode": 1,
+      "expected_failure": "backend hold changed read pipeline"
+    },
+    {
+      "case": "ungated_write",
+      "returncode": 1,
+      "expected_failure": "ordinary old-data oracle differs"
+    },
+    {
+      "case": "premature_resume",
+      "returncode": 1,
+      "expected_failure": "backend hold changed read pipeline"
+    },
+    {
+      "case": "lost_pipeline",
+      "returncode": 1,
+      "expected_failure": "bit/padding write readback differs"
+    },
+    {
+      "case": "running_access",
+      "returncode": 1,
+      "expected_failure": "running state request accepted"
+    },
+    {
+      "case": "invalid_alias",
+      "returncode": 1,
+      "expected_failure": "invalid index accepted"
+    },
+    {
+      "case": "wrong_data",
+      "returncode": 1,
+      "expected_failure": "bit/padding write readback differs"
+    },
+    {
+      "case": "wrong_read_address",
+      "returncode": 1,
+      "expected_failure": "ordinary old-data oracle differs"
+    }
+  ],
+  "scope": "Primitive2-state model simulation: connected CE and original omitted CE preserved; no explicit tie-off/four-state claim, IFU integration/global barrier or physical snapshot.",
+  "source_hashes": {
+    "fpga/mister/snapshot/test_f10415_word.py": "0fab71a901677741a84b3ecb6e51a903488bade44c50a21b00c4f54700773670",
+    "fpga/mister/snapshot/test_f10415_word.cpp": "1d8af6bb088e8fbd5803c2253dba2f99e41c077eb2ff74328492e10ab3e4f9a6",
+    "fpga/mister/snapshot/f10415_word_bank.sv": "d5e0649f392cfdbc116de9bbc5b615ba923526704357ddfb0888ace111fea5ca",
+    "verilog/cells/cell_F10415A.v": "44cb1c6eee73b8507f7a66e5781073f916d0c02a221618dedf4d09879a9a7227"
+  }
+}

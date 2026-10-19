@@ -2,6 +2,34 @@
 
 ## Current objective (2026-10-18 UTC)
 
+**19Oct10:39UTC: Native53 full desktop/input PASS; complete IFU isolated qualification PASS.**
+Live53 reaches Ready/Clock/WatchTool/EditTool. Real mouse opens a CommandTool;
+separate focus after its initialized prompt gives exact short and alphabet/digit
+echoes. Normal guest create/close/type of ///rtl53persist.txt returns the expected
+marker and prompt. Evidence native53-field desktop-qualification/captures; 92,430
+complete live disk records have no error/loss. No cold marker readback or normal
+guest Boot53 yet. Current Main17783/server17782 remain live; no speed change.
+
+Width-correct F10415 banks pass original/oracle restore, XML coverage and matched
+four-condition timing (+0.171ns). Complete IFU now passes all28,653 modeled bits,
+27raw read pipelines, 94FF packages/four phase bits and immutable256-bit PROM
+classification. Final simulation498,875host/448,849requests, allstate/all262,144
+indices, seven brokenRTL controls, first resume/recapture/20,000morecycles pass;
+14damaged schemas reject. Matched positive-edge50MHz isolated fits pass all four
+conditions,min+0.157ns, no cuts/unconstrained paths.27,648RAMbits retained;
+four->elevenM10Ks,466->1474ALMs/867->1832regs include shell/admin/pruning.
+All11actual macros/physical RAMs OLD_DATA; nine damaged fits reject. Reports
+snapshot-f10415-word/snapshot-ifu-full retain exact sources/raw earlier failures.
+Original CE omissions remain unchanged,2-state qualification only.
+
+Native54 full-core IFU integration build84906 is running on misterubuntu,
+/home/alans/mister/Dorado_Native54_20261019. Frozen53 plus three newRTL files,
+five existingFF adapters reused byte-identically. Same50MHz/SYSPER4/wrapper/SDCs/
+memory policies, all admin inactive. Sequential build includes all-device timing
+and five-board crossings; do not run concurrent STA or load before final audit.
+Next qualify full-core timing/original firmware, then remaining memory/device/
+ARM state and coherent bundle, original60ns clocks and final combined gates.
+
 **Live update19Oct09:54UTC: Native53 original firmware/login/base loader PASS.**
 Normal deployment28438 TERMINAL09:34:06UTC, Main17783/21e67a3f/server17782/
 c5996249, RBFc323f163. Actual Main SPI74 flags0x16/fault/errors0, fresh epoch
@@ -20,8 +48,8 @@ varies. All34/33BCD/1,345,843bytes and actual final ACK PASS311.447031..
 had0/similar time. Cause/any adapter effect remains open; do not speed-promote.
 Observer22501/remote18045 TERMINAL after actual final ACK/stop, independently
 absent. All34 served source hashes match after timing, not physical payload
-hashes. Explicit No accepted; actual BootEssentials advancing. Full53desktop/
-input pending. No snapshot/60ns claim. Main/tmp/dorado53-main.log,
+hashes. Explicit No accepted; BootEssentials/full53desktop/input subsequently
+pass as recorded above. No snapshot/60ns claim. Main/tmp/dorado53-main.log,
 disk/tmp/dorado53-disk.jsonl, volume/serverCedar53_20261019, localcedar53-launch.
 Deployment evidence native53-field. Do not restart completed helpers.
 
@@ -1920,10 +1948,12 @@ and has unreviewed hold violations; never deploy it.
 - [x] Finish52 full Viewers/mouse/exact keyboard/warm marker; normal guest812 and actual Main barriers preserve its volume.
 - [x] Integrate ProcH/ProcL exact-advance adapters with admin inactive; qualify full53 timing31summary/100detailed/four conditions, min+0.115ns.
 - [x] Normally load53, verify fresh DDR epoch and original firmware/BFN113/Pilot/Cedar login/base34/final ACK; repeat idle issue measurement and whole-loader/replay accounting.
-- [ ] Finish53 BootEssentials/fonts/STARTs, desktop/mouse/Cmd/focus/exact keyboard and rtl53persist marker readback; leave the current original boot running.
+- [x] Finish53 BootEssentials/fonts/STARTs, desktop/mouse/Cmd/focus/exact keyboard and rtl53persist marker readback; current original boot remains running.
 - [x] Qualify MC10135 seven-bit adapter simulation/XML/isolated timing; preserve both failed shell fits.
 - [x] Review all27 IFUM RAM packages against original wire list; preserve eleven separately addressed groups and omitted CE semantics.
-- [ ] Add width-correct IFUM old-data RAM/read-pipeline access; full IFU state classification/restore/timing, then remaining board/device/ARM state and atomic snapshot bundle.
+- [x] Add width-correct IFUM old-data RAM/read-pipeline access; qualify full IFU state classification/restore and isolated four-condition timing.
+- [ ] Complete Native54 full-core IFU build/audit (running84906), then original firmware/Viewers/input qualification; all admin remains inactive.
+- [ ] Finish remaining board/device/ARM state and atomic snapshot bundle with actual FPGA Cedar restore.
 - [ ] Finish original60ns clock/enable and timer migration; final three fresh boots, coherent snapshot restore, persistence, pinned measurements and two-hour combined stress.
 
 ### Earlier bring-up ledger

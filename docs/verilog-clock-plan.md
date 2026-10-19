@@ -42,6 +42,18 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+19Oct10:39UTC: Native53 full Viewers/mouse/Cmd/separate focus/exact short and
+alphabet/digit echo and warm rtl53persist file create/close/readback PASS.
+No new speed measurement or cold53 marker readback. Full IFU isolated simulation/
+freshXML classification/restore/first resume now pass28,653modeled bits with
+11independent RAM groups and original omitted CE; matched50MHz positive-edge
+fits pass four conditions,min+0.157ns,27,648bits/four->elevenM10Ks. All11actual
+snapshot RAM macros/physical rows OLD_DATA; nine bad fits reject. These shell/
+admin resources are not enabled full-core costs. Native54 full-core integration
+is building84906 on misterubuntu, same50MHz/SYSPER4/SDCs/all admin inactive.
+Global snapshots, original60ns migration and final repeated/stress gates remain
+required. Evidence native53-field/snapshot-f10415-word/snapshot-ifu-full.
+
 19Oct09:54UTC: Native53 original firmware/Pilot/login and34base transfers/final
 guestACK PASS311.447031..311.698212s. Idle1,947,681.730issues/s matches52 within
 0.0055%; no speed gain. Whole-loader issues509.221..514.480M/interior1.642263..
