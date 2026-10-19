@@ -1,9 +1,10 @@
-# Complete FPGA snapshots: RAM access prototype
+# Complete FPGA snapshots: board state access experiments
 
 Complete machine save/restore is required milestone4a in
 [the delivery plan](../../../docs/verilog-clock-plan.md). It is not implemented
-in the running MiSTer core. This directory qualifies one bounded RAM-bank
-access method before extending it to the actual board hierarchy.
+in the running MiSTer core. This directory now qualifies bounded RAM access
+and complete modeled ContB state restore in isolated RTL/routed experiments.
+Machine-wide state access, coherent barriers and physical restore remain open.
 
 `f10415_bank.sv` models an IM-like1024x34 bank from34 original F10415A slices.
 It exports1024 RAM words plus a separate34-bit read-pipeline word. The RAM
@@ -93,19 +94,33 @@ unconstrained paths. Shell counts287->600ALMs/325->584regs include admin
 pruning differences; do not project to the core. Eight audit controls reject.
 Evidence: reports/2026-10-19-snapshot-contb-board. Production is unchanged.
 
-Original-board elaboration identifies209 additional sequential bits in22
-MC10176/MC10231 packages, including q, pre-capture and clock history. They
-remain unexported; other inventory categories still need classification.
-Next add those state paths and test complete board continue/restore, then
-qualify whole-core clock relationships and the external-service barrier.
-The present board test only restores IM while other state is physically held.
+The subsequent `generate_contb_full.py` experiment adds all209 remaining
+MC10176/MC10231 q, pre-capture and clock-history bits. The complete modeled
+board now passes save/candidate-only continuation/restore/first-edge execution
+against an untouched original board. All71 outputs and147809 modeled state
+bits are covered; all209 FF bits are individually walked, all invalid15-bit
+addresses are rejected and six broken RTL controls fail. Fresh original-board
+XML classification accounts for every candidate; seven missing/overlapping/
+aliased-state controls reject. External inputs and clock phase are outside
+this board boundary and must be captured by the caller.
+
+Matched complete-board isolated fits retain16M10Ks/147456bits/OLD_DATA and
+pass all12 checks per variant/four conditions, minimum+0.165ns. No cuts or
+unconstrained paths. Shell counts288->774ALMs/320->693regs (+486/+373) include
+admin pruning differences, not whole-core overhead. Nine damaged-evidence
+controls reject. Sources: generate_contb_full.py, test_contb_full.py/.cpp,
+classify_contb_full.py, fit_contb_full.py and audit_contb_full.py. Evidence:
+reports/2026-10-19-snapshot-contb-full. Production/live FPGA remain unchanged.
+Next integrate access in the complete-machine experiment, expand/classify the
+other boards and wrapper/device/input scope, establish the global services
+barrier and qualify whole-core timing before physical Cedar restore.
 
 The remaining delivery order is:
 
 1. Classify the generated inventory and prove bounded access on an actual
-   board, including its remaining sequential/clock-history state. IM-only
-   board strobes/read pipelines and isolated routed timing now pass; complete
-   board continue/restore and whole-core timing remain required.
+   machine. Complete modeled ContB access/continue/restore and isolated timing
+   now pass; other boards, wrapper/devices/inputs and whole-core timing remain
+   required. Inventory/classify every remaining state path before release.
 2. Implement one machine-wide pause boundary with ARM disk/network services.
    Preserve or drain pending operations explicitly; keep SDRAM refresh running.
 3. Save all classified RTL, RAM, device, clock and input state together with

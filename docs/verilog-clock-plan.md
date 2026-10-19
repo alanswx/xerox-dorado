@@ -1,7 +1,8 @@
 # Dorado RTL clock implementation plan
 
-Started 2026-10-18 UTC. Native34 is now the50MHz verified Cedar desktop/
-input baseline; Native26 preserves the earlier33.333MHz reference. The user has released MiSTer14 for reloads/faster builds; keeping
+Started 2026-10-18 UTC. Native49 is the selected50MHz Cedar desktop/input
+baseline (fresh49b repeats it); Native34 is the earlier50MHz reference and
+Native26 preserves the earlier33.333MHz reference. The user has released MiSTer14 for reloads/faster builds; keeping
 that session alive is no longer a constraint. See the [clock audit](verilog-from-sil.md#clock-architecture-audit-2026-10-18)
 for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
@@ -421,6 +422,28 @@ This is not full-board restore:99 other sequential candidates/209bits in22
 MC10176/MC10231 packages still need state ports, with remaining inventory
 categories to classify. Next qualify actual full-board continue/restore,
 then whole-core barriers/state/timing. No production RTL/FPGA snapshot added.
+
+The complete modeled ContB extension now exports all209 remaining q/setup/
+clock-history bits.132764 host cycles/82735 state accesses pass original-board
+comparison, all209 FF bit walks and all invalid15-bit addresses. Candidate-only
+continuation under real board logic, full147809-bit state restore and20000
+subsequent execution cycles match the stopped/untouched original from the
+first actual guest edge. Six damaged RTL variants fail. Fresh XML classifies
+all original board candidates as saved or continuous-wire recomputation;
+seven missing/width/parity/duplicate/new/overlap/alias controls reject. External
+inputs and clock phase remain outside this board boundary.
+
+Matched full-state board fits retain147456 RAM bits/16M10Ks and eight18-bit
+OLD_DATA macros. All12 checks per variant/four conditions pass min+0.165ns;
+no timing cuts or unconstrained paths. Shell counts288->774ALMs/320->693regs
+include admin/pruning overhead and cannot project whole-core timing/resources.
+Nine damaged-evidence controls reject. Reports: snapshot-contb-full. This
+qualifies the representative modeled board, not machine restore or a global
+pause. Next integrate the access fabric into a complete-machine experiment,
+classify other boards/wrapper/devices/input and external SDRAM/Main/server
+state, implement coherent barriers/bundles and qualify whole-core timing.
+Complete physical Cedar save/load,60ns clocks and final release gates remain
+required. Production RTL/QSF and the live49b FPGA are unchanged.
 
 ### DDR control integration and matched idle evidence (2026-10-18)
 

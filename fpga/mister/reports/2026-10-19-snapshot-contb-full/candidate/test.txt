@@ -1,0 +1,1 @@
+FULL CONTB RESTORE PASS: 132764 host edges, 92737 held edges, 13334 late-enable changes, 82735 state accesses; all209 FF/history bits,147456 RAM bits,144 read bits,71 outputs; real-strobe writes= 672 594 2688 3252 1062 1276 6270 6875; candidate-only continuation, restore and first-edge execution; no machine/physical qualification

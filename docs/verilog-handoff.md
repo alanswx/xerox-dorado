@@ -18,6 +18,8 @@ than48, ONE boot each. Native50 deferred reads are rejected for negligible measu
 extra3323ALMs. Live49b repeats the smaller selected49 baseline; idle reproduces
 within0.000203%, full base loader passes. Continue
 complete snapshot4a, accurate clocks/timers and repeated/stability gates.
+Representative ContB now passes complete modeled board state restore and
+isolated all-corner timing; whole-machine/physical snapshots remain unfinished.
 Actual Main worker-delay disk service, physical packet progress and completed
 input pass in separate controlled41c/47/48 tests. Sustained combined stress
 remains open. Failed41b and retired working volumes remain preserved.
@@ -208,6 +210,40 @@ packages (q, pre-capture and clock-history). These need bounded state ports;
 remaining inventory categories still need classification. Next full-board
 continue/restore, then wider scope/whole-core timing/global services barrier.
 No production generated RTL/QSF/FPGA state-access changes. Live49b remains.
+
+**Snapshot4a complete modeled ContB restore/classification/isolated fit PASS.**
+Full-state generator preserves the audited IM interface and exports all209
+q/pre-capture/clock-history bits from eleven MC10176 and eleven MC10231 cells.
+Separate adapters retain original nonblocking logic and S/R/PRECAP semantics
+under the exact host-clock advance; original production sources unchanged.
+State index is15bits: groups0..7 IM, group8 words0..21 sequential packages;
+all other addresses error/no mutation. Padding to18bits reads0/writes ignored.
+
+Mac full-controls73290 COMPLETED:132764 host edges/92737 held/13334 lateenable/
+82735 state accesses, all71 outputs and147809 state bits. Independent original
+board/array oracle,209 FF bit walks, every invalid address, candidate-only
+10000-cycle continuation, RAM/FF destructive writes, complete restore and20000
+subsequent execution cycles pass from the first actual guest edge. Reference
+never patched; fixture-only RAM seeds and captured external inputs. Six bad
+variants fail intended causes, including lost history/setup and RAM aliasing.
+Fresh original XML classification v3 accounts for every candidate (saved or
+continuous-wire recomputation), seven missing/new/overlap/alias controls reject.
+The machine must additionally capture external inputs/clock phase and drain
+state-port requests; this does not create a whole-machine snapshot barrier.
+
+Remote SnapshotContBFull_20261019/Mac68165 COMPLETED. Matched50MHz registered-
+shell fits retain147456bits/16M10Ks/eight1024x18 OLD_DATA. All12 checks per
+variant/four conditions pass min+0.165ns; R/R N/A; no cuts, illegal/unconstrained
+clocks or I/O. Counts288->774ALMs/320->693regs (+486/+373) include shell/admin
+pruning and are not whole-core timing/resource projections. Nine damaged
+adapter/project/source/timing/coverage controls reject. Sources *contb_full*
+in fpga/mister/snapshot; evidence reports/2026-10-19-snapshot-contb-full.
+Next integrate access with the complete-machine hierarchy and classify/access
+other boards, wrapper/devices/input and physical SDRAM/Main/server. Establish
+coherent global pause, matching disk generation/server state, atomic bundles,
+pending/error/reset tests, full-core STA and actual Cedar restore timing.
+Production generated files/cells/QSF/live FPGA unchanged;49b remains running.
+60ns clock migration and final repeated/stress qualification remain required.
 
 **Retired47: direct-DDR original-firmware interactive Cedar Viewers PASS.**
 Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,
@@ -1619,7 +1655,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Prove actual ContB IM fanout grouping against wire list/cell expressions:144 slices, parity and144 read registers, eight18-bit half-banks; truth oracle and six damaged controls pass.
 - [x] Qualify18-bit explicit-enable snapshot RAM against unchanged original cells and independent array; retain twoM10Ks/OLD_DATA, matched registered-shell all-corner timing min+0.255ns and damaged RTL/report controls.
 - [x] Qualify bounded actual ContB IM state access: unchanged-board all-output/strobe/clock-hold comparison and matched isolated gated-clock all-corner fit,16M10Ks/min+0.168ns.
-- [ ] Export/classify remaining actual ContB state (209 non-IM sequential bits) and prove full-board continue/restore; extend inventory to wrapper/raw memory/Main/server and qualify whole-core area/timing.
+- [x] Export/classify all209 remaining ContB q/setup/history bits; full147809-bit modeled board save/continue/restore/first-edge equivalence, coverage controls and isolated all-corner fit pass min+0.165ns.
+- [ ] Integrate representative access into complete-machine hierarchy, extend/classify other boards/wrapper/devices/input/raw memory/Main/server and qualify whole-core area/timing/global barriers.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [x] Preserve/decode41b post-desktop host-write timeout and unchanged physical pack; exact blocking syscall remains unobserved.
 - [x] Implement/test bounded whole-image ARM cache, dirty-run coalescing, worker file IO, Main-only SPI capture and error recovery; actual-worker Linux/ARM and full pinned Main build pass.

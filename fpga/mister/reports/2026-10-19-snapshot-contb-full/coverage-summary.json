@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "scope": "All original modeled ContB candidates in fresh elaboration; external inputs/clocks/machine/ARM excluded",
+  "logical_state_bits": 147809,
+  "ram_bits": 147456,
+  "read_pipeline_bits": 144,
+  "ff_history_bits": 209,
+  "xml_sha256": "b6adc761c3a80e12ef4e4295bed3a18d6d1dc88e3dfd5c370a49239118af5258",
+  "manifest_sha256": "c0fce17fe4acadca30f86ddf3187026d6205f4cb0cc3363205da908cc2b7df7a",
+  "adapter_state": "Administrative request/result/frozen bookkeeping and physical scanned RAM output are reconstructed by completed freeze/load protocol; pending saved guest read state is included as the raw pipeline. No state-port request may remain outstanding at machine resume.",
+  "failure_controls": [
+    {
+      "case": "missing_history",
+      "rejected": true,
+      "diagnostic": "unexported sequential state: ContB_m_Rev_m_Cd.u_b02.ck_d"
+    },
+    {
+      "case": "wrong_width",
+      "rejected": true,
+      "diagnostic": "state geometry differs: ContB_m_Rev_m_Cd.u_b02.q"
+    },
+    {
+      "case": "missing_parity",
+      "rejected": true,
+      "diagnostic": "unexported sequential state: ContB_m_Rev_m_Cd.u_d06.dout_r"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "duplicate inventory state: ContB_m_Rev_m_Cd.CS0_p_ACa"
+    },
+    {
+      "case": "new_state",
+      "rejected": true,
+      "diagnostic": "unexported sequential state: ContB_m_Rev_m_Cd.u_a06.dout_r_new"
+    },
+    {
+      "case": "overlap",
+      "rejected": true,
+      "diagnostic": "overlapping state field layout"
+    },
+    {
+      "case": "alias_word",
+      "rejected": true,
+      "diagnostic": "aliased sequential state word"
+    }
+  ]
+}
