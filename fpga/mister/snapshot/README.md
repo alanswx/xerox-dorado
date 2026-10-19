@@ -814,3 +814,43 @@ No production builder/live FPGA/speed change. Complete-core capacity remains
 combined fit/timing and versioned schema/timeout/global-hold integration. The
 current16-edge transport cannot serve1,439-edge scans unchanged. Full machine
 snapshots, original60ns clocks and final hardware release gates remain open.
+
+
+## Complete disk/Ethernet serial FF access (2026-10-19)
+
+`generate_dsketh_ff_scan.py` chains all 117 original FF helpers / 1,070 bits,
+without a shadow bank. Compact words 0..59 end with eight valid bits. RAM and
+write windows, CRC PRECAP modes, signed timers/trigger histories, oscillator,
+receive monitor and phase access keep their original qualified map and rates.
+`compact-ff-v1` supplies explicit bit offsets; `legacy_parallel_word` is review
+metadata, not an address alias. System-reset access is rejected. Loss of the
+external freeze/held boundary during rotation holds every local helper and
+requires SYSTEM reset; foreign consumers still need a global barrier.
+
+`test_dsketh_ff_scan.py --mutations` derives only administrative mapping/waits
+and reset/quarantine checks from the original complete-board test. The unchanged
+original board and independent RAM oracle pass 3,947,818 host edges, all 2,656
+bits/all 8,192 indices, destructive restore, quiet recapture, first resumed edge
+and 20K more cycles. All 18 normal RAM writers are exercised. Nine damaged
+variants reject, including corrupted CRC/timer high bits and monitor quarantine.
+All 24 helper frozen flags are observed. Fresh XML accounts for 2,656 physical
+and 452 private bits, no sequential exclusions, and 12,032 immutable PROM bits;
+14 damaged inventories/layouts reject.
+
+Matched enabled fits retain identical async MLAB helpers, staged-input/
+positive-edge 50 MHz/20 ns shell and SDC: 2,447 -> 2,092 ALMs saves 355;
+2,560 -> 2,684 registers. All four device conditions pass, minimum +0.115 ns.
+Exact FF/write-window/CRC/timer/oscillator/monitor retention and all 36 physical
+MLAB replicas are checked: 1,152 logical / 2,256 implemented RAM bits, with
+normal-output pruning grounded in actual disconnected pins. Both variants keep
+identical PROM assets and no block RAM. Ten damaged fit/source/retention/hold/
+placement controls reject; no new timing cuts, unconstrained paths or warning
+categories. All 847 raw files pass hash readback, followed by extracted fit,
+fresh XML classification and source regeneration/control suites.
+Report: `reports/2026-10-19-snapshot-dsketh-ff-scan`.
+
+No core builder, FPGA or speed change. The last actual whole-core result stays
+3,318 ALMs over capacity. Continue the remaining boards and combined fit/timing;
+integration also requires versioned formatters, longer bounded transport and
+global hold/fault/SYSTEM-reset ownership. Complete machine/ARM/disk-paired
+snapshots, original 60 ns clocks and final hardware release gates remain open.

@@ -1,0 +1,3488 @@
+{
+  "status": "PASS",
+  "scope": "Fresh complete DskEth serial-access inventory with no state exclusions.\n\nCRC, both signed timers, all histories, passive receive monitor and oscillator\nremain physical state. Administrative response/scan state is classified apart.\n",
+  "physical_bits": 2656,
+  "private_transport_bits": 452,
+  "sequential_exclusions": [],
+  "immutable_prom_bits": 12032,
+  "decisions": [
+    {
+      "path": "DskEth_full_snapshot_experiment.Clk1",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.Clock1_p_Bb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.Clock1_p_Bd",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.Clock1_p_Ca",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.Clock1_p_Cb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.Clock1_p_Cc",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.Clock1_p_Da",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.Clock1_p_Db",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.Clock1_p_Dd",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.regular_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.regular_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.state_aux_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.state_response_ff",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.state_response_memory",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.state_response_memory_index",
+      "bits": 5,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a01.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a01.p10_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a01.p7_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a01.p9_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a01.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a02.p10_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a02.p7_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a02.p9_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a02.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a03.a1_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a03.a2_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a03.b1_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a03.b2_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a03.c1_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a03.c2_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a03.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a03.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a03.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a03.state_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a03.t1",
+      "bits": 32,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a03.t2",
+      "bits": 32,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a05.a1_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a05.a2_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a05.b1_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a05.b2_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a05.c1_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a05.c2_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a05.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a05.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a05.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a05.state_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a05.t1",
+      "bits": 32,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a05.t2",
+      "bits": 32,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a06.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a06.p10_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a06.p7_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a06.p9_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a07.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a07.p10_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a07.p7_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a07.p9_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a07.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a08.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a08.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a09.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a09.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a10.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a10.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a11.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a11.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a15.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a16.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a22.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_a22.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b03.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b03.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b04.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b04.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b05.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b05.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b05.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b06.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b06.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b06.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b09.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b09.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b09.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b09.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b09.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b09.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b10.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b12.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b12.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b12.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b12.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b12.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b12.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b15.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b15.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b20.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b20.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b21.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_b21.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c01.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c01.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c02.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c02.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c07.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c07.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c07.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c08.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c08.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c09.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c09.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c09.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c09.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c09.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c09.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c14.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c14.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c15.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c15.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c16.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c16.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c16.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c19.cin_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c19.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c19.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c19.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c19.sd_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c19.su_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c20.cin_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c20.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c20.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c20.sd_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c20.su_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c21.cin_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c21.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c21.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c21.sd_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_c21.su_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d04.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d04.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d08.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d08.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d08.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d08.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d08.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d08.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d08.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d08.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d08.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d09.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d09.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d09.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d09.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d09.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d09.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d09.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d09.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d09.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d10.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d10.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d10.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d10.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d10.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d10.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d10.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d10.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d10.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d11.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d11.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d11.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d11.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d11.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d11.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d11.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d11.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d11.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d12.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d12.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d12.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d12.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d12.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d12.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d12.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d12.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d12.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d18.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d19.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d20.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d20.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d20.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d22.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_d22.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e02.q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e04.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e04.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e04.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e04.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e04.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e04.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e05.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e05.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e05.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e05.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e05.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e05.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e06.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e06.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e06.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e06.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e06.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e06.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e08.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e08.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e10.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e10.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e12.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e12.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e13.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e13.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e13.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e14.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e14.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e14.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e14.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e14.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e14.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e15.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e15.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e16.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e16.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e16.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e16.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e16.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e16.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e16.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e16.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e16.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e17.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e17.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e17.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e17.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e17.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e17.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e18.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e20.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_e21.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f01.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f01.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f02.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f02.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f08.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f08.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f09.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f09.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f10.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f12.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f14.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f15.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f16.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f16.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f16.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f16.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f16.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f16.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f16.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f16.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f16.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f17.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f17.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f17.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f17.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f17.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f17.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f17.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f17.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f17.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f18.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f20.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_f21.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_ff_scan.busy",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_ff_scan.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_ff_scan.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_ff_scan.fault",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_ff_scan.first_bit",
+      "bits": 11,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_ff_scan.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_ff_scan.payload",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_ff_scan.position",
+      "bits": 11,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_ff_scan.result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_ff_scan.writing",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g06.q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g08.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g09.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g17.cp_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g17.cwe_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g17.d_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g17.r",
+      "bits": 16,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g17.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g17.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g17.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g17.state_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g20.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g20.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g21.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_g21.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h04.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h04.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h04.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h04.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h04.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h04.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h06.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h06.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h06.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h06.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h06.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h06.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h08.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h08.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h12.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h12.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h13.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h13.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h24.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h24.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_h24.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i08.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i08.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i08.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i08.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i08.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i09.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i09.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i09.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i09.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i09.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i10.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i10.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i10.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i10.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i11.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i11.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i11.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i12.cin_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i12.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i12.sd_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i12.su_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i13.cin_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i13.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i13.sd_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i13.su_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i14.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i14.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i14.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i14.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i15.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i15.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i15.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i15.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i16.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i16.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i16.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i16.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i17.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i17.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i17.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i17.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i17.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i22.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i22.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i22.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i22.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i22.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_i22.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j04.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j04.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j04.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j04.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j04.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j04.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j05.cp_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j05.cwe_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j05.d_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j05.r",
+      "bits": 16,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j05.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j05.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j05.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j05.state_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j08.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j08.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j08.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j08.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j08.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j08.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j08.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j08.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j08.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j09.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j09.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j09.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j09.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j09.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j09.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j09.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j09.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j09.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j10.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j10.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j10.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j10.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j10.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j10.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j10.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j10.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j10.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j11.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j11.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j11.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j11.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j11.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j11.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j11.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j11.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j11.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j12.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j12.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j12.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j12.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j12.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j12.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j12.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j12.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j12.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j13.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j13.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j13.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j13.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j13.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j13.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j13.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j13.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j13.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j14.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j14.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j14.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j14.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j14.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j14.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j14.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j14.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j14.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j15.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j15.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j15.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j15.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j15.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j15.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j15.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j15.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j15.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j16.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j16.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j16.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j16.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j16.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j16.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j16.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j16.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j16.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j17.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j17.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j17.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j17.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j17.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j17.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j17.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j17.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j17.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j19.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j19.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j19.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j19.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j20.acc",
+      "bits": 32,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j20.osc",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j20.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j20.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j20.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j20.state_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j21.cin_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j21.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j21.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j21.sd_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j21.su_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j24.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j24.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_j24.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k04.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k04.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k04.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k07.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k07.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k07.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k07.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k09.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k09.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k10.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k10.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k11.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k11.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k14.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k14.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k15.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k15.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k16.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k16.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k19.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k19.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k19.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k19.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k20.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k20.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k20.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k20.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k20.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k20.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k22.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k22.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_k22.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l02.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l02.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l02.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l02.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l02.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l02.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l04.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l04.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l04.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l04.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l04.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l04.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l06.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l06.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l06.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l06.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l07.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l07.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l07.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l07.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l07.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l07.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l09.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l09.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l12.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l13.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l16.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l18.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l18.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l18.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l19.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l19.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l19.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l19.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l20.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l20.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l20.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l20.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l20.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l20.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l23.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l23.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_l23.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_receive_monitor.consumed",
+      "bits": 8,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_receive_monitor.cpu_status",
+      "bits": 8,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_receive_monitor.input_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_receive_monitor.received",
+      "bits": 8,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_receive_monitor.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_receive_monitor.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_receive_monitor.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_receive_monitor.state_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_receive_monitor.wire_status",
+      "bits": 8,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DskEth_full_snapshot_experiment.u_receive_monitor.write_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    }
+  ],
+  "xml_sha256": "cf4dbd8d382ef1450cb2ed31de9f57b0b93e61dc7286a0ac93418efc43c33773",
+  "failure_controls": [
+    {
+      "case": "missing_ff_history",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "wrong_ram_depth",
+      "rejected": true,
+      "diagnostic": "state geometry differs: DskEth_full_snapshot_experiment.u_d08.mem"
+    },
+    {
+      "case": "extra_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential state: DskEth_full_snapshot_experiment.Clk1_unexported"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential state: DskEth_full_snapshot_experiment.Clk1"
+    },
+    {
+      "case": "missing_phase",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "wrong_offset",
+      "rejected": true,
+      "diagnostic": "unreviewed DskEth scan schema/source"
+    },
+    {
+      "case": "missing_layout_bit",
+      "rejected": true,
+      "diagnostic": "unreviewed DskEth scan schema/source"
+    },
+    {
+      "case": "legacy_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed DskEth scan schema/source"
+    },
+    {
+      "case": "wrong_counter",
+      "rejected": true,
+      "diagnostic": "state geometry differs: DskEth_full_snapshot_experiment.u_ff_scan.position"
+    },
+    {
+      "case": "lost_crc",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "lost_timer",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "lost_monitor",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "wrong_osc_width",
+      "rejected": true,
+      "diagnostic": "state geometry differs: DskEth_full_snapshot_experiment.u_j20.acc"
+    },
+    {
+      "case": "mutable_prom",
+      "rejected": true,
+      "diagnostic": "immutable DskEth PROM differs"
+    }
+  ]
+}
