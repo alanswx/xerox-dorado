@@ -2,60 +2,61 @@
 
 ## Current objective (2026-10-19 UTC)
 
-**The enabled snapshot core remains 3,318 ALMs over capacity. An isolated serial FF scan controller now passes simulation.**
+**Actual ContA serial FF access passes complete-state restore and isolated timing, saving 211 ALMs. The full enabled core remains 3,318 ALMs over capacity.**
 
-The asynchronous-register-file full-core experiment is TERMINAL and rejected:
-45,228 ALMs / 41,910 available, and 4,570 LABs / 4,191. It saves 3,125 ALMs
-versus the shared-writer result and 9,175 versus the first all-enabled build.
-All eleven boards and 1,944,744 modeled board bits remain enabled. Builder
-1931650/fitter1933677 are absent; errors170012/11802 stopped the build before
-STA, assembly or deployment. Evidence: snapshot-zero-async-capacity.
+The corrected ContA prototype uses its unchanged 75 FF helpers as a 681-bit
+serial chain, with no shadow bank. RAM/window and phase access remain separate.
+The compact FF bank uses words0..37 (15 bits in the last word); this is a new
+schema/ABI. Each FF operation completes after a full 681-edge rotation. Loss of
+the external boundary quarantines and locally holds FFs, RAM/window and phase
+state until SYSTEM reset. Reset-time accesses are rejected and a fresh freeze
+entry is required. The inherited ff[] entries describe physical fields; their
+legacy word numbers are not the new scan access map.
 
-Actual-source integration passes all 413 baseline receipt files, 2,137 original
-pins and 17 damaged integrations, with unchanged clocks/SDRAM/ECC/SDC. The
-independent synthesis mapping audit derives 85 files from the board manifests
-and finds 170 MLAB read replicas. Every administrative copy retains all 64 RAM
-bits: 5,440 logical bits total. Twelve ordinary replicas are narrower only where
-output pins are absent from the exact compiled board; every width is checked
-against those pins. Total replicated storage is 10,480 bits. Seven damaged
-mappings reject; all 29 raw files and the extracted mapping audit pass. This is
-not physical placement, window/interface retention or timing qualification.
-The isolated helper's state/restore/timing gates and all eight positive board
-restore gates remain in snapshot-f10145-zero-async (819 raw files).
+Positive v7 passes 1,657,868 host edges, all 1,353 physical bits, all 138 outputs,
+all-bit access, destructive continuation/restore, the first resumed edge and
+20K further cycles. All nine ordinary RAM writers remain active. The original/
+independent oracle and raw probes are preserved; only the access map, bounded
+wait and fault/reset checks are derived. Six damaged boards/controllers reject.
+Fresh candidate XML accounts for 1,353 physical + 206 private transport bits,
+no sequential exclusions; eight bad inventories/layouts reject. The primitive
+controller regression also repeats six sizes/438 transactions/four controls.
 
-The explicit RIOT row-write decoder is REJECTED_NO_AREA_BENEFIT. Original/
-independent behavior, all 1,097 physical + 21 interface bits, fresh XML and
-matched four-condition timing pass; six damaged RTLs, seven inventories and
-seven fit/retention controls reject. Both implementations use 782 ALMs and
-1,323 shell registers, minimum +0.167 ns. Session23489/builder1940019 are
-terminal; no whole-BaseBoard rerun or core integration followed. All 172 raw
-files pass readback. Evidence: snapshot-riot-row-decode-rejected.
+Matched enabled parallel/serial ContA fits use identical asynchronous F10145
+helpers and 50 MHz/opposite-edge shell/SDC. Area is 1,472 -> 1,261 ALMs;
+shell registers are 1,373 -> 1,494. All 681 FF bits remain in 75 synthesized
+helpers. Eighteen physically placed MLAB replicas retain 576 logical RAM bits
+(1,136 replica bits), exact connected output widths and asynchronous reads.
+All four conditions pass, minimum +0.131 ns, with no new cuts/unconstrained
+paths. Six damaged fit/retention/memory controls reject. The corrected fit
+SnapshotContAFFScanReset_20261019/session13410 is terminal. The earlier 207-ALM
+trial and exact earlier sources/failure history are retained separately.
+All 1,324 raw files pass hash readback; extracted fit audit and classification
+also pass. Evidence: snapshot-conta-ff-scan. No full-core integration/deployment.
 
-Next area target: parallel FF state-access multiplexers. The isolated
-`ff_scan_controller.sv` prototype rotates existing physical state through a
-one-bit chain, with no shadow bank. Reads restore the bank after a complete
-rotation; writes replace only the requested compact 18-bit word. Simulation
-v2 passes 438 transactions across bank sizes 1/17/18/19/56/1725, including tail
-padding, changing busy requests, invalid/high indices, freeze entry, partial-
-rotation boundary loss and system reset. Four damaged controllers reject with
-specific diagnostics. All 111 raw files pass readback. Evidence:
-snapshot-ff-scan-controller. This is a controller/mock-bank gate only; it does
-not prove real-board behavior, area savings or timing. Its compact word layout
-needs a generated schema/ABI. Boundary loss quarantines the machine until
-SYSTEM reset; hold_required must join the global barrier before integration.
+Next: extend measured serial access to other boards, then qualify the combined
+whole-core area/timing. Integration must version the compact schemas, extend
+the existing 16-edge fabric timeout for 681-edge scans, and connect global
+hold/fault/reset ownership. Local board hold does not freeze foreign consumers.
+The source-derived compact layout must replace old FF word numbers in any
+snapshot formatter. Keep the qualified parallel version until replacement
+integration, timing and original-firmware hardware boot pass.
 
-Next: connect the chain through actual heterogeneous FF helpers, qualify every
-physical bit and ordinary/restore behavior, then measure matched area/timing.
-Retain the parallel implementation until a useful replacement is qualified.
+The last all-enabled full-core fit is still terminal/rejected at 45,228 ALMs /
+41,910 available (4,570/4,191 LABs), 3,318 over capacity. Its source audit and all
+85 register files/170 inferred MLAB read replicas pass. Do not subtract isolated
+savings or multiply them into a claimed whole-core saving. The explicit RIOT
+row decoder remains rejected for zero area benefit (782 ALMs both).
+
 Complete classification/access for the 154,037 native-wrapper sequential
-candidate bits (review-only inventory), top-level inputs/network/video and
+candidate bits (review inventory only), top-level input/network/video and
 16 MiB external raw RAM. Implement coherent ARM/disk/input/server barriers and
-atomic bundles with matching disk generations. Core-load RESUME resets server
-connections; snapshot pause/resume needs a preserving path with timer rebasing.
-Actual FPGA Cedar save/continue/restore, original 60 ns clocks/timers, pinned
-performance comparisons, three fresh boots/cold persistence and two-hour stress
-remain open. Live Native59 and its last qualified idle rate of 1,947,654.12
-issues/s are unchanged. Goal ACTIVE. All experiments in this entry are terminal.
+atomic disk-generation-paired bundles; server pause/resume must preserve
+connections and rebase timers. Actual FPGA Cedar save/continue/restore,
+original 60 ns clocks/timers, pinned performance comparisons, three fresh
+boots/cold persistence and two-hour stress remain open. Live Native59 and its
+last qualified idle rate of 1,947,654.12 issues/s are unchanged. Goal ACTIVE.
+All experiments in this entry are terminal.
 
 **Enabled60 exceeds FPGA capacity; the first state-preserving area fix is qualified and a new full-core build is running.**
 
@@ -3061,7 +3062,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify explicit RIOT row-write decoder behavior and fresh state classification; preserve all1,097physical+21interface bits.
 - [x] Finish SnapshotRIOTRowDecode isolated measurement: 782 ALMs both, all state/timing gates pass; reject for no area benefit. No core integration.
 - [x] Prototype serial FF scan controller: 438 transactions across six bank sizes, four damaged controls reject; no real-board or area qualification yet.
-- [ ] Integrate serial scan through actual heterogeneous FF helpers with generated compact schema and global hold ownership; prove physical-state/ordinary/restore equivalence, then measure matched area and timing before selection.
+- [x] Integrate serial scan through all75actual ContA FF helpers/681bits; full1,353bit board output/restore/first-edge tests, six broken variants and fresh1,353+206bit inventory/eight controls pass.
+- [x] Qualify ContA reset-entry/local quarantine and matched enabled fits:1,472 ->1,261ALMs, all four conditions/min+0.131ns, physical FF/RAM retention/six damaged fit controls. Archive1,324raw files and pass extracted audits.
+- [ ] Extend serial state access to further boards, then qualify actual combined full-core area/timing; isolated211ALMs is not a measured core saving.
+- [ ] Before integration, version compact schemas/formatter and extend the16-edge fabric timeout; connect global hold/fault/SYSTEM-reset ownership across boards/backends/input/ARM services. Local board hold is insufficient.
 - [ ] Continue area reductions without dropping state until all enabled interfaces fit, then qualify complete-core timing and physical memory inference; no RBF/deployment yet.
 - [ ] Complete wrapper/backend/top-level sequential-state classification/access in addition to eleven-board state; native-wrapper154,037bit inventory is review-only.
 - [ ] Complete backends/wrapper/input/ARM cache/server/matching-disk-generation state, coherent barriers and atomic bundle; qualify actual FPGA Cedar save/restore.

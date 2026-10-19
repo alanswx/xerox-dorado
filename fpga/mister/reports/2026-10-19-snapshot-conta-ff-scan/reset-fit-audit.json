@@ -1,0 +1,141 @@
+{
+  "status": "PASS_ISOLATED_FIT",
+  "scope": "Audit matched complete-state ContA scan fits; not full-core qualification.",
+  "results": {
+    "baseline": {
+      "resources": {
+        "alms": 1472,
+        "registers": 1373,
+        "ram_blocks": 0
+      },
+      "physical": {
+        "ff_packages": 75,
+        "physical_ff_bits": 681,
+        "logical_ram_bits": 576,
+        "physical_replica_bits": 1136,
+        "ram_replicas": 18,
+        "limit": "FF helper synthesis counts and RAM placement checked. Other state access/coverage is separately tested/classified; no distinct-register requirement for private transport aliases."
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 1.5,
+          "hold": 0.274,
+          "mpw": 8.96
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 1.45,
+          "hold": 0.316,
+          "mpw": 8.977
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.437,
+          "hold": 0.155,
+          "mpw": 8.618
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.163,
+          "hold": 0.178,
+          "mpw": 8.686
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 22,
+          "10230": 1,
+          "12241": 1,
+          "13024": 1,
+          "13410": 7
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    },
+    "snapshot": {
+      "resources": {
+        "alms": 1261,
+        "registers": 1494,
+        "ram_blocks": 0
+      },
+      "physical": {
+        "ff_packages": 75,
+        "physical_ff_bits": 681,
+        "logical_ram_bits": 576,
+        "physical_replica_bits": 1136,
+        "ram_replicas": 18,
+        "limit": "FF helper synthesis counts and RAM placement checked. Other state access/coverage is separately tested/classified; no distinct-register requirement for private transport aliases."
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 1.392,
+          "hold": 0.247,
+          "mpw": 8.96
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 1.53,
+          "hold": 0.262,
+          "mpw": 8.977
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.534,
+          "hold": 0.131,
+          "mpw": 8.617
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.274,
+          "hold": 0.147,
+          "mpw": 8.684
+        }
+      },
+      "warnings": {
+        "map": {
+          "10230": 1,
+          "10036": 21,
+          "12241": 1
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    }
+  },
+  "delta": {
+    "alms": -211,
+    "registers": 121,
+    "ram_blocks": 0
+  },
+  "minimum_snapshot_slack_ns": 0.131,
+  "limits": "No complete-core area/timing, protocol timeout/global barrier, system-reset entry or physical snapshot qualification.",
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/ContA_snapshot.sv"
+    },
+    {
+      "case": "constraint",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/bank.sdc"
+    },
+    {
+      "case": "policy",
+      "rejected": true,
+      "diagnostic": "project policy differs"
+    },
+    {
+      "case": "ff_retention",
+      "rejected": true,
+      "diagnostic": "physical FF bits differ"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation: hold"
+    },
+    {
+      "case": "ram_latency",
+      "rejected": true,
+      "diagnostic": "RAM geometry/latency differs: Port B Input Registers"
+    }
+  ]
+}

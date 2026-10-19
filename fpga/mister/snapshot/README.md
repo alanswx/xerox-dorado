@@ -708,3 +708,40 @@ snapshot. Next: chain actual heterogeneous FF helpers, generate an explicit
 compact schema/ABI, prove ordinary/complete-state restore behavior and measure
 matched area/timing. Global hold/reset ownership must prevent guest execution
 during an incomplete rotation; existing board-only diagnostics are insufficient.
+
+
+## Complete ContA serial FF access (2026-10-19)
+
+`generate_conta_ff_scan.py` connects the unchanged75FF helpers into a681-bit
+chain. Compact FF words0..37 replace the old per-package access map; RAM/window
+packages75..83 and phase84 keep their addresses. Every operation rotates the
+whole chain before replying. A lost boundary locks all local FF/RAM/window/
+phase state until SYSTEM reset; reset-time accesses are rejected and re-entry
+requires a fresh freeze acknowledgment. Global consumers still need a separate
+barrier. The ff[] metadata retains legacy package information; use scan.layout
+for the new compact mapping and version the ABI before integration.
+
+`test_conta_ff_scan.py --mutations --async-files` derives the qualified full
+board fixture/oracle. It passes1,657,868host edges/all1,353physical bits/all138
+outputs/all-bit access/destructive restore/first-edge/20Kmore, with all nine RAM
+writers active. Six broken variants reject. `classify_conta_ff_scan.py` checks
+fresh XML against the original physical schema:1,353physical+206private bits,
+no exclusions/eight damaged inventories reject. Six-size primitive controller
+regression repeats438transactions/four controls after explicit offset sizing.
+
+`fit_conta_ff_scan.py` compares enabled parallel/serial boards with identical
+asynchronous F10145 helpers and50MHz/opposite-edge constraints. Corrected
+serial area is1,472 ->1,261ALMs; shell registers1,373 ->1,494. All681FF bits,
+18placed MLAB replicas/576logical RAM bits/1,136replica bits and asynchronous
+read latency are checked. Four conditions pass, minimum+0.131ns; no new timing
+cuts or unconstrained paths. `audit_conta_ff_scan.py` rejects six damaged fit/
+retention/RAM-latency controls. All1,324raw files pass readback; independent fit
+and classification audits pass again after extraction. Report:
+reports/2026-10-19-snapshot-conta-ff-scan.
+
+This is an isolated211ALM saving; the actual full core remains3,318over capacity.
+No core builder or live FPGA change. Next: more board adapters and a combined
+fit, schema/formatter updates, longer transport timeout (current16edges versus
+681for a scan), and global hold/fault/reset ownership. The earlier207ALM trial
+and exact harness/launch failure history remain in the report. Complete machine
+snapshots, original60ns clocks and final release qualification remain open.

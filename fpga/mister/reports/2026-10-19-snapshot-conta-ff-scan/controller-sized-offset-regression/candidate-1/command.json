@@ -1,0 +1,11 @@
+[
+  "iverilog",
+  "-g2012",
+  "-s",
+  "tb",
+  "-Ptb.N=1",
+  "-o",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ff-scan-controller-v3-20261019/candidate-1/sim",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ff-scan-controller-v3-20261019/candidate-1/controller.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ff-scan-controller-v3-20261019/candidate-1/tb.sv"
+]

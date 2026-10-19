@@ -66,7 +66,7 @@ module dorado_ff_scan_controller #(
                 end else begin
                     busy <= 1'b1;
                     position <= 0;
-                    first_bit <= index*18;
+                    first_bit <= COUNT_BITS'(index*18);
                     writing <= write;
                     payload <= data;
                 end

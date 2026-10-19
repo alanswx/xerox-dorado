@@ -1,0 +1,2168 @@
+{
+  "status": "PASS",
+  "scope": "Account for every candidate ContA sequential bit and its compact FF layout.\n\nPhysical coverage comes from the qualified parallel board schema; all extra\nstate must match the explicit private transport declarations. No exclusions.\n",
+  "physical_bits": 1353,
+  "private_transport_bits": 206,
+  "sequential_exclusions": [],
+  "decisions": [
+    {
+      "path": "ContA_full_snapshot_experiment.clk1_p_Aa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.clk1_p_Ab",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.clk1_p_Ac",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.clk1_p_Ca",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.clk1_p_Cb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.clk1_p_Da",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.regular_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.regular_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.state_aux_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.state_response_ff",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.state_response_ram",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.state_response_ram_index",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a03.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a03.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a04.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a04.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a04.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a04.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a04.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a04.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a04.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a04.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a04.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a09.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a09.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a12.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a12.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a23.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a23.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a23.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a23.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a23.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a23.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_a24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b04.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b04.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b04.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b04.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b04.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b04.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b04.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b04.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b04.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b09.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b09.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b12.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b12.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b13.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b23.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b23.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b23.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b23.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b23.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b23.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_b24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c04.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c04.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c04.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c04.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c04.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c04.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c04.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c04.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c04.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c09.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c09.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c13.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c13.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c14.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c23.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c23.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c23.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c23.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c23.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c23.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_c24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d04.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d04.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d04.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d04.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d04.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d04.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d04.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d04.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d04.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d09.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d09.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d14.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d23.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d23.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d23.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d23.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d23.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d23.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_d24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e04.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e04.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e04.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e04.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e04.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e04.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e04.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e04.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e04.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e07.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e07.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e07.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e08.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e08.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e14.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e23.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e23.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e23.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e23.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e23.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e23.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_e24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f02.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f02.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f04.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f05.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f05.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f05.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f05.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f05.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f05.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f06.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f06.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f06.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f06.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f06.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f06.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f14.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f14.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f14.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f14.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f14.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f14.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f15.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f15.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_f15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_ff_scan.busy",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_ff_scan.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_ff_scan.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_ff_scan.fault",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_ff_scan.first_bit",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_ff_scan.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_ff_scan.payload",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_ff_scan.position",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_ff_scan.result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_ff_scan.writing",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g02.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g02.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g06.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g06.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g06.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g06.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g06.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g06.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g07.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g07.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g07.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g07.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g07.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g07.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g16.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g16.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g16.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g16.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g16.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_g16.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h02.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h02.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h05.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h05.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h05.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h08.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h08.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h08.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h08.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h08.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h09.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h09.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h09.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h09.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h09.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h12.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_h12.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i02.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i02.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i03.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i03.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i13.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i13.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i13.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i13.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i13.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i13.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i13.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i13.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i13.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_i15.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j01.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j01.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j01.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j01.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j01.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j01.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j02.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j02.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j04.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j04.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j04.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j04.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j04.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j04.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j08.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j08.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j08.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j08.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j08.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j08.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j09.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j09.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j09.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j09.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j09.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j09.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j13.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j13.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j13.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j13.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j13.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j13.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j13.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j13.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j13.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j15.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j16.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_j16.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k01.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k01.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k01.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k01.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k01.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k01.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k02.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k02.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k02.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k02.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k02.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k02.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k03.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k03.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k03.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k03.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k03.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k03.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k04.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k04.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k04.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k04.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k04.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k04.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k05.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k05.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k05.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k05.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k05.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k05.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k10.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k10.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k12.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k12.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k13.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k13.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k13.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k13.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k13.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k13.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k13.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k13.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k13.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k15.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k16.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_k16.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l02.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l02.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l02.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l02.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l02.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l02.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l03.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l03.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l03.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l03.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l03.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l03.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l04.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l04.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l04.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l04.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l04.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l04.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l05.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l05.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l05.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l05.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l05.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l05.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l06.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l06.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l06.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l06.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l06.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l06.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l07.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l07.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l07.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l07.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l07.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l07.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l11.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l11.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l12.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l12.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l13.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l13.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l13.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l13.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l13.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l13.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l13.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l13.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l13.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l15.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l16.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l16.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContA_full_snapshot_experiment.u_l17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    }
+  ],
+  "xml_sha256": "6f473f81ce63552e2328ddc193e81ebff71d049bd79d870edc638beb87e8cae4",
+  "failure_controls": [
+    {
+      "case": "missing_history",
+      "rejected": true,
+      "diagnostic": "missing sequential state: ContA_full_snapshot_experiment.u_a03.ck_d"
+    },
+    {
+      "case": "wrong_ram_depth",
+      "rejected": true,
+      "diagnostic": "state geometry differs: ContA_full_snapshot_experiment.u_a04.mem"
+    },
+    {
+      "case": "extra_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential state: ContA_full_snapshot_experiment.clk1_p_Aa_unexported"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential state: ContA_full_snapshot_experiment.clk1_p_Aa"
+    },
+    {
+      "case": "missing_phase",
+      "rejected": true,
+      "diagnostic": "missing sequential state: ContA_full_snapshot_experiment.clk1_p_Aa"
+    },
+    {
+      "case": "wrong_layout_offset",
+      "rejected": true,
+      "diagnostic": "compact FF offsets/fields differ"
+    },
+    {
+      "case": "wrong_layout_width",
+      "rejected": true,
+      "diagnostic": "compact FF offsets/fields differ"
+    },
+    {
+      "case": "wrong_counter_width",
+      "rejected": true,
+      "diagnostic": "state geometry differs: ContA_full_snapshot_experiment.u_ff_scan.position"
+    }
+  ],
+  "tool_sha256": "f06e1bf658694ef87863d6fc8ac1f318d7eab6d8f94d45f16f7c25f1fc7dcaf9"
+}
