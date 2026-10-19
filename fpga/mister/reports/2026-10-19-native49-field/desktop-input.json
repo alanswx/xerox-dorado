@@ -1,0 +1,27 @@
+{
+  "status": "PASS: original-firmware Viewers, mouse motion/Cmd click/focus, exact short and alphabet/digit echo",
+  "main_pid": 6414,
+  "server_pid": 6413,
+  "rbf_sha256": "6e7866f3d6125e5926c05fa9c4a4a000e1a4aef72b61766ccfe8b2676eecad0d",
+  "echoes": [
+    "rtl49 keyboard ok",
+    "abcdefghijklmnopqrstuvwxyz0123456789"
+  ],
+  "visual_review": "Ready herald, first profile tool and ready independent second CommandTool; both output strings exactly match, each followed by a new % prompt. Pointer moved from0,0 to912,8 and then737,608; Cmd click created second tool.",
+  "captures": {
+    "mouse-check.png": "ed4638d0ae3989296256b95762ecfe0774eb6a0bfb58b3704ac1a46e2d30cd89",
+    "input-echo.png": "0344039ba6138a653063a1545664f213f85517def6898758bd0cc9fcefe9b434",
+    "second-cmd.png": "48bf5fdd6bbe56627a57c893f42e1169dccbbfe882c1f69b8f69b607e62ed206",
+    "marker-readback.png": "bbdf7a9342b350734955c9ab0969460d5e3f5c647500a9d743c38520edd49d26",
+    "normal-boot-stage.png": "e87db7f06caf81ca8821d5a9b99f5c688f3b75957b844feda106c7e2f2f6b352"
+  },
+  "warm_marker": {
+    "status": "PASS: guest create/close/readback, new prompt",
+    "file": "///rtl49persist.txt",
+    "expected": "rtl49persist",
+    "cold_persistence": "Not tested for this marker"
+  },
+  "normal_guest_boot": "Normal guest Boot/germ812 after desktop/input and marker close/readback",
+  "snapshots": "not implemented",
+  "limits": "One fresh boot; not repeated combined release, cold persistence on this version or sustained qualification. No probe DSO loaded."
+}

@@ -1,0 +1,30 @@
+{
+  "main_pid": 7660,
+  "server_pid": 7659,
+  "actual_main_spi74_words": [
+    53460,
+    1,
+    0,
+    8176,
+    0,
+    1,
+    22,
+    0,
+    0,
+    39413,
+    40156,
+    57640,
+    50393,
+    2048,
+    8,
+    16,
+    0,
+    0
+  ],
+  "epoch": "c4d9e1289cdc99f5",
+  "main_reserved_ring_mapping": false,
+  "daemon_reserved_ring_mapping": "64KiB at physical0x1ff00000",
+  "setup_gdb_pauses": 1,
+  "probe_dso": false,
+  "phase": "Original BaseBoard CoolBoot requested; BFN113/login/performance pending"
+}

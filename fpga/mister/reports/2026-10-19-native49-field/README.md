@@ -32,8 +32,15 @@ The list plus33 BCDs,1,345,843 source bytes and exact final guest ACK qualify
 312.55875..312.87163s, versus48's373.07180..373.32199s: preliminary16.136..
 16.276% less time (19.241..19.441% rate gain), ONE boot each. All34 actual
 remote source hashes match AFTER timing; this is not physical payload hashing.
-The capture shows every Load ok. Profile No visibly accepted; BootEssentials
-advances into later packages. Full Viewers/input remain pending.
+The capture shows every Load ok. Profile No, BootEssentials/fonts/FontMetrics
+and module STARTs complete. Full Viewers Ready, WatchTool/EditTool/Clock and
+the first profile CommandTool paint. Real mouse motion/Cmd click/focus open
+a ready independent second tool; exact short/alphabet/digit echo and new
+prompts pass. Guest rtl49persist.txt create/close/readback and normal guest
+Boot/germ812 pass. This marker has not been tested after a cold reload.
+See desktop-input.json and captures. Native49 is now retired normally through
+the50 loader; preserved volume/actual disk barriers are in native50-field.
 Do not restart completed boot/watchers. Current helpers: build/rtl-executive/cedar49-launch;
-Main /tmp/dorado49-main.log, disk /tmp/dorado49-disk.jsonl. No end-to-end
-speed gain or complete snapshot claim is made. The gain is idle-login only.
+Main /tmp/dorado49-main.log, disk /tmp/dorado49-disk.jsonl. Gains cover idle
+login and the bounded base-loader sequence; no full-desktop speed, complete
+snapshot or final repeated/stability qualification is claimed.

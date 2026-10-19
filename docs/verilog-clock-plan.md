@@ -41,7 +41,7 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-Current hardware update02:40UTC19Oct:47/48 original Viewers/input pass;
+Current hardware update03:29UTC19Oct:47/48 original Viewers/input pass;
 active-DDR STOP/unmap/normal reload/new epoch pass. Clean47b idle averages
 1,595,628.966 issues/s.48 response-boundary arbitration averages1,694,447.318
 (+6.1931%,10.16668% nominal), ONE boot per configuration/three adjacent windows,
@@ -57,9 +57,12 @@ PASS; idle mean1,947,687.412 issues/s (+14.9453% versus48,+22.0639% versus47b,
 chain now passes312.55875..312.87163s vs48's373.07180..373.32199s: preliminary
 16.136..16.276% less time. Source corpus34 hashes match after timing; exact
 final guest ACK and every visible Load ok pass. Observer retired; No accepted,
-fonts progressing. Full Viewers/input and repeated qualification pending.
+full Viewers/mouse/Cmd/focus/exact short+alphabet+digit echo now PASS. Warm
+marker close/readback and normal guest Boot/germ812 also pass. Repeated/final
+qualification remains pending. Native50 normal load completed03:25:31UTC;
+Main7660/server7659, fresh epochc4d9e1289cdc99f5, original firmware starting.
 50 deferred reads timing31/36/four conditions passes min+0.035ns,81%ALMs;
-not deployed/speed-qualified. Source hashes match all34 served files;
+deployed but software/speed qualification pending. Source hashes match all34 served files;
 independent physical bytes, repeated comparisons and sustained final gates
 remain open. Evidence: native48-field/native48-worker-input/native49-interleave/
 native50-deferred. Complete snapshot4a and60ns clock migration remain required.
