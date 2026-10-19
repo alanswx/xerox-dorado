@@ -2,7 +2,7 @@
 
 ## Current objective (2026-10-18 UTC)
 
-**LIVE Native55 base loader/final ACK PASS; BootEssentials active. MemD isolated qualification PASS.**
+**LIVE Native55 full Viewers/input/warm marker PASS; Native56b full-core build active.**
 Current Main21577/server21576 and RBF3eee3109 remain unchanged; normal deploy
 11:51:35UTC, fresh epochd642d051fd61576c/flags0x16/fault/errors0. Same50MHz/
 SYSPER4/SDRAM/no raw cache/direct DDR/policies; six installed board adapters,
@@ -17,8 +17,13 @@ match after timing, not received-payload hashes. Evidence native55-field/
 post-loader preserves later raw companions without overwriting startup.
 Initial No arrived after confirmation timed out to Yes, so it was consumed
 as a filename. Normal Return submitted default profile, then visible default
-No was accepted with another Return. BootEssentials now visibly advances;
-full55desktop/mouse/exact keyboard/warm marker still pending. No reset/retry.
+No was accepted with another Return. BootEssentials/fonts/STARTs completed;
+full Viewers/Ready/Clock/WatchTool/EditTool now PASS. Actual mouse reached Cmd
+on first sequence, second initialized tool/separate focus737,608, exact
+rtl55 keyboard ok/alphabet/digits and normal guest ///rtl55persist.txt create/
+close/type ->rtl55persist/new prompt PASS.86,220complete disk records have
+no recorded errors/loss. Desktopcollector20857 TERMINAL. Evidence native55-field
+captures/desktop logs. No cold marker or normal guest Boot55 yet; no reset/retry.
 Current/tmp/dorado55-main.log,/tmp/dorado55-disk.jsonl, server/volume
 Cedar55_20261019, localcedar55-launch. No full snapshot,60ns or final release.
 
@@ -44,8 +49,12 @@ The exact frozen55 wrapper/clocks/SDCs/policies and native delay2 are retained;
 all seven adapters' admin inactive. Next qualify31summary/148detailed/four
 conditions and all-memory inference before any normal reload. Original failed
 Dorado_Native56_20261019 stays terminal/preserved. Live55 Main21577/server21576/
-RBF3eee3109 unchanged; actual font-DF installation completed and module STARTs
-advance. Full55Viewers/input still pending. No boot reset/retry.
+RBF3eee3109 unchanged; full55Viewers/mouse/exact keyboard/warm marker PASS.
+No normal guestBoot55/cold marker yet. No boot reset/retry.
+Next MemX review inventory is fresh from exact55sources:21x64Kmap planes,
+1,379,362sequential candidate bits including unclassified diagnostics,14board
+timing bits. Evidence snapshot-memx-inventory is REVIEW ONLY, no grouping/
+state classification/restore/timing claim.
 Remaining full MemD/native2 integration, MemX/display/DskEth/BaseBoard/backends/
 outer/ARM/global bundle, original60ns and combined gates remain open.
 
@@ -2107,7 +2116,7 @@ and has unreviewed hold violations; never deploy it.
 - [x] Complete Native55 full-core MemC integration build99325/audit21963,31summary/132detailed/four conditions,min+0.040ns; all admin inactive, normally deployed55.
 - [x] Normally load55 with fresh original seed/DDR epoch; original firmware/BFN113/Cedar login and measured idle/real Guest pass.
 - [x] Complete55base34/final ACK and whole-loader/replay accounting; observer58164/21775 terminal/absent; visible default No accepted after profile timeout/filename detour.
-- [ ] Complete55BootEssentials/full desktop/mouse/exact keyboard/warm marker.
+- [x] Complete55BootEssentials/full desktop/mouse/exact keyboard/warm marker;86,220complete disk records/no recorded errors or trace loss.
 - [x] Review MemD cache RAM against wire list; qualify4096-word old-data RAM primitive simulation/classification/isolated timing.
 - [x] Qualify zero-delay MemD state adapter(+0.164ns); full-core guard correctly rejects actual native delay2. Preserve explicit correction.
 - [x] Qualify actual native delay2 MemD state, including37input-pipeline bits and generated-scope XML coverage; simulation/classification/matched fits(+0.107ns).

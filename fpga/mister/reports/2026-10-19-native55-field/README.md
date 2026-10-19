@@ -39,3 +39,13 @@ No clean OS shutdown, cold marker readback or machine snapshot is claimed.
 Root deployment-collection.json and companions are read-only startup evidence;
 raw text is gzip-compressed unchanged. One boot, not final three-run/stress
 qualification; no complete snapshot, original60ns cadence or speed promotion.
+
+
+Full fresh55Viewers/Ready/Clock/WatchTool/EditTool now PASS. Real mouse reached
+Cmd on the first sequence, clicked a second tool, waited for initialized
+prompts, then separately focused737,608. Exact short and alphabet/digit echo
+pass. Normal guest echo redirection created/closed ///rtl55persist.txt; Type
+returned rtl55persist and a new prompt. Original profile tool continues
+optional software installation. This is warm readback, not cold persistence.
+Desktop collection is read-only raw live logs; no live-pack copy, host barrier,
+clean OS shutdown, normal guest Boot or machine snapshot is claimed here.

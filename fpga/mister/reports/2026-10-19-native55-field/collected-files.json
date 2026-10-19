@@ -27,6 +27,10 @@
     "bytes": 3016,
     "sha256": "5995a3a3185622840ae1091cb5d81c315c5cee836dc3eab1d831e755483b27db"
   },
+  "server-through-desktop.log.gz": {
+    "bytes": 102325,
+    "sha256": "d3582653d04427d5001df311efdff2b400ddb3eea26221bc81076072c6a4d589"
+  },
   "qualification.json": {
     "bytes": 162058,
     "sha256": "ffdf69af4d9a7fe28b3809a86aab0f7d9f80b40d0ee0b8cfc2a7a72c835a1564"
@@ -79,9 +83,25 @@
     "bytes": 795976,
     "sha256": "5f17486a8e2c500291182820b6e36edc05bb72511b057741851d11671991bd48"
   },
+  "main-through-desktop.log.gz": {
+    "bytes": 48487,
+    "sha256": "e30ade0f2a88c3adae152a3dd03570d60eb83e93218f75f42f406a988eb6331c"
+  },
+  "move-to-cmd.log.gz": {
+    "bytes": 45,
+    "sha256": "a9e6c22e5277f48b1963ec321bbad24401b4ac8983e6bea2328e2494201ad0a4"
+  },
+  "viewers-ready.png": {
+    "bytes": 493591,
+    "sha256": "c1a8f101c47c3e5216975196ce882f873cb01155b50119a0d20cd72fee993072"
+  },
   "deployment-collection.json": {
     "bytes": 3356,
     "sha256": "18c416d53fef4b24b0f69f4db3a227f7f56e10335f6bc2db4428c93d61662905"
+  },
+  "input-short.png": {
+    "bytes": 408716,
+    "sha256": "dfa7fbe5ccb84bcb5389121e9cb3c018b6f22406eb7f7a4c55eaba9b4d851827"
   },
   "setup-core.log.gz": {
     "bytes": 578,
@@ -99,6 +119,10 @@
     "bytes": 565,
     "sha256": "358647681e32effd3a144820f60fd34da9ebb1f1f9ff33716598f8e809275815"
   },
+  "collect-desktop.log.gz": {
+    "bytes": 533,
+    "sha256": "4cf18813be78d9450a5e7e45ca3496a8156c4ced363be1d53fa22eca1112d8a1"
+  },
   "retired54-normal-boot-qualification.json": {
     "bytes": 731,
     "sha256": "4ee6627db2a6222c8ef16158130f29cd6138c53900280b460fa401ac8ebae7e0"
@@ -112,8 +136,20 @@
     "sha256": "af69c0968ff4af27cf971d21505ddd12d29b3452934d930b989550ae24a9eb81"
   },
   "README.md": {
-    "bytes": 2606,
-    "sha256": "91db79e8a953b5afad336b908b520e4675d0ea868adaac15ac01c8eb75ee123a"
+    "bytes": 3218,
+    "sha256": "90eaa5d8d55dd2c707b48df083cb1d54eeeead5b0c6630c9e85f9303982c9ea5"
+  },
+  "desktop-collection.json": {
+    "bytes": 956,
+    "sha256": "922e35f36b3885b177e82d6a9a221f51bc5cc201f4bd320474c788da2c091f47"
+  },
+  "collect-desktop.py": {
+    "bytes": 2246,
+    "sha256": "06bf0b175b159e97b078c18e6e8ff02c6fa4601696148d06738d71bf2215a917"
+  },
+  "mouse-on-cmd.png": {
+    "bytes": 513112,
+    "sha256": "8ebcf139e4ab7a1cc1aeb26cacb414f36b9a3000442c3fb19a460c02f8792116"
   },
   "profile-filename-no.png": {
     "bytes": 456539,
@@ -131,9 +167,17 @@
     "bytes": 24496,
     "sha256": "e840a29d5b0ca0487868803b3085e5e2fde9e9118d1eace08e1e716ecc2ad02d"
   },
+  "disk-through-desktop.jsonl.gz": {
+    "bytes": 757466,
+    "sha256": "a088b5c04daf0bb0b72d6fe67d491f9a7d63e19dab0763a03a9b5f379f3bca79"
+  },
   "c-until-request.py": {
     "bytes": 1869,
     "sha256": "5785db07fdf14b908727b5d47910753a105f1620203485b85c7eef84d75c13b6"
+  },
+  "commandtool-ready.png": {
+    "bytes": 419865,
+    "sha256": "4193fffd520c7dcc797cb25e5573b269710a29b18f327abe548ad4008c325cfa"
   },
   "reboot-resume.json": {
     "bytes": 1478,
@@ -175,13 +219,37 @@
     "bytes": 321,
     "sha256": "03d1daeae63f1e680ffa681ec2a503779ba9aaffeeb561961f315cb1aae157de"
   },
+  "input-short.log.gz": {
+    "bytes": 77,
+    "sha256": "1c34f86a21b5109a2c5d2c397b6bbcb04eb76ab969a876280f3a13b87a0425a4"
+  },
+  "desktop-qualification.json": {
+    "bytes": 1580,
+    "sha256": "8d071184dfce2325a60514bae76480728857daf5cdd03c96def8ec4f5b36f51c"
+  },
+  "marker-readback.png": {
+    "bytes": 431989,
+    "sha256": "14b1174bda70907d596ba0f243eabe3f881d309bccb3fae1d2e127bd13e15fb5"
+  },
+  "alphabet-marker.log.gz": {
+    "bytes": 137,
+    "sha256": "483833a8996851cb4ff7ac66e51a1e4b2f02541247084d2127d12ebecf540ade"
+  },
   "retired54-preservation.json": {
     "bytes": 523,
     "sha256": "37dd3b655282f37d0baee19fb5053c5e1c3ce282358af74386f29204d6fe8603"
   },
+  "focus-commandtool.log.gz": {
+    "bytes": 58,
+    "sha256": "d0c1179c3ab570a0289a2d3703017481cbecd373384f38d0feef2b00fc79e8d2"
+  },
   "field-status.json": {
     "bytes": 633,
     "sha256": "663b2f40294877395c3dde333fa954d4f91cffcf7f0842ce66ac42c175958e38"
+  },
+  "click-cmd.log.gz": {
+    "bytes": 40,
+    "sha256": "fb8cd034427b43e4ae4e357e3df5def55be768de5b58aee3eb0b565a26dfcc57"
   },
   "post-loader/server-through-deployment.log.gz": {
     "bytes": 38044,

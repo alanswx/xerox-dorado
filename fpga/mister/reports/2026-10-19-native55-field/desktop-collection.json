@@ -1,0 +1,26 @@
+{
+  "utc": "2026-10-19T12:45:18.644814+00:00",
+  "main_pid": 21577,
+  "server_pid": 21576,
+  "completed_disk_trace_records": 86220,
+  "disk_errors_or_trace_loss": false,
+  "scope": "Read-only live logs after observed desktop/input; no guest Boot boundary claimed; no host disk barrier, live pack copy, full snapshot or cold persistence claim",
+  "files": {
+    "main-through-desktop.log": {
+      "bytes": 428415,
+      "sha256": "40fe742c5cea05c4e4b2b3e926f7d9dbdf2c4b63abf866d9031213caa624053d"
+    },
+    "disk-through-desktop.jsonl": {
+      "bytes": 8861707,
+      "sha256": "d37809c5f356f6b016a2ab0f72a53968dcd2f0ab0492db39a30c392fdd206349"
+    },
+    "server-through-desktop.log": {
+      "bytes": 1176574,
+      "sha256": "3cd3c5193761da4907d28dea37ed5b016f00616f74c669e09db6e14e1029cc51"
+    },
+    "desktop-qualification.json": {
+      "bytes": 1580,
+      "sha256": "8d071184dfce2325a60514bae76480728857daf5cdd03c96def8ec4f5b36f51c"
+    }
+  }
+}

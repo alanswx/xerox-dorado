@@ -1,0 +1,226 @@
+{
+  "provenance.json": {
+    "bytes": 7236,
+    "sha256": "30d9b911a13ee3982b7e271fdd75a20f6dd5465e3efa13f3596a267fa6970ba1"
+  },
+  "elaborate.log.gz": {
+    "bytes": 12909,
+    "sha256": "baa798fa90d8d5d42aeabeb6ed7919a33bfcf106fbd4ffd63c10e7b53bbeda0b"
+  },
+  "README.md": {
+    "bytes": 968,
+    "sha256": "745222392a14f5339d83b2a28b4defcbfe08f9b55343f0e3e994c2606fb438a2"
+  },
+  "command.json": {
+    "bytes": 4569,
+    "sha256": "d1c07e7c516ee0f0d92b6f2c7875c277ef113cc9df5ffde671d78df0604d6c1c"
+  },
+  "memx.xml.gz": {
+    "bytes": 116956,
+    "sha256": "1519acff7b59af651c09bbd130becbdf0df950fd37b4f8463e2db522f3f81952"
+  },
+  "inventory.json": {
+    "bytes": 1046653,
+    "sha256": "ebd3924ec0cb577ce611817ae1e688936ed7c6f486eecf1b57318ba7b5e0389b"
+  },
+  "sources/tools/sil_state_inventory.py.gz": {
+    "bytes": 3019,
+    "sha256": "c5494eb07684e6b9a0baed55e8a80a0bec23cdde79ec87aec9b410667c0f3811"
+  },
+  "sources/verilog/generated/MemX-Rev-Ch.v.gz": {
+    "bytes": 19257,
+    "sha256": "7b5f0298854b36452fbfb4f4ce56005c9ca1f0f641fc604260ffcc4cbcc74877"
+  },
+  "sources/verilog/cells/cell_SG10139.v.gz": {
+    "bytes": 1336,
+    "sha256": "91f5aefdebcd427181ffe63ec6732324355e1f9635188fc0ca7981291ed86e77"
+  },
+  "sources/verilog/cells/cell_MC10106.v.gz": {
+    "bytes": 673,
+    "sha256": "4c3753c169473ff73efcaee0d235da82f74b2a80e9656772edb87c63bddc049a"
+  },
+  "sources/verilog/cells/cell_MC10171.v.gz": {
+    "bytes": 1009,
+    "sha256": "afca8fe04dcb9ab328eaa7869f79aed5773433fe45488be1ab6c1d1104b21060"
+  },
+  "sources/verilog/cells/cell_MC10170.v.gz": {
+    "bytes": 1354,
+    "sha256": "f27a175fce1ef110b52626c62f57d39fd3d56212005b8f88d59faf5c0236a73a"
+  },
+  "sources/verilog/cells/cell_MU10164.v.gz": {
+    "bytes": 779,
+    "sha256": "1d87cabe08cd15bcaa65ff2bf012e48b6f279390482b107ba15cda5deabca9df"
+  },
+  "sources/verilog/cells/cell_MC1674.v.gz": {
+    "bytes": 1371,
+    "sha256": "ac95045c8f32c5b178770212807a5d85b28e8156f3f9b179a61a45b4c9693c2e"
+  },
+  "sources/verilog/cells/cell_MC1662.v.gz": {
+    "bytes": 954,
+    "sha256": "6338c7118b20afe384e4bbd567c2b98a5683397729f3d2e17a250dcc626b650e"
+  },
+  "sources/verilog/cells/cell_SE10212.v.gz": {
+    "bytes": 1060,
+    "sha256": "0f1e5934b19efe0e384a6d8b1d7316c7fc68455687c7c2a507b4b5ab65a723e1"
+  },
+  "sources/verilog/cells/cell_MC10141.v.gz": {
+    "bytes": 2485,
+    "sha256": "3df4177ae6e8a1a4ee3f85469665bd66d82d643f5bf3b8a96a6cc5f7720ae9c2"
+  },
+  "sources/verilog/cells/cell_MC10100.v.gz": {
+    "bytes": 957,
+    "sha256": "35d0d970666c9fc97d575b87856bb46823c4834786c2e4a23d3e0171f7470ee8"
+  },
+  "sources/verilog/cells/cell_MC10212.v.gz": {
+    "bytes": 1022,
+    "sha256": "43981a324be828cda86568f3a7bcbe73f01913da391749d87de9a866f0776f13"
+  },
+  "sources/verilog/cells/cell_MC10195.v.gz": {
+    "bytes": 951,
+    "sha256": "a2a21bb5e79f19e557a0419970d208bfda5c6f7714713ddfa92103cc10c8fc83"
+  },
+  "sources/verilog/cells/cell_MC10117.v.gz": {
+    "bytes": 967,
+    "sha256": "a31fc65dd033246c74d96e8223d5a7f0646d8cff8e5bf04853039efeedafca63"
+  },
+  "sources/verilog/cells/cell_MC10121.v.gz": {
+    "bytes": 1297,
+    "sha256": "a7f7024a36759b905867c58d6d82a2ceb709eb48cdb8408abcd3080aadc62198"
+  },
+  "sources/verilog/cells/cell_MC10176.v.gz": {
+    "bytes": 1958,
+    "sha256": "b978f89fee07125fbaebfaef3883640735e6c5f7339df2245b1f5807bb07a61f"
+  },
+  "sources/verilog/cells/cell_MC10175.v.gz": {
+    "bytes": 1250,
+    "sha256": "dde0be45c0dc8e332eab24c087ca91cda86ab2e6913b6d76a9fc7b54bc6798a4"
+  },
+  "sources/verilog/cells/cell_SE10210.v.gz": {
+    "bytes": 760,
+    "sha256": "decebf19b0d57b42af335116823418898c041b37596dad9dc989a0bd931a5f51"
+  },
+  "sources/verilog/cells/cell_MC10159.v.gz": {
+    "bytes": 1296,
+    "sha256": "cf487986d07f64f4cd7b92f6501be268f080bf54d084bdbaa2b243fbb3d35f2b"
+  },
+  "sources/verilog/cells/cell_MC10231.v.gz": {
+    "bytes": 2329,
+    "sha256": "d532399e65a2508268e5c7677c5565bfc02f439191680f09c4a9478bec133bdc"
+  },
+  "sources/verilog/cells/cell_MC10211.v.gz": {
+    "bytes": 410,
+    "sha256": "fe60ed82b09259ab10f03ae9b2c9e521e06cd5644da1e35e1bbccffc5442630b"
+  },
+  "sources/verilog/cells/cell_MC10102.v.gz": {
+    "bytes": 732,
+    "sha256": "2316bee14b5067d4efd3b249eb9a3fb1022e3b6b2261573f32b3b35dcb91e8b4"
+  },
+  "sources/verilog/cells/cell_F10145A.v.gz": {
+    "bytes": 3393,
+    "sha256": "d5175b994ced82b2b90268414a413b142d7e746f9effe541267bcb49a0c6a3c9"
+  },
+  "sources/verilog/cells/cell_MosRam.v.gz": {
+    "bytes": 3203,
+    "sha256": "4f7c60c9b9c542cd4aad473d5ca817c12fa4d383c47e144c2a864694fda2ae8e"
+  },
+  "sources/verilog/cells/cell_MC10103.v.gz": {
+    "bytes": 1037,
+    "sha256": "52d7d0c03c5238e100444ef67fa248c8c1f67c70bff688197bff51614c16c24e"
+  },
+  "sources/verilog/cells/cell_SE10231.v.gz": {
+    "bytes": 1939,
+    "sha256": "14396072da90366333d20fbfebb1786b7e738b48edfd6a4b8d80579ceee97e68"
+  },
+  "sources/verilog/cells/cell_MC10197.v.gz": {
+    "bytes": 1086,
+    "sha256": "ef86677272a5e3e3128cbf6bc09661c60ce43b8c05be51837ebd54e2826daed4"
+  },
+  "sources/verilog/cells/cell_MC10210.v.gz": {
+    "bytes": 745,
+    "sha256": "1a57155b82b06776f6deff702e0389179a66e5a9d4633cf4db03a0fe8f1fd43d"
+  },
+  "sources/verilog/cells/cell_MC10158.v.gz": {
+    "bytes": 920,
+    "sha256": "6b5583f2d2f0f830e9b384fa62f0363a4d8a047291d93bef0e0682a1ec625260"
+  },
+  "sources/verilog/cells/cell_MC10174.v.gz": {
+    "bytes": 769,
+    "sha256": "1cd850cb7bf3532b28cd6fce894c573bfb2bd48001f5ac3c4d9141a3657fb6b3"
+  },
+  "sources/verilog/cells/cell_MC10135.v.gz": {
+    "bytes": 1340,
+    "sha256": "3def7f5de6410ebb4bd57e876e43a6c7b753bcab4b0390d59dc0fa1076230961"
+  },
+  "sources/verilog/cells/cell_MC10104.v.gz": {
+    "bytes": 1184,
+    "sha256": "3312ae3466d40036153fdc1a434e751a7226784bcfce6a04d07f5439701afdb4"
+  },
+  "sources/verilog/cells/cell_MC10124.v.gz": {
+    "bytes": 841,
+    "sha256": "fa72acb2e50d489c8fe351cd7e5658568ad55a067c8bb7750376d3d1aef6b841"
+  },
+  "sources/verilog/cells/cell_MC10173.v.gz": {
+    "bytes": 1598,
+    "sha256": "0832d441eb62581a5f91037e94f18ab1cf9baf55a582c97d8c5c261d1cd64a46"
+  },
+  "sources/verilog/cells/cell_MC10109.v.gz": {
+    "bytes": 840,
+    "sha256": "9b0d9bc86a0c0079a4ea7105cf02510210d05ac5eaaa464981f4d9eef23915f3"
+  },
+  "sources/verilog/cells/cell_F10016.v.gz": {
+    "bytes": 2628,
+    "sha256": "93b9c0087f6b6e42cf5c934bf500836a223e55774c0102fa0045dac22db4eb42"
+  },
+  "sources/verilog/cells/cell_MC10125.v.gz": {
+    "bytes": 783,
+    "sha256": "484187dc09fef08dddbb8c8daf38e6e04e5100ceca6250d1d8cb0e145b5b3f3c"
+  },
+  "sources/verilog/cells/cell_F10000.v.gz": {
+    "bytes": 2077,
+    "sha256": "d34a3208a89e7bfa73532b64ea736ead567a824787a790374467ccc291b73391"
+  },
+  "sources/verilog/cells/cell_MC1660.v.gz": {
+    "bytes": 1175,
+    "sha256": "d65c508c9b7d04c2708f33cb51f0cef029c100a3c85d3ee4d0b94baad31ca789"
+  },
+  "sources/verilog/cells/cell_MC10113.v.gz": {
+    "bytes": 1189,
+    "sha256": "73ab8d28aef3b2527da8daf60c13a908ab011db2edc5b113af6e86d136dc7454"
+  },
+  "sources/verilog/cells/cell_MC10105.v.gz": {
+    "bytes": 667,
+    "sha256": "6df20b964e9ea7598198c44f4e18f1afdc0ee00add98373affc3e14b2ad913bc"
+  },
+  "sources/verilog/proms/packages/MemX-h11.mem.gz": {
+    "bytes": 202,
+    "sha256": "d7dd633f905d38734bfcaa5043b48bcdf0a037034a453b6f87b125874d7e1ab7"
+  },
+  "sources/verilog/proms/packages/MemX-l12.mem.gz": {
+    "bytes": 196,
+    "sha256": "6483f2880f765f79d74543d6c9f92e81b422607540301e6fe583f8ec42d5423f"
+  },
+  "sources/verilog/proms/packages/MemX-j14.mem.gz": {
+    "bytes": 192,
+    "sha256": "c989adfe03c603c9f52fe86cd0c54a70553589e16536103836d2bacfe97590a0"
+  },
+  "sources/verilog/proms/packages/MemX-g15.mem.gz": {
+    "bytes": 200,
+    "sha256": "9e8d5d7d92e9fbdf858e7ba935319f3bae14090a6882a9b5e49b49384851d543"
+  },
+  "sources/verilog/proms/packages/MemX-i12.mem.gz": {
+    "bytes": 179,
+    "sha256": "e8d156060723794092011ec15d5cea0b16ad2f2c2c95a068b582a5814620ac1d"
+  },
+  "sources/verilog/proms/packages/MemX-j13.mem.gz": {
+    "bytes": 192,
+    "sha256": "07d3bbd05dda1e3eedfb02573e5c073ef0bcd85aaec97a7260ce01fee15fe22b"
+  },
+  "sources/verilog/proms/packages/MemX-i14.mem.gz": {
+    "bytes": 182,
+    "sha256": "0e0ccd1a45c8b670c1856e264ae88f0911aeac397022b9c55fdeb6f51cafce8e"
+  },
+  "sources/verilog/proms/packages/MemX-l11.mem.gz": {
+    "bytes": 204,
+    "sha256": "ac56819590add475ad7e34d2539af3017c0bd16d0522da9d525c2f684d5f4710"
+  }
+}

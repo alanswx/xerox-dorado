@@ -42,6 +42,14 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+Live55 full Viewers/Ready/Clock/WatchTool/EditTool/mouse/second initialized
+CommandTool/separate focus737,608/exact short/alphabet/digit echoes and normal
+warm ///rtl55persist.txt create/close/type readback PASS.86,220complete live
+disk records show no recorded error/trace loss. No normalBoot55/cold marker,
+physical snapshot or new speed claim. Native56b remains building34403; all
+source/clock/policy/admin settings unchanged except qualified native2 MemD.
+
+
 Native2 MemD correction is now independently qualified:296,591mutable bits,
 generated/nested-scope XML regression, original/oracle/physical-probe restore,
 14,265actual input captures and firstedge/20,000cycles pass. Matched isolated
