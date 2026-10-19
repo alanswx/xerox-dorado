@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "raw_files": 1172,
+  "fit_compiled_inputs": 155,
+  "independent_fit_audit": "PASS",
+  "accepted_simulator_inputs_verified": true,
+  "all_shared_helpers_byte_identical": true,
+  "synthesized_firmware_bytes_checked": 16384
+}

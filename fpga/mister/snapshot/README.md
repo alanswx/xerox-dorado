@@ -6,6 +6,13 @@ in the running MiSTer core. This directory now qualifies bounded RAM access
 and complete modeled ContB state restore in isolated RTL/routed experiments.
 Machine-wide state access, coherent barriers and physical restore remain open.
 
+The complete actual BaseBoard now passes 40,366-bit save/restore, untouched
+original/independent-model comparison, fresh complete XML classification and
+matched four-condition timing (+0.159ns). It retains 11 M10Ks and exact firmware
+bytes. This remains an isolated board experiment. Next is complete-core
+integration and enabled capacity/timing, then global barriers and physical
+machine restore. Evidence: reports/2026-10-19-snapshot-baseboard-full.
+
 The remaining BaseBoard clock/reset primitives now pass original/oracle/
 restore, fresh XML and matched timing(+0.145ns). Nine new families cover87
 actual bits;192bits reuse Native59 adapters unchanged. Fresh actual-board

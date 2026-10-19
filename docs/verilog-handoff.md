@@ -2,6 +2,50 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**Complete BaseBoard save/restore qualification passes; it is not yet installed in the live core.**
+
+The actual nominal board now has a single bounded interface for all 40,366
+modeled state bits: the original 1,725-node 6502, five complete RIOTs, four
+SRAM byte banks, eight EPROM pipelines and all 279 clock/reset bits. The
+48 selectors expose 4,905 valid words in a 17-bit address space. All shared
+helpers remain byte-identical to their qualified versions; the new CPU
+wrapper only forwards state access to the original vendor node adapter.
+
+Accepted simulation v8 compares unchanged original RTL, every physical state
+bit and all 100 public output bits, plus independent SRAM and RIOT models.
+It passes 526,012 host edges, 402,862 requests, every state bit, all 131,072
+indices, dense capture, candidate-only destructive continuation, restore,
+first-edge resume and 20,000 more cycles. All 11 broken variants reject.
+The standalone firmware stimulus writes none of the extra SRAM banks; normal
+writes remain covered by the earlier 32-cell/byte-bank oracle qualification
+and original wire-list grouping, not by a claimed full-board writer gate.
+Fresh complete-board XML maps all 40,366 mutable and 65,536 immutable image
+bits with no excluded sequential fields; 17 damaged schemas reject. Empty
+EPROM sockets retain the original uninitialized semantics.
+
+Matched 50MHz fits and independent audit pass all four conditions, minimum
++0.159ns, no illegal/unconstrained clocks or I/O and no added cuts. Both retain
+98,304 RAM/ROM bits in 11 M10Ks with old-data SRAM and exact synthesized
+firmware bytes. All 279 FF bits remain in their cell hierarchies; the CPU
+has 1,744 synthesis registers and each RIOT 1,115, including private response
+state. Shell totals 3,754 ALMs/6,657 regs -> 10,702 ALMs/8,356 regs; these are
+isolated board counts, not whole-core enabled capacity. Eight bad-fit controls
+reject. All 155 compiled inputs, accepted simulator inputs and helper bytes
+pass archived extraction/hash/independent-audit readback. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-baseboard-full/`.
+
+The full simulation needs a 32MiB compiler stack; the test now configures its
+own child process. Earlier compile/fixture failures and the terminal compiler
+diagnostic are retained. Only that diagnostic's 20.4GB of derived AST objects
+were removed; exact inputs, logs and an object-size manifest remain.
+
+No live RTL, speed or timer rate changed. Next: integrate this board into the
+complete-core experiment and check capacity/timing with every administrative
+path enabled. Then implement coherent backend/input/ARM/server/matching-disk
+barriers, the atomic snapshot bundle and actual FPGA Cedar restore. Original
+60ns clocks/timers and final three fresh boots, cold persistence, pinned speed
+comparisons and two-hour combined stress remain open. Goal ACTIVE.
+
 **All remaining BaseBoard clock/reset primitive families are qualified; complete-board integration is next.**
 
 Nine new local adapters cover70representative state bits and87actual board
@@ -2868,8 +2912,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Ground actual32 BaseBoard i2125 slices in the original wire list; qualify all32800bits, four old-data M10Ks, fresh classification and matched timing(+0.211ns).
 - [x] Qualify all eight EPROM pipelines/72bits with four-state original/oracle/restore, fresh classification and corrected block-ROM fits(+0.165ns); preserve rejected logic-inference/declaration attempts and verify all synthesized firmware bytes.
 - [x] Qualify nine missing clock/reset/FF primitive families (70representative/87actual bits); classify all279bits/30actual packages, reuse other192bits exactly, and pass matched timing(+0.145ns).
-- [ ] Integrate all qualified BaseBoard families; complete whole-board classification/save/restore/timing.
-- [ ] Check full-core FPGA capacity/timing with all snapshot administrative paths enabled.
+- [x] Integrate all qualified families in an isolated complete BaseBoard adapter; qualify all40366bits/all131072indices, complete XML coverage, eleven broken variants and matched timing(+0.159ns). This is not yet live.
+- [ ] Integrate BaseBoard into the complete-core experiment and check capacity/timing with all administrative paths enabled.
 - [ ] Complete backends/wrapper/input/ARM cache/server/matching-disk-generation state, coherent barriers and atomic bundle; qualify actual FPGA Cedar save/restore.
 - [ ] Finish original60ns clock/enable and timer migration; repeat pinned speed/stall comparisons.
 - [ ] Qualify final three fresh boots, coherent snapshot restore, cold disk persistence and two-hour combined stress.

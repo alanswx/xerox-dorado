@@ -1,0 +1,478 @@
+{
+  "files": [
+    {
+      "name": "Vbaseboard_full_fixture_034_deadDtypes.tree",
+      "bytes": 59646508
+    },
+    {
+      "name": "Vbaseboard_full_fixture_025_begin.tree",
+      "bytes": 33065590
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS08.v.vpp",
+      "bytes": 1737
+    },
+    {
+      "name": "Vbaseboard_full_fixture_029_dfg-optimize.tree",
+      "bytes": 52357516
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS174_snapshot.sv.vpp",
+      "bytes": 3396
+    },
+    {
+      "name": "Vbaseboard_full_fixture_047_const.tree",
+      "bytes": 78020430
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC10101.v.vpp",
+      "bytes": 2177
+    },
+    {
+      "name": "Vbaseboard_full_fixture__chip_6502_snapshot.sv.vpp",
+      "bytes": 85619
+    },
+    {
+      "name": "Vbaseboard_full_fixture__stats_dfg_patterns__pre_inline.txt",
+      "bytes": 363224
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC12061_snapshot.sv.vpp",
+      "bytes": 2806
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC10125.v.vpp",
+      "bytes": 1777
+    },
+    {
+      "name": "Vbaseboard_full_fixture_056_gate.tree",
+      "bytes": 4686629829
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS259_snapshot.sv.vpp",
+      "bytes": 2857
+    },
+    {
+      "name": "Vbaseboard_full_fixture_045_unroll.tree",
+      "bytes": 77217662
+    },
+    {
+      "name": "Vbaseboard_full_fixture__V3DfgBreakCycles-IndependentBits-line-coverage.txt",
+      "bytes": 8052684
+    },
+    {
+      "name": "Vbaseboard_full_fixture_030_inline.tree",
+      "bytes": 58614868
+    },
+    {
+      "name": "Vbaseboard_full_fixture__BaseBd_snapshot.sv.vpp",
+      "bytes": 109510
+    },
+    {
+      "name": "Vbaseboard_full_fixture__M6532_snapshot.sv.vpp",
+      "bytes": 8585
+    },
+    {
+      "name": "Vbaseboard_full_fixture_054_splitas.tree",
+      "bytes": 95
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS138.v.vpp",
+      "bytes": 2515
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS74.v.vpp",
+      "bytes": 2945
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC1690.v.vpp",
+      "bytes": 1803
+    },
+    {
+      "name": "Vbaseboard_full_fixture_020_const.tree",
+      "bytes": 33162337
+    },
+    {
+      "name": "Vbaseboard_full_fixture__stats_dfg_patterns__scoped.txt",
+      "bytes": 512534
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC14521B.v.vpp",
+      "bytes": 2575
+    },
+    {
+      "name": "Vbaseboard_full_fixture__M6532.sv.vpp",
+      "bytes": 6469
+    },
+    {
+      "name": "Vbaseboard_full_fixture_008_linkinc.tree",
+      "bytes": 95
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS163.v.vpp",
+      "bytes": 2924
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC10124.v.vpp",
+      "bytes": 2149
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC14521B_snapshot.sv.vpp",
+      "bytes": 3185
+    },
+    {
+      "name": "Vbaseboard_full_fixture_049_table.tree",
+      "bytes": 78150845
+    },
+    {
+      "name": "Vbaseboard_full_fixture_032_dfg-optimize.tree",
+      "bytes": 62943771
+    },
+    {
+      "name": "Vbaseboard_full_fixture_016_assertproperties.tree",
+      "bytes": 95
+    },
+    {
+      "name": "Vbaseboard_full_fixture__inputs.vpp",
+      "bytes": 1797056
+    },
+    {
+      "name": "Vbaseboard_full_fixture_009_param.tree",
+      "bytes": 35358161
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_i2716_snapshot.sv.vpp",
+      "bytes": 4454
+    },
+    {
+      "name": "Vbaseboard_full_fixture_017_assertpre.tree",
+      "bytes": 95
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC10102.v.vpp",
+      "bytes": 2008
+    },
+    {
+      "name": "Vbaseboard_full_fixture_027_unknown.tree",
+      "bytes": 33732122
+    },
+    {
+      "name": "Vbaseboard_full_fixture_036_const.tree",
+      "bytes": 59644836
+    },
+    {
+      "name": "Vbaseboard_full_fixture__verilated_std.sv.vpp",
+      "bytes": 9494
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MCS6532.v.vpp",
+      "bytes": 4661
+    },
+    {
+      "name": "Vbaseboard_full_fixture_002_cellsort.tree",
+      "bytes": 36430706
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS139.v.vpp",
+      "bytes": 1784
+    },
+    {
+      "name": "Vbaseboard_full_fixture_043_task.tree",
+      "bytes": 95
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_CLOCKGEN_snapshot.sv.vpp",
+      "bytes": 3858
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS259.v.vpp",
+      "bytes": 2453
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS175_snapshot.sv.vpp",
+      "bytes": 2691
+    },
+    {
+      "name": "Vbaseboard_full_fixture_033_const.tree",
+      "bytes": 61767105
+    },
+    {
+      "name": "Vbaseboard_full_fixture_015_const.tree",
+      "bytes": 34368400
+    },
+    {
+      "name": "Vbaseboard_full_fixture_040_const.tree",
+      "bytes": 77018203
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MPQ3303.v.vpp",
+      "bytes": 2935
+    },
+    {
+      "name": "Vbaseboard_full_fixture_055_dfg-optimize.tree",
+      "bytes": 4685351630
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MCS6502_snapshot.sv.vpp",
+      "bytes": 4882
+    },
+    {
+      "name": "Vbaseboard_full_fixture_038_linkdot.tree",
+      "bytes": 77079103
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS163_snapshot.sv.vpp",
+      "bytes": 3446
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS32.v.vpp",
+      "bytes": 1447
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC10210.v.vpp",
+      "bytes": 2089
+    },
+    {
+      "name": "Vbaseboard_full_fixture__V3DfgBreakCycles-TraceDriver-line-coverage.txt",
+      "bytes": 65392
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS74_snapshot.sv.vpp",
+      "bytes": 3330
+    },
+    {
+      "name": "Vbaseboard_full_fixture__f10415_word_bank.sv.vpp",
+      "bytes": 2405
+    },
+    {
+      "name": "Vbaseboard_full_fixture_010_linkdotparam.tree",
+      "bytes": 35379083
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_CD4051.v.vpp",
+      "bytes": 1469
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN7486.v.vpp",
+      "bytes": 1427
+    },
+    {
+      "name": "Vbaseboard_full_fixture__chip_6502.v.vpp",
+      "bytes": 74878
+    },
+    {
+      "name": "Vbaseboard_full_fixture_039_class.tree",
+      "bytes": 95
+    },
+    {
+      "name": "Vbaseboard_full_fixture__stats_dfg_patterns__post_inline.txt",
+      "bytes": 440699
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS01.v.vpp",
+      "bytes": 2043
+    },
+    {
+      "name": "Vbaseboard_full_fixture__BaseBd_original.v.vpp",
+      "bytes": 96755
+    },
+    {
+      "name": "Vbaseboard_full_fixture_051_deadDtypesScoped.tree",
+      "bytes": 78084970
+    },
+    {
+      "name": "Vbaseboard_full_fixture_042_case.tree",
+      "bytes": 77221829
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC1660.v.vpp",
+      "bytes": 2169
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC10176.v.vpp",
+      "bytes": 2563
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS174.v.vpp",
+      "bytes": 2934
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC10136_snapshot.sv.vpp",
+      "bytes": 3955
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MPQ6002.v.vpp",
+      "bytes": 1406
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC1690_snapshot.sv.vpp",
+      "bytes": 2180
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC12040.v.vpp",
+      "bytes": 1289
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_i2125.v.vpp",
+      "bytes": 2362
+    },
+    {
+      "name": "Vbaseboard_full_fixture_037_scope.tree",
+      "bytes": 64465011
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS251.v.vpp",
+      "bytes": 2083
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MCS6532_snapshot.sv.vpp",
+      "bytes": 6292
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS253.v.vpp",
+      "bytes": 2171
+    },
+    {
+      "name": "Vbaseboard_full_fixture_057_const.tree",
+      "bytes": 4686607383
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_CLOCKGEN.v.vpp",
+      "bytes": 3180
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN7438.v.vpp",
+      "bytes": 1997
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SE10211.v.vpp",
+      "bytes": 1915
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MPQ3303_snapshot.sv.vpp",
+      "bytes": 3456
+    },
+    {
+      "name": "Vbaseboard_full_fixture_013_width.tree",
+      "bytes": 34450434
+    },
+    {
+      "name": "Vbaseboard_full_fixture_018_assert.tree",
+      "bytes": 95
+    },
+    {
+      "name": "Vbaseboard_full_fixture_028_dfg-extract.tree",
+      "bytes": 95
+    },
+    {
+      "name": "Vbaseboard_full_fixture__fixture.sv.vpp",
+      "bytes": 1379419
+    },
+    {
+      "name": "Vbaseboard_full_fixture_050_const.tree",
+      "bytes": 78148133
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC12061.v.vpp",
+      "bytes": 2266
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS85.v.vpp",
+      "bytes": 2028
+    },
+    {
+      "name": "Vbaseboard_full_fixture__verilated_std_waiver.vlt.vpp",
+      "bytes": 4272
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MCS6502.v.vpp",
+      "bytes": 4172
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC10136.v.vpp",
+      "bytes": 3447
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_MC10176_snapshot.v.vpp",
+      "bytes": 3058
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS00.v.vpp",
+      "bytes": 1450
+    },
+    {
+      "name": "Vbaseboard_full_fixture_048_life.tree",
+      "bytes": 78009930
+    },
+    {
+      "name": "Vbaseboard_full_fixture_052_active.tree",
+      "bytes": 78542638
+    },
+    {
+      "name": "Vbaseboard_full_fixture_046_slice.tree",
+      "bytes": 78149171
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS157.v.vpp",
+      "bytes": 2093
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_i2716.v.vpp",
+      "bytes": 3271
+    },
+    {
+      "name": "Vbaseboard_full_fixture_041_deadDtypesScoped.tree",
+      "bytes": 95
+    },
+    {
+      "name": "Vbaseboard_full_fixture_058_deadAllScoped.tree",
+      "bytes": 4675699257
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_AM2615.v.vpp",
+      "bytes": 1351
+    },
+    {
+      "name": "Vbaseboard_full_fixture_007_linkjump.tree",
+      "bytes": 32533765
+    },
+    {
+      "name": "Vbaseboard_full_fixture_026_tristate.tree",
+      "bytes": 33679276
+    },
+    {
+      "name": "Vbaseboard_full_fixture__i2125_byte_bank.sv.vpp",
+      "bytes": 1255
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS04.v.vpp",
+      "bytes": 1756
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_CA3140.v.vpp",
+      "bytes": 1232
+    },
+    {
+      "name": "Vbaseboard_full_fixture_035_inst.tree",
+      "bytes": 95
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS175.v.vpp",
+      "bytes": 2309
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_ADC_MC8BC.v.vpp",
+      "bytes": 1450
+    },
+    {
+      "name": "Vbaseboard_full_fixture__cell_SN74LS151.v.vpp",
+      "bytes": 1980
+    },
+    {
+      "name": "Vbaseboard_full_fixture_053_split.tree",
+      "bytes": 79450070
+    }
+  ],
+  "total_bytes": 20444141410,
+  "reason": "Compiler AST debug dumps are derived build objects; diagnostic log and exact executed inputs retained."
+}

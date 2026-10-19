@@ -1,0 +1,17 @@
+------------------------------------------------------------
+TimeQuest Timing Analyzer Summary
+------------------------------------------------------------
+
+Type  : Setup 'host_clock'
+Slack : 7.815
+TNS   : 0.000
+
+Type  : Hold 'host_clock'
+Slack : 0.376
+TNS   : 0.000
+
+Type  : Minimum Pulse Width 'host_clock'
+Slack : 8.822
+TNS   : 0.000
+
+------------------------------------------------------------
