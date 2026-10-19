@@ -1,0 +1,19 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "async256_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-async256-v6-20261019/invalid_alias_MB7071H/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-async256-v6-20261019/invalid_alias_MB7071H/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-async256-v6-20261019/invalid_alias_MB7071H/MB7071H.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-async256-v6-20261019/invalid_alias_MB7071H/F10414.sv",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_MB7071H.v",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_F10414.v",
+  "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_async256.cpp"
+]

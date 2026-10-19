@@ -1,0 +1,9 @@
+{
+  "main_pid": 12945,
+  "server_pid": 12944,
+  "rbf_sha256": "3d253187b42615e53fde1dc1bed688eb0328265d007bffdc3c161196294ccac3",
+  "input": "Normal guest boot command at empty second CommandTool prompt through real keyboard",
+  "observed": "germ812",
+  "capture_sha256": "e87db7f06caf81ca8821d5a9b99f5c688f3b75957b844feda106c7e2f2f6b352",
+  "limits": "Actual sampled812 after guest Boot. Not an OS shutdown, machine snapshot or cold marker readback."
+}

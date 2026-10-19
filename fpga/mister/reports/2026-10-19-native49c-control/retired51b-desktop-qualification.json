@@ -1,0 +1,25 @@
+{
+  "status": "PASS: original-firmware fresh Viewers, mouse/Cmd/focus, exact keyboard and warm marker readback",
+  "main_pid": 12945,
+  "server_pid": 12944,
+  "rbf_sha256": "3d253187b42615e53fde1dc1bed688eb0328265d007bffdc3c161196294ccac3",
+  "echoes": [
+    "rtl51b keyboard ok",
+    "abcdefghijklmnopqrstuvwxyz0123456789"
+  ],
+  "visual_review": "Ready herald, WatchTool/EditTool/Clock. Cmd click opened second tool. Initial combined open/focus and typing did not echo and are NOT passing input evidence. Explicit later focus737,608 followed by retry produced exact short/alphabet/digit outputs and new prompts. Marker create/close/type readback matches. First tool continues optional installs.",
+  "warm_marker": {
+    "status": "PASS: normal guest create/close/readback and new prompt",
+    "file": "///rtl51bpersist.txt",
+    "expected": "rtl51bpersist",
+    "cold_persistence": "NOT TESTED for this marker"
+  },
+  "captures": {
+    "viewers-ready.png": "4d00e62e467d658334d174171fa1da020167a41e8ace64025152f49be459964b",
+    "input-retry.png": "d68d3dd28d85c53c0ddf3085aad6f94dd9aba9eb623d42b450383e5b2891e0f1",
+    "marker-readback.png": "25888a0e63876567562b1ca4bd0c9d2b451d3d1e586dbdf3a11c67b035fd7cfc",
+    "initial-input-no-echo.png": "07cf24707a6830bafb48a6b2cd3e2e9926e8e02007a9f1c4afa2d61d5d058578"
+  },
+  "limits": "One fresh Native51b desktop, not final3boots or2h stress. Initial input attempt failed focus/echo; retry passes. Loader longer with replays; not promoted. All snapshot admin inactive; no full save/load, original60ns cadence or cold marker readback claim.",
+  "checked_utc": "2026-10-19T07:42:30.509081+00:00"
+}

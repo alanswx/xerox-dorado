@@ -1,0 +1,11 @@
+{
+  "scope": "One fresh selected49 control: fixed33-log-sample idle collection, then immediate Guest.\n\nStart only after visual login verification and separate observer READY.\nThis fixes measurement-to-input cadence, not the preceding manual login gate.\n",
+  "utc": "2026-10-19T07:51:12.156326+00:00",
+  "start_ns": 1846270587583791,
+  "key_interval_s": 0.2,
+  "main_pid": 14717,
+  "limits": "Prior manual login-screen gate varied; this is an observed fresh selected49 control, not the final3-run automated benchmark",
+  "measurement_end_ns": 1846306240129958,
+  "guest_start_ns": 1846306240131291,
+  "guest_end_ns": 1846310187857291
+}

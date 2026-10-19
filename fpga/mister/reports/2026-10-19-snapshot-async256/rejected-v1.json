@@ -1,0 +1,9 @@
+{
+  "status": "REJECTED",
+  "reason": "Two conditional write addresses prevent MLAB inference; warning10999 for both families",
+  "baseline_alms": 212,
+  "baseline_registers": 47,
+  "rejected_alms": 1598,
+  "rejected_registers": 1371,
+  "decision": "Preserved unchanged; replaced by single shared write address/data port and reran original/oracle/fault tests and fit"
+}

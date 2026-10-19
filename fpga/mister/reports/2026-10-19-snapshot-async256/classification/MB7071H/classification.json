@@ -1,0 +1,107 @@
+{
+  "status": "PASS",
+  "physical_bits": 1024,
+  "xml_sha256": "f4135fe7b41f2595ecaf8cbf078451a5945ab8d7f08e056c477a2d6079722486",
+  "decisions": [
+    {
+      "path": "cell_MB7071H._unused_pins",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Reviewed original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_MB7071H.a",
+      "decision": "RECOMPUTE",
+      "bits": 8,
+      "reason": "Reviewed original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_MB7071H.mem",
+      "decision": "SAVE",
+      "bits": 1024,
+      "access": {
+        "indices": [
+          0,
+          255
+        ],
+        "lsb": 0,
+        "width": 4
+      }
+    },
+    {
+      "path": "cell_MB7071H.p20",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Reviewed original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_MB7071H.p21",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Reviewed original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_MB7071H.p22",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Reviewed original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_MB7071H.p23",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Reviewed original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_MB7071H.q",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Reviewed original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_MB7071H.sel",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Reviewed original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_MB7071H.we",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Reviewed original continuous combinational/constant wire"
+    }
+  ],
+  "scope": "One pinned original async RAM primitive; not board/global snapshot completeness",
+  "failure_controls": [
+    {
+      "case": "missing_ram",
+      "rejected": true,
+      "diagnostic": "missing original state or reviewed wire"
+    },
+    {
+      "case": "width",
+      "rejected": true,
+      "diagnostic": "unreviewed RAM state geometry"
+    },
+    {
+      "case": "depth",
+      "rejected": true,
+      "diagnostic": "unreviewed RAM state geometry"
+    },
+    {
+      "case": "new_history",
+      "rejected": true,
+      "diagnostic": "unclassified state: lost"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "duplicate or unexpected instance"
+    },
+    {
+      "case": "access_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed access geometry"
+    }
+  ]
+}

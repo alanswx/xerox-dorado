@@ -1,0 +1,11 @@
+{
+  "status": "PASS: original firmware/login and34 base transfers/final guest ACK; full49c desktop/input pending",
+  "main_pid": 14717,
+  "server_pid": 14716,
+  "rbf_sha256": "6e7866f3d6125e5926c05fa9c4a4a000e1a4aef72b61766ccfe8b2676eecad0d",
+  "idle_issues_per_s": 1947761.5736698196,
+  "observer_pid": 14915,
+  "observer_terminal": "Graceful stop file after positive final ACK; independently absent during collection",
+  "profile": "Timed Yes accepted; default missing name accepted; explicit No retry accepted, BootEssentials/installer advancing",
+  "limits": "Fresh same measurement->input cadence control, manual prior login gate varies. Not final3boots,2h stress, complete machine snapshot, original60ns cadence or physical-payload hash proof.49c also replays;51 regression remains unproven."
+}

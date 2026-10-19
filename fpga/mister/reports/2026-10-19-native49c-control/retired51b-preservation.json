@@ -1,0 +1,8 @@
+{
+  "path": "/media/fat/games/DoradoRTL/Cedar51b_20261019/cedar-work.pack",
+  "bytes": 63578624,
+  "sha256": "10e9283b36916ad7f13f98c76daf4bb9eba98e87ebbf5e34aedf886ca8f3a810",
+  "guest_boot": "Normal guest Boot after Viewers/input and rtl51bpersist.txt close/readback; actual germ state recorded in normal-boot-qualification.json; no cold marker readback or full snapshot claimed",
+  "host_boundary": "Actual normal Main loader active-DDR and disk barriers, followed by normal temporary Main exit",
+  "fpga_snapshot": false
+}

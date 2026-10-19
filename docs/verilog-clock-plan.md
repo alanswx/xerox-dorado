@@ -78,6 +78,14 @@ Fresh49 using the same recipe is next before attributing the slowdown to RTL.
 51b all34/final ACK, full Viewers/input and warm marker now pass; initial
 combined open/focus input did not echo, explicit refocus/retry passed. Normal
 guest Boot captured germ812. No cold51b marker readback.
+Fresh selected49c same33-sample measurement->Guest recipe now passes
+34transfers/final guest ACK323.149..323.399s,56 EditTool replays. Idle
+1,947,761.574issues/s matches;532.378..535.804M whole-loader issues, interior
+1.65299..1.65321M/s. Protocol replays are therefore not unique to51. Earlier
+manual login gate still varies, and any51 effect remains unproven. All34
+source hashes match after timing; observer14915 terminal/absent. Profile
+No retry accepted; BootEssentials advancing, full49c desktop pending.
+Evidence native49c-control; no fully pinned repeated or physical-payload proof.
 Same50MHz/SYSPER4 clocks, SDRAM/no raw
 cache/direct DDR, arbitration/interleaving ON, deferred reads OFF. Physical
 packet-byte proof, fixed-cadence repeated comparisons and sustained final gates
@@ -496,6 +504,17 @@ source/constraints changed. All snapshot admin inactive; no physical save/load
 or enabled-access budget. RBFbe80e03f in native52-candidate; report native52-controls.
 NOT DEPLOYED; hardware and speed gates remain open. Fresh49 same-cadence loader
 control precedes52 deployment because51's slower loader remains unresolved.
+
+The next snapshot primitive families MB7071H256x4/F10414256x1 now pass all1280
+modeled state bits, original-cell/array continue/restore/first-edge tests,
+14 faulty RTL variants and fresh XML classification/12 damaged schemas.
+Freeze borrows the async read address; all consumers need an external hold.
+Single shared write port retains1280physicalMLABbits/40cells/zeroM10Ks.
+Matched isolated pair212->227ALMs/47->64regs, four-condition min+0.354ns,
+no cuts/unconstrained paths; six damaged-fit controls reject. First two-write
+version expanded to1598ALMs/1371regs and is rejected/preserved. Report
+snapshot-async256; no board/global/physical save/load or speed gain claimed.
+Next full processor board state qualification and remaining machine scope.
 
 ### DDR control integration and matched idle evidence (2026-10-18)
 

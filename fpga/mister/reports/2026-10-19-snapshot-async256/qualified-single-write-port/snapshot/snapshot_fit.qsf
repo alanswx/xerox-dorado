@@ -1,0 +1,41 @@
+set_global_assignment -name FAMILY "Cyclone V"
+set_global_assignment -name DEVICE 5CSEBA6U23I7
+set_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP -40
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 100
+set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF
+set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
+set_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
+set_global_assignment -name SYSTEMVERILOG_FILE top.sv
+set_global_assignment -name SDC_FILE bank.sdc
+set_location_assignment PIN_V11 -to host_clk
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to host_clk
+set_global_assignment -name SYSTEMVERILOG_FILE cell_MB7071H_snapshot.sv
+set_global_assignment -name VERILOG_FILE cell_MB7071H.v
+set_global_assignment -name SYSTEMVERILOG_FILE cell_F10414_snapshot.sv
+set_global_assignment -name VERILOG_FILE cell_F10414.v
+set_instance_assignment -name VIRTUAL_PIN ON -to advance
+set_instance_assignment -name VIRTUAL_PIN ON -to address[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to data[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to select_mb[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to ce_f
+set_instance_assignment -name VIRTUAL_PIN ON -to we_mb_n
+set_instance_assignment -name VIRTUAL_PIN ON -to we_f_n
+set_instance_assignment -name VIRTUAL_PIN ON -to freeze
+set_instance_assignment -name VIRTUAL_PIN ON -to held
+set_instance_assignment -name VIRTUAL_PIN ON -to request
+set_instance_assignment -name VIRTUAL_PIN ON -to write
+set_instance_assignment -name VIRTUAL_PIN ON -to index[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to state_data[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to state_data_f[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to frozen[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to done[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to error[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to result_mb[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to result_f[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to q_mb[*]
+set_instance_assignment -name VIRTUAL_PIN ON -to q_f
+set_global_assignment -name VERILOG_MACRO "SNAPSHOT_BANK_EXPERIMENT=1"
+
+set_global_assignment -name LAST_QUARTUS_VERSION "17.0.2 Lite Edition"

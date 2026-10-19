@@ -1,0 +1,10 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_F10414",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-async256-classify-v2-20261019/F10414/cell.xml",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_F10414.v"
+]

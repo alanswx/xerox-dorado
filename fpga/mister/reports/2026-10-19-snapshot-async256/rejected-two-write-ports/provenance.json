@@ -1,0 +1,74 @@
+{
+  "scope": "Isolated1280-bit async RAM pair, original full-advance vs actual-advance adapters;50MHz/opposite-edge registered shell/2ns max0ns min virtual I/O. Counts include shell/pruned baseline admin. Frozen scanning may change combinational outputs: all consumers must be held externally. No board/global barrier or physical snapshot.",
+  "manifests": {
+    "MB7071H": {
+      "module": "cell_MB7071H_snapshot",
+      "words": 256,
+      "width": 4,
+      "logical_state_bits": 1024,
+      "valid_indices": [
+        0,
+        255
+      ],
+      "invalid_indices": [
+        256,
+        511
+      ],
+      "original_sha256": "710b890c91d451c6023ba0396d170402ef95355703175d15417a0ccf2112bc2b",
+      "generated_sha256": "9d8fb09c7a846b31c3e5ac3166e4264bfa2b1d724b9e3f15d8fda1f55faf39e4",
+      "read_port": "Existing asynchronous port borrowed during held freeze; guest output can change during scanning",
+      "response": "Registered pre-write value; invalid index returns zero/error and cannot mutate",
+      "boundary": "Requests ignored while running, entering freeze or releasing. Actual guest edge selected by state_advance.",
+      "scope": "Isolated exact-advance/state-access clones of the two async 256-word RAMs.\n\nFreeze borrows the existing asynchronous read address. Outputs can change\nduring scans, so the caller must hold every consumer and external frontend.\nThis primitive is not a global pause or a complete machine snapshot.\n"
+    },
+    "F10414": {
+      "module": "cell_F10414_snapshot",
+      "words": 256,
+      "width": 1,
+      "logical_state_bits": 256,
+      "valid_indices": [
+        0,
+        255
+      ],
+      "invalid_indices": [
+        256,
+        511
+      ],
+      "original_sha256": "85a32a3fcf0e8026682e94881d85d356b6155f0a8fd6ae5b9503d20264333a3c",
+      "generated_sha256": "1d763ac16d94b2abfae69c7faf41337af7c692ded706dacdb73b3c6e9ebc1490",
+      "read_port": "Existing asynchronous port borrowed during held freeze; guest output can change during scanning",
+      "response": "Registered pre-write value; invalid index returns zero/error and cannot mutate",
+      "boundary": "Requests ignored while running, entering freeze or releasing. Actual guest edge selected by state_advance.",
+      "scope": "Isolated exact-advance/state-access clones of the two async 256-word RAMs.\n\nFreeze borrows the existing asynchronous read address. Outputs can change\nduring scans, so the caller must hold every consumer and external frontend.\nThis primitive is not a global pause or a complete machine snapshot.\n"
+    }
+  },
+  "source_hashes": {
+    "fpga/mister/snapshot/fit_async256.py": "8e7baa0083f7ce956a1d79548bca395d437bf37899040dab07624b8da8d826ad",
+    "fpga/mister/snapshot/generate_async256.py": "f65b4522e6156c76a66eea6c15c05b156740b399b260f150c4ad978bb0b5a075",
+    "fpga/mister/snapshot/test_async256.py": "b17e6482044df411eb7503fab69450a51229d49552c7aa3ff0db37f80976651a",
+    "fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "verilog/cells/cell_MB7071H.v": "710b890c91d451c6023ba0396d170402ef95355703175d15417a0ccf2112bc2b",
+    "verilog/cells/cell_F10414.v": "85a32a3fcf0e8026682e94881d85d356b6155f0a8fd6ae5b9503d20264333a3c"
+  },
+  "compiled_files": {
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/cell_F10414_snapshot.sv": "1d763ac16d94b2abfae69c7faf41337af7c692ded706dacdb73b3c6e9ebc1490",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/cell_F10414.v": "85a32a3fcf0e8026682e94881d85d356b6155f0a8fd6ae5b9503d20264333a3c",
+    "baseline/snapshot_fit.qsf": "5c9e118ba05a8139da6b31b87e00401d3df3bdf68139d4c680af0e72729dd3cf",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/cell_MB7071H_snapshot.sv": "9d8fb09c7a846b31c3e5ac3166e4264bfa2b1d724b9e3f15d8fda1f55faf39e4",
+    "baseline/top.sv": "1610ffd934416c53f92ee4f9c09b2e19efa033973d07fab0475f759de6c9a12d",
+    "baseline/cell_MB7071H.v": "710b890c91d451c6023ba0396d170402ef95355703175d15417a0ccf2112bc2b",
+    "snapshot/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "snapshot/cell_F10414_snapshot.sv": "1d763ac16d94b2abfae69c7faf41337af7c692ded706dacdb73b3c6e9ebc1490",
+    "snapshot/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "snapshot/cell_F10414.v": "85a32a3fcf0e8026682e94881d85d356b6155f0a8fd6ae5b9503d20264333a3c",
+    "snapshot/snapshot_fit.qsf": "f8335494503024afa45e5978d8cacb60544213f59cdb7b4d9be6b46cadcb1619",
+    "snapshot/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "snapshot/cell_MB7071H_snapshot.sv": "9d8fb09c7a846b31c3e5ac3166e4264bfa2b1d724b9e3f15d8fda1f55faf39e4",
+    "snapshot/top.sv": "1610ffd934416c53f92ee4f9c09b2e19efa033973d07fab0475f759de6c9a12d",
+    "snapshot/cell_MB7071H.v": "710b890c91d451c6023ba0396d170402ef95355703175d15417a0ccf2112bc2b"
+  }
+}

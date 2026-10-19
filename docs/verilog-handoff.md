@@ -26,8 +26,10 @@ than reduced interior instruction throughput. Cause of replays remains open;
 do not promote51 from idle equality alone. Retired51b exact-RBF fresh repeat
 reproduces idle1,947,720.553 and loader333.175..333.426s;93 replay events now
 occur in Imager/CommandTool. Full51b desktop/input/warm marker now pass;
-normal guest Boot captured germ812. A fresh49
-control under the same measurement-to-input recipe is next. Continue
+normal guest Boot captured germ812. Fresh49c same-cadence control now passes
+34transfers/final ACK in323.149..323.399s,56 EditTool replays: retries also
+occur in unchanged49. Idle1,947,761.574issues/s matches. Full49c desktop
+pending; source of retries/any51 effect remains unproven. Continue
 complete snapshot4a, accurate clocks/timers and repeated/stability gates.
 Representative ContB now passes complete modeled board state restore and
 isolated all-corner timing; whole-machine/physical snapshots remain unfinished.
@@ -360,7 +362,8 @@ All34 transfers and final actual guest ACK pass333.175095..333.425737s.
 Issue brackets551.858..555.260M and interior1.66192..1.66212M/s reproduce51's
 extra work/longer loader despite matching idle.93 replay events now56Imager/
 37CommandTool, unlike first51 Tioga/CommandTool/Watch. Source of loss/possible
-RTL vs run conditions remains open; fresh49 same-recipe control next.
+RTL vs run conditions remains open; fresh49c same-recipe control now shows
+56 EditTool replays/323.149..323.399s, so retries also occur in unchanged49.
 Native49 stays selected baseline.34 served source hashes match after timing;
 physical payload proof open. Observer13211/Mac73914 COMPLETE, stop file after
 positive ACK, independently absent. Do not restart completed helpers. Default
@@ -428,11 +431,45 @@ staging14701 independently absent. Actual network/disk barriers preserve
 63578624-byte51b pack SHA10e9283b36916ad7f13f98c76daf4bb9eba98e87ebbf5e34aedf886ca8f3a810.
 New49c Main14717/server14716, exact selected49 RBF6e7866f3; freshf3seed
 unchanged before caching. Setup5446 TERMINAL, actual Main SPI74 flags0x16/
-fault/errors0 and new epochf780f5f426be5a83. C watcher44508 ready and
-CoolBoot requested; follow those exact live handles, no blind restarts.
+fault/errors0 and new epochf780f5f426be5a83. C watcher44508/CoolBoot54816 now TERMINAL after actual BFN113/release.
+Original Pilot/login and33-sample measurement97419/Guest complete. Read-only
+observer15594/remote14915 TERMINAL after positive final ACK and stop file;
+independently absent. Idle1,947,761.574issues/s.34base transfers/final ACK
+323.149..323.399s;532.378..535.804M issues, interior1.65299..1.65321M/s.
+56 replays in EditTool prove replay overhead also occurs in unchanged49.
+Prior49b0/311.340..311.570s versus51b93/333.175..333.426s; causality/possible
+51 effects remain OPEN. After excluding the union of replay phases (post-hoc
+diagnostic ONLY),29 phases49b/51b/49c overlap210.868..212.630s. First51 is
+faster207.374..208.772s there. No end-to-end regression clearance claimed.
+All34 served source hashes match after timing, not physical payload proof.
+Timed Yes/default missing name accepted; explicit No retry accepted, actual
+BootEssentials/installer advancing. Full49c Viewers/input pending.
 Live /tmp/dorado49c-main.log, disk /tmp/dorado49c-disk.jsonl, volume/server
-Cedar49c_20261019; helpers cedar49c-launch. Fresh49 same-cadence control
-remains necessary to resolve51 loader slowdown before promoting52.
+Cedar49c_20261019; helpers cedar49c-launch. Evidence native49c-control; fresh prior login gates still vary. Investigate
+packet loss/repeated controlled loading before performance promotion of52.
+
+**Async256 snapshot RAM families: simulation/classification/MLAB timing PASS.**
+New generate/test/classify/fit/audit_async256 experiments cover MB7071H256x4
+and F10414256x1,1280bits. Full original sources pinned; exact ordinary pin/
+select/level-write/asynchronous-read behavior under actual host advance.
+Freeze borrows read address: combinational outputs CAN change, so every
+consumer/frontend must be held externally. Reads return RAM; writes zero;
+indices256..511 reject. No global pause or production/core edit.
+
+Final34864hostedges/7019ordinary holds/3584requests, all1280bits and256invalid
+indices, late enables, stopped originals + independent arrays, destructive
+continuation/full restore/immediate read/first guest edge/20000more cycles.
+14 altered RTL and4 changed-source controls reject. Fresh original XML
+classifies all candidates;12 damaged coverage/layout controls reject.
+First two-write-address fit lost MLAB inference (10999),1598ALMs/1371regs:
+REJECTED/preserved. Single shared write address/data restores physical1280
+MLABbits/40cells/zeroM10Ks. Matched50MHz/opposite-edge shell212->227ALMs,
+47->64regs; not whole-core cost. All12checks/variant/fourconditions pass,
+minimum+0.354ns, no cuts/unconstrained clocks/I/O. Six damaged fitted evidence
+controls reject. SnapshotAsync256_v2_20261019/fit62969 TERMINAL; evidence
+2026-10-19-snapshot-async256. No FPGA programming/full board or machine restore,
+original60ns cadence or speed claim. Next complete processor board state and
+qualify actual board continuation/timing, then remaining machine/services.
 
 **Retired47: direct-DDR original-firmware interactive Cedar Viewers PASS.**
 Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,
@@ -1855,7 +1892,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Integrate ContA+ContB host-advance adapters in full core;31/68/four-condition timing/source/inference checks pass min+0.112ns. All snapshot admin inactive;52 not deployed.
 - [ ] Qualify52 original firmware/Cedar/input after resolving51 slower-loader control; no physical snapshot yet.
 - [x] Repeat exact51 RBF on fresh51b original seed with fixed measurement->Guest cadence: idle matches, all34 transfers/actual final ACK pass333.175..333.426s;93 replays in different files. Retire observer normally.
-- [ ] Run fresh49 with the same measurement->Guest recipe to separate build effects from run conditions in the51 loader slowdown; final fully pinned repeated benchmarks remain open.
+- [x] Fresh49c same measurement->Guest recipe: idle matches;34transfers/final ACK323.149..323.399s with56 EditTool replays. Unchanged49 also replays; no causal clearance for51.
+- [ ] Finish49c Viewers/input and investigate packet loss/protocol retry variability; repeat fully pinned workload comparisons before performance promotion of52.
+- [x] Qualify async MB7071H/F10414 full1280-bit state/restore/classification and matched isolated MLAB timing min+0.354ns;14 altered RTL/4 source/12 schema/6 fit controls reject. First register-expanded fit rejected/preserved.
+- [ ] Complete remaining processor board state/access/restore/timing using qualified RAM families and other FF adapters; preserve consumer/global barrier requirements.
 - [ ] Connect active bounded access/global barriers and extend/classify other boards/wrapper/devices/input/raw memory/Main/server; qualify complete physical restore and combined timing.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [x] Preserve/decode41b post-desktop host-write timeout and unchanged physical pack; exact blocking syscall remains unobserved.

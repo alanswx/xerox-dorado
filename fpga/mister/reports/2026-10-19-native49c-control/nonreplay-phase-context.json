@@ -1,0 +1,32 @@
+{
+  "scope": "Diagnostic post-hoc phase comparison excluding union of all replay-associated phases across these four observations; not a replacement for complete-loader or pinned repeated benchmarks",
+  "excluded": [
+    "Cedar6.1/CommandTool/CommandToolPackage.bcd",
+    "Cedar6.1/EditTool/EditTool.bcd",
+    "Cedar6.1/Imager/ImagerPackage.bcd",
+    "Cedar6.1/Tioga/TiogaPackage.bcd",
+    "Cedar6.1/Watch/Watch.bcd"
+  ],
+  "runs": {
+    "fpga/mister/reports/2026-10-19-native49b-repeat/loader-observer.jsonl.gz": {
+      "phases": 29,
+      "elapsed_lower_s": 210.868099261,
+      "elapsed_upper_s": 212.266787642
+    },
+    "fpga/mister/reports/2026-10-19-native51-field/loader-observer.jsonl.gz": {
+      "phases": 29,
+      "elapsed_lower_s": 207.373951602,
+      "elapsed_upper_s": 208.772114331
+    },
+    "fpga/mister/reports/2026-10-19-native51b-repeat/loader-observer.jsonl.gz": {
+      "phases": 29,
+      "elapsed_lower_s": 211.208063905,
+      "elapsed_upper_s": 212.629550994
+    },
+    "build/rtl-executive/cedar49c-launch/loader-observer.jsonl": {
+      "phases": 29,
+      "elapsed_lower_s": 210.944063911,
+      "elapsed_upper_s": 212.364524799
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "main_pid": 14717,
+  "words": [
+    53460,
+    1,
+    0,
+    8176,
+    0,
+    1,
+    22,
+    0,
+    0,
+    23171,
+    9918,
+    62964,
+    63360,
+    2048,
+    8,
+    16,
+    0,
+    0
+  ],
+  "epoch": "f780f5f426be5a83",
+  "scope": "Actual sole-Main SPI74 before timing; no guest memory writes"
+}

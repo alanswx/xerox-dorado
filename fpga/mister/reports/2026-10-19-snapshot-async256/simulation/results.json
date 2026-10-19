@@ -1,0 +1,150 @@
+{
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "ungated_guest_MB7071H",
+      "returncode": 1,
+      "expected_failure": "held guest state changed"
+    },
+    {
+      "case": "ungated_guest_F10414",
+      "returncode": 1,
+      "expected_failure": "held guest state changed"
+    },
+    {
+      "case": "freeze_writes_MB7071H",
+      "returncode": 1,
+      "expected_failure": "held state differs"
+    },
+    {
+      "case": "freeze_writes_F10414",
+      "returncode": 1,
+      "expected_failure": "held state differs"
+    },
+    {
+      "case": "running_access_MB7071H",
+      "returncode": 1,
+      "expected_failure": "running request accepted"
+    },
+    {
+      "case": "running_access_F10414",
+      "returncode": 1,
+      "expected_failure": "running request accepted"
+    },
+    {
+      "case": "entry_access_MB7071H",
+      "returncode": 1,
+      "expected_failure": "entry request accepted"
+    },
+    {
+      "case": "entry_access_F10414",
+      "returncode": 1,
+      "expected_failure": "entry request accepted"
+    },
+    {
+      "case": "invalid_alias_MB7071H",
+      "returncode": 1,
+      "expected_failure": "invalid request accepted"
+    },
+    {
+      "case": "invalid_alias_F10414",
+      "returncode": 1,
+      "expected_failure": "invalid request accepted"
+    },
+    {
+      "case": "wrong_resume_address_MB7071H",
+      "returncode": 1,
+      "expected_failure": "asynchronous output differs"
+    },
+    {
+      "case": "wrong_resume_address_F10414",
+      "returncode": 1,
+      "expected_failure": "asynchronous output differs"
+    },
+    {
+      "case": "lost_restore_MB7071H",
+      "returncode": 1,
+      "expected_failure": "ordinary oracle differs"
+    },
+    {
+      "case": "lost_restore_F10414",
+      "returncode": 1,
+      "expected_failure": "ordinary oracle differs"
+    }
+  ],
+  "source_controls": [
+    {
+      "kind": "MB7071H",
+      "case": "extra_state",
+      "rejected": true
+    },
+    {
+      "kind": "MB7071H",
+      "case": "write_change",
+      "rejected": true
+    },
+    {
+      "kind": "F10414",
+      "case": "extra_state",
+      "rejected": true
+    },
+    {
+      "kind": "F10414",
+      "case": "write_change",
+      "rejected": true
+    }
+  ],
+  "manifests": {
+    "MB7071H": {
+      "module": "cell_MB7071H_snapshot",
+      "words": 256,
+      "width": 4,
+      "logical_state_bits": 1024,
+      "valid_indices": [
+        0,
+        255
+      ],
+      "invalid_indices": [
+        256,
+        511
+      ],
+      "original_sha256": "710b890c91d451c6023ba0396d170402ef95355703175d15417a0ccf2112bc2b",
+      "generated_sha256": "8b6d1a96ff8b8afcba08529fecae3c3306bfd4681627ec7dce19ab18c37f5cfd",
+      "read_port": "Existing asynchronous port borrowed during held freeze; guest output can change during scanning",
+      "response": "Registered read value; writes return zero. Invalid index returns zero/error and cannot mutate",
+      "boundary": "Requests ignored while running, entering freeze or releasing. Actual guest edge selected by state_advance.",
+      "scope": "Isolated exact-advance/state-access clones of the two async 256-word RAMs.\n\nFreeze borrows the existing asynchronous read address. Outputs can change\nduring scans, so the caller must hold every consumer and external frontend.\nThis primitive is not a global pause or a complete machine snapshot.\n"
+    },
+    "F10414": {
+      "module": "cell_F10414_snapshot",
+      "words": 256,
+      "width": 1,
+      "logical_state_bits": 256,
+      "valid_indices": [
+        0,
+        255
+      ],
+      "invalid_indices": [
+        256,
+        511
+      ],
+      "original_sha256": "85a32a3fcf0e8026682e94881d85d356b6155f0a8fd6ae5b9503d20264333a3c",
+      "generated_sha256": "47b6e3b885402a7aeeba873f920c04c005f7a71041e9a9bf02d4348cd5e65886",
+      "read_port": "Existing asynchronous port borrowed during held freeze; guest output can change during scanning",
+      "response": "Registered read value; writes return zero. Invalid index returns zero/error and cannot mutate",
+      "boundary": "Requests ignored while running, entering freeze or releasing. Actual guest edge selected by state_advance.",
+      "scope": "Isolated exact-advance/state-access clones of the two async 256-word RAMs.\n\nFreeze borrows the existing asynchronous read address. Outputs can change\nduring scans, so the caller must hold every consumer and external frontend.\nThis primitive is not a global pause or a complete machine snapshot.\n"
+    }
+  },
+  "hashes": {
+    "fpga/mister/snapshot/test_async256.py": "cc99f38b596017d9e5f36cbdae6c879a7be2edc23ae0105cb247f8e08ed3b021",
+    "fpga/mister/snapshot/generate_async256.py": "7436e5e5c38080340023563647202f2cf3ae3d1f607913a88be493d899a91334",
+    "fpga/mister/snapshot/test_async256.cpp": "18e03070a440a2db23947d8f9841e15efce20c3fa417b35dc3463a65ed3dd8a3",
+    "verilog/cells/cell_MB7071H.v": "710b890c91d451c6023ba0396d170402ef95355703175d15417a0ccf2112bc2b",
+    "verilog/cells/cell_F10414.v": "85a32a3fcf0e8026682e94881d85d356b6155f0a8fd6ae5b9503d20264333a3c"
+  }
+}

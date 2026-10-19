@@ -1,0 +1,10 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_MB7071H",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-async256-classify-v2-20261019/MB7071H/cell.xml",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_MB7071H.v"
+]

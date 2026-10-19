@@ -1,0 +1,145 @@
+{
+  "status": "PASS",
+  "files": 34,
+  "check_timing": "After Native49c timed transfer and retired observer; same34 source files as49b",
+  "source_root": "/media/fat/games/DoradoRTL/System_20261017/chm/cedar/stp-root",
+  "manifest": {
+    "Cedar6.1/Top/Basic.Loadees": {
+      "bytes": 2361,
+      "sha256": "fe924e601ca4945b2d81f60ca3f278532d5769e33a0df88388b3f5ed8b8a56c4"
+    },
+    "Cedar6.1/RPCRuntime/RPCRuntime.bcd": {
+      "bytes": 18432,
+      "sha256": "12ec8ecf610d9f4665413e4ec731f33046adf55dc37e8c2b9d56f3d6d43c24b0"
+    },
+    "Cedar6.1/UserProfile/UserProfileImpl.bcd": {
+      "bytes": 19520,
+      "sha256": "f8dfa16a41813331133bacf8a6cad1d503e93948bae3ed4c1a442e665ed46cde"
+    },
+    "Cedar6.1/Idle/IdleImpl.bcd": {
+      "bytes": 17800,
+      "sha256": "a39942b259cdd732d3bc47aeb8804619e954fb6f2880f3de0b2e853ca1d96171"
+    },
+    "Cedar6.1/DFPackage/DFPackage.bcd": {
+      "bytes": 32256,
+      "sha256": "1dcee1265b652b843235bc53b4ac971e8baf11e4b45c3a4e727109817fd5fcb0"
+    },
+    "Cedar6.1/BasicPackages/BasicPackages.bcd": {
+      "bytes": 19968,
+      "sha256": "1cb0b1b325dd37a1f911cd01941c99242ffeadbc36f5de44ff8c58d38fc4fc1c"
+    },
+    "Cedar6.1/Installer/InstallerImpl.bcd": {
+      "bytes": 32244,
+      "sha256": "203a1791952e0c1810c571baaadc3497def2071b41409dbad250d2b238b85b89"
+    },
+    "Cedar6.1/Inscript/InscriptPackage.bcd": {
+      "bytes": 9728,
+      "sha256": "0fefe9e6861cbffc117fd7880a8bfdd17fea4899e9d104e36581b5fe7b401e83"
+    },
+    "Cedar6.1/VersionMap/VersionMapImpl.bcd": {
+      "bytes": 21942,
+      "sha256": "15994ade4cd35eaa15e5b4ee2a3c56d8715a127046ee73862fff315ccfce3ecc"
+    },
+    "Cedar6.1/VersionMap/VersionMapDefaultsImpl.bcd": {
+      "bytes": 9418,
+      "sha256": "67eff5bdc949b570e87356db91f51548e03cb486eaf8af6ad3ea120c9caf6394"
+    },
+    "Cedar6.1/WorldVM/WorldVMPackage.bcd": {
+      "bytes": 23040,
+      "sha256": "44f0c6a7e4968f592d073247295d4bc148c9e15f2e6ef619bf885d9d28d93ce4"
+    },
+    "Cedar6.1/AMTypes/AMTypesPackage.bcd": {
+      "bytes": 102912,
+      "sha256": "10fc42d7c3aaf6b4a09e47ad340e93de62392c37577099b87b91f4e60fc76f2c"
+    },
+    "Cedar6.1/AMModel/AMModelPackage.bcd": {
+      "bytes": 30720,
+      "sha256": "cf0af2010615eb00c68459ef9aa537a86ef09c23685f7a0d354c7d58ecbf54a0"
+    },
+    "Cedar6.1/AMEvents/AMEventsPackage.bcd": {
+      "bytes": 9216,
+      "sha256": "50c124d5d1baf840b9c3bdc798fb2416a905468bd8e3c8289851a2129fdd2a3e"
+    },
+    "Cedar6.1/AMProcess/AMProcessPackage.bcd": {
+      "bytes": 4608,
+      "sha256": "1f36eceba4a8d18529aa48a16d76acc7fbeb4fae49fd3ee50bb351651fbe44e5"
+    },
+    "Cedar6.1/PrintTV/PrintTVPackage.bcd": {
+      "bytes": 18432,
+      "sha256": "640d82886b58c900d3129926b98d94da1b77dd6ad7a62166ee0b06fed1136649"
+    },
+    "Cedar6.1/Interpreter/InterpreterPackage.bcd": {
+      "bytes": 55808,
+      "sha256": "e4dbf683aab16c58626d39779f8cf156820ef9d7125d78d4d888a290bc64919a"
+    },
+    "Cedar6.1/Imager/ImagerPackage.bcd": {
+      "bytes": 164352,
+      "sha256": "c5af18e92fe9f3af56f2b10af91b9e846abfeb0bfab0304e39a3cc8c4f8c8519"
+    },
+    "Cedar6.1/TIP/TIPPackage.bcd": {
+      "bytes": 31744,
+      "sha256": "8b66570c9686f0bbb23fdf170ef46cf12dbe336b3de76f9efa644c6cffc5b831"
+    },
+    "Cedar6.1/Viewers/ViewersPackage.bcd": {
+      "bytes": 75264,
+      "sha256": "bdb9b347156121fe32fb034fb5e59a3ab0035bcf64e6b4a2886562c88f484ddb"
+    },
+    "Cedar6.1/TRope/TRope.bcd": {
+      "bytes": 5120,
+      "sha256": "219e32b10ddc25b7d033ba3da600ab17e48383cec05ba66e7ceaef1e53ef6158"
+    },
+    "Cedar6.1/TJaM/TJaMPackage.bcd": {
+      "bytes": 20480,
+      "sha256": "0e9789e64cbf3c1e3a21a2f6df2bb13e6d30392ddca3287b77b767b464d10f25"
+    },
+    "Cedar6.1/Rosary/RosaryImpl.bcd": {
+      "bytes": 21438,
+      "sha256": "807bf0e0eedd55d55e8df2352b9610ae45a659db4ee950a8210f19e75a753e6d"
+    },
+    "Cedar6.1/Tioga/TiogaPackage.bcd": {
+      "bytes": 287232,
+      "sha256": "f324c619e9cd095a5dc00c9f3000c51acad8cb9438b157138aa27e063e4642e5"
+    },
+    "Cedar6.1/ViewerIO/ViewerIOImpl.bcd": {
+      "bytes": 31518,
+      "sha256": "43659f423683c2768a133b905310e59e0b383e58d21d9a03d0c5808c5376aeee"
+    },
+    "Cedar6.1/EditTool/EditTool.bcd": {
+      "bytes": 57344,
+      "sha256": "866cbfc7efe6ad4f17dcd853ed38d80b1e42aa63df3ab58c3d3dea1618bd1084"
+    },
+    "Cedar6.1/ReadEvalPrint/ReadEvalPrintImpl.bcd": {
+      "bytes": 18806,
+      "sha256": "39dc93226a1689c843e0694c7c9a12924d895aa79089f85360ab683838c4876e"
+    },
+    "Cedar6.1/CommandTool/CommandToolPackage.bcd": {
+      "bytes": 61440,
+      "sha256": "3a9a0dec5f995f0c377d7bae99e0ea4ac81e69930dfcf60a3ef0bd680af00d35"
+    },
+    "Cedar6.1/InterpreterTool/InterpreterTool.bcd": {
+      "bytes": 22016,
+      "sha256": "b43dfa48e0119c5b30be403c8479a29a7e08d7f2daf6a0539c37eeb2bf74ab83"
+    },
+    "Cedar6.1/DebugTool/DebugTool.bcd": {
+      "bytes": 48738,
+      "sha256": "b1eca6d315510be513524105e270cfed2bb1007825a53149d98eef6090adf91c"
+    },
+    "Cedar6.1/DFCommands/DFCommands.bcd": {
+      "bytes": 16264,
+      "sha256": "e897964f46fe76c930de4ef47280d58deb65e607be4b3a533ce0095b8a35f3a9"
+    },
+    "Cedar6.1/Watch/Watch.bcd": {
+      "bytes": 49002,
+      "sha256": "4ef4d77a56013b740bae9a995e879ccc233d9cb843765fb9e87fdbf430f37800"
+    },
+    "Cedar6.1/ComputeServerUser/ComputeServerStubImpl.bcd": {
+      "bytes": 2048,
+      "sha256": "a9ff12f8858504d504b4376179976b477046a5b18c127237b7b7dd8fdc8e9bae"
+    },
+    "Cedar6.1/Viewers/End.bcd": {
+      "bytes": 4632,
+      "sha256": "baabd66ac51968780347f3235190c04ae115c4bfd040a641a97ace87033de330"
+    }
+  },
+  "limits": "Served source file hashes, not hashes of physically received payloads"
+}

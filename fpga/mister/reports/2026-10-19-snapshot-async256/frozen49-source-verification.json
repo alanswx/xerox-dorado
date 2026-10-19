@@ -1,0 +1,8 @@
+{
+  "status": "PASS: original primitives byte-identical to selected frozen49",
+  "baseline": "/home/alans/mister/Dorado_Native49_20261019/src/verilog/cells",
+  "files": {
+    "cell_MB7071H.v": "710b890c91d451c6023ba0396d170402ef95355703175d15417a0ccf2112bc2b",
+    "cell_F10414.v": "85a32a3fcf0e8026682e94881d85d356b6155f0a8fd6ae5b9503d20264333a3c"
+  }
+}

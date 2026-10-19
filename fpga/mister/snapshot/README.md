@@ -7,7 +7,8 @@ and complete modeled ContB state restore in isolated RTL/routed experiments.
 Machine-wide state access, coherent barriers and physical restore remain open.
 
 Update2026-10-19: the qualified ContB host-clock/exact-advance adapters are
-now in the full Native51 core on MiSTer14. Four-condition whole-core/crossing
+qualified in the full Native51 core on MiSTer14. Native49c is now the live
+matched control; Native52 adds ContA adapters and passes timing but is not deployed. Four-condition whole-core/crossing
 timing, original firmware, Cedar login and all34 base transfers pass. ALL
 snapshot admin inputs remain inactive; the running core cannot save/load
 state.51 full Viewers/mouse/exact keyboard and warm marker now pass. The
@@ -169,3 +170,18 @@ RAM.769->1974ALMs/1343->1951regs include shell/pruning. Evidence:
 reports/2026-10-19-snapshot-conta-full. No production/live FPGA change yet.
 Next whole-core ContA+ContB clock-enable integration and original boot, then
 remaining board/device/ARM access and complete safe machine restore.
+
+
+Both asynchronous256-word RAM families now have isolated bounded access via
+`generate_async256.py`. MB7071H256x4/F10414256x1 preserve1280bits, original
+select/level-write/asynchronous-read behavior and exact host advance. Scans
+borrow the read address and CAN change combinational guest outputs: the
+caller must hold all consumers. They do not provide a global pause. Reads
+return saved RAM words; writes return zero, indices256..511 reject. Original/
+array/complete restore/first-edge tests,14 faulty RTL variants, XML coverage
+and12 damaged schemas pass. Matched routed pair retains1280MLABbits/40cells,
+zeroM10Ks; all four-condition timing passes min+0.354ns.212->227ALMs/47->64regs
+include the shell. The first two-write-address implementation expanded to
+registers and is rejected/preserved. Evidence2026-10-19-snapshot-async256.
+Next complete processor board state/access/restore/timing; physical full-core
+snapshots, global service barriers and original60ns clocks remain required.

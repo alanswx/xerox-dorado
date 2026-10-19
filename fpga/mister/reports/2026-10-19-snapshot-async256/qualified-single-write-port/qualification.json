@@ -1,0 +1,298 @@
+{
+  "status": "PASS",
+  "scope": "Isolated1280-bit async RAM pair, original full-advance vs actual-advance adapters;50MHz/opposite-edge registered shell/2ns max0ns min virtual I/O. Counts include shell/pruned baseline admin. Frozen scanning may change combinational outputs: all consumers must be held externally. No board/global barrier or physical snapshot.",
+  "results": {
+    "baseline": {
+      "alms": 212,
+      "registers": 47,
+      "block_ram_bits": 0,
+      "ram_blocks": 0,
+      "memory_tables": {
+        "Analysis & Synthesis RAM Summary": [
+          {
+            "Name": "cell_F10414:f|altdpram:mem_rtl_0|dpram_eno1:auto_generated|ALTDPRAM_INSTANCE",
+            "Type": "MLAB",
+            "Mode": "Simple Dual Port",
+            "Port A Depth": "256",
+            "Port A Width": "1",
+            "Port B Depth": "256",
+            "Port B Width": "1",
+            "Size": "256",
+            "MIF": "None"
+          },
+          {
+            "Name": "cell_MB7071H:mb|altdpram:mem_rtl_0|dpram_hno1:auto_generated|ALTDPRAM_INSTANCE",
+            "Type": "MLAB",
+            "Mode": "Simple Dual Port",
+            "Port A Depth": "256",
+            "Port A Width": "4",
+            "Port B Depth": "256",
+            "Port B Width": "4",
+            "Size": "1024",
+            "MIF": "None"
+          }
+        ],
+        "Fitter RAM Summary": [
+          {
+            "Name": "cell_F10414:f|altdpram:mem_rtl_0|dpram_eno1:auto_generated|ALTDPRAM_INSTANCE",
+            "Type": "MLAB",
+            "Mode": "Simple Dual Port",
+            "Clock Mode": "Single Clock",
+            "Port A Depth": "256",
+            "Port A Width": "1",
+            "Port B Depth": "256",
+            "Port B Width": "1",
+            "Port A Input Registers": "yes",
+            "Port A Output Registers": "no",
+            "Port B Input Registers": "no",
+            "Port B Output Registers": "no",
+            "Size": "256",
+            "Implementation Port A Depth": "256",
+            "Implementation Port A Width": "1",
+            "Implementation Port B Depth": "256",
+            "Implementation Port B Width": "1",
+            "Implementation Bits": "256",
+            "M10K blocks": "0",
+            "MLAB cells": "8",
+            "MIF": "None",
+            "Location": "LAB_X28_Y37_N0, LAB_X39_Y38_N0, LAB_X39_Y37_N0, LAB_X39_Y36_N0, LAB_X28_Y36_N0, LAB_X39_Y39_N0, LAB_X28_Y39_N0, LAB_X28_Y38_N0",
+            "Mixed Width RDW Mode": "",
+            "Port A RDW Mode": "",
+            "Port B RDW Mode": "",
+            "ECC Mode": "",
+            "ECC Pipeline Registers": "",
+            "Fits in MLABs": ""
+          },
+          {
+            "Name": "cell_MB7071H:mb|altdpram:mem_rtl_0|dpram_hno1:auto_generated|ALTDPRAM_INSTANCE",
+            "Type": "MLAB",
+            "Mode": "Simple Dual Port",
+            "Clock Mode": "Single Clock",
+            "Port A Depth": "256",
+            "Port A Width": "4",
+            "Port B Depth": "256",
+            "Port B Width": "4",
+            "Port A Input Registers": "yes",
+            "Port A Output Registers": "no",
+            "Port B Input Registers": "no",
+            "Port B Output Registers": "no",
+            "Size": "1024",
+            "Implementation Port A Depth": "256",
+            "Implementation Port A Width": "4",
+            "Implementation Port B Depth": "256",
+            "Implementation Port B Width": "4",
+            "Implementation Bits": "1024",
+            "M10K blocks": "0",
+            "MLAB cells": "32",
+            "MIF": "None",
+            "Location": "LAB_X34_Y35_N0, LAB_X34_Y34_N0, LAB_X34_Y41_N0, LAB_X34_Y36_N0, LAB_X34_Y37_N0, LAB_X34_Y40_N0, LAB_X34_Y39_N0, LAB_X34_Y38_N0",
+            "Mixed Width RDW Mode": "",
+            "Port A RDW Mode": "",
+            "Port B RDW Mode": "",
+            "ECC Mode": "",
+            "ECC Pipeline Registers": "",
+            "Fits in MLABs": ""
+          }
+        ]
+      },
+      "warning_counts": {
+        "map": {
+          "10036": 9,
+          "13024": 1,
+          "13410": 14
+        },
+        "fit": {
+          "292013": 1
+        }
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 2.13,
+          "hold": 0.619,
+          "mpw": 8.96
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 2.087,
+          "hold": 0.577,
+          "mpw": 8.964
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.743,
+          "hold": 0.323,
+          "mpw": 8.613
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.55,
+          "hold": 0.356,
+          "mpw": 8.676
+        }
+      }
+    },
+    "snapshot": {
+      "alms": 227,
+      "registers": 64,
+      "block_ram_bits": 0,
+      "ram_blocks": 0,
+      "memory_tables": {
+        "Analysis & Synthesis RAM Summary": [
+          {
+            "Name": "cell_F10414_snapshot:f|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+            "Type": "MLAB",
+            "Mode": "Simple Dual Port",
+            "Port A Depth": "256",
+            "Port A Width": "1",
+            "Port B Depth": "256",
+            "Port B Width": "1",
+            "Size": "256",
+            "MIF": "None"
+          },
+          {
+            "Name": "cell_MB7071H_snapshot:mb|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+            "Type": "MLAB",
+            "Mode": "Simple Dual Port",
+            "Port A Depth": "256",
+            "Port A Width": "4",
+            "Port B Depth": "256",
+            "Port B Width": "4",
+            "Size": "1024",
+            "MIF": "None"
+          }
+        ],
+        "Fitter RAM Summary": [
+          {
+            "Name": "cell_F10414_snapshot:f|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|ALTDPRAM_INSTANCE",
+            "Type": "MLAB",
+            "Mode": "Simple Dual Port",
+            "Clock Mode": "Single Clock",
+            "Port A Depth": "256",
+            "Port A Width": "1",
+            "Port B Depth": "256",
+            "Port B Width": "1",
+            "Port A Input Registers": "yes",
+            "Port A Output Registers": "no",
+            "Port B Input Registers": "no",
+            "Port B Output Registers": "no",
+            "Size": "256",
+            "Implementation Port A Depth": "256",
+            "Implementation Port A Width": "1",
+            "Implementation Port B Depth": "256",
+            "Implementation Port B Width": "1",
+            "Implementation Bits": "256",
+            "M10K blocks": "0",
+            "MLAB cells": "8",
+            "MIF": "None",
+            "Location": "LAB_X21_Y39_N0, LAB_X25_Y40_N0, LAB_X28_Y39_N0, LAB_X25_Y41_N0, LAB_X28_Y38_N0, LAB_X21_Y40_N0, LAB_X25_Y42_N0, LAB_X21_Y38_N0",
+            "Mixed Width RDW Mode": "",
+            "Port A RDW Mode": "",
+            "Port B RDW Mode": "",
+            "ECC Mode": "",
+            "ECC Pipeline Registers": "",
+            "Fits in MLABs": ""
+          },
+          {
+            "Name": "cell_MB7071H_snapshot:mb|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|ALTDPRAM_INSTANCE",
+            "Type": "MLAB",
+            "Mode": "Simple Dual Port",
+            "Clock Mode": "Single Clock",
+            "Port A Depth": "256",
+            "Port A Width": "4",
+            "Port B Depth": "256",
+            "Port B Width": "4",
+            "Port A Input Registers": "yes",
+            "Port A Output Registers": "no",
+            "Port B Input Registers": "no",
+            "Port B Output Registers": "no",
+            "Size": "1024",
+            "Implementation Port A Depth": "256",
+            "Implementation Port A Width": "4",
+            "Implementation Port B Depth": "256",
+            "Implementation Port B Width": "4",
+            "Implementation Bits": "1024",
+            "M10K blocks": "0",
+            "MLAB cells": "32",
+            "MIF": "None",
+            "Location": "LAB_X25_Y35_N0, LAB_X25_Y38_N0, LAB_X25_Y39_N0, LAB_X25_Y37_N0, LAB_X21_Y36_N0, LAB_X25_Y34_N0, LAB_X25_Y36_N0, LAB_X21_Y37_N0",
+            "Mixed Width RDW Mode": "",
+            "Port A RDW Mode": "",
+            "Port B RDW Mode": "",
+            "ECC Mode": "",
+            "ECC Pipeline Registers": "",
+            "Fits in MLABs": ""
+          }
+        ]
+      },
+      "warning_counts": {
+        "map": {
+          "10036": 1,
+          "13024": 1,
+          "13410": 3
+        },
+        "fit": {
+          "292013": 1
+        }
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 2.57,
+          "hold": 0.787,
+          "mpw": 8.988
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 2.551,
+          "hold": 0.678,
+          "mpw": 8.961
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.957,
+          "hold": 0.354,
+          "mpw": 8.611
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.799,
+          "hold": 0.38,
+          "mpw": 8.675
+        }
+      }
+    }
+  },
+  "delta": {
+    "alms": 15,
+    "registers": 17,
+    "block_ram_bits": 0,
+    "ram_blocks": 0
+  },
+  "minimum_snapshot_slack_ns": 0.354,
+  "limits": "Isolated pair with matched registered shell and active access. No complete-board/core resource estimate, physical snapshot, global barrier or original60ns qualification.",
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "fitted source/constraint differs: snapshot/cell_MB7071H_snapshot.sv"
+    },
+    {
+      "case": "constraint",
+      "rejected": true,
+      "diagnostic": "fitted source/constraint differs: snapshot/bank.sdc"
+    },
+    {
+      "case": "qsf",
+      "rejected": true,
+      "diagnostic": "QSF source/constraints/macros differ"
+    },
+    {
+      "case": "mlab",
+      "rejected": true,
+      "diagnostic": "RAM geometry/placement differs: Analysis & Synthesis RAM Summary/F10414/Type"
+    },
+    {
+      "case": "fitted_mlab",
+      "rejected": true,
+      "diagnostic": "RAM geometry/placement differs: Fitter RAM Summary/F10414/Type"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation: hold/7_slow_1100mv_-40c"
+    }
+  ]
+}
