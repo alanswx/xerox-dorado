@@ -1,0 +1,1 @@
+FAIL edge=22781: state bit write/readback differs

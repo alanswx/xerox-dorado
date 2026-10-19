@@ -1,0 +1,82 @@
+{
+  "status": "REJECTED",
+  "reason": "Original and adapter processor boards fail artificial10ns opposite-edge wrapper budgets; actual processor neighbors sample positive host edges at50MHz/20ns. Positive-edge matched experiments are separate, with identical board RTL/SDC clock period and no added exceptions.",
+  "results": {
+    "ProcH": {
+      "baseline": {
+        "bank-setup-7_slow_1100mv_-40c.rpt": {
+          "violated": 3,
+          "slack_ns": -7.262
+        },
+        "bank-setup-7_slow_1100mv_100c.rpt": {
+          "violated": 3,
+          "slack_ns": -7.174
+        },
+        "bank-setup-MIN_fast_1100mv_-40c.rpt": {
+          "violated": 0,
+          "slack_ns": 1.816
+        },
+        "bank-setup-MIN_fast_1100mv_100c.rpt": {
+          "violated": 0,
+          "slack_ns": 0.782
+        }
+      },
+      "snapshot": {
+        "bank-setup-7_slow_1100mv_-40c.rpt": {
+          "violated": 3,
+          "slack_ns": -5.665
+        },
+        "bank-setup-7_slow_1100mv_100c.rpt": {
+          "violated": 3,
+          "slack_ns": -5.716
+        },
+        "bank-setup-MIN_fast_1100mv_-40c.rpt": {
+          "violated": 0,
+          "slack_ns": 2.438
+        },
+        "bank-setup-MIN_fast_1100mv_100c.rpt": {
+          "violated": 0,
+          "slack_ns": 1.448
+        }
+      }
+    },
+    "ProcL": {
+      "baseline": {
+        "bank-setup-7_slow_1100mv_-40c.rpt": {
+          "violated": 3,
+          "slack_ns": -1.22
+        },
+        "bank-setup-7_slow_1100mv_100c.rpt": {
+          "violated": 3,
+          "slack_ns": -1.128
+        },
+        "bank-setup-MIN_fast_1100mv_-40c.rpt": {
+          "violated": 0,
+          "slack_ns": 4.16
+        },
+        "bank-setup-MIN_fast_1100mv_100c.rpt": {
+          "violated": 0,
+          "slack_ns": 3.788
+        }
+      },
+      "snapshot": {
+        "bank-setup-7_slow_1100mv_-40c.rpt": {
+          "violated": 3,
+          "slack_ns": -0.621
+        },
+        "bank-setup-7_slow_1100mv_100c.rpt": {
+          "violated": 3,
+          "slack_ns": -0.554
+        },
+        "bank-setup-MIN_fast_1100mv_-40c.rpt": {
+          "violated": 0,
+          "slack_ns": 4.421
+        },
+        "bank-setup-MIN_fast_1100mv_100c.rpt": {
+          "violated": 0,
+          "slack_ns": 4.115
+        }
+      }
+    }
+  }
+}

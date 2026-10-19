@@ -1,0 +1,1 @@
+FULL PROCESSOR RESTORE PASS: 144860 host edges, 104840 held, 13334 late-enable changes, 94831 requests; all5712 modeled bits,1737 state words,75 output bits; real writes= 760 11 11 772 670 670 772 772 1742 1754 1754 1742 1742 1754; no machine/physical qualification

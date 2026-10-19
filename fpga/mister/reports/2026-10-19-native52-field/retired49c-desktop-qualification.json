@@ -1,0 +1,24 @@
+{
+  "status": "PASS: original-firmware fresh Viewers, mouse/Cmd/focus, exact keyboard and warm marker readback",
+  "main_pid": 14717,
+  "server_pid": 14716,
+  "rbf_sha256": "6e7866f3d6125e5926c05fa9c4a4a000e1a4aef72b61766ccfe8b2676eecad0d",
+  "checked_utc": "2026-10-19T08:29:34.670381+00:00",
+  "echoes": [
+    "rtl49c keyboard ok",
+    "abcdefghijklmnopqrstuvwxyz0123456789"
+  ],
+  "visual_review": "Ready herald, WatchTool/EditTool/Clock, real mouse opened second CommandTool; waited for initialized % prompt before separate focus737,608. Exact short/alphabet/digit output and returned prompts. Normal marker create/close/type readback matches. First profile tool continues optional installs.",
+  "warm_marker": {
+    "status": "PASS: normal guest create/close/readback and new prompt",
+    "file": "///rtl49cpersist.txt",
+    "expected": "rtl49cpersist",
+    "cold_persistence": "NOT TESTED for this marker"
+  },
+  "captures": {
+    "viewers-second-cmd.png": "2eace13083431f9c97dca6110f789bd56eae39313b8a26fc7b70c8f8c2c8a313",
+    "input-short.png": "bf06ed3044f1a5e0376a86a633fcfb64ee4f28318279265176307024e88a3408",
+    "marker-readback.png": "cc5f2a4826b904984ccad0eac00362cfeb00787214e63942b02f80fafd1577f1"
+  },
+  "limits": "One fresh selected49 control, not final3boots/2h stress, complete physical snapshot or original60ns migration. Observed protocol replays also occur here; no causal clearance of51 effects."
+}

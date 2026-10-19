@@ -8,7 +8,8 @@ Machine-wide state access, coherent barriers and physical restore remain open.
 
 Update2026-10-19: the qualified ContB host-clock/exact-advance adapters are
 qualified in the full Native51 core on MiSTer14. Native49c is now the live
-matched control; Native52 adds ContA adapters and passes timing but is not deployed. Four-condition whole-core/crossing
+matched control historically; live Native52 adds ContA adapters and now passes
+original firmware/Pilot/Cedar login, with loader/desktop qualification pending. Four-condition whole-core/crossing
 timing, original firmware, Cedar login and all34 base transfers pass. ALL
 snapshot admin inputs remain inactive; the running core cannot save/load
 state.51 full Viewers/mouse/exact keyboard and warm marker now pass. The
@@ -185,3 +186,19 @@ include the shell. The first two-write-address implementation expanded to
 registers and is rejected/preserved. Evidence2026-10-19-snapshot-async256.
 Next complete processor board state/access/restore/timing; physical full-core
 snapshots, global service barriers and original60ns clocks remain required.
+
+
+Complete modeled ProcH/ProcL adapters now pass5712/5581mutable bits, all
+75/96outputs, bit/invalid-address walks, destructive continuation/restore/
+first guest edge and20000more cycles against untouched original boards.
+Every original RAM writer exercised. Fresh XML pins512immutable PROM bits
+per board and the ALU combinational table;16 damaged schemas/source controls
+per board reject. Eight broken RTL variants per board fail. Isolated matched
+positive-edge50MHz fits pass all four conditions, min+0.136/+0.038ns, retaining
+4608MLABbits/144cells each, zeroM10Ks. Earlier10ns opposite-edge shells also
+failed the originals and are rejected/preserved. Positive-edge shell models
+the real processor-neighbor edges,20ns budgets, identical SDC clock/I/O and
+no cuts. Source generate/test/classify/fit/audit_processor_full.py and
+processor FF helper; report2026-10-19-snapshot-processor-full. Full-core
+integration/crossings/original firmware and complete physical snapshots remain
+required. The running52 includes ContA/B adapters only, all admin inactive.

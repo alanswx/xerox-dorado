@@ -1,0 +1,1 @@
+FAIL edge=41871: invalid state access accepted

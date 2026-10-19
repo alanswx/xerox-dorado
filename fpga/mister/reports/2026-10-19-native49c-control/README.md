@@ -36,8 +36,14 @@ independently absent. Full terminal bytes archived. Source hashes of all34
 served files match after timing; this is not physical payload hash proof.
 Read-only live log prefixes are not a disk barrier or complete snapshot.
 Timed profile Yes accepted, default missing name accepted, explicit No retry
-accepted; actual BootEssentials/installer is advancing. Full49c desktop/input
-is pending. Live Main /tmp/dorado49c-main.log, disk /tmp/dorado49c-disk.jsonl,
+accepted; actual BootEssentials/installer is advancing. Full49c desktop/mouse/Cmd/separate focus/exact short/alphabet/digit echo
+and warm rtl49cpersist.txt create/close/type readback now PASS.83742 completed
+live desktop trace records have no errors/loss. Normal guest Boot actually
+captured845 (MPCodes mesaRuntimeInitialized), later terminal header. Normally
+retired for52 through actual network/disk barriers and temporary16088 normal
+exit;63578624-byte pack SHA7edf6ada62cb7f1c2658b0008773c6b561c0d54de96b7dce8c20ba7139a91e87
+is preserved. No cold marker readback/clean shutdown/full snapshot claimed.
+Retired Main /tmp/dorado49c-main.log, disk /tmp/dorado49c-disk.jsonl,
 volume/server Cedar49c_20261019. Helpers build/rtl-executive/cedar49c-launch.
 
 Retired51b actual normal guest Boot captured germ812. Normal Main active-DDR/
@@ -47,6 +53,7 @@ Old Main12945/server12944/staging14701 independently absent. Retired trace ends
 barrier_end without error/trace loss. Its warm rtl51bpersist marker has no
 cold readback yet. No clean OS shutdown/full snapshot is claimed.
 
-Native52 timing-qualified but not deployed. Complete physical snapshots,
+Native52 timing-qualified and now original-firmware/login-qualified; full
+52loader/desktop/input pending. Complete physical snapshots,
 original60ns clock/timer migration, fully pinned repeats, physical packet-byte
 proof and final repeated-desktop/persistence/two-hour stress gates remain open.

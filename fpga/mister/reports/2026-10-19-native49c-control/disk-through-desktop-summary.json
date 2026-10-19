@@ -1,0 +1,20 @@
+{
+  "status": "PASS: no errors/trace_dropped in completed live prefix records",
+  "records": 83742,
+  "events": {
+    "mount": 1,
+    "poll": 2714,
+    "pread_begin": 971,
+    "pread_end": 971,
+    "read_request": 2842,
+    "read_ack": 2842,
+    "poll_gap": 5,
+    "write_request": 17679,
+    "write_ack": 17679,
+    "pwrite_begin": 15208,
+    "pwrite_end": 15208,
+    "fsync_begin": 3811,
+    "fsync_end": 3811
+  },
+  "scope": "Live log prefix; not disk barrier, cold persistence or atomic snapshot"
+}

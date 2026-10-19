@@ -1,0 +1,555 @@
+{
+  "hardware": "Native52 ContA+ContB exact-advance adapters with all state admin inactive; fresh original seed and original firmware boot pending",
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "operating_conditions_checked": 4,
+  "path_categories_checked": 68,
+  "timing_checks": 31,
+  "minimum_slack_ns": 0.112,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "unconstrained_io_summary": {
+    "Illegal Clocks": [
+      0,
+      0
+    ],
+    "Unconstrained Clocks": [
+      0,
+      0
+    ],
+    "Unconstrained Input Ports": [
+      3,
+      3
+    ],
+    "Unconstrained Input Port Paths": [
+      13,
+      13
+    ],
+    "Unconstrained Output Ports": [
+      50,
+      50
+    ],
+    "Unconstrained Output Port Paths": [
+      154,
+      154
+    ]
+  },
+  "unconstrained_io_scope": "Unchanged existing MiSTer/framework I/O coverage from frozen51; no new unconstrained ports/paths. SDRAM I/O and all ContA/ContB crossing reports are timed.",
+  "extra_timing_exceptions": "None",
+  "raw_backend": "SDRAM, no raw line buffer",
+  "raw_line_cache_entries": 0,
+  "qsf_normalization": "Blank lines, exact Quartus version marker and duplicate absolute/relative aliases of only the eleven approved parent/new sources; no other source/setting/SDC changes accepted",
+  "storage_defer_reads": false,
+  "storage_prefetch": true,
+  "storage_interleave": true,
+  "network_ddr": true,
+  "required_sdram_mb": 128,
+  "guest_ram_mib": 8,
+  "raw_backing_mib": 16,
+  "snapshot_admin": "INACTIVE; full-core normal-operation adapter qualification only, no physical save/load",
+  "instruction_memories": [
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_0|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_1|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_2|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_3|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_4|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_5|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_6|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_7|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    }
+  ],
+  "warning_comparison": {
+    "map": {
+      "increased": {
+        "10230": 1,
+        "10036": 3
+      },
+      "decreased": {},
+      "reviewed": {
+        "10230": {
+          "warning": "Warning (10230): Verilog HDL assignment warning at ContA_full_snapshot.sv(5465): truncated value with size 32 to match size of target (4) File: <PROJECT>/src/fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv Line: 5465",
+          "selected_range": [
+            0,
+            8
+          ],
+          "target_bits": 4,
+          "reason": "Package75..83 selects RAM index0..8; all other packages select0. Unsized zero widens the expression only.",
+          "limits": "Exact statement, guard, writer count and entire10230 warning delta are pinned; no other truncation waived"
+        },
+        "failure_controls": [
+          {
+            "case": "unsafe_range",
+            "rejected": true,
+            "diagnostic": "unreviewed response-index source"
+          },
+          {
+            "case": "unsafe_false_arm",
+            "rejected": true,
+            "diagnostic": "unreviewed response-index source"
+          },
+          {
+            "case": "extra_warning",
+            "rejected": true,
+            "diagnostic": "unreviewed truncation warning delta"
+          }
+        ]
+      },
+      "review": "Unused-object changes and only the exact bounded response-index warning above; other baseline warning categories unchanged or reduced."
+    },
+    "fit": {
+      "increased": {},
+      "decreased": {},
+      "reviewed": {},
+      "review": "Unused-object changes and only the exact bounded response-index warning above; other baseline warning categories unchanged or reduced."
+    }
+  },
+  "change": "Frozen51 plus qualified ContA host-clock/exact-advance adapters; shared ContB FF clones reused, same other boards/storage/Main/server/clocks/constraints",
+  "qsf_failure_controls": [
+    {
+      "case": "extra_macro",
+      "rejected": true,
+      "diagnostic": "project assignments changed"
+    },
+    {
+      "case": "extra_sdc",
+      "rejected": true,
+      "diagnostic": "project assignments changed"
+    },
+    {
+      "case": "wrong_source",
+      "rejected": true,
+      "diagnostic": "project assignments changed"
+    }
+  ],
+  "reports": [
+    {
+      "report": "native52-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 1.169
+    },
+    {
+      "report": "native52-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.198
+    },
+    {
+      "report": "native52-recovery-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 9.943
+    },
+    {
+      "report": "native52-removal-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.877
+    },
+    {
+      "report": "native52-mpw-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 1,
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native52-sdram-input-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 5.489
+    },
+    {
+      "report": "native52-sdram-input-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.554
+    },
+    {
+      "report": "native52-sdram-output-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 2.109
+    },
+    {
+      "report": "native52-sdram-output-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 6.43
+    },
+    {
+      "report": "native52-contb-in-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 2.994
+    },
+    {
+      "report": "native52-contb-in-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.441
+    },
+    {
+      "report": "native52-contb-out-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.804
+    },
+    {
+      "report": "native52-contb-out-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.388
+    },
+    {
+      "report": "native52-conta-in-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 2.83
+    },
+    {
+      "report": "native52-conta-in-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.422
+    },
+    {
+      "report": "native52-conta-out-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.29
+    },
+    {
+      "report": "native52-conta-out-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.375
+    },
+    {
+      "report": "native52-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 1.261
+    },
+    {
+      "report": "native52-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.244
+    },
+    {
+      "report": "native52-recovery-7_slow_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 9.721
+    },
+    {
+      "report": "native52-removal-7_slow_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.929
+    },
+    {
+      "report": "native52-mpw-7_slow_1100mv_100c.rpt.gz",
+      "paths": 1,
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native52-sdram-input-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 5.096
+    },
+    {
+      "report": "native52-sdram-input-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.906
+    },
+    {
+      "report": "native52-sdram-output-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 1.979
+    },
+    {
+      "report": "native52-sdram-output-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 6.34
+    },
+    {
+      "report": "native52-contb-in-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 2.937
+    },
+    {
+      "report": "native52-contb-in-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.49
+    },
+    {
+      "report": "native52-contb-out-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.626
+    },
+    {
+      "report": "native52-contb-out-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.448
+    },
+    {
+      "report": "native52-conta-in-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 2.735
+    },
+    {
+      "report": "native52-conta-in-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.467
+    },
+    {
+      "report": "native52-conta-out-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.23
+    },
+    {
+      "report": "native52-conta-out-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.415
+    },
+    {
+      "report": "native52-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 4.847
+    },
+    {
+      "report": "native52-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.112
+    },
+    {
+      "report": "native52-recovery-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 11.572
+    },
+    {
+      "report": "native52-removal-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.383
+    },
+    {
+      "report": "native52-mpw-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 1,
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native52-sdram-input-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 8.636
+    },
+    {
+      "report": "native52-sdram-input-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 4.448
+    },
+    {
+      "report": "native52-sdram-output-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 4.847
+    },
+    {
+      "report": "native52-sdram-output-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 7.256
+    },
+    {
+      "report": "native52-contb-in-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.692
+    },
+    {
+      "report": "native52-contb-in-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.199
+    },
+    {
+      "report": "native52-contb-out-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 12.627
+    },
+    {
+      "report": "native52-contb-out-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.226
+    },
+    {
+      "report": "native52-conta-in-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.942
+    },
+    {
+      "report": "native52-conta-in-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.224
+    },
+    {
+      "report": "native52-conta-out-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 12.474
+    },
+    {
+      "report": "native52-conta-out-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.215
+    },
+    {
+      "report": "native52-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 4.487
+    },
+    {
+      "report": "native52-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.131
+    },
+    {
+      "report": "native52-recovery-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 11.158
+    },
+    {
+      "report": "native52-removal-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.444
+    },
+    {
+      "report": "native52-mpw-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 1,
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native52-sdram-input-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 8.182
+    },
+    {
+      "report": "native52-sdram-input-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 4.945
+    },
+    {
+      "report": "native52-sdram-output-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 4.487
+    },
+    {
+      "report": "native52-sdram-output-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 7.222
+    },
+    {
+      "report": "native52-contb-in-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.026
+    },
+    {
+      "report": "native52-contb-in-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.247
+    },
+    {
+      "report": "native52-contb-out-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 11.313
+    },
+    {
+      "report": "native52-contb-out-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.287
+    },
+    {
+      "report": "native52-conta-in-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.306
+    },
+    {
+      "report": "native52-conta-in-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.261
+    },
+    {
+      "report": "native52-conta-out-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 11.123
+    },
+    {
+      "report": "native52-conta-out-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.274
+    }
+  ],
+  "rbf_sha256": "be80e03f26e5b9e5e7984a0d9b5df15b84d264a1f526e95149e085d25a08768c",
+  "resources": {
+    "alms": 30553,
+    "registers": 52682,
+    "ram_blocks": 330,
+    "dsp_blocks": 35
+  },
+  "assistance": "None; untouched seed before final cache-ready",
+  "source_run": "Cedar49c_20261019",
+  "disk_trace": "/tmp/dorado52-disk.jsonl"
+}

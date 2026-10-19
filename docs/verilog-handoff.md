@@ -2,6 +2,35 @@
 
 ## Current objective (2026-10-18 UTC)
 
+**Live update19Oct08:40UTC: Native52 original firmware to Cedar login PASS.**
+Normal loader86819 TERMINAL08:34:08UTC, Main16101/21e67a3f/server16100/c5996249,
+RBFbe80e03f (qualified ContA+ContB adapters, ALL state admin inactive). Same
+50MHz/SYSPER4, SDRAM/no raw cache/direct DDR, arbitration/interleaving ON,
+deferred reads OFF. Originalf3seed checked unchanged before final caching.
+Actual Main SPI74 flags0x16/fault/errors0, fresh epoch70afd9602c702cec. Daemon
+maps exactly64KiB1FF00000; Main no ring mapping/probe DSO. Setup10931,
+CoolBoot87712 and C watcher40965 TERMINAL after actual BFN113/release.
+Original Pilot and visible Cedar login PASS. Read-only observer12499/remote16342
+RUNNING; measurement39438/real Guest TERMINAL. Three adjacent10s windows mean
+1,947,787.783issues/s, matching49c; no speed increase or drained retirement
+claim. Timed base loader RUNNING,52desktop/input pending. Do not restart
+observer merely because a wait yields. Same33-sample measurement->Guest
+recipe; earlier manual login gate varies, not final fully pinned repeats.
+Live Main /tmp/dorado52-main.log, disk /tmp/dorado52-disk.jsonl, volume/server
+Cedar52_20261019; helpers cedar52-launch, evidence native52-field.
+
+49c full Viewers/Ready/Watch/Edit/Clock, real mouse/Cmd then separate focus,
+exact short/alphabet/digit echo and rtl49cpersist.txt create/close/type
+readback PASS.83742 completed live desktop trace records have no error/loss.
+Normal guest Boot actually captured845 (MPCodes6.1 mesaRuntimeInitialized),
+later terminal header. No unobserved812/855 or cold marker readback claimed.
+Actual normal Main network/disk barriers + temporary16088 exit preserve
+63578624-byte49c pack SHA7edf6ada62cb7f1c2658b0008773c6b561c0d54de96b7dce8c20ba7139a91e87.
+Old Main14717/server14716/staging16088 independently absent. Executed52recipe
+retains historical lowercase native49c log filenames; collection records
+actual paths, raw bytes unchanged. No clean OS shutdown/full snapshot claim.
+
+
 **Active goal: deliver a faster, correctness-qualified Cedar FPGA system.**
 The ordered delivery plan and completion gates are in
 [verilog-clock-plan.md](verilog-clock-plan.md#active-delivery-plan-and-goal-2026-10-18):
@@ -28,8 +57,8 @@ reproduces idle1,947,720.553 and loader333.175..333.426s;93 replay events now
 occur in Imager/CommandTool. Full51b desktop/input/warm marker now pass;
 normal guest Boot captured germ812. Fresh49c same-cadence control now passes
 34transfers/final ACK in323.149..323.399s,56 EditTool replays: retries also
-occur in unchanged49. Idle1,947,761.574issues/s matches. Full49c desktop
-pending; source of retries/any51 effect remains unproven. Continue
+occur in unchanged49. Idle1,947,761.574issues/s matches. Full49c desktop/input/warm marker now pass;52original login passes. Source
+of retries/any51 effect remains unproven. Continue
 complete snapshot4a, accurate clocks/timers and repeated/stability gates.
 Representative ContB now passes complete modeled board state restore and
 isolated all-corner timing; whole-machine/physical snapshots remain unfinished.
@@ -396,7 +425,7 @@ integrate both control boards in full core, all cross-board timing and actual
 firmware/Cedar; other boards/global freeze/raw SDRAM/Main/server/atomic bundle,
 actual Cedar restore,60ns clocks and final repeated/stress gates remain open.
 
-**Native52 full-core ContA+ContB integration TIMING PASS, NOT DEPLOYED.**
+**Native52 full-core ContA+ContB integration TIMING PASS; hardware login now PASS.**
 Builder5e1da91a freezes51, adds seven ContA RTL sources and changes only the
 active backplane source; shared ContB clones byte-identical, original ContA
 SYSPER declaration-only/native binding checked. Outer wrapper/clocks/storage/
@@ -412,7 +441,8 @@ All8 IM macros1024x18 OLD_DATA.30553ALMs/52682regs/330M10Ks/35DSP; inactive
 admin pruning means these are not enabled-snapshot resource estimates.
 RBF be80e03f26e5b9e5e7984a0d9b5df15b84d264a1f526e95149e085d25a08768c,
 local native52-candidate. Report2026-10-19-native52-controls archives raw timing,
-sources and provenance. No hardware/speed/no-regression claim for52.
+sources and provenance. Actual52firmware/login now pass (top update);
+desktop/loader qualification pending, no speed/no-regression claim.
 
 Collectorv1 rejected one new10230 truncation. Exact package75..83->index0..8,
 otherwise0, fits4bits; unsized zero only widens expression. v2 pins exact
@@ -443,7 +473,8 @@ diagnostic ONLY),29 phases49b/51b/49c overlap210.868..212.630s. First51 is
 faster207.374..208.772s there. No end-to-end regression clearance claimed.
 All34 served source hashes match after timing, not physical payload proof.
 Timed Yes/default missing name accepted; explicit No retry accepted, actual
-BootEssentials/installer advancing. Full49c Viewers/input pending.
+BootEssentials/fonts/STARTs complete; full49c Viewers/input/warm marker now
+pass. Normal Boot captured845; normally retired for52, preserved pack above.
 Live /tmp/dorado49c-main.log, disk /tmp/dorado49c-disk.jsonl, volume/server
 Cedar49c_20261019; helpers cedar49c-launch. Evidence native49c-control; fresh prior login gates still vary. Investigate
 packet loss/repeated controlled loading before performance promotion of52.
@@ -470,6 +501,37 @@ controls reject. SnapshotAsync256_v2_20261019/fit62969 TERMINAL; evidence
 2026-10-19-snapshot-async256. No FPGA programming/full board or machine restore,
 original60ns cadence or speed claim. Next complete processor board state and
 qualify actual board continuation/timing, then remaining machine/services.
+
+**Complete modeled ProcH/ProcL restore/classification/isolated timing PASS.**
+5712H/5581L mutable modeled bits,1737/1708valid words: every FF q/setup/clock
+history, register/stack/parity RAM, pending small-file write and10phase bits.
+New MC10175/MC1668 clones plus qualified RAM/FF adapters; production unchanged.
+All75H/96L outputs, every bit and invalid16bit address, late enables, stopped
+original vs destructive continuation/full restore/immediate release/first real
+edge/20000more cycles pass. All14H/12L original RAM writers exercised.
+144860H/144264L host edges;104840/104290held,13334late changes each,
+94831/94235requests. Eight broken RTL variants per board fail. Fresh XML
+classifies every candidate;848H/636L simulator diagnostic bits excluded,
+512immutable PROM bits per board pinned to actual frozen49. Complete ALU
+combinational case table pinned; no generic procedural waiver.16 schema/
+source controls per board reject. Cells byte-identical to49 except the
+previously reviewed MC10170 full-line comments; code lines identical.
+
+Initial opposite-edge10ns-shell fits REJECTED: original/adapted H setup
+-7.262/-5.665ns, L-1.220/-0.621ns. Exact reports preserved. Real processor
+neighbors sample positive host edges: separate SAME50MHz/20ns positive-edge
+launch/capture fits pass12checks/variant/board/four conditions, minH+0.136ns,
+L+0.038ns. SAME2ns max/0ns min virtual I/O, identical board RTL/PROMs, no
+cuts/clock changes/unconstrained clocks/I/O. Actual6MLAB memories/4608bits/
+144cells each, zeroM10Ks. H1109->2385ALMs/1201->1679regs; L1110->2259/
+1124->1613. Includes shell/admin/retained histories, NOT whole-core budget.
+Non-unused/stuck-output warnings do not increase; fitter counts unchanged.
+Seven damaged fit-evidence controls/board reject. Fit82624 (rejected shell)
+and88958 (qualified shell) TERMINAL. Source generate/test/classify/fit/
+audit_processor_full plus generate_processor_ff. Evidence snapshot-processor-full.
+No global barrier/physical machine restore/speed gain/60ns cadence yet. Next
+full-core processor integration/cross-board timing/original firmware, then
+remaining IFU/cache/map/device/wrapper/raw SDRAM/Main/server state and bundles.
 
 **Retired47: direct-DDR original-firmware interactive Cedar Viewers PASS.**
 Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,
@@ -1889,13 +1951,17 @@ and has unreviewed hold violations; never deploy it.
 - [x] Refresh exact frozen49 native hierarchy inventory and prove qualified ContB coverage inside real machine.
 - [x] Qualify74-bit physical F10145 file/window save/continue/restore against original+independent oracle, classify simulator-only exclusions, and matched four-condition isolated timing min+0.146ns; damaged RTL/source/manifest/fit controls reject. Production/live core unchanged.
 - [x] Qualify full modeled ContA1353-bit restore/classification and matched isolated timing min+0.163ns; all138outputs/invalid indices/first edge, seven broken RTL and17 schema/source controls pass. No physical/global snapshot yet.
-- [x] Integrate ContA+ContB host-advance adapters in full core;31/68/four-condition timing/source/inference checks pass min+0.112ns. All snapshot admin inactive;52 not deployed.
+- [x] Integrate ContA+ContB host-advance adapters in full core;31/68/four-condition timing/source/inference checks pass min+0.112ns. All snapshot admin inactive;52 now passes original firmware/login, full loader/desktop pending.
 - [ ] Qualify52 original firmware/Cedar/input after resolving51 slower-loader control; no physical snapshot yet.
 - [x] Repeat exact51 RBF on fresh51b original seed with fixed measurement->Guest cadence: idle matches, all34 transfers/actual final ACK pass333.175..333.426s;93 replays in different files. Retire observer normally.
 - [x] Fresh49c same measurement->Guest recipe: idle matches;34transfers/final ACK323.149..323.399s with56 EditTool replays. Unchanged49 also replays; no causal clearance for51.
-- [ ] Finish49c Viewers/input and investigate packet loss/protocol retry variability; repeat fully pinned workload comparisons before performance promotion of52.
+- [x] Finish49c Viewers/mouse/Cmd/separate focus/exact keyboard/warm marker; actual normal Boot845, normal Main barriers and preserved pack.
+- [ ] Investigate packet loss/protocol retry variability; repeat fully pinned comparisons before performance promotion of52.
 - [x] Qualify async MB7071H/F10414 full1280-bit state/restore/classification and matched isolated MLAB timing min+0.354ns;14 altered RTL/4 source/12 schema/6 fit controls reject. First register-expanded fit rejected/preserved.
-- [ ] Complete remaining processor board state/access/restore/timing using qualified RAM families and other FF adapters; preserve consumer/global barrier requirements.
+- [x] Complete modeled processor boards5712H/5581L restore/classification and matched positive-edge50MHz isolated timing min+0.136/+0.038ns. Preserve failed10ns shell; all natural RAM writers exercised.
+- [ ] Integrate processor adapters into complete core; verify all cross-board timing and original firmware/Cedar/input. Preserve consumer/global barrier requirements.
+- [x] Normally deploy exact qualified52 RBF, fresh original seed/epoch, original firmware/Pilot/Cedar login and fixed-cadence idle1,947,787.783issues/s.
+- [ ] Finish52actual34-transfer/final ACK analysis, Viewers/input/warm marker; investigate retries before performance promotion.
 - [ ] Connect active bounded access/global barriers and extend/classify other boards/wrapper/devices/input/raw memory/Main/server; qualify complete physical restore and combined timing.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [x] Preserve/decode41b post-desktop host-write timeout and unchanged physical pack; exact blocking syscall remains unobserved.

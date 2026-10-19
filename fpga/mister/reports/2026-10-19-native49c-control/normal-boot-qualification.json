@@ -1,0 +1,17 @@
+{
+  "main_pid": 14717,
+  "server_pid": 14716,
+  "rbf_sha256": "6e7866f3d6125e5926c05fa9c4a4a000e1a4aef72b61766ccfe8b2676eecad0d",
+  "input": "Normal guest Boot command through real keyboard at verified empty second CommandTool prompt",
+  "observed": "germ845",
+  "meaning": "MPCodes6.1 mesaRuntimeInitialized=845; original Boot progressed beyond germInLoad812. Later capture shows Cedar SimpleTerminal header.",
+  "captures": {
+    "normal-boot-845.png": "ca7ec2a8263d145139c47e244d62557f4942167c6d1b290512a741aa0cb8c703",
+    "normal-boot-terminal.png": "6dad3750bccc50007cbdc85853c214a088e49344839d002f94fac116ee99ad2d"
+  },
+  "source": {
+    "file": "chm/cedar/germ-src/mpcodes-6.1.mesa.txt",
+    "sha256": "4668675aae9da9149f00c0c3e827fdcac315ad98a5effb43cbdf104c0ad773e7"
+  },
+  "limits": "Actual845 observed, not812/855. Normal boot reentry; no clean OS shutdown, complete snapshot or cold marker readback claim. Actual Main disk/network barriers still required."
+}

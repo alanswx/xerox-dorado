@@ -74,7 +74,7 @@ Native51 is now normally retired/preserved after germ812. Retired51b exact-RBF
 fresh repeat gives idle1,947,720.553 and loader333.175..333.426s, with matching
 extra issued work and93 replays now in Imager/CommandTool. Its33-sample
 measurement->Guest cadence is fixed; preceding manual login gate still varies.
-Fresh49 using the same recipe is next before attributing the slowdown to RTL.
+Fresh49c same-recipe control below confirms retries also occur in selected49.
 51b all34/final ACK, full Viewers/input and warm marker now pass; initial
 combined open/focus input did not echo, explicit refocus/retry passed. Normal
 guest Boot captured germ812. No cold51b marker readback.
@@ -84,7 +84,8 @@ Fresh selected49c same33-sample measurement->Guest recipe now passes
 1.65299..1.65321M/s. Protocol replays are therefore not unique to51. Earlier
 manual login gate still varies, and any51 effect remains unproven. All34
 source hashes match after timing; observer14915 terminal/absent. Profile
-No retry accepted; BootEssentials advancing, full49c desktop pending.
+No retry accepted; full49c desktop/input/warm marker now pass. Normal guest
+Boot captured845 (MPCodes mesaRuntimeInitialized); retired/preserved for52.
 Evidence native49c-control; no fully pinned repeated or physical-payload proof.
 Same50MHz/SYSPER4 clocks, SDRAM/no raw
 cache/direct DDR, arbitration/interleaving ON, deferred reads OFF. Physical
@@ -92,6 +93,14 @@ packet-byte proof, fixed-cadence repeated comparisons and sustained final gates
 remain open. Snapshot4a and60ns clock migration remain required. Evidence:
 native49b-repeat/native50-field/native51-contb/native51-field/native51b-repeat; older diaries
 are historical. No speed gain or complete physical snapshot is claimed for51.
+
+Live52 loaded08:34:08UTC, exactbe80e03f/full-core timing31/68/four conditions;
+all state admin inactive. Main16101/server16100, fresh actual DDR epoch
+70afd9602c702cec, originalf3seed untouched before caching. Original firmware/
+BFN113/Pilot/Cedar login pass; fixed33-sample measurement->Guest mean
+1,947,787.783issues/s matches49c. Timed loader/observer16342 still RUNNING;
+52desktop/input pending. No speed gain/full snapshot/60ns claim. Evidence
+native52-field; retired49c preserved63578624B SHA7edf6ada62cb7f1c2658b0008773c6b561c0d54de96b7dce8c20ba7139a91e87.
 
 Use three explicitly recorded workloads: idle Cedar login, a fixed cold
 loader sequence through all 34 base packages, and a desktop script with
@@ -502,8 +511,9 @@ IM macros1024x18 OLD_DATA.30553ALMs/52682regs/330M10Ks/35DSP. Exact new10230
 warning reviewed with pinned0..8 range proof and failure controls; no compiled
 source/constraints changed. All snapshot admin inactive; no physical save/load
 or enabled-access budget. RBFbe80e03f in native52-candidate; report native52-controls.
-NOT DEPLOYED; hardware and speed gates remain open. Fresh49 same-cadence loader
-control precedes52 deployment because51's slower loader remains unresolved.
+Live52 now passes original firmware/Pilot/Cedar login after49c same-cadence
+control; timed loader/desktop/input and speed qualification remain open.49c
+also replays, so51 effects remain unproven. No speed promotion yet.
 
 The next snapshot primitive families MB7071H256x4/F10414256x1 now pass all1280
 modeled state bits, original-cell/array continue/restore/first-edge tests,
