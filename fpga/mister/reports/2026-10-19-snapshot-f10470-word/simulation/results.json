@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "widths": [
+    1,
+    3,
+    5,
+    6,
+    9,
+    18
+  ],
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "ungated_read",
+      "returncode": 1,
+      "expected_failure": "backend hold changed read pipeline"
+    },
+    {
+      "case": "ungated_write",
+      "returncode": 1,
+      "expected_failure": "ordinary old-data oracle differs"
+    },
+    {
+      "case": "premature_resume",
+      "returncode": 1,
+      "expected_failure": "backend hold changed read pipeline"
+    },
+    {
+      "case": "lost_pipeline",
+      "returncode": 1,
+      "expected_failure": "bit/padding write readback differs"
+    },
+    {
+      "case": "running_access",
+      "returncode": 1,
+      "expected_failure": "running state request accepted"
+    },
+    {
+      "case": "invalid_alias",
+      "returncode": 1,
+      "expected_failure": "invalid index accepted"
+    },
+    {
+      "case": "wrong_data",
+      "returncode": 1,
+      "expected_failure": "bit/padding write readback differs"
+    },
+    {
+      "case": "wrong_read_address",
+      "returncode": 1,
+      "expected_failure": "ordinary old-data oracle differs"
+    }
+  ],
+  "scope": "Primitive2-state model simulation with connected CE, as in all MemD cache cells. No full MemD classification/integration, four-state proof, global barrier or physical snapshot.",
+  "source_hashes": {
+    "fpga/mister/snapshot/test_f10470_word.py": "87383954a2178b8246ae80e3a06be7332b7bbed5a5ed43a4285805f942c2a991",
+    "fpga/mister/snapshot/test_f10470_word.cpp": "88474a5d0046634fd4908a5075c7382086ce9c7f0094e15b9adb1569bc3752bc",
+    "fpga/mister/snapshot/f10470_word_bank.sv": "580040761a689b76a7075022eaa5fcd97d6a87ebf95884dc884410a0db1a6b5d",
+    "verilog/cells/cell_F10470.v": "90c6ae2805dac5ec07952fa9f0344154317ebfc602241e25350bf7bca1fe0d30"
+  }
+}

@@ -42,6 +42,24 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+Live55 normally loaded11:51:35UTC, Main21577/server21576, actual fresh DDR
+epochd642d051fd61576c/flags0x16/fault/errors0. Same50MHz/SYSPER4/policies and
+all six board adapters/admin inactive. Original firmware/BFN113/released C/
+visible Cedar login pass. Three10s idle windows mean1,947,777.041issues/s,
+matching54; no gain. Measurement/real Guest76634 TERMINAL; observer21775/58164
+LIVE for loader. Same33-sample cadence, earlier manual gate varies.55final
+ACK/desktop/input pending. Retired54 full desktop/mouse/exact keyboard/warm
+marker and guestBoot845 pass; actual Main barriers preserve54pack(ed9d5241).
+No cold marker/full snapshot/original60ns/final release gate claim.
+Native55 full-core MemC timing/source audit PASS31summary/132detailed/four
+conditions,min+0.040ns. Same50MHz/SYSPER4/SDCs/policies, all admin inactive;
+candidate not deployed, no speed claim. Native54 actual Viewers/Ready/Watch/
+Edit/Clock is visible; mouse/initialized separate CommandTool/exact keyboard/
+warm marker qualification is in progress. Optional first profile tool installs
+continue. MemD cache grouping and4096-word RAM primitive now pass review/
+simulation/classification/matched timing(+0.168ns); full MemD/global snapshots
+and original60ns clocks remain open. Evidence native55-memc/snapshot-memd-grouping/
+snapshot-f10470-word. Current authoritative details are in the handoff.
 Native54 now passes original firmware/login/base34/exact final guestACK:
 332.810528..333.019019s,551.667..555.196M whole-loader issues/interior1.661338..
 1.661545M/s,102protocol replays(Tioga46,CommandTool56). Idle1,947,774.216issues/s

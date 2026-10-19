@@ -1,5 +1,5 @@
 {
-  "status": "PASS: original firmware/Pilot/Cedar login and34 base transfers/final ACK; full54desktop/input pending",
+  "status": "PASS: original firmware/full Viewers/mouse/exact keyboard/warm marker readback",
   "main_pid": 20155,
   "server_pid": 20154,
   "rbf_sha256": "80d67e1212b944cdb235040f26b5d794a7c4451d8302b24888c342caf16bdb77",
@@ -22,5 +22,9 @@
     "Cedar6.1/Tioga/TiogaPackage.bcd": 46,
     "Cedar6.1/CommandTool/CommandToolPackage.bcd": 56
   },
-  "profile": "Explicit No accepted; BootEssentials advancing"
+  "profile": "Explicit No accepted; BootEssentials advancing",
+  "desktop_qualification": "desktop-qualification.json",
+  "cold_marker_readback": "NOT TESTED for rtl54persist",
+  "normal_guest_boot": "Observed845 mesaRuntimeInitialized; see normal-boot-qualification.json",
+  "live_state": "Normally retired for55 after guest Boot845 and actual Main network/disk barriers; see ../2026-10-19-native55-field/retired54-preservation.json"
 }

@@ -33,3 +33,12 @@ startup collection. post-loader/ contains exact second-archive names/raw
 metadata, including historical through-deployment labels. Its file hashes
 refer to companions in that directory. No raw-content normalization, speed
 gain, original60ns cadence or complete machine snapshot is claimed.
+
+Full desktop/input subsequently PASS: Clock/Watch/Edit, actual mouse motion,
+Cmd click after screenshot-guided adjustment, initialized second tool then
+separate focus, exact short/alphabet/digit echo, and normal guest create/close/
+type of ///rtl54persist.txt with expected output/new prompts.88,799complete
+live disk records have no errors/loss; first profile tool continues optional
+installs. Normal guest Boot captured actual845, then normal Main barriers
+retired/preserved54 for55. See native55-field for actual pack/barrier evidence.
+No cold marker readback or physical machine snapshot is claimed.

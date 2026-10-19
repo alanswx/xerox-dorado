@@ -1,0 +1,40 @@
+{
+  "scope": "Six independent width1/3/5/6/9/18 banks; original full-advance vs exact-advance/state-access cells, same50MHz negative-edge launch/capture shell and10ns embedded paths,2ns max0ns min virtual I/O, no cuts. Counts include shell/admin/pruning; no full MemD/global barrier/physical snapshot qualification.",
+  "widths": [
+    1,
+    3,
+    5,
+    6,
+    9,
+    18
+  ],
+  "modeled_state_bits": 172074,
+  "builder_sha256": "7ecf9615c5ec13b2251ebae1fb6d73478bbc9129f307bc122a73d537c9f51882",
+  "source_hashes": {
+    "fpga/mister/snapshot/fit_f10470_word.py": "7ecf9615c5ec13b2251ebae1fb6d73478bbc9129f307bc122a73d537c9f51882",
+    "fpga/mister/snapshot/f10470_word_bank.sv": "580040761a689b76a7075022eaa5fcd97d6a87ebf95884dc884410a0db1a6b5d",
+    "verilog/cells/cell_F10470.v": "90c6ae2805dac5ec07952fa9f0344154317ebfc602241e25350bf7bca1fe0d30",
+    "fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49"
+  },
+  "compiled_files": {
+    "snapshot/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "snapshot/cell_F10470.v": "90c6ae2805dac5ec07952fa9f0344154317ebfc602241e25350bf7bca1fe0d30",
+    "snapshot/f10470_word_bank.sv": "580040761a689b76a7075022eaa5fcd97d6a87ebf95884dc884410a0db1a6b5d",
+    "snapshot/top.sv": "91c867f06cfca9e44b86f93cc1acdbcc92ab48591d0bb92891c94980118ac35a",
+    "snapshot/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "snapshot/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "snapshot/snapshot_fit.qsf": "d152af232c16d4c154c0c54b9cc97be869f4b729bb07607cad157cb92c00e4eb",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/cell_F10470.v": "90c6ae2805dac5ec07952fa9f0344154317ebfc602241e25350bf7bca1fe0d30",
+    "baseline/f10470_word_bank.sv": "580040761a689b76a7075022eaa5fcd97d6a87ebf95884dc884410a0db1a6b5d",
+    "baseline/top.sv": "91c867f06cfca9e44b86f93cc1acdbcc92ab48591d0bb92891c94980118ac35a",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/snapshot_fit.qsf": "6734db4d8a85c9c6955b916b8329fe1db23fcdc154b667f5333c6e500649724e"
+  },
+  "expected_qsf": {
+    "baseline": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE f10470_word_bank.sv\nset_global_assignment -name VERILOG_FILE cell_F10470.v\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to ce_n[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to we_n[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to held[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to request[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to write[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to address[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to state_data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to word_index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to q[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to done[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to error[*]\n",
+    "snapshot": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE f10470_word_bank.sv\nset_global_assignment -name VERILOG_FILE cell_F10470.v\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to ce_n[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to we_n[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to held[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to request[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to write[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to address[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to state_data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to word_index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to q[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to done[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to error[*]\nset_global_assignment -name VERILOG_MACRO \"SNAPSHOT_BANK_EXPERIMENT=1\"\n"
+  }
+}

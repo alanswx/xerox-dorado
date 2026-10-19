@@ -1,0 +1,17 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "f10470_word_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-f10470-word-20261019/ungated_write/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-f10470-word-20261019/ungated_write/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-f10470-word-20261019/ungated_write/bank.sv",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_F10470.v",
+  "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_f10470_word.cpp"
+]

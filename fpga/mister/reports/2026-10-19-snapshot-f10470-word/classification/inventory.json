@@ -1,0 +1,84 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "407fb3a7a3e5efe5d75e154ae638958c510fbe0d3a7d7c165d038daba5912a56",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "initial_only_candidate": 1,
+    "combinational_review": 2,
+    "sequential": 2
+  },
+  "candidate_bits": {
+    "initial_only_candidate": 1,
+    "combinational_review": 13,
+    "sequential": 4097
+  },
+  "candidates": [
+    {
+      "path": "cell_F10470._unused_pins",
+      "module": "cell_F10470",
+      "name": "_unused_pins",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10470.v",
+      "line": 92,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10470.a",
+      "module": "cell_F10470",
+      "name": "a",
+      "category": "combinational_review",
+      "width": 12,
+      "unpacked_dimensions": [],
+      "bits": 12,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10470.v",
+      "line": 65,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10470.dout_r",
+      "module": "cell_F10470",
+      "name": "dout_r",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10470.v",
+      "line": 86,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10470.mem",
+      "module": "cell_F10470",
+      "name": "mem",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [
+        [
+          0,
+          4095
+        ]
+      ],
+      "bits": 4096,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10470.v",
+      "line": 56,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10470.p1",
+      "module": "cell_F10470",
+      "name": "p1",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10470.v",
+      "line": 47,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

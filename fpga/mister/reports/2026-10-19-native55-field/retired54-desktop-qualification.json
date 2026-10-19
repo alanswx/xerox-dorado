@@ -1,0 +1,26 @@
+{
+  "status": "PASS: original-firmware fresh Viewers, mouse/Cmd/focus, exact keyboard and warm marker readback",
+  "main_pid": 20155,
+  "server_pid": 20154,
+  "rbf_sha256": "80d67e1212b944cdb235040f26b5d794a7c4451d8302b24888c342caf16bdb77",
+  "checked_utc": "2026-10-19T11:47:50.651628+00:00",
+  "echoes": [
+    "rtl54 keyboard ok",
+    "abcdefghijklmnopqrstuvwxyz0123456789"
+  ],
+  "visual_review": "Viewers/WatchTool/EditTool/Clock. Mouse motion verified from captures; first click missed Cmd, adjusted +100/+26 then actual Cmd click opened second tool. Waited for initialized prompts before separate focus737,608. Exact short/alphabet/digit echoes and guest file readback with returned prompts. First profile tool continues optional installs.",
+  "warm_marker": {
+    "status": "PASS: normal guest create/close/readback and new prompt",
+    "file": "///rtl54persist.txt",
+    "expected": "rtl54persist",
+    "cold_persistence": "NOT TESTED for this marker"
+  },
+  "captures": {
+    "viewers-check.png": "d2233d72cbd396964b8b0a1abca72da1bdef7ac03ad2811892035b15217afc79",
+    "second-commandtool.png": "ce1f9e7dd6106c5436bde14a3c45fa6def502a5a9bad80629a431d506b8ef0cc",
+    "commandtool-ready-check.png": "25d89134ec51149f37cae9eb4ae1ff52c65a9e5d0ae7f11c16aa2a3f4c80d72e",
+    "input-short.png": "0b18573308362741a0e20f43a0c98ca82e30f27caae068340302bbb3ed88aa7c",
+    "marker-readback.png": "c935d13f37e0b6ba9e5a0b8d57a82fb4d4c3b664e48ab40c9a70b29e73689d64"
+  },
+  "limits": "One fresh54 desktop; all snapshot admin inactive. No complete snapshots, original60ns, final3boots/2h stress or causal replay clearance."
+}

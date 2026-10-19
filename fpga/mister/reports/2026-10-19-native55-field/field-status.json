@@ -1,0 +1,13 @@
+{
+  "status": "PASS: original firmware/BFN113/released C/Cedar login and measured idle/real Guest; base loader ongoing",
+  "main_pid": 21577,
+  "server_pid": 21576,
+  "rbf_sha256": "3eee3109a46eb029e0253a1d776cfafd652870d99e5a2cd5f3ffd0c650b7b107",
+  "observer_pid": 21775,
+  "observer_handle": 58164,
+  "measurement_handle": 76634,
+  "epoch": "d642d051fd61576c",
+  "limits": "First55 original boot; same50MHz/SYSPER4, all snapshot admin inactive. No speed gain/full snapshot/original60ns/final3boots/2h claim; loader final ACK and desktop/input pending.",
+  "idle_issues_per_s": 1947777.0406290635,
+  "measurement_terminal": true
+}

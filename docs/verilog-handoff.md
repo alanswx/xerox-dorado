@@ -2,6 +2,64 @@
 
 ## Current objective (2026-10-18 UTC)
 
+**LIVE Native55 original firmware/Cedar login PASS; measured idle unchanged.**
+Normal deploy47066 TERMINAL11:51:35UTC, Main21577/server21576, temporary21562
+normally retired. RBF3eee3109a46eb029e0253a1d776cfafd652870d99e5a2cd5f3ffd0c650b7b107.
+All six board adapters installed, ALL snapshot admin inactive, same50MHz/
+SYSPER4/SDRAM/no cache/direct DDR and policies. Originalf3seed untouched before
+final cache. Actual Main SPI74 [53460,1,0,8176,0,1,22,0,0,22380,64865,53329,
+54850,2048,8,16,0,0], epochd642d051fd61576c, flags0x16/fault/errors0; daemon
+alone maps64KiB1FF00000, Main has no ring/probe DSO. Setup32529, C17365 and
+three pushes54766 TERMINAL after actual new BFN113/release; no retry/reset.
+Visible Cedar login PASS. Measurement/real Guest76634 TERMINAL: three10s
+windows mean1,947,777.041issues/s, matching54; no gain. Same33-sample cadence,
+earlier manual login gate varies. Bounded observer58164/remote21775 READY and
+LIVE; do not restart. Base34/final ACK/Viewers/input55 remain pending.
+Current/tmp/dorado55-main.log,/tmp/dorado55-disk.jsonl, server/volume
+Cedar55_20261019, localcedar55-launch. Evidence native55-field. No whole snapshot,
+original60ns or final repeated/stress claim. All our Quartus jobs are terminal;
+do not touch the unrelated SharpX1 build.
+
+Retired54 full Viewers/Clock/Watch/Edit/mouse/Cmd/separate initialized focus,
+exact short/alphabet/digit echoes and warm rtl54persist file create/close/type
+PASS. First Cmd click missed, screenshot-guided +100/+26 adjustment then actual
+Cmd click and initialized second prompt passed; no ignored keyboard trial.
+88,799complete live disk records have no error/loss. One normal guest Boot
+captured845(mesaRuntimeInitialized). Actual Main disk/network barriers + normal
+temporary21562exit preserve63578624-byte54pack SHA
+ed9d5241c17d16008755e4a036499d65f56b81190416eea83a5fc52b210f659c.
+No clean OS shutdown, cold rtl54persist readback or machine snapshot claim.
+Evidence native54-field desktop/Boot, native55-field retired54 preservation.
+
+Earlier qualification records follow; the live machine and pending work are
+described above.
+
+**Native55 full-core MemC timing PASS; Native54 desktop/input qualification active.**
+Build99325/audit21963 TERMINAL.31summary/132detailed checks/four conditions
+PASS,min+0.040ns(fast/-40C hold).21MemC MLABs/21,504bits/672cells and inherited
+processor MLABs/IFUM/IM OLD_DATA retained.30588ALMs/52757regs/330M10Ks/35DSP,
+all admin inactive, no enabled-snapshot budget. No new cuts/illegal/unconstrained
+clocks; framework I/O unchanged. CandidateRBF3eee3109a46eb029e0253a1d776cfafd652870d99e5a2cd5f3ffd0c650b7b107,
+downloadednative55-candidate, NOT DEPLOYED. Evidence native55-memc. Wait for
+actual54desktop/input gate before normal55 load. Current54 Main20155/server20154
+remain live; actual Viewers/Ready/Watch/Edit/Clock and optional user-profile
+installation now visible. First Cmd click did not create a second tool; adjust
+real pointer from screenshot, wait for initialized prompt, then separate focus
+and exact echo/warm marker. No full54 input gate yet; no keyboard test queued.
+
+Next MemD logical grouping review PASS72F10470 packages against originalwirelist:
+294,912RAM/72raw pipeline bits,19literal/14canonical address/write/select groups
+of widths3/6/9. Stateful/unknown replicas remain atoms; indexed storage-delay
+target assignments remain opaque. Eight changed boards reject. Separate new
+4096-word F10470 primitive widths1/3/5/6/9/18 simulation/restore/classification/
+matched timing PASS284,039host/245,818requests/172,074state-bit checks,20,000
+post-restore cycles. Eight brokenRTL/11schema/eight fit controls reject; all
+six actual macros/physical rows OLD_DATA,172,032bits/23M10Ks retained,all four
+conditions min+0.168ns.332->500ALMs/169->478regs include shell/admin. Evidence
+snapshot-memd-grouping/snapshot-f10470-word. Full MemD board adapter/inventory/
+restore/timing still required, then MemX/display/DskEth/BaseBoard/backends/outer
+state and global bundle, original60ns migration and final combined gates.
+
 **Native54 original firmware/login/base34/final ACK PASS; Native55 building.**
 Three idle10s windows mean1,947,774.216issues/s, matching53; no gain. Timed
 34transfers/33BCD/1,345,843bytes/final guest ACK332.810528..333.019019s,
@@ -2014,10 +2072,14 @@ and has unreviewed hold violations; never deploy it.
 - [x] Add width-correct IFUM old-data RAM/read-pipeline access; qualify full IFU state classification/restore and isolated four-condition timing.
 - [x] Complete Native54 full-core IFU build/audit31summary/116detailed/four conditions,min+0.114ns; normally load with fresh seed/DDR epoch, all admin inactive.
 - [x] Finish Native54 original firmware/login/base loader/final ACK and measured issue/replay accounting; no speed gain.
-- [ ] Finish Native54 BootEssentials/fonts/STARTs, full Viewers/mouse/exact keyboard/warm marker.
+- [x] Finish Native54 BootEssentials/fonts/STARTs, full Viewers/mouse/exact keyboard/warm marker, normal guest845 and actual Main barriers preserve volume for55.
 - [x] Qualify MemC F100181 four-bit latch primitive; full MemC original/restore/state coverage and all44writers pass.
 - [x] Complete matched MemC staged-input fits10872 and audit; preserve rejected original-only input-hold fit.
-- [ ] Complete Native55 full-core MemC integration build99325/audit and original firmware/desktop/input qualification; all admin inactive.
+- [x] Complete Native55 full-core MemC integration build99325/audit21963,31summary/132detailed/four conditions,min+0.040ns; all admin inactive, candidate not deployed.
+- [x] Normally load55 with fresh original seed/DDR epoch; original firmware/BFN113/Cedar login and measured idle/real Guest pass.
+- [ ] Complete55base34/final ACK under live observer58164/21775, then profile/BootEssentials/full desktop/mouse/exact keyboard/warm marker.
+- [x] Review MemD cache RAM against wire list; qualify4096-word old-data RAM primitive simulation/classification/isolated timing.
+- [ ] Complete MemD board adapter/state coverage/restore/timing, then remaining device/ARM/global state.
 - [ ] Finish remaining board/device/ARM state and atomic snapshot bundle with actual FPGA Cedar restore.
 - [ ] Finish original60ns clock/enable and timer migration; final three fresh boots, coherent snapshot restore, persistence, pinned measurements and two-hour combined stress.
 

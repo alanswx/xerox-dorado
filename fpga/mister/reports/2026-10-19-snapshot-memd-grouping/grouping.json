@@ -1,0 +1,4263 @@
+{
+  "status": "PASS: logical MemD cache pin grouping only",
+  "ram_packages": 72,
+  "ram_bits": 294912,
+  "raw_read_pipeline_bits": 72,
+  "literal_groups": 19,
+  "canonical_groups": 14,
+  "groups": [
+    {
+      "group": "#-1c11",
+      "width": 6,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p11"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_1"
+          ],
+          [
+            "unconnected",
+            "u_b08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_14"
+          ],
+          [
+            "unconnected",
+            "u_b08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_4"
+          ],
+          [
+            "unconnected",
+            "u_b08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_11"
+          ],
+          [
+            "unconnected",
+            "u_b08",
+            "p12"
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_6"
+            ],
+            [
+              "unconnected",
+              "u_c08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_9"
+            ],
+            [
+              "unconnected",
+              "u_c08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_7"
+            ],
+            [
+              "unconnected",
+              "u_c08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "net",
+          "Dad1_10a"
+        ],
+        [
+          "net",
+          "Dad1_11a"
+        ],
+        [
+          "net",
+          "Dad1_12a"
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD03_sil_pl_4"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p5"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p7"
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_6"
+          ],
+          [
+            "unconnected",
+            "u_i10",
+            "p9"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "#-1c11",
+          "instance": "u__h__m_1c11",
+          "field": "D.09",
+          "data": "D1in.09",
+          "address": [
+            "Dad.00b",
+            "Dad.01b",
+            "Dad.02'a",
+            "Dad.03'a",
+            "Dad.04'a",
+            "Dad.05'a",
+            "Dad.06'a",
+            "Dad.07'a",
+            "Dad.08'a",
+            "Dad1.10a",
+            "Dad1.11a",
+            "Dad1.12a"
+          ],
+          "we": "WriteD1'a",
+          "ce": "D1ACE'b"
+        },
+        {
+          "package": "#-1c13",
+          "instance": "u__h__m_1c13",
+          "field": "D.04",
+          "data": "D1in.04",
+          "address": [
+            "Dad.00b",
+            "Dad.01b",
+            "Dad.02'a",
+            "Dad.03'a",
+            "Dad.04'a",
+            "Dad.05'a",
+            "Dad.06'a",
+            "Dad.07'a",
+            "Dad.08'a",
+            "Dad1.10a",
+            "Dad1.11a",
+            "Dad1.12a"
+          ],
+          "we": "WriteD1'a",
+          "ce": "D1ACE'b"
+        },
+        {
+          "package": "#-1c15",
+          "instance": "u__h__m_1c15",
+          "field": "D.05",
+          "data": "D1in.05",
+          "address": [
+            "Dad.00b",
+            "Dad.01b",
+            "Dad.02'a",
+            "Dad.03'a",
+            "Dad.04'a",
+            "Dad.05'a",
+            "Dad.06'a",
+            "Dad.07'a",
+            "Dad.08'a",
+            "Dad1.10a",
+            "Dad1.11a",
+            "Dad1.12a"
+          ],
+          "we": "WriteD1'a",
+          "ce": "D1ACE'b"
+        },
+        {
+          "package": "#-1c17",
+          "instance": "u__h__m_1c17",
+          "field": "D.12",
+          "data": "D1in.12",
+          "address": [
+            "Dad.00b",
+            "Dad.01b",
+            "Dad.02'a",
+            "Dad.03'a",
+            "Dad.04'a",
+            "Dad.05'a",
+            "Dad.06'a",
+            "Dad.07'a",
+            "Dad.08'a",
+            "Dad1.10a",
+            "Dad1.11a",
+            "Dad1.12a"
+          ],
+          "we": "WriteD1'a",
+          "ce": "D1ACE'b"
+        },
+        {
+          "package": "#-1c19",
+          "instance": "u__h__m_1c19",
+          "field": "D.13",
+          "data": "D1in.13",
+          "address": [
+            "Dad.00b",
+            "Dad.01b",
+            "Dad.02'a",
+            "Dad.03'a",
+            "Dad.04'a",
+            "Dad.05'a",
+            "Dad.06'a",
+            "Dad.07'a",
+            "Dad.08'a",
+            "Dad1.10a",
+            "Dad1.11a",
+            "Dad1.12a"
+          ],
+          "we": "WriteD1'a",
+          "ce": "D1ACE'b"
+        },
+        {
+          "package": "#-1c9",
+          "instance": "u__h__m_1c9",
+          "field": "D.08",
+          "data": "D1in.08",
+          "address": [
+            "Dad.00b",
+            "Dad.01b",
+            "Dad.02'a",
+            "Dad.03'a",
+            "Dad.04'a",
+            "Dad.05'a",
+            "Dad.06'a",
+            "Dad.07'a",
+            "Dad.08'a",
+            "Dad1.10a",
+            "Dad1.11a",
+            "Dad1.12a"
+          ],
+          "we": "WriteD1'a",
+          "ce": "D1ACE'a"
+        }
+      ]
+    },
+    {
+      "group": "#-1c3",
+      "width": 3,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p11"
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_1"
+            ],
+            [
+              "unconnected",
+              "u_b08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_14"
+            ],
+            [
+              "unconnected",
+              "u_b08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_4"
+            ],
+            [
+              "unconnected",
+              "u_b08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_11"
+            ],
+            [
+              "unconnected",
+              "u_b08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_6"
+          ],
+          [
+            "unconnected",
+            "u_c08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_9"
+          ],
+          [
+            "unconnected",
+            "u_c08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_7"
+          ],
+          [
+            "unconnected",
+            "u_c08",
+            "p12"
+          ]
+        ],
+        [
+          "net",
+          "Dad0_10a"
+        ],
+        [
+          "net",
+          "Dad0_11a"
+        ],
+        [
+          "net",
+          "Dad0_12a"
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD03_sil_pl_15"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p10"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p9"
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09_p_"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_5"
+          ],
+          [
+            "unconnected",
+            "u_j10",
+            "p5"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "#-1c3",
+          "instance": "u__h__m_1c3",
+          "field": "D.00",
+          "data": "D0in.00",
+          "address": [
+            "Dad.00a",
+            "Dad.01a",
+            "Dad.02a",
+            "Dad.03a",
+            "Dad.04a",
+            "Dad.05a",
+            "Dad.06a",
+            "Dad.07a",
+            "Dad.08a",
+            "Dad0.10a",
+            "Dad0.11a",
+            "Dad0.12a"
+          ],
+          "we": "WriteD0'a",
+          "ce": "D0BCE'a"
+        },
+        {
+          "package": "#-1c5",
+          "instance": "u__h__m_1c5",
+          "field": "D.01",
+          "data": "D0in.01",
+          "address": [
+            "Dad.00a",
+            "Dad.01a",
+            "Dad.02a",
+            "Dad.03a",
+            "Dad.04a",
+            "Dad.05a",
+            "Dad.06a",
+            "Dad.07a",
+            "Dad.08a",
+            "Dad0.10a",
+            "Dad0.11a",
+            "Dad0.12a"
+          ],
+          "we": "WriteD0'a",
+          "ce": "D0BCE'a"
+        },
+        {
+          "package": "#-1c7",
+          "instance": "u__h__m_1c7",
+          "field": "D.16",
+          "data": "D0in.16",
+          "address": [
+            "Dad.00a",
+            "Dad.01a",
+            "Dad.02a",
+            "Dad.03a",
+            "Dad.04a",
+            "Dad.05a",
+            "Dad.06a",
+            "Dad.07a",
+            "Dad.08a",
+            "Dad0.10a",
+            "Dad0.11a",
+            "Dad0.12a"
+          ],
+          "we": "WriteD0'a",
+          "ce": "D0BCE'a"
+        }
+      ]
+    },
+    {
+      "group": "#-1f11",
+      "width": 6,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p11"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_1"
+          ],
+          [
+            "unconnected",
+            "u_f08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_14"
+          ],
+          [
+            "unconnected",
+            "u_f08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_4"
+          ],
+          [
+            "unconnected",
+            "u_f08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_11"
+          ],
+          [
+            "unconnected",
+            "u_f08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_5"
+          ],
+          [
+            "unconnected",
+            "u_g08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_10"
+          ],
+          [
+            "unconnected",
+            "u_g08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_8"
+          ],
+          [
+            "unconnected",
+            "u_g08",
+            "p12"
+          ]
+        ],
+        [
+          "net",
+          "Dad0_10b"
+        ],
+        [
+          "net",
+          "Dad0_11b"
+        ],
+        [
+          "net",
+          "Dad0_12b"
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD03_sil_pl_15"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p10"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p9"
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09_p_"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_5"
+          ],
+          [
+            "unconnected",
+            "u_j10",
+            "p5"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "#-1f11",
+          "instance": "u__h__m_1f11",
+          "field": "D.09",
+          "data": "D0in.09",
+          "address": [
+            "Dad.00c",
+            "Dad.01c",
+            "Dad.02'b",
+            "Dad.03'b",
+            "Dad.04'b",
+            "Dad.05'b",
+            "Dad.06'b",
+            "Dad.07'b",
+            "Dad.08'b",
+            "Dad0.10b",
+            "Dad0.11b",
+            "Dad0.12b"
+          ],
+          "we": "WriteD0'c",
+          "ce": "D0BCE'b"
+        },
+        {
+          "package": "#-1f13",
+          "instance": "u__h__m_1f13",
+          "field": "D.04",
+          "data": "D0in.04",
+          "address": [
+            "Dad.00c",
+            "Dad.01c",
+            "Dad.02'b",
+            "Dad.03'b",
+            "Dad.04'b",
+            "Dad.05'b",
+            "Dad.06'b",
+            "Dad.07'b",
+            "Dad.08'b",
+            "Dad0.10b",
+            "Dad0.11b",
+            "Dad0.12b"
+          ],
+          "we": "WriteD0'c",
+          "ce": "D0BCE'b"
+        },
+        {
+          "package": "#-1f15",
+          "instance": "u__h__m_1f15",
+          "field": "D.05",
+          "data": "D0in.05",
+          "address": [
+            "Dad.00c",
+            "Dad.01c",
+            "Dad.02'b",
+            "Dad.03'b",
+            "Dad.04'b",
+            "Dad.05'b",
+            "Dad.06'b",
+            "Dad.07'b",
+            "Dad.08'b",
+            "Dad0.10b",
+            "Dad0.11b",
+            "Dad0.12b"
+          ],
+          "we": "WriteD0'c",
+          "ce": "D0BCE'b"
+        },
+        {
+          "package": "#-1f17",
+          "instance": "u__h__m_1f17",
+          "field": "D.12",
+          "data": "D0in.12",
+          "address": [
+            "Dad.00c",
+            "Dad.01c",
+            "Dad.02'b",
+            "Dad.03'b",
+            "Dad.04'b",
+            "Dad.05'b",
+            "Dad.06'b",
+            "Dad.07'b",
+            "Dad.08'b",
+            "Dad0.10b",
+            "Dad0.11b",
+            "Dad0.12b"
+          ],
+          "we": "WriteD0'c",
+          "ce": "D0BCE'b"
+        },
+        {
+          "package": "#-1f19",
+          "instance": "u__h__m_1f19",
+          "field": "D.13",
+          "data": "D0in.13",
+          "address": [
+            "Dad.00c",
+            "Dad.01c",
+            "Dad.02'b",
+            "Dad.03'b",
+            "Dad.04'b",
+            "Dad.05'b",
+            "Dad.06'b",
+            "Dad.07'b",
+            "Dad.08'b",
+            "Dad0.10b",
+            "Dad0.11b",
+            "Dad0.12b"
+          ],
+          "we": "WriteD0'c",
+          "ce": "D0BCE'b"
+        },
+        {
+          "package": "#-1f9",
+          "instance": "u__h__m_1f9",
+          "field": "D.08",
+          "data": "D0in.08",
+          "address": [
+            "Dad.00c",
+            "Dad.01c",
+            "Dad.02'b",
+            "Dad.03'b",
+            "Dad.04'b",
+            "Dad.05'b",
+            "Dad.06'b",
+            "Dad.07'b",
+            "Dad.08'b",
+            "Dad0.10b",
+            "Dad0.11b",
+            "Dad0.12b"
+          ],
+          "we": "WriteD0'c",
+          "ce": "D0BCE'a"
+        }
+      ]
+    },
+    {
+      "group": "#-1f3",
+      "width": 3,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p11"
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_1"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_14"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_4"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_11"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_5"
+            ],
+            [
+              "unconnected",
+              "u_g08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_10"
+            ],
+            [
+              "unconnected",
+              "u_g08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_8"
+            ],
+            [
+              "unconnected",
+              "u_g08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "net",
+          "Dad1_10b"
+        ],
+        [
+          "net",
+          "Dad1_11b"
+        ],
+        [
+          "net",
+          "Dad1_12b"
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD03_sil_pl_4"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p5"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p7"
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09_p_"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_6"
+          ],
+          [
+            "unconnected",
+            "u_j10",
+            "p9"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "#-1f3",
+          "instance": "u__h__m_1f3",
+          "field": "D.00",
+          "data": "D1in.00",
+          "address": [
+            "Dad.00c",
+            "Dad.01c",
+            "Dad.02b",
+            "Dad.03b",
+            "Dad.04b",
+            "Dad.05b",
+            "Dad.06b",
+            "Dad.07b",
+            "Dad.08b",
+            "Dad1.10b",
+            "Dad1.11b",
+            "Dad1.12b"
+          ],
+          "we": "WriteD1'c",
+          "ce": "D1BCE'a"
+        },
+        {
+          "package": "#-1f5",
+          "instance": "u__h__m_1f5",
+          "field": "D.01",
+          "data": "D1in.01",
+          "address": [
+            "Dad.00c",
+            "Dad.01c",
+            "Dad.02b",
+            "Dad.03b",
+            "Dad.04b",
+            "Dad.05b",
+            "Dad.06b",
+            "Dad.07b",
+            "Dad.08b",
+            "Dad1.10b",
+            "Dad1.11b",
+            "Dad1.12b"
+          ],
+          "we": "WriteD1'c",
+          "ce": "D1BCE'a"
+        },
+        {
+          "package": "#-1f7",
+          "instance": "u__h__m_1f7",
+          "field": "D.16",
+          "data": "D1in.16",
+          "address": [
+            "Dad.00c",
+            "Dad.01c",
+            "Dad.02b",
+            "Dad.03b",
+            "Dad.04b",
+            "Dad.05b",
+            "Dad.06b",
+            "Dad.07b",
+            "Dad.08b",
+            "Dad1.10b",
+            "Dad1.11b",
+            "Dad1.12b"
+          ],
+          "we": "WriteD1'c",
+          "ce": "D1BCE'a"
+        }
+      ]
+    },
+    {
+      "group": "#-1i11",
+      "width": 6,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p11"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_2"
+          ],
+          [
+            "unconnected",
+            "u_j08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_13"
+          ],
+          [
+            "unconnected",
+            "u_j08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_3"
+          ],
+          [
+            "unconnected",
+            "u_j08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_12"
+          ],
+          [
+            "unconnected",
+            "u_j08",
+            "p12"
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_5"
+            ],
+            [
+              "unconnected",
+              "u_k08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_10"
+            ],
+            [
+              "unconnected",
+              "u_k08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_8"
+            ],
+            [
+              "unconnected",
+              "u_k08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "net",
+          "Dad1_10c"
+        ],
+        [
+          "net",
+          "Dad1_11c"
+        ],
+        [
+          "net",
+          "Dad1_12c"
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD03_sil_pl_9"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p5"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_6"
+          ],
+          [
+            "unconnected",
+            "u_i10",
+            "p9"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "#-1i11",
+          "instance": "u__h__m_1i11",
+          "field": "D.11",
+          "data": "D1in.11",
+          "address": [
+            "Dad.00e",
+            "Dad.01e",
+            "Dad.02c",
+            "Dad.03c",
+            "Dad.04c",
+            "Dad.05c",
+            "Dad.06c",
+            "Dad.07c",
+            "Dad.08c",
+            "Dad1.10c",
+            "Dad1.11c",
+            "Dad1.12c"
+          ],
+          "we": "WriteD1'e",
+          "ce": "D1ACE'c"
+        },
+        {
+          "package": "#-1i13",
+          "instance": "u__h__m_1i13",
+          "field": "D.06",
+          "data": "D1in.06",
+          "address": [
+            "Dad.00e",
+            "Dad.01e",
+            "Dad.02c",
+            "Dad.03c",
+            "Dad.04c",
+            "Dad.05c",
+            "Dad.06c",
+            "Dad.07c",
+            "Dad.08c",
+            "Dad1.10c",
+            "Dad1.11c",
+            "Dad1.12c"
+          ],
+          "we": "WriteD1'e",
+          "ce": "D1ACE'c"
+        },
+        {
+          "package": "#-1i15",
+          "instance": "u__h__m_1i15",
+          "field": "D.07",
+          "data": "D1in.07",
+          "address": [
+            "Dad.00e",
+            "Dad.01e",
+            "Dad.02c",
+            "Dad.03c",
+            "Dad.04c",
+            "Dad.05c",
+            "Dad.06c",
+            "Dad.07c",
+            "Dad.08c",
+            "Dad1.10c",
+            "Dad1.11c",
+            "Dad1.12c"
+          ],
+          "we": "WriteD1'e",
+          "ce": "D1ACE'c"
+        },
+        {
+          "package": "#-1i17",
+          "instance": "u__h__m_1i17",
+          "field": "D.14",
+          "data": "D1in.14",
+          "address": [
+            "Dad.00e",
+            "Dad.01e",
+            "Dad.02c",
+            "Dad.03c",
+            "Dad.04c",
+            "Dad.05c",
+            "Dad.06c",
+            "Dad.07c",
+            "Dad.08c",
+            "Dad1.10c",
+            "Dad1.11c",
+            "Dad1.12c"
+          ],
+          "we": "WriteD1'e",
+          "ce": "D1ACE'c"
+        },
+        {
+          "package": "#-1i19",
+          "instance": "u__h__m_1i19",
+          "field": "D.15",
+          "data": "D1in.15",
+          "address": [
+            "Dad.00e",
+            "Dad.01e",
+            "Dad.02c",
+            "Dad.03c",
+            "Dad.04c",
+            "Dad.05c",
+            "Dad.06c",
+            "Dad.07c",
+            "Dad.08c",
+            "Dad1.10c",
+            "Dad1.11c",
+            "Dad1.12c"
+          ],
+          "we": "WriteD1'e",
+          "ce": "D1ACE'c"
+        },
+        {
+          "package": "#-1i9",
+          "instance": "u__h__m_1i9",
+          "field": "D.10",
+          "data": "D1in.10",
+          "address": [
+            "Dad.00e",
+            "Dad.01e",
+            "Dad.02c",
+            "Dad.03c",
+            "Dad.04c",
+            "Dad.05c",
+            "Dad.06c",
+            "Dad.07c",
+            "Dad.08c",
+            "Dad1.10c",
+            "Dad1.11c",
+            "Dad1.12c"
+          ],
+          "we": "WriteD1'e",
+          "ce": "D1ACE'c"
+        }
+      ]
+    },
+    {
+      "group": "#-1i3",
+      "width": 3,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p11"
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_1"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_14"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_4"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_11"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_5"
+            ],
+            [
+              "unconnected",
+              "u_g08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_10"
+            ],
+            [
+              "unconnected",
+              "u_g08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_8"
+            ],
+            [
+              "unconnected",
+              "u_g08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "net",
+          "Dad1_10b"
+        ],
+        [
+          "net",
+          "Dad1_11b"
+        ],
+        [
+          "net",
+          "Dad1_12b"
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD03_sil_pl_9"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p5"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09_p_"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_6"
+          ],
+          [
+            "unconnected",
+            "u_j10",
+            "p9"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "#-1i3",
+          "instance": "u__h__m_1i3",
+          "field": "D.02",
+          "data": "D1in.02",
+          "address": [
+            "Dad.00d",
+            "Dad.01d",
+            "Dad.02b",
+            "Dad.03b",
+            "Dad.04b",
+            "Dad.05b",
+            "Dad.06b",
+            "Dad.07b",
+            "Dad.08b",
+            "Dad1.10b",
+            "Dad1.11b",
+            "Dad1.12b"
+          ],
+          "we": "WriteD1'd",
+          "ce": "D1BCE'c"
+        },
+        {
+          "package": "#-1i5",
+          "instance": "u__h__m_1i5",
+          "field": "D.03",
+          "data": "D1in.03",
+          "address": [
+            "Dad.00d",
+            "Dad.01d",
+            "Dad.02b",
+            "Dad.03b",
+            "Dad.04b",
+            "Dad.05b",
+            "Dad.06b",
+            "Dad.07b",
+            "Dad.08b",
+            "Dad1.10b",
+            "Dad1.11b",
+            "Dad1.12b"
+          ],
+          "we": "WriteD1'd",
+          "ce": "D1BCE'c"
+        },
+        {
+          "package": "#-1i7",
+          "instance": "u__h__m_1i7",
+          "field": "D.17",
+          "data": "D1in.17",
+          "address": [
+            "Dad.00d",
+            "Dad.01d",
+            "Dad.02b",
+            "Dad.03b",
+            "Dad.04b",
+            "Dad.05b",
+            "Dad.06b",
+            "Dad.07b",
+            "Dad.08b",
+            "Dad1.10b",
+            "Dad1.11b",
+            "Dad1.12b"
+          ],
+          "we": "WriteD1'd",
+          "ce": "D1BCE'c"
+        }
+      ]
+    },
+    {
+      "group": "#-1l11",
+      "width": 9,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p11"
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_2"
+            ],
+            [
+              "unconnected",
+              "u_j08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_13"
+            ],
+            [
+              "unconnected",
+              "u_j08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_3"
+            ],
+            [
+              "unconnected",
+              "u_j08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_12"
+            ],
+            [
+              "unconnected",
+              "u_j08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_5"
+          ],
+          [
+            "unconnected",
+            "u_k08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_10"
+          ],
+          [
+            "unconnected",
+            "u_k08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_8"
+          ],
+          [
+            "unconnected",
+            "u_k08",
+            "p12"
+          ]
+        ],
+        [
+          "net",
+          "Dad0_10c"
+        ],
+        [
+          "net",
+          "Dad0_11c"
+        ],
+        [
+          "net",
+          "Dad0_12c"
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD03_sil_pl_3"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p9"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09_p_"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_5"
+          ],
+          [
+            "unconnected",
+            "u_j10",
+            "p5"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "#-1l11",
+          "instance": "u__h__m_1l11",
+          "field": "D.11",
+          "data": "D0in.11",
+          "address": [
+            "Dad.00f",
+            "Dad.01f",
+            "Dad.02'c",
+            "Dad.03'c",
+            "Dad.04'c",
+            "Dad.05'c",
+            "Dad.06'c",
+            "Dad.07'c",
+            "Dad.08'c",
+            "Dad0.10c",
+            "Dad0.11c",
+            "Dad0.12c"
+          ],
+          "we": "WriteD0'f",
+          "ce": "D0BCE'c"
+        },
+        {
+          "package": "#-1l13",
+          "instance": "u__h__m_1l13",
+          "field": "D.06",
+          "data": "D0in.06",
+          "address": [
+            "Dad.00f",
+            "Dad.01f",
+            "Dad.02'c",
+            "Dad.03'c",
+            "Dad.04'c",
+            "Dad.05'c",
+            "Dad.06'c",
+            "Dad.07'c",
+            "Dad.08'c",
+            "Dad0.10c",
+            "Dad0.11c",
+            "Dad0.12c"
+          ],
+          "we": "WriteD0'f",
+          "ce": "D0BCE'c"
+        },
+        {
+          "package": "#-1l15",
+          "instance": "u__h__m_1l15",
+          "field": "D.07",
+          "data": "D0in.07",
+          "address": [
+            "Dad.00f",
+            "Dad.01f",
+            "Dad.02'c",
+            "Dad.03'c",
+            "Dad.04'c",
+            "Dad.05'c",
+            "Dad.06'c",
+            "Dad.07'c",
+            "Dad.08'c",
+            "Dad0.10c",
+            "Dad0.11c",
+            "Dad0.12c"
+          ],
+          "we": "WriteD0'f",
+          "ce": "D0BCE'c"
+        },
+        {
+          "package": "#-1l17",
+          "instance": "u__h__m_1l17",
+          "field": "D.14",
+          "data": "D0in.14",
+          "address": [
+            "Dad.00f",
+            "Dad.01f",
+            "Dad.02'c",
+            "Dad.03'c",
+            "Dad.04'c",
+            "Dad.05'c",
+            "Dad.06'c",
+            "Dad.07'c",
+            "Dad.08'c",
+            "Dad0.10c",
+            "Dad0.11c",
+            "Dad0.12c"
+          ],
+          "we": "WriteD0'f",
+          "ce": "D0BCE'c"
+        },
+        {
+          "package": "#-1l19",
+          "instance": "u__h__m_1l19",
+          "field": "D.15",
+          "data": "D0in.15",
+          "address": [
+            "Dad.00f",
+            "Dad.01f",
+            "Dad.02'c",
+            "Dad.03'c",
+            "Dad.04'c",
+            "Dad.05'c",
+            "Dad.06'c",
+            "Dad.07'c",
+            "Dad.08'c",
+            "Dad0.10c",
+            "Dad0.11c",
+            "Dad0.12c"
+          ],
+          "we": "WriteD0'f",
+          "ce": "D0BCE'c"
+        },
+        {
+          "package": "#-1l3",
+          "instance": "u__h__m_1l3",
+          "field": "D.02",
+          "data": "D0in.02",
+          "address": [
+            "Dad.00f",
+            "Dad.01f",
+            "Dad.02'c",
+            "Dad.03'c",
+            "Dad.04'c",
+            "Dad.05'c",
+            "Dad.06'c",
+            "Dad.07'c",
+            "Dad.08'c",
+            "Dad0.10c",
+            "Dad0.11c",
+            "Dad0.12c"
+          ],
+          "we": "WriteD0'e",
+          "ce": "D0BCE'c"
+        },
+        {
+          "package": "#-1l5",
+          "instance": "u__h__m_1l5",
+          "field": "D.03",
+          "data": "D0in.03",
+          "address": [
+            "Dad.00f",
+            "Dad.01f",
+            "Dad.02'c",
+            "Dad.03'c",
+            "Dad.04'c",
+            "Dad.05'c",
+            "Dad.06'c",
+            "Dad.07'c",
+            "Dad.08'c",
+            "Dad0.10c",
+            "Dad0.11c",
+            "Dad0.12c"
+          ],
+          "we": "WriteD0'e",
+          "ce": "D0BCE'c"
+        },
+        {
+          "package": "#-1l7",
+          "instance": "u__h__m_1l7",
+          "field": "D.17",
+          "data": "D0in.17",
+          "address": [
+            "Dad.00f",
+            "Dad.01f",
+            "Dad.02'c",
+            "Dad.03'c",
+            "Dad.04'c",
+            "Dad.05'c",
+            "Dad.06'c",
+            "Dad.07'c",
+            "Dad.08'c",
+            "Dad0.10c",
+            "Dad0.11c",
+            "Dad0.12c"
+          ],
+          "we": "WriteD0'e",
+          "ce": "D0BCE'c"
+        },
+        {
+          "package": "#-1l9",
+          "instance": "u__h__m_1l9",
+          "field": "D.10",
+          "data": "D0in.10",
+          "address": [
+            "Dad.00f",
+            "Dad.01f",
+            "Dad.02'c",
+            "Dad.03'c",
+            "Dad.04'c",
+            "Dad.05'c",
+            "Dad.06'c",
+            "Dad.07'c",
+            "Dad.08'c",
+            "Dad0.10c",
+            "Dad0.11c",
+            "Dad0.12c"
+          ],
+          "we": "WriteD0'f",
+          "ce": "D0BCE'c"
+        }
+      ]
+    },
+    {
+      "group": "a03",
+      "width": 9,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p11"
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_1"
+            ],
+            [
+              "unconnected",
+              "u_b08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_14"
+            ],
+            [
+              "unconnected",
+              "u_b08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_4"
+            ],
+            [
+              "unconnected",
+              "u_b08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_11"
+            ],
+            [
+              "unconnected",
+              "u_b08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_6"
+          ],
+          [
+            "unconnected",
+            "u_c08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_9"
+          ],
+          [
+            "unconnected",
+            "u_c08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_7"
+          ],
+          [
+            "unconnected",
+            "u_c08",
+            "p12"
+          ]
+        ],
+        [
+          "net",
+          "Dad0_10a"
+        ],
+        [
+          "net",
+          "Dad0_11a"
+        ],
+        [
+          "net",
+          "Dad0_12a"
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD03_sil_pl_15"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p10"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p9"
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_5"
+          ],
+          [
+            "unconnected",
+            "u_i10",
+            "p5"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "a03",
+          "instance": "u_a03",
+          "field": "D.00",
+          "data": "D0in.00",
+          "address": [
+            "Dad.00a",
+            "Dad.01a",
+            "Dad.02a",
+            "Dad.03a",
+            "Dad.04a",
+            "Dad.05a",
+            "Dad.06a",
+            "Dad.07a",
+            "Dad.08a",
+            "Dad0.10a",
+            "Dad0.11a",
+            "Dad0.12a"
+          ],
+          "we": "WriteD0'a",
+          "ce": "D0ACE'a"
+        },
+        {
+          "package": "a05",
+          "instance": "u_a05",
+          "field": "D.01",
+          "data": "D0in.01",
+          "address": [
+            "Dad.00a",
+            "Dad.01a",
+            "Dad.02a",
+            "Dad.03a",
+            "Dad.04a",
+            "Dad.05a",
+            "Dad.06a",
+            "Dad.07a",
+            "Dad.08a",
+            "Dad0.10a",
+            "Dad0.11a",
+            "Dad0.12a"
+          ],
+          "we": "WriteD0'a",
+          "ce": "D0ACE'a"
+        },
+        {
+          "package": "a07",
+          "instance": "u_a07",
+          "field": "D.16",
+          "data": "D0in.16",
+          "address": [
+            "Dad.00a",
+            "Dad.01a",
+            "Dad.02a",
+            "Dad.03a",
+            "Dad.04a",
+            "Dad.05a",
+            "Dad.06a",
+            "Dad.07a",
+            "Dad.08a",
+            "Dad0.10a",
+            "Dad0.11a",
+            "Dad0.12a"
+          ],
+          "we": "WriteD0'a",
+          "ce": "D0ACE'a"
+        },
+        {
+          "package": "a09",
+          "instance": "u_a09",
+          "field": "D.08",
+          "data": "D0in.08",
+          "address": [
+            "Dad.00a",
+            "Dad.01a",
+            "Dad.02a",
+            "Dad.03a",
+            "Dad.04a",
+            "Dad.05a",
+            "Dad.06a",
+            "Dad.07a",
+            "Dad.08a",
+            "Dad0.10a",
+            "Dad0.11a",
+            "Dad0.12a"
+          ],
+          "we": "WriteD0'b",
+          "ce": "D0ACE'a"
+        },
+        {
+          "package": "a11",
+          "instance": "u_a11",
+          "field": "D.09",
+          "data": "D0in.09",
+          "address": [
+            "Dad.00a",
+            "Dad.01a",
+            "Dad.02a",
+            "Dad.03a",
+            "Dad.04a",
+            "Dad.05a",
+            "Dad.06a",
+            "Dad.07a",
+            "Dad.08a",
+            "Dad0.10a",
+            "Dad0.11a",
+            "Dad0.12a"
+          ],
+          "we": "WriteD0'b",
+          "ce": "D0ACE'b"
+        },
+        {
+          "package": "a13",
+          "instance": "u_a13",
+          "field": "D.04",
+          "data": "D0in.04",
+          "address": [
+            "Dad.00a",
+            "Dad.01a",
+            "Dad.02a",
+            "Dad.03a",
+            "Dad.04a",
+            "Dad.05a",
+            "Dad.06a",
+            "Dad.07a",
+            "Dad.08a",
+            "Dad0.10a",
+            "Dad0.11a",
+            "Dad0.12a"
+          ],
+          "we": "WriteD0'b",
+          "ce": "D0ACE'b"
+        },
+        {
+          "package": "a15",
+          "instance": "u_a15",
+          "field": "D.05",
+          "data": "D0in.05",
+          "address": [
+            "Dad.00a",
+            "Dad.01a",
+            "Dad.02a",
+            "Dad.03a",
+            "Dad.04a",
+            "Dad.05a",
+            "Dad.06a",
+            "Dad.07a",
+            "Dad.08a",
+            "Dad0.10a",
+            "Dad0.11a",
+            "Dad0.12a"
+          ],
+          "we": "WriteD0'b",
+          "ce": "D0ACE'b"
+        },
+        {
+          "package": "a17",
+          "instance": "u_a17",
+          "field": "D.12",
+          "data": "D0in.12",
+          "address": [
+            "Dad.00a",
+            "Dad.01a",
+            "Dad.02a",
+            "Dad.03a",
+            "Dad.04a",
+            "Dad.05a",
+            "Dad.06a",
+            "Dad.07a",
+            "Dad.08a",
+            "Dad0.10a",
+            "Dad0.11a",
+            "Dad0.12a"
+          ],
+          "we": "WriteD0'b",
+          "ce": "D0ACE'b"
+        },
+        {
+          "package": "a19",
+          "instance": "u_a19",
+          "field": "D.13",
+          "data": "D0in.13",
+          "address": [
+            "Dad.00a",
+            "Dad.01a",
+            "Dad.02a",
+            "Dad.03a",
+            "Dad.04a",
+            "Dad.05a",
+            "Dad.06a",
+            "Dad.07a",
+            "Dad.08a",
+            "Dad0.10a",
+            "Dad0.11a",
+            "Dad0.12a"
+          ],
+          "we": "WriteD0'b",
+          "ce": "D0ACE'b"
+        }
+      ]
+    },
+    {
+      "group": "d03",
+      "width": 3,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p11"
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_1"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_14"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_4"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_11"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_5"
+            ],
+            [
+              "unconnected",
+              "u_g08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_10"
+            ],
+            [
+              "unconnected",
+              "u_g08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_8"
+            ],
+            [
+              "unconnected",
+              "u_g08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "net",
+          "Dad1_10b"
+        ],
+        [
+          "net",
+          "Dad1_11b"
+        ],
+        [
+          "net",
+          "Dad1_12b"
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD03_sil_pl_4"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p5"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p7"
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_6"
+          ],
+          [
+            "unconnected",
+            "u_i10",
+            "p9"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "d03",
+          "instance": "u_d03",
+          "field": "D.00",
+          "data": "D1in.00",
+          "address": [
+            "Dad.00c",
+            "Dad.01c",
+            "Dad.02b",
+            "Dad.03b",
+            "Dad.04b",
+            "Dad.05b",
+            "Dad.06b",
+            "Dad.07b",
+            "Dad.08b",
+            "Dad1.10b",
+            "Dad1.11b",
+            "Dad1.12b"
+          ],
+          "we": "WriteD1'c",
+          "ce": "D1ACE'a"
+        },
+        {
+          "package": "d05",
+          "instance": "u_d05",
+          "field": "D.01",
+          "data": "D1in.01",
+          "address": [
+            "Dad.00c",
+            "Dad.01c",
+            "Dad.02b",
+            "Dad.03b",
+            "Dad.04b",
+            "Dad.05b",
+            "Dad.06b",
+            "Dad.07b",
+            "Dad.08b",
+            "Dad1.10b",
+            "Dad1.11b",
+            "Dad1.12b"
+          ],
+          "we": "WriteD1'c",
+          "ce": "D1ACE'a"
+        },
+        {
+          "package": "d07",
+          "instance": "u_d07",
+          "field": "D.16",
+          "data": "D1in.16",
+          "address": [
+            "Dad.00c",
+            "Dad.01c",
+            "Dad.02b",
+            "Dad.03b",
+            "Dad.04b",
+            "Dad.05b",
+            "Dad.06b",
+            "Dad.07b",
+            "Dad.08b",
+            "Dad1.10b",
+            "Dad1.11b",
+            "Dad1.12b"
+          ],
+          "we": "WriteD1'c",
+          "ce": "D1ACE'a"
+        }
+      ]
+    },
+    {
+      "group": "d09",
+      "width": 6,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_d08",
+            "p11"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_1"
+          ],
+          [
+            "unconnected",
+            "u_b08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_14"
+          ],
+          [
+            "unconnected",
+            "u_b08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_4"
+          ],
+          [
+            "unconnected",
+            "u_b08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_11"
+          ],
+          [
+            "unconnected",
+            "u_b08",
+            "p12"
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_6"
+            ],
+            [
+              "unconnected",
+              "u_c08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_9"
+            ],
+            [
+              "unconnected",
+              "u_c08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_7"
+            ],
+            [
+              "unconnected",
+              "u_c08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "net",
+          "Dad1_10a"
+        ],
+        [
+          "net",
+          "Dad1_11a"
+        ],
+        [
+          "net",
+          "Dad1_12a"
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD03_sil_pl_4"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p5"
+            ],
+            [
+              "unconnected",
+              "u_e08",
+              "p7"
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09_p_"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_6"
+          ],
+          [
+            "unconnected",
+            "u_j10",
+            "p9"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "d09",
+          "instance": "u_d09",
+          "field": "D.08",
+          "data": "D1in.08",
+          "address": [
+            "Dad.00b",
+            "Dad.01b",
+            "Dad.02'a",
+            "Dad.03'a",
+            "Dad.04'a",
+            "Dad.05'a",
+            "Dad.06'a",
+            "Dad.07'a",
+            "Dad.08'a",
+            "Dad1.10a",
+            "Dad1.11a",
+            "Dad1.12a"
+          ],
+          "we": "WriteD1'b",
+          "ce": "D1BCE'b"
+        },
+        {
+          "package": "d11",
+          "instance": "u_d11",
+          "field": "D.09",
+          "data": "D1in.09",
+          "address": [
+            "Dad.00b",
+            "Dad.01b",
+            "Dad.02'a",
+            "Dad.03'a",
+            "Dad.04'a",
+            "Dad.05'a",
+            "Dad.06'a",
+            "Dad.07'a",
+            "Dad.08'a",
+            "Dad1.10a",
+            "Dad1.11a",
+            "Dad1.12a"
+          ],
+          "we": "WriteD1'b",
+          "ce": "D1BCE'b"
+        },
+        {
+          "package": "d13",
+          "instance": "u_d13",
+          "field": "D.04",
+          "data": "D1in.04",
+          "address": [
+            "Dad.00b",
+            "Dad.01b",
+            "Dad.02'a",
+            "Dad.03'a",
+            "Dad.04'a",
+            "Dad.05'a",
+            "Dad.06'a",
+            "Dad.07'a",
+            "Dad.08'a",
+            "Dad1.10a",
+            "Dad1.11a",
+            "Dad1.12a"
+          ],
+          "we": "WriteD1'b",
+          "ce": "D1BCE'b"
+        },
+        {
+          "package": "d15",
+          "instance": "u_d15",
+          "field": "D.05",
+          "data": "D1in.05",
+          "address": [
+            "Dad.00b",
+            "Dad.01b",
+            "Dad.02'a",
+            "Dad.03'a",
+            "Dad.04'a",
+            "Dad.05'a",
+            "Dad.06'a",
+            "Dad.07'a",
+            "Dad.08'a",
+            "Dad1.10a",
+            "Dad1.11a",
+            "Dad1.12a"
+          ],
+          "we": "WriteD1'b",
+          "ce": "D1BCE'b"
+        },
+        {
+          "package": "d17",
+          "instance": "u_d17",
+          "field": "D.12",
+          "data": "D1in.12",
+          "address": [
+            "Dad.00b",
+            "Dad.01b",
+            "Dad.02'a",
+            "Dad.03'a",
+            "Dad.04'a",
+            "Dad.05'a",
+            "Dad.06'a",
+            "Dad.07'a",
+            "Dad.08'a",
+            "Dad1.10a",
+            "Dad1.11a",
+            "Dad1.12a"
+          ],
+          "we": "WriteD1'b",
+          "ce": "D1BCE'b"
+        },
+        {
+          "package": "d19",
+          "instance": "u_d19",
+          "field": "D.13",
+          "data": "D1in.13",
+          "address": [
+            "Dad.00b",
+            "Dad.01b",
+            "Dad.02'a",
+            "Dad.03'a",
+            "Dad.04'a",
+            "Dad.05'a",
+            "Dad.06'a",
+            "Dad.07'a",
+            "Dad.08'a",
+            "Dad1.10a",
+            "Dad1.11a",
+            "Dad1.12a"
+          ],
+          "we": "WriteD1'b",
+          "ce": "D1BCE'b"
+        }
+      ]
+    },
+    {
+      "group": "g03",
+      "width": 3,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p11"
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_1"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_14"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_4"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_11"
+            ],
+            [
+              "unconnected",
+              "u_f08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_5"
+            ],
+            [
+              "unconnected",
+              "u_g08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_10"
+            ],
+            [
+              "unconnected",
+              "u_g08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_8"
+            ],
+            [
+              "unconnected",
+              "u_g08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "net",
+          "Dad1_10b"
+        ],
+        [
+          "net",
+          "Dad1_11b"
+        ],
+        [
+          "net",
+          "Dad1_12b"
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD03_sil_pl_9"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p5"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_6"
+          ],
+          [
+            "unconnected",
+            "u_i10",
+            "p9"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "g03",
+          "instance": "u_g03",
+          "field": "D.02",
+          "data": "D1in.02",
+          "address": [
+            "Dad.00d",
+            "Dad.01d",
+            "Dad.02b",
+            "Dad.03b",
+            "Dad.04b",
+            "Dad.05b",
+            "Dad.06b",
+            "Dad.07b",
+            "Dad.08b",
+            "Dad1.10b",
+            "Dad1.11b",
+            "Dad1.12b"
+          ],
+          "we": "WriteD1'd",
+          "ce": "D1ACE'c"
+        },
+        {
+          "package": "g05",
+          "instance": "u_g05",
+          "field": "D.03",
+          "data": "D1in.03",
+          "address": [
+            "Dad.00d",
+            "Dad.01d",
+            "Dad.02b",
+            "Dad.03b",
+            "Dad.04b",
+            "Dad.05b",
+            "Dad.06b",
+            "Dad.07b",
+            "Dad.08b",
+            "Dad1.10b",
+            "Dad1.11b",
+            "Dad1.12b"
+          ],
+          "we": "WriteD1'd",
+          "ce": "D1ACE'c"
+        },
+        {
+          "package": "g07",
+          "instance": "u_g07",
+          "field": "D.17",
+          "data": "D1in.17",
+          "address": [
+            "Dad.00d",
+            "Dad.01d",
+            "Dad.02b",
+            "Dad.03b",
+            "Dad.04b",
+            "Dad.05b",
+            "Dad.06b",
+            "Dad.07b",
+            "Dad.08b",
+            "Dad1.10b",
+            "Dad1.11b",
+            "Dad1.12b"
+          ],
+          "we": "WriteD1'd",
+          "ce": "D1ACE'c"
+        }
+      ]
+    },
+    {
+      "group": "g09",
+      "width": 6,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p11"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_1"
+          ],
+          [
+            "unconnected",
+            "u_f08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_14"
+          ],
+          [
+            "unconnected",
+            "u_f08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_4"
+          ],
+          [
+            "unconnected",
+            "u_f08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_11"
+          ],
+          [
+            "unconnected",
+            "u_f08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_5"
+          ],
+          [
+            "unconnected",
+            "u_g08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_10"
+          ],
+          [
+            "unconnected",
+            "u_g08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_8"
+          ],
+          [
+            "unconnected",
+            "u_g08",
+            "p12"
+          ]
+        ],
+        [
+          "net",
+          "Dad0_10b"
+        ],
+        [
+          "net",
+          "Dad0_11b"
+        ],
+        [
+          "net",
+          "Dad0_12b"
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD03_sil_pl_3"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p9"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_5"
+          ],
+          [
+            "unconnected",
+            "u_i10",
+            "p5"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "g09",
+          "instance": "u_g09",
+          "field": "D.10",
+          "data": "D0in.10",
+          "address": [
+            "Dad.00d",
+            "Dad.01d",
+            "Dad.02'b",
+            "Dad.03'b",
+            "Dad.04'b",
+            "Dad.05'b",
+            "Dad.06'b",
+            "Dad.07'b",
+            "Dad.08'b",
+            "Dad0.10b",
+            "Dad0.11b",
+            "Dad0.12b"
+          ],
+          "we": "WriteD0'd",
+          "ce": "D0ACE'c"
+        },
+        {
+          "package": "g11",
+          "instance": "u_g11",
+          "field": "D.11",
+          "data": "D0in.11",
+          "address": [
+            "Dad.00d",
+            "Dad.01d",
+            "Dad.02'b",
+            "Dad.03'b",
+            "Dad.04'b",
+            "Dad.05'b",
+            "Dad.06'b",
+            "Dad.07'b",
+            "Dad.08'b",
+            "Dad0.10b",
+            "Dad0.11b",
+            "Dad0.12b"
+          ],
+          "we": "WriteD0'd",
+          "ce": "D0ACE'c"
+        },
+        {
+          "package": "g13",
+          "instance": "u_g13",
+          "field": "D.06",
+          "data": "D0in.06",
+          "address": [
+            "Dad.00d",
+            "Dad.01d",
+            "Dad.02'b",
+            "Dad.03'b",
+            "Dad.04'b",
+            "Dad.05'b",
+            "Dad.06'b",
+            "Dad.07'b",
+            "Dad.08'b",
+            "Dad0.10b",
+            "Dad0.11b",
+            "Dad0.12b"
+          ],
+          "we": "WriteD0'd",
+          "ce": "D0ACE'c"
+        },
+        {
+          "package": "g15",
+          "instance": "u_g15",
+          "field": "D.07",
+          "data": "D0in.07",
+          "address": [
+            "Dad.00d",
+            "Dad.01d",
+            "Dad.02'b",
+            "Dad.03'b",
+            "Dad.04'b",
+            "Dad.05'b",
+            "Dad.06'b",
+            "Dad.07'b",
+            "Dad.08'b",
+            "Dad0.10b",
+            "Dad0.11b",
+            "Dad0.12b"
+          ],
+          "we": "WriteD0'd",
+          "ce": "D0ACE'c"
+        },
+        {
+          "package": "g17",
+          "instance": "u_g17",
+          "field": "D.14",
+          "data": "D0in.14",
+          "address": [
+            "Dad.00d",
+            "Dad.01d",
+            "Dad.02'b",
+            "Dad.03'b",
+            "Dad.04'b",
+            "Dad.05'b",
+            "Dad.06'b",
+            "Dad.07'b",
+            "Dad.08'b",
+            "Dad0.10b",
+            "Dad0.11b",
+            "Dad0.12b"
+          ],
+          "we": "WriteD0'd",
+          "ce": "D0ACE'c"
+        },
+        {
+          "package": "g19",
+          "instance": "u_g19",
+          "field": "D.15",
+          "data": "D0in.15",
+          "address": [
+            "Dad.00d",
+            "Dad.01d",
+            "Dad.02'b",
+            "Dad.03'b",
+            "Dad.04'b",
+            "Dad.05'b",
+            "Dad.06'b",
+            "Dad.07'b",
+            "Dad.08'b",
+            "Dad0.10b",
+            "Dad0.11b",
+            "Dad0.12b"
+          ],
+          "we": "WriteD0'd",
+          "ce": "D0ACE'c"
+        }
+      ]
+    },
+    {
+      "group": "j03",
+      "width": 3,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p11"
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_2"
+            ],
+            [
+              "unconnected",
+              "u_j08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_13"
+            ],
+            [
+              "unconnected",
+              "u_j08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_3"
+            ],
+            [
+              "unconnected",
+              "u_j08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_12"
+            ],
+            [
+              "unconnected",
+              "u_j08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_5"
+          ],
+          [
+            "unconnected",
+            "u_k08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_10"
+          ],
+          [
+            "unconnected",
+            "u_k08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_8"
+          ],
+          [
+            "unconnected",
+            "u_k08",
+            "p12"
+          ]
+        ],
+        [
+          "net",
+          "Dad0_10c"
+        ],
+        [
+          "net",
+          "Dad0_11c"
+        ],
+        [
+          "net",
+          "Dad0_12c"
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD03_sil_pl_3"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p9"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_5"
+          ],
+          [
+            "unconnected",
+            "u_i10",
+            "p5"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "j03",
+          "instance": "u_j03",
+          "field": "D.02",
+          "data": "D0in.02",
+          "address": [
+            "Dad.00f",
+            "Dad.01f",
+            "Dad.02'c",
+            "Dad.03'c",
+            "Dad.04'c",
+            "Dad.05'c",
+            "Dad.06'c",
+            "Dad.07'c",
+            "Dad.08'c",
+            "Dad0.10c",
+            "Dad0.11c",
+            "Dad0.12c"
+          ],
+          "we": "WriteD0'e",
+          "ce": "D0ACE'c"
+        },
+        {
+          "package": "j05",
+          "instance": "u_j05",
+          "field": "D.03",
+          "data": "D0in.03",
+          "address": [
+            "Dad.00f",
+            "Dad.01f",
+            "Dad.02'c",
+            "Dad.03'c",
+            "Dad.04'c",
+            "Dad.05'c",
+            "Dad.06'c",
+            "Dad.07'c",
+            "Dad.08'c",
+            "Dad0.10c",
+            "Dad0.11c",
+            "Dad0.12c"
+          ],
+          "we": "WriteD0'e",
+          "ce": "D0ACE'c"
+        },
+        {
+          "package": "j07",
+          "instance": "u_j07",
+          "field": "D.17",
+          "data": "D0in.17",
+          "address": [
+            "Dad.00f",
+            "Dad.01f",
+            "Dad.02'c",
+            "Dad.03'c",
+            "Dad.04'c",
+            "Dad.05'c",
+            "Dad.06'c",
+            "Dad.07'c",
+            "Dad.08'c",
+            "Dad0.10c",
+            "Dad0.11c",
+            "Dad0.12c"
+          ],
+          "we": "WriteD0'e",
+          "ce": "D0ACE'c"
+        }
+      ]
+    },
+    {
+      "group": "j09",
+      "width": 6,
+      "canonical_pins": [
+        [
+          "|",
+          [
+            "net",
+            "Dad_00"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p6"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_01"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p10"
+          ],
+          [
+            "unconnected",
+            "u_i08",
+            "p11"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_2"
+          ],
+          [
+            "unconnected",
+            "u_j08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_13"
+          ],
+          [
+            "unconnected",
+            "u_j08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_3"
+          ],
+          [
+            "unconnected",
+            "u_j08",
+            "p12"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD02_sil_pl_12"
+          ],
+          [
+            "unconnected",
+            "u_j08",
+            "p12"
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_5"
+            ],
+            [
+              "unconnected",
+              "u_k08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_10"
+            ],
+            [
+              "unconnected",
+              "u_k08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "~",
+          [
+            "|",
+            [
+              "net",
+              "MemD02_sil_pl_8"
+            ],
+            [
+              "unconnected",
+              "u_k08",
+              "p12"
+            ]
+          ]
+        ],
+        [
+          "net",
+          "Dad1_10c"
+        ],
+        [
+          "net",
+          "Dad1_11c"
+        ],
+        [
+          "net",
+          "Dad1_12c"
+        ],
+        [
+          "|",
+          [
+            "net",
+            "MemD03_sil_pl_9"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p5"
+          ],
+          [
+            "unconnected",
+            "u_h08",
+            "p7"
+          ]
+        ],
+        [
+          "|",
+          [
+            "net",
+            "Dad_09_p_"
+          ],
+          [
+            "net",
+            "MemD03_sil_pl_6"
+          ],
+          [
+            "unconnected",
+            "u_j10",
+            "p9"
+          ]
+        ]
+      ],
+      "members": [
+        {
+          "package": "j09",
+          "instance": "u_j09",
+          "field": "D.10",
+          "data": "D1in.10",
+          "address": [
+            "Dad.00e",
+            "Dad.01e",
+            "Dad.02c",
+            "Dad.03c",
+            "Dad.04c",
+            "Dad.05c",
+            "Dad.06c",
+            "Dad.07c",
+            "Dad.08c",
+            "Dad1.10c",
+            "Dad1.11c",
+            "Dad1.12c"
+          ],
+          "we": "WriteD1'f",
+          "ce": "D1BCE'c"
+        },
+        {
+          "package": "j11",
+          "instance": "u_j11",
+          "field": "D.11",
+          "data": "D1in.11",
+          "address": [
+            "Dad.00e",
+            "Dad.01e",
+            "Dad.02c",
+            "Dad.03c",
+            "Dad.04c",
+            "Dad.05c",
+            "Dad.06c",
+            "Dad.07c",
+            "Dad.08c",
+            "Dad1.10c",
+            "Dad1.11c",
+            "Dad1.12c"
+          ],
+          "we": "WriteD1'f",
+          "ce": "D1BCE'c"
+        },
+        {
+          "package": "j13",
+          "instance": "u_j13",
+          "field": "D.06",
+          "data": "D1in.06",
+          "address": [
+            "Dad.00e",
+            "Dad.01e",
+            "Dad.02c",
+            "Dad.03c",
+            "Dad.04c",
+            "Dad.05c",
+            "Dad.06c",
+            "Dad.07c",
+            "Dad.08c",
+            "Dad1.10c",
+            "Dad1.11c",
+            "Dad1.12c"
+          ],
+          "we": "WriteD1'f",
+          "ce": "D1BCE'c"
+        },
+        {
+          "package": "j15",
+          "instance": "u_j15",
+          "field": "D.07",
+          "data": "D1in.07",
+          "address": [
+            "Dad.00e",
+            "Dad.01e",
+            "Dad.02c",
+            "Dad.03c",
+            "Dad.04c",
+            "Dad.05c",
+            "Dad.06c",
+            "Dad.07c",
+            "Dad.08c",
+            "Dad1.10c",
+            "Dad1.11c",
+            "Dad1.12c"
+          ],
+          "we": "WriteD1'f",
+          "ce": "D1BCE'c"
+        },
+        {
+          "package": "j17",
+          "instance": "u_j17",
+          "field": "D.14",
+          "data": "D1in.14",
+          "address": [
+            "Dad.00e",
+            "Dad.01e",
+            "Dad.02c",
+            "Dad.03c",
+            "Dad.04c",
+            "Dad.05c",
+            "Dad.06c",
+            "Dad.07c",
+            "Dad.08c",
+            "Dad1.10c",
+            "Dad1.11c",
+            "Dad1.12c"
+          ],
+          "we": "WriteD1'f",
+          "ce": "D1BCE'c"
+        },
+        {
+          "package": "j19",
+          "instance": "u_j19",
+          "field": "D.15",
+          "data": "D1in.15",
+          "address": [
+            "Dad.00e",
+            "Dad.01e",
+            "Dad.02c",
+            "Dad.03c",
+            "Dad.04c",
+            "Dad.05c",
+            "Dad.06c",
+            "Dad.07c",
+            "Dad.08c",
+            "Dad1.10c",
+            "Dad1.11c",
+            "Dad1.12c"
+          ],
+          "we": "WriteD1'f",
+          "ce": "D1BCE'c"
+        }
+      ]
+    }
+  ],
+  "unexpanded_board_assignments": {
+    "storage_rx_data": "words[STORAGE_INPUT_DELAY-1]"
+  },
+  "sources": {
+    "verilog/cells/cell_F10470.v": "90c6ae2805dac5ec07952fa9f0344154317ebfc602241e25350bf7bca1fe0d30",
+    "verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "verilog/cells/cell_LM3911_20K.v": "7bac5b0e7235f7840a51a6ab47321745bceda31c5216652cb4550eae83d32ecc",
+    "verilog/cells/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "verilog/cells/cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+    "verilog/cells/cell_MC10163.v": "e6571ec306a0223e20c1b1bb2c1d199e2d0e51159b6299b610ad8bd0cf8529a6",
+    "verilog/cells/cell_MC10180.v": "0fed5733b833b604abce67613e52e20fc74bb06ac1b122e66f499adecb6f8b30",
+    "verilog/cells/cell_F10000.v": "ce17c47889977a87a28de0aa59ca917bd778984a4e5b08f21021a2ccd8801ee6",
+    "verilog/cells/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+    "verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "verilog/cells/cell_MC10175.v": "81ce9ab49d5a9788c1f93dd67704a27a7e0848243a7d10c9aec2d48deec1c0f1",
+    "verilog/cells/cell_MC10159.v": "cdd04d5587a7427677bc5fe1f3ab694c52ad8d70b078919d265cd0036aa92f32",
+    "verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+    "verilog/cells/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+    "verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "verilog/cells/cell_MC10101.v": "d7cce11dd4c6c75b83d1d40287144fffc35ac6df2b9f490a45aeb740dcab862f",
+    "verilog/cells/cell_MC10172.v": "559a7747f2e4b967edf4a8651dfb1e7bb286210d70b9aa6f8c6a64ae4f87231b",
+    "verilog/cells/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+    "verilog/cells/cell_MC10162.v": "11618612f2ac5106613f9eae75db522f669d12090d2407ee8256c44e8a14dd73",
+    "verilog/cells/cell_MC10107.v": "dadd09a4dc0e4e6e126aa6f30c5b3fd92acbba8aaf25e94cb2f399b779011065",
+    "verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "verilog/cells/cell_MC10113.v": "3ad34b4dc8d3026412b4d300ce28f3a214fa42d3d6e1c1cc1afead9e601dec0b",
+    "verilog/cells/cell_SE10211.v": "4f7c8607bdaad0f3fa7b0a49c679c004817b3032c3d37b20cb0a46f3ab1cb11d",
+    "verilog/cells/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+    "verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "verilog/cells/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+    "verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+    "verilog/cells/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "verilog/cells/cell_MC1664.v": "ce9217e73068f27571aa032ddfb2a80393fb340a9648be1618c3af5d5e6be8a6",
+    "verilog/cells/cell_SE10231.v": "b22f08f8f6e79eafbac3d1446e6593d10482033b2b3b2edfc29f207e62e5872c",
+    "verilog/cells/cell_MC10212.v": "592b5a4ad9cf64bc846b3619f85d268cac4123e5893bdc2f93e520ff1e45b39f",
+    "verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d"
+  },
+  "board_sha256": "679660eb90be88232d01f6f9626c1260330090a7882a8765f0a371f2d78acf9e",
+  "wirelist_sha256": "1ba49bda0bd9d10f7cbd0f915732223266f53ca042afac0ff38d4287c688f3fa",
+  "locations_sha256": "5ab21e0128dc176d61bad236dfe28cf54cc01f212f2817d65d9a9c5eea38d1af",
+  "limits": "Scalar Boolean identity only; stateful/unknown address replicas remain atoms. No RAM adapter, board-state classification, CE rewrite, global barrier, restore or FPGA timing proof. Indexed storage-delay branch stays opaque; no alternate parameter configuration is qualified.",
+  "failure_controls": [
+    {
+      "case": "missing_package",
+      "rejected": true,
+      "diagnostic": "all72 cache RAM packages required"
+    },
+    {
+      "case": "wrong_address",
+      "rejected": true,
+      "diagnostic": "cache pin differs:#-1c11.2"
+    },
+    {
+      "case": "wrong_write",
+      "rejected": true,
+      "diagnostic": "cache pin differs:#-1c11.15"
+    },
+    {
+      "case": "wrong_select",
+      "rejected": true,
+      "diagnostic": "cache pin differs:#-1c11.16"
+    },
+    {
+      "case": "wrong_data",
+      "rejected": true,
+      "diagnostic": "cache pin differs:#-1c11.17"
+    },
+    {
+      "case": "wrong_output",
+      "rejected": true,
+      "diagnostic": "cache tied output differs:#-1c11"
+    },
+    {
+      "case": "omitted_select",
+      "rejected": true,
+      "diagnostic": "cache pin differs:#-1c11.16"
+    },
+    {
+      "case": "wrong_clock",
+      "rejected": true,
+      "diagnostic": "cache guest clock changed"
+    }
+  ]
+}

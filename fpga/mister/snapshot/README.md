@@ -296,4 +296,33 @@ launch/capture, retaining20ns embedded paths and unchanged cellRTL/SDC.
 Earlier original-only virtual-input hold(-1.960ns) rejected/preserved; eight
 bad-fit controls reject. Report snapshot-memc-full. Native55 full-core build
 adds only MemC board/F100181clone, reuses13existing adapters and keeps admin
-inactive. Full-core timing/original hardware remains required; no speed claim.
+inactive. Full-core timing now passes as recorded below; original hardware
+qualification remains required, with no speed claim.
+
+Native55 full-core MemC fit/source audit passes31summary/132detailed/four
+conditions,min+0.040ns, no new cuts/clocks or changed framework I/O coverage.
+All21MemC MLABs/21,504bits/672cells and inherited processor/IFUM/IM RAM
+properties retained;30588ALMs/52757regs/330M10Ks/35DSP with admin inactive.
+Candidate NOT DEPLOYED; current54desktop/input is under qualification.
+Evidence native55-memc. Physical snapshots/60ns clocks remain unfinished.
+
+Next `audit_memd_im.py` pins72cache bit-cells to the originalwirelist and
+proves19literal/14canonical groups of widths3/6/9 without equating stateful
+replicas; eight damaged boards reject. Indexed storage-delay assignments
+remain opaque. New `f10470_word_bank.sv` qualifies4096words plus raw pipeline
+at widths1/3/5/6/9/18:284,039host/245,818requests/172,074state-bit checks,
+destructive restore/first resume/recapture/20,000further cycles. Eight badRTL/
+11schema/eight fit controls reject. Matched50MHz fits retain172,032RAMbits/
+23M10Ks, all six real macros/physical rows OLD_DATA, all four conditions
+min+0.168ns,332->500ALMs/169->478regs including shell/admin/pruning.
+Reports snapshot-memd-grouping/snapshot-f10470-word. Full MemD board state/
+restore/timing and global machine/device/ARM snapshots remain separate work.
+
+Native54 now passes full Viewers/Clock/Watch/Edit, actual mouse/Cmd then
+separate initialized focus, exact short/alphabet/digit echo and warm file
+create/close/readback. Normal guest845/Main barriers preserve its volume.
+Native55 subsequently loaded normally and passes original firmware/BFN113/
+released C/Cedar login and1,947,777.041idle issues/s, matching54. Loader/full55
+desktop qualification is pending under a bounded observer. All six board
+adapters remain admin inactive; there is no full physical save/load or60ns
+clock migration yet. Evidence native54-field/native55-field.
