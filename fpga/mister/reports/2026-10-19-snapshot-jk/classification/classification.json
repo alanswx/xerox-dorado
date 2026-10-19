@@ -1,0 +1,128 @@
+{
+  "status": "PASS",
+  "modeled_state_bits": 7,
+  "xml_sha256": "4c8a039d0bf40d3095f495566a4dafb9b6b995bc8cfa79e75a434a2078a95dd8",
+  "decisions": [
+    {
+      "path": "cell_MC10135.ck_d",
+      "decision": "SAVE",
+      "bits": 1,
+      "lsb": 6
+    },
+    {
+      "path": "cell_MC10135.ck_en",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous pin/clock/PRECAP expression"
+    },
+    {
+      "path": "cell_MC10135.ja",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous pin/clock/PRECAP expression"
+    },
+    {
+      "path": "cell_MC10135.jb",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous pin/clock/PRECAP expression"
+    },
+    {
+      "path": "cell_MC10135.jk_pre",
+      "decision": "SAVE",
+      "bits": 4,
+      "lsb": 2
+    },
+    {
+      "path": "cell_MC10135.ka",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous pin/clock/PRECAP expression"
+    },
+    {
+      "path": "cell_MC10135.kb",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous pin/clock/PRECAP expression"
+    },
+    {
+      "path": "cell_MC10135.p14",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous pin/clock/PRECAP expression"
+    },
+    {
+      "path": "cell_MC10135.p15",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous pin/clock/PRECAP expression"
+    },
+    {
+      "path": "cell_MC10135.p2",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous pin/clock/PRECAP expression"
+    },
+    {
+      "path": "cell_MC10135.p3",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Source-pinned continuous pin/clock/PRECAP expression"
+    },
+    {
+      "path": "cell_MC10135.qa",
+      "decision": "SAVE",
+      "bits": 1,
+      "lsb": 0
+    },
+    {
+      "path": "cell_MC10135.qb",
+      "decision": "SAVE",
+      "bits": 1,
+      "lsb": 1
+    }
+  ],
+  "scope": "One modeled MC10135 primitive, not IFU/whole-machine snapshot coverage or fitted-state count",
+  "failure_controls": [
+    {
+      "case": "lost_clock",
+      "rejected": true,
+      "diagnostic": "missing original state/wire"
+    },
+    {
+      "case": "lost_setup",
+      "rejected": true,
+      "diagnostic": "missing original state/wire"
+    },
+    {
+      "case": "wrong_width",
+      "rejected": true,
+      "diagnostic": "J-K state geometry differs: jk_pre"
+    },
+    {
+      "case": "new_state",
+      "rejected": true,
+      "diagnostic": "unclassified J-K state: lost"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "duplicate/unexpected instance"
+    },
+    {
+      "case": "derived_state",
+      "rejected": true,
+      "diagnostic": "derived J-K wire became state: ck_en"
+    },
+    {
+      "case": "schema_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed J-K state schema/source"
+    },
+    {
+      "case": "source_hash",
+      "rejected": true,
+      "diagnostic": "unreviewed J-K state schema/source"
+    }
+  ]
+}

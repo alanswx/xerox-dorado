@@ -1,0 +1,92 @@
+{
+  "status": "PASS",
+  "manifest": {
+    "kind": "cell_MC10135",
+    "fields": [
+      [
+        "qa",
+        1
+      ],
+      [
+        "qb",
+        1
+      ],
+      [
+        "jk_pre",
+        4
+      ],
+      [
+        "ck_d",
+        1
+      ]
+    ],
+    "modeled_state_bits": 7,
+    "original_sha256": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+    "generated_sha256": "b46aec0a301d13133994a844321cdb352bc01a200dd898002e9641000ac0a389",
+    "scope": "Primitive host-advance/state access; caller holds all consumers, no global machine barrier"
+  },
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "lost_setup",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "lost_clock",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "ungated",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "ignore_hold",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "lost_restore",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "ignore_precap",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "wrong_jk",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    }
+  ],
+  "source_controls": [
+    {
+      "case": "extra_state",
+      "rejected": true
+    },
+    {
+      "case": "extra_process",
+      "rejected": true
+    },
+    {
+      "case": "changed_priority",
+      "rejected": true
+    }
+  ],
+  "source_hashes": {
+    "fpga/mister/snapshot/test_jk.py": "eb1394b02101abfc470aaaccb5b9cdc5d33bea6888b83480dab2f4077a4ff3c6",
+    "fpga/mister/snapshot/test_jk.cpp": "026c6dc4a92384e597e6e1acb0bd34a07538eb09bd7596e743d81b48cc629125",
+    "fpga/mister/snapshot/generate_jk.py": "77ba8b5a719e394c7c5c27e55fc95424c2a1f40686d92bc32116b88325fbf2ed",
+    "verilog/cells/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+    "fpga/mister/snapshot/generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "fpga/mister/snapshot/generate_contb_full.py": "9058fedbfec998ee4217a758cd7030f00941a7740952715ebbe7cb0801293a5d"
+  }
+}

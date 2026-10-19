@@ -42,6 +42,14 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+19Oct09:17UTC: Native53 processor-adapter full-core build is routing on
+misterubuntu; all state admin inactive, exact frozen52 clocks/wrapper/SDCs.
+No speed or full snapshot claim. Synthesis retains12 processor MLABs/eight
+OLD_DATA IM banks; full timing/original boot pending. MC10135 next-IFU
+primitive simulation/XML coverage now passes all7bits/four PRECAP modes and
+restore, with7 damaged RTL/3 source/8 schema controls; isolated fit/IFU still
+pending. These are milestone4a steps, not completion of4a or60ns migration.
+
 Current hardware update19Oct:47/48/49 original Viewers/input and
 active-DDR STOP/unmap/normal reload/fresh epochs pass. Clean47b idle1,595,628.966;
 48 arbitration1,694,447.318 (+6.1931%);49 interleaving1,947,687.412 (+14.9453%

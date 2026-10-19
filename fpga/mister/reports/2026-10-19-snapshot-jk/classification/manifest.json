@@ -1,0 +1,25 @@
+{
+  "kind": "cell_MC10135",
+  "fields": [
+    [
+      "qa",
+      1
+    ],
+    [
+      "qb",
+      1
+    ],
+    [
+      "jk_pre",
+      4
+    ],
+    [
+      "ck_d",
+      1
+    ]
+  ],
+  "modeled_state_bits": 7,
+  "original_sha256": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+  "generated_sha256": "b46aec0a301d13133994a844321cdb352bc01a200dd898002e9641000ac0a389",
+  "scope": "Primitive host-advance/state access; caller holds all consumers, no global machine barrier"
+}

@@ -1,0 +1,10 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_MC10135",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-jk-classify-v2-20261019/cell.xml",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10135.v"
+]

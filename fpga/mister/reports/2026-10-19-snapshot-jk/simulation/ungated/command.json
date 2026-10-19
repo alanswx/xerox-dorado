@@ -1,0 +1,17 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "jk_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-jk-v2-20261019/ungated/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-jk-v2-20261019/ungated/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-jk-v2-20261019/ungated/cell_MC10135_snapshot.sv",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10135.v",
+  "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_jk.cpp"
+]

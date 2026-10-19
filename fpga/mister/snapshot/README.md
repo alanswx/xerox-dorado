@@ -202,3 +202,22 @@ no cuts. Source generate/test/classify/fit/audit_processor_full.py and
 processor FF helper; report2026-10-19-snapshot-processor-full. Full-core
 integration/crossings/original firmware and complete physical snapshots remain
 required. The running52 includes ContA/B adapters only, all admin inactive.
+
+Native53 now integrates both qualified processor adapters into frozen52 with
+all admin inactive, the same actual falling-edge-latched advance and unchanged
+outer wrapper/clocks/SDCs. `build_native_processor.py` pins all source/PROM
+dependencies, reuses eight existing adapter files byte-identically and adds
+six RTL files. Synthesis retains all12 processor MLAB RAMs and eight OLD_DATA
+instruction banks; routed fit/all-corner audit and hardware boot remain pending.
+`audit_native_processor.py` checks100 detailed timing categories across four
+conditions, including both directions for all four adapted boards. No complete
+snapshot, enabled snapshot resource budget or speed gain is claimed.
+
+The next IFU primitive, `generate_jk.py`, preserves MC10135's seven modeled
+bits: qa/qb, four setup samples and shared clock history. `test_jk.py` compares
+all four PRECAP combinations with untouched original cells and an independent
+oracle over92195 host edges, all128 state words and first-edge restore plus
+20000 subsequent cycles. Seven damaged RTL variants fail; three altered-source
+and eight XML/schema controls reject. `classify_jk.py` accounts for all original
+state and nine derived wires. Evidence: reports/2026-10-19-snapshot-jk. This is
+simulation/coverage only; routed timing and IFU integration remain pending.
