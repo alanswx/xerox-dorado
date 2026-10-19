@@ -10,17 +10,18 @@ reduce memory-request overhead; make ARM disk work nonblocking/coherent;
 connect the daemon through DDR frame queues; finish accurate clock/timer
 migration; then repeat fresh boots and sustained end-to-end qualification.
 External Xerox-network tunnelling is optional follow-up. Native41d cold
-marker persistence and42 desktop/input pass. Next: finish Native47 Viewers/input and active-DDR
-STOP/reload, then paired42/43/44/45 comparisons and full
+marker persistence,42 and47 desktop/input pass. Next: Native47 active-DDR
+STOP/reload after normal guest Boot, then paired42/43/44/45 comparisons and full
 direct-DDR qualification. Native41c
-passes fresh Viewers/input and actual Main worker-delay disk service; network
-progress during delay and sustained stress remain open. The failed41b pack
+passes fresh Viewers/input and actual Main worker-delay disk service;47 adds
+physical packet progress during delay. Completed input during the delay and
+sustained stress remain open. The failed41b pack
 is preserved. Native39b's idle-login issue/wait baseline is measured.
 User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
 this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
-**Live MiSTer14 is Native47, direct DDR active, original boot underway.**
+**Live MiSTer14 is Native47, direct DDR active, interactive Cedar Viewers.**
 Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,
 server1506 isc5996249; staging Main1504 exited normally. RBF3df4a799,
 50MHz/SYSPER4, SDRAM/no raw cache and no43/44/45 memory optimizations.
@@ -28,8 +29,8 @@ Original f3bce2a8 seed checked unchanged after the temporary Main exited;
 final Main cache-ready63578624 bytes and real DDR RESUME ACK observed.
 Daemon maps exactly64KiB at physical1FF00000; Main has no mapping there.
 Main-owned command74 reports flags0x16, epochfdfe0a77fc6c87b5, fault/errors0.
-This validates startup/grant and header coherence, not a complete Cedar boot
-or active-lease reload yet. Main remains the sole SPI owner.
+Original-firmware Viewers/input now pass; active-lease reload and independent
+physical packet bytes remain pending. Main remains the sole SPI owner.
 
 Core video/input0 and instruction view1 selected with matching21e6 ELF
 `/tmp/dorado-main-21e6.elf`; three known Main GDB pauses (setup/capability, idle selection, worker-probe load). Do not use
@@ -49,12 +50,16 @@ Guest.pa/Grapevine-down fallback and Basic boot file locating the remote
 Basic.Loadees. All34 loadees complete, profile No entered and visibly accepted;
 BootEssentials/fonts/FontMetrics and STARTs pass.00:34UTC19Oct capture shows
 Viewers Ready, WatchTool/EditTool/Clock and the profile's first CommandTool.
-Real mouse/Cmd opens a ready independent second tool; exact keyboard
-qualification underway. Active STOP/reload and sustained tests remain open.
+Real mouse/Cmd opens a ready independent second tool. Both `echo rtl47
+keyboard ok` and full alphabet/digit echo print exactly and return to `%`.
+Settled capture00:38UTC confirms final input drain. Pointer737,608; core input0.
+Latest good2388/dropped24, CRC/RX/abort0. Active STOP/reload and sustained
+tests remain open. Evidence: reports/2026-10-19-native47-desktop.
 Paths: `Cedar47_20261018`, `_Computer/DoradoRTL_Cedar47_20261018/Cedar47.mgl`;
 Main `/tmp/dorado47-main.log`, disk `/tmp/dorado47-disk.jsonl`.
 Local helpers/handles: `build/rtl-executive/cedar47-launch/`; deployment
-99188 completed. Next observe34 loadees, profile No, fonts and full desktop/input. Physical packet payloads remain unqualified.
+99188 completed. Next normal guest Boot/germ812, then prepared active STOP.
+Physical packet payload bytes remain independently unqualified.
 
 **Actual Main delayed worker + physical DDR PASS.** Probe55bc9a8c is now
 loaded in Main1509 at /tmp/dorado47-loader-probe.so, must remain resident
@@ -1453,7 +1458,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Capture46 disabled/not-stopped hardware refusal; preserve42/untouched46 seed; real STOP-only handshake and disk drain, then full-board recovery.
 - [x] Native47 all-device timing31/36/four conditions min+0.111ns; normal temporary Main exit, real fresh DDR grant, exact daemon mapping/header/epoch and cache-ready pass.
 - [x] Actual final ARM daemon boot/Cedar/STP/quiet/reexec/retry/wrap/history bytes pass on isolated Unix sockets with DDR enabled but ungranted.
-- [ ] Finish47 original-firmware boot and qualify physical packet bytes/full Cedar, active STOP/reload and delayed-Main packet progress.
+- [x] Finish47 original-firmware physical-DDR Viewers desktop, real mouse/Cmd/focus and exact short/alphabet/digit echo; settled capture shows returned prompts.
+- [ ] Qualify physical packet bytes and active-DDR STOP/reload; delayed-Main packet progress passes separately, sustained qualification remains open.
 - [ ] Adapt frame rings for direct ARM daemon DDR transport, retaining original DskEth/CRC/wire timing and selectable SPI fallback; qualify reset/ownership/stalls/boot before deployment.
 - [ ] Optional external Xerox-network UDP tunnel compatible with IFS/ContrAlto; test Cedar STP separately from Alto interoperability.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.

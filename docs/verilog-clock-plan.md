@@ -41,12 +41,12 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-Current hardware update00:29UTC19Oct:41d cold marker readback and42
+Current hardware update00:40UTC19Oct:41d cold marker readback and42
 Viewers/input pass; both volumes are preserved after normal guest Boot and
 actual loader durability barriers.47 is live with Main21e67a3f/serverc5996249,
 SDRAM/no raw cache and physical DDR network. All34 loadees/profile No,
-BootEssentials and fonts pass; Viewers Ready and an independent CommandTool
-are visible, exact keyboard qualification underway. Its pre-Guest idle-login
+BootEssentials and fonts pass; Viewers Ready, real mouse/Cmd/focus and exact
+short/alphabet/digit echo in an independent CommandTool pass. Its pre-Guest idle-login
 mean is1,595,641 issues/s (9.57385% nominal), one boot/three adjacent windows,
 not a repeated matched comparison. Evidence: native41d/native42-field and
 native47-drained-state/worker-ddr. Later candidate diaries are historical.
@@ -79,9 +79,9 @@ correctness blocker remains open; it is not replaced by a PLL-only speed
 claim. Original guest-visible CPU/cache/map/ECC behavior is preserved, with
 no imported C machine state or host completion of guest instructions/IOCBs.
 
-The immediate hardware actions are47 Viewers/input and active-DDR STOP/reload,
+The immediate hardware actions are47 normal guest Boot and active-DDR STOP/reload,
 then controlled43/44/45 memory comparisons. Complete snapshot4a is required;
-its isolated RAM access prototype is being qualified before board-wide access.
+its isolated RAM access prototype now passes; actual board access is next.
 Native41b's failed pack remains preserved;41d closes the separate clean
 cold-remount persistence case. Only
 MiSTer14 is allocated. Use misterubuntu for Quartus and the Mac for Verilator.

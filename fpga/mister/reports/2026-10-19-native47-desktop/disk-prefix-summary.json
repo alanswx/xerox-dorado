@@ -1,0 +1,23 @@
+{
+  "bytes": 9453914,
+  "events": 93282,
+  "counts": {
+    "mount": 1,
+    "poll": 3229,
+    "pread_begin": 971,
+    "pread_end": 971,
+    "read_request": 2805,
+    "read_ack": 2805,
+    "poll_gap": 6,
+    "write_request": 17577,
+    "write_ack": 17577,
+    "pwrite_begin": 16785,
+    "pwrite_end": 16785,
+    "fsync_begin": 6885,
+    "fsync_end": 6885
+  },
+  "errors": [],
+  "first_ns": 782948394456,
+  "last_ns": 4011565280820,
+  "notes": "Whole-boot prefix includes three documented GDB setup/probe pauses; no whole-prefix poll-latency claim"
+}
