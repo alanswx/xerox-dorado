@@ -326,3 +326,27 @@ released C/Cedar login and1,947,777.041idle issues/s, matching54. Loader/full55
 desktop qualification is pending under a bounded observer. All six board
 adapters remain admin inactive; there is no full physical save/load or60ns
 clock migration yet. Evidence native54-field/native55-field.
+
+
+## Complete native MemD qualification (2026-10-19)
+
+`generate_memd_full.py`, `test_memd_full.py/.cpp`, `classify_memd_full.py`,
+`fit_memd_full.py` and `audit_memd_full.py` cover296,554mutable native MemD
+bits:968FF/history,ten phase,294,912cache RAM,72rawreadpipeline,512smallRAM,
+80small-file window. Native STORAGE_INPUT_DELAY=0 only; nonzero explicitly
+fatal, not silently accepted with missing state.14reviewed canonical cache
+banks retain original CE/WE/pin order; all22memory responses use5selectorbits.
+
+Original/oracle/fixture-only physical probes exercise all14cache/eight
+small-file writers, allstatebits/all1,048,576indices, destructive whole-image
+restore/recapture/firstactualadvance/20,000subsequent cycles. Ten brokenRTL
+controls and nonzero delay reject; fresh XML14damaged schemas reject. Exact
+50MHz matched staged-input/positive-edge fits pass fourconditions,min+0.164ns,
+no unconstrained/cut paths.294,912cacheRAMbits/38->40M10Ks,604->2267ALM and
+1353->2340regs include shell/admin/pruning, not whole-core enabled costs.
+All14macros/physicalbanks OLD_DATA; nine damaged fits reject. Initial frozen
+original Verilog parser failure retained; accepted project uses SystemVerilog
+for the same original's optional-loop declaration, with no RTL/SDC relaxation.
+Evidence reports/2026-10-19-snapshot-memd-full. Full-core MemD integration,
+remaining boards/device/ARM state/global barriers and actual FPGA restore are
+still required; this does not change production clocks or provide snapshots.

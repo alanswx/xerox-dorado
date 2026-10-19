@@ -10,8 +10,23 @@ Original BaseBoard/Initial/new BFN113/released C and visible Cedar login PASS.
 Three adjacent10s windows measure1,947,844.96 /1,947,856.41 /1,947,629.76
 issues/s, mean1,947,777.041, matching54. No speed increase. Same33-sample
 measurement->Guest cadence; earlier manual gate varies. Real Guest input is
-complete; bounded read-only observer21775/58164 remains active for the loader.
-Do not restart it. Final base ACK/desktop/input gates remain pending.
+complete. The original bounded observer21775/58164 is terminal by stop file
+and independently absent, after all34files/33BCD/1,345,843bytes/final guest ACK.
+Loader interval339.016350..339.224798s; whole-loader issues563,541,985..
+566,984,017; interior1.666950..1.667154M/s. There are57protocol replays
+(Tioga22,Watch35); dropped7 is a nonzero queue/retry counter, not a CRC fault.
+No speed gain or causal replay diagnosis is claimed. All34served source
+hashes match after terminal timing (not physical payload hashes).
+
+The first profile question had timed out to Yes before the initial No input;
+Cedar therefore treated No as a filename and reported it missing. A normal
+Return submitted the actual default filename; after it also failed, Cedar's
+confirmation default became No. A final Return accepted that visible No.
+Actual BootEssentials processing is now visible. Full desktop/input55 remains
+pending. The screenshots preserve this interaction rather than describing
+the initial No as an accepted confirmation. post-loader/ retains exact later
+raw collection with historical filenames; startup companions at root remain
+unchanged.
 
 Retired54 passes full Viewers/Clock/Watch/Edit, real mouse/Cmd/separate focus,
 exact short/alphabet/digit echoes and warm rtl54persist file create/close/type.

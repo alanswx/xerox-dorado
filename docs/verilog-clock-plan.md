@@ -42,6 +42,22 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+19Oct continuation: live55 base34/33BCD/1,345,843bytes/final guest ACK pass,
+339.016350..339.224798s. Whole-loader issues563,541,985..566,984,017,
+interior1.666950..1.667154M/s,57protocol replays(Tioga22/Watch35); drop7,
+CRC/RX/abort0. Observer21775/58164 terminal/absent after finalACK, no restart.
+All34source hashes verified after timing, not payload hashes. No speed gain.
+Profile timeout accepted Yes before initial No arrived; actual visible default
+No accepted after normal filename/Return loop. BootEssentials advancing,
+full55desktop/input pending. Current Main21577/server21576/RBF3eee3109 unchanged.
+Complete native MemD modeled state296,554bits,14cache/eight small-file writers,
+allstate/all20bitindices/destructive restore/firstedge/20,000cycles and freshXML
+coverage now pass. Matched isolated four-condition50MHz timing min+0.164ns,
+all14cache macros/physical RAMs OLD_DATA,294,912bits/38->40M10Ks. Only native
+storage input delay0 supported; nonzero explicitly rejects. Full-core MemD
+integration/global snapshots/original60ns remain open. Evidence snapshot-memd-full.
+The following entries preserve earlier qualification stages.
+
 Live55 normally loaded11:51:35UTC, Main21577/server21576, actual fresh DDR
 epochd642d051fd61576c/flags0x16/fault/errors0. Same50MHz/SYSPER4/policies and
 all six board adapters/admin inactive. Original firmware/BFN113/released C/

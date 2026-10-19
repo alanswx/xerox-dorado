@@ -1,0 +1,753 @@
+{
+  "status": "PASS",
+  "scope": "Isolated complete modeled MemD; original continuous baseline vs exact-advance adapter. Matched50MHz/negative-edge external input stage then positive-edge launch/capture shell/20ns embedded paths/2ns max0ns min virtual I/O; counts include shell/pruning. Small-file scan outputs require every consumer held externally; no global barrier, physical machine snapshot or speed claim.",
+  "results": {
+    "baseline": {
+      "resources": {
+        "alms": 604,
+        "registers": 1353,
+        "ram_bits": 294912,
+        "ram_blocks": 38
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 7.75,
+          "hold": 0.316,
+          "mpw": 8.805
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 7.558,
+          "hold": 0.344,
+          "mpw": 8.81
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 8.252,
+          "hold": 0.13,
+          "mpw": 8.415
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 8.178,
+          "hold": 0.179,
+          "mpw": 8.483
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 32,
+          "10034": 1,
+          "12158": 1,
+          "12241": 1,
+          "13024": 1,
+          "13410": 21
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    },
+    "snapshot": {
+      "resources": {
+        "alms": 2267,
+        "registers": 2340,
+        "ram_bits": 294912,
+        "ram_blocks": 40
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 7.071,
+          "hold": 0.418,
+          "mpw": 8.806
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 6.942,
+          "hold": 0.415,
+          "mpw": 8.809
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 7.848,
+          "hold": 0.164,
+          "mpw": 8.416
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 7.668,
+          "hold": 0.178,
+          "mpw": 8.485
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 96,
+          "10034": 1,
+          "12158": 1,
+          "12241": 1,
+          "13024": 1,
+          "13410": 5
+        },
+        "fit": {
+          "292013": 1
+        }
+      },
+      "macros": [
+        {
+          "bank": 13,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_13|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "6",
+            "WIDTH_B": "6",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "bank": 12,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_12|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "3",
+            "WIDTH_B": "3",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "bank": 11,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_11|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "6",
+            "WIDTH_B": "6",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "bank": 10,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_10|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "3",
+            "WIDTH_B": "3",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "bank": 9,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_9|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "6",
+            "WIDTH_B": "6",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "bank": 8,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_8|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "3",
+            "WIDTH_B": "3",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "bank": 7,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_7|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "9",
+            "WIDTH_B": "9",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "bank": 6,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_6|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "9",
+            "WIDTH_B": "9",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "bank": 5,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_5|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "3",
+            "WIDTH_B": "3",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "bank": 4,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_4|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "6",
+            "WIDTH_B": "6",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "bank": 3,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_3|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "3",
+            "WIDTH_B": "3",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "bank": 2,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_2|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "6",
+            "WIDTH_B": "6",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "bank": 1,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_1|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "3",
+            "WIDTH_B": "3",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        },
+        {
+          "bank": 0,
+          "instance": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_0|altsyncram:mem_rtl_0",
+          "parameters": {
+            "OPERATION_MODE": "DUAL_PORT",
+            "RAM_BLOCK_TYPE": "M10K",
+            "WIDTH_A": "6",
+            "WIDTH_B": "6",
+            "NUMWORDS_A": "4096",
+            "NUMWORDS_B": "4096",
+            "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+          }
+        }
+      ],
+      "physical_memories": [
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_0|altsyncram:mem_rtl_0|altsyncram_p3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "6",
+          "Port B Depth": "4096",
+          "Port B Width": "6",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "24576",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "6",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "6",
+          "Implementation Bits": "24576",
+          "M10K blocks": "3",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X76_Y15_N0, M10K_X69_Y18_N0, M10K_X69_Y19_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_10|altsyncram:mem_rtl_0|altsyncram_j3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "3",
+          "Port B Depth": "4096",
+          "Port B Width": "3",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "12288",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "3",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "3",
+          "Implementation Bits": "12288",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X69_Y8_N0, M10K_X76_Y8_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_11|altsyncram:mem_rtl_0|altsyncram_p3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "6",
+          "Port B Depth": "4096",
+          "Port B Width": "6",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "24576",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "6",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "6",
+          "Implementation Bits": "24576",
+          "M10K blocks": "3",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X69_Y13_N0, M10K_X58_Y11_N0, M10K_X58_Y15_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_12|altsyncram:mem_rtl_0|altsyncram_j3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "3",
+          "Port B Depth": "4096",
+          "Port B Width": "3",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "12288",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "3",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "3",
+          "Implementation Bits": "12288",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X69_Y10_N0, M10K_X49_Y10_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_13|altsyncram:mem_rtl_0|altsyncram_p3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "6",
+          "Port B Depth": "4096",
+          "Port B Width": "6",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "24576",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "6",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "6",
+          "Implementation Bits": "24576",
+          "M10K blocks": "3",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X69_Y5_N0, M10K_X69_Y6_N0, M10K_X69_Y4_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_1|altsyncram:mem_rtl_0|altsyncram_j3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "3",
+          "Port B Depth": "4096",
+          "Port B Width": "3",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "12288",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "3",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "3",
+          "Implementation Bits": "12288",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X58_Y13_N0, M10K_X58_Y12_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_2|altsyncram:mem_rtl_0|altsyncram_p3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "6",
+          "Port B Depth": "4096",
+          "Port B Width": "6",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "24576",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "6",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "6",
+          "Implementation Bits": "24576",
+          "M10K blocks": "3",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X69_Y14_N0, M10K_X76_Y10_N0, M10K_X76_Y14_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_3|altsyncram:mem_rtl_0|altsyncram_j3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "3",
+          "Port B Depth": "4096",
+          "Port B Width": "3",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "12288",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "3",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "3",
+          "Implementation Bits": "12288",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X69_Y11_N0, M10K_X69_Y12_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_4|altsyncram:mem_rtl_0|altsyncram_p3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "6",
+          "Port B Depth": "4096",
+          "Port B Width": "6",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "24576",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "6",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "6",
+          "Implementation Bits": "24576",
+          "M10K blocks": "3",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X76_Y7_N0, M10K_X69_Y7_N0, M10K_X76_Y9_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_5|altsyncram:mem_rtl_0|altsyncram_j3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "3",
+          "Port B Depth": "4096",
+          "Port B Width": "3",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "12288",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "3",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "3",
+          "Implementation Bits": "12288",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X69_Y9_N0, M10K_X76_Y13_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_6|altsyncram:mem_rtl_0|altsyncram_v3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "9",
+          "Port B Depth": "4096",
+          "Port B Width": "9",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "36864",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "9",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "9",
+          "Implementation Bits": "36864",
+          "M10K blocks": "5",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X58_Y14_N0, M10K_X58_Y16_N0, M10K_X58_Y10_N0, M10K_X58_Y17_N0, M10K_X49_Y11_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_7|altsyncram:mem_rtl_0|altsyncram_v3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "9",
+          "Port B Depth": "4096",
+          "Port B Width": "9",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "36864",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "9",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "9",
+          "Implementation Bits": "36864",
+          "M10K blocks": "5",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X58_Y8_N0, M10K_X58_Y7_N0, M10K_X58_Y5_N0, M10K_X58_Y9_N0, M10K_X58_Y6_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_8|altsyncram:mem_rtl_0|altsyncram_j3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "3",
+          "Port B Depth": "4096",
+          "Port B Width": "3",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "12288",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "3",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "3",
+          "Implementation Bits": "12288",
+          "M10K blocks": "2",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X76_Y11_N0, M10K_X76_Y12_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        },
+        {
+          "Name": "MemD_full_snapshot_experiment:bank|dorado_snapshot_f10470_word_bank:snapshot_bank_9|altsyncram:mem_rtl_0|altsyncram_p3s1:auto_generated|ALTSYNCRAM",
+          "Type": "M10K block",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "4096",
+          "Port A Width": "6",
+          "Port B Depth": "4096",
+          "Port B Width": "6",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "yes",
+          "Port B Output Registers": "no",
+          "Size": "24576",
+          "Implementation Port A Depth": "4096",
+          "Implementation Port A Width": "6",
+          "Implementation Port B Depth": "4096",
+          "Implementation Port B Width": "6",
+          "Implementation Bits": "24576",
+          "M10K blocks": "3",
+          "MLAB cells": "0",
+          "MIF": "None",
+          "Location": "M10K_X69_Y15_N0, M10K_X69_Y16_N0, M10K_X69_Y17_N0",
+          "Mixed Width RDW Mode": "Old data",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Address Too Wide"
+        }
+      ]
+    }
+  },
+  "delta": {
+    "alms": 1663,
+    "registers": 987,
+    "ram_bits": 0,
+    "ram_blocks": 2
+  },
+  "minimum_snapshot_slack_ns": 0.164,
+  "state_count_scope": "296554 modeled native MemD mutable bits; resources include shell/admin/pruning, not enabled whole-core costs.",
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/MemD_snapshot.sv"
+    },
+    {
+      "case": "constraint",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/bank.sdc"
+    },
+    {
+      "case": "macro",
+      "rejected": true,
+      "diagnostic": "project/macro/SDC changed"
+    },
+    {
+      "case": "old_data",
+      "rejected": true,
+      "diagnostic": "('cache macro differs', 13, 'READ_DURING_WRITE_MODE_MIXED_PORTS', ['NEW_DATA'])"
+    },
+    {
+      "case": "physical_old_data",
+      "rejected": true,
+      "diagnostic": "('physical cache differs', 0, 'Mixed Width RDW Mode', 'New data')"
+    },
+    {
+      "case": "ram_bits",
+      "rejected": true,
+      "diagnostic": "cache RAM bits pruned/changed"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation/missing path hold/7_slow_1100mv_-40c"
+    },
+    {
+      "case": "missing_corner",
+      "rejected": true,
+      "diagnostic": "missing corner"
+    },
+    {
+      "case": "warning",
+      "rejected": true,
+      "diagnostic": "('unreviewed warning increase', 'map', Counter({'10036': 64, '10999': 1}))"
+    }
+  ]
+}
