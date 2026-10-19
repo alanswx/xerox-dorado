@@ -1,0 +1,88 @@
+{
+  "status": "PASS",
+  "modeled_state_bits": 3,
+  "xml_sha256": "5cfbd0dc407c46bb6552f5364797d3c3becf03f5010ef44f10ffa4bfd8ce315b",
+  "decisions": [
+    {
+      "path": "cell_MC12061._unused",
+      "decision": "IMMUTABLE_ZERO",
+      "bits": 1,
+      "access": []
+    },
+    {
+      "path": "cell_MC12061.osc_div",
+      "decision": "SAVE",
+      "bits": 3,
+      "access": [
+        {
+          "word": 0,
+          "lsb": 0,
+          "width": 3,
+          "field_lsb": 0
+        }
+      ]
+    },
+    {
+      "path": "cell_MC12061.p10",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": []
+    },
+    {
+      "path": "cell_MC12061.p2",
+      "decision": "IMMUTABLE_ZERO",
+      "bits": 1,
+      "access": []
+    },
+    {
+      "path": "cell_MC12061.p3",
+      "decision": "IMMUTABLE_ZERO",
+      "bits": 1,
+      "access": []
+    }
+  ],
+  "parameters": {},
+  "kind": "cell_MC12061",
+  "failure_controls": [
+    {
+      "case": "lost_osc_div",
+      "rejected": true,
+      "diagnostic": "missing primitive field"
+    },
+    {
+      "case": "width",
+      "rejected": true,
+      "diagnostic": "field shape/category differs:osc_div"
+    },
+    {
+      "case": "extra",
+      "rejected": true,
+      "diagnostic": "extra/duplicate primitive field"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate primitive field"
+    },
+    {
+      "case": "derived_state",
+      "rejected": true,
+      "diagnostic": "field shape/category differs:p10"
+    },
+    {
+      "case": "constant_state",
+      "rejected": true,
+      "diagnostic": "field shape/category differs:_unused"
+    },
+    {
+      "case": "schema_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed source/schema"
+    },
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "unreviewed source/schema"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "70ada7866156d7feb8c6f822a859378ae4ef42eedfce794b3e33e8a1fd20ac68",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "combinational_review": 2,
+    "sequential": 1
+  },
+  "candidate_bits": {
+    "combinational_review": 2,
+    "sequential": 2
+  },
+  "candidates": [
+    {
+      "path": "cell_CLOCKGEN.EndClockPulse",
+      "module": "cell_CLOCKGEN",
+      "name": "EndClockPulse",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_CLOCKGEN/cell_CLOCKGEN.v",
+      "line": 48,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_CLOCKGEN.StartClockPulse_n",
+      "module": "cell_CLOCKGEN",
+      "name": "StartClockPulse_n",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_CLOCKGEN/cell_CLOCKGEN.v",
+      "line": 47,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_CLOCKGEN.phase",
+      "module": "cell_CLOCKGEN",
+      "name": "phase",
+      "category": "sequential",
+      "width": 2,
+      "unpacked_dimensions": [],
+      "bits": 2,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_CLOCKGEN/cell_CLOCKGEN.v",
+      "line": 53,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "5cfbd0dc407c46bb6552f5364797d3c3becf03f5010ef44f10ffa4bfd8ce315b",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "initial_only_candidate": 3,
+    "sequential": 1,
+    "combinational_review": 1
+  },
+  "candidate_bits": {
+    "initial_only_candidate": 3,
+    "sequential": 3,
+    "combinational_review": 1
+  },
+  "candidates": [
+    {
+      "path": "cell_MC12061._unused",
+      "module": "cell_MC12061",
+      "name": "_unused",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MC12061/cell_MC12061.v",
+      "line": 49,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC12061.osc_div",
+      "module": "cell_MC12061",
+      "name": "osc_div",
+      "category": "sequential",
+      "width": 3,
+      "unpacked_dimensions": [],
+      "bits": 3,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MC12061/cell_MC12061.v",
+      "line": 41,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC12061.p10",
+      "module": "cell_MC12061",
+      "name": "p10",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MC12061/cell_MC12061.v",
+      "line": 34,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC12061.p2",
+      "module": "cell_MC12061",
+      "name": "p2",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MC12061/cell_MC12061.v",
+      "line": 26,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC12061.p3",
+      "module": "cell_MC12061",
+      "name": "p3",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MC12061/cell_MC12061.v",
+      "line": 27,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

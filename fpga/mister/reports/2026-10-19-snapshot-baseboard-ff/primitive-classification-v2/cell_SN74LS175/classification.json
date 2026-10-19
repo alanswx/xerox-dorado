@@ -1,0 +1,106 @@
+{
+  "status": "PASS",
+  "modeled_state_bits": 3,
+  "xml_sha256": "018a4230446e0cd7540c65690455364043897ec793b59d28c32c7d994a8160b3",
+  "decisions": [
+    {
+      "path": "cell_SN74LS175._unused_pins",
+      "decision": "IMMUTABLE_ZERO",
+      "bits": 1,
+      "access": []
+    },
+    {
+      "path": "cell_SN74LS175.ck_d",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": [
+        {
+          "word": 0,
+          "lsb": 2,
+          "width": 1,
+          "field_lsb": 0
+        }
+      ]
+    },
+    {
+      "path": "cell_SN74LS175.ck_en",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": []
+    },
+    {
+      "path": "cell_SN74LS175.p2",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": []
+    },
+    {
+      "path": "cell_SN74LS175.p7",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": []
+    },
+    {
+      "path": "cell_SN74LS175.q",
+      "decision": "SAVE",
+      "bits": 2,
+      "access": [
+        {
+          "word": 0,
+          "lsb": 0,
+          "width": 2,
+          "field_lsb": 0
+        }
+      ]
+    }
+  ],
+  "parameters": {},
+  "kind": "cell_SN74LS175",
+  "failure_controls": [
+    {
+      "case": "lost_q",
+      "rejected": true,
+      "diagnostic": "missing primitive field"
+    },
+    {
+      "case": "lost_ck_d",
+      "rejected": true,
+      "diagnostic": "missing primitive field"
+    },
+    {
+      "case": "width",
+      "rejected": true,
+      "diagnostic": "field shape/category differs:ck_d"
+    },
+    {
+      "case": "extra",
+      "rejected": true,
+      "diagnostic": "extra/duplicate primitive field"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate primitive field"
+    },
+    {
+      "case": "derived_state",
+      "rejected": true,
+      "diagnostic": "field shape/category differs:ck_en"
+    },
+    {
+      "case": "constant_state",
+      "rejected": true,
+      "diagnostic": "field shape/category differs:_unused_pins"
+    },
+    {
+      "case": "schema_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed source/schema"
+    },
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "unreviewed source/schema"
+    }
+  ]
+}

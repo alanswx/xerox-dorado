@@ -1,0 +1,28 @@
+{
+  "module": "cell_SN74LS163_snapshot",
+  "logical_state_bits": 5,
+  "fields": [
+    {
+      "name": "q",
+      "width": 4,
+      "lsb": 0
+    },
+    {
+      "name": "ck_d",
+      "width": 1,
+      "lsb": 4
+    }
+  ],
+  "words": [
+    {
+      "index": 0,
+      "width": 5,
+      "lsb": 0,
+      "expression": "{ck_d,q}"
+    }
+  ],
+  "original_sha256": "6c6e4478fde05434115d552c17e40d3825ee8a34fc5b7801e9fc8b3e2c1ae3ad",
+  "generated_sha256": "4426d4de5f8610c96344e15f04f9fcfa7d39e3edf1764c0b33c518d8dec8859f",
+  "parameters": {},
+  "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+}

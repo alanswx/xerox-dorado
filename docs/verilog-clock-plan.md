@@ -42,6 +42,46 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**All remaining BaseBoard clock/reset primitive families are qualified; complete-board integration is next.**
+
+Nine new local adapters cover70representative state bits and87actual board
+bits: SN259/SN163/SN175/SN74, MC1690, MC12061, MC14521B, MPQ3303 and actual
+CLOCKGEN N4. Accepted simulation v4 checks unchanged original cells and an
+independent state/output oracle across170,049host edges/477held/184writes,
+all70bits/all local indices/all65,536pin patterns, high-clock histories,
+partial25bit counter words, overflow/POR saturation, candidate-only destructive
+continuation/restore/first edge and20,000more. Eleven broken RTL variants
+and nine changed sources reject. Earlier fixtures are retained rejected:
+v1/v2 drove out-of-width C++ port values;v3missed an invalid-write mutation
+because the write matched current state. V4 masks the18bit port and writes
+complementary data at each invalid row; no candidate RTL changed for these fixes.
+
+Fresh primitive classification maps every field and rejects78bad schemas.
+Fresh actual BaseBoard classification accounts for all279clock/reset bits
+across30packages and preserves all other inventory candidates;13damaged
+source/schema/PRECAP/CLOCKGEN/SYSPER controls reject. The other192bits reuse
+MC10176/MC10136/SN174 adapters byte-identically to Native59's compiled inputs.
+The actual clock-generator file has older comments than the workspace copy;
+its Verilog tokens match, and tests/fits use the actual Native59 bytes.
+
+Matched50MHz fits and independent audit pass all four operating conditions,
+minimum+0.145ns, no illegal/unconstrained clocks/I/O or extra cuts. Synthesis
+retains all70cell state bits exactly. Shell totals277ALM/150regs ->314ALM/
+302regs, noRAM; these are not whole-core enabled costs. Eight damaged-fit
+controls reject. All61compiled inputs, accepted simulator inputs and raw
+archive bytes pass extraction/hash/independent-audit readback. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-baseboard-ff/`.
+
+No production BaseBoard/live core/timer rate changed. MiSTer14 Main29511 and
+server29510 remain present; latest observed CRC/RX/abort0,dropped23. Last
+qualified idle rate remains1,947,654.12issues/s. All our qualification jobs
+are terminal. Next: integrate every qualified family into a complete BaseBoard
+adapter and prove full classification/save/restore/timing. Then enabled
+whole-core capacity/timing and coherent backend/input/ARM/server/matching-disk
+barriers/atomic bundle/physical Cedar restore. Original60ns clocks/timers and
+final three fresh boots/cold persistence/pinned performance/two-hour combined
+stress remain required. Goal ACTIVE.
+
 **BaseBoard EPROM snapshot qualification passes, including empty-socket unknowns.**
 
 All eight actual 2716 sockets now have qualified nine-bit read-pipeline state

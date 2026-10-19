@@ -1,0 +1,28 @@
+{
+  "module": "cell_MC1690_snapshot",
+  "logical_state_bits": 2,
+  "fields": [
+    {
+      "name": "q",
+      "width": 1,
+      "lsb": 0
+    },
+    {
+      "name": "ck_d",
+      "width": 1,
+      "lsb": 1
+    }
+  ],
+  "words": [
+    {
+      "index": 0,
+      "width": 2,
+      "lsb": 0,
+      "expression": "{ck_d,q}"
+    }
+  ],
+  "original_sha256": "c46a086041ccff663cae5d3a71c91ac52d791760bcc0f26657cefd387172b753",
+  "generated_sha256": "ec88d9c0cbba6716374e19c3e90e95179d8d98c057b14b28c0aa531100b343b1",
+  "parameters": {},
+  "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+}

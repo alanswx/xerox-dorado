@@ -1,0 +1,106 @@
+{
+  "status": "PASS",
+  "modeled_state_bits": 25,
+  "xml_sha256": "21e645d596447cb620eecf8c97823e5574d23e36a3d67b228a860ac66949a9c0",
+  "decisions": [
+    {
+      "path": "cell_MC14521B._unused_pins",
+      "decision": "IMMUTABLE_ZERO",
+      "bits": 1,
+      "access": []
+    },
+    {
+      "path": "cell_MC14521B.ck_d",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": [
+        {
+          "word": 1,
+          "lsb": 6,
+          "width": 1,
+          "field_lsb": 0
+        }
+      ]
+    },
+    {
+      "path": "cell_MC14521B.cnt",
+      "decision": "SAVE",
+      "bits": 24,
+      "access": [
+        {
+          "word": 0,
+          "lsb": 0,
+          "width": 18,
+          "field_lsb": 0
+        },
+        {
+          "word": 1,
+          "lsb": 0,
+          "width": 6,
+          "field_lsb": 18
+        }
+      ]
+    },
+    {
+      "path": "cell_MC14521B.fall",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": []
+    },
+    {
+      "path": "cell_MC14521B.p13",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": []
+    }
+  ],
+  "parameters": {},
+  "kind": "cell_MC14521B",
+  "failure_controls": [
+    {
+      "case": "lost_cnt",
+      "rejected": true,
+      "diagnostic": "missing primitive field"
+    },
+    {
+      "case": "lost_ck_d",
+      "rejected": true,
+      "diagnostic": "missing primitive field"
+    },
+    {
+      "case": "width",
+      "rejected": true,
+      "diagnostic": "field shape/category differs:ck_d"
+    },
+    {
+      "case": "extra",
+      "rejected": true,
+      "diagnostic": "extra/duplicate primitive field"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate primitive field"
+    },
+    {
+      "case": "derived_state",
+      "rejected": true,
+      "diagnostic": "field shape/category differs:fall"
+    },
+    {
+      "case": "constant_state",
+      "rejected": true,
+      "diagnostic": "field shape/category differs:_unused_pins"
+    },
+    {
+      "case": "schema_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed source/schema"
+    },
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "unreviewed source/schema"
+    }
+  ]
+}

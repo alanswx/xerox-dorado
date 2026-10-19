@@ -1,0 +1,23 @@
+{
+  "module": "cell_MC12061_snapshot",
+  "logical_state_bits": 3,
+  "fields": [
+    {
+      "name": "osc_div",
+      "width": 3,
+      "lsb": 0
+    }
+  ],
+  "words": [
+    {
+      "index": 0,
+      "width": 3,
+      "lsb": 0,
+      "expression": "{osc_div}"
+    }
+  ],
+  "original_sha256": "9480333422f9f6b846a7507bcd1d4676681b6840aafe55dc3825fad3ece744df",
+  "generated_sha256": "433ccfc2123e0a2c2749fecff109d26f803a26d4c3b0c4993b0b3e11acf36e87",
+  "parameters": {},
+  "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+}

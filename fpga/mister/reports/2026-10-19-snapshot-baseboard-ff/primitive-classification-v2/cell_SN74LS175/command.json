@@ -1,0 +1,10 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_SN74LS175",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_SN74LS175/cell.xml",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_SN74LS175/cell_SN74LS175.v"
+]

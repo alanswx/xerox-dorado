@@ -1,0 +1,11 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_CLOCKGEN",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_CLOCKGEN/cell.xml",
+  "-GN=4",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_CLOCKGEN/cell_CLOCKGEN.v"
+]

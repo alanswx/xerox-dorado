@@ -1,0 +1,95 @@
+{
+  "status": "PASS",
+  "modeled_state_bits": 2,
+  "xml_sha256": "f52c99297ae4631a3c181859f69e650e4d331ee51d88c7b43b4e1d047f952033",
+  "decisions": [
+    {
+      "path": "cell_MC1690.ck_d",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": [
+        {
+          "word": 0,
+          "lsb": 1,
+          "width": 1,
+          "field_lsb": 0
+        }
+      ]
+    },
+    {
+      "path": "cell_MC1690.ck_en",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": []
+    },
+    {
+      "path": "cell_MC1690.p2",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": []
+    },
+    {
+      "path": "cell_MC1690.p3",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": []
+    },
+    {
+      "path": "cell_MC1690.q",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": [
+        {
+          "word": 0,
+          "lsb": 0,
+          "width": 1,
+          "field_lsb": 0
+        }
+      ]
+    }
+  ],
+  "parameters": {},
+  "kind": "cell_MC1690",
+  "failure_controls": [
+    {
+      "case": "lost_q",
+      "rejected": true,
+      "diagnostic": "missing primitive field"
+    },
+    {
+      "case": "lost_ck_d",
+      "rejected": true,
+      "diagnostic": "missing primitive field"
+    },
+    {
+      "case": "width",
+      "rejected": true,
+      "diagnostic": "field shape/category differs:ck_d"
+    },
+    {
+      "case": "extra",
+      "rejected": true,
+      "diagnostic": "extra/duplicate primitive field"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate primitive field"
+    },
+    {
+      "case": "derived_state",
+      "rejected": true,
+      "diagnostic": "field shape/category differs:ck_en"
+    },
+    {
+      "case": "schema_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed source/schema"
+    },
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "unreviewed source/schema"
+    }
+  ]
+}

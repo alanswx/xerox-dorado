@@ -6,6 +6,14 @@ in the running MiSTer core. This directory now qualifies bounded RAM access
 and complete modeled ContB state restore in isolated RTL/routed experiments.
 Machine-wide state access, coherent barriers and physical restore remain open.
 
+The remaining BaseBoard clock/reset primitives now pass original/oracle/
+restore, fresh XML and matched timing(+0.145ns). Nine new families cover87
+actual bits;192bits reuse Native59 adapters unchanged. Fresh actual-board
+classification maps all279bits/30packages. These are isolated helpers;
+complete BaseBoard integration/save/restore/timing is next, followed by
+whole-core enabled budget and coherent global barriers. Evidence:
+reports/2026-10-19-snapshot-baseboard-ff.
+
 All eight BaseBoard EPROM pipelines now pass complete72bit four-state
 original/oracle/restore and actual-board classification. Empty sockets stay
 uninitialized. Corrected matched fits retain four original images/eightM10Ks,

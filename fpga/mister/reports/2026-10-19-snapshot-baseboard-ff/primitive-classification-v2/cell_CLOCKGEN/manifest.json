@@ -1,0 +1,25 @@
+{
+  "module": "cell_CLOCKGEN_snapshot",
+  "logical_state_bits": 2,
+  "fields": [
+    {
+      "name": "phase",
+      "width": 2,
+      "lsb": 0
+    }
+  ],
+  "words": [
+    {
+      "index": 0,
+      "width": 2,
+      "lsb": 0,
+      "expression": "{phase}"
+    }
+  ],
+  "original_sha256": "6101cd5bf07c11fdb143ddeedb1532f2e8ebc19d5e8c45ee7f843b8b05b92c09",
+  "generated_sha256": "f63361d579ee1b4270ffc2e0cd1f30751cecbd3a1f571b2997a017b1b0fe414a",
+  "parameters": {
+    "N": 4
+  },
+  "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+}

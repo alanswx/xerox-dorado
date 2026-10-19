@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "raw_files": 710,
+  "fit_compiled_inputs": 61,
+  "independent_fit_audit": "PASS",
+  "accepted_simulator_inputs_verified": true,
+  "all70synthesis_state_bits_retained": true
+}

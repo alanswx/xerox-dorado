@@ -1,0 +1,163 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "363b0100d7af516d798302d901a4215e535773caaffdcc394c6cc9ab175b4101",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "initial_only_candidate": 6,
+    "combinational_review": 4,
+    "sequential": 2
+  },
+  "candidate_bits": {
+    "initial_only_candidate": 6,
+    "combinational_review": 4,
+    "sequential": 18
+  },
+  "candidates": [
+    {
+      "path": "cell_MPQ3303._unused",
+      "module": "cell_MPQ3303",
+      "name": "_unused",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MPQ3303/cell_MPQ3303.v",
+      "line": 73,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MPQ3303.osc",
+      "module": "cell_MPQ3303",
+      "name": "osc",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MPQ3303/cell_MPQ3303.v",
+      "line": 55,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MPQ3303.p1",
+      "module": "cell_MPQ3303",
+      "name": "p1",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MPQ3303/cell_MPQ3303.v",
+      "line": 39,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MPQ3303.p10",
+      "module": "cell_MPQ3303",
+      "name": "p10",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MPQ3303/cell_MPQ3303.v",
+      "line": 47,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MPQ3303.p12",
+      "module": "cell_MPQ3303",
+      "name": "p12",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MPQ3303/cell_MPQ3303.v",
+      "line": 48,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MPQ3303.p14",
+      "module": "cell_MPQ3303",
+      "name": "p14",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MPQ3303/cell_MPQ3303.v",
+      "line": 50,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MPQ3303.p3",
+      "module": "cell_MPQ3303",
+      "name": "p3",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MPQ3303/cell_MPQ3303.v",
+      "line": 41,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MPQ3303.p5",
+      "module": "cell_MPQ3303",
+      "name": "p5",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MPQ3303/cell_MPQ3303.v",
+      "line": 42,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MPQ3303.p7",
+      "module": "cell_MPQ3303",
+      "name": "p7",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MPQ3303/cell_MPQ3303.v",
+      "line": 44,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MPQ3303.p8",
+      "module": "cell_MPQ3303",
+      "name": "p8",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MPQ3303/cell_MPQ3303.v",
+      "line": 45,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MPQ3303.por",
+      "module": "cell_MPQ3303",
+      "name": "por",
+      "category": "sequential",
+      "width": 16,
+      "unpacked_dimensions": [],
+      "bits": 16,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MPQ3303/cell_MPQ3303.v",
+      "line": 65,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MPQ3303.vco",
+      "module": "cell_MPQ3303",
+      "name": "vco",
+      "category": "sequential",
+      "width": 2,
+      "unpacked_dimensions": [],
+      "bits": 2,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-baseboard-ff-classify-v2-20261019/cell_MPQ3303/cell_MPQ3303.v",
+      "line": 53,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

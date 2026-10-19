@@ -1,0 +1,336 @@
+{
+  "scope": "Nine actual BaseBoard clock/reset/TTL families including original CLOCKGEN N4:70representative statebits/87actual boardbits. Untouched original processes with local word access. Matched50MHz negative-edge input-stage/positive-edge launch/capture,20ns embedded paths,2nsmax0nsmin virtualIO,no cuts. Includes shell/admin/pruning;not full BaseBoard/global budget or timer calibration.",
+  "manifest": {
+    "cell_SN74LS259": {
+      "module": "cell_SN74LS259_snapshot",
+      "logical_state_bits": 8,
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        }
+      ],
+      "words": [
+        {
+          "index": 0,
+          "width": 8,
+          "lsb": 0,
+          "expression": "{q}"
+        }
+      ],
+      "original_sha256": "e756e0efb317aff6c96a2ad2ae8e5ee381f447e08ee22b5ceeb0657a2eef843f",
+      "generated_sha256": "817be57756dfbf0cd139345fe1b1fc7f046f12980d7415648797d2fefe8a876a",
+      "parameters": {},
+      "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+    },
+    "cell_SN74LS163": {
+      "module": "cell_SN74LS163_snapshot",
+      "logical_state_bits": 5,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 4
+        }
+      ],
+      "words": [
+        {
+          "index": 0,
+          "width": 5,
+          "lsb": 0,
+          "expression": "{ck_d,q}"
+        }
+      ],
+      "original_sha256": "6c6e4478fde05434115d552c17e40d3825ee8a34fc5b7801e9fc8b3e2c1ae3ad",
+      "generated_sha256": "4426d4de5f8610c96344e15f04f9fcfa7d39e3edf1764c0b33c518d8dec8859f",
+      "parameters": {},
+      "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+    },
+    "cell_SN74LS175": {
+      "module": "cell_SN74LS175_snapshot",
+      "logical_state_bits": 3,
+      "fields": [
+        {
+          "name": "q",
+          "width": 2,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 2
+        }
+      ],
+      "words": [
+        {
+          "index": 0,
+          "width": 3,
+          "lsb": 0,
+          "expression": "{ck_d,q}"
+        }
+      ],
+      "original_sha256": "617c9c875496d26d48ca5f4555cb2951fc2c7c8f11dee3ea3a4bc8d91dfa7ff1",
+      "generated_sha256": "e0abc2d0e9edd2016e974e0deda46e55aa7a1fe72b996a6a97135e194a1a2376",
+      "parameters": {},
+      "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+    },
+    "cell_SN74LS74": {
+      "module": "cell_SN74LS74_snapshot",
+      "logical_state_bits": 4,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 3
+        }
+      ],
+      "words": [
+        {
+          "index": 0,
+          "width": 4,
+          "lsb": 0,
+          "expression": "{ckb_d,cka_d,qb,qa}"
+        }
+      ],
+      "original_sha256": "dc01bf5078d1eae612e82f55adebd7fa3c485cb08ee3d0f5f7eebe93f09a71b1",
+      "generated_sha256": "0973ae83bc29c8a16d8581cebe72cb28e53c8de6a843a50c514c8a2391bd98a4",
+      "parameters": {},
+      "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+    },
+    "cell_MC1690": {
+      "module": "cell_MC1690_snapshot",
+      "logical_state_bits": 2,
+      "fields": [
+        {
+          "name": "q",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 1
+        }
+      ],
+      "words": [
+        {
+          "index": 0,
+          "width": 2,
+          "lsb": 0,
+          "expression": "{ck_d,q}"
+        }
+      ],
+      "original_sha256": "c46a086041ccff663cae5d3a71c91ac52d791760bcc0f26657cefd387172b753",
+      "generated_sha256": "ec88d9c0cbba6716374e19c3e90e95179d8d98c057b14b28c0aa531100b343b1",
+      "parameters": {},
+      "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+    },
+    "cell_MC12061": {
+      "module": "cell_MC12061_snapshot",
+      "logical_state_bits": 3,
+      "fields": [
+        {
+          "name": "osc_div",
+          "width": 3,
+          "lsb": 0
+        }
+      ],
+      "words": [
+        {
+          "index": 0,
+          "width": 3,
+          "lsb": 0,
+          "expression": "{osc_div}"
+        }
+      ],
+      "original_sha256": "9480333422f9f6b846a7507bcd1d4676681b6840aafe55dc3825fad3ece744df",
+      "generated_sha256": "433ccfc2123e0a2c2749fecff109d26f803a26d4c3b0c4993b0b3e11acf36e87",
+      "parameters": {},
+      "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+    },
+    "cell_MC14521B": {
+      "module": "cell_MC14521B_snapshot",
+      "logical_state_bits": 25,
+      "fields": [
+        {
+          "name": "cnt",
+          "width": 24,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 24
+        }
+      ],
+      "words": [
+        {
+          "index": 0,
+          "width": 18,
+          "lsb": 0,
+          "expression": "{cnt[17:0]}"
+        },
+        {
+          "index": 1,
+          "width": 7,
+          "lsb": 18,
+          "expression": "{ck_d,cnt[23:18]}"
+        }
+      ],
+      "original_sha256": "566a04d2ac2dff2b9cd695147d9c9a37d36fb4997dc81b32a57f7cf9d06ebf3d",
+      "generated_sha256": "88975feee2a09e1c554e3d6252df826dd59cd749a6e203b5ebe6053295615b75",
+      "parameters": {},
+      "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+    },
+    "cell_MPQ3303": {
+      "module": "cell_MPQ3303_snapshot",
+      "logical_state_bits": 18,
+      "fields": [
+        {
+          "name": "vco",
+          "width": 2,
+          "lsb": 0
+        },
+        {
+          "name": "por",
+          "width": 16,
+          "lsb": 2
+        }
+      ],
+      "words": [
+        {
+          "index": 0,
+          "width": 18,
+          "lsb": 0,
+          "expression": "{por,vco}"
+        }
+      ],
+      "original_sha256": "98ae705be80d123e4669c0c785d1e6fe601dada155302cc68301704816fdfba1",
+      "generated_sha256": "0f2ee15778be7ac7abc6543358d78510b93c767c2a282af5803eec023184792e",
+      "parameters": {},
+      "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+    },
+    "cell_CLOCKGEN": {
+      "module": "cell_CLOCKGEN_snapshot",
+      "logical_state_bits": 2,
+      "fields": [
+        {
+          "name": "phase",
+          "width": 2,
+          "lsb": 0
+        }
+      ],
+      "words": [
+        {
+          "index": 0,
+          "width": 2,
+          "lsb": 0,
+          "expression": "{phase}"
+        }
+      ],
+      "original_sha256": "6101cd5bf07c11fdb143ddeedb1532f2e8ebc19d5e8c45ee7f843b8b05b92c09",
+      "generated_sha256": "f63361d579ee1b4270ffc2e0cd1f30751cecbd3a1f571b2997a017b1b0fe414a",
+      "parameters": {
+        "N": 4
+      },
+      "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+    }
+  },
+  "builder_sha256": "e08488ce66e18367a0b3d0bd01fb04609bd00b2197332bebb4ee05343615b696",
+  "source_hashes": {
+    "fpga/mister/snapshot/fit_baseboard_ff.py": "e08488ce66e18367a0b3d0bd01fb04609bd00b2197332bebb4ee05343615b696",
+    "fpga/mister/snapshot/generate_baseboard_ff.py": "46e7a6dd1253272cde5faf92c767e53a3d1b6193c49b97bcc32dfbd36e0fd2c2",
+    "fpga/mister/snapshot/generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "fpga/mister/snapshot/test_baseboard_ff.py": "90e6bf0115e7be07ac1ad9c6cb8b51b97613b8264a9854723a729a2f5cc9c1a1",
+    "fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49"
+  },
+  "compiled_files": {
+    "snapshot/cell_CLOCKGEN.v": "6101cd5bf07c11fdb143ddeedb1532f2e8ebc19d5e8c45ee7f843b8b05b92c09",
+    "snapshot/cell_CLOCKGEN_snapshot.sv": "f63361d579ee1b4270ffc2e0cd1f30751cecbd3a1f571b2997a017b1b0fe414a",
+    "snapshot/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "snapshot/cell_SN74LS175.v": "617c9c875496d26d48ca5f4555cb2951fc2c7c8f11dee3ea3a4bc8d91dfa7ff1",
+    "snapshot/cell_MC12061.v": "9480333422f9f6b846a7507bcd1d4676681b6840aafe55dc3825fad3ece744df",
+    "snapshot/cell_SN74LS259_snapshot.sv": "817be57756dfbf0cd139345fe1b1fc7f046f12980d7415648797d2fefe8a876a",
+    "snapshot/cell_MC1690.v": "c46a086041ccff663cae5d3a71c91ac52d791760bcc0f26657cefd387172b753",
+    "snapshot/cell_SN74LS259.v": "e756e0efb317aff6c96a2ad2ae8e5ee381f447e08ee22b5ceeb0657a2eef843f",
+    "snapshot/cell_MC1690_snapshot.sv": "ec88d9c0cbba6716374e19c3e90e95179d8d98c057b14b28c0aa531100b343b1",
+    "snapshot/cell_MC14521B.v": "566a04d2ac2dff2b9cd695147d9c9a37d36fb4997dc81b32a57f7cf9d06ebf3d",
+    "snapshot/cell_SN74LS74.v": "dc01bf5078d1eae612e82f55adebd7fa3c485cb08ee3d0f5f7eebe93f09a71b1",
+    "snapshot/top.sv": "763873f88e9c0b24c6ebee9f9c7259e8bfb537d0bbf978ff55c654f4fd75ddef",
+    "snapshot/cell_MPQ3303.v": "98ae705be80d123e4669c0c785d1e6fe601dada155302cc68301704816fdfba1",
+    "snapshot/cell_MC12061_snapshot.sv": "433ccfc2123e0a2c2749fecff109d26f803a26d4c3b0c4993b0b3e11acf36e87",
+    "snapshot/cell_MPQ3303_snapshot.sv": "0f2ee15778be7ac7abc6543358d78510b93c767c2a282af5803eec023184792e",
+    "snapshot/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "snapshot/cell_SN74LS163_snapshot.sv": "4426d4de5f8610c96344e15f04f9fcfa7d39e3edf1764c0b33c518d8dec8859f",
+    "snapshot/cell_SN74LS163.v": "6c6e4478fde05434115d552c17e40d3825ee8a34fc5b7801e9fc8b3e2c1ae3ad",
+    "snapshot/cell_MC14521B_snapshot.sv": "88975feee2a09e1c554e3d6252df826dd59cd749a6e203b5ebe6053295615b75",
+    "snapshot/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "snapshot/cell_SN74LS175_snapshot.sv": "e0abc2d0e9edd2016e974e0deda46e55aa7a1fe72b996a6a97135e194a1a2376",
+    "snapshot/snapshot_fit.qsf": "71ff4ff8275b98a211945947fb52aec4c88deb18f6429a9d5259ca8c1e4d8f96",
+    "snapshot/cell_SN74LS74_snapshot.sv": "0973ae83bc29c8a16d8581cebe72cb28e53c8de6a843a50c514c8a2391bd98a4",
+    "baseline/cell_CLOCKGEN.v": "6101cd5bf07c11fdb143ddeedb1532f2e8ebc19d5e8c45ee7f843b8b05b92c09",
+    "baseline/cell_CLOCKGEN_snapshot.sv": "f63361d579ee1b4270ffc2e0cd1f30751cecbd3a1f571b2997a017b1b0fe414a",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/cell_SN74LS175.v": "617c9c875496d26d48ca5f4555cb2951fc2c7c8f11dee3ea3a4bc8d91dfa7ff1",
+    "baseline/cell_MC12061.v": "9480333422f9f6b846a7507bcd1d4676681b6840aafe55dc3825fad3ece744df",
+    "baseline/cell_SN74LS259_snapshot.sv": "817be57756dfbf0cd139345fe1b1fc7f046f12980d7415648797d2fefe8a876a",
+    "baseline/cell_MC1690.v": "c46a086041ccff663cae5d3a71c91ac52d791760bcc0f26657cefd387172b753",
+    "baseline/cell_SN74LS259.v": "e756e0efb317aff6c96a2ad2ae8e5ee381f447e08ee22b5ceeb0657a2eef843f",
+    "baseline/cell_MC1690_snapshot.sv": "ec88d9c0cbba6716374e19c3e90e95179d8d98c057b14b28c0aa531100b343b1",
+    "baseline/cell_MC14521B.v": "566a04d2ac2dff2b9cd695147d9c9a37d36fb4997dc81b32a57f7cf9d06ebf3d",
+    "baseline/cell_SN74LS74.v": "dc01bf5078d1eae612e82f55adebd7fa3c485cb08ee3d0f5f7eebe93f09a71b1",
+    "baseline/top.sv": "763873f88e9c0b24c6ebee9f9c7259e8bfb537d0bbf978ff55c654f4fd75ddef",
+    "baseline/cell_MPQ3303.v": "98ae705be80d123e4669c0c785d1e6fe601dada155302cc68301704816fdfba1",
+    "baseline/cell_MC12061_snapshot.sv": "433ccfc2123e0a2c2749fecff109d26f803a26d4c3b0c4993b0b3e11acf36e87",
+    "baseline/cell_MPQ3303_snapshot.sv": "0f2ee15778be7ac7abc6543358d78510b93c767c2a282af5803eec023184792e",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/cell_SN74LS163_snapshot.sv": "4426d4de5f8610c96344e15f04f9fcfa7d39e3edf1764c0b33c518d8dec8859f",
+    "baseline/cell_SN74LS163.v": "6c6e4478fde05434115d552c17e40d3825ee8a34fc5b7801e9fc8b3e2c1ae3ad",
+    "baseline/cell_MC14521B_snapshot.sv": "88975feee2a09e1c554e3d6252df826dd59cd749a6e203b5ebe6053295615b75",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/cell_SN74LS175_snapshot.sv": "e0abc2d0e9edd2016e974e0deda46e55aa7a1fe72b996a6a97135e194a1a2376",
+    "baseline/snapshot_fit.qsf": "0a19a959a34b04e095801738caa6287be6ee52f64307cb3ea36615c53041d5b0",
+    "baseline/cell_SN74LS74_snapshot.sv": "0973ae83bc29c8a16d8581cebe72cb28e53c8de6a843a50c514c8a2391bd98a4",
+    "executed-sources/cell_CLOCKGEN.v": "6101cd5bf07c11fdb143ddeedb1532f2e8ebc19d5e8c45ee7f843b8b05b92c09",
+    "executed-sources/cell_SN74LS175.v": "617c9c875496d26d48ca5f4555cb2951fc2c7c8f11dee3ea3a4bc8d91dfa7ff1",
+    "executed-sources/cell_MC12061.v": "9480333422f9f6b846a7507bcd1d4676681b6840aafe55dc3825fad3ece744df",
+    "executed-sources/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "executed-sources/cell_MC1690.v": "c46a086041ccff663cae5d3a71c91ac52d791760bcc0f26657cefd387172b753",
+    "executed-sources/cell_SN74LS259.v": "e756e0efb317aff6c96a2ad2ae8e5ee381f447e08ee22b5ceeb0657a2eef843f",
+    "executed-sources/cell_MC14521B.v": "566a04d2ac2dff2b9cd695147d9c9a37d36fb4997dc81b32a57f7cf9d06ebf3d",
+    "executed-sources/test_baseboard_ff.py": "90e6bf0115e7be07ac1ad9c6cb8b51b97613b8264a9854723a729a2f5cc9c1a1",
+    "executed-sources/generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "executed-sources/cell_SN74LS74.v": "dc01bf5078d1eae612e82f55adebd7fa3c485cb08ee3d0f5f7eebe93f09a71b1",
+    "executed-sources/cell_MPQ3303.v": "98ae705be80d123e4669c0c785d1e6fe601dada155302cc68301704816fdfba1",
+    "executed-sources/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "executed-sources/cell_SN74LS163.v": "6c6e4478fde05434115d552c17e40d3825ee8a34fc5b7801e9fc8b3e2c1ae3ad",
+    "executed-sources/generate_baseboard_ff.py": "46e7a6dd1253272cde5faf92c767e53a3d1b6193c49b97bcc32dfbd36e0fd2c2",
+    "executed-sources/fit_baseboard_ff.py": "e08488ce66e18367a0b3d0bd01fb04609bd00b2197332bebb4ee05343615b696"
+  },
+  "expected_qsf": {
+    "baseline": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_global_assignment -name SYSTEMVERILOG_FILE cell_SN74LS259_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_SN74LS259.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_SN74LS163_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_SN74LS163.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_SN74LS175_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_SN74LS175.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_SN74LS74_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_SN74LS74.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC1690_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MC1690.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC12061_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MC12061.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC14521B_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MC14521B.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MPQ3303_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MPQ3303.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_CLOCKGEN_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_CLOCKGEN.v\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to hold\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to selected[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to pins[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to outputs[*]\n",
+    "snapshot": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_global_assignment -name SYSTEMVERILOG_FILE cell_SN74LS259_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_SN74LS259.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_SN74LS163_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_SN74LS163.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_SN74LS175_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_SN74LS175.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_SN74LS74_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_SN74LS74.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC1690_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MC1690.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC12061_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MC12061.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MC14521B_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MC14521B.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_MPQ3303_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_MPQ3303.v\nset_global_assignment -name SYSTEMVERILOG_FILE cell_CLOCKGEN_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_CLOCKGEN.v\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to hold\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to selected[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to pins[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to outputs[*]\nset_global_assignment -name VERILOG_MACRO \"SNAPSHOT_BANK_EXPERIMENT=1\"\n"
+  }
+}

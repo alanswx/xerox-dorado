@@ -1,0 +1,1040 @@
+{
+  "board_sha256": "387f588aed70ff2870c662a51ffecb731ca83e549787bd130e30cd23f83a376e",
+  "packages": [
+    {
+      "package": "u_a01",
+      "kind": "cell_MC10176",
+      "index": 0,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "logical_state_bits": 13,
+      "words": [
+        {
+          "index": 0,
+          "width": 13,
+          "lsb": 0,
+          "expression": "{ck_d,d_pre,q}"
+        }
+      ],
+      "parameters": {
+        "PRECAP": 0
+      },
+      "adapter_sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+    },
+    {
+      "package": "u_b02",
+      "kind": "cell_MC10136",
+      "index": 1,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "su_pre",
+          "width": 1,
+          "lsb": 8
+        },
+        {
+          "name": "sd_pre",
+          "width": 1,
+          "lsb": 9
+        },
+        {
+          "name": "cin_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 11
+        }
+      ],
+      "logical_state_bits": 12,
+      "words": [
+        {
+          "index": 0,
+          "width": 12,
+          "lsb": 0,
+          "expression": "{ck_d,cin_pre,sd_pre,su_pre,d_pre,q}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "ff9d6691af62ffeead8320fbfe8da3c3a2b349166b6c1939086bf8b42ead62c6"
+    },
+    {
+      "package": "u_k02",
+      "kind": "cell_MC10136",
+      "index": 2,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "su_pre",
+          "width": 1,
+          "lsb": 8
+        },
+        {
+          "name": "sd_pre",
+          "width": 1,
+          "lsb": 9
+        },
+        {
+          "name": "cin_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 11
+        }
+      ],
+      "logical_state_bits": 12,
+      "words": [
+        {
+          "index": 0,
+          "width": 12,
+          "lsb": 0,
+          "expression": "{ck_d,cin_pre,sd_pre,su_pre,d_pre,q}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "ff9d6691af62ffeead8320fbfe8da3c3a2b349166b6c1939086bf8b42ead62c6"
+    },
+    {
+      "package": "u_k03",
+      "kind": "cell_MC10136",
+      "index": 3,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "su_pre",
+          "width": 1,
+          "lsb": 8
+        },
+        {
+          "name": "sd_pre",
+          "width": 1,
+          "lsb": 9
+        },
+        {
+          "name": "cin_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 11
+        }
+      ],
+      "logical_state_bits": 12,
+      "words": [
+        {
+          "index": 0,
+          "width": 12,
+          "lsb": 0,
+          "expression": "{ck_d,cin_pre,sd_pre,su_pre,d_pre,q}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "ff9d6691af62ffeead8320fbfe8da3c3a2b349166b6c1939086bf8b42ead62c6"
+    },
+    {
+      "package": "u_f19",
+      "kind": "cell_SN74LS174",
+      "index": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "logical_state_bits": 13,
+      "words": [
+        {
+          "index": 0,
+          "width": 13,
+          "lsb": 0,
+          "expression": "{ck_d,d_pre,q}"
+        }
+      ],
+      "parameters": {
+        "PRECAP": 0
+      },
+      "adapter_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+    },
+    {
+      "package": "u_f20",
+      "kind": "cell_SN74LS174",
+      "index": 5,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "logical_state_bits": 13,
+      "words": [
+        {
+          "index": 0,
+          "width": 13,
+          "lsb": 0,
+          "expression": "{ck_d,d_pre,q}"
+        }
+      ],
+      "parameters": {
+        "PRECAP": 0
+      },
+      "adapter_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+    },
+    {
+      "package": "u_g20",
+      "kind": "cell_SN74LS174",
+      "index": 6,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "logical_state_bits": 13,
+      "words": [
+        {
+          "index": 0,
+          "width": 13,
+          "lsb": 0,
+          "expression": "{ck_d,d_pre,q}"
+        }
+      ],
+      "parameters": {
+        "PRECAP": 0
+      },
+      "adapter_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+    },
+    {
+      "package": "u_h20",
+      "kind": "cell_SN74LS174",
+      "index": 7,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "logical_state_bits": 13,
+      "words": [
+        {
+          "index": 0,
+          "width": 13,
+          "lsb": 0,
+          "expression": "{ck_d,d_pre,q}"
+        }
+      ],
+      "parameters": {
+        "PRECAP": 0
+      },
+      "adapter_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+    },
+    {
+      "package": "u_k07",
+      "kind": "cell_SN74LS174",
+      "index": 8,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "logical_state_bits": 13,
+      "words": [
+        {
+          "index": 0,
+          "width": 13,
+          "lsb": 0,
+          "expression": "{ck_d,d_pre,q}"
+        }
+      ],
+      "parameters": {
+        "PRECAP": 0
+      },
+      "adapter_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+    },
+    {
+      "package": "u_k08",
+      "kind": "cell_SN74LS174",
+      "index": 9,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "logical_state_bits": 13,
+      "words": [
+        {
+          "index": 0,
+          "width": 13,
+          "lsb": 0,
+          "expression": "{ck_d,d_pre,q}"
+        }
+      ],
+      "parameters": {
+        "PRECAP": 0
+      },
+      "adapter_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+    },
+    {
+      "package": "u_k09",
+      "kind": "cell_SN74LS174",
+      "index": 10,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "logical_state_bits": 13,
+      "words": [
+        {
+          "index": 0,
+          "width": 13,
+          "lsb": 0,
+          "expression": "{ck_d,d_pre,q}"
+        }
+      ],
+      "parameters": {
+        "PRECAP": 0
+      },
+      "adapter_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+    },
+    {
+      "package": "u_l07",
+      "kind": "cell_SN74LS174",
+      "index": 11,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "logical_state_bits": 13,
+      "words": [
+        {
+          "index": 0,
+          "width": 13,
+          "lsb": 0,
+          "expression": "{ck_d,d_pre,q}"
+        }
+      ],
+      "parameters": {
+        "PRECAP": 0
+      },
+      "adapter_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+    },
+    {
+      "package": "u_l08",
+      "kind": "cell_SN74LS174",
+      "index": 12,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "logical_state_bits": 13,
+      "words": [
+        {
+          "index": 0,
+          "width": 13,
+          "lsb": 0,
+          "expression": "{ck_d,d_pre,q}"
+        }
+      ],
+      "parameters": {
+        "PRECAP": 0
+      },
+      "adapter_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+    },
+    {
+      "package": "u_l21",
+      "kind": "cell_SN74LS174",
+      "index": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "logical_state_bits": 13,
+      "words": [
+        {
+          "index": 0,
+          "width": 13,
+          "lsb": 0,
+          "expression": "{ck_d,d_pre,q}"
+        }
+      ],
+      "parameters": {
+        "PRECAP": 1
+      },
+      "adapter_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+    },
+    {
+      "package": "u_l22",
+      "kind": "cell_SN74LS174",
+      "index": 14,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "logical_state_bits": 13,
+      "words": [
+        {
+          "index": 0,
+          "width": 13,
+          "lsb": 0,
+          "expression": "{ck_d,d_pre,q}"
+        }
+      ],
+      "parameters": {
+        "PRECAP": 1
+      },
+      "adapter_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+    },
+    {
+      "package": "u_c20",
+      "kind": "cell_SN74LS259",
+      "index": 15,
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        }
+      ],
+      "logical_state_bits": 8,
+      "words": [
+        {
+          "index": 0,
+          "width": 8,
+          "lsb": 0,
+          "expression": "{q}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "817be57756dfbf0cd139345fe1b1fc7f046f12980d7415648797d2fefe8a876a"
+    },
+    {
+      "package": "u_e07",
+      "kind": "cell_SN74LS163",
+      "index": 16,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 4
+        }
+      ],
+      "logical_state_bits": 5,
+      "words": [
+        {
+          "index": 0,
+          "width": 5,
+          "lsb": 0,
+          "expression": "{ck_d,q}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "4426d4de5f8610c96344e15f04f9fcfa7d39e3edf1764c0b33c518d8dec8859f"
+    },
+    {
+      "package": "u_g07",
+      "kind": "cell_SN74LS175",
+      "index": 17,
+      "fields": [
+        {
+          "name": "q",
+          "width": 2,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 2
+        }
+      ],
+      "logical_state_bits": 3,
+      "words": [
+        {
+          "index": 0,
+          "width": 3,
+          "lsb": 0,
+          "expression": "{ck_d,q}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "e0abc2d0e9edd2016e974e0deda46e55aa7a1fe72b996a6a97135e194a1a2376"
+    },
+    {
+      "package": "u_l18",
+      "kind": "cell_SN74LS175",
+      "index": 18,
+      "fields": [
+        {
+          "name": "q",
+          "width": 2,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 2
+        }
+      ],
+      "logical_state_bits": 3,
+      "words": [
+        {
+          "index": 0,
+          "width": 3,
+          "lsb": 0,
+          "expression": "{ck_d,q}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "e0abc2d0e9edd2016e974e0deda46e55aa7a1fe72b996a6a97135e194a1a2376"
+    },
+    {
+      "package": "u_g08",
+      "kind": "cell_SN74LS74",
+      "index": 19,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 3
+        }
+      ],
+      "logical_state_bits": 4,
+      "words": [
+        {
+          "index": 0,
+          "width": 4,
+          "lsb": 0,
+          "expression": "{ckb_d,cka_d,qb,qa}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "0973ae83bc29c8a16d8581cebe72cb28e53c8de6a843a50c514c8a2391bd98a4"
+    },
+    {
+      "package": "u_g22",
+      "kind": "cell_SN74LS74",
+      "index": 20,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 3
+        }
+      ],
+      "logical_state_bits": 4,
+      "words": [
+        {
+          "index": 0,
+          "width": 4,
+          "lsb": 0,
+          "expression": "{ckb_d,cka_d,qb,qa}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "0973ae83bc29c8a16d8581cebe72cb28e53c8de6a843a50c514c8a2391bd98a4"
+    },
+    {
+      "package": "u_j08",
+      "kind": "cell_SN74LS74",
+      "index": 21,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 3
+        }
+      ],
+      "logical_state_bits": 4,
+      "words": [
+        {
+          "index": 0,
+          "width": 4,
+          "lsb": 0,
+          "expression": "{ckb_d,cka_d,qb,qa}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "0973ae83bc29c8a16d8581cebe72cb28e53c8de6a843a50c514c8a2391bd98a4"
+    },
+    {
+      "package": "u_g03",
+      "kind": "cell_MC1690",
+      "index": 22,
+      "fields": [
+        {
+          "name": "q",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 1
+        }
+      ],
+      "logical_state_bits": 2,
+      "words": [
+        {
+          "index": 0,
+          "width": 2,
+          "lsb": 0,
+          "expression": "{ck_d,q}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "ec88d9c0cbba6716374e19c3e90e95179d8d98c057b14b28c0aa531100b343b1"
+    },
+    {
+      "package": "u_g04",
+      "kind": "cell_MC1690",
+      "index": 23,
+      "fields": [
+        {
+          "name": "q",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 1
+        }
+      ],
+      "logical_state_bits": 2,
+      "words": [
+        {
+          "index": 0,
+          "width": 2,
+          "lsb": 0,
+          "expression": "{ck_d,q}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "ec88d9c0cbba6716374e19c3e90e95179d8d98c057b14b28c0aa531100b343b1"
+    },
+    {
+      "package": "u_h03",
+      "kind": "cell_MC1690",
+      "index": 24,
+      "fields": [
+        {
+          "name": "q",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 1
+        }
+      ],
+      "logical_state_bits": 2,
+      "words": [
+        {
+          "index": 0,
+          "width": 2,
+          "lsb": 0,
+          "expression": "{ck_d,q}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "ec88d9c0cbba6716374e19c3e90e95179d8d98c057b14b28c0aa531100b343b1"
+    },
+    {
+      "package": "u_h04",
+      "kind": "cell_MC1690",
+      "index": 25,
+      "fields": [
+        {
+          "name": "q",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 1
+        }
+      ],
+      "logical_state_bits": 2,
+      "words": [
+        {
+          "index": 0,
+          "width": 2,
+          "lsb": 0,
+          "expression": "{ck_d,q}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "ec88d9c0cbba6716374e19c3e90e95179d8d98c057b14b28c0aa531100b343b1"
+    },
+    {
+      "package": "u_d08",
+      "kind": "cell_MC12061",
+      "index": 26,
+      "fields": [
+        {
+          "name": "osc_div",
+          "width": 3,
+          "lsb": 0
+        }
+      ],
+      "logical_state_bits": 3,
+      "words": [
+        {
+          "index": 0,
+          "width": 3,
+          "lsb": 0,
+          "expression": "{osc_div}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "433ccfc2123e0a2c2749fecff109d26f803a26d4c3b0c4993b0b3e11acf36e87"
+    },
+    {
+      "package": "u_g21",
+      "kind": "cell_MC14521B",
+      "index": 27,
+      "fields": [
+        {
+          "name": "cnt",
+          "width": 24,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 24
+        }
+      ],
+      "logical_state_bits": 25,
+      "words": [
+        {
+          "index": 0,
+          "width": 18,
+          "lsb": 0,
+          "expression": "{cnt[17:0]}"
+        },
+        {
+          "index": 1,
+          "width": 7,
+          "lsb": 18,
+          "expression": "{ck_d,cnt[23:18]}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "88975feee2a09e1c554e3d6252df826dd59cd749a6e203b5ebe6053295615b75"
+    },
+    {
+      "package": "u_h06",
+      "kind": "cell_MPQ3303",
+      "index": 28,
+      "fields": [
+        {
+          "name": "vco",
+          "width": 2,
+          "lsb": 0
+        },
+        {
+          "name": "por",
+          "width": 16,
+          "lsb": 2
+        }
+      ],
+      "logical_state_bits": 18,
+      "words": [
+        {
+          "index": 0,
+          "width": 18,
+          "lsb": 0,
+          "expression": "{por,vco}"
+        }
+      ],
+      "parameters": {},
+      "adapter_sha256": "0f2ee15778be7ac7abc6543358d78510b93c767c2a282af5803eec023184792e"
+    },
+    {
+      "package": "u_clockgen",
+      "kind": "cell_CLOCKGEN",
+      "index": 29,
+      "fields": [
+        {
+          "name": "phase",
+          "width": 2,
+          "lsb": 0
+        }
+      ],
+      "logical_state_bits": 2,
+      "words": [
+        {
+          "index": 0,
+          "width": 2,
+          "lsb": 0,
+          "expression": "{phase}"
+        }
+      ],
+      "parameters": {
+        "N": 4
+      },
+      "adapter_sha256": "f63361d579ee1b4270ffc2e0cd1f30751cecbd3a1f571b2997a017b1b0fe414a"
+    }
+  ],
+  "source_hashes": {
+    "verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "verilog/cells/cell_MC10136.v": "b4314b6a838492c95fd72423e92a883e8ea92c660c55fdc1f266b034b68e8017",
+    "verilog/cells/cell_SN74LS174.v": "05a45e9f4788af98180a92f3ef5987f54a5e1c495fc9c006f5e61b5761d14b59",
+    "verilog/cells/cell_SN74LS259.v": "e756e0efb317aff6c96a2ad2ae8e5ee381f447e08ee22b5ceeb0657a2eef843f",
+    "verilog/cells/cell_SN74LS163.v": "6c6e4478fde05434115d552c17e40d3825ee8a34fc5b7801e9fc8b3e2c1ae3ad",
+    "verilog/cells/cell_SN74LS175.v": "617c9c875496d26d48ca5f4555cb2951fc2c7c8f11dee3ea3a4bc8d91dfa7ff1",
+    "verilog/cells/cell_SN74LS74.v": "dc01bf5078d1eae612e82f55adebd7fa3c485cb08ee3d0f5f7eebe93f09a71b1",
+    "verilog/cells/cell_MC1690.v": "c46a086041ccff663cae5d3a71c91ac52d791760bcc0f26657cefd387172b753",
+    "verilog/cells/cell_MC12061.v": "9480333422f9f6b846a7507bcd1d4676681b6840aafe55dc3825fad3ece744df",
+    "verilog/cells/cell_MC14521B.v": "566a04d2ac2dff2b9cd695147d9c9a37d36fb4997dc81b32a57f7cf9d06ebf3d",
+    "verilog/cells/cell_MPQ3303.v": "98ae705be80d123e4669c0c785d1e6fe601dada155302cc68301704816fdfba1",
+    "verilog/cells/cell_CLOCKGEN.v": "6101cd5bf07c11fdb143ddeedb1532f2e8ebc19d5e8c45ee7f843b8b05b92c09"
+  },
+  "reused_adapters": {
+    "cell_MC10176": {
+      "native59_path": "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+      "sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+    },
+    "cell_MC10136": {
+      "native59_path": "src/fpga/mister/snapshot_native_dsketh/cell_MC10136_snapshot.sv",
+      "sha256": "ff9d6691af62ffeead8320fbfe8da3c3a2b349166b6c1939086bf8b42ead62c6"
+    },
+    "cell_SN74LS174": {
+      "native59_path": "src/fpga/mister/snapshot_native_dsketh/cell_SN74LS174_snapshot.sv",
+      "sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3"
+    }
+  }
+}

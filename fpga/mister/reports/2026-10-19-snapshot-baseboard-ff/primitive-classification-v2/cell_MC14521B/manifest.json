@@ -1,0 +1,34 @@
+{
+  "module": "cell_MC14521B_snapshot",
+  "logical_state_bits": 25,
+  "fields": [
+    {
+      "name": "cnt",
+      "width": 24,
+      "lsb": 0
+    },
+    {
+      "name": "ck_d",
+      "width": 1,
+      "lsb": 24
+    }
+  ],
+  "words": [
+    {
+      "index": 0,
+      "width": 18,
+      "lsb": 0,
+      "expression": "{cnt[17:0]}"
+    },
+    {
+      "index": 1,
+      "width": 7,
+      "lsb": 18,
+      "expression": "{ck_d,cnt[23:18]}"
+    }
+  ],
+  "original_sha256": "566a04d2ac2dff2b9cd695147d9c9a37d36fb4997dc81b32a57f7cf9d06ebf3d",
+  "generated_sha256": "88975feee2a09e1c554e3d6252df826dd59cd749a6e203b5ebe6053295615b75",
+  "parameters": {},
+  "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+}

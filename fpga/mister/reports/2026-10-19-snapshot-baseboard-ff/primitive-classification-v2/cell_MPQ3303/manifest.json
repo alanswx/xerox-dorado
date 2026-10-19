@@ -1,0 +1,28 @@
+{
+  "module": "cell_MPQ3303_snapshot",
+  "logical_state_bits": 18,
+  "fields": [
+    {
+      "name": "vco",
+      "width": 2,
+      "lsb": 0
+    },
+    {
+      "name": "por",
+      "width": 16,
+      "lsb": 2
+    }
+  ],
+  "words": [
+    {
+      "index": 0,
+      "width": 18,
+      "lsb": 0,
+      "expression": "{por,vco}"
+    }
+  ],
+  "original_sha256": "98ae705be80d123e4669c0c785d1e6fe601dada155302cc68301704816fdfba1",
+  "generated_sha256": "0f2ee15778be7ac7abc6543358d78510b93c767c2a282af5803eec023184792e",
+  "parameters": {},
+  "scope": "Pinned BaseBoard clock/reset/TTL local state adapters, preserving source processes.\n\nThese nine families cover70representative bits and87actual board bits. The\nother192remaining board FF bits reuse qualified adapters unchanged. Local\nwords are18bits, valid only while the caller holds every consumer. No board\nhandshake/global barrier/timer calibration or physical snapshot is provided.\n"
+}
