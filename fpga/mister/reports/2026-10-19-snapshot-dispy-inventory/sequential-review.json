@@ -1,0 +1,328 @@
+{
+  "status": "REVIEW ONLY",
+  "scope": "Actual Native56b compiled DispY_field.v; parent SYSPER4, preserved oscillator default SYSPER16. No state adapter, timer fix or complete snapshot claim.",
+  "sequential": {
+    "DispY_m_Rev_m_Cl_field": {
+      "bits": 8,
+      "entries": 8,
+      "packages": [
+        "DispY_m_Rev_m_Cl_field"
+      ],
+      "fields": {
+        "clk1_p_Aa": 1,
+        "clk1_p_Ab": 1,
+        "clk1_p_Ca": 1,
+        "clk1_p_Cb": 1,
+        "clk1_p_Cc": 1,
+        "clk1_p_Da": 1,
+        "clk1_p_Db": 1,
+        "clk1_p_Dc": 1
+      }
+    },
+    "cell_K1115A__Fc350": {
+      "bits": 33,
+      "entries": 2,
+      "packages": [
+        "DispY_m_Rev_m_Cl_field.u_a05"
+      ],
+      "fields": {
+        "acc": 32,
+        "osc": 1
+      }
+    },
+    "cell_F10016": {
+      "bits": 484,
+      "entries": 132,
+      "packages": [
+        "DispY_m_Rev_m_Cl_field.u_a07",
+        "DispY_m_Rev_m_Cl_field.u_b03",
+        "DispY_m_Rev_m_Cl_field.u_b04",
+        "DispY_m_Rev_m_Cl_field.u_b07",
+        "DispY_m_Rev_m_Cl_field.u_c08",
+        "DispY_m_Rev_m_Cl_field.u_d05",
+        "DispY_m_Rev_m_Cl_field.u_d08",
+        "DispY_m_Rev_m_Cl_field.u_e23",
+        "DispY_m_Rev_m_Cl_field.u_e24",
+        "DispY_m_Rev_m_Cl_field.u_f23",
+        "DispY_m_Rev_m_Cl_field.u_g06",
+        "DispY_m_Rev_m_Cl_field.u_g07",
+        "DispY_m_Rev_m_Cl_field.u_g09",
+        "DispY_m_Rev_m_Cl_field.u_g10",
+        "DispY_m_Rev_m_Cl_field.u_h06",
+        "DispY_m_Rev_m_Cl_field.u_h07",
+        "DispY_m_Rev_m_Cl_field.u_h08",
+        "DispY_m_Rev_m_Cl_field.u_h10",
+        "DispY_m_Rev_m_Cl_field.u_h11",
+        "DispY_m_Rev_m_Cl_field.u_h13",
+        "DispY_m_Rev_m_Cl_field.u_i04",
+        "DispY_m_Rev_m_Cl_field.u_i08",
+        "DispY_m_Rev_m_Cl_field.u_i09",
+        "DispY_m_Rev_m_Cl_field.u_i10",
+        "DispY_m_Rev_m_Cl_field.u_i11",
+        "DispY_m_Rev_m_Cl_field.u_i13",
+        "DispY_m_Rev_m_Cl_field.u_i16",
+        "DispY_m_Rev_m_Cl_field.u_i17",
+        "DispY_m_Rev_m_Cl_field.u_j04",
+        "DispY_m_Rev_m_Cl_field.u_j08",
+        "DispY_m_Rev_m_Cl_field.u_j09",
+        "DispY_m_Rev_m_Cl_field.u_j10",
+        "DispY_m_Rev_m_Cl_field.u_j11",
+        "DispY_m_Rev_m_Cl_field.u_j13",
+        "DispY_m_Rev_m_Cl_field.u_j16",
+        "DispY_m_Rev_m_Cl_field.u_j17",
+        "DispY_m_Rev_m_Cl_field.u_k02",
+        "DispY_m_Rev_m_Cl_field.u_k04",
+        "DispY_m_Rev_m_Cl_field.u_k09",
+        "DispY_m_Rev_m_Cl_field.u_k16",
+        "DispY_m_Rev_m_Cl_field.u_k17",
+        "DispY_m_Rev_m_Cl_field.u_l10",
+        "DispY_m_Rev_m_Cl_field.u_l16",
+        "DispY_m_Rev_m_Cl_field.u_l17"
+      ],
+      "fields": {
+        "ck_d": 1,
+        "q": 4,
+        "setup_pre": 6
+      }
+    },
+    "cell_MC10231": {
+      "bits": 96,
+      "entries": 96,
+      "packages": [
+        "DispY_m_Rev_m_Cl_field.u_a09",
+        "DispY_m_Rev_m_Cl_field.u_b09",
+        "DispY_m_Rev_m_Cl_field.u_c22",
+        "DispY_m_Rev_m_Cl_field.u_c23",
+        "DispY_m_Rev_m_Cl_field.u_d03",
+        "DispY_m_Rev_m_Cl_field.u_d09",
+        "DispY_m_Rev_m_Cl_field.u_f15",
+        "DispY_m_Rev_m_Cl_field.u_f24",
+        "DispY_m_Rev_m_Cl_field.u_g15",
+        "DispY_m_Rev_m_Cl_field.u_h05",
+        "DispY_m_Rev_m_Cl_field.u_h15",
+        "DispY_m_Rev_m_Cl_field.u_i20",
+        "DispY_m_Rev_m_Cl_field.u_i21",
+        "DispY_m_Rev_m_Cl_field.u_i22",
+        "DispY_m_Rev_m_Cl_field.u_j21",
+        "DispY_m_Rev_m_Cl_field.u_l21"
+      ],
+      "fields": {
+        "cka_d": 1,
+        "ckb_d": 1,
+        "d_pre_a": 1,
+        "d_pre_b": 1,
+        "qa": 1,
+        "qb": 1
+      }
+    },
+    "cell_F10000": {
+      "bits": 297,
+      "entries": 99,
+      "packages": [
+        "DispY_m_Rev_m_Cl_field.u_a10",
+        "DispY_m_Rev_m_Cl_field.u_a11",
+        "DispY_m_Rev_m_Cl_field.u_a12",
+        "DispY_m_Rev_m_Cl_field.u_b10",
+        "DispY_m_Rev_m_Cl_field.u_b11",
+        "DispY_m_Rev_m_Cl_field.u_b12",
+        "DispY_m_Rev_m_Cl_field.u_c05",
+        "DispY_m_Rev_m_Cl_field.u_c10",
+        "DispY_m_Rev_m_Cl_field.u_c11",
+        "DispY_m_Rev_m_Cl_field.u_c12",
+        "DispY_m_Rev_m_Cl_field.u_c13",
+        "DispY_m_Rev_m_Cl_field.u_c14",
+        "DispY_m_Rev_m_Cl_field.u_c15",
+        "DispY_m_Rev_m_Cl_field.u_c16",
+        "DispY_m_Rev_m_Cl_field.u_c17",
+        "DispY_m_Rev_m_Cl_field.u_c20",
+        "DispY_m_Rev_m_Cl_field.u_c21",
+        "DispY_m_Rev_m_Cl_field.u_d10",
+        "DispY_m_Rev_m_Cl_field.u_d11",
+        "DispY_m_Rev_m_Cl_field.u_d12",
+        "DispY_m_Rev_m_Cl_field.u_d13",
+        "DispY_m_Rev_m_Cl_field.u_d14",
+        "DispY_m_Rev_m_Cl_field.u_d15",
+        "DispY_m_Rev_m_Cl_field.u_d16",
+        "DispY_m_Rev_m_Cl_field.u_d17",
+        "DispY_m_Rev_m_Cl_field.u_d20",
+        "DispY_m_Rev_m_Cl_field.u_d21",
+        "DispY_m_Rev_m_Cl_field.u_e10",
+        "DispY_m_Rev_m_Cl_field.u_e11",
+        "DispY_m_Rev_m_Cl_field.u_e12",
+        "DispY_m_Rev_m_Cl_field.u_e13",
+        "DispY_m_Rev_m_Cl_field.u_e14",
+        "DispY_m_Rev_m_Cl_field.u_f11"
+      ],
+      "fields": {
+        "ck_d": 1,
+        "d_pre": 4,
+        "q": 4
+      }
+    },
+    "cell_MC10176": {
+      "bits": 455,
+      "entries": 105,
+      "packages": [
+        "DispY_m_Rev_m_Cl_field.u_a13",
+        "DispY_m_Rev_m_Cl_field.u_a14",
+        "DispY_m_Rev_m_Cl_field.u_a15",
+        "DispY_m_Rev_m_Cl_field.u_a16",
+        "DispY_m_Rev_m_Cl_field.u_a17",
+        "DispY_m_Rev_m_Cl_field.u_a18",
+        "DispY_m_Rev_m_Cl_field.u_b13",
+        "DispY_m_Rev_m_Cl_field.u_b14",
+        "DispY_m_Rev_m_Cl_field.u_b15",
+        "DispY_m_Rev_m_Cl_field.u_b16",
+        "DispY_m_Rev_m_Cl_field.u_b17",
+        "DispY_m_Rev_m_Cl_field.u_b18",
+        "DispY_m_Rev_m_Cl_field.u_b23",
+        "DispY_m_Rev_m_Cl_field.u_c03",
+        "DispY_m_Rev_m_Cl_field.u_d01",
+        "DispY_m_Rev_m_Cl_field.u_d02",
+        "DispY_m_Rev_m_Cl_field.u_e01",
+        "DispY_m_Rev_m_Cl_field.u_e04",
+        "DispY_m_Rev_m_Cl_field.u_f14",
+        "DispY_m_Rev_m_Cl_field.u_i01",
+        "DispY_m_Rev_m_Cl_field.u_i05",
+        "DispY_m_Rev_m_Cl_field.u_i23",
+        "DispY_m_Rev_m_Cl_field.u_i24",
+        "DispY_m_Rev_m_Cl_field.u_j01",
+        "DispY_m_Rev_m_Cl_field.u_j15",
+        "DispY_m_Rev_m_Cl_field.u_j23",
+        "DispY_m_Rev_m_Cl_field.u_j24",
+        "DispY_m_Rev_m_Cl_field.u_k01",
+        "DispY_m_Rev_m_Cl_field.u_k15",
+        "DispY_m_Rev_m_Cl_field.u_k22",
+        "DispY_m_Rev_m_Cl_field.u_k23",
+        "DispY_m_Rev_m_Cl_field.u_k24",
+        "DispY_m_Rev_m_Cl_field.u_l09",
+        "DispY_m_Rev_m_Cl_field.u_l19",
+        "DispY_m_Rev_m_Cl_field.u_l22"
+      ],
+      "fields": {
+        "ck_d": 1,
+        "d_pre": 6,
+        "q": 6
+      }
+    },
+    "cell_MC10135": {
+      "bits": 49,
+      "entries": 28,
+      "packages": [
+        "DispY_m_Rev_m_Cl_field.u_c01",
+        "DispY_m_Rev_m_Cl_field.u_d23",
+        "DispY_m_Rev_m_Cl_field.u_e09",
+        "DispY_m_Rev_m_Cl_field.u_f01",
+        "DispY_m_Rev_m_Cl_field.u_f09",
+        "DispY_m_Rev_m_Cl_field.u_g08",
+        "DispY_m_Rev_m_Cl_field.u_h09"
+      ],
+      "fields": {
+        "ck_d": 1,
+        "jk_pre": 4,
+        "qa": 1,
+        "qb": 1
+      }
+    },
+    "cell_MB7071H": {
+      "bits": 9216,
+      "entries": 9,
+      "packages": [
+        "DispY_m_Rev_m_Cl_field.u_f04",
+        "DispY_m_Rev_m_Cl_field.u_g16",
+        "DispY_m_Rev_m_Cl_field.u_g18",
+        "DispY_m_Rev_m_Cl_field.u_g20",
+        "DispY_m_Rev_m_Cl_field.u_g22",
+        "DispY_m_Rev_m_Cl_field.u_h16",
+        "DispY_m_Rev_m_Cl_field.u_h18",
+        "DispY_m_Rev_m_Cl_field.u_h20",
+        "DispY_m_Rev_m_Cl_field.u_h22"
+      ],
+      "fields": {
+        "mem": 1024
+      }
+    },
+    "cell_F10145A": {
+      "bits": 537,
+      "entries": 33,
+      "packages": [
+        "DispY_m_Rev_m_Cl_field.u_g03",
+        "DispY_m_Rev_m_Cl_field.u_h02",
+        "DispY_m_Rev_m_Cl_field.u_j02"
+      ],
+      "fields": {
+        "a_first": 4,
+        "a_lat": 4,
+        "ce_lat": 1,
+        "d_first": 4,
+        "d_lat": 4,
+        "in_we": 1,
+        "mem": 64,
+        "n_amoved": 32,
+        "n_dmoved": 32,
+        "n_writes": 32,
+        "we_d": 1
+      }
+    },
+    "cell_MC10141": {
+      "bits": 52,
+      "entries": 24,
+      "packages": [
+        "DispY_m_Rev_m_Cl_field.u_h03",
+        "DispY_m_Rev_m_Cl_field.u_i03",
+        "DispY_m_Rev_m_Cl_field.u_j03",
+        "DispY_m_Rev_m_Cl_field.u_l03"
+      ],
+      "fields": {
+        "ck_d": 1,
+        "d_pre": 4,
+        "dl_pre": 1,
+        "dr_pre": 1,
+        "q": 4,
+        "s_pre": 2
+      }
+    },
+    "cell_F10415A": {
+      "bits": 3075,
+      "entries": 6,
+      "packages": [
+        "DispY_m_Rev_m_Cl_field.u_h14",
+        "DispY_m_Rev_m_Cl_field.u_i14",
+        "DispY_m_Rev_m_Cl_field.u_j14"
+      ],
+      "fields": {
+        "dout_r": 1,
+        "mem": 1024
+      }
+    },
+    "cell_SE10231": {
+      "bits": 6,
+      "entries": 6,
+      "packages": [
+        "DispY_m_Rev_m_Cl_field.u_l01"
+      ],
+      "fields": {
+        "cka_d": 1,
+        "ckb_d": 1,
+        "d_pre_a": 1,
+        "d_pre_b": 1,
+        "qa": 1,
+        "qb": 1
+      }
+    }
+  },
+  "oscillator_parameters": {
+    "FREQ_KHZ": 50000,
+    "SYSPER": 16,
+    "SYS_KHZ": 266667,
+    "STEP": 100000
+  },
+  "remaining_families": [
+    "K1115A33-bit accumulator/output; new primitive qualified in simulation/classification, fit pending",
+    "9 independent MB7071H256x4",
+    "3 independent F10415A1024x1 plus raw read pipelines",
+    "3 F10145A16x4 plus write windows",
+    "140 FF packages plus8board phase bits"
+  ],
+  "next": "Qualify oscillator primitive fit then complete DispY original/oracle/state restore/classification/matched timing; retain exact current parameter binding until clock milestone."
+}

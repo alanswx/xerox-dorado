@@ -1,0 +1,67 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "55dd2e8ddc4fefdde66390d84e4fb8c8eb20aa0c1d5bb9642e5a52186f6a0457",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "initial_only_candidate": 1,
+    "sequential": 2,
+    "combinational_review": 1
+  },
+  "candidate_bits": {
+    "initial_only_candidate": 1,
+    "sequential": 33,
+    "combinational_review": 1
+  },
+  "candidates": [
+    {
+      "path": "cell_K1115A._unused",
+      "module": "cell_K1115A",
+      "name": "_unused",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_K1115A.v",
+      "line": 83,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_K1115A.acc",
+      "module": "cell_K1115A",
+      "name": "acc",
+      "category": "sequential",
+      "width": 32,
+      "unpacked_dimensions": [],
+      "bits": 32,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_K1115A.v",
+      "line": 71,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_K1115A.osc",
+      "module": "cell_K1115A",
+      "name": "osc",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_K1115A.v",
+      "line": 72,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_K1115A.p8",
+      "module": "cell_K1115A",
+      "name": "p8",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_K1115A.v",
+      "line": 60,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_K1115A",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-oscillator-classify-v2-20261019/cell.xml",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_K1115A.v"
+]

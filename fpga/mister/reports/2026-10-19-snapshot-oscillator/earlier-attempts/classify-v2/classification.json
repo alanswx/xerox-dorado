@@ -1,0 +1,88 @@
+{
+  "status": "PASS",
+  "modeled_state_bits": 33,
+  "xml_sha256": "55dd2e8ddc4fefdde66390d84e4fb8c8eb20aa0c1d5bb9642e5a52186f6a0457",
+  "decisions": [
+    {
+      "path": "cell_K1115A._unused",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": "Original pinned continuous expression"
+    },
+    {
+      "path": "cell_K1115A.acc",
+      "decision": "SAVE",
+      "bits": 32,
+      "access": [
+        {
+          "index": 0,
+          "lsb": 0,
+          "width": 18
+        },
+        {
+          "index": 1,
+          "lsb": 18,
+          "width": 15
+        }
+      ]
+    },
+    {
+      "path": "cell_K1115A.osc",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": {
+        "word": 1,
+        "lsb": 14
+      }
+    },
+    {
+      "path": "cell_K1115A.p8",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "access": "Original pinned continuous expression"
+    }
+  ],
+  "scope": "Original modeled K1115A only, not calibrated peripheral time or complete display/machine snapshots",
+  "failure_controls": [
+    {
+      "case": "lost_acc",
+      "rejected": true,
+      "diagnostic": "missing oscillator field"
+    },
+    {
+      "case": "lost_output",
+      "rejected": true,
+      "diagnostic": "missing oscillator field"
+    },
+    {
+      "case": "wrong_width",
+      "rejected": true,
+      "diagnostic": "oscillator field differs:acc"
+    },
+    {
+      "case": "new_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate oscillator state"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate oscillator state"
+    },
+    {
+      "case": "derived_state",
+      "rejected": true,
+      "diagnostic": "oscillator field differs:p8"
+    },
+    {
+      "case": "schema_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed oscillator schema/source"
+    },
+    {
+      "case": "source_hash",
+      "rejected": true,
+      "diagnostic": "unreviewed oscillator schema/source"
+    }
+  ]
+}

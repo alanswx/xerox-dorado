@@ -1,0 +1,39 @@
+{
+  "module": "cell_K1115A_snapshot",
+  "logical_state_bits": 33,
+  "fields": [
+    {
+      "name": "acc",
+      "width": 32,
+      "signed": true
+    },
+    {
+      "name": "osc",
+      "width": 1
+    }
+  ],
+  "valid_indices": [
+    0,
+    1
+  ],
+  "invalid_indices": [
+    2,
+    3
+  ],
+  "words": [
+    {
+      "index": 0,
+      "lsb": 0,
+      "width": 18
+    },
+    {
+      "index": 1,
+      "lsb": 18,
+      "width": 15
+    }
+  ],
+  "original_sha256": "7f187187b8b39d9ffa3070596bdeca43c84489f8f7b4b6c24245603aa6fcfe32",
+  "generated_sha256": "5ed342ecfb0535656f450edbb2233e5df7b384c53c4abf244b326cb42591f439",
+  "scope": "Exact modeled K1115A accumulator state; no oscillator-rate/timer correction.\n\nThe original signed 32-bit accumulator, output and parameter arithmetic are\npreserved, including wrap behavior. Caller must hold every consumer/input.\n",
+  "parameters": "Original FREQ_KHZ/SYSPER arithmetic retained verbatim, not a calibrated real-time oscillator"
+}

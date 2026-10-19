@@ -1,0 +1,781 @@
+{
+  "files": {
+    "classification/cell.xml.gz": {
+      "bytes": 1371,
+      "sha256": "317ba8b462185020b4ab3621f008c81b6be5e652cbda3e06646266159ac42bd5"
+    },
+    "classification/elaborate.log.gz": {
+      "bytes": 368,
+      "sha256": "40891fc24fe19a3ea3bcb4501b669716c0c6a1694f3e5f929f51d15615a6e36c"
+    },
+    "classification/command.json": {
+      "bytes": 261,
+      "sha256": "cfb14dcf040bf6f8858a47509562fa6a49a8e8607f76d08fdc104bd5d6f086db"
+    },
+    "classification/manifest.json": {
+      "bytes": 977,
+      "sha256": "f73952205d85287742f02a0acd6229d87931520a8fecae2a3888659d248e23b9"
+    },
+    "classification/inventory.json": {
+      "bytes": 2094,
+      "sha256": "5f5ce27836eb260481e06b3a1d11746133edc9c25612294e07d1904943dc0050"
+    },
+    "classification/classification.json": {
+      "bytes": 2033,
+      "sha256": "6ff10034e9d09a1cb5ae6f5322f931f92e1cc956ac537d6093aca9d173d1cf48"
+    },
+    "drivers/snapshot-oscillator-classify-v3-20261019.log.gz": {
+      "bytes": 89,
+      "sha256": "7cb5e17cb3e1c6781822e66d5554d86abb734d33a7644634a6dda826aa2b682f"
+    },
+    "drivers/snapshot-oscillator-fit-20261019.log.gz": {
+      "bytes": 133,
+      "sha256": "6e374a2a7fb85d965364de144f00e6ce289eb726f5c833cc60b6185799d7227f"
+    },
+    "drivers/snapshot-oscillator-classify-v2-20261019.log.gz": {
+      "bytes": 89,
+      "sha256": "7cb5e17cb3e1c6781822e66d5554d86abb734d33a7644634a6dda826aa2b682f"
+    },
+    "drivers/snapshot-oscillator-20261019.log.gz": {
+      "bytes": 644,
+      "sha256": "849e52f67bc1ff63479e1efc07b1b53eb3dfab29d9261f0493654f2928bc72a1"
+    },
+    "drivers/snapshot-oscillator-fit-audit-20261019.log.gz": {
+      "bytes": 867,
+      "sha256": "273de686e994e95d008778a631d4c714d9c35fbdd7e4d626f7a065f4dd30125d"
+    },
+    "drivers/snapshot-oscillator-classify-20261019.log.gz": {
+      "bytes": 441,
+      "sha256": "87a97fb48d5530385c4780985b8ecc855c70e0e25e7d3a5c1ea445a09a649807"
+    },
+    "drivers/snapshot-oscillator-v3-20261019.log.gz": {
+      "bytes": 280,
+      "sha256": "dc161ad36020484ffdb0a7700eed02c06f27bb5c1615cdefe9e9bebc2cbbfa05"
+    },
+    "drivers/snapshot-oscillator-v2-20261019.log.gz": {
+      "bytes": 376,
+      "sha256": "c28720c114ba55afd37928c7e582d4a23941305574c9e28ba71e4b16844312c9"
+    },
+    "simulation/generate_oscillator.py.gz": {
+      "bytes": 1373,
+      "sha256": "dd6685b249926b221b271c44c22f8e42b082e9fb513f535e8f4666e94f6adcc8"
+    },
+    "simulation/test_oscillator.cpp.gz": {
+      "bytes": 1779,
+      "sha256": "3fdfb679645a9a63e8ee01e236041688c037ff1590e6774ef9300deffbed7f7b"
+    },
+    "simulation/results.json": {
+      "bytes": 2767,
+      "sha256": "962d6a502c91df6cea08c48148a66402354718ce06902176f4d7e5bb21738798"
+    },
+    "simulation/test_oscillator.py.gz": {
+      "bytes": 1899,
+      "sha256": "4b1edfd70a1792ef5cdc1cd2eb5adbd2d83f4e12fc68bed4397715cc273a1d25"
+    },
+    "executed-sources/fpga/mister/snapshot/generate_oscillator.py.gz": {
+      "bytes": 1373,
+      "sha256": "dd6685b249926b221b271c44c22f8e42b082e9fb513f535e8f4666e94f6adcc8"
+    },
+    "executed-sources/fpga/mister/snapshot/classify_oscillator.py.gz": {
+      "bytes": 1592,
+      "sha256": "5e1e245cf384be073578d3502c01730f9340e0522e02e3076875648ab6a17251"
+    },
+    "executed-sources/fpga/mister/snapshot/test_oscillator.cpp.gz": {
+      "bytes": 1779,
+      "sha256": "3fdfb679645a9a63e8ee01e236041688c037ff1590e6774ef9300deffbed7f7b"
+    },
+    "executed-sources/fpga/mister/snapshot/fit_oscillator.py.gz": {
+      "bytes": 4227,
+      "sha256": "b1cbd37eea259e0169286c9d26f324601483ac7297d4fb4a799c37e3aa94a167"
+    },
+    "executed-sources/fpga/mister/snapshot/test_oscillator.py.gz": {
+      "bytes": 1899,
+      "sha256": "4b1edfd70a1792ef5cdc1cd2eb5adbd2d83f4e12fc68bed4397715cc273a1d25"
+    },
+    "executed-sources/verilog/cells/cell_K1115A.v.gz": {
+      "bytes": 1917,
+      "sha256": "2de68f79660dbb925ccde099e5c514b1f77b3377a3d76939e68f392d9d81b4fb"
+    },
+    "earlier-attempts/classify-v1/cell.xml.gz": {
+      "bytes": 1371,
+      "sha256": "317ba8b462185020b4ab3621f008c81b6be5e652cbda3e06646266159ac42bd5"
+    },
+    "earlier-attempts/classify-v1/elaborate.log.gz": {
+      "bytes": 368,
+      "sha256": "5f95bf5cc758f040f82793e169909e7d962b37e2d7265bdbbc3815f545699bd1"
+    },
+    "earlier-attempts/classify-v1/command.json": {
+      "bytes": 258,
+      "sha256": "459fcd28f5084db4375048c207e0d4482c0c7d790c5643cc22186833b6ee8e38"
+    },
+    "earlier-attempts/classify-v2/cell.xml.gz": {
+      "bytes": 1371,
+      "sha256": "317ba8b462185020b4ab3621f008c81b6be5e652cbda3e06646266159ac42bd5"
+    },
+    "earlier-attempts/classify-v2/elaborate.log.gz": {
+      "bytes": 368,
+      "sha256": "5f95bf5cc758f040f82793e169909e7d962b37e2d7265bdbbc3815f545699bd1"
+    },
+    "earlier-attempts/classify-v2/command.json": {
+      "bytes": 261,
+      "sha256": "64985e0300c12a5b31ca51be3a92243d6848e97ebf9bc43a411491070e0fe0d8"
+    },
+    "earlier-attempts/classify-v2/manifest.json": {
+      "bytes": 977,
+      "sha256": "f73952205d85287742f02a0acd6229d87931520a8fecae2a3888659d248e23b9"
+    },
+    "earlier-attempts/classify-v2/inventory.json": {
+      "bytes": 2094,
+      "sha256": "5f5ce27836eb260481e06b3a1d11746133edc9c25612294e07d1904943dc0050"
+    },
+    "earlier-attempts/classify-v2/classification.json": {
+      "bytes": 1983,
+      "sha256": "a0b6db6b505540ef2ec27a39c27a5f3587d4f46780fc16c70c82ae7b7045a5bc"
+    },
+    "earlier-attempts/input-mask-v2/generate_oscillator.py.gz": {
+      "bytes": 1373,
+      "sha256": "dd6685b249926b221b271c44c22f8e42b082e9fb513f535e8f4666e94f6adcc8"
+    },
+    "earlier-attempts/input-mask-v2/test_oscillator.cpp.gz": {
+      "bytes": 1775,
+      "sha256": "abd427e1ed4dabde3d0f3397f5b06cef9bda4740811f88ca33cc1bf1fa850153"
+    },
+    "earlier-attempts/input-mask-v2/test_oscillator.py.gz": {
+      "bytes": 1899,
+      "sha256": "4b1edfd70a1792ef5cdc1cd2eb5adbd2d83f4e12fc68bed4397715cc273a1d25"
+    },
+    "earlier-attempts/compile-v1/generate_oscillator.py.gz": {
+      "bytes": 1373,
+      "sha256": "dd6685b249926b221b271c44c22f8e42b082e9fb513f535e8f4666e94f6adcc8"
+    },
+    "earlier-attempts/compile-v1/test_oscillator.cpp.gz": {
+      "bytes": 1774,
+      "sha256": "b40d158d9c2989648e4de974a647b7b0cbbf7b906e710d815150db4e6ab3b3f7"
+    },
+    "earlier-attempts/compile-v1/test_oscillator.py.gz": {
+      "bytes": 1903,
+      "sha256": "e4dda9833731ba2b01b8aaa9b352b92d30cf54f768120f500045f164570c27c0"
+    },
+    "earlier-attempts/compile-v1/candidate/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2207,
+      "sha256": "5ba38ddef104aeaa9bb1053457978a2bf220d3282e2d6ff91a83155be2718bd3"
+    },
+    "earlier-attempts/compile-v1/candidate/build.log.gz": {
+      "bytes": 1174,
+      "sha256": "64676678a1e46f933a14d1767c39b164fed5a1801a369301eeb91a995a32caf4"
+    },
+    "earlier-attempts/compile-v1/candidate/command.json": {
+      "bytes": 572,
+      "sha256": "6d14fc093baeba8982b1b93794e761ef1fb8c41d4c1e1e68183e4d9acef60a36"
+    },
+    "earlier-attempts/compile-v1/candidate/fixture.sv.gz": {
+      "bytes": 535,
+      "sha256": "0e5291465cf7bbeccaa1414fc8082459b7d42bf923052050a5d639b353c22edc"
+    },
+    "earlier-attempts/input-mask-v2/candidate/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2207,
+      "sha256": "5ba38ddef104aeaa9bb1053457978a2bf220d3282e2d6ff91a83155be2718bd3"
+    },
+    "earlier-attempts/input-mask-v2/candidate/build.log.gz": {
+      "bytes": 844,
+      "sha256": "da660ccde2e2bd51ff5ae96a6cbed4ff4578842ffb04fe10e46251e06bdc9e26"
+    },
+    "earlier-attempts/input-mask-v2/candidate/command.json": {
+      "bytes": 581,
+      "sha256": "4f37809ec726cb1d7b7b787d5c2abca7e17b26873069f653ed2afb495ae7eb1f"
+    },
+    "earlier-attempts/input-mask-v2/candidate/fixture.sv.gz": {
+      "bytes": 531,
+      "sha256": "4ec405c9514629693476bc59613fc9ad5b04ed71cd962b397b6875ecd3f5d5bd"
+    },
+    "earlier-attempts/input-mask-v2/candidate/test.txt.gz": {
+      "bytes": 59,
+      "sha256": "45c6dd1f53fe6a0ca286a0fae9f53b7d1071accf3d9a1642228d2fb82926e5c0"
+    },
+    "simulation/candidate/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2207,
+      "sha256": "5ba38ddef104aeaa9bb1053457978a2bf220d3282e2d6ff91a83155be2718bd3"
+    },
+    "simulation/candidate/build.log.gz": {
+      "bytes": 845,
+      "sha256": "a4a1d3c26c1be658d98c8bd799ec3a3a4ab44a9235956f773f0e5224883e898b"
+    },
+    "simulation/candidate/command.json": {
+      "bytes": 581,
+      "sha256": "e63b31235ad10ebee640963f41953924c2f95616622ec59128961cbf16d3efbf"
+    },
+    "simulation/candidate/fixture.sv.gz": {
+      "bytes": 531,
+      "sha256": "4ec405c9514629693476bc59613fc9ad5b04ed71cd962b397b6875ecd3f5d5bd"
+    },
+    "simulation/candidate/test.txt.gz": {
+      "bytes": 136,
+      "sha256": "8049bb210cb26c768b96db94a923db4c1f5e03e792ffe3392551cadf8d27cdea"
+    },
+    "simulation/lost_high/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2204,
+      "sha256": "8666470a687547b415bae56b7f04eadd6cb402088bf307da83974837193f0372"
+    },
+    "simulation/lost_high/build.log.gz": {
+      "bytes": 845,
+      "sha256": "39729539a42295f34fdc2d4825fa76993f76d37e042cf0ddb0d4cdb79aaaa7a5"
+    },
+    "simulation/lost_high/command.json": {
+      "bytes": 581,
+      "sha256": "e0c12dc5195fbd43c9c05b185312f84db92985d38eab906f383afcb484fcdc2d"
+    },
+    "simulation/lost_high/fixture.sv.gz": {
+      "bytes": 531,
+      "sha256": "4ec405c9514629693476bc59613fc9ad5b04ed71cd962b397b6875ecd3f5d5bd"
+    },
+    "simulation/lost_high/test.txt.gz": {
+      "bytes": 59,
+      "sha256": "6e2e2ce7bfffad420c1ff9650ecd940782300769a5e5c41eb86509d07da65100"
+    },
+    "simulation/invalid_alias/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2204,
+      "sha256": "308928d9b1474414fc01471533037cee365dd9b1d1d98d4b97effcae63d73f9c"
+    },
+    "simulation/invalid_alias/build.log.gz": {
+      "bytes": 844,
+      "sha256": "e891fe6083e17f93766141197e15a67d2ac52e6191ef6495dea1619068a358e0"
+    },
+    "simulation/invalid_alias/command.json": {
+      "bytes": 593,
+      "sha256": "b79e1338605c7157cf7a1d175673de7584049d95176d049ce356c1a8ad04a456"
+    },
+    "simulation/invalid_alias/fixture.sv.gz": {
+      "bytes": 531,
+      "sha256": "4ec405c9514629693476bc59613fc9ad5b04ed71cd962b397b6875ecd3f5d5bd"
+    },
+    "simulation/invalid_alias/test.txt.gz": {
+      "bytes": 64,
+      "sha256": "11b3fb3026346fc8446bd4e05ddf33039d0bc1300552582bad7778b6311eaffa"
+    },
+    "simulation/lost_output/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2205,
+      "sha256": "014589e0db77d5376d1d09dbb6eef4424651556e52a9ba0ca662148307526a6c"
+    },
+    "simulation/lost_output/build.log.gz": {
+      "bytes": 845,
+      "sha256": "7a0926bf9eb81dd723e5c474619419a6d95b0c15e7cc2c2fff29f02689922700"
+    },
+    "simulation/lost_output/command.json": {
+      "bytes": 587,
+      "sha256": "a012ed4bf2de68e1e0775eafee6ac76f71002dfa16dc13316ee2d9f15bef2a18"
+    },
+    "simulation/lost_output/fixture.sv.gz": {
+      "bytes": 531,
+      "sha256": "4ec405c9514629693476bc59613fc9ad5b04ed71cd962b397b6875ecd3f5d5bd"
+    },
+    "simulation/lost_output/test.txt.gz": {
+      "bytes": 54,
+      "sha256": "84ccd84f2daff4eb7a786dc6d0d7b4cb00c5c0dd22adbc902569cc2d607efc0a"
+    },
+    "simulation/running_access/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2202,
+      "sha256": "08a3d5b715d7447be05f24cb199c9046f0ce1e184ab45cf34d82f06367a0c01f"
+    },
+    "simulation/running_access/build.log.gz": {
+      "bytes": 845,
+      "sha256": "2ebc34b123a64008ae04a333f7c301ad61384b73b432199b0698a31ef6320c88"
+    },
+    "simulation/running_access/command.json": {
+      "bytes": 596,
+      "sha256": "de8c28ac2dda54cf8a30b6ea90e2bed8192b7c56a92d847c43baf5f9b77fc85d"
+    },
+    "simulation/running_access/fixture.sv.gz": {
+      "bytes": 531,
+      "sha256": "4ec405c9514629693476bc59613fc9ad5b04ed71cd962b397b6875ecd3f5d5bd"
+    },
+    "simulation/running_access/test.txt.gz": {
+      "bytes": 59,
+      "sha256": "7a4bde540b36e3ccecab62d73ab1a3d12c32ddf169bb89c87b484b56bff3b304"
+    },
+    "simulation/ignore_freeze/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2205,
+      "sha256": "b184bc00334b20f92df63d89390ab0e5511221adda946504d3e322ec8cbf26bc"
+    },
+    "simulation/ignore_freeze/build.log.gz": {
+      "bytes": 844,
+      "sha256": "44f493237d0cb901af2cb6355f7d34f2867e907968f5ced5ae9da77644d5d688"
+    },
+    "simulation/ignore_freeze/command.json": {
+      "bytes": 593,
+      "sha256": "dd6396bcced6856063e0bc7d9bc3a201b692a69f550d5e465efd339a48dbeea1"
+    },
+    "simulation/ignore_freeze/fixture.sv.gz": {
+      "bytes": 531,
+      "sha256": "4ec405c9514629693476bc59613fc9ad5b04ed71cd962b397b6875ecd3f5d5bd"
+    },
+    "simulation/ignore_freeze/test.txt.gz": {
+      "bytes": 59,
+      "sha256": "4c8714622c41137118637c9d9ff0dc319b82cffdcf2326f997d26201ae765467"
+    },
+    "simulation/unsigned_math/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2216,
+      "sha256": "718f2e9e81c0422ba2a70aea2419a20718a53451c8d62d7043d21c848af90dd3"
+    },
+    "simulation/unsigned_math/build.log.gz": {
+      "bytes": 844,
+      "sha256": "46782169a74cd13d066dcfb970b5b0625b0fa5633ce1272cec0d1e4cee99c14b"
+    },
+    "simulation/unsigned_math/command.json": {
+      "bytes": 593,
+      "sha256": "27eb007705e02bf4ada1693bc0b3582be2a4d79a013221d38d1ebb9df2e0b50a"
+    },
+    "simulation/unsigned_math/fixture.sv.gz": {
+      "bytes": 531,
+      "sha256": "4ec405c9514629693476bc59613fc9ad5b04ed71cd962b397b6875ecd3f5d5bd"
+    },
+    "simulation/unsigned_math/test.txt.gz": {
+      "bytes": 58,
+      "sha256": "83390ab7a73c117adafcf6f5420acce4c37375e417df4a8991b9490bc7a2ce1f"
+    },
+    "simulation/ungated/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2204,
+      "sha256": "b4dee318c73dfbf40196d061b6566b1b929cb768e288ab319c80c0d0c9559e20"
+    },
+    "simulation/ungated/build.log.gz": {
+      "bytes": 845,
+      "sha256": "240ca8f85787c3d8455bcee15cc01189d7e6d4813c8d834e6b68f789b42138cb"
+    },
+    "simulation/ungated/command.json": {
+      "bytes": 575,
+      "sha256": "7ebb56148c468b0f42ac942dd258111b16ed7335e91e135b91d271e4de54dfbc"
+    },
+    "simulation/ungated/fixture.sv.gz": {
+      "bytes": 531,
+      "sha256": "4ec405c9514629693476bc59613fc9ad5b04ed71cd962b397b6875ecd3f5d5bd"
+    },
+    "simulation/ungated/test.txt.gz": {
+      "bytes": 54,
+      "sha256": "c56c69a2d05ddd0731f7f40359b548bd1f385e851d057230078452b0fc83d91c"
+    },
+    "simulation/wrong_threshold/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2206,
+      "sha256": "d4790fa0a29d60eb4f69a31742de6881ba93f74e4d166e7d705e43a967b3dab6"
+    },
+    "simulation/wrong_threshold/build.log.gz": {
+      "bytes": 845,
+      "sha256": "db2ffaf98ba0b48941f826e2d3a1e7720ce67fc1545a10f74e006944cda8e5af"
+    },
+    "simulation/wrong_threshold/command.json": {
+      "bytes": 599,
+      "sha256": "eb0f3871a29fee75046907fa241ff3d647b9a691135b150274e8d33c4d10434c"
+    },
+    "simulation/wrong_threshold/fixture.sv.gz": {
+      "bytes": 531,
+      "sha256": "4ec405c9514629693476bc59613fc9ad5b04ed71cd962b397b6875ecd3f5d5bd"
+    },
+    "simulation/wrong_threshold/test.txt.gz": {
+      "bytes": 58,
+      "sha256": "45a7aadb9119bf5ab6b0c30ebd70aa59ee63f950114fd23055fc7f409bc654c5"
+    },
+    "fit/SnapshotOscillator_20261019/qualification.json": {
+      "bytes": 2759,
+      "sha256": "dac7822c548a016a7812f518894b53ebade982f28040869f357d5c6bb9f74fb4"
+    },
+    "fit/SnapshotOscillator_20261019/provenance.json": {
+      "bytes": 7336,
+      "sha256": "464253a1a1d703f029c40f5b1f2edf43fd922e9d1ef3ae475c2f3a5f1289cad9"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-hold-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 2411,
+      "sha256": "198524e5ff02df97eb82055edb07c4c6d664dd72542efe75b9842bfbd942a7c2"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-recovery-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-setup-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 2116,
+      "sha256": "a68b4001d189c66f890aa9fadcb0ca483c45124336270fefcc16ed72c4316f6b"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-hold-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 2428,
+      "sha256": "d4dea359d1259b304e2f75807355c0436bae42a3052c742873d0fdb76abbd7bf"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-ucp-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 227,
+      "sha256": "a0e9181d5d7eb02d667d55aa8114ac3ff644bbea875448176224c17dc9b28fdd"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-removal-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/map.log.gz": {
+      "bytes": 2333,
+      "sha256": "bccfedec801fec4905348191991c07dd0df2ca7bbd0a66a81eb93ea405e0a6a9"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-mpw-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 812,
+      "sha256": "b70289006daa51f0c8254c6e839a8f1102045bb111563ab0c1d8ab6db7b0d945"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/top.sv.gz": {
+      "bytes": 649,
+      "sha256": "dbcf040b66898f0e90aa64c94716cd5498e6022d11104b16015b4b8df4c59eea"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2207,
+      "sha256": "5ba38ddef104aeaa9bb1053457978a2bf220d3282e2d6ff91a83155be2718bd3"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-removal-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/corners.log.gz": {
+      "bytes": 1409,
+      "sha256": "417c49fda36fa9a1d495e5613d59d4ead1e5f4f57fc939b9f754de0437c0ab5b"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/snapshot_fit.pin.gz": {
+      "bytes": 5313,
+      "sha256": "8ce93d946a27a79cd921985fd5892d7f638850574f56625da470ce3742089415"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/snapshot_fit.sta.rpt.gz": {
+      "bytes": 3653,
+      "sha256": "bbffadc8e362375343db52ab1770db04f503038283df5ea21de6467cbe72b3ee"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-clocks-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 252,
+      "sha256": "fbda43139d1a66d275f8b8c5805191c08650ab4bd0edef5271e8100a270e777d"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/snapshot_fit.qsf.gz": {
+      "bytes": 512,
+      "sha256": "9cde3f1950c6b589533c846e1f3c37a3e6d937d5201a20faf4b12412f49e6773"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/fit.log.gz": {
+      "bytes": 1914,
+      "sha256": "73de02bae7ff058f2311e476341033ae3a2468af6fe8bac26d132462388a21f5"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/snapshot_fit.qpf.gz": {
+      "bytes": 54,
+      "sha256": "45823f474998be49a5058e5cdd4e822b4c38a3085fe94e7f9f1571ef275c2d75"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-clocks-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 252,
+      "sha256": "fbda43139d1a66d275f8b8c5805191c08650ab4bd0edef5271e8100a270e777d"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-recovery-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-hold-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 2303,
+      "sha256": "94e6efaa9184a833ce5c4dc39bd594f74eccbca9a92042f4d5d292c9480b4650"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-removal-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-mpw-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 816,
+      "sha256": "f7cc5a7ab6afa8b194f1d272d990084b992c4c9148039652ce89614362ff8cbb"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-setup-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 2095,
+      "sha256": "d27354759aca9d522fb705479b5216b78363c851e63ab1dd25b24ead14bff4ac"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/cell_K1115A.v.gz": {
+      "bytes": 1917,
+      "sha256": "2de68f79660dbb925ccde099e5c514b1f77b3377a3d76939e68f392d9d81b4fb"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-removal-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-ucp-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 227,
+      "sha256": "a0e9181d5d7eb02d667d55aa8114ac3ff644bbea875448176224c17dc9b28fdd"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-hold-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 2420,
+      "sha256": "2321a31ff285282faafaafbe82abe098b16cde98c57418d3abc00a46dec0d9db"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-mpw-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 816,
+      "sha256": "b1dcb2b0029c12a5f863eb5ff1fb8712d74eb2b938775f09a92b313e36b964ce"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-recovery-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-clocks-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 252,
+      "sha256": "fbda43139d1a66d275f8b8c5805191c08650ab4bd0edef5271e8100a270e777d"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/audit.tcl.gz": {
+      "bytes": 383,
+      "sha256": "8eb0eb0923bc79ca40e30a209b74b06a73abf3379d07c497630afbc472212dc3"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-setup-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 2069,
+      "sha256": "3b9de92aac90535cc4226e9f230672d5bc4f08697dc39e95941fea4e306159b4"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/snapshot_fit.flow.rpt.gz": {
+      "bytes": 1860,
+      "sha256": "d1e9b1acdd2fd8813f9e24fd1e3344f69da8435c009f64820824798aeed1d8ed"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-ucp-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 227,
+      "sha256": "a0e9181d5d7eb02d667d55aa8114ac3ff644bbea875448176224c17dc9b28fdd"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/snapshot_fit.fit.rpt.gz": {
+      "bytes": 18142,
+      "sha256": "4a52915535f5697ce4c7555e01f6626ef50ac150f222da0271126b25b2b49ebd"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/snapshot_fit.fit.summary.gz": {
+      "bytes": 388,
+      "sha256": "c898267ecfc0e372c2995d46c0fc0b5d91d8ea9987e73efad250c8f8e1754864"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-ucp-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 227,
+      "sha256": "a0e9181d5d7eb02d667d55aa8114ac3ff644bbea875448176224c17dc9b28fdd"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank.sdc.gz": {
+      "bytes": 164,
+      "sha256": "9703bbc1590526e6aab4aef2adbaa04e57b0ad8b1df9d3d651087a404bb2ba29"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/snapshot_fit.map.summary.gz": {
+      "bytes": 312,
+      "sha256": "87d44439ef4aa9597d7484a32a52206d35ed8437f001eccb88025764124b88ae"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/sta.log.gz": {
+      "bytes": 1350,
+      "sha256": "15c8769d3f720ef758f8f352093d73dfb6dee2653817d5d139a5a41c731c4e7b"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/snapshot_fit.sta.summary.gz": {
+      "bytes": 159,
+      "sha256": "31e5a047966c88006afeb50c2c5540355a6ba68cae6a55715cf6c8c339a545bf"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-setup-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 2066,
+      "sha256": "80dd6c24ca725310ba605de8e5f185c01204ab2387d810359ac514e588cfcda8"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-recovery-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/snapshot_fit.map.rpt.gz": {
+      "bytes": 7340,
+      "sha256": "024e3d129a1ecdab1fe8231cde7d32570d1de8cfff82994a0256df056f86b687"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-mpw-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 795,
+      "sha256": "362108e70056257f0fbe11bdd9070e1d2f6a9ee01378f68a7f74ada9bc840ee1"
+    },
+    "fit/SnapshotOscillator_20261019/snapshot/bank-clocks-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 252,
+      "sha256": "fbda43139d1a66d275f8b8c5805191c08650ab4bd0edef5271e8100a270e777d"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-hold-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 2092,
+      "sha256": "52119ce83a4efee871875922bb4b43c6888295479afb34d74b7be754b46dd8dc"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-recovery-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-setup-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 1850,
+      "sha256": "e19ecdf6b6d9dee541134e776e3e10eae602f4caf210710d0e0ce8d03b75bd70"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-hold-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 2093,
+      "sha256": "449353887dd78a27f303cc99ef762b3036cba28eb8917f07b1a7086f9417fef8"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-ucp-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 227,
+      "sha256": "a0e9181d5d7eb02d667d55aa8114ac3ff644bbea875448176224c17dc9b28fdd"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-removal-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/map.log.gz": {
+      "bytes": 3069,
+      "sha256": "f82d0c2ecc87254021e0d51e24bb9a7f1009f840824e45230be661e24afe2003"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-mpw-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 797,
+      "sha256": "7013361dcb68575a87286ff52f9edf6d1e23d9c173ce45637781107af09d7728"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/top.sv.gz": {
+      "bytes": 649,
+      "sha256": "dbcf040b66898f0e90aa64c94716cd5498e6022d11104b16015b4b8df4c59eea"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2207,
+      "sha256": "5ba38ddef104aeaa9bb1053457978a2bf220d3282e2d6ff91a83155be2718bd3"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-removal-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/corners.log.gz": {
+      "bytes": 1410,
+      "sha256": "8948a2fafb2f988b9fb98e4255b4427574218df8cbee972683eaa1fef4db672e"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/snapshot_fit.pin.gz": {
+      "bytes": 5313,
+      "sha256": "8ce93d946a27a79cd921985fd5892d7f638850574f56625da470ce3742089415"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/snapshot_fit.sta.rpt.gz": {
+      "bytes": 3642,
+      "sha256": "184a3ab2af67dd0638d161c5ec610ad92950cb0fdb256ed6c6b67208165bd6a8"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-clocks-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 252,
+      "sha256": "fbda43139d1a66d275f8b8c5805191c08650ab4bd0edef5271e8100a270e777d"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/snapshot_fit.qsf.gz": {
+      "bytes": 482,
+      "sha256": "0b78eeca63a4468d45e2c613bfa54fc2d8e7371a0c74c616183762f0bd7d9ef1"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/fit.log.gz": {
+      "bytes": 1914,
+      "sha256": "bfd455d30aad4a00f15219200082be4d1b2d3864fbc91c4d27b0237cc6e395c6"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/snapshot_fit.qpf.gz": {
+      "bytes": 54,
+      "sha256": "45823f474998be49a5058e5cdd4e822b4c38a3085fe94e7f9f1571ef275c2d75"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-clocks-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 252,
+      "sha256": "fbda43139d1a66d275f8b8c5805191c08650ab4bd0edef5271e8100a270e777d"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-recovery-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-hold-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 2070,
+      "sha256": "b103f4b90fc71a60bd0fa9bde63a0e23da99c650a1517a8abc067f3544fa34ef"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-removal-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-mpw-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 795,
+      "sha256": "bc43ce0fb11d830133e051fe91250cd4096618d1858a5b2b6d79af7fcc994dc4"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-setup-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 1867,
+      "sha256": "5dc1ee379b79a0128dbf8de3978a7c4dccdca11a095c4b4aab46674e2876314c"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/cell_K1115A.v.gz": {
+      "bytes": 1917,
+      "sha256": "2de68f79660dbb925ccde099e5c514b1f77b3377a3d76939e68f392d9d81b4fb"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-removal-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-ucp-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 227,
+      "sha256": "a0e9181d5d7eb02d667d55aa8114ac3ff644bbea875448176224c17dc9b28fdd"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-hold-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 2215,
+      "sha256": "cc8ce1f85d2b64e3c6d1f630886d267b18e498f434061cb6618f047225d4cdc3"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-mpw-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 808,
+      "sha256": "e5cc09e36d086a217c183bd1917b2ded16e2c2e3ee7a7ad08329ae21ad31f833"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-recovery-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-clocks-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 252,
+      "sha256": "fbda43139d1a66d275f8b8c5805191c08650ab4bd0edef5271e8100a270e777d"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/audit.tcl.gz": {
+      "bytes": 383,
+      "sha256": "8eb0eb0923bc79ca40e30a209b74b06a73abf3379d07c497630afbc472212dc3"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-setup-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 1845,
+      "sha256": "29e58c4e6b0e83cc8548d665165a36f21569ed38705bca49b2e5faf055a361e7"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/snapshot_fit.flow.rpt.gz": {
+      "bytes": 1819,
+      "sha256": "6440b8cf654c1bc33241298069d9058fb9527887fe4780a0d392f48e830d3536"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-ucp-MIN_fast_1100mv_100c.rpt.gz": {
+      "bytes": 227,
+      "sha256": "a0e9181d5d7eb02d667d55aa8114ac3ff644bbea875448176224c17dc9b28fdd"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/snapshot_fit.fit.rpt.gz": {
+      "bytes": 17162,
+      "sha256": "15a27bd1424b00cef6d74338650384305ebaea12dea0158fa159d53aa0fd17e0"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/snapshot_fit.fit.summary.gz": {
+      "bytes": 386,
+      "sha256": "8424b1c7ec2bcd8420cd76b7029023eb919d2275cb627b345b2c7c06279de301"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-ucp-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 227,
+      "sha256": "a0e9181d5d7eb02d667d55aa8114ac3ff644bbea875448176224c17dc9b28fdd"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank.sdc.gz": {
+      "bytes": 164,
+      "sha256": "9703bbc1590526e6aab4aef2adbaa04e57b0ad8b1df9d3d651087a404bb2ba29"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/snapshot_fit.map.summary.gz": {
+      "bytes": 312,
+      "sha256": "33624e3cc91d981efa6e1a798e117386f34a22cb50515e38f6019113f3e3baa8"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/sta.log.gz": {
+      "bytes": 1350,
+      "sha256": "f4271936e34ff005a918a362964251888dcff965175f833195c426e775d1c4e7"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/snapshot_fit.sta.summary.gz": {
+      "bytes": 160,
+      "sha256": "5fc61e6d676a03aeee6d3a823e6e93159a663b3f8dbbe72743d6dea0aa2c9a11"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-setup-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 1829,
+      "sha256": "2f48748d89fe39734644dc8206cb1977cf9e0394eb29041e4cbd51e1f6d6ebe5"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-recovery-MIN_fast_1100mv_-40c.rpt.gz": {
+      "bytes": 59,
+      "sha256": "97a2d2ceb6a63fd0e94d0319c6c95af1e921fd0fb91c38160c2ffdc8bbd33bbb"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/snapshot_fit.map.rpt.gz": {
+      "bytes": 8581,
+      "sha256": "3fb9339be374b063926bc29d82ea46b0ac2b1bb415dca9665911261ddfcb442d"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-mpw-7_slow_1100mv_-40c.rpt.gz": {
+      "bytes": 798,
+      "sha256": "7f2e6eb23e4121945443ed03655bfa503b256f55af6cfa82fb8bdfff8947c014"
+    },
+    "fit/SnapshotOscillator_20261019/baseline/bank-clocks-7_slow_1100mv_100c.rpt.gz": {
+      "bytes": 252,
+      "sha256": "fbda43139d1a66d275f8b8c5805191c08650ab4bd0edef5271e8100a270e777d"
+    },
+    "fit/SnapshotOscillator_20261019/executed-sources/generate_oscillator.py.gz": {
+      "bytes": 1373,
+      "sha256": "dd6685b249926b221b271c44c22f8e42b082e9fb513f535e8f4666e94f6adcc8"
+    },
+    "fit/SnapshotOscillator_20261019/executed-sources/fit_f10415_enable.py.gz": {
+      "bytes": 2642,
+      "sha256": "8de60e90d73e55391dbd4ba8b1556ac230bdd4945a1b602e22f03d09535237f0"
+    },
+    "fit/SnapshotOscillator_20261019/executed-sources/fit_f10415.py.gz": {
+      "bytes": 2416,
+      "sha256": "2a3263d466244e1509c3c13ea5ba70df596a636a7e2ec7d258966210c7b27c77"
+    },
+    "fit/SnapshotOscillator_20261019/executed-sources/cell_K1115A.v.gz": {
+      "bytes": 1917,
+      "sha256": "2de68f79660dbb925ccde099e5c514b1f77b3377a3d76939e68f392d9d81b4fb"
+    },
+    "fit/SnapshotOscillator_20261019/executed-sources/fit_oscillator.py.gz": {
+      "bytes": 4227,
+      "sha256": "b1cbd37eea259e0169286c9d26f324601483ac7297d4fb4a799c37e3aa94a167"
+    }
+  },
+  "fit_archive_sha256": "410c23b43fe5fd1cb9708321aa140f47565258e09bc23097e69fd3a32b201533"
+}

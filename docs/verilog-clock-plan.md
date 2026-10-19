@@ -42,6 +42,24 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+Latest follow-up: K1115A oscillator primitive complete-state simulation/freshXML/
+matched isolated50MHz fits now PASS. Nine parameter modes,33bits each, signed
+wrap/comparison boundaries, destructive restore/quietrecapture/firstedge/20Kmore;
+8brokenRTL+2changedsource reject,8damagedschemas reject,5damagedfits reject.
+All4conditions min+0.145ns,no unconstrained clocks/I/O or RAM; shell/admin counts
+514->735ALM/333->762regs, not wholecore. Earlier fixture reserved-name/input-width
+and classification constant/access-description corrections preserved; noRTLfix.
+Evidence snapshot-oscillator. Actual frozen DispY_field review is archived in
+snapshot-dispy-inventory:548sequentialentries/14,308bits beforediagnostic exclusion,
+140FFpackages/nine256x4RAMs/three16x4files/three1024x1RAMs+privatepipelines/
+33oscillatorbits/eightphasebits. Actual oscillator FREQ50000/SYSPER16default;
+parentboardSYSPER4does notpropagate. Preservebinding during snapshot work; timing
+calibration belongs in clockmilestone. FullDispY implementation is next.
+Native57 fit/asm/STA/audit terminal stages; device-corners/crossings still active,
+read-only audit50821 waits for builder1210961 to end. Do not start anotherSTA.
+Normal56bBoot is being issued after warm marker readback; actual code/proof
+and host-barrier preservation still pending. Live Main23403/server23400.
+
 **Latest: Native56b full desktop/input/warm file PASS; complete modeled MemX qualification PASS; Native57 fitting.**
 Same live Main23403/server23400/RBF0bbe092f,50MHz/SYSPER4/SDRAM/directDDR,
 all snapshot admin inactive. Viewers/Ready/Clock/Watch/Edit, actual Cmd mouse

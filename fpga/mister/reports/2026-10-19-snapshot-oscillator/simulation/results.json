@@ -1,0 +1,105 @@
+{
+  "status": "PASS",
+  "manifest": {
+    "module": "cell_K1115A_snapshot",
+    "logical_state_bits": 33,
+    "fields": [
+      {
+        "name": "acc",
+        "width": 32,
+        "signed": true
+      },
+      {
+        "name": "osc",
+        "width": 1
+      }
+    ],
+    "valid_indices": [
+      0,
+      1
+    ],
+    "invalid_indices": [
+      2,
+      3
+    ],
+    "words": [
+      {
+        "index": 0,
+        "lsb": 0,
+        "width": 18
+      },
+      {
+        "index": 1,
+        "lsb": 18,
+        "width": 15
+      }
+    ],
+    "original_sha256": "7f187187b8b39d9ffa3070596bdeca43c84489f8f7b4b6c24245603aa6fcfe32",
+    "generated_sha256": "5ed342ecfb0535656f450edbb2233e5df7b384c53c4abf244b326cb42591f439",
+    "scope": "Exact modeled K1115A accumulator state; no oscillator-rate/timer correction.\n\nThe original signed 32-bit accumulator, output and parameter arithmetic are\npreserved, including wrap behavior. Caller must hold every consumer/input.\n",
+    "parameters": "Original FREQ_KHZ/SYSPER arithmetic retained verbatim, not a calibrated real-time oscillator"
+  },
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "ungated",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "ignore_freeze",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "lost_high",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "running_access",
+      "returncode": 1,
+      "expected_failure": "request handshake differs"
+    },
+    {
+      "case": "invalid_alias",
+      "returncode": 1,
+      "expected_failure": "request handshake differs"
+    },
+    {
+      "case": "unsigned_math",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "wrong_threshold",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "lost_output",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    }
+  ],
+  "source_controls": [
+    {
+      "case": "extra_state",
+      "rejected": true
+    },
+    {
+      "case": "changed_math",
+      "rejected": true
+    }
+  ],
+  "source_hashes": {
+    "fpga/mister/snapshot/test_oscillator.py": "f392440ce28d0d460875530a8995f1ef954e5ee9bf5b89b41eef85a14dc4492e",
+    "fpga/mister/snapshot/test_oscillator.cpp": "1db0e65fa1e908a7254feadd6522207fc49c7cde110b3fa99462d76eb4d5b6a7",
+    "fpga/mister/snapshot/generate_oscillator.py": "92c0795798097ec1e53aa1d2108088856ed16cc26110fe73774ad98c784baffd",
+    "verilog/cells/cell_K1115A.v": "7f187187b8b39d9ffa3070596bdeca43c84489f8f7b4b6c24245603aa6fcfe32"
+  }
+}

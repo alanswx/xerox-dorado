@@ -1,0 +1,17 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "oscillator_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-oscillator-v3-20261019/ignore_freeze/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-oscillator-v3-20261019/ignore_freeze/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-oscillator-v3-20261019/ignore_freeze/cell_K1115A_snapshot.sv",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_K1115A.v",
+  "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_oscillator.cpp"
+]
