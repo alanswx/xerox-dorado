@@ -1,0 +1,18 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "snapshot_fixture",
+  "-Wno-fatal",
+  "-DDORADO_F10415_M10K",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-ram-word-final/scan_visible/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-ram-word-final/scan_visible/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-ram-word-final/scan_visible/bank.sv",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_F10415A.v",
+  "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_f10415.cpp"
+]

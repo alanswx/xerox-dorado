@@ -1,0 +1,35 @@
+{
+  "scope": "Isolated 34-slice IM-like RAM bank; no full board, clock barrier, external RAM or complete-machine restore",
+  "hashes": {
+    "fpga/mister/snapshot/f10415_bank.sv": "53159559b2629fa33a2829bf162edb0fd54a07cec77558fd9785cb73e491ece7",
+    "fpga/mister/snapshot/test_f10415.cpp": "f5004264a1895b3fb483bbd81dd4a158d4936911eb39c25ce3ed184a7833133b",
+    "verilog/cells/cell_F10415A.v": "44cb1c6eee73b8507f7a66e5781073f916d0c02a221618dedf4d09879a9a7227"
+  },
+  "cases": [
+    {
+      "case": "production",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "lost_pipeline",
+      "returncode": 1,
+      "expected_failure": "original cell output differs"
+    },
+    {
+      "case": "scan_visible",
+      "returncode": 1,
+      "expected_failure": "original cell output differs"
+    },
+    {
+      "case": "running_access",
+      "returncode": 1,
+      "expected_failure": "state access accepted while running"
+    },
+    {
+      "case": "invalid_alias",
+      "returncode": 1,
+      "expected_failure": "invalid state access accepted"
+    }
+  ]
+}

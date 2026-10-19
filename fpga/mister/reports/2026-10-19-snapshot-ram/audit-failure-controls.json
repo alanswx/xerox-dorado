@@ -1,0 +1,22 @@
+[
+  {
+    "case": "packing",
+    "rejected": "RAM packing changed"
+  },
+  {
+    "case": "missing_corner",
+    "rejected": "missing or unexpected timing corner"
+  },
+  {
+    "case": "negative_timing",
+    "rejected": "timing violation: hold/7_slow_1100mv_-40c"
+  },
+  {
+    "case": "collision_mode",
+    "rejected": "RAM old-data collision mode not preserved"
+  },
+  {
+    "case": "changed_source",
+    "rejected": "fitted source differs: fpga/mister/snapshot/f10415_bank.sv"
+  }
+]

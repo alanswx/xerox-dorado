@@ -1,0 +1,14 @@
+baseline map
+baseline fit
+baseline sta
+baseline corners
+snapshot map
+snapshot fit
+Traceback (most recent call last):
+  File "/home/alans/mister/Dorado_SnapshotRAM_20261019/src/fpga/mister/snapshot/fit_f10415.py", line 131, in <module>
+    main()
+  File "/home/alans/mister/Dorado_SnapshotRAM_20261019/src/fpga/mister/snapshot/fit_f10415.py", line 125, in main
+    subprocess.run([str(args.quartus/tool), *arguments], cwd=case,
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/alans/intelFPGA_lite/17.0/quartus/bin/quartus_fit', 'snapshot_fit']' died with <Signals.SIGTERM: 15>.

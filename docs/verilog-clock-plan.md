@@ -18,10 +18,11 @@ a higher PLL frequency or an enabled-edge ceiling is not proof of speed.
 
 This is an active implementation goal. The numbered milestones below are
 the delivery order and take precedence over historical candidate diaries.
-Native34 is the fully qualified desktop/input reference; Native35 provides
-the earlier diagnostic baseline. Selectable SDRAM is implemented and
-passes simulation and all-device timing; its hardware qualification and DDR
-network transport remain pending. External IFS/ContrAlto tunnelling is
+Native34 is the earlier desktop/input reference; Native35 provides
+the earlier diagnostic baseline. SDRAM41c now passes original-firmware
+Viewers/input and41d cold marker readback. Direct-DDR network47 passes real
+startup/login, loader traffic and packet progress during delayed Main worker
+work; full Viewers/input and active STOP/reload remain pending. External IFS/ContrAlto tunnelling is
 optional follow-up,
 not a prerequisite for the performance goal.
 
@@ -40,13 +41,15 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-Current hardware update22:16UTC:41d passes real cold-remount readback of
-both41c marker files after new Main/cache and full FPGA original boot. Its
-volume is preserved after normal guest Boot and actual loader durability
-barriers.42 matched raw-DDR/no-cache control is now loaded with Main40e1,
-e237dffc server and fresh f3bce2a8 seed. Idle measurements and software boot
-qualification are pending; no new speed claim. Keep later candidate diary
-"not deployed" labels historical. Evidence: native41d and native42-field.
+Current hardware update00:29UTC19Oct:41d cold marker readback and42
+Viewers/input pass; both volumes are preserved after normal guest Boot and
+actual loader durability barriers.47 is live with Main21e67a3f/serverc5996249,
+SDRAM/no raw cache and physical DDR network. All34 loadees/profile No,
+BootEssentials and fonts pass; Viewers Ready and an independent CommandTool
+are visible, exact keyboard qualification underway. Its pre-Guest idle-login
+mean is1,595,641 issues/s (9.57385% nominal), one boot/three adjacent windows,
+not a repeated matched comparison. Evidence: native41d/native42-field and
+native47-drained-state/worker-ddr. Later candidate diaries are historical.
 
 Use three explicitly recorded workloads: idle Cedar login, a fixed cold
 loader sequence through all 34 base packages, and a desktop script with
@@ -76,10 +79,11 @@ correctness blocker remains open; it is not replaced by a PLL-only speed
 claim. Original guest-visible CPU/cache/map/ECC behavior is preserved, with
 no imported C machine state or host completion of guest instructions/IOCBs.
 
-The immediate next action is instrumented, bounded coherent ARM disk service:
-Native41b post-desktop stress failed on a host-write watchdog. Preserve its
-halted state and physical pack; cold-remount persistence and matched42
-comparison remain pending. Only
+The immediate hardware actions are47 Viewers/input and active-DDR STOP/reload,
+then controlled43/44/45 memory comparisons. Complete snapshot4a is required;
+its isolated RAM access prototype is being qualified before board-wide access.
+Native41b's failed pack remains preserved;41d closes the separate clean
+cold-remount persistence case. Only
 MiSTer14 is allocated. Use misterubuntu for Quartus and the Mac for Verilator.
 Do not overwrite the protected Executive simulation/checkpoint artifacts.
 Keep commits and the handoff current at each milestone. No new permission
@@ -348,6 +352,22 @@ server are outside this first inventory. This is not complete coverage or
 online save/load. Evidence: reports/2026-10-18-snapshot-inventory/. Next extend
 scope/classification and qualify bounded access on one representative board
 before machine-wide hardware instrumentation.
+
+Snapshot RAM prototype update00:36UTC19Oct: isolated1024x34 F10415 bank
+export/import passes against34 unchanged original cells and an independent
+array oracle. Every RAM/read-pipeline bit, all1023 invalid indices,
+destructive continuation, first-edge resume and30000 random running steps
+pass; four broken RTL variants fail. Matched50MHz virtual-I/O Quartus fits
+retain34816 bits/fourM10Ks:101->163 ALMs (+62),0->43 registers. All12
+setup/hold/pulse checks per variant pass across four conditions, snapshot
+minimum+0.096ns, no unconstrained paths. All34 inferred mixed-port collision
+modes are OLD_DATA. The five damaged-report/source controls are rejected.
+Separate-address writes lost RAM inference; per-bit restore enables cost34
+M10Ks, so the qualified interface transfers complete34-bit words through a
+single write port. These results apply only to the isolated bank. Actual
+board grouping/strobes/history, machine-wide freeze, external RAM/device/ARM
+state, atomic bundles and physical Cedar restore remain unimplemented.
+Source: fpga/mister/snapshot; evidence: reports/2026-10-19-snapshot-ram.
 
 ### DDR control integration and matched idle evidence (2026-10-18)
 

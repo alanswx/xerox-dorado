@@ -1,0 +1,9 @@
+baseline map
+baseline fit
+baseline sta
+baseline corners
+snapshot map
+snapshot fit
+snapshot sta
+snapshot corners
+Fits complete; inspect inference, resource delta and all-corner reports before qualification.

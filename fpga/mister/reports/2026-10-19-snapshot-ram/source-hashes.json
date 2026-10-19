@@ -1,0 +1,8 @@
+{
+  "fpga/mister/snapshot/README.md": "9873e9797b437f28a86deea854c0ea30a2bbe476e2819c8ebd27a05bd831410f",
+  "fpga/mister/snapshot/audit_f10415.py": "d400737e4bb4083542a253aa4882d101cafbbfc4738c537ec4aa7290482bbcc8",
+  "fpga/mister/snapshot/f10415_bank.sv": "53159559b2629fa33a2829bf162edb0fd54a07cec77558fd9785cb73e491ece7",
+  "fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+  "fpga/mister/snapshot/test_f10415.cpp": "f5004264a1895b3fb483bbd81dd4a158d4936911eb39c25ce3ed184a7833133b",
+  "fpga/mister/snapshot/test_f10415.py": "cb3df074046932ba6c00275f23e05040f43046b762dc4392fc36f50d638235a7"
+}

@@ -1,0 +1,1 @@
+SNAPSHOT RAM PASS: 37194 edges, 5123 accesses; 34 original cells, all RAM/read-pipeline bits, invalid indices, first-edge resume and 30000 random steps

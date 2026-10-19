@@ -47,7 +47,10 @@ server/network differ, so not a matched backend/performance promotion. Normal
 Guest\n\n input sent after measurement and ACCEPTED:00:00UTC19Oct
 Guest.pa/Grapevine-down fallback and Basic boot file locating the remote
 Basic.Loadees. All34 loadees complete, profile No entered and visibly accepted;
-BootEssentials recursion advancing. Fonts/desktop/input still pending.
+BootEssentials/fonts/FontMetrics and STARTs pass.00:34UTC19Oct capture shows
+Viewers Ready, WatchTool/EditTool/Clock and the profile's first CommandTool.
+Real mouse/Cmd opens a ready independent second tool; exact keyboard
+qualification underway. Active STOP/reload and sustained tests remain open.
 Paths: `Cedar47_20261018`, `_Computer/DoradoRTL_Cedar47_20261018/Cedar47.mgl`;
 Main `/tmp/dorado47-main.log`, disk `/tmp/dorado47-disk.jsonl`.
 Local helpers/handles: `build/rtl-executive/cedar47-launch/`; deployment
@@ -181,11 +184,21 @@ core video/input from Linux. **1 selects Linux,0 selects core**; leave it0.
 Boot C/modifiers were released again with core focus.
 Local helpers: `build/rtl-executive/cedar41d-launch/`.
 
-Snapshot milestone4a has begun: logical-path XML inventory covers4158 native
-instances with RAM pipeline/task-written/readmem coverage tests passing.
-All state candidates are UNCLASSIFIED; wrapper/raw-SDRAM/Main/server scope
-still needs coverage. No online save/load or timing/area claim. Evidence:
-`reports/2026-10-18-snapshot-inventory/`.
+Snapshot milestone4a: logical-path XML inventory covers4158 native instances;
+all candidates still UNCLASSIFIED and wrapper/raw-SDRAM/Main/server scope
+needs coverage. New isolated1024x34 IM-like RAM bank save/restore passes
+against34 unchanged original cells plus independent array oracle: all RAM/
+read-pipeline bits, invalid indices, destructive continuation, first-edge
+resume and30000 random steps; four broken RTL controls fail. Matched50MHz
+virtual-I/O fits retain fourM10Ks/34816 bits with+62 ALMs/+43 registers;
+all four conditions pass, snapshot minimum+0.096ns, no unconstrained paths,
+all34 collision modes OLD_DATA. Five damaged report/source controls reject.
+Separate-address writes lost RAM inference; per-bit restore enables cost34
+M10Ks. Whole34-bit words through one write port preserve packing. This is
+NOT board/core area/timing or physical save/load. Actual board access/global
+freeze, complete inventory/ARM state/bundle/Cedar restore remain pending.
+Sources fpga/mister/snapshot; evidence reports/2026-10-18-snapshot-inventory
+and2026-10-19-snapshot-ram. Production cells/core unchanged.
 
 **Direct DDR software candidate integrated;46 startup failed,47 pending.**
 Optional wrapper/UIO ownership mux, daemon control/validated mapper and Main
@@ -1408,6 +1421,7 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Fix recurring initially black HDMI after core load in Main; framebuffer toggle is a workaround, parser patch is a separate defect.
 - [ ] Deploy/qualify instruction diagnostics, including maintenance/reset/task switching, and measure actual issue rates with external waits separately.
 - [x] Begin4a with generated per-instance logical-path state inventory; actual-cell/read-pipeline/task-write/ROM-load/array/hierarchy coverage and failure controls pass.
+- [x] Qualify isolated34-bit IM bank state access: exact RAM/read pipeline/first-edge resume, independent original cells and broken controls; matched four-condition fit retains fourM10Ks, +62 ALMs/+43 registers.
 - [ ] Extend/classify full snapshot inventory including wrapper/raw memory/Main/server; prototype bounded state access on one board and qualify area/timing before wide integration.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [x] Preserve/decode41b post-desktop host-write timeout and unchanged physical pack; exact blocking syscall remains unobserved.

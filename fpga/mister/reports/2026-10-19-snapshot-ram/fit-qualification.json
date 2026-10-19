@@ -1,0 +1,86 @@
+{
+  "status": "PASS",
+  "scope": "Isolated 34-slice bank; virtual data I/O, 50MHz and 2ns I/O budgets; not a full Dorado board/core or physical deployment",
+  "results": {
+    "baseline": {
+      "alms": 101,
+      "registers": 0,
+      "ram_bits": 34816,
+      "ram_blocks": 4,
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 9.643,
+          "hold": 0.131,
+          "mpw": 8.788,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 9.864,
+          "hold": 0.865,
+          "mpw": 8.83,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 13.818,
+          "hold": 0.456,
+          "mpw": 8.422,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 13.384,
+          "hold": 0.535,
+          "mpw": 8.493,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        }
+      }
+    },
+    "snapshot": {
+      "alms": 163,
+      "registers": 43,
+      "ram_bits": 34816,
+      "ram_blocks": 4,
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 8.966,
+          "hold": 0.096,
+          "mpw": 8.786,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 8.871,
+          "hold": 0.552,
+          "mpw": 8.827,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 12.809,
+          "hold": 0.229,
+          "mpw": 8.422,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 11.123,
+          "hold": 0.254,
+          "mpw": 8.492,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        }
+      },
+      "old_data_ram_instances": 34
+    },
+    "delta": {
+      "alms": 62,
+      "registers": 43,
+      "ram_bits": 0,
+      "ram_blocks": 0
+    }
+  },
+  "limits": "Isolated bank, virtual data I/O. No full-board/core area/timing, global freeze, physical snapshot or complete-machine restore claim."
+}
