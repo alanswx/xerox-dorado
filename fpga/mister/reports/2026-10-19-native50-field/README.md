@@ -27,10 +27,18 @@ issues/s (+0.01861% versus49). ONE fresh boot each; this demonstrates no
 meaningful idle gain for the added3323ALMs/2832regs (73->81% ALMs). Do not
 promote this policy based on the synthetic fixture or this tiny difference.
 
-After idle timing, bounded read-only loader observer7959/Mac96827 starts with
-the same policy as48/49. Real Guest login is sent via28107. Full loader
-comparison and Viewers/input remain pending; use actual workload benefit to
-decide whether to retain this policy or keep the smaller49 baseline.
+After idle timing, bounded read-only observer7959/Mac96827 uses the same
+policy as48/49 and real Guest28107 is accepted. The full34-transfer sequence
+and exact final guest ACK pass311.63439..311.86355s; all34 remote source
+hashes match after timing. Every Load ok and profile prompt are visible.
+Observer is stopped/retired, not running. Full Viewers/input are NOT tested.
+
+Decision: reject this policy as the baseline. Loader difference from first49
+is only0.22..0.40% in one run each; the second49 boot is311.33993..311.59041s,
+so50 falls inside observed49 timing variation. This does not justify3323ALMs.
+Retain optional RTL/tests/evidence but return to49 with deferred reads OFF.
+Actual normal49b loader retires50 safely and preserves its physical disk;
+see native49b-repeat. It was at the profile prompt, not a clean guest shutdown.
 Helpers: build/rtl-executive/cedar50-launch. Main /tmp/dorado50-main.log,
 disk /tmp/dorado50-disk.jsonl, volume Cedar50_20261019. No complete snapshot
 or final repeated/stability qualification is claimed.

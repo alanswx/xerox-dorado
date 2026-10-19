@@ -1,0 +1,118 @@
+{
+  "status": "PASS",
+  "scope": "Isolated18-bit clock-enable bank with matched opposite-edge launch/capture shell,50MHz,2ns/0ns virtual I/O and10ns internal budgets; counts include shell; baseline full-advance original cells; no board/barrier/physical deployment",
+  "results": {
+    "baseline": {
+      "alms": 53,
+      "registers": 48,
+      "ram_bits": 18432,
+      "ram_blocks": 2,
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 2.594,
+          "hold": 0.612,
+          "mpw": 8.815,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 2.574,
+          "hold": 0.576,
+          "mpw": 8.812,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 5.007,
+          "hold": 0.325,
+          "mpw": 8.415,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.871,
+          "hold": 0.357,
+          "mpw": 8.486,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        }
+      }
+    },
+    "snapshot": {
+      "alms": 102,
+      "registers": 138,
+      "ram_bits": 18432,
+      "ram_blocks": 2,
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 1.882,
+          "hold": 0.58,
+          "mpw": 8.781,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 1.845,
+          "hold": 0.607,
+          "mpw": 8.818,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.592,
+          "hold": 0.255,
+          "mpw": 8.418,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.347,
+          "hold": 0.296,
+          "mpw": 8.485,
+          "recovery": "N/A: no asynchronous controls",
+          "removal": "N/A: no asynchronous controls"
+        }
+      },
+      "inferred_ram": "one1024x18 simple-dual-port macro; common clock, OLD_DATA"
+    }
+  },
+  "delta": {
+    "alms": 49,
+    "registers": 90,
+    "ram_bits": 0,
+    "ram_blocks": 0
+  },
+  "limits": "Isolated bank only. No actual-board/global barrier/physical snapshots or complete machine restore qualification.",
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "fitted source differs: fpga/mister/snapshot/f10415_enable_bank.sv"
+    },
+    {
+      "case": "constraints",
+      "rejected": true,
+      "diagnostic": "constraints differ"
+    },
+    {
+      "case": "geometry",
+      "rejected": true,
+      "diagnostic": "RAM geometry or packing changed"
+    },
+    {
+      "case": "old_data",
+      "rejected": true,
+      "diagnostic": "RAM mode changed: READ_DURING_WRITE_MODE_MIXED_PORTS"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation: hold/7_slow_1100mv_-40c"
+    },
+    {
+      "case": "missing_corner",
+      "rejected": true,
+      "diagnostic": "missing or unexpected corner"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "scope": "18-bit half-bank clock-enable RTL only; no actual-board/global barrier/fit/physical save-load qualification",
+  "hashes": {
+    "fpga/mister/snapshot/f10415_enable_bank.sv": "6df465a02e8ad84759d82c2be1a96b2de2f9ab630042ae00c670db3105b5f0a6",
+    "fpga/mister/snapshot/test_f10415_enable.cpp": "ceeb8555975bdcb28be80e453c28a62ac6ea26eb6a26e540439139c92c2bb4f1",
+    "fpga/mister/snapshot/test_f10415_enable.py": "aca7fe3d41a7f972e4e896994cecb33adcf429140b03222a7e4b184efdf61b2e",
+    "verilog/cells/cell_F10415A.v": "44cb1c6eee73b8507f7a66e5781073f916d0c02a221618dedf4d09879a9a7227"
+  },
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "ungated_read",
+      "returncode": 1,
+      "expected_failure": "original cell output differs during backend hold"
+    },
+    {
+      "case": "premature_resume",
+      "returncode": 1,
+      "expected_failure": "restored pipeline differs before first guest edge"
+    },
+    {
+      "case": "lost_pipeline",
+      "returncode": 1,
+      "expected_failure": "restored pipeline differs"
+    },
+    {
+      "case": "running_access",
+      "returncode": 1,
+      "expected_failure": "state access accepted while running"
+    },
+    {
+      "case": "invalid_alias",
+      "returncode": 1,
+      "expected_failure": "invalid state access accepted"
+    }
+  ]
+}

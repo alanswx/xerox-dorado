@@ -1,0 +1,12 @@
+{
+  "scope": "Independent second fresh original-firmware idle boot of the exact Native49 RBF; three adjacent10s windows; not three release boots",
+  "first49_issues_s": 1947687.4115226977,
+  "repeat49b_issues_s": 1947691.36638264,
+  "difference_percent": 0.00020305414099031083,
+  "rbf_sha256": "6e7866f3d6125e5926c05fa9c4a4a000e1a4aef72b61766ccfe8b2676eecad0d",
+  "probe_dso": false,
+  "setup_gdb_pauses": 2,
+  "main_pid": 8321,
+  "server_pid": 8318,
+  "nominal_original_fraction": 0.11686148198295841
+}

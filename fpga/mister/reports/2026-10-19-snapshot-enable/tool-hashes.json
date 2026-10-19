@@ -1,0 +1,7 @@
+{
+  "fpga/mister/snapshot/f10415_enable_bank.sv": "6df465a02e8ad84759d82c2be1a96b2de2f9ab630042ae00c670db3105b5f0a6",
+  "fpga/mister/snapshot/test_f10415_enable.py": "aca7fe3d41a7f972e4e896994cecb33adcf429140b03222a7e4b184efdf61b2e",
+  "fpga/mister/snapshot/test_f10415_enable.cpp": "ceeb8555975bdcb28be80e453c28a62ac6ea26eb6a26e540439139c92c2bb4f1",
+  "fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+  "fpga/mister/snapshot/audit_f10415_enable.py": "799507608cce2119e8da11dc4d4533b6803a8e90143a40f1a8ebae24791f0d8f"
+}

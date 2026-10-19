@@ -1,0 +1,28 @@
+{
+  "main_pid": 8321,
+  "server_pid": 8318,
+  "actual_main_spi74_words": [
+    53460,
+    1,
+    0,
+    8176,
+    0,
+    1,
+    22,
+    0,
+    0,
+    22262,
+    4946,
+    47115,
+    57442,
+    2048,
+    8,
+    16,
+    0,
+    0
+  ],
+  "epoch": "e062b80b135256f6",
+  "probe_dso": false,
+  "setup_gdb_pauses": 2,
+  "state": "Original-firmware/login/idle/base-loader PASS; profile No sent, full Viewers/input pending"
+}

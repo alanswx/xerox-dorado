@@ -1,0 +1,21 @@
+{
+  "scope": "ONE fresh original-firmware boot each, same seed/binaries/clocks/DDR/observer/corpus; Basic.Loadees to exact End.bcd guest ACK, not full desktop or repeated qualification",
+  "control49_s": [
+    312.558749954,
+    312.871632978
+  ],
+  "candidate50_s": [
+    311.63438827,
+    311.863551322
+  ],
+  "elapsed_reduction_percent_bounds": [
+    0.22242174698431372,
+    0.39544802966748893
+  ],
+  "files": 34,
+  "payload_bytes": 1345843,
+  "rbf_sha256": "70886931eab01aa26d95cff2578e67602a12e272df26c2471cb5f9b40d4561cb",
+  "decision": "Do not retain deferred reads in the baseline: no meaningful idle benefit and only0.22..0.40% less loader time in ONE comparison, for3323 additional ALMs/2832 registers. Keep Native49; retain the optional experimental implementation and evidence.",
+  "guest_boundary": "Profile prompt after complete base loader; no user files created; no clean guest shutdown or full Viewers qualification claimed",
+  "observer": "7959/96827 COMPLETED, process independently absent; 34 served source hashes match after timing"
+}

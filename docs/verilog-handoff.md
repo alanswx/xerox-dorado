@@ -14,8 +14,9 @@ marker persistence and42/47/48/49 original-firmware Viewers/input pass.
 Actual active-DDR STOP/unmap/normal reload/fresh epochs pass. Two memory
 policies improve preliminary idle login from1.596M to1.948M issues/s
 (+22.0639%);49's full34-transfer base loader takes16.136..16.276% less time
-than48, ONE boot each. Native50 adds deferred reads and is now booting original
-firmware on MiSTer14. Next qualify50 software/performance, then continue
+than48, ONE boot each. Native50 deferred reads are rejected for negligible measured benefit and
+extra3323ALMs. Live49b repeats the smaller selected49 baseline; idle reproduces
+within0.000203%, full base loader passes. Continue
 complete snapshot4a, accurate clocks/timers and repeated/stability gates.
 Actual Main worker-delay disk service, physical packet progress and completed
 input pass in separate controlled41c/47/48 tests. Sustained combined stress
@@ -55,7 +56,7 @@ C watcher30731, CoolBoot23417, idle44017, Guest71541 and loader observer4091/
 f4548e6c53382aeb37e28e458a8c43dfc9dc77592f2208b63059733f2ffb2855 is preserved
 at the original path. Full trace ends barrier_end, no errors/loss.
 
-**Native49 original-firmware interactive Viewers PASS; normal50 load in progress.**
+**Retired Native49 original-firmware interactive Viewers PASS.**
 Main6414/21e67a3f, daemon6413/c5996249, temporary6399 retired normally; new
 seed untouchedf3bce2a8 before caching. RBF6e7866f3,50MHz/SYSPER4, SDRAM/no cache/
 direct DDR; only physical group/word interleaving differs from48. Actual
@@ -130,30 +131,57 @@ constraints. Handle69340/fitter512897 COMPLETED;31 summary/36 detailed checks/
 four conditions pass, min+0.115ns, no new cuts/illegal/unconstrained clocks.
 RBF6e7866f3. Source/frozen evidence:2026-10-19-native49-interleave.
 
-**Live Native50 original-firmware Cedar login PASS; deferred-read idle gain negligible.** Frozen49 plus frozen45 deferred
-reads on16 groups, original pipeline/old-data/write cadence preserved.
-Same CPU/cache/map/ECC, physical DDR, layout/arbitration and clocks/constraints.
-Mac51539/map524702/fitter526525 COMPLETED, remote Native50_20261019.
-31 summary/36 detailed checks/four conditions pass, minimum+0.035ns, no new
-cuts/illegal/unconstrained clocks.33,796ALMs81%,55,761registers,330M10Ks,35DSP.
-RBF70886931. Reports:2026-10-19-native50-deferred. No hardware speed claim;
-qualify49 first, then50, and budget the extra logic against snapshot access.
-Live50 Main7660/21e67a3f, daemon7659/c5996249; RBF70886931,50MHz/SYSPER4,
-SDRAM/no cache/direct DDR, same arbitration/interleaving; only deferred reads
-added. New f3bce2a8 seed checked unchanged before caching. Actual SPI74
-flags0x16/fault+errors0, fresh epochc4d9e1289cdc99f5. Daemon maps64KiB1FF00000,
-Main does not map that ring and has no probe DSO. One setup GDB pause selects
-core input/video0 and issue view1. Two setup GDB controls precede samples.
-C watcher80173 and CoolBoot97146 COMPLETED; original BFN113/Pilot/Cedar login
-PASS. Never restart those handles. Idle70676 COMPLETE:1,948,049.932 issues/s,
-+0.01861% versus49, no meaningful idle gain demonstrated in one boot each.
-Additional3323ALMs/2832regs (73->81% ALMs) must earn a real workload benefit.
-Do not promote50 from synthetic results. Full base-loader comparison next.
-Main /tmp/dorado50-main.log, disk /tmp/dorado50-disk.jsonl, Cedar50_20261019;
-helpers cedar50-launch, evidence native50-field. Draft script is superseded by
-executed deploy.py with actual49 predecessor evidence checks.
-Read-only loader observer96827 LIVE; remote PID from readiness log is 7959.
-Guest login sent after idle measurement; full software gate pending.
+**Live Native49b: selected baseline repeat, original firmware/base loader PASS.**
+Normal load03:46:47UTC19Oct, Main8321/21e67a3f, daemon8318/c5996249,
+temporary8310 retired normally; same49 RBF6e7866f3,50MHz/SYSPER4, SDRAM/no
+cache/direct DDR, arbitration/interleaving ON, deferred reads OFF. New original
+f3bce2a8 seed checked unchanged before caching. Main-owned SPI74 flags0x16/
+fault+errors0, fresh epoche062b80b135256f6. Daemon maps64KiB1FF00000, Main
+has no ring mapping or probe DSO. Two setup GDB controls before samples.
+C watcher9694/CoolBoot81386 COMPLETED. Original BFN113/Pilot/Cedar login pass.
+Idle83013 COMPLETE:1,947,691.366 issues/s versus first49's1,947,687.412,
++0.000203% over an independent fresh boot; not three final release boots.
+Guest31922 accepted. All33BCD+list/final guest ACK pass311.33993..311.59041s;
+34 remote source hashes match after timing. Observer8733/Mac38162 COMPLETED
+and absent independently; No34368 sent, installer advancing. Full49b Viewers/
+input remains pending. Main /tmp/dorado49b-main.log, disk /tmp/dorado49b-disk.jsonl;
+Cedar49b_20261019, helpers cedar49b-launch, evidence native49b-repeat.
+Manual pre-Guest idle delay varied, so loader values are observed repeats,
+not the final automated pinned benchmark gate. Do not restart old helpers.
+
+**Retired Native50: deferred reads NOT selected.** RBF70886931 all-device
+31/36/four-condition timing passes min+0.035ns;33,796ALMs81%,55,761regs.
+Original firmware/login/base loader pass; idle1,948,049.932 (+0.01861% vs49),
+loader311.63439..311.86355s. No meaningful gain for3323 extraALMs/2832regs;
+50 lies inside observed49 loader variation. Optional RTL/tests/evidence remain;
+full50 Viewers/input not performed and not a release requirement for rejected
+policy. Old Main7660/daemon7659 and observer7959/96827 retired normally.
+Actual normal49b loader barriers pass, old trace ends barrier_end without
+errors/loss. Physical50 pack63578624 bytes SHA
+0b1572b76a2662f372c5a8b79eebf281f7976fc780369de3514f9c20189080f6 preserved
+at original path. Retired at profile prompt with no user files, no clean guest
+shutdown or complete snapshot claimed. Evidence: native50-field/native49b-repeat.
+
+**Snapshot4a18-bit enabled-bank prototype PASS, NOT integrated.**
+Actual ContB grouping is eight18-bit halves (34data+2parity per word), plus
+all144 read-pipeline bits. f10415_enable_bank.sv preserves the original guest
+read/write edges using host-clock enables; saved raw pipeline survives scans,
+release/backend hold and recapture until first real guest advance.18 unchanged
+cells plus independent array:57417 host edges/20225 backend-held edges/5125
+state accesses, all RAM/raw pipeline/CE/old-data/invalid-index/first-edge tests
+and five broken controls pass. Matched opposite-edge registered-shell fits
+retain18432bits/twoM10Ks/OLD_DATA. All12 setup/hold/pulse checks per variant/
+four conditions pass min+0.255ns; no illegal/unconstrained clocks/I/O, R/R N/A.
+Fixture counts53->102ALMs and48->138regs; delta includes shell/admin registers,
+not pure bank overhead or a full-core projection. Six damaged-report controls
+reject. Two-clock templates fail Quartus memory inference. Direct virtual-I/O
+baseline hold failures remain archived; final fixture models real launch/capture
+registers with unchanged2ns/0ns I/O and10ns internal budgets, no timing cuts.
+Remote isolated fit SnapshotEnable18_shell_20261019/handle56146 COMPLETED.
+Source fpga/mister/snapshot; reports2026-10-19-snapshot-enable. Next integrate
+actual ContB halves with the exact guest advance and test complete board
+behavior before core integration. Global barriers/full-state bus/SDRAM/Main/
+server/bundles/physical Cedar save/restore remain required and unfinished.
 
 **Retired47: direct-DDR original-firmware interactive Cedar Viewers PASS.**
 Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,
@@ -1563,6 +1591,7 @@ and has unreviewed hold violations; never deploy it.
 - [x] Begin4a with generated per-instance logical-path state inventory; actual-cell/read-pipeline/task-write/ROM-load/array/hierarchy coverage and failure controls pass.
 - [x] Qualify isolated34-bit IM bank state access: exact RAM/read pipeline/first-edge resume, independent original cells and broken controls; matched four-condition fit retains fourM10Ks, +62 ALMs/+43 registers.
 - [x] Prove actual ContB IM fanout grouping against wire list/cell expressions:144 slices, parity and144 read registers, eight18-bit half-banks; truth oracle and six damaged controls pass.
+- [x] Qualify18-bit explicit-enable snapshot RAM against unchanged original cells and independent array; retain twoM10Ks/OLD_DATA, matched registered-shell all-corner timing min+0.255ns and damaged RTL/report controls.
 - [ ] Extend/classify full snapshot inventory including wrapper/raw memory/Main/server; prototype bounded state access on one board and qualify area/timing before wide integration.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [x] Preserve/decode41b post-desktop host-write timeout and unchanged physical pack; exact blocking syscall remains unobserved.
@@ -1602,9 +1631,11 @@ and has unreviewed hold violations; never deploy it.
 - [x] Native48 all-device timing31/36/four conditions and clean47b/48 DDR-network idle comparison; bounded48 full base-loader trace and visible successful loads.
 - [x] Native49 matched DDR-network timing/login/idle(+14.9453%) and full base-loader timing(16.136..16.276% less time versus48), one boot each; full Viewers/input pending.
 - [x] Native48 full original Viewers/mouse/exact keyboard and warm marker readback.
-- [x] Native50 deferred-read all-device31/36/four-condition timing, minimum+0.035ns; not deployed.
+- [x] Native50 deferred-read all-device31/36/four-condition timing, minimum+0.035ns; deployed/tested/retired, policy rejected.
 - [x] Native49 full original-firmware Viewers, real mouse/Cmd/focus, exact short/alphabet/digit echo, warm marker readback and normal guest Boot/germ812.
-- [ ] Qualify50 hardware; repeat matched measurements with full software gates.
+- [x] Qualify50 original boot/idle/full base loader; reject as baseline for negligible benefit and3323 extraALMs, preserve disk/evidence and return to49.
+- [x] Fresh49b original firmware/login/idle/base-loader repeat; independent idle mean reproduces49 within0.000203%.
+- [ ] Finish49b Viewers/input and automate fixed post-idle Guest/profile input timing before final repeated benchmark gates.
 - [ ] Finish independent physical payload/reset-stall/fallback hardware qualification for the implemented direct-DDR transport; original DskEth/CRC/wire and selectable SPI path remain.
 - [ ] Optional external Xerox-network UDP tunnel compatible with IFS/ContrAlto; test Cedar STP separately from Alto interoperability.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.

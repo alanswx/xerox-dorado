@@ -1,0 +1,1 @@
+FAIL host=36380: restored pipeline differs

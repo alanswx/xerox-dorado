@@ -1,0 +1,12 @@
+{
+  "main_maps": [
+    "b3a43000-b51fe000 rw-s 22000000 00:06 2          /dev/mem",
+    "b51fe000-b61fe000 rw-s ff000000 00:06 2          /dev/mem"
+  ],
+  "server_maps": [
+    "b6ea9000-b6eb9000 rw-s 1ff00000 00:06 2          /dev/mem"
+  ],
+  "old_main_exists": false,
+  "old_server_exists": false,
+  "probe_dso": false
+}

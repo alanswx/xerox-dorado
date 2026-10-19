@@ -1,0 +1,23 @@
+{
+  "time_utc": "2026-10-19 03:46:47 UTC",
+  "old_main": 7660,
+  "old_server": 7659,
+  "staging_main": 8310,
+  "main_pid": 8321,
+  "server_pid": 8318,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "server_sha256": "c59962490772f12d061ec61aa64e6a567144d26d7802a28349a8d9a044eda87e",
+  "rbf_sha256": "6e7866f3d6125e5926c05fa9c4a4a000e1a4aef72b61766ccfe8b2676eecad0d",
+  "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "main_log": "/tmp/dorado49b-main.log",
+  "disk_trace": "/tmp/dorado49b-disk.jsonl",
+  "preserved_old_volume": {
+    "path": "/media/fat/games/DoradoRTL/Cedar50_20261019/cedar-work.pack",
+    "bytes": 63578624,
+    "sha256": "0b1572b76a2662f372c5a8b79eebf281f7976fc780369de3514f9c20189080f6",
+    "guest_boot": "Profile prompt after complete Native50 base-loader test; no user files created or clean guest shutdown claimed",
+    "host_boundary": "Actual normal Main loader active-DDR and disk barriers, followed by normal temporary Main exit",
+    "fpga_snapshot": false
+  },
+  "phase": "Full Native49b load completed; cache-ready and fresh DDR grant required"
+}

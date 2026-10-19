@@ -67,6 +67,19 @@ prototype. Six damaged-board controls reject; a common inversion of all
 address copies is explicitly outside a grouping proof's coverage. Evidence:
 reports/2026-10-19-snapshot-contb. Neither production RAM nor clocks change.
 
+The next18-bit prototype is `f10415_enable_bank.sv`. It uses a single host
+clock with the actual guest advance as a read/write enable. This preserves
+ordinary backend holds while permitting frozen scans; the saved read output
+survives release until the first real guest edge. Original-cell/array tests
+and five broken variants pass. Matched registered-shell fits retain twoM10Ks
+and OLD_DATA, with all four-condition checks passing, minimum+0.255ns.
+Fixture counts are53->102ALMs/48->138registers and include launch/capture
+registers; do not extrapolate that delta to a complete core. The two-clock
+prototype also in this directory is REJECTED by Quartus inference. Earlier
+direct-virtual-input timing failures are preserved. Evidence and full scope:
+reports/2026-10-19-snapshot-enable. Actual ContB integration is next; no physical
+save/load or complete snapshot is implemented by either prototype.
+
 The remaining delivery order is:
 
 1. Classify the generated inventory and prove bounded access on an actual

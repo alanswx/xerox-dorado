@@ -1,0 +1,16 @@
+{
+  "scope": "Observed original-firmware34-transfer loader durations; same seed/binaries/clocks/corpus/observer, but manual pre-Guest idle delay differed. Not a final controlled repeated-performance gate.",
+  "first49_s": [
+    312.558749954,
+    312.871632978
+  ],
+  "repeat49b_s": [
+    311.339930516,
+    311.590408104
+  ],
+  "candidate50_s": [
+    311.63438827,
+    311.863551322
+  ],
+  "decision": "Native50 falls inside the observed Native49 timing range and adds3323ALMs. Keep deferred reads OFF; preserve all experiment evidence."
+}

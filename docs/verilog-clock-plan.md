@@ -41,34 +41,26 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-Current hardware update03:29UTC19Oct:47/48 original Viewers/input pass;
-active-DDR STOP/unmap/normal reload/new epoch pass. Clean47b idle averages
-1,595,628.966 issues/s.48 response-boundary arbitration averages1,694,447.318
-(+6.1931%,10.16668% nominal), ONE boot per configuration/three adjacent windows,
-not repeated qualification. Its full33BCD+list base loader takes373.0718..
-373.3220s by bounded log visibility and exact final guest ACK; no timed control.
-Actual48 delayed-worker input now passes: Return completes a pretyped Echo,
-mouse moves,8 read/28 write ACKs, no>20ms poll gap, inside-window reviewed
-capture. A fresh Main is required after the resident qualification DSO.
-49 interleaving timing passes min+0.115ns; normal load completed02:41UTC,
-fresh Main6414/server6413/DDR epoch5cea2e754bd0665f. Original firmware/login
-PASS; idle mean1,947,687.412 issues/s (+14.9453% versus48,+22.0639% versus47b,
-11.6861% nominal), one boot each/three adjacent windows. Full base-loader
-chain now passes312.55875..312.87163s vs48's373.07180..373.32199s: preliminary
-16.136..16.276% less time. Source corpus34 hashes match after timing; exact
-final guest ACK and every visible Load ok pass. Observer retired; No accepted,
-full Viewers/mouse/Cmd/focus/exact short+alphabet+digit echo now PASS. Warm
-marker close/readback and normal guest Boot/germ812 also pass. Repeated/final
-qualification remains pending. Native50 normal load completed03:25:31UTC;
-Main7660/server7659, fresh epochc4d9e1289cdc99f5. Original firmware/login
-PASS;50 idle1,948,049.932 issues/s (+0.01861% versus49), no meaningful idle
-gain demonstrated for additional3323ALMs/2832regs. Full loader comparison
-next; do not promote50 solely from synthetic gains.
-50 deferred reads timing31/36/four conditions passes min+0.035ns,81%ALMs;
-deployed, idle measured, full software pending. Source hashes match all34 served files;
-independent physical bytes, repeated comparisons and sustained final gates
-remain open. Evidence: native48-field/native48-worker-input/native49-interleave/
-native50-deferred. Complete snapshot4a and60ns clock migration remain required.
+Current hardware update04:17UTC19Oct:47/48/49 original Viewers/input and
+active-DDR STOP/unmap/normal reload/fresh epochs pass. Clean47b idle1,595,628.966;
+48 arbitration1,694,447.318 (+6.1931%);49 interleaving1,947,687.412 (+14.9453%
+vs48,+22.0639% vs47b,11.6861% nominal). Each has three adjacent windows in one
+boot. Fresh49b repeats exact49 RBF with new Main8321/server8318/original seed:
+1,947,691.366 (+0.000203%). This is two49 boots, not three final release boots.
+48 base34-transfer loader373.0718..373.3220s,49 first312.55875..312.87163s,
+49b311.33993..311.59041s; exact final guest ACK and34 source hashes qualify.
+Manual pre-Guest idle delays varied; not a final automated repeated benchmark.
+
+50 deferred reads pass original boot/login/base transfers but demonstrate no
+useful benefit: idle+0.01861%, loader311.63439..311.86355s, inside observed49
+variation, for3323 additionalALMs/2832regs. Reject50 as baseline; retain optional
+RTL/tests/evidence. Actual Main barriers retire50 normally and preserve its
+physical disk. Live49b original firmware/base loader pass; No entered, installer
+advancing, full Viewers/input pending. Same50MHz/SYSPER4 clocks, SDRAM/no raw
+cache/direct DDR, arbitration/interleaving ON, deferred reads OFF. Physical
+packet-byte proof, fixed-cadence repeated comparisons and sustained final gates
+remain open. Snapshot4a and60ns clock migration remain required. Evidence:
+native49b-repeat/native50-field/snapshot-enable; older diaries are historical.
 
 Use three explicitly recorded workloads: idle Cedar login, a fixed cold
 loader sequence through all 34 base packages, and a desktop script with
@@ -401,6 +393,18 @@ checks and six damaged-board controls pass. Common inversion of all address
 copies is outside this grouping proof. No board ports/RAM/clock change or
 new fit is claimed; next qualify actual18-bit strobes/access and preserve
 read outputs during ordinary backend holds. Evidence: snapshot-contb reports.
+
+The18-bit enabled snapshot bank now passes original-cell/array tests including
+20225 ordinary backend-held edges and recapture before the first resumed guest
+edge. A single host clock with the actual guest advance retains read/write
+cadence and OLD_DATA; five bad variants fail. Registered launch/capture-shell
+fits retain twoM10Ks/18432bits, all12 checks per variant/four conditions pass,
+min+0.255ns; six damaged-report controls reject. Counts53->102ALMs/48->138regs
+include fixture/admin registers and cannot be projected to the whole core.
+Two-clock RAM templates failed inference; direct-virtual-input baseline hold
+failures are preserved. No cuts; final fixture keeps2ns/0ns I/O and10ns internal
+paths. Actual ContB/global state/barriers/physical snapshots remain unimplemented.
+Evidence: reports/2026-10-19-snapshot-enable. Actual board integration is next.
 
 ### DDR control integration and matched idle evidence (2026-10-18)
 
