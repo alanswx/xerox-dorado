@@ -1,0 +1,40 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native51_v3_20261019",
+  "candidate": "/home/alans/mister/Dorado_Native52_20261019",
+  "change": "Frozen51 plus ContA exact-advance adapters; shared qualified ContB FF clones reused byte-identically; all admin inactive, no machine save/load",
+  "snapshot_admin": "INACTIVE; no physical save/load",
+  "extra_timing_exceptions": "None",
+  "source_changes": [
+    "build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+  ],
+  "added_sources": [
+    "fpga/mister/snapshot_native_conta/cell_SE10231_snapshot.v",
+    "fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv",
+    "fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v",
+    "fpga/mister/snapshot_native_conta/cell_F10016_snapshot.v",
+    "fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv",
+    "fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+    "fpga/mister/snapshot_native_conta/cell_F10000_snapshot.v",
+    "fpga/mister/snapshot_native_conta/assets.json"
+  ],
+  "shared_sources": [
+    "cell_MC10176_snapshot.v",
+    "cell_MC10231_snapshot.v"
+  ],
+  "speed": "Same50MHz/SYSPER4; no speed claim. Native51 observed loader slowdown remains open.",
+  "source_hashes": {
+    "core/Dorado.sv": "6e00eb03e3428b4c1f594609d1f1d3ef82a188e036954f4f14fc9e982fcd8ec9",
+    "core/Dorado.qsf": "da61e3494cd4b254caf443b2b01a0d23e4f42e535cb935d3445e42e3f57b50ac",
+    "core/device-corners.tcl": "984eebba876fc05985b121570348868a97c630165e81ba19eb7d1555c9d117db",
+    "core/audit-control-crossings.tcl": "09aa61358ba4a2ca8d7153cbb757cedcf97f84e524ef7ca235e0062a62595774",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "87edffa8f17827ce46e2c3f762d2f177fd0080bd41cd7be5e4b3e0fff7f59b12",
+    "src/fpga/mister/snapshot_native_conta/cell_SE10231_snapshot.v": "607df39d45682c2e09ec2c72c3adffe752272f3901bbb727a8ad51004ff6950a",
+    "src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+    "src/fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v": "2ce357063c805920ce1f4583f4d3d22e9fe32a01fbd3782b9ab06c6c85502df0",
+    "src/fpga/mister/snapshot_native_conta/cell_F10016_snapshot.v": "6e4a8a7a9693da4d75ce9b8f935687e0df187a257659792e252f1ba37d3190c4",
+    "src/fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv": "8e800dd9be1b16c88deb1c80e35b84b148d119bdf996c906184fd11511d149ca",
+    "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+    "src/fpga/mister/snapshot_native_conta/cell_F10000_snapshot.v": "e4731ecd911d3789f6af5b621f4c1909844c565782717776cd245ccad3560df5",
+    "src/fpga/mister/snapshot_native_conta/assets.json": "ac03ac956b085eb2756254aca41115c7513fe846a39f2f9f00f28ecbb50688b5"
+  }
+}

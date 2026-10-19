@@ -42,8 +42,14 @@ served source hashes match after timing; physical payload hashes remain open.
 Observer13211/Mac73914 is terminal after verified final ACK/stop file, and is
 independently absent. Do not restart it. Cedar timed out to profile Yes;
 real Return accepted the default name, the guest reported it missing, and
-explicit No+Return was sent on the retry. Full51b desktop/input is pending;
-the previous51 desktop/input/warm marker already passed. No dataset is
+explicit No+Return was accepted on the retry. Full51b Viewers/Ready/Watch/Edit/
+Clock and real mouse/Cmd now pass. Initial combined open/focus and typing did
+NOT echo; explicit later focus737,608 then short/alphabet/digit retry matches
+exact output/new prompts. Normal guest rtl51bpersist.txt create/close/type
+readback passes. Failed initial attempt logs/capture are preserved separately
+and do not count as successful input.108627 completed desktop trace records
+have no errors/trace_dropped. Normal guest Boot captured germ812. No cold
+marker readback or atomic snapshot claimed. No dataset is
 substituted for three final release boots or the two-hour sustained gate.
 
 Old51 normal guest Boot visibly reached germ812. Actual normal Main network/
@@ -57,8 +63,14 @@ snapshot is claimed. Exact evidence is in deployment/retired51 records.
 Read-only collection ran AFTER timed transfers and observer retirement. Its
 live logs are file prefixes, not a disk barrier or atomic state snapshot.
 field-collection.json validates the archived raw bytes; gzip files are exact.
-Live Main:/tmp/dorado51b-main.log, disk:/tmp/dorado51b-disk.jsonl,
+Retired Main log:/tmp/dorado51b-main.log, disk:/tmp/dorado51b-disk.jsonl,
 volume/server:/media/fat/games/DoradoRTL/Cedar51b_20261019. Working helpers:
 build/rtl-executive/cedar51b-launch. Complete snapshots, original60ns clock
 migration, fresh repeated comparisons/desktop boots and sustained stress
 remain required.
+
+Normally retired07:44:32UTC after captured germ812. Actual Main network/disk
+barriers and temporary Main14701 normal exit preserve63578624-byte pack at
+its original path, SHA10e9283b36916ad7f13f98c76daf4bb9eba98e87ebbf5e34aedf886ca8f3a810.
+Old Main12945/server12944/staging14701 independently absent. Native49c is now
+the live matched control; no51b cold marker readback claimed.

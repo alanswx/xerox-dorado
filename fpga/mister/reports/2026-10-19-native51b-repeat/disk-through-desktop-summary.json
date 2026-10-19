@@ -1,0 +1,21 @@
+{
+  "status": "PASS: no error or trace_dropped in completed live trace records",
+  "records": 108627,
+  "ignored_incomplete_tail": false,
+  "events": {
+    "mount": 1,
+    "poll": 3785,
+    "pread_begin": 971,
+    "pread_end": 971,
+    "read_request": 3559,
+    "read_ack": 3559,
+    "poll_gap": 5,
+    "write_request": 22382,
+    "write_ack": 22382,
+    "pwrite_begin": 19724,
+    "pwrite_end": 19724,
+    "fsync_begin": 5782,
+    "fsync_end": 5782
+  },
+  "scope": "Live log prefix only, not disk barrier or cold persistence"
+}

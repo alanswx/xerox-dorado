@@ -1,0 +1,5 @@
+{
+  "status": "REJECTED",
+  "reason": "New warning10230, one32-to4 response-index assignment; explicit review required before qualification",
+  "decision": "No RTL, constraints or timing database changed. v2 audit pins exact statement/guard/all10230 warning deltas, proves selected range0..8 and rejects unsafe variants."
+}

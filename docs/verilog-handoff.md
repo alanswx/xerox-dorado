@@ -23,9 +23,10 @@ original firmware/full Viewers/mouse/Cmd/exact keyboard and warm marker pass. Id
 than49b311.340..311.570s: bounded counters show7.32..8.69% more issued work,
 128 protocol replay events concentrated in Tioga/CommandTool/Watch, rather
 than reduced interior instruction throughput. Cause of replays remains open;
-do not promote51 from idle equality alone. Live51b exact-RBF fresh repeat
+do not promote51 from idle equality alone. Retired51b exact-RBF fresh repeat
 reproduces idle1,947,720.553 and loader333.175..333.426s;93 replay events now
-occur in Imager/CommandTool. Full51b desktop pending; No retry sent. A fresh49
+occur in Imager/CommandTool. Full51b desktop/input/warm marker now pass;
+normal guest Boot captured germ812. A fresh49
 control under the same measurement-to-input recipe is next. Continue
 complete snapshot4a, accurate clocks/timers and repeated/stability gates.
 Representative ContB now passes complete modeled board state restore and
@@ -345,7 +346,7 @@ The following complete ContA experiment closes the next isolated board step;
 continue whole-core integration, other boards/global barriers/raw SDRAM/Main/server,
 atomic bundles and actual FPGA Cedar restore.60ns/final gates remain open.
 
-**Live Native51b exact-RBF fresh repeat: original firmware/base loader PASS.**
+**Retired Native51b exact-RBF fresh repeat: original firmware/desktop/input PASS.**
 Normal load06:39:18UTC19Oct, Main12945/21e67a3f, daemon12944/c5996249, same
 RBF3d253187/50MHz/SYSPER4/SDRAM/no cache/direct DDR. ContB admin inactive.
 New originalf3bce2a8 seed checked unchanged before final cache. Main SPI74
@@ -363,8 +364,8 @@ RTL vs run conditions remains open; fresh49 same-recipe control next.
 Native49 stays selected baseline.34 served source hashes match after timing;
 physical payload proof open. Observer13211/Mac73914 COMPLETE, stop file after
 positive ACK, independently absent. Do not restart completed helpers. Default
-profile name accepted, guest reported missing; explicit No retry sent; full51b
-Viewers/input pending. Main /tmp/dorado51b-main.log, disk /tmp/dorado51b-disk.jsonl,
+profile name accepted, guest reported missing; explicit No retry accepted. Full51b
+Viewers/input/warm marker pass after explicit refocus; normal Boot captured812. Main /tmp/dorado51b-main.log, disk /tmp/dorado51b-disk.jsonl,
 Cedar51b_20261019, helpers cedar51b-launch, evidence native51b-repeat.
 Old51 normal guest Boot germ812 and actual loader barriers preserve63578624B
 pack08623dd70ca076d2a773fac141c6574781f01c955bd0daa8bbdb102ba01b88ba at its
@@ -392,33 +393,46 @@ integrate both control boards in full core, all cross-board timing and actual
 firmware/Cedar; other boards/global freeze/raw SDRAM/Main/server/atomic bundle,
 actual Cedar restore,60ns clocks and final repeated/stress gates remain open.
 
-**Native52 full-core ContA+ContB integration BUILD RUNNING, NOT QUALIFIED.**
-Committed builder5e1da91a prepares qualified ContA assets against frozen51;
-two existing ContB FF clones are reused byte-identically, seven new RTL files
-added. Only active backplane ContA instantiation changes; same existing
-falling-edge contb_advance mirror drives both boards. Outer wrapper/clocks/
-storage/ARM/constraints unchanged; ALL snapshot admin remains inactive. The
-original ContA SYSPER parameter is unused (declaration only), explicitly
-checked; native instance binding is preserved. Frozen parity full-line-comment
-equivalence is recorded; no code difference permitted.
+**Native52 full-core ContA+ContB integration TIMING PASS, NOT DEPLOYED.**
+Builder5e1da91a freezes51, adds seven ContA RTL sources and changes only the
+active backplane source; shared ContB clones byte-identical, original ContA
+SYSPER declaration-only/native binding checked. Outer wrapper/clocks/storage/
+ARM/constraints unchanged; all snapshot admin INACTIVE. No physical save/load.
 
-Actual project /home/alans/mister/Dorado_Native52_20261019; inputs
-Dorado_Native52_inputs_20261019. Handle19107 RUNNING, driver836787 and
-fitter839746 independently confirmed live; successful placement, routing in
-progress. Do not restart. Builder runs map/fit/asm/STA/device audit and only
-THEN both-control crossing audit sequentially; no concurrent STA. Planned
-31 summary/68 detailed/four-condition checks include16 ContA and16 ContB
-crossing reports in addition to36 device/SDRAM checks. Native52 is NOT
-deployed or timing-qualified; no speed/no-regression/physical snapshot claim.
-Source/QSF-only preflight and extra-macro/extra-SDC/wrong-source controls pass
-without opening timing DB. audit_native_conta.py is staged remotely in inputs;
-run its full collector ONLY AFTER19107 is terminal. Inspect all reports,
-fitted sources/RAM geometry/coverage/warnings before any hardware load. Local
-native52-assets-20261019 and native52-inputs-20261019.tar.gz preserve inputs.
-Live51b continues font installation. Prepared local cedar49c-launch/deploy.py
-is NOT executed: it deliberately requires actual51b desktop and observed
-normal-Boot code before replacement. Fresh49 control remains next for the
-loader slowdown; the52 build itself does not resolve that result.
+Project /home/alans/mister/Dorado_Native52_20261019; inputs
+Dorado_Native52_inputs_20261019. Build19107 and collector21557 TERMINAL;
+map/fit/asm/STA/device/both-control audits were sequential. All31 summary and
+68 detailed/four-condition timing checks pass, minimum+0.112ns. Includes36
+device/SDRAM +16 ContA +16 ContB crossings. No cuts or illegal/unconstrained
+clocks; existing framework I/O3ports/13paths in,50ports/154paths out unchanged.
+All8 IM macros1024x18 OLD_DATA.30553ALMs/52682regs/330M10Ks/35DSP; inactive
+admin pruning means these are not enabled-snapshot resource estimates.
+RBF be80e03f26e5b9e5e7984a0d9b5df15b84d264a1f526e95149e085d25a08768c,
+local native52-candidate. Report2026-10-19-native52-controls archives raw timing,
+sources and provenance. No hardware/speed/no-regression claim for52.
+
+Collectorv1 rejected one new10230 truncation. Exact package75..83->index0..8,
+otherwise0, fits4bits; unsized zero only widens expression. v2 pins exact
+source/writer/entire warning delta and proves128 values; unsafe range/false
+arm/extra warning controls reject. Three extra unused10036 warnings reviewed;
+fitter warnings unchanged. QSF macro/SDC/source controls reject. No compiled
+RTL, constraints or fitted DB changed during warning review.
+
+Native51b full Viewers/Ready/Watch/Edit/Clock and real mouse/Cmd pass. Initial
+combined Cmd/focus/typing did NOT echo; explicit later focus then retry gives
+exact short/alphabet/digit echo and new prompts. rtl51bpersist.txt create/
+close/type readback passes, no cold marker readback.108627 completed disk
+trace records have no error/trace_dropped; live prefix is not a barrier.
+Normal guest Boot actually reaches captured germ812. Fresh49c normal loader21153 TERMINAL07:44:32UTC; old51b Main12945/server12944/
+staging14701 independently absent. Actual network/disk barriers preserve
+63578624-byte51b pack SHA10e9283b36916ad7f13f98c76daf4bb9eba98e87ebbf5e34aedf886ca8f3a810.
+New49c Main14717/server14716, exact selected49 RBF6e7866f3; freshf3seed
+unchanged before caching. Setup5446 TERMINAL, actual Main SPI74 flags0x16/
+fault/errors0 and new epochf780f5f426be5a83. C watcher44508 ready and
+CoolBoot requested; follow those exact live handles, no blind restarts.
+Live /tmp/dorado49c-main.log, disk /tmp/dorado49c-disk.jsonl, volume/server
+Cedar49c_20261019; helpers cedar49c-launch. Fresh49 same-cadence control
+remains necessary to resolve51 loader slowdown before promoting52.
 
 **Retired47: direct-DDR original-firmware interactive Cedar Viewers PASS.**
 Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,
@@ -1838,7 +1852,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Refresh exact frozen49 native hierarchy inventory and prove qualified ContB coverage inside real machine.
 - [x] Qualify74-bit physical F10145 file/window save/continue/restore against original+independent oracle, classify simulator-only exclusions, and matched four-condition isolated timing min+0.146ns; damaged RTL/source/manifest/fit controls reject. Production/live core unchanged.
 - [x] Qualify full modeled ContA1353-bit restore/classification and matched isolated timing min+0.163ns; all138outputs/invalid indices/first edge, seven broken RTL and17 schema/source controls pass. No physical/global snapshot yet.
-- [ ] Integrate ContA+ContB host-advance adapters in the full core; qualify cross-board timing and original firmware/Cedar before the remaining board/global-state work.
+- [x] Integrate ContA+ContB host-advance adapters in full core;31/68/four-condition timing/source/inference checks pass min+0.112ns. All snapshot admin inactive;52 not deployed.
+- [ ] Qualify52 original firmware/Cedar/input after resolving51 slower-loader control; no physical snapshot yet.
 - [x] Repeat exact51 RBF on fresh51b original seed with fixed measurement->Guest cadence: idle matches, all34 transfers/actual final ACK pass333.175..333.426s;93 replays in different files. Retire observer normally.
 - [ ] Run fresh49 with the same measurement->Guest recipe to separate build effects from run conditions in the51 loader slowdown; final fully pinned repeated benchmarks remain open.
 - [ ] Connect active bounded access/global barriers and extend/classify other boards/wrapper/devices/input/raw memory/Main/server; qualify complete physical restore and combined timing.

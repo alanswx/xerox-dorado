@@ -84,6 +84,43 @@ def qsf_controls(root,baseline):
     return results
 
 
+def review_truncation(current,previous,source):
+    """Allow only the single, range-proved ContA response-index warning.
+
+    The unsized false-arm zero widens the ternary to32 bits; its selected
+    value is still0..8. Other new10230 warnings remain qualification errors.
+    """
+    statement="state_response_ram_index<=state_is_ram ? state_package-7'd75 : 0;"
+    for fragment in ('wire [6:0] state_package=state_index[11:5];',
+                     'wire state_is_ram=state_package>=75 && state_package<=83;',
+                     'reg [3:0] state_response_ram_index;',statement):
+        assert source.count(fragment)==1,'unreviewed response-index source'
+    assert source.count('state_response_ram_index<=')==1,'extra response-index writer'
+    line=next(i+1 for i,text in enumerate(source.splitlines())if statement in text)
+    expected=f'Warning (10230): Verilog HDL assignment warning at ContA_full_snapshot.sv({line}): truncated value with size 32 to match size of target (4) File: <PROJECT>/src/fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv Line: {line}'
+    before=Counter(text for text in previous.splitlines()if text.startswith('Warning (10230):'))
+    after=Counter(text for text in current.splitlines()if text.startswith('Warning (10230):'))
+    assert after-before==Counter({expected:1})and not(before-after),'unreviewed truncation warning delta'
+    values=[package-75 if 75<=package<=83 else 0 for package in range(128)]
+    assert min(values)==0 and max(values)==8 and all(value<16 for value in values)
+    return dict(warning=expected,selected_range=[0,8],target_bits=4,
+                reason='Package75..83 selects RAM index0..8; all other packages select0. Unsized zero widens the expression only.',
+                limits='Exact statement, guard, writer count and entire10230 warning delta are pinned; no other truncation waived')
+
+
+def truncation_controls(current,previous,source):
+    results=[]
+    for name,log,text in [
+        ('unsafe_range',current,source.replace('state_package<=83','state_package<=95')),
+        ('unsafe_false_arm',current,source.replace("state_package-7'd75 : 0;","state_package-7'd75 : 16;")),
+        ('extra_warning',current+'\nWarning (10230): unrelated new truncation\n',source),
+    ]:
+        try:review_truncation(log,previous,text)
+        except AssertionError as error:results.append(dict(case=name,rejected=True,diagnostic=str(error)))
+        else:raise AssertionError('unreviewed truncation accepted: '+name)
+    return results
+
+
 def collect(root,baseline,archive):
     core=root/'core'
     record=json.loads((root/'conta-integration.json').read_text())
@@ -121,11 +158,20 @@ def collect(root,baseline,archive):
         current_text=(root/(label+'.log')).read_text()
         assert 'Critical Warning'not in current_text,'critical warning: '+label
         current=Counter(re.findall(r'Warning \((\d+)\)',current_text))
-        previous=Counter(re.findall(r'Warning \((\d+)\)',(baseline/(label+'.log')).read_text()))
+        previous_text=(baseline/(label+'.log')).read_text()
+        previous=Counter(re.findall(r'Warning \((\d+)\)',previous_text))
         new=current-previous
-        assert not(set(new)-{'10036'}),('unreviewed warning increase',label,new)
+        reviewed={}
+        if label=='map'and new.get('10230'):
+            normalized=current_text.replace(str(root),'<PROJECT>')
+            normalized_previous=previous_text.replace(str(baseline),'<PROJECT>')
+            source=(root/'src/fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv').read_text()
+            reviewed['10230']=review_truncation(normalized,normalized_previous,source)
+            reviewed['failure_controls']=truncation_controls(normalized,normalized_previous,source)
+            assert new['10230']==1
+        assert not(set(new)-{'10036'}-({'10230'}if reviewed else set())),('unreviewed warning increase',label,new)
         warnings[label]=dict(increased=dict(new),decreased=dict(previous-current),
-                             review='Only unused-object warnings increase; redundant fanout/admin/clock wires in enabled-board replacement. Other baseline warning categories unchanged or reduced.')
+                             reviewed=reviewed,review='Unused-object changes and only the exact bounded response-index warning above; other baseline warning categories unchanged or reduced.')
     changed=[];added=[]
     for p in (root/'src').rglob('*'):
         if not p.is_file():continue

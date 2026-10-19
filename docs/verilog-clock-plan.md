@@ -70,12 +70,14 @@ default/No retry accepted; BootEssentials/fonts/STARTs and full Viewers Ready,
 mouse/Cmd/focus/exact short/alphabet/digit echo and guest marker create/close/
 readback pass. No cold51 marker readback yet; first profile tool continues
 optional installs. This is one fresh51 desktop, not the final repeated gate.
-Native51 is now normally retired/preserved after germ812. Live51b exact-RBF
+Native51 is now normally retired/preserved after germ812. Retired51b exact-RBF
 fresh repeat gives idle1,947,720.553 and loader333.175..333.426s, with matching
 extra issued work and93 replays now in Imager/CommandTool. Its33-sample
 measurement->Guest cadence is fixed; preceding manual login gate still varies.
 Fresh49 using the same recipe is next before attributing the slowdown to RTL.
-51b all34/final ACK pass, profile No retry sent; full desktop still pending.
+51b all34/final ACK, full Viewers/input and warm marker now pass; initial
+combined open/focus input did not echo, explicit refocus/retry passed. Normal
+guest Boot captured germ812. No cold51b marker readback.
 Same50MHz/SYSPER4 clocks, SDRAM/no raw
 cache/direct DDR, arbitration/interleaving ON, deferred reads OFF. Physical
 packet-byte proof, fixed-cadence repeated comparisons and sustained final gates
@@ -484,6 +486,16 @@ old_data/pending/cache/read/write state remain. Outer wrapper/devices/input/
 clock/transport, external16MiB raw SDRAM and ARM Main/server still need scope/
 classification/access/barriers. Evidence snapshot-native49-inventory and
 native51-contb. Full snapshots,60ns migration and final gates remain required.
+
+Native52 extends51 with the qualified ContA exact-advance adapters. Full-core
+build19107 and collector21557 are terminal;31 summary/68 detailed/four-condition
+checks pass, minimum+0.112ns, unchanged cuts/clock/I/O coverage, eight actual
+IM macros1024x18 OLD_DATA.30553ALMs/52682regs/330M10Ks/35DSP. Exact new10230
+warning reviewed with pinned0..8 range proof and failure controls; no compiled
+source/constraints changed. All snapshot admin inactive; no physical save/load
+or enabled-access budget. RBFbe80e03f in native52-candidate; report native52-controls.
+NOT DEPLOYED; hardware and speed gates remain open. Fresh49 same-cadence loader
+control precedes52 deployment because51's slower loader remains unresolved.
 
 ### DDR control integration and matched idle evidence (2026-10-18)
 
