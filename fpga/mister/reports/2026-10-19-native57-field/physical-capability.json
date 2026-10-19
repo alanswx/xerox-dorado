@@ -1,0 +1,27 @@
+{
+  "status": "PASS: sole actual Main capability after cache-ready/fresh DDR grant",
+  "main_pid": 25287,
+  "server_pid": 25286,
+  "words": [
+    53460,
+    1,
+    0,
+    8176,
+    0,
+    1,
+    22,
+    0,
+    0,
+    48683,
+    5467,
+    62856,
+    55886,
+    2048,
+    8,
+    16,
+    0,
+    0
+  ],
+  "epoch_hex": "da4ef588155bbe2b",
+  "scope": "Transport startup ownership only; not Cedar/input/speed or snapshot qualification"
+}

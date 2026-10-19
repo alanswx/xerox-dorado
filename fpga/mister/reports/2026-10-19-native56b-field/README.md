@@ -6,7 +6,8 @@ digit echoes, and warm ///rtl56bpersist.txt create/close/type readback PASS.
 Read-only desktop collection has 95,817 complete disk records with no recorded
 errors or trace loss. Captures, input logs, provenance and raw logs are in
 `desktop/`. Normal guest Boot now observed at actual812; capture/proof in desktop/.
-No host-barrier preservation or cold marker readback yet.
+Host-barrier preservation during normal57 load now passes; evidence is in
+../2026-10-19-native57-field/. No cold marker readback yet.
 Earlier startup/loader collections below retain their original scope/time.
 
 Normally loaded2026-10-19 12:59:00UTC, Main23403/server23400; temporary23386
