@@ -42,59 +42,65 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-**Complete IFU serial state access is qualified, saving 382 ALMs in an isolated matched fit. The last combined core is still 3,318 ALMs over capacity.**
+**Complete native MemD serial state access is qualified, saving 410 ALMs in an isolated matched fit. The last combined core remains 3,318 ALMs over capacity.**
 
-`generate_ifu_ff_scan.py` chains all 94 original FF helpers / 974 physical bits,
-without a shadow bank. Compact FF words 0..54 end with two valid bits. All eleven
-independently addressed IFUM groups, 27 raw read-pipeline bits and four phase
-bits retain their existing addresses and semantics. Every original omitted
-CE connection, the original board/cell bytes and the immutable PROM are kept.
-`compact-ff-v1` supplies explicit offsets and legacy_parallel_word metadata;
-old parallel addresses are not aliases for the new FF layout.
+`generate_memd_ff_scan.py` chains all 92 unchanged FF helpers / 968 physical
+bits without a shadow bank. Compact FF words 0..53 end in fourteen valid bits.
+All fourteen independent cache banks, 72 raw read-pipeline bits, eight small
+files/write windows, ten phase bits and 37 storage-input bits keep their
+qualified maps and semantics. The actual STORAGE_INPUT_DELAY=2 is retained;
+other delay configurations still reject. No cache/map/ECC, clock or timer
+behavior changes. `compact-ff-v1` provides explicit bit offsets and
+legacy_parallel_word metadata, without parallel-address aliases.
 
-The unchanged original IFU and independent RAM oracle pass 3,559,110 host edges,
-3,519,211 holds and 448,732 requests: all 28,653 modeled physical bits, all
-262,144 address values, destructive restore, quiet recapture, the first resumed
-edge and 20,000 more cycles. All eleven normal RAM writers are exercised. Eight
-damaged variants reject, including a lost raw pipeline, early completion,
-busy-owner loss, reset-time access and lost local/bank hold. All eleven bank
-freeze acknowledgments are checked during quarantine. Fresh XML accounts for
-28,653 physical + 171 private transport bits, no sequential exclusions and 256
-immutable PROM bits; 14 damaged inventories/layouts reject. Pin-cone tuples
-and serialized JSON arrays are compared canonically without relaxing fields.
+The unchanged original board, independent cache oracle, physical RAM probes
+and independent input-pipeline oracle pass 5,556,005 host edges, 5,355,859 holds
+and 2,168,959 requests. All 296,591 physical bits/all 1,048,576 address values,
+unused padding, destructive restore, quiet recapture, first resumed edge and
+20,000 more cycles pass. All fourteen cache and eight small-file writers are
+exercised; the original input pipeline advances 14,314 times. Eleven damaged
+variants reject, including input word/history corruption, unsupported delay,
+lost pipeline, busy ownership, reset access and lost local/bank hold. All 22
+helper freeze flags are observed during quarantine. V1 stopped because the
+storage-history mutant triggered the broader state comparison before the
+expected readback check; V2 accepts either original diagnostic and completes
+the suite, without an RTL or derived C++ change. Both histories are retained.
+Fresh XML accounts for 296,591 physical + 336 private transport bits, with no
+sequential exclusions; sixteen damaged inventories/layouts reject.
 
-Matched enabled parallel/serial fits use identical eleven-bank old-data M10K
-helpers and the same positive-edge 50 MHz/20 ns shell and SDC. Area falls from
-1,482 to 1,100 ALMs; registers fall from 1,802 to 1,762. All 974 FF bits, all 27
-canonical read-pipeline registers, eleven independent M10K sites / 27,648 RAM
-bits, physical port latency and OLD_DATA macros are checked. Three common
-bank flags remain shared, with their synthesis ownership explicitly checked.
-All four device conditions pass, minimum +0.112 ns; no added cuts,
-unconstrained paths or warning categories. Nine damaged source/retention/
-constraint/hold/collision/placement controls reject. All 495 raw files pass hash
-readback; extracted fit, fresh XML classification, source and archived original
-wire-list/location regeneration and damaged controls also pass. Evidence:
-`fpga/mister/reports/2026-10-19-snapshot-ifu-ff-scan/`.
-Quartus session 91704 and simulation 49743 are terminal.
+Matched enabled fits use identical async MLAB files, old-data M10K cache
+helpers and the original staged-input/positive-edge 50 MHz/20 ns shell and SDC.
+Area falls from 1,863 to 1,453 ALMs; registers rise from 1,917 to 2,072. All
+968 FF bits, eight write windows, 72 canonical read-pipeline registers, ten
+phase bits and both input words/history are checked. Fourteen independent
+cache groups retain forty M10Ks / 294,912 bits and OLD_DATA behavior; sixteen
+MLAB replicas retain 992 implemented bits, with normal-output pruning grounded
+in actual disconnected pins. All admin replicas retain four bits. Synthesis
+sharing of three common private flags is explicitly accounted for. All four
+device conditions pass, minimum +0.112 ns; no new cuts, unconstrained paths or
+warning categories. Eleven damaged source/retention/constraint/hold/collision/
+placement controls reject. All 776 raw files pass hash readback; extracted
+fit/XML/source and archived original wire-list/location regeneration/control
+suites also pass. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-memd-ff-scan/`.
+Quartus session 43465 and simulations 77967/77539 are terminal.
 
-Next: remaining control/memory/BaseBoard scan access, then a combined full-core
-capacity and timing audit. ContA/ProcH/ProcL/DispY/DskEth isolated savings remain
-qualified; none are subtracted from the last combined result of 45,228 / 41,910
-ALMs. No production builder, RBF, hardware clock or speed change is claimed.
-Before integration, version schemas/formatters, extend the 16-edge transport
-budget, and provide global hold/fault/SYSTEM-reset ownership across all boards,
-foreign consumers, backends, input and ARM services. Local quarantine alone
-cannot freeze the whole machine.
+Next: MemX, MemC, remaining control/BaseBoard access and a combined full-core
+capacity/timing audit. Earlier isolated board savings remain qualified; none
+are subtracted from the last measured whole-core result of 45,228 / 41,910
+ALMs. No production builder, RBF, live FPGA or speed change is claimed. Before
+integration, version schemas/formatters, extend the 16-edge transport budget,
+and provide global hold/fault/SYSTEM-reset ownership across boards, foreign
+consumers, backends, input and ARM services. Local quarantine is insufficient.
 
-Classify and expose the 154,037 native-wrapper candidate bits (review-only),
+Classify/expose the 154,037 native-wrapper candidate bits (review-only),
 top-level input/network/video and 16 MiB external raw RAM. Complete coherent
-ARM/disk/input/server barriers, preserving connections and rebasing timers,
-and atomic bundles paired with the matching disk generation. Actual FPGA
-Cedar save/continue/restore, original 60 ns clocks/timers, pinned comparisons,
-three fresh boots/cold persistence and two-hour stress remain open. The last
-qualified Native59 idle rate remains 1,947,654.12 issues/s; this work makes no
-live FPGA change. Goal ACTIVE. All experiments in this entry are terminal;
-older running-job entries below are historical.
+ARM/disk/input/server barriers that preserve connections/rebase timers, and
+atomic bundles paired with the matching disk generation. Actual FPGA Cedar
+save/continue/restore, original 60 ns clocks/timers, pinned comparisons, three
+fresh boots/cold persistence and two-hour stress remain open. The last
+qualified Native59 idle rate stays 1,947,654.12 issues/s. Goal ACTIVE. All
+experiments in this entry are terminal; older running-job entries are historical.
 
 **Enabled60 exceeds FPGA capacity; the first state-preserving area fix is qualified and a new full-core build is running.**
 

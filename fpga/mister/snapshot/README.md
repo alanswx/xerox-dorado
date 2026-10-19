@@ -895,3 +895,47 @@ No production builder, RBF or live FPGA/speed change. Combined capacity remains
 Remaining control/memory/BaseBoard access, combined fit/timing, versioned
 formatters/longer bounded transport/global hold, full ARM/disk-paired machine
 snapshots, original 60 ns clocks and final hardware release gates remain open.
+
+
+## Complete native MemD serial FF access (2026-10-19)
+
+`generate_memd_ff_scan.py` chains all 92 original FF helpers / 968 physical
+bits, without a shadow bank. Compact words 0..53 end in fourteen valid bits.
+Fourteen independent cache groups, their 72 raw read pipelines, eight small
+files/write windows, ten phase bits and both native input words/clock history
+(37 bits) retain their qualified map and behavior. STORAGE_INPUT_DELAY=2 is
+preserved; unsupported settings reject. There is no cache/map/ECC, timer or
+clock-rate change. The compact-ff-v1 schema supplies explicit offsets and
+legacy_parallel_word metadata. All local helpers remain held on a lost scan
+boundary until SYSTEM reset; foreign consumers still require a global barrier.
+
+`test_memd_ff_scan.py --mutations` retains the original full board, independent
+cache/input-pipeline oracles and physical RAM probes. It passes 5,556,005 host
+edges, all 296,591 bits/all 1,048,576 address values, unused padding, destructive
+restore/quiet recapture/first resumed edge/20K more. All fourteen cache and eight
+small-file writers are active; 14,314 input-pipeline advances occur. Eleven
+damaged variants reject, with all 22 helper freeze flags observed in quarantine.
+V1 stopped at an earlier-than-expected broader diagnostic for lost input clock
+history; V2 completes with the original diagnostic alternatives accepted. RTL
+and derived C++ are unchanged; both histories are archived. Fresh XML accounts
+for 296,591 physical + 336 private transport bits, no sequential exclusions;
+sixteen damaged inventories/layouts reject.
+
+Matched enabled fits retain identical async MLAB files, cache RAM helper,
+staged-input/positive-edge 50 MHz/20 ns shell and SDC: 1,863 -> 1,453 ALMs saves
+410; 1,917 -> 2,072 registers. All four device conditions pass, minimum +0.112 ns.
+Physical checks cover every FF, write window, cache pipeline and board/input
+field; fourteen cache groups retain forty distinct M10Ks / 294,912 RAM bits
+and OLD_DATA. Sixteen MLAB replicas retain 992 bits; normal-output pruning is
+justified against actual disconnected pins, with all four admin bits retained.
+Three shared private flags retain their total with exact synthesis ownership
+checked. Eleven damaged fit/source/retention/hold/collision/placement controls
+reject; no new cuts, unconstrained paths or warning category. All 776 raw files
+pass hash readback and extracted fit/XML/source/original wire-list/location
+regeneration/control suites. Report: `reports/2026-10-19-snapshot-memd-ff-scan`.
+
+No production builder or FPGA/speed change. The last combined core remains
+3,318 ALMs over capacity; no isolated savings are subtracted. Continue MemX,
+MemC/control/BaseBoard and combined fit/timing. Versioned formatters, longer
+bounded transport/global hold, ARM/disk-paired full snapshots, original 60 ns
+clocks and final hardware release gates remain open.
