@@ -1,0 +1,30 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native49_20261019",
+  "candidate": "/home/alans/mister/Dorado_Native51_v3_20261019",
+  "change": "Full-core normal-operation clock-enable integration only; admin inactive, no global barrier/physical state access",
+  "source_changes": [
+    "build/rtl-executive/native16-tx-cable/dorado_native_machine.sv",
+    "build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+  ],
+  "added_sources": [
+    "fpga/mister/snapshot_native/cell_MC10231_snapshot.v",
+    "fpga/mister/snapshot_native/f10415_enable_bank.sv",
+    "fpga/mister/snapshot_native/ContB_full_snapshot.sv",
+    "fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+    "fpga/mister/snapshot_native/assets.json"
+  ],
+  "extra_timing_exceptions": "None",
+  "snapshot_admin": "INACTIVE; no physical save/load",
+  "speed": "UNCHANGED50MHz/SYSPER4; no measured speed claim",
+  "source_hashes": {
+    "core/Dorado.sv": "6e00eb03e3428b4c1f594609d1f1d3ef82a188e036954f4f14fc9e982fcd8ec9",
+    "core/Dorado.qsf": "3a16eb9b2c6d3cdaa9bd14d4e7acff2f4ddb34950d98c12e618221353e276402",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv": "f7437962accfeb45bf5d921abc18e5921613c225a347ce143106c8be1bebef77",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "0aed7a85e7d54f8761a4b774293df540ffabebe26a307c140bf9751b11460168",
+    "src/fpga/mister/snapshot_native/cell_MC10231_snapshot.v": "17bf1e9fd267e3b0325c7c4794d6818eef2f50bd1cf27c7f536b0cbda26048e2",
+    "src/fpga/mister/snapshot_native/f10415_enable_bank.sv": "6df465a02e8ad84759d82c2be1a96b2de2f9ab630042ae00c670db3105b5f0a6",
+    "src/fpga/mister/snapshot_native/ContB_full_snapshot.sv": "7bc9b48357567afa85ef7cc3141cbb2ff3903b5530534cadce1fd81cf906c2f5",
+    "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e",
+    "src/fpga/mister/snapshot_native/assets.json": "7a889415ec7938b355d3dd8adcf2785a26159357fbbc7d0890f6e4e365c342b5"
+  }
+}

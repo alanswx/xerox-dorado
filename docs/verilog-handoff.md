@@ -245,6 +245,30 @@ pending/error/reset tests, full-core STA and actual Cedar restore timing.
 Production generated files/cells/QSF/live FPGA unchanged;49b remains running.
 60ns clock migration and final repeated/stress qualification remain required.
 
+**Native51 complete-core ContB integration BUILD LIVE, NOT qualified/deployed.**
+After pushed830337dc full-board restore qualification, build_native_contb.py
+copies frozen49, supplies the existing falling-edge network_step as the actual
+ContB advance, and replaces only that board with qualified host-clock adapters.
+Snapshot admin inputs ALL inactive pending global barrier/transport, so no
+physical save/load or enabled-access resource budget is claimed. Other boards,
+SDRAM/layout/arbiter/cache/map/ECC/Main/server/clocks and constraints unchanged.
+No added timing cuts. Original50MHz/SYSPER4; speed not measured on this build.
+One frozen MC10170 differs from qualified source only by full-line comments;
+raw pair/narrow code-line identity and failure controls archived, frozen logic
+unchanged. First preflight stopped before project creation; second stopped
+before Quartus on duplicate storage-header shape. The inactive probe/test
+wrapper shared that header; builder now targets active backplane uniquely.
+Old partial Native51_20261019 is terminal/preserved; NEVER restart it.
+
+Actual remote project Dorado_Native51_v3_20261019; matching assets/builder in
+Dorado_Native51_inputs_v3_20261019. Mac62531/fitter748087 LIVE confirmed05:03:55UTC19Oct. Map746420 and helpers
+COMPLETED,0errors/471warnings, raw summary archived; not timing-qualified. Local native51-contb-build-v3.log. Poll same handle
+or inspect exact project process/log; observation timeout is not termination.
+Collect/review map/fit/asm/STA/clock/four-condition evidence before any deploy,
+then original firmware/Cedar/input qualification. Keep live49b for now.
+Sources build_native_contb.py; partial reports2026-10-19-native51-contb.
+Complete snapshot/60ns clocks/final stress remain unfinished; goal active.
+
 **Retired47: direct-DDR original-firmware interactive Cedar Viewers PASS.**
 Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,
 server1506 isc5996249; staging Main1504 exited normally. RBF3df4a799,

@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "comparison": "Full-line comment/blank-line differences only; every code line/inline comment byte-exact",
+  "controls": [
+    "actual frozen/qualified pair accepted",
+    "changed assignment rejected",
+    "changed inline comment rejected",
+    "block-comment input rejected"
+  ],
+  "builder_sha256": "e16a4271c647980700325e65c8994f139f5a326ae4aedc65407674af027df1b1"
+}

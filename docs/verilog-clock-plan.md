@@ -445,6 +445,19 @@ state, implement coherent barriers/bundles and qualify whole-core timing.
 Complete physical Cedar save/load,60ns clocks and final release gates remain
 required. Production RTL/QSF and the live49b FPGA are unchanged.
 
+Native51 now begins full-core integration of the qualified ContB adapters,
+using the existing actual falling-edge advance from frozen49. All state admin
+inputs remain inactive until the global barrier/transport exists; this build
+checks normal whole-core behavior/timing and cannot save/load a machine.
+Quartus can prune admin paths; do not treat its counts as enabled snapshot
+resource requirements. Same original boards/storage/Main/server/clocks and
+constraints, no new cuts. At05:03:55UTC19Oct fitter748087/Mac62531 are LIVE in remote
+Dorado_Native51_v3_20261019; map completed0errors/471warnings, not timing-qualified. Revalidate that process; do not restart terminal
+preflight attempts. No timing pass/deployment/speed claim yet. First collect
+complete-core timing, then original firmware/Cedar/input qualification. Source:
+build_native_contb.py; evidence native51-contb. Required snapshots and60ns
+migration remain in scope.
+
 ### DDR control integration and matched idle evidence (2026-10-18)
 
 Native42's matched raw-DDR idle-login windows average1,447,771 StartCycle
