@@ -1,0 +1,41 @@
+{
+  "status": "PASS",
+  "boards": [
+    "ContA",
+    "ProcH",
+    "ProcL",
+    "MemC",
+    "MemD",
+    "MemX",
+    "DskEth",
+    "DispY"
+  ],
+  "scope": "Run unchanged full-board restore fixtures with only the F10145 write fold.\n\nEight affected boards retain byte-identical generated wiring and other helpers.\nOriginal cells come from the frozen Native59 source receipt. This is positive\nboard integration qualification, not another run of each older broken-board\nsuite, global snapshot coherence, whole-core timing or a hardware boot.\n",
+  "source_hashes": {
+    "test_boards_shared_f10145.py": "3967f53b09f636acf3c120f5961fee2e06a2f28bbd5f442a7ad97e9708f2afb2",
+    "generate_f10145_shared_write.py": "953737733c4264ad541e3c976305518a7574c723b7f0047f35ddef335b161444",
+    "generate_f10145.py": "81850df20cbff4b934b13e3890a0efd3c469345c423c37586ff0b4a20c80d875",
+    "generate_f10145_zero_write.py": "c3167158ceaee8d74907bdc5523cd99d2a394c7f3c6f476de14d708968358720",
+    "test_conta_full.py": "49baeb188c188a9ad7492d4358aebaf9ee96f7ea5ef523574fa2ab2f8ac69db1",
+    "test_conta_full.cpp": "0f061f5a5ce7acc60470815459b4fdb1785af49bb2d9b29a6adbbd02f64f0576",
+    "generate_conta_full.py": "f7dff22beba5bf41abc69d450317cc26d7dca13071d39025c028935bf8b618d9",
+    "test_processor_full.py": "6be19d98cf832cabd7ace16c96841c9f77cdc64a059547cb4fb9629afad90b56",
+    "test_processor_full.cpp": "82890c071b44943d1268c416609fe5a4377a9fcbef7b7ce3f4cf99f79a8c1c79",
+    "generate_processor_full.py": "cd63a3a1712b967591ac4e417e37a5146c6090ab611cae2540f54df9aae49ef2",
+    "test_memc_full.py": "1ad124db4284d401b4e16d2cce476f4952402f387f7dad469a1eb57fb6cdbfc2",
+    "test_memc_full.cpp": "129eed20440d31a354331dc8cd56fc539ed54af2eedd63c57c74880301a522b4",
+    "generate_memc_full.py": "90237c8bc89567d995cc68f3ecdff388b9333e3763d6ea4b93880c28c1355e3f",
+    "test_memd_full.py": "7b698fb078309f8e68cb92d05f692e403d4b36de085081baee09258d46baa8d9",
+    "test_memd_full.cpp": "29e97dfee8e03a4b7800cdb9636d368c8e40249215c0e56681466c55fefae302",
+    "generate_memd_full.py": "2ca2b293046302f5e2933099411718457eb6f475cd80d22906827c9bb8121649",
+    "test_memx_full.py": "c79f1974e8a18018ef229aeb006a25facf363c84b8e3ea838f74ef382088604a",
+    "test_memx_full.cpp": "3c1a0427dfd9ff8236d818127bf74a3efaba9b01f754f08e3d5a2e414695cd27",
+    "generate_memx_full.py": "ae800a4723c6dc5417125da4ef1c0a36c8b0f767c454156abb387d638d90fc40",
+    "test_dsketh_full.py": "854594c9960239e7fae4505d6e428f100a877f8a2f155969108c12a5223d56ed",
+    "test_dsketh_full.cpp": "cbe4125066efa54cb7c14b0c8e26a991d5771af54a3d8785e3147065ecbc7924",
+    "generate_dsketh_full.py": "a0fcd8124a154fbdebf69f12be4330c16687a667417d37d4bcbb34fa4d594caa",
+    "test_dispy_full.py": "eb11c5d6c9b02820625c205c5cf8d4b1ef4c548c668d743373f520b652ae706f",
+    "test_dispy_full.cpp": "3b07c5b7f7346a85cabf300013e57130a252d37152418d9a007f06e21bad07fd",
+    "generate_dispy_full.py": "1e500072e562b0e61b3ad6d5b50d5ad082bd8dbfd69fd5dee0edfa1202c4eb6e"
+  }
+}

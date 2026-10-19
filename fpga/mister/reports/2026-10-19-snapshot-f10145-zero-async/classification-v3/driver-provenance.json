@@ -1,0 +1,9 @@
+{
+  "scope": "Classify the zero-private-write-reply F10145 with the qualified field rules.",
+  "candidate_module": "generate_f10145_zero_write",
+  "source_hashes": {
+    "fpga/mister/snapshot/classify_f10145_zero_write.py": "46cbcce3fc0dcd89e1a5251e1bdd5e78185a053a576b8ff8de8af6713038e66f",
+    "fpga/mister/snapshot/classify_f10145_shared_write.py": "0b56da9e88371f15e2b7bc6dfcb00c0c328b8dfb1f2c36bfbae914708e515a97",
+    "fpga/mister/snapshot/generate_f10145_zero_write.py": "c3167158ceaee8d74907bdc5523cd99d2a394c7f3c6f476de14d708968358720"
+  }
+}

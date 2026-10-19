@@ -1,0 +1,6 @@
+{
+  "scope": "Original/state oracle plus explicit zero-write-reply checks for the candidate.",
+  "original_cpp_sha256": "323acca24f29dbd751bb03beacf4aad7c44bc1728d627d49b582fe394d65d900",
+  "derived_cpp_sha256": "af52d19dc14e7063217b88d1358be3ef6e659c759ec6605e0462d214bb95da38",
+  "driver_sha256": "207a68adf4789a4e09dc4c7c9f29d396ba88747b0778f7ad0b286f8c67706c27"
+}

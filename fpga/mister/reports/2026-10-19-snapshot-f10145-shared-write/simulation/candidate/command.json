@@ -1,0 +1,18 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "f10145_snapshot_fixture",
+  "-Wno-fatal",
+  "-DDORADO_F10145_LOGIC",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-v1-20261019/candidate/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-v1-20261019/candidate/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-v1-20261019/candidate/cell.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-v1-20261019/executed-inputs/cell_F10145A.v",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-v1-20261019/executed-inputs/test_f10145_snapshot.cpp"
+]

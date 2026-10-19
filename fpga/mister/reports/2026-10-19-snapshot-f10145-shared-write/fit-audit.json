@@ -1,0 +1,137 @@
+{
+  "status": "PASS",
+  "scope": "Matched enabled F10145 write-port folding, preserving original constraints. Both variants expose the same74physical bits/17words; baseline is the qualified enabled adapter. Same50MHz opposite-edge shell/10ns embedded paths, 2ns/0ns virtual IO, logic RAM. Not a full-core area/timing qualification.",
+  "results": {
+    "baseline": {
+      "resources": {
+        "alms": 117,
+        "registers": 142,
+        "ram_blocks": 0
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 1.98,
+          "hold": 0.305,
+          "mpw": 9.265
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 1.931,
+          "hold": 0.366,
+          "mpw": 9.168
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.652,
+          "hold": 0.146,
+          "mpw": 9.049
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.423,
+          "hold": 0.218,
+          "mpw": 9.105
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 1
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    },
+    "snapshot": {
+      "resources": {
+        "alms": 96,
+        "registers": 139,
+        "ram_blocks": 0
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 2.13,
+          "hold": 0.489,
+          "mpw": 9.288
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 2.092,
+          "hold": 0.464,
+          "mpw": 9.18
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.761,
+          "hold": 0.172,
+          "mpw": 9.051
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.557,
+          "hold": 0.185,
+          "mpw": 9.108
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 1
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    }
+  },
+  "delta": {
+    "alms": -21,
+    "registers": -3,
+    "ram_blocks": 0
+  },
+  "minimum_snapshot_slack_ns": 0.172,
+  "retained_state": {
+    "baseline": {
+      "physical_bits": 74,
+      "private_transport_bits": 13,
+      "synthesized_registers": 87,
+      "combinational_aluts": 163
+    },
+    "snapshot": {
+      "physical_bits": 74,
+      "private_transport_bits": 13,
+      "synthesized_registers": 87,
+      "combinational_aluts": 86
+    }
+  },
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/cell_F10145A_snapshot.sv"
+    },
+    {
+      "case": "clock",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/bank.sdc"
+    },
+    {
+      "case": "policy",
+      "rejected": true,
+      "diagnostic": "project source/macro/constraint differs"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation/missing path hold/7_slow_1100mv_-40c"
+    },
+    {
+      "case": "warning",
+      "rejected": true,
+      "diagnostic": "('unreviewed warnings', 'map', Counter({'10999': 1}))"
+    },
+    {
+      "case": "baseline_state",
+      "rejected": true,
+      "diagnostic": "mutable file bits pruned/added"
+    },
+    {
+      "case": "snapshot_state",
+      "rejected": true,
+      "diagnostic": "mutable file bits pruned/added"
+    }
+  ]
+}

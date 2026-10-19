@@ -1,0 +1,312 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "a754c67c25723a0fafa6f96b862c787c2dccb6827eb845788433699563e6c6a0",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "initial_only_candidate": 1,
+    "combinational_review": 14,
+    "sequential": 9
+  },
+  "candidate_bits": {
+    "initial_only_candidate": 1,
+    "combinational_review": 35,
+    "sequential": 87
+  },
+  "candidates": [
+    {
+      "path": "cell_F10145A_snapshot._unused_pins",
+      "module": "cell_F10145A_snapshot",
+      "name": "_unused_pins",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 157,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.a",
+      "module": "cell_F10145A_snapshot",
+      "name": "a",
+      "category": "combinational_review",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 76,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.a_lat",
+      "module": "cell_F10145A_snapshot",
+      "name": "a_lat",
+      "category": "sequential",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 100,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.ce_lat",
+      "module": "cell_F10145A_snapshot",
+      "name": "ce_lat",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 101,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.d_lat",
+      "module": "cell_F10145A_snapshot",
+      "name": "d_lat",
+      "category": "sequential",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 100,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.mem",
+      "module": "cell_F10145A_snapshot",
+      "name": "mem",
+      "category": "sequential",
+      "width": 4,
+      "unpacked_dimensions": [
+        [
+          0,
+          15
+        ]
+      ],
+      "bits": 64,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 64,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.p1",
+      "module": "cell_F10145A_snapshot",
+      "name": "p1",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 50,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.p14",
+      "module": "cell_F10145A_snapshot",
+      "name": "p14",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 52,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.p15",
+      "module": "cell_F10145A_snapshot",
+      "name": "p15",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 51,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.p2",
+      "module": "cell_F10145A_snapshot",
+      "name": "p2",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 49,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.q",
+      "module": "cell_F10145A_snapshot",
+      "name": "q",
+      "category": "combinational_review",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 152,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.ram_guest_write",
+      "module": "cell_F10145A_snapshot",
+      "name": "ram_guest_write",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 110,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.ram_restore",
+      "module": "cell_F10145A_snapshot",
+      "name": "ram_restore",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 109,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.ram_write_address",
+      "module": "cell_F10145A_snapshot",
+      "name": "ram_write_address",
+      "category": "combinational_review",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 111,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.ram_write_data",
+      "module": "cell_F10145A_snapshot",
+      "name": "ram_write_data",
+      "category": "combinational_review",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 112,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.state_accept",
+      "module": "cell_F10145A_snapshot",
+      "name": "state_accept",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 106,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.state_done",
+      "module": "cell_F10145A_snapshot",
+      "name": "state_done",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 36,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.state_error",
+      "module": "cell_F10145A_snapshot",
+      "name": "state_error",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 36,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.state_frozen",
+      "module": "cell_F10145A_snapshot",
+      "name": "state_frozen",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 35,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.state_hold",
+      "module": "cell_F10145A_snapshot",
+      "name": "state_hold",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 105,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.state_result",
+      "module": "cell_F10145A_snapshot",
+      "name": "state_result",
+      "category": "sequential",
+      "width": 10,
+      "unpacked_dimensions": [],
+      "bits": 10,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 37,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.state_valid",
+      "module": "cell_F10145A_snapshot",
+      "name": "state_valid",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 107,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.state_window",
+      "module": "cell_F10145A_snapshot",
+      "name": "state_window",
+      "category": "combinational_review",
+      "width": 10,
+      "unpacked_dimensions": [],
+      "bits": 10,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 108,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A_snapshot.we_d",
+      "module": "cell_F10145A_snapshot",
+      "name": "we_d",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-shared-write-classification-v1-20261019/shared/cell.sv",
+      "line": 99,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

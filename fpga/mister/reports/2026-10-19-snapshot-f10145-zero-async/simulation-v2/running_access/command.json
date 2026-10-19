@@ -1,0 +1,18 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "f10145_snapshot_fixture",
+  "-Wno-fatal",
+  "-DDORADO_F10145_LOGIC",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-zero-write-v2-20261019/running_access/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-zero-write-v2-20261019/running_access/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-zero-write-v2-20261019/running_access/cell.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-zero-write-v2-20261019/executed-inputs/cell_F10145A.v",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-zero-write-v2-20261019/executed-inputs/test_f10145_snapshot.cpp"
+]

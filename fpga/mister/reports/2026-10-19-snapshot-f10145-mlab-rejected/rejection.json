@@ -1,0 +1,96 @@
+{
+  "status": "REJECTED_MAPPING_AND_AREA",
+  "scope": "Strict RTL collision semantics retained. All timing conditions pass, but requested MLABs were not inferred and area increases. Not integrated.",
+  "logic_alms": 96,
+  "candidate_alms": 107,
+  "delta_alms": 11,
+  "mlab_memory_bits": 0,
+  "uninferred_ram_instances": 2,
+  "semantic_preprocess_sha256": "8521be55ec4313fd90eb7316bb2ed827e98774750d137471bbb926629856df9d",
+  "source_and_timing_review": {
+    "status": "PASS",
+    "scope": "Matched shared-write logic/MLAB placement, same enabled ABI and constraints. Physical-placement experiment only. Strict collision semantics, unchanged50MHz opposite-edge shell/SDC and full74bit ABI. No global snapshot or deployment.",
+    "results": {
+      "baseline": {
+        "resources": {
+          "alms": 96,
+          "registers": 139,
+          "ram_blocks": 0
+        },
+        "timing": {
+          "7_slow_1100mv_-40c": {
+            "setup": 2.13,
+            "hold": 0.489,
+            "mpw": 9.288
+          },
+          "7_slow_1100mv_100c": {
+            "setup": 2.092,
+            "hold": 0.464,
+            "mpw": 9.18
+          },
+          "MIN_fast_1100mv_-40c": {
+            "setup": 4.761,
+            "hold": 0.172,
+            "mpw": 9.051
+          },
+          "MIN_fast_1100mv_100c": {
+            "setup": 4.557,
+            "hold": 0.185,
+            "mpw": 9.108
+          }
+        },
+        "warnings": {
+          "map": {
+            "10036": 1
+          },
+          "fit": {
+            "292013": 1
+          }
+        }
+      },
+      "snapshot": {
+        "resources": {
+          "alms": 107,
+          "registers": 202,
+          "ram_blocks": 0
+        },
+        "timing": {
+          "7_slow_1100mv_-40c": {
+            "setup": 1.831,
+            "hold": 0.521,
+            "mpw": 9.238
+          },
+          "7_slow_1100mv_100c": {
+            "setup": 1.835,
+            "hold": 0.455,
+            "mpw": 9.186
+          },
+          "MIN_fast_1100mv_-40c": {
+            "setup": 4.543,
+            "hold": 0.17,
+            "mpw": 9.052
+          },
+          "MIN_fast_1100mv_100c": {
+            "setup": 4.285,
+            "hold": 0.183,
+            "mpw": 9.114
+          }
+        },
+        "warnings": {
+          "map": {
+            "10036": 1
+          },
+          "fit": {
+            "292013": 1
+          }
+        }
+      }
+    },
+    "delta": {
+      "alms": 11,
+      "registers": 63,
+      "ram_blocks": 0
+    },
+    "minimum_snapshot_slack_ns": 0.17
+  }
+}

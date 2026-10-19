@@ -42,6 +42,69 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Snapshot area reduced by 6,050 ALMs; the next asynchronous-RAM full-core candidate is fitting.**
+
+The shared-RIOT/shared-register-file full-core experiment is TERMINAL and
+REJECTED_CAPACITY: 48,353 ALMs / 41,910 available, still 6,443 over capacity
+(4,899 LABs / 4,191). This saves 2,061 ALMs versus the RIOT-only 50,414 result
+and 6,050 versus the first all-enabled 54,403 result. All eleven boards and
+1,944,744 modeled board bits remain; no coverage was removed. No STA,
+assembly or deployment followed that failed fit. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-shared-files-capacity/`.
+
+Shared F10145 normal/restore writers pass original/independent state tests,
+fresh classification, matched isolated timing (+0.172ns minimum) and all
+eight affected positive board restore gates (1,727,916 modeled bits). Strict
+MLAB trials, including the first zero-write-reply variant, are rejected:
+Quartus inferred no RAM and increased area. Timing alone is not placement
+proof. Earlier executed sources, failure histories and reports are retained.
+
+The next F10145 candidate returns zero for private administrative writes;
+the public board fabric already returns zero, so that public behavior is
+unchanged. Administrative RAM reads explicitly exclude writes. Ordinary
+asynchronous output, write-window state, RAM contents and state reads retain
+their semantics. The original/independent oracle passes 35,407 host edges,
+7,987 holds, all74physical bits, a pending-write restore and20K further
+cycles; ten damaged RTL controls reject. Fresh XML accounts for all74physical
+plus13interface bits and rejects seven damaged inventories. All eight affected
+boards pass their unchanged positive restore fixtures with this candidate;
+this is not another run of the older broken-board suites.
+
+Using the original asynchronous `MLAB, no_rw_check` style, the matched isolated
+candidate actually infers two16x4read replicas (128physical replica bits),
+with one shared logical write source. Read-port input/output registers are
+absent, retaining asynchronous normal output. Synthesis accounts for23owned
+control/interface registers plus8inferred RAM-input registers,31total, versus
+87registers in the logic cell. Shell area is97 ->69ALMs; all four conditions
+pass, minimum+0.346ns, with unchanged50MHz/opposite-edge constraints and no
+new cuts. Six damaged source/constraint/state/memory/timing controls reject.
+All819archived raw files pass hash readback; independent fit audit after
+extraction also passes. These isolated figures do not prove whole-core
+capacity, same-edge timing, original-firmware boot or physical restoration.
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-f10145-zero-async/`.
+
+The SAME new all-enabled build is LIVE at
+`misterubuntu:/home/alans/mister/Dorado_Enabled60ZeroAsync_20261019`,
+builder1931650/fitter1933677. Synthesis passed; fitting is active. It selects
+`--shared-riot --shared-files --zero-write-reply --files-async-mlab`.
+Local and actual remote source audits pass all413baseline receipt files,
+2,137original board pins and17damaged integrations. Baseline50MHz/SYSPER4,
+SDRAM/ECC and all SDC policies remain unchanged. The builder performs no
+assembly or deployment. Observe this job; never restart on observation timeout.
+
+Next: inspect this full fit, then all-device timing and RAM inference if it
+fits. If it remains oversized, use measured hierarchy attribution to reduce
+state-access/decode cost without dropping state. Complete classification and
+access for the154,037native-wrapper sequential candidate bits (review-only
+inventory), top-level inputs/network/video and16MiBexternal raw RAM. Implement
+coherent ARM/disk/input/server barriers and an atomic checksummed bundle with
+matching disk generation; daemon core-load RESUME currently resets connections
+and needs a distinct state-preserving snapshot path with timer rebasing.
+Qualify actual FPGA Cedar save/continue/restore. Original60nsclock/timer
+migration, pinned performance comparisons, three fresh boots/cold persistence
+and two-hour combined stress remain open. Live Native59 is unchanged; last
+qualified idle rate remains1,947,654.12issues/s. Goal ACTIVE.
+
 **Enabled60 exceeds FPGA capacity; the first state-preserving area fix is qualified and a new full-core build is running.**
 
 The original all-enabled experiment is TERMINAL: synthesis passed, fitter

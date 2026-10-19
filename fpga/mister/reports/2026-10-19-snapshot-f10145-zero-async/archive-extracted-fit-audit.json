@@ -1,0 +1,199 @@
+{
+  "status": "PASS",
+  "scope": "Isolated zero-reply asynchronous-RAM audit; no whole-core qualification. All74logical bits remain:64RAM bits in two same-write replicas and10window bits, plus13private interface registers. Registered administrative reads exclude writes; private writes/public fabric return zero. Ordinary output is asynchronous. Original no_rw_check placement hint is used; no SDC cuts/clock/latency changes. Actual full-core timing/boot still required.",
+  "results": {
+    "baseline": {
+      "resources": {
+        "alms": 97,
+        "registers": 147,
+        "ram_blocks": 0
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 2.493,
+          "hold": 0.437,
+          "mpw": 9.264
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 2.507,
+          "hold": 0.454,
+          "mpw": 9.183
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.915,
+          "hold": 0.172,
+          "mpw": 9.051
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.756,
+          "hold": 0.185,
+          "mpw": 9.112
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 1
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    },
+    "snapshot": {
+      "resources": {
+        "alms": 69,
+        "registers": 87,
+        "ram_blocks": 0
+      },
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 2.255,
+          "hold": 0.718,
+          "mpw": 8.96
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 2.219,
+          "hold": 0.701,
+          "mpw": 8.983
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.833,
+          "hold": 0.346,
+          "mpw": 8.62
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.669,
+          "hold": 0.402,
+          "mpw": 8.684
+        }
+      },
+      "warnings": {
+        "map": {
+          "10036": 1
+        },
+        "fit": {
+          "292013": 1
+        }
+      }
+    }
+  },
+  "delta": {
+    "alms": -28,
+    "registers": -60,
+    "ram_blocks": 0
+  },
+  "minimum_snapshot_slack_ns": 0.346,
+  "physical_state": {
+    "baseline": {
+      "logical_ram_bits": 64,
+      "write_window_bits": 10,
+      "private_interface_bits": 13,
+      "owned_registers": 87,
+      "total_synthesis_registers": 87,
+      "inferred_ram_input_registers": 0
+    },
+    "snapshot": {
+      "logical_ram_bits": 64,
+      "write_window_bits": 10,
+      "private_interface_bits": 13,
+      "owned_registers": 23,
+      "total_synthesis_registers": 31,
+      "inferred_ram_input_registers": 8,
+      "memory": [
+        {
+          "Name": "cell_F10145A_snapshot:bank|altdpram:mem__dual_rtl_0|dpram_nlo1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "16",
+          "Port A Width": "4",
+          "Port B Depth": "16",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "64",
+          "Implementation Port A Depth": "16",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "16",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "64",
+          "M10K blocks": "0",
+          "MLAB cells": "4",
+          "MIF": "None",
+          "Location": "LAB_X34_Y41_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        },
+        {
+          "Name": "cell_F10145A_snapshot:bank|altdpram:mem_rtl_0|dpram_nlo1:auto_generated|ALTDPRAM_INSTANCE",
+          "Type": "MLAB",
+          "Mode": "Simple Dual Port",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "16",
+          "Port A Width": "4",
+          "Port B Depth": "16",
+          "Port B Width": "4",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "no",
+          "Port B Output Registers": "no",
+          "Size": "64",
+          "Implementation Port A Depth": "16",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "16",
+          "Implementation Port B Width": "4",
+          "Implementation Bits": "64",
+          "M10K blocks": "0",
+          "MLAB cells": "4",
+          "MIF": "None",
+          "Location": "LAB_X34_Y43_N0",
+          "Mixed Width RDW Mode": "",
+          "Port A RDW Mode": "",
+          "Port B RDW Mode": "",
+          "ECC Mode": "",
+          "ECC Pipeline Registers": "",
+          "Fits in MLABs": ""
+        }
+      ],
+      "physical_replica_bits": 128
+    }
+  },
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/cell_F10145A_snapshot.sv"
+    },
+    {
+      "case": "constraint",
+      "rejected": true,
+      "diagnostic": "compiled input differs: snapshot/bank.sdc"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation/missing path hold/7_slow_1100mv_-40c"
+    },
+    {
+      "case": "state",
+      "rejected": true,
+      "diagnostic": "retained control/state bits differ"
+    },
+    {
+      "case": "memory",
+      "rejected": true,
+      "diagnostic": "MLAB storage missing"
+    },
+    {
+      "case": "latency",
+      "rejected": true,
+      "diagnostic": "RAM geometry/latency differs: Port B Input Registers"
+    }
+  ]
+}

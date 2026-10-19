@@ -1,0 +1,129 @@
+{
+  "status": "PASS",
+  "manifest": {
+    "module": "cell_F10145A_snapshot",
+    "logical_state_bits": 74,
+    "ram": {
+      "words": 16,
+      "width": 4,
+      "indices": [
+        0,
+        15
+      ]
+    },
+    "write_window": {
+      "index": 16,
+      "width": 10,
+      "fields": [
+        {
+          "name": "we_d",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "a_lat",
+          "width": 4,
+          "lsb": 1
+        },
+        {
+          "name": "d_lat",
+          "width": 4,
+          "lsb": 5
+        },
+        {
+          "name": "ce_lat",
+          "width": 1,
+          "lsb": 9
+        }
+      ]
+    },
+    "excluded_simulation_only": [
+      "a_first",
+      "d_first",
+      "in_we",
+      "n_amoved",
+      "n_dmoved",
+      "n_writes",
+      "ramwe_dbg"
+    ],
+    "exclusion_reason": "Original synthesis translate_off diagnostics; no reference outside excluded region",
+    "excluded_source_sha256": "9f8ffe325c3ffa4f64ac08f2a526b9ea3f4fc0c3c3e35bc666d2a91f2ec50fd6",
+    "original_sha256": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "generated_sha256": "6b52bfde37d60c4424125ad9a799ff4ffef745c1564700f3e1a784f7373866df",
+    "scope": "Physical register-file/window state only; no global barrier, board integration, fit or machine restore",
+    "qualified_predecessor_sha256": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+    "shared_write_port": true,
+    "area_experiment": "Fold exclusive F10145 normal/restore writes without changing either read port.\n\nPreserves all74physical bits, asynchronous ordinary output, latched write window,\nold-value administrative response and existing17-word state ABI. No new state,\npipeline, memory-placement change or global snapshot boundary is introduced.\n",
+    "shared_write_predecessor_sha256": "8f576a3ae22f32fa8f6c4ca200c365200d1d1923bbc09595d2335cc6f9fae7fc",
+    "administrative_write_result": "zero; public fabric behavior unchanged",
+    "memory_implementation": "qualified logic selection",
+    "zero_write_experiment": "Experimental zero private write reply; public fabric already returns zero.\n\nEvery original state update, ordinary asynchronous output and snapshot read\nstays unchanged. Only the unreleased private administrative write-result value\nchanges. Strict MLAB is an isolated placement experiment, never selected here\nby the full-core builder before physical inference/timing qualification.\n"
+  },
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "restore_alias",
+      "returncode": 1,
+      "expected_failure": "RAM bit walk differs"
+    },
+    {
+      "case": "current_address",
+      "returncode": 1,
+      "expected_failure": "ordinary oracle state differs"
+    },
+    {
+      "case": "ungated_write",
+      "returncode": 1,
+      "expected_failure": "held guest state changed"
+    },
+    {
+      "case": "lost_ce",
+      "returncode": 1,
+      "expected_failure": "ordinary oracle state differs"
+    },
+    {
+      "case": "running_access",
+      "returncode": 1,
+      "expected_failure": "running request accepted"
+    },
+    {
+      "case": "entry_access",
+      "returncode": 1,
+      "expected_failure": "entry request accepted"
+    },
+    {
+      "case": "invalid_access",
+      "returncode": 1,
+      "expected_failure": "invalid request accepted"
+    },
+    {
+      "case": "window_restore",
+      "returncode": 1,
+      "expected_failure": "write-window bit walk differs"
+    },
+    {
+      "case": "read_write_overlap",
+      "returncode": 1,
+      "expected_failure": "administrative RAM read overlaps write"
+    },
+    {
+      "case": "lost_zero_window_reply",
+      "returncode": 1,
+      "expected_failure": "private write result not zero"
+    }
+  ],
+  "source_hashes": {
+    "fpga/mister/snapshot/generate_f10145_shared_write.py": "953737733c4264ad541e3c976305518a7574c723b7f0047f35ddef335b161444",
+    "fpga/mister/snapshot/generate_f10145.py": "81850df20cbff4b934b13e3890a0efd3c469345c423c37586ff0b4a20c80d875",
+    "fpga/mister/snapshot/test_f10145_shared_write.py": "aa60b45c9cc3824c802034204ba6bb56ac916f260254732d1a33120428814693",
+    "fpga/mister/snapshot/test_f10145_snapshot.py": "cec4daefde032fd99ba31c29f30b389c08dd3aed4a5c3adcdc6c87be44c4f88a",
+    "build/rtl-executive/f10145-zero-write-v2-20261019-driver-inputs/test_f10145_snapshot.cpp": "af52d19dc14e7063217b88d1358be3ef6e659c759ec6605e0462d214bb95da38",
+    "verilog/cells/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "fpga/mister/snapshot/generate_f10145_zero_write.py": "c3167158ceaee8d74907bdc5523cd99d2a394c7f3c6f476de14d708968358720"
+  },
+  "scope": "Unchanged original/physical-state/write-window oracle on shared-write F10145."
+}

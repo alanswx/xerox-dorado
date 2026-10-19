@@ -1,0 +1,65 @@
+[
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-capacity-20261019/Dorado.map.summary",
+    "raw_name": "failed-fit/Dorado.map.summary",
+    "stored": "failed-fit/Dorado.map.summary.gz",
+    "raw_bytes": 512,
+    "raw_sha256": "9ef704fe91e93cd511d8c57f2b31959cc0be7bf80945d71dc9b57b1855f6ad81"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-capacity-20261019/Dorado.fit.summary",
+    "raw_name": "failed-fit/Dorado.fit.summary",
+    "stored": "failed-fit/Dorado.fit.summary.gz",
+    "raw_bytes": 671,
+    "raw_sha256": "f69bbfa2e84531f644f54429b9ca30b6c2db3a5c4cf4957c12948d7952f80451"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-capacity-20261019/Dorado.map.rpt",
+    "raw_name": "failed-fit/Dorado.map.rpt",
+    "stored": "failed-fit/Dorado.map.rpt.gz",
+    "raw_bytes": 13239022,
+    "raw_sha256": "3986d1fb4df3b9c498cdef867f2d0a9cf624fc968144e7c4c8e2973da2f7ca1a"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-capacity-20261019/Dorado.fit.rpt",
+    "raw_name": "failed-fit/Dorado.fit.rpt",
+    "stored": "failed-fit/Dorado.fit.rpt.gz",
+    "raw_bytes": 7897855,
+    "raw_sha256": "545ad15c543da89a7bd7a217c143fb4f0c6e5bf6b390760569dbee1a3291a495"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-capacity-20261019/fit.log",
+    "raw_name": "failed-fit/fit.log",
+    "stored": "failed-fit/fit.log.gz",
+    "raw_bytes": 18495,
+    "raw_sha256": "08dcd1ad5755f0d9226a13e77191bb626887c8822b59fd027487f7f589c9eecd"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-capacity-review-20261019.json",
+    "raw_name": "capacity-review.json",
+    "stored": "capacity-review.json",
+    "raw_bytes": 3753,
+    "raw_sha256": "7617af6606c767f7328f56443867a9c3450f18eccc9dcba0cc3e3615755f8bba"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-actual-source-audit-20261019.json",
+    "raw_name": "actual-source-audit.json",
+    "stored": "actual-source-audit.json",
+    "raw_bytes": 4985,
+    "raw_sha256": "8682f194a871dc98c8fff5688e6f6b64883adf086846d768c590c194b6698895"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-riot-capacity-executed-audit.py",
+    "raw_name": "executed-audit.py",
+    "stored": "executed-audit.py",
+    "raw_bytes": 4462,
+    "raw_sha256": "2b3dbc11a168ce9476b05e54261e02d019cec78c568473fa5ead50471166ac32"
+  },
+  {
+    "source": "build/rtl-executive/archive-f10145-area-20261019.py",
+    "raw_name": "tools/archive-f10145-area-20261019.py",
+    "stored": "tools/archive-f10145-area-20261019.py",
+    "raw_bytes": 5653,
+    "raw_sha256": "b9fd7b344cbccccb4f5ed3ca3d1ac2dbe17efb03fbb9c39af8bf8985b544e70b"
+  }
+]

@@ -1,0 +1,65 @@
+[
+  {
+    "source": "build/rtl-executive/enabled60-shared-files-capacity-20261019/Dorado.map.summary",
+    "raw_name": "failed-fit/Dorado.map.summary",
+    "stored": "failed-fit/Dorado.map.summary.gz",
+    "raw_bytes": 512,
+    "raw_sha256": "f1949c194aa891cf3234a0d7ef3728d8eb2aeda84d76409e92cf8fe8e1779bd6"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-files-capacity-20261019/Dorado.fit.summary",
+    "raw_name": "failed-fit/Dorado.fit.summary",
+    "stored": "failed-fit/Dorado.fit.summary.gz",
+    "raw_bytes": 671,
+    "raw_sha256": "cb43743e541158ecd1053b8d568a0bb294ab473472b2f4d020f4155664c4aff1"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-files-capacity-20261019/Dorado.map.rpt",
+    "raw_name": "failed-fit/Dorado.map.rpt",
+    "stored": "failed-fit/Dorado.map.rpt.gz",
+    "raw_bytes": 12844462,
+    "raw_sha256": "ab78be98bdc9dab4ccf881a0d1b6712e2a50dc6dbf53e194c273f720836fbee6"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-files-capacity-20261019/Dorado.fit.rpt",
+    "raw_name": "failed-fit/Dorado.fit.rpt",
+    "stored": "failed-fit/Dorado.fit.rpt.gz",
+    "raw_bytes": 7897438,
+    "raw_sha256": "8dfae66daeb871013bb7cdda0e34dfef394593ed33736b6b599b300be4d713a9"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-files-capacity-20261019/fit.log",
+    "raw_name": "failed-fit/fit.log",
+    "stored": "failed-fit/fit.log.gz",
+    "raw_bytes": 18512,
+    "raw_sha256": "6e68e463713e04beddcf210e1ffbbe6105000c3d95e3a2a91c70517a69dd856d"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-files-capacity-review-20261019.json",
+    "raw_name": "capacity-review.json",
+    "stored": "capacity-review.json",
+    "raw_bytes": 3757,
+    "raw_sha256": "151a13d3406d7ce58730c55e974bae6ff99f72b4168b4bdd4361f01bb22e3903"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-shared-files-actual-source-audit-20261019.json",
+    "raw_name": "actual-source-audit.json",
+    "stored": "actual-source-audit.json",
+    "raw_bytes": 6232,
+    "raw_sha256": "277207b40f4ec49ed6a2a926d02bc75ea7e36ca89925bed141212037e278572c"
+  },
+  {
+    "source": "fpga/mister/snapshot/audit_enabled_capacity.py",
+    "raw_name": "executed-audit.py",
+    "stored": "executed-audit.py",
+    "raw_bytes": 4502,
+    "raw_sha256": "720b70e6b1cfc098e84f1c9df1d43b4952210884438909a7689a40b88aaf764c"
+  },
+  {
+    "source": "build/rtl-executive/archive-shared-files-capacity-20261019.py",
+    "raw_name": "tools/archive-shared-files-capacity-20261019.py",
+    "stored": "tools/archive-shared-files-capacity-20261019.py",
+    "raw_bytes": 2092,
+    "raw_sha256": "79f023f01f8ba41f104120157240c87844a5cc1d65370387d36e913668a6bdba"
+  }
+]

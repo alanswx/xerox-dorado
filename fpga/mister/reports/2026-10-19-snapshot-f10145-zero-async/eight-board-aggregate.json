@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "scope": "Eight unchanged positive full-board restore fixtures with zero private F10145 write replies; no physical/global machine snapshot or rerun of older broken-board suites.",
+  "boards": [
+    {
+      "board": "ContA",
+      "physical_bits": 1353,
+      "evidence": "build/rtl-executive/boards-zero-write-v1-20261019/ContA",
+      "cell_sha256": "6b52bfde37d60c4424125ad9a799ff4ffef745c1564700f3e1a784f7373866df",
+      "results_sha256": "fd3c63002f0feabe443745db9d129f2b4c70ca3cf37b7058096ab265d2f6f724"
+    },
+    {
+      "board": "ProcH",
+      "physical_bits": 5712,
+      "evidence": "build/rtl-executive/boards-zero-write-v1-20261019/ProcH",
+      "cell_sha256": "6b52bfde37d60c4424125ad9a799ff4ffef745c1564700f3e1a784f7373866df",
+      "results_sha256": "6602b3f0ea1ef65f996d377389f883db6901f4836803887402576b3607617978"
+    },
+    {
+      "board": "ProcL",
+      "physical_bits": 5581,
+      "evidence": "build/rtl-executive/boards-zero-write-v1-20261019/ProcL",
+      "cell_sha256": "6b52bfde37d60c4424125ad9a799ff4ffef745c1564700f3e1a784f7373866df",
+      "results_sha256": "17d672220be055350149f5a1e475132e9f302b68a3f20f61744d4c96dd704423"
+    },
+    {
+      "board": "MemC",
+      "physical_bits": 23718,
+      "evidence": "build/rtl-executive/boards-zero-write-v1-20261019/MemC",
+      "cell_sha256": "6b52bfde37d60c4424125ad9a799ff4ffef745c1564700f3e1a784f7373866df",
+      "results_sha256": "26b0d43af40111771f0ebbd71304f8f6314f9b50381694f12debaf2257e927c9"
+    },
+    {
+      "board": "MemD",
+      "physical_bits": 296591,
+      "evidence": "build/rtl-executive/boards-zero-write-v1-20261019/MemD",
+      "cell_sha256": "6b52bfde37d60c4424125ad9a799ff4ffef745c1564700f3e1a784f7373866df",
+      "results_sha256": "ff837a03f6a43edbded6b9f12e74b93d05f43b6f31716c02b9b64c44308dd5f0"
+    },
+    {
+      "board": "MemX",
+      "physical_bits": 1378312,
+      "evidence": "build/rtl-executive/boards-zero-write-v1-20261019/MemX",
+      "cell_sha256": "6b52bfde37d60c4424125ad9a799ff4ffef745c1564700f3e1a784f7373866df",
+      "results_sha256": "558a72d53e709eb87bbfff1917ce0322a5dbd842dded87a4d217f5fb9eedfa64"
+    },
+    {
+      "board": "DskEth",
+      "physical_bits": 2656,
+      "evidence": "build/rtl-executive/boards-zero-write-v1-20261019/DskEth",
+      "cell_sha256": "6b52bfde37d60c4424125ad9a799ff4ffef745c1564700f3e1a784f7373866df",
+      "results_sha256": "4aaf468f1575df69dbb5d01b8d22aabfa2783bb8bec623f2819c7a7b9f85f29a"
+    },
+    {
+      "board": "DispY",
+      "physical_bits": 13993,
+      "evidence": "build/rtl-executive/boards-zero-write-v1-20261019/DispY",
+      "cell_sha256": "6b52bfde37d60c4424125ad9a799ff4ffef745c1564700f3e1a784f7373866df",
+      "results_sha256": "95f660dfc01fe842fd322621d30e77d74bd1c770414a205c810bad22f59f7407"
+    }
+  ],
+  "total_modeled_bits": 1727916
+}

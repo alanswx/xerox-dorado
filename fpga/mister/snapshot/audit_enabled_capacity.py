@@ -52,7 +52,8 @@ def main():
     assert 'Analysis & Synthesis was successful' in load(directory/'Dorado.map.summary') or (
         'Analysis & Synthesis Status : Successful' in load(directory/'Dorado.map.summary'))
     audit = json.loads(a.integration_audit.read_text())
-    assert audit['status'] == 'PASS' and audit['boards'] == 11 and len(audit['broken_controls']) == 15
+    assert audit['status'] == 'PASS' and audit['boards'] == 11
+    assert set(range(15)).issubset(r['case'] for r in audit['broken_controls'])
     current_rows = rows(fit)
     previous = {r['Entity Name']: r for r in rows(load(a.baseline_fit))
                 if r['Entity Name'].endswith('_full_snapshot_experiment') or

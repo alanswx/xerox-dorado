@@ -169,12 +169,27 @@ def audit(baseline, candidate, receipt, replacements=None):
           'crossing audit differs')
     old_qsf = (baseline/'core/Dorado.qsf').read_text().replace(str(baseline), str(candidate))
     old_qsf = old_qsf.replace('/home/alans/mister/Dorado_Native59_20261019', str(candidate))
+    prepared = json.loads(read('src/fpga/mister/snapshot_enabled/assets.json'))
+    source_replacements = prepared.get('source_replacements', {})
+    if source_replacements:
+        old = 'fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv'
+        name = 'cell_F10145A_snapshot.sv'
+        check(source_replacements == {old: name}, 'unreviewed source replacement')
+        schema = prepared['shared_file_manifest']
+        check(hashlib.sha256((baseline/'src'/old).read_bytes()).hexdigest() ==
+              schema['qualified_predecessor_sha256'], 'register-file reference differs')
+        check(schema['logical_state_bits'] == 74 and schema['ram'] ==
+              dict(words=16, width=4, indices=[0,15]) and schema['write_window']['index'] == 16,
+              'register-file schema differs')
+        for alias in (str(candidate/'src'/old), '../src/'+old):
+            line = 'set_global_assignment -name SYSTEMVERILOG_FILE '+alias+'\n'
+            check(old_qsf.count(line) == 1, 'original register-file assignment differs')
+            old_qsf = old_qsf.replace(line, '', 1)
     qsf = read('core/Dorado.qsf')
     check(qsf.startswith(old_qsf), 'existing project policy differs')
     added = re.findall(r'^set_global_assignment -name SYSTEMVERILOG_FILE (.+)$',
                        qsf[len(old_qsf):], re.M)
     check(len(added) == len(set(added)) and len(added) > 2, 'new project sources missing/duplicate')
-    prepared = json.loads(read('src/fpga/mister/snapshot_enabled/assets.json'))
     expected_files = {str(candidate/'src/fpga/mister/snapshot_enabled'/n)
                       for n in prepared['assets'] if n not in prepared['shared']}
     # Quartus17 appends relative aliases for newly added absolute paths while
@@ -197,6 +212,7 @@ def audit(baseline, candidate, receipt, replacements=None):
                 boards=len(BOARD_WIDTHS), original_board_pins=total_pins,
                 unchanged_core_files=unchanged_core,
                 adapter_files=len(prepared['assets']), new_project_sources=len(expected_files),
+                source_replacements=source_replacements,
                 new_project_source_assignments=len(added),
                 inspected_hashes={n: hashlib.sha256((candidate/n).read_bytes()).hexdigest()
                                   for n in (BP, WRAPPER, CORE, 'core/Dorado.qsf',
@@ -235,6 +251,15 @@ def main():
             ('core/native_timing.sdc', '\n', '\nset_false_path -from [all_registers]\n', 'timing constraint'),
             ('core/Dorado.qsf', 'DORADO_STORAGE_INPUT_DELAY=2', 'DORADO_STORAGE_INPUT_DELAY=1', 'project policy'),
         ]
+        prepared = json.loads((candidate/'src/fpga/mister/snapshot_enabled/assets.json').read_text())
+        if prepared.get('source_replacements'):
+            new = str(candidate/'src/fpga/mister/snapshot_enabled/cell_F10145A_snapshot.sv')
+            assignment = 'set_global_assignment -name SYSTEMVERILOG_FILE '+new+'\n'
+            old = str(candidate/'src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv')
+            cases += [
+                ('core/Dorado.qsf', assignment, assignment+'set_global_assignment -name SYSTEMVERILOG_FILE '+old+'\n', 'new project source paths'),
+                ('core/Dorado.qsf', assignment, assignment.replace('cell_F10145A_snapshot.sv', 'cell_F10145A_bad.sv'), 'new project source paths'),
+            ]
         for ident, (name, before, after, reason) in enumerate(cases):
             text = (candidate/name).read_text()
             check(before in text, 'control target absent: ' + before)

@@ -1,0 +1,11 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_F10145A_snapshot",
+  "-DDORADO_F10145_LOGIC",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-zero-write-classification-v2-20261019/qualified/cell.xml",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/f10145-zero-write-classification-v2-20261019/qualified/cell.sv"
+]

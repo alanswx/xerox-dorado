@@ -586,14 +586,85 @@ destructive restore and 20K further cycles pass. This run repeats the positive
 board test; earlier SRAM writer and broken-board coverage remains separate.
 Only M6532_snapshot.sv differs among the 22 prepared HDL assets.
 
-The opt-in `build_enabled_core.py --shared-riot` build is now running in
-`misterubuntu:/home/alans/mister/Dorado_Enabled60SharedRIOT_20261019`.
-Every board remains enabled; local/actual remote source audit and fifteen bad
-integration controls pass. Capacity/routed timing remain unqualified. Evidence:
-reports/2026-10-19-snapshot-riot-shared-port. No new RBF or speed change.
+The opt-in `build_enabled_core.py --shared-riot` full build is terminal at
+50,414 ALMs versus 41,910 available: 3,989 fewer than the first experiment,
+still over capacity. Every board remains enabled. Evidence:
+reports/2026-10-19-snapshot-shared-riot-capacity. No new RBF or speed change.
 
 `inventory_machine_support.py` also elaborates exact staged source/macros to
 inventory the native wrapper outside the eleven boards. It identifies 154,037
 sequential candidate bits, mostly disk buffering/raw-memory frontend state.
 This is REVIEW ONLY. Top-level input/network/video, external RAM and ARM state
 remain outside that XML and need their own classification and global barrier.
+
+## Shared register-file writer and rejected MLAB placement (2026-10-19)
+
+`generate_f10145_shared_write.py` folds exclusive normal/restore RAM writes;
+both read ports, asynchronous output and the complete pending-write window
+stay unchanged. The original/independent oracle passes all 74 physical bits,
+restore/first-edge/20K further cycles; eight broken variants reject. Fresh
+XML and both synthesized cell hierarchies retain all 74 physical + 13 interface
+bits. Matched enabled fixtures pass four conditions (minimum +0.172ns),
+117 -> 96 ALMs, zero block RAM; seven damaged fit controls reject.
+
+`test_boards_shared_f10145.py` runs the unchanged positive full-board fixtures
+against the folded helper. All eight affected boards pass, covering 1,727,916
+modeled state bits; generated board wiring is identical to Native59. Accepted
+v2 covers the first six; v3 uses actual Native58/57 parents for DskEth/DispY.
+The newer MC10170 comments are checked token-identical; actual frozen cell
+bytes are compiled. Prior broken-board suites are not claimed rerun.
+
+`generate_f10145_mlab.py`/`fit_f10145_mlab.py` retain the rejected strict-memory
+experiment. Functional RTL differs only in the hint. Timing passes, but
+Quartus cannot infer either read-during-write RAM, uses zero MLAB bits and
+increases area from 96 to 107 ALMs. This is not a selectable core variant.
+
+The opt-in `build_enabled_core.py --shared-riot --shared-files` experiment
+passes source audits and synthesis but is terminal/rejected at48,353ALMs versus
+41,910available:6,050fewer than the first all-enabled experiment,6,443still
+over capacity. Exactly the two old register-file QSF aliases are replaced.
+The source auditor rejects seventeen damaged integrations and retains its
+fifteen legacy controls. No timing or hardware qualification follows this
+failed fit. Evidence: reports/2026-10-19-snapshot-shared-files-capacity,
+reports/2026-10-19-snapshot-f10145-shared-write and
+reports/2026-10-19-snapshot-f10145-mlab-rejected.
+
+## Zero private write replies and asynchronous RAM (2026-10-19)
+
+`generate_f10145_zero_write.py` returns zero on private administrative writes;
+the public fabric already does so. Administrative RAM reads explicitly exclude
+writes. RAM/state reads, ordinary asynchronous output and pending-write capture
+remain unchanged. `test_f10145_zero_write.py` derives a copy of the unchanged
+original/oracle harness with an additional zero-write-response check. All74bits,
+35,407host edges,7,987holds,pending-write restore and20K further cycles pass;
+ten damaged variants reject. `classify_f10145_zero_write.py` selects the
+candidate in the qualified fresh-XML classifier;74physical+13interface bits,
+no sequential exclusions and seven damaged inventories pass. All eight affected
+positive full-board restore fixtures also pass. Earlier broken-board suites
+are separate evidence, not claimed rerun.
+
+The first zero-reply strict MLAB trial also infers no RAM (two Info276009
+messages), uses0MLABbits and expands96 ->107ALMs despite passing timing;
+its executed sources and rejected result remain in the follow-up report.
+
+`fit_f10145_mlab.py --zero-write-reply --original-async-mlab` tests the explicit
+read guard with the original asynchronous `MLAB, no_rw_check` style. Functional
+preprocessed variants differ only in the memory hint. Two physical16x4MLAB
+read replicas are inferred (128bits), both with unregistered read inputs and
+outputs. The cell retains23owned control/interface registers and8inferred
+RAM-input registers,31total; the logic reference retains87. The matched shell
+uses97 ->69ALMs and147 ->87registers. All four timing conditions pass, minimum
++0.346ns, with unchanged50MHz/opposite-edge constraints and no added cuts.
+`audit_f10145_zero_async.py` verifies exact sources, retention, actual memory
+geometry/latency/locations and timing; six damaged evidence controls reject.
+819raw archived files pass SHA256 readback; independent extracted-fit audit
+passes. Report: reports/2026-10-19-snapshot-f10145-zero-async.
+
+The opt-in core flags are `--shared-riot --shared-files --zero-write-reply
+--files-async-mlab`. The SAME full-core build
+`misterubuntu:/home/alans/mister/Dorado_Enabled60ZeroAsync_20261019` passes
+synthesis and is fitting (builder1931650/fitter1933677). Local and actual remote
+source audits pass413baseline receipt files/17damaged integrations. Whole-core
+capacity, ordinary same-edge timing, firmware boot and physical snapshots
+remain unproven. Global support-state and ARM/server/input/matching-disk barriers
+are still required; the diagnostic board hold is not a machine snapshot.

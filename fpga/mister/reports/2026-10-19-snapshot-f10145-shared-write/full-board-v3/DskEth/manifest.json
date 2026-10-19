@@ -1,0 +1,4494 @@
+{
+  "module": "DskEth_full_snapshot_experiment",
+  "original_module": "DskEth_m_Rev_m_Cf_rxmonitor",
+  "source": "verilog/generated/DskEth-Rev-Cf.v",
+  "original_sha256": "14f3a2c55450231c0bd0feafa22b5e0c08f09eddad8358fec2797baf46ec5f81",
+  "ff": [
+    {
+      "index": 0,
+      "word": 0,
+      "package": "u_a01",
+      "kind": "cell_SN74LS169",
+      "width": 8,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "p7_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "p9_d",
+          "width": 1,
+          "lsb": 5
+        },
+        {
+          "name": "p10_d",
+          "width": 1,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 7
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "word": 32,
+      "package": "u_a02",
+      "kind": "cell_SN74LS169",
+      "width": 8,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "p7_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "p9_d",
+          "width": 1,
+          "lsb": 5
+        },
+        {
+          "name": "p10_d",
+          "width": 1,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 7
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "word": 64,
+      "package": "u_a06",
+      "kind": "cell_SN74LS169",
+      "width": 8,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "p7_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "p9_d",
+          "width": 1,
+          "lsb": 5
+        },
+        {
+          "name": "p10_d",
+          "width": 1,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 7
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "word": 96,
+      "package": "u_a07",
+      "kind": "cell_SN74LS169",
+      "width": 8,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "p7_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "p9_d",
+          "width": 1,
+          "lsb": 5
+        },
+        {
+          "name": "p10_d",
+          "width": 1,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 7
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "word": 128,
+      "package": "u_a08",
+      "kind": "cell_SN74LS174",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "word": 160,
+      "package": "u_a09",
+      "kind": "cell_SN74LS174",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "word": 192,
+      "package": "u_a10",
+      "kind": "cell_SN74LS174",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "word": 224,
+      "package": "u_a11",
+      "kind": "cell_SN74LS174",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "word": 256,
+      "package": "u_a15",
+      "kind": "cell_F10016",
+      "width": 11,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "word": 288,
+      "package": "u_a16",
+      "kind": "cell_F10016",
+      "width": 11,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "word": 320,
+      "package": "u_a22",
+      "kind": "cell_F10016",
+      "width": 11,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "word": 352,
+      "package": "u_b03",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "word": 384,
+      "package": "u_b04",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "word": 416,
+      "package": "u_b05",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 14,
+      "word": 448,
+      "package": "u_b06",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 15,
+      "word": 480,
+      "package": "u_b09",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 16,
+      "word": 512,
+      "package": "u_b10",
+      "kind": "cell_F10016",
+      "width": 11,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "index": 17,
+      "word": 544,
+      "package": "u_b12",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 18,
+      "word": 576,
+      "package": "u_b15",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 19,
+      "word": 608,
+      "package": "u_b20",
+      "kind": "cell_F10016",
+      "width": 11,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "index": 20,
+      "word": 640,
+      "package": "u_b21",
+      "kind": "cell_F10016",
+      "width": 11,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "index": 21,
+      "word": 672,
+      "package": "u_c01",
+      "kind": "cell_MC1650",
+      "width": 2,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        }
+      ]
+    },
+    {
+      "index": 22,
+      "word": 704,
+      "package": "u_c02",
+      "kind": "cell_MC1650",
+      "width": 2,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        }
+      ]
+    },
+    {
+      "index": 23,
+      "word": 736,
+      "package": "u_c07",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 24,
+      "word": 768,
+      "package": "u_c08",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 25,
+      "word": 800,
+      "package": "u_c09",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 26,
+      "word": 832,
+      "package": "u_c14",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 27,
+      "word": 864,
+      "package": "u_c15",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 28,
+      "word": 896,
+      "package": "u_c16",
+      "kind": "cell_MC10135",
+      "width": 7,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "jk_pre",
+          "width": 4,
+          "lsb": 2
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "index": 29,
+      "word": 928,
+      "package": "u_c19",
+      "kind": "cell_MC10136",
+      "width": 12,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "su_pre",
+          "width": 1,
+          "lsb": 8
+        },
+        {
+          "name": "sd_pre",
+          "width": 1,
+          "lsb": 9
+        },
+        {
+          "name": "cin_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 11
+        }
+      ]
+    },
+    {
+      "index": 30,
+      "word": 960,
+      "package": "u_c20",
+      "kind": "cell_MC10136",
+      "width": 12,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "su_pre",
+          "width": 1,
+          "lsb": 8
+        },
+        {
+          "name": "sd_pre",
+          "width": 1,
+          "lsb": 9
+        },
+        {
+          "name": "cin_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 11
+        }
+      ]
+    },
+    {
+      "index": 31,
+      "word": 992,
+      "package": "u_c21",
+      "kind": "cell_MC10136",
+      "width": 12,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "su_pre",
+          "width": 1,
+          "lsb": 8
+        },
+        {
+          "name": "sd_pre",
+          "width": 1,
+          "lsb": 9
+        },
+        {
+          "name": "cin_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 11
+        }
+      ]
+    },
+    {
+      "index": 32,
+      "word": 1024,
+      "package": "u_d04",
+      "kind": "cell_SN74LS174",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 33,
+      "word": 1056,
+      "package": "u_d18",
+      "kind": "cell_MC10173",
+      "width": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 34,
+      "word": 1088,
+      "package": "u_d19",
+      "kind": "cell_MC10173",
+      "width": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 35,
+      "word": 1120,
+      "package": "u_d20",
+      "kind": "cell_MC10135",
+      "width": 7,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "jk_pre",
+          "width": 4,
+          "lsb": 2
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "index": 36,
+      "word": 1152,
+      "package": "u_d22",
+      "kind": "cell_F10016",
+      "width": 11,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "index": 37,
+      "word": 1184,
+      "package": "u_e02",
+      "kind": "cell_MC10175",
+      "width": 5,
+      "fields": [
+        {
+          "name": "q",
+          "width": 5,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 38,
+      "word": 1216,
+      "package": "u_e04",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 39,
+      "word": 1248,
+      "package": "u_e05",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 40,
+      "word": 1280,
+      "package": "u_e06",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 41,
+      "word": 1312,
+      "package": "u_e08",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 42,
+      "word": 1344,
+      "package": "u_e10",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 43,
+      "word": 1376,
+      "package": "u_e12",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 44,
+      "word": 1408,
+      "package": "u_e13",
+      "kind": "cell_MC10135",
+      "width": 7,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "jk_pre",
+          "width": 4,
+          "lsb": 2
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "index": 45,
+      "word": 1440,
+      "package": "u_e14",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 46,
+      "word": 1472,
+      "package": "u_e15",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 47,
+      "word": 1504,
+      "package": "u_e17",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 48,
+      "word": 1536,
+      "package": "u_e18",
+      "kind": "cell_MC10173",
+      "width": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 49,
+      "word": 1568,
+      "package": "u_e20",
+      "kind": "cell_MC10173",
+      "width": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 50,
+      "word": 1600,
+      "package": "u_e21",
+      "kind": "cell_MC10173",
+      "width": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 51,
+      "word": 1632,
+      "package": "u_f01",
+      "kind": "cell_MC1650",
+      "width": 2,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        }
+      ]
+    },
+    {
+      "index": 52,
+      "word": 1664,
+      "package": "u_f02",
+      "kind": "cell_MC1650",
+      "width": 2,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        }
+      ]
+    },
+    {
+      "index": 53,
+      "word": 1696,
+      "package": "u_f08",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 54,
+      "word": 1728,
+      "package": "u_f09",
+      "kind": "cell_F10000",
+      "width": 9,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "index": 55,
+      "word": 1760,
+      "package": "u_f10",
+      "kind": "cell_F10000",
+      "width": 9,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "index": 56,
+      "word": 1792,
+      "package": "u_f11",
+      "kind": "cell_F10000",
+      "width": 9,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "index": 57,
+      "word": 1824,
+      "package": "u_f12",
+      "kind": "cell_F10000",
+      "width": 9,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "index": 58,
+      "word": 1856,
+      "package": "u_f14",
+      "kind": "cell_F10000",
+      "width": 9,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "index": 59,
+      "word": 1888,
+      "package": "u_f15",
+      "kind": "cell_F10000",
+      "width": 9,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "index": 60,
+      "word": 1920,
+      "package": "u_f18",
+      "kind": "cell_MC10173",
+      "width": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 61,
+      "word": 1952,
+      "package": "u_f20",
+      "kind": "cell_MC10173",
+      "width": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 62,
+      "word": 1984,
+      "package": "u_f21",
+      "kind": "cell_MC10173",
+      "width": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 63,
+      "word": 2016,
+      "package": "u_g06",
+      "kind": "cell_MC10175",
+      "width": 5,
+      "fields": [
+        {
+          "name": "q",
+          "width": 5,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 64,
+      "word": 2048,
+      "package": "u_g08",
+      "kind": "cell_MC10173",
+      "width": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 65,
+      "word": 2080,
+      "package": "u_g09",
+      "kind": "cell_MC10173",
+      "width": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 66,
+      "word": 2112,
+      "package": "u_g10",
+      "kind": "cell_MC10173",
+      "width": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 67,
+      "word": 2144,
+      "package": "u_g11",
+      "kind": "cell_MC10173",
+      "width": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 68,
+      "word": 2176,
+      "package": "u_g12",
+      "kind": "cell_MC10173",
+      "width": 4,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        }
+      ]
+    },
+    {
+      "index": 69,
+      "word": 2208,
+      "package": "u_g20",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 70,
+      "word": 2240,
+      "package": "u_g21",
+      "kind": "cell_F10016",
+      "width": 11,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "index": 71,
+      "word": 2272,
+      "package": "u_h04",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 72,
+      "word": 2304,
+      "package": "u_h06",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 73,
+      "word": 2336,
+      "package": "u_h08",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 74,
+      "word": 2368,
+      "package": "u_h12",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 75,
+      "word": 2400,
+      "package": "u_h13",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 76,
+      "word": 2432,
+      "package": "u_h17",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 77,
+      "word": 2464,
+      "package": "u_h24",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 78,
+      "word": 2496,
+      "package": "u_i08",
+      "kind": "cell_MC10141",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 79,
+      "word": 2528,
+      "package": "u_i09",
+      "kind": "cell_MC10141",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 80,
+      "word": 2560,
+      "package": "u_i10",
+      "kind": "cell_MC10141",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 81,
+      "word": 2592,
+      "package": "u_i11",
+      "kind": "cell_MC10141",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 82,
+      "word": 2624,
+      "package": "u_i12",
+      "kind": "cell_MC10136",
+      "width": 12,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "su_pre",
+          "width": 1,
+          "lsb": 8
+        },
+        {
+          "name": "sd_pre",
+          "width": 1,
+          "lsb": 9
+        },
+        {
+          "name": "cin_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 11
+        }
+      ]
+    },
+    {
+      "index": 83,
+      "word": 2656,
+      "package": "u_i13",
+      "kind": "cell_MC10136",
+      "width": 12,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "su_pre",
+          "width": 1,
+          "lsb": 8
+        },
+        {
+          "name": "sd_pre",
+          "width": 1,
+          "lsb": 9
+        },
+        {
+          "name": "cin_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 11
+        }
+      ]
+    },
+    {
+      "index": 84,
+      "word": 2688,
+      "package": "u_i14",
+      "kind": "cell_MC10141",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 85,
+      "word": 2720,
+      "package": "u_i15",
+      "kind": "cell_MC10141",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 86,
+      "word": 2752,
+      "package": "u_i16",
+      "kind": "cell_MC10141",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 87,
+      "word": 2784,
+      "package": "u_i17",
+      "kind": "cell_MC10141",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 88,
+      "word": 2816,
+      "package": "u_i22",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 89,
+      "word": 2848,
+      "package": "u_j04",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 90,
+      "word": 2880,
+      "package": "u_j19",
+      "kind": "cell_MC10135",
+      "width": 7,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "jk_pre",
+          "width": 4,
+          "lsb": 2
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "index": 91,
+      "word": 2912,
+      "package": "u_j21",
+      "kind": "cell_MC10136",
+      "width": 12,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "su_pre",
+          "width": 1,
+          "lsb": 8
+        },
+        {
+          "name": "sd_pre",
+          "width": 1,
+          "lsb": 9
+        },
+        {
+          "name": "cin_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 11
+        }
+      ]
+    },
+    {
+      "index": 92,
+      "word": 2944,
+      "package": "u_j24",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 93,
+      "word": 2976,
+      "package": "u_k04",
+      "kind": "cell_MC10135",
+      "width": 7,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "jk_pre",
+          "width": 4,
+          "lsb": 2
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "index": 94,
+      "word": 3008,
+      "package": "u_k07",
+      "kind": "cell_MC10135",
+      "width": 7,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "jk_pre",
+          "width": 4,
+          "lsb": 2
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "index": 95,
+      "word": 3040,
+      "package": "u_k09",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 96,
+      "word": 3072,
+      "package": "u_k10",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 97,
+      "word": 3104,
+      "package": "u_k11",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 98,
+      "word": 3136,
+      "package": "u_k14",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 99,
+      "word": 3168,
+      "package": "u_k15",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 100,
+      "word": 3200,
+      "package": "u_k16",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 101,
+      "word": 3232,
+      "package": "u_k19",
+      "kind": "cell_MC10135",
+      "width": 7,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "jk_pre",
+          "width": 4,
+          "lsb": 2
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "index": 102,
+      "word": 3264,
+      "package": "u_k20",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 103,
+      "word": 3296,
+      "package": "u_k22",
+      "kind": "cell_MC10135",
+      "width": 7,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "jk_pre",
+          "width": 4,
+          "lsb": 2
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "index": 104,
+      "word": 3328,
+      "package": "u_l02",
+      "kind": "cell_SE10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 105,
+      "word": 3360,
+      "package": "u_l04",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 106,
+      "word": 3392,
+      "package": "u_l06",
+      "kind": "cell_MC10135",
+      "width": 7,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "jk_pre",
+          "width": 4,
+          "lsb": 2
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "index": 107,
+      "word": 3424,
+      "package": "u_l07",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 108,
+      "word": 3456,
+      "package": "u_l09",
+      "kind": "cell_F10016",
+      "width": 11,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "index": 109,
+      "word": 3488,
+      "package": "u_l12",
+      "kind": "cell_F10016",
+      "width": 11,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "index": 110,
+      "word": 3520,
+      "package": "u_l13",
+      "kind": "cell_F10016",
+      "width": 11,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "index": 111,
+      "word": 3552,
+      "package": "u_l16",
+      "kind": "cell_F10016",
+      "width": 11,
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "index": 112,
+      "word": 3584,
+      "package": "u_l18",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 113,
+      "word": 3616,
+      "package": "u_l19",
+      "kind": "cell_MC10135",
+      "width": 7,
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "jk_pre",
+          "width": 4,
+          "lsb": 2
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "index": 114,
+      "word": 3648,
+      "package": "u_l20",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ]
+    },
+    {
+      "index": 115,
+      "word": 3680,
+      "package": "u_l22",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "index": 116,
+      "word": 3712,
+      "package": "u_l23",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    }
+  ],
+  "memories": [
+    {
+      "index": 117,
+      "word": 3744,
+      "memory_index": 0,
+      "package": "u_d08",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 118,
+      "word": 3776,
+      "memory_index": 1,
+      "package": "u_d09",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 119,
+      "word": 3808,
+      "memory_index": 2,
+      "package": "u_d10",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 120,
+      "word": 3840,
+      "memory_index": 3,
+      "package": "u_d11",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 121,
+      "word": 3872,
+      "memory_index": 4,
+      "package": "u_d12",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 122,
+      "word": 3904,
+      "memory_index": 5,
+      "package": "u_e16",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 123,
+      "word": 3936,
+      "memory_index": 6,
+      "package": "u_f16",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 124,
+      "word": 3968,
+      "memory_index": 7,
+      "package": "u_f17",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 125,
+      "word": 4000,
+      "memory_index": 8,
+      "package": "u_j08",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 126,
+      "word": 4032,
+      "memory_index": 9,
+      "package": "u_j09",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 127,
+      "word": 4064,
+      "memory_index": 10,
+      "package": "u_j10",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 128,
+      "word": 4096,
+      "memory_index": 11,
+      "package": "u_j11",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 129,
+      "word": 4128,
+      "memory_index": 12,
+      "package": "u_j12",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 130,
+      "word": 4160,
+      "memory_index": 13,
+      "package": "u_j13",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 131,
+      "word": 4192,
+      "memory_index": 14,
+      "package": "u_j14",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 132,
+      "word": 4224,
+      "memory_index": 15,
+      "package": "u_j15",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 133,
+      "word": 4256,
+      "memory_index": 16,
+      "package": "u_j16",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 134,
+      "word": 4288,
+      "memory_index": 17,
+      "package": "u_j17",
+      "kind": "cell_F10145A",
+      "words": 16,
+      "width": 4,
+      "write_window": {
+        "index": 16,
+        "width": 10,
+        "fields": [
+          {
+            "name": "we_d",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "a_lat",
+            "width": 4,
+            "lsb": 1
+          },
+          {
+            "name": "d_lat",
+            "width": 4,
+            "lsb": 5
+          },
+          {
+            "name": "ce_lat",
+            "width": 1,
+            "lsb": 9
+          }
+        ]
+      },
+      "logical_state_bits": 74
+    },
+    {
+      "index": 135,
+      "word": 4320,
+      "memory_index": 18,
+      "package": "u_a03",
+      "kind": "cell_SN74123",
+      "words": 4,
+      "width": 18,
+      "logical_state_bits": 70,
+      "fields": [
+        {
+          "name": "t1",
+          "width": 32,
+          "lsb": 0,
+          "signed": true
+        },
+        {
+          "name": "t2",
+          "width": 32,
+          "lsb": 32,
+          "signed": true
+        },
+        {
+          "name": "a1_d",
+          "width": 1,
+          "lsb": 64,
+          "signed": false
+        },
+        {
+          "name": "b1_d",
+          "width": 1,
+          "lsb": 65,
+          "signed": false
+        },
+        {
+          "name": "c1_d",
+          "width": 1,
+          "lsb": 66,
+          "signed": false
+        },
+        {
+          "name": "a2_d",
+          "width": 1,
+          "lsb": 67,
+          "signed": false
+        },
+        {
+          "name": "b2_d",
+          "width": 1,
+          "lsb": 68,
+          "signed": false
+        },
+        {
+          "name": "c2_d",
+          "width": 1,
+          "lsb": 69,
+          "signed": false
+        }
+      ],
+      "transport_words": [
+        {
+          "index": 0,
+          "width": 18
+        },
+        {
+          "index": 1,
+          "width": 18
+        },
+        {
+          "index": 2,
+          "width": 18
+        },
+        {
+          "index": 3,
+          "width": 16
+        }
+      ],
+      "parameters": {
+        "TW_NS": 3000,
+        "SYSPER": 4,
+        "TW": 400
+      }
+    },
+    {
+      "index": 136,
+      "word": 4352,
+      "memory_index": 19,
+      "package": "u_a05",
+      "kind": "cell_SN74123",
+      "words": 4,
+      "width": 18,
+      "logical_state_bits": 70,
+      "fields": [
+        {
+          "name": "t1",
+          "width": 32,
+          "lsb": 0,
+          "signed": true
+        },
+        {
+          "name": "t2",
+          "width": 32,
+          "lsb": 32,
+          "signed": true
+        },
+        {
+          "name": "a1_d",
+          "width": 1,
+          "lsb": 64,
+          "signed": false
+        },
+        {
+          "name": "b1_d",
+          "width": 1,
+          "lsb": 65,
+          "signed": false
+        },
+        {
+          "name": "c1_d",
+          "width": 1,
+          "lsb": 66,
+          "signed": false
+        },
+        {
+          "name": "a2_d",
+          "width": 1,
+          "lsb": 67,
+          "signed": false
+        },
+        {
+          "name": "b2_d",
+          "width": 1,
+          "lsb": 68,
+          "signed": false
+        },
+        {
+          "name": "c2_d",
+          "width": 1,
+          "lsb": 69,
+          "signed": false
+        }
+      ],
+      "transport_words": [
+        {
+          "index": 0,
+          "width": 18
+        },
+        {
+          "index": 1,
+          "width": 18
+        },
+        {
+          "index": 2,
+          "width": 18
+        },
+        {
+          "index": 3,
+          "width": 16
+        }
+      ],
+      "parameters": {
+        "TW_NS": 3000,
+        "SYSPER": 4,
+        "TW": 400
+      }
+    },
+    {
+      "index": 137,
+      "word": 4384,
+      "memory_index": 20,
+      "package": "u_g17",
+      "kind": "cell_F9401",
+      "words": 2,
+      "width": 18,
+      "logical_state_bits": 19,
+      "fields": [
+        {
+          "name": "r",
+          "width": 16,
+          "lsb": 0
+        },
+        {
+          "name": "cp_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "d_pre",
+          "width": 1,
+          "lsb": 17
+        },
+        {
+          "name": "cwe_pre",
+          "width": 1,
+          "lsb": 18
+        }
+      ],
+      "transport_words": [
+        {
+          "index": 0,
+          "width": 18
+        },
+        {
+          "index": 1,
+          "width": 1
+        }
+      ],
+      "parameters": {
+        "PRECAP": 0
+      }
+    },
+    {
+      "index": 138,
+      "word": 4416,
+      "memory_index": 21,
+      "package": "u_j05",
+      "kind": "cell_F9401",
+      "words": 2,
+      "width": 18,
+      "logical_state_bits": 19,
+      "fields": [
+        {
+          "name": "r",
+          "width": 16,
+          "lsb": 0
+        },
+        {
+          "name": "cp_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "d_pre",
+          "width": 1,
+          "lsb": 17
+        },
+        {
+          "name": "cwe_pre",
+          "width": 1,
+          "lsb": 18
+        }
+      ],
+      "transport_words": [
+        {
+          "index": 0,
+          "width": 18
+        },
+        {
+          "index": 1,
+          "width": 1
+        }
+      ],
+      "parameters": {
+        "PRECAP": 1
+      }
+    },
+    {
+      "index": 139,
+      "word": 4448,
+      "memory_index": 22,
+      "package": "u_j20",
+      "kind": "cell_K1115A",
+      "words": 2,
+      "width": 18,
+      "logical_state_bits": 33,
+      "fields": [
+        {
+          "name": "acc",
+          "width": 32,
+          "signed": true
+        },
+        {
+          "name": "osc",
+          "width": 1
+        }
+      ],
+      "transport_words": [
+        {
+          "index": 0,
+          "lsb": 0,
+          "width": 18
+        },
+        {
+          "index": 1,
+          "lsb": 18,
+          "width": 15
+        }
+      ],
+      "parameters": {
+        "FREQ_KHZ": 23530,
+        "SYSPER": 8
+      }
+    },
+    {
+      "index": 140,
+      "word": 4480,
+      "memory_index": 23,
+      "package": "u_receive_monitor",
+      "kind": "dorado_receive_monitor",
+      "words": 2,
+      "width": 18,
+      "logical_state_bits": 34,
+      "fields": [
+        {
+          "name": "received",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "consumed",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "wire_status",
+          "width": 8,
+          "lsb": 16
+        },
+        {
+          "name": "cpu_status",
+          "width": 8,
+          "lsb": 24
+        },
+        {
+          "name": "input_d",
+          "width": 1,
+          "lsb": 32
+        },
+        {
+          "name": "write_d",
+          "width": 1,
+          "lsb": 33
+        }
+      ],
+      "transport_words": [
+        {
+          "index": 0,
+          "width": 18
+        },
+        {
+          "index": 1,
+          "width": 16
+        }
+      ]
+    }
+  ],
+  "parameters": {
+    "SYSPER": 4
+  },
+  "phase": {
+    "package_index": 141,
+    "word": 4512,
+    "width": 9,
+    "fields": [
+      {
+        "name": "Clk1",
+        "width": 1,
+        "lsb": 0
+      },
+      {
+        "name": "Clock1_p_Bb",
+        "width": 1,
+        "lsb": 1
+      },
+      {
+        "name": "Clock1_p_Bd",
+        "width": 1,
+        "lsb": 2
+      },
+      {
+        "name": "Clock1_p_Ca",
+        "width": 1,
+        "lsb": 3
+      },
+      {
+        "name": "Clock1_p_Cb",
+        "width": 1,
+        "lsb": 4
+      },
+      {
+        "name": "Clock1_p_Cc",
+        "width": 1,
+        "lsb": 5
+      },
+      {
+        "name": "Clock1_p_Da",
+        "width": 1,
+        "lsb": 6
+      },
+      {
+        "name": "Clock1_p_Db",
+        "width": 1,
+        "lsb": 7
+      },
+      {
+        "name": "Clock1_p_Dd",
+        "width": 1,
+        "lsb": 8
+      }
+    ]
+  },
+  "logical_state_bits": 2656,
+  "index_bits": 13,
+  "row_bits": 5,
+  "immutable_proms": [
+    {
+      "package": "u_a20",
+      "file": "verilog/proms/packages/DskEth-a20.mem",
+      "sha256": "75af10fa2e3eb07e2bcfee1ea7aca6ee686dfdca2b59b97c83059faf97d39aed",
+      "words": 32,
+      "width": 8
+    },
+    {
+      "package": "u_a21",
+      "file": "verilog/proms/packages/DskEth-a21.mem",
+      "sha256": "a2f364d6dccec3a274e6c5346dfcb148fd660a6c47afdbb9469e6788388fc593",
+      "words": 32,
+      "width": 8
+    },
+    {
+      "package": "u_b14",
+      "file": "verilog/proms/packages/DskEth-b14.mem",
+      "sha256": "8cf2f170f0c89827f7129a3f97b4faa85a7448874f78b1d4eb8c288f25e686e0",
+      "words": 256,
+      "width": 4
+    },
+    {
+      "package": "u_d05",
+      "file": "verilog/proms/packages/DskEth-d05.mem",
+      "sha256": "58bdddb8227ab1bd4e9b96c800c5b1a48103cbca361ae5ba89dff53cc555cc32",
+      "words": 32,
+      "width": 8
+    },
+    {
+      "package": "u_d21",
+      "file": "verilog/proms/packages/DskEth-d21.mem",
+      "sha256": "467ceef97c456d061bd9131198d0b5562ca83ae469ace1307d8a79cc7c7c7ba1",
+      "words": 256,
+      "width": 4
+    },
+    {
+      "package": "u_h09",
+      "file": "verilog/proms/packages/DskEth-h09.mem",
+      "sha256": "cded4bda41485e092bf9c7ddb6c69abb479dbaae2eea007f2140eba4e7a78898",
+      "words": 256,
+      "width": 4
+    },
+    {
+      "package": "u_h10",
+      "file": "verilog/proms/packages/DskEth-h10.mem",
+      "sha256": "ddcaa5f5605cb71190e00707b07e2e95c399e684e5ca34e3b71eba4e4b69bd30",
+      "words": 256,
+      "width": 4
+    },
+    {
+      "package": "u_h11",
+      "file": "verilog/proms/packages/DskEth-h11.mem",
+      "sha256": "1e9eb132b0a77c890f8fbf5b4e9a373926c2a10742a9526f6501a1181ebe17ba",
+      "words": 256,
+      "width": 4
+    },
+    {
+      "package": "u_h14",
+      "file": "verilog/proms/packages/DskEth-h14.mem",
+      "sha256": "db8698c539cf0deeb5000ccd9f99e933927baa3b4e494be502c0047ef21fb390",
+      "words": 256,
+      "width": 4
+    },
+    {
+      "package": "u_h15",
+      "file": "verilog/proms/packages/DskEth-h15.mem",
+      "sha256": "7756a8ad3065078c523b452b1daf07c754303a00e55964d80fe101751bcb922e",
+      "words": 256,
+      "width": 4
+    },
+    {
+      "package": "u_h16",
+      "file": "verilog/proms/packages/DskEth-h16.mem",
+      "sha256": "a3fa91d53574edac6387ae8aac9c281640f43f07e43e998822a1d1abf661121d",
+      "words": 256,
+      "width": 4
+    },
+    {
+      "package": "u_h22",
+      "file": "verilog/proms/packages/DskEth-h22.mem",
+      "sha256": "f6a3cf5059882919c6ff29da207cf42534eea646d41b5550c15d9e9500a60962",
+      "words": 256,
+      "width": 4
+    },
+    {
+      "package": "u_l10",
+      "file": "verilog/proms/packages/DskEth-l10.mem",
+      "sha256": "82cfb1141fb5549f22811a65615bf3afb4c30c66a2299c79f7972032b42d5908",
+      "words": 256,
+      "width": 4
+    },
+    {
+      "package": "u_l15",
+      "file": "verilog/proms/packages/DskEth-l15.mem",
+      "sha256": "aa633214d8718043294a237a3695696a501eebaaaf3f30818ae471409a780d6e",
+      "words": 256,
+      "width": 4
+    }
+  ],
+  "ff_bits": 1070,
+  "ram_bits": 1152,
+  "original_sources": {
+    "verilog/cells/cell_F10000.v": "ce17c47889977a87a28de0aa59ca917bd778984a4e5b08f21021a2ccd8801ee6",
+    "verilog/cells/cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+    "verilog/cells/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "verilog/cells/cell_F9401.v": "5ce6f28490c85eaf51dfe2757d6df84773f8cfc6c8901265c3fd2ac467b7b17d",
+    "verilog/cells/cell_K1115A.v": "7f187187b8b39d9ffa3070596bdeca43c84489f8f7b4b6c24245603aa6fcfe32",
+    "verilog/cells/cell_LM339.v": "8be0de6b37bf1abee8b132f8d7c7659682e418877235f1cc8d12e54021e1d2eb",
+    "verilog/cells/cell_LM3911_20K.v": "7bac5b0e7235f7840a51a6ab47321745bceda31c5216652cb4550eae83d32ecc",
+    "verilog/cells/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+    "verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+    "verilog/cells/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+    "verilog/cells/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+    "verilog/cells/cell_MC10113.v": "3ad34b4dc8d3026412b4d300ce28f3a214fa42d3d6e1c1cc1afead9e601dec0b",
+    "verilog/cells/cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "verilog/cells/cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "verilog/cells/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+    "verilog/cells/cell_MC10136.v": "b4314b6a838492c95fd72423e92a883e8ea92c660c55fdc1f266b034b68e8017",
+    "verilog/cells/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "verilog/cells/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+    "verilog/cells/cell_MC10161.v": "816c7d2eb044c210d256c32ce1f4215a988e312d02df81b527d6ba001795788b",
+    "verilog/cells/cell_MC10166.v": "06689bff01caf3912d44a430ea7f9b85b76225edba4e6f08672a65ab87e167f8",
+    "verilog/cells/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+    "verilog/cells/cell_MC10171.v": "cf6cea0c9e776032c109a46f8eb6e9a6f3b88bdf941a121e3b0bd3b31abed7d1",
+    "verilog/cells/cell_MC10173.v": "e5a5b884cc2aa3cc7dd3a547bb5722f1528f9a1e907a789545f85a3cf5eae530",
+    "verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "verilog/cells/cell_MC10175.v": "81ce9ab49d5a9788c1f93dd67704a27a7e0848243a7d10c9aec2d48deec1c0f1",
+    "verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+    "verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "verilog/cells/cell_MC1650.v": "8650f11b09555a812e510469d01576cb8af8c23c31e412e64d7f2059f7cde799",
+    "verilog/cells/cell_MC1664.v": "ce9217e73068f27571aa032ddfb2a80393fb340a9648be1618c3af5d5e6be8a6",
+    "verilog/cells/cell_MCM10149.v": "97dfe328872520b43fcfb990065a04a29d51574b89b9999be2e298dfc4cb1cde",
+    "verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+    "verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "verilog/cells/cell_SE10211.v": "4f7c8607bdaad0f3fa7b0a49c679c004817b3032c3d37b20cb0a46f3ab1cb11d",
+    "verilog/cells/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+    "verilog/cells/cell_SE10231.v": "b22f08f8f6e79eafbac3d1446e6593d10482033b2b3b2edfc29f207e62e5872c",
+    "verilog/cells/cell_SG10139.v": "bcf5d25bac812a4143cb6e7fc893ab746837711d7038d3b4a496e7f228b9189d",
+    "verilog/cells/cell_SN74123.v": "df8a9267e3af37fb8de2f4c3f5d83d73ba4315dd58bcad87d3c1c319b8ec880b",
+    "verilog/cells/cell_SN74125.v": "197e5c7d9dceed69450ad94d564c4dbb9a78aeb5f0c71fa23d320f0f3e7928bc",
+    "verilog/cells/cell_SN7438.v": "1896f689e835a5bfbb7a6481ae2eb307319ae696009cfdadad932536b783ffee",
+    "verilog/cells/cell_SN74LS08.v": "66e2eac156a19b11c7ad7713da3f43e20d34c979178b635d7607c9732c2b4a56",
+    "verilog/cells/cell_SN74LS153.v": "c054d0449951d004abf8d722f79cd00f1e1f0899acae4ba283d5b5e541b10d9a",
+    "verilog/cells/cell_SN74LS155.v": "77840aec4d423d04c6252b08f522d5496753b75cde8f6976dc7108a3fc6b580c",
+    "verilog/cells/cell_SN74LS169.v": "abc49703a29ef790c4bf503c329204e20868c000d88ae3d8ee3ae1d1b7cf801b",
+    "verilog/cells/cell_SN74LS174.v": "05a45e9f4788af98180a92f3ef5987f54a5e1c495fc9c006f5e61b5761d14b59",
+    "verilog/cells/cell_SN74S01.v": "061271143b58aff4fa12d7b7b8ed4071aae4e2e3eb47fdab06f46fbed199a811",
+    "verilog/cells/cell_SN74S288.v": "df8878b8ce90f8714b969f15cf037536bd5c91861a6e16552e62962823cd6406",
+    "verilog/cells/cell_p_8T98.v": "583f8d99efc4ffec70fbe0a2a9f46b0820bd7fe4fbb4b03d2dd9aebe1501141b",
+    "fpga/mister/dorado_receive_monitor.sv": "6f3e1b083016c1a5ea6cc1f33ac99ec1194a48a6b87714504d547c61b1620b46"
+  },
+  "cloned_sources": {
+    "cell_SN74LS169_snapshot.sv": "20ca2ee252d5f61f3f73243450255998736678922fe68a1e0b0243c87896b16d",
+    "cell_SN74LS174_snapshot.sv": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3",
+    "cell_F10016_snapshot.v": "6e4a8a7a9693da4d75ce9b8f935687e0df187a257659792e252f1ba37d3190c4",
+    "cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e",
+    "cell_MC10231_snapshot.v": "17bf1e9fd267e3b0325c7c4794d6818eef2f50bd1cf27c7f536b0cbda26048e2",
+    "cell_MC1650_snapshot.sv": "d6caa1c14efcd1f34d2a0935904235beed606d679e7534e20070e219ed4fe567",
+    "cell_MC10135_snapshot.v": "b46aec0a301d13133994a844321cdb352bc01a200dd898002e9641000ac0a389",
+    "cell_MC10136_snapshot.sv": "ff9d6691af62ffeead8320fbfe8da3c3a2b349166b6c1939086bf8b42ead62c6",
+    "cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+    "cell_MC10175_snapshot.v": "cdf7e1124e7ef3cf8d8deeda514957e4bdc6fd4d1f55854bdc671e3b62db2280",
+    "cell_F10000_snapshot.v": "e4731ecd911d3789f6af5b621f4c1909844c565782717776cd245ccad3560df5",
+    "cell_MC10141_snapshot.v": "2ce357063c805920ce1f4583f4d3d22e9fe32a01fbd3782b9ab06c6c85502df0",
+    "cell_SE10231_snapshot.v": "607df39d45682c2e09ec2c72c3adffe752272f3901bbb727a8ad51004ff6950a",
+    "cell_F10145A_snapshot.sv": "8f576a3ae22f32fa8f6c4ca200c365200d1d1923bbc09595d2335cc6f9fae7fc",
+    "cell_SN74123_snapshot.sv": "c5c77398edce445cfe88c392200ff7f7c0e9f9e090861297aa6d4a3c165de0be",
+    "cell_F9401_snapshot.sv": "e2b51e76b8db2aa35266adee73dd83a57e28d6fd05c9ed43951ae8c4a29b9027",
+    "cell_K1115A_snapshot.sv": "5ed342ecfb0535656f450edbb2233e5df7b384c53c4abf244b326cb42591f439",
+    "dorado_receive_monitor_snapshot.sv": "98094794fe8db887978bfd0028dadd1e538fde53dc6faa58a5d6ccfbb5cbc523"
+  },
+  "generated_sha256": "fd0df9c6006b9152f7101c6210ba8223b297102201ec6222e7603b7d17f2c1ca",
+  "comment_only_source_deltas": [
+    {
+      "file": "verilog/cells/cell_MC10170.v",
+      "compiled_sha256": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+      "current_sha256": "90dc10079db3d5611562f4454534221971d98606de64ac33a0e9cc335478d910",
+      "review": "Comment-only, exact Verilog token stream unchanged; compiled original is retained."
+    }
+  ],
+  "scope": "Complete modeled actual native DskEth board state, including passive monitor.\n\nPreserves actual SYSPER4 binding, CRC PRECAP0/1, SN74123 TW400 and oscillator\n23530/SYSPER8. Caller holds all consumers; no global barrier/timer correction.\n",
+  "shared_f10145_experiment": {
+    "reference_cell_sha256": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+    "replacement_cell_sha256": "8f576a3ae22f32fa8f6c4ca200c365200d1d1923bbc09595d2335cc6f9fae7fc",
+    "board_source_unchanged": true,
+    "comment_only_original_source_deltas": [],
+    "scope": "Run unchanged full-board restore fixtures with only the F10145 write fold.\n\nEight affected boards retain byte-identical generated wiring and other helpers.\nOriginal cells come from the frozen Native59 source receipt. This is positive\nboard integration qualification, not another run of each older broken-board\nsuite, global snapshot coherence, whole-core timing or a hardware boot.\n"
+  }
+}
