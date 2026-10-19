@@ -1,0 +1,435 @@
+{
+  "events": [
+    {
+      "phase": "waiting",
+      "ns": 8487236968828,
+      "result": 0,
+      "error": 0,
+      "duration_ns": 0
+    },
+    {
+      "phase": "begin",
+      "ns": 8489411081881,
+      "result": 0,
+      "error": 0,
+      "duration_ns": 0
+    },
+    {
+      "phase": "end",
+      "ns": 8493611215385,
+      "result": 0,
+      "error": 0,
+      "duration_ns": 4200138344
+    }
+  ],
+  "main": [
+    {
+      "interval_begin_ns": 8490384197445,
+      "observed_ns": 8490395193326,
+      "text": "Dorado net: flags=c tx_words=14 good=2378 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=f79aada1 state=472a cpu=a70f2123\n"
+    },
+    {
+      "interval_begin_ns": 8491392133302,
+      "observed_ns": 8491403194924,
+      "text": "Dorado net: flags=c tx_words=16 good=2379 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=f7ad408a state=472a cpu=aa0a131b\n"
+    },
+    {
+      "interval_begin_ns": 8492382376708,
+      "observed_ns": 8492394339563,
+      "text": "Dorado net: flags=c tx_words=16 good=2379 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=f7c29258 state=47ea cpu=ad04fc6f\n"
+    },
+    {
+      "interval_begin_ns": 8493385159901,
+      "observed_ns": 8493396196103,
+      "text": "Dorado net: flags=c tx_words=16 good=2379 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=f7d9d6a2 state=47ef cpu=afffece8\n"
+    },
+    {
+      "interval_begin_ns": 8494381956064,
+      "observed_ns": 8494393496673,
+      "text": "Dorado net: flags=c tx_words=16 good=2379 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=f7eefce6 state=472f cpu=b2fadea0\n"
+    },
+    {
+      "interval_begin_ns": 8495392965757,
+      "observed_ns": 8495404202342,
+      "text": "Dorado net: flags=c tx_words=16 good=2379 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=f801c35e state=472a cpu=b5f5d147\n"
+    }
+  ],
+  "wire": [
+    {
+      "interval_begin_ns": 8489547245315,
+      "observed_ns": 8489558296837,
+      "text": "TX n=14:"
+    },
+    {
+      "interval_begin_ns": 8489558296837,
+      "observed_ns": 8489569470451,
+      "text": " 000442 001000"
+    },
+    {
+      "interval_begin_ns": 8489569470451,
+      "observed_ns": 8489580638965,
+      "text": " 000027"
+    },
+    {
+      "interval_begin_ns": 8489580638965,
+      "observed_ns": 8489591808708,
+      "text": " 000023 000022"
+    },
+    {
+      "interval_begin_ns": 8489591808708,
+      "observed_ns": 8489602965702,
+      "text": " 103361"
+    },
+    {
+      "interval_begin_ns": 8489602965702,
+      "observed_ns": 8489614216347,
+      "text": " 000401 000000"
+    },
+    {
+      "interval_begin_ns": 8489614216347,
+      "observed_ns": 8489625289919,
+      "text": " 000003"
+    },
+    {
+      "interval_begin_ns": 8489625289919,
+      "observed_ns": 8489636761407,
+      "text": " 000442 000022"
+    },
+    {
+      "interval_begin_ns": 8489636761407,
+      "observed_ns": 8489648162554,
+      "text": " 102034"
+    },
+    {
+      "interval_begin_ns": 8489648162554,
+      "observed_ns": 8489659311537,
+      "text": " 001450"
+    },
+    {
+      "interval_begin_ns": 8489659311537,
+      "observed_ns": 8489670474521,
+      "text": " 141732\n"
+    },
+    {
+      "interval_begin_ns": 8489670474521,
+      "observed_ns": 8489681634355,
+      "text": "[bootdir] TX other type=0o23"
+    },
+    {
+      "interval_begin_ns": 8489681634355,
+      "observed_ns": 8489692795558,
+      "text": "\nFTP_IN type=0o23 id=001286f1 len=23 rx_next=001286f1 tx_next=0015c63b wait=0 mode=0\n"
+    },
+    {
+      "interval_begin_ns": 8489692795558,
+      "observed_ns": 8489703995942,
+      "text": "FTP_MARK id=001286f1 mark=0o3 phase=1 rx_next=001286f2\n"
+    },
+    {
+      "interval_begin_ns": 8489703995942,
+      "observed_ns": 8489715743414,
+      "text": "TX n=19:"
+    },
+    {
+      "interval_begin_ns": 8489715743414,
+      "observed_ns": 8489726907588,
+      "text": " 000442 001000"
+    },
+    {
+      "interval_begin_ns": 8489726907588,
+      "observed_ns": 8489738098372,
+      "text": " 000042"
+    },
+    {
+      "interval_begin_ns": 8489738098372,
+      "observed_ns": 8489749218795,
+      "text": " 000020"
+    },
+    {
+      "interval_begin_ns": 8489749218795,
+      "observed_ns": 8489760304397,
+      "text": " 000022 103362"
+    },
+    {
+      "interval_begin_ns": 8489760304397,
+      "observed_ns": 8489771493711,
+      "text": " 000401"
+    },
+    {
+      "interval_begin_ns": 8489771493711,
+      "observed_ns": 8489783161292,
+      "text": " 000000 000003"
+    },
+    {
+      "interval_begin_ns": 8489783161292,
+      "observed_ns": 8489794267525,
+      "text": " 000442"
+    },
+    {
+      "interval_begin_ns": 8489794267525,
+      "observed_ns": 8489805430398,
+      "text": " 000022 102034"
+    },
+    {
+      "interval_begin_ns": 8489805430398,
+      "observed_ns": 8489816573092,
+      "text": " 000131"
+    },
+    {
+      "interval_begin_ns": 8489816573092,
+      "observed_ns": 8489827709435,
+      "text": " 062563 026040"
+    },
+    {
+      "interval_begin_ns": 8489827709435,
+      "observed_ns": 8489838860079,
+      "text": " 070154"
+    },
+    {
+      "interval_begin_ns": 8489838860079,
+      "observed_ns": 8489850043362,
+      "text": " 062541"
+    },
+    {
+      "interval_begin_ns": 8489850043362,
+      "observed_ns": 8489861183356,
+      "text": " 071545 153704"
+    },
+    {
+      "interval_begin_ns": 8489861183356,
+      "observed_ns": 8489872278629,
+      "text": "\n"
+    },
+    {
+      "interval_begin_ns": 8489883397002,
+      "observed_ns": 8489894510545,
+      "text": "[bootdir] TX other type=0o20"
+    },
+    {
+      "interval_begin_ns": 8489894510545,
+      "observed_ns": 8489905631518,
+      "text": "\n"
+    },
+    {
+      "interval_begin_ns": 8489905631518,
+      "observed_ns": 8489916786811,
+      "text": "FTP_IN type=0o20 id=001286f2 len=34 rx_next=001286f2 tx_next=0015c63b wait=0 mode=0\n"
+    },
+    {
+      "interval_begin_ns": 8489916786811,
+      "observed_ns": 8489927967015,
+      "text": "TX n=14:"
+    },
+    {
+      "interval_begin_ns": 8489927967015,
+      "observed_ns": 8489939141139,
+      "text": " 000442"
+    },
+    {
+      "interval_begin_ns": 8489939141139,
+      "observed_ns": 8489950247072,
+      "text": " 001000"
+    },
+    {
+      "interval_begin_ns": 8489950247072,
+      "observed_ns": 8489961310184,
+      "text": " 000027"
+    },
+    {
+      "interval_begin_ns": 8489961310184,
+      "observed_ns": 8489972475448,
+      "text": " 000023"
+    },
+    {
+      "interval_begin_ns": 8489972475448,
+      "observed_ns": 8489983606781,
+      "text": " 000022"
+    },
+    {
+      "interval_begin_ns": 8489983606781,
+      "observed_ns": 8489994806865,
+      "text": " 103376"
+    },
+    {
+      "interval_begin_ns": 8489994806865,
+      "observed_ns": 8490005969839,
+      "text": " 000401"
+    },
+    {
+      "interval_begin_ns": 8490005969839,
+      "observed_ns": 8490017159573,
+      "text": " 000000 000003"
+    },
+    {
+      "interval_begin_ns": 8490017159573,
+      "observed_ns": 8490028265985,
+      "text": " 000442"
+    },
+    {
+      "interval_begin_ns": 8490028265985,
+      "observed_ns": 8490039457799,
+      "text": " 000022 102034"
+    },
+    {
+      "interval_begin_ns": 8490039457799,
+      "observed_ns": 8490050616503,
+      "text": " 003050"
+    },
+    {
+      "interval_begin_ns": 8490050616503,
+      "observed_ns": 8490061746066,
+      "text": " 153332"
+    },
+    {
+      "interval_begin_ns": 8490061746066,
+      "observed_ns": 8490072905090,
+      "text": "\n"
+    },
+    {
+      "interval_begin_ns": 8490072905090,
+      "observed_ns": 8490084585051,
+      "text": "[bootdir] TX other type=0o23\n"
+    },
+    {
+      "interval_begin_ns": 8490084585051,
+      "observed_ns": 8490095735084,
+      "text": "FTP_IN type=0o23 id=001286fe len=23 rx_next=001286fe tx_next=0015c63b wait=0 mode=0\nFTP_MARK id=001286fe mark=0o6 phase=1 rx_next=001286ff\n"
+    },
+    {
+      "interval_begin_ns": 8490095735084,
+      "observed_ns": 8490106893298,
+      "text": "FTP_CMD mark=0o3 len=27 phase=1\n"
+    },
+    {
+      "interval_begin_ns": 8490106893298,
+      "observed_ns": 8490118111252,
+      "text": "STP_TRANSFER CedarChest6.1/Top/SilAlt.df (1006 bytes)\nFTP_QUEUE type=0o23 id=0015c63b bytes=1 d=000442/22/102034 s=000401/0/3 rx_words=16\n"
+    },
+    {
+      "interval_begin_ns": 8490129198825,
+      "observed_ns": 8490140335958,
+      "text": "FTP_WINDOW mark=0o5 ack=0 mode=3 in_flight=1/15\n"
+    },
+    {
+      "interval_begin_ns": 8490140335958,
+      "observed_ns": 8490151532832,
+      "text": "FTP_QUEUE type=0o20 id=0015c63c bytes=1006 d=000442/22/102034 s=000401/0/3 rx_words=518\nFTP_WINDOW data=1006 ack=0 mode=3 in_flight=2/15\n"
+    },
+    {
+      "interval_begin_ns": 8490151532832,
+      "observed_ns": 8490162696646,
+      "text": "FTP_QUEUE type=0o23 id=0015ca2a bytes=1 d=000442/22/102034 s=000401/0/3 rx_words=16\n"
+    },
+    {
+      "interval_begin_ns": 8490162696646,
+      "observed_ns": 8490173863019,
+      "text": "FTP_WINDOW mark=0o3 ack=0 mode=4 in_flight=3/15\n"
+    },
+    {
+      "interval_begin_ns": 8490173863019,
+      "observed_ns": 8490185059103,
+      "text": "FTP_QUEUE type=0o20 id=0015ca2b bytes=18 d=000442/22/102034 s=000401/0/3 rx_words=24\nFTP_WINDOW data=18 ack=0 mode=4 in_flight=4/15\n"
+    },
+    {
+      "interval_begin_ns": 8490185059103,
+      "observed_ns": 8490196221157,
+      "text": "FTP_QUEUE type=0o23 id=0015ca3d bytes=1 d=000442/22/102034 s=000401/0/3 rx_words=16\n"
+    },
+    {
+      "interval_begin_ns": 8490196221157,
+      "observed_ns": 8490207318070,
+      "text": "FTP_WINDOW mark=0o6 ack=0 mode=0 in_flight=5/15\n"
+    },
+    {
+      "interval_begin_ns": 8490704546405,
+      "observed_ns": 8490715807570,
+      "text": "FTP_QUEUE type=0o21 id=0015ca3e bytes=0 d=000442/22/102034 s=000401/0/3 rx_words=15\nSTP_PROBE slot=7 id=0015ca3e ack=0015c63b\n"
+    },
+    {
+      "interval_begin_ns": 8490727188027,
+      "observed_ns": 8490738317950,
+      "text": "TX n=16:"
+    },
+    {
+      "interval_begin_ns": 8490738317950,
+      "observed_ns": 8490749506114,
+      "text": " 000442"
+    },
+    {
+      "interval_begin_ns": 8490749506114,
+      "observed_ns": 8490760664968,
+      "text": " 001000 000034"
+    },
+    {
+      "interval_begin_ns": 8490760664968,
+      "observed_ns": 8490771820631,
+      "text": " 000022"
+    },
+    {
+      "interval_begin_ns": 8490771820631,
+      "observed_ns": 8490782976355,
+      "text": " 000025"
+    },
+    {
+      "interval_begin_ns": 8490782976355,
+      "observed_ns": 8490794169879,
+      "text": " 145076 000401"
+    },
+    {
+      "interval_begin_ns": 8490794169879,
+      "observed_ns": 8490805283572,
+      "text": " 000000"
+    },
+    {
+      "interval_begin_ns": 8490805283572,
+      "observed_ns": 8490816442796,
+      "text": " 000003 000442"
+    },
+    {
+      "interval_begin_ns": 8490816442796,
+      "observed_ns": 8490827603519,
+      "text": " 000022"
+    },
+    {
+      "interval_begin_ns": 8490827603519,
+      "observed_ns": 8490838743683,
+      "text": " 102034"
+    },
+    {
+      "interval_begin_ns": 8490838743683,
+      "observed_ns": 8490849928977,
+      "text": " 002706"
+    },
+    {
+      "interval_begin_ns": 8490849928977,
+      "observed_ns": 8490861117591,
+      "text": " 000040 076400"
+    },
+    {
+      "interval_begin_ns": 8490861117591,
+      "observed_ns": 8490872241464,
+      "text": " 175751"
+    },
+    {
+      "interval_begin_ns": 8490872241464,
+      "observed_ns": 8490883390277,
+      "text": "\n[bootdir] TX other type=0o22"
+    },
+    {
+      "interval_begin_ns": 8490883390277,
+      "observed_ns": 8490894577451,
+      "text": "\n"
+    },
+    {
+      "interval_begin_ns": 8490894577451,
+      "observed_ns": 8490905780525,
+      "text": "FTP_IN type=0o22 id=0015ca3e len=28 rx_next=001286ff tx_next=0015ca3e wait=0 mode=0\n"
+    },
+    {
+      "interval_begin_ns": 8490905780525,
+      "observed_ns": 8490916915309,
+      "text": "FTP_ACK ack=0015ca3e alloc=32*1478 bytes\n"
+    }
+  ],
+  "finished_ns": 8495617406991
+}

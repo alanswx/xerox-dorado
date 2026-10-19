@@ -22,7 +22,7 @@ Native34 is the earlier desktop/input reference; Native35 provides
 the earlier diagnostic baseline. SDRAM41c now passes original-firmware
 Viewers/input and41d cold marker readback. Direct-DDR network47 passes real
 startup/login, loader traffic and packet progress during delayed Main worker
-work; full Viewers/input and active STOP/reload remain pending. External IFS/ContrAlto tunnelling is
+work; full47/48 Viewers/input and active STOP/reload now pass. External IFS/ContrAlto tunnelling is
 optional follow-up,
 not a prerequisite for the performance goal.
 
@@ -41,22 +41,22 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-Current hardware update01:30UTC19Oct: retired47 passes original Viewers/input;
-actual active-DDR STOP/unmap/normal reload/new epoch also pass. Clean47b
-idle averages1,595,628.966 issues/s. Live48 changes only raw response-boundary
-selection with identical Main/server/DDR transport; all-device timing31/36/
-four conditions passes, min+0.102ns. Original-firmware login averages
-1,694,447.318 issues/s (+6.1931%,10.16668% nominal), ONE boot per configuration
-with three adjacent windows, not repeated qualification. Its complete base
-loader34-transfer chain takes373.0718..373.3220s by bounded protocol-log
-visibility and exact final guest ACK; no timed control for a loader gain.
-All Load ok lines/profile prompt are visible; No entered, BootEssentials/
-styles advancing. Source hashes match all34 served files after timing;
-physical payload byte hashes and full Viewers/input remain open.49 physical
-interleaving timing passes min+0.115ns, not deployed;50 deferred reads is
-building.41d closed marker persistence and42 matched DDR control remain
-preserved. Evidence: native47b-login/native48-field/arbitration/native49-
-interleave. Later candidate diaries are historical.
+Current hardware update02:40UTC19Oct:47/48 original Viewers/input pass;
+active-DDR STOP/unmap/normal reload/new epoch pass. Clean47b idle averages
+1,595,628.966 issues/s.48 response-boundary arbitration averages1,694,447.318
+(+6.1931%,10.16668% nominal), ONE boot per configuration/three adjacent windows,
+not repeated qualification. Its full33BCD+list base loader takes373.0718..
+373.3220s by bounded log visibility and exact final guest ACK; no timed control.
+Actual48 delayed-worker input now passes: Return completes a pretyped Echo,
+mouse moves,8 read/28 write ACKs, no>20ms poll gap, inside-window reviewed
+capture. A fresh Main is required after the resident qualification DSO.
+49 interleaving timing passes min+0.115ns; normal load completed02:41UTC,
+fresh Main6414/server6413/DDR epoch5cea2e754bd0665f, original firmware starting.
+50 deferred reads timing31/36/four conditions passes min+0.035ns,81%ALMs;
+not deployed/speed-qualified. Source hashes match all34 served files;
+independent physical bytes, repeated comparisons and sustained final gates
+remain open. Evidence: native48-field/native48-worker-input/native49-interleave/
+native50-deferred. Complete snapshot4a and60ns clock migration remain required.
 
 Use three explicitly recorded workloads: idle Cedar login, a fixed cold
 loader sequence through all 34 base packages, and a desktop script with
@@ -86,16 +86,13 @@ correctness blocker remains open; it is not replaced by a PLL-only speed
 claim. Original guest-visible CPU/cache/map/ECC behavior is preserved, with
 no imported C machine state or host completion of guest instructions/IOCBs.
 
-The47 normal guest Boot/active-DDR STOP/unmap/full fresh reload and different
-epoch grant now pass (native47-active-reload). Clean47b mean1,595,628.966
-issues/s; matched48 timing31/36/four conditions passes, min+0.102ns. Real48
-login averages1,694,447.318 (+6.1931%),10.16668% nominal, one fresh boot per
-configuration/three adjacent windows, not repeated qualification. Original
-Guest accepted, base loader advancing with timestamp observer. Full desktop
-and loader timing remain open.49 interleaving is building with the same DDR
-network. Continue controlled memory comparisons; no clock-speed claim.
-Complete snapshot4a is required;
-its isolated RAM access prototype now passes; actual board access is next.
+47 normal guest Boot/active-DDR STOP/unmap/full fresh reload and different
+epoch grant pass.48 full Viewers/input and actual delayed-worker completed
+input pass; its idle and loader measurements are preliminary as above.
+Continue matched49 then50 memory comparisons and remaining DDR transport
+qualification. Complete snapshot4a is required; isolated RAM access passes,
+actual board access/classification is next. The clock migration remains
+unfinished; no higher-PLL or full-speed claim.
 Native41b's failed pack remains preserved;41d closes the separate clean
 cold-remount persistence case. Only
 MiSTer14 is allocated. Use misterubuntu for Quartus and the Mac for Verilator.

@@ -1,0 +1,16 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native49_20261019",
+  "group_source": "/home/alans/mister/Dorado_Native45_20261018/src/fpga/mister/dorado_storage_group.sv",
+  "change": "Only frozen Native45 deferred unobserved DRAM reads on Native49. Preserve previous-column/read-before-write state, original CPU/cache/map/ECC, write cadence, SDRAM layout, raw arbitration, physical DDR network and all clocks/constraints.",
+  "source_changes": [
+    "fpga/mister/dorado_storage_group.sv",
+    "build/rtl-executive/native16-tx-cable/manifest.json",
+    "build/rtl-executive/native16-tx-cable/msa_ddram.v"
+  ],
+  "source_hashes": {
+    "fpga/mister/dorado_storage_group.sv": "4cc548cf769757956c61c8075a50c3ba341f73cbfcbedd4f4de8c2ed40e0b334",
+    "build/rtl-executive/native16-tx-cable/manifest.json": "1b44ac30b69180cbef562895ce93318fea56b95c848a4f25613a1603e5e9968e",
+    "build/rtl-executive/native16-tx-cable/msa_ddram.v": "d4edd773105fcb069e0df4fe0287c33fdb86619886db0e3babf2c13e8448690b"
+  },
+  "extra_timing_exceptions": "None"
+}

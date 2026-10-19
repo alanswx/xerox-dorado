@@ -1,0 +1,9 @@
+{
+  "capture_number": 1,
+  "capture_sha256": "b3a8f7c0b72f12a5b50fa32f6490649a8ebead9bf8cb36a53b9f4b04a9cd5bbc",
+  "pretyped_sha256": "9c85be49d9da727636a477a08caf852bdcb431325a2a1f2e0a99515f4686ef1b",
+  "separate_command_output_and_new_prompt": true,
+  "changed_pointer_observed": true,
+  "review": "Direct image inspection: before contains an unsubmitted echo worker48 line; capture1 contains separate worker48 output and a following new % prompt. Pointer moved lower/right by the injected40,20. Capture2 completed after worker end and is excluded.",
+  "capture_upper_bound_before_worker_end_ns": 657472337
+}

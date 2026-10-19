@@ -1,0 +1,23 @@
+{
+  "time_utc": "2026-10-19 02:41:13 UTC",
+  "old_main": 3781,
+  "old_server": 3780,
+  "staging_main": 6399,
+  "main_pid": 6414,
+  "server_pid": 6413,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "server_sha256": "c59962490772f12d061ec61aa64e6a567144d26d7802a28349a8d9a044eda87e",
+  "rbf_sha256": "6e7866f3d6125e5926c05fa9c4a4a000e1a4aef72b61766ccfe8b2676eecad0d",
+  "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "main_log": "/tmp/dorado49-main.log",
+  "disk_trace": "/tmp/dorado49-disk.jsonl",
+  "preserved_old_volume": {
+    "path": "/media/fat/games/DoradoRTL/Cedar48_20261019/cedar-work.pack",
+    "bytes": 63578624,
+    "sha256": "f4548e6c53382aeb37e28e458a8c43dfc9dc77592f2208b63059733f2ffb2855",
+    "guest_boot": "Normal guest Boot returned to Basic loader/profile after desktop/input qualification",
+    "host_boundary": "Actual normal Main loader active-DDR and disk barriers, followed by normal temporary Main exit",
+    "fpga_snapshot": false
+  },
+  "phase": "Full Native49 load completed; cache-ready and fresh DDR grant required"
+}

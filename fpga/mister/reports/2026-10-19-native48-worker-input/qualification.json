@@ -1,0 +1,85 @@
+{
+  "status": "PASS: actual Main delayed worker, completed pretyped Echo via in-window Return, mouse motion, disk ACKs and instruction/poll progress",
+  "begin_ns": 8489411081881,
+  "end_ns": 8493611215385,
+  "duration_ns": 4200138344,
+  "delta_inner_issues": 4139265,
+  "main_samples": [
+    {
+      "earliest_ns": 8490384197445,
+      "latest_ns": 8490395193326,
+      "text": "Dorado net: flags=c tx_words=14 good=2378 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=f79aada1 state=472a cpu=a70f2123",
+      "issued": 4154109345,
+      "host": 2802786595,
+      "good": 2378,
+      "dropped": 15
+    },
+    {
+      "earliest_ns": 8491392133302,
+      "latest_ns": 8491403194924,
+      "text": "Dorado net: flags=c tx_words=16 good=2379 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=f7ad408a state=472a cpu=aa0a131b",
+      "issued": 4155326602,
+      "host": 2852786971,
+      "good": 2379,
+      "dropped": 15
+    },
+    {
+      "earliest_ns": 8492382376708,
+      "latest_ns": 8492394339563,
+      "text": "Dorado net: flags=c tx_words=16 good=2379 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=f7c29258 state=47ea cpu=ad04fc6f",
+      "issued": 4156723800,
+      "host": 2902785135,
+      "good": 2379,
+      "dropped": 15
+    },
+    {
+      "earliest_ns": 8493385159901,
+      "latest_ns": 8493396196103,
+      "text": "Dorado net: flags=c tx_words=16 good=2379 crc_bad=0 dropped=15 rx_bad=0 aborted=0 machine=f7d9d6a2 state=47ef cpu=afffece8",
+      "issued": 4158248610,
+      "host": 2952785128,
+      "good": 2379,
+      "dropped": 15
+    }
+  ],
+  "overlapping_poll_gaps": [],
+  "disk_events": {
+    "poll": 5,
+    "write_request": 28,
+    "write_ack": 28,
+    "read_request": 8,
+    "read_ack": 8
+  },
+  "captures": [
+    {
+      "number": 1,
+      "ns": 8492953743048,
+      "ended": false,
+      "inside": true,
+      "sha256": "b3a8f7c0b72f12a5b50fa32f6490649a8ebead9bf8cb36a53b9f4b04a9cd5bbc"
+    },
+    {
+      "number": 2,
+      "ns": 8494550712680,
+      "ended": true,
+      "inside": false,
+      "sha256": "b3a8f7c0b72f12a5b50fa32f6490649a8ebead9bf8cb36a53b9f4b04a9cd5bbc"
+    }
+  ],
+  "limitations": [
+    "Echo was fully typed before the interval; only Return and mouse move injected during it",
+    "Inspect an inside-window image for a separate new worker48 output line AND following prompt and changed pointer before claiming input success",
+    "Delayed worker flush work then actual fsync, not a 4.2s kernel syscall",
+    "No claim of disk ACKs or network progress unless recorded in this specific interval",
+    "DSO remains resident until Main exits; future clean performance comparison needs a fresh Main"
+  ],
+  "visual_review": {
+    "capture_number": 1,
+    "capture_sha256": "b3a8f7c0b72f12a5b50fa32f6490649a8ebead9bf8cb36a53b9f4b04a9cd5bbc",
+    "pretyped_sha256": "9c85be49d9da727636a477a08caf852bdcb431325a2a1f2e0a99515f4686ef1b",
+    "separate_command_output_and_new_prompt": true,
+    "changed_pointer_observed": true,
+    "review": "Direct image inspection: before contains an unsubmitted echo worker48 line; capture1 contains separate worker48 output and a following new % prompt. Pointer moved lower/right by the injected40,20. Capture2 completed after worker end and is excluded.",
+    "capture_upper_bound_before_worker_end_ns": 657472337
+  }
+}

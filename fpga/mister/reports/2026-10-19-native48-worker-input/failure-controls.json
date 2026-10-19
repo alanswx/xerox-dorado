@@ -1,0 +1,27 @@
+[
+  {
+    "case": "late_capture",
+    "rejected": true,
+    "diagnostic": "AssertionError: no capture completed inside actual delay interval"
+  },
+  {
+    "case": "wrong_visual_capture",
+    "rejected": true,
+    "diagnostic": "AssertionError: reviewed capture is late or mismatched"
+  },
+  {
+    "case": "poll_gap",
+    "rejected": true,
+    "diagnostic": "AssertionError: [{'ns': 8489511081881, 'event': 'poll_gap', 'duration_ns': 30000000}]"
+  },
+  {
+    "case": "crc_fault",
+    "rejected": true,
+    "diagnostic": "AssertionError: Dorado net: flags=c tx_words=14 good=2378 crc_bad=1 dropped=15 rx_bad=0 aborted=0 machine=f79aada1 state=472a cpu=a70f2123"
+  },
+  {
+    "case": "missing_disk_reads",
+    "rejected": true,
+    "diagnostic": "AssertionError: no concurrent read/write disk service"
+  }
+]

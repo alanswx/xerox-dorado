@@ -1,0 +1,31 @@
+{
+  "main_pid": 6414,
+  "server_pid": 6413,
+  "actual_main_spi74_words": [
+    53460,
+    1,
+    0,
+    8176,
+    0,
+    1,
+    22,
+    0,
+    0,
+    26207,
+    19408,
+    11893,
+    23786,
+    2048,
+    8,
+    16,
+    0,
+    0
+  ],
+  "epoch": "5cea2e754bd0665f",
+  "main_reserved_ring_mapping": false,
+  "daemon_reserved_ring_mapping": "64 KiB at physical0x1ff00000",
+  "other_main_mappings": "Existing FPGA/framebuffer MMIO mappings at0x22000000 and0xff000000 remain expected",
+  "setup_gdb_pauses": 1,
+  "probe_dso": false,
+  "phase": "Original firmware CoolBoot requested; BFN113/login/performance pending"
+}

@@ -1,0 +1,32 @@
+{
+  "status": "PASS: original-firmware Viewers, real mouse/Cmd/focus, exact short and alphabet/digit keyboard echo",
+  "main_pid": 3781,
+  "server_pid": 3780,
+  "rbf_sha256": "40750c11aef7219a75f4d18b8ab8cc9c5a83333149ad48e67abc91c4658f5bca",
+  "echoes": [
+    "rtl48 keyboard ok",
+    "abcdefghijklmnopqrstuvwxyz0123456789"
+  ],
+  "warm_marker": {
+    "file": "///rtl48persist.txt",
+    "expected": "rtl48persist",
+    "status": "Guest create/close/readback PASS; cold reload not tested for this marker"
+  },
+  "normal_guest_boot": "Real boot command returned to Basic loader and profile question; germ812 was not captured",
+  "worker_input": "../2026-10-19-native48-worker-input/qualification.json",
+  "performance_caveat": "Idle and base-loader timing preceded worker-probe load. Probe DSO stays resident until Main exit; fresh Main required for clean performance.",
+  "latest_observed": {
+    "time_utc": "2026-10-19 02:11:11 UTC",
+    "good": 2854,
+    "dropped": 18,
+    "crc_bad": 0,
+    "rx_bad": 0,
+    "aborted": 0
+  },
+  "captures": {
+    "ready-check.png": "79126af659de074703d2a3ca9454c5bc571840a52510f113c1930ed3bd4b3be4",
+    "input-echo.png": "1d97e1bd1ab60215f6e33227ac3b6b9316a42de1500695b8af6225ebcacb7235",
+    "marker-readback.png": "8554380eee855dce4649f15f3710884b1fd4dc1d55e36c4323da82cc8c1b7887",
+    "after-normal-guest-boot.png": "46bf17a2c85f86c375ac1687f8e97b454d930a0add3159f67713b54cc9852f81"
+  }
+}

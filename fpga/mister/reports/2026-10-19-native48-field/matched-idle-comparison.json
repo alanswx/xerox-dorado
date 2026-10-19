@@ -13,6 +13,6 @@
   "change": "Frozen Native43 response-boundary successor selection on Native47",
   "setup_gdb_pauses": 2,
   "probe_dso": false,
-  "full_viewers": "pending",
+  "full_viewers": "PASS after timed samples; see desktop-input.json",
   "repeated_comparisons": "pending"
 }

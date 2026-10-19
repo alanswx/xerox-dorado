@@ -1,0 +1,20 @@
+{
+  "preservation": {
+    "path": "/media/fat/games/DoradoRTL/Cedar48_20261019/cedar-work.pack",
+    "bytes": 63578624,
+    "sha256": "f4548e6c53382aeb37e28e458a8c43dfc9dc77592f2208b63059733f2ffb2855",
+    "guest_boot": "Normal guest Boot returned to Basic loader/profile after desktop/input qualification",
+    "host_boundary": "Actual normal Main loader active-DDR and disk barriers, followed by normal temporary Main exit",
+    "fpga_snapshot": false
+  },
+  "main_maps": [
+    "b3abc000-b5277000 rw-s 22000000 00:06 2          /dev/mem",
+    "b5277000-b6277000 rw-s ff000000 00:06 2          /dev/mem"
+  ],
+  "server_maps": [
+    "b6ebb000-b6ecb000 rw-s 1ff00000 00:06 2          /dev/mem"
+  ],
+  "main_has_probe": false,
+  "old_main_exists": false,
+  "old_server_exists": false
+}

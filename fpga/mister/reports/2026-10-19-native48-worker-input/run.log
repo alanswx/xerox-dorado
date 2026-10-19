@@ -1,0 +1,4 @@
+BEGIN {"phase": "begin", "ns": 8489411081881, "result": 0, "error": 0, "duration_ns": 0}
+CAPTURE {"number": 1, "ns": 8492953743048, "ended": false}
+CAPTURE {"number": 2, "ns": 8494550712680, "ended": true}
+Collected real-worker/input/captures. Qualify intervals and visually verify new output/prompt/mouse before claiming success.

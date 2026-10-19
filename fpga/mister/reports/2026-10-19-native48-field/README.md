@@ -3,7 +3,7 @@
 Normal Main load from active47b DDR ownership succeeds without a diagnostic
 STOP first. Actual network/disk barriers precede programming; temporary3772
 exits normally and the new f3bce2a8 seed is checked unchanged before caching.
-Final Main3781 is21e67a3f, daemon3780 isc5996249, no probe DSO. Main alone
+Final Main3781 is21e67a3f, daemon3780 isc5996249, initially no probe DSO. Main alone
 owns SPI. Actual DDR epochba6bc89a420de42c is fresh; flags0x16/fault+errors0.
 RBF40750c11 runs50MHz/SYSPER4, SDRAM/no raw cache and direct DDR. Only raw
 response-boundary successor selection differs from47b. Original firmware,
@@ -12,8 +12,8 @@ BFN113/C release, Pilot and idle Cedar login pass.
 Three adjacent10s windows average1,694,447.318 issues/s, versus clean47b
 1,595,628.966: preliminary+6.1931%,10.16668% of original nominal cadence.
 These are qualified StartCycle issues, not drained retirements. ONE fresh
-boot per configuration. Two setup GDB controls precede samples. Full desktop,
-repeated comparisons and sustained qualification remain pending.
+boot per configuration. Two setup GDB controls precede samples. Repeated
+comparisons and sustained qualification remain pending.
 
 Guest input follows measurement. Read-only observer4091/handle92849 captures
 Main/server log visibility bounds at /tmp/dorado48-loader-observer.jsonl;
@@ -28,7 +28,17 @@ transfer marker to the exact final file ACK. Visible Load ok lines and the
 profile prompt independently confirm successful base loading. There is no
 matching timed control yet: this is an absolute duration, not a speedup.
 Observer4091/92849 COMPLETED after stop; no background reader remains. Profile
-No entered and BootEssentials/styles advancing. Full Viewers still pending.
+No entered and BootEssentials/styles completed. Full Viewers, mouse/Cmd/
+focus and exact short/alphabet/digit echo now pass; see desktop-input.json
+and captures. Guest rtl48persist.txt create/close/readback passes, but this
+marker has not been tested after a cold reload. The normal guest boot command
+returns to Basic loader/profile; germ812 was not captured in this run.
+
+After the performance measurements, a third GDB pause loads the actual-worker
+probe. Completed Return-driven Echo, mouse motion, disk ACKs and polling
+during its4200ms delay pass in ../2026-10-19-native48-worker-input. The DSO
+stays resident until Main exits; use a fresh Main for clean comparisons.
+At02:11UTC, good2854/TX dropped18, CRC/RX/abort0. No whole-boot zero-drop claim.
 
 source-manifest.json pins corpus sizes/hashes; actual remote hashes of all
 34 files match, checked AFTER timing (remote-source-hashes.json). This is

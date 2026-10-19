@@ -1,0 +1,11 @@
+{
+  "path": "/tmp/dorado48-input-probe.so",
+  "sha256": "55bc9a8c1435779951835aa18ad1a3922066f8efba5ca586554ab6e81333053d",
+  "source": "fpga/mister/main/tests/slow_sync_probe.cpp",
+  "source_sha256": "a90704424ec4dd044adffa42c251f178711d51a3b21b38e9e0b181838dff6048",
+  "main_pid": 3781,
+  "image_source_fd": 20,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "offload_thumb_entry": "0x992c9",
+  "lifetime": "Loaded/resident until Main exits; never dlclose"
+}

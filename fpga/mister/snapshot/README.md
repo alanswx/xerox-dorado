@@ -56,3 +56,20 @@ SDRAM, all devices, input and ARM disk/local network-server state. A complete
 bundle must pair a matching disk generation, validate schema/build/hashes
 before changing live state, and pass actual Cedar desktop restore tests.
 No physical snapshot, fast-boot timing or cross-build compatibility is claimed.
+
+The remaining delivery order is:
+
+1. Classify the generated inventory and prove bounded access on an actual
+   board, including its real clock strobes and RAM read pipelines. Measure
+   the added logic and routed timing before extending the access fabric.
+2. Implement one machine-wide pause boundary with ARM disk/network services.
+   Preserve or drain pending operations explicitly; keep SDRAM refresh running.
+3. Save all classified RTL, RAM, device, clock and input state together with
+   matching disk contents/generation and local Pup/BSP/STP server state.
+   Validate the complete versioned, checksummed bundle before restoring it.
+4. Qualify same-build save/continue/restore, including pending I/O and rejected
+   corrupt/mismatched bundles. Restore a real FPGA Cedar desktop, verify input,
+   transfers and subsequent disk writes, and measure time against a cold boot.
+
+The intended user operation is Save/Load machine state. It remains a required
+part of release acceptance alongside fresh original-firmware cold boots.
