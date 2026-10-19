@@ -1,0 +1,25 @@
+Prepared fresh47b. Normal loader will check actual network/disk barriers before programming.
+{
+  "time_utc": "2026-10-19 00:48:32 UTC",
+  "old_main": 1509,
+  "old_server": 1506,
+  "staging_main": 3263,
+  "main_pid": 3277,
+  "server_pid": 3276,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "server_sha256": "c59962490772f12d061ec61aa64e6a567144d26d7802a28349a8d9a044eda87e",
+  "rbf_sha256": "3df4a7993da3fb100392d8bb6455f62961638f0a6c27e2ca4eab15da8c4adde6",
+  "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "main_log": "/tmp/dorado47b-main.log",
+  "disk_trace": "/tmp/dorado47b-disk.jsonl",
+  "preserved_old_volume": {
+    "path": "/media/fat/games/DoradoRTL/Cedar47_20261018/cedar-work.pack",
+    "bytes": 63578624,
+    "sha256": "41c26b7bbb6ea6b0fd7bfe5ea90f420d05c8e94f2224f45a4caf015fe2f985a5",
+    "guest_boot": "Normal Boot visibly reached germ812",
+    "host_boundary": "Actual active-DDR stop/drain/unmap, then normal Main loader disk/network barriers and normal temporary Main exit",
+    "fpga_snapshot": false
+  },
+  "phase": "Full same47 reload completed; cache-ready and fresh DDR grant required"
+}
+Fresh47b cache/DDR active. Select core view and arm new C watcher before original CoolBoot.

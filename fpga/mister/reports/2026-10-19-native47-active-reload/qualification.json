@@ -1,0 +1,44 @@
+{
+  "status": "PASS: active STOP/drain/unmap, normal actual-loader durability and fresh full-FPGA reload/epoch grant",
+  "old_main": 1509,
+  "old_server": 1506,
+  "new_main": 3277,
+  "new_server": 3276,
+  "old_epoch": "fdfe0a77fc6c87b5",
+  "new_epoch": "67595ea973a3f023",
+  "fresh_capability": [
+    53460,
+    1,
+    0,
+    8176,
+    0,
+    1,
+    22,
+    0,
+    0,
+    61475,
+    29603,
+    24233,
+    26457,
+    2048,
+    8,
+    16,
+    0,
+    0
+  ],
+  "disk_trace_records": 97226,
+  "last_disk_event": {
+    "ns": 4415255264177,
+    "event": "barrier_end",
+    "offset": 0,
+    "bytes": 0,
+    "result": 0,
+    "duration_ns": 0
+  },
+  "limits": [
+    "New47b original-firmware boot is starting; fresh Viewers not yet qualified",
+    "No full-machine snapshot",
+    "No 2h/repeated final combined qualification",
+    "Known setup/STOP debugger pauses; no whole-trace poll-gap claim"
+  ]
+}

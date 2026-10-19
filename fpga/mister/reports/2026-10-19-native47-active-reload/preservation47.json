@@ -1,0 +1,8 @@
+{
+  "path": "/media/fat/games/DoradoRTL/Cedar47_20261018/cedar-work.pack",
+  "bytes": 63578624,
+  "sha256": "41c26b7bbb6ea6b0fd7bfe5ea90f420d05c8e94f2224f45a4caf015fe2f985a5",
+  "guest_boot": "Normal Boot visibly reached germ812",
+  "host_boundary": "Actual active-DDR stop/drain/unmap, then normal Main loader disk/network barriers and normal temporary Main exit",
+  "fpga_snapshot": false
+}

@@ -10,8 +10,9 @@ reduce memory-request overhead; make ARM disk work nonblocking/coherent;
 connect the daemon through DDR frame queues; finish accurate clock/timer
 migration; then repeat fresh boots and sustained end-to-end qualification.
 External Xerox-network tunnelling is optional follow-up. Native41d cold
-marker persistence,42 and47 desktop/input pass. Next: Native47 active-DDR
-STOP/reload after normal guest Boot, then paired42/43/44/45 comparisons and full
+marker persistence,42 and47 desktop/input pass. Actual47 active-DDR STOP/
+unmap/normal reload/fresh epoch now pass. Next:47b clean idle-login baseline,
+matched48 arbitration timing/hardware comparison, then44/45 and full
 direct-DDR qualification. Native41c
 passes fresh Viewers/input and actual Main worker-delay disk service;47 adds
 physical packet progress during delay. Completed input during the delay and
@@ -21,7 +22,40 @@ User added **complete core snapshots**, including matching disk/device/server
 state for fast Cedar desktop restore. Milestone4a in the delivery plan tracks
 this requirement; it is part of final acceptance, not a main-RAM-only dump.
 
-**Live MiSTer14 is Native47, direct DDR active, interactive Cedar Viewers.**
+**Live MiSTer14 is fresh Native47b, original firmware boot underway.**
+Same47 RBF3df4a799,50MHz/SYSPER4, SDRAM/no raw cache, direct DDR; no memory
+optimizations. Normal loader completed00:48:32UTC19Oct. Final Main3277 is
+21e67a3f, daemon3276 isc5996249; temporary3263 exited normally, new seed
+checked untouchedf3bce2a8 before final cache. No qualification DSO in Main3277.
+Actual Main SPI74 flags0x16/fault+errors0, fresh epoch67595ea973a3f023;
+daemon maps64KiB1FF00000, Main sole SPI owner. One setup GDB pause selected
+core video/input0 and instruction view1. New C watcher32115 LIVE, holding C
+until fresh BFN113; three CoolBoot pushes2198 COMPLETED. Do not restart these
+handles. Main /tmp/dorado47b-main.log; disk /tmp/dorado47b-disk.jsonl;
+Cedar47b_20261019; local helpers build/rtl-executive/cedar47b-launch.
+Next observe BFN113/release, Pilot/login and pinned idle measurement before
+Guest. Fresh Viewers/input remains unqualified; retired47 already passes.
+
+**Actual active-DDR lifecycle PASS.** Retired47 normal guest Boot visibly
+reached germ812. Matching Main1509 called real dorado_net_barrier: true,
+SPI74 flags0x16->1, old epoch preserved, faults/errors0. Independent maps
+check proved daemon1506 unmapped /dev/mem. Main stayed Quiesced. Normal
+load_core then used actual network/disk barriers before full47b programming;
+old Main/server and temporary Main exited normally, no force kill or OS
+reboot. Old volume63578624 bytes SHA41c26b7bbb6ea6b0fd7bfe5ea90f420d05c8e94f2224f45a4caf015fe2f985a5
+remains Cedar47_20261018/cedar-work.pack; full old disk trace ends barrier_end,
+no file/barrier error or trace loss. Evidence:2026-10-19-native47-active-reload.
+This is not complete snapshots or hardware forced-bus-stall qualification.
+
+**Native48 BUILDING, not deployed.** Frozen47 plus only frozen43 raw
+response-boundary successor selection and its generated PREFETCH_NEXT flag.
+Same Main/server/DDR transport for the planned comparison; no interleaving,
+deferred reads, clocks/constraints or architectural changes. Remote
+/home/alans/mister/Dorado_Native48_20261019; exec76623/actual fitter498946
+live at00:52UTC. Local native48-build.log; report native48-arbitration/build.py.
+Require collection/review of all four conditions before any deployment.
+
+**Retired47: direct-DDR original-firmware interactive Cedar Viewers PASS.**
 Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,
 server1506 isc5996249; staging Main1504 exited normally. RBF3df4a799,
 50MHz/SYSPER4, SDRAM/no raw cache and no43/44/45 memory optimizations.
@@ -29,8 +63,8 @@ Original f3bce2a8 seed checked unchanged after the temporary Main exited;
 final Main cache-ready63578624 bytes and real DDR RESUME ACK observed.
 Daemon maps exactly64KiB at physical1FF00000; Main has no mapping there.
 Main-owned command74 reports flags0x16, epochfdfe0a77fc6c87b5, fault/errors0.
-Original-firmware Viewers/input now pass; active-lease reload and independent
-physical packet bytes remain pending. Main remains the sole SPI owner.
+Original-firmware Viewers/input and later active-lease reload pass; independent
+physical packet bytes remain pending. These are retired process IDs.
 
 Core video/input0 and instruction view1 selected with matching21e6 ELF
 `/tmp/dorado-main-21e6.elf`; three known Main GDB pauses (setup/capability, idle selection, worker-probe load). Do not use
@@ -53,12 +87,12 @@ Viewers Ready, WatchTool/EditTool/Clock and the profile's first CommandTool.
 Real mouse/Cmd opens a ready independent second tool. Both `echo rtl47
 keyboard ok` and full alphabet/digit echo print exactly and return to `%`.
 Settled capture00:38UTC confirms final input drain. Pointer737,608; core input0.
-Latest good2388/dropped24, CRC/RX/abort0. Active STOP/reload and sustained
-tests remain open. Evidence: reports/2026-10-19-native47-desktop.
+At desktop good2388/dropped24, CRC/RX/abort0. Later STOP/reload passes;
+sustained tests remain open. Evidence: reports/2026-10-19-native47-desktop.
 Paths: `Cedar47_20261018`, `_Computer/DoradoRTL_Cedar47_20261018/Cedar47.mgl`;
 Main `/tmp/dorado47-main.log`, disk `/tmp/dorado47-disk.jsonl`.
 Local helpers/handles: `build/rtl-executive/cedar47-launch/`; deployment
-99188 completed. Next normal guest Boot/germ812, then prepared active STOP.
+99188 completed. Subsequent normal guest Boot/germ812 and active STOP pass.
 Physical packet payload bytes remain independently unqualified.
 
 **Actual Main delayed worker + physical DDR PASS.** Probe55bc9a8c is now
@@ -72,9 +106,9 @@ physical guest packets, Watch.bcd metadata response168B and its exact EOC ACK
 are conservatively bounded in-window. No typed command/mouse test performed.
 Evidence: reports/2026-10-18-native47-worker-ddr. Missing metadata/guest-ACK
 controls fail the observer qualifier. A checked active-STOP GDB helper is
-PREPARED/NOT RUN in native47-active-stop; only after Viewers/input and normal
-guest Boot/germ812, never in the middle of this live guest. Use a FRESH Main for later
-clean performance comparisons; do not unload this DSO in the running process.
+COMPLETED in native47-active-reload after Viewers/input and normal guest
+Boot/germ812. Main1509 has retired, so its DSO lifetime ended normally.
+Fresh47b Main3277 has no probe DSO and will supply clean baseline measurements.
 
 Native47 full timing PASS:31 summary checks/36 categories/four conditions,
 min+0.111ns, zero illegal/unconstrained clocks;30,480 ALMs (73%),52,639
@@ -1459,7 +1493,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Native47 all-device timing31/36/four conditions min+0.111ns; normal temporary Main exit, real fresh DDR grant, exact daemon mapping/header/epoch and cache-ready pass.
 - [x] Actual final ARM daemon boot/Cedar/STP/quiet/reexec/retry/wrap/history bytes pass on isolated Unix sockets with DDR enabled but ungranted.
 - [x] Finish47 original-firmware physical-DDR Viewers desktop, real mouse/Cmd/focus and exact short/alphabet/digit echo; settled capture shows returned prompts.
-- [ ] Qualify physical packet bytes and active-DDR STOP/reload; delayed-Main packet progress passes separately, sustained qualification remains open.
+- [x] Actual active-DDR STOP/drain/unmap and normal Main loader/disk barriers, preserved47 volume, full same-RBF fresh47b load and different physical epoch grant.
+- [ ] Qualify independent physical packet bytes, delayed-worker completed input and sustained hardware operation.
+- [ ] Collect Native48 all-device timing, then pinned clean47b/48 DDR-network idle/loader comparisons; no speed claim until measured.
 - [ ] Adapt frame rings for direct ARM daemon DDR transport, retaining original DskEth/CRC/wire timing and selectable SPI fallback; qualify reset/ownership/stalls/boot before deployment.
 - [ ] Optional external Xerox-network UDP tunnel compatible with IFS/ContrAlto; test Cedar STP separately from Alto interoperability.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.

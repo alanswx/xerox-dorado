@@ -41,15 +41,18 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-Current hardware update00:40UTC19Oct:41d cold marker readback and42
+Current hardware update00:54UTC19Oct:41d cold marker readback and42
 Viewers/input pass; both volumes are preserved after normal guest Boot and
-actual loader durability barriers.47 is live with Main21e67a3f/serverc5996249,
-SDRAM/no raw cache and physical DDR network. All34 loadees/profile No,
+actual loader durability barriers.47 passes all34 loadees/profile No,
 BootEssentials and fonts pass; Viewers Ready, real mouse/Cmd/focus and exact
 short/alphabet/digit echo in an independent CommandTool pass. Its pre-Guest idle-login
 mean is1,595,641 issues/s (9.57385% nominal), one boot/three adjacent windows,
-not a repeated matched comparison. Evidence: native41d/native42-field and
-native47-drained-state/worker-ddr. Later candidate diaries are historical.
+not a repeated matched comparison.47 subsequently passed actual active-DDR
+STOP/unmap/normal reload/fresh grant; live47b is original-firmware booting
+with the same RBF/Main/server and untouched seed, no qualification DSO.
+48 is fitting with only43 arbitration enabled for a matched comparison.
+Evidence: native41d/native42-field and native47-drained-state/worker-ddr/
+active-reload. Later candidate diaries are historical.
 
 Use three explicitly recorded workloads: idle Cedar login, a fixed cold
 loader sequence through all 34 base packages, and a desktop script with
@@ -79,8 +82,11 @@ correctness blocker remains open; it is not replaced by a PLL-only speed
 claim. Original guest-visible CPU/cache/map/ECC behavior is preserved, with
 no imported C machine state or host completion of guest instructions/IOCBs.
 
-The immediate hardware actions are47 normal guest Boot and active-DDR STOP/reload,
-then controlled43/44/45 memory comparisons. Complete snapshot4a is required;
+The47 normal guest Boot/active-DDR STOP/unmap/full fresh reload and different
+epoch grant now pass (native47-active-reload). Fresh47b is booting for a clean
+baseline; matched48 adds only43 arbitration and is fitting with the same
+DDR network. Review all-device timing, then controlled memory comparisons.
+Complete snapshot4a is required;
 its isolated RAM access prototype now passes; actual board access is next.
 Native41b's failed pack remains preserved;41d closes the separate clean
 cold-remount persistence case. Only

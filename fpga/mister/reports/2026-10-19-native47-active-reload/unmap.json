@@ -1,0 +1,53 @@
+{
+  "ns": 4333574861954,
+  "main_pid": 1509,
+  "server_pid": 1506,
+  "daemon_maps": "00010000-0001c000 r-xp 00000000 b3:01 2703       /media/fat/games/DoradoRTL/System_20261018_DDRNetwork/dorado-server-c59962490772f12d\n0002b000-0002c000 r--p 0000b000 b3:01 2703       /media/fat/games/DoradoRTL/System_20261018_DDRNetwork/dorado-server-c59962490772f12d\n0002c000-0002d000 rw-p 0000c000 b3:01 2703       /media/fat/games/DoradoRTL/System_20261018_DDRNetwork/dorado-server-c59962490772f12d\n0002d000-00042000 rw-p 00000000 00:00 0 \n00042000-00108000 rw-p 00000000 00:00 0          [heap]\nb6c10000-b6d65000 rw-p 00000000 00:00 0 \nb6e31000-b6e52000 rw-p 00000000 00:00 0 \nb6e62000-b6f41000 r-xp 00000000 07:80 1421       /usr/lib/libc-2.31.so\nb6f41000-b6f51000 ---p 000df000 07:80 1421       /usr/lib/libc-2.31.so\nb6f51000-b6f53000 r--p 000df000 07:80 1421       /usr/lib/libc-2.31.so\nb6f53000-b6f54000 rw-p 000e1000 07:80 1421       /usr/lib/libc-2.31.so\nb6f54000-b6f57000 rw-p 00000000 00:00 0 \nb6f57000-b6f70000 r-xp 00000000 07:80 1379       /usr/lib/ld-2.31.so\nb6f7e000-b6f80000 rw-p 00000000 00:00 0 \nb6f80000-b6f81000 r--p 00019000 07:80 1379       /usr/lib/ld-2.31.so\nb6f81000-b6f82000 rw-p 0001a000 07:80 1379       /usr/lib/ld-2.31.so\nbe896000-be8b7000 rw-p 00000000 00:00 0          [stack]\nbe8e5000-be8e6000 r-xp 00000000 00:00 0          [sigpage]\nffff0000-ffff1000 r-xp 00000000 00:00 0          [vectors]\n",
+  "actual_stop": {
+    "main_pid": 1509,
+    "server_pid": 1506,
+    "before": [
+      53460,
+      1,
+      0,
+      8176,
+      0,
+      1,
+      22,
+      0,
+      0,
+      34741,
+      64620,
+      2679,
+      65022,
+      2048,
+      8,
+      16,
+      0,
+      0
+    ],
+    "barrier_result": true,
+    "after": [
+      53460,
+      1,
+      0,
+      8176,
+      0,
+      1,
+      1,
+      0,
+      0,
+      34741,
+      64620,
+      2679,
+      65022,
+      2048,
+      8,
+      16,
+      0,
+      0
+    ],
+    "start_ns": 4273306288698,
+    "finished_ns": 4273396386430
+  }
+}
