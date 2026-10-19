@@ -1,0 +1,11 @@
+{
+  "checked_utc": "2026-10-19T16:44:40.340316+00:00",
+  "main_pid": 29511,
+  "server_pid": 29510,
+  "status": "PASS: new original Initial BFN113 request; C automatically released",
+  "watcher": "49389 TERMINAL, normal exit",
+  "actual_frame": "TX n=13: 000042 001000 000026 000264 000001 000113 000000 000000 000004 000042 000001 000001 177777",
+  "observed_display": "845",
+  "capture_sha256": "ca7ec2a8263d145139c47e244d62557f4942167c6d1b290512a741aa0cb8c703",
+  "limits": "Original boot request/progress only; Cedar login/desktop/input/speed remain pending"
+}

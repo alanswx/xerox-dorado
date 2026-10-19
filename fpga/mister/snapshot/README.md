@@ -6,6 +6,12 @@ in the running MiSTer core. This directory now qualifies bounded RAM access
 and complete modeled ContB state restore in isolated RTL/routed experiments.
 Machine-wide state access, coherent barriers and physical restore remain open.
 
+Latest physical update: Native59 is now normally loaded on MiSTer14 after
+pushed full-core qualification; original firmware boot is running. The actual
+netlist6502 adapter now also passes matched50MHz routed qualification with
+all1725nodes retained and minimum+0.151ns across four conditions. Full BaseBoard
+and global save/load remain open; see handoff for the live watcher/job handles.
+
 Latest qualification (2026-10-19): Native59 now passes complete full-core
 source/memory and four-condition timing checks with ten board adapters
 administratively inactive. Native58 remains the interactive hardware core;

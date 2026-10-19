@@ -42,6 +42,43 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Native59 is now loaded; original firmware boot running. Netlist6502 routed qualification PASS.**
+Native59 build/source/memory/timing qualification was committed and PUSHED
+b9d7b45a before normal deployment. Live Main29511/server29510, RBFdb6883e4,
+new actual SPI74epoch aa846a314ec45d23/flags0x16/fault0/errors0. Normal59
+loader job56592 is TERMINAL/cache-ready/DDR active. Original f3bce2a8 seed
+was checked untouched before final cache activation. Normal58guestBoot
+captured actual812; realMainnetwork/diskbarriers and temporary29487exit
+preserve58pack63,578,624B/SHA8b5777e6d31bf82057e4f039c593b2fc88be87bdec16890b20d9206455946ab4.
+Closed58trace107,856records endsbarrier_end/no recordeddiskerror/loss;
+old27199/27195/29487 independently absent. Warmmarker only, no coldmarker/
+cleanOSshutdown/fullsnapshotclaim. Evidence native59-field/startup and captures.
+
+Core view/input/counter selected through Main only at input_poll. New C
+watcher local49389 is TERMINAL PASS:NEW original Initial TX13/uCodeBoot264/
+BFN113 captured and C automatically released; boot pulse70832 TERMINAL.
+Preliminary issue1/state43 ended withoutretry; actual issued count now grows,
+CRC/RX/abort0. Actual post-request screen845 captured. Do not restart the
+watcher. Original59Initial request is qualified; Cedar login/desktop/input/speed remain unqualified. Last
+qualified58idle1.947767Missues/s; no new speed claim. Collector22324 TERMINAL,
+streamed fixed prefixes/SDspool/one parsed record at a time; no activepackcopy.
+
+Actual netlist6502 corrected matched fit v2 builder27664 and independent
+audit are TERMINAL PASS:fourconditions/min+0.151ns/noillegal/unconstrainedIO/
+noextraexceptions/eightdamaged controls reject. All1725node registers retained,
+plus18response/3handshake=1746synthesisentityregs; original767normal regs after
+alias/constantpruning. Fitter shell totals443ALM/912regs ->1649ALM/1990regs,
+zeroRAM. Not fullcoreenabled snapshot cost. Initial169085virtualpinfixture
+failure retained; v2 changes scalarvirtualpindeclarations only, identical
+CPUadapter/SDC/budget. Evidence snapshot-netlist6502 plus companion simulation.
+
+Next: observe SAME59firmware after newBFN113 to login, measure idle then
+Guest/loader/Viewers/input. Snapshot implementation next actualRIOT+remaining
+BaseBoard primitives/RAM/EPROM readhistories/clock-reset state, completeboard
+classification/restore/timing; then wrapper/backends/input/ARMserver/matching
+diskgeneration/globalatomicbundle/physicalFPGArestore. Original60ns/timers,
+threefreshboots/coldpersist/pinnedperf/twohourstress stillrequired. GoalACTIVE.
+
 **Native59 full-core qualification PASS; hardware test next.**
 The original Native59 builder (1544016/local87022) is terminal. Independent
 read-only audit99108 is terminal PASS:31 summaries/196 detailed timing

@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "main_pid": 29511,
+  "raw_words": [
+    53460,
+    1,
+    0,
+    8176,
+    0,
+    1,
+    22,
+    0,
+    0,
+    43652,
+    27185,
+    20164,
+    23843,
+    2048,
+    8,
+    16,
+    0,
+    0
+  ],
+  "epoch": "aa846a314ec45d23",
+  "flags": 22,
+  "fault": 0,
+  "errors": 0,
+  "scope": "Actual Main SPI74 capability check at input_poll; Main sole SPI owner"
+}
