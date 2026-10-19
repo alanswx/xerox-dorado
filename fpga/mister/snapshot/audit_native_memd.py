@@ -218,11 +218,20 @@ def collect(root,baseline,archive):
         ('memd_physical_new_data',memd_fitted,lambda t:memd_physical(t,memd_manifest)),
     ]:
         before='; OLD_DATA'if name=='memd_new_data'else'; Old data'
-        changed=text.replace(before,'; NEW_DATA'if name=='memd_new_data'else'; New data',1)
+        if name=='memd_new_data':changed=text.replace(before,'; NEW_DATA',1)
+        else:
+            # The preserved physical table also contains framework RAM
+            # (notably the scaler). Corrupt an actual MemD bank row only.
+            lines=text.splitlines(keepends=True)
+            for i,line in enumerate(lines):
+                if ':b_MemD|'in line and 'snapshot_bank_'in line and before in line:
+                    lines[i]=line.replace(before,'; New data',1);break
+            else:raise AssertionError('missing physical MemD OLD_DATA row')
+            changed=''.join(lines)
         assert changed!=text,'missing MemD OLD_DATA control anchor'
         try:checker(changed)
         except AssertionError as error:failures.append(dict(case=name,rejected=True,diagnostic=str(error)))
-        else:raise AssertionError('damaged MemD RAM accepted')
+        else:raise AssertionError('damaged MemD RAM accepted: '+name)
     q=dict(status='PASS',hardware='NOT DEPLOYED',frequency_mhz=50,sysper=4,
         timing_checks=31,path_categories_checked=148,operating_conditions_checked=4,
         minimum_slack_ns=min(r['slack_ns']for r in reports),illegal_clocks=0,unconstrained_clocks=0,

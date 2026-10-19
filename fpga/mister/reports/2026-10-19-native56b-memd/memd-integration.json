@@ -1,0 +1,36 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native55_20261019",
+  "candidate": "/home/alans/mister/Dorado_Native56b_20261019",
+  "change": "Frozen55 plus complete exact-advance MemD adapter including native two-word storage input pipeline; shared qualified cell adapters reused byte-identically. All state admin inactive; no global save/load or speed claim.",
+  "snapshot_admin": "INACTIVE; no physical save/load",
+  "extra_timing_exceptions": "None",
+  "source_changes": [
+    "build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+  ],
+  "added_sources": [
+    "fpga/mister/snapshot_native_memd/MemD_full_snapshot.sv",
+    "fpga/mister/snapshot_native_memd/f10470_word_bank.sv",
+    "fpga/mister/snapshot_native_memd/assets.json"
+  ],
+  "shared_sources": {
+    "cell_MC10231_snapshot.v": "fpga/mister/snapshot_native/cell_MC10231_snapshot.v",
+    "cell_F10016_snapshot.v": "fpga/mister/snapshot_native_conta/cell_F10016_snapshot.v",
+    "cell_MC10176_snapshot.v": "fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+    "cell_F10000_snapshot.v": "fpga/mister/snapshot_native_conta/cell_F10000_snapshot.v",
+    "cell_MC10175_snapshot.v": "fpga/mister/snapshot_native_processor/cell_MC10175_snapshot.v",
+    "cell_SE10231_snapshot.v": "fpga/mister/snapshot_native_conta/cell_SE10231_snapshot.v",
+    "cell_MC10141_snapshot.v": "fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v",
+    "cell_F10145A_snapshot.sv": "fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv"
+  },
+  "speed": "Same50MHz/SYSPER4; no speed claim. Protocol replay variability remains open.",
+  "source_hashes": {
+    "core/Dorado.sv": "6e00eb03e3428b4c1f594609d1f1d3ef82a188e036954f4f14fc9e982fcd8ec9",
+    "core/Dorado.qsf": "781a3972620f92a1f09104078199cc1ddf0e9a48964ae03b4eaa34839b028cd6",
+    "core/device-corners.tcl": "07b1149b3a8ce7b3b4b39a914c52e19fef09e22348e1ec69fcbc6db7bfc257a6",
+    "core/audit-adapter-crossings.tcl": "f0124908b538e75477cb982983d077227c36a8d8815381fb7af5af12b0c21414",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "f7db605c95db878c3340327885ac21a65a6c022a43ee36f950db05c1c6378ecb",
+    "src/fpga/mister/snapshot_native_memd/MemD_full_snapshot.sv": "08af2ebcb5efbdb7277671567d2b508672a3a9d5f5abc64b9ed4ed984b37a8eb",
+    "src/fpga/mister/snapshot_native_memd/f10470_word_bank.sv": "580040761a689b76a7075022eaa5fcd97d6a87ebf95884dc884410a0db1a6b5d",
+    "src/fpga/mister/snapshot_native_memd/assets.json": "b23479efd239c4e58a6655db326cc30943fba42d42ad70cebc47ec958909d877"
+  }
+}

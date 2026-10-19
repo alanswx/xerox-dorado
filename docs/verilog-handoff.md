@@ -2,7 +2,7 @@
 
 ## Current objective (2026-10-18 UTC)
 
-**LIVE Native55 full Viewers/input/warm marker PASS; Native56b full-core build active.**
+**LIVE Native55 full Viewers/input/warm marker PASS; Native56b full-core timing PASS, not deployed.**
 Current Main21577/server21576 and RBF3eee3109 remain unchanged; normal deploy
 11:51:35UTC, fresh epochd642d051fd61576c/flags0x16/fault/errors0. Same50MHz/
 SYSPER4/SDRAM/no raw cache/direct DDR/policies; six installed board adapters,
@@ -43,14 +43,26 @@ unsupported delay reject. Finalsim46163 TERMINAL. Matched native2 fits72957
 and audit TERMINAL, all four conditions,min+0.107ns;294,912cachebits/38->40M10Ks,
 620->2358ALM/1389->2411regs include shell/admin/pruning; all14macros/physical
 banks OLD_DATA,ninebadfitcontrolsreject. Evidence snapshot-memd-native2.
-Fresh full-core Native56b build34403 LIVE at
-/home/alans/mister/Dorado_Native56b_20261019, assetsDorado_Native56b_inputs_20261019.
-The exact frozen55 wrapper/clocks/SDCs/policies and native delay2 are retained;
-all seven adapters' admin inactive. Next qualify31summary/148detailed/four
-conditions and all-memory inference before any normal reload. Original failed
-Dorado_Native56_20261019 stays terminal/preserved. Live55 Main21577/server21576/
-RBF3eee3109 unchanged; full55Viewers/mouse/exact keyboard/warm marker PASS.
-No normal guestBoot55/cold marker yet. No boot reset/retry.
+Fresh full-core Native56b build34403 and final read-only audit29951 TERMINAL
+PASS31summary/148detailed/four conditions,min+0.116ns.30,303ALM/52,996regs/
+332M10Ks/35DSP; all admin inactive, not enabled-snapshot budget. Eight shared
+adapters byte-identical; only MemD board/F10470helper new. All14cache actual
+macros/physicalbanks OLD_DATA;11IFUM/eightIM OLD_DATA,21MemC/12processorMLABs
+retained. No new cuts/illegal/unconstrainedclocks/frameworkIOgaps. Same actual
+storage delay2, clocks/SDCs/wrapper/policies. First audit lacked staged Python
+helpers; second positive checks passed but physical faultcontrol hit scaler
+RAM; final specifically corrupts a MemD row and all11controls reject. Exact
+earliertools/logs retained, no refit/RTL/SDC/report rewrite for driver fixes.
+Project/home/alans/mister/Dorado_Native56b_20261019;
+candidate localnative56b-candidate/{Dorado.rbf,qualification.json}, RBF
+0bbe092f1e10476dc3cc465418836f94a3e06c04ce5f08530c055fbfc52dd7cf.
+Evidence native56b-memd, wholearchive native56b-evidence-20261019.tar.gz.
+NOT DEPLOYED. All our Quartus jobs terminal; do not touch unrelatedSharpX1.
+Next normally Boot55/captureactualMP, use normal Main disk/network barriers
+and preserve55volume, then fresh-seed56b original firmware/login/measure/
+loader/full desktop/input qualification. Current55 Main21577/server21576/
+RBF3eee3109 remains unchanged and interactive; no normal guestBoot55/cold
+marker yet. Failed firstDorado_Native56_20261019 stays terminal/preserved.
 Next MemX review inventory is fresh from exact55sources:21x64Kmap planes,
 1,379,362sequential candidate bits including unclassified diagnostics,14board
 timing bits. Evidence snapshot-memx-inventory is REVIEW ONLY, no grouping/
@@ -2120,7 +2132,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Review MemD cache RAM against wire list; qualify4096-word old-data RAM primitive simulation/classification/isolated timing.
 - [x] Qualify zero-delay MemD state adapter(+0.164ns); full-core guard correctly rejects actual native delay2. Preserve explicit correction.
 - [x] Qualify actual native delay2 MemD state, including37input-pipeline bits and generated-scope XML coverage; simulation/classification/matched fits(+0.107ns).
-- [ ] Integrate qualified MemD into next full core, qualify all-device timing and original firmware/interactive Cedar; all admin inactive. Then remaining device/ARM/global state.
+- [x] Integrate actual native2 MemD into56b; full-core31summary/148detailed/four-condition timing(+0.116ns)/RAM inference/source audit pass, all admin inactive.
+- [ ] Normally Boot/preserve55, fresh-seed load qualified56b, then original firmware/interactive Cedar and speed/loader qualification. Then remaining device/ARM/global state.
 - [ ] Finish remaining board/device/ARM state and atomic snapshot bundle with actual FPGA Cedar restore.
 - [ ] Finish original60ns clock/enable and timer migration; final three fresh boots, coherent snapshot restore, persistence, pinned measurements and two-hour combined stress.
 

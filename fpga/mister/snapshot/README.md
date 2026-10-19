@@ -373,3 +373,17 @@ Nine badfitcontrols reject. Evidence snapshot-memd-native2 includes rejected
 first56 integration/authoritative native parameter; zero-delay evidence remains
 historical. Fresh56b fullcore integration is building; actual global save/load,
 remaining boards/device/ARM state and original60ns migration remain open.
+
+
+## Native56b full-core timing (2026-10-19)
+
+`build_native_memd.py`/`audit_native_memd.py`: actual native two-stage MemD
+adapter, eight inherited helpers reused byte-identically, only board/cache
+helper new; all admin inactive. Exact frozen55clocks/SDCs/wrapper/policies.
+31summary/148detailed/seven-board crossings/fourconditions pass,min+0.116ns.
+All14MemD physical RAMs OLD_DATA, inherited IFUM/IM/MemC/processor geometries
+retained.30,303ALM/52,996regs/332M10Ks/35DSP, not enabled snapshot budget.
+Eleven bad source/QSF/hold/RAM controls reject. Read-only audit dependency/
+scoped-control fixes preserved without RTL/SDC change/refit. RBF0bbe092f,
+not deployed; original-firmware hardware qualification remains next. Evidence
+reports/2026-10-19-native56b-memd. Global snapshots and60ns remain open.

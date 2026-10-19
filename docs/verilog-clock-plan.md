@@ -42,6 +42,18 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+Native56b full-core native2 MemD integration is now qualified:31summary/
+148detailed/four-condition timing,min+0.116ns;all14cache physical RAMs OLD_DATA,
+inherited IFUM/IM/MLAB geometry retained. Eight shared adapters byte-identical;
+exact same clocks/SDCs/wrapper/storage/network policies, all admin inactive.
+30,303ALM/52,996regs/332M10Ks/35DSP, not enabled snapshot cost. Build34403/
+audit29951 terminal. Audit dependency/scoped-negative-control corrections did
+not change RTL/constraints or rerun fitting. RBF0bbe092f downloadednative56b-
+candidate, NOT DEPLOYED; no speed claim. Live55full desktop/input/warm marker
+passes. Next normal55 Boot/preservation, normal56bload and original firmware/
+Cedar/speed qualification. Original60ns/global snapshots/final gates open.
+
+
 Live55 full Viewers/Ready/Clock/WatchTool/EditTool/mouse/second initialized
 CommandTool/separate focus737,608/exact short/alphabet/digit echoes and normal
 warm ///rtl55persist.txt create/close/type readback PASS.86,220complete live
