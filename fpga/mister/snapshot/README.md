@@ -745,3 +745,35 @@ fit, schema/formatter updates, longer transport timeout (current16edges versus
 681for a scan), and global hold/fault/reset ownership. The earlier207ALM trial
 and exact harness/launch failure history remain in the report. Complete machine
 snapshots, original60ns clocks and final release qualification remain open.
+
+
+## Complete processor serial FF access (2026-10-19)
+
+`generate_processor_ff_scan.py` extends serial access to ProcH/ProcL:502bits in
+64FF helpers and519bits in69helpers. RAM/window/phase addresses remain intact.
+New compact FF words0..27/0..28 have explicit scan.word_map entries and
+state_access_schema=compact-ff-v1. Old addresses become legacy_parallel_word;
+ff.word is absent, preventing an implicit old-layout access alias. No shadow
+bank is introduced. Local busy/fault hold, reset rejection and re-entry use
+the qualified controller/ContA behavior; global hold ownership remains separate.
+
+`test_processor_ff_scan.py` preserves each full processor original/independent
+oracle and raw probes. All5,712/5,581bits, all outputs, all65,536indices,
+destructive restore/first-edge/20Kmore pass; all14/12RAM writers are active
+(two ProcL writers only once). Six damaged variants reject each. Fresh XML
+classification accounts for5,712physical+233private and5,581physical+209private
+bits, no exclusions; nine damaged inventories/layouts reject per board.
+
+`fit_processor_ff_scan.py` uses matched enabled boards, identical asynchronous
+F10145 helpers and the qualified50MHz/positive-edge/20ns shell/SDC. ProcH saves
+215ALMs (1,950 ->1,735), minimum+0.137ns; ProcL saves196 (1,946 ->1,750),
+minimum+0.096ns. All four conditions pass. Exact FF retention, all22/18physical
+MLAB rows/read latency and immutable PROM bytes are checked. No new warning
+category, cut or unconstrained paths. Six damaged fit controls reject each.
+All966raw files pass readback; extracted fit and classification audits pass.
+Report: reports/2026-10-19-snapshot-processor-ff-scan.
+
+No core builder/FPGA or speed change. The full-core result remains3,318ALMs
+over capacity; these are isolated measurements. Continue remaining boards and
+combined capacity/timing qualification, schema/timeout changes and global
+hold/fault/SYSTEM-reset integration before selecting this in a live core.

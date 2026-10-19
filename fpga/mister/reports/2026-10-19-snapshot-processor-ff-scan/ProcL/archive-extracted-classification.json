@@ -1,0 +1,1623 @@
+{
+  "status": "PASS",
+  "scope": "Fresh complete processor scan inventory against the qualified physical schema.\n\nEvery candidate sequential field must be physical state or an explicitly sized\nprivate transport field. Check compact offsets and remove legacy FF addresses.\n",
+  "kind": "ProcL",
+  "physical_bits": 5581,
+  "private_transport_bits": 209,
+  "sequential_exclusions": [],
+  "decisions": [
+    {
+      "path": "ProcL_full_snapshot_experiment.Clock1Bd",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.Clock1_p_Aa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.Clock1_p_Ac",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.Clock1_p_Ba",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.Clock1_p_Bb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.Clock1_p_Ca",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.Clock1_p_Cb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.Clock1_p_Da",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.Clock1_p_Db",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.Clock1_p_Dc",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.regular_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.regular_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.state_aux_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.state_response_ff",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.state_response_memory",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.state_response_memory_index",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a03.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a04.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a10.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a10.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a10.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a10.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a10.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a10.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a11.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a11.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a11.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a11.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a11.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a11.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a20.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a20.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a20.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a20.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a20.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a21.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a21.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a21.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a21.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_a21.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b10.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b10.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b10.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b10.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b10.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b10.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b11.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b11.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b11.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b15.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_b15.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c10.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c10.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c11.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c11.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c11.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c12.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c12.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c12.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_c12.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_d05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_d15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_d15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_d15.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_d17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_d17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_d17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e12.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e12.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e13.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e13.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e13.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e13.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e13.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e13.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e13.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e13.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e13.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e14.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e14.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e14.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e14.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e14.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e14.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e14.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e14.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e14.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e15.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_e17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_f06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_f16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_ff_scan.busy",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_ff_scan.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_ff_scan.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_ff_scan.fault",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_ff_scan.first_bit",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_ff_scan.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_ff_scan.payload",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_ff_scan.position",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_ff_scan.result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_ff_scan.writing",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g07.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g08.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g08.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g10.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g10.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g10.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g10.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g10.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g10.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g15.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g15.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g15.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g15.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g15.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g15.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g15.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g15.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g15.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g16.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g18.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g18.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g18.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_g24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h06.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h06.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h10.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h10.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h10.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h10.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h10.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h10.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h14.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h14.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h22.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h22.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h22.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h22.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h22.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_h22.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i01.q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i02.q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i06.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i06.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i08.mem",
+      "bits": 256,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i08.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i08.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i08.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i08.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i13.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i13.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i13.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i13.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i13.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i13.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i13.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i13.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i13.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i14.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i14.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i14.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i14.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i15.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i15.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_i17.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j01.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j02.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j06.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j06.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j08.mem",
+      "bits": 256,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j08.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j08.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j08.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j08.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j11.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j11.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j19.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j19.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j19.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j19.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j19.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_j19.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_k01.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_k02.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_k06.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_k06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_k06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_k06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_k06.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_k11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_k11.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_k11.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_k22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_k22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_k22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l02.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l02.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l02.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l02.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l02.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l02.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l03.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l03.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l03.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l03.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l03.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l03.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l03.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l03.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l03.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l04.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l04.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l04.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l04.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l04.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l04.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l04.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l04.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l04.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l06.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l06.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l06.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l06.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l07.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l07.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l07.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l07.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l11.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l11.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l11.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l11.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l11.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l11.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l14.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l14.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l15.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l15.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l16.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l18.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l18.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l18.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ProcL_full_snapshot_experiment.u_l22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    }
+  ],
+  "xml_sha256": "5abe8cee9f565e006abeb018d122c6b4d89dd231595c6c81e97ba326a7d400b7",
+  "failure_controls": [
+    {
+      "case": "missing_history",
+      "rejected": true,
+      "diagnostic": "missing sequential fields: ProcL_full_snapshot_experiment.u_a03.ck_d"
+    },
+    {
+      "case": "wrong_ram_depth",
+      "rejected": true,
+      "diagnostic": "state geometry differs: ProcL_full_snapshot_experiment.u_h06.mem"
+    },
+    {
+      "case": "extra_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential field: ProcL_full_snapshot_experiment.Clock1Bd_unexported"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential field: ProcL_full_snapshot_experiment.Clock1Bd"
+    },
+    {
+      "case": "missing_phase",
+      "rejected": true,
+      "diagnostic": "missing sequential fields: ProcL_full_snapshot_experiment.Clock1_p_Aa"
+    },
+    {
+      "case": "wrong_offset",
+      "rejected": true,
+      "diagnostic": "compact FF schema differs"
+    },
+    {
+      "case": "missing_layout_bit",
+      "rejected": true,
+      "diagnostic": "compact FF schema differs"
+    },
+    {
+      "case": "legacy_alias",
+      "rejected": true,
+      "diagnostic": "legacy FF word aliases or physical fields differ"
+    },
+    {
+      "case": "wrong_counter",
+      "rejected": true,
+      "diagnostic": "state geometry differs: ProcL_full_snapshot_experiment.u_ff_scan.position"
+    }
+  ]
+}
