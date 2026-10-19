@@ -1,0 +1,1450 @@
+{
+  "status": "PASS",
+  "scope": "Fresh actual BaseBoard XML: map all32 original SRAMs into audited byte words.\n\nRAM/read-pipeline scope only. Other board/CPU/RIOT/clock state remains outside\nthis classification; the full inventory is retained without dropping it.\n",
+  "xml_sha256": "caa57d8b61083723dd747f267fb5cef3e8fee872ff7ce8924183b09b166d0aef",
+  "modeled_ram_bits": 32768,
+  "registered_read_bits": 32,
+  "modeled_state_bits": 32800,
+  "decisions": [
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b11._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b11.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b11.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word": 1024,
+        "word_bit": 7,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b11.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 7,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b11.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b12._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b12.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b12.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word": 1024,
+        "word_bit": 3,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b12.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 3,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b12.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b13._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b13.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b13.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word": 1024,
+        "word_bit": 7,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b13.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 7,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b13.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b14._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b14.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b14.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word": 1024,
+        "word_bit": 3,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b14.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 3,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_b14.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c11._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c11.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c11.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word": 1024,
+        "word_bit": 6,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c11.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 6,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c11.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c12._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c12.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c12.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word": 1024,
+        "word_bit": 2,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c12.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 2,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c12.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c13._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c13.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c13.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word": 1024,
+        "word_bit": 6,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c13.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 6,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c13.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c14._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c14.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c14.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word": 1024,
+        "word_bit": 2,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c14.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 2,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_c14.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d11._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d11.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d11.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word": 1024,
+        "word_bit": 5,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d11.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 5,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d11.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d12._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d12.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d12.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word": 1024,
+        "word_bit": 1,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d12.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 1,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d12.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d13._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d13.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d13.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word": 1024,
+        "word_bit": 5,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d13.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 5,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d13.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d14._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d14.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d14.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word": 1024,
+        "word_bit": 1,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d14.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 1,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_d14.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e11._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e11.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e11.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word": 1024,
+        "word_bit": 4,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e11.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 4,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e11.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e12._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e12.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e12.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word": 1024,
+        "word_bit": 0,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e12.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 0,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 0,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e12.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e13._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e13.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e13.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word": 1024,
+        "word_bit": 4,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e13.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 4,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e13.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e14._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e14.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e14.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word": 1024,
+        "word_bit": 0,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e14.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 1,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 0,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_e14.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h11._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h11.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h11.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word": 1024,
+        "word_bit": 7,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h11.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 7,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h11.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h12._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h12.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h12.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word": 1024,
+        "word_bit": 3,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h12.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 3,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h12.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h13._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h13.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h13.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word": 1024,
+        "word_bit": 7,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h13.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 7,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h13.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h14._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h14.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h14.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word": 1024,
+        "word_bit": 3,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h14.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 3,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_h14.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i11._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i11.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i11.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word": 1024,
+        "word_bit": 6,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i11.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 6,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i11.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i12._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i12.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i12.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word": 1024,
+        "word_bit": 2,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i12.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 2,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i12.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i13._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i13.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i13.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word": 1024,
+        "word_bit": 6,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i13.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 6,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i13.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i14._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i14.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i14.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word": 1024,
+        "word_bit": 2,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i14.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 2,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_i14.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j11._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j11.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j11.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word": 1024,
+        "word_bit": 5,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j11.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 5,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j11.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j12._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j12.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j12.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word": 1024,
+        "word_bit": 1,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j12.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 1,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j12.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j13._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j13.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j13.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word": 1024,
+        "word_bit": 5,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j13.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 5,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j13.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j14._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j14.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j14.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word": 1024,
+        "word_bit": 1,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j14.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 1,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_j14.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k11._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k11.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k11.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word": 1024,
+        "word_bit": 4,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k11.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 4,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k11.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k12._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k12.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k12.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word": 1024,
+        "word_bit": 0,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k12.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 2,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 0,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k12.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k13._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k13.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k13.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word": 1024,
+        "word_bit": 4,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k13.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 4,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k13.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k14._unused_pins",
+      "bits": 1,
+      "decision": "IMMUTABLE_ZERO",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k14.a",
+      "bits": 10,
+      "decision": "RECOMPUTE",
+      "access": null
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k14.dout_r",
+      "bits": 1,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word": 1024,
+        "word_bit": 0,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k14.mem",
+      "bits": 1024,
+      "decision": "SAVE",
+      "access": {
+        "bank": 3,
+        "word_range": [
+          0,
+          1023
+        ],
+        "word_bit": 0,
+        "width": 1
+      }
+    },
+    {
+      "path": "BaseBd_m_Rev_m_Am_nominal.u_k14.p7",
+      "bits": 1,
+      "decision": "RECOMPUTE",
+      "access": null
+    }
+  ],
+  "other_candidates_retained_but_unclassified": 1579,
+  "access": "Four banks; local words0..1023RAM,1024raw pipeline; each local1025..2047 rejects. Word bit i is MCD_i.",
+  "failure_controls": [
+    {
+      "case": "missing_ram",
+      "rejected": true,
+      "diagnostic": "missing SRAM fields"
+    },
+    {
+      "case": "missing_pipeline",
+      "rejected": true,
+      "diagnostic": "missing SRAM fields"
+    },
+    {
+      "case": "wrong_depth",
+      "rejected": true,
+      "diagnostic": "SRAM field shape/category differs:BaseBd_m_Rev_m_Am_nominal.u_b11.mem"
+    },
+    {
+      "case": "wrong_width",
+      "rejected": true,
+      "diagnostic": "SRAM field shape/category differs:BaseBd_m_Rev_m_Am_nominal.u_b11.mem"
+    },
+    {
+      "case": "derived_state",
+      "rejected": true,
+      "diagnostic": "SRAM field shape/category differs:BaseBd_m_Rev_m_Am_nominal.u_b11.a"
+    },
+    {
+      "case": "constant_state",
+      "rejected": true,
+      "diagnostic": "SRAM field shape/category differs:BaseBd_m_Rev_m_Am_nominal.u_b11._unused_pins"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate SRAM field"
+    },
+    {
+      "case": "new_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate SRAM field"
+    },
+    {
+      "case": "plane_alias",
+      "rejected": true,
+      "diagnostic": "SRAM word map differs from original wire list"
+    },
+    {
+      "case": "plane_permutation",
+      "rejected": true,
+      "diagnostic": "SRAM word map differs from original wire list"
+    },
+    {
+      "case": "bank_alias",
+      "rejected": true,
+      "diagnostic": "SRAM word map differs from original wire list"
+    },
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "unreviewed BaseBoard SRAM source/schema"
+    }
+  ]
+}

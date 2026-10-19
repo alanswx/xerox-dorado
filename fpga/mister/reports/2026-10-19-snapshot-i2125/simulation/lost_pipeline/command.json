@@ -1,0 +1,18 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "i2125_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-i2125-v1-20261019/lost_pipeline/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-i2125-v1-20261019/lost_pipeline/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-i2125-v1-20261019/lost_pipeline/i2125_byte_bank.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-i2125-v1-20261019/lost_pipeline/f10415_word_bank.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-i2125-v1-20261019/executed-inputs/cell_i2125.v",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-i2125-v1-20261019/executed-inputs/test_i2125.cpp"
+]

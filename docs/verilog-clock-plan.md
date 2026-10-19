@@ -42,6 +42,39 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**BaseBoard SRAM snapshot qualification passes. Native59 remains the interactive hardware baseline.**
+
+The actual 32 Intel 2125 slices are grounded in the original wire list as
+four independently selected 1024x8 banks. The adapter reuses the qualified
+RAM transport unchanged and preserves all 32,768 RAM bits plus 32 registered
+read bits, including the output-disable behavior during writes. Original
+MCD wire names define word-bit order; no 6502 byte-order assumption is made.
+
+Simulation passes 164,821 host edges, all 32,800 state bits, all 8,192 combined
+indices, CE/WE combinations, backend holds, destructive continuation/restore
+and first-edge resume. Nine broken RTL variants reject. Fresh actual-board
+XML classification accounts for every SRAM field and retains other board
+state outside this scope; 12 bad schemas and 11 bad grouping controls reject.
+Matched 50MHz fits and an independent read-only audit pass all four operating
+conditions, minimum slack +0.211ns. Both variants retain 32,768 RAM bits in
+four physical M10Ks with old-data collision behavior. Isolated shell totals
+are 171 ALMs/112 registers -> 290 ALMs/330 registers; these are not whole-core
+snapshot overhead. Ten damaged-fit controls reject. All 24 compiled inputs
+and archived raw bytes pass extraction/hash/audit readback. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-i2125/`.
+
+No production BaseBoard or live core was changed. Native59 Main29511 and
+server29510 are confirmed present, with RBF db6883e4. Latest observed counters
+are CRC/RX/abort0 and dropped23; do not claim zero drops or sustained final
+qualification. The last qualified idle rate remains 1,947,654.12 issues/s.
+
+Next: qualify the eight EPROM read registers and remaining 279 clock/reset/
+FF bits, then complete BaseBoard classification/restore/timing. Check enabled
+whole-core snapshot capacity and timing, coordinate backend/input/ARM/server/
+matching-disk state and barriers, and demonstrate physical Cedar save/restore.
+Original60ns clock/timer migration and final repeated boots/cold persistence/
+pinned performance/two-hour combined stress remain open. Goal ACTIVE.
+
 **Native59 full Viewers/input/warm file PASS; complete MCS6532 wrapper PASS.**
 
 Live MiSTer14 Main 29511 / server 29510 / RBF db6883e4 are unchanged.

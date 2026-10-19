@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "unmasked_write",
+      "returncode": 1,
+      "expected_failure": "2125 output differs"
+    },
+    {
+      "case": "ungated_read",
+      "returncode": 1,
+      "expected_failure": "2125 raw pipeline differs"
+    },
+    {
+      "case": "ungated_write",
+      "returncode": 1,
+      "expected_failure": "2125 RAM differs"
+    },
+    {
+      "case": "lost_pipeline",
+      "returncode": 1,
+      "expected_failure": "2125 raw pipeline differs"
+    },
+    {
+      "case": "premature_resume",
+      "returncode": 1,
+      "expected_failure": "2125 raw pipeline differs"
+    },
+    {
+      "case": "running_access",
+      "returncode": 1,
+      "expected_failure": "2125 handshake differs"
+    },
+    {
+      "case": "invalid_alias",
+      "returncode": 1,
+      "expected_failure": "2125 handshake differs"
+    },
+    {
+      "case": "new_data",
+      "returncode": 1,
+      "expected_failure": "2125 raw pipeline differs"
+    },
+    {
+      "case": "scan_address_alias",
+      "returncode": 1,
+      "expected_failure": "2125 RAM differs"
+    }
+  ],
+  "logical_state_bits": 32800,
+  "scope": "Four1024x8groups and32read bits, two-state original model/oracle equivalence; no board/global freeze or physical machine snapshot",
+  "source_hashes": {
+    "fpga/mister/snapshot/test_i2125.py": "60f989149f1a381693b98e096742f2efc819dff60ef324a88ceec117471502d8",
+    "fpga/mister/snapshot/test_i2125.cpp": "cba716b4c6d6abe6fb6be8b694b6922975bbf1d58906885368b95d007e683ed5",
+    "fpga/mister/snapshot/i2125_byte_bank.sv": "723abdeb7224522eb3eb2f7502b0321744383bc76eebeccc677a2b7ccf8b6752",
+    "fpga/mister/snapshot/f10415_word_bank.sv": "d5e0649f392cfdbc116de9bbc5b615ba923526704357ddfb0888ace111fea5ca",
+    "verilog/cells/cell_i2125.v": "6eb55772966be2b159da55d2495a57dd66de73f10137479f7f417002aaa157c9"
+  }
+}

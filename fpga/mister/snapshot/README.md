@@ -6,6 +6,14 @@ in the running MiSTer core. This directory now qualifies bounded RAM access
 and complete modeled ContB state restore in isolated RTL/routed experiments.
 Machine-wide state access, coherent barriers and physical restore remain open.
 
+The actual BaseBoard's four 2125 byte banks now pass complete 32,800-bit
+original/oracle/restore tests, wire-list grouping, fresh XML classification
+and matched four-condition timing (+0.211ns). They retain four M10Ks and
+reuse the qualified shared RAM transport unchanged. These helpers are isolated;
+Native59's production BaseBoard is unchanged. Next are EPROM registered reads,
+remaining clock/reset state, then full BaseBoard and global qualification.
+Evidence: reports/2026-10-19-snapshot-i2125.
+
 Latest wrapper qualification: the actual `cell_MCS6532` phase_d plus all
 RIOT state now pass complete1,098-bit original/oracle/restore tests and four-
 condition matched timing, minimum+0.162ns. These remain isolated helpers;

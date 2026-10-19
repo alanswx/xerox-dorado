@@ -1,0 +1,379 @@
+{
+  "status": "PASS",
+  "scope": "Ground all32 actual native BaseBoard 2125 slices in the original wire list.\n\nIdentical literal address/CE/WE pins prove four byte groups. No combinational\nrewrites, CPU byte-order assumptions, board freeze or whole-state claim.\n",
+  "groups": [
+    {
+      "index": 0,
+      "address": [
+        "RA9",
+        "RA8",
+        "RA7",
+        "RA6",
+        "RA5",
+        "RA4",
+        "RA3",
+        "RA2",
+        "RA1",
+        "RA0"
+      ],
+      "ce": "RS0_p_",
+      "we": "WE_p_AC",
+      "members": [
+        {
+          "package": "e12",
+          "instance": "u_e12",
+          "bit": 0,
+          "data": "MCD_0",
+          "output": "MCD_0__e12_7"
+        },
+        {
+          "package": "d12",
+          "instance": "u_d12",
+          "bit": 1,
+          "data": "MCD_1",
+          "output": "MCD_1__d12_7"
+        },
+        {
+          "package": "c12",
+          "instance": "u_c12",
+          "bit": 2,
+          "data": "MCD_2",
+          "output": "MCD_2__c12_7"
+        },
+        {
+          "package": "b12",
+          "instance": "u_b12",
+          "bit": 3,
+          "data": "MCD_3",
+          "output": "MCD_3__b12_7"
+        },
+        {
+          "package": "e11",
+          "instance": "u_e11",
+          "bit": 4,
+          "data": "MCD_4",
+          "output": "MCD_4__e11_7"
+        },
+        {
+          "package": "d11",
+          "instance": "u_d11",
+          "bit": 5,
+          "data": "MCD_5",
+          "output": "MCD_5__d11_7"
+        },
+        {
+          "package": "c11",
+          "instance": "u_c11",
+          "bit": 6,
+          "data": "MCD_6",
+          "output": "MCD_6__c11_7"
+        },
+        {
+          "package": "b11",
+          "instance": "u_b11",
+          "bit": 7,
+          "data": "MCD_7",
+          "output": "MCD_7__b11_7"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "address": [
+        "RA9",
+        "RA8",
+        "RA7",
+        "RA6",
+        "RA5",
+        "RA4",
+        "RA3",
+        "RA2",
+        "RA1",
+        "RA0"
+      ],
+      "ce": "RS1_p_",
+      "we": "WE_p_AC",
+      "members": [
+        {
+          "package": "e14",
+          "instance": "u_e14",
+          "bit": 0,
+          "data": "MCD_0",
+          "output": "MCD_0__e14_7"
+        },
+        {
+          "package": "d14",
+          "instance": "u_d14",
+          "bit": 1,
+          "data": "MCD_1",
+          "output": "MCD_1__d14_7"
+        },
+        {
+          "package": "c14",
+          "instance": "u_c14",
+          "bit": 2,
+          "data": "MCD_2",
+          "output": "MCD_2__c14_7"
+        },
+        {
+          "package": "b14",
+          "instance": "u_b14",
+          "bit": 3,
+          "data": "MCD_3",
+          "output": "MCD_3__b14_7"
+        },
+        {
+          "package": "e13",
+          "instance": "u_e13",
+          "bit": 4,
+          "data": "MCD_4",
+          "output": "MCD_4__e13_7"
+        },
+        {
+          "package": "d13",
+          "instance": "u_d13",
+          "bit": 5,
+          "data": "MCD_5",
+          "output": "MCD_5__d13_7"
+        },
+        {
+          "package": "c13",
+          "instance": "u_c13",
+          "bit": 6,
+          "data": "MCD_6",
+          "output": "MCD_6__c13_7"
+        },
+        {
+          "package": "b13",
+          "instance": "u_b13",
+          "bit": 7,
+          "data": "MCD_7",
+          "output": "MCD_7__b13_7"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "address": [
+        "RA9",
+        "RA8",
+        "RA7",
+        "RA6",
+        "RA5",
+        "RA4",
+        "RA3",
+        "RA2",
+        "RA1",
+        "RA0"
+      ],
+      "ce": "RS2_p_",
+      "we": "WE_p_BD",
+      "members": [
+        {
+          "package": "k12",
+          "instance": "u_k12",
+          "bit": 0,
+          "data": "MCD_0",
+          "output": "MCD_0__k12_7"
+        },
+        {
+          "package": "j12",
+          "instance": "u_j12",
+          "bit": 1,
+          "data": "MCD_1",
+          "output": "MCD_1__j12_7"
+        },
+        {
+          "package": "i12",
+          "instance": "u_i12",
+          "bit": 2,
+          "data": "MCD_2",
+          "output": "MCD_2__i12_7"
+        },
+        {
+          "package": "h12",
+          "instance": "u_h12",
+          "bit": 3,
+          "data": "MCD_3",
+          "output": "MCD_3__h12_7"
+        },
+        {
+          "package": "k11",
+          "instance": "u_k11",
+          "bit": 4,
+          "data": "MCD_4",
+          "output": "MCD_4__k11_7"
+        },
+        {
+          "package": "j11",
+          "instance": "u_j11",
+          "bit": 5,
+          "data": "MCD_5",
+          "output": "MCD_5__j11_7"
+        },
+        {
+          "package": "i11",
+          "instance": "u_i11",
+          "bit": 6,
+          "data": "MCD_6",
+          "output": "MCD_6__i11_7"
+        },
+        {
+          "package": "h11",
+          "instance": "u_h11",
+          "bit": 7,
+          "data": "MCD_7",
+          "output": "MCD_7__h11_7"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "address": [
+        "RA9",
+        "RA8",
+        "RA7",
+        "RA6",
+        "RA5",
+        "RA4",
+        "RA3",
+        "RA2",
+        "RA1",
+        "RA0"
+      ],
+      "ce": "RS3_p_",
+      "we": "WE_p_BD",
+      "members": [
+        {
+          "package": "k14",
+          "instance": "u_k14",
+          "bit": 0,
+          "data": "MCD_0",
+          "output": "MCD_0__k14_7"
+        },
+        {
+          "package": "j14",
+          "instance": "u_j14",
+          "bit": 1,
+          "data": "MCD_1",
+          "output": "MCD_1__j14_7"
+        },
+        {
+          "package": "i14",
+          "instance": "u_i14",
+          "bit": 2,
+          "data": "MCD_2",
+          "output": "MCD_2__i14_7"
+        },
+        {
+          "package": "h14",
+          "instance": "u_h14",
+          "bit": 3,
+          "data": "MCD_3",
+          "output": "MCD_3__h14_7"
+        },
+        {
+          "package": "k13",
+          "instance": "u_k13",
+          "bit": 4,
+          "data": "MCD_4",
+          "output": "MCD_4__k13_7"
+        },
+        {
+          "package": "j13",
+          "instance": "u_j13",
+          "bit": 5,
+          "data": "MCD_5",
+          "output": "MCD_5__j13_7"
+        },
+        {
+          "package": "i13",
+          "instance": "u_i13",
+          "bit": 6,
+          "data": "MCD_6",
+          "output": "MCD_6__i13_7"
+        },
+        {
+          "package": "h13",
+          "instance": "u_h13",
+          "bit": 7,
+          "data": "MCD_7",
+          "output": "MCD_7__h13_7"
+        }
+      ]
+    }
+  ],
+  "logical_ram_bits": 32768,
+  "registered_read_bits": 32,
+  "logical_state_bits": 32800,
+  "source": "build/rtl-executive/native16-tx-cable/BaseBd_nominal.v",
+  "source_sha256": "387f588aed70ff2870c662a51ffecb731ca83e549787bd130e30cd23f83a376e",
+  "cell_sha256": "6eb55772966be2b159da55d2495a57dd66de73f10137479f7f417002aaa157c9",
+  "shared_transport_sha256": "d5e0649f392cfdbc116de9bbc5b615ba923526704357ddfb0888ace111fea5ca",
+  "wirelist": "chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.wl",
+  "wirelist_sha256": "ca1a3acdc926f56f6da5ebceb46209bf45473b5ddcf102860358813dfdcd6152",
+  "tool_sources": {
+    "fpga/mister/snapshot/audit_baseboard_ram.py": "e56581f0f63d1dfe6a04440a3b6024d592dc117b27bccd20f1f8717a8e5c0640",
+    "fpga/mister/snapshot/audit_contb_im.py": "51e06b61c69461b2d8baae1b8be7462c9f02692c70401bc6ac571e534f2c1083",
+    "tools/sil_netlist.py": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1",
+    "tools/sil_to_verilog.py": "85cb44aedd88d11fa95fbffa913794f8340b721264af4ae74450fbee851fabd2"
+  },
+  "bit_order": "Word bit i is original MCD_i wire; no assumption about 6502 byte significance",
+  "failure_controls": [
+    {
+      "case": "address",
+      "rejected": true,
+      "diagnostic": "wire-list pin differs:b11.2"
+    },
+    {
+      "case": "select",
+      "rejected": true,
+      "diagnostic": "wire-list pin differs:b11.1"
+    },
+    {
+      "case": "write_enable",
+      "rejected": true,
+      "diagnostic": "wire-list pin differs:b11.14"
+    },
+    {
+      "case": "data",
+      "rejected": true,
+      "diagnostic": "wire-list pin differs:b11.15"
+    },
+    {
+      "case": "output",
+      "rejected": true,
+      "diagnostic": "2125 output omitted/aliased:b11"
+    },
+    {
+      "case": "clock",
+      "rejected": true,
+      "diagnostic": "2125 clock changed:b11"
+    },
+    {
+      "case": "missing",
+      "rejected": true,
+      "diagnostic": "all32 unique original 2125 packages required"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "all32 unique original 2125 packages required"
+    },
+    {
+      "case": "changed_cell",
+      "rejected": true,
+      "diagnostic": "unreviewed 2125 cell"
+    },
+    {
+      "case": "common_address_swap",
+      "rejected": true,
+      "diagnostic": "wire-list pin differs:b11.3"
+    },
+    {
+      "case": "wirelist_source",
+      "rejected": true,
+      "diagnostic": "unreviewed original wire list"
+    }
+  ]
+}

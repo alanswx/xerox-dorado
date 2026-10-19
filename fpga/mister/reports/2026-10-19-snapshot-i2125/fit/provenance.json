@@ -1,0 +1,51 @@
+{
+  "scope": "Four independent1024x8 2125 banks,32768RAM+32rawread bits; original full-advance vs exact-advance/state-access, same50MHz negative-edge launch/capture shell and10ns embedded paths,2ns max0ns min virtual I/O,no cuts. Counts include shell/admin/pruning; no complete BaseBoard/global barrier/physical snapshot.",
+  "widths": [
+    8,
+    8,
+    8,
+    8
+  ],
+  "modeled_state_bits": 32800,
+  "builder_sha256": "7c01e2eb1a15be22d7c7416a6d12cd4b23d8723d486eebd1b24099232eaafdec",
+  "source_hashes": {
+    "fpga/mister/snapshot/fit_i2125.py": "7c01e2eb1a15be22d7c7416a6d12cd4b23d8723d486eebd1b24099232eaafdec",
+    "fpga/mister/snapshot/i2125_byte_bank.sv": "723abdeb7224522eb3eb2f7502b0321744383bc76eebeccc677a2b7ccf8b6752",
+    "fpga/mister/snapshot/f10415_word_bank.sv": "d5e0649f392cfdbc116de9bbc5b615ba923526704357ddfb0888ace111fea5ca",
+    "verilog/cells/cell_i2125.v": "6eb55772966be2b159da55d2495a57dd66de73f10137479f7f417002aaa157c9",
+    "fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "fpga/mister/snapshot/audit_baseboard_ram.py": "e56581f0f63d1dfe6a04440a3b6024d592dc117b27bccd20f1f8717a8e5c0640",
+    "fpga/mister/snapshot/audit_contb_im.py": "51e06b61c69461b2d8baae1b8be7462c9f02692c70401bc6ac571e534f2c1083"
+  },
+  "compiled_files": {
+    "snapshot/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "snapshot/f10415_word_bank.sv": "d5e0649f392cfdbc116de9bbc5b615ba923526704357ddfb0888ace111fea5ca",
+    "snapshot/i2125_byte_bank.sv": "723abdeb7224522eb3eb2f7502b0321744383bc76eebeccc677a2b7ccf8b6752",
+    "snapshot/top.sv": "00fba1bbcc9054b5277d75545386580fb1565ecbd416cdf62fb7045275e6b1d7",
+    "snapshot/cell_i2125.v": "6eb55772966be2b159da55d2495a57dd66de73f10137479f7f417002aaa157c9",
+    "snapshot/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "snapshot/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "snapshot/snapshot_fit.qsf": "52ef6658d5ab3cbd4e7e6c0ffc10c5d40163ee2ebd5318bf6d8484d638ae40f6",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/f10415_word_bank.sv": "d5e0649f392cfdbc116de9bbc5b615ba923526704357ddfb0888ace111fea5ca",
+    "baseline/i2125_byte_bank.sv": "723abdeb7224522eb3eb2f7502b0321744383bc76eebeccc677a2b7ccf8b6752",
+    "baseline/top.sv": "00fba1bbcc9054b5277d75545386580fb1565ecbd416cdf62fb7045275e6b1d7",
+    "baseline/cell_i2125.v": "6eb55772966be2b159da55d2495a57dd66de73f10137479f7f417002aaa157c9",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/snapshot_fit.qsf": "50bc91a469c72cdcebf982afa26624b9c1dddf2653da2cd8312330b93b142682",
+    "executed-sources/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "executed-sources/f10415_word_bank.sv": "d5e0649f392cfdbc116de9bbc5b615ba923526704357ddfb0888ace111fea5ca",
+    "executed-sources/audit_contb_im.py": "51e06b61c69461b2d8baae1b8be7462c9f02692c70401bc6ac571e534f2c1083",
+    "executed-sources/i2125_byte_bank.sv": "723abdeb7224522eb3eb2f7502b0321744383bc76eebeccc677a2b7ccf8b6752",
+    "executed-sources/cell_i2125.v": "6eb55772966be2b159da55d2495a57dd66de73f10137479f7f417002aaa157c9",
+    "executed-sources/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "executed-sources/fit_i2125.py": "7c01e2eb1a15be22d7c7416a6d12cd4b23d8723d486eebd1b24099232eaafdec",
+    "executed-sources/audit_baseboard_ram.py": "e56581f0f63d1dfe6a04440a3b6024d592dc117b27bccd20f1f8717a8e5c0640"
+  },
+  "expected_qsf": {
+    "baseline": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE i2125_byte_bank.sv\nset_global_assignment -name SYSTEMVERILOG_FILE f10415_word_bank.sv\nset_global_assignment -name VERILOG_FILE cell_i2125.v\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to ce_n[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to we_n[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to held[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to request[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to write[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to address[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to state_data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to word_index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to q[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to done[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to error[*]\n",
+    "snapshot": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE i2125_byte_bank.sv\nset_global_assignment -name SYSTEMVERILOG_FILE f10415_word_bank.sv\nset_global_assignment -name VERILOG_FILE cell_i2125.v\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to ce_n[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to we_n[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to held[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to request[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to write[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to address[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to state_data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to word_index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to q[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to done[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to error[*]\nset_global_assignment -name VERILOG_MACRO \"SNAPSHOT_BANK_EXPERIMENT=1\"\n"
+  }
+}

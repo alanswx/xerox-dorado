@@ -2,6 +2,39 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**BaseBoard SRAM snapshot qualification passes. Native59 remains the interactive hardware baseline.**
+
+The actual 32 Intel 2125 slices are grounded in the original wire list as
+four independently selected 1024x8 banks. The adapter reuses the qualified
+RAM transport unchanged and preserves all 32,768 RAM bits plus 32 registered
+read bits, including the output-disable behavior during writes. Original
+MCD wire names define word-bit order; no 6502 byte-order assumption is made.
+
+Simulation passes 164,821 host edges, all 32,800 state bits, all 8,192 combined
+indices, CE/WE combinations, backend holds, destructive continuation/restore
+and first-edge resume. Nine broken RTL variants reject. Fresh actual-board
+XML classification accounts for every SRAM field and retains other board
+state outside this scope; 12 bad schemas and 11 bad grouping controls reject.
+Matched 50MHz fits and an independent read-only audit pass all four operating
+conditions, minimum slack +0.211ns. Both variants retain 32,768 RAM bits in
+four physical M10Ks with old-data collision behavior. Isolated shell totals
+are 171 ALMs/112 registers -> 290 ALMs/330 registers; these are not whole-core
+snapshot overhead. Ten damaged-fit controls reject. All 24 compiled inputs
+and archived raw bytes pass extraction/hash/audit readback. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-i2125/`.
+
+No production BaseBoard or live core was changed. Native59 Main29511 and
+server29510 are confirmed present, with RBF db6883e4. Latest observed counters
+are CRC/RX/abort0 and dropped23; do not claim zero drops or sustained final
+qualification. The last qualified idle rate remains 1,947,654.12 issues/s.
+
+Next: qualify the eight EPROM read registers and remaining 279 clock/reset/
+FF bits, then complete BaseBoard classification/restore/timing. Check enabled
+whole-core snapshot capacity and timing, coordinate backend/input/ARM/server/
+matching-disk state and barriers, and demonstrate physical Cedar save/restore.
+Original60ns clock/timer migration and final repeated boots/cold persistence/
+pinned performance/two-hour combined stress remain open. Goal ACTIVE.
+
 **Native59 full Viewers/input/warm file PASS; complete MCS6532 wrapper PASS.**
 
 Live MiSTer14 Main 29511 / server 29510 / RBF db6883e4 are unchanged.
@@ -2719,7 +2752,7 @@ and has unreviewed hold violations; never deploy it.
 
 ## Current TODOs (2026-10-17, FPGA boot)
 
-### Active continuation (2026-10-19, Native58)
+### Active continuation (2026-10-19, Native59)
 
 - [x] Finish52 full Viewers/mouse/exact keyboard/warm marker; normal guest812 and actual Main barriers preserve its volume.
 - [x] Integrate ProcH/ProcL exact-advance adapters with admin inactive; qualify full53 timing31summary/100detailed/four conditions, min+0.115ns.
@@ -2755,10 +2788,14 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify DskEth MC1650/MC10136/SN169/SN174 local state primitives and actual oscillator23530/SYSPER8 simulation coverage.
 - [x] Qualify SN74123 full70bit timer state/original+oracle/restore/fresh XML signed types/matched timing(+0.140ns).
 - [x] Complete full DskEth board+monitor2,656bit classification/restore/isolated timing(+0.147ns) and native59 assets preparation.
-- [ ] Finish running59fullcore build87022, audit196detailed/fourconditions/40crossings/allmemory/source; preserve58throughnormalBoot/barriers and test fresh59firmware/Cedar/input.
-- [ ] Complete BaseBoard/vendor6502 and backends/wrapper/input/ARM server/diskgeneration/global atomic snapshot with actual FPGA restore.
-- [ ] Finish remaining board/device/ARM state and atomic snapshot bundle with actual FPGA Cedar restore.
-- [ ] Finish original60ns clock/enable and timer migration; final three fresh boots, coherent snapshot restore, persistence, pinned measurements and two-hour combined stress.
+- [x] Finish Native59 full-core audit:196detailed/fourconditions/40crossings/source/memory; preserve58 via normal Boot/Main barriers and qualify fresh59 firmware/full Viewers/mouse/exact keyboard/warm marker.
+- [x] Qualify the actual 1725-node netlist6502 and complete1098-bit MCS6532 wrapper: original/oracle/restore/fresh classification/matched timing.
+- [x] Ground actual32 BaseBoard i2125 slices in the original wire list; qualify all32800bits, four old-data M10Ks, fresh classification and matched timing(+0.211ns).
+- [ ] Qualify eight EPROM read registers and remaining279 BaseBoard clock/reset/FF bits; complete board classification/restore/timing.
+- [ ] Check full-core FPGA capacity/timing with all snapshot administrative paths enabled.
+- [ ] Complete backends/wrapper/input/ARM cache/server/matching-disk-generation state, coherent barriers and atomic bundle; qualify actual FPGA Cedar save/restore.
+- [ ] Finish original60ns clock/enable and timer migration; repeat pinned speed/stall comparisons.
+- [ ] Qualify final three fresh boots, coherent snapshot restore, cold disk persistence and two-hour combined stress.
 
 ### Earlier bring-up ledger
 
