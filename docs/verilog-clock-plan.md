@@ -41,18 +41,22 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-Current hardware update00:54UTC19Oct:41d cold marker readback and42
-Viewers/input pass; both volumes are preserved after normal guest Boot and
-actual loader durability barriers.47 passes all34 loadees/profile No,
-BootEssentials and fonts pass; Viewers Ready, real mouse/Cmd/focus and exact
-short/alphabet/digit echo in an independent CommandTool pass. Its pre-Guest idle-login
-mean is1,595,641 issues/s (9.57385% nominal), one boot/three adjacent windows,
-not a repeated matched comparison.47 subsequently passed actual active-DDR
-STOP/unmap/normal reload/fresh grant; live47b is original-firmware booting
-with the same RBF/Main/server and untouched seed, no qualification DSO.
-48 is fitting with only43 arbitration enabled for a matched comparison.
-Evidence: native41d/native42-field and native47-drained-state/worker-ddr/
-active-reload. Later candidate diaries are historical.
+Current hardware update01:30UTC19Oct: retired47 passes original Viewers/input;
+actual active-DDR STOP/unmap/normal reload/new epoch also pass. Clean47b
+idle averages1,595,628.966 issues/s. Live48 changes only raw response-boundary
+selection with identical Main/server/DDR transport; all-device timing31/36/
+four conditions passes, min+0.102ns. Original-firmware login averages
+1,694,447.318 issues/s (+6.1931%,10.16668% nominal), ONE boot per configuration
+with three adjacent windows, not repeated qualification. Its complete base
+loader34-transfer chain takes373.0718..373.3220s by bounded protocol-log
+visibility and exact final guest ACK; no timed control for a loader gain.
+All Load ok lines/profile prompt are visible; No entered, BootEssentials/
+styles advancing. Source hashes match all34 served files after timing;
+physical payload byte hashes and full Viewers/input remain open.49 physical
+interleaving timing passes min+0.115ns, not deployed;50 deferred reads is
+building.41d closed marker persistence and42 matched DDR control remain
+preserved. Evidence: native47b-login/native48-field/arbitration/native49-
+interleave. Later candidate diaries are historical.
 
 Use three explicitly recorded workloads: idle Cedar login, a fixed cold
 loader sequence through all 34 base packages, and a desktop script with
@@ -83,9 +87,13 @@ claim. Original guest-visible CPU/cache/map/ECC behavior is preserved, with
 no imported C machine state or host completion of guest instructions/IOCBs.
 
 The47 normal guest Boot/active-DDR STOP/unmap/full fresh reload and different
-epoch grant now pass (native47-active-reload). Fresh47b is booting for a clean
-baseline; matched48 adds only43 arbitration and is fitting with the same
-DDR network. Review all-device timing, then controlled memory comparisons.
+epoch grant now pass (native47-active-reload). Clean47b mean1,595,628.966
+issues/s; matched48 timing31/36/four conditions passes, min+0.102ns. Real48
+login averages1,694,447.318 (+6.1931%),10.16668% nominal, one fresh boot per
+configuration/three adjacent windows, not repeated qualification. Original
+Guest accepted, base loader advancing with timestamp observer. Full desktop
+and loader timing remain open.49 interleaving is building with the same DDR
+network. Continue controlled memory comparisons; no clock-speed claim.
 Complete snapshot4a is required;
 its isolated RAM access prototype now passes; actual board access is next.
 Native41b's failed pack remains preserved;41d closes the separate clean

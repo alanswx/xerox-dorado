@@ -1,0 +1,16 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native48_20261019",
+  "arbiter_source": "/home/alans/mister/Dorado_Native44_20261018/src/fpga/mister/dorado_storage_arb.sv",
+  "change": "Only frozen Native44 physical raw group/word address permutation on Native48. Same original data/ECC, chip pipeline, SDRAM, no raw cache, successor selection, physical DDR network and clock/timing constraints.",
+  "source_changes": [
+    "fpga/mister/dorado_storage_arb.sv",
+    "build/rtl-executive/native16-tx-cable/dorado_native_machine.sv",
+    "build/rtl-executive/native16-tx-cable/manifest.json"
+  ],
+  "source_hashes": {
+    "src/fpga/mister/dorado_storage_arb.sv": "750e623b4a2bf59fee9718fa98d1ac77ddde55e19b4e90df22d3e047a6fdd743",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv": "e56cfefd7c6c2154a2798646173343b229f1b01c0ad551ff2ba823b76a8c699a",
+    "src/build/rtl-executive/native16-tx-cable/manifest.json": "6cfc53777ecc38f4a82c41d0117b562ce87ff9d027279e5c3655a91935671403"
+  },
+  "extra_timing_exceptions": "None"
+}

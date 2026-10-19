@@ -1,0 +1,11 @@
+{
+  "old47_issues_s": 1595641.4612215483,
+  "fresh47b_issues_s": 1595628.966180956,
+  "relative_difference_percent": -0.0007830731963198723,
+  "nominal_original_fraction": 0.09573773797085736,
+  "scope": "Two independent same-RBF/Main/server/DDR-network/seed login boots; three adjacent windows each. Not final three boots or pipeline retirement.",
+  "fresh_main": 3277,
+  "fresh_server": 3276,
+  "setup_debugger_pauses": 2,
+  "probe_dso": false
+}

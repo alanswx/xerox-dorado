@@ -1,7 +1,7 @@
 # Native48 matched memory-arbitration experiment
 
-BUILDING; NOT DEPLOYED. Collect and review full four-condition timing before
-programming MiSTer14. A build is not an FPGA speed measurement.
+TIMING PASS and deployed. Original-firmware login and preliminary measured
+idle gain: ../2026-10-19-native48-field/. Full software qualification pending.
 
 `build.py` freezes Native47's physical DDR network, SDRAM/no raw cache,
 50MHz/SYSPER4, architectural boards and timing constraints. It copies the
@@ -16,12 +16,10 @@ Native43's component/whole-memory equivalence evidence stays separate.
 This build combines it with the current DDR network for a comparison using
 identical Main/server/packet transport to clean Native47b.
 
-Current invocation: Mac exec76623, remote fitter498946 verified live at
-00:54UTC19Oct, routing after successful placement. Revalidate the same handle
-or actual process before restarting. `collect.py` requires31 summary and36
-detailed checks across four conditions, nonnegative slack and no illegal/
-unconstrained clocks, then records the RBF and compiled-source hashes.
-There is no qualification artifact until those checks pass.
+Build76623/fitter498946 COMPLETED.31 summary/36 detailed checks across four
+conditions pass, minimum+0.102ns, zero illegal/unconstrained clocks, no new
+cuts.30,533 ALMs73%,52,795 registers,330M10Ks. Frozen sources/fit/timing
+reports and RBF hash40750c11 are included. Do not restart this build.
 
 Next measure clean47b idle login before Guest, then48 on the same fresh seed,
 Main21e67a3f/serverc5996249, direct DDR, guest time and input sequence. Repeat

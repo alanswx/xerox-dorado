@@ -1,0 +1,21 @@
+{
+  "scope": "Actual recorded47 protocol lines, synthetic times ONLY for parser tests; no historical duration claim",
+  "cases": [
+    {
+      "case": "missing_final_ack",
+      "rejected": "no complete source transfer sequence with exact final guest ACK"
+    },
+    {
+      "case": "missing_file_range",
+      "rejected": "no complete source transfer sequence with exact final guest ACK"
+    },
+    {
+      "case": "missing_earlier_file",
+      "rejected": "base-loader transfer sequence missing or reordered"
+    },
+    {
+      "case": "missing_final_probe",
+      "rejected": "no complete source transfer sequence with exact final guest ACK"
+    }
+  ]
+}

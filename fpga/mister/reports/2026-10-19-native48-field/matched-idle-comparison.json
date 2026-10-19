@@ -1,0 +1,18 @@
+{
+  "scope": "Preliminary matched fresh original-firmware idle Cedar login; one independent boot per configuration, three adjacent windows each; not repeated loader/desktop or retirement qualification",
+  "control47b_issues_s": 1595628.966180956,
+  "candidate48_issues_s": 1694447.3184463214,
+  "gain_percent": 6.193065829199718,
+  "nominal_original_fraction": 0.10166683910677929,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "server_sha256": "c59962490772f12d061ec61aa64e6a567144d26d7802a28349a8d9a044eda87e",
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "packet_transport": "physical DDR",
+  "raw_backend": "SDRAM, no raw cache",
+  "change": "Frozen Native43 response-boundary successor selection on Native47",
+  "setup_gdb_pauses": 2,
+  "probe_dso": false,
+  "full_viewers": "pending",
+  "repeated_comparisons": "pending"
+}

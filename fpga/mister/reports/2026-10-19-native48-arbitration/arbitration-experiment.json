@@ -1,0 +1,16 @@
+{
+  "baseline": "/home/alans/mister/Dorado_Native47_20261018",
+  "arbiter_source": "/home/alans/mister/Dorado_Native43_20261018/src/fpga/mister/dorado_storage_arb.sv",
+  "change": "Only frozen Native43 response-boundary raw successor selection on Native47. Same physical DDR network, SDRAM layout, no raw cache, original boards/CPU and clock/timing constraints.",
+  "source_changes": [
+    "fpga/mister/dorado_storage_arb.sv",
+    "build/rtl-executive/native16-tx-cable/dorado_native_machine.sv",
+    "build/rtl-executive/native16-tx-cable/manifest.json"
+  ],
+  "source_hashes": {
+    "src/fpga/mister/dorado_storage_arb.sv": "0d99745fefdf0f3ea5c40fc5c6cc0c23201b73bd92a09967133cd1c03b59ac6c",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv": "b2d4610c5e26d222fddfe17bcece2ead8422ffc7ccca88d5c8786e214be4f8bb",
+    "src/build/rtl-executive/native16-tx-cable/manifest.json": "dc94122d161bb62d9e85ae3d18a6134fc1eaae71e4ff2d10cc659e8132bc1125"
+  },
+  "extra_timing_exceptions": "None"
+}
