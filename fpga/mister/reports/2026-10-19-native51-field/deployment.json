@@ -1,0 +1,23 @@
+{
+  "time_utc": "2026-10-19 05:39:59 UTC",
+  "old_main": 8321,
+  "old_server": 8318,
+  "staging_main": 11239,
+  "main_pid": 11259,
+  "server_pid": 11258,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "server_sha256": "c59962490772f12d061ec61aa64e6a567144d26d7802a28349a8d9a044eda87e",
+  "rbf_sha256": "3d253187b42615e53fde1dc1bed688eb0328265d007bffdc3c161196294ccac3",
+  "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "main_log": "/tmp/dorado51-main.log",
+  "disk_trace": "/tmp/dorado51-disk.jsonl",
+  "preserved_old_volume": {
+    "path": "/media/fat/games/DoradoRTL/Cedar49b_20261019/cedar-work.pack",
+    "bytes": 63578624,
+    "sha256": "670f3e549dc904d606b7b8d3c660b5f9ca424cdcaaaa3d7d933e3672c85e8a8a",
+    "guest_boot": "Normal guest Boot after Viewers/input and rtl49bpersist.txt close/readback; actual germ855 captured; no cold marker readback or full snapshot claimed",
+    "host_boundary": "Actual normal Main loader active-DDR and disk barriers, followed by normal temporary Main exit",
+    "fpga_snapshot": false
+  },
+  "phase": "Full Native51 load completed; cache-ready and fresh DDR grant required"
+}

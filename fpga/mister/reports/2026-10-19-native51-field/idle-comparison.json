@@ -1,0 +1,6 @@
+{
+  "native51_mean": 1947710.7458724827,
+  "native49b_mean": 1947691.36638264,
+  "change_percent": 0.000994997984649082,
+  "decision": "No material idle throughput difference in one boot each; same50MHz/SYSPER4, no speedup claim. This qualifies normal clock-enable behavior preliminarily, not final repeated/full desktop performance."
+}

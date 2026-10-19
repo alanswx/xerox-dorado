@@ -1,0 +1,70 @@
+{
+  "utc": "2026-10-19T06:10:47.279226+00:00",
+  "main_pid": 11259,
+  "server_pid": 11258,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "server_sha256": "c59962490772f12d061ec61aa64e6a567144d26d7802a28349a8d9a044eda87e",
+  "rbf_sha256": "3d253187b42615e53fde1dc1bed688eb0328265d007bffdc3c161196294ccac3",
+  "observer_terminal": {
+    "event": "end",
+    "ns": 23258369556287,
+    "reason": "stop file"
+  },
+  "prior_main_server_staging_absent": true,
+  "maps": {
+    "main": [
+      "b3b0b000-b52c6000 rw-s 22000000 00:06 2          /dev/mem",
+      "b52c6000-b62c6000 rw-s ff000000 00:06 2          /dev/mem"
+    ],
+    "server": [
+      "b6e27000-b6e37000 rw-s 1ff00000 00:06 2          /dev/mem"
+    ]
+  },
+  "scope": "Read-only live process/log collection; no pause, SPI, memory map, guest write or live pack copy. Live logs are not a disk barrier or machine snapshot.",
+  "files": {
+    "deployment.json": {
+      "bytes": 1196,
+      "sha256": "b070d64d6777323a4fc0925a825d29473d00753eeab3c6346761c09d2bd09b5e"
+    },
+    "reboot-resume.json": {
+      "bytes": 1478,
+      "sha256": "95ac8f8f0f220f8926db569b1285813a3a454df3e8ccca360d73eb22d5cdb790"
+    },
+    "main-through-collection.log": {
+      "bytes": 254571,
+      "sha256": "a1de5d4444e4838287408d11b4cb317360aeecd52e7631b5626c589ad2e60da3"
+    },
+    "disk-through-collection.jsonl": {
+      "bytes": 4120036,
+      "sha256": "3ecc1105f9e1830b3b215d9791304512985fd1e3fde2444f9be97e23987f5eb9"
+    },
+    "server-through-collection.log": {
+      "bytes": 683452,
+      "sha256": "fbe8095a7e4c41e62131d895c5d698c50331be5f00dccbc1930174f3288909d6"
+    },
+    "loader-observer.jsonl": {
+      "bytes": 2024744,
+      "sha256": "9a46089b061eac0faa294d7107e2839623b6b5b783fe1d9732372da9f66f54fa"
+    },
+    "retired49b-preservation.json": {
+      "bytes": 490,
+      "sha256": "c037096cc2fc7a090aeccb471a8bded21aa02e67ad8f8e09a227cca67f939424"
+    },
+    "retired49b-normal-boot-qualification.json": {
+      "bytes": 482,
+      "sha256": "822500dfa71f81a2ef9d205b1d38b58e59855e7329f4d4f84c8113403811c4dc"
+    },
+    "retired49b-desktop-qualification.json": {
+      "bytes": 1675,
+      "sha256": "37a93ed475319688f5fadedcfb11977ed1d2c43f9593c75f7cc99fe1556564d8"
+    },
+    "retired49b-disk-through-load.jsonl": {
+      "bytes": 11447136,
+      "sha256": "b5155c7a9fa8c5ed1f07264ec61123471310e227db727a5fde1aa03667102a3d"
+    },
+    "retired49b-main-through-load.log": {
+      "bytes": 893047,
+      "sha256": "17a10470d78cd31282f6e6f42e98c900bd7589a52172c7d2031c44ab6652c302"
+    }
+  }
+}

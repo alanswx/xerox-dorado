@@ -1,0 +1,9 @@
+{
+  "main_pid": 8321,
+  "server_pid": 8318,
+  "rbf_sha256": "6e7866f3d6125e5926c05fa9c4a4a000e1a4aef72b61766ccfe8b2676eecad0d",
+  "input": "Normal guest boot command through real virtual USB keyboard at empty second CommandTool prompt",
+  "observed": "germ855",
+  "capture_sha256": "fef1886f9f238e9aa8998172aed908e0d1e397892fb223b93b7d69cdd5b8fba3",
+  "limits": "Actual sampled germ855 after normal Boot;812 not captured. No full OS shutdown/snapshot/cold marker readback claim."
+}

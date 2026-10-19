@@ -6,6 +6,15 @@ in the running MiSTer core. This directory now qualifies bounded RAM access
 and complete modeled ContB state restore in isolated RTL/routed experiments.
 Machine-wide state access, coherent barriers and physical restore remain open.
 
+Update2026-10-19: the qualified ContB host-clock/exact-advance adapters are
+now in the full Native51 core on MiSTer14. Four-condition whole-core/crossing
+timing, original firmware, Cedar login and all34 base transfers pass. ALL
+snapshot admin inputs remain inactive; the running core cannot save/load
+state. Full51 desktop qualification and the slower-loader/replay investigation
+are ongoing; Native49 remains the performance baseline. Evidence:
+reports/2026-10-19-native51-contb and native51-field. Historical isolated
+experiments below did not themselves change production RTL.
+
 `f10415_bank.sv` models an IM-like1024x34 bank from34 original F10415A slices.
 It exports1024 RAM words plus a separate34-bit read-pipeline word. The RAM
 read always clocks. During scanning, a saved register supplies the guest's

@@ -15,8 +15,15 @@ Actual active-DDR STOP/unmap/normal reload/fresh epochs pass. Two memory
 policies improve preliminary idle login from1.596M to1.948M issues/s
 (+22.0639%);49's full34-transfer base loader takes16.136..16.276% less time
 than48, ONE boot each. Native50 deferred reads are rejected for negligible measured benefit and
-extra3323ALMs. Live49b repeats the smaller selected49 baseline; idle reproduces
-within0.000203%, full base loader passes. Continue
+extra3323ALMs. Fresh49b repeats the smaller selected49 baseline; idle reproduces
+within0.000203%, full desktop/input and warm marker pass. Live51 integrates
+ContB host-clock/exact-advance adapters with all snapshot admin inactive;
+original firmware/login/base loader pass, installer advancing. Idle is
+1,947,710.746 issues/s (+0.000995% vs49b). Loader333.686..333.915s is slower
+than49b311.340..311.570s: bounded counters show7.32..8.69% more issued work,
+128 protocol replay events concentrated in Tioga/CommandTool/Watch, rather
+than reduced interior instruction throughput. Cause of replays remains open;
+do not promote51 from idle equality alone. Continue
 complete snapshot4a, accurate clocks/timers and repeated/stability gates.
 Representative ContB now passes complete modeled board state restore and
 isolated all-corner timing; whole-machine/physical snapshots remain unfinished.
@@ -133,7 +140,7 @@ constraints. Handle69340/fitter512897 COMPLETED;31 summary/36 detailed checks/
 four conditions pass, min+0.115ns, no new cuts/illegal/unconstrained clocks.
 RBF6e7866f3. Source/frozen evidence:2026-10-19-native49-interleave.
 
-**Live Native49b: selected baseline repeat, original firmware/base loader PASS.**
+**Retired Native49b: selected baseline repeat, Viewers/input/warm marker PASS.**
 Normal load03:46:47UTC19Oct, Main8321/21e67a3f, daemon8318/c5996249,
 temporary8310 retired normally; same49 RBF6e7866f3,50MHz/SYSPER4, SDRAM/no
 cache/direct DDR, arbitration/interleaving ON, deferred reads OFF. New original
@@ -242,10 +249,11 @@ Next integrate access with the complete-machine hierarchy and classify/access
 other boards, wrapper/devices/input and physical SDRAM/Main/server. Establish
 coherent global pause, matching disk generation/server state, atomic bundles,
 pending/error/reset tests, full-core STA and actual Cedar restore timing.
-Production generated files/cells/QSF/live FPGA unchanged;49b remains running.
+This isolated experiment did not change production sources; the later51
+integration and field test are recorded below.
 60ns clock migration and final repeated/stress qualification remain required.
 
-**Native51 complete-core ContB integration TIMING PASS, NOT DEPLOYED.**
+**Native51 complete-core ContB integration TIMING PASS; deployed05:39:59UTC.**
 Frozen49 plus qualified host-clock/exact-advance ContB adapters. All snapshot
 admin inputs remain inactive until global barrier/transport, so no physical
 save/load or enabled-access area budget. Other boards/storage/cache/map/ECC/
@@ -266,10 +274,34 @@ sources/QSF/SDC/crossing/RAM inference. Quartus-added duplicate relative aliases
 of only the four approved sources are normalized; extra source/SDC/macro
 controls reject. Frozen parity documentation-only difference is archived/code-
 line identical. Earlier terminal preflights remain preserved; never restart.
-Next normal guest Boot/preserve49b, normal active-DDR/disk barriers and fresh
-original seed for51; original firmware/Cedar/input/progress qualification.
-Live49b remains Main8321/server8318 for now. No speed gain/physical snapshots
-claimed. Evidence native51-contb; source build_native_contb.py.
+Normal guest49b Boot visibly reached germ855; actual normal network/disk
+barriers and temporary Main exit retired49b. Its63578624-byte pack is preserved
+at Cedar49b_20261019, SHA670f3e549dc904d606b7b8d3c660b5f9ca424cdcaaaa3d7d933e3672c85e8a8a;
+no cold marker readback or full snapshot claim. Live51 Main11259/21e67a3f,
+server11258/c5996249; untouched originalf3bce2a8 seed before final caching.
+Actual Main SPI74 flags0x16/fault+errors0, fresh epoch64113e80774df597.
+Daemon only maps64KiB1FF00000; Main has no ring mapping or probe DSO. Two
+setup GDB controls precede measurements. C/cool-boot/idle/Guest helpers and
+observer11620 are terminal; observer absent independently. Do not restart.
+Original BFN113/Pilot/login/all34 base transfers/final actual guest ACK pass.
+Idle1,947,710.746 issues/s (+0.000995% vs49b), no material difference. Loader
+333.685688..333.915342s versus49b311.339931..311.569520s with the same analyser.
+Conservative loader issue bounds552.031..555.317M vs49b510.929..514.372M;
+interior51 throughput1.66235..1.66256M/s vs49b1.64249..1.64271M/s. There are128
+replay events in Tioga37/CommandTool56/Watch35 versus49b0. Extra protocol work
+correlates with delay; packet-loss cause/possible regression remains OPEN.
+Do not claim a no-regression result from idle equality. Fixed-cadence repeats
+remain required. All34 remote source hashes match; physical payload proof open.
+Cedar timed out to profile Yes and waited at profile-name prompt. Real Return
+accepted the default, guest reported it missing; explicit No on the retry
+was accepted. BootEssentials and further installer work are advancing; full51
+Viewers/input/warm-marker remains pending. Live /tmp/dorado51-main.log and
+/tmp/dorado51-disk.jsonl, Cedar51_20261019. Helpers cedar51-launch. The
+read-only collector ran after timing; live captured logs are not a barrier.
+Evidence native51-contb/native51-field; source build_native_contb.py and
+tools/analyze_fpga_loader.py/compare_fpga_loaders.py. No physical snapshot or
+speed gain is claimed. Next finish51 desktop, investigate/repeat the loader,
+then other board access/global barrier, accurate clocks and final gates.
 
 **Exact frozen49 native-machine snapshot inventory/ContB coverage PASS.**
 Frozen source/macros copied from actual working49, no newer generator.4158
@@ -1695,7 +1727,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify18-bit explicit-enable snapshot RAM against unchanged original cells and independent array; retain twoM10Ks/OLD_DATA, matched registered-shell all-corner timing min+0.255ns and damaged RTL/report controls.
 - [x] Qualify bounded actual ContB IM state access: unchanged-board all-output/strobe/clock-hold comparison and matched isolated gated-clock all-corner fit,16M10Ks/min+0.168ns.
 - [x] Export/classify all209 remaining ContB q/setup/history bits; full147809-bit modeled board save/continue/restore/first-edge equivalence, coverage controls and isolated all-corner fit pass min+0.165ns.
-- [x] Integrate ContB adapters with admin inactive into frozen49 complete core;31/52/four-condition timing and fitted8x18-bit OLD_DATA checks pass min+0.115ns. Hardware normal-operation gate remains pending.
+- [x] Integrate ContB adapters with admin inactive into frozen49 complete core;31/52/four-condition timing and fitted8x18-bit OLD_DATA checks pass min+0.115ns. Native51 original firmware/login/base loader pass on14; full desktop/input pending.
+- [x] Preserve51 read-only loader trace and qualify exact34 transfers/final guest ACK/counter unwrap; damaged ACK/data/peer/counter controls reject.
+- [ ] Resolve51 longer loader/replay result with fixed-cadence fresh comparisons; do not promote from equal idle throughput. Tioga/CommandTool/Watch carry128 replay events and extra issued work; packet-loss source unproven.
+- [ ] Finish51 Viewers/mouse/Cmd/focus/exact short/alphabet/digit echo and guest disk write/readback; missing-profile No retry accepted and installer advancing.
 - [x] Refresh exact frozen49 native hierarchy inventory and prove qualified ContB coverage inside real machine.
 - [ ] Connect active bounded access/global barriers and extend/classify other boards/wrapper/devices/input/raw memory/Main/server; qualify complete physical restore and combined timing.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.

@@ -42,7 +42,7 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-Current hardware update04:41UTC19Oct:47/48/49 original Viewers/input and
+Current hardware update19Oct:47/48/49 original Viewers/input and
 active-DDR STOP/unmap/normal reload/fresh epochs pass. Clean47b idle1,595,628.966;
 48 arbitration1,694,447.318 (+6.1931%);49 interleaving1,947,687.412 (+14.9453%
 vs48,+22.0639% vs47b,11.6861% nominal). Each has three adjacent windows in one
@@ -56,13 +56,23 @@ Manual pre-Guest idle delays varied; not a final automated repeated benchmark.
 useful benefit: idle+0.01861%, loader311.63439..311.86355s, inside observed49
 variation, for3323 additionalALMs/2832regs. Reject50 as baseline; retain optional
 RTL/tests/evidence. Actual Main barriers retire50 normally and preserve its
-physical disk. Live49b original firmware/base loader pass; No entered, installer
-advancing, full Viewers/mouse/Cmd/focus and exact short/alphabet/digit echo now pass.
+physical disk. Fresh49b full Viewers/mouse/Cmd/focus, exact short/alphabet/digit
+echo and warm marker pass; normal guest Boot reached germ855 and normal Main
+barriers preserve its pack. Live51 ContB exact-advance adapters pass all-device
+timing, original firmware/login/base transfers; snapshot admin inactive.
+Idle1,947,710.746 issues/s matches49b (+0.000995%). Loader333.686..333.915s is
+longer than49b311.340..311.570s under the same new analyser. Counters bracket
+7.32..8.69% more issued work, slightly higher interior throughput and50MHz
+host progress.128 replay events occur in Tioga/CommandTool/Watch versus49b0.
+Cause remains OPEN; do not promote51 based on idle equality. Fixed-cadence
+fresh repeats and packet-delivery investigation are next.51 installer is
+advancing after missing-profile default/No retry; full desktop/input pending.
 Same50MHz/SYSPER4 clocks, SDRAM/no raw
 cache/direct DDR, arbitration/interleaving ON, deferred reads OFF. Physical
 packet-byte proof, fixed-cadence repeated comparisons and sustained final gates
 remain open. Snapshot4a and60ns clock migration remain required. Evidence:
-native49b-repeat/native50-field/snapshot-enable; older diaries are historical.
+native49b-repeat/native50-field/native51-contb/native51-field; older diaries
+are historical. No speed gain or complete physical snapshot is claimed for51.
 
 Use three explicitly recorded workloads: idle Cedar login, a fixed cold
 loader sequence through all 34 base packages, and a desktop script with
