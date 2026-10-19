@@ -777,3 +777,40 @@ No core builder/FPGA or speed change. The full-core result remains3,318ALMs
 over capacity; these are isolated measurements. Continue remaining boards and
 combined capacity/timing qualification, schema/timeout changes and global
 hold/fault/SYSTEM-reset integration before selecting this in a live core.
+
+
+## Complete display serial FF access (2026-10-19)
+
+`generate_dispy_ff_scan.py` chains all140unchanged FF helpers/1,439bits, with
+compact words0..79 (last17bits). RAM/window, raw pipeline, oscillator and phase
+access remain intact; defaults/CE omission/PROMs are unchanged. The explicit
+compact-ff-v1 layout replaces ff.word aliases with legacy_parallel_word.
+No shadow bank is added. Busy/fault holds every local helper until SYSTEM reset;
+reset-time access is rejected and re-entry requires a new freeze acknowledgment.
+Foreign consumers still require a global barrier.
+
+`test_dispy_ff_scan.py --mutations` preserves the original full display and
+independent RAM oracle. It passes7,874,288edges/all13,993bits/all524,288indices/
+destructive restore/raw pipelines/first-edge/20Kmore, all15normal writers active.
+Seven damaged variants reject. A surviving word-bank hold mutation in v1 exposed
+coincidentally unchanged data; direct freeze observations for all16helpers
+close that test gap. V3 completes the strengthened suite. Fresh XML accounts for
+13,993physical+232private bits/no exclusions and2,048PROM bits; twelve damaged
+inventories/layouts reject. Word saved_q is the canonical original pipeline at
+the acknowledged frozen/pending boundary; raw private read stages remain outside
+that architectural alias, with first-edge equivalence tested.
+
+Matched enabled display fits use identical asynchronous RAM helpers, staged
+inputs, positive-edge50MHz/20ns budgets and SDC. Area2,814 ->2,313ALMs saves501;
+all four conditions pass, minimum+0.124ns. All1,439FF bits,18placed memory rows,
+12,480logical/12,672replica RAM bits, three independent M10Ks and OLD_DATA are
+checked. No new cuts, unconstrained paths or warning category. Eight damaged
+fit/source/retention/hold/collision/placement controls reject. All940raw files
+pass readback; extracted fit/classification/source regeneration pass again.
+Report: reports/2026-10-19-snapshot-dispy-ff-scan.
+
+No production builder/live FPGA/speed change. Complete-core capacity remains
+3,318ALMs over budget; these are isolated counts. Continue remaining boards,
+combined fit/timing and versioned schema/timeout/global-hold integration. The
+current16-edge transport cannot serve1,439-edge scans unchanged. Full machine
+snapshots, original60ns clocks and final hardware release gates remain open.

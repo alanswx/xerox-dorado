@@ -2,54 +2,53 @@
 
 ## Current objective (2026-10-19 UTC)
 
-**Both processor boards now pass serial state access and isolated timing: ProcH saves 215 ALMs and ProcL saves 196. Full-core capacity is still unqualified.**
+**The display board now passes complete serial state access and isolated timing, saving 501 ALMs. The full enabled core remains 3,318 ALMs over capacity.**
 
-ProcH uses its unchanged 64 FF helpers as a 502-bit chain; ProcL uses 69 helpers
-and 519 bits. No shadow bank is added. All RAM/window and phase addresses stay
-unchanged. New compact FF maps are explicit: 28 words (last16bits) on ProcH,
-29 words (last15bits) on ProcL. Old per-package addresses are marked
-legacy_parallel_word, with no ff.word alias. The schema is compact-ff-v1.
-Readers must use scan.word_map and reject incompatible checkpoints before writes.
+DispY's unchanged140FF helpers form a1,439bit chain with no shadow bank.
+Compact FF words0..79 end in17bits; RAM/window, raw read-pipeline, oscillator
+and phase addresses stay intact. compact-ff-v1 provides explicit offsets;
+legacy_parallel_word preserves old addresses for review, not an ff.word alias.
+Original display/oscillator defaults, omitted word-memory CE and PROM bytes
+remain unchanged. The actual unadapted Native57 source/backplane tree is retained.
 
-The full original/independent processor oracle passes all 5,712 / 5,581 physical
-bits, all 75 / 96 outputs, all-bit access, 65,536-index validation, destructive
-continuation/restore, first resumed edge and20Kmore. ProcH runs1,013,101host
-edges; ProcL1,072,508. All14/12RAM writers are active (two ProcL writers only
-once in this fixture). Busy ownership, partial-rotation quarantine, reset-time
-access rejection and freeze re-entry pass. Six damaged implementations reject
-per board. Fresh candidate XML accounts for5,712+233 and5,581+209 physical/private
-bits with no sequential exclusions; nine bad inventories/layouts reject each.
-Immutable PROMs and exact frozen original cells are retained; the MC10170
-workspace comment delta is token-checked only.
+Full original/independent display simulation passes7,874,288host edges,
+7,799,391holds,1,101,581requests, all13,993state bits/all524,288indices,
+destructive restore, raw pipeline bits, quiet recapture, first resumed edge
+and20Kmore. All15RAM writers are active. Busy-owner stability, partial-rotation
+quarantine, reset rejection and freeze re-entry pass. Seven damaged variants
+reject. A word-bank hold mutation survived the first data-only quarantine check;
+the test now directly checks all16helper freeze acknowledgments and catches it.
+Exact earlier sources and the diagnostic-only correction are retained.
+Fresh XML accounts for13,993physical+232private bits/no exclusions and2,048
+immutable PROM bits; twelve bad inventories/layouts reject. saved_q represents
+each original word pipeline only at the qualified frozen/pending boundary.
 
-Matched enabled parallel/serial fits retain identical asynchronous F10145
-helpers,50MHz/positive-edge launch/capture,20ns embedded budget and SDC. ProcH:
-1,950 ->1,735ALMs, minimum+0.137ns; ProcL:1,946 ->1,750ALMs, minimum+0.096ns.
-All four conditions pass. All502/519FF bits remain in synthesized helpers;
-22/18placed MLAB rows preserve exact geometry/latency and5,536/5,296replica bits.
-No new warning category, cut or unconstrained paths are accepted. Six damaged
-fit/source/policy/retention/hold/RAM-latency controls reject per board. All966raw
-files pass hash readback; both fit and classification audits pass after archive
-extraction. Evidence: snapshot-processor-ff-scan. Both jobs/sessions61476/38118
-are terminal. Earlier ContA's211ALM isolated saving remains qualified separately.
+Matched enabled parallel/serial fits keep identical RAM and50MHz/staged-input/
+positive-edge20ns shell/SDC. Area is2,814 ->2,313ALMs; registers2,234 ->2,382.
+All1,439FF bits,18placed RAM rows/12,480logical RAM bits/12,672replica bits,
+three independent M10Ks and word-bank OLD_DATA are checked. All four conditions
+pass, minimum+0.124ns; no new cuts, unconstrained paths or warning category.
+Eight damaged fit/source/retention/collision/placement controls reject.
+All940raw files pass hash readback; extracted fit/classification/regeneration
+also pass. Evidence: snapshot-dispy-ff-scan. Job/session59099 and simulation98875
+are terminal. Earlier ContA/ProcH/ProcL isolated savings remain qualified.
 
-Next: extend serial state access to the remaining boards and qualify actual
-combined whole-core area/timing. These isolated savings cannot be subtracted
-from the last full-core result:45,228ALMs /41,910available,3,318over capacity.
-No core builder or live FPGA changed. Integration must version schemas and
-formatters, extend the16-edge transport budget beyond502/519/681-edge scans,
-and provide global hold/fault/SYSTEM-reset ownership. Local board quarantine
-does not freeze foreign consumers. Preserve the qualified parallel baseline
-until replacement integration/timing/original-firmware hardware boot passes.
+Next: remaining board scan adapters and a combined full-core fit/timing audit.
+The last full-core result is still45,228ALMs /41,910available,3,318over capacity;
+no isolated saving is subtracted from it. No core builder or live FPGA change.
+Integration must version schemas/formatters, extend the16-edge transport budget
+beyond1,439-edge scans, and provide global hold/fault/SYSTEM-reset ownership.
+Local quarantine does not freeze foreign consumers; preserve the working
+parallel baseline until integrated timing/original-firmware hardware boot passes.
 
-Complete classification/access for the154,037native-wrapper sequential
-candidate bits (review inventory only), top-level input/network/video and16MiB
-external raw RAM. Implement coherent ARM/disk/input/server barriers, preserving
-server connections with timer rebasing, and atomic disk-generation-paired
-bundles. Actual FPGA Cedar save/continue/restore, original60ns clocks/timers,
-pinned performance comparisons, three fresh boots/cold persistence and two-hour
-stress remain open. Live Native59 and its last qualified idle rate of
-1,947,654.12issues/s are unchanged. Goal ACTIVE. All experiments above are terminal.
+Complete classification/access for154,037native-wrapper candidate bits (review
+inventory only), top-level input/network/video and16MiBexternal raw RAM.
+Implement coherent ARM/disk/input/server barriers, preserving server connections
+and rebasing timers, with atomic matching-disk-generation bundles. Actual FPGA
+Cedar save/continue/restore, original60ns clocks/timers, pinned comparisons,
+three fresh boots/cold persistence and two-hour stress remain open. Live Native59
+and its last qualified idle rate of1,947,654.12issues/s are unchanged. Goal ACTIVE.
+All experiments above are terminal.
 
 **Enabled60 exceeds FPGA capacity; the first state-preserving area fix is qualified and a new full-core build is running.**
 
@@ -3059,7 +3058,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify ContA reset-entry/local quarantine and matched enabled fits:1,472 ->1,261ALMs, all four conditions/min+0.131ns, physical FF/RAM retention/six damaged fit controls. Archive1,324raw files and pass extracted audits.
 - [x] Qualify full ProcH/ProcL serial access: all5,712/5,581physical bits/outputs/restore/first-edge/20Kmore, six damaged variants each; fresh complete inventories/nine controls each.
 - [x] Qualify matched enabled processor fits: ProcH1,950 ->1,735ALMs/min+0.137ns, ProcL1,946 ->1,750/min+0.096ns; exact physical FF/RAM/PROM checks and six damaged fit controls each. Archive966raw files and pass extracted audits.
-- [ ] Extend serial state access to remaining boards, then qualify actual combined whole-core capacity/timing; isolated ContA/ProcH/ProcL savings are not a measured core saving.
+- [x] Qualify full DispY serial access: all13,993state bits/RAM oracles/pipelines/oscillator/restore/first-edge/20Kmore; seven damaged variants, including explicit hold checks for all16helpers.
+- [x] Qualify fresh display inventory13,993physical+232private bits/twelve controls and matched enabled fits2,814 ->2,313ALMs/min+0.124ns; physical RAM/FF/PROM/OLD_DATA/eight damaged fit controls. Archive940raw files and pass extracted audits.
+- [ ] Extend serial access to remaining boards, then qualify actual combined whole-core capacity/timing; isolated ContA/ProcH/ProcL/DispY savings are not measured core savings.
 - [ ] Before integration, version compact schemas/formatter and extend the16-edge fabric timeout; connect global hold/fault/SYSTEM-reset ownership across boards/backends/input/ARM services. Local board hold is insufficient.
 - [ ] Continue area reductions without dropping state until all enabled interfaces fit, then qualify complete-core timing and physical memory inference; no RBF/deployment yet.
 - [ ] Complete wrapper/backend/top-level sequential-state classification/access in addition to eleven-board state; native-wrapper154,037bit inventory is review-only.

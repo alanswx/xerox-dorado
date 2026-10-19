@@ -1,0 +1,3201 @@
+{
+  "status": "PASS",
+  "scope": "Fresh display scan inventory, including held canonical RAM read pipelines.\n\nAt the acknowledged frozen boundary each word bank's saved_q is the original\nguest pipeline; ram_q/pending/response state belongs to its private transport.\nEvery sequential candidate is accounted for; no sequential exclusions.\n",
+  "physical_bits": 13993,
+  "private_transport_bits": 232,
+  "sequential_exclusions": [],
+  "immutable_prom_bits": 2048,
+  "decisions": [
+    {
+      "path": "DispY_full_snapshot_experiment.clk1_p_Aa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.clk1_p_Ab",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.clk1_p_Ca",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.clk1_p_Cb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.clk1_p_Cc",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.clk1_p_Da",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.clk1_p_Db",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.clk1_p_Dc",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_12.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_12.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_12.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_12.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_12.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_12.ram_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_12.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_12.saved_q",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_13.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_13.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_13.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_13.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_13.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_13.ram_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_13.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_13.saved_q",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_14.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_14.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_14.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_14.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_14.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_14.ram_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_14.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.display_word_14.saved_q",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.regular_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.regular_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.state_aux_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.state_response_ff",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.state_response_memory",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.state_response_memory_index",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a05.acc",
+      "bits": 32,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a05.osc",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a05.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a05.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a05.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a05.state_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a07.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a07.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a07.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a09.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a09.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a09.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a09.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a09.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a09.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a10.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a12.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a13.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a13.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a14.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a14.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a15.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a15.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a16.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a16.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a18.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a18.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_a18.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b03.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b04.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b07.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b07.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b07.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b09.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b09.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b09.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b09.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b09.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b09.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b10.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b12.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b13.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b13.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b14.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b14.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b15.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b15.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b16.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b16.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b18.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b18.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b18.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b23.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b23.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_b23.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c01.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c01.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c01.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c01.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c03.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c03.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c05.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c05.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c08.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c08.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c10.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c12.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c13.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c14.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c15.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c16.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c17.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c17.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c20.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c20.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c21.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c21.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c22.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c22.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c22.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c22.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c22.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c22.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c23.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c23.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c23.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c23.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c23.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_c23.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d01.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d01.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d01.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d02.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d02.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d03.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d03.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d03.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d03.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d03.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d03.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d05.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d05.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d08.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d08.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d09.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d09.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d09.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d09.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d09.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d09.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d10.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d12.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d13.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d14.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d15.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d16.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d17.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d17.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d20.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d20.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d21.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d21.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d23.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d23.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d23.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_d23.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e01.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e01.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e01.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e04.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e04.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e09.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e09.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e09.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e10.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e12.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e13.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e14.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e23.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e23.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e23.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e24.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e24.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_e24.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f01.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f01.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f01.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f01.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f04.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f04.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f04.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f04.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f04.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f09.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f09.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f09.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f14.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f14.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f15.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f15.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f23.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f23.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f23.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_f24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_ff_scan.busy",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_ff_scan.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_ff_scan.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_ff_scan.fault",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_ff_scan.first_bit",
+      "bits": 11,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_ff_scan.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_ff_scan.payload",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_ff_scan.position",
+      "bits": 11,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_ff_scan.result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_ff_scan.writing",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g03.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g03.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g03.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g03.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g03.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g03.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g03.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g03.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g03.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g06.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g06.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g07.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g07.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g07.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g08.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g08.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g08.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g09.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g09.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g10.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g15.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g15.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g16.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g16.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g16.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g16.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g16.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g18.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g18.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g18.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g18.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g18.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g20.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g20.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g20.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g20.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g20.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g22.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g22.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g22.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g22.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_g22.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h02.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h02.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h02.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h02.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h02.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h02.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h02.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h02.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h02.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h03.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h03.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h03.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h03.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h05.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h05.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h05.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h05.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h05.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h05.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h06.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h06.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h07.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h07.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h07.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h08.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h08.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h09.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h09.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h09.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h10.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h11.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h13.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h15.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h15.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h16.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h16.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h16.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h16.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h16.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h18.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h18.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h18.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h18.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h18.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h20.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h20.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h20.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h20.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h20.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h22.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h22.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h22.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h22.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_h22.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i01.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i01.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i01.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i03.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i03.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i03.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i03.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i04.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i05.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i05.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i05.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i08.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i08.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i09.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i09.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i10.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i11.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i13.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i16.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i17.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i17.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i20.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i20.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i20.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i20.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i20.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i20.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i21.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i21.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i21.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i21.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i21.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i21.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i22.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i22.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i22.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i22.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i22.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i22.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i23.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i23.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i23.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i24.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i24.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_i24.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j01.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j01.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j01.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j02.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j02.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j02.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j02.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j02.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j02.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j02.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j02.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j02.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j03.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j03.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j03.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j03.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j04.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j08.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j08.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j09.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j09.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j10.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j11.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j13.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j15.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j15.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j16.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j17.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j17.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j21.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j21.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j21.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j21.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j21.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j21.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j23.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j23.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j23.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j24.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j24.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_j24.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k01.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k01.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k01.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k02.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k02.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k04.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k09.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k09.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k15.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k15.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k16.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k17.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k17.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k23.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k23.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k23.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k24.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k24.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_k24.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l01.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l01.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l01.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l01.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l01.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l01.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l03.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l03.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l03.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l03.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l09.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l09.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l10.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l16.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l17.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l17.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l19.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l19.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l19.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l21.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l21.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l21.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l21.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l21.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l21.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "DispY_full_snapshot_experiment.u_l22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    }
+  ],
+  "xml_sha256": "08b5adc5c22b461b4dad10400285b178f9a9444f945dd443d4c24fc7c9307820",
+  "failure_controls": [
+    {
+      "case": "missing_ff_history",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "wrong_ram_depth",
+      "rejected": true,
+      "diagnostic": "state geometry differs: DispY_full_snapshot_experiment.display_word_12.mem"
+    },
+    {
+      "case": "extra_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential state: DispY_full_snapshot_experiment.clk1_p_Aa_unexported"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential state: DispY_full_snapshot_experiment.clk1_p_Aa"
+    },
+    {
+      "case": "missing_phase",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "wrong_offset",
+      "rejected": true,
+      "diagnostic": "compact FF layout differs"
+    },
+    {
+      "case": "missing_layout_bit",
+      "rejected": true,
+      "diagnostic": "compact FF layout differs"
+    },
+    {
+      "case": "legacy_alias",
+      "rejected": true,
+      "diagnostic": "physical FF fields/legacy aliases differ"
+    },
+    {
+      "case": "wrong_counter",
+      "rejected": true,
+      "diagnostic": "state geometry differs: DispY_full_snapshot_experiment.u_ff_scan.position"
+    },
+    {
+      "case": "missing_pipeline",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "wrong_osc_width",
+      "rejected": true,
+      "diagnostic": "state geometry differs: DispY_full_snapshot_experiment.u_a05.acc"
+    },
+    {
+      "case": "mutable_prom",
+      "rejected": true,
+      "diagnostic": "immutable display PROM differs"
+    }
+  ],
+  "input_hashes": {
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/classify_dispy_ff_scan.py": "d8c217308d7bc348ef5a01417b6e7c69f137a32f24b847feb51e5f606ed095ee",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_dispy_ff_scan.py": "c9213d2084c48071ad09018cc39a6d820e37a3c055340c1b8f32cd16159773cf",
+    "/Users/alans/dev2/Dorado/tools/sil_state_inventory.py": "e953a67b80dbde6729e991dacf9efc31fdde78111b7f0feef1dc51681eb2fb35",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/build/rtl-executive/native16-tx-cable/DispY_field.v": "48ae129bd7523b5efb9db87d8f43cc314186f10fc0a4fe52f681b5c345836b4d",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_F10000.v": "ce17c47889977a87a28de0aa59ca917bd778984a4e5b08f21021a2ccd8801ee6",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_F10415A.v": "44cb1c6eee73b8507f7a66e5781073f916d0c02a221618dedf4d09879a9a7227",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_K1115A.v": "7f187187b8b39d9ffa3070596bdeca43c84489f8f7b4b6c24245603aa6fcfe32",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MB7071H.v": "710b890c91d451c6023ba0396d170402ef95355703175d15417a0ccf2112bc2b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10101.v": "d7cce11dd4c6c75b83d1d40287144fffc35ac6df2b9f490a45aeb740dcab862f",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10113.v": "3ad34b4dc8d3026412b4d300ce28f3a214fa42d3d6e1c1cc1afead9e601dec0b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10118.v": "db67c73173b2707f29f6160b12572b0f0a3192beea1eb95b74ddfb03fd3b23ac",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10161.v": "816c7d2eb044c210d256c32ce1f4215a988e312d02df81b527d6ba001795788b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10166.v": "06689bff01caf3912d44a430ea7f9b85b76225edba4e6f08672a65ab87e167f8",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC10318.v": "5c9dc2e52a5c3235cdaa3bdcadf2ae9b81655e9ddfa1886a1f7e8b986e65166b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MCM10149.v": "97dfe328872520b43fcfb990065a04a29d51574b89b9999be2e298dfc4cb1cde",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_SE10231.v": "b22f08f8f6e79eafbac3d1446e6593d10482033b2b3b2edfc29f207e62e5872c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native57-dispy-baseline-src/verilog/cells/cell_SN74128.v": "1576f120ba5d3670327eb146f4439a3e5e9aa96b60070c551f85dec41397e785"
+  }
+}
