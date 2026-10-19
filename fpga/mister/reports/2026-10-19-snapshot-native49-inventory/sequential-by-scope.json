@@ -1,0 +1,387 @@
+{
+  "dorado_native_machine.hblank_d": {
+    "entries": 1,
+    "bits": 1,
+    "modules": {
+      "dorado_native_machine": 1
+    }
+  },
+  "b_BaseBd": {
+    "entries": 243,
+    "bits": 40366,
+    "modules": {
+      "cell_MC10176": 3,
+      "cell_MC10136": 18,
+      "cell_i2125": 64,
+      "cell_i2716": 8,
+      "cell_i2716__Iz30": 2,
+      "cell_SN74LS259": 1,
+      "cell_i2716__Iz31": 2,
+      "cell_MCS6532": 5,
+      "M6532": 70,
+      "cell_CLOCKGEN__N4": 1,
+      "cell_MC12061": 1,
+      "cell_SN74LS163": 2,
+      "cell_i2716__Iz32": 2,
+      "cell_SN74LS174": 27,
+      "cell_i2716__Iz33": 2,
+      "chip_6502": 1,
+      "cell_MC1690": 8,
+      "cell_SN74LS175": 4,
+      "cell_SN74LS74": 12,
+      "cell_MC14521B": 2,
+      "cell_MPQ3303": 2,
+      "cell_SN74LS174__P1": 6
+    }
+  },
+  "b_ContA": {
+    "entries": 424,
+    "bits": 2298,
+    "modules": {
+      "ContA_m_Rev_m_Cd_monitor": 6,
+      "cell_MC10176": 72,
+      "cell_F10145A": 99,
+      "cell_F10000": 12,
+      "cell_MC10231": 186,
+      "cell_F10016": 27,
+      "cell_MC10141": 12,
+      "cell_MC10173": 4,
+      "cell_SE10231": 6
+    }
+  },
+  "b_ContB": {
+    "entries": 387,
+    "bits": 147809,
+    "modules": {
+      "cell_F10415A": 288,
+      "cell_MC10176": 33,
+      "cell_MC10231": 66
+    }
+  },
+  "b_DispY": {
+    "entries": 548,
+    "bits": 14308,
+    "modules": {
+      "DispY_m_Rev_m_Cl_field": 8,
+      "cell_K1115A__Fc350": 2,
+      "cell_F10016": 132,
+      "cell_MC10231": 96,
+      "cell_F10000": 99,
+      "cell_MC10176": 105,
+      "cell_MC10135": 28,
+      "cell_MB7071H": 9,
+      "cell_F10145A": 33,
+      "cell_MC10141": 24,
+      "cell_F10415A": 6,
+      "cell_SE10231": 6
+    }
+  },
+  "b_DskEth": {
+    "entries": 676,
+    "bits": 4546,
+    "modules": {
+      "DskEth_m_Rev_m_Cf_rxmonitor__pi2": 9,
+      "cell_SN74LS169": 20,
+      "cell_SN74123__S4": 16,
+      "cell_SN74LS174": 15,
+      "cell_F10016": 36,
+      "cell_MC10176": 81,
+      "cell_MC10231": 114,
+      "cell_MC1650": 8,
+      "cell_MC10135__P1": 4,
+      "cell_MC10136": 36,
+      "cell_F10145A": 198,
+      "cell_MC10173": 13,
+      "cell_MC10135": 28,
+      "cell_MC10175": 2,
+      "cell_F10000": 18,
+      "cell_F9401": 4,
+      "cell_MC10141": 48,
+      "cell_F9401__P1": 4,
+      "cell_K1115A__F5bea_S8": 2,
+      "cell_MC10135__PC1": 8,
+      "cell_SE10231": 6,
+      "dorado_receive_monitor": 6
+    }
+  },
+  "b_IFU": {
+    "entries": 390,
+    "bits": 28653,
+    "modules": {
+      "IFU_m_Rev_m_Ch": 4,
+      "cell_F10016__P1": 12,
+      "cell_F10016": 102,
+      "cell_MC10176": 90,
+      "cell_MC10231": 96,
+      "cell_MC10173": 4,
+      "cell_MC10141": 12,
+      "cell_MC10135": 16,
+      "cell_F10415A": 54
+    }
+  },
+  "b_MemC": {
+    "entries": 472,
+    "bits": 26133,
+    "modules": {
+      "MemC_m_Rev_m_Be": 5,
+      "cell_F100181": 8,
+      "cell_MB7071H": 21,
+      "cell_MC1668": 32,
+      "cell_MC10176__P0": 63,
+      "cell_MC10231": 54,
+      "cell_MC10173": 7,
+      "cell_F10145A": 253,
+      "cell_MC10175": 4,
+      "cell_MC10141": 12,
+      "cell_F10016": 6,
+      "cell_MC10135": 4,
+      "cell_MC10176": 3
+    }
+  },
+  "b_MemD": {
+    "entries": 573,
+    "bits": 297394,
+    "modules": {
+      "MemD_m_Rev_m_Ca": 10,
+      "cell_F10470": 144,
+      "cell_MC10231": 108,
+      "cell_F10145A": 88,
+      "cell_F10016": 39,
+      "cell_MC10176__P0": 102,
+      "cell_F10000": 15,
+      "cell_MC10175": 4,
+      "cell_F10016__P1": 15,
+      "cell_MC10176": 30,
+      "cell_SE10231__P0": 6,
+      "cell_MC10141": 6,
+      "cell_SE10231": 6
+    }
+  },
+  "b_MemX": {
+    "entries": 582,
+    "bits": 1379362,
+    "modules": {
+      "MemX_m_Rev_m_Ch": 12,
+      "cell_F10016": 93,
+      "cell_MosRam__A10": 210,
+      "cell_MC10141": 60,
+      "cell_MC10175": 4,
+      "cell_MC10231": 12,
+      "cell_MC10176__P0": 63,
+      "cell_F10145A": 110,
+      "cell_MC10173": 2,
+      "cell_F10000": 3,
+      "cell_MC10135": 4,
+      "cell_SE10231": 6,
+      "cell_MC10176": 3
+    }
+  },
+  "b_ProcH": {
+    "entries": 288,
+    "bits": 6552,
+    "modules": {
+      "ProcH_m_Rev_m_Ce": 10,
+      "cell_F10016": 12,
+      "cell_MC10231": 42,
+      "cell_MC10173": 24,
+      "cell_MC10141": 36,
+      "cell_MC10176": 42,
+      "cell_F10145A": 88,
+      "cell_F10000": 3,
+      "cell_F10000__P1": 9,
+      "cell_MB7071H": 4,
+      "cell_MC10175": 2,
+      "cell_F10414": 2,
+      "cell_SE10231": 6,
+      "cell_MC1668": 8
+    }
+  },
+  "b_ProcL": {
+    "entries": 284,
+    "bits": 6211,
+    "modules": {
+      "ProcL_m_Rev_m_Ci": 10,
+      "cell_F10000": 12,
+      "cell_MC10231": 60,
+      "cell_MC10173": 27,
+      "cell_MC10141": 36,
+      "cell_MC10176": 42,
+      "cell_F10016": 6,
+      "cell_F10145A": 66,
+      "cell_F10000__P1": 3,
+      "cell_MB7071H": 4,
+      "cell_MC10175": 2,
+      "cell_F10414": 2,
+      "cell_SE10231": 6,
+      "cell_MC1668": 8
+    }
+  },
+  "b_msa": {
+    "entries": 458,
+    "bits": 2690,
+    "modules": {
+      "cell_MC10141": 24,
+      "cell_SN74S174": 48,
+      "cell_SN74166": 40,
+      "cell_MC10176__P0": 36,
+      "cell_MK4096P_addr__R8": 64,
+      "cell_F10016": 6,
+      "dorado_storage_group__A10_Wc": 60,
+      "dorado_storage_group__A10_W8": 180
+    }
+  },
+  "b_msa1": {
+    "entries": 458,
+    "bits": 2690,
+    "modules": {
+      "cell_MC10141": 24,
+      "cell_SN74S174": 48,
+      "cell_SN74166": 40,
+      "cell_MC10176__P0": 36,
+      "cell_MK4096P_addr__R8": 64,
+      "cell_F10016": 6,
+      "dorado_storage_group__A10_Wc": 60,
+      "dorado_storage_group__A10_W8": 180
+    }
+  },
+  "b_msa1Odd": {
+    "entries": 458,
+    "bits": 2690,
+    "modules": {
+      "cell_MC10141": 24,
+      "cell_SN74S174": 48,
+      "cell_SN74166": 40,
+      "cell_MC10176__P0": 36,
+      "cell_MK4096P_addr__R8": 64,
+      "cell_F10016": 6,
+      "dorado_storage_group__A10_Wc": 60,
+      "dorado_storage_group__A10_W8": 180
+    }
+  },
+  "b_msa2": {
+    "entries": 458,
+    "bits": 2690,
+    "modules": {
+      "cell_MC10141": 24,
+      "cell_SN74S174": 48,
+      "cell_SN74166": 40,
+      "cell_MC10176__P0": 36,
+      "cell_MK4096P_addr__R8": 64,
+      "cell_F10016": 6,
+      "dorado_storage_group__A10_Wc": 60,
+      "dorado_storage_group__A10_W8": 180
+    }
+  },
+  "b_msa2Odd": {
+    "entries": 458,
+    "bits": 2690,
+    "modules": {
+      "cell_MC10141": 24,
+      "cell_SN74S174": 48,
+      "cell_SN74166": 40,
+      "cell_MC10176__P0": 36,
+      "cell_MK4096P_addr__R8": 64,
+      "cell_F10016": 6,
+      "dorado_storage_group__A10_Wc": 60,
+      "dorado_storage_group__A10_W8": 180
+    }
+  },
+  "b_msa3": {
+    "entries": 458,
+    "bits": 2690,
+    "modules": {
+      "cell_MC10141": 24,
+      "cell_SN74S174": 48,
+      "cell_SN74166": 40,
+      "cell_MC10176__P0": 36,
+      "cell_MK4096P_addr__R8": 64,
+      "cell_F10016": 6,
+      "dorado_storage_group__A10_Wc": 60,
+      "dorado_storage_group__A10_W8": 180
+    }
+  },
+  "b_msa3Odd": {
+    "entries": 458,
+    "bits": 2690,
+    "modules": {
+      "cell_MC10141": 24,
+      "cell_SN74S174": 48,
+      "cell_SN74166": 40,
+      "cell_MC10176__P0": 36,
+      "cell_MK4096P_addr__R8": 64,
+      "cell_F10016": 6,
+      "dorado_storage_group__A10_Wc": 60,
+      "dorado_storage_group__A10_W8": 180
+    }
+  },
+  "b_msaOdd": {
+    "entries": 458,
+    "bits": 2690,
+    "modules": {
+      "cell_MC10141": 24,
+      "cell_SN74S174": 48,
+      "cell_SN74166": 40,
+      "cell_MC10176__P0": 36,
+      "cell_MK4096P_addr__R8": 64,
+      "cell_F10016": 6,
+      "dorado_storage_group__A10_Wc": 60,
+      "dorado_storage_group__A10_W8": 180
+    }
+  },
+  "dorado_native_machine.u_arb": {
+    "entries": 6,
+    "bits": 49,
+    "modules": {
+      "dorado_storage_arb__pi1": 6
+    }
+  },
+  "dorado_native_machine.u_drive": {
+    "entries": 6,
+    "bits": 114,
+    "modules": {
+      "dorado_trident__S8_SB75_WB2760": 6
+    }
+  },
+  "dorado_native_machine.u_initialize": {
+    "entries": 3,
+    "bits": 25,
+    "modules": {
+      "dorado_storage_init__A17": 3
+    }
+  },
+  "dorado_native_machine.u_keyboard": {
+    "entries": 5,
+    "bits": 65,
+    "modules": {
+      "dorado_keyboard": 5
+    }
+  },
+  "dorado_native_machine.u_media": {
+    "entries": 55,
+    "bits": 131816,
+    "modules": {
+      "dorado_pack_hps__La": 55
+    }
+  },
+  "dorado_native_machine.u_pixclk": {
+    "entries": 2,
+    "bits": 33,
+    "modules": {
+      "cell_K1115A__Fc350_S8": 2
+    }
+  },
+  "dorado_native_machine.u_sdram": {
+    "entries": 20,
+    "bits": 211,
+    "modules": {
+      "dorado_storage_sdram": 20
+    }
+  },
+  "dorado_native_machine.u_terminal": {
+    "entries": 15,
+    "bits": 170,
+    "modules": {
+      "dorado_terminal": 15
+    }
+  }
+}

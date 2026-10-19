@@ -245,29 +245,44 @@ pending/error/reset tests, full-core STA and actual Cedar restore timing.
 Production generated files/cells/QSF/live FPGA unchanged;49b remains running.
 60ns clock migration and final repeated/stress qualification remain required.
 
-**Native51 complete-core ContB integration BUILD LIVE, NOT qualified/deployed.**
-After pushed830337dc full-board restore qualification, build_native_contb.py
-copies frozen49, supplies the existing falling-edge network_step as the actual
-ContB advance, and replaces only that board with qualified host-clock adapters.
-Snapshot admin inputs ALL inactive pending global barrier/transport, so no
-physical save/load or enabled-access resource budget is claimed. Other boards,
-SDRAM/layout/arbiter/cache/map/ECC/Main/server/clocks and constraints unchanged.
-No added timing cuts. Original50MHz/SYSPER4; speed not measured on this build.
-One frozen MC10170 differs from qualified source only by full-line comments;
-raw pair/narrow code-line identity and failure controls archived, frozen logic
-unchanged. First preflight stopped before project creation; second stopped
-before Quartus on duplicate storage-header shape. The inactive probe/test
-wrapper shared that header; builder now targets active backplane uniquely.
-Old partial Native51_20261019 is terminal/preserved; NEVER restart it.
+**Native51 complete-core ContB integration TIMING PASS, NOT DEPLOYED.**
+Frozen49 plus qualified host-clock/exact-advance ContB adapters. All snapshot
+admin inputs remain inactive until global barrier/transport, so no physical
+save/load or enabled-access area budget. Other boards/storage/cache/map/ECC/
+Main/server/clocks/constraints unchanged. Build62531/fitter748087 COMPLETED;
+31 summary and52 detailed reports/four conditions pass, minimum+0.115ns.
+16 added ContB-to-other-board setup/hold reports come from definitive sequential
+crossing audit1060 COMPLETED after the main build. Superseded overlap79065 is
+archived separately, not used for qualification. No cuts/illegal/unconstrained
+clocks; existing framework I/O counts unchanged3/13input,50/154output. Do not
+claim zero unconstrained I/O. Eight1024x18 OLD_DATA macros proven in fitted
+core. Only26 unused-object map warnings added; no other warning increases or
+Critical Warnings.30640ALMs73%,52921regs,330M10Ks,35DSP (+167ALMs/-8regs vs49).
 
-Actual remote project Dorado_Native51_v3_20261019; matching assets/builder in
-Dorado_Native51_inputs_v3_20261019. Mac62531/fitter748087 LIVE confirmed05:03:55UTC19Oct. Map746420 and helpers
-COMPLETED,0errors/471warnings, raw summary archived; not timing-qualified. Local native51-contb-build-v3.log. Poll same handle
-or inspect exact project process/log; observation timeout is not termination.
-Collect/review map/fit/asm/STA/clock/four-condition evidence before any deploy,
-then original firmware/Cedar/input qualification. Keep live49b for now.
-Sources build_native_contb.py; partial reports2026-10-19-native51-contb.
-Complete snapshot/60ns clocks/final stress remain unfinished; goal active.
+RBF3d253187b42615e53fde1dc1bed688eb0328265d007bffdc3c161196294ccac3;
+local native51-candidate. Actual remote Dorado_Native51_v3_20261019, matching
+assets/builder Dorado_Native51_inputs_v3_20261019. Strict collector checks
+sources/QSF/SDC/crossing/RAM inference. Quartus-added duplicate relative aliases
+of only the four approved sources are normalized; extra source/SDC/macro
+controls reject. Frozen parity documentation-only difference is archived/code-
+line identical. Earlier terminal preflights remain preserved; never restart.
+Next normal guest Boot/preserve49b, normal active-DDR/disk barriers and fresh
+original seed for51; original firmware/Cedar/input/progress qualification.
+Live49b remains Main8321/server8318 for now. No speed gain/physical snapshots
+claimed. Evidence native51-contb; source build_native_contb.py.
+
+**Exact frozen49 native-machine snapshot inventory/ContB coverage PASS.**
+Frozen source/macros copied from actual working49, no newer generator.4158
+instances/8644 sequential candidates/2107636bits; other candidates remain
+review-only. All1572 actual nested ContB candidates are classified against
+qualified manifest:147809 state bits saved, continuous wires recomputed.
+Compared old45-style deferred illustration,128 groups lose pipe_addr16 and
+pipe_known1 (256entries/2176bits); old_data and pending/cache/read/write state
+STILL exist and must be saved/normalized explicitly. Per-scope counts archived.
+Outer emu/frame/input/transport/clock state, physical raw16MiB SDRAM, ARM disk/
+worker/server remain outside scope. Next extend/classify those and otherboards;
+no whole-machine completeness claim. Source inventory_native.py, evidence
+reports/2026-10-19-snapshot-native49-inventory, local handle31688 COMPLETED.
 
 **Retired47: direct-DDR original-firmware interactive Cedar Viewers PASS.**
 Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,
@@ -1680,7 +1695,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify18-bit explicit-enable snapshot RAM against unchanged original cells and independent array; retain twoM10Ks/OLD_DATA, matched registered-shell all-corner timing min+0.255ns and damaged RTL/report controls.
 - [x] Qualify bounded actual ContB IM state access: unchanged-board all-output/strobe/clock-hold comparison and matched isolated gated-clock all-corner fit,16M10Ks/min+0.168ns.
 - [x] Export/classify all209 remaining ContB q/setup/history bits; full147809-bit modeled board save/continue/restore/first-edge equivalence, coverage controls and isolated all-corner fit pass min+0.165ns.
-- [ ] Integrate representative access into complete-machine hierarchy, extend/classify other boards/wrapper/devices/input/raw memory/Main/server and qualify whole-core area/timing/global barriers.
+- [x] Integrate ContB adapters with admin inactive into frozen49 complete core;31/52/four-condition timing and fitted8x18-bit OLD_DATA checks pass min+0.115ns. Hardware normal-operation gate remains pending.
+- [x] Refresh exact frozen49 native hierarchy inventory and prove qualified ContB coverage inside real machine.
+- [ ] Connect active bounded access/global barriers and extend/classify other boards/wrapper/devices/input/raw memory/Main/server; qualify complete physical restore and combined timing.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [x] Preserve/decode41b post-desktop host-write timeout and unchanged physical pack; exact blocking syscall remains unobserved.
 - [x] Implement/test bounded whole-image ARM cache, dirty-run coalescing, worker file IO, Main-only SPI capture and error recovery; actual-worker Linux/ARM and full pinned Main build pass.

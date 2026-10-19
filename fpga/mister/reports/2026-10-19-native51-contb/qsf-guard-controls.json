@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "accepted": "Duplicate alias of exactly the approved source",
+  "rejected": {
+    "extra_source": "rejected",
+    "extra_sdc": "rejected",
+    "changed_macro": "rejected"
+  }
+}

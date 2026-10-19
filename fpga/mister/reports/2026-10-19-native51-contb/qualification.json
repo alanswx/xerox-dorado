@@ -1,0 +1,418 @@
+{
+  "hardware": "NOT DEPLOYED",
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "operating_conditions_checked": 4,
+  "path_categories_checked": 52,
+  "timing_checks": 31,
+  "minimum_slack_ns": 0.115,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "unconstrained_io_summary": {
+    "Illegal Clocks": [
+      0,
+      0
+    ],
+    "Unconstrained Clocks": [
+      0,
+      0
+    ],
+    "Unconstrained Input Ports": [
+      3,
+      3
+    ],
+    "Unconstrained Input Port Paths": [
+      13,
+      13
+    ],
+    "Unconstrained Output Ports": [
+      50,
+      50
+    ],
+    "Unconstrained Output Port Paths": [
+      154,
+      154
+    ]
+  },
+  "unconstrained_io_scope": "Unchanged existing MiSTer/framework I/O coverage from frozen49; no new unconstrained ports/paths. SDRAM I/O and all ContB crossing reports are timed.",
+  "extra_timing_exceptions": "None",
+  "raw_backend": "SDRAM, no raw line buffer",
+  "raw_line_cache_entries": 0,
+  "qsf_normalization": "Blank lines, exact Quartus version marker and duplicate absolute/relative aliases of only the four approved added sources; no other source/setting/SDC changes accepted",
+  "storage_defer_reads": false,
+  "storage_prefetch": true,
+  "storage_interleave": true,
+  "network_ddr": true,
+  "required_sdram_mb": 128,
+  "guest_ram_mib": 8,
+  "raw_backing_mib": 16,
+  "snapshot_admin": "INACTIVE; full-core normal-operation adapter qualification only, no physical save/load",
+  "instruction_memories": [
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_0|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_1|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_2|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_3|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_4|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_5|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_6|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    },
+    {
+      "instance": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_7|altsyncram:bits[0].mem[0]__10",
+      "parameters": {
+        "OPERATION_MODE": "DUAL_PORT",
+        "WIDTH_A": "18",
+        "WIDTH_B": "18",
+        "NUMWORDS_A": "1024",
+        "NUMWORDS_B": "1024",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "OLD_DATA"
+      }
+    }
+  ],
+  "warning_comparison": {
+    "map": {
+      "increased": {
+        "10036": 26
+      },
+      "decreased": {},
+      "review": "Only unused-object warnings increase; redundant fanout/admin/clock wires in enabled-board replacement. Other baseline warning categories unchanged or reduced."
+    },
+    "fit": {
+      "increased": {},
+      "decreased": {},
+      "review": "Only unused-object warnings increase; redundant fanout/admin/clock wires in enabled-board replacement. Other baseline warning categories unchanged or reduced."
+    }
+  },
+  "change": "Frozen49 plus qualified ContB host-clock/exact-advance adapters; same other boards/storage/Main/server/clock settings/constraints",
+  "reports": [
+    {
+      "report": "native51-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 1.597
+    },
+    {
+      "report": "native51-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.222
+    },
+    {
+      "report": "native51-recovery-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 10.127
+    },
+    {
+      "report": "native51-removal-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 1.031
+    },
+    {
+      "report": "native51-mpw-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 1,
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native51-sdram-input-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 5.477
+    },
+    {
+      "report": "native51-sdram-input-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.544
+    },
+    {
+      "report": "native51-sdram-output-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 2.846
+    },
+    {
+      "report": "native51-sdram-output-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 6.439
+    },
+    {
+      "report": "native51-contb-in-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 3.017
+    },
+    {
+      "report": "native51-contb-in-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.779
+    },
+    {
+      "report": "native51-contb-out-setup-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 4.036
+    },
+    {
+      "report": "native51-contb-out-hold-7_slow_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.464
+    },
+    {
+      "report": "native51-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 1.571
+    },
+    {
+      "report": "native51-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.244
+    },
+    {
+      "report": "native51-recovery-7_slow_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 9.907
+    },
+    {
+      "report": "native51-removal-7_slow_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 1.112
+    },
+    {
+      "report": "native51-mpw-7_slow_1100mv_100c.rpt.gz",
+      "paths": 1,
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native51-sdram-input-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 5.099
+    },
+    {
+      "report": "native51-sdram-input-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.905
+    },
+    {
+      "report": "native51-sdram-output-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 2.782
+    },
+    {
+      "report": "native51-sdram-output-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 6.349
+    },
+    {
+      "report": "native51-contb-in-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 2.698
+    },
+    {
+      "report": "native51-contb-in-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.793
+    },
+    {
+      "report": "native51-contb-out-setup-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 4.028
+    },
+    {
+      "report": "native51-contb-out-hold-7_slow_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.48
+    },
+    {
+      "report": "native51-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 5.256
+    },
+    {
+      "report": "native51-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.115
+    },
+    {
+      "report": "native51-recovery-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 11.641
+    },
+    {
+      "report": "native51-removal-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.472
+    },
+    {
+      "report": "native51-mpw-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 1,
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native51-sdram-input-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 8.645
+    },
+    {
+      "report": "native51-sdram-input-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 4.453
+    },
+    {
+      "report": "native51-sdram-output-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 5.256
+    },
+    {
+      "report": "native51-sdram-output-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 7.258
+    },
+    {
+      "report": "native51-contb-in-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 6.618
+    },
+    {
+      "report": "native51-contb-in-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.368
+    },
+    {
+      "report": "native51-contb-out-setup-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 12.914
+    },
+    {
+      "report": "native51-contb-out-hold-MIN_fast_1100mv_-40c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.2
+    },
+    {
+      "report": "native51-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 4.963
+    },
+    {
+      "report": "native51-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.13
+    },
+    {
+      "report": "native51-recovery-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 11.227
+    },
+    {
+      "report": "native51-removal-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 3,
+      "slack_ns": 0.567
+    },
+    {
+      "report": "native51-mpw-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 1,
+      "slack_ns": 1.122
+    },
+    {
+      "report": "native51-sdram-input-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 8.177
+    },
+    {
+      "report": "native51-sdram-input-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 4.952
+    },
+    {
+      "report": "native51-sdram-output-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 4.963
+    },
+    {
+      "report": "native51-sdram-output-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 53,
+      "slack_ns": 7.227
+    },
+    {
+      "report": "native51-contb-in-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 5.978
+    },
+    {
+      "report": "native51-contb-in-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.466
+    },
+    {
+      "report": "native51-contb-out-setup-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 11.837
+    },
+    {
+      "report": "native51-contb-out-hold-MIN_fast_1100mv_100c.rpt.gz",
+      "paths": 12,
+      "slack_ns": 0.248
+    }
+  ],
+  "rbf_sha256": "3d253187b42615e53fde1dc1bed688eb0328265d007bffdc3c161196294ccac3"
+}

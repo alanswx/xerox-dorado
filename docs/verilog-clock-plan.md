@@ -445,18 +445,26 @@ state, implement coherent barriers/bundles and qualify whole-core timing.
 Complete physical Cedar save/load,60ns clocks and final release gates remain
 required. Production RTL/QSF and the live49b FPGA are unchanged.
 
-Native51 now begins full-core integration of the qualified ContB adapters,
-using the existing actual falling-edge advance from frozen49. All state admin
-inputs remain inactive until the global barrier/transport exists; this build
-checks normal whole-core behavior/timing and cannot save/load a machine.
-Quartus can prune admin paths; do not treat its counts as enabled snapshot
-resource requirements. Same original boards/storage/Main/server/clocks and
-constraints, no new cuts. At05:03:55UTC19Oct fitter748087/Mac62531 are LIVE in remote
-Dorado_Native51_v3_20261019; map completed0errors/471warnings, not timing-qualified. Revalidate that process; do not restart terminal
-preflight attempts. No timing pass/deployment/speed claim yet. First collect
-complete-core timing, then original firmware/Cedar/input qualification. Source:
-build_native_contb.py; evidence native51-contb. Required snapshots and60ns
-migration remain in scope.
+Native51 complete-core ContB host-clock/exact-advance integration now passes
+31 summary/52 detailed timing reports/four conditions, minimum+0.115ns.
+Includes16 additional bidirectional ContB/other-board setup/hold reports from
+sequential audit1060 after build62531 completed. Original36 device reports,
+unchanged constraints, no new cuts/illegal/unconstrained clocks; existing
+framework I/O coverage counts unchanged, not zero. All8 instruction RAMs keep
+1024x18 OLD_DATA.30640ALMs/52921regs/330M10Ks/35DSP. All state admin inactive:
+not physical save/load or its future enabled-access resource budget. Original
+50MHz/SYSPER4; hardware/speed gates pending. RBF3d253187, native51-candidate,
+remote Native51_v3_20261019. Next normal guest Boot/preserve49b and normal
+barrier/fresh-seed original-firmware51 software gate. Live49b unchanged so far.
+
+Exact frozen49 native hierarchy inventory now replaces the earlier45-style
+illustration:4158 instances/8644 sequential candidates/2107636bits. Qualified
+ContB maps all147809 bits within the actual hierarchy; other scopes remain
+UNCLASSIFIED. Non-deferred frontend removes pipe_addr/pipe_known only;
+old_data/pending/cache/read/write state remain. Outer wrapper/devices/input/
+clock/transport, external16MiB raw SDRAM and ARM Main/server still need scope/
+classification/access/barriers. Evidence snapshot-native49-inventory and
+native51-contb. Full snapshots,60ns migration and final gates remain required.
 
 ### DDR control integration and matched idle evidence (2026-10-18)
 

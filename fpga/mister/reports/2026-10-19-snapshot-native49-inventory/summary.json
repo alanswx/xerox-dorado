@@ -1,0 +1,19 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "d5c53a9c99609910487ef4760c71477c071d9604702730fa1aa9b6dc25cdd8ac",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly frozen Native49 dorado_native_machine hierarchy/macros, not emu/wrapper/external RAM/ARM services; candidates remain UNCLASSIFIED",
+  "instances": 4158,
+  "candidate_counts": {
+    "combinational_review": 23308,
+    "initial_only_candidate": 4405,
+    "sequential": 8644,
+    "subroutine_review": 13
+  },
+  "candidate_bits": {
+    "combinational_review": 41887,
+    "initial_only_candidate": 87421,
+    "sequential": 2107636,
+    "subroutine_review": 335
+  }
+}
