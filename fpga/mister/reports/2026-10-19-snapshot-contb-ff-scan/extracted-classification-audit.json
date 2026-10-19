@@ -1,0 +1,2337 @@
+{
+  "status": "PASS",
+  "scope": "Fresh complete ContB serial-state inventory with no sequential exclusions.\n\nEach saved_q is the canonical original IM read pipeline at a frozen boundary.\nBorrowed raw read registers, replies and scan-control state are private.\n",
+  "physical_bits": 147809,
+  "private_transport_bits": 250,
+  "sequential_exclusions": [],
+  "decisions": [
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[0].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[0].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[10].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[10].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[11].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[11].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[12].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[12].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[13].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[13].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[14].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[14].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[15].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[15].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[16].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[16].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[17].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[17].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[1].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[1].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[2].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[2].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[3].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[3].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[4].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[4].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[5].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[5].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[6].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[6].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[7].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[7].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[8].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[8].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[9].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.bits[9].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_0.saved_q",
+      "bits": 18,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[0].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[0].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[10].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[10].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[11].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[11].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[12].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[12].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[13].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[13].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[14].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[14].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[15].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[15].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[16].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[16].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[17].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[17].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[1].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[1].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[2].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[2].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[3].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[3].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[4].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[4].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[5].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[5].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[6].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[6].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[7].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[7].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[8].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[8].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[9].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.bits[9].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_1.saved_q",
+      "bits": 18,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[0].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[0].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[10].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[10].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[11].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[11].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[12].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[12].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[13].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[13].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[14].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[14].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[15].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[15].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[16].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[16].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[17].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[17].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[1].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[1].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[2].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[2].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[3].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[3].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[4].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[4].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[5].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[5].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[6].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[6].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[7].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[7].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[8].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[8].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[9].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.bits[9].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_2.saved_q",
+      "bits": 18,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[0].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[0].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[10].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[10].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[11].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[11].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[12].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[12].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[13].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[13].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[14].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[14].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[15].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[15].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[16].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[16].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[17].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[17].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[1].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[1].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[2].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[2].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[3].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[3].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[4].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[4].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[5].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[5].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[6].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[6].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[7].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[7].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[8].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[8].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[9].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.bits[9].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_3.saved_q",
+      "bits": 18,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[0].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[0].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[10].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[10].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[11].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[11].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[12].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[12].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[13].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[13].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[14].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[14].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[15].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[15].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[16].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[16].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[17].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[17].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[1].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[1].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[2].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[2].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[3].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[3].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[4].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[4].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[5].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[5].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[6].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[6].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[7].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[7].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[8].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[8].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[9].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.bits[9].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_4.saved_q",
+      "bits": 18,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[0].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[0].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[10].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[10].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[11].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[11].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[12].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[12].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[13].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[13].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[14].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[14].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[15].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[15].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[16].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[16].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[17].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[17].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[1].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[1].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[2].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[2].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[3].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[3].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[4].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[4].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[5].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[5].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[6].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[6].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[7].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[7].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[8].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[8].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[9].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.bits[9].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_5.saved_q",
+      "bits": 18,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[0].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[0].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[10].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[10].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[11].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[11].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[12].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[12].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[13].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[13].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[14].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[14].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[15].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[15].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[16].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[16].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[17].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[17].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[1].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[1].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[2].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[2].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[3].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[3].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[4].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[4].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[5].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[5].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[6].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[6].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[7].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[7].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[8].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[8].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[9].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.bits[9].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_6.saved_q",
+      "bits": 18,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[0].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[0].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[10].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[10].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[11].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[11].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[12].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[12].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[13].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[13].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[14].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[14].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[15].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[15].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[16].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[16].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[17].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[17].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[1].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[1].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[2].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[2].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[3].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[3].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[4].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[4].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[5].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[5].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[6].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[6].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[7].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[7].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[8].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[8].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[9].mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.bits[9].read_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.snapshot_bank_7.saved_q",
+      "bits": 18,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.state_aux_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.state_aux_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.state_boundary_ready",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.state_response_aux",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.state_response_bank",
+      "bits": 3,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.state_response_ff",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b02.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b02.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b23.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b23.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b23.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b23.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b23.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b23.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_b24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_c02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_c02.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_c02.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_c04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_c04.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_c04.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_c24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_c24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_c24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_c24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_c24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_c24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_d02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_d02.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_d02.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_f22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_f22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_f22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_ff_scan.busy",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_ff_scan.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_ff_scan.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_ff_scan.fault",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_ff_scan.first_bit",
+      "bits": 8,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_ff_scan.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_ff_scan.payload",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_ff_scan.position",
+      "bits": 8,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_ff_scan.result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_ff_scan.writing",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_g03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_g03.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_g03.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_g22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_g22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_g22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_g24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_g24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_g24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_g24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_g24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_g24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h01.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h01.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h01.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h01.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h01.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h01.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h03.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h03.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_h24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_i01.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_i01.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_i01.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_i01.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_i01.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_i01.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_i24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_i24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_i24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_i24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_i24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_i24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_j01.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_j01.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_j01.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_j01.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_j01.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_j01.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_j24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_j24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_j24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_j24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_j24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_j24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_k24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_k24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_k24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_k24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_k24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_k24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_l04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_l04.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_l04.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_l20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_l20.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_l20.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_l22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_l22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "ContB_full_snapshot_experiment.u_l22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    }
+  ],
+  "xml_sha256": "f9f1aa117095338e8d4eb00065c7e81e3561e8e971a9555641d6cacde6c05f95",
+  "failure_controls": [
+    {
+      "case": "missing_history",
+      "rejected": true,
+      "diagnostic": "state absent from XML: ['ContB_full_snapshot_experiment.u_b02.ck_d']"
+    },
+    {
+      "case": "ram_depth",
+      "rejected": true,
+      "diagnostic": "state geometry differs: ContB_full_snapshot_experiment.snapshot_bank_0.bits[0].mem"
+    },
+    {
+      "case": "extra_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential state: ContB_full_snapshot_experiment.snapshot_bank_0.bits[0].mem_extra"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential state: ContB_full_snapshot_experiment.snapshot_bank_0.bits[0].mem"
+    },
+    {
+      "case": "missing_pipeline",
+      "rejected": true,
+      "diagnostic": "state absent from XML: ['ContB_full_snapshot_experiment.snapshot_bank_0.saved_q']"
+    },
+    {
+      "case": "missing_parity",
+      "rejected": true,
+      "diagnostic": "state absent from XML: ['ContB_full_snapshot_experiment.snapshot_bank_0.bits[3].mem']"
+    },
+    {
+      "case": "wrong_counter",
+      "rejected": true,
+      "diagnostic": "state geometry differs: ContB_full_snapshot_experiment.u_ff_scan.position"
+    },
+    {
+      "case": "missing_boundary",
+      "rejected": true,
+      "diagnostic": "state absent from XML: ['ContB_full_snapshot_experiment.state_boundary_ready']"
+    },
+    {
+      "case": "wrong_offset",
+      "rejected": true,
+      "diagnostic": "unreviewed ContB scan schema/source"
+    },
+    {
+      "case": "bad_word_base",
+      "rejected": true,
+      "diagnostic": "unreviewed ContB scan schema/source"
+    },
+    {
+      "case": "legacy_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed ContB scan schema/source"
+    },
+    {
+      "case": "wrong_group",
+      "rejected": true,
+      "diagnostic": "unreviewed ContB scan schema/source"
+    },
+    {
+      "case": "missing_precapture",
+      "rejected": true,
+      "diagnostic": "state absent from XML: ['ContB_full_snapshot_experiment.u_b02.d_pre']"
+    },
+    {
+      "case": "lost_raw_read",
+      "rejected": true,
+      "diagnostic": "state absent from XML: ['ContB_full_snapshot_experiment.snapshot_bank_0.bits[0].read_q']"
+    }
+  ]
+}

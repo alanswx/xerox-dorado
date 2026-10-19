@@ -1028,3 +1028,58 @@ builder, RBF or live FPGA/speed change; the measured whole-core result remains
 3,318 ALMs over capacity. Continue ContB/BaseBoard and combined fit/timing;
 versioned formatters, longer bounded transport/global hold, ARM/disk-paired
 full snapshots, original 60 ns clocks and final hardware gates remain open.
+
+
+## Complete ContB serial FF access (2026-10-19)
+
+**Complete ContB serial state access is qualified, saving 58 ALMs in an isolated matched fit. BaseBoard is the remaining board before the combined serial-access capacity build. The last combined core remains 3,318 ALMs over capacity.**
+
+`generate_contb_ff_scan.py` chains all 22 original FF helpers / 209 physical
+bits without a shadow bank. Twelve compact words occupy 16384..16395, ending
+in eleven valid bits; the eight IM groups and their raw read pipelines retain
+their original access maps. The exact frozen Native59 board, wire list,
+locations and cell bytes are bound explicitly; the MC10170 difference from
+the current tree is comments only, with identical tokens. `compact-ff-v1`
+records offsets and legacy_parallel_word review metadata without aliases.
+
+The unchanged original full-board stimulus and independent IM oracle pass
+281,347 host edges, 241,290 holds, 13,334 late-enable changes and 82,675
+requests. All 147,809 modeled physical bits / 32,768 address values, padding,
+destructive restore, quiet recapture and the first resumed edge plus 20,000
+more cycles pass. All 71 output bits are compared, and every normal IM writer
+is exercised. Nine damaged variants reject. A new reset-entry acknowledgment
+prevents access through stale child frozen flags immediately after SYSTEM
+reset. Quarantine checks every RAM helper's frozen flag, all shifted FF bits,
+canonical read pipelines and direct RAM probes while guest changes continue.
+Fresh XML accounts for 147,809 physical + 250 private transport bits with no
+sequential exclusions; fourteen damaged inventories/layouts reject.
+
+Matched enabled fits retain the original gated-clock shell and identical
+50 MHz/20 ns SDC and IM helpers: 777 -> 719 ALMs; 703 -> 747 registers.
+All 209 FF bits, 144 canonical read bits, 147,456 RAM bits and sixteen distinct
+M10Ks are retained. Each 1024x18 group keeps its registered input/unregistered
+output and mixed-port OLD_DATA behavior. Shared private flag ownership is
+checked explicitly. All four device conditions pass, minimum +0.124 ns;
+no new cuts, unconstrained paths or unreviewed warning categories. Ten damaged
+fit/source/retention/constraint/hold/geometry controls reject. All 414 raw files
+pass hash readback; extracted fit/XML/source regeneration and damaged-control
+suites pass. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-contb-ff-scan/`.
+Quartus session 6747 and simulation 89053 are terminal.
+
+Next: BaseBoard serial access, then a combined full-core capacity/timing audit.
+Earlier isolated savings remain qualified; none are subtracted from the last
+measured whole-core result of 45,228 / 41,910 ALMs. No production builder,
+RBF, live FPGA or speed change is claimed. Before integration, version schemas/
+formatters, extend the 16-edge transport budget and provide global hold/fault/
+SYSTEM-reset ownership across boards, foreign consumers, backends, input and
+ARM services. Local quarantine is insufficient.
+
+Classify/expose the 154,037 native-wrapper candidate bits (review-only),
+top-level input/network/video and 16 MiB external raw RAM. Complete coherent
+ARM/disk/input/server barriers that preserve connections/rebase timers, and
+atomic bundles paired with the matching disk generation. Actual FPGA Cedar
+save/continue/restore, original 60 ns clocks/timers, pinned comparisons, three
+fresh boots/cold persistence and two-hour stress remain open. The last
+qualified Native59 idle rate stays 1,947,654.12 issues/s. Goal ACTIVE. All
+experiments in this entry are terminal; older running-job entries are historical.
