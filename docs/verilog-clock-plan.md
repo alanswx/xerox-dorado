@@ -60,9 +60,12 @@ final guest ACK and every visible Load ok pass. Observer retired; No accepted,
 full Viewers/mouse/Cmd/focus/exact short+alphabet+digit echo now PASS. Warm
 marker close/readback and normal guest Boot/germ812 also pass. Repeated/final
 qualification remains pending. Native50 normal load completed03:25:31UTC;
-Main7660/server7659, fresh epochc4d9e1289cdc99f5, original firmware starting.
+Main7660/server7659, fresh epochc4d9e1289cdc99f5. Original firmware/login
+PASS;50 idle1,948,049.932 issues/s (+0.01861% versus49), no meaningful idle
+gain demonstrated for additional3323ALMs/2832regs. Full loader comparison
+next; do not promote50 solely from synthetic gains.
 50 deferred reads timing31/36/four conditions passes min+0.035ns,81%ALMs;
-deployed but software/speed qualification pending. Source hashes match all34 served files;
+deployed, idle measured, full software pending. Source hashes match all34 served files;
 independent physical bytes, repeated comparisons and sustained final gates
 remain open. Evidence: native48-field/native48-worker-input/native49-interleave/
 native50-deferred. Complete snapshot4a and60ns clock migration remain required.

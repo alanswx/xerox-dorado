@@ -1,0 +1,18 @@
+{
+  "scope": "Preliminary ONE fresh original-firmware idle boot each, three adjacent10s windows; not repeated or full software qualification",
+  "control49_issues_s": 1947687.4115226977,
+  "candidate50_issues_s": 1948049.932345262,
+  "gain_percent": 0.018612885230950837,
+  "nominal_original_fraction": 0.11688299594071573,
+  "interpretation": "No meaningful idle-login gain demonstrated; do not promote the policy based on this sample",
+  "alm49": 30473,
+  "alm50": 33796,
+  "additional_alms": 3323,
+  "registers49": 52929,
+  "registers50": 55761,
+  "change": "Only deferred unobserved DRAM reads; same original seed, Main/server, clocks, direct DDR, interleaving/arbitration, no raw cache",
+  "full_viewers": "pending",
+  "loader": "pending",
+  "setup_gdb_pauses": 2,
+  "probe_dso": false
+}

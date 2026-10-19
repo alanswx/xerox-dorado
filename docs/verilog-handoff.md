@@ -130,7 +130,7 @@ constraints. Handle69340/fitter512897 COMPLETED;31 summary/36 detailed checks/
 four conditions pass, min+0.115ns, no new cuts/illegal/unconstrained clocks.
 RBF6e7866f3. Source/frozen evidence:2026-10-19-native49-interleave.
 
-**Native50 timing PASS, deployed; original firmware startup pending.** Frozen49 plus frozen45 deferred
+**Live Native50 original-firmware Cedar login PASS; deferred-read idle gain negligible.** Frozen49 plus frozen45 deferred
 reads on16 groups, original pipeline/old-data/write cadence preserved.
 Same CPU/cache/map/ECC, physical DDR, layout/arbitration and clocks/constraints.
 Mac51539/map524702/fitter526525 COMPLETED, remote Native50_20261019.
@@ -143,12 +143,17 @@ SDRAM/no cache/direct DDR, same arbitration/interleaving; only deferred reads
 added. New f3bce2a8 seed checked unchanged before caching. Actual SPI74
 flags0x16/fault+errors0, fresh epochc4d9e1289cdc99f5. Daemon maps64KiB1FF00000,
 Main does not map that ring and has no probe DSO. One setup GDB pause selects
-core input/video0 and issue view1. C watcher80173 and CoolBoot97146 COMPLETED;
-fresh BFN113 served/C released. Never restart these handles. Pilot/login/
-performance pending.
+core input/video0 and issue view1. Two setup GDB controls precede samples.
+C watcher80173 and CoolBoot97146 COMPLETED; original BFN113/Pilot/Cedar login
+PASS. Never restart those handles. Idle70676 COMPLETE:1,948,049.932 issues/s,
++0.01861% versus49, no meaningful idle gain demonstrated in one boot each.
+Additional3323ALMs/2832regs (73->81% ALMs) must earn a real workload benefit.
+Do not promote50 from synthetic results. Full base-loader comparison next.
 Main /tmp/dorado50-main.log, disk /tmp/dorado50-disk.jsonl, Cedar50_20261019;
 helpers cedar50-launch, evidence native50-field. Draft script is superseded by
 executed deploy.py with actual49 predecessor evidence checks.
+Read-only loader observer96827 LIVE; remote PID from readiness log is 7959.
+Guest login sent after idle measurement; full software gate pending.
 
 **Retired47: direct-DDR original-firmware interactive Cedar Viewers PASS.**
 Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,

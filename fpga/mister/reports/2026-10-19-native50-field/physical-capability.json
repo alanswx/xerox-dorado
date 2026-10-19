@@ -24,7 +24,7 @@
   "epoch": "c4d9e1289cdc99f5",
   "main_reserved_ring_mapping": false,
   "daemon_reserved_ring_mapping": "64KiB at physical0x1ff00000",
-  "setup_gdb_pauses": 1,
+  "setup_gdb_pauses": 2,
   "probe_dso": false,
-  "phase": "Original BaseBoard CoolBoot requested; BFN113/login/performance pending"
+  "phase": "Original-firmware/Pilot/Cedar login PASS; idle comparison measured before Guest"
 }

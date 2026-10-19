@@ -16,12 +16,21 @@ passes, minimum+0.035ns. No speed gain is assumed from synthetic tests.
 
 Actual Main-owned SPI74 flags0x16/fault+errors0, fresh epochc4d9e1289cdc99f5.
 Daemon maps exactly64KiB1FF00000; Main does not map that ring or load a probe.
-One matching-ELF GDB pause selects core input/video0 and issue view1.
+One matching-ELF GDB pause selects core input/video0 and issue view1; a second
+control selects the same view before timing.
 Three original BaseBoard CoolBoot pulses97146 and C watcher80173 COMPLETED;
 fresh BFN113 served and C immediately released. Do not restart completed
 helpers or the boot on an observation timeout.
 
-Pilot/Cedar login, measured speed and full Viewers/input remain pending.
+Original Pilot/Cedar login PASS. Three adjacent10s windows mean1,948,049.932
+issues/s (+0.01861% versus49). ONE fresh boot each; this demonstrates no
+meaningful idle gain for the added3323ALMs/2832regs (73->81% ALMs). Do not
+promote this policy based on the synthetic fixture or this tiny difference.
+
+After idle timing, bounded read-only loader observer7959/Mac96827 starts with
+the same policy as48/49. Real Guest login is sent via28107. Full loader
+comparison and Viewers/input remain pending; use actual workload benefit to
+decide whether to retain this policy or keep the smaller49 baseline.
 Helpers: build/rtl-executive/cedar50-launch. Main /tmp/dorado50-main.log,
 disk /tmp/dorado50-disk.jsonl, volume Cedar50_20261019. No complete snapshot
 or final repeated/stability qualification is claimed.
