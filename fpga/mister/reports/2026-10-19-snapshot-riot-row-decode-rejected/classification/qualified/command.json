@@ -1,0 +1,11 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "M6532_snapshot",
+  "-Ginit_7800=0",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/riot-row-decode-classification-v1-20261019/qualified/riot.xml",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/riot-row-decode-classification-v1-20261019/qualified/M6532_snapshot.sv"
+]

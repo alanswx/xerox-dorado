@@ -1,0 +1,57 @@
+{
+  "status": "PASS",
+  "scope": "Exercise a serial FF transport against independent word/bit bank operations.\n\nController and mock physical bank only; no real board, global barrier, area or\ntiming qualification. A partial rotation requires system reset after a fault.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "bits": 1,
+      "returncode": 0
+    },
+    {
+      "case": "candidate",
+      "bits": 17,
+      "returncode": 0
+    },
+    {
+      "case": "candidate",
+      "bits": 18,
+      "returncode": 0
+    },
+    {
+      "case": "candidate",
+      "bits": 19,
+      "returncode": 0
+    },
+    {
+      "case": "candidate",
+      "bits": 56,
+      "returncode": 0
+    },
+    {
+      "case": "candidate",
+      "bits": 1725,
+      "returncode": 0
+    },
+    {
+      "case": "lost_feedback",
+      "bits": 56,
+      "returncode": 1
+    },
+    {
+      "case": "early_completion",
+      "bits": 56,
+      "returncode": 1
+    },
+    {
+      "case": "ignored_write_window",
+      "bits": 56,
+      "returncode": 1
+    },
+    {
+      "case": "lost_quarantine",
+      "bits": 56,
+      "returncode": 1
+    }
+  ],
+  "controller_sha256": "d8997bce3743be8fdf90884d454b4520aababa53aaccd5d960f72c0020a893f8"
+}

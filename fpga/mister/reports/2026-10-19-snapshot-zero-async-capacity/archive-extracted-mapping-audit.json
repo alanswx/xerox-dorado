@@ -1,0 +1,901 @@
+{
+  "register_files": 85,
+  "inferred_read_replicas": 170,
+  "logical_ram_bits": 5440,
+  "replica_ram_bits": 10480,
+  "boards": {
+    "ContA": 9,
+    "DispY": 3,
+    "DskEth": 18,
+    "MemC": 23,
+    "MemD": 8,
+    "MemX": 10,
+    "ProcH": 8,
+    "ProcL": 6
+  },
+  "status": "PASS_SYNTHESIS_MAPPING_ONLY",
+  "scope": "Check all enabled-core F10145 inferred RAMs against the board manifests.\n\nSynthesis mapping only: not physical placement, register/window retention,\ntiming, firmware boot or complete-machine snapshot qualification.\n",
+  "expected_packages": {
+    "ContA/u_a04": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ContA/u_b04": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ContA/u_c04": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ContA/u_d04": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ContA/u_e04": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15"
+      ]
+    },
+    "ContA/u_i13": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ContA/u_j13": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ContA/u_k13": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ContA/u_l13": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ProcH/u_e13": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ProcH/u_g15": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ProcH/u_h15": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ProcH/u_i11": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2"
+      ]
+    },
+    "ProcH/u_j16": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ProcH/u_j17": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2"
+      ]
+    },
+    "ProcH/u_l03": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ProcH/u_l04": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ProcL/u_e13": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ProcL/u_e14": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1"
+      ]
+    },
+    "ProcL/u_g15": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ProcL/u_i13": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2"
+      ]
+    },
+    "ProcL/u_l03": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "ProcL/u_l04": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_d06": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_d07": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_e06": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_e07": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_f06": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_f07": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_g02": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_g03": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_h02": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_h03": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_h06": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_h07": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_i02": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_i03": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_i06": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_i07": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_i14": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15"
+      ]
+    },
+    "MemC/u_j06": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_j07": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_k03": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_k06": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_k07": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemC/u_l04": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemD/u_a06": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemD/u_b05": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemD/u_b06": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemD/u_h04": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemD/u_h06": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1"
+      ]
+    },
+    "MemD/u_h11": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemD/u_h15": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemD/u_h17": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemX/u_c21": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemX/u_e16": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1"
+      ]
+    },
+    "MemX/u_e20": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1"
+      ]
+    },
+    "MemX/u_e21": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemX/u_f13": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemX/u_f14": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemX/u_f15": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemX/u_f16": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemX/u_f17": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "MemX/u_f21": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2"
+      ]
+    },
+    "DskEth/u_d08": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_d09": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_d10": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_d11": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_d12": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_e16": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_f16": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_f17": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_j08": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_j09": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_j10": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_j11": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_j12": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15"
+      ]
+    },
+    "DskEth/u_j13": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_j14": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_j15": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_j16": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DskEth/u_j17": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1"
+      ]
+    },
+    "DispY/u_g03": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DispY/u_h02": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    },
+    "DispY/u_j02": {
+      "words": 16,
+      "width": 4,
+      "connected_normal_outputs": [
+        "p2",
+        "p1",
+        "p15",
+        "p14"
+      ]
+    }
+  },
+  "failure_controls": [
+    {
+      "case": "missing_replica",
+      "rejected": true,
+      "diagnostic": "missing read replica"
+    },
+    {
+      "case": "duplicate_replica",
+      "rejected": true,
+      "diagnostic": "duplicate read replica"
+    },
+    {
+      "case": "wrong_kind",
+      "rejected": true,
+      "diagnostic": "register-file RAM differs: Type"
+    },
+    {
+      "case": "wrong_width",
+      "rejected": true,
+      "diagnostic": "register-file width differs"
+    },
+    {
+      "case": "wrong_depth",
+      "rejected": true,
+      "diagnostic": "register-file depth differs"
+    },
+    {
+      "case": "initialized_ram",
+      "rejected": true,
+      "diagnostic": "register-file RAM differs: MIF"
+    },
+    {
+      "case": "wrong_package",
+      "rejected": true,
+      "diagnostic": "unexpected register-file package"
+    }
+  ],
+  "input_hashes": {
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_conta/assets.json": "ac03ac956b085eb2756254aca41115c7513fe846a39f2f9f00f28ecbb50688b5",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv": "8e800dd9be1b16c88deb1c80e35b84b148d119bdf996c906184fd11511d149ca",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_processor/assets.json": "9d51cebf23c270d977f45ffa686100fba2742af2a947763b18c06ac9bea05557",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "a3067afe1f21cf1a28175316f2d8e365e2b56600208b6e96b3e17a12fe2c3cf8",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "4cb7855963757ea62aaf799b76a34184b6d8f9ad9aec066c20d2e08f92d849bd",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_memc/assets.json": "5362bfea43aa678b5abb0fe8ccda490af759c4aa3158a16dc6decae7338dff39",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_memc/MemC_full_snapshot.sv": "2503173cac2637ba872228778df925261dfaaac953775696a66301680a81efb1",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_memd/assets.json": "b23479efd239c4e58a6655db326cc30943fba42d42ad70cebc47ec958909d877",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_memd/MemD_full_snapshot.sv": "08af2ebcb5efbdb7277671567d2b508672a3a9d5f5abc64b9ed4ed984b37a8eb",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_memx/assets.json": "40e27fd212d22384f5b524cc1135dbda2530ce736780cf691ee68b06f3dcf8d5",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_memx/MemX_full_snapshot.sv": "00673cc20bf35ec5bc147b2ec1d1ecc8343e6749e66d37fe629d8618d6eab5f3",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_dsketh/assets.json": "36f172df7e4dfdf4a40440e0e613f2c02c93cb7aaca48e2afc142e3f7e189bff",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_dsketh/DskEth_full_snapshot.sv": "fd0df9c6006b9152f7101c6210ba8223b297102201ec6222e7603b7d17f2c1ca",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_dispy/assets.json": "1464ce563d92ae047d439a3af7fa14e3becf3ade220baf190da2b23950b110e3",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/source-root/fpga/mister/snapshot_native_dispy/DispY_full_snapshot.sv": "9e04029cb5704cdd6c45a75f0b4825815b126712a62d3d27d9093e58f1dab8e8",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/zero-async-capacity-archive-readback-20261019/failed-fit/Dorado.map.rpt": "2b6b22802da2a4aee2e2597fe671a6ba294e830de6c41c9eb6775110353ad7c9",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/audit_enabled_f10145_mapping.py": "a36239c8614498558fa8dc57942b857adae03fd6265788c333ce1b61e22d29ac"
+  }
+}

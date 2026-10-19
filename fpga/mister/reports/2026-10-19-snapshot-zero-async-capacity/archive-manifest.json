@@ -1,0 +1,205 @@
+[
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-capacity-20261019/Dorado.map.summary",
+    "raw_name": "failed-fit/Dorado.map.summary",
+    "stored": "failed-fit/Dorado.map.summary.gz",
+    "raw_bytes": 512,
+    "raw_sha256": "2599029f7f59426d15617106f31e0f710ae643f8de513f520ac01f81e35d287b"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-capacity-20261019/Dorado.fit.summary",
+    "raw_name": "failed-fit/Dorado.fit.summary",
+    "stored": "failed-fit/Dorado.fit.summary.gz",
+    "raw_bytes": 671,
+    "raw_sha256": "0a69996939f2ad6bc71bfee9c2f3717dec5340d18a0f2656514827ae2092c53e"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-capacity-20261019/Dorado.map.rpt",
+    "raw_name": "failed-fit/Dorado.map.rpt",
+    "stored": "failed-fit/Dorado.map.rpt.gz",
+    "raw_bytes": 15227428,
+    "raw_sha256": "2b6b22802da2a4aee2e2597fe671a6ba294e830de6c41c9eb6775110353ad7c9"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-capacity-20261019/Dorado.fit.rpt",
+    "raw_name": "failed-fit/Dorado.fit.rpt",
+    "stored": "failed-fit/Dorado.fit.rpt.gz",
+    "raw_bytes": 7436137,
+    "raw_sha256": "6a477b3cb250eb8f24c1a77f6ddc6749771283611adb4d12f128c792d78cd265"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-capacity-20261019/fit.log",
+    "raw_name": "failed-fit/fit.log",
+    "stored": "failed-fit/fit.log.gz",
+    "raw_bytes": 18478,
+    "raw_sha256": "611373655f5bded38ddcafdc45321784a1d0550e535cfdaab609f55968f0b682"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-synthesis-20261019/map.log",
+    "raw_name": "failed-fit/map.log",
+    "stored": "failed-fit/map.log.gz",
+    "raw_bytes": 753594,
+    "raw_sha256": "50e04882f052de9c50e57c400315935cf25835fdb95a09dd73f0afdcee7004e3"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-capacity-review-20261019.json",
+    "raw_name": "capacity-review.json",
+    "stored": "capacity-review.json",
+    "raw_bytes": 3744,
+    "raw_sha256": "a8c334b6c90925caadb3b59e03f7eb0b27a532f20b730cdd685b496c5522bfc9"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-mapping-audit-20261019.json",
+    "raw_name": "mapping-audit.json",
+    "stored": "mapping-audit.json",
+    "raw_bytes": 18800,
+    "raw_sha256": "cea466991bc399e36909ad118f8058c3fe41dabd7658933c45179fc539044ff0"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-actual-source-audit-20261019.json",
+    "raw_name": "actual-source-audit.json",
+    "stored": "actual-source-audit.json",
+    "raw_bytes": 6222,
+    "raw_sha256": "173b45ae87efcf3ed3662fabfca4c37bacfe50b5b5d95fe53d42be063822c02f"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_conta/assets.json",
+    "raw_name": "source-root/fpga/mister/snapshot_native_conta/assets.json",
+    "stored": "source-root/fpga/mister/snapshot_native_conta/assets.json",
+    "raw_bytes": 62192,
+    "raw_sha256": "ac03ac956b085eb2756254aca41115c7513fe846a39f2f9f00f28ecbb50688b5"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv",
+    "raw_name": "source-root/fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv",
+    "stored": "source-root/fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv.gz",
+    "raw_bytes": 143622,
+    "raw_sha256": "8e800dd9be1b16c88deb1c80e35b84b148d119bdf996c906184fd11511d149ca"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_processor/assets.json",
+    "raw_name": "source-root/fpga/mister/snapshot_native_processor/assets.json",
+    "stored": "source-root/fpga/mister/snapshot_native_processor/assets.json.gz",
+    "raw_bytes": 105008,
+    "raw_sha256": "9d51cebf23c270d977f45ffa686100fba2742af2a947763b18c06ac9bea05557"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv",
+    "raw_name": "source-root/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv",
+    "stored": "source-root/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv.gz",
+    "raw_bytes": 129113,
+    "raw_sha256": "a3067afe1f21cf1a28175316f2d8e365e2b56600208b6e96b3e17a12fe2c3cf8"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv",
+    "raw_name": "source-root/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv",
+    "stored": "source-root/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv.gz",
+    "raw_bytes": 140679,
+    "raw_sha256": "4cb7855963757ea62aaf799b76a34184b6d8f9ad9aec066c20d2e08f92d849bd"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_memc/assets.json",
+    "raw_name": "source-root/fpga/mister/snapshot_native_memc/assets.json",
+    "stored": "source-root/fpga/mister/snapshot_native_memc/assets.json",
+    "raw_bytes": 72029,
+    "raw_sha256": "5362bfea43aa678b5abb0fe8ccda490af759c4aa3158a16dc6decae7338dff39"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_memc/MemC_full_snapshot.sv",
+    "raw_name": "source-root/fpga/mister/snapshot_native_memc/MemC_full_snapshot.sv",
+    "stored": "source-root/fpga/mister/snapshot_native_memc/MemC_full_snapshot.sv.gz",
+    "raw_bytes": 169733,
+    "raw_sha256": "2503173cac2637ba872228778df925261dfaaac953775696a66301680a81efb1"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_memd/assets.json",
+    "raw_name": "source-root/fpga/mister/snapshot_native_memd/assets.json",
+    "stored": "source-root/fpga/mister/snapshot_native_memd/assets.json.gz",
+    "raw_bytes": 239324,
+    "raw_sha256": "b23479efd239c4e58a6655db326cc30943fba42d42ad70cebc47ec958909d877"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_memd/MemD_full_snapshot.sv",
+    "raw_name": "source-root/fpga/mister/snapshot_native_memd/MemD_full_snapshot.sv",
+    "stored": "source-root/fpga/mister/snapshot_native_memd/MemD_full_snapshot.sv.gz",
+    "raw_bytes": 134753,
+    "raw_sha256": "08af2ebcb5efbdb7277671567d2b508672a3a9d5f5abc64b9ed4ed984b37a8eb"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_memx/assets.json",
+    "raw_name": "source-root/fpga/mister/snapshot_native_memx/assets.json",
+    "stored": "source-root/fpga/mister/snapshot_native_memx/assets.json",
+    "raw_bytes": 97967,
+    "raw_sha256": "40e27fd212d22384f5b524cc1135dbda2530ce736780cf691ee68b06f3dcf8d5"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_memx/MemX_full_snapshot.sv",
+    "raw_name": "source-root/fpga/mister/snapshot_native_memx/MemX_full_snapshot.sv",
+    "stored": "source-root/fpga/mister/snapshot_native_memx/MemX_full_snapshot.sv.gz",
+    "raw_bytes": 148130,
+    "raw_sha256": "00673cc20bf35ec5bc147b2ec1d1ecc8343e6749e66d37fe629d8618d6eab5f3"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_dsketh/assets.json",
+    "raw_name": "source-root/fpga/mister/snapshot_native_dsketh/assets.json",
+    "stored": "source-root/fpga/mister/snapshot_native_dsketh/assets.json.gz",
+    "raw_bytes": 116435,
+    "raw_sha256": "36f172df7e4dfdf4a40440e0e613f2c02c93cb7aaca48e2afc142e3f7e189bff"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_dsketh/DskEth_full_snapshot.sv",
+    "raw_name": "source-root/fpga/mister/snapshot_native_dsketh/DskEth_full_snapshot.sv",
+    "stored": "source-root/fpga/mister/snapshot_native_dsketh/DskEth_full_snapshot.sv.gz",
+    "raw_bytes": 172781,
+    "raw_sha256": "fd0df9c6006b9152f7101c6210ba8223b297102201ec6222e7603b7d17f2c1ca"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_dispy/assets.json",
+    "raw_name": "source-root/fpga/mister/snapshot_native_dispy/assets.json",
+    "stored": "source-root/fpga/mister/snapshot_native_dispy/assets.json",
+    "raw_bytes": 101683,
+    "raw_sha256": "1464ce563d92ae047d439a3af7fa14e3becf3ade220baf190da2b23950b110e3"
+  },
+  {
+    "source": "build/rtl-executive/enabled60-zero-async-source-check-20261019/src/fpga/mister/snapshot_native_dispy/DispY_full_snapshot.sv",
+    "raw_name": "source-root/fpga/mister/snapshot_native_dispy/DispY_full_snapshot.sv",
+    "stored": "source-root/fpga/mister/snapshot_native_dispy/DispY_full_snapshot.sv.gz",
+    "raw_bytes": 151932,
+    "raw_sha256": "9e04029cb5704cdd6c45a75f0b4825815b126712a62d3d27d9093e58f1dab8e8"
+  },
+  {
+    "source": "fpga/mister/snapshot/audit_enabled_capacity.py",
+    "raw_name": "tools/audit_enabled_capacity.py",
+    "stored": "tools/audit_enabled_capacity.py",
+    "raw_bytes": 4502,
+    "raw_sha256": "720b70e6b1cfc098e84f1c9df1d43b4952210884438909a7689a40b88aaf764c"
+  },
+  {
+    "source": "fpga/mister/snapshot/audit_enabled_f10145_mapping.py",
+    "raw_name": "tools/audit_enabled_f10145_mapping.py",
+    "stored": "tools/audit_enabled_f10145_mapping.py",
+    "raw_bytes": 6584,
+    "raw_sha256": "a36239c8614498558fa8dc57942b857adae03fd6265788c333ce1b61e22d29ac"
+  },
+  {
+    "source": "fpga/mister/snapshot/audit_enabled_core.py",
+    "raw_name": "tools/audit_enabled_core.py",
+    "stored": "tools/audit_enabled_core.py",
+    "raw_bytes": 16839,
+    "raw_sha256": "eec692e68dd7d689a01ec1bf349b5f6c53f40ffe604bf8ee5f11a9dc03216241"
+  },
+  {
+    "source": "fpga/mister/snapshot/build_enabled_core.py",
+    "raw_name": "tools/build_enabled_core.py",
+    "stored": "tools/build_enabled_core.py",
+    "raw_bytes": 16993,
+    "raw_sha256": "9f806af750249110d02a87aaa7257c84f1fe2d01bedad3302b8bb7cf1915b81c"
+  },
+  {
+    "source": "build/rtl-executive/archive-zero-async-capacity-20261019.py",
+    "raw_name": "tools/archive-zero-async-capacity-20261019.py",
+    "stored": "tools/archive-zero-async-capacity-20261019.py",
+    "raw_bytes": 2149,
+    "raw_sha256": "f5d89799a484c5ee50d5066bc0f6d2e105b97b5975f424a2de411d16f2b4a1b0"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "riot_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/riot-row-decode-v1-20261019/held_reset/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/riot-row-decode-v1-20261019/held_reset/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/riot-row-decode-v1-20261019/held_reset/M6532_snapshot.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/riot-row-decode-v1-20261019/executed-inputs/M6532.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/riot-row-decode-v1-20261019/executed-inputs/test_riot.cpp"
+]

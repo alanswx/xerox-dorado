@@ -1,0 +1,779 @@
+[
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-1/build.log",
+    "raw_name": "simulation-v1/candidate-1/build.log",
+    "stored": "simulation-v1/candidate-1/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-1/command.json",
+    "raw_name": "simulation-v1/candidate-1/command.json",
+    "stored": "simulation-v1/candidate-1/command.json",
+    "raw_bytes": 370,
+    "raw_sha256": "0719bfc9a802d24c181e73c038174829f988c769c5e1eb6910baa2ced8e17e94"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-1/controller.sv",
+    "raw_name": "simulation-v1/candidate-1/controller.sv",
+    "stored": "simulation-v1/candidate-1/controller.sv.gz",
+    "raw_bytes": 2755,
+    "raw_sha256": "c42a74fa839e6b27b6cf0c9742a87154d3921ccaaacb59c6f82d2f1591e51886"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-1/tb.sv",
+    "raw_name": "simulation-v1/candidate-1/tb.sv",
+    "stored": "simulation-v1/candidate-1/tb.sv.gz",
+    "raw_bytes": 3582,
+    "raw_sha256": "cd81c8ac3ad6f60179cd38bee683ca4a3031008b76641519283dc778ef6d5a86"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-1/test.log",
+    "raw_name": "simulation-v1/candidate-1/test.log",
+    "stored": "simulation-v1/candidate-1/test.log.gz",
+    "raw_bytes": 210,
+    "raw_sha256": "cd2b6a2c1a0ffea9ec98e34324d0ef3b39b4e8addc22372cfb468a4cab8405c2"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-17/build.log",
+    "raw_name": "simulation-v1/candidate-17/build.log",
+    "stored": "simulation-v1/candidate-17/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-17/command.json",
+    "raw_name": "simulation-v1/candidate-17/command.json",
+    "stored": "simulation-v1/candidate-17/command.json",
+    "raw_bytes": 374,
+    "raw_sha256": "42fb8c9021ba390decfdef4948e03cbabcd43d7d5cf3caf5453fab0e98d26906"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-17/controller.sv",
+    "raw_name": "simulation-v1/candidate-17/controller.sv",
+    "stored": "simulation-v1/candidate-17/controller.sv.gz",
+    "raw_bytes": 2755,
+    "raw_sha256": "c42a74fa839e6b27b6cf0c9742a87154d3921ccaaacb59c6f82d2f1591e51886"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-17/tb.sv",
+    "raw_name": "simulation-v1/candidate-17/tb.sv",
+    "stored": "simulation-v1/candidate-17/tb.sv.gz",
+    "raw_bytes": 3582,
+    "raw_sha256": "cd81c8ac3ad6f60179cd38bee683ca4a3031008b76641519283dc778ef6d5a86"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-17/test.log",
+    "raw_name": "simulation-v1/candidate-17/test.log",
+    "stored": "simulation-v1/candidate-17/test.log.gz",
+    "raw_bytes": 212,
+    "raw_sha256": "ddcc0b9b0ea8f9cdcb28f3331dc4c260ac2c344f41aa542d27ed5ce02a802fb8"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-1725/build.log",
+    "raw_name": "simulation-v1/candidate-1725/build.log",
+    "stored": "simulation-v1/candidate-1725/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-1725/command.json",
+    "raw_name": "simulation-v1/candidate-1725/command.json",
+    "stored": "simulation-v1/candidate-1725/command.json",
+    "raw_bytes": 382,
+    "raw_sha256": "e05e3a5c16ca7d3fde5803a033bd05f043db73253c2b4bb18d68d811d99ac7f8"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-1725/controller.sv",
+    "raw_name": "simulation-v1/candidate-1725/controller.sv",
+    "stored": "simulation-v1/candidate-1725/controller.sv.gz",
+    "raw_bytes": 2755,
+    "raw_sha256": "c42a74fa839e6b27b6cf0c9742a87154d3921ccaaacb59c6f82d2f1591e51886"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-1725/tb.sv",
+    "raw_name": "simulation-v1/candidate-1725/tb.sv",
+    "stored": "simulation-v1/candidate-1725/tb.sv.gz",
+    "raw_bytes": 3582,
+    "raw_sha256": "cd81c8ac3ad6f60179cd38bee683ca4a3031008b76641519283dc778ef6d5a86"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-1725/test.log",
+    "raw_name": "simulation-v1/candidate-1725/test.log",
+    "stored": "simulation-v1/candidate-1725/test.log.gz",
+    "raw_bytes": 220,
+    "raw_sha256": "cd3e596d03911eff35ec08c7a3396cfc44d5a50afb44c14979847e2d326737f4"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-18/build.log",
+    "raw_name": "simulation-v1/candidate-18/build.log",
+    "stored": "simulation-v1/candidate-18/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-18/command.json",
+    "raw_name": "simulation-v1/candidate-18/command.json",
+    "stored": "simulation-v1/candidate-18/command.json",
+    "raw_bytes": 374,
+    "raw_sha256": "40972d5b503be461ce9bd0e351acb3008d5d601097bb0f6a428797b77d543b09"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-18/controller.sv",
+    "raw_name": "simulation-v1/candidate-18/controller.sv",
+    "stored": "simulation-v1/candidate-18/controller.sv.gz",
+    "raw_bytes": 2755,
+    "raw_sha256": "c42a74fa839e6b27b6cf0c9742a87154d3921ccaaacb59c6f82d2f1591e51886"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-18/tb.sv",
+    "raw_name": "simulation-v1/candidate-18/tb.sv",
+    "stored": "simulation-v1/candidate-18/tb.sv.gz",
+    "raw_bytes": 3582,
+    "raw_sha256": "cd81c8ac3ad6f60179cd38bee683ca4a3031008b76641519283dc778ef6d5a86"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-18/test.log",
+    "raw_name": "simulation-v1/candidate-18/test.log",
+    "stored": "simulation-v1/candidate-18/test.log.gz",
+    "raw_bytes": 212,
+    "raw_sha256": "45fb191a5d7c944d60fa2c959c961fed83c97cbb6645815bac1894fa7d57d169"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-19/build.log",
+    "raw_name": "simulation-v1/candidate-19/build.log",
+    "stored": "simulation-v1/candidate-19/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-19/command.json",
+    "raw_name": "simulation-v1/candidate-19/command.json",
+    "stored": "simulation-v1/candidate-19/command.json",
+    "raw_bytes": 374,
+    "raw_sha256": "9dbb38ba540cb25d3ba930f5da6d5e0bd2b57ae1c4bbae02fac15a25a8f543fc"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-19/controller.sv",
+    "raw_name": "simulation-v1/candidate-19/controller.sv",
+    "stored": "simulation-v1/candidate-19/controller.sv.gz",
+    "raw_bytes": 2755,
+    "raw_sha256": "c42a74fa839e6b27b6cf0c9742a87154d3921ccaaacb59c6f82d2f1591e51886"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-19/tb.sv",
+    "raw_name": "simulation-v1/candidate-19/tb.sv",
+    "stored": "simulation-v1/candidate-19/tb.sv.gz",
+    "raw_bytes": 3582,
+    "raw_sha256": "cd81c8ac3ad6f60179cd38bee683ca4a3031008b76641519283dc778ef6d5a86"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-19/test.log",
+    "raw_name": "simulation-v1/candidate-19/test.log",
+    "stored": "simulation-v1/candidate-19/test.log.gz",
+    "raw_bytes": 212,
+    "raw_sha256": "b2c44ece643b7a8d8fb8c5be76e8034cc626788d7b65bf3a4095a46677286bb5"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-56/build.log",
+    "raw_name": "simulation-v1/candidate-56/build.log",
+    "stored": "simulation-v1/candidate-56/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-56/command.json",
+    "raw_name": "simulation-v1/candidate-56/command.json",
+    "stored": "simulation-v1/candidate-56/command.json",
+    "raw_bytes": 374,
+    "raw_sha256": "534d2bd0cd293f4f9b20667a33b34f18398656940f7e9a17d6a8f961f991c796"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-56/controller.sv",
+    "raw_name": "simulation-v1/candidate-56/controller.sv",
+    "stored": "simulation-v1/candidate-56/controller.sv.gz",
+    "raw_bytes": 2755,
+    "raw_sha256": "c42a74fa839e6b27b6cf0c9742a87154d3921ccaaacb59c6f82d2f1591e51886"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-56/tb.sv",
+    "raw_name": "simulation-v1/candidate-56/tb.sv",
+    "stored": "simulation-v1/candidate-56/tb.sv.gz",
+    "raw_bytes": 3582,
+    "raw_sha256": "cd81c8ac3ad6f60179cd38bee683ca4a3031008b76641519283dc778ef6d5a86"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/candidate-56/test.log",
+    "raw_name": "simulation-v1/candidate-56/test.log",
+    "stored": "simulation-v1/candidate-56/test.log.gz",
+    "raw_bytes": 213,
+    "raw_sha256": "3fbbb126cba455c1021b2bf8f3212a4926888ecb3f1c3a6082a79f36c1e124fe"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/early_completion-56/build.log",
+    "raw_name": "simulation-v1/early_completion-56/build.log",
+    "stored": "simulation-v1/early_completion-56/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/early_completion-56/command.json",
+    "raw_name": "simulation-v1/early_completion-56/command.json",
+    "stored": "simulation-v1/early_completion-56/command.json",
+    "raw_bytes": 395,
+    "raw_sha256": "deb06bb3875070368093f7fa3c1d4d63276e1c99c7716b3f6db9238a42295813"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/early_completion-56/controller.sv",
+    "raw_name": "simulation-v1/early_completion-56/controller.sv",
+    "stored": "simulation-v1/early_completion-56/controller.sv.gz",
+    "raw_bytes": 2755,
+    "raw_sha256": "187588e4ba9f5e172d902ce20d811e6f3774525d68cd4843f6d2745df3f470fa"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/early_completion-56/tb.sv",
+    "raw_name": "simulation-v1/early_completion-56/tb.sv",
+    "stored": "simulation-v1/early_completion-56/tb.sv.gz",
+    "raw_bytes": 3582,
+    "raw_sha256": "cd81c8ac3ad6f60179cd38bee683ca4a3031008b76641519283dc778ef6d5a86"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/early_completion-56/test.log",
+    "raw_name": "simulation-v1/early_completion-56/test.log",
+    "stored": "simulation-v1/early_completion-56/test.log.gz",
+    "raw_bytes": 174,
+    "raw_sha256": "b06792f87de6eedf3ddbc22814e9a6815b5a162b45d3c4ebf2d0a78dc8e3e722"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/executed-driver.py",
+    "raw_name": "simulation-v1/executed-driver.py",
+    "stored": "simulation-v1/executed-driver.py",
+    "raw_bytes": 6324,
+    "raw_sha256": "9c1664950e30b23a5ac51d8fbb06eb7b10bbc89da9852f6a32873369c1d0fd03"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/ignored_write_window-56/build.log",
+    "raw_name": "simulation-v1/ignored_write_window-56/build.log",
+    "stored": "simulation-v1/ignored_write_window-56/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/ignored_write_window-56/command.json",
+    "raw_name": "simulation-v1/ignored_write_window-56/command.json",
+    "stored": "simulation-v1/ignored_write_window-56/command.json",
+    "raw_bytes": 407,
+    "raw_sha256": "3fb926c5b7065d9160c4b14567304f9aa51a61f07f7c475294d536e3573466b3"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/ignored_write_window-56/controller.sv",
+    "raw_name": "simulation-v1/ignored_write_window-56/controller.sv",
+    "stored": "simulation-v1/ignored_write_window-56/controller.sv.gz",
+    "raw_bytes": 2742,
+    "raw_sha256": "8f689f2704393aad4300cbed1344cdade73afc21be782ebd1b0e439e90c8d88e"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/ignored_write_window-56/tb.sv",
+    "raw_name": "simulation-v1/ignored_write_window-56/tb.sv",
+    "stored": "simulation-v1/ignored_write_window-56/tb.sv.gz",
+    "raw_bytes": 3582,
+    "raw_sha256": "cd81c8ac3ad6f60179cd38bee683ca4a3031008b76641519283dc778ef6d5a86"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/ignored_write_window-56/test.log",
+    "raw_name": "simulation-v1/ignored_write_window-56/test.log",
+    "stored": "simulation-v1/ignored_write_window-56/test.log.gz",
+    "raw_bytes": 176,
+    "raw_sha256": "6f2fce8270875daf8123035fb0917e7b94bb54fe4ccae04f04d9abf4c85fb484"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/lost_feedback-56/build.log",
+    "raw_name": "simulation-v1/lost_feedback-56/build.log",
+    "stored": "simulation-v1/lost_feedback-56/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/lost_feedback-56/command.json",
+    "raw_name": "simulation-v1/lost_feedback-56/command.json",
+    "stored": "simulation-v1/lost_feedback-56/command.json",
+    "raw_bytes": 386,
+    "raw_sha256": "051b3d2a2ae7b1953660b591614bbb63ac120a8e2372ba65813c257bba14e084"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/lost_feedback-56/controller.sv",
+    "raw_name": "simulation-v1/lost_feedback-56/controller.sv",
+    "stored": "simulation-v1/lost_feedback-56/controller.sv.gz",
+    "raw_bytes": 2749,
+    "raw_sha256": "278d9d157a5a50e562c6a985623e901085e1845fc724306319067e24e59744e2"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/lost_feedback-56/tb.sv",
+    "raw_name": "simulation-v1/lost_feedback-56/tb.sv",
+    "stored": "simulation-v1/lost_feedback-56/tb.sv.gz",
+    "raw_bytes": 3582,
+    "raw_sha256": "cd81c8ac3ad6f60179cd38bee683ca4a3031008b76641519283dc778ef6d5a86"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/lost_feedback-56/test.log",
+    "raw_name": "simulation-v1/lost_feedback-56/test.log",
+    "stored": "simulation-v1/lost_feedback-56/test.log.gz",
+    "raw_bytes": 170,
+    "raw_sha256": "3e06b14bac8bce207257f70f28f7c29b5f4f6e82a1216ee5c67f7de9811b91d0"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/lost_quarantine-56/build.log",
+    "raw_name": "simulation-v1/lost_quarantine-56/build.log",
+    "stored": "simulation-v1/lost_quarantine-56/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/lost_quarantine-56/command.json",
+    "raw_name": "simulation-v1/lost_quarantine-56/command.json",
+    "stored": "simulation-v1/lost_quarantine-56/command.json",
+    "raw_bytes": 392,
+    "raw_sha256": "a073f0a201d14497e7759cf84f34757dd4ea5ff2849acd80df59a8706789828f"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/lost_quarantine-56/controller.sv",
+    "raw_name": "simulation-v1/lost_quarantine-56/controller.sv",
+    "stored": "simulation-v1/lost_quarantine-56/controller.sv.gz",
+    "raw_bytes": 2737,
+    "raw_sha256": "b7deb548b839ac0e3ca45e3a83bec49ea64074834e701ce7419c71209b0dc62e"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/lost_quarantine-56/tb.sv",
+    "raw_name": "simulation-v1/lost_quarantine-56/tb.sv",
+    "stored": "simulation-v1/lost_quarantine-56/tb.sv.gz",
+    "raw_bytes": 3582,
+    "raw_sha256": "cd81c8ac3ad6f60179cd38bee683ca4a3031008b76641519283dc778ef6d5a86"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/lost_quarantine-56/test.log",
+    "raw_name": "simulation-v1/lost_quarantine-56/test.log",
+    "stored": "simulation-v1/lost_quarantine-56/test.log.gz",
+    "raw_bytes": 156,
+    "raw_sha256": "c05e2716e71993cb0be26d9b7ae9ce9bb945531703a15aef2110a71c2c348f3a"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/reference-controller.sv",
+    "raw_name": "simulation-v1/reference-controller.sv",
+    "stored": "simulation-v1/reference-controller.sv.gz",
+    "raw_bytes": 2755,
+    "raw_sha256": "c42a74fa839e6b27b6cf0c9742a87154d3921ccaaacb59c6f82d2f1591e51886"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019/results.json",
+    "raw_name": "simulation-v1/results.json",
+    "stored": "simulation-v1/results.json",
+    "raw_bytes": 1214,
+    "raw_sha256": "ba4f3fc9d88ad573bf21ead928a38671ce4f578917a7aa4d956170165aa6e45d"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v1-20261019.log",
+    "raw_name": "simulation-v1/driver.log",
+    "stored": "simulation-v1/driver.log.gz",
+    "raw_bytes": 2114,
+    "raw_sha256": "9681e922d88a2fa4d7e51178b3e0327ce9225d2b2e5c4a4506da333875d4b213"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-1/build.log",
+    "raw_name": "simulation-v2/candidate-1/build.log",
+    "stored": "simulation-v2/candidate-1/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-1/command.json",
+    "raw_name": "simulation-v2/candidate-1/command.json",
+    "stored": "simulation-v2/candidate-1/command.json",
+    "raw_bytes": 370,
+    "raw_sha256": "98e0dc0fd8037cc80960ef8b960b13e99fe7b10093f01c501959d7c771bf49a9"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-1/controller.sv",
+    "raw_name": "simulation-v2/candidate-1/controller.sv",
+    "stored": "simulation-v2/candidate-1/controller.sv.gz",
+    "raw_bytes": 2891,
+    "raw_sha256": "d8997bce3743be8fdf90884d454b4520aababa53aaccd5d960f72c0020a893f8"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-1/tb.sv",
+    "raw_name": "simulation-v2/candidate-1/tb.sv",
+    "stored": "simulation-v2/candidate-1/tb.sv.gz",
+    "raw_bytes": 3715,
+    "raw_sha256": "4c8237b9bddfcf29f6f92134696ea3b844c88268931193c98fe4f91656e4ca82"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-1/test.log",
+    "raw_name": "simulation-v2/candidate-1/test.log",
+    "stored": "simulation-v2/candidate-1/test.log.gz",
+    "raw_bytes": 210,
+    "raw_sha256": "971c425bcb799b5c5a75f78ff0260cb911e3b87eae64835da3b1a91bf7a5a88b"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-17/build.log",
+    "raw_name": "simulation-v2/candidate-17/build.log",
+    "stored": "simulation-v2/candidate-17/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-17/command.json",
+    "raw_name": "simulation-v2/candidate-17/command.json",
+    "stored": "simulation-v2/candidate-17/command.json",
+    "raw_bytes": 374,
+    "raw_sha256": "fed9b20520ea31f002edf3ab115c09e64386e8f0320a820a8cd6905b590ba5ca"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-17/controller.sv",
+    "raw_name": "simulation-v2/candidate-17/controller.sv",
+    "stored": "simulation-v2/candidate-17/controller.sv.gz",
+    "raw_bytes": 2891,
+    "raw_sha256": "d8997bce3743be8fdf90884d454b4520aababa53aaccd5d960f72c0020a893f8"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-17/tb.sv",
+    "raw_name": "simulation-v2/candidate-17/tb.sv",
+    "stored": "simulation-v2/candidate-17/tb.sv.gz",
+    "raw_bytes": 3715,
+    "raw_sha256": "4c8237b9bddfcf29f6f92134696ea3b844c88268931193c98fe4f91656e4ca82"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-17/test.log",
+    "raw_name": "simulation-v2/candidate-17/test.log",
+    "stored": "simulation-v2/candidate-17/test.log.gz",
+    "raw_bytes": 212,
+    "raw_sha256": "80f2c6974b6d0dc870c81b05ec4f25baf03908b6f066f42ea31195666bc9ec4b"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-1725/build.log",
+    "raw_name": "simulation-v2/candidate-1725/build.log",
+    "stored": "simulation-v2/candidate-1725/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-1725/command.json",
+    "raw_name": "simulation-v2/candidate-1725/command.json",
+    "stored": "simulation-v2/candidate-1725/command.json",
+    "raw_bytes": 382,
+    "raw_sha256": "12160906e2e941acc55d3444229a71288240a0f1c7d4af1ab0df69defd729929"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-1725/controller.sv",
+    "raw_name": "simulation-v2/candidate-1725/controller.sv",
+    "stored": "simulation-v2/candidate-1725/controller.sv.gz",
+    "raw_bytes": 2891,
+    "raw_sha256": "d8997bce3743be8fdf90884d454b4520aababa53aaccd5d960f72c0020a893f8"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-1725/tb.sv",
+    "raw_name": "simulation-v2/candidate-1725/tb.sv",
+    "stored": "simulation-v2/candidate-1725/tb.sv.gz",
+    "raw_bytes": 3715,
+    "raw_sha256": "4c8237b9bddfcf29f6f92134696ea3b844c88268931193c98fe4f91656e4ca82"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-1725/test.log",
+    "raw_name": "simulation-v2/candidate-1725/test.log",
+    "stored": "simulation-v2/candidate-1725/test.log.gz",
+    "raw_bytes": 220,
+    "raw_sha256": "62c84268afb5e2742338747c96a0999ccd0325155ce754a53b417a032a4172f3"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-18/build.log",
+    "raw_name": "simulation-v2/candidate-18/build.log",
+    "stored": "simulation-v2/candidate-18/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-18/command.json",
+    "raw_name": "simulation-v2/candidate-18/command.json",
+    "stored": "simulation-v2/candidate-18/command.json",
+    "raw_bytes": 374,
+    "raw_sha256": "ec4fc649f656ecfdddb50c14982becbaf08eb02b31b88f85ff52a4fe381ed9df"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-18/controller.sv",
+    "raw_name": "simulation-v2/candidate-18/controller.sv",
+    "stored": "simulation-v2/candidate-18/controller.sv.gz",
+    "raw_bytes": 2891,
+    "raw_sha256": "d8997bce3743be8fdf90884d454b4520aababa53aaccd5d960f72c0020a893f8"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-18/tb.sv",
+    "raw_name": "simulation-v2/candidate-18/tb.sv",
+    "stored": "simulation-v2/candidate-18/tb.sv.gz",
+    "raw_bytes": 3715,
+    "raw_sha256": "4c8237b9bddfcf29f6f92134696ea3b844c88268931193c98fe4f91656e4ca82"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-18/test.log",
+    "raw_name": "simulation-v2/candidate-18/test.log",
+    "stored": "simulation-v2/candidate-18/test.log.gz",
+    "raw_bytes": 212,
+    "raw_sha256": "f211ed4ec2952cff3bdf916527d6cfa358b2ed960e06df3a34a5aa6fd83c5050"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-19/build.log",
+    "raw_name": "simulation-v2/candidate-19/build.log",
+    "stored": "simulation-v2/candidate-19/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-19/command.json",
+    "raw_name": "simulation-v2/candidate-19/command.json",
+    "stored": "simulation-v2/candidate-19/command.json",
+    "raw_bytes": 374,
+    "raw_sha256": "ed29b7a62b9588e46c03c3b7e30cf4dbc2b749bf66fe7646b6d5bea5a654fb89"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-19/controller.sv",
+    "raw_name": "simulation-v2/candidate-19/controller.sv",
+    "stored": "simulation-v2/candidate-19/controller.sv.gz",
+    "raw_bytes": 2891,
+    "raw_sha256": "d8997bce3743be8fdf90884d454b4520aababa53aaccd5d960f72c0020a893f8"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-19/tb.sv",
+    "raw_name": "simulation-v2/candidate-19/tb.sv",
+    "stored": "simulation-v2/candidate-19/tb.sv.gz",
+    "raw_bytes": 3715,
+    "raw_sha256": "4c8237b9bddfcf29f6f92134696ea3b844c88268931193c98fe4f91656e4ca82"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-19/test.log",
+    "raw_name": "simulation-v2/candidate-19/test.log",
+    "stored": "simulation-v2/candidate-19/test.log.gz",
+    "raw_bytes": 212,
+    "raw_sha256": "4bdf2139df05d6f413473dbc2f8ecc65af3ad43f22a5beeafe6b61be77279d0a"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-56/build.log",
+    "raw_name": "simulation-v2/candidate-56/build.log",
+    "stored": "simulation-v2/candidate-56/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-56/command.json",
+    "raw_name": "simulation-v2/candidate-56/command.json",
+    "stored": "simulation-v2/candidate-56/command.json",
+    "raw_bytes": 374,
+    "raw_sha256": "3b7b7e0828f52672088fb5d5879ea2f95bf291048e2c6f5cfd12119b7b5f2456"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-56/controller.sv",
+    "raw_name": "simulation-v2/candidate-56/controller.sv",
+    "stored": "simulation-v2/candidate-56/controller.sv.gz",
+    "raw_bytes": 2891,
+    "raw_sha256": "d8997bce3743be8fdf90884d454b4520aababa53aaccd5d960f72c0020a893f8"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-56/tb.sv",
+    "raw_name": "simulation-v2/candidate-56/tb.sv",
+    "stored": "simulation-v2/candidate-56/tb.sv.gz",
+    "raw_bytes": 3715,
+    "raw_sha256": "4c8237b9bddfcf29f6f92134696ea3b844c88268931193c98fe4f91656e4ca82"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/candidate-56/test.log",
+    "raw_name": "simulation-v2/candidate-56/test.log",
+    "stored": "simulation-v2/candidate-56/test.log.gz",
+    "raw_bytes": 213,
+    "raw_sha256": "a46dac38886b6c3600c0fb84df5f56f4611333f530643559e95fc41c2730e7e7"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/early_completion-56/build.log",
+    "raw_name": "simulation-v2/early_completion-56/build.log",
+    "stored": "simulation-v2/early_completion-56/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/early_completion-56/command.json",
+    "raw_name": "simulation-v2/early_completion-56/command.json",
+    "stored": "simulation-v2/early_completion-56/command.json",
+    "raw_bytes": 395,
+    "raw_sha256": "101b12f76752ad6ecddfcde1f6356a8e2af099697449e29028eae09bd9b558c0"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/early_completion-56/controller.sv",
+    "raw_name": "simulation-v2/early_completion-56/controller.sv",
+    "stored": "simulation-v2/early_completion-56/controller.sv.gz",
+    "raw_bytes": 2891,
+    "raw_sha256": "56b17102d82e5fe8cde734b7b381375081695847c5e71663460344df5d78b8a6"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/early_completion-56/tb.sv",
+    "raw_name": "simulation-v2/early_completion-56/tb.sv",
+    "stored": "simulation-v2/early_completion-56/tb.sv.gz",
+    "raw_bytes": 3715,
+    "raw_sha256": "4c8237b9bddfcf29f6f92134696ea3b844c88268931193c98fe4f91656e4ca82"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/early_completion-56/test.log",
+    "raw_name": "simulation-v2/early_completion-56/test.log",
+    "stored": "simulation-v2/early_completion-56/test.log.gz",
+    "raw_bytes": 174,
+    "raw_sha256": "74387d32b21e579234d678cef8df2a9cdfa990bb64602d29b254013fe06e351c"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/executed-driver.py",
+    "raw_name": "simulation-v2/executed-driver.py",
+    "stored": "simulation-v2/executed-driver.py",
+    "raw_bytes": 6457,
+    "raw_sha256": "b77cad1643df7cf41e789cca369863905690f46dab9d7ba5b6f19b97a8c1e1c6"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/ignored_write_window-56/build.log",
+    "raw_name": "simulation-v2/ignored_write_window-56/build.log",
+    "stored": "simulation-v2/ignored_write_window-56/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/ignored_write_window-56/command.json",
+    "raw_name": "simulation-v2/ignored_write_window-56/command.json",
+    "stored": "simulation-v2/ignored_write_window-56/command.json",
+    "raw_bytes": 407,
+    "raw_sha256": "6edabfcc502db9559efbad515dcd3dc778931e8ff1275211733218ff7dd473e5"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/ignored_write_window-56/controller.sv",
+    "raw_name": "simulation-v2/ignored_write_window-56/controller.sv",
+    "stored": "simulation-v2/ignored_write_window-56/controller.sv.gz",
+    "raw_bytes": 2878,
+    "raw_sha256": "4e7076182afedbe680ef86241e43b3338e6613448b79f04a4af6a0d1b7d28df3"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/ignored_write_window-56/tb.sv",
+    "raw_name": "simulation-v2/ignored_write_window-56/tb.sv",
+    "stored": "simulation-v2/ignored_write_window-56/tb.sv.gz",
+    "raw_bytes": 3715,
+    "raw_sha256": "4c8237b9bddfcf29f6f92134696ea3b844c88268931193c98fe4f91656e4ca82"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/ignored_write_window-56/test.log",
+    "raw_name": "simulation-v2/ignored_write_window-56/test.log",
+    "stored": "simulation-v2/ignored_write_window-56/test.log.gz",
+    "raw_bytes": 176,
+    "raw_sha256": "afb090da5185d827bc79f884069be74affcde93c922125cfe9e2e595f1588de4"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/lost_feedback-56/build.log",
+    "raw_name": "simulation-v2/lost_feedback-56/build.log",
+    "stored": "simulation-v2/lost_feedback-56/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/lost_feedback-56/command.json",
+    "raw_name": "simulation-v2/lost_feedback-56/command.json",
+    "stored": "simulation-v2/lost_feedback-56/command.json",
+    "raw_bytes": 386,
+    "raw_sha256": "1e7e548e5f4dc6dee7fff1e3cf3d30ea5072d844686d5fe2562d1f14e974a695"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/lost_feedback-56/controller.sv",
+    "raw_name": "simulation-v2/lost_feedback-56/controller.sv",
+    "stored": "simulation-v2/lost_feedback-56/controller.sv.gz",
+    "raw_bytes": 2885,
+    "raw_sha256": "a5f653eae306a7e64c8dcd257db8ba6676f1591fcf3db7a04636d96f82c88c0e"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/lost_feedback-56/tb.sv",
+    "raw_name": "simulation-v2/lost_feedback-56/tb.sv",
+    "stored": "simulation-v2/lost_feedback-56/tb.sv.gz",
+    "raw_bytes": 3715,
+    "raw_sha256": "4c8237b9bddfcf29f6f92134696ea3b844c88268931193c98fe4f91656e4ca82"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/lost_feedback-56/test.log",
+    "raw_name": "simulation-v2/lost_feedback-56/test.log",
+    "stored": "simulation-v2/lost_feedback-56/test.log.gz",
+    "raw_bytes": 170,
+    "raw_sha256": "b35de9d019a3c95ed4d2d5fe81d62a6e5bfddac445901637ad18a07235afc93a"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/lost_quarantine-56/build.log",
+    "raw_name": "simulation-v2/lost_quarantine-56/build.log",
+    "stored": "simulation-v2/lost_quarantine-56/build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/lost_quarantine-56/command.json",
+    "raw_name": "simulation-v2/lost_quarantine-56/command.json",
+    "stored": "simulation-v2/lost_quarantine-56/command.json",
+    "raw_bytes": 392,
+    "raw_sha256": "3b4aac15f1ce4a5e6ff87f76a901f03aec31bded605321fd02ea667c361717bf"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/lost_quarantine-56/controller.sv",
+    "raw_name": "simulation-v2/lost_quarantine-56/controller.sv",
+    "stored": "simulation-v2/lost_quarantine-56/controller.sv.gz",
+    "raw_bytes": 2873,
+    "raw_sha256": "716c852bd0abdab9085684366956727c96c9f2f021bb8e0b6ddfed0ebf3a6adc"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/lost_quarantine-56/tb.sv",
+    "raw_name": "simulation-v2/lost_quarantine-56/tb.sv",
+    "stored": "simulation-v2/lost_quarantine-56/tb.sv.gz",
+    "raw_bytes": 3715,
+    "raw_sha256": "4c8237b9bddfcf29f6f92134696ea3b844c88268931193c98fe4f91656e4ca82"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/lost_quarantine-56/test.log",
+    "raw_name": "simulation-v2/lost_quarantine-56/test.log",
+    "stored": "simulation-v2/lost_quarantine-56/test.log.gz",
+    "raw_bytes": 156,
+    "raw_sha256": "28c3e8c8d0742899e205dc1c2fbbcbbdaec80ed831a98c28c305a0d033194e38"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/reference-controller.sv",
+    "raw_name": "simulation-v2/reference-controller.sv",
+    "stored": "simulation-v2/reference-controller.sv.gz",
+    "raw_bytes": 2891,
+    "raw_sha256": "d8997bce3743be8fdf90884d454b4520aababa53aaccd5d960f72c0020a893f8"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019/results.json",
+    "raw_name": "simulation-v2/results.json",
+    "stored": "simulation-v2/results.json",
+    "raw_bytes": 1214,
+    "raw_sha256": "70ecd7c44a97b92368cddf886e3cb211bb0c91f3e1c6ea222a7ce5e10a6cbc6d"
+  },
+  {
+    "source": "build/rtl-executive/ff-scan-controller-v2-20261019.log",
+    "raw_name": "simulation-v2/driver.log",
+    "stored": "simulation-v2/driver.log.gz",
+    "raw_bytes": 2114,
+    "raw_sha256": "2adf18d76a90019ba688f930dde3950a3964974484bfb0d3b5602edf92f40be2"
+  },
+  {
+    "source": "fpga/mister/snapshot/ff_scan_controller.sv",
+    "raw_name": "tools/ff_scan_controller.sv",
+    "stored": "tools/ff_scan_controller.sv.gz",
+    "raw_bytes": 2891,
+    "raw_sha256": "d8997bce3743be8fdf90884d454b4520aababa53aaccd5d960f72c0020a893f8"
+  },
+  {
+    "source": "fpga/mister/snapshot/test_ff_scan_controller.py",
+    "raw_name": "tools/test_ff_scan_controller.py",
+    "stored": "tools/test_ff_scan_controller.py",
+    "raw_bytes": 6457,
+    "raw_sha256": "b77cad1643df7cf41e789cca369863905690f46dab9d7ba5b6f19b97a8c1e1c6"
+  },
+  {
+    "source": "build/rtl-executive/archive-ff-scan-controller-20261019.py",
+    "raw_name": "tools/archive-ff-scan-controller-20261019.py",
+    "stored": "tools/archive-ff-scan-controller-20261019.py",
+    "raw_bytes": 2026,
+    "raw_sha256": "2c164cd6fae225dcef3ce9c27081ba8273265527a24392160cde860ebbe7ef75"
+  }
+]

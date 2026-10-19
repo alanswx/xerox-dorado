@@ -1,0 +1,8 @@
+{
+  "status": "REJECTED_NO_AREA_BENEFIT",
+  "baseline_alms": 782,
+  "candidate_alms": 782,
+  "delta_alms": 0,
+  "minimum_candidate_slack_ns": 0.167,
+  "scope": "Original/independent behavior, full state classification and isolated timing/retention pass. Area unchanged, so no full BaseBoard rerun or core integration."
+}

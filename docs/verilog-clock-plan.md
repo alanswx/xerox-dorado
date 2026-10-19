@@ -42,68 +42,60 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-**Snapshot area reduced by 6,050 ALMs; the next asynchronous-RAM full-core candidate is fitting.**
+**The enabled snapshot core remains 3,318 ALMs over capacity. An isolated serial FF scan controller now passes simulation.**
 
-The shared-RIOT/shared-register-file full-core experiment is TERMINAL and
-REJECTED_CAPACITY: 48,353 ALMs / 41,910 available, still 6,443 over capacity
-(4,899 LABs / 4,191). This saves 2,061 ALMs versus the RIOT-only 50,414 result
-and 6,050 versus the first all-enabled 54,403 result. All eleven boards and
-1,944,744 modeled board bits remain; no coverage was removed. No STA,
-assembly or deployment followed that failed fit. Evidence:
-`fpga/mister/reports/2026-10-19-snapshot-shared-files-capacity/`.
+The asynchronous-register-file full-core experiment is TERMINAL and rejected:
+45,228 ALMs / 41,910 available, and 4,570 LABs / 4,191. It saves 3,125 ALMs
+versus the shared-writer result and 9,175 versus the first all-enabled build.
+All eleven boards and 1,944,744 modeled board bits remain enabled. Builder
+1931650/fitter1933677 are absent; errors170012/11802 stopped the build before
+STA, assembly or deployment. Evidence: snapshot-zero-async-capacity.
 
-Shared F10145 normal/restore writers pass original/independent state tests,
-fresh classification, matched isolated timing (+0.172ns minimum) and all
-eight affected positive board restore gates (1,727,916 modeled bits). Strict
-MLAB trials, including the first zero-write-reply variant, are rejected:
-Quartus inferred no RAM and increased area. Timing alone is not placement
-proof. Earlier executed sources, failure histories and reports are retained.
+Actual-source integration passes all 413 baseline receipt files, 2,137 original
+pins and 17 damaged integrations, with unchanged clocks/SDRAM/ECC/SDC. The
+independent synthesis mapping audit derives 85 files from the board manifests
+and finds 170 MLAB read replicas. Every administrative copy retains all 64 RAM
+bits: 5,440 logical bits total. Twelve ordinary replicas are narrower only where
+output pins are absent from the exact compiled board; every width is checked
+against those pins. Total replicated storage is 10,480 bits. Seven damaged
+mappings reject; all 29 raw files and the extracted mapping audit pass. This is
+not physical placement, window/interface retention or timing qualification.
+The isolated helper's state/restore/timing gates and all eight positive board
+restore gates remain in snapshot-f10145-zero-async (819 raw files).
 
-The next F10145 candidate returns zero for private administrative writes;
-the public board fabric already returns zero, so that public behavior is
-unchanged. Administrative RAM reads explicitly exclude writes. Ordinary
-asynchronous output, write-window state, RAM contents and state reads retain
-their semantics. The original/independent oracle passes 35,407 host edges,
-7,987 holds, all74physical bits, a pending-write restore and20K further
-cycles; ten damaged RTL controls reject. Fresh XML accounts for all74physical
-plus13interface bits and rejects seven damaged inventories. All eight affected
-boards pass their unchanged positive restore fixtures with this candidate;
-this is not another run of the older broken-board suites.
+The explicit RIOT row-write decoder is REJECTED_NO_AREA_BENEFIT. Original/
+independent behavior, all 1,097 physical + 21 interface bits, fresh XML and
+matched four-condition timing pass; six damaged RTLs, seven inventories and
+seven fit/retention controls reject. Both implementations use 782 ALMs and
+1,323 shell registers, minimum +0.167 ns. Session23489/builder1940019 are
+terminal; no whole-BaseBoard rerun or core integration followed. All 172 raw
+files pass readback. Evidence: snapshot-riot-row-decode-rejected.
 
-Using the original asynchronous `MLAB, no_rw_check` style, the matched isolated
-candidate actually infers two16x4read replicas (128physical replica bits),
-with one shared logical write source. Read-port input/output registers are
-absent, retaining asynchronous normal output. Synthesis accounts for23owned
-control/interface registers plus8inferred RAM-input registers,31total, versus
-87registers in the logic cell. Shell area is97 ->69ALMs; all four conditions
-pass, minimum+0.346ns, with unchanged50MHz/opposite-edge constraints and no
-new cuts. Six damaged source/constraint/state/memory/timing controls reject.
-All819archived raw files pass hash readback; independent fit audit after
-extraction also passes. These isolated figures do not prove whole-core
-capacity, same-edge timing, original-firmware boot or physical restoration.
-Evidence: `fpga/mister/reports/2026-10-19-snapshot-f10145-zero-async/`.
+Next area target: parallel FF state-access multiplexers. The isolated
+`ff_scan_controller.sv` prototype rotates existing physical state through a
+one-bit chain, with no shadow bank. Reads restore the bank after a complete
+rotation; writes replace only the requested compact 18-bit word. Simulation
+v2 passes 438 transactions across bank sizes 1/17/18/19/56/1725, including tail
+padding, changing busy requests, invalid/high indices, freeze entry, partial-
+rotation boundary loss and system reset. Four damaged controllers reject with
+specific diagnostics. All 111 raw files pass readback. Evidence:
+snapshot-ff-scan-controller. This is a controller/mock-bank gate only; it does
+not prove real-board behavior, area savings or timing. Its compact word layout
+needs a generated schema/ABI. Boundary loss quarantines the machine until
+SYSTEM reset; hold_required must join the global barrier before integration.
 
-The SAME new all-enabled build is LIVE at
-`misterubuntu:/home/alans/mister/Dorado_Enabled60ZeroAsync_20261019`,
-builder1931650/fitter1933677. Synthesis passed; fitting is active. It selects
-`--shared-riot --shared-files --zero-write-reply --files-async-mlab`.
-Local and actual remote source audits pass all413baseline receipt files,
-2,137original board pins and17damaged integrations. Baseline50MHz/SYSPER4,
-SDRAM/ECC and all SDC policies remain unchanged. The builder performs no
-assembly or deployment. Observe this job; never restart on observation timeout.
-
-Next: inspect this full fit, then all-device timing and RAM inference if it
-fits. If it remains oversized, use measured hierarchy attribution to reduce
-state-access/decode cost without dropping state. Complete classification and
-access for the154,037native-wrapper sequential candidate bits (review-only
-inventory), top-level inputs/network/video and16MiBexternal raw RAM. Implement
-coherent ARM/disk/input/server barriers and an atomic checksummed bundle with
-matching disk generation; daemon core-load RESUME currently resets connections
-and needs a distinct state-preserving snapshot path with timer rebasing.
-Qualify actual FPGA Cedar save/continue/restore. Original60nsclock/timer
-migration, pinned performance comparisons, three fresh boots/cold persistence
-and two-hour combined stress remain open. Live Native59 is unchanged; last
-qualified idle rate remains1,947,654.12issues/s. Goal ACTIVE.
+Next: connect the chain through actual heterogeneous FF helpers, qualify every
+physical bit and ordinary/restore behavior, then measure matched area/timing.
+Retain the parallel implementation until a useful replacement is qualified.
+Complete classification/access for the 154,037 native-wrapper sequential
+candidate bits (review-only inventory), top-level inputs/network/video and
+16 MiB external raw RAM. Implement coherent ARM/disk/input/server barriers and
+atomic bundles with matching disk generations. Core-load RESUME resets server
+connections; snapshot pause/resume needs a preserving path with timer rebasing.
+Actual FPGA Cedar save/continue/restore, original 60 ns clocks/timers, pinned
+performance comparisons, three fresh boots/cold persistence and two-hour stress
+remain open. Live Native59 and its last qualified idle rate of 1,947,654.12
+issues/s are unchanged. Goal ACTIVE. All experiments in this entry are terminal.
 
 **Enabled60 exceeds FPGA capacity; the first state-preserving area fix is qualified and a new full-core build is running.**
 

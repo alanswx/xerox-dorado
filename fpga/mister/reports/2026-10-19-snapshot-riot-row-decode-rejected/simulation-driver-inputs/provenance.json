@@ -1,0 +1,8 @@
+{
+  "scope": "Select static row writes in the unchanged original/independent RIOT tests.",
+  "source_hashes": {
+    "fpga/mister/snapshot/test_riot_row_decode.py": "b7f758aeb74f09bf96e5619257f879ced88052add7964c210a5d6faebe846893",
+    "fpga/mister/snapshot/generate_riot_row_decode.py": "4d02aeeec057cdfa077abe565e970e568d75ca8f6d4095724f3235be02c6c997",
+    "fpga/mister/snapshot/test_riot_shared_port.py": "49cd94756c128538fb28c958cd8d991338fbb8b3acce26339e42407ed3bed35a"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "candidate_module": "generate_riot_row_decode",
+  "classifier_module": "classify_riot_shared_port",
+  "scope": "Runtime candidate selection; fresh XML plus unchanged original geometry rules."
+}

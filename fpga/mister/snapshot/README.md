@@ -661,10 +661,50 @@ geometry/latency/locations and timing; six damaged evidence controls reject.
 passes. Report: reports/2026-10-19-snapshot-f10145-zero-async.
 
 The opt-in core flags are `--shared-riot --shared-files --zero-write-reply
---files-async-mlab`. The SAME full-core build
-`misterubuntu:/home/alans/mister/Dorado_Enabled60ZeroAsync_20261019` passes
-synthesis and is fitting (builder1931650/fitter1933677). Local and actual remote
-source audits pass413baseline receipt files/17damaged integrations. Whole-core
-capacity, ordinary same-edge timing, firmware boot and physical snapshots
-remain unproven. Global support-state and ARM/server/input/matching-disk barriers
+--files-async-mlab`. The full-core build
+`misterubuntu:/home/alans/mister/Dorado_Enabled60ZeroAsync_20261019` is terminal:
+synthesis passes, fitting rejects45,228ALMs /41,910available (3,318excess).
+It saves3,125ALMs versus the shared-writer core,9,175versus the first enabled
+core. No STA/assembly/deployment followed. Local and actual remote source audits
+pass413baseline receipt files/17damaged integrations. The independent
+`audit_enabled_f10145_mapping.py` derives all85files from the board manifests;
+all170replicas are inferred. Every administrative copy retains64bits; twelve
+ordinary copies are narrower only where the compiled board leaves output pins
+absent. Each width is checked against those pins. Total replicated bits10,480,
+logical RAM bits5,440. Seven damaged mappings reject;29archived raw files and
+extracted mapping audit pass. Report: reports/2026-10-19-snapshot-zero-async-capacity.
+Whole-core timing, firmware boot and physical snapshots remain unproven. Global support-state and ARM/server/input/matching-disk barriers
 are still required; the diagnostic board hold is not a machine snapshot.
+
+
+`generate_riot_row_decode.py` exposes explicit row writes while retaining RAM,
+reset timing/priority and the 133-word ABI. Original/independent simulation and
+fresh XML preserve all 1,097 physical + 21 interface bits; six damaged RTLs and
+seven damaged inventories reject. The matched job is terminal: 782 ALMs and
+1,323 shell registers in both variants, all four conditions passing, minimum
++0.167 ns. Seven damaged fit/retention controls reject. It is rejected for no
+area benefit; no BaseBoard rerun/core integration follows. All 172 raw files
+pass readback. Report: reports/2026-10-19-snapshot-riot-row-decode-rejected.
+
+## Serial FF scan controller prototype (2026-10-19)
+
+`ff_scan_controller.sv` tests an area-reduction architecture for FF access:
+rotate the existing bank through a one-bit chain, capture/replace only the
+requested compact 18-bit word, and complete only when the entire bank is back
+in its original orientation. No shadow bank is stored. Every consumer must
+remain held. The hold_required output stays asserted while busy or faulted;
+boundary loss quarantines requests/shifting until SYSTEM reset. A transport-
+only reset cannot recover partially shifted physical state.
+
+`test_ff_scan_controller.py` uses an independent direct word/bit oracle and a
+mock bank. V2 passes 438 transactions across 1/17/18/19/56/1725 bits, including
+partial words, busy-owner stability, invalid/high indices, freeze entry,
+partial-rotation hold loss and system-reset recovery. Four damaged controllers
+reject. All 111 raw files pass readback. Report:
+reports/2026-10-19-snapshot-ff-scan-controller.
+
+This does not qualify a real board, resource reduction, timing or a global
+snapshot. Next: chain actual heterogeneous FF helpers, generate an explicit
+compact schema/ABI, prove ordinary/complete-state restore behavior and measure
+matched area/timing. Global hold/reset ownership must prevent guest execution
+during an incomplete rotation; existing board-only diagnostics are insufficient.
