@@ -405,3 +405,19 @@ prove placement.59->137ALM/57->256regs include shell/admin/pruning; eight corrup
 fits reject. Earlier label/diagnostic-only audit failures retained; no RTL/SDC
 refit. Evidence reports/2026-10-19-snapshot-mosram. Full MemX classification/
 restore/timing/integration/global device/ARM snapshot state still required.
+
+## DskEth inventory and CRC9401 primitive (2026-10-19)
+
+The actual frozen DskEth rxmonitor board is now inventoried with its explicit
+SYSPER4 and required34bit receive-monitor state. First missing-dependency failure
+and corrected evidence are retained in snapshot-dsketh-inventory. Its tentative
+2,656mutable bits need complete independent classification; no board adapter yet.
+
+The F9401 primitive preserves all19bits in both actual PRECAP modes, including
+clock/data/CWE histories. Original RTL and independent CRC oracle, all bits and
+indices, destructive restore/first edge/20Kmore, fresh XML and matched50MHz
+isolated timing pass (fourconditions/min+0.170ns). Eight broken RTL variants,
+ten damaged schemas per mode and five bad-fit controls reject. Original CRC
+behavior/source unchanged. Sources: generate_crc9401/test_crc9401/classify_crc9401/
+fit_crc9401. Evidence snapshot-crc9401. Whole DskEth/global/ARM snapshots and
+original60ns cadence remain unfinished.

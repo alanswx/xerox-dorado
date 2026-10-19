@@ -42,6 +42,36 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**LIVE Native58 normal load and original firmware progress PASS; CRC9401 snapshot primitive qualified.**
+Normal load77345 TERMINAL2026-10-19 15:14:18UTC, Main27199/server27195,
+temporary27171 normally retired. RBFeebc0e1f, fresh untouchedf3bce2a8seed before
+finalcache; all9adapters adminOFF, unchanged50MHz/SYSPER4/SDRAM/directDDR.
+ActualMainSPI74 epoch146c287efcde2428/flags0x16/fault/errors0, daemonalone64KiB
+1FF00000ring; Main no ring/probeDSO. Setup11659/triple96792/collector2217
+TERMINAL. C watcher26133/remote27261 TERMINAL/independently absent after NEW
+originalInitial BFN113/Crelease. Earlyissue1/state43pause ended withoutretry.
+CapturedafterBFN113 actual812; Cedarlogin/loader/desktop/input/new speed pending.
+Last measured57idle1.947741Missues/s; no58speed claim. Localcedar58-launch.
+Normal57Boot actual812 and realMainbarriers preserve63,578,624byte volume
+SHA7fb124ae9211fa2c04532a48d788a5f81f1e89921811feab7c88b3fd06729701;
+old25287/25286/temp27171absent;108,830retireddiskrecords/endbarrier/noerrors/loss.
+No coldmarker/cleanOSshutdown/snapshotclaim. Evidence native58-field; collector
+bounded SDspooling. Removedonly4duplicate/tmpRBFs afterexactpersistentSDhash
+verification;~15.8MBfreed. Build qualification+57desktop PUSHED eab5c0ca.
+
+Complete CRC9401 primitive now PASS:19bits per PRECAP0/1,108,190hostedges/
+1,123held/1,120requests/576restoredcellwords, all8polynomialselects/all19bits,
+destructive restore/firstedge/20Kmore;8brokenRTL/2changedsource guards reject.
+FreshXML actualPRECAP bindings and10damagedschemas per mode reject. Matched
+isolated50MHz fits68940 TERMINAL/read-onlyauditPASS/fourconditions/min+0.170ns,
+65->97ALM/65->201regs/noRAM/noillegal/unconstrainedIO;5badfitcontrols reject.
+CRCsource byte-identical frozen57. NoCRCbehavior/timer/productionchange.
+Evidence snapshot-crc9401. ActualDskEthinventory correctedforreceive_monitor,
+4,546seqbits, tentative2,656mutable including34passivedebugbits; reviewonly.
+NeedMC1650/MC10136/SN169/SN174/SN74123 state primitives, exact23530/SYSPER8
+oscillator coverage, fullDskEthclassification/restore/timing, BaseBoard and all
+remaining device/ARM/global snapshot boundaries. Then60ns/timers/finalgates.
+
 **Latest: Native57 full desktop/input/warm marker PASS; Native58 full-core audit PASS, not yet deployed.**
 The captured desktop shows Ready/Viewers, mouse Cmd click, initialized second
 CommandTool, exact short and alphabet/digit echoes, and normal create/type of

@@ -1,0 +1,10 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_F9401",
+  "-Wno-fatal",
+  "--xml-output",
+  "build/rtl-executive/snapshot-crc9401-classify-review-20261019/crc9401.xml",
+  "verilog/cells/cell_F9401.v"
+]

@@ -1,0 +1,462 @@
+{
+  "status": "REVIEW ONLY",
+  "sequential": {
+    "DskEth_m_Rev_m_Cf_rxmonitor": {
+      "entries": 9,
+      "bits": 9,
+      "fields": {
+        "Clk1": 1,
+        "Clock1_p_Bb": 1,
+        "Clock1_p_Bd": 1,
+        "Clock1_p_Ca": 1,
+        "Clock1_p_Cb": 1,
+        "Clock1_p_Cc": 1,
+        "Clock1_p_Da": 1,
+        "Clock1_p_Db": 1,
+        "Clock1_p_Dd": 1
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor"
+      ]
+    },
+    "cell_SN74LS169": {
+      "entries": 20,
+      "bits": 32,
+      "fields": {
+        "ck_d": 1,
+        "p10_d": 1,
+        "p7_d": 1,
+        "p9_d": 1,
+        "q": 4
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_a01",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_a02",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_a06",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_a07"
+      ]
+    },
+    "cell_SN74123__S4": {
+      "entries": 16,
+      "bits": 140,
+      "fields": {
+        "a1_d": 1,
+        "a2_d": 1,
+        "b1_d": 1,
+        "b2_d": 1,
+        "c1_d": 1,
+        "c2_d": 1,
+        "t1": 32,
+        "t2": 32
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_a03",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_a05"
+      ]
+    },
+    "cell_SN74LS174": {
+      "entries": 15,
+      "bits": 65,
+      "fields": {
+        "ck_d": 1,
+        "d_pre": 6,
+        "q": 6
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_a08",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_a09",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_a10",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_a11",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_d04"
+      ]
+    },
+    "cell_F10016": {
+      "entries": 36,
+      "bits": 132,
+      "fields": {
+        "ck_d": 1,
+        "q": 4,
+        "setup_pre": 6
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_a15",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_a16",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_a22",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_b10",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_b20",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_b21",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_d22",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_g21",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_l09",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_l12",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_l13",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_l16"
+      ]
+    },
+    "cell_MC10176": {
+      "entries": 81,
+      "bits": 351,
+      "fields": {
+        "ck_d": 1,
+        "d_pre": 6,
+        "q": 6
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_b03",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_b04",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_b05",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_b06",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_c07",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_c08",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_c14",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e08",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e10",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e12",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f08",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_g20",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_h08",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_h12",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_h13",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_h17",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_h24",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j24",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_k09",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_k10",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_k11",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_k14",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_k15",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_k16",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_l18",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_l22",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_l23"
+      ]
+    },
+    "cell_MC10231": {
+      "entries": 114,
+      "bits": 114,
+      "fields": {
+        "cka_d": 1,
+        "ckb_d": 1,
+        "d_pre_a": 1,
+        "d_pre_b": 1,
+        "qa": 1,
+        "qb": 1
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_b09",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_b12",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_b15",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_c09",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_c15",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e04",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e05",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e06",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e14",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e15",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e17",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_h04",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_h06",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_i22",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j04",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_k20",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_l04",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_l07",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_l20"
+      ]
+    },
+    "cell_MC1650": {
+      "entries": 8,
+      "bits": 8,
+      "fields": {
+        "qa": 1,
+        "qb": 1
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_c01",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_c02",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f01",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f02"
+      ]
+    },
+    "cell_MC10135__P1": {
+      "entries": 4,
+      "bits": 7,
+      "fields": {
+        "ck_d": 1,
+        "jk_pre": 4,
+        "qa": 1,
+        "qb": 1
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_c16"
+      ]
+    },
+    "cell_MC10136": {
+      "entries": 36,
+      "bits": 72,
+      "fields": {
+        "cin_pre": 1,
+        "ck_d": 1,
+        "d_pre": 4,
+        "q": 4,
+        "sd_pre": 1,
+        "su_pre": 1
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_c19",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_c20",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_c21",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_i12",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_i13",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j21"
+      ]
+    },
+    "cell_F10145A": {
+      "entries": 198,
+      "bits": 3222,
+      "fields": {
+        "a_first": 4,
+        "a_lat": 4,
+        "ce_lat": 1,
+        "d_first": 4,
+        "d_lat": 4,
+        "in_we": 1,
+        "mem": 64,
+        "n_amoved": 32,
+        "n_dmoved": 32,
+        "n_writes": 32,
+        "we_d": 1
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_d08",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_d09",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_d10",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_d11",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_d12",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e16",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f16",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f17",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j08",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j09",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j10",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j11",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j12",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j13",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j14",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j15",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j16",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j17"
+      ]
+    },
+    "cell_MC10173": {
+      "entries": 13,
+      "bits": 52,
+      "fields": {
+        "q": 4
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_d18",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_d19",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e18",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e20",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e21",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f18",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f20",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f21",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_g08",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_g09",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_g10",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_g11",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_g12"
+      ]
+    },
+    "cell_MC10135": {
+      "entries": 28,
+      "bits": 49,
+      "fields": {
+        "ck_d": 1,
+        "jk_pre": 4,
+        "qa": 1,
+        "qb": 1
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_d20",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e13",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j19",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_k07",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_k19",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_k22",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_l19"
+      ]
+    },
+    "cell_MC10175": {
+      "entries": 2,
+      "bits": 10,
+      "fields": {
+        "q": 5
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_e02",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_g06"
+      ]
+    },
+    "cell_F10000": {
+      "entries": 18,
+      "bits": 54,
+      "fields": {
+        "ck_d": 1,
+        "d_pre": 4,
+        "q": 4
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f09",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f10",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f11",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f12",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f14",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_f15"
+      ]
+    },
+    "cell_F9401": {
+      "entries": 4,
+      "bits": 19,
+      "fields": {
+        "cp_d": 1,
+        "cwe_pre": 1,
+        "d_pre": 1,
+        "r": 16
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_g17"
+      ]
+    },
+    "cell_MC10141": {
+      "entries": 48,
+      "bits": 104,
+      "fields": {
+        "ck_d": 1,
+        "d_pre": 4,
+        "dl_pre": 1,
+        "dr_pre": 1,
+        "q": 4,
+        "s_pre": 2
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_i08",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_i09",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_i10",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_i11",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_i14",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_i15",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_i16",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_i17"
+      ]
+    },
+    "cell_F9401__P1": {
+      "entries": 4,
+      "bits": 19,
+      "fields": {
+        "cp_d": 1,
+        "cwe_pre": 1,
+        "d_pre": 1,
+        "r": 16
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j05"
+      ]
+    },
+    "cell_K1115A__F5bea_S8": {
+      "entries": 2,
+      "bits": 33,
+      "fields": {
+        "acc": 32,
+        "osc": 1
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_j20"
+      ]
+    },
+    "cell_MC10135__PC1": {
+      "entries": 8,
+      "bits": 14,
+      "fields": {
+        "ck_d": 1,
+        "jk_pre": 4,
+        "qa": 1,
+        "qb": 1
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_k04",
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_l06"
+      ]
+    },
+    "cell_SE10231": {
+      "entries": 6,
+      "bits": 6,
+      "fields": {
+        "cka_d": 1,
+        "ckb_d": 1,
+        "d_pre_a": 1,
+        "d_pre_b": 1,
+        "qa": 1,
+        "qb": 1
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_l02"
+      ]
+    },
+    "dorado_receive_monitor": {
+      "entries": 6,
+      "bits": 34,
+      "fields": {
+        "consumed": 8,
+        "cpu_status": 8,
+        "input_d": 1,
+        "received": 8,
+        "wire_status": 8,
+        "write_d": 1
+      },
+      "packages": [
+        "DskEth_m_Rev_m_Cf_rxmonitor.u_receive_monitor"
+      ]
+    }
+  },
+  "bindings": [
+    {
+      "module": "DskEth_m_Rev_m_Cf_rxmonitor",
+      "parameters": {
+        "SYSPER": 4
+      }
+    },
+    {
+      "module": "cell_F9401",
+      "parameters": {
+        "PRECAP": 0
+      }
+    },
+    {
+      "module": "cell_SN74123__S4",
+      "parameters": {
+        "TW_NS": 3000,
+        "SYSPER": 4,
+        "TW": 400
+      }
+    },
+    {
+      "module": "cell_F9401__P1",
+      "parameters": {
+        "PRECAP": 1
+      }
+    },
+    {
+      "module": "cell_K1115A__F5bea_S8",
+      "parameters": {
+        "FREQ_KHZ": 23530,
+        "SYSPER": 8,
+        "SYS_KHZ": 133333,
+        "STEP": 47060
+      }
+    }
+  ],
+  "scope": "Frozen actual57 DskEth rxmonitor with explicit SYSPER4 and actual receive-monitor module; external backend/ARM state excluded"
+}

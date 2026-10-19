@@ -1,0 +1,121 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 1711,
+      "sha256": "5975cbef800e3c862ab1c1963f52d007881bd663bc0207fd2a940988e3d7a5b0"
+    },
+    "after-original-bfn113.png": {
+      "bytes": 7569,
+      "sha256": "e87db7f06caf81ca8821d5a9b99f5c688f3b75957b844feda106c7e2f2f6b352"
+    },
+    "c-until-request.log.gz": {
+      "bytes": 166,
+      "sha256": "8340eaf77241c2c25af5f78f150ce9c42c424bab1e0f3a7a1e800d5acc707539"
+    },
+    "c-until-request.py.gz": {
+      "bytes": 1041,
+      "sha256": "8c7846cbcabfe30fdba231069c9efe66d8e5106715e5c6ea5cd0088c69faef75"
+    },
+    "collect-deployment.log.gz": {
+      "bytes": 1208,
+      "sha256": "e9f2640f9d41c2b0c47c37ecce90ad4f6f3274e0c226477deaeca19a71858d23"
+    },
+    "collect-deployment.py.gz": {
+      "bytes": 1639,
+      "sha256": "8a43dca8c2dfe3ced6e0bb88c87b7b5647d57dc5120dc8dfc8c6715f59230952"
+    },
+    "cool-boot.log.gz": {
+      "bytes": 113,
+      "sha256": "0187e889170264b967042a4a9e079e8bf17a36794e5e8b41f45013f1167a5a83"
+    },
+    "cool-boot.py.gz": {
+      "bytes": 647,
+      "sha256": "18a0e3556c23259111ee238ef6aa50eb93bfadb6b3a6d8bbe998432d3e05e153"
+    },
+    "deploy.log.gz": {
+      "bytes": 841,
+      "sha256": "60f17c0abc486ae34a0f67a8cadac855b34332df54fb5236fbdcbe2fa0292ed7"
+    },
+    "deploy.py.gz": {
+      "bytes": 3835,
+      "sha256": "df0a07db12a78cc79ef1510e4a8f073434db9c3f310839394c88d7534364d234"
+    },
+    "deployment-collection.json": {
+      "bytes": 3196,
+      "sha256": "bc84069dc2eb112b5be0734668abb62bf353ed8733d0f80d64586fe6634e620c"
+    },
+    "deployment.json": {
+      "bytes": 1231,
+      "sha256": "1b0367bcaf5a9718f70791cee7968b0342274586dfcfc1ace017af3fb50ca02b"
+    },
+    "disk-through-deployment.jsonl.gz": {
+      "bytes": 24594,
+      "sha256": "8bf9e9aad51e68193647a2658f09f6790f74848eec38ee3e736054a1bd850e8d"
+    },
+    "main-through-deployment.log.gz": {
+      "bytes": 6583,
+      "sha256": "b3489bf79d85d731a92cec9fd34a29931d775a4572444332ab482a5f695463df"
+    },
+    "physical-capability.json": {
+      "bytes": 376,
+      "sha256": "aa544f6fa385c97619252cb4357efb2eb4f9e9df97a6219530fd908d2875206b"
+    },
+    "qualification.json": {
+      "bytes": 342902,
+      "sha256": "483cca51c9e2b72bc4b01e38740b8b656d15697e1ccc17233b332aac66ec4755"
+    },
+    "reboot-resume.json": {
+      "bytes": 1478,
+      "sha256": "96f8001005f4248db6ef9b9b1e71e81c006f5b4f224ba26483edb214897298ee"
+    },
+    "retired57-desktop-qualification.json": {
+      "bytes": 2119,
+      "sha256": "b814aab53d035c60687a8d41d216f8a0ddad0c8a840717637ffde85e55736d2a"
+    },
+    "retired57-disk-through-load.jsonl.gz": {
+      "bytes": 953265,
+      "sha256": "b59c3a7f6047eeffe45af50a3eaf8c339b1fb06c4e1a885266cba542d70b0b28"
+    },
+    "retired57-main-through-load.log.gz": {
+      "bytes": 63768,
+      "sha256": "91cf99818966336e0bac8366faa1d5ce3d2b6ca8f59193855cb91f5d32ab805c"
+    },
+    "retired57-normal-boot-qualification.json": {
+      "bytes": 641,
+      "sha256": "f8a8045ac9c828935c1f4a7169ef2b5f8646fe4584038440700660be5cb7857b"
+    },
+    "retired57-normal-boot.log.gz": {
+      "bytes": 66,
+      "sha256": "41305a6e28b262f39515e311f834c8c77dd765fe8010e83705e92ee5f7aa9591"
+    },
+    "retired57-normal-boot.png": {
+      "bytes": 7569,
+      "sha256": "e87db7f06caf81ca8821d5a9b99f5c688f3b75957b844feda106c7e2f2f6b352"
+    },
+    "retired57-preservation.json": {
+      "bytes": 523,
+      "sha256": "8bbe034850368b98de88ae38de49e840ed57125908cc0358ffaa0dd3ee68fbaa"
+    },
+    "server-through-deployment.log.gz": {
+      "bytes": 162,
+      "sha256": "7c0fd34d0fd45a7e6e33a55b6722fe20e301cf92d543c6a607e4575ac28910ee"
+    },
+    "setup-core.gdb.gz": {
+      "bytes": 765,
+      "sha256": "65f9d82e94c97e85a7e362b56b21a70a20067f3ae19bc859cbcc2d120e11404f"
+    },
+    "setup-core.log.gz": {
+      "bytes": 577,
+      "sha256": "9f90d742d0bbf40360abd52a41cf84b4f9af005d541027da37d4e18705374475"
+    },
+    "startup-check.png": {
+      "bytes": 155892,
+      "sha256": "51bac1a71ebe5f90a13258c49d1b3f3ca1a28a6931ff07517721974e6a880cbb"
+    },
+    "tmpfs-duplicate-rbf-cleanup.json": {
+      "bytes": 1041,
+      "sha256": "d143025b185b65c5cc6cee67ff4a0bdf8f086899598dee36ab4329898195e4b2"
+    }
+  },
+  "scope": "Exact startup prefixes/retired barrier evidence and reviewed captures; no atomic live state snapshot"
+}

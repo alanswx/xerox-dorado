@@ -1,0 +1,577 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 1213,
+      "sha256": "f513c02a33d1c3a90e82c169d246427d11a14e7071f78ddce2d6d3468c6ec100"
+    },
+    "compiled-sources/fpga/mister/dorado_receive_monitor.sv.gz": {
+      "bytes": 401,
+      "sha256": "7930fc5efaa181d5b6d99ec1d87011086507ac6fc013c3e686e200eb71c68309"
+    },
+    "compiled-sources/verilog/cells/cell_ADC_MC8BC.v.gz": {
+      "bytes": 467,
+      "sha256": "68f8ff942b5128678ec7840e078183c5b636b0c4a031d3cc892772b521e03f6c"
+    },
+    "compiled-sources/verilog/cells/cell_AM2615.v.gz": {
+      "bytes": 436,
+      "sha256": "12180e363a2045ebf33cd5e0660d3af957bb9181f3a6a0d2e54b2dd0f2ac8d28"
+    },
+    "compiled-sources/verilog/cells/cell_AUGATCG16.v.gz": {
+      "bytes": 465,
+      "sha256": "1a084abc9869ea093acfb5df8d18cd6746835092cc71c4541d9333f4a03d24c6"
+    },
+    "compiled-sources/verilog/cells/cell_CA3140.v.gz": {
+      "bytes": 403,
+      "sha256": "1681f6864a51b10b3a10d7e9646b2ce51592349ae341f0dff3c66b6b1c77b847"
+    },
+    "compiled-sources/verilog/cells/cell_CD4051.v.gz": {
+      "bytes": 436,
+      "sha256": "4ad76de3da3d839022b42197671e7d09ade3943097e8c754c9f87206a8092c39"
+    },
+    "compiled-sources/verilog/cells/cell_CLOCKGEN.v.gz": {
+      "bytes": 1581,
+      "sha256": "4c5554ed8097e9d16d2652d11277eafb60912637b4472e07162c753c0213d0c5"
+    },
+    "compiled-sources/verilog/cells/cell_DS3649.v.gz": {
+      "bytes": 435,
+      "sha256": "6a55f5880177c180e8cc4c85061a76d25b3018bd05041c2e3e8620e7f1a80ac4"
+    },
+    "compiled-sources/verilog/cells/cell_F10000.v.gz": {
+      "bytes": 2077,
+      "sha256": "d34a3208a89e7bfa73532b64ea736ead567a824787a790374467ccc291b73391"
+    },
+    "compiled-sources/verilog/cells/cell_F10016.v.gz": {
+      "bytes": 2628,
+      "sha256": "93b9c0087f6b6e42cf5c934bf500836a223e55774c0102fa0045dac22db4eb42"
+    },
+    "compiled-sources/verilog/cells/cell_F100181.v.gz": {
+      "bytes": 2584,
+      "sha256": "59cfd596b6cab51297cd5cac675c330aefac0320d7dc4e78b7f85462f20e4ba6"
+    },
+    "compiled-sources/verilog/cells/cell_F10145A.v.gz": {
+      "bytes": 3393,
+      "sha256": "d5175b994ced82b2b90268414a413b142d7e746f9effe541267bcb49a0c6a3c9"
+    },
+    "compiled-sources/verilog/cells/cell_F10414.v.gz": {
+      "bytes": 1040,
+      "sha256": "250f026220966e2790d1b3355af1b13f0cdf3bf077ef0347b1123f78084109ff"
+    },
+    "compiled-sources/verilog/cells/cell_F10415A.v.gz": {
+      "bytes": 2301,
+      "sha256": "4f2d2c87d225c88276693891bf078a3edff639a1529dba5f8e6df833b5729250"
+    },
+    "compiled-sources/verilog/cells/cell_F10470.v.gz": {
+      "bytes": 2100,
+      "sha256": "127e090fd45472ca356ae058b1811295591e48b1150d74f3b4429d9e176125bb"
+    },
+    "compiled-sources/verilog/cells/cell_F9401.v.gz": {
+      "bytes": 1812,
+      "sha256": "55aa43e8c65e3404e5ec40e57e57a4c94f3473b1be23ec0988f9af0a89cebc9c"
+    },
+    "compiled-sources/verilog/cells/cell_F95016.v.gz": {
+      "bytes": 418,
+      "sha256": "83aeb493ba80d6c36d3d2e3ed703da49169bef2d45e80866e2354151ed456895"
+    },
+    "compiled-sources/verilog/cells/cell_K1115A.v.gz": {
+      "bytes": 1917,
+      "sha256": "2de68f79660dbb925ccde099e5c514b1f77b3377a3d76939e68f392d9d81b4fb"
+    },
+    "compiled-sources/verilog/cells/cell_LM339.v.gz": {
+      "bytes": 443,
+      "sha256": "edbdb0d7c37898e71ef052994665aee42557aca332ee9189797a04228efce2ac"
+    },
+    "compiled-sources/verilog/cells/cell_LM3911_20K.v.gz": {
+      "bytes": 418,
+      "sha256": "b91d1abf13c4c0403ee1d71c7732cd43a9c8d6c93335cbb506d7bbdd9d7d1ed0"
+    },
+    "compiled-sources/verilog/cells/cell_MB7071H.v.gz": {
+      "bytes": 1483,
+      "sha256": "fc97f7460084b39dd689e5ca6b79db04e1893e3cb19e57bac0236cae5de7455d"
+    },
+    "compiled-sources/verilog/cells/cell_MC10100.v.gz": {
+      "bytes": 957,
+      "sha256": "35d0d970666c9fc97d575b87856bb46823c4834786c2e4a23d3e0171f7470ee8"
+    },
+    "compiled-sources/verilog/cells/cell_MC10101.v.gz": {
+      "bytes": 1032,
+      "sha256": "a3873ed5a0dd71fbe5c2cd3492a3fbccbd42451f73054d2e394aa98eda5d11a2"
+    },
+    "compiled-sources/verilog/cells/cell_MC10102.v.gz": {
+      "bytes": 732,
+      "sha256": "2316bee14b5067d4efd3b249eb9a3fb1022e3b6b2261573f32b3b35dcb91e8b4"
+    },
+    "compiled-sources/verilog/cells/cell_MC10103.v.gz": {
+      "bytes": 1037,
+      "sha256": "52d7d0c03c5238e100444ef67fa248c8c1f67c70bff688197bff51614c16c24e"
+    },
+    "compiled-sources/verilog/cells/cell_MC10104.v.gz": {
+      "bytes": 1184,
+      "sha256": "3312ae3466d40036153fdc1a434e751a7226784bcfce6a04d07f5439701afdb4"
+    },
+    "compiled-sources/verilog/cells/cell_MC10105.v.gz": {
+      "bytes": 667,
+      "sha256": "6df20b964e9ea7598198c44f4e18f1afdc0ee00add98373affc3e14b2ad913bc"
+    },
+    "compiled-sources/verilog/cells/cell_MC10106.v.gz": {
+      "bytes": 673,
+      "sha256": "4c3753c169473ff73efcaee0d235da82f74b2a80e9656772edb87c63bddc049a"
+    },
+    "compiled-sources/verilog/cells/cell_MC10107.v.gz": {
+      "bytes": 740,
+      "sha256": "07e3c1ee7f5fcb90b38e572371532ed6605af46ea019a4407f6aae7e69111ed7"
+    },
+    "compiled-sources/verilog/cells/cell_MC10109.v.gz": {
+      "bytes": 840,
+      "sha256": "9b0d9bc86a0c0079a4ea7105cf02510210d05ac5eaaa464981f4d9eef23915f3"
+    },
+    "compiled-sources/verilog/cells/cell_MC10113.v.gz": {
+      "bytes": 1189,
+      "sha256": "73ab8d28aef3b2527da8daf60c13a908ab011db2edc5b113af6e86d136dc7454"
+    },
+    "compiled-sources/verilog/cells/cell_MC10117.v.gz": {
+      "bytes": 967,
+      "sha256": "a31fc65dd033246c74d96e8223d5a7f0646d8cff8e5bf04853039efeedafca63"
+    },
+    "compiled-sources/verilog/cells/cell_MC10118.v.gz": {
+      "bytes": 1338,
+      "sha256": "b569a75d61c5e2634d33e95f802758f88d05f3f4ee9e3b2efb669470df9d206c"
+    },
+    "compiled-sources/verilog/cells/cell_MC10119.v.gz": {
+      "bytes": 919,
+      "sha256": "bdafa404ac108a659f89b35c2a1c0d626a5cbceb3cdbb1e7b7baccff223ba97e"
+    },
+    "compiled-sources/verilog/cells/cell_MC10121.v.gz": {
+      "bytes": 1297,
+      "sha256": "a7f7024a36759b905867c58d6d82a2ceb709eb48cdb8408abcd3080aadc62198"
+    },
+    "compiled-sources/verilog/cells/cell_MC10124.v.gz": {
+      "bytes": 841,
+      "sha256": "fa72acb2e50d489c8fe351cd7e5658568ad55a067c8bb7750376d3d1aef6b841"
+    },
+    "compiled-sources/verilog/cells/cell_MC10125.v.gz": {
+      "bytes": 783,
+      "sha256": "484187dc09fef08dddbb8c8daf38e6e04e5100ceca6250d1d8cb0e145b5b3f3c"
+    },
+    "compiled-sources/verilog/cells/cell_MC10135.v.gz": {
+      "bytes": 1340,
+      "sha256": "3def7f5de6410ebb4bd57e876e43a6c7b753bcab4b0390d59dc0fa1076230961"
+    },
+    "compiled-sources/verilog/cells/cell_MC10136.v.gz": {
+      "bytes": 1449,
+      "sha256": "0f2fd3cd6ceda54a114d72992cd8780963c5816198034f67bd8cfefa54274a09"
+    },
+    "compiled-sources/verilog/cells/cell_MC10141.v.gz": {
+      "bytes": 2485,
+      "sha256": "3df4177ae6e8a1a4ee3f85469665bd66d82d643f5bf3b8a96a6cc5f7720ae9c2"
+    },
+    "compiled-sources/verilog/cells/cell_MC10158.v.gz": {
+      "bytes": 920,
+      "sha256": "6b5583f2d2f0f830e9b384fa62f0363a4d8a047291d93bef0e0682a1ec625260"
+    },
+    "compiled-sources/verilog/cells/cell_MC10159.v.gz": {
+      "bytes": 1296,
+      "sha256": "cf487986d07f64f4cd7b92f6501be268f080bf54d084bdbaa2b243fbb3d35f2b"
+    },
+    "compiled-sources/verilog/cells/cell_MC10161.v.gz": {
+      "bytes": 807,
+      "sha256": "87617cd74716dac5cea65d8d02aec49efe35b3453bf6cd5b6ca2d3a6a0a07516"
+    },
+    "compiled-sources/verilog/cells/cell_MC10162.v.gz": {
+      "bytes": 681,
+      "sha256": "8e4bef48b68fea4821e11942acca40e8e4c615b8736d8d99d4b35fb90f20447a"
+    },
+    "compiled-sources/verilog/cells/cell_MC10163.v.gz": {
+      "bytes": 1039,
+      "sha256": "14b935c01a41256c8f30fabd0551f5503d6f59b207276285b54bb35c366a916d"
+    },
+    "compiled-sources/verilog/cells/cell_MC10164.v.gz": {
+      "bytes": 598,
+      "sha256": "2f7b79b03b6f8d8cd8aee2124ee19eb8711b398959b1541f5087f9ca1c8ca78f"
+    },
+    "compiled-sources/verilog/cells/cell_MC10166.v.gz": {
+      "bytes": 872,
+      "sha256": "4bc90614ee0be0a616679ab30fe4a2fa447c2405d985f60c82dd2702671d25cc"
+    },
+    "compiled-sources/verilog/cells/cell_MC10170.v.gz": {
+      "bytes": 1354,
+      "sha256": "f27a175fce1ef110b52626c62f57d39fd3d56212005b8f88d59faf5c0236a73a"
+    },
+    "compiled-sources/verilog/cells/cell_MC10171.v.gz": {
+      "bytes": 1009,
+      "sha256": "afca8fe04dcb9ab328eaa7869f79aed5773433fe45488be1ab6c1d1104b21060"
+    },
+    "compiled-sources/verilog/cells/cell_MC10172.v.gz": {
+      "bytes": 963,
+      "sha256": "796b2b5aa0c061c5816183510ff62aa495433448d69533263763a93258c1e27e"
+    },
+    "compiled-sources/verilog/cells/cell_MC10173.v.gz": {
+      "bytes": 1598,
+      "sha256": "0832d441eb62581a5f91037e94f18ab1cf9baf55a582c97d8c5c261d1cd64a46"
+    },
+    "compiled-sources/verilog/cells/cell_MC10174.v.gz": {
+      "bytes": 769,
+      "sha256": "1cd850cb7bf3532b28cd6fce894c573bfb2bd48001f5ac3c4d9141a3657fb6b3"
+    },
+    "compiled-sources/verilog/cells/cell_MC10175.v.gz": {
+      "bytes": 1250,
+      "sha256": "dde0be45c0dc8e332eab24c087ca91cda86ab2e6913b6d76a9fc7b54bc6798a4"
+    },
+    "compiled-sources/verilog/cells/cell_MC10176.v.gz": {
+      "bytes": 1958,
+      "sha256": "b978f89fee07125fbaebfaef3883640735e6c5f7339df2245b1f5807bb07a61f"
+    },
+    "compiled-sources/verilog/cells/cell_MC10179.v.gz": {
+      "bytes": 1493,
+      "sha256": "a62d5e501b9b4e767bdf5036f463b2dd0ec38451ad141c50acf68a9c84c80309"
+    },
+    "compiled-sources/verilog/cells/cell_MC10180.v.gz": {
+      "bytes": 1012,
+      "sha256": "7a65f89302643aaa8023831e35bcbb96cc339023fec7a1d5f8c0c72eee5c6279"
+    },
+    "compiled-sources/verilog/cells/cell_MC10181.v.gz": {
+      "bytes": 2785,
+      "sha256": "6f22aa26a6e1007ff74f62a7307a10a5750944f2f6af1843187dca6c3614c33c"
+    },
+    "compiled-sources/verilog/cells/cell_MC10182.v.gz": {
+      "bytes": 1661,
+      "sha256": "4e6ba802782069af0faedf0f55a16bb11c71b99635a110d435386e16d208ee24"
+    },
+    "compiled-sources/verilog/cells/cell_MC10195.v.gz": {
+      "bytes": 951,
+      "sha256": "a2a21bb5e79f19e557a0419970d208bfda5c6f7714713ddfa92103cc10c8fc83"
+    },
+    "compiled-sources/verilog/cells/cell_MC10197.v.gz": {
+      "bytes": 1086,
+      "sha256": "ef86677272a5e3e3128cbf6bc09661c60ce43b8c05be51837ebd54e2826daed4"
+    },
+    "compiled-sources/verilog/cells/cell_MC10210.v.gz": {
+      "bytes": 745,
+      "sha256": "1a57155b82b06776f6deff702e0389179a66e5a9d4633cf4db03a0fe8f1fd43d"
+    },
+    "compiled-sources/verilog/cells/cell_MC10211.v.gz": {
+      "bytes": 410,
+      "sha256": "fe60ed82b09259ab10f03ae9b2c9e521e06cd5644da1e35e1bbccffc5442630b"
+    },
+    "compiled-sources/verilog/cells/cell_MC10212.v.gz": {
+      "bytes": 1022,
+      "sha256": "43981a324be828cda86568f3a7bcbe73f01913da391749d87de9a866f0776f13"
+    },
+    "compiled-sources/verilog/cells/cell_MC10231.v.gz": {
+      "bytes": 2329,
+      "sha256": "d532399e65a2508268e5c7677c5565bfc02f439191680f09c4a9478bec133bdc"
+    },
+    "compiled-sources/verilog/cells/cell_MC10318.v.gz": {
+      "bytes": 436,
+      "sha256": "c288d718274d6fc09c0cd481f8000377dc3b070be0eb8bbf55c51fd001068858"
+    },
+    "compiled-sources/verilog/cells/cell_MC12040.v.gz": {
+      "bytes": 411,
+      "sha256": "1fca5096da08cecc4d9696c667c40df1facd28440b795f5e9b75d476fe98c8a7"
+    },
+    "compiled-sources/verilog/cells/cell_MC12061.v.gz": {
+      "bytes": 916,
+      "sha256": "cf5b7393ca0cc30d9afa9bf0d5bc36bb5e94c63b91f298ac4b1bf2c404f57a08"
+    },
+    "compiled-sources/verilog/cells/cell_MC14521B.v.gz": {
+      "bytes": 1533,
+      "sha256": "6a36613555dfbf74926f40aad5dc748b86fcf598fab889c44c29e28ad59333b7"
+    },
+    "compiled-sources/verilog/cells/cell_MC1648.v.gz": {
+      "bytes": 413,
+      "sha256": "deb406c4a0f0eef5a7f0e398fc982aac80686057b2f1126e930626a237c7c8d8"
+    },
+    "compiled-sources/verilog/cells/cell_MC1650.v.gz": {
+      "bytes": 1437,
+      "sha256": "18f9e53fa9fa3ab17a26bd1f4559ddd6e0eee7dcab4af4a5a63f0b0ea925343c"
+    },
+    "compiled-sources/verilog/cells/cell_MC1660.v.gz": {
+      "bytes": 1175,
+      "sha256": "d65c508c9b7d04c2708f33cb51f0cef029c100a3c85d3ee4d0b94baad31ca789"
+    },
+    "compiled-sources/verilog/cells/cell_MC1662.v.gz": {
+      "bytes": 954,
+      "sha256": "6338c7118b20afe384e4bbd567c2b98a5683397729f3d2e17a250dcc626b650e"
+    },
+    "compiled-sources/verilog/cells/cell_MC1664.v.gz": {
+      "bytes": 798,
+      "sha256": "7f505e41ac2e39f46afb2790b0d03f6b912ac5485e701358c4bbbb4639b2af96"
+    },
+    "compiled-sources/verilog/cells/cell_MC1668.v.gz": {
+      "bytes": 805,
+      "sha256": "2f2d1a56e584abb75b75452bdf391a1b03c1f97e5f8568b02c8453312f08e7e8"
+    },
+    "compiled-sources/verilog/cells/cell_MC1672.v.gz": {
+      "bytes": 860,
+      "sha256": "40d5ed2149850a73bc1651a3a291d03091a140f787b29996df77c18b75a99769"
+    },
+    "compiled-sources/verilog/cells/cell_MC1674.v.gz": {
+      "bytes": 1371,
+      "sha256": "ac95045c8f32c5b178770212807a5d85b28e8156f3f9b179a61a45b4c9693c2e"
+    },
+    "compiled-sources/verilog/cells/cell_MC1690.v.gz": {
+      "bytes": 751,
+      "sha256": "4a9f43c7a1bda1f16470c982658ac7d5296839cd9ce3a501d486ec758e519987"
+    },
+    "compiled-sources/verilog/cells/cell_MCM10149.v.gz": {
+      "bytes": 688,
+      "sha256": "17afbaffb0104ec9c76553022d4408b5195bc6062e59fa31aa62f2d321c3ba31"
+    },
+    "compiled-sources/verilog/cells/cell_MCS6502.v.gz": {
+      "bytes": 2087,
+      "sha256": "00fa92c2fedc2441d747113e16276fff4b558bc4c2ac19f7aae465157f980b75"
+    },
+    "compiled-sources/verilog/cells/cell_MCS6532.v.gz": {
+      "bytes": 1536,
+      "sha256": "1ccda781ae9c49ebfdd33edfeae9314f6894b3feb5425e37d4445e6b1ff924d4"
+    },
+    "compiled-sources/verilog/cells/cell_MK4096P_6.v.gz": {
+      "bytes": 2711,
+      "sha256": "0aa88c0bdcf8968787221a0282b443994b39fd4a5fc59d781063b41fb3f2bd3b"
+    },
+    "compiled-sources/verilog/cells/cell_MK4096P_addr.v.gz": {
+      "bytes": 1577,
+      "sha256": "3c51007e1776aa474fb0b6e9baa20d29bc773e93c63f7e8b6ffee9f5c4ae2aaa"
+    },
+    "compiled-sources/verilog/cells/cell_MPQ3303.v.gz": {
+      "bytes": 1553,
+      "sha256": "4e605f218a7ee385de29d7ff4647cd80e646e45c4fd33e7d976360b73757c30a"
+    },
+    "compiled-sources/verilog/cells/cell_MPQ6002.v.gz": {
+      "bytes": 432,
+      "sha256": "45d24eac0c238be781e7e58a03182ee5f3a41d23ea2b7605c7e215c3a99e02ee"
+    },
+    "compiled-sources/verilog/cells/cell_MU10164.v.gz": {
+      "bytes": 779,
+      "sha256": "1d87cabe08cd15bcaa65ff2bf012e48b6f279390482b107ba15cda5deabca9df"
+    },
+    "compiled-sources/verilog/cells/cell_MosRam.v.gz": {
+      "bytes": 3203,
+      "sha256": "4f7c60c9b9c542cd4aad473d5ca817c12fa4d383c47e144c2a864694fda2ae8e"
+    },
+    "compiled-sources/verilog/cells/cell_PLAT1816.v.gz": {
+      "bytes": 461,
+      "sha256": "1163c411bc90527a09a54668a774491e3e0b35c4c1229d489c03cc1f128d3e5f"
+    },
+    "compiled-sources/verilog/cells/cell_SE10210.v.gz": {
+      "bytes": 760,
+      "sha256": "decebf19b0d57b42af335116823418898c041b37596dad9dc989a0bd931a5f51"
+    },
+    "compiled-sources/verilog/cells/cell_SE10211.v.gz": {
+      "bytes": 709,
+      "sha256": "9f16580f5165b5769197594d0ea6e3e2ce0bcc93a7bc1adacbbdd34222941178"
+    },
+    "compiled-sources/verilog/cells/cell_SE10212.v.gz": {
+      "bytes": 1060,
+      "sha256": "0f1e5934b19efe0e384a6d8b1d7316c7fc68455687c7c2a507b4b5ab65a723e1"
+    },
+    "compiled-sources/verilog/cells/cell_SE10231.v.gz": {
+      "bytes": 1939,
+      "sha256": "14396072da90366333d20fbfebb1786b7e738b48edfd6a4b8d80579ceee97e68"
+    },
+    "compiled-sources/verilog/cells/cell_SG10139.v.gz": {
+      "bytes": 1336,
+      "sha256": "91f5aefdebcd427181ffe63ec6732324355e1f9635188fc0ca7981291ed86e77"
+    },
+    "compiled-sources/verilog/cells/cell_SIPpackage.v.gz": {
+      "bytes": 433,
+      "sha256": "185f9ea0dac7d7f619a86f50e124a3eebf10ff0526e8adacd3d5f79125981d6b"
+    },
+    "compiled-sources/verilog/cells/cell_SN74123.v.gz": {
+      "bytes": 1355,
+      "sha256": "3b9ef0942c5c69a87f97342bbbe4e5e79dd042eeab139ac994ff8f2bf40cf179"
+    },
+    "compiled-sources/verilog/cells/cell_SN74125.v.gz": {
+      "bytes": 727,
+      "sha256": "d0241cd118a12609da56ffb823750af9ce3f1de40a0a6d06b78599ebfdfb022a"
+    },
+    "compiled-sources/verilog/cells/cell_SN74128.v.gz": {
+      "bytes": 553,
+      "sha256": "f20cf8f54608d61a4d9b4714a7d9c2dcfab05be96aa2e5412fc25bc938f1b180"
+    },
+    "compiled-sources/verilog/cells/cell_SN74166.v.gz": {
+      "bytes": 1474,
+      "sha256": "e1916232c8c6b225b40d83151ffdbb6282aeb795e53b5e81163f19ad15416b90"
+    },
+    "compiled-sources/verilog/cells/cell_SN7438.v.gz": {
+      "bytes": 902,
+      "sha256": "0c0a47ab1e42f5ed73460bf0492262b7c258d9c2e662538abdac2d6bb35e80d6"
+    },
+    "compiled-sources/verilog/cells/cell_SN7486.v.gz": {
+      "bytes": 472,
+      "sha256": "56d521eef52d26515f01c47ef49eff531961288208b20ea5920862e41134bbf3"
+    },
+    "compiled-sources/verilog/cells/cell_SN74H04.v.gz": {
+      "bytes": 911,
+      "sha256": "4b645302a019545918a15dff13e46b56aaa751ee9ba1a611f84bf10db25c57b2"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS00.v.gz": {
+      "bytes": 467,
+      "sha256": "d632416a6a361031871a8bce00fdfd07688c780b45ba86f8d4b4f4b52dc52135"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS01.v.gz": {
+      "bytes": 919,
+      "sha256": "08072e9ddd009a9121c733ae36acb972a851b91fb872ad380b7a9c1c59b27f11"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS04.v.gz": {
+      "bytes": 551,
+      "sha256": "c00c9b152ba5b24bd95a6555a0dbebaedc7df36f15ca7f51aadce4efe5192bc7"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS08.v.gz": {
+      "bytes": 537,
+      "sha256": "8a1ce402e0ad2f74f6fe9b59197595051abe18c3b0e5b7f164307c8416287f8b"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS109.v.gz": {
+      "bytes": 420,
+      "sha256": "15d963ccad9623117c67e54e3d5006c7a7b05371fbb0c8edae03d47982b47d7b"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS138.v.gz": {
+      "bytes": 814,
+      "sha256": "1d65cbc1df76ad9bc81b83b5020dc4fb0b5d2ba8582810bf6c9628a7f25388b9"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS139.v.gz": {
+      "bytes": 608,
+      "sha256": "aab351c12c3a0916dcc9adca9e5fd31f990dc699ddb5a785776e0aa8f6bff48a"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS151.v.gz": {
+      "bytes": 657,
+      "sha256": "f6286e4a598ccdbea12ea804d5da9755093a31ed9a2f0d238c4537b87beccb2b"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS153.v.gz": {
+      "bytes": 691,
+      "sha256": "d498cec94b4e6662602d7fba505f12952c711f8dc0ddda1f8ad4c3337e222ee6"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS155.v.gz": {
+      "bytes": 816,
+      "sha256": "9a8467deb399b8e82445625276a76943b63fa48b7b33d03e609302725bf1ccb2"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS157.v.gz": {
+      "bytes": 634,
+      "sha256": "fcf20c86f67589a8d29694b26259a15d47ddbf466aaedba7ad245a98c3b12dc1"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS163.v.gz": {
+      "bytes": 1126,
+      "sha256": "f56a60027ec9a2de4ba6c971786af972aec4fb622b48ba7df4cee6ee72fa6647"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS169.v.gz": {
+      "bytes": 1537,
+      "sha256": "46711abf0f5150b53c16726c2b3ef8a0af338bd165e57bc91746d9d6ad5f463f"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS174.v.gz": {
+      "bytes": 994,
+      "sha256": "301a16ade44729c4933033778491fe57251f8e77effccb2c450f589642f660dd"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS175.v.gz": {
+      "bytes": 786,
+      "sha256": "4dec112129e662ce15d19258b8a2bc303527505e99e18be33b93f43f46ad0523"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS251.v.gz": {
+      "bytes": 764,
+      "sha256": "290a71a26a1bba37dd34526b30106ec11ecbed7c2a830c7c0e555038657a5bad"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS253.v.gz": {
+      "bytes": 692,
+      "sha256": "65c680c66e43be345e1edb36b180582e9629a266c860ab5872a315f23373ec1f"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS259.v.gz": {
+      "bytes": 968,
+      "sha256": "9a4e62968cfcf4a67c92923893efb6a7d0c1c3fa4a3593a2b82b38c24b8d6fb6"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS32.v.gz": {
+      "bytes": 463,
+      "sha256": "c8346e8bd94a91cd3f716a956632b4b54d4d1016339abf46d1f219570c7f42cc"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS74.v.gz": {
+      "bytes": 923,
+      "sha256": "f3e26608079eb472f77886fa1afce7ebe5358e5c82e81b1312532b8826e54a7d"
+    },
+    "compiled-sources/verilog/cells/cell_SN74LS85.v.gz": {
+      "bytes": 717,
+      "sha256": "9a2d56e8921ad37bd98a9448357509ef83a300acf5b4e4de202c422064a63700"
+    },
+    "compiled-sources/verilog/cells/cell_SN74S01.v.gz": {
+      "bytes": 594,
+      "sha256": "75b1485f2138ae70b4caf0947f084204579f713a4261e432bea48f0857420935"
+    },
+    "compiled-sources/verilog/cells/cell_SN74S174.v.gz": {
+      "bytes": 837,
+      "sha256": "83092a496dc71b6b204135715dc1562781d0d46a8b6fc332242cffd8e213d1ea"
+    },
+    "compiled-sources/verilog/cells/cell_SN74S288.v.gz": {
+      "bytes": 772,
+      "sha256": "c6b3de05ff48aa98ca9f4bce93ba1d4d9eb42e5f28eb0a2a61989e59eb698571"
+    },
+    "compiled-sources/verilog/cells/cell_SN74S374.v.gz": {
+      "bytes": 459,
+      "sha256": "04983b0eb09189c3e481bc38aec66b625ca1a80703b085becbdbe82108572553"
+    },
+    "compiled-sources/verilog/cells/cell_i2125.v.gz": {
+      "bytes": 1548,
+      "sha256": "83c5ddc3876359bc1e3f1c227649d4d48315c3342d55fe71f6caa6e5e83e8bb9"
+    },
+    "compiled-sources/verilog/cells/cell_i2716.v.gz": {
+      "bytes": 2191,
+      "sha256": "2c8b30c682e5dab8ca3629bb1e6d4841fe3523a79451f71357673e280f61b23f"
+    },
+    "compiled-sources/verilog/cells/cell_p_8T98.v.gz": {
+      "bytes": 1395,
+      "sha256": "761af4227388777b51afbd4a345a56f13b797ab896038679b9f70151263abbb3"
+    },
+    "compiled-sources/verilog/cells/dorado_keyboard.v.gz": {
+      "bytes": 2415,
+      "sha256": "bff568d2f061066e41305e1dc0f1491647168e3548cb24b7f9e6e72daededd75"
+    },
+    "compiled-sources/verilog/cells/dorado_terminal.v.gz": {
+      "bytes": 3504,
+      "sha256": "5d0047b208b83bc6b5c9c1502fb1e89c397dd6879d3dbd78fa7af0348f1be7eb"
+    },
+    "compiled-sources/verilog/cells/dorado_trident.v.gz": {
+      "bytes": 3940,
+      "sha256": "75719da9ec43678ecb5f6ff8711e74cc85c625969e81ba346db0737dc55468a4"
+    },
+    "compiled-sources/verilog/generated/DskEth-Rev-Cf.v.gz": {
+      "bytes": 21070,
+      "sha256": "00fa526aec66bda1a19cc332f71143a1d43e8de3f9dfddfd2d8c278ed6c5662c"
+    },
+    "inventory-driver-v2.py.gz": {
+      "bytes": 1254,
+      "sha256": "da4c2c1896e14b34f53fd61141c4ff060e685ab8a93cba6a8973433a614d5539"
+    },
+    "snapshot-dsketh-inventory-20261019/command.json": {
+      "bytes": 14342,
+      "sha256": "59f7a2360a00df00288ef89e15605713afe270ecda187ef9f7f6b3b7f6138e70"
+    },
+    "snapshot-dsketh-inventory-20261019/elaborate.log.gz": {
+      "bytes": 13001,
+      "sha256": "2a796e99a3c3732c1f788e855bbe2c8f200fe780866f366d96af73ee24ef698a"
+    },
+    "snapshot-dsketh-inventory-v2-20261019/command.json": {
+      "bytes": 14461,
+      "sha256": "f1e59173c6dd9554f1dfc13c10cec4181684c59fc7a86850aba05cdfc4232029"
+    },
+    "snapshot-dsketh-inventory-v2-20261019/dsketh.xml.gz": {
+      "bytes": 142755,
+      "sha256": "bcb9502f266e1c1c7c709d91f87e1b5dab0ea0c7d99e44ce552548a9f3e6912e"
+    },
+    "snapshot-dsketh-inventory-v2-20261019/elaborate.log.gz": {
+      "bytes": 12993,
+      "sha256": "9c5be64b228f48653fae2dc1d9675720bb5fa62ff4f7ac74565a7e3ab32953e1"
+    },
+    "snapshot-dsketh-inventory-v2-20261019/inventory.json.gz": {
+      "bytes": 26329,
+      "sha256": "f64dac3a6e0d5f29195ba497adb084ec1b67e780168386291397c2275453fc13"
+    },
+    "snapshot-dsketh-inventory-v2-20261019/provenance.json": {
+      "bytes": 13891,
+      "sha256": "7e5655d3c97dc565690756cbbe6513d7da86f6a357895d703c028d1449d6029c"
+    },
+    "snapshot-dsketh-inventory-v2-20261019/sequential-review.json": {
+      "bytes": 11958,
+      "sha256": "5236856f517cbf3b08adf9f01b90c953f9e28f92f2565dc024744d1e4e6ef8f5"
+    },
+    "tools/sil_state_inventory.py.gz": {
+      "bytes": 3019,
+      "sha256": "c5494eb07684e6b9a0baed55e8a80a0bec23cdde79ec87aec9b410667c0f3811"
+    }
+  },
+  "scope": "Original actual compiled board/cells/monitor and inventory driver preserved; first missing-dependency failure retained. Review only."
+}

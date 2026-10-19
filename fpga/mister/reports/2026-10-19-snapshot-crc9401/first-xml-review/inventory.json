@@ -1,0 +1,113 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "35fcd81aaf82934957a2435ed7cda1c6fbf9e3ea5d878dfa89b43b17373d8d5b",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "sequential": 4,
+    "combinational_review": 4
+  },
+  "candidate_bits": {
+    "sequential": 19,
+    "combinational_review": 21
+  },
+  "candidates": [
+    {
+      "path": "cell_F9401.cp_d",
+      "module": "cell_F9401",
+      "name": "cp_d",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "verilog/cells/cell_F9401.v",
+      "line": 45,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F9401.cwe_pre",
+      "module": "cell_F9401",
+      "name": "cwe_pre",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "verilog/cells/cell_F9401.v",
+      "line": 60,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F9401.d_pre",
+      "module": "cell_F9401",
+      "name": "d_pre",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "verilog/cells/cell_F9401.v",
+      "line": 60,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F9401.p12",
+      "module": "cell_F9401",
+      "name": "p12",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "verilog/cells/cell_F9401.v",
+      "line": 40,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F9401.p13",
+      "module": "cell_F9401",
+      "name": "p13",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "verilog/cells/cell_F9401.v",
+      "line": 41,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F9401.r",
+      "module": "cell_F9401",
+      "name": "r",
+      "category": "sequential",
+      "width": 16,
+      "unpacked_dimensions": [],
+      "bits": 16,
+      "source": "verilog/cells/cell_F9401.v",
+      "line": 44,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F9401.sel",
+      "module": "cell_F9401",
+      "name": "sel",
+      "category": "combinational_review",
+      "width": 3,
+      "unpacked_dimensions": [],
+      "bits": 3,
+      "source": "verilog/cells/cell_F9401.v",
+      "line": 46,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F9401.shifted",
+      "module": "cell_F9401",
+      "name": "shifted",
+      "category": "combinational_review",
+      "width": 16,
+      "unpacked_dimensions": [],
+      "bits": 16,
+      "source": "verilog/cells/cell_F9401.v",
+      "line": 65,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

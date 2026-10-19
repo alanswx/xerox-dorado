@@ -1,0 +1,114 @@
+{
+  "status": "PASS",
+  "manifest": {
+    "module": "cell_F9401_snapshot",
+    "logical_state_bits": 19,
+    "fields": [
+      {
+        "name": "r",
+        "width": 16,
+        "lsb": 0
+      },
+      {
+        "name": "cp_d",
+        "width": 1,
+        "lsb": 16
+      },
+      {
+        "name": "d_pre",
+        "width": 1,
+        "lsb": 17
+      },
+      {
+        "name": "cwe_pre",
+        "width": 1,
+        "lsb": 18
+      }
+    ],
+    "words": [
+      {
+        "index": 0,
+        "width": 18
+      },
+      {
+        "index": 1,
+        "width": 1
+      }
+    ],
+    "valid_indices": [
+      0,
+      1
+    ],
+    "invalid_indices": [
+      2,
+      3
+    ],
+    "original_sha256": "5ce6f28490c85eaf51dfe2757d6df84773f8cfc6c8901265c3fd2ac467b7b17d",
+    "generated_sha256": "e2b51e76b8db2aa35266adee73dd83a57e28d6fd05c9ed43951ae8c4a29b9027",
+    "scope": "Exact modeled F9401 CRC/PRECAP state in two bounded18-bit words.\n\nPreserves all19bits, reset/preset/falling-edge order, setup history and the\noriginal polynomial selection. Caller holds all consumers; no global barrier.\n"
+  },
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "ungated",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "ignore_freeze",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "running_access",
+      "returncode": 1,
+      "expected_failure": "request handshake differs"
+    },
+    {
+      "case": "invalid_alias",
+      "returncode": 1,
+      "expected_failure": "request handshake differs"
+    },
+    {
+      "case": "lost_high",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "ignore_precap",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "wrong_edge",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "wrong_crc",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    }
+  ],
+  "source_controls": [
+    {
+      "case": "extra_state",
+      "rejected": true
+    },
+    {
+      "case": "changed_priority",
+      "rejected": true
+    }
+  ],
+  "source_hashes": {
+    "fpga/mister/snapshot/generate_crc9401.py": "f40400e41c299e35f6080f2ec26cd49c6f1499312e0dbfb790a84bc6a6b77795",
+    "fpga/mister/snapshot/test_crc9401.py": "0be28856fd3aafb8d975e853ace04768680cca569ec16f17338cc01035c7e21a",
+    "fpga/mister/snapshot/test_crc9401.cpp": "ea8fc01ccf7a08fbfa9c2951fca9cb1413efe6b5ff5796ab7a6c343b38be9a34",
+    "fpga/mister/snapshot/generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "verilog/cells/cell_F9401.v": "5ce6f28490c85eaf51dfe2757d6df84773f8cfc6c8901265c3fd2ac467b7b17d"
+  }
+}

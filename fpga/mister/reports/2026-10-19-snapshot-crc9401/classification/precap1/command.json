@@ -1,0 +1,11 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_F9401",
+  "-GPRECAP=1",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-crc9401-classify-v2-20261019/precap1/cell.xml",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_F9401.v"
+]

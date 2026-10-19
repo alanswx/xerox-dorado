@@ -1,0 +1,75 @@
+{
+  "utc": "2026-10-19 15:18:05 UTC",
+  "main_pid": 27199,
+  "server_pid": 27195,
+  "maps": {
+    "main": [
+      "b3b2d000-b52e8000 rw-s 22000000 00:06 2          /dev/mem",
+      "b52e8000-b62e8000 rw-s ff000000 00:06 2          /dev/mem"
+    ],
+    "server": [
+      "b6ec9000-b6ed9000 rw-s 1ff00000 00:06 2          /dev/mem"
+    ]
+  },
+  "retired_processes_absent": true,
+  "retired_disk_records": 108830,
+  "old_pack_hash_reverified": "7fb124ae9211fa2c04532a48d788a5f81f1e89921811feab7c88b3fd06729701",
+  "scope": "Read-only startup prefixes and retired57 barrier evidence; no live pack copy, SPI, guest write or atomic snapshot. Native58 Cedar qualification pending.",
+  "files": {
+    "deployment.json": {
+      "source": "/media/fat/games/DoradoRTL/Cedar58_20261019/deployment.json",
+      "bytes": 1231,
+      "sha256": "1b0367bcaf5a9718f70791cee7968b0342274586dfcfc1ace017af3fb50ca02b"
+    },
+    "reboot-resume.json": {
+      "source": "/media/fat/games/DoradoRTL/Cedar58_20261019/reboot-resume.json",
+      "bytes": 1478,
+      "sha256": "96f8001005f4248db6ef9b9b1e71e81c006f5b4f224ba26483edb214897298ee"
+    },
+    "qualification.json": {
+      "source": "/media/fat/games/DoradoRTL/Cedar58_20261019/qualification.json",
+      "bytes": 342902,
+      "sha256": "483cca51c9e2b72bc4b01e38740b8b656d15697e1ccc17233b332aac66ec4755"
+    },
+    "retired57-preservation.json": {
+      "source": "/media/fat/games/DoradoRTL/Cedar57_20261019/preservation.json",
+      "bytes": 523,
+      "sha256": "8bbe034850368b98de88ae38de49e840ed57125908cc0358ffaa0dd3ee68fbaa"
+    },
+    "retired57-desktop-qualification.json": {
+      "source": "/media/fat/games/DoradoRTL/Cedar57_20261019/desktop-qualification.json",
+      "bytes": 2119,
+      "sha256": "b814aab53d035c60687a8d41d216f8a0ddad0c8a840717637ffde85e55736d2a"
+    },
+    "retired57-normal-boot-qualification.json": {
+      "source": "/media/fat/games/DoradoRTL/Cedar57_20261019/normal-boot-qualification.json",
+      "bytes": 641,
+      "sha256": "f8a8045ac9c828935c1f4a7169ef2b5f8646fe4584038440700660be5cb7857b"
+    },
+    "retired57-disk-through-load.jsonl": {
+      "source": "/media/fat/games/DoradoRTL/Cedar57_20261019/disk-through-native58-load.jsonl",
+      "bytes": 11186188,
+      "sha256": "e06feae411856028b97b53f4683f62bab39e037459f754582524df329879edcd"
+    },
+    "retired57-main-through-load.log": {
+      "source": "/media/fat/games/DoradoRTL/Cedar57_20261019/main-through-native58-loader.log",
+      "bytes": 556913,
+      "sha256": "648cb4f47d367c21a43c2f537e98647693deea1a022e56a3bc17b86b872de8e0"
+    },
+    "main-through-deployment.log": {
+      "source": "/tmp/dorado58-main.log",
+      "bytes": 65327,
+      "sha256": "3d00ade2959391e017c487a827cec7ff680089b28183b7f80fc55de70295b7ab"
+    },
+    "disk-through-deployment.jsonl": {
+      "source": "/tmp/dorado58-disk.jsonl",
+      "bytes": 206662,
+      "sha256": "a5e0792145741d35191dd2fde832d2b4a0acac37fe646cba9428ef0c96204a3d"
+    },
+    "server-through-deployment.log": {
+      "source": "/media/fat/games/DoradoRTL/Cedar58_20261019/server.log",
+      "bytes": 172,
+      "sha256": "3a517dcb662d51dcf0cd74020dcb0dd95404b325281224246e941992da76af61"
+    }
+  }
+}

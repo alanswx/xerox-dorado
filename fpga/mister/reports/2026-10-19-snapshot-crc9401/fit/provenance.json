@@ -1,0 +1,83 @@
+{
+  "scope": "Isolated two independent F9401 PRECAP0/1 modes. Original polynomial/reset/preset/falling-edge semantics retained verbatim. Matched50MHz negative-edge external staging/positive-edge launch/capture,20ns embedded paths,2ns max0ns min virtual I/O. Counts include shell/admin/pruning; no CRC behavior change/full board/global snapshot or speed claim.",
+  "manifest": {
+    "module": "cell_F9401_snapshot",
+    "logical_state_bits": 19,
+    "fields": [
+      {
+        "name": "r",
+        "width": 16,
+        "lsb": 0
+      },
+      {
+        "name": "cp_d",
+        "width": 1,
+        "lsb": 16
+      },
+      {
+        "name": "d_pre",
+        "width": 1,
+        "lsb": 17
+      },
+      {
+        "name": "cwe_pre",
+        "width": 1,
+        "lsb": 18
+      }
+    ],
+    "words": [
+      {
+        "index": 0,
+        "width": 18
+      },
+      {
+        "index": 1,
+        "width": 1
+      }
+    ],
+    "valid_indices": [
+      0,
+      1
+    ],
+    "invalid_indices": [
+      2,
+      3
+    ],
+    "original_sha256": "5ce6f28490c85eaf51dfe2757d6df84773f8cfc6c8901265c3fd2ac467b7b17d",
+    "generated_sha256": "e2b51e76b8db2aa35266adee73dd83a57e28d6fd05c9ed43951ae8c4a29b9027",
+    "scope": "Exact modeled F9401 CRC/PRECAP state in two bounded18-bit words.\n\nPreserves all19bits, reset/preset/falling-edge order, setup history and the\noriginal polynomial selection. Caller holds all consumers; no global barrier.\n"
+  },
+  "builder_sha256": "aa25fefe0e14f37e23cb9a6548d552f74d954af00901bb3322e86a2209a94303",
+  "source_hashes": {
+    "fpga/mister/snapshot/fit_crc9401.py": "aa25fefe0e14f37e23cb9a6548d552f74d954af00901bb3322e86a2209a94303",
+    "fpga/mister/snapshot/generate_crc9401.py": "f40400e41c299e35f6080f2ec26cd49c6f1499312e0dbfb790a84bc6a6b77795",
+    "fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "verilog/cells/cell_F9401.v": "5ce6f28490c85eaf51dfe2757d6df84773f8cfc6c8901265c3fd2ac467b7b17d"
+  },
+  "compiled_files": {
+    "snapshot/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "snapshot/cell_F9401.v": "5ce6f28490c85eaf51dfe2757d6df84773f8cfc6c8901265c3fd2ac467b7b17d",
+    "snapshot/top.sv": "63909eea822bd70b3db115b167719ff604310943b8222b51da33b4c1047c5ef7",
+    "snapshot/cell_F9401_snapshot.sv": "e2b51e76b8db2aa35266adee73dd83a57e28d6fd05c9ed43951ae8c4a29b9027",
+    "snapshot/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "snapshot/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "snapshot/snapshot_fit.qsf": "ff5ad0dbd86688c3405090d9b3031f81139a4b5a82abfb41ef3658ad933a41b6",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/cell_F9401.v": "5ce6f28490c85eaf51dfe2757d6df84773f8cfc6c8901265c3fd2ac467b7b17d",
+    "baseline/top.sv": "63909eea822bd70b3db115b167719ff604310943b8222b51da33b4c1047c5ef7",
+    "baseline/cell_F9401_snapshot.sv": "e2b51e76b8db2aa35266adee73dd83a57e28d6fd05c9ed43951ae8c4a29b9027",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/snapshot_fit.qsf": "024bfd88affd808d8d67141487d8b1b912c299197dfb89d29602291b4fe336b0",
+    "executed-sources/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "executed-sources/cell_F9401.v": "5ce6f28490c85eaf51dfe2757d6df84773f8cfc6c8901265c3fd2ac467b7b17d",
+    "executed-sources/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "executed-sources/generate_crc9401.py": "f40400e41c299e35f6080f2ec26cd49c6f1499312e0dbfb790a84bc6a6b77795",
+    "executed-sources/fit_crc9401.py": "aa25fefe0e14f37e23cb9a6548d552f74d954af00901bb3322e86a2209a94303"
+  },
+  "expected_qsf": {
+    "baseline": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE cell_F9401_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_F9401.v\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze\nset_instance_assignment -name VIRTUAL_PIN ON -to held\nset_instance_assignment -name VIRTUAL_PIN ON -to request\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to pins[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to outputs[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to done[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to error[*]\n",
+    "snapshot": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE cell_F9401_snapshot.sv\nset_global_assignment -name VERILOG_FILE cell_F9401.v\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to freeze\nset_instance_assignment -name VIRTUAL_PIN ON -to held\nset_instance_assignment -name VIRTUAL_PIN ON -to request\nset_instance_assignment -name VIRTUAL_PIN ON -to write\nset_instance_assignment -name VIRTUAL_PIN ON -to index[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to pins[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to result[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to outputs[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to frozen[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to done[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to error[*]\nset_global_assignment -name VERILOG_MACRO \"SNAPSHOT_BANK_EXPERIMENT=1\"\n"
+  }
+}

@@ -1,0 +1,17 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "crc9401_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-crc9401-20261019/ignore_freeze/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-crc9401-20261019/ignore_freeze/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-crc9401-20261019/ignore_freeze/cell_F9401_snapshot.sv",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_F9401.v",
+  "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_crc9401.cpp"
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "temporary": "/tmp/dorado-native54-staging-20261019/Dorado.rbf",
+    "retained": "/media/fat/_Computer/DoradoRTL_Cedar54_20261019/Dorado.rbf",
+    "sha256": "80d67e1212b944cdb235040f26b5d794a7c4451d8302b24888c342caf16bdb77",
+    "bytes": 3953320
+  },
+  {
+    "temporary": "/tmp/dorado-native55-staging-20261019/Dorado.rbf",
+    "retained": "/media/fat/_Computer/DoradoRTL_Cedar55_20261019/Dorado.rbf",
+    "sha256": "3eee3109a46eb029e0253a1d776cfafd652870d99e5a2cd5f3ffd0c650b7b107",
+    "bytes": 3946664
+  },
+  {
+    "temporary": "/tmp/dorado-native56b-staging-20261019/Dorado.rbf",
+    "retained": "/media/fat/_Computer/DoradoRTL_Cedar56b_20261019/Dorado.rbf",
+    "sha256": "0bbe092f1e10476dc3cc465418836f94a3e06c04ce5f08530c055fbfc52dd7cf",
+    "bytes": 3970376
+  },
+  {
+    "temporary": "/tmp/dorado-native57-staging-20261019/Dorado.rbf",
+    "retained": "/media/fat/_Computer/DoradoRTL_Cedar57_20261019/Dorado.rbf",
+    "sha256": "064e37848a123cbc0affeeb07ff309d242aff8b8deca9c0992c78e8ee56bc268",
+    "bytes": 3954112
+  }
+]
