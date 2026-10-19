@@ -1,0 +1,15 @@
+Dorado net: flags=c tx_words=16 good=218 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=35f55cfe state=472a cpu=2953bb0e
+Dorado net: flags=c tx_words=16 good=218 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=36042d07 state=472f cpu=2c4eafce
+Dorado net: flags=c tx_words=14 good=221 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=3619803e state=47ea cpu=2f4999bf
+TX n=16: 000442 001000 000034 000022 000025 155065 000401 000000 000003 000442 000022 062014 002706 000037 076400 153443
+[bootdir] TX other type=0o22
+FTP_IN type=0o22 id=0015da35 len=28 rx_next=00126e73 tx_next=001611ec wait=1 mode=3
+FTP_ACK ack=0015da35 alloc=31*1478 bytes
+FTP_QUEUE type=0o20 id=001611ec bytes=1478 d=000442/22/62014 s=000401/0/3 rx_words=754
+FTP_WINDOW data=1478 ack=0 mode=3 in_flight=1/16
+TX n=16: 000442 001000 000034 000022 000025 157773 000401 000000 000003 000442 000022 062014 002706 000036 076400 167466
+[bootdir] TX other type=0o22
+FTP_IN type=0o22 id=0015dffb len=28 rx_next=00126e73 tx_next=001617b2 wait=0 mode=3
+FTP_ACK ack=0015dffb alloc=30*1478 bytes
+FTP_QUEUE type=0o20 id=001617b2 bytes=1478 d=000442/22/62014 s=000401/0/3 rx_words=754
+FTP_WINDOW data=1478 ack=0 mode=3 in_flight=1/15

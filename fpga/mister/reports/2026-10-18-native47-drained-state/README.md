@@ -28,3 +28,10 @@ normal loader, stops its temporary Main normally, rechecks the untouched seed,
 then starts final processes with cache/DDR enabled and requires their real grant.
 The helper deliberately refuses reruns over an existing preparation. Inspect
 actual processes/metadata on failure. Only MiSTer14 is authorized.
+
+Original firmware has now reached Cedar login; Guest.pa accepted via the
+normal keyboard and Basic.Loadees retrieval begun. Idle login averages
+1,595,641 qualified issues/s (9.57385% of original nominal cadence), one
+boot/three adjacent windows. This matches the SDRAM baseline closely but
+uses different Main/server/network, so it is not a matched performance or
+three-boot gate. Full desktop/active STOP/stress remain pending.

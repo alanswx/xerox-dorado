@@ -1,5 +1,5 @@
 {
-  "hardware": "Native47 startup/grant PASS; original firmware BFN113 through physical DDR; Pilot VM initialized850 observed; full Cedar/active STOP/stress pending",
+  "hardware": "Original firmware -> physical-DDR BFN113 -> Cedar login PASS; idle measured; Guest accepted and Basic.Loadees retrieval begun; full desktop pending",
   "frequency_mhz": 50,
   "sysper": 4,
   "operating_conditions_checked": 4,
@@ -178,9 +178,9 @@
   "mapping": "Daemon1506 maps rw-s1ff00000/65536bytes; Main1509 has no mapping of ring",
   "main_log": "/tmp/dorado47-main.log",
   "disk_trace": "/tmp/dorado47-disk.jsonl",
-  "known_main_gdb_pauses": 1,
+  "known_main_gdb_pauses": 2,
   "first_real_packet": "Original firmware microcode boot request, BFN113; watcher releasedC",
-  "boot_display": "Pilot850 vmInitialized, normal startup; not a full desktop",
+  "boot_display": "Guest.pa accepted, Grapevine-down fallback, Basic boot file locating [Cedar]<Cedar6.1>Top>Basic.Loadees",
   "assistance": "None; original CoolBoot real key presses; no C-state/guest/IOCB or server cursor repair",
   "limits": [
     "Physical file/boot payload hashes not independently collected yet",
@@ -188,5 +188,8 @@
     "Active-lease STOP/reload and delayed-Main packet progress remain required",
     "No full snapshots or final clocks/three-boots/two-hour qualification"
   ],
-  "last_updated_utc": "2026-10-18T23:55:51.910533+00:00"
+  "last_updated_utc": "2026-10-19T00:02:09.367465+00:00",
+  "idle_issues_per_second": 1595641.4612215483,
+  "idle_nominal_rate_fraction": 0.0957384876732929,
+  "idle_limits": "One boot, three adjacent10s windows, StartCycle issues not drained retirement; Main/server/network differ from41c/42; not a matched backend or final repeated performance comparison"
 }

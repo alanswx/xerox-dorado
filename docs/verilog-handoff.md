@@ -32,19 +32,25 @@ This validates startup/grant and header coherence, not a complete Cedar boot
 or active-lease reload yet. Main remains the sole SPI owner.
 
 Core video/input0 and instruction view1 selected with matching21e6 ELF
-`/tmp/dorado-main-21e6.elf`; one known setup/capability GDB pause. Do not use
+`/tmp/dorado-main-21e6.elf`; two known Main GDB pauses (setup/capability and idle counter selection). Do not use
 old40e1 addresses. Current symbols: input_poll85580, video_fb_enablead7fc,
 status_set9e98c, disk_barrier67b50 (Thumb call addresses+1).
 C watcher47714 COMPLETED and releasedC after new BFN113; do not restart it.
 Three real CoolBoot pulses89381 completed. Original47 boot passes the initial
 wait and physical-DDR BFN113;23:54UTC capture shows Pilot850 vmInitialized
-(normal startup). No CRC/RX/abort/transport/pack fault observed. Login/idle
-measurement/Guest/desktop are still pending.
+(normal startup);23:56UTC Cedar login Name prompt is visible. No
+CRC/RX/abort/transport/pack fault observed. Login PASS; idle
+measurement31425 COMPLETE before Guest: three adjacent10s windows
+1,595,651/1,595,632/1,595,641 issues/s, mean1,595,641 (9.57385% of original
+nominal cadence). Same speed as41c within this one-boot comparison; Main/
+server/network differ, so not a matched backend/performance promotion. Normal
+Guest\n\n input sent after measurement and ACCEPTED:00:00UTC19Oct
+Guest.pa/Grapevine-down fallback and Basic boot file locating the remote
+Basic.Loadees. Full loader/profile/fonts/desktop/input still pending.
 Paths: `Cedar47_20261018`, `_Computer/DoradoRTL_Cedar47_20261018/Cedar47.mgl`;
 Main `/tmp/dorado47-main.log`, disk `/tmp/dorado47-disk.jsonl`.
 Local helpers/handles: `build/rtl-executive/cedar47-launch/`; deployment
-99188 completed. Next observe login, measure idle before Guest,
-then loader/desktop/input. Physical packet payloads remain unqualified.
+99188 completed. Next observe34 loadees, profile No, fonts and full desktop/input. Physical packet payloads remain unqualified.
 
 Native47 full timing PASS:31 summary checks/36 categories/four conditions,
 min+0.111ns, zero illegal/unconstrained clocks;30,480 ALMs (73%),52,639

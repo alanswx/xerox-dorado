@@ -397,7 +397,11 @@ exact initial disabled/not-stopped observation. Isolated47 fitter/timing and
 hardware startup/grant PASS (Main1509/server1506, epochfdfe0a77fc6c87b5).
 All31/36/four-condition timing checks pass, min+0.111ns; actual daemon maps
 exactly1FF00000/64KiB while Main does not. Original firmware boot underway;
-physical payloads/full Cedar/active STOP-reload/stress still pending. No
+Cedar login and real BFN113 pass. Idle login averages1,595,641 qualified
+issues/s (9.57385% of nominal original cadence), one boot/three adjacent
+windows, not a matched network/backend or repeated performance gate. Guest
+requested after measurement; loader/full Cedar/active STOP-reload/stress
+still pending. No
 CPU/storage/clock/constraint changes. Do not claim a
 proved synthesis cause or physical DDR success before hardware evidence.
 
