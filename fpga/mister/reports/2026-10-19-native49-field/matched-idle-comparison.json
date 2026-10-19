@@ -1,0 +1,18 @@
+{
+  "scope": "Preliminary matched fresh original-firmware idle Cedar login; ONE boot per configuration, three adjacent windows; not repeated/end-to-end qualification",
+  "control48_issues_s": 1694447.3184463214,
+  "candidate49_issues_s": 1947687.4115226977,
+  "gain_percent": 14.945291619250689,
+  "baseline47b_issues_s": 1595628.966180956,
+  "gain_vs47b_percent": 22.063929196796472,
+  "nominal_original_fraction": 0.11686124469136186,
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "server_sha256": "c59962490772f12d061ec61aa64e6a567144d26d7802a28349a8d9a044eda87e",
+  "change": "Only frozen44 physical group/word interleaving; frozen43 response-boundary successor selection enabled in both48/49; no deferred reads",
+  "probe_dso": false,
+  "setup_gdb_pauses": 2,
+  "full_viewers": "pending",
+  "repeated_comparisons": "pending"
+}

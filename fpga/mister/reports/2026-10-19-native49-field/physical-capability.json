@@ -25,7 +25,7 @@
   "main_reserved_ring_mapping": false,
   "daemon_reserved_ring_mapping": "64 KiB at physical0x1ff00000",
   "other_main_mappings": "Existing FPGA/framebuffer MMIO mappings at0x22000000 and0xff000000 remain expected",
-  "setup_gdb_pauses": 1,
+  "setup_gdb_pauses": 2,
   "probe_dso": false,
-  "phase": "Original firmware CoolBoot requested; BFN113/login/performance pending"
+  "phase": "Original firmware/Pilot/Cedar login PASS; idle measured before Guest; full software pending"
 }

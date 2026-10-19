@@ -53,15 +53,20 @@ C watcher30731, CoolBoot23417, idle44017, Guest71541 and loader observer4091/
 f4548e6c53382aeb37e28e458a8c43dfc9dc77592f2208b63059733f2ffb2855 is preserved
 at the original path. Full trace ends barrier_end, no errors/loss.
 
-**Live MiSTer14 Native49: original firmware startup, login pending.**
+**Live MiSTer14 Native49: original-firmware Cedar login PASS; software loading next.**
 Main6414/21e67a3f, daemon6413/c5996249, temporary6399 retired normally; new
 seed untouchedf3bce2a8 before caching. RBF6e7866f3,50MHz/SYSPER4, SDRAM/no cache/
 direct DDR; only physical group/word interleaving differs from48. Actual
 Main SPI74 flags0x16/fault+errors0, fresh epoch5cea2e754bd0665f. Daemon maps
-64KiB1FF00000, Main does not map the ring and has no probe DSO. One matching
-ELF GDB pause sets core input/video0 and issue view1. New C watcher21086 LIVE,
-three CoolBoot pulses98326 COMPLETED; do not restart. BFN113/login/performance
-pending. Main /tmp/dorado49-main.log, disk /tmp/dorado49-disk.jsonl;
+64KiB1FF00000, Main does not map the ring and has no probe DSO. Two matching
+ELF GDB controls precede measurement; core input/video0 and issue view1.
+C watcher21086 and three CoolBoot pulses98326 COMPLETED; do not restart.
+Fresh original BFN113/Pilot/Cedar login PASS. Three adjacent10s windows mean
+1,947,687.412 issues/s,14.9453% above48 and22.0639% above clean47b,11.6861%
+nominal. ONE boot each, not repeated or end-to-end qualification. No probeDSO.
+Read-only loader observer47764 LIVE, remote pid6672; inspect readiness log
+for actual pid before stopping. Guest login sent; full software gate pending.
+Main /tmp/dorado49-main.log, disk /tmp/dorado49-disk.jsonl;
 Cedar49_20261019. Helpers cedar49-launch; evidence native49-field.
 
 **Retired47b clean baseline (original-firmware idle login PASS).**
@@ -102,7 +107,7 @@ deferred reads, clocks/constraints or architectural changes. Remote
 or illegal/unconstrained clocks;30,533 ALMs73%,52,795 registers,330M10Ks.
 Frozen source/fit/timing evidence: native48-arbitration. Do not restart.
 
-**Native49 timing PASS, deployed; firmware boot pending.** Frozen48 plus frozen44 group/word
+**Native49 timing PASS, deployed; original firmware/login and idle measurement PASS.** Frozen48 plus frozen44 group/word
 physical interleaving only; no deferred reads, same DDR network/ARM/clock/
 constraints. Handle69340/fitter512897 COMPLETED;31 summary/36 detailed checks/
 four conditions pass, min+0.115ns, no new cuts/illegal/unconstrained clocks.

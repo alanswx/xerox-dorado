@@ -19,9 +19,15 @@ that ring. Main's existing FPGA/framebuffer mappings remain expected.
 One setup GDB pause selects core video/input0 and issue view1, and checks
 capability/epoch with the matching ELF. No probe DSO in the new Main.
 
-Original BaseBoard CoolBoot pulses completed; C watcher21086 waits for a
-fresh BFN113 then releasesC. Do not restart the watcher or boot pulses on an
-observation timeout. Original-firmware login, matched idle speed and full
-desktop/input remain pending. Current helpers: build/rtl-executive/cedar49-launch;
-Main /tmp/dorado49-main.log, disk /tmp/dorado49-disk.jsonl. No speed gain or
-complete snapshot claim is made for this candidate yet.
+Original BaseBoard CoolBoot and C watcher21086 COMPLETED: fresh BFN113 and
+immediate C release. Pilot and real Cedar login pass, shown in boot-progress.png.
+A second GDB control selects the same issue view before timing. Three adjacent
+10s windows average1,947,687.412 issues/s: +14.9453% versus48, +22.0639% versus
+clean47b and11.6861% of nominal16.667M/s. All three means are ONE fresh boot
+each; adjacent windows are not independent boots or end-to-end qualification.
+
+After timing, read-only loader observer6672/Mac47764 starts with the same
+policy as48; real Guest login is sent. Full software/input remain pending.
+Do not restart completed boot/watchers. Current helpers: build/rtl-executive/cedar49-launch;
+Main /tmp/dorado49-main.log, disk /tmp/dorado49-disk.jsonl. No end-to-end
+speed gain or complete snapshot claim is made. The gain is idle-login only.

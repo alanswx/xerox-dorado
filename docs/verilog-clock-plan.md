@@ -51,7 +51,9 @@ Actual48 delayed-worker input now passes: Return completes a pretyped Echo,
 mouse moves,8 read/28 write ACKs, no>20ms poll gap, inside-window reviewed
 capture. A fresh Main is required after the resident qualification DSO.
 49 interleaving timing passes min+0.115ns; normal load completed02:41UTC,
-fresh Main6414/server6413/DDR epoch5cea2e754bd0665f, original firmware starting.
+fresh Main6414/server6413/DDR epoch5cea2e754bd0665f. Original firmware/login
+PASS; idle mean1,947,687.412 issues/s (+14.9453% versus48,+22.0639% versus47b,
+11.6861% nominal), one boot each/three adjacent windows. Full software pending.
 50 deferred reads timing31/36/four conditions passes min+0.035ns,81%ALMs;
 not deployed/speed-qualified. Source hashes match all34 served files;
 independent physical bytes, repeated comparisons and sustained final gates
