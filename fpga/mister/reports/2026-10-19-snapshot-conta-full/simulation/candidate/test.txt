@@ -1,0 +1,1 @@
+FULL CONTA RESTORE PASS: 59787 host edges, 19878 held, 13334 late-enable changes, 9758 requests; all1353 physical bits,229 state words,138 output bits; real writes= 742 742 742 742 495 804 804 804 804; no machine/physical qualification

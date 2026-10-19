@@ -1,0 +1,8 @@
+{
+  "main_pid": 11259,
+  "rbf_sha256": "3d253187b42615e53fde1dc1bed688eb0328265d007bffdc3c161196294ccac3",
+  "observed": "germ812",
+  "mechanism": "Normal guest boot at empty independent CommandTool after marker create/close/readback; real virtual USB keyboard",
+  "capture_sha256": "e87db7f06caf81ca8821d5a9b99f5c688f3b75957b844feda106c7e2f2f6b352",
+  "limits": "Observed germ code only; not complete snapshot, OS shutdown or cold marker readback"
+}

@@ -1,0 +1,93 @@
+{
+  "status": "PASS",
+  "scope": "Isolated full physical ContA, original continuous baseline vs exact-advance adapter;50MHz/opposite-edge registered shell/2ns max0ns min virtual I/O. Counts include shell; no whole-core barrier/FPGA programming.",
+  "results": {
+    "baseline": {
+      "alms": 769,
+      "registers": 1343,
+      "block_ram_bits": 0,
+      "ram_blocks": 0,
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 1.057,
+          "hold": 0.299,
+          "mpw": 9.249
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 1.099,
+          "hold": 0.372,
+          "mpw": 9.169
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.367,
+          "hold": 0.166,
+          "mpw": 9.046
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.058,
+          "hold": 0.18,
+          "mpw": 9.103
+        }
+      }
+    },
+    "snapshot": {
+      "alms": 1974,
+      "registers": 1951,
+      "block_ram_bits": 0,
+      "ram_blocks": 0,
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 1.438,
+          "hold": 0.322,
+          "mpw": 9.266
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 1.359,
+          "hold": 0.342,
+          "mpw": 9.172
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.376,
+          "hold": 0.163,
+          "mpw": 9.051
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.072,
+          "hold": 0.179,
+          "mpw": 9.109
+        }
+      }
+    }
+  },
+  "delta": {
+    "alms": 1205,
+    "registers": 608,
+    "block_ram_bits": 0,
+    "ram_blocks": 0
+  },
+  "minimum_snapshot_slack_ns": 0.163,
+  "state_count_scope": "1353 non-diagnostic modeled bits, not a count of fitted baseline registers; access can retain otherwise-pruned model history. Resource totals include shell/admin pruning.",
+  "limits": "Isolated board; no full-core clock distribution, global barriers, physical snapshot or original60ns qualification",
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "fitted input differs: snapshot/ContA_snapshot.sv"
+    },
+    {
+      "case": "constraint",
+      "rejected": true,
+      "diagnostic": "fitted input differs: snapshot/bank.sdc"
+    },
+    {
+      "case": "qsf",
+      "rejected": true,
+      "diagnostic": "QSF source/macro/constraint differs"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation: hold/7_slow_1100mv_-40c"
+    }
+  ]
+}

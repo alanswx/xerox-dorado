@@ -1,0 +1,1 @@
+FAIL edge=151: board physical state differs

@@ -70,11 +70,17 @@ default/No retry accepted; BootEssentials/fonts/STARTs and full Viewers Ready,
 mouse/Cmd/focus/exact short/alphabet/digit echo and guest marker create/close/
 readback pass. No cold51 marker readback yet; first profile tool continues
 optional installs. This is one fresh51 desktop, not the final repeated gate.
+Native51 is now normally retired/preserved after germ812. Live51b exact-RBF
+fresh repeat gives idle1,947,720.553 and loader333.175..333.426s, with matching
+extra issued work and93 replays now in Imager/CommandTool. Its33-sample
+measurement->Guest cadence is fixed; preceding manual login gate still varies.
+Fresh49 using the same recipe is next before attributing the slowdown to RTL.
+51b all34/final ACK pass, profile No retry sent; full desktop still pending.
 Same50MHz/SYSPER4 clocks, SDRAM/no raw
 cache/direct DDR, arbitration/interleaving ON, deferred reads OFF. Physical
 packet-byte proof, fixed-cadence repeated comparisons and sustained final gates
 remain open. Snapshot4a and60ns clock migration remain required. Evidence:
-native49b-repeat/native50-field/native51-contb/native51-field; older diaries
+native49b-repeat/native50-field/native51-contb/native51-field/native51b-repeat; older diaries
 are historical. No speed gain or complete physical snapshot is claimed for51.
 
 Use three explicitly recorded workloads: idle Cedar login, a fixed cold

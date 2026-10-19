@@ -1,0 +1,11 @@
+{
+  "scope": "One fresh repeat: fixed33-log-sample idle collection, then immediate Guest.\n\nStart only after visual login verification and separate observer READY.\nThis fixes measurement-to-input cadence, not the preceding manual login gate.\n",
+  "utc": "2026-10-19T06:48:41.059540+00:00",
+  "start_ns": 1842519506658625,
+  "key_interval_s": 0.2,
+  "main_pid": 12945,
+  "limits": "Prior manual login-screen gate varied; this is an observed fresh repeat, not the final3-run automated benchmark",
+  "measurement_end_ns": 1842555145085708,
+  "guest_start_ns": 1842555145087250,
+  "guest_end_ns": 1842559085961541
+}

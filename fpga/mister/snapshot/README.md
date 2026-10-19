@@ -155,3 +155,17 @@ or unconstrained paths, zero block RAM.57->117ALMs/89->142registers include
 registered shells/pruning; no core budget or hardware save/load claim.
 Evidence: reports/2026-10-19-snapshot-f10145. Next integrate/classify remaining
 ContA FF/latch families and six clock-history bits, then global machine state.
+
+Full frozen49 ContA now passes modeled board restore in
+`generate_conta_full.py`/`test_conta_full.py`: all1,353 non-diagnostic modeled
+bits and138 outputs, including75 FF packages, nine register files with write
+windows and six phase-history bits.59,787 host edges,13,334 late-enable changes,
+all bits/invalid addresses and first-edge resume pass; seven damaged RTL
+variants fail. Fresh XML classification excludes954 original simulation-only
+diagnostic bits and rejects17 altered inventory/layout/source cases. The
+modeled bit count is not a fitted baseline register count. Matched isolated
+fits pass four conditions/min+0.163ns, no cuts/unconstrained paths, zero block
+RAM.769->1974ALMs/1343->1951regs include shell/pruning. Evidence:
+reports/2026-10-19-snapshot-conta-full. No production/live FPGA change yet.
+Next whole-core ContA+ContB clock-enable integration and original boot, then
+remaining board/device/ARM access and complete safe machine restore.

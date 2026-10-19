@@ -1,0 +1,26 @@
+{
+  "status": "PASS: original-firmware fresh Viewers, mouse/Cmd/focus, exact keyboard and warm marker readback",
+  "main_pid": 11259,
+  "server_pid": 11258,
+  "rbf_sha256": "3d253187b42615e53fde1dc1bed688eb0328265d007bffdc3c161196294ccac3",
+  "echoes": [
+    "rtl51 keyboard ok",
+    "abcdefghijklmnopqrstuvwxyz0123456789"
+  ],
+  "visual_review": "Ready herald, WatchTool/EditTool/Clock; mouse from0,0 to912,8/Cmd opens second tool; focus737,608. Exact short and full alphabet/digits, each output followed by a fresh % prompt. Normal guest marker create/close/type readback matches. First tool still installs optional profile packages.",
+  "warm_marker": {
+    "status": "PASS: normal guest create/close/readback and new prompt",
+    "file": "///rtl51persist.txt",
+    "expected": "rtl51persist",
+    "cold_persistence": "NOT TESTED for this marker"
+  },
+  "captures": {
+    "viewers-ready.png": "256e5740c0e4c8b6ed32edf34cdc6ece295750348986830c15c0b878934e939a",
+    "second-cmd.png": "5c1896166273ae4bfc83b362750fd8a0e290d5c5544d870ed463df88a4b06f39",
+    "input-echo.png": "e35fcab8c25dce00076481d396e4e6a0eb8a7d7eec9d2f304f9ffd20b7f94466",
+    "marker-readback.png": "832e4a7cfea1a212393d7b6388efff61486e1947570734f1d34a3be350f50142"
+  },
+  "limits": "One fresh Native51 desktop, not final3boots or2h stress. Loader longer with replays: not promoted as performance baseline. All snapshot admin inactive; no full save/load, no original60ns cadence claim.",
+  "checked_utc": "2026-10-19T06:33:12.980425+00:00",
+  "network_latest_log": "Dorado net: flags=c tx_words=14 good=2214 crc_bad=0 dropped=12 rx_bad=0 aborted=0 machine=30034996 state=472a cpu=885f795d"
+}

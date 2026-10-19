@@ -1,0 +1,9 @@
+{
+  "fpga/mister/snapshot/generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+  "fpga/mister/snapshot/generate_conta_full.py": "f7dff22beba5bf41abc69d450317cc26d7dca13071d39025c028935bf8b618d9",
+  "fpga/mister/snapshot/test_conta_full.py": "49baeb188c188a9ad7492d4358aebaf9ee96f7ea5ef523574fa2ab2f8ac69db1",
+  "fpga/mister/snapshot/test_conta_full.cpp": "0f061f5a5ce7acc60470815459b4fdb1785af49bb2d9b29a6adbbd02f64f0576",
+  "fpga/mister/snapshot/classify_conta_full.py": "b2066d4d1454178d5d575a4c6f1f7abf93e8f6c6a969bfa62d3123b3824f7624",
+  "fpga/mister/snapshot/fit_conta_full.py": "c5c907916f0c3b742fe075065912d54dad4e5f6dbc924f628b626d18499b48a1",
+  "fpga/mister/snapshot/audit_conta_full.py": "960517add661cd54859603831ead80490c9c16c0e15cf0c0942fcc010fc7e6b3"
+}

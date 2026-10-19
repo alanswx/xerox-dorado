@@ -1,0 +1,31 @@
+{
+  "main_pid": 12945,
+  "server_pid": 12944,
+  "words": [
+    53460,
+    1,
+    0,
+    8176,
+    0,
+    1,
+    22,
+    0,
+    0,
+    22652,
+    3597,
+    35061,
+    58620,
+    2048,
+    8,
+    16,
+    0,
+    0
+  ],
+  "epoch": "e4fc88f50e0d587c",
+  "flags": "0x16",
+  "fault": 0,
+  "control_errors": 0,
+  "known_gdb_setup_controls": 2,
+  "snapshot_admin": "INACTIVE; no physical save/load",
+  "scope": "Actual Main SPI74 at input_poll before measurements; sole SPI owner. Independent post-measurement mapping/process checks in field-collection.json."
+}

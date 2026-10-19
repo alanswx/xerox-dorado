@@ -1,0 +1,23 @@
+{
+  "status": "PASS: original firmware/login/base loader/final guest ACK; installer advancing, full desktop pending",
+  "main_pid": 12945,
+  "server_pid": 12944,
+  "rbf_sha256": "3d253187b42615e53fde1dc1bed688eb0328265d007bffdc3c161196294ccac3",
+  "snapshot_admin": "INACTIVE; no physical save/load",
+  "idle_issues_s": 1947720.5529452849,
+  "loader_elapsed_s": [
+    333.175095407,
+    333.425737037
+  ],
+  "loader_issue_bounds": [
+    551857526,
+    555259510
+  ],
+  "replay_events": 93,
+  "replay_phases": {
+    "Imager": 56,
+    "CommandTool": 37
+  },
+  "performance_decision": "Observed slowdown repeats; cause unproven; fresh49 same-recipe control required; not promoted",
+  "limits": "One fresh51b run after fixed measurement->Guest cadence; prior manual login gate varied; not final3boots, full machine snapshot or60ns timing"
+}
