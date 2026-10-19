@@ -1,0 +1,52 @@
+{
+  "module": "cell_F10145A_snapshot",
+  "logical_state_bits": 74,
+  "ram": {
+    "words": 16,
+    "width": 4,
+    "indices": [
+      0,
+      15
+    ]
+  },
+  "write_window": {
+    "index": 16,
+    "width": 10,
+    "fields": [
+      {
+        "name": "we_d",
+        "width": 1,
+        "lsb": 0
+      },
+      {
+        "name": "a_lat",
+        "width": 4,
+        "lsb": 1
+      },
+      {
+        "name": "d_lat",
+        "width": 4,
+        "lsb": 5
+      },
+      {
+        "name": "ce_lat",
+        "width": 1,
+        "lsb": 9
+      }
+    ]
+  },
+  "excluded_simulation_only": [
+    "a_first",
+    "d_first",
+    "in_we",
+    "n_amoved",
+    "n_dmoved",
+    "n_writes",
+    "ramwe_dbg"
+  ],
+  "exclusion_reason": "Original synthesis translate_off diagnostics; no reference outside excluded region",
+  "excluded_source_sha256": "9f8ffe325c3ffa4f64ac08f2a526b9ea3f4fc0c3c3e35bc666d2a91f2ec50fd6",
+  "original_sha256": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+  "generated_sha256": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+  "scope": "Physical register-file/window state only; no global barrier, board integration, fit or machine restore"
+}

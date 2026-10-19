@@ -141,3 +141,17 @@ The remaining delivery order is:
 
 The intended user operation is Save/Load machine state. It remains a required
 part of release acceptance alongside fresh original-firmware cold boots.
+
+The next primitive, `generate_f10145.py`, now preserves each16x4 file's64 RAM
+bits and all10 pending-write-window bits. `test_f10145_snapshot.py --mutations`
+checks the unchanged original and an independent oracle, including freeze
+inside WE low, candidate-only continuation and exact first-edge commit.
+All74 bits/invalid indices/backend holds pass; eight damaged RTL controls fail.
+`classify_f10145.py` accounts for original XML candidates, explicitly excluding
+106 synthesis-translate-off diagnostic bits with source guards and11 failure
+controls. Raw native inventory counts remain review candidates, not physical
+snapshot size. Matched isolated fits pass four conditions/min+0.146ns, no cuts
+or unconstrained paths, zero block RAM.57->117ALMs/89->142registers include
+registered shells/pruning; no core budget or hardware save/load claim.
+Evidence: reports/2026-10-19-snapshot-f10145. Next integrate/classify remaining
+ContA FF/latch families and six clock-history bits, then global machine state.

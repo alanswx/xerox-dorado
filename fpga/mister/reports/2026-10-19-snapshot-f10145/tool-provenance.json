@@ -1,0 +1,8 @@
+{
+  "fpga/mister/snapshot/generate_f10145.py": "81850df20cbff4b934b13e3890a0efd3c469345c423c37586ff0b4a20c80d875",
+  "fpga/mister/snapshot/test_f10145_snapshot.py": "cec4daefde032fd99ba31c29f30b389c08dd3aed4a5c3adcdc6c87be44c4f88a",
+  "fpga/mister/snapshot/test_f10145_snapshot.cpp": "323acca24f29dbd751bb03beacf4aad7c44bc1728d627d49b582fe394d65d900",
+  "fpga/mister/snapshot/classify_f10145.py": "d843a08e96163bcad20da8d609703d61f00f6ebe60db1fc656ed2095e73f5e26",
+  "fpga/mister/snapshot/fit_f10145.py": "74584e5f8e152d9fbcd617746cfb8334b8e9cdcd08b715f9e1f1efff9951c878",
+  "fpga/mister/snapshot/audit_f10145.py": "c0c7a0f008c16e6e08ec5ac4e4245f7fcff82f56adb7e5447e4c84172efda37b"
+}

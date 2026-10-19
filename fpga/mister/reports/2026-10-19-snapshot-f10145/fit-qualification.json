@@ -1,0 +1,92 @@
+{
+  "status": "PASS",
+  "scope": "Isolated one F10145 file, original full-advance baseline vs explicit actual-advance snapshot clone;50MHz/opposite-edge registered shell/2ns max0ns min virtual I/O. Counts include shell; no board/global barrier/FPGA programming.",
+  "results": {
+    "baseline": {
+      "alms": 57,
+      "registers": 89,
+      "block_ram_bits": 0,
+      "ram_blocks": 0,
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 2.452,
+          "hold": 0.443,
+          "mpw": 9.242
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 2.468,
+          "hold": 0.425,
+          "mpw": 9.188
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.899,
+          "hold": 0.217,
+          "mpw": 9.053
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.739,
+          "hold": 0.238,
+          "mpw": 9.112
+        }
+      }
+    },
+    "snapshot": {
+      "alms": 117,
+      "registers": 142,
+      "block_ram_bits": 0,
+      "ram_blocks": 0,
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 1.98,
+          "hold": 0.305,
+          "mpw": 9.265
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 1.931,
+          "hold": 0.366,
+          "mpw": 9.168
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.652,
+          "hold": 0.146,
+          "mpw": 9.049
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.423,
+          "hold": 0.218,
+          "mpw": 9.105
+        }
+      }
+    }
+  },
+  "delta": {
+    "alms": 60,
+    "registers": 53,
+    "block_ram_bits": 0,
+    "ram_blocks": 0
+  },
+  "minimum_snapshot_slack_ns": 0.146,
+  "limits": "One isolated cell with matched registered shell; not complete-board/core area, physical snapshots or original60ns timing qualification",
+  "failure_controls": [
+    {
+      "case": "source",
+      "rejected": true,
+      "diagnostic": "fitted input differs: snapshot/cell_F10145A_snapshot.sv"
+    },
+    {
+      "case": "constraint",
+      "rejected": true,
+      "diagnostic": "fitted input differs: snapshot/bank.sdc"
+    },
+    {
+      "case": "qsf",
+      "rejected": true,
+      "diagnostic": "QSF constraints/macros/sources differ"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation: hold/7_slow_1100mv_-40c"
+    }
+  ]
+}

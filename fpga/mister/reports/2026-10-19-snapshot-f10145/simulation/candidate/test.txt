@@ -1,0 +1,1 @@
+F10145 SNAPSHOT PASS: 35407 host edges, 7987 held edges, 326 state requests; original cell + independent write-window oracle, all74 physical bits, pending write and first-edge resume

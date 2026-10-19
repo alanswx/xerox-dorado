@@ -1,0 +1,78 @@
+{
+  "scope": "Isolated one F10145 file, original full-advance baseline vs explicit actual-advance snapshot clone;50MHz/opposite-edge registered shell/2ns max0ns min virtual I/O. Counts include shell; no board/global barrier/FPGA programming.",
+  "manifest": {
+    "module": "cell_F10145A_snapshot",
+    "logical_state_bits": 74,
+    "ram": {
+      "words": 16,
+      "width": 4,
+      "indices": [
+        0,
+        15
+      ]
+    },
+    "write_window": {
+      "index": 16,
+      "width": 10,
+      "fields": [
+        {
+          "name": "we_d",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "a_lat",
+          "width": 4,
+          "lsb": 1
+        },
+        {
+          "name": "d_lat",
+          "width": 4,
+          "lsb": 5
+        },
+        {
+          "name": "ce_lat",
+          "width": 1,
+          "lsb": 9
+        }
+      ]
+    },
+    "excluded_simulation_only": [
+      "a_first",
+      "d_first",
+      "in_we",
+      "n_amoved",
+      "n_dmoved",
+      "n_writes",
+      "ramwe_dbg"
+    ],
+    "exclusion_reason": "Original synthesis translate_off diagnostics; no reference outside excluded region",
+    "excluded_source_sha256": "9f8ffe325c3ffa4f64ac08f2a526b9ea3f4fc0c3c3e35bc666d2a91f2ec50fd6",
+    "original_sha256": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "generated_sha256": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+    "scope": "Physical register-file/window state only; no global barrier, board integration, fit or machine restore"
+  },
+  "source_hashes": {
+    "fpga/mister/snapshot/fit_f10145.py": "74584e5f8e152d9fbcd617746cfb8334b8e9cdcd08b715f9e1f1efff9951c878",
+    "fpga/mister/snapshot/generate_f10145.py": "81850df20cbff4b934b13e3890a0efd3c469345c423c37586ff0b4a20c80d875",
+    "verilog/cells/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "fpga/mister/snapshot/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "fpga/mister/snapshot/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49"
+  },
+  "compiled_files": {
+    "snapshot/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "snapshot/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "snapshot/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+    "snapshot/top.sv": "85f3e0e42fc9608c4a93668989c6c52cebeec1590b6bb8beb6561327c5aa393f",
+    "snapshot/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "snapshot/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "snapshot/snapshot_fit.qsf": "03dbc1543ad59bb0e1175e90e42987fd566471d9794dd67bb49989a2f63a0db4",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "baseline/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+    "baseline/top.sv": "85f3e0e42fc9608c4a93668989c6c52cebeec1590b6bb8beb6561327c5aa393f",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/snapshot_fit.qsf": "bcfe789220a08b2039284d4fcf5c89a5326340131edef1cd8fb807f16a052590"
+  }
+}

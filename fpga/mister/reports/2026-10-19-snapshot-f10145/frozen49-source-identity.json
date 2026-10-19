@@ -1,0 +1,6 @@
+{
+  "status": "PASS frozen49 original source identity",
+  "path": "verilog/cells/cell_F10145A.v",
+  "sha256": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+  "reference": "build/rtl-executive/native49-frozen-inventory-src/verilog/cells/cell_F10145A.v"
+}

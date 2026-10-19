@@ -316,6 +316,27 @@ worker/server remain outside scope. Next extend/classify those and otherboards;
 no whole-machine completeness claim. Source inventory_native.py, evidence
 reports/2026-10-19-snapshot-native49-inventory, local handle31688 COMPLETED.
 
+**Next snapshot primitive F10145 physical-state restore/timing PASS.**
+Original cell byte-identical to frozen49. Exact cloned write-window process
+under actual host advance;64 RAM bits plus10 captured WE/address/data/CE bits.
+Original-cell and independent-oracle fixture passes35407hostedges/7987holds/
+326requests, all74bits, candidate-only destructive continuation, frozen
+pending-write restore and first-real-edge commit plus20000random edges.
+Eight broken RTL controls reject. Fresh original XML classifies every node;
+106 simulation-only diagnostic bits are explicitly excluded under original
+synthesis translate_off, with source/process/geometry guards and11 altered
+controls. Earlier native inventory is review-only, not physical snapshot size.
+Matched isolated50MHz/opposite-edge-shell fits pass12checks/variant/four
+conditions, minimum+0.146ns, no cuts/unconstrained paths, zero block RAM.
+57->117ALMs/89->142regs include shell/admin pruning; not projected core cost.
+Four damaged fit-evidence controls reject. Remote SnapshotF10145_20261019,
+handle97189 COMPLETED; local snapshot-f10145-v4/classify-v2/fitted-20261019.
+Evidence reports/2026-10-19-snapshot-f10145; source generate/test/classify/fit/
+audit_f10145 in fpga/mister/snapshot. Production/live51 unchanged. Next
+remaining ContA FF/latch families and six phase-history registers, full board
+classification/access, other boards/global barriers/raw SDRAM/Main/server,
+atomic bundles and actual FPGA Cedar restore.60ns/final gates remain open.
+
 **Retired47: direct-DDR original-firmware interactive Cedar Viewers PASS.**
 Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,
 server1506 isc5996249; staging Main1504 exited normally. RBF3df4a799,
@@ -1732,6 +1753,7 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Resolve51 longer loader/replay result with fixed-cadence fresh comparisons; do not promote from equal idle throughput. Tioga/CommandTool/Watch carry128 replay events and extra issued work; packet-loss source unproven.
 - [ ] Finish51 Viewers/mouse/Cmd/focus/exact short/alphabet/digit echo and guest disk write/readback; missing-profile No retry accepted and installer advancing.
 - [x] Refresh exact frozen49 native hierarchy inventory and prove qualified ContB coverage inside real machine.
+- [x] Qualify74-bit physical F10145 file/window save/continue/restore against original+independent oracle, classify simulator-only exclusions, and matched four-condition isolated timing min+0.146ns; damaged RTL/source/manifest/fit controls reject. Production/live core unchanged.
 - [ ] Connect active bounded access/global barriers and extend/classify other boards/wrapper/devices/input/raw memory/Main/server; qualify complete physical restore and combined timing.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [x] Preserve/decode41b post-desktop host-write timeout and unchanged physical pack; exact blocking syscall remains unobserved.

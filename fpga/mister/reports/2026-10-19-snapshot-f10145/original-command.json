@@ -1,0 +1,11 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_F10145A",
+  "-DDORADO_F10145_LOGIC",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-f10145-classify-v2-20261019/cell.xml",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v"
+]

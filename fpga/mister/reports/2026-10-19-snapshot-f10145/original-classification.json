@@ -1,0 +1,209 @@
+{
+  "status": "PASS",
+  "physical_bits": 74,
+  "ram_bits": 64,
+  "write_window_bits": 10,
+  "excluded_simulator_bits": 106,
+  "xml_sha256": "80e16669c929eb546d61157e2f25f3caaa80d653e22ed59852399d808953071c",
+  "decisions": [
+    {
+      "path": "cell_F10145A._unused_pins",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_F10145A.a",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_F10145A.a_first",
+      "decision": "EXCLUDE_SIMULATION_ONLY",
+      "bits": 4,
+      "reason": "Inside original synthesis translate_off block; generator verifies no reference outside it"
+    },
+    {
+      "path": "cell_F10145A.a_lat",
+      "decision": "SAVE",
+      "bits": 4,
+      "access": {
+        "word": 16,
+        "name": "a_lat",
+        "width": 4,
+        "lsb": 1
+      }
+    },
+    {
+      "path": "cell_F10145A.ce_lat",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": {
+        "word": 16,
+        "name": "ce_lat",
+        "width": 1,
+        "lsb": 9
+      }
+    },
+    {
+      "path": "cell_F10145A.d_first",
+      "decision": "EXCLUDE_SIMULATION_ONLY",
+      "bits": 4,
+      "reason": "Inside original synthesis translate_off block; generator verifies no reference outside it"
+    },
+    {
+      "path": "cell_F10145A.d_lat",
+      "decision": "SAVE",
+      "bits": 4,
+      "access": {
+        "word": 16,
+        "name": "d_lat",
+        "width": 4,
+        "lsb": 5
+      }
+    },
+    {
+      "path": "cell_F10145A.in_we",
+      "decision": "EXCLUDE_SIMULATION_ONLY",
+      "bits": 1,
+      "reason": "Inside original synthesis translate_off block; generator verifies no reference outside it"
+    },
+    {
+      "path": "cell_F10145A.mem",
+      "decision": "SAVE",
+      "bits": 64,
+      "access": {
+        "words": 16,
+        "width": 4,
+        "indices": [
+          0,
+          15
+        ]
+      }
+    },
+    {
+      "path": "cell_F10145A.n_amoved",
+      "decision": "EXCLUDE_SIMULATION_ONLY",
+      "bits": 32,
+      "reason": "Inside original synthesis translate_off block; generator verifies no reference outside it"
+    },
+    {
+      "path": "cell_F10145A.n_dmoved",
+      "decision": "EXCLUDE_SIMULATION_ONLY",
+      "bits": 32,
+      "reason": "Inside original synthesis translate_off block; generator verifies no reference outside it"
+    },
+    {
+      "path": "cell_F10145A.n_writes",
+      "decision": "EXCLUDE_SIMULATION_ONLY",
+      "bits": 32,
+      "reason": "Inside original synthesis translate_off block; generator verifies no reference outside it"
+    },
+    {
+      "path": "cell_F10145A.p1",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_F10145A.p14",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_F10145A.p15",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_F10145A.p2",
+      "decision": "RECOMPUTE",
+      "bits": 1,
+      "reason": "Original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_F10145A.q",
+      "decision": "RECOMPUTE",
+      "bits": 4,
+      "reason": "Original continuous combinational/constant wire"
+    },
+    {
+      "path": "cell_F10145A.ramwe_dbg",
+      "decision": "EXCLUDE_SIMULATION_ONLY",
+      "bits": 1,
+      "reason": "Inside original synthesis translate_off block; generator verifies no reference outside it"
+    },
+    {
+      "path": "cell_F10145A.we_d",
+      "decision": "SAVE",
+      "bits": 1,
+      "access": {
+        "word": 16,
+        "name": "we_d",
+        "width": 1,
+        "lsb": 0
+      }
+    }
+  ],
+  "scope": "One original F10145 file, exact current RTL/macros; not board/machine completeness or physical restore",
+  "failure_controls": [
+    {
+      "case": "missing_we",
+      "rejected": true,
+      "diagnostic": "incomplete physical state layout"
+    },
+    {
+      "case": "width",
+      "rejected": true,
+      "diagnostic": "physical state geometry differs: ce_lat"
+    },
+    {
+      "case": "ram",
+      "rejected": true,
+      "diagnostic": "physical state geometry differs: mem"
+    },
+    {
+      "case": "new_state",
+      "rejected": true,
+      "diagnostic": "unclassified state: new_history"
+    },
+    {
+      "case": "alias",
+      "rejected": true,
+      "diagnostic": "aliased physical state bits"
+    },
+    {
+      "case": "swapped_window",
+      "rejected": true,
+      "diagnostic": "write-window layout differs from generated packing"
+    },
+    {
+      "case": "diagnostic_use",
+      "rejected": true,
+      "diagnostic": "changed diagnostic exclusions"
+    },
+    {
+      "case": "source_extra_history",
+      "rejected": true,
+      "diagnostic": "unreviewed extra physical state/process"
+    },
+    {
+      "case": "source_extra_process",
+      "rejected": true,
+      "diagnostic": "unreviewed extra physical state/process"
+    },
+    {
+      "case": "source_ram_geometry",
+      "rejected": true,
+      "diagnostic": "unreviewed physical declaration: reg [3:0] mem [0:15];"
+    },
+    {
+      "case": "source_diagnostic_escape",
+      "rejected": true,
+      "diagnostic": "diagnostic escapes synthesis exclusion: ramwe_dbg"
+    }
+  ]
+}

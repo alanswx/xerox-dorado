@@ -1,0 +1,252 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "80e16669c929eb546d61157e2f25f3caaa80d653e22ed59852399d808953071c",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "initial_only_candidate": 2,
+    "combinational_review": 6,
+    "sequential": 11
+  },
+  "candidate_bits": {
+    "initial_only_candidate": 2,
+    "combinational_review": 12,
+    "sequential": 179
+  },
+  "candidates": [
+    {
+      "path": "cell_F10145A._unused_pins",
+      "module": "cell_F10145A",
+      "name": "_unused_pins",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 149,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.a",
+      "module": "cell_F10145A",
+      "name": "a",
+      "category": "combinational_review",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 69,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.a_first",
+      "module": "cell_F10145A",
+      "name": "a_first",
+      "category": "sequential",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 121,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.a_lat",
+      "module": "cell_F10145A",
+      "name": "a_lat",
+      "category": "sequential",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 93,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.ce_lat",
+      "module": "cell_F10145A",
+      "name": "ce_lat",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 94,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.d_first",
+      "module": "cell_F10145A",
+      "name": "d_first",
+      "category": "sequential",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 121,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.d_lat",
+      "module": "cell_F10145A",
+      "name": "d_lat",
+      "category": "sequential",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 93,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.in_we",
+      "module": "cell_F10145A",
+      "name": "in_we",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 121,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.mem",
+      "module": "cell_F10145A",
+      "name": "mem",
+      "category": "sequential",
+      "width": 4,
+      "unpacked_dimensions": [
+        [
+          0,
+          15
+        ]
+      ],
+      "bits": 64,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 57,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.n_amoved",
+      "module": "cell_F10145A",
+      "name": "n_amoved",
+      "category": "sequential",
+      "width": 32,
+      "unpacked_dimensions": [],
+      "bits": 32,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 122,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.n_dmoved",
+      "module": "cell_F10145A",
+      "name": "n_dmoved",
+      "category": "sequential",
+      "width": 32,
+      "unpacked_dimensions": [],
+      "bits": 32,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 122,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.n_writes",
+      "module": "cell_F10145A",
+      "name": "n_writes",
+      "category": "sequential",
+      "width": 32,
+      "unpacked_dimensions": [],
+      "bits": 32,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 122,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.p1",
+      "module": "cell_F10145A",
+      "name": "p1",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 43,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.p14",
+      "module": "cell_F10145A",
+      "name": "p14",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 45,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.p15",
+      "module": "cell_F10145A",
+      "name": "p15",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 44,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.p2",
+      "module": "cell_F10145A",
+      "name": "p2",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 42,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.q",
+      "module": "cell_F10145A",
+      "name": "q",
+      "category": "combinational_review",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 144,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.ramwe_dbg",
+      "module": "cell_F10145A",
+      "name": "ramwe_dbg",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 123,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_F10145A.we_d",
+      "module": "cell_F10145A",
+      "name": "we_d",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+      "line": 92,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

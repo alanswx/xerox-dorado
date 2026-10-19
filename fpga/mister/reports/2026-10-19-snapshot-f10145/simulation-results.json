@@ -1,0 +1,56 @@
+{
+  "scope": "Physical register-file/window state only; no global barrier, board integration, fit or machine restore",
+  "hashes": {
+    "fpga/mister/snapshot/test_f10145_snapshot.py": "cec4daefde032fd99ba31c29f30b389c08dd3aed4a5c3adcdc6c87be44c4f88a",
+    "fpga/mister/snapshot/generate_f10145.py": "81850df20cbff4b934b13e3890a0efd3c469345c423c37586ff0b4a20c80d875",
+    "fpga/mister/snapshot/test_f10145_snapshot.cpp": "323acca24f29dbd751bb03beacf4aad7c44bc1728d627d49b582fe394d65d900",
+    "verilog/cells/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab"
+  },
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "ungated_guest",
+      "returncode": 1,
+      "expected_failure": "held guest state changed"
+    },
+    {
+      "case": "lost_address",
+      "returncode": 1,
+      "expected_failure": "ordinary oracle state differs"
+    },
+    {
+      "case": "lost_ce",
+      "returncode": 1,
+      "expected_failure": "ordinary oracle state differs"
+    },
+    {
+      "case": "current_address_write",
+      "returncode": 1,
+      "expected_failure": "ordinary oracle state differs"
+    },
+    {
+      "case": "running_access",
+      "returncode": 1,
+      "expected_failure": "running request accepted"
+    },
+    {
+      "case": "entry_access",
+      "returncode": 1,
+      "expected_failure": "entry request accepted"
+    },
+    {
+      "case": "invalid_alias",
+      "returncode": 1,
+      "expected_failure": "invalid request accepted"
+    },
+    {
+      "case": "lost_window_restore",
+      "returncode": 1,
+      "expected_failure": "write-window bit walk differs"
+    }
+  ]
+}

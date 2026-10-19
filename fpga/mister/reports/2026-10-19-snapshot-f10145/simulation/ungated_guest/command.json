@@ -1,0 +1,18 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "f10145_snapshot_fixture",
+  "-Wno-fatal",
+  "-DDORADO_F10145_LOGIC",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-f10145-v4-20261019/ungated_guest/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-f10145-v4-20261019/ungated_guest/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-f10145-v4-20261019/ungated_guest/cell.sv",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_F10145A.v",
+  "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_f10145_snapshot.cpp"
+]
