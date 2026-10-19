@@ -854,3 +854,44 @@ No core builder, FPGA or speed change. The last actual whole-core result stays
 integration also requires versioned formatters, longer bounded transport and
 global hold/fault/SYSTEM-reset ownership. Complete machine/ARM/disk-paired
 snapshots, original 60 ns clocks and final hardware release gates remain open.
+
+
+## Complete IFU serial FF access (2026-10-19)
+
+`generate_ifu_ff_scan.py` chains all 94 unchanged FF helpers / 974 physical bits,
+without a shadow bank. Compact words 0..54 end in two valid bits. The eleven
+independently addressed IFUM groups, 27 raw read pipelines and four phase bits
+keep their existing maps. CE remains omitted at every original cell/bank;
+there is no RAM regrouping, tie-off, rate change or immutable PROM alteration.
+`compact-ff-v1` gives explicit offsets; legacy_parallel_word is review metadata.
+Loss of the external frozen boundary holds every local bank until SYSTEM reset;
+access during reset and reset re-entry is rejected. Foreign consumers still
+need a global barrier.
+
+`test_ifu_ff_scan.py --mutations` retains the complete original IFU, raw probes
+and independent RAM oracle; only admin mapping/waits and reset/quarantine tests
+are derived. It passes 3,559,110 host edges, all 28,653 physical bits/all 262,144
+address values, destructive restore, quiet recapture, first resumed edge and
+20K more. All eleven normal RAM writers are exercised. Eight damaged variants
+reject, including lost pipeline, busy ownership and lost local/bank hold, with
+every bank's freeze acknowledgment observed. Fresh XML accounts for 28,653
+physical + 171 private bits, no exclusions and 256 immutable PROM bits. Fourteen
+damaged inventories/layouts reject. Canonical serialized comparison preserves
+all original pin-cone expression fields across tuple/JSON-array representation.
+
+Matched enabled fits retain the original positive-edge 50 MHz/20 ns shell and
+SDC and identical eleven-bank RAM helper: 1,482 -> 1,100 ALMs saves 382;
+1,802 -> 1,762 registers. All four device conditions pass, minimum +0.112 ns.
+All 974 physical FFs, 27 canonical pipeline registers, eleven independent M10K
+sites / 27,648 RAM bits, port latency and OLD_DATA behavior are checked. Three
+shared private bank flags retain their total; synthesis ownership is checked.
+Nine damaged fit/source/retention/hold/collision/placement controls reject.
+All 495 raw files pass hash readback, followed by extracted fit, fresh XML,
+source and archived original wire-list/location regeneration/control suites.
+Report: `reports/2026-10-19-snapshot-ifu-ff-scan`.
+
+No production builder, RBF or live FPGA/speed change. Combined capacity remains
+3,318 ALMs over budget; isolated savings are not a new whole-core measurement.
+Remaining control/memory/BaseBoard access, combined fit/timing, versioned
+formatters/longer bounded transport/global hold, full ARM/disk-paired machine
+snapshots, original 60 ns clocks and final hardware release gates remain open.

@@ -1,0 +1,1167 @@
+{
+  "ports": [
+    {
+      "direction": "input",
+      "name": "ASEL_0_p_",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_00",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_01",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_02",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_03",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_04",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_05",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_06",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_07",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_08",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_09",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_10",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_11",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_12",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_13",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_14",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "BMux_15",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "CLK_ifu_p_",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "CLKEnable_p_a",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "CountMiss",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "DMuxClk",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "DMuxData",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "EmuOrFT_p_",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "EnableFG_p_",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "EventA",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "EventB",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "EventC",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "EventD",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "EventE",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FA_eq_1_p_",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FF_2",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FF_3",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FF_4",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FF_5",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FF_6",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FF_7",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FG_0",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FG_1",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FG_2",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FG_3",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FG_4",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FG_5",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FG_6",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FG_7",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "FG_8",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GDv_p_",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GLd_p_",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_00",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_01",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_02",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_03",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_04",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_05",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_06",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_07",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_08",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_09",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_10",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_11",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_12",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_13",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_14",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "GenIn_15",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "IOReset",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "IfuAWantsDifHit_p_",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "IfuAck",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "IfuFaultInEc2",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "IfuHold",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "IfuNextMacro_p_",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "IfuStartMap_p_",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "MakeF_u_D",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "MemClkEn_p_a",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "MemSH",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "NextData_p_",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "Pendulum",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "RefOutstanding_p_",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "TempRef",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "WantIfuHold_p_",
+      "width": 1
+    },
+    {
+      "direction": "input",
+      "name": "WantIfuRef_p_",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_00__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_01__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_02__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_03__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_04__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_05__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_06__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_07__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_08__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_09__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_10__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_11__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_12__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_13__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_14__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "BMux_15__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "CrryEvCntA__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "DMuxData__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "EnableFG_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GDv_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GLd_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_00__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_01__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_02__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_03__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_04__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_05__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_06__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_07__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_08__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_09__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_10__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_11__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_12__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_13__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_14__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "GenOut_15__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuAck__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuAddr_04_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuAddr_05_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuAddr_06_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuAddr_07_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuAddr_08_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuAddr_09_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuAddr_10_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuAddr_11_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuAddr_12_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuAddr_13_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuData_0__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuData_1__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuData_2__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuData_3__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuData_4__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuData_5__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuData_6__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuData_7__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuFaultInEc2__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "IfuRBaseSel_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_00_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_01_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_02_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_03_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_04_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_05_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_06_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_07_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_08_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_09_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_10_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_11_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_12_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_13_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_14_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MAR_15_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MemBM_0__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MemBM_1__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "MemBM34__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "PcFG_15__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "RefOutstanding_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "SignIfuData__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "TWReq_02__drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "WantIfuHold_p___drv",
+      "width": 1
+    },
+    {
+      "direction": "output",
+      "name": "WantIfuRef_p___drv",
+      "width": 1
+    }
+  ],
+  "ff_rows": [
+    {
+      "word": 0,
+      "width": 18,
+      "offset": 0
+    },
+    {
+      "word": 1,
+      "width": 18,
+      "offset": 18
+    },
+    {
+      "word": 2,
+      "width": 18,
+      "offset": 36
+    },
+    {
+      "word": 3,
+      "width": 18,
+      "offset": 54
+    },
+    {
+      "word": 4,
+      "width": 18,
+      "offset": 72
+    },
+    {
+      "word": 5,
+      "width": 18,
+      "offset": 90
+    },
+    {
+      "word": 6,
+      "width": 18,
+      "offset": 108
+    },
+    {
+      "word": 7,
+      "width": 18,
+      "offset": 126
+    },
+    {
+      "word": 8,
+      "width": 18,
+      "offset": 144
+    },
+    {
+      "word": 9,
+      "width": 18,
+      "offset": 162
+    },
+    {
+      "word": 10,
+      "width": 18,
+      "offset": 180
+    },
+    {
+      "word": 11,
+      "width": 18,
+      "offset": 198
+    },
+    {
+      "word": 12,
+      "width": 18,
+      "offset": 216
+    },
+    {
+      "word": 13,
+      "width": 18,
+      "offset": 234
+    },
+    {
+      "word": 14,
+      "width": 18,
+      "offset": 252
+    },
+    {
+      "word": 15,
+      "width": 18,
+      "offset": 270
+    },
+    {
+      "word": 16,
+      "width": 18,
+      "offset": 288
+    },
+    {
+      "word": 17,
+      "width": 18,
+      "offset": 306
+    },
+    {
+      "word": 18,
+      "width": 18,
+      "offset": 324
+    },
+    {
+      "word": 19,
+      "width": 18,
+      "offset": 342
+    },
+    {
+      "word": 20,
+      "width": 18,
+      "offset": 360
+    },
+    {
+      "word": 21,
+      "width": 18,
+      "offset": 378
+    },
+    {
+      "word": 22,
+      "width": 18,
+      "offset": 396
+    },
+    {
+      "word": 23,
+      "width": 18,
+      "offset": 414
+    },
+    {
+      "word": 24,
+      "width": 18,
+      "offset": 432
+    },
+    {
+      "word": 25,
+      "width": 18,
+      "offset": 450
+    },
+    {
+      "word": 26,
+      "width": 18,
+      "offset": 468
+    },
+    {
+      "word": 27,
+      "width": 18,
+      "offset": 486
+    },
+    {
+      "word": 28,
+      "width": 18,
+      "offset": 504
+    },
+    {
+      "word": 29,
+      "width": 18,
+      "offset": 522
+    },
+    {
+      "word": 30,
+      "width": 18,
+      "offset": 540
+    },
+    {
+      "word": 31,
+      "width": 18,
+      "offset": 558
+    },
+    {
+      "word": 32,
+      "width": 18,
+      "offset": 576
+    },
+    {
+      "word": 33,
+      "width": 18,
+      "offset": 594
+    },
+    {
+      "word": 34,
+      "width": 18,
+      "offset": 612
+    },
+    {
+      "word": 35,
+      "width": 18,
+      "offset": 630
+    },
+    {
+      "word": 36,
+      "width": 18,
+      "offset": 648
+    },
+    {
+      "word": 37,
+      "width": 18,
+      "offset": 666
+    },
+    {
+      "word": 38,
+      "width": 18,
+      "offset": 684
+    },
+    {
+      "word": 39,
+      "width": 18,
+      "offset": 702
+    },
+    {
+      "word": 40,
+      "width": 18,
+      "offset": 720
+    },
+    {
+      "word": 41,
+      "width": 18,
+      "offset": 738
+    },
+    {
+      "word": 42,
+      "width": 18,
+      "offset": 756
+    },
+    {
+      "word": 43,
+      "width": 18,
+      "offset": 774
+    },
+    {
+      "word": 44,
+      "width": 18,
+      "offset": 792
+    },
+    {
+      "word": 45,
+      "width": 18,
+      "offset": 810
+    },
+    {
+      "word": 46,
+      "width": 18,
+      "offset": 828
+    },
+    {
+      "word": 47,
+      "width": 18,
+      "offset": 846
+    },
+    {
+      "word": 48,
+      "width": 18,
+      "offset": 864
+    },
+    {
+      "word": 49,
+      "width": 18,
+      "offset": 882
+    },
+    {
+      "word": 50,
+      "width": 18,
+      "offset": 900
+    },
+    {
+      "word": 51,
+      "width": 18,
+      "offset": 918
+    },
+    {
+      "word": 52,
+      "width": 18,
+      "offset": 936
+    },
+    {
+      "word": 53,
+      "width": 18,
+      "offset": 954
+    },
+    {
+      "word": 54,
+      "width": 2,
+      "offset": 972
+    },
+    {
+      "word": 215040,
+      "width": 4,
+      "offset": 974
+    }
+  ],
+  "ff_offsets": [
+    0,
+    18,
+    36,
+    54,
+    72,
+    90,
+    108,
+    126,
+    144,
+    162,
+    180,
+    198,
+    216,
+    234,
+    252,
+    270,
+    288,
+    306,
+    324,
+    342,
+    360,
+    378,
+    396,
+    414,
+    432,
+    450,
+    468,
+    486,
+    504,
+    522,
+    540,
+    558,
+    576,
+    594,
+    612,
+    630,
+    648,
+    666,
+    684,
+    702,
+    720,
+    738,
+    756,
+    774,
+    792,
+    810,
+    828,
+    846,
+    864,
+    882,
+    900,
+    918,
+    936,
+    954,
+    972,
+    974
+  ],
+  "bank_offsets": [
+    0,
+    1,
+    6,
+    7,
+    8,
+    12,
+    13,
+    18,
+    20,
+    21,
+    25
+  ]
+}
