@@ -1,0 +1,71 @@
+{
+  "trace_capture": "Live prefix after guest marker readback; not atomic snapshot, barrier or cold persistence",
+  "events": {
+    "mount": 1,
+    "poll": 3190,
+    "pread_begin": 971,
+    "pread_end": 971,
+    "read_request": 2769,
+    "read_ack": 2769,
+    "poll_gap": 5,
+    "write_request": 17207,
+    "write_ack": 17207,
+    "pwrite_begin": 15229,
+    "pwrite_end": 15229,
+    "fsync_begin": 6117,
+    "fsync_end": 6117
+  },
+  "error_rows": [],
+  "last_event": {
+    "ns": 25112638269619,
+    "event": "fsync_end",
+    "offset": 0,
+    "bytes": 0,
+    "result": 0,
+    "duration_ns": 12730
+  },
+  "incomplete_final_line": false,
+  "poll_gaps": [
+    {
+      "ns": 22003288557796,
+      "event": "poll_gap",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 471330078
+    },
+    {
+      "ns": 22003504709683,
+      "event": "poll_gap",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 216151987
+    },
+    {
+      "ns": 22056868781886,
+      "event": "poll_gap",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 358969370
+    },
+    {
+      "ns": 22172890662134,
+      "event": "poll_gap",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 22637528
+    },
+    {
+      "ns": 22455559489572,
+      "event": "poll_gap",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 389341699
+    }
+  ],
+  "poll_gap_scope": "Full lifecycle includes the two known setup GDB controls before timing; individual gap matching not established; not sustained no-pause qualification"
+}

@@ -65,8 +65,11 @@ longer than49b311.340..311.570s under the same new analyser. Counters bracket
 7.32..8.69% more issued work, slightly higher interior throughput and50MHz
 host progress.128 replay events occur in Tioga/CommandTool/Watch versus49b0.
 Cause remains OPEN; do not promote51 based on idle equality. Fixed-cadence
-fresh repeats and packet-delivery investigation are next.51 installer is
-advancing after missing-profile default/No retry; full desktop/input pending.
+fresh repeats and packet-delivery investigation are next.51 missing-profile
+default/No retry accepted; BootEssentials/fonts/STARTs and full Viewers Ready,
+mouse/Cmd/focus/exact short/alphabet/digit echo and guest marker create/close/
+readback pass. No cold51 marker readback yet; first profile tool continues
+optional installs. This is one fresh51 desktop, not the final repeated gate.
 Same50MHz/SYSPER4 clocks, SDRAM/no raw
 cache/direct DDR, arbitration/interleaving ON, deferred reads OFF. Physical
 packet-byte proof, fixed-cadence repeated comparisons and sustained final gates

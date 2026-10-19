@@ -18,7 +18,7 @@ than48, ONE boot each. Native50 deferred reads are rejected for negligible measu
 extra3323ALMs. Fresh49b repeats the smaller selected49 baseline; idle reproduces
 within0.000203%, full desktop/input and warm marker pass. Live51 integrates
 ContB host-clock/exact-advance adapters with all snapshot admin inactive;
-original firmware/login/base loader pass, installer advancing. Idle is
+original firmware/full Viewers/mouse/Cmd/exact keyboard and warm marker pass. Idle is
 1,947,710.746 issues/s (+0.000995% vs49b). Loader333.686..333.915s is slower
 than49b311.340..311.570s: bounded counters show7.32..8.69% more issued work,
 128 protocol replay events concentrated in Tioga/CommandTool/Watch, rather
@@ -294,13 +294,18 @@ Do not claim a no-regression result from idle equality. Fixed-cadence repeats
 remain required. All34 remote source hashes match; physical payload proof open.
 Cedar timed out to profile Yes and waited at profile-name prompt. Real Return
 accepted the default, guest reported it missing; explicit No on the retry
-was accepted. BootEssentials and further installer work are advancing; full51
-Viewers/input/warm-marker remains pending. Live /tmp/dorado51-main.log and
+was accepted. BootEssentials/fonts/STARTs complete; full51 Viewers Ready,
+WatchTool/EditTool/Clock and profile tool paint. Real mouse0,0->912,8/Cmd
+opens independent second tool, focus737,608; exact short/alphabet/digit
+echoes with fresh prompts pass. Guest rtl51persist.txt create/close/type
+readback passes; no cold readback for this marker. First tool continues
+optional installs. Input handles13755/6204/10896/42493 COMPLETED; do not restart.
+Live /tmp/dorado51-main.log and
 /tmp/dorado51-disk.jsonl, Cedar51_20261019. Helpers cedar51-launch. The
 read-only collector ran after timing; live captured logs are not a barrier.
 Evidence native51-contb/native51-field; source build_native_contb.py and
 tools/analyze_fpga_loader.py/compare_fpga_loaders.py. No physical snapshot or
-speed gain is claimed. Next finish51 desktop, investigate/repeat the loader,
+speed gain is claimed. Next investigate/repeat the loader,
 then other board access/global barrier, accurate clocks and final gates.
 
 **Exact frozen49 native-machine snapshot inventory/ContB coverage PASS.**
@@ -1748,10 +1753,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify18-bit explicit-enable snapshot RAM against unchanged original cells and independent array; retain twoM10Ks/OLD_DATA, matched registered-shell all-corner timing min+0.255ns and damaged RTL/report controls.
 - [x] Qualify bounded actual ContB IM state access: unchanged-board all-output/strobe/clock-hold comparison and matched isolated gated-clock all-corner fit,16M10Ks/min+0.168ns.
 - [x] Export/classify all209 remaining ContB q/setup/history bits; full147809-bit modeled board save/continue/restore/first-edge equivalence, coverage controls and isolated all-corner fit pass min+0.165ns.
-- [x] Integrate ContB adapters with admin inactive into frozen49 complete core;31/52/four-condition timing and fitted8x18-bit OLD_DATA checks pass min+0.115ns. Native51 original firmware/login/base loader pass on14; full desktop/input pending.
+- [x] Integrate ContB adapters with admin inactive into frozen49 complete core;31/52/four-condition timing and fitted8x18-bit OLD_DATA checks pass min+0.115ns. Native51 original firmware/full Viewers/input/warm marker pass on14.
 - [x] Preserve51 read-only loader trace and qualify exact34 transfers/final guest ACK/counter unwrap; damaged ACK/data/peer/counter controls reject.
 - [ ] Resolve51 longer loader/replay result with fixed-cadence fresh comparisons; do not promote from equal idle throughput. Tioga/CommandTool/Watch carry128 replay events and extra issued work; packet-loss source unproven.
-- [ ] Finish51 Viewers/mouse/Cmd/focus/exact short/alphabet/digit echo and guest disk write/readback; missing-profile No retry accepted and installer advancing.
+- [x] Finish51 Viewers/mouse/Cmd/focus/exact short/alphabet/digit echo and normal guest disk create/close/readback; no cold marker readback yet. Profile tool continues optional installs.
 - [x] Refresh exact frozen49 native hierarchy inventory and prove qualified ContB coverage inside real machine.
 - [x] Qualify74-bit physical F10145 file/window save/continue/restore against original+independent oracle, classify simulator-only exclusions, and matched four-condition isolated timing min+0.146ns; damaged RTL/source/manifest/fit controls reject. Production/live core unchanged.
 - [ ] Connect active bounded access/global barriers and extend/classify other boards/wrapper/devices/input/raw memory/Main/server; qualify complete physical restore and combined timing.

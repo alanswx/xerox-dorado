@@ -1,0 +1,29 @@
+{
+  "utc": "2026-10-19T06:33:12.980425+00:00",
+  "main_pid": 11259,
+  "server_pid": 11258,
+  "maps": {
+    "main": [
+      "b3b0b000-b52c6000 rw-s 22000000 00:06 2          /dev/mem",
+      "b52c6000-b62c6000 rw-s ff000000 00:06 2          /dev/mem"
+    ],
+    "server": [
+      "b6e27000-b6e37000 rw-s 1ff00000 00:06 2          /dev/mem"
+    ]
+  },
+  "files": {
+    "main-through-desktop.log": {
+      "bytes": 423550,
+      "sha256": "19ad90b8bbefc8ad3b8e28819699fa1e23cef2d3ebd13df05ae552118482da56"
+    },
+    "disk-through-desktop.jsonl": {
+      "bytes": 8983418,
+      "sha256": "2c3dba67fe7508da58b04b1736807a966b3fbcc59dd228a1fdfb695253dd2673"
+    },
+    "server-through-desktop.log": {
+      "bytes": 1170628,
+      "sha256": "0c5370b033f7e72e537875c071d8285f5cd8256020b79502bf6d7b86bc0c85a6"
+    }
+  },
+  "scope": "Live file prefix capture after visually verified original-firmware Viewers, mouse, exact keyboard and guest marker readback. No live pack copy; no atomic disk/machine snapshot or barrier."
+}

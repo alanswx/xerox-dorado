@@ -1,5 +1,5 @@
 {
-  "status": "PASS original firmware/login/base transfers; full Viewers/input/disk pending",
+  "status": "PASS: original-firmware fresh Viewers, mouse/Cmd/focus, exact keyboard and warm marker readback",
   "main_pid": 11259,
   "server_pid": 11258,
   "rbf_sha256": "3d253187b42615e53fde1dc1bed688eb0328265d007bffdc3c161196294ccac3",
@@ -15,10 +15,10 @@
   ],
   "replay_events": 128,
   "performance_decision": "Not promoted: longer loader with extra issued work/replays; cause/repeated fixed-cadence comparisons open",
-  "boot_progress": "Profile timed out Yes; accepted default name, guest reported missing; explicit No retry accepted; BootEssentials installer advancing",
+  "boot_progress": "Full Viewers/input/warm marker pass; first profile tool continues optional installs",
   "tool_hashes": {
     "tools/analyze_fpga_loader.py": "c276f764f1c8f350347f966cd5f5ef967bf6b5e9365f6612f665985cd053a404",
     "tools/compare_fpga_loaders.py": "cc073ceda93aaeb5799da86c31564d44a90f151d208ee01c17dc89edaaf848b5"
   },
-  "limits": "One fresh51 boot; desktop pending; no physical payload hash/full snapshot/60ns cadence or final repeated/stress qualification"
+  "limits": "One fresh Native51 desktop, not final3boots or2h stress. Loader longer with replays: not promoted as performance baseline. All snapshot admin inactive; no full save/load, no original60ns cadence claim."
 }

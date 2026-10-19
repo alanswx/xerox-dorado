@@ -1,4 +1,4 @@
-# Native51: original boot/login/base loader pass; desktop test in progress
+# Native51: original-firmware Viewers/input and warm marker pass
 
 Normal load completed 2026-10-19 05:39:59 UTC on MiSTer14. Main11259
 is21e67a3f; daemon11258 isc5996249; RBF3d253187. Exact hashes and original
@@ -45,8 +45,8 @@ not restart it or the original deployment. Cedar timed out to profile Yes,
 then waited for the profile name. A real keyboard Return accepted the
 displayed default; the guest reported it missing and offered the question
 again with default No. Explicit No+Return was accepted, BootEssentials and
-subsequent installer transfers are advancing. Full51 Viewers/input/disk
-qualification remains pending at this collection. No timed measurement
+subsequent installer transfers advanced. This first collection preceded
+desktop qualification. No timed measurement
 overlaps the read-only field collector's compression/file-hash work.
 
 Old49b normal guest Boot visibly reached germ855 (not812). The normal Main
@@ -66,3 +66,14 @@ Local working helpers: build/rtl-executive/cedar51-launch. Live Main log:
 /media/fat/games/DoradoRTL/Cedar51_20261019. Snapshot4a, original60ns clock
 migration, final three fresh desktop boots and sustained two-hour test remain
 required. Native49 is still the selected performance baseline.
+
+Follow-up: full Viewers Ready, WatchTool/EditTool/Clock and profile tool now
+paint. Real mouse0,0->912,8/Cmd opens a second CommandTool; focus737,608.
+Exact `rtl51 keyboard ok` and complete alphabet/digits echo with fresh prompts.
+Normal guest `echo rtl51persist > ///rtl51persist.txt` followed by `type`
+prints the exact marker and a new prompt. Captures/actions are preserved in
+desktop-input.json/input-actions.json. No cold readback for this marker yet.
+The first tool continues optional profile installs. This is ONE fresh51
+desktop, not the final repeated/stability gate; no speed-regression clearance.
+Additional live desktop-era log prefixes are separately collected after the
+warm-marker readback. They are not a disk barrier or complete machine snapshot.

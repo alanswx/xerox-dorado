@@ -10,8 +10,8 @@ Update2026-10-19: the qualified ContB host-clock/exact-advance adapters are
 now in the full Native51 core on MiSTer14. Four-condition whole-core/crossing
 timing, original firmware, Cedar login and all34 base transfers pass. ALL
 snapshot admin inputs remain inactive; the running core cannot save/load
-state. Full51 desktop qualification and the slower-loader/replay investigation
-are ongoing; Native49 remains the performance baseline. Evidence:
+state.51 full Viewers/mouse/exact keyboard and warm marker now pass. The
+slower-loader/replay investigation remains open;49 is the performance baseline. Evidence:
 reports/2026-10-19-native51-contb and native51-field. Historical isolated
 experiments below did not themselves change production RTL.
 

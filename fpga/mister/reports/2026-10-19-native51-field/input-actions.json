@@ -1,0 +1,35 @@
+{
+  "mouse": [
+    [
+      "move:200,0",
+      "move:200,0",
+      "move:200,0",
+      "move:200,0",
+      "move:112,8",
+      "left_down",
+      "left_up"
+    ],
+    [
+      "move:-175,200",
+      "move:0,200",
+      "move:0,200",
+      "left_down",
+      "left_up"
+    ]
+  ],
+  "keyboard": [
+    "echo rtl51 keyboard ok\n",
+    "echo abcdefghijklmnopqrstuvwxyz0123456789\n",
+    "echo rtl51persist > ///rtl51persist.txt\n",
+    "type ///rtl51persist.txt\n"
+  ],
+  "key_interval_s": 0.2,
+  "mouse_interval_s": 0.8,
+  "completed_handles": [
+    13755,
+    6204,
+    10896,
+    42493
+  ],
+  "mechanism": "Tracked native34 real virtual-USB keyboard/mouse helpers, cedar36 type-keys-punct.py; no guest RAM/CPU/IOCB writes"
+}
