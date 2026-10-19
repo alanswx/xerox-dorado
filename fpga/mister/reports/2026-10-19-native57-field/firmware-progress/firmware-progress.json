@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-19T14:13:15.460003+00:00",
+  "status": "PASS: new original Initial BFN113/C release and actual845 visible",
+  "main_pid": 25287,
+  "server_pid": 25286,
+  "rbf_sha256": "064e37848a123cbc0affeeb07ff309d242aff8b8deca9c0992c78e8ee56bc268",
+  "observer": "C watcher13824 terminal; no reset/retry",
+  "captures": {
+    "actual845.png": "ca7ec2a8263d145139c47e244d62557f4942167c6d1b290512a741aa0cb8c703"
+  },
+  "limits": "Original firmware progress; login/base loader/full Viewers/input/new speed still pending. Measurement scripts prepared, not executed."
+}

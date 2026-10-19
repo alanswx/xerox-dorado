@@ -1,5 +1,10 @@
 # Native57 initial hardware deployment
 
+Latest: original new BFN113 request observed; C released and watcher terminal.
+The initial pause ended normally; actual845 is visible. Capture/log proof is
+in firmware-progress/. Login/loader/Viewers/input/new speed remain pending.
+The startup collection below retains its original observation time.
+
 Normal load completed 2026-10-19 14:07:38 UTC. Main25287/server25286,
 temporary25263 normally retired. RBF064e3784, fresh f3bce2a8 seed verified
 untouched before final cache-ready. Eight board adapters, all administrative

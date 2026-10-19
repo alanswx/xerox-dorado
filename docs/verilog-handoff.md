@@ -2,6 +2,15 @@
 
 ## Current objective (2026-10-19 UTC)
 
+Latest57firmware progress: original newBFN113 observed, C released normally;
+watcher13824 TERMINAL, remote25347 expected absent. Earlyissue1pause ended
+normally withoutreset/retry. Actual845 nowvisible in capture. OriginalCedar
+login/base34/finalACK/fullViewers/input/newmeasurement still pending. Measurement/
+loaderobserver scripts prepared undercedar57-launch, notrun; observerPIDguard
+now25286 anddoc reflectsactual observer-before33samples recipe. Neverrestart
+oldwatcher/triplepushes. Evidence native57-field/firmware-progress preserves
+terminalCwatchlog/capture/scripts separately from historicalstartup collection.
+
 **LIVE Native57 normally deployed; original firmware startup active, Cedar pending.**
 Load91010 TERMINAL14:07:38UTC, Main25287/server25286/temp25263normallyretired.
 RBF064e37848a123cbc0affeeb07ff309d242aff8b8deca9c0992c78e8ee56bc268.
