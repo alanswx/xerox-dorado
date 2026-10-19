@@ -77,14 +77,35 @@ Fixture counts are53->102ALMs/48->138registers and include launch/capture
 registers; do not extrapolate that delta to a complete core. The two-clock
 prototype also in this directory is REJECTED by Quartus inference. Earlier
 direct-virtual-input timing failures are preserved. Evidence and full scope:
-reports/2026-10-19-snapshot-enable. Actual ContB integration is next; no physical
-save/load or complete snapshot is implemented by either prototype.
+reports/2026-10-19-snapshot-enable. No physical save/load or complete snapshot
+is implemented by either prototype.
+
+`generate_contb.py` now creates a separate actual ContB experiment with the
+original144 RAM slices replaced by the eight enabled half-banks; all other
+board logic stays unchanged. `test_contb_snapshot.py --mutations` compares
+all71 outputs against the original board, actual write/CE/address/parity cones
+and raw read pipelines, plus an independent array.97,418 host cycles and
+57,392 state operations pass, including late clock-enable changes, every
+RAM/pipeline bit, invalid rows, cross-bank responses and first-edge resume.
+Four damaged RTL variants reject. The matching isolated board fit retains
+16M10Ks/147456bits; all four-condition checks pass min+0.168ns, no cuts or
+unconstrained paths. Shell counts287->600ALMs/325->584regs include admin
+pruning differences; do not project to the core. Eight audit controls reject.
+Evidence: reports/2026-10-19-snapshot-contb-board. Production is unchanged.
+
+Original-board elaboration identifies209 additional sequential bits in22
+MC10176/MC10231 packages, including q, pre-capture and clock history. They
+remain unexported; other inventory categories still need classification.
+Next add those state paths and test complete board continue/restore, then
+qualify whole-core clock relationships and the external-service barrier.
+The present board test only restores IM while other state is physically held.
 
 The remaining delivery order is:
 
 1. Classify the generated inventory and prove bounded access on an actual
-   board, including its real clock strobes and RAM read pipelines. Measure
-   the added logic and routed timing before extending the access fabric.
+   board, including its remaining sequential/clock-history state. IM-only
+   board strobes/read pipelines and isolated routed timing now pass; complete
+   board continue/restore and whole-core timing remain required.
 2. Implement one machine-wide pause boundary with ARM disk/network services.
    Preserve or drain pending operations explicitly; keep SDRAM refresh running.
 3. Save all classified RTL, RAM, device, clock and input state together with

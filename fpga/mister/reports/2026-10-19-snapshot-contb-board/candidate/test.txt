@@ -1,0 +1,1 @@
+ACTUAL CONTB IM PASS: 97418 host edges, 67357 held edges, 13334 late-enable changes, 57392 state accesses; 71 board outputs, all8 halves including parity/raw read pipelines; real-strobe writes= 716 421 4264 2567 1099 961 7772 6924; complete machine restore/timing not qualified

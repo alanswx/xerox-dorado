@@ -1,0 +1,127 @@
+{
+  "status": "PASS",
+  "scope": "Actual isolated ContB, original clock gate plus host enabled RAM, matched registered I/O shell,50MHz/2ns/0ns I/O; no whole-core qualification or FPGA programming",
+  "results": {
+    "baseline": {
+      "alms": 287,
+      "registers": 325,
+      "ram_bits": 147456,
+      "ram_blocks": 16,
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 1.68,
+          "hold": 0.428,
+          "mpw": 8.812,
+          "recovery": "N/A: no asynchronous paths",
+          "removal": "N/A: no asynchronous paths"
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 1.601,
+          "hold": 0.454,
+          "mpw": 8.806,
+          "recovery": "N/A: no asynchronous paths",
+          "removal": "N/A: no asynchronous paths"
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.455,
+          "hold": 0.169,
+          "mpw": 8.414,
+          "recovery": "N/A: no asynchronous paths",
+          "removal": "N/A: no asynchronous paths"
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.155,
+          "hold": 0.186,
+          "mpw": 8.485,
+          "recovery": "N/A: no asynchronous paths",
+          "removal": "N/A: no asynchronous paths"
+        }
+      }
+    },
+    "snapshot": {
+      "alms": 600,
+      "registers": 584,
+      "ram_bits": 147456,
+      "ram_blocks": 16,
+      "timing": {
+        "7_slow_1100mv_-40c": {
+          "setup": 1.995,
+          "hold": 0.387,
+          "mpw": 8.808,
+          "recovery": "N/A: no asynchronous paths",
+          "removal": "N/A: no asynchronous paths"
+        },
+        "7_slow_1100mv_100c": {
+          "setup": 1.928,
+          "hold": 0.45,
+          "mpw": 8.807,
+          "recovery": "N/A: no asynchronous paths",
+          "removal": "N/A: no asynchronous paths"
+        },
+        "MIN_fast_1100mv_-40c": {
+          "setup": 4.635,
+          "hold": 0.168,
+          "mpw": 8.416,
+          "recovery": "N/A: no asynchronous paths",
+          "removal": "N/A: no asynchronous paths"
+        },
+        "MIN_fast_1100mv_100c": {
+          "setup": 4.395,
+          "hold": 0.182,
+          "mpw": 8.485,
+          "recovery": "N/A: no asynchronous paths",
+          "removal": "N/A: no asynchronous paths"
+        }
+      }
+    }
+  },
+  "delta": {
+    "alms": 313,
+    "registers": 259,
+    "ram_bits": 0,
+    "ram_blocks": 0
+  },
+  "limits": "IM access on isolated actual ContB only; shell overhead included. Other board state/global barrier/whole-core timing/physical snapshots not qualified.",
+  "failure_controls": [
+    {
+      "case": "project",
+      "rejected": true,
+      "diagnostic": "project assignments differ"
+    },
+    {
+      "case": "clock",
+      "rejected": true,
+      "diagnostic": "clock/fixture differs"
+    },
+    {
+      "case": "board",
+      "rejected": true,
+      "diagnostic": "generated board differs"
+    },
+    {
+      "case": "constraints",
+      "rejected": true,
+      "diagnostic": "constraints differ"
+    },
+    {
+      "case": "packing",
+      "rejected": true,
+      "diagnostic": "IM geometry/packing differs"
+    },
+    {
+      "case": "old_data",
+      "rejected": true,
+      "diagnostic": "RAM mode differs: READ_DURING_WRITE_MODE_MIXED_PORTS"
+    },
+    {
+      "case": "hold",
+      "rejected": true,
+      "diagnostic": "timing violation: hold/MIN_fast_1100mv_-40c"
+    },
+    {
+      "case": "coverage",
+      "rejected": true,
+      "diagnostic": "missing timing coverage: Unconstrained Clocks/7_slow_1100mv_100c"
+    }
+  ]
+}

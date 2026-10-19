@@ -41,7 +41,7 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-Current hardware update04:17UTC19Oct:47/48/49 original Viewers/input and
+Current hardware update04:41UTC19Oct:47/48/49 original Viewers/input and
 active-DDR STOP/unmap/normal reload/fresh epochs pass. Clean47b idle1,595,628.966;
 48 arbitration1,694,447.318 (+6.1931%);49 interleaving1,947,687.412 (+14.9453%
 vs48,+22.0639% vs47b,11.6861% nominal). Each has three adjacent windows in one
@@ -56,7 +56,8 @@ useful benefit: idle+0.01861%, loader311.63439..311.86355s, inside observed49
 variation, for3323 additionalALMs/2832regs. Reject50 as baseline; retain optional
 RTL/tests/evidence. Actual Main barriers retire50 normally and preserve its
 physical disk. Live49b original firmware/base loader pass; No entered, installer
-advancing, full Viewers/input pending. Same50MHz/SYSPER4 clocks, SDRAM/no raw
+advancing, full Viewers/mouse/Cmd/focus and exact short/alphabet/digit echo now pass.
+Same50MHz/SYSPER4 clocks, SDRAM/no raw
 cache/direct DDR, arbitration/interleaving ON, deferred reads OFF. Physical
 packet-byte proof, fixed-cadence repeated comparisons and sustained final gates
 remain open. Snapshot4a and60ns clock migration remain required. Evidence:
@@ -404,7 +405,22 @@ include fixture/admin registers and cannot be projected to the whole core.
 Two-clock RAM templates failed inference; direct-virtual-input baseline hold
 failures are preserved. No cuts; final fixture keeps2ns/0ns I/O and10ns internal
 paths. Actual ContB/global state/barriers/physical snapshots remain unimplemented.
-Evidence: reports/2026-10-19-snapshot-enable. Actual board integration is next.
+Evidence: reports/2026-10-19-snapshot-enable.
+
+Actual ContB IM access now passes in a separate generated board, retaining
+all other original logic.97,418 host cycles/57,392 state operations compare
+all71 board outputs and144 raw pipeline bits with the original board plus
+an independent array oracle. Actual half-bank writes, parity/address/CE,
+falling-edge-latched clock enables, backend holds, invalid/cross-bank access
+and IM export/invert/restore/resume pass; four damaged RTL controls fail.
+Matched clock-gated board fits retain147456bits/16M10Ks and pass all12 checks
+per variant/four conditions, min+0.168ns. No cuts or unconstrained paths;
+287->600ALMs/325->584regs include the registered shell/admin pruning delta.
+Eight damaged-evidence controls reject. Evidence: snapshot-contb-board reports.
+This is not full-board restore:99 other sequential candidates/209bits in22
+MC10176/MC10231 packages still need state ports, with remaining inventory
+categories to classify. Next qualify actual full-board continue/restore,
+then whole-core barriers/state/timing. No production RTL/FPGA snapshot added.
 
 ### DDR control integration and matched idle evidence (2026-10-18)
 

@@ -1,0 +1,33 @@
+{
+  "status": "PASS: original-firmware fresh Viewers, mouse/Cmd/focus and exact keyboard echo",
+  "checked_utc": "2026-10-19 04:41:33 UTC",
+  "main_pid": 8321,
+  "server_pid": 8318,
+  "rbf_sha256": "6e7866f3d6125e5926c05fa9c4a4a000e1a4aef72b61766ccfe8b2676eecad0d",
+  "echoes": [
+    "rtl49b keyboard ok",
+    "abcdefghijklmnopqrstuvwxyz0123456789"
+  ],
+  "visual_review": "Ready herald, WatchTool/EditTool/Clock, real mouse from0,0 to912,8/Cmd click opens second CommandTool; focus737,608. Exact short and full alphabet/digits output, each with new % prompt. Profile tool continues optional application installs concurrently.",
+  "warm_marker": {
+    "status": "PASS: normal guest create/close/readback and new prompt",
+    "file": "///rtl49bpersist.txt",
+    "expected": "rtl49bpersist",
+    "cold_persistence": "NOT TESTED for this marker"
+  },
+  "captures": {
+    "viewers-ready.png": "553c38aa91651bf7ec59ed22200c175b820b42bdf9723ff683700e43aad88875",
+    "second-cmd.png": "f20607f64c4803a27c063551ab63ef02a3c00e035904d4cc878090684b01d544",
+    "input-echo.png": "2a18a34c4d8620f3a916e24de414dd964a18dbede33aa9fe075944553cb53767",
+    "marker-readback.png": "b71c27c6d49513469c3c208fb32093b509da90ccc334219f05a65bf297406bab"
+  },
+  "network_latest_log": {
+    "good": 2144,
+    "tx_dropped": 11,
+    "crc_bad": 0,
+    "rx_bad": 0,
+    "aborted": 0
+  },
+  "snapshots": "NOT IMPLEMENTED; no state patch/C-state import or guest instruction/IOCB completion",
+  "limits": "Second fresh boot of selected49 RBF; manual input cadence varies. Not final three-boot pinned benchmark, cold marker readback or sustained stress gate. No probe DSO or performance observer remains."
+}

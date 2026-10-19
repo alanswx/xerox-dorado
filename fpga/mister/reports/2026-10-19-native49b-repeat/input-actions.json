@@ -1,0 +1,37 @@
+{
+  "mouse": [
+    [
+      "move:200,0",
+      "move:200,0",
+      "move:200,0",
+      "move:200,0",
+      "move:112,8",
+      "left_down",
+      "left_up"
+    ],
+    [
+      "move:-175,200",
+      "move:0,200",
+      "move:0,200",
+      "left_down",
+      "left_up"
+    ]
+  ],
+  "keyboard": [
+    "echo rtl49b keyboard ok\n",
+    "echo abcdefghijklmnopqrstuvwxyz0123456789\n",
+    "echo rtl49bpersist > ///rtl49bpersist.txt\n",
+    "type ///rtl49bpersist.txt\n"
+  ],
+  "key_interval_s": 0.2,
+  "mouse_interval_s": 0.8,
+  "completed_handles": [
+    38402,
+    54463,
+    30632,
+    87435,
+    96577,
+    20772
+  ],
+  "mechanism": "Tracked native34 real virtual-USB keyboard/mouse helpers and cedar36 type-keys-punct.py; no guest memory writes"
+}

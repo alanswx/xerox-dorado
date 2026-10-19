@@ -1,0 +1,54 @@
+{
+  "trace_capture": "Live read after guest marker readback; not an atomic machine/disk snapshot",
+  "events": {
+    "mount": 1,
+    "poll": 3338,
+    "pread_begin": 971,
+    "pread_end": 971,
+    "read_request": 2964,
+    "read_ack": 2964,
+    "poll_gap": 3,
+    "write_request": 18111,
+    "write_ack": 18111,
+    "pwrite_begin": 15681,
+    "pwrite_end": 15681,
+    "fsync_begin": 4292,
+    "fsync_end": 4292
+  },
+  "error_rows": [],
+  "last_event": {
+    "ns": 18468637192757,
+    "event": "fsync_end",
+    "offset": 0,
+    "bytes": 0,
+    "result": 0,
+    "duration_ns": 14190
+  },
+  "poll_gaps": [
+    {
+      "ns": 15192169371299,
+      "event": "poll_gap",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 649894962
+    },
+    {
+      "ns": 15380995674747,
+      "event": "poll_gap",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 22653531
+    },
+    {
+      "ns": 15638311947673,
+      "event": "poll_gap",
+      "offset": 0,
+      "bytes": 0,
+      "result": 0,
+      "duration_ns": 390817347
+    }
+  ],
+  "poll_gap_scope": "Full lifecycle trace includes known setup controls before timing; individual gap/control matching is not established here. This is not sustained no-pause qualification."
+}

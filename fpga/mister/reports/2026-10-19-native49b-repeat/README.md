@@ -15,7 +15,7 @@ are two independent boots, not three final combined-release boots.
 Guest31922 accepted. All33BCD+list transfers and exact final guest ACK pass
 in311.33993..311.59041s; all34 actual remote source hashes match AFTER timing.
 Observer8733/Mac38162 COMPLETED and absent independently; profile No34368
-sent, full Viewers/input still pending. Manual pre-Guest idle delay differed,
+sent; full Viewers/input now pass (see desktop-input.json). Manual pre-Guest idle delay differed,
 so this is an observed repeat, not the final automated pinned benchmark gate.
 50's311.63439..311.86355s lies inside the total observed49 timing range.
 
@@ -29,3 +29,16 @@ disk barriers pass; retired trace ends barrier_end without errors/loss.
 
 Main /tmp/dorado49b-main.log; disk /tmp/dorado49b-disk.jsonl; Cedar49b_20261019.
 Helpers build/rtl-executive/cedar49b-launch. Never restart completed watchers.
+
+Fresh repeat full desktop/input PASS at04:38..04:41UTC: Ready herald,
+WatchTool/EditTool/Clock, real mouse/Cmd click creates independent tool;
+focus and exact short/alphabet/digit echo each end with new prompts. Normal
+guest rtl49bpersist.txt create/close/readback also passes; no cold readback
+for this marker. Profile tool continues optional application installs.
+At04:41UTC latest Main log good2144/TX dropped11, CRC/RX/abort0. This is not
+the final three-boot/fixed-cadence/stress or complete snapshot qualification.
+The preserved full lifecycle disk trace includes three poll gaps:649.895,
+22.654 and390.817ms. Two setup GDB controls preceded measurement, but this
+report does not claim per-gap/control correlation or sustained no-pause service.
+All2964 read/18111 write requests in the captured prefix are acknowledged;
+no negative-result/error events are present.

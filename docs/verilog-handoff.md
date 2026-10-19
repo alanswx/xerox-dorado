@@ -143,8 +143,11 @@ Idle83013 COMPLETE:1,947,691.366 issues/s versus first49's1,947,687.412,
 +0.000203% over an independent fresh boot; not three final release boots.
 Guest31922 accepted. All33BCD+list/final guest ACK pass311.33993..311.59041s;
 34 remote source hashes match after timing. Observer8733/Mac38162 COMPLETED
-and absent independently; No34368 sent, installer advancing. Full49b Viewers/
-input remains pending. Main /tmp/dorado49b-main.log, disk /tmp/dorado49b-disk.jsonl;
+and absent independently; No34368 sent. Fresh49b full Viewers Ready/Watch/
+Edit/Clock, real mouse/Cmd/focus and exact short/alphabet/digit echoes with
+new prompts PASS at04:38UTC. Normal guest rtl49bpersist.txt create/close/
+readback PASS at04:41UTC; no cold readback yet. Latest good2144/TX drops11,
+CRC/RX/abort0. First profile tool continues optional installs. Main /tmp/dorado49b-main.log, disk /tmp/dorado49b-disk.jsonl;
 Cedar49b_20261019, helpers cedar49b-launch, evidence native49b-repeat.
 Manual pre-Guest idle delay varied, so loader values are observed repeats,
 not the final automated pinned benchmark gate. Do not restart old helpers.
@@ -182,6 +185,29 @@ Source fpga/mister/snapshot; reports2026-10-19-snapshot-enable. Next integrate
 actual ContB halves with the exact guest advance and test complete board
 behavior before core integration. Global barriers/full-state bus/SDRAM/Main/
 server/bundles/physical Cedar save/restore remain required and unfinished.
+
+**Snapshot4a actual ContB IM access/isolated routed fit PASS, not deployed.**
+Separate generate_contb.py experiment preserves non-RAM board logic; eight
+18-bit banks replace144 original RAM instances. All71 board outputs plus144
+raw read bits match the unchanged original board and an independent array
+oracle over97418 host cycles/67357 holds/13334 late enable changes/57392 state
+accesses. Real-strobe writes cover all8 halves; every RAM/read bit, all invalid
+rows, cross-bank responses, destructive IM writes/restore, recapture and first
+actual guest edge pass. Four damaged RTL controls reject. Other FFs stay held
+while IM is changed/restored; no full-board continuation/restore claim.
+Matched board fits use original falling-edge global gate/actual host enable,
+50MHz registered shell,2ns/0ns I/O/10ns shell paths, no cuts. Both retain147456
+bits/16M10Ks; candidate eight1024x18 OLD_DATA. All12 checks per variant/four
+conditions pass min+0.168ns, R/R N/A, no illegal/unconstrained clocks or I/O.
+Counts287->600ALMs/325->584regs (+313/+259) include fixture/admin pruning;
+not whole-core overhead/timing. Eight damaged-report/project controls reject.
+Remote SnapshotContB_20261019/Mac97952 COMPLETED. Evidence snapshot-contb-board;
+source fpga/mister/snapshot. Original board inventory separately elaborated:
+99 other sequential candidates/209bits in eleven MC10176 and eleven MC10231
+packages (q, pre-capture and clock-history). These need bounded state ports;
+remaining inventory categories still need classification. Next full-board
+continue/restore, then wider scope/whole-core timing/global services barrier.
+No production generated RTL/QSF/FPGA state-access changes. Live49b remains.
 
 **Retired47: direct-DDR original-firmware interactive Cedar Viewers PASS.**
 Loaded23:47:39UTC from verified stock MENU. Final Main1509 is21e67a3f,
@@ -1592,7 +1618,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify isolated34-bit IM bank state access: exact RAM/read pipeline/first-edge resume, independent original cells and broken controls; matched four-condition fit retains fourM10Ks, +62 ALMs/+43 registers.
 - [x] Prove actual ContB IM fanout grouping against wire list/cell expressions:144 slices, parity and144 read registers, eight18-bit half-banks; truth oracle and six damaged controls pass.
 - [x] Qualify18-bit explicit-enable snapshot RAM against unchanged original cells and independent array; retain twoM10Ks/OLD_DATA, matched registered-shell all-corner timing min+0.255ns and damaged RTL/report controls.
-- [ ] Extend/classify full snapshot inventory including wrapper/raw memory/Main/server; prototype bounded state access on one board and qualify area/timing before wide integration.
+- [x] Qualify bounded actual ContB IM state access: unchanged-board all-output/strobe/clock-hold comparison and matched isolated gated-clock all-corner fit,16M10Ks/min+0.168ns.
+- [ ] Export/classify remaining actual ContB state (209 non-IM sequential bits) and prove full-board continue/restore; extend inventory to wrapper/raw memory/Main/server and qualify whole-core area/timing.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [x] Preserve/decode41b post-desktop host-write timeout and unchanged physical pack; exact blocking syscall remains unobserved.
 - [x] Implement/test bounded whole-image ARM cache, dirty-run coalescing, worker file IO, Main-only SPI capture and error recovery; actual-worker Linux/ARM and full pinned Main build pass.
@@ -1635,7 +1662,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Native49 full original-firmware Viewers, real mouse/Cmd/focus, exact short/alphabet/digit echo, warm marker readback and normal guest Boot/germ812.
 - [x] Qualify50 original boot/idle/full base loader; reject as baseline for negligible benefit and3323 extraALMs, preserve disk/evidence and return to49.
 - [x] Fresh49b original firmware/login/idle/base-loader repeat; independent idle mean reproduces49 within0.000203%.
-- [ ] Finish49b Viewers/input and automate fixed post-idle Guest/profile input timing before final repeated benchmark gates.
+- [x] Fresh49b full Viewers/mouse/Cmd/focus and exact short/alphabet/digit echo with new prompts.
+- [ ] Automate fixed post-idle Guest/profile input timing before final repeated benchmark gates.
 - [ ] Finish independent physical payload/reset-stall/fallback hardware qualification for the implemented direct-DDR transport; original DskEth/CRC/wire and selectable SPI path remain.
 - [ ] Optional external Xerox-network UDP tunnel compatible with IFS/ContrAlto; test Cedar STP separately from Alto interoperability.
 - [ ] Translate remaining control/memory/latch families, reduce storage pauses and close actual STA before selecting/deploying faster clocks. Eight-slot prototype is not the final clock architecture.

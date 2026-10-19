@@ -1,0 +1,1 @@
+FAIL edge=2: board raw pipeline differs
