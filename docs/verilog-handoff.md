@@ -45,7 +45,8 @@ duration373.0718..373.3220s; no timed control yet, so no loader gain claim.
 All Load ok lines/profile question visible; profile No entered. Remote source
 hashes for all34 files match AFTER timing; not physical payload hashes.
 Local helpers cedar48-launch; evidence native48-field.
-BootEssentials/styles advancing; CRC/RX/abort0, TX dropped14 observed.
+BootEssentials complete, TiogaFonts advancing; latest good1686, CRC/RX/abort0,
+TX dropped14. Current capture cedar48-launch/installer-latest.png.
 Full Viewers/input and repeated/stress tests remain open.
 
 **Retired47b clean baseline (original-firmware idle login PASS).**
@@ -96,7 +97,8 @@ RBF6e7866f3. Source/frozen evidence:2026-10-19-native49-interleave.
 on16 groups, original pipeline/old-data/write cadence preserved. Only group
 source, generated DEFER_READS and manifest change. Same CPU/cache/map/ECC,
 physical DDR, layout/arbitration and clocks/constraints. Remote Native50_20261019;
-Mac51539, map524702 verified live. Reports:2026-10-19-native50-deferred.
+Mac51539 LIVE, map524702 COMPLETED, fitter526525 verified live (3min).
+Reports:2026-10-19-native50-deferred.
 Do not deploy without all-device timing and predecessor/hardware review.
 
 **Retired47: direct-DDR original-firmware interactive Cedar Viewers PASS.**
