@@ -1,0 +1,2718 @@
+{
+  "status": "PASS",
+  "scope": "Fresh complete MemC scan inventory, retaining ALU latches and RAM windows.\n\nAll original FF and asynchronous RAM bits are physical state. Administrative\nresponse and scan state is private transport; no sequential exclusions.\n",
+  "physical_bits": 23718,
+  "private_transport_bits": 535,
+  "sequential_exclusions": [],
+  "immutable_prom_bits": 0,
+  "decisions": [
+    {
+      "path": "MemC_full_snapshot_experiment.clk1B",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.clk1_p_B",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.clk1_p_Da",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.clk1_p_Db",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.clk1_p_Dc",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.regular_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.regular_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.state_aux_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.state_response_ff",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.state_response_memory",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.state_response_memory_index",
+      "bits": 6,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u___05Fh_1c42.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u___05Fh_1c43.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u___05Fh_1f42.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u___05Fh_1i42.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u___05Fh_5b42.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u___05Fh_5b43.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u___05Fh_5e42.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u___05Fh_5h42.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a08.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a08.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a08.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a08.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a08.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a10.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a10.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a10.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a10.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a10.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a12.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a12.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a12.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a12.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a12.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a14.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a14.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a14.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a14.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a18.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a18.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a18.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a18.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a18.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a20.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a20.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a20.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a20.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_a20.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b03.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b03.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b05.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b05.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b05.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b08.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b08.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b08.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b08.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b08.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b10.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b10.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b10.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b10.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b10.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b12.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b12.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b12.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b12.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b12.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b14.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b14.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b14.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b14.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b18.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b18.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b18.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b18.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b18.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b20.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b20.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b20.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b20.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_b20.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c08.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c08.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c08.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c08.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c08.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c10.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c10.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c10.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c10.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c10.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c12.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c12.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c12.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c12.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c12.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c14.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c14.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c14.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c14.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c17.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c17.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c17.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c17.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c17.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c17.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c18.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c18.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c18.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c18.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c18.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c20.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c20.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c20.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c20.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c20.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c22.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c22.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c22.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c22.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_c22.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d02.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d02.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d06.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d06.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d06.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d06.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d06.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d06.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d07.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d07.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d07.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d07.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d07.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d07.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d07.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d07.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d07.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d08.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d08.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d08.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d08.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d08.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d10.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d10.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d10.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d10.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d10.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d12.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d12.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d12.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d12.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d12.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d14.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d14.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d14.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d14.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d17.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d17.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d17.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d17.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d17.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d17.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d18.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d18.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d18.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d18.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d18.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d20.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d20.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d20.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d20.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_d20.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e03.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e03.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e06.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e06.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e06.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e06.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e06.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e06.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e07.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e07.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e07.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e07.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e07.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e07.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e07.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e07.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e07.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e14.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e14.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e14.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e14.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e14.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e14.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e22.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e22.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e22.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e22.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e22.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e22.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e23.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e23.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e23.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e23.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e23.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_e23.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f05.q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f06.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f06.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f06.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f06.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f06.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f06.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f07.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f07.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f07.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f07.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f07.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f07.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f07.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f07.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f07.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f08.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_f08.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_ff_scan.busy",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_ff_scan.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_ff_scan.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_ff_scan.fault",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_ff_scan.first_bit",
+      "bits": 9,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_ff_scan.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_ff_scan.payload",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_ff_scan.position",
+      "bits": 9,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_ff_scan.result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_ff_scan.writing",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g02.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g02.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g02.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g02.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g02.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g02.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g02.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g02.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g02.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g03.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g03.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g03.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g03.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g03.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g03.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g03.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g03.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g03.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g09.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g09.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g14.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g14.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g14.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g14.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g14.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g14.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g17.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g17.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g17.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g17.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g17.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g17.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g22.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_g24.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h02.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h02.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h02.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h02.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h02.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h02.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h02.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h02.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h02.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h03.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h03.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h03.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h03.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h03.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h03.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h03.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h03.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h03.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h05.q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h06.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h06.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h06.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h06.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h06.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h06.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h07.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h07.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h07.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h07.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h07.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h07.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h07.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h07.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h07.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_h24.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i02.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i02.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i02.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i02.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i02.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i02.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i02.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i02.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i02.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i03.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i03.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i03.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i03.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i03.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i03.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i03.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i03.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i03.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i05.q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i06.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i06.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i06.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i06.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i06.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i06.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i07.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i07.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i07.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i07.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i07.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i07.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i07.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i07.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i07.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i10.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i10.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i10.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i10.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i10.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i14.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i14.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i14.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i14.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i14.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i14.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i14.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i14.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i14.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i15.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i15.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i20.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i20.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i21.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i21.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_i23.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j02.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j02.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j03.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j03.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j05.q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j06.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j06.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j06.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j06.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j06.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j06.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j07.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j07.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j07.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j07.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j07.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j07.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j07.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j07.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j07.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j15.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j15.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j21.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_j21.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k01.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k01.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k01.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k02.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k02.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k02.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k02.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k02.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k02.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k03.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k03.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k03.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k03.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k03.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k03.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k03.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k03.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k03.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k04.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k04.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k06.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k06.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k06.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k06.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k06.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k06.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k07.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k07.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k07.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k07.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k07.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k07.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k07.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k07.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k07.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k08.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k08.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k09.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k09.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k13.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k13.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k13.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k21.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k21.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k24.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k24.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_k24.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l02.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l02.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l02.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l02.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l02.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l02.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l03.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l04.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l04.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l04.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l04.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l04.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l04.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l04.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l04.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l04.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l07.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l07.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l07.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l09.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l09.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l09.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l13.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l13.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l24.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l24.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "MemC_full_snapshot_experiment.u_l24.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    }
+  ],
+  "xml_sha256": "4f1ebb2406f4dfc195e9a867781a311c6b45198b7336fa4f7e9c8a27ca8ec81d",
+  "failure_controls": [
+    {
+      "case": "missing_ff_history",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "wrong_ram_depth",
+      "rejected": true,
+      "diagnostic": "state geometry differs: MemC_full_snapshot_experiment.u_a08.mem"
+    },
+    {
+      "case": "extra_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential state: MemC_full_snapshot_experiment.clk1B_unexported"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential state: MemC_full_snapshot_experiment.clk1B"
+    },
+    {
+      "case": "missing_phase",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "wrong_offset",
+      "rejected": true,
+      "diagnostic": "unreviewed MemC scan schema/source"
+    },
+    {
+      "case": "missing_layout_bit",
+      "rejected": true,
+      "diagnostic": "unreviewed MemC scan schema/source"
+    },
+    {
+      "case": "legacy_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed MemC scan schema/source"
+    },
+    {
+      "case": "wrong_counter",
+      "rejected": true,
+      "diagnostic": "state geometry differs: MemC_full_snapshot_experiment.u_ff_scan.position"
+    },
+    {
+      "case": "lost_alu_latch",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "lost_small_window",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "wrong_ram_width",
+      "rejected": true,
+      "diagnostic": "state geometry differs: MemC_full_snapshot_experiment.u_a08.mem"
+    },
+    {
+      "case": "aliased_ram",
+      "rejected": true,
+      "diagnostic": "unreviewed MemC scan schema/source"
+    },
+    {
+      "case": "wrong_source",
+      "rejected": true,
+      "diagnostic": "unreviewed MemC scan schema/source"
+    }
+  ]
+}

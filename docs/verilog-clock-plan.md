@@ -42,54 +42,56 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-**Complete MemX serial state access is qualified, saving 212 ALMs in an isolated matched fit. The last combined core remains 3,318 ALMs over capacity.**
+**Complete MemC serial state access is qualified, saving 199 ALMs in an isolated matched fit. All three memory-board serial adapters are now qualified; the last combined core remains 3,318 ALMs over capacity.**
 
-`generate_memx_ff_scan.py` chains all 74 unchanged FF helpers / 819 physical
-bits, without a shadow bank. Compact FF words 0..45 end in nine valid bits.
-All 21 independent 64K map planes retain their own 23-bit row/column, edge,
-pending-write, read-pipeline and output histories (483 bits total). Ten small
-files/write windows, fourteen phase/delay bits and eight immutable PROMs keep
-their qualified maps and semantics. Density, clocks and guest memory behavior
-are unchanged. `compact-ff-v1` provides explicit offsets and
-legacy_parallel_word review metadata, without parallel-address aliases.
+`generate_memc_ff_scan.py` chains all 63 original FF helpers / 507 physical
+bits, including all eight sampled ALU latches, without a shadow bank. Compact
+words 0..28 end in three valid bits. Twenty-three small files/write windows,
+twenty-one asynchronous RAMs and five phase bits keep their original access
+maps and behavior. The frozen RAM sources are checked against the exact
+qualified clone sources. No arithmetic, guest memory, clock or timer change.
+`compact-ff-v1` provides explicit offsets and legacy_parallel_word review
+metadata, without parallel-address aliases.
 
-The unchanged original board, independent per-socket map oracle and physical
-RAM probes pass 28,943,989 host edges, 28,742,687 holds and 26,418,989 requests.
-All 1,378,312 physical modeled bits/all 16,777,216 address values, unused padding,
-destructive restore with a pending map write, quiet recapture, first resumed
-edge and 20,000 more cycles pass. All 21 map and ten small-file writers are
-exercised. Ten damaged variants reject, including lost history, busy ownership,
-reset access and lost local/file/map hold. All 31 helper frozen flags are
-observed in quarantine, with auxiliary state and physical map data held.
-Fresh XML accounts for 1,378,312 physical + 724 private transport bits, no
-sequential exclusions and 2,048 immutable PROM bits; nineteen damaged
-inventories/layouts reject. At the acknowledged frozen boundary saved_dout_r
-is each socket's canonical original read pipeline; the borrowed RAM read
-register and response state remain private, with first-edge equivalence tested.
+The unchanged original full board and direct physical state probes pass
+1,571,025 host edges, 1,076,173 holds, 13,334 late-enable changes and 177,269
+requests. All 23,718 modeled physical bits / 5,797 state words / 65,536 address
+values, unused padding, destructive restore, quiet recapture and the first
+resumed edge plus 20,000 more cycles pass; all 87 output bits are compared
+outside held async-address scans. All 44 normal RAM writers are exercised.
+Ten damaged variants reject, including a lost ALU latch, write window,
+busy ownership, reset access and lost local/file/async-RAM hold. All 44 frozen
+flags and complete raw state are checked in quarantine. V1/V2 record test
+build path/constant fixes; V3 caught the damaged ALU latch at the broader
+physical-state comparison before the expected readback diagnostic. V4 accepts
+both correct diagnostics and completes. V3/V4 emitted RTL/schema and derived
+C++ are byte-identical; a source-only RAM guard was also strengthened. These
+histories are retained. Fresh XML accounts for 23,718 physical + 535 private
+transport bits with no sequential exclusions; fourteen damaged inventories/
+layouts reject, including escaped negative-coordinate socket names.
 
-Matched enabled fits retain identical async MLAB files, map helpers and the
-original staged-input/positive-edge 50 MHz/20 ns shell and SDC. Area falls from
-2,355 to 2,143 ALMs; registers rise from 2,750 to 2,835. All 819 FF bits,
-483 socket histories, ten write windows and fourteen phase/delay bits are
-checked. Each map plane retains eight distinct M10Ks: 168 total / 1,376,256
-bits, with original OLD_DATA and port latency. Twenty MLAB replicas retain
-1,168 bits; actual disconnected normal output pins justify pruning, while
-admin replicas retain all four bits. Two common frozen/pending flags retain
-their total, with exact synthesis ownership checked. All four device conditions
-pass, minimum +0.125 ns; no new cuts, unconstrained paths or warning categories.
-Eleven damaged source/retention/constraint/hold/collision/placement controls
-reject. All 661 raw files pass hash readback; extracted fit/XML/source
+Matched enabled fits keep identical async MLAB helpers and the original
+staged-input/positive-edge 50 MHz/20 ns shell and SDC: 4,002 -> 3,803 ALMs;
+1,909 -> 1,995 registers. All 507 FF bits, including each ALU latch, 23 write
+windows and five phase bits are retained. Twenty-one 256x4 RAMs plus 46 small
+file replicas retain 24,432 physical MLAB bits / 67 rows, with original port
+latency and read behavior, no M10Ks. Normal-output pruning is justified by
+actual disconnected pins; all four admin bits remain. Private shared frozen
+flag/input-register ownership is explicitly checked. All four device conditions
+pass, minimum +0.155 ns; no new cuts, unconstrained paths or warning categories.
+Eleven damaged source/retention/constraint/hold/geometry/placement controls
+reject. All 1,079 raw files pass hash readback; extracted fit/XML/source
 regeneration and damaged controls pass. Evidence:
-`fpga/mister/reports/2026-10-19-snapshot-memx-ff-scan/`.
-Quartus session 17581 and simulation 52011 are terminal.
+`fpga/mister/reports/2026-10-19-snapshot-memc-ff-scan/`.
+Quartus session 37726 and simulations 35893/37807/5528 are terminal.
 
-Next: MemC, remaining control/BaseBoard access and a combined full-core
-capacity/timing audit. Earlier isolated savings remain qualified; none are
-subtracted from the last measured whole-core result of 45,228 / 41,910 ALMs.
-No production builder, RBF, live FPGA or speed change is claimed. Before
-integration, version schemas/formatters, extend the 16-edge transport budget,
-and provide global hold/fault/SYSTEM-reset ownership across boards, foreign
-consumers, backends, input and ARM services. Local quarantine is insufficient.
+Next: ContB and BaseBoard serial access, then a combined full-core capacity/
+timing audit. Earlier isolated savings remain qualified; none are subtracted
+from the last measured whole-core result of 45,228 / 41,910 ALMs. No production
+builder, RBF, live FPGA or speed change is claimed. Before integration, version
+schemas/formatters, extend the 16-edge transport budget and provide global
+hold/fault/SYSTEM-reset ownership across boards, foreign consumers, backends,
+input and ARM services. Local quarantine is insufficient.
 
 Classify/expose the 154,037 native-wrapper candidate bits (review-only),
 top-level input/network/video and 16 MiB external raw RAM. Complete coherent

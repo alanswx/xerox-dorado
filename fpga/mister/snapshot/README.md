@@ -983,3 +983,48 @@ No production builder or FPGA/speed change. The last combined core remains
 control/BaseBoard and combined fit/timing, with versioned formatters, longer
 bounded transport/global hold, ARM/disk-paired complete snapshots, original
 60 ns clocks and final hardware release gates still open.
+
+
+## Complete MemC serial FF access (2026-10-19)
+
+`generate_memc_ff_scan.py` chains all 63 unchanged FF helpers / 507 physical
+bits, including eight sampled ALU latches. Compact words 0..28 end in three
+valid bits. Twenty-three small files/write windows, twenty-one async RAMs and
+five phase bits keep their original maps and behavior. Frozen RAM bytes must
+match the exact qualified clone sources. No shadow bank, arithmetic, memory,
+clock or timer change. The compact-ff-v1 schema gives explicit bit offsets;
+legacy_parallel_word is review metadata. Loss of the external frozen boundary
+holds every local helper until SYSTEM reset; foreign consumers still need a
+global barrier.
+
+`test_memc_ff_scan.py --mutations` preserves the original full-board stimulus,
+reference and raw physical state probes. It passes 1,571,025 host edges,
+all 23,718 bits / 5,797 state words / 65,536 address values, unused padding,
+destructive restore/quiet recapture/first resumed edge/20K more; all 87 outputs
+are compared outside held async-address scans. All 44 normal RAM writers are
+active. Ten damaged variants reject; all 44 helper frozen flags and complete
+raw state are observed in quarantine. V1/V2 retain test build path/constant
+fixes. V3 caught the lost ALU latch at an earlier broad state comparison; V4
+completes with either correct diagnostic accepted. V3/V4 derived C++ and
+emitted RTL/schema are identical; a source-only frozen RAM guard is stronger.
+Fresh XML accounts for 23,718 physical + 535 private bits, no exclusions;
+fourteen damaged inventories/layouts reject. Negative-coordinate socket names
+are explicitly escaped, including in the damaged-field controls.
+
+Matched enabled fits retain identical async helpers, staged-input/positive-edge
+50 MHz/20 ns shell and SDC: 4,002 -> 3,803 ALMs saves 199; 1,909 -> 1,995 registers.
+All four device conditions pass, minimum +0.155 ns. Exact FF/ALU/window/phase
+retention, twenty-one 256x4 RAMs and 46 small-file replicas / 67 MLAB rows /
+24,432 physical MLAB bits are checked, including original port latency. Normal
+output pruning is grounded in actual disconnected pins; all four admin bits
+remain. Private shared frozen/input-register ownership is accounted for.
+Eleven damaged source/retention/hold/geometry/placement controls reject; no new
+cuts, unconstrained paths or warning categories. All 1,079 raw files pass hash
+readback and extracted fit/XML/source regeneration/control suites.
+Report: `reports/2026-10-19-snapshot-memc-ff-scan`.
+
+All three memory-board serial adapters are qualified in isolation. No core
+builder, RBF or live FPGA/speed change; the measured whole-core result remains
+3,318 ALMs over capacity. Continue ContB/BaseBoard and combined fit/timing;
+versioned formatters, longer bounded transport/global hold, ARM/disk-paired
+full snapshots, original 60 ns clocks and final hardware gates remain open.
