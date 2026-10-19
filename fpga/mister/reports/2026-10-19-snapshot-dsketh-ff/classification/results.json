@@ -1,0 +1,705 @@
+{
+  "status": "PASS",
+  "modes": [
+    {
+      "status": "PASS",
+      "modeled_state_bits": 2,
+      "xml_sha256": "16035137cd0b8fb17d1ad594865cfa93aef65ee3a7eed49fdf3cea35fb43071c",
+      "decisions": [
+        {
+          "path": "cell_MC1650.p14",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_MC1650.p2",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_MC1650.qa",
+          "decision": "SAVE",
+          "bits": 1,
+          "access": {
+            "word": 0,
+            "lsb": 0,
+            "width": 1
+          }
+        },
+        {
+          "path": "cell_MC1650.qb",
+          "decision": "SAVE",
+          "bits": 1,
+          "access": {
+            "word": 0,
+            "lsb": 1,
+            "width": 1
+          }
+        }
+      ],
+      "scope": "Local state word only; no board/global handshake or machine snapshot",
+      "kind": "cell_MC1650",
+      "precap": null,
+      "failure_controls": [
+        {
+          "case": "lost_qa",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_qb",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "wrong_width",
+          "rejected": true,
+          "diagnostic": "DskEth FF field differs:p14"
+        },
+        {
+          "case": "new_state",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "duplicate",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "derived_state",
+          "rejected": true,
+          "diagnostic": "DskEth FF field differs:p14"
+        },
+        {
+          "case": "new_combin",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "schema_alias",
+          "rejected": true,
+          "diagnostic": "unreviewed DskEth FF schema/source"
+        },
+        {
+          "case": "source_hash",
+          "rejected": true,
+          "diagnostic": "unreviewed DskEth FF schema/source"
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "modeled_state_bits": 12,
+      "xml_sha256": "8ad1d82fb45eeb32ebe764c1d1aea2f1ce7cc3259db74dbbf3974665dba956df",
+      "decisions": [
+        {
+          "path": "cell_MC10136.__VdfgRegularize_hf026c66c_0_0",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_MC10136.__VdfgRegularize_hf026c66c_0_1",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_MC10136.cin_pre",
+          "decision": "SAVE",
+          "bits": 1,
+          "access": {
+            "word": 0,
+            "lsb": 10,
+            "width": 1
+          }
+        },
+        {
+          "path": "cell_MC10136.ck_d",
+          "decision": "SAVE",
+          "bits": 1,
+          "access": {
+            "word": 0,
+            "lsb": 11,
+            "width": 1
+          }
+        },
+        {
+          "path": "cell_MC10136.ck_en",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_MC10136.d_pre",
+          "decision": "SAVE",
+          "bits": 4,
+          "access": {
+            "word": 0,
+            "lsb": 4,
+            "width": 4
+          }
+        },
+        {
+          "path": "cell_MC10136.p14",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_MC10136.p15",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_MC10136.p2",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_MC10136.p3",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_MC10136.p4",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_MC10136.q",
+          "decision": "SAVE",
+          "bits": 4,
+          "access": {
+            "word": 0,
+            "lsb": 0,
+            "width": 4
+          }
+        },
+        {
+          "path": "cell_MC10136.sd_pre",
+          "decision": "SAVE",
+          "bits": 1,
+          "access": {
+            "word": 0,
+            "lsb": 9,
+            "width": 1
+          }
+        },
+        {
+          "path": "cell_MC10136.su_pre",
+          "decision": "SAVE",
+          "bits": 1,
+          "access": {
+            "word": 0,
+            "lsb": 8,
+            "width": 1
+          }
+        }
+      ],
+      "scope": "Local state word only; no board/global handshake or machine snapshot",
+      "kind": "cell_MC10136",
+      "precap": null,
+      "failure_controls": [
+        {
+          "case": "lost_q",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_d_pre",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_su_pre",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_sd_pre",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_cin_pre",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_ck_d",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "wrong_width",
+          "rejected": true,
+          "diagnostic": "DskEth FF field differs:__VdfgRegularize_hf026c66c_0_0"
+        },
+        {
+          "case": "new_state",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "duplicate",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "derived_state",
+          "rejected": true,
+          "diagnostic": "DskEth FF field differs:__VdfgRegularize_hf026c66c_0_0"
+        },
+        {
+          "case": "new_combin",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "schema_alias",
+          "rejected": true,
+          "diagnostic": "unreviewed DskEth FF schema/source"
+        },
+        {
+          "case": "source_hash",
+          "rejected": true,
+          "diagnostic": "unreviewed DskEth FF schema/source"
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "modeled_state_bits": 8,
+      "xml_sha256": "541b5a183a83f0fdd5d59a726d7ca516b1b2b3fed85e34acc9fe6f5f4447fa49",
+      "decisions": [
+        {
+          "path": "cell_SN74LS169._unused_pins",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS169.ck_d",
+          "decision": "SAVE",
+          "bits": 1,
+          "access": {
+            "word": 0,
+            "lsb": 7,
+            "width": 1
+          }
+        },
+        {
+          "path": "cell_SN74LS169.ck_en",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS169.d",
+          "decision": "RECOMPUTE",
+          "bits": 4,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS169.p10_d",
+          "decision": "SAVE",
+          "bits": 1,
+          "access": {
+            "word": 0,
+            "lsb": 6,
+            "width": 1
+          }
+        },
+        {
+          "path": "cell_SN74LS169.p15",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS169.p7_d",
+          "decision": "SAVE",
+          "bits": 1,
+          "access": {
+            "word": 0,
+            "lsb": 4,
+            "width": 1
+          }
+        },
+        {
+          "path": "cell_SN74LS169.p9_d",
+          "decision": "SAVE",
+          "bits": 1,
+          "access": {
+            "word": 0,
+            "lsb": 5,
+            "width": 1
+          }
+        },
+        {
+          "path": "cell_SN74LS169.q",
+          "decision": "SAVE",
+          "bits": 4,
+          "access": {
+            "word": 0,
+            "lsb": 0,
+            "width": 4
+          }
+        }
+      ],
+      "scope": "Local state word only; no board/global handshake or machine snapshot",
+      "kind": "cell_SN74LS169",
+      "precap": null,
+      "failure_controls": [
+        {
+          "case": "lost_q",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_p7_d",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_p9_d",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_p10_d",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_ck_d",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "wrong_width",
+          "rejected": true,
+          "diagnostic": "DskEth FF field differs:_unused_pins"
+        },
+        {
+          "case": "new_state",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "duplicate",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "derived_state",
+          "rejected": true,
+          "diagnostic": "DskEth FF field differs:ck_en"
+        },
+        {
+          "case": "new_combin",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "schema_alias",
+          "rejected": true,
+          "diagnostic": "unreviewed DskEth FF schema/source"
+        },
+        {
+          "case": "source_hash",
+          "rejected": true,
+          "diagnostic": "unreviewed DskEth FF schema/source"
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "modeled_state_bits": 13,
+      "xml_sha256": "460365a875184b04e936d1bb9f9f76e78e6707404f4471441bb36e5da02eab79",
+      "decisions": [
+        {
+          "path": "cell_SN74LS174._unused_pins",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.ck_d",
+          "decision": "SAVE",
+          "bits": 1,
+          "access": {
+            "word": 0,
+            "lsb": 12,
+            "width": 1
+          }
+        },
+        {
+          "path": "cell_SN74LS174.ck_en",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.d_pre",
+          "decision": "SAVE",
+          "bits": 6,
+          "access": {
+            "word": 0,
+            "lsb": 6,
+            "width": 6
+          }
+        },
+        {
+          "path": "cell_SN74LS174.p10",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.p12",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.p15",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.p2",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.p5",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.p7",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.q",
+          "decision": "SAVE",
+          "bits": 6,
+          "access": {
+            "word": 0,
+            "lsb": 0,
+            "width": 6
+          }
+        }
+      ],
+      "scope": "Local state word only; no board/global handshake or machine snapshot",
+      "kind": "cell_SN74LS174",
+      "precap": 0,
+      "failure_controls": [
+        {
+          "case": "lost_q",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_d_pre",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_ck_d",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "wrong_width",
+          "rejected": true,
+          "diagnostic": "DskEth FF field differs:_unused_pins"
+        },
+        {
+          "case": "new_state",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "duplicate",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "derived_state",
+          "rejected": true,
+          "diagnostic": "DskEth FF field differs:ck_en"
+        },
+        {
+          "case": "new_combin",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "schema_alias",
+          "rejected": true,
+          "diagnostic": "unreviewed DskEth FF schema/source"
+        },
+        {
+          "case": "source_hash",
+          "rejected": true,
+          "diagnostic": "unreviewed DskEth FF schema/source"
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "modeled_state_bits": 13,
+      "xml_sha256": "4e61190a57d16bf28bec09095ccc90de74f77c7b9537b6cdcca76196cdb3d819",
+      "decisions": [
+        {
+          "path": "cell_SN74LS174._unused_pins",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.ck_d",
+          "decision": "SAVE",
+          "bits": 1,
+          "access": {
+            "word": 0,
+            "lsb": 12,
+            "width": 1
+          }
+        },
+        {
+          "path": "cell_SN74LS174.ck_en",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.d_pre",
+          "decision": "SAVE",
+          "bits": 6,
+          "access": {
+            "word": 0,
+            "lsb": 6,
+            "width": 6
+          }
+        },
+        {
+          "path": "cell_SN74LS174.p10",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.p12",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.p15",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.p2",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.p5",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.p7",
+          "decision": "RECOMPUTE",
+          "bits": 1,
+          "access": "Pinned combinational expression or zero AND constant"
+        },
+        {
+          "path": "cell_SN74LS174.q",
+          "decision": "SAVE",
+          "bits": 6,
+          "access": {
+            "word": 0,
+            "lsb": 0,
+            "width": 6
+          }
+        }
+      ],
+      "scope": "Local state word only; no board/global handshake or machine snapshot",
+      "kind": "cell_SN74LS174",
+      "precap": 1,
+      "failure_controls": [
+        {
+          "case": "lost_q",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_d_pre",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "lost_ck_d",
+          "rejected": true,
+          "diagnostic": "missing DskEth FF field"
+        },
+        {
+          "case": "wrong_width",
+          "rejected": true,
+          "diagnostic": "DskEth FF field differs:_unused_pins"
+        },
+        {
+          "case": "new_state",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "duplicate",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "derived_state",
+          "rejected": true,
+          "diagnostic": "DskEth FF field differs:ck_en"
+        },
+        {
+          "case": "new_combin",
+          "rejected": true,
+          "diagnostic": "extra/duplicate DskEth FF field"
+        },
+        {
+          "case": "schema_alias",
+          "rejected": true,
+          "diagnostic": "unreviewed DskEth FF schema/source"
+        },
+        {
+          "case": "source_hash",
+          "rejected": true,
+          "diagnostic": "unreviewed DskEth FF schema/source"
+        }
+      ]
+    }
+  ]
+}

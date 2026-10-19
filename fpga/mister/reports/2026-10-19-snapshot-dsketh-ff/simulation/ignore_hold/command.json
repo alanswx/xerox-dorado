@@ -1,0 +1,23 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "dsketh_ff_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-dsketh-ff-20261019/ignore_hold/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-dsketh-ff-20261019/ignore_hold/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-dsketh-ff-20261019/ignore_hold/cell_MC1650_snapshot.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-dsketh-ff-20261019/ignore_hold/cell_MC10136_snapshot.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-dsketh-ff-20261019/ignore_hold/cell_SN74LS169_snapshot.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-dsketh-ff-20261019/ignore_hold/cell_SN74LS174_snapshot.sv",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_MC1650.v",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS169.v",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS174.v",
+  "/Users/alans/dev2/Dorado/fpga/mister/snapshot/test_dsketh_ff.cpp"
+]

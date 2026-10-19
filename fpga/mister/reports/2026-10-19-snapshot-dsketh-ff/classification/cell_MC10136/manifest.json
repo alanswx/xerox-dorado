@@ -1,0 +1,40 @@
+{
+  "module": "cell_MC10136_snapshot",
+  "original_sha256": "b4314b6a838492c95fd72423e92a883e8ea92c660c55fdc1f266b034b68e8017",
+  "generated_sha256": "ff9d6691af62ffeead8320fbfe8da3c3a2b349166b6c1939086bf8b42ead62c6",
+  "fields": [
+    {
+      "name": "q",
+      "width": 4,
+      "lsb": 0
+    },
+    {
+      "name": "d_pre",
+      "width": 4,
+      "lsb": 4
+    },
+    {
+      "name": "su_pre",
+      "width": 1,
+      "lsb": 8
+    },
+    {
+      "name": "sd_pre",
+      "width": 1,
+      "lsb": 9
+    },
+    {
+      "name": "cin_pre",
+      "width": 1,
+      "lsb": 10
+    },
+    {
+      "name": "ck_d",
+      "width": 1,
+      "lsb": 11
+    }
+  ],
+  "logical_state_bits": 12,
+  "transport_bits": 18,
+  "scope": "Pinned local state words for DskEth comparator/counter/TTL FF families.\n\nCaller freezes the whole board before accessing these local words. This does\nnot implement the board handshake, global barrier or calibrated timers.\n"
+}

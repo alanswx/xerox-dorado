@@ -1,0 +1,190 @@
+{
+  "status": "PASS",
+  "manifests": {
+    "cell_MC1650": {
+      "module": "cell_MC1650_snapshot",
+      "original_sha256": "8650f11b09555a812e510469d01576cb8af8c23c31e412e64d7f2059f7cde799",
+      "generated_sha256": "d6caa1c14efcd1f34d2a0935904235beed606d679e7534e20070e219ed4fe567",
+      "fields": [
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 1
+        }
+      ],
+      "logical_state_bits": 2,
+      "transport_bits": 18,
+      "scope": "Pinned local state words for DskEth comparator/counter/TTL FF families.\n\nCaller freezes the whole board before accessing these local words. This does\nnot implement the board handshake, global barrier or calibrated timers.\n"
+    },
+    "cell_MC10136": {
+      "module": "cell_MC10136_snapshot",
+      "original_sha256": "b4314b6a838492c95fd72423e92a883e8ea92c660c55fdc1f266b034b68e8017",
+      "generated_sha256": "ff9d6691af62ffeead8320fbfe8da3c3a2b349166b6c1939086bf8b42ead62c6",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "su_pre",
+          "width": 1,
+          "lsb": 8
+        },
+        {
+          "name": "sd_pre",
+          "width": 1,
+          "lsb": 9
+        },
+        {
+          "name": "cin_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 11
+        }
+      ],
+      "logical_state_bits": 12,
+      "transport_bits": 18,
+      "scope": "Pinned local state words for DskEth comparator/counter/TTL FF families.\n\nCaller freezes the whole board before accessing these local words. This does\nnot implement the board handshake, global barrier or calibrated timers.\n"
+    },
+    "cell_SN74LS169": {
+      "module": "cell_SN74LS169_snapshot",
+      "original_sha256": "abc49703a29ef790c4bf503c329204e20868c000d88ae3d8ee3ae1d1b7cf801b",
+      "generated_sha256": "20ca2ee252d5f61f3f73243450255998736678922fe68a1e0b0243c87896b16d",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "p7_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "p9_d",
+          "width": 1,
+          "lsb": 5
+        },
+        {
+          "name": "p10_d",
+          "width": 1,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 7
+        }
+      ],
+      "logical_state_bits": 8,
+      "transport_bits": 18,
+      "scope": "Pinned local state words for DskEth comparator/counter/TTL FF families.\n\nCaller freezes the whole board before accessing these local words. This does\nnot implement the board handshake, global barrier or calibrated timers.\n"
+    },
+    "cell_SN74LS174": {
+      "module": "cell_SN74LS174_snapshot",
+      "original_sha256": "05a45e9f4788af98180a92f3ef5987f54a5e1c495fc9c006f5e61b5761d14b59",
+      "generated_sha256": "96b1a6d13268c158c966d980a75d9aa810b4c1b645314ec7e44588f290e043f3",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "logical_state_bits": 13,
+      "transport_bits": 18,
+      "scope": "Pinned local state words for DskEth comparator/counter/TTL FF families.\n\nCaller freezes the whole board before accessing these local words. This does\nnot implement the board handshake, global barrier or calibrated timers.\n"
+    }
+  },
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "ungated",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "ignore_hold",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "lost_history",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "wrong_polarity",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "edge_value",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "wrong_direction",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "wrong_precap",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    },
+    {
+      "case": "bad_equal",
+      "returncode": 1,
+      "expected_failure": "state oracle differs"
+    }
+  ],
+  "source_controls": [
+    {
+      "case": "cell_MC1650_extra_state",
+      "rejected": true
+    },
+    {
+      "case": "cell_MC10136_extra_state",
+      "rejected": true
+    },
+    {
+      "case": "cell_SN74LS169_extra_state",
+      "rejected": true
+    },
+    {
+      "case": "cell_SN74LS174_extra_state",
+      "rejected": true
+    }
+  ]
+}

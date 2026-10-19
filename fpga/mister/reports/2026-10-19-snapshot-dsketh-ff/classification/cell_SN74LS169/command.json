@@ -1,0 +1,10 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_SN74LS169",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-dsketh-ff-classify-20261019/cell_SN74LS169/cell.xml",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS169.v"
+]

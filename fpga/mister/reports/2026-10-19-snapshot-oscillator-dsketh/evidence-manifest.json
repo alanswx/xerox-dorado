@@ -1,0 +1,225 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 917,
+      "sha256": "488d2e01567518d7ca41419bfb12c903a77a64b80da498c34ef83ce8c2b01950"
+    },
+    "simulation/candidate/build.log.gz": {
+      "bytes": 847,
+      "sha256": "16e1b41918bbbd6c656f73568bbdbd14205126cc2d1a7993a9280ddc7e176d74"
+    },
+    "simulation/candidate/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2207,
+      "sha256": "5ba38ddef104aeaa9bb1053457978a2bf220d3282e2d6ff91a83155be2718bd3"
+    },
+    "simulation/candidate/command.json": {
+      "bytes": 593,
+      "sha256": "949039304e2c43e5ddbc5c5892432d35e826fa221e111641d2efa8a2a0d9d499"
+    },
+    "simulation/candidate/fixture.sv.gz": {
+      "bytes": 543,
+      "sha256": "c705b741d09e3ce6fbf777d13ef9fb4b5a42ac65581da8fe38b064489d311a57"
+    },
+    "simulation/candidate/test.txt.gz": {
+      "bytes": 136,
+      "sha256": "2407d2fdc39e87810680526dea2eb3922a67e591080228c90cc5918c686ea5ee"
+    },
+    "simulation/generate_oscillator.py.gz": {
+      "bytes": 1373,
+      "sha256": "dd6685b249926b221b271c44c22f8e42b082e9fb513f535e8f4666e94f6adcc8"
+    },
+    "simulation/ignore_freeze/build.log.gz": {
+      "bytes": 845,
+      "sha256": "c93d2ea8aac9ea59752e1b600a4035b11dc130e19c8d419b08cd08d73da586aa"
+    },
+    "simulation/ignore_freeze/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2205,
+      "sha256": "b184bc00334b20f92df63d89390ab0e5511221adda946504d3e322ec8cbf26bc"
+    },
+    "simulation/ignore_freeze/command.json": {
+      "bytes": 605,
+      "sha256": "035661f826fb3b8dcd8b62563219d3c5f5dd8d82525a145c7c5fc0aa3028d5f1"
+    },
+    "simulation/ignore_freeze/fixture.sv.gz": {
+      "bytes": 543,
+      "sha256": "c705b741d09e3ce6fbf777d13ef9fb4b5a42ac65581da8fe38b064489d311a57"
+    },
+    "simulation/ignore_freeze/test.txt.gz": {
+      "bytes": 59,
+      "sha256": "4c8714622c41137118637c9d9ff0dc319b82cffdcf2326f997d26201ae765467"
+    },
+    "simulation/invalid_alias/build.log.gz": {
+      "bytes": 846,
+      "sha256": "6790538df3e484e9809b7cc3894476fcad93963aca1de6d50d8b21c11ddff210"
+    },
+    "simulation/invalid_alias/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2204,
+      "sha256": "308928d9b1474414fc01471533037cee365dd9b1d1d98d4b97effcae63d73f9c"
+    },
+    "simulation/invalid_alias/command.json": {
+      "bytes": 605,
+      "sha256": "9320e23ae2cff06b63d369d613bf48ce64f14ea042635919b8f62b4dce9b7553"
+    },
+    "simulation/invalid_alias/fixture.sv.gz": {
+      "bytes": 543,
+      "sha256": "c705b741d09e3ce6fbf777d13ef9fb4b5a42ac65581da8fe38b064489d311a57"
+    },
+    "simulation/invalid_alias/test.txt.gz": {
+      "bytes": 64,
+      "sha256": "11b3fb3026346fc8446bd4e05ddf33039d0bc1300552582bad7778b6311eaffa"
+    },
+    "simulation/lost_high/build.log.gz": {
+      "bytes": 846,
+      "sha256": "1bdad0ed6775affe0ef8d0ce49d8fcb552931573c2f8bf983db5d5a4d81166a6"
+    },
+    "simulation/lost_high/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2204,
+      "sha256": "8666470a687547b415bae56b7f04eadd6cb402088bf307da83974837193f0372"
+    },
+    "simulation/lost_high/command.json": {
+      "bytes": 593,
+      "sha256": "bd1f186ed07df0e6ce06d1b91a7f998fad145c66aaf13e220aa3899d6da91be6"
+    },
+    "simulation/lost_high/fixture.sv.gz": {
+      "bytes": 543,
+      "sha256": "c705b741d09e3ce6fbf777d13ef9fb4b5a42ac65581da8fe38b064489d311a57"
+    },
+    "simulation/lost_high/test.txt.gz": {
+      "bytes": 59,
+      "sha256": "6e2e2ce7bfffad420c1ff9650ecd940782300769a5e5c41eb86509d07da65100"
+    },
+    "simulation/lost_output/build.log.gz": {
+      "bytes": 846,
+      "sha256": "f542c38618d5e16fff0f63bfdae66f9f7ba8d0874eb54e89f394cafa90097c60"
+    },
+    "simulation/lost_output/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2205,
+      "sha256": "014589e0db77d5376d1d09dbb6eef4424651556e52a9ba0ca662148307526a6c"
+    },
+    "simulation/lost_output/command.json": {
+      "bytes": 599,
+      "sha256": "72c61feb71f368ce90bd8137fbb7ebe1c0b803e57dc2f43c7154b9d0b795f3ee"
+    },
+    "simulation/lost_output/fixture.sv.gz": {
+      "bytes": 543,
+      "sha256": "c705b741d09e3ce6fbf777d13ef9fb4b5a42ac65581da8fe38b064489d311a57"
+    },
+    "simulation/lost_output/test.txt.gz": {
+      "bytes": 54,
+      "sha256": "84ccd84f2daff4eb7a786dc6d0d7b4cb00c5c0dd22adbc902569cc2d607efc0a"
+    },
+    "simulation/results.json": {
+      "bytes": 3357,
+      "sha256": "36e042896cf4c9d95080bf9050ea6aeff1a51d56dc3dc5ffc33e8448561b9445"
+    },
+    "simulation/running_access/build.log.gz": {
+      "bytes": 847,
+      "sha256": "528daa556f81161012bdcc3fd26d8a9ce199beef816447483a09239ed06f00be"
+    },
+    "simulation/running_access/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2202,
+      "sha256": "08a3d5b715d7447be05f24cb199c9046f0ce1e184ab45cf34d82f06367a0c01f"
+    },
+    "simulation/running_access/command.json": {
+      "bytes": 608,
+      "sha256": "6fc13311201aec3812dc20fe1735cafe15c2424ff153c96cd7ec8b08e32bfb9c"
+    },
+    "simulation/running_access/fixture.sv.gz": {
+      "bytes": 543,
+      "sha256": "c705b741d09e3ce6fbf777d13ef9fb4b5a42ac65581da8fe38b064489d311a57"
+    },
+    "simulation/running_access/test.txt.gz": {
+      "bytes": 59,
+      "sha256": "7a4bde540b36e3ccecab62d73ab1a3d12c32ddf169bb89c87b484b56bff3b304"
+    },
+    "simulation/test_oscillator.cpp.gz": {
+      "bytes": 1789,
+      "sha256": "564de50f8303fbbb4ca386c350867030d34121a623cdc76f28991c613e75ea62"
+    },
+    "simulation/test_oscillator.py.gz": {
+      "bytes": 1974,
+      "sha256": "40fdcb054ea4702f623cdc1315930c83cb8f1d6d8cc95e62574fda6980c62018"
+    },
+    "simulation/ungated/build.log.gz": {
+      "bytes": 847,
+      "sha256": "70780dfffb86b48fa1b32b43ef308686ce8f1ff5dc0786c054ac8cd9c91d25b7"
+    },
+    "simulation/ungated/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2204,
+      "sha256": "b4dee318c73dfbf40196d061b6566b1b929cb768e288ab319c80c0d0c9559e20"
+    },
+    "simulation/ungated/command.json": {
+      "bytes": 587,
+      "sha256": "3eb923a26940bae618dbc53f15a7218809c14c8b1bd653913f5f709d09846826"
+    },
+    "simulation/ungated/fixture.sv.gz": {
+      "bytes": 543,
+      "sha256": "c705b741d09e3ce6fbf777d13ef9fb4b5a42ac65581da8fe38b064489d311a57"
+    },
+    "simulation/ungated/test.txt.gz": {
+      "bytes": 54,
+      "sha256": "c56c69a2d05ddd0731f7f40359b548bd1f385e851d057230078452b0fc83d91c"
+    },
+    "simulation/unsigned_math/build.log.gz": {
+      "bytes": 847,
+      "sha256": "284352b6f4d67eb772c11cc9c5fdde4007ccefe0514f384f9c40c2bb98a99f8f"
+    },
+    "simulation/unsigned_math/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2216,
+      "sha256": "718f2e9e81c0422ba2a70aea2419a20718a53451c8d62d7043d21c848af90dd3"
+    },
+    "simulation/unsigned_math/command.json": {
+      "bytes": 605,
+      "sha256": "e6ca09d4b9c1dbd19aaf08e7bb582697e9d74ee8764176b1abb38d7a97307300"
+    },
+    "simulation/unsigned_math/fixture.sv.gz": {
+      "bytes": 543,
+      "sha256": "c705b741d09e3ce6fbf777d13ef9fb4b5a42ac65581da8fe38b064489d311a57"
+    },
+    "simulation/unsigned_math/test.txt.gz": {
+      "bytes": 58,
+      "sha256": "83390ab7a73c117adafcf6f5420acce4c37375e417df4a8991b9490bc7a2ce1f"
+    },
+    "simulation/wrong_threshold/build.log.gz": {
+      "bytes": 844,
+      "sha256": "14c39ce253d2ef9dd1978c9946d1033ec645c507282eba0cc3b2583c4f2c40a4"
+    },
+    "simulation/wrong_threshold/cell_K1115A_snapshot.sv.gz": {
+      "bytes": 2206,
+      "sha256": "d4790fa0a29d60eb4f69a31742de6881ba93f74e4d166e7d705e43a967b3dab6"
+    },
+    "simulation/wrong_threshold/command.json": {
+      "bytes": 611,
+      "sha256": "c3a35c9325cc5e47273060e3f2bd278e60c45848a5e726089924b9ab5581d1a7"
+    },
+    "simulation/wrong_threshold/fixture.sv.gz": {
+      "bytes": 543,
+      "sha256": "c705b741d09e3ce6fbf777d13ef9fb4b5a42ac65581da8fe38b064489d311a57"
+    },
+    "simulation/wrong_threshold/test.txt.gz": {
+      "bytes": 58,
+      "sha256": "45a7aadb9119bf5ab6b0c30ebd70aa59ee63f950114fd23055fc7f409bc654c5"
+    },
+    "sources/fpga/mister/snapshot/generate_oscillator.py.gz": {
+      "bytes": 1373,
+      "sha256": "dd6685b249926b221b271c44c22f8e42b082e9fb513f535e8f4666e94f6adcc8"
+    },
+    "sources/fpga/mister/snapshot/test_oscillator.cpp.gz": {
+      "bytes": 1789,
+      "sha256": "564de50f8303fbbb4ca386c350867030d34121a623cdc76f28991c613e75ea62"
+    },
+    "sources/fpga/mister/snapshot/test_oscillator.py.gz": {
+      "bytes": 1974,
+      "sha256": "40fdcb054ea4702f623cdc1315930c83cb8f1d6d8cc95e62574fda6980c62018"
+    },
+    "sources/verilog/cells/cell_K1115A.v.gz": {
+      "bytes": 1917,
+      "sha256": "2de68f79660dbb925ccde099e5c514b1f77b3377a3d76939e68f392d9d81b4fb"
+    },
+    "test.log.gz": {
+      "bytes": 280,
+      "sha256": "b6422d4ad4982dcbb1b287063a7f919261d6bb343770546e104eebebabf0e191"
+    }
+  },
+  "scope": "Extended simulation coverage only; production RTL/helper unchanged."
+}

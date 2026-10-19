@@ -1,0 +1,65 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "698d3dfab983b394d91e0bbe45e7e22a5c4b2a7e1f458489b1f32b5e0c6585b9",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "combinational_review": 2,
+    "sequential": 2
+  },
+  "candidate_bits": {
+    "combinational_review": 2,
+    "sequential": 2
+  },
+  "candidates": [
+    {
+      "path": "cell_MC1650.p14",
+      "module": "cell_MC1650",
+      "name": "p14",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "verilog/cells/cell_MC1650.v",
+      "line": 27,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC1650.p2",
+      "module": "cell_MC1650",
+      "name": "p2",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "verilog/cells/cell_MC1650.v",
+      "line": 17,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC1650.qa",
+      "module": "cell_MC1650",
+      "name": "qa",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "verilog/cells/cell_MC1650.v",
+      "line": 61,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC1650.qb",
+      "module": "cell_MC1650",
+      "name": "qb",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "verilog/cells/cell_MC1650.v",
+      "line": 61,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

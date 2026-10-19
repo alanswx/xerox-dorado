@@ -421,3 +421,13 @@ ten damaged schemas per mode and five bad-fit controls reject. Original CRC
 behavior/source unchanged. Sources: generate_crc9401/test_crc9401/classify_crc9401/
 fit_crc9401. Evidence snapshot-crc9401. Whole DskEth/global/ARM snapshots and
 original60ns cadence remain unfinished.
+
+Four more DskEth local state-word families now pass original/independent-oracle
+restore simulation, fresh XML and matched50MHz isolated timing(+0.164ns):
+MC1650(2bits),MC10136(12),SN169(8),SN174(13,PRECAP0/1).54bad schemas,8broken RTL
+and5damaged fit controls reject; no production cell/shared helper changes.
+Sources generate/test/classify/fit_dsketh_ff; report snapshot-dsketh-ff.
+Oscillator simulation now additionally covers actualDskEth23530/SYSPER8, with
+original/generator unchanged (report snapshot-oscillator-dsketh); the added pair
+requires full-board fit and later timer calibration. SN74123 timers, full
+DskEth board/monitor/phase restore and global/ARM state remain open.

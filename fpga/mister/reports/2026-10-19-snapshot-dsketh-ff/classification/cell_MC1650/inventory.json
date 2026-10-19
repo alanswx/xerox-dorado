@@ -1,0 +1,65 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "16035137cd0b8fb17d1ad594865cfa93aef65ee3a7eed49fdf3cea35fb43071c",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "combinational_review": 2,
+    "sequential": 2
+  },
+  "candidate_bits": {
+    "combinational_review": 2,
+    "sequential": 2
+  },
+  "candidates": [
+    {
+      "path": "cell_MC1650.p14",
+      "module": "cell_MC1650",
+      "name": "p14",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC1650.v",
+      "line": 27,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC1650.p2",
+      "module": "cell_MC1650",
+      "name": "p2",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC1650.v",
+      "line": 17,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC1650.qa",
+      "module": "cell_MC1650",
+      "name": "qa",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC1650.v",
+      "line": 61,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC1650.qb",
+      "module": "cell_MC1650",
+      "name": "qb",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC1650.v",
+      "line": 61,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

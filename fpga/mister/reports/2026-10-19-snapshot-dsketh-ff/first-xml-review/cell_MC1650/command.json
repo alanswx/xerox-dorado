@@ -1,0 +1,10 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_MC1650",
+  "-Wno-fatal",
+  "--xml-output",
+  "build/rtl-executive/snapshot-dsketh-ff-xml-review-20261019/cell_MC1650/cell.xml",
+  "verilog/cells/cell_MC1650.v"
+]

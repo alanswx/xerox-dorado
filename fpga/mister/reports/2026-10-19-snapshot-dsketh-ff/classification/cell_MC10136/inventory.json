@@ -1,0 +1,185 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "8ad1d82fb45eeb32ebe764c1d1aea2f1ce7cc3259db74dbbf3974665dba956df",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "combinational_review": 8,
+    "sequential": 6
+  },
+  "candidate_bits": {
+    "combinational_review": 8,
+    "sequential": 12
+  },
+  "candidates": [
+    {
+      "path": "cell_MC10136.__VdfgRegularize_hf026c66c_0_0",
+      "module": "cell_MC10136",
+      "name": "__VdfgRegularize_hf026c66c_0_0",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 60,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC10136.__VdfgRegularize_hf026c66c_0_1",
+      "module": "cell_MC10136",
+      "name": "__VdfgRegularize_hf026c66c_0_1",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 60,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC10136.cin_pre",
+      "module": "cell_MC10136",
+      "name": "cin_pre",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 53,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC10136.ck_d",
+      "module": "cell_MC10136",
+      "name": "ck_d",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 64,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC10136.ck_en",
+      "module": "cell_MC10136",
+      "name": "ck_en",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 66,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC10136.d_pre",
+      "module": "cell_MC10136",
+      "name": "d_pre",
+      "category": "sequential",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 52,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC10136.p14",
+      "module": "cell_MC10136",
+      "name": "p14",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 43,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC10136.p15",
+      "module": "cell_MC10136",
+      "name": "p15",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 44,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC10136.p2",
+      "module": "cell_MC10136",
+      "name": "p2",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 32,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC10136.p3",
+      "module": "cell_MC10136",
+      "name": "p3",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 33,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC10136.p4",
+      "module": "cell_MC10136",
+      "name": "p4",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 34,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC10136.q",
+      "module": "cell_MC10136",
+      "name": "q",
+      "category": "sequential",
+      "width": 4,
+      "unpacked_dimensions": [],
+      "bits": 4,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 68,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC10136.sd_pre",
+      "module": "cell_MC10136",
+      "name": "sd_pre",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 53,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_MC10136.su_pre",
+      "module": "cell_MC10136",
+      "name": "su_pre",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_MC10136.v",
+      "line": 53,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

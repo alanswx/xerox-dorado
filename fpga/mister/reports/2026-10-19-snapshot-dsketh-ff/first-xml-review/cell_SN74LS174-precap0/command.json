@@ -1,0 +1,11 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_SN74LS174",
+  "-Wno-fatal",
+  "--xml-output",
+  "build/rtl-executive/snapshot-dsketh-ff-xml-review-20261019/cell_SN74LS174-precap0/cell.xml",
+  "-GPRECAP=0",
+  "verilog/cells/cell_SN74LS174.v"
+]

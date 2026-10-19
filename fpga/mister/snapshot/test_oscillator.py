@@ -6,14 +6,14 @@ import generate_oscillator as gen
 HERE=Path(__file__).resolve().parent
 FIXTURE='''module oscillator_fixture(
 input wire host_clk,ref_clk,advance,freeze,held,request,write,individual,
-input wire [17:0] restore_data[9],
+input wire [17:0] restore_data[10],
 input wire [1:0] index,input wire [17:0] data,
-output wire [17:0] result[9],output wire [32:0] physical[9],original_state[9],
-output wire [8:0] frozen,done,error,outputs,original_outputs);
+output wire [17:0] result[10],output wire [32:0] physical[10],original_state[10],
+output wire [9:0] frozen,done,error,outputs,original_outputs);
 genvar i;
-generate for(i=0;i<9;i=i+1)begin:cells
-localparam integer SP=i/3==0?2:i/3==1?4:16;
-localparam integer FREQ=i%3==0?10000:i%3==1?20000:50000;
+generate for(i=0;i<10;i=i+1)begin:cells
+localparam integer SP=i==9?8:i/3==0?2:i/3==1?4:16;
+localparam integer FREQ=i==9?23530:i%3==0?10000:i%3==1?20000:50000;
 cell_K1115A_snapshot #(.FREQ_KHZ(FREQ),.SYSPER(SP)) candidate(
 .state_host_clk(host_clk),.state_advance(advance),.state_freeze(freeze),.state_guest_held(held),
 .state_request(request),.state_write(write),.state_index(index),.state_data(individual?restore_data[i]:data),
@@ -60,7 +60,7 @@ def run(out,mutations):
         except ValueError:controls.append(dict(case=name,rejected=True))
         else:raise AssertionError('changed original accepted')
     paths=[HERE/n for n in ('test_oscillator.py','test_oscillator.cpp','generate_oscillator.py')]+[gen.ROOT/'verilog/cells/cell_K1115A.v']
-    (out/'results.json').write_text(json.dumps(dict(status='PASS',manifest=m,cases=results,source_controls=controls,source_hashes={str(p.relative_to(gen.ROOT)):hashlib.sha256(p.read_bytes()).hexdigest()for p in paths}),indent=2)+'\n')
+    (out/'results.json').write_text(json.dumps(dict(status='PASS',parameter_modes=[dict(sysper=sp,freq_khz=f)for sp in (2,4,16)for f in (10000,20000,50000)]+[dict(sysper=8,freq_khz=23530)],manifest=m,cases=results,source_controls=controls,source_hashes={str(p.relative_to(gen.ROOT)):hashlib.sha256(p.read_bytes()).hexdigest()for p in paths}),indent=2)+'\n')
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);p.add_argument('--mutations',action='store_true');a=p.parse_args();run(a.output.resolve(),a.mutations)

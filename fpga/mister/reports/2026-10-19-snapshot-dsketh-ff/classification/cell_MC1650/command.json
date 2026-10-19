@@ -1,0 +1,10 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "cell_MC1650",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-dsketh-ff-classify-20261019/cell_MC1650/cell.xml",
+  "/Users/alans/dev2/Dorado/verilog/cells/cell_MC1650.v"
+]

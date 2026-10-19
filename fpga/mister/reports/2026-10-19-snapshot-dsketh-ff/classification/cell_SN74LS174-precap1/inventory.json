@@ -1,0 +1,151 @@
+{
+  "schema": "dorado-state-review-v1",
+  "xml_sha256": "4e61190a57d16bf28bec09095ccc90de74f77c7b9537b6cdcca76196cdb3d819",
+  "status": "REVIEW ONLY; no state access or complete snapshot claim",
+  "scope": "Exactly the elaborated XML hierarchy; external state is not included",
+  "instances": 1,
+  "candidate_counts": {
+    "initial_only_candidate": 1,
+    "sequential": 3,
+    "combinational_review": 7
+  },
+  "candidate_bits": {
+    "initial_only_candidate": 1,
+    "sequential": 13,
+    "combinational_review": 7
+  },
+  "candidates": [
+    {
+      "path": "cell_SN74LS174._unused_pins",
+      "module": "cell_SN74LS174",
+      "name": "_unused_pins",
+      "category": "initial_only_candidate",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS174.v",
+      "line": 58,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_SN74LS174.ck_d",
+      "module": "cell_SN74LS174",
+      "name": "ck_d",
+      "category": "sequential",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS174.v",
+      "line": 40,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_SN74LS174.ck_en",
+      "module": "cell_SN74LS174",
+      "name": "ck_en",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS174.v",
+      "line": 42,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_SN74LS174.d_pre",
+      "module": "cell_SN74LS174",
+      "name": "d_pre",
+      "category": "sequential",
+      "width": 6,
+      "unpacked_dimensions": [],
+      "bits": 6,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS174.v",
+      "line": 47,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_SN74LS174.p10",
+      "module": "cell_SN74LS174",
+      "name": "p10",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS174.v",
+      "line": 31,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_SN74LS174.p12",
+      "module": "cell_SN74LS174",
+      "name": "p12",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS174.v",
+      "line": 33,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_SN74LS174.p15",
+      "module": "cell_SN74LS174",
+      "name": "p15",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS174.v",
+      "line": 36,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_SN74LS174.p2",
+      "module": "cell_SN74LS174",
+      "name": "p2",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS174.v",
+      "line": 23,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_SN74LS174.p5",
+      "module": "cell_SN74LS174",
+      "name": "p5",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS174.v",
+      "line": 26,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_SN74LS174.p7",
+      "module": "cell_SN74LS174",
+      "name": "p7",
+      "category": "combinational_review",
+      "width": 1,
+      "unpacked_dimensions": [],
+      "bits": 1,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS174.v",
+      "line": 28,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    },
+    {
+      "path": "cell_SN74LS174.q",
+      "module": "cell_SN74LS174",
+      "name": "q",
+      "category": "sequential",
+      "width": 6,
+      "unpacked_dimensions": [],
+      "bits": 6,
+      "source": "/Users/alans/dev2/Dorado/verilog/cells/cell_SN74LS174.v",
+      "line": 50,
+      "review": "UNCLASSIFIED: save, drain, immutable or reconstructible decision required"
+    }
+  ]
+}

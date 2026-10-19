@@ -42,6 +42,31 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Latest Native58 login/Guest and idle measurement PASS; new DskEth primitives qualified.**
+Same live Main27199/server27195/RBFeebc0e1f. Actuallogin captured; observer11019/
+remote27455 LIVE, bounded20minutes, started before fixed33sample measurement.
+Measured59371 TERMINAL, three10s1,947,630.71/1,947,825.94/1,947,845.38issues/s,
+mean1,947,767.345, unchanged57; no gain. ActualGuest completed; base loader still
+active at26/34transfers,257safterBasic; CRC/RX/abort0, nonzero drop counter8.
+Do not restart observer or send more login input. Need final actualACK, stop same
+observer then profileNo/BootEssentials/Viewers/mouse/exactinput/warm marker.
+
+Four new source-pinned local DskEth state-word families now PASS:MC1650(2bits),
+MC10136(12),SN169(8),SN174(13,PRECAP0/1). Original/independentstate+outputoracles,
+111,271hostedges/2,157held/5,230cellwrites/all4096pins/allbits/padding/destructive
+individualrestore/quiet/firstedge/20Kmore;8brokenRTL/4changedsource guards reject.
+FreshXML5modes/allsequential/constant/derivedcandidates;54bad schemas reject.
+Matched50MHz isolatedfits35256 TERMINAL/read-onlyauditPASS/fourconditions/
+min+0.164ns;93->113ALM/76->168regs/noRAM/noillegal/unconstrainedI/O;5badfit
+controls reject. No production/shared-helper changes. Evidence snapshot-dsketh-ff.
+Oscillator test extends9->10modes including actualDskEth23530/SYSPER8, all33bits/
+signedboundaries/restoration/20Kmore/8brokenRTL pass; original/generatorunchanged.
+Evidence snapshot-oscillator-dsketh is SIMULATION ONLY for addedpair; fullboard
+fit/timercalibration remain pending. NeedSN74123 full70bit signed timers+history,
+fullDskEth receive-monitor/phase classification/restore/timing and nativeintegration.
+ThenBaseBoard/backends/wrapper/input/ARMserver/diskgeneration/globalbundle/FPGA
+restore, original60ns/timers/finalgates. Last pushed c7ab6d41.
+
 **LIVE Native58 normal load and original firmware progress PASS; CRC9401 snapshot primitive qualified.**
 Normal load77345 TERMINAL2026-10-19 15:14:18UTC, Main27199/server27195,
 temporary27171 normally retired. RBFeebc0e1f, fresh untouchedf3bce2a8seed before
