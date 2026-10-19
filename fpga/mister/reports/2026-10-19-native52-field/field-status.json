@@ -1,5 +1,5 @@
 {
-  "status": "PASS: original firmware/BFN113/Pilot/Cedar login; timed base loader RUNNING, desktop/input pending",
+  "status": "PASS: original firmware/login and34 base transfers/final guest ACK; full52desktop/input pending",
   "main_pid": 16101,
   "server_pid": 16100,
   "rbf_sha256": "be80e03f26e5b9e5e7984a0d9b5df15b84d264a1f526e95149e085d25a08768c",
@@ -7,5 +7,19 @@
   "observer_pid": 16342,
   "observer_handle": 12499,
   "measurement_handle": 39438,
-  "limits": "One fresh52 login; same50MHz/SYSPER4. All snapshot admin inactive, no machine save/load, speed increase or original60ns cadence claim. Protocol replay cause unresolved; not final3boots or2h stress."
+  "limits": "One fresh52 login; same50MHz/SYSPER4. All snapshot admin inactive, no machine save/load, speed increase or original60ns cadence claim. Protocol replay cause unresolved; not final3boots or2h stress.",
+  "observer_terminal": "Graceful stop after actual final ACK, independently absent",
+  "loader_elapsed_s": [
+    321.874792571,
+    322.04159736
+  ],
+  "loader_issue_bounds": [
+    530134786,
+    533504938
+  ],
+  "replays": {
+    "events": 56,
+    "phase": "Cedar6.1/AMTypes/AMTypesPackage.bcd"
+  },
+  "profile": "Timed Yes/default missing name accepted; explicit No retry accepted; actual BootEssentials advancing. Full52Viewers/input pending."
 }

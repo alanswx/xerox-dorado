@@ -23,8 +23,16 @@ remote16342/Mac12499 ready before the same33-sample measurement->Guest recipe.
 Measurement39438/real Guest TERMINAL. Three adjacent10s idle windows mean
 1,947,787.783issues/s; matches49c, not a speed increase. Pipeline-drained
 retirement is not measured. Preceding manual login gate varies; not the final
-fully pinned repeated benchmark. Timed base loader RUNNING; no completion,
-52desktop/input, final3boots or sustained qualification claimed yet.
+fully pinned repeated benchmark. All34base transfers/33BCD/1,345,843bytes and
+exact final guest ACK now PASS321.874793..322.041597s.56replay events occur in
+AMTypes, unlike49c's56in EditTool. Whole-loader issue bounds530.135..533.505M,
+interior1.65125..1.65146M/s; host progress brackets50MHz. Close to49c323.149..
+323.399s and532.378..535.804M issues, but retry phases/prior login gates vary;
+no speed promotion or causal clearance. All34served source hashes match AFTER
+timing; physical received payload hashes remain unproven. Observer12499/
+16342 TERMINAL after actual final ACK/stop file and independently absent.
+Timed Yes/default missing name accepted; explicit No retry accepted. Actual
+BootEssentials advancing; full52Viewers/input/warm marker remain pending.
 
 Live Main /tmp/dorado52-main.log, disk /tmp/dorado52-disk.jsonl, volume/server
 Cedar52_20261019. Helpers build/rtl-executive/cedar52-launch. Startup collection

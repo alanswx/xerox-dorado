@@ -98,8 +98,9 @@ Live52 loaded08:34:08UTC, exactbe80e03f/full-core timing31/68/four conditions;
 all state admin inactive. Main16101/server16100, fresh actual DDR epoch
 70afd9602c702cec, originalf3seed untouched before caching. Original firmware/
 BFN113/Pilot/Cedar login pass; fixed33-sample measurement->Guest mean
-1,947,787.783issues/s matches49c. Timed loader/observer16342 still RUNNING;
-52desktop/input pending. No speed gain/full snapshot/60ns claim. Evidence
+1,947,787.783issues/s matches49c. Timed loader/final ACK now PASS321.875..322.042s,
+56AMTypes replays/530.135..533.505M issues; observer16342 terminal/absent. All34
+source hashes match after timing. Full52desktop/input pending; No retry accepted; actual BootEssentials advancing. No speed gain/full snapshot/60ns claim. Evidence
 native52-field; retired49c preserved63578624B SHA7edf6ada62cb7f1c2658b0008773c6b561c0d54de96b7dce8c20ba7139a91e87.
 
 Use three explicitly recorded workloads: idle Cedar login, a fixed cold

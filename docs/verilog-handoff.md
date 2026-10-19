@@ -11,10 +11,14 @@ Actual Main SPI74 flags0x16/fault/errors0, fresh epoch70afd9602c702cec. Daemon
 maps exactly64KiB1FF00000; Main no ring mapping/probe DSO. Setup10931,
 CoolBoot87712 and C watcher40965 TERMINAL after actual BFN113/release.
 Original Pilot and visible Cedar login PASS. Read-only observer12499/remote16342
-RUNNING; measurement39438/real Guest TERMINAL. Three adjacent10s windows mean
+now TERMINAL after actual final ACK/stop, independently absent; measurement39438/
+real Guest TERMINAL. Three adjacent10s windows mean
 1,947,787.783issues/s, matching49c; no speed increase or drained retirement
-claim. Timed base loader RUNNING,52desktop/input pending. Do not restart
-observer merely because a wait yields. Same33-sample measurement->Guest
+claim. Timed base loader34transfers/33BCD/1,345,843bytes/final ACK PASS321.874793..
+322.041597s.56replays in AMTypes (49c56in EditTool);530.135..533.505M issues,
+interior1.65125..1.65146M/s. All34source hashes match after timing, not physical
+payload hashes. Timed Yes/default missing name accepted; No retry accepted; actual BootEssentials advancing. Full
+52desktop/input pending. No observer restart; it completed normally. Same33-sample measurement->Guest
 recipe; earlier manual login gate varies, not final fully pinned repeats.
 Live Main /tmp/dorado52-main.log, disk /tmp/dorado52-disk.jsonl, volume/server
 Cedar52_20261019; helpers cedar52-launch, evidence native52-field.
@@ -1961,7 +1965,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Complete modeled processor boards5712H/5581L restore/classification and matched positive-edge50MHz isolated timing min+0.136/+0.038ns. Preserve failed10ns shell; all natural RAM writers exercised.
 - [ ] Integrate processor adapters into complete core; verify all cross-board timing and original firmware/Cedar/input. Preserve consumer/global barrier requirements.
 - [x] Normally deploy exact qualified52 RBF, fresh original seed/epoch, original firmware/Pilot/Cedar login and fixed-cadence idle1,947,787.783issues/s.
-- [ ] Finish52actual34-transfer/final ACK analysis, Viewers/input/warm marker; investigate retries before performance promotion.
+- [x] Finish52actual34-transfer/final ACK/counter/source-hash analysis:321.875..322.042s,56AMTypes replays,530.135..533.505M issues; retire observer normally.
+- [ ] Finish52Viewers/input/warm marker; investigate retries and fully pinned repeats before performance promotion.
 - [ ] Connect active bounded access/global barriers and extend/classify other boards/wrapper/devices/input/raw memory/Main/server; qualify complete physical restore and combined timing.
 - [ ] Implement complete snapshot milestone4a: all RTL/RAM/device phases, matching disk generation and local server state; safe barrier/schema checks and Cedar restore qualification.
 - [x] Preserve/decode41b post-desktop host-write timeout and unchanged physical pack; exact blocking syscall remains unobserved.
