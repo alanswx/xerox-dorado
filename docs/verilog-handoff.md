@@ -17,12 +17,13 @@ components/evidence and reuse clock work only after checking Native59 contracts.
 
 The last measured rate remains **1,947,654.12 instruction issues/s**. No new
 hardware load, FPGA rollback or hardware speedup is claimed. A same-clock
-MC1668 native regression build is live (details below). The
+MC1668 native regression build now passes full timing/memory review; actual
+firmware/Cedar regression is next (details below). The
 coupled R/T/task/parity slice now passes an explicit-arrival contract for 592
 original bits and isolated 15ns FPGA timing. MC1668's old edge-triggered cell
 model was corrected to its manufacturer's HIGH-transparent latch truth table.
 Initial's ROM component and the actual native copy now pass; the full native
-fit/BaseBoard/Cedar regression is pending. Functional RM/STK ports, remaining
+BaseBoard/Cedar regression is pending (full fit now passes). Functional RM/STK ports, remaining
 flag/Ready/MIR/Hold producers and native clock integration follow.
 Full board timing, faster Cedar boot and rollback remain unqualified.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
@@ -37,6 +38,49 @@ existing UIO bits. Component-only; native and actual Main coordination are
 absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
+
+### MC1668 full native build PASS; hardware regression pending (2026-10-20)
+
+The existing build is TERMINAL; all ten recorded processes are absent. Do not
+restart it. RBF SHA256 `15730f449bae786a3cee9ffa93d4bbc7de2e90083483f1a59cfd607c02af49a8`,
+3,978,736 bytes, local `build/rtl-executive/mc1668-native-terminal-20261020/Dorado.rbf`.
+Project `/home/alans/mister/Dorado_Mc1668_20261020` on misterubuntu.
+
+Independent review passes: exact 498 source/config readback against 413 original
+compiled inputs, precisely two qualified MC1668 deltas, all RAM geometry and
+OLD_DATA, all 31 summary checks / 196 detailed timing categories / four conditions,
+forty nonempty board/corner crossing sets, unchanged I/O coverage and zero
+illegal/unconstrained clocks. Minimum detailed slack +0.115ns. Resources 30,468
+ALMs / 52,881 registers / 332 M10Ks / 35 DSPs; cache keeps 40 physical blocks.
+All 210 DskEth child state counts remain exact. Six damaged/rehashed evidence
+controls reject. Native-cell and Initial ROM component gates remain PASS.
+
+Register accounting corrected: per-position synthesis totals are 38 before /
+22 after (sixteen obsolete history registers removed), not 36/20. Two duplicate
+input pairs share storage. The accepted reader also handles the fitter report's
+Latin-1 degree symbols. No HDL/test/RBF changed for these reviewer corrections.
+Clock remains 50MHz/SYSPER4; this is a correct-part baseline candidate, not a
+speedup or integration of the coupled R/T clock evaluator.
+
+Receipt: `fpga/mister/reports/2026-10-20-mc1668-native-build/`; all raw bytes are
+losslessly compressed/read back. Full simulator reruns after extraction are
+not claimed. Terminal collection is 779 members; the committed receipt additionally
+freezes qualification, reader controls and review dependencies.
+
+**Next: normally load the qualified candidate on 14, preserving Native59's
+host-closed volume through Main's real disk/network barriers.** Use fresh
+f3bce2a8 original seed and unchanged Main 21e6/server c599, then actual BaseBoard
+CoolBoot/BFN113, Cedar Guest/profile-No, all 34 loadees/desktop/input and disk
+persistence. The reviewed deployment script is `tools/deploy_mc1668_native.py`;
+copy RBF+qualification to a fresh staging folder and invoke only after this
+build qualification is available. No FPGA state import, host instruction/IOCB
+completion, new Main code or snapshot coordinator. Current hardware remains
+Native59 (Main 29511/server 29510) at its Cedar profile question until that load.
+
+After the MC1668 hardware regression, continue functional RM/STK/flags/Ready/
+MIR/Hold and native clock integration toward 60ns ordinary instructions. Last
+measured hardware speed remains 1,947,654.12 issues/s. Rollback, final three fresh
+boots, cold persistence and two-hour combined stress remain open. Goal ACTIVE.
 
 ### Native MC1668 copy and Initial regression (2026-10-20)
 

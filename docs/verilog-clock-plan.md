@@ -71,9 +71,9 @@ not a prerequisite for the performance goal.
    and R parity checking at its data/RAM-parity boundary (540 bits; below). Next
    **Done for an isolated slice:** R operand latches/local bypass/sign Qs (592
    bits; below). **Done:** actual native MC1668 copy and Original Initial
-   component regression. Full same-clock candidate is fitting on misterubuntu
-   (`Dorado_Mc1668_20261020`, builder3979425/fitter3983817; observe, do not restart).
-   Finish all-device build/memory/timing review and real firmware/Cedar/input
+   component regression. Full same-clock candidate passes all-device build/memory/timing review
+   (`Dorado_Mc1668_20261020`, RBF15730f44; job terminal, do not restart).
+   Complete normal Main load and actual original firmware/Cedar/input
    regression for this correction; then close functional RM/STK ports, sign/odd flags
    and Ready/MIR/hold producers, then remaining
    board/latch/RAM families against original references. The existing
@@ -87,6 +87,21 @@ but require a separate future milestone and explicit acceptance scope. Cedar
 rollback restores the software world, not disk contents or a cycle-exact set
 of FPGA/ARM internals. See [the original guide](../DoradoDocs/manuals/Introduction_to_Cedar_7.0.md)
 and [our existing C-emulator checkpoint gate](cedar-checkpoint.md).
+
+### MC1668 native full-build review PASS (2026-10-20)
+
+RBF 15730f44 passes exact-source, complete memory/OLD_DATA and four-condition
+timing review: 31 summaries / 196 detailed categories, minimum +0.115ns, no new
+constraints or clock/I/O coverage change. Six damaged evidence controls reject.
+The job and all ten recorded processes are terminal. Resources 30,468 ALMs /
+52,881 registers / 332 M10Ks / 35 DSPs. Only two MC1668 sources changed; 50MHz/
+SYSPER4, Main/server and bulk-memory/network/disk policies remain unchanged.
+
+Next: normal Main loader/old-volume preservation and fresh original-firmware
+Cedar boot/input/persistence on 14. No new image has been deployed yet. Follow
+current source/image paths and steps at the top of the handoff. Receipt:
+`fpga/mister/reports/2026-10-20-mc1668-native-build/`. Clock integration toward
+60ns and the rollback/final gates remain open; full snapshots stay deferred.
 
 ### Actual native MC1668 copy and ROM regression (2026-10-20)
 

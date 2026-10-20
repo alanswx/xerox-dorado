@@ -1,0 +1,38 @@
+{
+  "status": "PASS_NATIVE_MC1668_READER_CONTROLS",
+  "baseline_rbf": "15730f449bae786a3cee9ffa93d4bbc7de2e90083483f1a59cfd607c02af49a8",
+  "cases": [
+    {
+      "case": "sdc_rehashed",
+      "rejected": true,
+      "reason": "('unintended native source/config delta', 'core/native_timing.sdc')"
+    },
+    {
+      "case": "cell_rehashed",
+      "rejected": true,
+      "reason": "('unqualified MC1668 copy', 'src/verilog/cells/cell_MC1668.v')"
+    },
+    {
+      "case": "missing_detail",
+      "rejected": true,
+      "reason": "[Errno 2] No such file or directory: '/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-reader-controls-20261020/missing_detail/core/native59-proch-in-hold-7_slow_1100mv_100c.rpt'"
+    },
+    {
+      "case": "negative_detail",
+      "rejected": true,
+      "reason": "('native59-proch-in-hold-7_slow_1100mv_100c.rpt', ('12', '0', '-1.000'))"
+    },
+    {
+      "case": "wrong_old_data",
+      "rejected": true,
+      "reason": "('instruction RAM differs', 'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_0|altsyncram:bits[0].mem[0]__10 ', 'READ_DURING_WRITE_MODE_MIXED_PORTS', ['NEW_DATA'])"
+    },
+    {
+      "case": "incomplete_source_coverage",
+      "rejected": true,
+      "reason": "recorded input coverage differs"
+    }
+  ],
+  "quartus_run": false,
+  "hardware_access": false
+}

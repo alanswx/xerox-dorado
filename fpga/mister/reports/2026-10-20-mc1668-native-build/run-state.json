@@ -1,0 +1,71 @@
+{
+  "status": "TERMINAL_REVIEW_REQUIRED",
+  "builder_pid": 3979425,
+  "stages": [
+    {
+      "stage": "map",
+      "pid": 3979428,
+      "started": 1792518933.9421022,
+      "returncode": 0,
+      "finished": 1792519257.0566478
+    },
+    {
+      "stage": "fit",
+      "pid": 3983817,
+      "started": 1792519257.0594187,
+      "returncode": 0,
+      "finished": 1792521087.982361
+    },
+    {
+      "stage": "sta",
+      "pid": 4008338,
+      "started": 1792521087.9830747,
+      "returncode": 0,
+      "finished": 1792521138.4471502
+    },
+    {
+      "stage": "clocks",
+      "pid": 4009075,
+      "started": 1792521138.448875,
+      "returncode": 0,
+      "finished": 1792521151.3459756
+    },
+    {
+      "stage": "corners",
+      "pid": 4009258,
+      "started": 1792521151.3477125,
+      "returncode": 0,
+      "finished": 1792521375.2531972
+    },
+    {
+      "stage": "control-crossings",
+      "pid": 4012373,
+      "started": 1792521375.2550008,
+      "returncode": 0,
+      "finished": 1792521447.2199645
+    },
+    {
+      "stage": "contb-crossings",
+      "pid": 4013407,
+      "started": 1792521447.222076,
+      "returncode": 0,
+      "finished": 1792521512.233534
+    },
+    {
+      "stage": "adapter-crossings",
+      "pid": 4014336,
+      "started": 1792521512.2354271,
+      "returncode": 0,
+      "finished": 1792521620.942625
+    },
+    {
+      "stage": "asm",
+      "pid": 4015828,
+      "started": 1792521621.2398698,
+      "returncode": 0,
+      "finished": 1792521648.2105381
+    }
+  ],
+  "started": 1792518933.9406595,
+  "finished": 1792521648.2113047
+}
