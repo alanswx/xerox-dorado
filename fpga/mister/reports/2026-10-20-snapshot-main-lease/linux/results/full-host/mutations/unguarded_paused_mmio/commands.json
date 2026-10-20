@@ -1,0 +1,19 @@
+{
+  "build": [
+    "cc",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-std=gnu11",
+    "-I/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/mutations/executed-inputs/fpga/mister/server",
+    "-I/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/mutations/executed-inputs/dorado/include",
+    "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/mutations/unguarded_paused_mmio/dorado_ddr_ring.c",
+    "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/mutations/executed-inputs/fpga/mister/server/dorado_ddr_control.c",
+    "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/mutations/executed-inputs/fpga/mister/server/test_ddr_control.c",
+    "-o",
+    "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/mutations/unguarded_paused_mmio/test"
+  ],
+  "test": [
+    "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/mutations/unguarded_paused_mmio/test"
+  ]
+}

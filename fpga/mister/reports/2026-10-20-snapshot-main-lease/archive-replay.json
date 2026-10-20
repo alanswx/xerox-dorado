@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "results": {
+    "mac": {
+      "cases": 13,
+      "max_poll_call_ms": 0.003
+    },
+    "linux": {
+      "cases": 13,
+      "max_poll_call_ms": 0.005
+    },
+    "arm": {
+      "cases": 7,
+      "max_poll_call_ms": 0.03,
+      "binary_sha256": "c0839c472f26367db4a189a44c21d87de0bec122f80bfa5692d33ebaf7e012d3"
+    }
+  },
+  "identical_feature_inputs": 21,
+  "identical_full_regression_inputs": 94,
+  "full_regression_gates_per_host": 7,
+  "limits": "Main/daemon lease and SPI-spy lifecycle tests only. No FPGA service barrier, disk/input/video coordination, native snapshot or restore.",
+  "extracted_source_rebuild": {
+    "status": "PASS",
+    "cases": 13,
+    "identical_inputs": 21,
+    "working_implementation_used": false
+  }
+}

@@ -1,0 +1,16 @@
+[
+  "c++",
+  "-O2",
+  "-Wall",
+  "-Wextra",
+  "-Werror",
+  "-std=c++14",
+  "-I/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/executed-inputs/fpga/mister/main/tests",
+  "-I/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/executed-inputs/fpga/mister/server",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/executed-inputs/fpga/mister/main/dorado_net.cpp",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/executed-inputs/fpga/mister/main/dorado_ddr.cpp",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/executed-inputs/fpga/mister/main/dorado_control_client.cpp",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/executed-inputs/fpga/mister/main/tests/test_main_transport.cpp",
+  "-o",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/main-transport"
+]

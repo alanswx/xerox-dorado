@@ -1,0 +1,32 @@
+{
+  "status": "PASS_PATCHED_SOURCE",
+  "baseline": "Pinned copy already contains main-260912 network patch; apply only remaining disk+DDR patches.",
+  "commands": [
+    [
+      "git",
+      "-C",
+      "/private/tmp/dorado-main-lifecycle-fixture-v4-20261020",
+      "apply",
+      "--include=user_io.cpp",
+      "--include=fpga_io.cpp",
+      "/private/tmp/dorado-main-lifecycle-fixture-v4-20261020/main-disk-260912.patch"
+    ],
+    [
+      "git",
+      "-C",
+      "/private/tmp/dorado-main-lifecycle-fixture-v4-20261020",
+      "apply",
+      "--include=user_io.cpp",
+      "--include=fpga_io.cpp",
+      "/private/tmp/dorado-main-lifecycle-fixture-v4-20261020/main-ddr-260912.patch"
+    ]
+  ],
+  "original_inputs": {
+    "fpga_io.cpp": "3a690b1a5c0c20b0994d44c4853c92c8c4c8698623589928f04a8ca6e333a127",
+    "user_io.cpp": "ea176e1183397a52b3a7704551fc6ddca6df9011432902770944e601c787f8d3"
+  },
+  "patched_inputs": {
+    "fpga_io.cpp": "049408b9ba2960de8d209187e936731df488e84f7dc983d727c77e31c5423fa9",
+    "user_io.cpp": "c0a502947a6e0cffb291a244f2f58413934f3dc587cc1400c98ef5f55fed6f5b"
+  }
+}

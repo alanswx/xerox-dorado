@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "/home/alans/mister/Dorado_MainSnapshotLease_20261020/source-feature/fpga/mister/main/tests/test_ddr_snapshot.py",
+    "--main-source",
+    "/home/alans/mister/Dorado_MainSnapshotLease_20261020/lifecycle",
+    "--output",
+    "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/snapshot",
+    "--mutations"
+  ],
+  "environment": {}
+}

@@ -1,0 +1,10 @@
+[
+  "make",
+  "-C",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/executed-inputs/fpga/mister/server",
+  "OUT=/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/dorado-server",
+  "ddr-control-test",
+  "service-clock-test",
+  "ddr-ring-test",
+  "ddr-map-test"
+]

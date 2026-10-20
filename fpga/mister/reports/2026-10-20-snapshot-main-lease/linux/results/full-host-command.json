@@ -1,0 +1,11 @@
+{
+  "command": [
+    "python3",
+    "/home/alans/mister/Dorado_MainSnapshotLease_20261020/source-full/fpga/mister/server/qualify_snapshot_pause.py",
+    "--root",
+    "/home/alans/mister/Dorado_MainSnapshotLease_20261020/source-full",
+    "--output",
+    "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host"
+  ],
+  "environment": {}
+}

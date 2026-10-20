@@ -1,0 +1,6 @@
+[
+  "python3",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/executed-inputs/fpga/mister/main/tests/test_ddr_transport.py",
+  "--emit",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/manager"
+]

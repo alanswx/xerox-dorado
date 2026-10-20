@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "platform": "Linux-6.8.0-142-generic-x86_64-with-glibc2.39",
+  "steps": [
+    {
+      "step": "snapshot",
+      "returncode": 0,
+      "log_sha256": "9604824d2e0c04a5d929c7319f9710a395ed5fec6e4dbccfd34c3d16e18bcee3"
+    },
+    {
+      "step": "legacy-lifecycle",
+      "returncode": 0,
+      "log_sha256": "f5e5a55a15b7512e88aee691c9897f0633d92b1c84c703dd97f09365e6968040"
+    },
+    {
+      "step": "full-host",
+      "returncode": 0,
+      "log_sha256": "87ae9ec7ce216f05cfab29352d88acd8d149af6cf2b3e333cae7c74680ae1476"
+    },
+    {
+      "step": "arm-build",
+      "returncode": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "arm_binary_sha256": "c0839c472f26367db4a189a44c21d87de0bec122f80bfa5692d33ebaf7e012d3",
+  "limits": "Host/SPI spies and static ARM build; no physical FPGA service acknowledgement, deployed software or full restore."
+}

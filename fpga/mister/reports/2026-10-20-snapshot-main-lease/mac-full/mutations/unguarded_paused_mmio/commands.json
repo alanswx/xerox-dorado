@@ -1,0 +1,19 @@
+{
+  "build": [
+    "cc",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-std=gnu11",
+    "-I/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/executed-inputs/fpga/mister/server",
+    "-I/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/executed-inputs/dorado/include",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/unguarded_paused_mmio/dorado_ddr_ring.c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/executed-inputs/fpga/mister/server/dorado_ddr_control.c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/executed-inputs/fpga/mister/server/test_ddr_control.c",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/unguarded_paused_mmio/test"
+  ],
+  "test": [
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/unguarded_paused_mmio/test"
+  ]
+}

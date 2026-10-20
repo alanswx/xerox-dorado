@@ -1,0 +1,29 @@
+{
+  "status": "BUILD_ONLY",
+  "scope": "Actual Main poll/manager/client snapshot lease against the real C service.\n\nAnonymous guarded DDR and SPI spies only; no /dev/mem, FPGA programming or\nproduction daemon/Main replacement. The caller's FPGA/disk/input/video barrier\nand complete save/restore remain separate work.\n",
+  "cases": [],
+  "inputs": {
+    "pinned-fpga_io.cpp": "049408b9ba2960de8d209187e936731df488e84f7dc983d727c77e31c5423fa9",
+    "legacy-original.cpp": "3f4dd34bddb65cd4c5f9c27510d6f7cd7d3862bc2c25b4ef01d197432b95b062",
+    "dorado_ddr_ring.c": "0eff93c1db3e1f48e3b0034c6fe491021cc30510081edce09cd31a9326d0289e",
+    "dorado_control_client.cpp": "ea5c0241bbfca73b55890eb054f18c9de15303491cd73b854c286737f2f45402",
+    "dorado_disk_cache.h": "382c4c799b44ab1de31c3ea94941b24c049d025192d86d553c69f613722bf949",
+    "dorado_ddr_control.c": "5fb10cf6e76b4513c5fb760bbb1f8c275516d3877069950f22457ef17c7a8f56",
+    "dorado_disk.h": "4acf85a0089286600e2fcfde8d2aed7b69e27951756a3d9a91d6c0d719a62c54",
+    "test_ddr_snapshot.py": "8244948819c75d5fa2eaaba3a3ae3bbf878bde6d517cb344e8dd97fa717b4e02",
+    "test_ddr_snapshot.cpp": "ea5024ba0da799e7f83f5f00df03d2e5807c34a1320c87d04a788869fcc76ede",
+    "dorado_net.cpp": "053915c6436f75a65e31e2f753bf1358f32637fce6ea3ecb157d477175ea79e1",
+    "spi.h": "1b459a7c4eeaf583c2a408e1190ec308285719f7e51ea801e26722fdc27f0e67",
+    "dorado_net.h": "79b6c4dc2ff9641bf9950a6b763537eee2961869b4575be340832df3ac9c4f76",
+    "lifecycle_hooks.inc": "38be3adf5740a9040dbca028c036a767b2599acc4f4d8b341f407cce0a6d6a8f",
+    "dorado_ddr.cpp": "e2436e571401102e532ea0dd41a13a26a66c6ff4c7007d6bb9ffb3bae60d92c3",
+    "dorado_ddr_ring.h": "99d9722285c2fa264ba08a3ed7541c5dee07ed1c749dfa24feff3cbe6e519cf5",
+    "user_io.h": "ac80ab96191ddca6acf4d374d6a23e2bc7823c1559c8348a0916b8046b54ba04",
+    "pinned-user_io.cpp": "c0a502947a6e0cffb291a244f2f58413934f3dc587cc1400c98ef5f55fed6f5b",
+    "legacy_helpers.cpp": "ca3bf5713ec2319bffc8cac6167fb2d0420c6489847a9fda9016accc7aaea873",
+    "dorado_ddr.h": "4970c9267196d711ebe051b28b8ee924e7350ececf068a6e85eff90196ad04af",
+    "dorado_control_client.h": "9d6a5057136b9bc8e645287443488b2a4799fd754320ba02db521606d47fa058",
+    "dorado_ddr_control.h": "cf91c40f5f533c9077ab16da19c631d97556f163af834c7dd9392b81fbe83f52"
+  },
+  "limits": "Actual Main/daemon control lease and polling only. No FPGA service acknowledgement, disk lease coordination, full native snapshot or restore; no deployment."
+}

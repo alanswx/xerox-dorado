@@ -1,0 +1,77 @@
+{
+  "status": "PASS",
+  "scope": "Isolated actual-server pause gate and broken lifecycle/timer/MMIO controls.\n\nStage exact executed sources and a minimal byte-exact protocol corpus. No\nproduction fake mapper is linked, no FPGA is touched and no CPU is emulated.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0
+    },
+    {
+      "case": "lifecycle_reset",
+      "returncode": 1
+    },
+    {
+      "case": "wall_time_jump",
+      "returncode": 1
+    },
+    {
+      "case": "unguarded_paused_mmio",
+      "returncode": -10
+    }
+  ],
+  "executed_inputs": {
+    "fpga/mister/server/test_pause_mapper.c": "f034df07a6be156c7a181038b61e1db5718b44c7cb048b763a922120000e66be",
+    "fpga/mister/server/dorado_ddr_mapping.h": "a17294fe3e47e8e6532507f50dd8db75d6201cd671d44a118031d8fe449e33b5",
+    "fpga/mister/server/test_ddr_ring.c": "c8e759c3dd9a269f9420cd8a484b08d3b33856966ee0352a72a2c046e917870a",
+    "fpga/mister/server/test_ddr_mapping.c": "015b19bcc00c113b0d7a6ecd5c0e73d6004364ad284f41222a6dc487231614c2",
+    "fpga/mister/server/test_ddr_wire.py": "fda8b70ab8ea1713cdd199707d539df05224a503fdd4c12a947fa9872c94c068",
+    "fpga/mister/server/test_ddr_ring_rtl.py": "2507a84941dcb74a9bc0164bd86a65563fb9c3c9599eea4339a8052b626a0176",
+    "fpga/mister/server/qualify_snapshot_pause.py": "d8f0e5d83190d90bdccaff2a9063e140fd55da19a3ddb472d35c629ffb7a0e09",
+    "fpga/mister/server/test_bsp_retry.py": "45d27eb61f5d9fa96c19f4b680c13f050a0c18519ea53ac92026ba940061c846",
+    "fpga/mister/server/dorado_ddr_ring.c": "0eff93c1db3e1f48e3b0034c6fe491021cc30510081edce09cd31a9326d0289e",
+    "fpga/mister/server/dorado_ddr_control.h": "cf91c40f5f533c9077ab16da19c631d97556f163af834c7dd9392b81fbe83f52",
+    "fpga/mister/server/test_bsp_ack_race.py": "45d9e581f8ab57a25f27c3de88664cd7b8378b184284bcf9ce5b04d08f178280",
+    "fpga/mister/server/Makefile": "f100db6f6002eb75093ae5dc5ade661e308653fc18e4c5ed7466ff207e681b42",
+    "fpga/mister/server/test_loader_trace.py": "f323b1961b53716348ec31553b50492d97bb7963aaaf75e0500b5c6bc9720e31",
+    "fpga/mister/server/test_ddr_control.c": "c1cd691d4b66fc20eab48a69331a6aa4d064b948071d8729e1d0a492a501cde4",
+    "fpga/mister/server/analyse_loader_trace.py": "de52a9d0b3987b9205fa31d3b3a426cf1bbd31803f2c20482156191cd7b3daa6",
+    "fpga/mister/server/test_cedar_server.py": "64164eec8682ced6689bce6c9d8729b24f1d8814e46013c0927a3016953be993",
+    "fpga/mister/server/test_network_snapshot_wire.py": "dad974e59870c36750b13a799d717aacc34283b243f2c4f6d3c495725dc24e55",
+    "fpga/mister/server/dorado_service_clock.h": "ccba52d930f2bc71a5ca2809d3baddec25273a36877ada3d876ae6c1bc7c287b",
+    "fpga/mister/server/test_loader_progress.py": "1de6665ab073e6099ae5ff4a79527be4ce960b82949489d6c2ceed01621e3429",
+    "fpga/mister/server/dorado_server.c": "f3e9f3599b2a0f893b0aaf5092e36e5549e8d873ae4aaf04db869812d8c1fcdc",
+    "fpga/mister/server/dorado_ddr_mapping.c": "5ba6dd8645c9b14e9fc021f4d5aba6782fc51bbc220eab6580642e9a548cf576",
+    "fpga/mister/server/test_server.py": "632417452e5c6da9f61692fab3022391b6029b15cb9943b3f5a7b1f89aa79a1a",
+    "fpga/mister/server/test_network_snapshot.py": "a53c78f9e5f7217e461f85259302aa351981a3cdb9cb1f71280549c5d078dd5f",
+    "fpga/mister/server/dorado_ddr_ring.h": "99d9722285c2fa264ba08a3ed7541c5dee07ed1c749dfa24feff3cbe6e519cf5",
+    "fpga/mister/server/test_service_clock.c": "daef0bec130f27a90fbf565ca7f4e37a88607281a15e1f3574cee04669ae0db1",
+    "fpga/mister/server/test_snapshot_pause.py": "f5742761a68e7959316d051fbb99c725c12f364c7691c0c51a05280d5dcb4e4d",
+    "fpga/mister/server/test_snapshot_pause_mutations.py": "647322d203e850623ebd694e4ad08c763f41f06a05b223b8ad295f794cde4545",
+    "fpga/mister/server/dorado_ddr_control.c": "5fb10cf6e76b4513c5fb760bbb1f8c275516d3877069950f22457ef17c7a8f56",
+    "fpga/mister/server/analyse_loader_progress.py": "85e37d1d57ea4b932db28fe1cf298882c21b6dfb289272820cbcc2fecef3030b",
+    "chm/bootfiles/CRTTEST.BOOT!1": "58dd44d7c18abef13f27f32c2e74f789a246b25b54e760cea95a80f500a14218",
+    "chm/cedar/stp-root/Cedar6.1/VersionMap/CedarSource.VersionMap": "bebd06081862eb402433432e28d911454c0726828672469e51f5435b092f2055",
+    "dorado/include/typetext.h": "db3aa04e14d0d3e47a9a5f05212424747dd1c74532d47fbe1ab0c986413775eb",
+    "dorado/include/dispm.h": "fd43acc062ad945041288d8e698067f032c93f953b3f603e47d484d155d2c626",
+    "dorado/include/altoref.h": "5539d74d16820ba20c1428adfb8f058d62b255f272abfd6c1488b52a11063860",
+    "dorado/include/fastio.h": "fdb2fef5aa6961524145027287d66c2d7bf1f18ea42f6047903b028859f1e3fe",
+    "dorado/include/ui_panel.h": "801975f2c5dcf96f0753b20b62077214c41b48f0e4d12fabe56c211ff1fc3b9f",
+    "dorado/include/microcode.h": "546ac420461bd1dc1368f6a0c44ed37fc3f5aafc563592f24506e8886c78ab1f",
+    "dorado/include/pdi.h": "9879e14766173acfaafcf9da6d28f04eff01e5342eb5f5e6275fa79ba0f72f20",
+    "dorado/include/machine.h": "d77cf11197657727de1b711792b002a71ab92e9784d554da59be5b36d9d63ea2",
+    "dorado/include/disk.h": "323ba1db28eb12e006556e3364d70a255cfd74824c6c598067754781e706f050",
+    "dorado/include/ethernet.h": "009e9aff50ca361e313524d88e41d6476662505745d169ed04930411b640734c",
+    "dorado/include/display.h": "93017f5721fd39db31379325d4cbaf6feb5a239fbe0417d6e75d1dcec6e38936",
+    "dorado/include/trace.h": "febed353d6935fd7e27e56f34ecbbeba275a1d4495bbf8049222de968b34db66",
+    "dorado/include/io.h": "5574893dc04ed3f1e146e5de1dd3d378c523e90807e200bb0c4ba8ae9716a08a",
+    "dorado/include/disasm.h": "351782f5a9c91f2e59ac9b64191990651609e9142910849fc06e88c1dfafe128",
+    "dorado/include/cpu.h": "df99f945841a4b107cbf45a51744293ff5fe87b632084a2778efd69c4a040708",
+    "dorado/include/baseboard.h": "15f08b32ce13bbf7302a099e04a843b25c8a0023dabd8e85d8a458d11dfe4003",
+    "dorado/include/memory.h": "6cee89fc88f8a9eeea58c76f995e7293689bbf244fb2530cf53cf507e1d1e6f9",
+    "dorado/include/mb.h": "c6cf90c0717eaf9371af2f8fed939015df47cf900cf33964e689097c1791e853",
+    "dorado/worlds/aemu.eb": "980c7a6fbe6fd7bcae42790473ebbaedfd1aaa7d97eec0e65613c79ce01bb45a",
+    "dorado/src/ethernet.c": "80cd6f8d9aeceec94a7560109093f7092e694feb43ce02b65468a887b693de9a",
+    "dorado/src/io.c": "7372b3c12160f39262817e8750a3a8c72143d1b6ea56c252ad07eaf2b3c6927e"
+  },
+  "limits": "Host process/MMIO-control qualification only; no serialized server heap, real FPGA/ARM service barrier or complete snapshot restore."
+}

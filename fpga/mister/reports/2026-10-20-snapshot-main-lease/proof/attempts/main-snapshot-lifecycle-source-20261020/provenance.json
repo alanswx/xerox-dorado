@@ -1,0 +1,33 @@
+{
+  "commands": [
+    [
+      "git",
+      "apply",
+      "--include=user_io.cpp",
+      "--include=fpga_io.cpp",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-lifecycle-source-20261020/main-260912.patch"
+    ],
+    [
+      "git",
+      "apply",
+      "--include=user_io.cpp",
+      "--include=fpga_io.cpp",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-lifecycle-source-20261020/main-disk-260912.patch"
+    ],
+    [
+      "git",
+      "apply",
+      "--include=user_io.cpp",
+      "--include=fpga_io.cpp",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-lifecycle-source-20261020/main-ddr-260912.patch"
+    ]
+  ],
+  "original_inputs": {
+    "fpga_io.cpp": "3a690b1a5c0c20b0994d44c4853c92c8c4c8698623589928f04a8ca6e333a127",
+    "user_io.cpp": "ea176e1183397a52b3a7704551fc6ddca6df9011432902770944e601c787f8d3"
+  },
+  "patched_inputs": {
+    "fpga_io.cpp": "3a690b1a5c0c20b0994d44c4853c92c8c4c8698623589928f04a8ca6e333a127",
+    "user_io.cpp": "ea176e1183397a52b3a7704551fc6ddca6df9011432902770944e601c787f8d3"
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "status": "FAILED_FIXTURE_PREPARATION",
+  "reason": "git apply --include matched no files under the subdirectory Git prefix; the legacy hook gate correctly rejected unchanged source."
+}

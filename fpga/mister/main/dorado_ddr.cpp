@@ -12,10 +12,12 @@
 #include <unistd.h>
 
 namespace {
-enum class State { Idle, Connect, StopAck, Drain, Init, ResumeAck, StatusAck, Active, Disabled, Fault, Quiesced };
+enum class State { Idle, Connect, StopAck, Drain, Init, ResumeAck, StatusAck, Active, Disabled, Fault, Quiesced,
+    SnapshotPauseAck, SnapshotPaused, SnapshotStatusAck, SnapshotContinueAck };
 State state=State::Idle;
 DoradoControlClient client;
 bool selected=false,desired=false,reported=false;
+bool snapshot_requested=false,snapshot_continue_requested=false,snapshot_completed=false;
 uint64_t deadline=0,next_connect=0,next_status=0,epoch=0;
 struct Status {
     uint16_t flags=0;
@@ -67,7 +69,88 @@ bool fault(const char *why){
 
 bool dorado_ddr_needs_barrier(){return selected;}
 
+bool dorado_ddr_snapshot_pending(){return snapshot_requested;}
+
+uint64_t dorado_ddr_snapshot_epoch(){
+    if(!selected)return 0;
+    switch(state){
+    case State::Active:case State::StatusAck:case State::SnapshotPauseAck:
+    case State::SnapshotPaused:case State::SnapshotStatusAck:case State::SnapshotContinueAck:return epoch;
+    default:return 0;
+    }
+}
+
+DoradoDDRSnapshotResult dorado_ddr_snapshot_pause(uint64_t expected){
+    using R=DoradoDDRSnapshotResult;
+    if(!expected || expected!=epoch || !selected)return R::Invalid;
+    if(state==State::Fault)return R::Failed;
+    if(!core()){
+        if(snapshot_requested){fault("core changed during snapshot");return R::Failed;}
+        return R::Invalid;
+    }
+    if(snapshot_continue_requested)return R::Wait;
+    if(state==State::SnapshotPaused || state==State::SnapshotStatusAck)return R::Done;
+    if(state==State::SnapshotPauseAck)return R::Wait;
+    if(state!=State::Active && state!=State::StatusAck)return R::Invalid;
+    snapshot_requested=true;snapshot_completed=false;return R::Wait;
+}
+
+DoradoDDRSnapshotResult dorado_ddr_snapshot_continue(uint64_t expected){
+    using R=DoradoDDRSnapshotResult;
+    if(!expected || expected!=epoch || !selected)return R::Invalid;
+    if(state==State::Fault)return R::Failed;
+    if(!core()){
+        if(snapshot_requested){fault("core changed during snapshot");return R::Failed;}
+        return R::Invalid;
+    }
+    if(!snapshot_requested)return snapshot_completed ? R::Done : R::Invalid;
+    // An early Continue never cancels an unacknowledged PAUSE. The coordinator
+    // must first observe Done, complete/verify FPGA work, then request Continue.
+    if(state==State::SnapshotPaused || state==State::SnapshotStatusAck)
+        snapshot_continue_requested=true;
+    return R::Wait;
+}
+
+void dorado_ddr_snapshot_poll(){
+    if(!snapshot_requested || state==State::Fault)return;
+    if(!core()){fault("core changed during snapshot");return;}
+    const uint64_t now=milliseconds();
+    if(state==State::StatusAck || state==State::SnapshotPauseAck ||
+       state==State::SnapshotStatusAck || state==State::SnapshotContinueAck){
+        const State waiting=state;
+        const int result=client.pump();
+        if(result<0){fault("snapshot controller disconnected");return;}
+        if(!result){if(now>=deadline)fault("snapshot acknowledgement timed out");return;}
+        const bool want_paused=waiting==State::SnapshotPauseAck || waiting==State::SnapshotStatusAck;
+        if(client.reply().error || !client.reply().active || client.reply().paused!=want_paused || client.reply().epoch!=epoch){
+            fault("snapshot controller rejected or lost its lease");return;
+        }
+        if(waiting==State::StatusAck)state=State::Active;
+        else if(waiting==State::SnapshotContinueAck){
+            state=State::Active;snapshot_requested=false;snapshot_continue_requested=false;
+            snapshot_completed=true;next_status=now+1000;return;
+        }else {state=State::SnapshotPaused;next_status=now+1000;}
+    }
+    if(state==State::Active){
+        if(client.begin(DORADO_CTRL_PAUSE,epoch)){fault("cannot request daemon snapshot PAUSE");return;}
+        state=State::SnapshotPauseAck;deadline=now+5000;
+    }else if(state==State::SnapshotPaused){
+        if(snapshot_continue_requested){
+            if(client.begin(DORADO_CTRL_CONTINUE,epoch)){fault("cannot request daemon snapshot CONTINUE");return;}
+            state=State::SnapshotContinueAck;deadline=now+5000;
+        }else if(now>=next_status){
+            // STATUS on a paused daemon uses no MMIO. Do not probe the frozen
+            // FPGA parser or infer a new grant from a packet/status register.
+            if(client.begin(DORADO_CTRL_STATUS)){fault("cannot check paused daemon lease");return;}
+            state=State::SnapshotStatusAck;deadline=now+5000;
+        }
+    }else if(state!=State::SnapshotPauseAck && state!=State::SnapshotStatusAck){
+        fault("invalid snapshot manager phase");
+    }
+}
+
 bool dorado_ddr_poll(uint16_t flags){
+    if(snapshot_requested){dorado_ddr_snapshot_poll();return true;}
     if(state==State::Quiesced)return true; // Stay stopped until explicit init/reset.
     if(!(flags&8))return selected?fault("capability disappeared"):false;
     const uint64_t now=milliseconds();
@@ -94,7 +177,7 @@ bool dorado_ddr_poll(uint16_t flags){
             if(!control(false,0))return fault("FPGA STOP command rejected");
             state=State::Drain;deadline=now+5000;
         }else{
-            if(!client.reply().active || client.reply().epoch!=epoch)return fault("daemon lost active epoch");
+            if(!client.reply().active || client.reply().paused || client.reply().epoch!=epoch)return fault("daemon lost active epoch");
             if(state==State::ResumeAck)
                 printf("Dorado DDR: direct frame queues active, epoch %016llx\n",(unsigned long long)epoch);
             state=State::Active;next_status=now+1000;
@@ -124,6 +207,9 @@ bool dorado_ddr_poll(uint16_t flags){
 }
 
 bool dorado_ddr_barrier(const char *reason,unsigned timeout_ms){
+    if(snapshot_requested){
+        fprintf(stderr,"Dorado DDR: refusing %s: snapshot retains the transport lease\n",reason);return false;
+    }
     if(!core()){
         if(selected){fprintf(stderr,"Dorado DDR: refusing %s: core changed before STOP\n",reason);return false;}
         return true;
@@ -151,7 +237,8 @@ bool dorado_ddr_barrier(const char *reason,unsigned timeout_ms){
 }
 
 bool dorado_ddr_reset(){
-    if(selected)return false;
+    if(selected || snapshot_requested)return false;
     client.close();state=State::Idle;reported=false;desired=false;
+    snapshot_requested=snapshot_continue_requested=snapshot_completed=false;
     next_connect=next_status=deadline=epoch=0;return true;
 }

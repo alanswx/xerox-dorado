@@ -1,0 +1,8 @@
+{
+  "status": "FAILED_TEST_ENVIRONMENT",
+  "phase": "dorado_ddr_control_open",
+  "diagnostic": "DDR MANAGER FAIL: open actual service",
+  "returncode": 23,
+  "sandbox": "default network restricted",
+  "followup": "Repeat fresh outside sandbox; no production changes for this failure."
+}

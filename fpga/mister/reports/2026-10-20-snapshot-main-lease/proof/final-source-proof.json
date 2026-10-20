@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "comment_only_header_addition": "// A failed lease stays pending and blocks generic lifecycle/reset. It requires\n// coordinated recovery; these APIs never reconnect, STOP or discard it silently.\n",
+  "final_hashes": {
+    "dorado_ddr.h": "f2c1c77787a92bc33847cf2bf49bffac352eede5c90181d0fb3044bc40b53e6c",
+    "dorado_ddr.cpp": "e2436e571401102e532ea0dd41a13a26a66c6ff4c7007d6bb9ffb3bae60d92c3",
+    "dorado_net.cpp": "053915c6436f75a65e31e2f753bf1358f32637fce6ea3ecb157d477175ea79e1",
+    "test_ddr_transport.cpp": "3f4dd34bddb65cd4c5f9c27510d6f7cd7d3862bc2c25b4ef01d197432b95b062",
+    "test_ddr_snapshot.cpp": "ea5024ba0da799e7f83f5f00df03d2e5807c34a1320c87d04a788869fcc76ede",
+    "test_ddr_snapshot.py": "8244948819c75d5fa2eaaba3a3ae3bbf878bde6d517cb344e8dd97fa717b4e02"
+  },
+  "runtime_implementation_changed_after_qualification": false
+}

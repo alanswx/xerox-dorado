@@ -1,0 +1,20 @@
+[
+  "c++",
+  "-std=c++14",
+  "-O2",
+  "-g",
+  "-Wall",
+  "-Wextra",
+  "-Werror",
+  "-pthread",
+  "-I/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/snapshot/executed-inputs",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/snapshot/stale_epoch/dorado_ddr.cpp",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/snapshot/executed-inputs/dorado_control_client.cpp",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/snapshot/executed-inputs/dorado_net.cpp",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/snapshot/executed-inputs/test_ddr_snapshot.cpp",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/snapshot/dorado_ddr_ring.o",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/snapshot/dorado_ddr_control.o",
+  "-DDORADO_TEST_LIFECYCLE",
+  "-o",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/snapshot/stale_epoch/test"
+]

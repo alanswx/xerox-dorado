@@ -1,0 +1,7 @@
+[
+  "make",
+  "-C",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/executed-inputs/fpga/mister/main",
+  "OUT=/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/main",
+  "control-test"
+]

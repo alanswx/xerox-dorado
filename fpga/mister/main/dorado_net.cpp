@@ -65,6 +65,9 @@ bool dorado_net_reset(){
 }
 
 void dorado_net_poll(){
+    // The snapshot coordinator owns lifecycle and the FPGA parser may be held.
+    // Pump only the existing control stream, including paused lease checks.
+    if(dorado_ddr_snapshot_pending()){dorado_ddr_snapshot_poll();return;}
     // MGL setname overrides CoreName for configuration/display. Capability
     // belongs to the FPGA's original config-string name, not the launcher.
     if(strcmp(user_io_get_core_name(1),"Dorado")){disconnect();next_connect=0;return;}

@@ -1,0 +1,26 @@
+{
+  "build": [
+    "cc",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-std=gnu11",
+    "-I/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/executed-inputs/fpga/mister/server",
+    "-I/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/executed-inputs/dorado/include",
+    "-DDORADO_TEST_PAUSE_MAPPER",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/wall_time_jump/dorado_server.c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/wall_time_jump/dorado_ddr_ring.c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/executed-inputs/fpga/mister/server/dorado_ddr_control.c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/executed-inputs/fpga/mister/server/test_pause_mapper.c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/executed-inputs/dorado/src/ethernet.c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/executed-inputs/dorado/src/io.c",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/wall_time_jump/test"
+  ],
+  "test": [
+    "python3",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/executed-inputs/fpga/mister/server/test_snapshot_pause.py",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/wall_time_jump/test",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/mutations/executed-inputs"
+  ]
+}

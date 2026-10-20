@@ -1,0 +1,16 @@
+[
+  "c++",
+  "-O2",
+  "-Wall",
+  "-Wextra",
+  "-Werror",
+  "-std=c++14",
+  "-I/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/executed-inputs/fpga/mister/main/tests",
+  "-I/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/executed-inputs/fpga/mister/server",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/executed-inputs/fpga/mister/main/dorado_net.cpp",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/executed-inputs/fpga/mister/main/dorado_ddr.cpp",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/executed-inputs/fpga/mister/main/dorado_control_client.cpp",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/executed-inputs/fpga/mister/main/tests/test_main_transport.cpp",
+  "-o",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/main-transport"
+]

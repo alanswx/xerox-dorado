@@ -43,7 +43,7 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-**Network/parser pause now qualifies in RTL, alongside the ARM disk lease. Serial70 fanout256 fits but fails setup timing at -0.561 ns; it is rejected. Complete snapshots, faster clocks and final hardware qualification remain open.**
+**Main’s daemon lease and RTL network/parser pause now qualify, alongside the ARM disk lease. Serial70 fanout256 fits but fails setup timing at -0.561 ns; it is rejected. Complete snapshots, faster clocks and final hardware qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and
 warm disk persistence pass. Its last qualified rate remains **1,947,654.12
@@ -194,6 +194,24 @@ members and extracted source rebuilds pass. Evidence:
 coordination, two wire-settling clocks, physical DDR write visibility, complete
 native state access/import and Cedar restore remain open. No hardware changed.
 
+Main now has a nonblocking same-epoch daemon snapshot lease. Its real network
+poll bypasses packet/capability SPI while a lease is pending, drains prior
+control records before PAUSE/CONTINUE, and validates paused health replies over
+the socket. CONTINUE releases ownership only after its exact ACK. Four actual
+pinned Main lifecycle prologues refuse held/failed leases before hardware
+mutation. Failure retains the lease; no silent STOP/reconnect/reset/fallback.
+Seven normal/fault cases pass on Mac, Linux and MiSTer14 ARM; six compiled bad
+variants reject. Feature inputs are identical across all three builds (21),
+and both hosts pass the existing seven regression families with identical 94
+inputs. ARM maximum normal poll call is 0.030 ms. All 1,104 raw archive members
+and extracted receipt/source checks plus a fresh 13-case rebuild pass. Evidence:
+`fpga/mister/reports/2026-10-20-snapshot-main-lease/`.
+This is the Main/daemon lease only, NOT whole-machine admission. The coordinator
+must still validate compatible Core/daemon builds, finish FPGA disk requests
+before taking the ARM image lease, wire actual FPGA/network/input/video ACKs,
+establish physical DDR visibility and implement genuine fault recovery/reseed.
+No production Main/daemon/core changed; Native59's measured rate remains.
+
 Next, in delivery order:
 
 1. Use Serial69 as the integration base for real services and qualified
@@ -201,7 +219,8 @@ Next, in delivery order:
    original phase contract; limit64/256, global-signal and seed2 experiments
    were rejected. Preserve actual periods and prove any enable change against
    original guest/state/traffic oracles. Integrate only timing-qualified results.
-2. Coordinate the qualified Main disk-worker and daemon pause APIs with actual
+2. Connect the qualified Main transport lease, disk-worker and daemon pause APIs
+   through the actual snapshot coordinator and compatible-build checks, with real
    FPGA disk/network, input and video acknowledgments. Wire the qualified network
    engine/parser pause (including SPI framing and two settling clocks). Finish
    in-flight guest

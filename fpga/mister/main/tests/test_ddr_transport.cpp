@@ -82,6 +82,9 @@ template<class P> static void until(P predicate,const char *why){
     while(!predicate()){check(ms()<limit,why);std::this_thread::sleep_for(std::chrono::milliseconds(1));}
 }
 #ifdef DORADO_TEST_LIFECYCLE
+// Keep Main's void reboot prologue distinct from macOS libc's int reboot.
+// This alias is test-only and comes after the system header declarations.
+#define reboot dorado_test_reboot
 static unsigned lifecycle_mutations=0;
 static bool disk_safe=true;
 bool dorado_net_barrier(const char *reason){return dorado_ddr_barrier(reason,10);}

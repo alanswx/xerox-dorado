@@ -1,0 +1,10 @@
+[
+  "make",
+  "-C",
+  "/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/executed-inputs/fpga/mister/server",
+  "OUT=/home/alans/mister/Dorado_MainSnapshotLease_20261020/results/full-host/dorado-server",
+  "ddr-control-test",
+  "service-clock-test",
+  "ddr-ring-test",
+  "ddr-map-test"
+]

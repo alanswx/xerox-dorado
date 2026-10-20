@@ -1,0 +1,11 @@
+[
+  "make",
+  "-C",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/executed-inputs/fpga/mister/server",
+  "OUT=/Users/alans/dev2/Dorado/build/rtl-executive/main-snapshot-full-host-v1-20261020/dorado-server",
+  "all",
+  "test",
+  "cedar-test",
+  "bsp-retry-test",
+  "bsp-ack-race-test"
+]

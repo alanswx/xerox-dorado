@@ -1,0 +1,98 @@
+{
+  "status": "PASS",
+  "scope": "Actual Main poll/manager/client snapshot lease against the real C service.\n\nAnonymous guarded DDR and SPI spies only; no /dev/mem, FPGA programming or\nproduction daemon/Main replacement. The caller's FPGA/disk/input/video barrier\nand complete save/restore remain separate work.\n",
+  "cases": [
+    {
+      "case": "normal",
+      "returncode": 0,
+      "log_sha256": "c0d43a0e28d590fcce2f5acf4a203490e4c4a29f2416710dc8b366e45a83a78c"
+    },
+    {
+      "case": "stale-ring",
+      "returncode": 0,
+      "log_sha256": "1083782a7413d498ca808d873aa34870e78a96be7ec44fa35be4d03aa5fb09c5"
+    },
+    {
+      "case": "eof",
+      "returncode": 0,
+      "log_sha256": "1e46f4a0bb42981c5f228b5ef14c5964b977e832fbc230e6a04f382a73e388fc"
+    },
+    {
+      "case": "core-change",
+      "returncode": 0,
+      "log_sha256": "1646ac4b77bf36ed336548a11223716172f8d361d7011f8a08d346c66ee9f68d"
+    },
+    {
+      "case": "lost-pause",
+      "returncode": 0,
+      "log_sha256": "9b2610ec2632ba6086a1daa0dd2ae9d82b7ac46f3100398ff6078cec46f9c16b"
+    },
+    {
+      "case": "timeout",
+      "returncode": 0,
+      "log_sha256": "030805383dab2bc2531d0fa55aeddcf7f0580e2aa8d12b80b602da25d3a55da6"
+    },
+    {
+      "case": "unexpected-pause",
+      "returncode": 0,
+      "log_sha256": "4c07889329bf0aa3a1cf611aba82470a816e399119a832b73b7fcf0f8ca25974"
+    },
+    {
+      "case": "frozen_probe",
+      "returncode": 23,
+      "expected_failure": "snapshot touched SPI",
+      "log_sha256": "23e2b7aabc1d25f15a628a3dca13ea2b03024363caf00d5fcd47bcafae5040d7"
+    },
+    {
+      "case": "lifecycle_bypass",
+      "returncode": 23,
+      "expected_failure": "snapshot touched SPI",
+      "log_sha256": "23e2b7aabc1d25f15a628a3dca13ea2b03024363caf00d5fcd47bcafae5040d7"
+    },
+    {
+      "case": "early_continue",
+      "returncode": 23,
+      "expected_failure": "snapshot lease released before CONTINUE ACK",
+      "log_sha256": "9035e6dc7c41abaf58e54c19b4b8d576c25ca2ca92ef0d1efd3410a665034a60"
+    },
+    {
+      "case": "stale_epoch",
+      "returncode": 23,
+      "expected_failure": "stale pause accepted",
+      "log_sha256": "41636c5bb630786827075cc625c66b0ee4b629e192b609b813b4b48ffe17da0e"
+    },
+    {
+      "case": "lost_pause",
+      "returncode": 23,
+      "expected_failure": "lost daemon pause/session was accepted",
+      "log_sha256": "6c585587a2fd10e19eff3616d21e623a2288fce383e92b963f5b51e773431a45"
+    },
+    {
+      "case": "unsolicited_pause",
+      "returncode": 23,
+      "expected_failure": "normal manager accepted unexpected pause",
+      "log_sha256": "8065a519fa28e1c3e226c2cdfd5ed73cd826054473a209661b644f2f247b2cbc"
+    }
+  ],
+  "inputs": {
+    "dorado_ddr.h": "4970c9267196d711ebe051b28b8ee924e7350ececf068a6e85eff90196ad04af",
+    "dorado_disk_cache.h": "382c4c799b44ab1de31c3ea94941b24c049d025192d86d553c69f613722bf949",
+    "legacy_helpers.cpp": "6353f6862c4e1d2a69444cf5d1c317765e2f137047bdc4e70f3bea883b18911f",
+    "dorado_ddr_ring.c": "0eff93c1db3e1f48e3b0034c6fe491021cc30510081edce09cd31a9326d0289e",
+    "dorado_ddr_control.h": "cf91c40f5f533c9077ab16da19c631d97556f163af834c7dd9392b81fbe83f52",
+    "dorado_ddr.cpp": "e2436e571401102e532ea0dd41a13a26a66c6ff4c7007d6bb9ffb3bae60d92c3",
+    "dorado_net.h": "79b6c4dc2ff9641bf9950a6b763537eee2961869b4575be340832df3ac9c4f76",
+    "dorado_control_client.cpp": "ea5c0241bbfca73b55890eb054f18c9de15303491cd73b854c286737f2f45402",
+    "dorado_control_client.h": "9d6a5057136b9bc8e645287443488b2a4799fd754320ba02db521606d47fa058",
+    "dorado_net.cpp": "053915c6436f75a65e31e2f753bf1358f32637fce6ea3ecb157d477175ea79e1",
+    "dorado_ddr_ring.h": "99d9722285c2fa264ba08a3ed7541c5dee07ed1c749dfa24feff3cbe6e519cf5",
+    "spi.h": "1b459a7c4eeaf583c2a408e1190ec308285719f7e51ea801e26722fdc27f0e67",
+    "legacy-original.cpp": "270fb580e6819726c694cb9f0eacde7e8b8825c8205b195334330344d8951b65",
+    "test_ddr_snapshot.cpp": "b141e464a491f3ad56d22e70e0a5944152d8a99f0e0dc49140b2434de816da26",
+    "dorado_ddr_control.c": "5fb10cf6e76b4513c5fb760bbb1f8c275516d3877069950f22457ef17c7a8f56",
+    "user_io.h": "ac80ab96191ddca6acf4d374d6a23e2bc7823c1559c8348a0916b8046b54ba04",
+    "test_ddr_snapshot.py": "78940cdfc961fbe3c1cebdc964bbe58e501d6fb7d5c90cd3c049ceeccffaea3b",
+    "dorado_disk.h": "4acf85a0089286600e2fcfde8d2aed7b69e27951756a3d9a91d6c0d719a62c54"
+  },
+  "limits": "Actual Main/daemon control lease and polling only. No FPGA service acknowledgement, disk lease coordination, full native snapshot or restore; no deployment."
+}
