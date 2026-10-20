@@ -48,11 +48,11 @@ TOOLS   = ../tools
         crc-test eth-ctl-test ebreplies-check pack-test boot-world-disk \
         ethernet-input-hold-test ethernet-receive-sequence-test \
         memory-density64-test map-density64-test storage-board64-test pack-fault-test \
-        key-queue-test clock-phase-audit clock-phases-test control-phases-test t-controls-test speed-monitor-test pause-monitor-test storage-arb-test \
+        key-queue-test clock-phase-audit clock-phases-test control-phases-test run-control-test t-controls-test speed-monitor-test pause-monitor-test storage-arb-test \
         instruction-progress-test storage-linecache-test storage-linecache-array-test storage-linecache-board-test storage-sdram-test storage-sdram-board-test pack-wallclock-test \
         clean-generated
 
-instruction-progress-test pack-wallclock-test storage-linecache-test storage-linecache-array-test storage-linecache-board-test storage-sdram-test storage-sdram-board-test storage-arb-test speed-monitor-test pause-monitor-test t-controls-test control-phases-test clock-phases-test clock-phase-audit key-queue-test ethernet-input-hold-test ethernet-receive-sequence-test memory-density64-test map-density64-test storage-board64-test pack-fault-test:
+instruction-progress-test pack-wallclock-test storage-linecache-test storage-linecache-array-test storage-linecache-board-test storage-sdram-test storage-sdram-board-test storage-arb-test speed-monitor-test pause-monitor-test t-controls-test control-phases-test run-control-test clock-phases-test clock-phase-audit key-queue-test ethernet-input-hold-test ethernet-receive-sequence-test memory-density64-test map-density64-test storage-board64-test pack-fault-test:
 	@$(MAKE) -C verilator $@
 
 # PROM contents, sliced per package position from PARC's own BCPL.

@@ -1,0 +1,578 @@
+[
+  {
+    "raw_name": "qualified/capture_new_drun/compile.log",
+    "stored": "qualified/capture_new_drun/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/capture_new_drun/dorado_run_control_step.sv",
+    "stored": "qualified/capture_new_drun/dorado_run_control_step.sv.gz",
+    "raw_bytes": 4153,
+    "raw_sha256": "ad21baf7f636779d4812c85c26026f98e2d533abcafa327a791937f280d0bc58"
+  },
+  {
+    "raw_name": "qualified/capture_new_drun/test.log",
+    "stored": "qualified/capture_new_drun/test.log.gz",
+    "raw_bytes": 352,
+    "raw_sha256": "e098c987d56f803fe0f1be6ccdbd65f795c7e4993ba95c36b28a2cb76709f40e"
+  },
+  {
+    "raw_name": "qualified/drop_feedback_clock/compile.log",
+    "stored": "qualified/drop_feedback_clock/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/drop_feedback_clock/dorado_run_control_step.sv",
+    "stored": "qualified/drop_feedback_clock/dorado_run_control_step.sv.gz",
+    "raw_bytes": 4144,
+    "raw_sha256": "cfda9f0e561301934569e645012597b36148345717b5bb460f404df72a9a1809"
+  },
+  {
+    "raw_name": "qualified/drop_feedback_clock/test.log",
+    "stored": "qualified/drop_feedback_clock/test.log.gz",
+    "raw_bytes": 352,
+    "raw_sha256": "2fafe00d4ee211fea500f340488e6fd4247ce151aa18531113bf108b536c50e7"
+  },
+  {
+    "raw_name": "qualified/drop_stop_t1_contributor/compile.log",
+    "stored": "qualified/drop_stop_t1_contributor/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/drop_stop_t1_contributor/dorado_run_control_step.sv",
+    "stored": "qualified/drop_stop_t1_contributor/dorado_run_control_step.sv.gz",
+    "raw_bytes": 4138,
+    "raw_sha256": "470504f81a0b8d5783648165db5adb1eb758ba9484087798f6fbdc50c049e96d"
+  },
+  {
+    "raw_name": "qualified/drop_stop_t1_contributor/test.log",
+    "stored": "qualified/drop_stop_t1_contributor/test.log.gz",
+    "raw_bytes": 354,
+    "raw_sha256": "0bbd2da31b3ee5d3fb9a212399502eba2543392c8a36394566b7beb9f2ed42ca"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.lc",
+    "stored": "qualified/executed-inputs/chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.lc.gz",
+    "raw_bytes": 5192,
+    "raw_sha256": "2cbfb904a6a6de0fde3afe2cd43c5162a3fe8cdc14dab87785acf2da773cc58d"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.wl",
+    "stored": "qualified/executed-inputs/chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.wl.gz",
+    "raw_bytes": 130176,
+    "raw_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/tools/__pycache__/sil_netlist.cpython-314.pyc",
+    "stored": "qualified/executed-inputs/tools/__pycache__/sil_netlist.cpython-314.pyc.gz",
+    "raw_bytes": 28616,
+    "raw_sha256": "7fe0ff5e015d77fdeeedbb22f59627691238b21c9fbbf28c159451a94fb0e572"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/tools/generate_run_control_reference.py",
+    "stored": "qualified/executed-inputs/tools/generate_run_control_reference.py.gz",
+    "raw_bytes": 7078,
+    "raw_sha256": "658d092df35b6f98b6c341b63911d50f96fbaf96829046acb230bdda038b22e6"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/tools/sil_netlist.py",
+    "stored": "qualified/executed-inputs/tools/sil_netlist.py.gz",
+    "raw_bytes": 34072,
+    "raw_sha256": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/tools/test_run_control.py",
+    "stored": "qualified/executed-inputs/tools/test_run_control.py.gz",
+    "raw_bytes": 5761,
+    "raw_sha256": "cc8611dbd7c6c30d0b5f421fabf5991ff19fd79a9c5b6c463a4a4a3896866f6f"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/cells/cell_MC10103.v",
+    "stored": "qualified/executed-inputs/verilog/cells/cell_MC10103.v.gz",
+    "raw_bytes": 2059,
+    "raw_sha256": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/cells/cell_MC10104.v",
+    "stored": "qualified/executed-inputs/verilog/cells/cell_MC10104.v.gz",
+    "raw_bytes": 2491,
+    "raw_sha256": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/cells/cell_MC10117.v",
+    "stored": "qualified/executed-inputs/verilog/cells/cell_MC10117.v.gz",
+    "raw_bytes": 1983,
+    "raw_sha256": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/cells/cell_MC10176.v",
+    "stored": "qualified/executed-inputs/verilog/cells/cell_MC10176.v.gz",
+    "raw_bytes": 4087,
+    "raw_sha256": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/cells/cell_MC10195.v",
+    "stored": "qualified/executed-inputs/verilog/cells/cell_MC10195.v.gz",
+    "raw_bytes": 1988,
+    "raw_sha256": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/cells/cell_MC10210.v",
+    "stored": "qualified/executed-inputs/verilog/cells/cell_MC10210.v.gz",
+    "raw_bytes": 1605,
+    "raw_sha256": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/cells/cell_MC10211.v",
+    "stored": "qualified/executed-inputs/verilog/cells/cell_MC10211.v.gz",
+    "raw_bytes": 847,
+    "raw_sha256": "5dff5af0f55a1f63dbfc7e98047f1f0fd18491ac1e06980c7991fc09a060272d"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/cells/cell_MC10231.v",
+    "stored": "qualified/executed-inputs/verilog/cells/cell_MC10231.v.gz",
+    "raw_bytes": 4985,
+    "raw_sha256": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/cells/cell_SE10210.v",
+    "stored": "qualified/executed-inputs/verilog/cells/cell_SE10210.v.gz",
+    "raw_bytes": 1608,
+    "raw_sha256": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/cells/cell_SE10212.v",
+    "stored": "qualified/executed-inputs/verilog/cells/cell_SE10212.v.gz",
+    "raw_bytes": 2309,
+    "raw_sha256": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/cells/cell_SE10231.v",
+    "stored": "qualified/executed-inputs/verilog/cells/cell_SE10231.v.gz",
+    "raw_bytes": 3961,
+    "raw_sha256": "b22f08f8f6e79eafbac3d1446e6593d10482033b2b3b2edfc29f207e62e5872c"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/rtl/dorado_run_control_step.sv",
+    "stored": "qualified/executed-inputs/verilog/rtl/dorado_run_control_step.sv.gz",
+    "raw_bytes": 4153,
+    "raw_sha256": "33165a049b97268d59b55f286206608f09fb0a2a593add58509ab18dc376f3c6"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/verilator/run_control_original_ff.sv",
+    "stored": "qualified/executed-inputs/verilog/verilator/run_control_original_ff.sv.gz",
+    "raw_bytes": 1964,
+    "raw_sha256": "7bcadd4fe8c5aa82781fa21ba3694fadba3f6c186870008506226d9e79ebb2a9"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/verilator/tb_run_control_step.sv",
+    "stored": "qualified/executed-inputs/verilog/verilator/tb_run_control_step.sv.gz",
+    "raw_bytes": 7584,
+    "raw_sha256": "b139cc66d56979b3f6ac3ba40141f3efc6e136dc856ae8d6beb6833f87814506"
+  },
+  {
+    "raw_name": "qualified/generation.log",
+    "stored": "qualified/generation.log.gz",
+    "raw_bytes": 57,
+    "raw_sha256": "1e94aea895671efff245722df5e244c20b55fcb1efb452f7a2c59a764c8aad99"
+  },
+  {
+    "raw_name": "qualified/ignore_memory_stop_clear/compile.log",
+    "stored": "qualified/ignore_memory_stop_clear/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/ignore_memory_stop_clear/dorado_run_control_step.sv",
+    "stored": "qualified/ignore_memory_stop_clear/dorado_run_control_step.sv.gz",
+    "raw_bytes": 4145,
+    "raw_sha256": "00beffa2dc093335104ab2d6a60c36ea8d1456e7e32744ca045da2cfc70e80d8"
+  },
+  {
+    "raw_name": "qualified/ignore_memory_stop_clear/test.log",
+    "stored": "qualified/ignore_memory_stop_clear/test.log.gz",
+    "raw_bytes": 354,
+    "raw_sha256": "698b51ed272dfbea578ebdb288cfa7da822ca003bf23e15572b141ef4b39bf92"
+  },
+  {
+    "raw_name": "qualified/ignore_refresh_set/compile.log",
+    "stored": "qualified/ignore_refresh_set/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/ignore_refresh_set/dorado_run_control_step.sv",
+    "stored": "qualified/ignore_refresh_set/dorado_run_control_step.sv.gz",
+    "raw_bytes": 4152,
+    "raw_sha256": "ea7a798d8e694ed3c155d0a113f0de1228918101eaa39e4b063a19de6e3c0154"
+  },
+  {
+    "raw_name": "qualified/ignore_refresh_set/test.log",
+    "stored": "qualified/ignore_refresh_set/test.log.gz",
+    "raw_bytes": 352,
+    "raw_sha256": "73671483f4a72ff566cbe4481c67e33050ec6bfdd04b76111737730704580129"
+  },
+  {
+    "raw_name": "qualified/ignore_stop_reset/compile.log",
+    "stored": "qualified/ignore_stop_reset/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/ignore_stop_reset/dorado_run_control_step.sv",
+    "stored": "qualified/ignore_stop_reset/dorado_run_control_step.sv.gz",
+    "raw_bytes": 4150,
+    "raw_sha256": "e4e6304a724c6182f8f5d69d0e48166058ef9b6a89f66d4e197e72577c58d066"
+  },
+  {
+    "raw_name": "qualified/ignore_stop_reset/test.log",
+    "stored": "qualified/ignore_stop_reset/test.log.gz",
+    "raw_bytes": 354,
+    "raw_sha256": "1541c6e66dcbe64d576d46056055397f023a0776ca438210ec9a599af3a16325"
+  },
+  {
+    "raw_name": "qualified/memory_refresh_follows_cpu/compile.log",
+    "stored": "qualified/memory_refresh_follows_cpu/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/memory_refresh_follows_cpu/dorado_run_control_step.sv",
+    "stored": "qualified/memory_refresh_follows_cpu/dorado_run_control_step.sv.gz",
+    "raw_bytes": 4161,
+    "raw_sha256": "51d91be7540526e83e4fccc6d687185fc88325a7a03f26126026fcdc6e3258b1"
+  },
+  {
+    "raw_name": "qualified/memory_refresh_follows_cpu/test.log",
+    "stored": "qualified/memory_refresh_follows_cpu/test.log.gz",
+    "raw_bytes": 352,
+    "raw_sha256": "73671483f4a72ff566cbe4481c67e33050ec6bfdd04b76111737730704580129"
+  },
+  {
+    "raw_name": "qualified/one_wave/compile.log",
+    "stored": "qualified/one_wave/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/one_wave/dorado_run_control_step.sv",
+    "stored": "qualified/one_wave/dorado_run_control_step.sv.gz",
+    "raw_bytes": 4152,
+    "raw_sha256": "41f107db9ecc07e220cd1130b234677a202e441f2727d8f6df04fe42df8adc11"
+  },
+  {
+    "raw_name": "qualified/one_wave/test.log",
+    "stored": "qualified/one_wave/test.log.gz",
+    "raw_bytes": 289,
+    "raw_sha256": "139ec4599ee2edd8d25c12c0f97bed1c3df4f225c047aec79ef393375b2c7025"
+  },
+  {
+    "raw_name": "qualified/original/compile.log",
+    "stored": "qualified/original/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/original/dorado_run_control_step.sv",
+    "stored": "qualified/original/dorado_run_control_step.sv.gz",
+    "raw_bytes": 4153,
+    "raw_sha256": "33165a049b97268d59b55f286206608f09fb0a2a593add58509ab18dc376f3c6"
+  },
+  {
+    "raw_name": "qualified/original/test.log",
+    "stored": "qualified/original/test.log.gz",
+    "raw_bytes": 306,
+    "raw_sha256": "b454b8478008639bf6d66aefc8148c6e9d05de4c5ee21202969c332ac72f58dc"
+  },
+  {
+    "raw_name": "qualified/reference/manifest.json",
+    "stored": "qualified/reference/manifest.json.gz",
+    "raw_bytes": 2357,
+    "raw_sha256": "3be61ee5fcc80d83a03bcfa15e8e670b6014acdfe7547bf1b74708f42feddadf"
+  },
+  {
+    "raw_name": "qualified/reference/original_run_control.sv",
+    "stored": "qualified/reference/original_run_control.sv.gz",
+    "raw_bytes": 11319,
+    "raw_sha256": "e1872f268be52f315213980081163d1f8195cc6ea14b23f6b5a294c8be251d83"
+  },
+  {
+    "raw_name": "qualified/reference/run_control_reference_adapter.sv",
+    "stored": "qualified/reference/run_control_reference_adapter.sv.gz",
+    "raw_bytes": 1124,
+    "raw_sha256": "93a6102a5c428bfbc93e0edd98504853a883d9ea072ab7ea1284277774db1bd3"
+  },
+  {
+    "raw_name": "qualified/repeat_clock/compile.log",
+    "stored": "qualified/repeat_clock/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/repeat_clock/dorado_run_control_step.sv",
+    "stored": "qualified/repeat_clock/dorado_run_control_step.sv.gz",
+    "raw_bytes": 4175,
+    "raw_sha256": "4f48f119a0b107c6d78074d5436f87987da716d1ef2c31d572932e530603b27c"
+  },
+  {
+    "raw_name": "qualified/repeat_clock/test.log",
+    "stored": "qualified/repeat_clock/test.log.gz",
+    "raw_bytes": 289,
+    "raw_sha256": "e14c452471cab50301bc29489c4b77103cdfcd73d32e2ad7ea2b95aeeef9c8df"
+  },
+  {
+    "raw_name": "qualified/results.json",
+    "stored": "qualified/results.json.gz",
+    "raw_bytes": 39639,
+    "raw_sha256": "7a97967d8fd0184e3c7ed80fb0f9e0b23b321c325c0c45592fe69cbbba2b06e0"
+  },
+  {
+    "raw_name": "qualified/verilator/compile.log",
+    "stored": "qualified/verilator/compile.log.gz",
+    "raw_bytes": 13134,
+    "raw_sha256": "2e4d7b1399fa237a0d134b7d21b1b4ede3a0949b68f37dddfde1eceebc19c582"
+  },
+  {
+    "raw_name": "qualified/verilator/test.log",
+    "stored": "qualified/verilator/test.log.gz",
+    "raw_bytes": 473,
+    "raw_sha256": "ec00a1036a67ea4c8e2e1f3dc0254e62c25ae7e67310f93e9e17b4d161130178"
+  },
+  {
+    "raw_name": "qualified/wrong_prestart_polarity/compile.log",
+    "stored": "qualified/wrong_prestart_polarity/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/wrong_prestart_polarity/dorado_run_control_step.sv",
+    "stored": "qualified/wrong_prestart_polarity/dorado_run_control_step.sv.gz",
+    "raw_bytes": 4151,
+    "raw_sha256": "926d529380b105014085ed6d16cc9a2def078b7ac248dfd25b717a390316729a"
+  },
+  {
+    "raw_name": "qualified/wrong_prestart_polarity/test.log",
+    "stored": "qualified/wrong_prestart_polarity/test.log.gz",
+    "raw_bytes": 354,
+    "raw_sha256": "2601e0987d86940dc2057d46f25167b114b9a9b313cd8ff0239141ebab6a5dc9"
+  },
+  {
+    "raw_name": "entrypoints/verilog/Makefile",
+    "stored": "entrypoints/verilog/Makefile.gz",
+    "raw_bytes": 16484,
+    "raw_sha256": "92e6ee012dda899e29891c3e4e1687d2aaebbd8074927af5d1e913e68713e027"
+  },
+  {
+    "raw_name": "entrypoints/verilog/verilator/Makefile",
+    "stored": "entrypoints/verilog/verilator/Makefile.gz",
+    "raw_bytes": 107797,
+    "raw_sha256": "abcf20a5e37d688c8d6dd5a6a6c8c54e8101151e82843d4d56b00aefca68b667"
+  },
+  {
+    "raw_name": "history/run-control-reference-v3-20261020/test.log",
+    "stored": "history/run-control-reference-v3-20261020/test.log.gz",
+    "raw_bytes": 181,
+    "raw_sha256": "fdb62151f74587c65026ab630f892a406a6559bce44b0fab77f454881e84e6f4"
+  },
+  {
+    "raw_name": "history/run-control-reference-v4-20261020/test.log",
+    "stored": "history/run-control-reference-v4-20261020/test.log.gz",
+    "raw_bytes": 211,
+    "raw_sha256": "ed487a3c39670a2eb734579511a5d595dcf2d44a3d865c628d067be9da2a8b53"
+  },
+  {
+    "raw_name": "history/run-control-qualified-v1-20261020.log",
+    "stored": "history/run-control-qualified-v1-20261020.log.gz",
+    "raw_bytes": 108,
+    "raw_sha256": "d007ea76bdb67512e7c94bfd5b804640cf85a48d8500b7f4b7a2db8283f55e7a"
+  },
+  {
+    "raw_name": "history/run-control-qualified-v2-20261020.log",
+    "stored": "history/run-control-qualified-v2-20261020.log.gz",
+    "raw_bytes": 108,
+    "raw_sha256": "d5c890f44485f3322052a5f4d8f943ba5a17b4552aaca3627e75c792426a500c"
+  },
+  {
+    "raw_name": "replay/capture_new_drun/compile.log",
+    "stored": "replay/capture_new_drun/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/capture_new_drun/test.log",
+    "stored": "replay/capture_new_drun/test.log.gz",
+    "raw_bytes": 357,
+    "raw_sha256": "97ca2d19ff91cddc48c65031a421ed76aa6ec4ec0dbc0edee245575084310de4"
+  },
+  {
+    "raw_name": "replay/drop_feedback_clock/compile.log",
+    "stored": "replay/drop_feedback_clock/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/drop_feedback_clock/test.log",
+    "stored": "replay/drop_feedback_clock/test.log.gz",
+    "raw_bytes": 357,
+    "raw_sha256": "a0f75a20f99014afd5ccd60712414fbe750292f1d968091be14ab990faf52e39"
+  },
+  {
+    "raw_name": "replay/drop_stop_t1_contributor/compile.log",
+    "stored": "replay/drop_stop_t1_contributor/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/drop_stop_t1_contributor/test.log",
+    "stored": "replay/drop_stop_t1_contributor/test.log.gz",
+    "raw_bytes": 359,
+    "raw_sha256": "24ebf97f53d623d5969bde1dcbde13845b2b029b3f6775bc52f24278d7ef2a52"
+  },
+  {
+    "raw_name": "replay/generation.log",
+    "stored": "replay/generation.log.gz",
+    "raw_bytes": 57,
+    "raw_sha256": "1e94aea895671efff245722df5e244c20b55fcb1efb452f7a2c59a764c8aad99"
+  },
+  {
+    "raw_name": "replay/ignore_memory_stop_clear/compile.log",
+    "stored": "replay/ignore_memory_stop_clear/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/ignore_memory_stop_clear/test.log",
+    "stored": "replay/ignore_memory_stop_clear/test.log.gz",
+    "raw_bytes": 359,
+    "raw_sha256": "44ac178199b37fd3bbc815b49742e81d81b6e63b4871fd099a05bf22da4c31bd"
+  },
+  {
+    "raw_name": "replay/ignore_refresh_set/compile.log",
+    "stored": "replay/ignore_refresh_set/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/ignore_refresh_set/test.log",
+    "stored": "replay/ignore_refresh_set/test.log.gz",
+    "raw_bytes": 357,
+    "raw_sha256": "b3c7a55a6290a84bdc228ce81ed3effadeb60b873deb801723e35f38c4746707"
+  },
+  {
+    "raw_name": "replay/ignore_stop_reset/compile.log",
+    "stored": "replay/ignore_stop_reset/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/ignore_stop_reset/test.log",
+    "stored": "replay/ignore_stop_reset/test.log.gz",
+    "raw_bytes": 359,
+    "raw_sha256": "8e4f5bf92d908664d8473b5a00da841b2ec9e1984187049e6ea68b36b8b93bb2"
+  },
+  {
+    "raw_name": "replay/memory_refresh_follows_cpu/compile.log",
+    "stored": "replay/memory_refresh_follows_cpu/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/memory_refresh_follows_cpu/test.log",
+    "stored": "replay/memory_refresh_follows_cpu/test.log.gz",
+    "raw_bytes": 357,
+    "raw_sha256": "b3c7a55a6290a84bdc228ce81ed3effadeb60b873deb801723e35f38c4746707"
+  },
+  {
+    "raw_name": "replay/one_wave/compile.log",
+    "stored": "replay/one_wave/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/one_wave/test.log",
+    "stored": "replay/one_wave/test.log.gz",
+    "raw_bytes": 294,
+    "raw_sha256": "e4d71ad7e6ce98d77609a3a327d948f692e02597f8563bc5acda75ba03e3d159"
+  },
+  {
+    "raw_name": "replay/original/compile.log",
+    "stored": "replay/original/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/original/test.log",
+    "stored": "replay/original/test.log.gz",
+    "raw_bytes": 311,
+    "raw_sha256": "5bbfa299b4d662a8e55424db5e7641fd83f43c09b05574f81be1ea0a40a8bae7"
+  },
+  {
+    "raw_name": "replay/reference/manifest.json",
+    "stored": "replay/reference/manifest.json.gz",
+    "raw_bytes": 2357,
+    "raw_sha256": "29aaaa2e2cf6330d9e1827640e187cb8ae3d88abaa596da1aaa0783fef06345f"
+  },
+  {
+    "raw_name": "replay/reference/original_run_control.sv",
+    "stored": "replay/reference/original_run_control.sv.gz",
+    "raw_bytes": 11319,
+    "raw_sha256": "e1872f268be52f315213980081163d1f8195cc6ea14b23f6b5a294c8be251d83"
+  },
+  {
+    "raw_name": "replay/reference/run_control_reference_adapter.sv",
+    "stored": "replay/reference/run_control_reference_adapter.sv.gz",
+    "raw_bytes": 1124,
+    "raw_sha256": "93a6102a5c428bfbc93e0edd98504853a883d9ea072ab7ea1284277774db1bd3"
+  },
+  {
+    "raw_name": "replay/repeat_clock/compile.log",
+    "stored": "replay/repeat_clock/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/repeat_clock/test.log",
+    "stored": "replay/repeat_clock/test.log.gz",
+    "raw_bytes": 294,
+    "raw_sha256": "74dc3b9cbeb5f06250e182d12283e40f6f187673ebefeed1c414861c25b8c8d3"
+  },
+  {
+    "raw_name": "replay/results.json",
+    "stored": "replay/results.json.gz",
+    "raw_bytes": 40799,
+    "raw_sha256": "7442dbd16e57e89a349ddfb6d382cb3a420777b5c1a88c245f32fe12be9b9478"
+  },
+  {
+    "raw_name": "replay/verilator/compile.log",
+    "stored": "replay/verilator/compile.log.gz",
+    "raw_bytes": 13144,
+    "raw_sha256": "0965aa7fcfbee3274f59019b83b16cf061ab8ff719081e5404dc9d8612022cca"
+  },
+  {
+    "raw_name": "replay/verilator/test.log",
+    "stored": "replay/verilator/test.log.gz",
+    "raw_bytes": 478,
+    "raw_sha256": "78ec9f171fe402fc8218581e4afd02366e29221f3da62318d23f054e35c46f6c"
+  },
+  {
+    "raw_name": "replay/wrong_prestart_polarity/compile.log",
+    "stored": "replay/wrong_prestart_polarity/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/wrong_prestart_polarity/test.log",
+    "stored": "replay/wrong_prestart_polarity/test.log.gz",
+    "raw_bytes": 359,
+    "raw_sha256": "cdb4154f1d983f858c433a2a67f46b6b9c5647171618aba00e9466cc5975afb6"
+  },
+  {
+    "raw_name": "proof/replay.json",
+    "stored": "proof/replay.json.gz",
+    "raw_bytes": 827,
+    "raw_sha256": "38dac979a4d840a7a178a9e17595bf57b1335950771af933465bb3f58988c766"
+  }
+]

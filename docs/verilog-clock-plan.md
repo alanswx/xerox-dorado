@@ -62,8 +62,8 @@ not a prerequisite for the performance goal.
    Retain SDRAM, disk-worker/cache and direct-DDR network behavior and the
    original pin, memory and timing contracts. No snapshot-only virtual controls.
 3. Continue the original clock-family migration: the seven-state instruction
-   phase/extension component now passes (receipt below). Establish remaining
-   capture/hold ordering from T/StartCycle/Run/Stop/Hold/Freeze/RunRefresh,
+   phase/extension and22-Q run/refresh components pass (receipts below). Couple
+   them in the original graph, then qualify Hold/Freeze and T/task capture,
    and test against an independent event-driven reference. The existing
    eight-slot phase oracle is not a deployable full-speed clock solution.
 4. Fit only a justified native candidate, pass all operating conditions and
@@ -75,6 +75,46 @@ but require a separate future milestone and explicit acceptance scope. Cedar
 rollback restores the software world, not disk contents or a cycle-exact set
 of FPGA/ARM internals. See [the original guide](../DoradoDocs/manuals/Introduction_to_Cedar_7.0.md)
 and [our existing C-emulator checkpoint gate](cedar-checkpoint.md).
+
+### Run/refresh control contract qualified (2026-10-20)
+
+`dorado_run_control_step.sv` translates22 existing Qs in ContA's run/refresh
+controller, including the six-bit i03 single-step/run pipelines and j04/k01/k02/
+l02/l03/l04/l05/l06. It propagates derived clock events and asynchronous
+set/reset to a stable boundary with a bounded combinational evaluator. It
+adds no state or reset and is not instantiated in a native core.
+
+The independent reference is extracted directly from the original wire list:
+22 packages /181 pins, real combinational pin functions and independent
+MC10176/MC10231/SE10231 event-driven FFs. Tied ECL outputs are ORed. All22 Qs,
+processor/memory enable outputs, wired decodes and seven clock-event channels
+match across66,632 binary ordered events in EACH of Icarus and Verilator.
+Manual cases cover run startup, processor halt with memory still enabled by
+RunRefresh, the single-step shift/stop latch, stop retention and rStop recovery.
+128 seeded states drive32,768 mixed pin transitions, each separated into data
+setup and clock events. Ten broken refresh/stop/pipeline/clock variants reject.
+
+The setup contract is material: an initial fixture changed data and root clock
+simultaneously, exposing the original D/clock path boundary. The corrected
+fixture settles data first. This is not proof for arbitrary simultaneous data/
+clock changes, analog delays or X/Z clock states. A coupled phase scheduler must
+preserve pre-edge data and actual fanout ordering. Hold/Freeze, the combined
+instruction-phase feedback, processor T/task capture, downstream memory refresh
+activity and native timing/firmware qualification remain pending.
+
+Receipt: `fpga/mister/reports/2026-10-20-run-refresh-contract/`. All executed
+source/dependency bytes match the working files. Archive extraction and fresh
+rebuild reproduce the graph, both simulator results and all ten failures.
+Earlier raw setup-failure and provisional logs are retained as history.
+No core, Main, daemon, PLL or measured hardware speed changed.
+
+```
+make -C verilog run-control-test RUN_CONTROL_OUT=build/run-control-new
+```
+
+Next: couple this controller and the seven instruction-phase Qs using the
+original graph, then qualify Hold/Freeze and processor T/task capture ordering
+before native integration. Full FPGA snapshots remain deferred.
 
 ### Speed work resumed: baseline and clock checks
 
