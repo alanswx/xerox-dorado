@@ -80,13 +80,15 @@ def audit(root,qualified,initial):
     assert collected['status']=='TERMINAL_INPUT_READBACK'and len(collected['job_pids_absent'])==10
     assert collected['actual']==actual
     core=root/'core';mapping=(core/'output_files/Dorado.map.rpt').read_text()
-    fitted=(core/'output_files/Dorado.fit.rpt').read_text()
+    # Quartus17's fitter emits Latin-1 degree symbols in device/pin sections.
+    # Keep raw bytes for hashing; the memory tables themselves are ASCII.
+    fitted=(core/'output_files/Dorado.fit.rpt').read_text(encoding='latin-1')
     source=baseline.REPORTS/'2026-10-19-native59-dsketh'
     oldmap=read(source/'core/output_files/Dorado.map.rpt').decode()
     old=mc_rows(oldmap);new=mc_rows(mapping)
     expected={k:(1 if k in('MemC/u_b14','MemC/u_c14')else 2)for k in old}
     assert new==expected,('MC1668 normal storage differs',new,expected)
-    assert sum(old.values())==36 and sum(new.values())==20
+    assert sum(old.values())==38 and sum(new.values())==22
     metadata=lambda name:json.loads((root/'src/fpga/mister'/('snapshot_native_'+name)/'assets.json').read_text())
     memories={}
     memories['instruction']=readers.instruction_ram(mapping)

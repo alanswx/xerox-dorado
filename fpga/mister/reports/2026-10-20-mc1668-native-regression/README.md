@@ -35,8 +35,8 @@ is output-only. The failed compile and sources are diagnostic history.
 The full candidate is `/home/alans/mister/Dorado_Mc1668_20261020` on
 misterubuntu. Builder 3979425 / fitter 3983817 were confirmed live during routing;
 SSH session 20239 observes the same job. Do not restart because a tool observation
-expires. Source synthesis shows twelve MC1668 instances with 20 retained latch
-registers versus 36 before (duplicate physical inputs share registers), removing
+expires. Source synthesis shows twelve MC1668 instances with 22 retained latch
+registers versus 38 before (duplicate physical inputs share registers), removing
 the sixteen obsolete sampled edge-history registers. This is synthesis evidence,
 not a fitted result. Frequency remains 50MHz/SYSPER4.
 
@@ -45,6 +45,12 @@ sequentially, then allows assembly only after timing checks pass. Historical
 `native59-*` report prefixes identify unchanged reporting scripts, not an old
 artifact. The new source/memory/timing auditor and terminal collector are staged
 workflow tools; their full-candidate positive review is still pending.
+
+Correction after this component archive was frozen: the per-part synthesis
+totals are 38 before / 22 after, a reduction of sixteen. The archived pending
+auditor had a 36/20 arithmetic error; current `tools/audit_mc1668_native.py`
+corrects it and reads Quartus's Latin-1 fitter report. These checker corrections
+do not change the frozen HDL, native-cell tests or Initial component result.
 
 Current hardware is unchanged Native59, Main 29511/server 29510. HDMI capture was
 reachable using the installed MiSTerKVMS CLI. Escape dismissed its blanker and

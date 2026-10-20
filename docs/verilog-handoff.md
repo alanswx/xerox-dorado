@@ -71,7 +71,7 @@ was confirmed live via ps after routing completed; no terminal fit is claimed.
 Observe that same job, not a replacement. `run-state.json` records all stage
 PIDs/exit codes. Never rerun because an observation expires or the session is
 missing; check the recorded processes and files first. Source synthesis has
-all twelve MC1668 positions and 20 normal latch registers versus 36 previously,
+all twelve MC1668 positions and 22 normal latch registers versus 38 previously,
 removing 16 obsolete edge-history registers; duplicate inputs share storage.
 This is not final fitted resource/timing evidence. Cadence remains 50MHz/SYSPER4.
 
