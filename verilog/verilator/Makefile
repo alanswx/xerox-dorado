@@ -1828,6 +1828,11 @@ PROCESSOR_CAPTURE_OUT ?= build/processor-capture
 processor-capture-test:
 	@cd ../.. && python3 tools/test_processor_capture.py --output "$(PROCESSOR_CAPTURE_OUT)" --mutations
 
+TASK_CAPTURE_OUT ?= build/task-capture
+.PHONY: task-capture-test
+task-capture-test:
+	@cd ../.. && python3 tools/test_task_capture.py --output "$(TASK_CAPTURE_OUT)" --mutations
+
 RUN_CONTROL_OUT ?= build/run-control
 run-control-test:
 	@cd ../.. && python3 tools/test_run_control.py --output "$(RUN_CONTROL_OUT)" --mutations

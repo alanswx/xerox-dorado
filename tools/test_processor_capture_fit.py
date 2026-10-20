@@ -15,10 +15,11 @@ import shutil
 from audit_control_clock_fit import audit, CORNERS
 
 
-def run(source, qualified, out):
+def run(source, qualified, out, expected_component='processor_capture'):
     out.mkdir(parents=True, exist_ok=False)
     baseline = audit(source, qualified, False)
-    assert baseline['status'] == 'PASS_COMPONENT_TIMING' and baseline['component'] == 'processor_capture'
+    assert baseline['status'] == 'PASS_COMPONENT_TIMING' and baseline['component'] == expected_component
+    evaluator = 'dorado_' + expected_component + '_step.sv'
 
     def rehash(directory, name):
         digest = hashlib.sha256((directory / name).read_bytes()).hexdigest()
@@ -49,7 +50,7 @@ def run(source, qualified, out):
                 record['launch_bits'] = 52
             path.write_text(json.dumps(record, indent=2) + '\n')
         elif name == 'changed_evaluator_rehashed':
-            path = directory / 'dorado_processor_capture_step.sv'
+            path = directory / evaluator
             path.write_bytes(path.read_bytes() + b'\n// changed after qualification\n')
             rehash(directory, path.name)
         elif name in ['changed_min_delay_rehashed', 'relaxed_period_rehashed']:
@@ -82,7 +83,7 @@ def run(source, qualified, out):
                 raise
             reason = type(error).__name__ + ': ' + str(error)
         rows.append(dict(case=name, rejected=True, reason=reason))
-    result = dict(status='PASS_PROCESSOR_CAPTURE_TIMING_READER_CONTROLS',
+    result = dict(status='PASS_' + expected_component.upper() + '_TIMING_READER_CONTROLS',
                   baseline=baseline, cases=rows, quartus_run=False)
     (out / 'results.json').write_text(json.dumps(result, indent=2) + '\n')
     print(result['status'], len(rows), 'damaged evidence cases rejected')
@@ -93,5 +94,6 @@ if __name__ == '__main__':
     parser.add_argument('directory', type=Path)
     parser.add_argument('--qualified', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--component', choices=['processor_capture', 'task_capture'], default='processor_capture')
     args = parser.parse_args()
-    run(args.directory.resolve(), args.qualified.resolve(), args.output.resolve())
+    run(args.directory.resolve(), args.qualified.resolve(), args.output.resolve(), args.component)

@@ -33,9 +33,11 @@ def slack(path,model):
 
 def audit(directory,qualified,allow_missing):
     provenance=json.loads((directory/'provenance.json').read_text())
-    assert provenance.get('component')in(None,'processor_capture'),'Unknown fixture profile'
-    processor=provenance.get('component')=='processor_capture'
-    expected_launch,expected_result=(122,109)if processor else(52,51)
+    profiles={None:(52,51,'control_clock','PASS_COUPLED_ORIGINAL_CONTROL_CLOCK_COMPONENT','dorado_control_clock_step.sv'),
+              'processor_capture':(122,109,'processor_capture','PASS_COUPLED_PROCESSOR_CAPTURE_COMPONENT','dorado_processor_capture_step.sv'),
+              'task_capture':(242,139,'task_capture','PASS_TASK_CAPTURE_ARRIVAL_CONTRACT','dorado_task_capture_step.sv')}
+    assert provenance.get('component')in profiles,'Unknown fixture profile'
+    expected_launch,expected_result,component,expected_status,evaluator=profiles[provenance.get('component')]
     assert provenance['clock_period_ns']==15 and provenance['launch_bits']==expected_launch and provenance['result_bits']==expected_result
     assert not provenance['assembly_permitted']and not provenance['native_qualified']
     annotation=b'\nset_global_assignment -name LAST_QUARTUS_VERSION "17.0.2 Lite Edition"'
@@ -46,9 +48,7 @@ def audit(directory,qualified,allow_missing):
             raw=raw[:-len(annotation)]
         assert sha(raw)==digest,('changed input',name)
     qualified_record=json.loads((qualified/'results.json').read_text())
-    expected_status='PASS_COUPLED_PROCESSOR_CAPTURE_COMPONENT'if processor else'PASS_COUPLED_ORIGINAL_CONTROL_CLOCK_COMPONENT'
     assert qualified_record['status']==expected_status
-    evaluator='dorado_processor_capture_step.sv'if processor else'dorado_control_clock_step.sv'
     evaluator_digest=qualified_record['inputs']['verilog/rtl/'+evaluator]
     assert sha((directory/evaluator).read_bytes())==evaluator_digest
     sdc=(directory/'clock.sdc').read_text();qsf=(directory/'clock_fit.qsf').read_text()
@@ -102,7 +102,7 @@ def audit(directory,qualified,allow_missing):
     minimum={mode:min(r[mode]for r in records)for mode in ['setup','hold','mpw']}
     passing=targeted_complete and all(v>=0 for v in minimum.values())
     return dict(status='PASS_COMPONENT_TIMING'if passing else'REJECTED_COMPONENT_TIMING',
-        scope=__doc__,component='processor_capture'if processor else'control_clock',period_ns=15,resources=resources,minimum_slack_ns=minimum,conditions=records,
+        scope=__doc__,component=component,period_ns=15,resources=resources,minimum_slack_ns=minimum,conditions=records,
         input_staging_bits=provenance.get('input_staging_bits',0),
         targeted_coverage_complete=targeted_complete,evaluator_sha256=evaluator_digest,
         permitted_qsf_delta='Quartus17.0.2 LAST_QUARTUS_VERSION annotation only',

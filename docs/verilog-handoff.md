@@ -17,9 +17,10 @@ components/evidence and reuse clock work only after checking Native59 contracts.
 
 The last measured rate remains **1,947,654.12 instruction issues/s**. No new
 full-core clock build, FPGA rollback or hardware speedup is claimed. The
-coupled control/processor slice now passes original-circuit comparison for
-64 Qs and isolated 15ns FPGA timing. Immediate work: the actual task-arbiter/
-hold producers and T data/writeback, then native integration and original-firmware gates.
+coupled task/address slice now passes an explicit-arrival digital contract for
+88 Qs and isolated 15ns FPGA timing. Its illustrative delay profiles are not
+vendor/board timing qualification. Immediate work: actual T data/write windows
+and remaining Ready/MIR/hold producers, then native integration and firmware gates.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
 qualify it through original firmware and the germ/disk path. Rollback preserves
 later filesystem changes; it is not a disk rewind or a raw FPGA snapshot.
@@ -32,6 +33,76 @@ existing UIO bits. Component-only; native and actual Main coordination are
 absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
+
+### Task-selection feedback and task-file addressing (2026-10-20)
+
+The clock migration now has an 88-Q coupled task/address component,
+`dorado_task_capture_step.sv`: the prior 64 Qs, complete h08/h09 BNT registers,
+f14/f15 Switch/SwitchUp/TPCBypass packages, j08/j09 CTask packages, and the
+ProcH i12 / ProcL i14 CurrLast address registers. Its independent original
+wire-list graph contains 115 packages / 1,102 connected pins. Actual Next,
+SwitchUp and CTask feedback is internal. The four prior clock/transfer functions
+are reused exactly except the clock-function name. Ready/IsNext storage, MIR
+block/tasking decode, maintenance and memory-Hold producers remain boundaries.
+
+**A new capture-order bug was caught before native integration.** Updating
+Switch/Next and then using that live value for processor captures takes the
+incoming task early. Processor capture must preserve the task setup value
+from before the root event through the phase-Q/SHCP cascade. The new evaluator
+does so without adding a pipeline register. CurrLast uses each half's actual
+DblClock (buffered pp clock), and LastNext uses the negative phase-Q select;
+Clock1 is not the CurrLast capture clock. A probe from frozen inputs shows why
+a zero-delay graph was insufficient: Icarus rejects the live-source defect
+at task 1, while Verilator accepts it for the full run. The explicit-delay
+original graph rejects it in both. The probe and its source/logs are archived.
+
+Both simulators now agree on 73,761 ordered events in each of three arrival
+profiles: gate/ordinary-FF/SE-phase-FF delays of 1/1/1ns, 0.5/1/0.5ns, and
+1/2/1ns. Each run compares all 88 Qs, 25 clock channels and task/hold flags;
+all 16 hardware wakeups, 706 held-task checks, 304 priority-yield checks,
+61 split T-capture events, 675 held fetches, 289 resumed fetches, 1,043 events
+with Next changing around processor capture, and 5,931 address changes pass.
+Fifteen compiled bad variants reject, including the live-source defect,
+priority/Ready-mask errors, wrong CT clocks, blocked held-task priority,
+merged Hold nets, and wrong CurrLast clock or phase select.
+
+This is a **conditional digital arrival contract**, not characterized vendor
+or board timing. The delay profiles are illustrative, explicitly recorded,
+and do not establish analog setup/hold or a 60ns operating rate. Tests allow
+20ns between boundary updates and settling observations, exercise normal and
+extended running with NoDispatch held low, update Hold/StopTasks in the high
+clock window, and exclude simultaneous CTask asynchronous set/reset. The
+separate controller checks remain authoritative for that component; coupled
+startup/freeze/producer timing is still open. Provisional arbitrary low-window
+control tests and overlapping set/reset cases are retained as unqualified history.
+
+One isolated 15.000ns Quartus17.0.2 fit on misterubuntu passes all four operating
+conditions: setup +5.058ns, hold +0.151ns, pulse width +6.555ns, internal evaluator
+setup at least +8.057ns. It uses 309 ALMs / 470 registers including the staged
+measurement shell, no RAM/DSP/PLL. Targeted timing collections contain 187
+launch / 115 result registers. I/O retains 2ns maximum / 0ns minimum delays;
+there are no timing exceptions, assembly or deployment. This measures the
+FPGA combinational budget, not the original arrival profile. All five recorded
+job processes were absent at collection. The timing reader and nine damaged
+receipt controls pass; the old 32-Q and 64-Q reader profiles still pass.
+
+Receipt: `fpga/mister/reports/2026-10-20-task-capture/`, with frozen inputs,
+raw losslessly compressed logs/reports, a zero-delay diagnostic, and archive
+replay of all three profiles / both simulators / fifteen bad variants. Native59
+remains unchanged at 1,947,654.12 instruction issues/s; no new hardware speed,
+full processor or original-firmware boot qualification is claimed.
+
+```
+make -C verilog task-capture-test TASK_CAPTURE_OUT=build/task-capture-new
+```
+
+Next: connect the real T-data transparent latches, delayed Hold and the T-file
+write window to these task addresses; check per-task data across switches and
+holds. Complete the Ready/MIR/hold producer and remaining board/memory timing
+boundaries, then integrate with Native59 and qualify original-ROM diagnostics,
+firmware boot and measured speed. Authentic Cedar rollback, repeated boots,
+cold disk persistence and two-hour stress remain open. FPGA snapshots stay
+deferred; necessary Main changes remain isolated.
 
 ### Coupled processor capture slice qualified (2026-10-20)
 
