@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "scope": "Chip-width cache against original RTL/DRAM with nonzero raw padding bits.\n\nCompare every new physical register with its explicit reference abstraction,\nall guest outputs and raw handshakes, plus full scan/save/invert/restore/resume.\nThe fixture predicts actual address updates; native address logic is separate.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "lost_invalidation",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "early_write_commit",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "lost_reset_commit",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "lost_guest_commit",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "wrong_response_kind",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "held_request_leak",
+      "returncode": 1,
+      "expected_failure": "held raw request/response leak"
+    },
+    {
+      "case": "scan_when_running",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "lost_guest_enable",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    }
+  ],
+  "executed_inputs": {
+    "test_storage_chipwidth.py": "4348114319b6ea10ab4b34c90e2a03e20417948d7bb14aaa6450d8389c45a594",
+    "test_storage_chipwidth.cpp": "9754c5cd8fda48004efda49203f914309d5bb093231b67a5aaf95cb167041a16",
+    "generate_storage_group.py": "706ffd66590d6ea8f08dcb5077856da7eff4aa6f89d183c961f094072e5da4c0",
+    "test_storage_group_snapshot.cpp": "44c194678b9fbb11481c22a9d2b02b5250c71e07334ebb50f1078f1565fb6484",
+    "generate_storage_compact.py": "2d003ea527b22b4f71ae328ef0b64216bacfcb4f472195941c771411addbf5e5",
+    "test_storage_group_snapshot.py": "64f996f60bc607e8aed2d6d8f31d9717e0e7d1f1a2cb8121149e280b0535885d",
+    "generate_storage_chipwidth.py": "54654c7ca967fc4da3bb23d870af0ebcea91e43c4215f945950bd9ec9f86c1e2",
+    "dorado_storage_group.sv": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+    "cell_MK4096P_6.v": "abeb76aa468b903df946c01c0bb147991929aee33573c660ca2398018d16759e"
+  },
+  "limits": "Component address predictor in fixture; no actual MSA/native barrier, new complete schema, area/timing or hardware qualification."
+}

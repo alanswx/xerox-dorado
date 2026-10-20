@@ -42,6 +42,65 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**The complete compact nineteen-board fit saves 4,253 ALMs, but still fails capacity: 42,449 / 41,910 ALMs, 539 over.**
+
+Serial63Compact integrates the exact qualified compact MSA/transport receipts
+and schema `56e997e5c1fb54d0` in the reviewed Serial62Area project. All 659 parent
+inputs and 413 Native59 receipts are checked. Only the qualified replacement
+assets, router name, schema and metadata change; obsolete MSA hold exceptions to
+the removed saved_addr/saved_data registers are deleted. Original clocks, real
+IO constraints, area policy, memory layout and five virtual service contracts
+remain. The independent review directly checks all 2,761 original pins and
+parameters against Native59 and rejects 23 damaged source/policy/alias cases.
+A complete equivalent Quartus alias set is accepted; partial/duplicate/foreign
+sets reject. Actual Quartus leaves all 659 prepared inputs byte-identical here.
+
+Fresh Mac XML uses the actual QSF's 319 unique HDL files / 15 macros / 3,945
+instances. It accounts for 1,957,944 physical board bits, 4,578 private board
+bits, 69 private owner/router bits and all 132,484 unchanged wrapper bits with
+ACCESS PENDING: 2,095,075 sequential bits, no exclusions. Fourteen missing-state,
+geometry, parameter and exact-alias cases reject. Top emu/UIO, external raw RAM
+and ARM services are still outside this inventory and remain required work.
+
+Synthesis passes with 49,242 registers (previous 58,736). The fitter then exits 3:
+4,265 LABs / 4,191 available, 42,449 ALMs / 41,910 (previous 46,702). Its summary
+reports 48,574 registers, 2,498,471 block-memory bits, 35 DSPs and seven virtual
+pins. All nineteen boards and three transport entities remain in the hierarchy.
+These are failed-fit diagnostics, not a legal placement or physical RAM result;
+zero RAM blocks in that failed summary is not memory qualification. No STA,
+assembly, RBF or reload follows. Four damaged capacity/process cases reject.
+
+The remote `/home/alans/mister/Dorado_Serial63Compact_20261019` run is TERMINAL;
+builder 2412173 and fitter 2414597 are absent. Do not restart it. No job remains
+running. Evidence: `fpga/mister/reports/2026-10-19-snapshot-serial-compact/`.
+All 2,254 raw members pass lossless readback. Extracted tools reproduce all 659
+staged inputs after path rebasing; extracted source/pin/alias controls, complete
+native inventory controls and terminal capacity review/controls pass. Source
+review initially needed a namespaced view for prefixed native helper filenames;
+that adapter was fixed without an RTL change. Startup preflight had 20 source
+controls; the final independent reviewer adds three meaningful alias controls.
+
+Next: qualify a cache that stores exactly each chip group's WIDTH bits rather
+than unused high padding from its 16-bit raw word. The component-only prototype
+has 38/54 actual bits versus 46/58, with every remaining bit exported. It passes
+1,768,540 checks against untouched original RTL/DRAM, with NONZERO raw padding
+supplied deliberately, all original chip bits compared, nine snapshots across
+pending read/write/write-done/reset and eight bad RTL cases rejected. The exact
+raw 16-bit request/response interface and guest pipeline are retained; no original
+CPU/cache/map/ECC state is removed. This prototype is archived separately within
+this report and was NOT used in Serial63Compact. Complete-MSA integration,
+independent geometry/source review, a new schema, matched area/timing and another
+full-core fit remain pending. Do not infer capacity from its smaller bit count.
+
+Complete wrapper/input/video/raw-memory/Main/daemon/server snapshots, genuine
+reseed ownership, connection-preserving pause and matching-disk generations
+remain required. Original 60 ns clocks/timers, pinned speed comparisons, three
+fresh Cedar boots/cold persistence and two-hour combined stress remain open.
+MiSTer14's last qualified Native59 configuration and measurement of
+1,947,654.12 instruction issues/s are unchanged by these experiments. Goal ACTIVE.
+
+Previous compact transport qualification:
+
 **All eight compact MSA adapters now qualify through SPI under a new schema. Next: the complete nineteen-board fit.**
 
 `serial_state_format_msa_compact.py` binds the qualified component receipts to

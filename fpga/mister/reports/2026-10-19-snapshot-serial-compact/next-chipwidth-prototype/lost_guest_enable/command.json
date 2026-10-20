@@ -1,0 +1,19 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "storage_snapshot_fixture",
+  "-Wno-fatal",
+  "--assert",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-chipwidth-simulation-v1-20261019/lost_guest_enable/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-chipwidth-simulation-v1-20261019/lost_guest_enable/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-chipwidth-simulation-v1-20261019/lost_guest_enable/storage_group_chipwidth.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-chipwidth-simulation-v1-20261019/executed-inputs/dorado_storage_group.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-chipwidth-simulation-v1-20261019/executed-inputs/cell_MK4096P_6.v",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-chipwidth-simulation-v1-20261019/executed-inputs/test_storage_chipwidth.cpp"
+]

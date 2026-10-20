@@ -1,0 +1,2626 @@
+{
+  "format": "dorado-serial-boards-msa-compact-v1",
+  "abi": 2,
+  "scope": "boards-only",
+  "encoding": "dense-lsb0",
+  "response_limit": 4096,
+  "service_domains": 5,
+  "board_bits": 1957944,
+  "boards": [
+    {
+      "id": 0,
+      "name": "ContA",
+      "index_bits": 12,
+      "bits": 1353,
+      "words": 192,
+      "runs": [
+        {
+          "word": 0,
+          "count": 37,
+          "width": 18,
+          "offset": 0
+        },
+        {
+          "word": 37,
+          "count": 1,
+          "width": 15,
+          "offset": 666
+        },
+        {
+          "word": 2400,
+          "count": 16,
+          "width": 4,
+          "offset": 681
+        },
+        {
+          "word": 2416,
+          "count": 1,
+          "width": 10,
+          "offset": 745
+        },
+        {
+          "word": 2432,
+          "count": 16,
+          "width": 4,
+          "offset": 755
+        },
+        {
+          "word": 2448,
+          "count": 1,
+          "width": 10,
+          "offset": 819
+        },
+        {
+          "word": 2464,
+          "count": 16,
+          "width": 4,
+          "offset": 829
+        },
+        {
+          "word": 2480,
+          "count": 1,
+          "width": 10,
+          "offset": 893
+        },
+        {
+          "word": 2496,
+          "count": 16,
+          "width": 4,
+          "offset": 903
+        },
+        {
+          "word": 2512,
+          "count": 1,
+          "width": 10,
+          "offset": 967
+        },
+        {
+          "word": 2528,
+          "count": 16,
+          "width": 4,
+          "offset": 977
+        },
+        {
+          "word": 2544,
+          "count": 1,
+          "width": 10,
+          "offset": 1041
+        },
+        {
+          "word": 2560,
+          "count": 16,
+          "width": 4,
+          "offset": 1051
+        },
+        {
+          "word": 2576,
+          "count": 1,
+          "width": 10,
+          "offset": 1115
+        },
+        {
+          "word": 2592,
+          "count": 16,
+          "width": 4,
+          "offset": 1125
+        },
+        {
+          "word": 2608,
+          "count": 1,
+          "width": 10,
+          "offset": 1189
+        },
+        {
+          "word": 2624,
+          "count": 16,
+          "width": 4,
+          "offset": 1199
+        },
+        {
+          "word": 2640,
+          "count": 1,
+          "width": 10,
+          "offset": 1263
+        },
+        {
+          "word": 2656,
+          "count": 16,
+          "width": 4,
+          "offset": 1273
+        },
+        {
+          "word": 2672,
+          "count": 1,
+          "width": 10,
+          "offset": 1337
+        },
+        {
+          "word": 2688,
+          "count": 1,
+          "width": 6,
+          "offset": 1347
+        }
+      ],
+      "receipt": {
+        "directory": "2026-10-19-snapshot-conta-ff-scan",
+        "version": "simulation-v7",
+        "manifest_sha256": "50ab2db98655b2c600177938afc3e6266c269b3e2a8e1d47a32800eef857190d",
+        "results_sha256": "256bc5696b040b8ff9f6e16d324895a6ff980fd00603115bdc09091d48359187",
+        "metadata_sha256": "9fa7b3ba0f3ddad0638824664e8b09609a1d411aa0c4b8350b43999e3695a6d2"
+      }
+    },
+    {
+      "id": 1,
+      "name": "ContB",
+      "index_bits": 15,
+      "bits": 147809,
+      "words": 8212,
+      "runs": [
+        {
+          "word": 16384,
+          "count": 11,
+          "width": 18,
+          "offset": 0
+        },
+        {
+          "word": 16395,
+          "count": 1,
+          "width": 11,
+          "offset": 198
+        },
+        {
+          "word": 0,
+          "count": 1025,
+          "width": 18,
+          "offset": 209
+        },
+        {
+          "word": 2048,
+          "count": 1025,
+          "width": 18,
+          "offset": 18659
+        },
+        {
+          "word": 4096,
+          "count": 1025,
+          "width": 18,
+          "offset": 37109
+        },
+        {
+          "word": 6144,
+          "count": 1025,
+          "width": 18,
+          "offset": 55559
+        },
+        {
+          "word": 8192,
+          "count": 1025,
+          "width": 18,
+          "offset": 74009
+        },
+        {
+          "word": 10240,
+          "count": 1025,
+          "width": 18,
+          "offset": 92459
+        },
+        {
+          "word": 12288,
+          "count": 1025,
+          "width": 18,
+          "offset": 110909
+        },
+        {
+          "word": 14336,
+          "count": 1025,
+          "width": 18,
+          "offset": 129359
+        }
+      ],
+      "receipt": {
+        "directory": "2026-10-19-snapshot-contb-ff-scan",
+        "version": "simulation-v1",
+        "manifest_sha256": "43c8f85a067c2a49a032269dd111fd7781446d404dfb39ab7736c4f737aca79b",
+        "results_sha256": "6c202c0527090d5639f522f68026035ecbc177266a235b83d512851216a9f27d",
+        "metadata_sha256": "43c8f85a067c2a49a032269dd111fd7781446d404dfb39ab7736c4f737aca79b"
+      }
+    },
+    {
+      "id": 2,
+      "name": "ProcH",
+      "index_bits": 16,
+      "bits": 5712,
+      "words": 1701,
+      "runs": [
+        {
+          "word": 0,
+          "count": 27,
+          "width": 18,
+          "offset": 0
+        },
+        {
+          "word": 27,
+          "count": 1,
+          "width": 16,
+          "offset": 486
+        },
+        {
+          "word": 32768,
+          "count": 16,
+          "width": 4,
+          "offset": 502
+        },
+        {
+          "word": 32784,
+          "count": 1,
+          "width": 10,
+          "offset": 566
+        },
+        {
+          "word": 33280,
+          "count": 16,
+          "width": 4,
+          "offset": 576
+        },
+        {
+          "word": 33296,
+          "count": 1,
+          "width": 10,
+          "offset": 640
+        },
+        {
+          "word": 33792,
+          "count": 16,
+          "width": 4,
+          "offset": 650
+        },
+        {
+          "word": 33808,
+          "count": 1,
+          "width": 10,
+          "offset": 714
+        },
+        {
+          "word": 34304,
+          "count": 16,
+          "width": 4,
+          "offset": 724
+        },
+        {
+          "word": 34320,
+          "count": 1,
+          "width": 10,
+          "offset": 788
+        },
+        {
+          "word": 34816,
+          "count": 16,
+          "width": 4,
+          "offset": 798
+        },
+        {
+          "word": 34832,
+          "count": 1,
+          "width": 10,
+          "offset": 862
+        },
+        {
+          "word": 35328,
+          "count": 16,
+          "width": 4,
+          "offset": 872
+        },
+        {
+          "word": 35344,
+          "count": 1,
+          "width": 10,
+          "offset": 936
+        },
+        {
+          "word": 35840,
+          "count": 16,
+          "width": 4,
+          "offset": 946
+        },
+        {
+          "word": 35856,
+          "count": 1,
+          "width": 10,
+          "offset": 1010
+        },
+        {
+          "word": 36352,
+          "count": 16,
+          "width": 4,
+          "offset": 1020
+        },
+        {
+          "word": 36368,
+          "count": 1,
+          "width": 10,
+          "offset": 1084
+        },
+        {
+          "word": 36864,
+          "count": 256,
+          "width": 4,
+          "offset": 1094
+        },
+        {
+          "word": 37376,
+          "count": 256,
+          "width": 4,
+          "offset": 2118
+        },
+        {
+          "word": 37888,
+          "count": 256,
+          "width": 1,
+          "offset": 3142
+        },
+        {
+          "word": 38400,
+          "count": 256,
+          "width": 4,
+          "offset": 3398
+        },
+        {
+          "word": 38912,
+          "count": 256,
+          "width": 1,
+          "offset": 4422
+        },
+        {
+          "word": 39424,
+          "count": 256,
+          "width": 4,
+          "offset": 4678
+        },
+        {
+          "word": 39936,
+          "count": 1,
+          "width": 10,
+          "offset": 5702
+        }
+      ],
+      "receipt": {
+        "directory": "2026-10-19-snapshot-processor-ff-scan",
+        "version": "ProcH/simulation",
+        "manifest_sha256": "624266b507362b07c451da972cf1f2768681e8a1e592193e21f967aaf9098af1",
+        "results_sha256": "e6658f83dcb9ae219801bc5a937b1a6e4605c720dad3cae05783634b1f263497",
+        "metadata_sha256": "be6e13255b93a7cd897c793ab3026e6691390111222d4a8aee1352cb4e18c43e"
+      }
+    },
+    {
+      "id": 3,
+      "name": "ProcL",
+      "index_bits": 16,
+      "bits": 5581,
+      "words": 1668,
+      "runs": [
+        {
+          "word": 0,
+          "count": 28,
+          "width": 18,
+          "offset": 0
+        },
+        {
+          "word": 28,
+          "count": 1,
+          "width": 15,
+          "offset": 504
+        },
+        {
+          "word": 35328,
+          "count": 16,
+          "width": 4,
+          "offset": 519
+        },
+        {
+          "word": 35344,
+          "count": 1,
+          "width": 10,
+          "offset": 583
+        },
+        {
+          "word": 35840,
+          "count": 16,
+          "width": 4,
+          "offset": 593
+        },
+        {
+          "word": 35856,
+          "count": 1,
+          "width": 10,
+          "offset": 657
+        },
+        {
+          "word": 36352,
+          "count": 16,
+          "width": 4,
+          "offset": 667
+        },
+        {
+          "word": 36368,
+          "count": 1,
+          "width": 10,
+          "offset": 731
+        },
+        {
+          "word": 36864,
+          "count": 16,
+          "width": 4,
+          "offset": 741
+        },
+        {
+          "word": 36880,
+          "count": 1,
+          "width": 10,
+          "offset": 805
+        },
+        {
+          "word": 37376,
+          "count": 16,
+          "width": 4,
+          "offset": 815
+        },
+        {
+          "word": 37392,
+          "count": 1,
+          "width": 10,
+          "offset": 879
+        },
+        {
+          "word": 37888,
+          "count": 16,
+          "width": 4,
+          "offset": 889
+        },
+        {
+          "word": 37904,
+          "count": 1,
+          "width": 10,
+          "offset": 953
+        },
+        {
+          "word": 38400,
+          "count": 256,
+          "width": 4,
+          "offset": 963
+        },
+        {
+          "word": 38912,
+          "count": 256,
+          "width": 4,
+          "offset": 1987
+        },
+        {
+          "word": 39424,
+          "count": 256,
+          "width": 1,
+          "offset": 3011
+        },
+        {
+          "word": 39936,
+          "count": 256,
+          "width": 4,
+          "offset": 3267
+        },
+        {
+          "word": 40448,
+          "count": 256,
+          "width": 1,
+          "offset": 4291
+        },
+        {
+          "word": 40960,
+          "count": 256,
+          "width": 4,
+          "offset": 4547
+        },
+        {
+          "word": 41472,
+          "count": 1,
+          "width": 10,
+          "offset": 5571
+        }
+      ],
+      "receipt": {
+        "directory": "2026-10-19-snapshot-processor-ff-scan",
+        "version": "ProcL/simulation",
+        "manifest_sha256": "d1e8568e02edc3f5dbc931137edec3c9d18b946c00d191aa6c5081eb2f276c5f",
+        "results_sha256": "31de1841be4706b7b1b6d874ae28198ca53610c83252d5e5b5709eb040423b1d",
+        "metadata_sha256": "91acaafbf8f9e3574e50d3db25ff628d1b5367dea0c9d988abf1f66bb54e29f8"
+      }
+    },
+    {
+      "id": 4,
+      "name": "IFU",
+      "index_bits": 18,
+      "bits": 28653,
+      "words": 11331,
+      "runs": [
+        {
+          "word": 0,
+          "count": 54,
+          "width": 18,
+          "offset": 0
+        },
+        {
+          "word": 54,
+          "count": 1,
+          "width": 2,
+          "offset": 972
+        },
+        {
+          "word": 215040,
+          "count": 1,
+          "width": 4,
+          "offset": 974
+        },
+        {
+          "word": 192512,
+          "count": 1025,
+          "width": 1,
+          "offset": 978
+        },
+        {
+          "word": 194560,
+          "count": 1025,
+          "width": 5,
+          "offset": 2003
+        },
+        {
+          "word": 196608,
+          "count": 1025,
+          "width": 1,
+          "offset": 7128
+        },
+        {
+          "word": 198656,
+          "count": 1025,
+          "width": 1,
+          "offset": 8153
+        },
+        {
+          "word": 200704,
+          "count": 1025,
+          "width": 4,
+          "offset": 9178
+        },
+        {
+          "word": 202752,
+          "count": 1025,
+          "width": 1,
+          "offset": 13278
+        },
+        {
+          "word": 204800,
+          "count": 1025,
+          "width": 5,
+          "offset": 14303
+        },
+        {
+          "word": 206848,
+          "count": 1025,
+          "width": 2,
+          "offset": 19428
+        },
+        {
+          "word": 208896,
+          "count": 1025,
+          "width": 1,
+          "offset": 21478
+        },
+        {
+          "word": 210944,
+          "count": 1025,
+          "width": 4,
+          "offset": 22503
+        },
+        {
+          "word": 212992,
+          "count": 1025,
+          "width": 2,
+          "offset": 26603
+        }
+      ],
+      "receipt": {
+        "directory": "2026-10-19-snapshot-ifu-ff-scan",
+        "version": "simulation-v1",
+        "manifest_sha256": "a63d949a300832a4e486b184248756161522c9bc3393210c11b1a0224a5b900e",
+        "results_sha256": "78c3a2a7509fe4ac7a54d0fae572a45a1aeb3ea299e692b6171e434ac378e89e",
+        "metadata_sha256": "63dc55d8e67fed8bee684e9a87c6cc70232110f5dee83d9ea1720e84566f3032"
+      }
+    },
+    {
+      "id": 5,
+      "name": "MemC",
+      "index_bits": 16,
+      "bits": 23718,
+      "words": 5797,
+      "runs": [
+        {
+          "word": 0,
+          "count": 28,
+          "width": 18,
+          "offset": 0
+        },
+        {
+          "word": 28,
+          "count": 1,
+          "width": 3,
+          "offset": 504
+        },
+        {
+          "word": 32256,
+          "count": 16,
+          "width": 4,
+          "offset": 507
+        },
+        {
+          "word": 32272,
+          "count": 1,
+          "width": 10,
+          "offset": 571
+        },
+        {
+          "word": 32768,
+          "count": 16,
+          "width": 4,
+          "offset": 581
+        },
+        {
+          "word": 32784,
+          "count": 1,
+          "width": 10,
+          "offset": 645
+        },
+        {
+          "word": 33280,
+          "count": 16,
+          "width": 4,
+          "offset": 655
+        },
+        {
+          "word": 33296,
+          "count": 1,
+          "width": 10,
+          "offset": 719
+        },
+        {
+          "word": 33792,
+          "count": 16,
+          "width": 4,
+          "offset": 729
+        },
+        {
+          "word": 33808,
+          "count": 1,
+          "width": 10,
+          "offset": 793
+        },
+        {
+          "word": 34304,
+          "count": 16,
+          "width": 4,
+          "offset": 803
+        },
+        {
+          "word": 34320,
+          "count": 1,
+          "width": 10,
+          "offset": 867
+        },
+        {
+          "word": 34816,
+          "count": 16,
+          "width": 4,
+          "offset": 877
+        },
+        {
+          "word": 34832,
+          "count": 1,
+          "width": 10,
+          "offset": 941
+        },
+        {
+          "word": 35328,
+          "count": 16,
+          "width": 4,
+          "offset": 951
+        },
+        {
+          "word": 35344,
+          "count": 1,
+          "width": 10,
+          "offset": 1015
+        },
+        {
+          "word": 35840,
+          "count": 16,
+          "width": 4,
+          "offset": 1025
+        },
+        {
+          "word": 35856,
+          "count": 1,
+          "width": 10,
+          "offset": 1089
+        },
+        {
+          "word": 36352,
+          "count": 16,
+          "width": 4,
+          "offset": 1099
+        },
+        {
+          "word": 36368,
+          "count": 1,
+          "width": 10,
+          "offset": 1163
+        },
+        {
+          "word": 36864,
+          "count": 16,
+          "width": 4,
+          "offset": 1173
+        },
+        {
+          "word": 36880,
+          "count": 1,
+          "width": 10,
+          "offset": 1237
+        },
+        {
+          "word": 37376,
+          "count": 16,
+          "width": 4,
+          "offset": 1247
+        },
+        {
+          "word": 37392,
+          "count": 1,
+          "width": 10,
+          "offset": 1311
+        },
+        {
+          "word": 37888,
+          "count": 16,
+          "width": 4,
+          "offset": 1321
+        },
+        {
+          "word": 37904,
+          "count": 1,
+          "width": 10,
+          "offset": 1385
+        },
+        {
+          "word": 38400,
+          "count": 16,
+          "width": 4,
+          "offset": 1395
+        },
+        {
+          "word": 38416,
+          "count": 1,
+          "width": 10,
+          "offset": 1459
+        },
+        {
+          "word": 38912,
+          "count": 16,
+          "width": 4,
+          "offset": 1469
+        },
+        {
+          "word": 38928,
+          "count": 1,
+          "width": 10,
+          "offset": 1533
+        },
+        {
+          "word": 39424,
+          "count": 16,
+          "width": 4,
+          "offset": 1543
+        },
+        {
+          "word": 39440,
+          "count": 1,
+          "width": 10,
+          "offset": 1607
+        },
+        {
+          "word": 39936,
+          "count": 16,
+          "width": 4,
+          "offset": 1617
+        },
+        {
+          "word": 39952,
+          "count": 1,
+          "width": 10,
+          "offset": 1681
+        },
+        {
+          "word": 40448,
+          "count": 16,
+          "width": 4,
+          "offset": 1691
+        },
+        {
+          "word": 40464,
+          "count": 1,
+          "width": 10,
+          "offset": 1755
+        },
+        {
+          "word": 40960,
+          "count": 16,
+          "width": 4,
+          "offset": 1765
+        },
+        {
+          "word": 40976,
+          "count": 1,
+          "width": 10,
+          "offset": 1829
+        },
+        {
+          "word": 41472,
+          "count": 16,
+          "width": 4,
+          "offset": 1839
+        },
+        {
+          "word": 41488,
+          "count": 1,
+          "width": 10,
+          "offset": 1903
+        },
+        {
+          "word": 41984,
+          "count": 16,
+          "width": 4,
+          "offset": 1913
+        },
+        {
+          "word": 42000,
+          "count": 1,
+          "width": 10,
+          "offset": 1977
+        },
+        {
+          "word": 42496,
+          "count": 16,
+          "width": 4,
+          "offset": 1987
+        },
+        {
+          "word": 42512,
+          "count": 1,
+          "width": 10,
+          "offset": 2051
+        },
+        {
+          "word": 43008,
+          "count": 16,
+          "width": 4,
+          "offset": 2061
+        },
+        {
+          "word": 43024,
+          "count": 1,
+          "width": 10,
+          "offset": 2125
+        },
+        {
+          "word": 43520,
+          "count": 16,
+          "width": 4,
+          "offset": 2135
+        },
+        {
+          "word": 43536,
+          "count": 1,
+          "width": 10,
+          "offset": 2199
+        },
+        {
+          "word": 44032,
+          "count": 256,
+          "width": 4,
+          "offset": 2209
+        },
+        {
+          "word": 44544,
+          "count": 256,
+          "width": 4,
+          "offset": 3233
+        },
+        {
+          "word": 45056,
+          "count": 256,
+          "width": 4,
+          "offset": 4257
+        },
+        {
+          "word": 45568,
+          "count": 256,
+          "width": 4,
+          "offset": 5281
+        },
+        {
+          "word": 46080,
+          "count": 256,
+          "width": 4,
+          "offset": 6305
+        },
+        {
+          "word": 46592,
+          "count": 256,
+          "width": 4,
+          "offset": 7329
+        },
+        {
+          "word": 47104,
+          "count": 256,
+          "width": 4,
+          "offset": 8353
+        },
+        {
+          "word": 47616,
+          "count": 256,
+          "width": 4,
+          "offset": 9377
+        },
+        {
+          "word": 48128,
+          "count": 256,
+          "width": 4,
+          "offset": 10401
+        },
+        {
+          "word": 48640,
+          "count": 256,
+          "width": 4,
+          "offset": 11425
+        },
+        {
+          "word": 49152,
+          "count": 256,
+          "width": 4,
+          "offset": 12449
+        },
+        {
+          "word": 49664,
+          "count": 256,
+          "width": 4,
+          "offset": 13473
+        },
+        {
+          "word": 50176,
+          "count": 256,
+          "width": 4,
+          "offset": 14497
+        },
+        {
+          "word": 50688,
+          "count": 256,
+          "width": 4,
+          "offset": 15521
+        },
+        {
+          "word": 51200,
+          "count": 256,
+          "width": 4,
+          "offset": 16545
+        },
+        {
+          "word": 51712,
+          "count": 256,
+          "width": 4,
+          "offset": 17569
+        },
+        {
+          "word": 52224,
+          "count": 256,
+          "width": 4,
+          "offset": 18593
+        },
+        {
+          "word": 52736,
+          "count": 256,
+          "width": 4,
+          "offset": 19617
+        },
+        {
+          "word": 53248,
+          "count": 256,
+          "width": 4,
+          "offset": 20641
+        },
+        {
+          "word": 53760,
+          "count": 256,
+          "width": 4,
+          "offset": 21665
+        },
+        {
+          "word": 54272,
+          "count": 256,
+          "width": 4,
+          "offset": 22689
+        },
+        {
+          "word": 54784,
+          "count": 1,
+          "width": 5,
+          "offset": 23713
+        }
+      ],
+      "receipt": {
+        "directory": "2026-10-19-snapshot-memc-ff-scan",
+        "version": "simulation-v4",
+        "manifest_sha256": "b0cec7253ee4d659b5293a0d19e1a68a59c382cef583794fd988bae90ddd233a",
+        "results_sha256": "84d95c6717fbddb04718664d9de8ed44f6dc50f89f718ac1f97f4d3d17c60f29",
+        "metadata_sha256": "e7f229a3ad9642cece63c855abc668c1f2ae0bf99eeb9dbc2dc2b1229d0ae894"
+      }
+    },
+    {
+      "id": 6,
+      "name": "MemD",
+      "index_bits": 20,
+      "bits": 296591,
+      "words": 57552,
+      "runs": [
+        {
+          "word": 0,
+          "count": 53,
+          "width": 18,
+          "offset": 0
+        },
+        {
+          "word": 53,
+          "count": 1,
+          "width": 14,
+          "offset": 954
+        },
+        {
+          "word": 753664,
+          "count": 16,
+          "width": 4,
+          "offset": 968
+        },
+        {
+          "word": 753680,
+          "count": 1,
+          "width": 10,
+          "offset": 1032
+        },
+        {
+          "word": 761856,
+          "count": 16,
+          "width": 4,
+          "offset": 1042
+        },
+        {
+          "word": 761872,
+          "count": 1,
+          "width": 10,
+          "offset": 1106
+        },
+        {
+          "word": 770048,
+          "count": 16,
+          "width": 4,
+          "offset": 1116
+        },
+        {
+          "word": 770064,
+          "count": 1,
+          "width": 10,
+          "offset": 1180
+        },
+        {
+          "word": 778240,
+          "count": 16,
+          "width": 4,
+          "offset": 1190
+        },
+        {
+          "word": 778256,
+          "count": 1,
+          "width": 10,
+          "offset": 1254
+        },
+        {
+          "word": 786432,
+          "count": 16,
+          "width": 4,
+          "offset": 1264
+        },
+        {
+          "word": 786448,
+          "count": 1,
+          "width": 10,
+          "offset": 1328
+        },
+        {
+          "word": 794624,
+          "count": 16,
+          "width": 4,
+          "offset": 1338
+        },
+        {
+          "word": 794640,
+          "count": 1,
+          "width": 10,
+          "offset": 1402
+        },
+        {
+          "word": 802816,
+          "count": 16,
+          "width": 4,
+          "offset": 1412
+        },
+        {
+          "word": 802832,
+          "count": 1,
+          "width": 10,
+          "offset": 1476
+        },
+        {
+          "word": 811008,
+          "count": 16,
+          "width": 4,
+          "offset": 1486
+        },
+        {
+          "word": 811024,
+          "count": 1,
+          "width": 10,
+          "offset": 1550
+        },
+        {
+          "word": 933888,
+          "count": 1,
+          "width": 10,
+          "offset": 1560
+        },
+        {
+          "word": 942080,
+          "count": 2,
+          "width": 18,
+          "offset": 1570
+        },
+        {
+          "word": 942082,
+          "count": 1,
+          "width": 1,
+          "offset": 1606
+        },
+        {
+          "word": 819200,
+          "count": 4097,
+          "width": 6,
+          "offset": 1607
+        },
+        {
+          "word": 827392,
+          "count": 4097,
+          "width": 3,
+          "offset": 26189
+        },
+        {
+          "word": 835584,
+          "count": 4097,
+          "width": 6,
+          "offset": 38480
+        },
+        {
+          "word": 843776,
+          "count": 4097,
+          "width": 3,
+          "offset": 63062
+        },
+        {
+          "word": 851968,
+          "count": 4097,
+          "width": 6,
+          "offset": 75353
+        },
+        {
+          "word": 860160,
+          "count": 4097,
+          "width": 3,
+          "offset": 99935
+        },
+        {
+          "word": 868352,
+          "count": 4097,
+          "width": 9,
+          "offset": 112226
+        },
+        {
+          "word": 876544,
+          "count": 4097,
+          "width": 9,
+          "offset": 149099
+        },
+        {
+          "word": 884736,
+          "count": 4097,
+          "width": 3,
+          "offset": 185972
+        },
+        {
+          "word": 892928,
+          "count": 4097,
+          "width": 6,
+          "offset": 198263
+        },
+        {
+          "word": 901120,
+          "count": 4097,
+          "width": 3,
+          "offset": 222845
+        },
+        {
+          "word": 909312,
+          "count": 4097,
+          "width": 6,
+          "offset": 235136
+        },
+        {
+          "word": 917504,
+          "count": 4097,
+          "width": 3,
+          "offset": 259718
+        },
+        {
+          "word": 925696,
+          "count": 4097,
+          "width": 6,
+          "offset": 272009
+        }
+      ],
+      "receipt": {
+        "directory": "2026-10-19-snapshot-memd-ff-scan",
+        "version": "simulation-v2",
+        "manifest_sha256": "9e78ec4aea84f17829a4d003463f2cfda0277be3ef15b0d215c21d446dbda753",
+        "results_sha256": "bff0138ba9f4501766537055c02c63cc8ad631ed2233b415e32efe793caa727c",
+        "metadata_sha256": "dbdb1a1dc63b3840c08b49dae5f86b45d357d395c0736f1b28e4ca2ff9ea0d8b"
+      }
+    },
+    {
+      "id": 7,
+      "name": "MemX",
+      "index_bits": 24,
+      "bits": 1378312,
+      "words": 1376515,
+      "runs": [
+        {
+          "word": 0,
+          "count": 45,
+          "width": 18,
+          "offset": 0
+        },
+        {
+          "word": 45,
+          "count": 1,
+          "width": 9,
+          "offset": 810
+        },
+        {
+          "word": 9699328,
+          "count": 16,
+          "width": 4,
+          "offset": 819
+        },
+        {
+          "word": 9699344,
+          "count": 1,
+          "width": 10,
+          "offset": 883
+        },
+        {
+          "word": 9830400,
+          "count": 16,
+          "width": 4,
+          "offset": 893
+        },
+        {
+          "word": 9830416,
+          "count": 1,
+          "width": 10,
+          "offset": 957
+        },
+        {
+          "word": 9961472,
+          "count": 16,
+          "width": 4,
+          "offset": 967
+        },
+        {
+          "word": 9961488,
+          "count": 1,
+          "width": 10,
+          "offset": 1031
+        },
+        {
+          "word": 10092544,
+          "count": 16,
+          "width": 4,
+          "offset": 1041
+        },
+        {
+          "word": 10092560,
+          "count": 1,
+          "width": 10,
+          "offset": 1105
+        },
+        {
+          "word": 10223616,
+          "count": 16,
+          "width": 4,
+          "offset": 1115
+        },
+        {
+          "word": 10223632,
+          "count": 1,
+          "width": 10,
+          "offset": 1179
+        },
+        {
+          "word": 10354688,
+          "count": 16,
+          "width": 4,
+          "offset": 1189
+        },
+        {
+          "word": 10354704,
+          "count": 1,
+          "width": 10,
+          "offset": 1253
+        },
+        {
+          "word": 10485760,
+          "count": 16,
+          "width": 4,
+          "offset": 1263
+        },
+        {
+          "word": 10485776,
+          "count": 1,
+          "width": 10,
+          "offset": 1327
+        },
+        {
+          "word": 10616832,
+          "count": 16,
+          "width": 4,
+          "offset": 1337
+        },
+        {
+          "word": 10616848,
+          "count": 1,
+          "width": 10,
+          "offset": 1401
+        },
+        {
+          "word": 10747904,
+          "count": 16,
+          "width": 4,
+          "offset": 1411
+        },
+        {
+          "word": 10747920,
+          "count": 1,
+          "width": 10,
+          "offset": 1475
+        },
+        {
+          "word": 10878976,
+          "count": 16,
+          "width": 4,
+          "offset": 1485
+        },
+        {
+          "word": 10878992,
+          "count": 1,
+          "width": 10,
+          "offset": 1549
+        },
+        {
+          "word": 13762560,
+          "count": 1,
+          "width": 14,
+          "offset": 1559
+        },
+        {
+          "word": 11075584,
+          "count": 1,
+          "width": 18,
+          "offset": 1573
+        },
+        {
+          "word": 11075585,
+          "count": 1,
+          "width": 5,
+          "offset": 1591
+        },
+        {
+          "word": 11206656,
+          "count": 1,
+          "width": 18,
+          "offset": 1596
+        },
+        {
+          "word": 11206657,
+          "count": 1,
+          "width": 5,
+          "offset": 1614
+        },
+        {
+          "word": 11337728,
+          "count": 1,
+          "width": 18,
+          "offset": 1619
+        },
+        {
+          "word": 11337729,
+          "count": 1,
+          "width": 5,
+          "offset": 1637
+        },
+        {
+          "word": 11468800,
+          "count": 1,
+          "width": 18,
+          "offset": 1642
+        },
+        {
+          "word": 11468801,
+          "count": 1,
+          "width": 5,
+          "offset": 1660
+        },
+        {
+          "word": 11599872,
+          "count": 1,
+          "width": 18,
+          "offset": 1665
+        },
+        {
+          "word": 11599873,
+          "count": 1,
+          "width": 5,
+          "offset": 1683
+        },
+        {
+          "word": 11730944,
+          "count": 1,
+          "width": 18,
+          "offset": 1688
+        },
+        {
+          "word": 11730945,
+          "count": 1,
+          "width": 5,
+          "offset": 1706
+        },
+        {
+          "word": 11862016,
+          "count": 1,
+          "width": 18,
+          "offset": 1711
+        },
+        {
+          "word": 11862017,
+          "count": 1,
+          "width": 5,
+          "offset": 1729
+        },
+        {
+          "word": 11993088,
+          "count": 1,
+          "width": 18,
+          "offset": 1734
+        },
+        {
+          "word": 11993089,
+          "count": 1,
+          "width": 5,
+          "offset": 1752
+        },
+        {
+          "word": 12124160,
+          "count": 1,
+          "width": 18,
+          "offset": 1757
+        },
+        {
+          "word": 12124161,
+          "count": 1,
+          "width": 5,
+          "offset": 1775
+        },
+        {
+          "word": 12255232,
+          "count": 1,
+          "width": 18,
+          "offset": 1780
+        },
+        {
+          "word": 12255233,
+          "count": 1,
+          "width": 5,
+          "offset": 1798
+        },
+        {
+          "word": 12386304,
+          "count": 1,
+          "width": 18,
+          "offset": 1803
+        },
+        {
+          "word": 12386305,
+          "count": 1,
+          "width": 5,
+          "offset": 1821
+        },
+        {
+          "word": 12517376,
+          "count": 1,
+          "width": 18,
+          "offset": 1826
+        },
+        {
+          "word": 12517377,
+          "count": 1,
+          "width": 5,
+          "offset": 1844
+        },
+        {
+          "word": 12648448,
+          "count": 1,
+          "width": 18,
+          "offset": 1849
+        },
+        {
+          "word": 12648449,
+          "count": 1,
+          "width": 5,
+          "offset": 1867
+        },
+        {
+          "word": 12779520,
+          "count": 1,
+          "width": 18,
+          "offset": 1872
+        },
+        {
+          "word": 12779521,
+          "count": 1,
+          "width": 5,
+          "offset": 1890
+        },
+        {
+          "word": 12910592,
+          "count": 1,
+          "width": 18,
+          "offset": 1895
+        },
+        {
+          "word": 12910593,
+          "count": 1,
+          "width": 5,
+          "offset": 1913
+        },
+        {
+          "word": 13041664,
+          "count": 1,
+          "width": 18,
+          "offset": 1918
+        },
+        {
+          "word": 13041665,
+          "count": 1,
+          "width": 5,
+          "offset": 1936
+        },
+        {
+          "word": 13172736,
+          "count": 1,
+          "width": 18,
+          "offset": 1941
+        },
+        {
+          "word": 13172737,
+          "count": 1,
+          "width": 5,
+          "offset": 1959
+        },
+        {
+          "word": 13303808,
+          "count": 1,
+          "width": 18,
+          "offset": 1964
+        },
+        {
+          "word": 13303809,
+          "count": 1,
+          "width": 5,
+          "offset": 1982
+        },
+        {
+          "word": 13434880,
+          "count": 1,
+          "width": 18,
+          "offset": 1987
+        },
+        {
+          "word": 13434881,
+          "count": 1,
+          "width": 5,
+          "offset": 2005
+        },
+        {
+          "word": 13565952,
+          "count": 1,
+          "width": 18,
+          "offset": 2010
+        },
+        {
+          "word": 13565953,
+          "count": 1,
+          "width": 5,
+          "offset": 2028
+        },
+        {
+          "word": 13697024,
+          "count": 1,
+          "width": 18,
+          "offset": 2033
+        },
+        {
+          "word": 13697025,
+          "count": 1,
+          "width": 5,
+          "offset": 2051
+        },
+        {
+          "word": 11010048,
+          "count": 65536,
+          "width": 1,
+          "offset": 2056
+        },
+        {
+          "word": 11141120,
+          "count": 65536,
+          "width": 1,
+          "offset": 67592
+        },
+        {
+          "word": 11272192,
+          "count": 65536,
+          "width": 1,
+          "offset": 133128
+        },
+        {
+          "word": 11403264,
+          "count": 65536,
+          "width": 1,
+          "offset": 198664
+        },
+        {
+          "word": 11534336,
+          "count": 65536,
+          "width": 1,
+          "offset": 264200
+        },
+        {
+          "word": 11665408,
+          "count": 65536,
+          "width": 1,
+          "offset": 329736
+        },
+        {
+          "word": 11796480,
+          "count": 65536,
+          "width": 1,
+          "offset": 395272
+        },
+        {
+          "word": 11927552,
+          "count": 65536,
+          "width": 1,
+          "offset": 460808
+        },
+        {
+          "word": 12058624,
+          "count": 65536,
+          "width": 1,
+          "offset": 526344
+        },
+        {
+          "word": 12189696,
+          "count": 65536,
+          "width": 1,
+          "offset": 591880
+        },
+        {
+          "word": 12320768,
+          "count": 65536,
+          "width": 1,
+          "offset": 657416
+        },
+        {
+          "word": 12451840,
+          "count": 65536,
+          "width": 1,
+          "offset": 722952
+        },
+        {
+          "word": 12582912,
+          "count": 65536,
+          "width": 1,
+          "offset": 788488
+        },
+        {
+          "word": 12713984,
+          "count": 65536,
+          "width": 1,
+          "offset": 854024
+        },
+        {
+          "word": 12845056,
+          "count": 65536,
+          "width": 1,
+          "offset": 919560
+        },
+        {
+          "word": 12976128,
+          "count": 65536,
+          "width": 1,
+          "offset": 985096
+        },
+        {
+          "word": 13107200,
+          "count": 65536,
+          "width": 1,
+          "offset": 1050632
+        },
+        {
+          "word": 13238272,
+          "count": 65536,
+          "width": 1,
+          "offset": 1116168
+        },
+        {
+          "word": 13369344,
+          "count": 65536,
+          "width": 1,
+          "offset": 1181704
+        },
+        {
+          "word": 13500416,
+          "count": 65536,
+          "width": 1,
+          "offset": 1247240
+        },
+        {
+          "word": 13631488,
+          "count": 65536,
+          "width": 1,
+          "offset": 1312776
+        }
+      ],
+      "receipt": {
+        "directory": "2026-10-19-snapshot-memx-ff-scan",
+        "version": "simulation-v1",
+        "manifest_sha256": "97e321f55fc3561366b71ecb99702efc9b779a30faa05f29845350014198318a",
+        "results_sha256": "e6f1c7c4df0560afe5ecb07ba8f9ac4004b5ad98ec22d3e1dff3ac7a0bf5f1ff",
+        "metadata_sha256": "580d8dd4c34ed6143ff8079c3433f06a243d72e6e634eaa0d0b1b5ceb1f9b36e"
+      }
+    },
+    {
+      "id": 8,
+      "name": "DskEth",
+      "index_bits": 13,
+      "bits": 2656,
+      "words": 383,
+      "runs": [
+        {
+          "word": 0,
+          "count": 59,
+          "width": 18,
+          "offset": 0
+        },
+        {
+          "word": 59,
+          "count": 1,
+          "width": 8,
+          "offset": 1062
+        },
+        {
+          "word": 3744,
+          "count": 16,
+          "width": 4,
+          "offset": 1070
+        },
+        {
+          "word": 3760,
+          "count": 1,
+          "width": 10,
+          "offset": 1134
+        },
+        {
+          "word": 3776,
+          "count": 16,
+          "width": 4,
+          "offset": 1144
+        },
+        {
+          "word": 3792,
+          "count": 1,
+          "width": 10,
+          "offset": 1208
+        },
+        {
+          "word": 3808,
+          "count": 16,
+          "width": 4,
+          "offset": 1218
+        },
+        {
+          "word": 3824,
+          "count": 1,
+          "width": 10,
+          "offset": 1282
+        },
+        {
+          "word": 3840,
+          "count": 16,
+          "width": 4,
+          "offset": 1292
+        },
+        {
+          "word": 3856,
+          "count": 1,
+          "width": 10,
+          "offset": 1356
+        },
+        {
+          "word": 3872,
+          "count": 16,
+          "width": 4,
+          "offset": 1366
+        },
+        {
+          "word": 3888,
+          "count": 1,
+          "width": 10,
+          "offset": 1430
+        },
+        {
+          "word": 3904,
+          "count": 16,
+          "width": 4,
+          "offset": 1440
+        },
+        {
+          "word": 3920,
+          "count": 1,
+          "width": 10,
+          "offset": 1504
+        },
+        {
+          "word": 3936,
+          "count": 16,
+          "width": 4,
+          "offset": 1514
+        },
+        {
+          "word": 3952,
+          "count": 1,
+          "width": 10,
+          "offset": 1578
+        },
+        {
+          "word": 3968,
+          "count": 16,
+          "width": 4,
+          "offset": 1588
+        },
+        {
+          "word": 3984,
+          "count": 1,
+          "width": 10,
+          "offset": 1652
+        },
+        {
+          "word": 4000,
+          "count": 16,
+          "width": 4,
+          "offset": 1662
+        },
+        {
+          "word": 4016,
+          "count": 1,
+          "width": 10,
+          "offset": 1726
+        },
+        {
+          "word": 4032,
+          "count": 16,
+          "width": 4,
+          "offset": 1736
+        },
+        {
+          "word": 4048,
+          "count": 1,
+          "width": 10,
+          "offset": 1800
+        },
+        {
+          "word": 4064,
+          "count": 16,
+          "width": 4,
+          "offset": 1810
+        },
+        {
+          "word": 4080,
+          "count": 1,
+          "width": 10,
+          "offset": 1874
+        },
+        {
+          "word": 4096,
+          "count": 16,
+          "width": 4,
+          "offset": 1884
+        },
+        {
+          "word": 4112,
+          "count": 1,
+          "width": 10,
+          "offset": 1948
+        },
+        {
+          "word": 4128,
+          "count": 16,
+          "width": 4,
+          "offset": 1958
+        },
+        {
+          "word": 4144,
+          "count": 1,
+          "width": 10,
+          "offset": 2022
+        },
+        {
+          "word": 4160,
+          "count": 16,
+          "width": 4,
+          "offset": 2032
+        },
+        {
+          "word": 4176,
+          "count": 1,
+          "width": 10,
+          "offset": 2096
+        },
+        {
+          "word": 4192,
+          "count": 16,
+          "width": 4,
+          "offset": 2106
+        },
+        {
+          "word": 4208,
+          "count": 1,
+          "width": 10,
+          "offset": 2170
+        },
+        {
+          "word": 4224,
+          "count": 16,
+          "width": 4,
+          "offset": 2180
+        },
+        {
+          "word": 4240,
+          "count": 1,
+          "width": 10,
+          "offset": 2244
+        },
+        {
+          "word": 4256,
+          "count": 16,
+          "width": 4,
+          "offset": 2254
+        },
+        {
+          "word": 4272,
+          "count": 1,
+          "width": 10,
+          "offset": 2318
+        },
+        {
+          "word": 4288,
+          "count": 16,
+          "width": 4,
+          "offset": 2328
+        },
+        {
+          "word": 4304,
+          "count": 1,
+          "width": 10,
+          "offset": 2392
+        },
+        {
+          "word": 4320,
+          "count": 3,
+          "width": 18,
+          "offset": 2402
+        },
+        {
+          "word": 4323,
+          "count": 1,
+          "width": 16,
+          "offset": 2456
+        },
+        {
+          "word": 4352,
+          "count": 3,
+          "width": 18,
+          "offset": 2472
+        },
+        {
+          "word": 4355,
+          "count": 1,
+          "width": 16,
+          "offset": 2526
+        },
+        {
+          "word": 4384,
+          "count": 1,
+          "width": 18,
+          "offset": 2542
+        },
+        {
+          "word": 4385,
+          "count": 1,
+          "width": 1,
+          "offset": 2560
+        },
+        {
+          "word": 4416,
+          "count": 1,
+          "width": 18,
+          "offset": 2561
+        },
+        {
+          "word": 4417,
+          "count": 1,
+          "width": 1,
+          "offset": 2579
+        },
+        {
+          "word": 4448,
+          "count": 1,
+          "width": 18,
+          "offset": 2580
+        },
+        {
+          "word": 4449,
+          "count": 1,
+          "width": 15,
+          "offset": 2598
+        },
+        {
+          "word": 4480,
+          "count": 1,
+          "width": 18,
+          "offset": 2613
+        },
+        {
+          "word": 4481,
+          "count": 1,
+          "width": 16,
+          "offset": 2631
+        },
+        {
+          "word": 4512,
+          "count": 1,
+          "width": 9,
+          "offset": 2647
+        }
+      ],
+      "receipt": {
+        "directory": "2026-10-19-snapshot-dsketh-ff-scan",
+        "version": "simulation-v1",
+        "manifest_sha256": "9454534bc5b0a2a81372f4d687a4a229b16724ae1ddec7862158cf88d4979733",
+        "results_sha256": "8223a2926c637ddf2a0ec281a5d6fdf7023ffd0d57287ab353bdd64cd92dcb30",
+        "metadata_sha256": "9d372464bae4898a33a04707a3827658f3b96ad816bbf07c920ef0dffae1ece1"
+      }
+    },
+    {
+      "id": 9,
+      "name": "DispY",
+      "index_bits": 19,
+      "bits": 13993,
+      "words": 5513,
+      "runs": [
+        {
+          "word": 0,
+          "count": 79,
+          "width": 18,
+          "offset": 0
+        },
+        {
+          "word": 79,
+          "count": 1,
+          "width": 17,
+          "offset": 1422
+        },
+        {
+          "word": 286720,
+          "count": 256,
+          "width": 4,
+          "offset": 1439
+        },
+        {
+          "word": 288768,
+          "count": 256,
+          "width": 4,
+          "offset": 2463
+        },
+        {
+          "word": 290816,
+          "count": 256,
+          "width": 4,
+          "offset": 3487
+        },
+        {
+          "word": 292864,
+          "count": 256,
+          "width": 4,
+          "offset": 4511
+        },
+        {
+          "word": 294912,
+          "count": 256,
+          "width": 4,
+          "offset": 5535
+        },
+        {
+          "word": 296960,
+          "count": 256,
+          "width": 4,
+          "offset": 6559
+        },
+        {
+          "word": 299008,
+          "count": 256,
+          "width": 4,
+          "offset": 7583
+        },
+        {
+          "word": 301056,
+          "count": 256,
+          "width": 4,
+          "offset": 8607
+        },
+        {
+          "word": 303104,
+          "count": 256,
+          "width": 4,
+          "offset": 9631
+        },
+        {
+          "word": 305152,
+          "count": 16,
+          "width": 4,
+          "offset": 10655
+        },
+        {
+          "word": 305168,
+          "count": 1,
+          "width": 10,
+          "offset": 10719
+        },
+        {
+          "word": 307200,
+          "count": 16,
+          "width": 4,
+          "offset": 10729
+        },
+        {
+          "word": 307216,
+          "count": 1,
+          "width": 10,
+          "offset": 10793
+        },
+        {
+          "word": 309248,
+          "count": 16,
+          "width": 4,
+          "offset": 10803
+        },
+        {
+          "word": 309264,
+          "count": 1,
+          "width": 10,
+          "offset": 10867
+        },
+        {
+          "word": 311296,
+          "count": 1025,
+          "width": 1,
+          "offset": 10877
+        },
+        {
+          "word": 313344,
+          "count": 1025,
+          "width": 1,
+          "offset": 11902
+        },
+        {
+          "word": 315392,
+          "count": 1025,
+          "width": 1,
+          "offset": 12927
+        },
+        {
+          "word": 317440,
+          "count": 1,
+          "width": 18,
+          "offset": 13952
+        },
+        {
+          "word": 317441,
+          "count": 1,
+          "width": 15,
+          "offset": 13970
+        },
+        {
+          "word": 319488,
+          "count": 1,
+          "width": 8,
+          "offset": 13985
+        }
+      ],
+      "receipt": {
+        "directory": "2026-10-19-snapshot-dispy-ff-scan",
+        "version": "simulation-v3",
+        "manifest_sha256": "9c5c0fa9641d5ed4f2698be9fe3d0f7fea6fbf3edd3a5efb871bdc8b5ac1c143",
+        "results_sha256": "a9e3331f4266e8a8e14bbd70af578e401d95ced8c8ff60491610dd07c1505846",
+        "metadata_sha256": "d432225e9ba044f0fa07f9100b4eae695ace2858bfce643e0faba5658a417f7a"
+      }
+    },
+    {
+      "id": 10,
+      "name": "BaseBd",
+      "index_bits": 17,
+      "bits": 40366,
+      "words": 4890,
+      "runs": [
+        {
+          "word": 0,
+          "count": 111,
+          "width": 18,
+          "offset": 0
+        },
+        {
+          "word": 111,
+          "count": 1,
+          "width": 6,
+          "offset": 1998
+        },
+        {
+          "word": 61440,
+          "count": 1025,
+          "width": 8,
+          "offset": 2004
+        },
+        {
+          "word": 63488,
+          "count": 1025,
+          "width": 8,
+          "offset": 10204
+        },
+        {
+          "word": 65536,
+          "count": 1025,
+          "width": 8,
+          "offset": 18404
+        },
+        {
+          "word": 67584,
+          "count": 1025,
+          "width": 8,
+          "offset": 26604
+        },
+        {
+          "word": 69632,
+          "count": 1,
+          "width": 9,
+          "offset": 34804
+        },
+        {
+          "word": 71680,
+          "count": 1,
+          "width": 9,
+          "offset": 34813
+        },
+        {
+          "word": 73728,
+          "count": 1,
+          "width": 9,
+          "offset": 34822
+        },
+        {
+          "word": 75776,
+          "count": 1,
+          "width": 9,
+          "offset": 34831
+        },
+        {
+          "word": 77824,
+          "count": 1,
+          "width": 9,
+          "offset": 34840
+        },
+        {
+          "word": 79872,
+          "count": 1,
+          "width": 9,
+          "offset": 34849
+        },
+        {
+          "word": 81920,
+          "count": 1,
+          "width": 9,
+          "offset": 34858
+        },
+        {
+          "word": 83968,
+          "count": 1,
+          "width": 9,
+          "offset": 34867
+        },
+        {
+          "word": 86016,
+          "count": 128,
+          "width": 8,
+          "offset": 34876
+        },
+        {
+          "word": 86144,
+          "count": 4,
+          "width": 18,
+          "offset": 35900
+        },
+        {
+          "word": 86148,
+          "count": 2,
+          "width": 1,
+          "offset": 35972
+        },
+        {
+          "word": 88064,
+          "count": 128,
+          "width": 8,
+          "offset": 35974
+        },
+        {
+          "word": 88192,
+          "count": 4,
+          "width": 18,
+          "offset": 36998
+        },
+        {
+          "word": 88196,
+          "count": 2,
+          "width": 1,
+          "offset": 37070
+        },
+        {
+          "word": 90112,
+          "count": 128,
+          "width": 8,
+          "offset": 37072
+        },
+        {
+          "word": 90240,
+          "count": 4,
+          "width": 18,
+          "offset": 38096
+        },
+        {
+          "word": 90244,
+          "count": 2,
+          "width": 1,
+          "offset": 38168
+        },
+        {
+          "word": 92160,
+          "count": 128,
+          "width": 8,
+          "offset": 38170
+        },
+        {
+          "word": 92288,
+          "count": 4,
+          "width": 18,
+          "offset": 39194
+        },
+        {
+          "word": 92292,
+          "count": 2,
+          "width": 1,
+          "offset": 39266
+        },
+        {
+          "word": 94208,
+          "count": 128,
+          "width": 8,
+          "offset": 39268
+        },
+        {
+          "word": 94336,
+          "count": 4,
+          "width": 18,
+          "offset": 40292
+        },
+        {
+          "word": 94340,
+          "count": 2,
+          "width": 1,
+          "offset": 40364
+        }
+      ],
+      "receipt": {
+        "directory": "2026-10-19-snapshot-baseboard-ff-scan",
+        "version": "simulation-v4",
+        "manifest_sha256": "9ac87af8d7ccb1023517de1eaafea5db6b7fea5fd8826d7cf2ec4a71f5cafbe1",
+        "results_sha256": "3188d6393e75be82191a8c0ade2fdfd0356d956bb0783fa7ea16b0b3fd2e2f76",
+        "metadata_sha256": "3974846e471abb1387cb03b238eb0e7d1381e2e5673e8542d20a3ef912f71706"
+      }
+    },
+    {
+      "id": 11,
+      "name": "MSA",
+      "index_bits": 11,
+      "bits": 13200,
+      "words": 736,
+      "runs": [
+        {
+          "word": 0,
+          "count": 91,
+          "width": 18,
+          "offset": 0
+        },
+        {
+          "word": 91,
+          "count": 1,
+          "width": 12,
+          "offset": 1638
+        },
+        {
+          "word": 256,
+          "count": 91,
+          "width": 18,
+          "offset": 1650
+        },
+        {
+          "word": 347,
+          "count": 1,
+          "width": 12,
+          "offset": 3288
+        },
+        {
+          "word": 512,
+          "count": 91,
+          "width": 18,
+          "offset": 3300
+        },
+        {
+          "word": 603,
+          "count": 1,
+          "width": 12,
+          "offset": 4938
+        },
+        {
+          "word": 768,
+          "count": 91,
+          "width": 18,
+          "offset": 4950
+        },
+        {
+          "word": 859,
+          "count": 1,
+          "width": 12,
+          "offset": 6588
+        },
+        {
+          "word": 1024,
+          "count": 91,
+          "width": 18,
+          "offset": 6600
+        },
+        {
+          "word": 1115,
+          "count": 1,
+          "width": 12,
+          "offset": 8238
+        },
+        {
+          "word": 1280,
+          "count": 91,
+          "width": 18,
+          "offset": 8250
+        },
+        {
+          "word": 1371,
+          "count": 1,
+          "width": 12,
+          "offset": 9888
+        },
+        {
+          "word": 1536,
+          "count": 91,
+          "width": 18,
+          "offset": 9900
+        },
+        {
+          "word": 1627,
+          "count": 1,
+          "width": 12,
+          "offset": 11538
+        },
+        {
+          "word": 1792,
+          "count": 91,
+          "width": 18,
+          "offset": 11550
+        },
+        {
+          "word": 1883,
+          "count": 1,
+          "width": 12,
+          "offset": 13188
+        }
+      ],
+      "members": [
+        "b_msa",
+        "b_msaOdd",
+        "b_msa1",
+        "b_msa1Odd",
+        "b_msa2",
+        "b_msa2Odd",
+        "b_msa3",
+        "b_msa3Odd"
+      ],
+      "member_bits": 1650,
+      "member_stride": 256,
+      "receipt": {
+        "directory": "2026-10-19-snapshot-msa-compact",
+        "version": "msa-v2",
+        "manifest_sha256": "0bf035ec4254783b81253ed01861951c7ba7e49cbda52bfdaab49c51c3789140",
+        "results_sha256": "9c7ef5e8747663bfeaa28bdaf384044fc27938db0bdfb39841b034bf8ad2f450",
+        "classification_sha256": "78ae0b8e15b3110d148486394391dce3fa5897baa9031cb5f31616bdb6ea640d",
+        "source_audit_sha256": "82bb621ec4aa8d35cba2d0d9a94d611a31e51a5634b770cd82b7f6b29be8b4c0",
+        "matched_fit_sha256": "677662e9004befcc75673f7ee90e286a60e0e8e3343c2d7c111c1aac25f0f651"
+      }
+    }
+  ],
+  "predecessor_catalog_sha256": "c876f8b45b768814ab4a7447c8ea31058e02bb8924aeea8cca1622357f94565a",
+  "catalog_sha256": "56e997e5c1fb54d047d927eb52bd41f3d38419b4703a25b4277b90cfae7e8db4",
+  "schema_id": "56e997e5c1fb54d0"
+}

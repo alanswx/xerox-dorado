@@ -1,0 +1,21 @@
+{
+  "status": "TERMINAL_FAILED_FIT",
+  "builder_pid": 2412173,
+  "builder_live": false,
+  "process_command": [
+    "ps",
+    "-o",
+    "pid,ppid,stat,etime,args",
+    "-p",
+    "2412173"
+  ],
+  "process_stdout": "    PID    PPID STAT     ELAPSED COMMAND\n",
+  "process_returncode": 1,
+  "sta_started": false,
+  "assembly_started": false,
+  "rbfs": [],
+  "sof_files": [],
+  "unchanged_inputs": 659,
+  "changed_inputs": [],
+  "packet_sha256": "b3f41d0b67ffb9e9c61327ae5dbc9f5e4aab5abd89ec3a0348f2e18a16bbcdd8"
+}

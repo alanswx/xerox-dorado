@@ -1,0 +1,14 @@
+{
+  "status": "PASS_BOARD_GEOMETRY_WRAPPER_ACCESS_PENDING",
+  "qsf_sources": 319,
+  "macros": 15,
+  "instances": 3945,
+  "sequential_bits": 2095075,
+  "totals": {
+    "WRAPPER ACCESS PENDING": 132484,
+    "PRIVATE BOARD": 4578,
+    "PHYSICAL BOARD": 1957944,
+    "PRIVATE TRANSPORT": 69
+  },
+  "negative_controls": 14
+}

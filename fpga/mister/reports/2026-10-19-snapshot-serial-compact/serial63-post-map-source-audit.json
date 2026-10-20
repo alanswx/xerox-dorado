@@ -1,0 +1,19 @@
+{
+  "status": "PASS_COMPACT_NATIVE_SOURCE_ONLY",
+  "scope": "Independent exact-source review of compact nineteen-board native integration.\n\nUse the reviewed Serial62 archive as the immutable parent, not the builder's\nexpected strings. Only qualified compact assets, router name, schema, metadata\nand removal of obsolete MSA hold cuts may change. Original pins/equations,\nclocks/IO, macros and virtual service ownership are otherwise byte-identical.\n",
+  "boards": 19,
+  "slots": 12,
+  "physical_board_bits": 1957944,
+  "verified_parent_inputs": 659,
+  "verified_native59_inputs": 413,
+  "original_pin_connections": 2761,
+  "source_contract": "Exact reviewed parent with qualified compact assets, router name, schema and removal of obsolete hold cuts",
+  "schema_id": "56e997e5c1fb54d0",
+  "sequential_exclusions": [],
+  "capacity_only": true,
+  "assembly_permitted": false,
+  "native_barriers_implemented": false,
+  "limits": "Source proof only; actual selected-source geometry, fit, timing and full snapshots are separate.",
+  "qsf_sha256": "5383427fba4acfd3210b20632b77841634074c4984baab000da047fb7dfbd8a6",
+  "actual_quartus_aliases_checked": true
+}

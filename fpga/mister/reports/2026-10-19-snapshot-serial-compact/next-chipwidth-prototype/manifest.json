@@ -1,0 +1,67 @@
+{
+  "scope": "Experimental compact cache holding exactly the original chip-vector width.\n\nRaw words are16bits, but only WIDTH low bits feed the original guest pipeline.\nTrim unused implementation padding from cache_data; preserve raw16bit payloads,\nall original guest fields and every actual remaining snapshot bit. New schema.\n",
+  "original_sha256": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+  "generated_sha256": "13bf0279d19f378052a8480dbdd571bec9902a913c4c792e8b3fece4f87a9a8f",
+  "fields": [
+    [
+      "cas_d",
+      1
+    ],
+    [
+      "we_d",
+      1
+    ],
+    [
+      "write_pending",
+      1
+    ],
+    [
+      "write_data",
+      "WIDTH"
+    ],
+    [
+      "read_pipe",
+      "WIDTH"
+    ],
+    [
+      "data_out",
+      "WIDTH"
+    ],
+    [
+      "cache_valid",
+      1
+    ],
+    [
+      "write_done",
+      1
+    ],
+    [
+      "waiting",
+      1
+    ],
+    [
+      "cache_data",
+      "WIDTH"
+    ]
+  ],
+  "physical_bits": {
+    "width8": 38,
+    "width12": 54
+  },
+  "private_bits": 1,
+  "removed_fields": [
+    "saved_write",
+    "cache_addr",
+    "saved_addr",
+    "saved_data",
+    "old_data"
+  ],
+  "removed_actual_register_bits_per_group": 65,
+  "state_relation": "cache_valid=reference.hit; cache_data=reference.read_value[WIDTH-1:0]; other eight fields equal; new snapshot schema mandatory",
+  "parent_generated_sha256": "fe85a6f7a3fbc0fb0cb61011cac142e29f26e6a3399ee0777d3a5e7b51225d03",
+  "actual_removed_padding_bits": {
+    "width8": 8,
+    "width12": 4
+  },
+  "limits": "Prototype only; not integrated in a complete MSA, catalog or native fit"
+}
