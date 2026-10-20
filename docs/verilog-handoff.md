@@ -17,9 +17,9 @@ components/evidence and reuse clock work only after checking Native59 contracts.
 
 The last measured rate remains **1,947,654.12 instruction issues/s**. No new
 full-core clock build, FPGA rollback or hardware speedup is claimed. The
-coupled32-Q phase/run/refresh component now passes original-circuit comparison
-and isolated15ns FPGA timing. Immediate work: Hold/repeat and processor T/task
-capture with that controller, then native integration and original-firmware gates.
+coupled control/processor slice now passes original-circuit comparison for
+64 Qs and isolated 15ns FPGA timing. Immediate work: the actual task-arbiter/
+hold producers and T data/writeback, then native integration and original-firmware gates.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
 qualify it through original firmware and the germ/disk path. Rollback preserves
 later filesystem changes; it is not a disk rewind or a raw FPGA snapshot.
@@ -32,6 +32,69 @@ existing UIO bits. Component-only; native and actual Main coordination are
 absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
+
+### Coupled processor capture slice qualified (2026-10-20)
+
+`dorado_processor_capture_step.sv` extends the qualified controller to all
+64 Qs in complete original packages: ContA's 32 plus each processor half's
+phase pair, six T-control Qs and Curr/Last task registers. The independent
+wire-list extraction has 70 packages / 642 connected pins. It audits the
+BaseBoard common-clock fanout and the named ContA-to-processor backplane
+connections; the four StartCycle/clock-enable seams have different source/sink
+connector positions, so a straight-through pin assumption would be wrong.
+The original 32-Q controller functions are reused byte-for-byte except names.
+
+Both Icarus and Verilator pass 74,872 ordered binary events, comparing all
+64 Qs, 22 clock channels and nine hold/repeat/task flags. Coverage includes
+all 16 task pin patterns, 218 held-task checks, 195 priority-yield checks,
+279 differing high/low T-capture events, 211 suppressed fetch events and
+197 resumed fetch events. All twelve compiled bad variants reject, including
+shared T clocks, incorrect Clock1 polarity, merged Hold pins, blocked priority
+yield, wrong Curr/Last capture and missing TgetsMd. Archived-source replay
+reproduces the full suite in both simulators.
+
+Original wiring findings: memory Hold is backplane E26; processor PRhold is
+E42 and locally buffered. A higher-priority task may run during PRhold.
+ProcH captures T controls on Clock0, ProcL on SHCP; Clock1 uses the **positive**
+phase-Q through SE10212, not an inverted MC10195 assumption. The BaseBoard's
+CLK.ca/ph/pl are parallel copies of one root. Hold/SwitchUp are clocked
+producer outputs, exercised in the high clock window (HM section 4.9 and
+ContA f15). Provisional tests using opposite-direction independent roots or
+arbitrary low-window Hold/SwitchUp swaps exposed gate hazards outside that
+contract; those logs are retained as history, not successful qualification.
+Fixture seeding temporarily suppresses phase initialization so asynchronous
+sPhase0 does not defeat the test's load of original Qs.
+
+One isolated Quartus 17.0.2 build on misterubuntu passes all four operating
+conditions at 15.000ns: minimum setup +5.671ns, hold +0.151ns, pulse width
++6.552ns; launch-to-result setup margin is at least +10.514ns. It uses
+174 ALMs / 290 registers including the registered measurement shell, no
+RAM/DSP/PLL. The shell stages virtual input before launch; it adds no native
+pipeline stage. Delays remain 2ns maximum / 0ns minimum, with no exceptions.
+The 23 constant result bits are the repeated-event and unsettled flags;
+107 launch and 86 result registers remain after synthesis. The independent
+reader verifies frozen sources against simulation, all four corners and
+unconstrained paths; nine damaged/rehashed evidence cases reject. Its
+previous 32-Q profile still reproduces the earlier passing timing result.
+The job is terminal, all five recorded processes absent, with no assembly.
+
+Receipt: `fpga/mister/reports/2026-10-20-processor-capture/`. Raw sources,
+reports and logs are losslessly compressed; simulator objects/binaries and
+Quartus databases are omitted. This is component qualification only. Actual
+Next/SwitchUp/priority and Hold producers, T data/ALU/writeback, MIR timing,
+analog skew and the remaining boards are outside this slice. No native core,
+Main or daemon changed; Native59 remains the hardware reference at
+1,947,654.12 instruction issues/s. Complete FPGA snapshots remain deferred.
+
+```
+make -C verilog processor-capture-test PROCESSOR_CAPTURE_OUT=build/processor-capture-new
+```
+
+Next: close the actual task-arbiter/hold-producer and T data/writeback ordering
+boundary before native clock integration; retain the ordinary/extended cadence
+checks. Then finish board/memory/peripheral timing and original-firmware boot.
+Cedar rollback, three fresh boots, cold disk persistence and two-hour stress
+remain acceptance gates, as listed in the active delivery plan above.
 
 ### Coupled control clocks and FPGA budget qualified (2026-10-20)
 

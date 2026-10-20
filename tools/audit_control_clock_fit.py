@@ -33,7 +33,10 @@ def slack(path,model):
 
 def audit(directory,qualified,allow_missing):
     provenance=json.loads((directory/'provenance.json').read_text())
-    assert provenance['clock_period_ns']==15 and provenance['launch_bits']==52 and provenance['result_bits']==51
+    assert provenance.get('component')in(None,'processor_capture'),'Unknown fixture profile'
+    processor=provenance.get('component')=='processor_capture'
+    expected_launch,expected_result=(122,109)if processor else(52,51)
+    assert provenance['clock_period_ns']==15 and provenance['launch_bits']==expected_launch and provenance['result_bits']==expected_result
     assert not provenance['assembly_permitted']and not provenance['native_qualified']
     annotation=b'\nset_global_assignment -name LAST_QUARTUS_VERSION "17.0.2 Lite Edition"'
     for name,digest in provenance['files'].items():
@@ -43,10 +46,20 @@ def audit(directory,qualified,allow_missing):
             raw=raw[:-len(annotation)]
         assert sha(raw)==digest,('changed input',name)
     qualified_record=json.loads((qualified/'results.json').read_text())
-    assert qualified_record['status']=='PASS_COUPLED_ORIGINAL_CONTROL_CLOCK_COMPONENT'
-    evaluator_digest=qualified_record['inputs']['verilog/rtl/dorado_control_clock_step.sv']
-    assert sha((directory/'dorado_control_clock_step.sv').read_bytes())==evaluator_digest
+    expected_status='PASS_COUPLED_PROCESSOR_CAPTURE_COMPONENT'if processor else'PASS_COUPLED_ORIGINAL_CONTROL_CLOCK_COMPONENT'
+    assert qualified_record['status']==expected_status
+    evaluator='dorado_processor_capture_step.sv'if processor else'dorado_control_clock_step.sv'
+    evaluator_digest=qualified_record['inputs']['verilog/rtl/'+evaluator]
+    assert sha((directory/evaluator).read_bytes())==evaluator_digest
     sdc=(directory/'clock.sdc').read_text();qsf=(directory/'clock_fit.qsf').read_text()
+    assert sdc.splitlines()==[
+        'create_clock -name host_clock -period 15.000 [get_ports host_clk]',
+        'derive_clock_uncertainty',
+        'set_input_delay -clock host_clock -max 2.000 [get_ports {pins[*]}]',
+        'set_input_delay -clock host_clock -min 0.000 [get_ports {pins[*]}]',
+        'set_output_delay -clock host_clock -max 2.000 [get_ports {result[*]}]',
+        'set_output_delay -clock host_clock -min 0.000 [get_ports {result[*]}]',
+    ],'Unexpected timing constraints'
     assert 'create_clock -name host_clock -period 15.000 [get_ports host_clk]'in sdc
     assert not re.search(r'set_(?:false_path|multicycle_path|max_delay|min_delay|disable_timing)',sdc)
     assert '5CSEBA6U23I7'in qsf and 'REGISTER_RETIMING OFF'in qsf and 'GENERATE_RBF_FILE OFF'in qsf
@@ -89,7 +102,7 @@ def audit(directory,qualified,allow_missing):
     minimum={mode:min(r[mode]for r in records)for mode in ['setup','hold','mpw']}
     passing=targeted_complete and all(v>=0 for v in minimum.values())
     return dict(status='PASS_COMPONENT_TIMING'if passing else'REJECTED_COMPONENT_TIMING',
-        scope=__doc__,period_ns=15,resources=resources,minimum_slack_ns=minimum,conditions=records,
+        scope=__doc__,component='processor_capture'if processor else'control_clock',period_ns=15,resources=resources,minimum_slack_ns=minimum,conditions=records,
         input_staging_bits=provenance.get('input_staging_bits',0),
         targeted_coverage_complete=targeted_complete,evaluator_sha256=evaluator_digest,
         permitted_qsf_delta='Quartus17.0.2 LAST_QUARTUS_VERSION annotation only',

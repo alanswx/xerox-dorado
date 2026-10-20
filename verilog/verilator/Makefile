@@ -1823,6 +1823,11 @@ CONTROL_CLOCK_OUT ?= build/control-clock
 control-clock-test:
 	@cd ../.. && python3 tools/test_control_clock.py --output "$(CONTROL_CLOCK_OUT)" --mutations
 
+PROCESSOR_CAPTURE_OUT ?= build/processor-capture
+.PHONY: processor-capture-test
+processor-capture-test:
+	@cd ../.. && python3 tools/test_processor_capture.py --output "$(PROCESSOR_CAPTURE_OUT)" --mutations
+
 RUN_CONTROL_OUT ?= build/run-control
 run-control-test:
 	@cd ../.. && python3 tools/test_run_control.py --output "$(RUN_CONTROL_OUT)" --mutations
