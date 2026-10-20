@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "members": 1149,
+  "scope": "Lossless readback; extracted independent source/pin review and ten rehashed controls; fresh actual-QSF XML/task-write review and fifteen controls; exact extracted-driver restaging of 660 source inputs and three records. Prior immutable reports only; no working HDL.",
+  "commands": [
+    [
+      "python3",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-memory-pause-archive-replay-20261020/staged-source/tools/fpga/mister/snapshot/audit_native_memory_pause.py",
+      "--project",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-memory-pause-archive-replay-20261020/staged-source",
+      "--output",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-memory-pause-archive-replay-20261020/source-audit.json"
+    ],
+    [
+      "python3",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-memory-pause-archive-replay-20261020/staged-source/tools/fpga/mister/snapshot/inventory_native_memory_pause.py",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-memory-pause-archive-replay-20261020/staged-source",
+      "--output",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-memory-pause-archive-replay-20261020/fresh-classification"
+    ],
+    [
+      "python3",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-memory-pause-archive-replay-20261020/staged-source/tools/fpga/mister/snapshot/build_native_memory_pause.py",
+      "--stage",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-memory-pause-archive-replay-20261020/restaged",
+      "--destination",
+      "/home/alans/mister/Dorado_Serial69MemoryPause_20261020"
+    ]
+  ]
+}
