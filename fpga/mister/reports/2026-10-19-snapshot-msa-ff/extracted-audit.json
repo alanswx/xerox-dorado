@@ -1,0 +1,12 @@
+{
+  "status": "PASS_COMPONENT_ONLY",
+  "raw_files": 364,
+  "generated_helpers_byte_identical": 3,
+  "primitive_physical_bits_per_side": 50,
+  "primitive_failure_controls": 7,
+  "native_required_bits": 21520,
+  "native_fields": 3664,
+  "native_failure_controls": 9,
+  "native_sources_verified": 216,
+  "limits": "No native MSA/frontend access, timing, combined core or machine restore claim"
+}

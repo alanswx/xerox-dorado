@@ -1292,3 +1292,41 @@ remains 45,228 / 41,910 ALMs (3,318 over). Live Native59 and its last qualified
 1,947,654.12 issues/s are unchanged. Original 60 ns clocks/timers, pinned
 comparisons, three final fresh boots, cold persistence and two-hour stress
 remain required. Goal ACTIVE; all experiments in this entry are terminal.
+
+## MSA primitive access and native sequential-state classification (2026-10-19)
+
+**MSA primitive access is now qualified; native MSA board/frontend access is pending.**
+`generate_msa_ff.py` adds pinned-source adapters for SN74166, SN74S174 and the
+shared MK4096P address latch (both 7- and 8-bit row geometry). Original pin
+logic and sequential process bodies are preserved under host advance; held
+loads include all sampled clock/strobe history. Independent state/pin oracles
+and the actual original RTL agree over 106,111 host edges / 2,118,261 checks,
+including exhaustive TTL pins, walking state bits, held/unheld/invalid writes,
+destructive restore, the first resumed edge and 20,000 further cycles. Seven
+actual RTL mutations reject; three changed-source controls reject. Fresh XML
+accounts for all 50 representative physical bits per side and zero private
+bits, with no sequential exclusions; seven damaged inventory controls reject.
+V2 makes the same truncated PRNG seed explicit as a 32-bit literal, removing a
+compiler warning without changing any result. Native classification V2 corrects
+subset summary metadata without changing decisions.
+
+Replaying the exact native XML and revalidating all 216 source receipts now
+classifies all eight MSA instances: 21,520 required bits / 3,664 fields, all SAVE,
+no sequential exclusions. Each board has 866 original FF/history bits and 1,824
+frontend bits. Nine damaged classifications reject. The three new primitive
+families cover 636 bits per board (5,088 total); 230 original bits per board
+reuse existing families. MSA board access, all frontend access and their actual
+hold boundary remain pending. All 364 raw archive members pass hash readback;
+extracted original sources regenerate identical helpers and extracted XML/source
+classification controls pass. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-msa-ff/`.
+
+The other native-wrapper candidate state remains review-only. Expose the MSA
+board/frontend state, then complete the other wrapper/backend, input, video,
+network and external 16 MiB raw-memory state. Implement actual backend/Main/
+daemon/disk-generation barriers and preserving server pause/resume with timer
+rebasing. SDRAM refresh must continue while guest interfaces are held. SYSTEM
+reset must mean a genuine machine reseed; parser reset or a soft reset leaving
+shifted physical state cannot release quarantine.
+
+No combined fit, clock/timer change, hardware deployment or speed improvement is claimed.

@@ -1,0 +1,7 @@
+{
+  "status": "PASS_COMPONENT_ONLY",
+  "primitive_test": "V1 and V2 pass identically:106111host/2118261checks/7damaged RTL controls/3source controls. V2 spells the same truncated PRNG seed as an explicit 32bit literal to remove a compiler warning; no seed or behavior change.",
+  "primitive_classification": "Fresh50bits per side, zero private bits/no sequential exclusions;7damaged geometry/category controls reject.",
+  "native_classification": "Eight exact native MSA hierarchies,21520required bits/3664fields,866original+1824frontend per board;9damaged controls reject;216native source receipts revalidated. V2 corrects subset inventory summary metadata, with unchanged decisions.",
+  "limits": "No native MSA or frontend access, combined core fit/timing, global barrier, full machine snapshot, hardware change or speed improvement."
+}

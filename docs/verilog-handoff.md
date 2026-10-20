@@ -30,16 +30,39 @@ extracted source and classification audits pass. Evidence:
 `fpga/mister/reports/2026-10-19-snapshot-serial-board-global/`.
 The board-only catalog identity remains `c876f8b45b768814`.
 
-Revalidating all 216 native support source receipts makes the next gap explicit:
-the 154,037 candidate support bits include EIGHT MSA storage-board instances,
-2,690 bits each / 21,520 total. Their original latches, DRAM address histories
-and native storage frontends are outside the eleven adapters. This inventory
-is still review-only: classify and expose those fields, then the other wrapper,
-backend, input, video, network and external 16 MiB raw-memory state. Implement
-actual backend/Main/daemon/disk-generation barriers and a preserving server
-pause/resume with timer rebasing. SDRAM refresh must continue while guest
-interfaces are held. SYSTEM reset must mean a genuine machine reseed; parser
-reset or a soft reset leaving shifted physical state cannot release quarantine.
+**MSA primitive access is now qualified; native MSA board/frontend access is pending.**
+`generate_msa_ff.py` adds pinned-source adapters for SN74166, SN74S174 and the
+shared MK4096P address latch (both 7- and 8-bit row geometry). Original pin
+logic and sequential process bodies are preserved under host advance; held
+loads include all sampled clock/strobe history. Independent state/pin oracles
+and the actual original RTL agree over 106,111 host edges / 2,118,261 checks,
+including exhaustive TTL pins, walking state bits, held/unheld/invalid writes,
+destructive restore, the first resumed edge and 20,000 further cycles. Seven
+actual RTL mutations reject; three changed-source controls reject. Fresh XML
+accounts for all 50 representative physical bits per side and zero private
+bits, with no sequential exclusions; seven damaged inventory controls reject.
+V2 makes the same truncated PRNG seed explicit as a 32-bit literal, removing a
+compiler warning without changing any result. Native classification V2 corrects
+subset summary metadata without changing decisions.
+
+Replaying the exact native XML and revalidating all 216 source receipts now
+classifies all eight MSA instances: 21,520 required bits / 3,664 fields, all SAVE,
+no sequential exclusions. Each board has 866 original FF/history bits and 1,824
+frontend bits. Nine damaged classifications reject. The three new primitive
+families cover 636 bits per board (5,088 total); 230 original bits per board
+reuse existing families. MSA board access, all frontend access and their actual
+hold boundary remain pending. All 364 raw archive members pass hash readback;
+extracted original sources regenerate identical helpers and extracted XML/source
+classification controls pass. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-msa-ff/`.
+
+The other native-wrapper candidate state remains review-only. Expose the MSA
+board/frontend state, then complete the other wrapper/backend, input, video,
+network and external 16 MiB raw-memory state. Implement actual backend/Main/
+daemon/disk-generation barriers and preserving server pause/resume with timer
+rebasing. SDRAM refresh must continue while guest interfaces are held. SYSTEM
+reset must mean a genuine machine reseed; parser reset or a soft reset leaving
+shifted physical state cannot release quarantine.
 
 Qualify combined serial capacity/timing and atomic disk-paired FPGA Cedar
 save/continue/restore before claiming full snapshots. The last combined result
@@ -3159,7 +3182,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify ABI2 serial transport/hold ownership contract with2048cycle budget, actual2004bit scan, five stub-domain acknowledgments, parser-vs-SYSTEM reset, sticky quarantine and coherent status;12238ticks/141packets/44checks,19damaged RTL controls. Fresh389private+728shell inventory/13controls and matched577->616ALM/fourconditions/min+0.109ns/9fit controls pass. Native barriers remain unimplemented.
 - [x] Bind complete eleven-board compact format from qualified receipts:1944744bits/385runs, schema c876f8b45b768814, dense encoding/independent bit oracle/all-board roundtrips/invalid-map and packet validation;24Python-formatted packets drive actual RTL. Archive891raw files; extracted fit/XML/controls and original-receipt catalog regeneration pass.
 - [x] Namespace all eleven serial boards/148 modules, normalize ContA's equivalent cast and qualify forced global hold/separate scan abort: inverse-source proof/66 controls, all-board ordinary/hold/abort comparison, nine actual RTL mutations, fresh 1,944,744 physical + 3,930 private inventory/77 controls. Archive 2,983 raw files and pass extracted regeneration/source/XML audits.
-- [ ] Classify and expose all eight MSA storage-board instances (21,520 candidate bits), including original latches/address histories and native storage frontends; no silent exclusions.
+- [x] Qualify three MSA primitive adapter families / four geometries / 50 representative bits: 106,111 host edges, independent original/state/pin oracles, destructive restore/first edge/20K more; seven actual RTL mutations and three source controls reject. Fresh complete 50-bit-per-side XML/seven controls pass.
+- [x] Classify all eight exact native MSA instances: 21,520 required SAVE bits / 3,664 fields, 866 original + 1,824 frontend bits per board; nine damaged controls reject, all 216 native source receipts revalidated. Archive 364 raw files and pass extracted source regeneration/XML audits.
+- [ ] Implement MSA board access (866 FF/history bits per board) using the qualified families, then all 1,824 frontend bits per board with faithful host/guest clock holds and a drained raw-memory boundary; classification is not access.
 - [ ] Implement actual backend/input/ARM service quiesce and acknowledgments with correct SYSTEM-reset lifetime; preserve SDRAM refresh and bind quarantine release to genuine machine reseed. Generic contracts and local board holds do not freeze the native machine.
 - [ ] Continue area reductions without dropping state until all enabled interfaces fit, then qualify complete-core timing and physical memory inference; no RBF/deployment yet.
 - [ ] Complete wrapper/backend/top-level sequential-state classification/access in addition to eleven-board state; native-wrapper154,037bit inventory is review-only.

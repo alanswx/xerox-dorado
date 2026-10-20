@@ -1,0 +1,167 @@
+{
+  "status": "PASS",
+  "scope": "Account for every original/adapter MSA primitive sequential field in fresh XML.\n\nOnly three local families are covered. No native MSA board, storage frontend,\nexternal RAM, global barrier, complete-machine snapshot or timing claim.\n",
+  "physical_bits_per_side": 50,
+  "private_bits": 0,
+  "sequential_exclusions": [],
+  "decisions": [
+    {
+      "path": "msa_ff_fixture.case0.cell_i.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case0.cell_i.q",
+      "bits": 8,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case0.ref_i.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case0.ref_i.q",
+      "bits": 8,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case1.cell_i.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case1.cell_i.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case1.ref_i.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case1.ref_i.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case2.cell_i.cas_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case2.cell_i.col",
+      "bits": 7,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case2.cell_i.ras_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case2.cell_i.row",
+      "bits": 7,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case2.ref_i.cas_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case2.ref_i.col",
+      "bits": 7,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case2.ref_i.ras_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case2.ref_i.row",
+      "bits": 7,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case3.cell_i.cas_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case3.cell_i.col",
+      "bits": 8,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case3.cell_i.ras_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case3.cell_i.row",
+      "bits": 8,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case3.ref_i.cas_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case3.ref_i.col",
+      "bits": 8,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case3.ref_i.ras_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "msa_ff_fixture.case3.ref_i.row",
+      "bits": 8,
+      "scope": "PHYSICAL"
+    }
+  ],
+  "xml_sha256": "551a7cd5dc59bfb91a29ce0dc2208cab71aa95baed4b7dfac07267d6e2c34a67",
+  "failure_controls": [
+    {
+      "case": "missing",
+      "rejected": true,
+      "diagnostic": "missing state: ['msa_ff_fixture.case0.cell_i.ck_d']"
+    },
+    {
+      "case": "extra",
+      "rejected": true,
+      "diagnostic": "extra/duplicate state: msa_ff_fixture.case0.cell_i.ck_d_hidden"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate state: msa_ff_fixture.case0.cell_i.ck_d"
+    },
+    {
+      "case": "width",
+      "rejected": true,
+      "diagnostic": "state geometry differs: msa_ff_fixture.case0.cell_i.ck_d"
+    },
+    {
+      "case": "dimensions",
+      "rejected": true,
+      "diagnostic": "state geometry differs: msa_ff_fixture.case0.cell_i.ck_d"
+    },
+    {
+      "case": "history_not_sequential",
+      "rejected": true,
+      "diagnostic": "missing state: ['msa_ff_fixture.case3.cell_i.ras_d']"
+    },
+    {
+      "case": "missing_native_8bit",
+      "rejected": true,
+      "diagnostic": "missing state: ['msa_ff_fixture.case3.cell_i.row', 'msa_ff_fixture.case3.cell_i.col', 'msa_ff_fixture.case3.cell_i.ras_d']"
+    }
+  ]
+}

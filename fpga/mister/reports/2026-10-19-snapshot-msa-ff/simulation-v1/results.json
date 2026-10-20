@@ -1,0 +1,86 @@
+{
+  "status": "PASS",
+  "scope": "Compare new MSA helpers to original cells and independent pin/state oracles.",
+  "representative_bits": 50,
+  "source_controls": [
+    {
+      "case": "cell_SN74166_source",
+      "rejected": true,
+      "diagnostic": "unreviewed original source: cell_SN74166"
+    },
+    {
+      "case": "cell_SN74S174_source",
+      "rejected": true,
+      "diagnostic": "unreviewed original source: cell_SN74S174"
+    },
+    {
+      "case": "cell_MK4096P_addr_source",
+      "rejected": true,
+      "diagnostic": "unreviewed original source: cell_MK4096P_addr"
+    }
+  ],
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "lost_hold",
+      "returncode": 1,
+      "expected_failure": "physical state oracle differs"
+    },
+    {
+      "case": "lost_advance",
+      "returncode": 1,
+      "expected_failure": "physical state oracle differs"
+    },
+    {
+      "case": "reversed_parallel_load",
+      "returncode": 1,
+      "expected_failure": "physical state oracle differs"
+    },
+    {
+      "case": "clock_gated_clear",
+      "returncode": 1,
+      "expected_failure": "physical state oracle differs"
+    },
+    {
+      "case": "lost_history_restore",
+      "returncode": 1,
+      "expected_failure": "physical state oracle differs"
+    },
+    {
+      "case": "swapped_row_column",
+      "returncode": 1,
+      "expected_failure": "output oracle differs"
+    },
+    {
+      "case": "lost_strobe_restore",
+      "returncode": 1,
+      "expected_failure": "physical state oracle differs"
+    }
+  ],
+  "actual_native_msa_bits_per_board": 636,
+  "actual_native_msa_instances": 8,
+  "limits": "Three primitive families only; not MSA board/frontend access, native hold barriers, complete snapshots or timing.",
+  "source_sha256": {
+    "cell_SN74166": "ed87a73b4f61333de3d19ff700e2327d8b9003a8b4d59cae6d62a31b7f2b3232",
+    "cell_SN74S174": "88dad140f27625a0aa42ab98b5f1147b8c02ce2ece406f34852523dac0d55746",
+    "cell_MK4096P_addr": "fbb33241670944e9957c9f187bf8102473a1830a5b502f7ad05e66adb4c29d9a"
+  },
+  "generated_sha256": {
+    "cell_SN74166_msa_snapshot.sv": "e2d7d7978bef91d4b0b2b202c33d5054d84cc1b848b1c538c0c0fc04e661bc36",
+    "cell_SN74S174_msa_snapshot.sv": "79ac6b2a67426cdead4b386094cd60ae3c47c1ba3f96a8e89b3cd5f8da8d721f",
+    "cell_MK4096P_addr_msa_snapshot.sv": "8f92f12eb5ccd7384f7470c77d2676c5f46be22bc40ccce39c3dffb5ed15270f"
+  },
+  "executed_inputs": {
+    "test_msa_ff.cpp": "9137050e2b63f8d4d3bc06cc96f95b37f4fe9d989716f113482fd0deb1e426d1",
+    "generate_msa_ff.py": "52986caba398e5b8e42b5a27122ad314b9f17826ec28bc5398178f913beea459",
+    "cell_SN74S174.v": "88dad140f27625a0aa42ab98b5f1147b8c02ce2ece406f34852523dac0d55746",
+    "cell_MK4096P_addr.v": "fbb33241670944e9957c9f187bf8102473a1830a5b502f7ad05e66adb4c29d9a",
+    "generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "test_msa_ff.py": "a4c932882649f2b8b38a61b05337f189b886450e2fda29eb818f436b1f88016b",
+    "cell_SN74166.v": "ed87a73b4f61333de3d19ff700e2327d8b9003a8b4d59cae6d62a31b7f2b3232"
+  }
+}

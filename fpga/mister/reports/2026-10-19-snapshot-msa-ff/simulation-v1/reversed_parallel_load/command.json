@@ -1,0 +1,21 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "msa_ff_fixture",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-msa-ff-v1-20261019/reversed_parallel_load/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-msa-ff-v1-20261019/reversed_parallel_load/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-msa-ff-v1-20261019/reversed_parallel_load/cell_SN74166_msa_snapshot.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-msa-ff-v1-20261019/reversed_parallel_load/cell_SN74S174_msa_snapshot.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-msa-ff-v1-20261019/reversed_parallel_load/cell_MK4096P_addr_msa_snapshot.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-msa-ff-v1-20261019/executed-inputs/cell_SN74166.v",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-msa-ff-v1-20261019/executed-inputs/cell_SN74S174.v",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-msa-ff-v1-20261019/executed-inputs/cell_MK4096P_addr.v",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-msa-ff-v1-20261019/executed-inputs/test_msa_ff.cpp"
+]
