@@ -1,0 +1,12 @@
+{
+  "status": "PASS_REPLAY_OF_CAPACITY_PASS_AND_TIMING_REJECTION",
+  "restaged_inputs": 659,
+  "source_controls": 23,
+  "native_geometry_controls": 14,
+  "capacity_controls": 4,
+  "terminal_alms": 41381,
+  "timing_status": "REJECTED_TIMING",
+  "minimum_slack_ns": -0.239,
+  "timing_reader_controls_on_passing_native59": 6,
+  "dependencies": "Committed immutable original, Serial63 and chip-width component/transport archives through tools/fpga/mister/reports symlink; raw Native59 timing reports included; no working HDL"
+}

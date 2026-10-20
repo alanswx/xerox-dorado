@@ -1,0 +1,14 @@
+{
+  "status": "TERMINAL_COMPLETE",
+  "builder_pid": 2433951,
+  "builder_live": false,
+  "process_stdout": "    PID    PPID STAT     ELAPSED COMMAND\n",
+  "process_returncode": 1,
+  "sta_started": true,
+  "assembly_started": false,
+  "rbfs": [],
+  "sof_files": [],
+  "unchanged_inputs": 659,
+  "changed_inputs": [],
+  "packet_sha256": "a1e8e12bc900ebc46381331e13d148ec416a7c8b9353fab5aa36f392b675d8cc"
+}

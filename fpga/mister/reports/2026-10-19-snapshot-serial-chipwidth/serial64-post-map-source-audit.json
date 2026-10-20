@@ -1,0 +1,19 @@
+{
+  "status": "PASS_CHIPWIDTH_NATIVE_SOURCE_ONLY",
+  "scope": "Independent exact-source review of chip-width nineteen-board integration.\n\nUse the reviewed Serial63 archive as the immutable parent, not the builder's\nexpected strings. Only qualified compact assets, router name, schema, metadata\nmay change. All timing constraints remain exact. Original pins/equations,\nclocks/IO, macros and virtual service ownership are otherwise byte-identical.\n",
+  "boards": 19,
+  "slots": 12,
+  "physical_board_bits": 1957048,
+  "verified_parent_inputs": 659,
+  "verified_native59_inputs": 413,
+  "original_pin_connections": 2761,
+  "source_contract": "Exact reviewed parent with qualified compact assets, router name, schema; all constraints unchanged",
+  "schema_id": "af0b647cb43a3a62",
+  "sequential_exclusions": [],
+  "capacity_only": true,
+  "assembly_permitted": false,
+  "native_barriers_implemented": false,
+  "limits": "Source proof only; actual selected-source geometry, fit, timing and full snapshots are separate.",
+  "qsf_sha256": "c9de93186273e51b9ef02eb1ce898d25fc70cb605505a573f30a81ff7c37568b",
+  "actual_quartus_aliases_checked": true
+}

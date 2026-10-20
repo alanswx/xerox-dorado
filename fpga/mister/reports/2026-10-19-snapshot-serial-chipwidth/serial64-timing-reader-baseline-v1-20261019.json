@@ -1,0 +1,1981 @@
+{
+  "status": "PASS_REPORTED_TIMING_SAME_FRAMEWORK_IO_EXCEPTIONS",
+  "scope": "Review four native device conditions and the unchanged framework IO exceptions.\n\nNative59 already reports unconstrained asynchronous/framework ports. Require\ntheir exact names/comments/counts, zero illegal/unconstrained clocks and the\nsame actual clock definitions; never present this as every physical IO timed.\nSource/constraint identity, capacity and native service barriers are separate.\n",
+  "timing": [
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "setup",
+      "slack_ns": 1.46
+    },
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "hold",
+      "slack_ns": 0.233
+    },
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "recovery",
+      "slack_ns": 11.642
+    },
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "removal",
+      "slack_ns": 0.852
+    },
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "mpw",
+      "slack_ns": 1.122
+    },
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "sdram-input-setup",
+      "slack_ns": 5.489
+    },
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "sdram-input-hold",
+      "slack_ns": 6.565
+    },
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "sdram-output-setup",
+      "slack_ns": 2.12
+    },
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "sdram-output-hold",
+      "slack_ns": 6.447
+    },
+    {
+      "corner": "7_slow_1100mv_100c",
+      "kind": "setup",
+      "slack_ns": 1.438
+    },
+    {
+      "corner": "7_slow_1100mv_100c",
+      "kind": "hold",
+      "slack_ns": 0.244
+    },
+    {
+      "corner": "7_slow_1100mv_100c",
+      "kind": "recovery",
+      "slack_ns": 11.551
+    },
+    {
+      "corner": "7_slow_1100mv_100c",
+      "kind": "removal",
+      "slack_ns": 0.91
+    },
+    {
+      "corner": "7_slow_1100mv_100c",
+      "kind": "mpw",
+      "slack_ns": 1.122
+    },
+    {
+      "corner": "7_slow_1100mv_100c",
+      "kind": "sdram-input-setup",
+      "slack_ns": 5.096
+    },
+    {
+      "corner": "7_slow_1100mv_100c",
+      "kind": "sdram-input-hold",
+      "slack_ns": 6.945
+    },
+    {
+      "corner": "7_slow_1100mv_100c",
+      "kind": "sdram-output-setup",
+      "slack_ns": 2.015
+    },
+    {
+      "corner": "7_slow_1100mv_100c",
+      "kind": "sdram-output-hold",
+      "slack_ns": 6.357
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "kind": "setup",
+      "slack_ns": 4.888
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "kind": "hold",
+      "slack_ns": 0.114
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "kind": "recovery",
+      "slack_ns": 12.475
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "kind": "removal",
+      "slack_ns": 0.374
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "kind": "mpw",
+      "slack_ns": 1.122
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "kind": "sdram-input-setup",
+      "slack_ns": 8.636
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "kind": "sdram-input-hold",
+      "slack_ns": 4.465
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "kind": "sdram-output-setup",
+      "slack_ns": 4.888
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "kind": "sdram-output-hold",
+      "slack_ns": 7.263
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "kind": "setup",
+      "slack_ns": 4.56
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "kind": "hold",
+      "slack_ns": 0.13
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "kind": "recovery",
+      "slack_ns": 12.302
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "kind": "removal",
+      "slack_ns": 0.432
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "kind": "mpw",
+      "slack_ns": 1.122
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "kind": "sdram-input-setup",
+      "slack_ns": 8.205
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "kind": "sdram-input-hold",
+      "slack_ns": 4.945
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "kind": "sdram-output-setup",
+      "slack_ns": 4.56
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "kind": "sdram-output-hold",
+      "slack_ns": 7.233
+    }
+  ],
+  "minimum_slack_ns": 0.114,
+  "framework_exceptions": {
+    "7_slow_1100mv_-40c": {
+      "totals": {
+        "Illegal Clocks": [
+          0,
+          0
+        ],
+        "Unconstrained Clocks": [
+          0,
+          0
+        ],
+        "Unconstrained Input Ports": [
+          3,
+          3
+        ],
+        "Unconstrained Input Port Paths": [
+          13,
+          13
+        ],
+        "Unconstrained Output Ports": [
+          50,
+          50
+        ],
+        "Unconstrained Output Port Paths": [
+          154,
+          154
+        ]
+      },
+      "input_ports": [
+        {
+          "Input Port": "HDMI_I2C_SDA",
+          "Comment": "No input delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Input Port": "IO_SDA",
+          "Comment": "No input delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Input Port": "SDCD_SPDIF",
+          "Comment": "No input delay, min/max delays, false-path exceptions, or max skew assignments found"
+        }
+      ],
+      "output_ports": [
+        {
+          "Output Port": "HDMI_I2C_SCL",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_I2C_SDA",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_I2S",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_LRCLK",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_MCLK",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_SCLK",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_CLK",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "HDMI_TX_DE",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[0]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[1]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[2]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[3]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[4]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[5]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[6]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[7]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[8]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[9]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[10]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[11]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[12]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[13]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[14]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[15]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[16]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[17]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[18]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[19]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[20]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[21]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[22]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[23]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_HS",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_VS",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "IO_SCL",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "IO_SDA",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "LED[0]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "LED[2]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "LED[6]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDCD_SPDIF",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_CLK",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_CMD",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[0]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[1]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[2]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[3]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SD_SPI_CS",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "USER_IO[2]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "USER_IO[4]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "USER_IO[5]",
+          "Comment": "Partially constrained"
+        }
+      ]
+    },
+    "7_slow_1100mv_100c": {
+      "totals": {
+        "Illegal Clocks": [
+          0,
+          0
+        ],
+        "Unconstrained Clocks": [
+          0,
+          0
+        ],
+        "Unconstrained Input Ports": [
+          3,
+          3
+        ],
+        "Unconstrained Input Port Paths": [
+          13,
+          13
+        ],
+        "Unconstrained Output Ports": [
+          50,
+          50
+        ],
+        "Unconstrained Output Port Paths": [
+          154,
+          154
+        ]
+      },
+      "input_ports": [
+        {
+          "Input Port": "HDMI_I2C_SDA",
+          "Comment": "No input delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Input Port": "IO_SDA",
+          "Comment": "No input delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Input Port": "SDCD_SPDIF",
+          "Comment": "No input delay, min/max delays, false-path exceptions, or max skew assignments found"
+        }
+      ],
+      "output_ports": [
+        {
+          "Output Port": "HDMI_I2C_SCL",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_I2C_SDA",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_I2S",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_LRCLK",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_MCLK",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_SCLK",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_CLK",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "HDMI_TX_DE",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[0]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[1]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[2]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[3]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[4]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[5]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[6]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[7]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[8]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[9]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[10]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[11]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[12]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[13]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[14]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[15]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[16]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[17]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[18]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[19]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[20]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[21]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[22]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[23]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_HS",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_VS",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "IO_SCL",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "IO_SDA",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "LED[0]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "LED[2]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "LED[6]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDCD_SPDIF",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_CLK",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_CMD",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[0]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[1]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[2]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[3]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SD_SPI_CS",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "USER_IO[2]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "USER_IO[4]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "USER_IO[5]",
+          "Comment": "Partially constrained"
+        }
+      ]
+    },
+    "MIN_fast_1100mv_-40c": {
+      "totals": {
+        "Illegal Clocks": [
+          0,
+          0
+        ],
+        "Unconstrained Clocks": [
+          0,
+          0
+        ],
+        "Unconstrained Input Ports": [
+          3,
+          3
+        ],
+        "Unconstrained Input Port Paths": [
+          13,
+          13
+        ],
+        "Unconstrained Output Ports": [
+          50,
+          50
+        ],
+        "Unconstrained Output Port Paths": [
+          154,
+          154
+        ]
+      },
+      "input_ports": [
+        {
+          "Input Port": "HDMI_I2C_SDA",
+          "Comment": "No input delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Input Port": "IO_SDA",
+          "Comment": "No input delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Input Port": "SDCD_SPDIF",
+          "Comment": "No input delay, min/max delays, false-path exceptions, or max skew assignments found"
+        }
+      ],
+      "output_ports": [
+        {
+          "Output Port": "HDMI_I2C_SCL",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_I2C_SDA",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_I2S",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_LRCLK",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_MCLK",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_SCLK",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_CLK",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "HDMI_TX_DE",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[0]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[1]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[2]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[3]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[4]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[5]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[6]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[7]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[8]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[9]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[10]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[11]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[12]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[13]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[14]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[15]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[16]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[17]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[18]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[19]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[20]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[21]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[22]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[23]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_HS",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_VS",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "IO_SCL",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "IO_SDA",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "LED[0]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "LED[2]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "LED[6]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDCD_SPDIF",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_CLK",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_CMD",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[0]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[1]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[2]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[3]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SD_SPI_CS",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "USER_IO[2]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "USER_IO[4]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "USER_IO[5]",
+          "Comment": "Partially constrained"
+        }
+      ]
+    },
+    "MIN_fast_1100mv_100c": {
+      "totals": {
+        "Illegal Clocks": [
+          0,
+          0
+        ],
+        "Unconstrained Clocks": [
+          0,
+          0
+        ],
+        "Unconstrained Input Ports": [
+          3,
+          3
+        ],
+        "Unconstrained Input Port Paths": [
+          13,
+          13
+        ],
+        "Unconstrained Output Ports": [
+          50,
+          50
+        ],
+        "Unconstrained Output Port Paths": [
+          154,
+          154
+        ]
+      },
+      "input_ports": [
+        {
+          "Input Port": "HDMI_I2C_SDA",
+          "Comment": "No input delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Input Port": "IO_SDA",
+          "Comment": "No input delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Input Port": "SDCD_SPDIF",
+          "Comment": "No input delay, min/max delays, false-path exceptions, or max skew assignments found"
+        }
+      ],
+      "output_ports": [
+        {
+          "Output Port": "HDMI_I2C_SCL",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_I2C_SDA",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_I2S",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_LRCLK",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_MCLK",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_SCLK",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_CLK",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "HDMI_TX_DE",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[0]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[1]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[2]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[3]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[4]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[5]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[6]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[7]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[8]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[9]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[10]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[11]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[12]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[13]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[14]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[15]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[16]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[17]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[18]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[19]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[20]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[21]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[22]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_D[23]",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_HS",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "HDMI_TX_VS",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "IO_SCL",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "IO_SDA",
+          "Comment": "No output delay, min/max delays, false-path exceptions, or max skew assignments found"
+        },
+        {
+          "Output Port": "LED[0]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "LED[2]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "LED[6]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDCD_SPDIF",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_CLK",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_CMD",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[0]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[1]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[2]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SDIO_DAT[3]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "SD_SPI_CS",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "USER_IO[2]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "USER_IO[4]",
+          "Comment": "Partially constrained"
+        },
+        {
+          "Output Port": "USER_IO[5]",
+          "Comment": "Partially constrained"
+        }
+      ]
+    }
+  },
+  "clocks": {
+    "7_slow_1100mv_-40c": [
+      {
+        "Clock Name": "FPGA_CLK1_50",
+        "Type": "Base",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "FPGA_CLK2_50",
+        "Type": "Base",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "FPGA_CLK3_50",
+        "Type": "Base",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "dorado_sdram_clk",
+        "Type": "Generated",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "10.000",
+        "Fall": "20.000",
+        "Inverted": "true",
+        "Master": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Source": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk"
+      },
+      {
+        "Clock Name": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Type": "Generated",
+        "Period": "3.333",
+        "Frequency": "300.0 MHz",
+        "Rise": "0.000",
+        "Fall": "1.666",
+        "Inverted": "false",
+        "Master": "FPGA_CLK2_50",
+        "Source": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|refclkin"
+      },
+      {
+        "Clock Name": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Type": "Generated",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "false",
+        "Master": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Source": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|vco0ph[0]"
+      },
+      {
+        "Clock Name": "hdmi_sck",
+        "Type": "Base",
+        "Period": "100.000",
+        "Frequency": "10.0 MHz",
+        "Rise": "0.000",
+        "Fall": "50.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Type": "Generated",
+        "Period": "2.393",
+        "Frequency": "417.87 MHz",
+        "Rise": "0.000",
+        "Fall": "1.196",
+        "Inverted": "false",
+        "Master": "FPGA_CLK3_50",
+        "Source": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|refclkin"
+      },
+      {
+        "Clock Name": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Type": "Generated",
+        "Period": "40.682",
+        "Frequency": "24.58 MHz",
+        "Rise": "0.000",
+        "Fall": "20.341",
+        "Inverted": "false",
+        "Master": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Source": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|vco0ph[0]"
+      },
+      {
+        "Clock Name": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk",
+        "Type": "Generated",
+        "Period": "13.464",
+        "Frequency": "74.27 MHz",
+        "Rise": "0.000",
+        "Fall": "6.732",
+        "Inverted": "false",
+        "Master": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|vcoph[0]",
+        "Source": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|vco0ph[0]"
+      },
+      {
+        "Clock Name": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|vcoph[0]",
+        "Type": "Generated",
+        "Period": "2.244",
+        "Frequency": "445.61 MHz",
+        "Rise": "0.000",
+        "Fall": "1.122",
+        "Inverted": "false",
+        "Master": "FPGA_CLK1_50",
+        "Source": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|refclkin"
+      },
+      {
+        "Clock Name": "spi_sck",
+        "Type": "Base",
+        "Period": "10.000",
+        "Frequency": "100.0 MHz",
+        "Rise": "0.000",
+        "Fall": "5.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "sysmem|fpga_interfaces|clocks_resets|h2f_user0_clk",
+        "Type": "Base",
+        "Period": "10.000",
+        "Frequency": "100.0 MHz",
+        "Rise": "0.000",
+        "Fall": "5.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      }
+    ],
+    "7_slow_1100mv_100c": [
+      {
+        "Clock Name": "FPGA_CLK1_50",
+        "Type": "Base",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "FPGA_CLK2_50",
+        "Type": "Base",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "FPGA_CLK3_50",
+        "Type": "Base",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "dorado_sdram_clk",
+        "Type": "Generated",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "10.000",
+        "Fall": "20.000",
+        "Inverted": "true",
+        "Master": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Source": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk"
+      },
+      {
+        "Clock Name": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Type": "Generated",
+        "Period": "3.333",
+        "Frequency": "300.0 MHz",
+        "Rise": "0.000",
+        "Fall": "1.666",
+        "Inverted": "false",
+        "Master": "FPGA_CLK2_50",
+        "Source": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|refclkin"
+      },
+      {
+        "Clock Name": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Type": "Generated",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "false",
+        "Master": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Source": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|vco0ph[0]"
+      },
+      {
+        "Clock Name": "hdmi_sck",
+        "Type": "Base",
+        "Period": "100.000",
+        "Frequency": "10.0 MHz",
+        "Rise": "0.000",
+        "Fall": "50.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Type": "Generated",
+        "Period": "2.393",
+        "Frequency": "417.87 MHz",
+        "Rise": "0.000",
+        "Fall": "1.196",
+        "Inverted": "false",
+        "Master": "FPGA_CLK3_50",
+        "Source": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|refclkin"
+      },
+      {
+        "Clock Name": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Type": "Generated",
+        "Period": "40.682",
+        "Frequency": "24.58 MHz",
+        "Rise": "0.000",
+        "Fall": "20.341",
+        "Inverted": "false",
+        "Master": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Source": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|vco0ph[0]"
+      },
+      {
+        "Clock Name": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk",
+        "Type": "Generated",
+        "Period": "13.464",
+        "Frequency": "74.27 MHz",
+        "Rise": "0.000",
+        "Fall": "6.732",
+        "Inverted": "false",
+        "Master": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|vcoph[0]",
+        "Source": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|vco0ph[0]"
+      },
+      {
+        "Clock Name": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|vcoph[0]",
+        "Type": "Generated",
+        "Period": "2.244",
+        "Frequency": "445.61 MHz",
+        "Rise": "0.000",
+        "Fall": "1.122",
+        "Inverted": "false",
+        "Master": "FPGA_CLK1_50",
+        "Source": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|refclkin"
+      },
+      {
+        "Clock Name": "spi_sck",
+        "Type": "Base",
+        "Period": "10.000",
+        "Frequency": "100.0 MHz",
+        "Rise": "0.000",
+        "Fall": "5.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "sysmem|fpga_interfaces|clocks_resets|h2f_user0_clk",
+        "Type": "Base",
+        "Period": "10.000",
+        "Frequency": "100.0 MHz",
+        "Rise": "0.000",
+        "Fall": "5.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      }
+    ],
+    "MIN_fast_1100mv_-40c": [
+      {
+        "Clock Name": "FPGA_CLK1_50",
+        "Type": "Base",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "FPGA_CLK2_50",
+        "Type": "Base",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "FPGA_CLK3_50",
+        "Type": "Base",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "dorado_sdram_clk",
+        "Type": "Generated",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "10.000",
+        "Fall": "20.000",
+        "Inverted": "true",
+        "Master": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Source": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk"
+      },
+      {
+        "Clock Name": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Type": "Generated",
+        "Period": "3.333",
+        "Frequency": "300.0 MHz",
+        "Rise": "0.000",
+        "Fall": "1.666",
+        "Inverted": "false",
+        "Master": "FPGA_CLK2_50",
+        "Source": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|refclkin"
+      },
+      {
+        "Clock Name": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Type": "Generated",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "false",
+        "Master": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Source": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|vco0ph[0]"
+      },
+      {
+        "Clock Name": "hdmi_sck",
+        "Type": "Base",
+        "Period": "100.000",
+        "Frequency": "10.0 MHz",
+        "Rise": "0.000",
+        "Fall": "50.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Type": "Generated",
+        "Period": "2.393",
+        "Frequency": "417.87 MHz",
+        "Rise": "0.000",
+        "Fall": "1.196",
+        "Inverted": "false",
+        "Master": "FPGA_CLK3_50",
+        "Source": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|refclkin"
+      },
+      {
+        "Clock Name": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Type": "Generated",
+        "Period": "40.682",
+        "Frequency": "24.58 MHz",
+        "Rise": "0.000",
+        "Fall": "20.341",
+        "Inverted": "false",
+        "Master": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Source": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|vco0ph[0]"
+      },
+      {
+        "Clock Name": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk",
+        "Type": "Generated",
+        "Period": "13.464",
+        "Frequency": "74.27 MHz",
+        "Rise": "0.000",
+        "Fall": "6.732",
+        "Inverted": "false",
+        "Master": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|vcoph[0]",
+        "Source": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|vco0ph[0]"
+      },
+      {
+        "Clock Name": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|vcoph[0]",
+        "Type": "Generated",
+        "Period": "2.244",
+        "Frequency": "445.61 MHz",
+        "Rise": "0.000",
+        "Fall": "1.122",
+        "Inverted": "false",
+        "Master": "FPGA_CLK1_50",
+        "Source": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|refclkin"
+      },
+      {
+        "Clock Name": "spi_sck",
+        "Type": "Base",
+        "Period": "10.000",
+        "Frequency": "100.0 MHz",
+        "Rise": "0.000",
+        "Fall": "5.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "sysmem|fpga_interfaces|clocks_resets|h2f_user0_clk",
+        "Type": "Base",
+        "Period": "10.000",
+        "Frequency": "100.0 MHz",
+        "Rise": "0.000",
+        "Fall": "5.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      }
+    ],
+    "MIN_fast_1100mv_100c": [
+      {
+        "Clock Name": "FPGA_CLK1_50",
+        "Type": "Base",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "FPGA_CLK2_50",
+        "Type": "Base",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "FPGA_CLK3_50",
+        "Type": "Base",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "dorado_sdram_clk",
+        "Type": "Generated",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "10.000",
+        "Fall": "20.000",
+        "Inverted": "true",
+        "Master": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Source": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk"
+      },
+      {
+        "Clock Name": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Type": "Generated",
+        "Period": "3.333",
+        "Frequency": "300.0 MHz",
+        "Rise": "0.000",
+        "Fall": "1.666",
+        "Inverted": "false",
+        "Master": "FPGA_CLK2_50",
+        "Source": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|refclkin"
+      },
+      {
+        "Clock Name": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Type": "Generated",
+        "Period": "20.000",
+        "Frequency": "50.0 MHz",
+        "Rise": "0.000",
+        "Fall": "10.000",
+        "Inverted": "false",
+        "Master": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Source": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|vco0ph[0]"
+      },
+      {
+        "Clock Name": "hdmi_sck",
+        "Type": "Base",
+        "Period": "100.000",
+        "Frequency": "10.0 MHz",
+        "Rise": "0.000",
+        "Fall": "50.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Type": "Generated",
+        "Period": "2.393",
+        "Frequency": "417.87 MHz",
+        "Rise": "0.000",
+        "Fall": "1.196",
+        "Inverted": "false",
+        "Master": "FPGA_CLK3_50",
+        "Source": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|refclkin"
+      },
+      {
+        "Clock Name": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Type": "Generated",
+        "Period": "40.682",
+        "Frequency": "24.58 MHz",
+        "Rise": "0.000",
+        "Fall": "20.341",
+        "Inverted": "false",
+        "Master": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]",
+        "Source": "pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|vco0ph[0]"
+      },
+      {
+        "Clock Name": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk",
+        "Type": "Generated",
+        "Period": "13.464",
+        "Frequency": "74.27 MHz",
+        "Rise": "0.000",
+        "Fall": "6.732",
+        "Inverted": "false",
+        "Master": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|vcoph[0]",
+        "Source": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|vco0ph[0]"
+      },
+      {
+        "Clock Name": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|vcoph[0]",
+        "Type": "Generated",
+        "Period": "2.244",
+        "Frequency": "445.61 MHz",
+        "Rise": "0.000",
+        "Fall": "1.122",
+        "Inverted": "false",
+        "Master": "FPGA_CLK1_50",
+        "Source": "pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|refclkin"
+      },
+      {
+        "Clock Name": "spi_sck",
+        "Type": "Base",
+        "Period": "10.000",
+        "Frequency": "100.0 MHz",
+        "Rise": "0.000",
+        "Fall": "5.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      },
+      {
+        "Clock Name": "sysmem|fpga_interfaces|clocks_resets|h2f_user0_clk",
+        "Type": "Base",
+        "Period": "10.000",
+        "Frequency": "100.0 MHz",
+        "Rise": "0.000",
+        "Fall": "5.000",
+        "Inverted": "",
+        "Master": "",
+        "Source": ""
+      }
+    ]
+  },
+  "limits": "Same inherited unconstrained framework IO, explicitly listed. No complete physical IO, real pause, FPGA snapshot or speed qualification.",
+  "failure_controls": [
+    {
+      "case": "bad_hold",
+      "rejected": true,
+      "diagnostic": "missing/violated timing: native59-hold-7_slow_1100mv_100c.rpt"
+    },
+    {
+      "case": "bad_sdram",
+      "rejected": true,
+      "diagnostic": "missing/violated timing: native59-sdram-output-hold-MIN_fast_1100mv_-40c.rpt"
+    },
+    {
+      "case": "missing_setup",
+      "rejected": true,
+      "diagnostic": "missing/violated timing: native59-setup-7_slow_1100mv_-40c.rpt"
+    },
+    {
+      "case": "different_clock",
+      "rejected": true,
+      "diagnostic": "actual clocks/phase/period differ: 7_slow_1100mv_100c"
+    },
+    {
+      "case": "different_port",
+      "rejected": true,
+      "diagnostic": "framework exception ports/counts differ: 7_slow_1100mv_100c"
+    }
+  ],
+  "input_hashes": {
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-out-setup-7_slow_1100mv_-40c.rpt.gz": "484866fc2914957c1d133378f0acf59a8c8526f120c71bb2a4780fdeac6d6ef4",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-output-setup-7_slow_1100mv_-40c.rpt.gz": "4171c63d56bb27e2492a47ccc38f0d563ff36d7c49a7c015d52bc0acf626d8e8",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-removal-7_slow_1100mv_100c.rpt.gz": "38383dd54fdd91fc6686030a04686b1fd7a658dae0c6c763bbc5c07e3cd34ca1",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-out-hold-MIN_fast_1100mv_100c.rpt.gz": "067d16b11ba9d056ad06bc2fc9bdb50fccc0234601ce34c1cfc8df97c4e56e18",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-out-setup-7_slow_1100mv_100c.rpt.gz": "50639af693ef98476fc908554c24b71483ea0a5b19524066436a9a23aefada59",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-out-setup-MIN_fast_1100mv_-40c.rpt.gz": "8717e109943b8a2479f4c8304ebd0b569355432a1f643397b37d258bf81c5985",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-in-hold-MIN_fast_1100mv_100c.rpt.gz": "c965ef333b372c8939dbfe15e0e58a0eb57e5982524e1cc8ba16531731b67933",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-out-hold-MIN_fast_1100mv_-40c.rpt.gz": "a0eb856c1651642da328c5ebbe333fe0b8441b4afefbd86b983e420b011349a0",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-in-setup-MIN_fast_1100mv_-40c.rpt.gz": "68195731344d3f700fbd41b288c770e02af2f924ed0d32848bda5becc25158c1",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-out-setup-MIN_fast_1100mv_100c.rpt.gz": "ffe70f47f0071d55ed4f42d66186fbc89108e60a8bb31d98ced882f4de667ac6",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-out-hold-MIN_fast_1100mv_100c.rpt.gz": "3f2da613c9877de4557e6b359014cd5f0fa03bf7c1acc71f89b9fef8a003d372",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-in-hold-MIN_fast_1100mv_100c.rpt.gz": "1949dabd0a11a910f1a38387974be9cf3483c1f13cf41cd6e713bafeeed1aead",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-recovery-7_slow_1100mv_100c.rpt.gz": "ebb4f2d9b6aa3af347f24402335000c08a6ed489b20a7da7fecd60d5e75d3d86",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ucp-MIN_fast_1100mv_-40c.rpt.gz": "34e6ecfb8f7c9d163b777cfb492a0a3f1b16f75205023202fd11ecc5713bd78e",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-in-hold-MIN_fast_1100mv_100c.rpt.gz": "aec060f5f292a332c792f2d2f0f6369d1f8be6b7109d0a1bd2ed1f7ef195bb0d",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-in-setup-MIN_fast_1100mv_100c.rpt.gz": "057469aa8e2b2a78ff1666041cd16d7f2323bdd0f9e5c0ecdf6c372508a9fd61",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-out-hold-7_slow_1100mv_100c.rpt.gz": "880e18513b6a0555e1211784def61f5a9c58ad4b50825718e8c370053de9f920",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-in-hold-7_slow_1100mv_100c.rpt.gz": "eeb99c86778a53051fe0ddc71c130b5bc13a6342ee8c2065be183a04dae0b96b",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-out-hold-7_slow_1100mv_100c.rpt.gz": "126bf2e1f7b4acd9ff11ced93335cbfe3d130425b8a1241280aa7eea540ba2b5",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-hold-7_slow_1100mv_-40c.rpt.gz": "1fb8ead8c358cca72a4fca5194b6eb0550c88c5cc46898a0b7810899ee049f92",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-in-setup-MIN_fast_1100mv_-40c.rpt.gz": "1c4dc3ba0b378dc2e4a84ac5de91120d82743f1776cc55ef5fd870144e0c8df3",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-out-setup-7_slow_1100mv_-40c.rpt.gz": "a3124ab5857d5c791d3ea7c83dd3c521a39283ff94a845acfec6ec1e87148ed8",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-in-hold-MIN_fast_1100mv_100c.rpt.gz": "1fef9550dcba6a4817f6d08aba664c72e706d7d0cd01002d653a9c9e77ddcf4b",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-in-setup-7_slow_1100mv_-40c.rpt.gz": "1e7865a455480dac46ca284f1fe92d59bd0d940390f76fc03f1a11f540fc3e00",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-removal-MIN_fast_1100mv_-40c.rpt.gz": "43d461bebfc4c9b381be174e9fcb1fe5ba2799f65c4e9093af3f07ec4ad6828f",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-out-setup-7_slow_1100mv_-40c.rpt.gz": "69f050ab9ae3f308430d85296570aacfe3b84d29c7a433caa257d08819b83592",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-out-hold-MIN_fast_1100mv_100c.rpt.gz": "c8b7bf50a49d351cc7a1a1d80ca5f0cd3b0ddcc3c20ad12514c7955bc147ef3e",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-in-hold-MIN_fast_1100mv_100c.rpt.gz": "14266f7740186ca458f436c7722e6133f3cf8cf68dc413e87663b8a3b3deafca",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-in-setup-7_slow_1100mv_-40c.rpt.gz": "4aa5761e333a2bca2a178c4e10e7f14b1943c9e1bfc50d300c3f9ee1f749ce6b",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-clocks-MIN_fast_1100mv_100c.rpt.gz": "ac4f80d855ae9fec9095d3068e99315e067f6b85985041b3e6673e41fe67ce94",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-out-hold-MIN_fast_1100mv_-40c.rpt.gz": "1ef682fc8b3f1bf1a6427ff0990bd7402d05b3f246a74988c86f55e556f98378",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-out-hold-MIN_fast_1100mv_100c.rpt.gz": "7af0377361bae4f9ff573267800d0dafe54c7e395ef81c4ca2b38d98af7d5604",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-clocks-7_slow_1100mv_-40c.rpt.gz": "ac4f80d855ae9fec9095d3068e99315e067f6b85985041b3e6673e41fe67ce94",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-mpw-7_slow_1100mv_100c.rpt.gz": "6baa1e5df1d5e241b4aa63d5a9c1fc949e2631372a108975ae80983c01f51723",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-out-hold-MIN_fast_1100mv_-40c.rpt.gz": "40535c5eb6868eb71c61eabdb59d9e62b7420f9617d98e0f8f296c414f71e401",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-input-hold-7_slow_1100mv_-40c.rpt.gz": "6670fc1c4bd5ee8db37d20fb22634e8c5e924eeff1b9c3e8ef4121f22ccee635",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-out-setup-MIN_fast_1100mv_100c.rpt.gz": "ab82e30fc0610742c17c8f2101a086e36cb78f332937914bc4739e5f295de1ed",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-out-setup-7_slow_1100mv_-40c.rpt.gz": "92b8eacce9ec8534bf52c295514c76abdbaa5a0fc6bcd4e33d05de62ae5c17fa",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-out-setup-MIN_fast_1100mv_100c.rpt.gz": "c88824c54b5558ddbce9adccf1dc54715821c31067a9532cae93296f34b4e08e",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-in-hold-7_slow_1100mv_100c.rpt.gz": "8a08ece7d01723ba498bf13523fa1278458032d7cb5a8aa0e7afb8c4595905fa",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-in-hold-7_slow_1100mv_100c.rpt.gz": "03f8c2d98fb59883de7d227c579f739c6b6d53414d67e276123fd5e18cf17fcb",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-in-hold-MIN_fast_1100mv_-40c.rpt.gz": "1c4c0b2afaddc80fd44666b522126c5af919e7372ce207525f18b349d7c7ce84",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-out-hold-MIN_fast_1100mv_-40c.rpt.gz": "432185d5b560022ee6897cd3c0d5b9ff64b000ddc3a1261d42e96923dcf23ffb",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-in-setup-7_slow_1100mv_100c.rpt.gz": "39d4385e5815add162031ca915b057e7b60a9d9c705888c1a5b43ad693f2879d",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-removal-MIN_fast_1100mv_100c.rpt.gz": "80142ff3751bbe68a6d9412ae53e16d02dca4c2f425a24f40fee84796025cc5a",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-in-setup-7_slow_1100mv_100c.rpt.gz": "a90a05de8fad32256d2c044ef85cb0e3a3325447924d8dd574be60dfc547df36",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-in-hold-MIN_fast_1100mv_-40c.rpt.gz": "2a44988bf8f5f1dd1fcca00170824a509c66aad9d3d39f001a252edcd859dccf",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-out-setup-7_slow_1100mv_100c.rpt.gz": "005f9c27d88d803b539be26277dbc7778c9d086a2a9f1e788aefce006f84cc7a",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-in-hold-7_slow_1100mv_-40c.rpt.gz": "b003026b52a4326043f1f91ca3f6edf114feeb1f16a8f89234c989e4d39467cf",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-in-hold-7_slow_1100mv_-40c.rpt.gz": "81f5040fb9805fcd4fc1f102e837c1fa376b41d23b840c9e6282f3c17ca7c7d7",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-out-setup-MIN_fast_1100mv_-40c.rpt.gz": "c01f5536b6a1efecdb959a8aa7ad24da29342e6f8348351f9b89e214531ee153",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-out-setup-7_slow_1100mv_100c.rpt.gz": "13df24223f5c0d190b01ebf7aa396bd857d439fa9655c37eb727296b22ff1454",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-out-hold-MIN_fast_1100mv_100c.rpt.gz": "b85174ee36a89c977b54cac94531d95f198ebdd29c27b76a31159545d1b58df5",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-clocks-MIN_fast_1100mv_-40c.rpt.gz": "ac4f80d855ae9fec9095d3068e99315e067f6b85985041b3e6673e41fe67ce94",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-out-setup-MIN_fast_1100mv_-40c.rpt.gz": "a16f90dd3d0298d525bbf198f47dfb0fa79cc7260f657cd2a3acde8a80edfe27",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-out-hold-MIN_fast_1100mv_100c.rpt.gz": "54509d51f81210ceb4546f6e9ad0017bc0fd7db46a9f9c37174440dcbedef184",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-input-hold-7_slow_1100mv_100c.rpt.gz": "c01fac928c5703a47feea77032d0fcb49ba0f1bcdedd20d23af8b279189550f7",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-mpw-7_slow_1100mv_-40c.rpt.gz": "11d34ac9f56cfaa3c82db16316a8a4f07da96423cb00a12769a6d061c28495e3",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-clocks-7_slow_1100mv_100c.rpt.gz": "ac4f80d855ae9fec9095d3068e99315e067f6b85985041b3e6673e41fe67ce94",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-out-hold-MIN_fast_1100mv_-40c.rpt.gz": "2023db2ddd43e15a534c1af76fcc2f953de0f34a62afdb3e9a0fd865d4aa73f4",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-recovery-7_slow_1100mv_-40c.rpt.gz": "82cd2d0c30af8f8db818c5fe84a79a013b6e39b9fa48db8bf044b1b878852c38",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-in-hold-MIN_fast_1100mv_-40c.rpt.gz": "a789bd6cdc70edb44b08fc9d4488338eb532279df1d6d2a122f5cd27e849d5f4",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-out-hold-MIN_fast_1100mv_-40c.rpt.gz": "8c36180c96758f64b731957cfa953a820fb1ecd18d1603f9da9c6a43f51873c4",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-out-setup-MIN_fast_1100mv_-40c.rpt.gz": "43e8dd8e4dbde834e1b6606f2d7a9ac8b83062be200c13c590515bc60557dec7",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-in-setup-MIN_fast_1100mv_100c.rpt.gz": "fda5faa39cb13fd75139b3219af4a9a294360e2c0d52cb6320d287db263e49d3",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-out-hold-MIN_fast_1100mv_100c.rpt.gz": "74184608db1c2eddc737ba0136281db8b873a557d5dfc5a070eec54ad02d1587",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-in-hold-MIN_fast_1100mv_-40c.rpt.gz": "edd32cf5837c5dfdecfdaf65588902d9342c68da3f41a77dcda2f5d42f876e04",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-in-hold-MIN_fast_1100mv_-40c.rpt.gz": "90f551bd096743719bdd73e7b52557101fb316645994e9aa3b7885baaa678034",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ucp-MIN_fast_1100mv_100c.rpt.gz": "34e6ecfb8f7c9d163b777cfb492a0a3f1b16f75205023202fd11ecc5713bd78e",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-out-setup-7_slow_1100mv_-40c.rpt.gz": "2c447ed8f2869e3ca962e384c6c2dd9aab3244eec51e803327dd2ec56d5fe5da",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-removal-7_slow_1100mv_-40c.rpt.gz": "1726f457ac160811a1cd551aa72bc7bbb45680fcf47d9448d60e6b613c5f2a43",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-out-hold-MIN_fast_1100mv_-40c.rpt.gz": "caa0a65a1ab515b5ec40ec205df906cb5b163e1862cc8eb2ba86cacb00ab7aef",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-output-setup-7_slow_1100mv_100c.rpt.gz": "1d36ed5723d1e0e2f5bc1748881d39902cf739e3e0ea50e916c0ae5e073847bc",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-out-setup-7_slow_1100mv_100c.rpt.gz": "f500c84b850c94c6ae4f382d91fe27a688a9f2f19e915248bd519a145068bec5",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-out-setup-MIN_fast_1100mv_100c.rpt.gz": "21fd2381dbe404b91f3d5abff6f3a5d618a56939e4325f99e56607e8d610d857",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-hold-7_slow_1100mv_100c.rpt.gz": "ff8cb64cc796ca3c6908af1df3463aa1efef0598e3f4dcea70f0915937777d14",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-out-hold-7_slow_1100mv_-40c.rpt.gz": "c146d9dd509ff54e1f9285b7c865896755a8ef319596b2a9ecfe7b39344437e8",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-out-setup-7_slow_1100mv_100c.rpt.gz": "2f9e6d8e2da8f9eff38b95c8041b989a1277533f2e162d281b83571135a40365",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-in-setup-MIN_fast_1100mv_100c.rpt.gz": "19a29998a970d8427277e6dc0dfb58dbb15db72f030e4869aaa1d71452d8883c",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-in-setup-MIN_fast_1100mv_-40c.rpt.gz": "014e8d18a78fe5a195bfafc5d86231ef6e2437daaae42e5e9b3db4336e99cd2e",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-in-hold-7_slow_1100mv_-40c.rpt.gz": "80a7d3785b995a252d968567aa1a4668b45f073f4e8a51490959f3208de72a64",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-out-hold-7_slow_1100mv_-40c.rpt.gz": "416599cde7a07535b499bc9722468f6c60ed002059c6829d8a3bf63d148d93ec",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-in-setup-7_slow_1100mv_100c.rpt.gz": "4b478408206f3c5dcfba55cfaf4637dde1a08ff31b636396193b65719a92a2f9",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-in-setup-MIN_fast_1100mv_100c.rpt.gz": "85eebfcb651cd9f84cca62b07627ebf3b79cbadd8f0ec05578239f5016e14dfd",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-in-setup-MIN_fast_1100mv_-40c.rpt.gz": "a4b78c2f512c157664d81f5c478b2a96df7cd41ee4a01233984e1551a495d894",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-out-hold-7_slow_1100mv_-40c.rpt.gz": "646d61b9fe3046078559c09a06b3da4f7a0ef0612b7add187b20b5a28c66f366",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-in-setup-MIN_fast_1100mv_100c.rpt.gz": "5c51d5065d90dfdeb477a4c0f073cf25dc73ce3b8662172bc4493644588fac72",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-input-setup-MIN_fast_1100mv_-40c.rpt.gz": "f212588702f803d7a163b01e1177ca0fb6963868aea75f11c077af9a46359b5c",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-in-hold-7_slow_1100mv_100c.rpt.gz": "575b178b144e8134db77ab9ff16a8381e4e5cb32514a5ce9aecd712a6ca5f18d",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-out-hold-7_slow_1100mv_100c.rpt.gz": "7a4cd3d69302603322f682f60e3352cbbaeea471567ae0c26863065fec522497",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-out-hold-7_slow_1100mv_-40c.rpt.gz": "c1087056b474db7ef10a7481e49af281df1c623753c1b247cdb792119f51cc37",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-in-hold-7_slow_1100mv_100c.rpt.gz": "7b333838a8db9dfa8f69402e625eca45170d4f8ec543f0df1a4987058f3ab3f7",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-in-hold-MIN_fast_1100mv_-40c.rpt.gz": "3eda375c919b0c1811ff76e3748d8328ce48ea30420913a4ec10ac3862174584",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-output-hold-7_slow_1100mv_-40c.rpt.gz": "8db700509d69cdfd2540a4c287532f5c04ad19e978f4ffb8a1e4afd4f64725af",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-in-hold-7_slow_1100mv_-40c.rpt.gz": "f001cb9c94fd634b4384dde9e19208b0840ad209aff8d5e37921a10cfe4037ba",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-in-hold-MIN_fast_1100mv_100c.rpt.gz": "b82b2c1ee06858ac59d3c4d2df836fbff02cbe809a66a4c1581d64c6d359ed95",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-out-hold-7_slow_1100mv_100c.rpt.gz": "86558824117f0d65c47eeeb7d577f311246e6e045eb075dd2c1b37732ace25cc",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-in-hold-7_slow_1100mv_-40c.rpt.gz": "0fdf4b4521ccc3f5418ce3f840dcfa7d98a9ee8fd7383960cee852e53404a36d",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-in-hold-MIN_fast_1100mv_-40c.rpt.gz": "75cfffcd2c51211a3c95aa30cca80cbb914b3962753daa59cfd62147cf5a976f",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-out-hold-7_slow_1100mv_-40c.rpt.gz": "5363689533c81f14e509fd3f714e32038ae0e25ded6a9a82d9d9ebe52e29dacc",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-output-hold-MIN_fast_1100mv_-40c.rpt.gz": "0e23cc3ded5ddc4a26bc03d9ca6079d2c1c01ca1c34c0705d9bd59774e5221d2",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-setup-MIN_fast_1100mv_-40c.rpt.gz": "b9e79ce8214a66c8c0b220e0a33df8d7a9c429ea6cc59c5de6625e72b5adf10e",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-in-setup-7_slow_1100mv_-40c.rpt.gz": "76f2b0060ffcfa43fdaffd2b8db1aff64104e7aafd64284a9a2716d96977af21",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-in-setup-7_slow_1100mv_-40c.rpt.gz": "1529cb38fd99307a30af582c84f7d4ae97cfc91e6e70e77ac1a04757f83ae7bb",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-recovery-MIN_fast_1100mv_100c.rpt.gz": "8a7862f1b650700a9992c8049e6fe95743f803d7b044b348bcf414bb13de6320",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-in-setup-MIN_fast_1100mv_-40c.rpt.gz": "15a8dac0ae1877a1ab3bb4244706e77087e2f79ea922006e2311f5a92ae87b33",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-out-setup-7_slow_1100mv_100c.rpt.gz": "99e44f7dd24c8007f17ab530a86619a113e2a724a44d47d4531d40444a5e7188",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-out-setup-7_slow_1100mv_100c.rpt.gz": "8de60622cd2294ca5d4da04a1b4f1c40e338054802cc44a6957fc63d9bd7e04b",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-in-hold-7_slow_1100mv_-40c.rpt.gz": "4fa24940001e76dbb64b077cf0cf59fcce150e5218d98656d2af1da537c744d6",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-out-setup-7_slow_1100mv_100c.rpt.gz": "c0f0742373961cfc4173e098992f8293e6870d36e003ef12a9d774f0bd4eaa9d",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-in-hold-7_slow_1100mv_-40c.rpt.gz": "e4e50c74c0384ca779beae50505b9091db94fbfd431ddce5bad6bb68126961ca",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-out-hold-7_slow_1100mv_100c.rpt.gz": "10947917e1559c52b9cf92de64ec1bbceb36c3a420e0651d6fd0a36232ebc19d",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-out-hold-7_slow_1100mv_100c.rpt.gz": "0043cae27681c21f605504b8ffc74cfe22d444456e360d89fefc227c965fc1e8",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-out-hold-MIN_fast_1100mv_-40c.rpt.gz": "61338134e17fe4c707548ecd41b304895d01825039f8aa5514d8c341e01bc832",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ucp-7_slow_1100mv_100c.rpt.gz": "34e6ecfb8f7c9d163b777cfb492a0a3f1b16f75205023202fd11ecc5713bd78e",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-output-setup-MIN_fast_1100mv_100c.rpt.gz": "dfc26afe5ad82ebd292d534f04aa517f6bfb2269f57a3f3b17cd77e52b4ecb19",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-in-setup-7_slow_1100mv_-40c.rpt.gz": "f80c1e6264f731eca0b0a38f9f2e6d5010b0d668acc0ce91db98539787d14793",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-out-setup-MIN_fast_1100mv_100c.rpt.gz": "fe3fbdf94a909b174be61bc5aec485b4d58bca64cca136552b81e5dc3b4aa3a2",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-in-hold-MIN_fast_1100mv_-40c.rpt.gz": "805aa3a1618faf1c5dc05fab768e1a4e620eb9b8681c7d44b4a4922b7b8cdeab",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-out-setup-MIN_fast_1100mv_-40c.rpt.gz": "1094bfc9e255b339922c60e1d12ed43939c85c93ecb3554ec583f043830a1da2",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-out-hold-MIN_fast_1100mv_100c.rpt.gz": "b75d733b487883108946109775679d8ba1a3a5cc7b7b06b4e86b1e1454cf0f9b",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-in-setup-7_slow_1100mv_100c.rpt.gz": "066be0ba09705aa7135b90270f0ca1143107da7d6761ce6025e50d4d4f3d1660",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-hold-MIN_fast_1100mv_100c.rpt.gz": "a7dac132e44b05fbb73a09ec627c017a2eeef51248f21ef0fe9dbd2792984bab",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-out-setup-MIN_fast_1100mv_100c.rpt.gz": "83f201293917b1789ea5aa354ed59e95dcd262dac47dc935d27c0574ba6e51f2",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-in-setup-MIN_fast_1100mv_-40c.rpt.gz": "ac277f6526f61b905fd1fb37ea0a1ad8628ddc7e12480204417f22e631466987",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-out-setup-7_slow_1100mv_100c.rpt.gz": "dd96427c70f77fd027c5a7daeeb012c8a59d9437f028a30599576b17a822868c",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-in-setup-7_slow_1100mv_-40c.rpt.gz": "15d244a8129b082aaaf8208a0f060b55c72b8542b0677d8b839c21389d38c521",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-in-hold-MIN_fast_1100mv_-40c.rpt.gz": "457c347ea1d649bf21f035369c8b03750f1e072bf0cff0da2796e5b3b96036ab",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-input-hold-MIN_fast_1100mv_-40c.rpt.gz": "e1cda4ab8a385cb5edecd32071fbd8c2030222e3e8c9d5a3d2f18c3011ed1199",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-in-setup-7_slow_1100mv_100c.rpt.gz": "e60c01f6df50937158311bd9fe93c849a739bfb3a8e5356d7b2209b5874edb5b",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-out-setup-MIN_fast_1100mv_-40c.rpt.gz": "f4156a9636b00f3b829979c1d1eae6fd14d329259cb1a525b2eeefa021fe6504",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-mpw-MIN_fast_1100mv_-40c.rpt.gz": "fc46af5664fc18a14a45e400d398545a759fd2eaa5e99a4948edbd0f6f55ffb4",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-out-setup-MIN_fast_1100mv_-40c.rpt.gz": "26b16e45ae3c4acb287e474de74cf009c28487f785dff8dd80a04bd9577b65d7",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-out-setup-7_slow_1100mv_100c.rpt.gz": "3957e8510d57bdb6b637566afb3d97dfb74222443345a8b3e8e10e7bb75dcfd3",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-out-hold-7_slow_1100mv_-40c.rpt.gz": "f5fda84f148015ce08c61776ff358758b852cb22af66031ecba1c651a7ebc29e",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-in-setup-MIN_fast_1100mv_100c.rpt.gz": "623eab084b86e27851ad52cbb83e4a6975b55d95ce5c710bcd8b771506aeae62",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-out-hold-MIN_fast_1100mv_100c.rpt.gz": "be83b723db292c186f0b07609a680c995ef04424ad742ddcdfe2711769c4ea47",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-in-setup-MIN_fast_1100mv_-40c.rpt.gz": "9ba1b7db25f9dfd25bf5e9505294170a370dfb9ce9a8e59bf4fdf0684f8f83b5",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-input-setup-7_slow_1100mv_100c.rpt.gz": "7fd67086bd473a9e4197530eacd946bea2ba57177e89e39035c48a5568e10ffb",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-out-setup-MIN_fast_1100mv_100c.rpt.gz": "d95ccdd749d5eccf9e408087a9fb9d015b1eb4fe9161a8d4e90f0f4419dee743",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-in-hold-7_slow_1100mv_-40c.rpt.gz": "d8b1615d3461f1b2807064c47a36b85c82b3c31a4bba3b82c085f321e76678b6",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-in-setup-7_slow_1100mv_100c.rpt.gz": "98c00d1c0670daf9f9038a19dc7e2cd09d568be57922e8e89dbb2122e8d6b884",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-setup-7_slow_1100mv_100c.rpt.gz": "04a506ec3152d27d6cce64bd66d82da87a7a5068ebe17e9afc5876329dbe5736",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-out-setup-MIN_fast_1100mv_-40c.rpt.gz": "8725348f9a87c76de75e999e9198d483d205feaddc9c343afb3761b535f4da55",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-in-hold-MIN_fast_1100mv_100c.rpt.gz": "2ab0824073b5d7677b35e756ea4fcf6f971f5ccacc4ec84da93cfd82a8949b52",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-in-setup-7_slow_1100mv_100c.rpt.gz": "21e36db4928e800b78d87a2e9d37e1ebfde97e0e160820505271171799209d83",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-out-hold-MIN_fast_1100mv_-40c.rpt.gz": "75ce7a57bddcd133a5a04e65a52c0a056f7db1c158b7624eff971a722a9a870b",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-in-setup-7_slow_1100mv_-40c.rpt.gz": "47ed250ace55e71981851ee9aae79cf1304464c1a8af3fc03afa58ac8630ca01",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-out-setup-MIN_fast_1100mv_100c.rpt.gz": "26280f384fb69c1bea96ab33089b33ed4c5a63d7afd4287b2bedb11a55d4d972",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ucp-7_slow_1100mv_-40c.rpt.gz": "34e6ecfb8f7c9d163b777cfb492a0a3f1b16f75205023202fd11ecc5713bd78e",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-output-setup-MIN_fast_1100mv_-40c.rpt.gz": "c7c19df1dbd83ba50b51071128d63226fdd632640e3d4dd116fbd1b6f5a7d26b",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-out-hold-MIN_fast_1100mv_100c.rpt.gz": "cbc6be0563ed94c624f54d28ab5a9f4d5ba78e385accb5da6ba28c5615548133",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-out-hold-7_slow_1100mv_-40c.rpt.gz": "1f5e77765ba09a43cd5f8ebd422889b45389913294d35bca9a4e79aac92d888d",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-out-hold-7_slow_1100mv_-40c.rpt.gz": "5d39dfb12dbc552433f8ffce099d8b6d455f966cbce92309e95de360d3f9813d",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-in-setup-MIN_fast_1100mv_100c.rpt.gz": "c81881ba15061254f64af084228c444da2bf2d3040546084017e6da2fed30cff",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-out-hold-MIN_fast_1100mv_-40c.rpt.gz": "cf9cf73c7fcedb0a29509ca313754896bc20d5953c4a3d68a38e36804acf33bd",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-in-setup-MIN_fast_1100mv_-40c.rpt.gz": "81d2b142afedfdfd23bbcfdd5c1b64f722d97b8a619945caa07319f51ed9ee81",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-out-hold-7_slow_1100mv_100c.rpt.gz": "b9445ea66cc121c4c4db5114542206de9c82fdf75f7ecdf31e935a45185d9a01",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-out-setup-7_slow_1100mv_-40c.rpt.gz": "cafe199f2fbf88904d80710d7626cc626d293b15f6764757c2697fe86940a8e9",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-setup-7_slow_1100mv_-40c.rpt.gz": "da138d04c88aedeb4b3c58c7347147f3789df8a07913cbb8eee8de8e01dcd2f9",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-in-hold-7_slow_1100mv_100c.rpt.gz": "9ca1d4e25ae8d898a20863a5d24e53e17cf22912a4c4a8e1f464b29c589b8c93",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-in-setup-7_slow_1100mv_-40c.rpt.gz": "5df4b242ee31358d4b9fd5c50b085bc9789a446c0573b41ed155b24936786174",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-out-setup-MIN_fast_1100mv_-40c.rpt.gz": "0acb319d46f881e82699000a74de40c382fcd1702382593e33b7d7e9496bd6ec",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-input-setup-7_slow_1100mv_-40c.rpt.gz": "f223a657da7f598f6508caad0e5985f8abf6bda40a0098b5c7693a9bc923eb81",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-in-setup-7_slow_1100mv_100c.rpt.gz": "dfe8bac23329c6dff8b823b7e671120e50af547048c4b0fb298a938336dddf2d",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-in-setup-MIN_fast_1100mv_100c.rpt.gz": "69bd502ea9e8fd3f63bc10875b126cc599dc2e433fd95f5eb8654c8735e8fed8",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-out-setup-7_slow_1100mv_-40c.rpt.gz": "0ac3617e18c61b57895ae73226e7de60d3fb9cd47acab4aeda5f0215351fe36c",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-hold-MIN_fast_1100mv_-40c.rpt.gz": "b88f7a5d3c90d9308c7eadc273ecfc128cf74fc374414330c302cec59488578c",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-out-setup-MIN_fast_1100mv_-40c.rpt.gz": "008a2be17e3d4370e732f3d1e94fc9dd6cd4e554b1cfde741d60f3be447e4206",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-mpw-MIN_fast_1100mv_100c.rpt.gz": "898d9c9d102d8fa3f6d8233055107615c82e7a0725ccee849cd2ab52ce5f4a41",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-out-setup-MIN_fast_1100mv_100c.rpt.gz": "a0523ea2749975b6414c686869ae0ae7794e1b8a94ffecece7c2798ff99226b0",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-out-setup-MIN_fast_1100mv_100c.rpt.gz": "87184097ed4adf44839d0e986ac29252e389ad851bc5ab1e4a39f1397498426c",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-in-setup-7_slow_1100mv_-40c.rpt.gz": "f50036ad2ac00c8576aa8ce5bc895f7e00108a723b5f7a361a0cffd1b77a96cc",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-in-hold-MIN_fast_1100mv_100c.rpt.gz": "20b1a30f4a6365144ef8fd0d26f63d401be9230f03dfb1e90fb5ca4f12b48a61",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-input-hold-MIN_fast_1100mv_100c.rpt.gz": "54ecc2df99c7f00fbf1ab06fa2efbcf41f3c44661eac2a4a7cef8d425c460280",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-out-hold-7_slow_1100mv_-40c.rpt.gz": "20d38bde81981bae148c0b4ce3283b21f8caf180d8944523244df51ecb13b252",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-in-hold-7_slow_1100mv_-40c.rpt.gz": "e7b27b9973e6a48e0c31a75eba8e0575bcf5f79d0013590d7fd0bdf36eee7fcb",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-input-setup-MIN_fast_1100mv_100c.rpt.gz": "4c8c878a8c1e35b4340e8e52472819374868842ea48d469e4b60838cc2aae46a",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-output-hold-7_slow_1100mv_100c.rpt.gz": "e75adeb4027351a3aa17e4deedbab8f6f8a237532926ef5afb88f8bf06bcc6a6",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-in-hold-7_slow_1100mv_-40c.rpt.gz": "371d1b69275d78494dfaea916ad7d04b9d1892f50f9bce45c29ab140cf6a6bb3",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-in-hold-MIN_fast_1100mv_100c.rpt.gz": "e29b7e25e44e2fa2bf0fe0b2a269ff67c3f559f8c71d260759447a0694e3d6bc",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-ifu-out-hold-7_slow_1100mv_100c.rpt.gz": "1b8ac76eb6e4ce6fa1558c187ff03ba5e910d778904f2672e06fa5274aecb337",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-in-setup-MIN_fast_1100mv_-40c.rpt.gz": "1a6a9b27258b4884526c11cd9a877572f70c8862c4cba707462bc5ebffe93dd7",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-in-setup-7_slow_1100mv_-40c.rpt.gz": "b2d4a229d167a1611f24a646f6a21b2154a6c95ad7072186b4d58ed5186abb30",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-in-setup-MIN_fast_1100mv_-40c.rpt.gz": "823ee8380d0cdcc460153b08384c1d21f0daf75d1045b11c3f46f6c5e61d0791",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-out-hold-7_slow_1100mv_100c.rpt.gz": "3ff15b8eb4e01c1264854b598879a08119f2758e3826a8e63930a22021300a67",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-in-setup-MIN_fast_1100mv_100c.rpt.gz": "bf2fdfad724bde16a8adf5110512306792eafb79b72f527b474a15b231227a11",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-in-hold-7_slow_1100mv_100c.rpt.gz": "130f25a228cf0fae123d1180e31c0632246864fcace3ceb4b06e851448ae3300",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-contb-out-setup-7_slow_1100mv_-40c.rpt.gz": "27357e5b1f57383dec4b2e338ac4aeeb57b5182f056a193d007541293e25e104",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-recovery-MIN_fast_1100mv_-40c.rpt.gz": "3ee0c9515d64026e4ce6ecb9a6a45cc93f6c5b2562cf10e100924fad6c1137d0",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-in-setup-MIN_fast_1100mv_100c.rpt.gz": "a7501e039645bb4ba626e426ccbc5a83d08f98131d65a1f5ec1d56b46132653c",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memd-out-setup-7_slow_1100mv_-40c.rpt.gz": "4f5273d12637d236259f8392d5aa2632bc5a89a1bd41d3d69841774c605ed644",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-procl-in-setup-7_slow_1100mv_100c.rpt.gz": "af63252c1a2d5fdaa5873bab90f75a67e3652188caea4a3afefb3fd162655d7c",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-in-setup-7_slow_1100mv_100c.rpt.gz": "dc81b386325045be92dd1eccde10397fee4641fd80eb51c87ec5b0917f00dde6",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-conta-in-hold-7_slow_1100mv_100c.rpt.gz": "1921e852d838dd25cefe38d6e617ce2c12577f32f4b7206cbb3693e3edf860a1",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-proch-out-setup-7_slow_1100mv_-40c.rpt.gz": "5e98d6e5ef3996eaa4dfa35be755f45dcabcf86171f8f66b3dfbacfe834b9b2a",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dispy-in-hold-MIN_fast_1100mv_100c.rpt.gz": "9b10ed0301a8ee0e259055dd790492f443370733448aadf150a29b1c90e5f5da",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-in-hold-7_slow_1100mv_100c.rpt.gz": "63f1411a87d98bb4bc95296536d1ea5878a9536a29076259aebfe3074baab2f0",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-in-hold-MIN_fast_1100mv_-40c.rpt.gz": "844ac61a51cd41af30c42d22d7e53a12eab6d5b75ad56fc53435a0b5b535584d",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memc-out-hold-7_slow_1100mv_-40c.rpt.gz": "17c4924681071315818ec49a298656ceaa56264f543ed63e55be8730eac71d1e",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-memx-in-hold-7_slow_1100mv_100c.rpt.gz": "a65080de68af13fa3800c76af086c32f95e6804db453fd9344cd7e196209695d",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-setup-MIN_fast_1100mv_100c.rpt.gz": "9538125682db174b90cc75bf9acde9bb7c2a39c4b612c3179c997597351d7240",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-sdram-output-hold-MIN_fast_1100mv_100c.rpt.gz": "88562a510ba0ac02b02b28942481a95525901e9683f7613dc6a8c410553a8d84",
+    "fpga/mister/reports/2026-10-19-native59-dsketh/core/native59-dsketh-out-hold-7_slow_1100mv_100c.rpt.gz": "57eebc3990af7fc16d15ca006f82a00db2f548c235261567e35c028674a98ef1"
+  }
+}

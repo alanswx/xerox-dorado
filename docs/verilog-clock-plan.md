@@ -42,6 +42,82 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**The complete nineteen-board core now fits: 41,381 / 41,910 ALMs. Timing rejects it: setup -0.239 ns, hold -0.155 ns.**
+
+Serial64Chipwidth is the first legal routed capacity result for all eleven main
+boards and eight snapshot-enabled MSAs. It saves 1,068 ALMs from Serial63's
+42,449 and 5,321 from Serial62Area's 46,702, leaving 529 ALMs. Actual fit reports
+52,561 registers, 329/553 RAM blocks, 2,498,471 block-memory bits, 35 DSPs and 3 PLLs.
+The cache holds all original chip WIDTH 8/12 data/ECC bits; raw 16-bit transfers,
+8 MiB guest/16 MiB padded backing, all original guest registers and clocks stay.
+The exact qualified board-only schema is `af0b647cb43a3a62`.
+
+All 659 parent inputs and 413 Native59 receipts pass. Independent source review
+checks 2,761 original pin/parameter bindings, qualified assets, unchanged clock/
+IO/area policy and all constraints, with 23 damaged source/policy/alias cases
+rejected. Actual Quartus leaves all 659 prepared inputs byte-identical. Fresh
+actual-QSF XML uses 319 HDL /15 macros /3,945 instances, accounting for 1,957,048
+physical board +4,578 private board +69 private owner/router +132,484 wrapper
+ACCESS PENDING =2,094,179 sequential bits, none excluded; 14 damaged cases reject.
+Top emu/UIO, external raw RAM and ARM services still require full snapshot work.
+Four damaged capacity/process cases reject. Capacity PASS is NOT timing PASS.
+
+All four device conditions and nineteen adapter crossing scopes are retained.
+The independent timing reader verifies setup/hold/recovery/removal/pulse width,
+SDRAM input/output setup/hold, actual clock definitions and BOTH setup/hold IO
+exception tables. Clocks match Native59; zero illegal/unconstrained clocks.
+Exactly the inherited three input/fifty output framework exceptions remain;
+this is explicitly not a claim that every physical framework IO is timed.
+SDRAM IO passes. Slow 100C setup is -0.239 ns, slow -40C setup -0.150 ns; hold is
+-0.088 ns/+100C and -0.155 ns/-40C. Fast conditions pass. Other adapter crossing
+violations are retained, not hidden by the worst-three summary. Six damaged
+reader cases reject against the KNOWN PASSING Native59 baseline; the failing
+actual design is reviewed as REJECTED_TIMING, not used as a false control gate.
+
+Setup endpoints reach the falling-edge `network_step` register from MSA
+write_pending/readiness and snapshot scan fault/busy flags (ten-nanosecond path).
+Real slow 100C hold is u_media.cyl[6] -> cached_cyl[6]. The worst slow -40C hold
+paths are virtual CAPACITY_SERVICES_HELD / CAPACITY_TRANSPORT_RESET inputs,
+which still need real service-barrier integration. Do not waive these ports or
+tie acknowledgments high. Routing warnings anticipated the observed failures.
+
+The `/home/alans/mister/Dorado_Serial64Chipwidth_20261019` run is TERMINAL;
+builder 2433951 and fitter 2436350 are absent. No job remains live. Assembly was
+disabled: no RBF/SOF/reload. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-serial-chipwidth/`.
+All 2,761 raw members pass lossless readback. Extracted tools reproduce all 659
+staged bytes after rebase; source/pin/alias, full native XML controls, capacity
+review and timing-rejection review plus passing-baseline reader controls replay.
+Native59 timing baseline bytes are included. No working HDL is consumed.
+
+Next concrete clock-path experiment: the core currently ANDs storage_ready
+(already gated by per-board snapshot hold) with !board_state_hold. Investigate
+using the qualified NORMAL frontend-ready/drain aggregate instead, still ANDed
+with storage_initialized and !board_state_hold. Prove equality on actual MSA
+normal traffic and the eight-board owner/quarantine/unknown-input cases BEFORE
+adoption. This removes redundant hold propagation rather than adding latency,
+new state or relaxing periods. The aggregate covers frontend readiness only;
+it is NOT proof that the arbiter/SDRAM controller has drained every transaction.
+Keep the existing full raw-service barrier requirement.
+
+Also prove the disk-cache same-edge hold condition from the actual two-clock
+gating: cached_cyl loads only when need_track && head<5, which deasserts pack
+ready before a guest edge can change cyl/head. Verify reset/remount, tags,
+arbitrary extra stalls and the real falling-edge gate; do not cut a real path.
+No such new exception is applied yet. Then qualify the structural change, real
+service input synchronization/barriers and another unchanged-period full fit.
+
+Complete wrapper/raw-memory/input/video/Main/daemon/server snapshots, genuine
+reseed, connection-preserving pause and matching disk generations remain open.
+The live server's lifecycle resume reconfigures Pup connections, so it cannot
+be used unchanged for snapshot resume. Use deployed ARM source/binary receipts,
+not the older C sources incidentally carried in the frozen FPGA source tree.
+Original 60 ns clocks/timers, pinned speed comparisons, three fresh Cedar boots/
+cold persistence and two-hour stress remain required. Native59 and the last
+qualified 1,947,654.12 instruction issues/s are unchanged by this work. Goal ACTIVE.
+
+Previous component qualification and build launch:
+
 **Chip-width MSA caches qualify at 1,600 ALMs versus 1,721; the complete Serial64Chipwidth fit is running.**
 
 The bridge cache now holds exactly each original chip group's WIDTH (8 or 12)

@@ -1,0 +1,134 @@
+{
+  "status": "PASS_CHIPWIDTH_NATIVE_SOURCE_ONLY",
+  "scope": "Independent exact-source review of chip-width nineteen-board integration.\n\nUse the reviewed Serial63 archive as the immutable parent, not the builder's\nexpected strings. Only qualified compact assets, router name, schema, metadata\nmay change. All timing constraints remain exact. Original pins/equations,\nclocks/IO, macros and virtual service ownership are otherwise byte-identical.\n",
+  "boards": 19,
+  "slots": 12,
+  "physical_board_bits": 1957048,
+  "verified_parent_inputs": 659,
+  "verified_native59_inputs": 413,
+  "original_pin_connections": 2761,
+  "source_contract": "Exact reviewed parent with qualified compact assets, router name, schema; all constraints unchanged",
+  "schema_id": "af0b647cb43a3a62",
+  "sequential_exclusions": [],
+  "capacity_only": true,
+  "assembly_permitted": false,
+  "native_barriers_implemented": false,
+  "limits": "Source proof only; actual selected-source geometry, fit, timing and full snapshots are separate.",
+  "failure_controls": [
+    {
+      "case": "msa_alias",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+    },
+    {
+      "case": "global_hold",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+    },
+    {
+      "case": "guest_advance",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+    },
+    {
+      "case": "router_module",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+    },
+    {
+      "case": "service_high",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: core/Dorado.sv"
+    },
+    {
+      "case": "schema",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: core/Dorado.sv"
+    },
+    {
+      "case": "reset",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: core/Dorado.sv"
+    },
+    {
+      "case": "normal_keyboard",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: core/Dorado.sv"
+    },
+    {
+      "case": "top_ack",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: core/sys/sys_top.v"
+    },
+    {
+      "case": "clock_macro",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: core/Dorado.qsf"
+    },
+    {
+      "case": "storage_policy",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: core/Dorado.qsf"
+    },
+    {
+      "case": "rbf",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: core/Dorado.qsf"
+    },
+    {
+      "case": "area_mode",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: core/Dorado.qsf"
+    },
+    {
+      "case": "new_hold_cut",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: core/native_timing.sdc"
+    },
+    {
+      "case": "loose_io",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: core/capacity_timing.sdc"
+    },
+    {
+      "case": "missing_corner",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: core/device-corners.tcl"
+    },
+    {
+      "case": "old_outer_bound",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: src/fpga/mister/snapshot_serial/board_state_fabric_msa.sv"
+    },
+    {
+      "case": "cross_group",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: src/fpga/mister/snapshot_serial/MSA__msa_board.sv"
+    },
+    {
+      "case": "guest_pipeline",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: src/fpga/mister/snapshot_serial/MSA__storage_group.sv"
+    },
+    {
+      "case": "source_missing",
+      "rejected": true,
+      "diagnostic": "unapproved source/policy/pin/constraint edit: core/Dorado.qsf"
+    },
+    {
+      "case": "partial_alias",
+      "rejected": true,
+      "diagnostic": "incomplete/foreign Quartus aliases"
+    },
+    {
+      "case": "duplicate_alias",
+      "rejected": true,
+      "diagnostic": "incomplete/foreign Quartus aliases"
+    },
+    {
+      "case": "foreign_alias",
+      "rejected": true,
+      "diagnostic": "incomplete/foreign Quartus aliases"
+    }
+  ]
+}
