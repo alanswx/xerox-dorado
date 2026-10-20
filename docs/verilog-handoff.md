@@ -2,12 +2,57 @@
 
 ## Current objective (2026-10-20)
 
-**Main’s daemon lease and RTL network/parser pause now qualify, alongside the ARM disk lease. Serial70 fanout256 fits but fails setup timing at -0.561 ns; it is rejected. Complete snapshots, faster clocks and final hardware qualification remain open.**
+**The network pause controller now qualifies, including parser release before guest restart. Serial71 integrates it with the native memory hold and is building on misterubuntu; fit/timing are pending. Serial70 remains rejected. Complete snapshots, faster clocks and final hardware qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and
 warm disk persistence pass. Its last qualified rate remains **1,947,654.12
 instruction issues/s**. This work has not deployed a new core/Main/daemon or
 produced a new speed measurement.
+
+**LIVE Serial71NetworkPause:**
+`/home/alans/mister/Dorado_Serial71NetworkPause_20261020`, builder **2664220**,
+fitter **2666775**, verified live after successful synthesis (zero errors;
+615 warnings). Mapper2664230 completed in 3m36s. Observe these SAME
+processes and this project; a polling timeout is not completion or permission
+to restart. All 661 prepared sources were unchanged. Packet SHA256
+`faeba8e8e591be64073dae4647a45d0203b50fef393becfab68ef52fd544e009`.
+No assembly or deployment is allowed by this capacity/timing driver.
+
+Serial71 starts from immutable Serial69, with no fanout/global/seed policy or
+period changes. The DDR engine follows the final global hold. The SPI parser
+gets a separate request and reports its actual held latch; two settling clocks
+precede ready. Release keeps the memory coordinator and all board consumers
+held until the parser latch clears. Fault, reset or lost ownership quarantines
+both coordinators until a genuine full-machine reseed (tied low in this core;
+only complete FPGA reconfiguration clears it). Network service bit2 retains
+the external permit AND the actual adapter boundary; memory bit0 retains its
+existing external permit and physical-memory boundary. Physical DDR visibility
+and Main/disk/input/video coordination are still separate requirements.
+
+Qualification: 34,344 observed network bits including all 32,768 packet-RAM
+bits; actual C ring peer and production mux/engine/parser/wire; partial RX,
+captured TX, serial phase/CRC, active SPI, cancellation and fault cases pass.
+Seven compiled broken variants reject. Four-state control checks pass 394,272
+checks, 256 drain combinations and 65,536 frozen-ready combinations. The two
+real coordinators pass 79 chain checks with independently controlled device
+ACKs; early memory release rejects. Five legacy parser-pause cases still pass.
+Frozen and freshly archive-extracted rebuilds reproduce the results.
+
+Independent native inverse review checks 660 parent /661 actual sources,
+2,761 original pins and unchanged constraints; twelve rehashed broken variants
+reject. Fresh actual-QSF native XML still requires 2,094,301 bits, including
+132,606 wrapper bits with ACCESS PENDING; fifteen inventory controls reject.
+The new six top-level bits (parser latch1 + controller5) are additional to this
+native hierarchy count and still need snapshot access. The board-only schema
+af0b647cb43a3a62 is unchanged. No complete top/ARM state or restore is claimed.
+
+Evidence: `fpga/mister/reports/2026-10-20-snapshot-network-barrier/` (328 raw
+members) and `2026-10-20-snapshot-native-network-pause-source/` (1,277 raw
+members). All members read back; the source/native inventory proof verifies
+after extraction. Next observe Serial71 to terminal, then independently review
+actual capacity, clocks, all-condition setup/hold and crossings. Do not adopt
+it based on fit alone. Continue structural advance/phase work and the real Main
+coordinator; no more blind placement/fanout trials.
 
 The eight-board circuit uses one pause coordinator and the real member router,
 128-client interleaved/prefetch arbiter, 50MHz SDRAM backend and independent

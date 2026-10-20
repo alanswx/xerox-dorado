@@ -1,0 +1,22 @@
+{
+  "observed_utc": "2026-10-20T10:07:50.782326+00:00",
+  "status": "LIVE",
+  "builder_pid": 2664220,
+  "builder_live": true,
+  "project_processes": [
+    "2664220       1     112 python3         python3 /home/alans/mister/Dorado_Serial71NetworkPause_20261020/tools/fpga/mister/snapshot/build_native_network_pause.py --run /home/alans/mister/Dorado_Serial71NetworkPause_20261020",
+    "2664230 2664220     112 quartus_map     quartus_map Dorado"
+  ],
+  "prepared_inputs_changed": [],
+  "no_assembly": true,
+  "logs": {
+    "driver": [
+      "Serial71NetworkPause map"
+    ],
+    "map": [
+      "    Info (276004): RAM logic \"emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemX:b_MemX|cell_SG10139:u_i14|mem\" is uninferred due to inappropriate RAM size File: /home/alans/mister/Dorado_Serial71NetworkPause_20261020/src/verilog/cells/cell_SG10139.v Line: 58",
+      "    Info (276004): RAM logic \"emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemX:b_MemX|cell_SG10139:u_i12|mem\" is uninferred due to inappropriate RAM size File: /home/alans/mister/Dorado_Serial71NetworkPause_20261020/src/verilog/cells/cell_SG10139.v Line: 58",
+      "    Info (276004): RAM logic"
+    ]
+  }
+}

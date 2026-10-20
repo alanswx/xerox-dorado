@@ -1,0 +1,79 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "inputs": {
+        "network_pause_barrier.sv": "eb15f99e502d93d4f1326d56ceab9cda174ea0ff18eb341d2c2a25c855c4b989",
+        "test_network_pause_barrier.sv": "957d57954f610515ac37fa0b5f19bc37454348ad68132318b1bec26e119e89e0"
+      }
+    },
+    {
+      "case": "ignore_parser_latch",
+      "returncode": 1,
+      "inputs": {
+        "network_pause_barrier.sv": "4527b9d2bf08d4cf6906e8800c9e296f5a3cde4e018792fe78ca9abbed23a1ad",
+        "test_network_pause_barrier.sv": "957d57954f610515ac37fa0b5f19bc37454348ad68132318b1bec26e119e89e0"
+      }
+    },
+    {
+      "case": "early_ready",
+      "returncode": 1,
+      "inputs": {
+        "network_pause_barrier.sv": "6312eec5098175b02beaef8be0c767797df92ec5c9151789314385ea2eb717fa",
+        "test_network_pause_barrier.sv": "957d57954f610515ac37fa0b5f19bc37454348ad68132318b1bec26e119e89e0"
+      }
+    },
+    {
+      "case": "early_release",
+      "returncode": 1,
+      "inputs": {
+        "network_pause_barrier.sv": "2010c2e5cf92049a66ef45e471b0df3aa81e678262cc7aa6d1292c97c87781d3",
+        "test_network_pause_barrier.sv": "957d57954f610515ac37fa0b5f19bc37454348ad68132318b1bec26e119e89e0"
+      }
+    },
+    {
+      "case": "release_on_fault",
+      "returncode": 1,
+      "inputs": {
+        "network_pause_barrier.sv": "121b31e3c38618f51888db68e2736ea684980e8c5a88d4ffa4c3582b44b28d07",
+        "test_network_pause_barrier.sv": "957d57954f610515ac37fa0b5f19bc37454348ad68132318b1bec26e119e89e0"
+      }
+    },
+    {
+      "case": "unknown_owner",
+      "returncode": 1,
+      "inputs": {
+        "network_pause_barrier.sv": "7deae0b850176a37984a53855aed72618f57bf569c07d17a09cafa51320c168d",
+        "test_network_pause_barrier.sv": "957d57954f610515ac37fa0b5f19bc37454348ad68132318b1bec26e119e89e0"
+      }
+    },
+    {
+      "case": "memory_chain",
+      "returncode": 0,
+      "inputs": {
+        "network_pause_barrier.sv": "eb15f99e502d93d4f1326d56ceab9cda174ea0ff18eb341d2c2a25c855c4b989",
+        "memory_pause_barrier.sv": "f32bfb8bb9492acfd126c29fe529b20e9496bd32807937479a0727fbb12ed1c8",
+        "test_network_memory_pause.sv": "460d46ffa0817a3c9aaaf86adb1f6c8d3832337a57a0c97916d7a7cb58dea117"
+      }
+    },
+    {
+      "case": "memory_chain_early_release",
+      "returncode": 1,
+      "inputs": {
+        "network_pause_barrier.sv": "eb15f99e502d93d4f1326d56ceab9cda174ea0ff18eb341d2c2a25c855c4b989",
+        "memory_pause_barrier.sv": "f32bfb8bb9492acfd126c29fe529b20e9496bd32807937479a0727fbb12ed1c8",
+        "test_network_memory_pause.sv": "cc87b82a8ea6f123b40d9c5ca4d4b188d0c9a73eb80e84e0518702d15a822010"
+      }
+    }
+  ],
+  "required_top_state_bits": 5,
+  "inputs": {
+    "network_pause_barrier.sv": "eb15f99e502d93d4f1326d56ceab9cda174ea0ff18eb341d2c2a25c855c4b989",
+    "test_network_pause_barrier.sv": "957d57954f610515ac37fa0b5f19bc37454348ad68132318b1bec26e119e89e0",
+    "memory_pause_barrier.sv": "f32bfb8bb9492acfd126c29fe529b20e9496bd32807937479a0727fbb12ed1c8",
+    "test_network_memory_pause.sv": "460d46ffa0817a3c9aaaf86adb1f6c8d3832337a57a0c97916d7a7cb58dea117"
+  },
+  "limits": "Controller only; physical DDR visibility, full Main coordinator and complete restore remain required."
+}

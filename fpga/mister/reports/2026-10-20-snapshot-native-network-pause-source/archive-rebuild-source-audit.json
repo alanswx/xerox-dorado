@@ -1,0 +1,98 @@
+{
+  "status": "PASS_NATIVE_NETWORK_PAUSE_SOURCE_ONLY",
+  "scope": "Independent inverse review of Serial71 network/memory pause wiring.\n\nReplay the prior native memory/pin audit after reversing only qualified service\nwiring. No clocks, periods, original pins, memory pipeline or area policy edits.\nPhysical DDR visibility and complete machine restore remain unqualified.\n",
+  "verified_parent_inputs": 660,
+  "actual_inputs": 661,
+  "original_pin_connections": 2761,
+  "schema_id": "af0b647cb43a3a62",
+  "changed_parent_inputs": [
+    "core/Dorado.qsf",
+    "core/Dorado.sv",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv",
+    "src/fpga/mister/dorado_ethernet_ddr.sv",
+    "src/fpga/mister/dorado_ethernet_uio.sv"
+  ],
+  "new_top_state_bits": 6,
+  "new_wrapper_state_bits": 0,
+  "new_clocks": 0,
+  "new_external_ports": 0,
+  "constraints_unchanged": true,
+  "real_memory_pause": true,
+  "real_network_pause": true,
+  "real_pause_barriers": false,
+  "limits": "Engine/parser/settling and retained memory hold only. Physical DDR fence, Main/disk/input/video coordination, all wrapper state access, full snapshots, legal timing and hardware qualification remain required.",
+  "failure_controls": [
+    {
+      "case": "engine_hold_missing",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor: \n    .snapshot_hold(board_state_hold),.snapshot_idle(snapshot_network_idle),",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "parser_hold_wrong",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor: \n    .snapshot_hold(snapshot_network_parser_hold),.snapshot_idle(snapshot_network_parser_idle),\n    ",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "raw_owner_feedback",
+      "rejected": true,
+      "diagnostic": "network permission/controller wiring differs",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "external_permit_missing",
+      "rejected": true,
+      "diagnostic": "network permission/controller wiring differs",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "ready_faked",
+      "rejected": true,
+      "diagnostic": "network permission/controller wiring differs",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "pll_reseed",
+      "rejected": true,
+      "diagnostic": "network permission/controller wiring differs",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "memory_release_early",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor: .owner_hold(snapshot_owner_hold || snapshot_service_hold),",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "fault_not_retained",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor: .abort(snapshot_owner_fault || snapshot_service_fault || (snapshot_transport_reset && snapshot_hold)",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "parser_held_unconnected",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor: \n    .snapshot_hold(snapshot_network_parser_hold),.snapshot_idle(snapshot_network_parser_idle),\n    ",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "barrier_modified",
+      "rejected": true,
+      "diagnostic": "unqualified network asset: src/fpga/mister/snapshot_serial/network_pause_barrier.sv",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "ordinary_enable_modified",
+      "rejected": true,
+      "diagnostic": "unapproved normal/pin/clock/constraint edit: core/Dorado.sv",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "timing_relaxed",
+      "rejected": true,
+      "diagnostic": "unapproved normal/pin/clock/constraint edit: core/Dorado.sdc",
+      "metadata_rehashed": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+[
+  [
+    "iverilog",
+    "-g2012",
+    "-s",
+    "tb",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/network-barrier-fourstate-v2-20261020/memory_chain/test.vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/network-barrier-fourstate-v2-20261020/memory_chain/network_pause_barrier.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/network-barrier-fourstate-v2-20261020/memory_chain/memory_pause_barrier.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/network-barrier-fourstate-v2-20261020/memory_chain/test_network_memory_pause.sv"
+  ],
+  [
+    "vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/network-barrier-fourstate-v2-20261020/memory_chain/test.vvp"
+  ]
+]

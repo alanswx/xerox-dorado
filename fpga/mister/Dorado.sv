@@ -388,7 +388,7 @@ dorado_ethernet_uio #(.MAX_WORDS(1024)
 `endif
 ) u_network_uio (
     .clk(clk_sys), .reset(~pll_locked), .bus(ethernet_ext_bus),
-    .snapshot_hold(1'b0),.snapshot_idle(),
+    .snapshot_hold(1'b0),.snapshot_idle(),.snapshot_held(),
     .rx_ready(net_rx_ready), .tx_valid(net_tx_valid), .tx_words(net_tx_words), .tx_data(net_tx_data),
     .tx_good(net_tx_good), .tx_bad(net_tx_bad), .tx_dropped(net_tx_dropped), .rx_bad(net_rx_bad),
 `ifdef DORADO_NATIVE

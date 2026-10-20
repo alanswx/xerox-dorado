@@ -12,6 +12,7 @@ module dorado_ethernet_uio #(
     input wire clk, reset,
     input wire snapshot_hold,
     output wire snapshot_idle,
+    output wire snapshot_held,
     inout wire [35:0] bus,
     input wire rx_ready,tx_valid,
     input wire [$clog2(MAX_WORDS):0] tx_words,
@@ -49,6 +50,7 @@ module dorado_ethernet_uio #(
   // decoder's snapshot traffic must not mutate this parser or issue data IO.
   // Release only with the shared bus deselected, preserving framing.
   reg snapshot_paused=0;
+  assign snapshot_held=(SNAPSHOT_PAUSE!=0) && snapshot_paused;
   assign snapshot_idle=(SNAPSHOT_PAUSE!=0) && snapshot_hold && snapshot_paused &&
       !reset && !tx_ack && !rx_wr && !rx_commit;
   // Ownership remains with DDR until its outstanding accesses have drained.

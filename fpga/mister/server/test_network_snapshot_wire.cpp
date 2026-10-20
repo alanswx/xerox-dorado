@@ -8,13 +8,19 @@ static std::array<uint32_t,NETWORK_STATE_WORDS> network_state(Model &m) {
     return result;
 }
 static void pause_network(Model &m) {
+#ifndef NETWORK_PAUSE_BARRIER
     m.t.machine_enable=0;m.ticks(2);
+#endif
     check(!dorado_ddr_pause(&m.host),"pause actual C peer");
     m.t.snapshot_hold=1;
+#ifdef NETWORK_PAUSE_BARRIER
+    m.until([&]{return m.t.snapshot_idle;},300000,"engine did not drain to snapshot pause");
+#else
     m.until([&]{return m.t.snapshot_idle;},300000,"engine did not drain to snapshot pause");
     // Allow the wire's synchronous read outputs to settle after its last
     // possible host ACK/commit. Main must enforce this boundary in integration.
     m.ticks(2);
+#endif
     check(!m.pending && !m.t.DDRAM_RD && !m.t.DDRAM_WE,"snapshot has pending DDR command");
     const auto state=network_state(m);const auto memory=m.memory;
     const auto commands=m.reads+m.writes;const auto wave=m.wave.size();
@@ -34,18 +40,65 @@ static void pause_network(Model &m) {
 }
 static void continue_network(Model &m) {
     check(!dorado_ddr_continue(&m.host),"continue actual C peer");
+#ifdef NETWORK_PAUSE_BARRIER
+    m.t.snapshot_hold=0;
+    for(unsigned i=0;i<8 && m.t.service_hold;i++) {
+        const bool was_held=m.t.parser_held;
+        m.tick();
+        if(was_held)check(m.t.service_hold && !m.t.wire_step,"guest resumed before parser release");
+    }
+    check(!m.t.service_hold && !m.t.parser_held,"parser release did not complete");
+#else
     m.t.snapshot_hold=0;m.ticks(2);m.t.machine_enable=1;
+#endif
 }
 static void spi_entry_pause() {
     Model m;m.start(UINT64_C(0x30abc09812765432));m.begin(0x74);
-    m.t.machine_enable=0;m.ticks(2);check(!dorado_ddr_pause(&m.host),"pause C peer during SPI");m.t.snapshot_hold=1;
+#ifndef NETWORK_PAUSE_BARRIER
+    m.t.machine_enable=0;m.ticks(2);
+#endif
+    check(!dorado_ddr_pause(&m.host),"pause C peer during SPI");m.t.snapshot_hold=1;
     for(unsigned i=0;i<18;i++){m.word(0);check(!m.t.snapshot_idle,"pause truncated active SPI transaction");}
     m.end();pause_network(m);
     m.begin(0x76);m.t.snapshot_hold=0;
-    for(unsigned i=0;i<6;i++){m.word(0x75);check(!m.t.io_selected,"parser released inside shared SPI packet");}
+    for(unsigned i=0;i<6;i++){
+        m.word(0x75);check(!m.t.io_selected,"parser released inside shared SPI packet");
+#ifdef NETWORK_PAUSE_BARRIER
+        check(m.t.service_hold && !m.t.wire_step,"guest resumed before parser release");
+#endif
+    }
     m.end();continue_network(m);m.stop();
     puts("NETWORK WIRE SPI PASS: active transaction finishes, held parser ignores shared snapshot traffic, framed release");
 }
+#ifdef NETWORK_PAUSE_BARRIER
+static void fault_pause() {
+    for(unsigned which=0;which<3;which++) {
+        Model m;m.start(UINT64_C(0x35abc09812765432)+which);pause_network(m);
+        if(which==0)m.t.service_abort=1;
+        if(which==1)m.t.service_fault=1;
+        if(which==2)m.t.pll_locked=0;
+        m.tick();m.t.snapshot_hold=0;m.t.service_abort=0;m.t.service_fault=0;m.t.pll_locked=1;
+        for(unsigned i=0;i<30;i++) {
+            m.tick();check(m.t.service_faulted && m.t.service_hold && !m.t.wire_step && !m.t.snapshot_idle,
+                "fault did not retain global hold");
+        }
+        // Only a full-machine reseed is allowed to clear quarantine. This
+        // isolated controller test supplies it explicitly; no device resumes.
+        m.t.machine_reseed=1;m.tick();m.t.machine_reseed=0;m.tick();
+        check(!m.t.service_faulted && !m.t.service_hold,"full reseed did not clear controller");
+    }
+    puts("NETWORK WIRE QUARANTINE PASS: abort, device fault and PLL reset retain global hold until true reseed");
+}
+static void cancelled_pause() {
+    Model m;m.start(UINT64_C(0x36abc09812765432));m.begin(0x74);
+    check(!dorado_ddr_pause(&m.host),"pause C peer before cancellation");
+    m.t.snapshot_hold=1;m.tick();m.t.snapshot_hold=0;
+    for(unsigned i=0;i<6;i++){m.word(0);check(!m.t.snapshot_idle,"cancelled pause acknowledged");}
+    m.end();m.ticks(8);check(!m.t.service_hold && !m.t.service_faulted,"early cancellation did not release");
+    check(!dorado_ddr_continue(&m.host),"continue C peer after cancellation");m.stop();
+    puts("NETWORK WIRE CANCEL PASS: pre-freeze cancellation finishes SPI and releases without fabricated ready");
+}
+#endif
 static void receive_pause() {
     Model m;m.start(UINT64_C(0x31abc09812765432));auto bytes=frame(2048,72);
     check(!dorado_ddr_send(&m.host,bytes.data(),bytes.size()),"stage in-flight snapshot RX");
@@ -86,6 +139,9 @@ static void capture_pause() {
 int main(int argc,char **argv) {
     Verilated::commandArgs(argc,argv);
     spi_entry_pause();receive_pause();serial_pause();transmit_pause();capture_pause();
+#ifdef NETWORK_PAUSE_BARRIER
+    cancelled_pause();fault_pause();
+#endif
     legacy_wire_main();
     printf("NETWORK WIRE SNAPSHOT PASS observed_bits=%u all_packet_RAM=1 restored=0\n",NETWORK_STATE_BITS);
     return 0;

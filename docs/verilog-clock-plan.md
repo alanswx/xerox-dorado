@@ -43,12 +43,43 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-**Main’s daemon lease and RTL network/parser pause now qualify, alongside the ARM disk lease. Serial70 fanout256 fits but fails setup timing at -0.561 ns; it is rejected. Complete snapshots, faster clocks and final hardware qualification remain open.**
+**The network pause controller now qualifies, including parser release before guest restart. Serial71 integrates it with the native memory hold and is building on misterubuntu; fit/timing are pending. Serial70 remains rejected. Complete snapshots, faster clocks and final hardware qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and
 warm disk persistence pass. Its last qualified rate remains **1,947,654.12
 instruction issues/s**. This work has not deployed a new core/Main/daemon or
 produced a new speed measurement.
+
+**Current integration: Serial71NetworkPause** at
+`/home/alans/mister/Dorado_Serial71NetworkPause_20261020`, builder2664220 /
+fitter2666775 verified LIVE after successful synthesis (zero errors;615
+warnings;mapper2664230 completed in3m36s), all661 prepared inputs
+unchanged. Source packet SHA256
+`faeba8e8e591be64073dae4647a45d0203b50fef393becfab68ef52fd544e009`.
+Observe the SAME job; do not restart after observation timeouts. No assembly.
+It derives from Serial69 with identical ordinary clocks, enables, board pins,
+seed and timing policy. The final global hold freezes the DDR adapter; a
+separate parser request permits framed release before any guest clock resumes.
+Two settling clocks qualify ready. Retained service hold also keeps all memory
+consumers/frontends held during parser release; fault/reset quarantines until
+complete FPGA reconfiguration. Service bit2 ANDs the actual network boundary
+with the external permission. Physical DDR visibility and Main/disk/input/video
+barriers remain required, not implied by adapter idle.
+
+Real engine/parser/wire/C-peer tests observe all34,344 network bits, including
+32,768 packet-RAM bits, with seven compiled broken variants rejected. Four-state
+checks cover256 drain /65,536 ready combinations (394,272 checks); the two real
+coordinators pass79 controlled-ACK chain checks and reject early memory release.
+Five legacy parser-pause cases pass. Frozen and archive-extracted builds repeat
+these results. Independent native inverse review validates660 parent /661
+actual inputs and2,761 original pins, rejecting twelve rehashed wiring/clock
+controls. Native XML still classifies2,094,301 required bits, with132,606 wrapper
+ACCESS PENDING; fifteen controls reject. The six added top-level parser/control
+bits are outside that native count and need access. No full snapshot claim.
+Reports: `2026-10-20-snapshot-network-barrier/` (328 raw members) and
+`2026-10-20-snapshot-native-network-pause-source/` (1,277 raw members); all raw
+bytes read back and extracted proofs pass. Fit, all-condition timing and actual
+hardware qualification are pending. See the handoff for the full current receipt.
 
 The eight-board circuit uses one pause coordinator and the real member router,
 128-client interleaved/prefetch arbiter, 50MHz SDRAM backend and independent
@@ -214,8 +245,10 @@ No production Main/daemon/core changed; Native59's measured rate remains.
 
 Next, in delivery order:
 
-1. Use Serial69 as the integration base for real services and qualified
-   network/parser pause. Address advance distribution structurally with the
+1. Observe the SAME Serial71 native network/memory-pause build through terminal
+   and independently review actual capacity, all-condition timing, clocks and
+   crossings. Only adopt a fully legal result. It uses Serial69 as its base.
+   Address advance distribution structurally with the
    original phase contract; limit64/256, global-signal and seed2 experiments
    were rejected. Preserve actual periods and prove any enable change against
    original guest/state/traffic oracles. Integrate only timing-qualified results.

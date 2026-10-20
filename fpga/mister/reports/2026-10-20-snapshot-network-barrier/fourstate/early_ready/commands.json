@@ -1,0 +1,16 @@
+[
+  [
+    "iverilog",
+    "-g2012",
+    "-s",
+    "tb",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/network-barrier-fourstate-v2-20261020/early_ready/test.vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/network-barrier-fourstate-v2-20261020/early_ready/network_pause_barrier.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/network-barrier-fourstate-v2-20261020/early_ready/test_network_pause_barrier.sv"
+  ],
+  [
+    "vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/network-barrier-fourstate-v2-20261020/early_ready/test.vvp"
+  ]
+]
