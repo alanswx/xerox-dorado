@@ -1,0 +1,8 @@
+{
+  "status": "PASS_COMPONENT_ONLY",
+  "generation": "The initial saved generation used a zero-width literal on18bit address helpers. This was corrected before V1 compilation; all executed V1..V4 candidate/helper RTL is byte-identical.",
+  "simulation": "V1 C++ compilation corrects a Verilator reference-member saved-pin type. V2 candidate passes, then global-hold mutant is caught at raw-port suppression rather than the expected later physical-state check. V3 corrects that diagnostic; lost-FF-hold is then caught by read rotation rather than the expected earlier held-pin check. V4 corrects the diagnostic and counts scan_step BEFORE the physical edge (earlier counts included acceptance on the aborted operation). Final result2507118host/22720360checks/40002guest/55552rawrequests/8672rawwrites/904completedAPIcalls/2421007actualscanedges, all7actualRTLmutants reject.",
+  "classification": "Fresh2690physical bits per side+83private, no sequential exclusions;10geometry/schema controls+2exact-module-alias controls reject. Raw and normalized XML retained separately.",
+  "source_audit": "V1/V2 tighten instance-name prefix matching (1 versus10..15). V3 negative control finds that unrestricted fabric erasure can hide an added assign. V4 permits only the exact reviewed administrative fabric, inverts all other edits to byte-identical frozen board source, compares all8helper bodies to committed qualifications, and rejects7damaged source controls.",
+  "limits": "Complete MSA component only; eight-instance native wiring,2690cycle transport mapping/deadline, wrapper/raw-memory/ARM barriers, external RAM save, combined core capacity/timing and hardware snapshot remain pending. No clock/speed/deployment change."
+}

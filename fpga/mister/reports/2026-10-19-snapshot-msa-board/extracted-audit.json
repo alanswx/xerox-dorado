@@ -1,0 +1,12 @@
+{
+  "status": "PASS_COMPONENT_ONLY",
+  "raw_files": 344,
+  "candidate_versions_byte_identical": 4,
+  "regenerated_from_extracted_original_inputs": true,
+  "physical_bits_per_side": 2690,
+  "private_bits": 83,
+  "source_inverse_controls": 7,
+  "classification_controls": 12,
+  "qualified_helper_bodies": 8,
+  "limits": "No native eight-instance wiring, transport mapping/deadline, raw/ARM barriers, external RAM save, core area/timing or hardware snapshot qualification"
+}

@@ -1,0 +1,46 @@
+{
+  "status": "PASS_SOURCE_ONLY",
+  "scope": "Invert only MSA administrative edits; compare helpers to committed qualifications.\n\nOriginal board bytes, package pins/parameters and raw-memory grouping must\nreturn exactly. Helper alpha-renames must preserve their already-qualified\nbodies. This is a source proof, not core timing or native service integration.\n",
+  "ordinary_board_byte_identity_after_inverse": true,
+  "qualified_helper_bodies": 8,
+  "physical_bits": 2690,
+  "original_packages": 78,
+  "frontend_groups": 16,
+  "failure_controls": [
+    {
+      "case": "force_hold",
+      "rejected": true,
+      "diagnostic": "global owner/chain hook differs: wire state_hold=state_global_hold || (state_freeze && state_guest_held) || state_scan_hold_required;"
+    },
+    {
+      "case": "abort",
+      "rejected": true,
+      "diagnostic": "global owner/chain hook differs: .freeze(state_freeze && !state_global_abort)"
+    },
+    {
+      "case": "chain",
+      "rejected": true,
+      "diagnostic": "global owner/chain hook differs: ff_scan_next={state_storage_serial[0],ff_scan_bits[865:1]}"
+    },
+    {
+      "case": "pin",
+      "rejected": true,
+      "diagnostic": "ordinary board pins/parameters/processes differ after inverse"
+    },
+    {
+      "case": "ordinary_extra",
+      "rejected": true,
+      "diagnostic": "unreviewed administrative fabric logic"
+    },
+    {
+      "case": "field_hook",
+      "rejected": true,
+      "diagnostic": "administrative source shape differs: \n    .state_host_clk(storage_clk),.state_advance(state_guest_advance),.state_hol"
+    },
+    {
+      "case": "helper",
+      "rejected": true,
+      "diagnostic": "helper body differs from committed qualification"
+    }
+  ]
+}

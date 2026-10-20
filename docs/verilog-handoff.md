@@ -2,6 +2,53 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**Complete MSA board serial access is qualified as a component. Shared transport/native wiring and real service barriers remain next; hardware speed is unchanged.**
+
+`generate_msa_board.py` binds the frozen native board source, 78 original
+sequential packages and 16 unchanged storage groups. All 866 FF/history + 1,824
+frontend bits form one 2,690-bit physical chain, 150 words with eight valid bits
+in the final word. Global hold and scan abort are separate; a lost boundary
+keeps every helper held. Local reset re-entry is tested under an independent
+global hold. Native SYSTEM reset still must mean genuine machine reseed.
+
+The actual frozen original board and generated adapter agree over 2,507,118 host
+edges / 22,720,360 checks: 40,002 guest edges, 55,552 raw requests and 8,672
+writes with variable backend stalls. All 458 fields and normal board/raw-port
+outputs are compared. 904 completed API calls cover every valid word, full
+physical inversion, destructive reads, complete restore, final-word padding,
+invalid 24-bit indices, competing valid requests and 20,000 resumed guest cycles.
+Partial-scan abort, lost external hold, raw handshake suppression and held reset
+re-entry pass; all seven actual RTL mutations reject. The corrected pre-edge
+counter records 2,421,007 physical scan edges, including the partial abort.
+This does not save external raw RAM or qualify the physical SDRAM controller.
+
+Fresh XML accounts for all 2,690 physical bits per side plus 83 private bits,
+without sequential exclusions; twelve geometry/schema/exact-module-alias
+controls reject. Inverting only the reviewed administrative edits recovers the
+original board bytes, including package pins/parameters and memory grouping.
+All eight helper bodies match their committed qualifications after namespace
+inversion; seven damaged-source controls reject. The source audit's own added-
+logic control exposed an overbroad fabric erasure, now restricted to an exact
+allowlist. Candidate/helper RTL is byte-identical across all four executed
+simulation versions; their corrections affect the C++ fixture or diagnostics.
+
+All 344 raw archive members pass hash readback. Extracted original board/cell/
+frontend inputs regenerate identical sources; extracted source/XML controls
+pass. Evidence: `fpga/mister/reports/2026-10-19-snapshot-msa-board/`.
+All experiments here are terminal. No combined fit, RBF or FPGA reload occurred.
+
+Next: qualify a larger shared response budget and indexed mapping for all eight
+MSAs (the 2,690-bit chain exceeds the existing 2,048-cycle limit), then wire them
+into the native machine and finish wrapper/raw-memory/input/ARM/server state and
+actual pause/disk-generation barriers. Qualify combined capacity/timing and
+atomic FPGA Cedar save/continue/restore. The last combined result remains
+45,228 / 41,910 ALMs, 3,318 over; isolated component qualification is not a new
+core fit. Last qualified Native59 stays 1,947,654.12 issues/s. Original 60 ns
+clocks/timers, pinned benchmarks, final three boots/cold persistence/two-hour
+stress remain required. Goal ACTIVE.
+
+Earlier frontend qualification:
+
 **The native storage frontend now has qualified physical serial access. MSA board integration and the coordinated raw-memory boundary remain pending.**
 
 `generate_storage_group.py` binds the exact archived native nondeferred source
@@ -3230,7 +3277,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify three MSA primitive adapter families / four geometries / 50 representative bits: 106,111 host edges, independent original/state/pin oracles, destructive restore/first edge/20K more; seven actual RTL mutations and three source controls reject. Fresh complete 50-bit-per-side XML/seven controls pass.
 - [x] Classify all eight exact native MSA instances: 21,520 required SAVE bits / 3,664 fields, 866 original + 1,824 frontend bits per board; nine damaged controls reject, all 216 native source receipts revalidated. Archive 364 raw files and pass extracted source regeneration/XML audits.
 - [x] Qualify exact-native nondeferred frontend serial access for widths 8/12: all 111/123 physical bits, original frontend/DRAM chip oracles, pending read/write/write-done checkpoints, full walking-bit loads/restore/first legal guest edges, all 1,310,720 oracle RAM bits; 110,808 host / 2,237,064 checks / ten actual RTL mutants / two source controls. Fresh 234 physical per side + 2 private + 64 fixture inventory/nine controls; archive 263 raw files and pass extracted exact-native regeneration/XML audits.
-- [ ] Implement complete MSA board access (866 FF/history + 1,824 frontend bits per board), local hold/abort and actual drained raw-memory coordination. Qualify the 2,690-bit chain's mapping and response deadline beyond the current 2,048-cycle budget. Native MSA integration is still pending.
+- [x] Qualify complete MSA component access: 2,690 physical bits / 458 fields / 78 original packages / 16 unchanged frontends / 150 words, all valid words and final padding, full inversion/destructive reads/restore/first resumed edge/20K more, forced hold/partial abort/quarantine/reset re-entry; 2,507,118 host / 22,720,360 checks / seven actual RTL mutants. Fresh 2,690 physical per side + 83 private inventory/twelve controls, exact inverse-source and eight committed helper identities/seven controls. Archive 344 raw files and pass extracted regeneration/source/XML audits.
+- [ ] Qualify a shared response budget covering 2,690-cycle MSA access and an indexed mapping for all eight MSA instances; the existing eleven-board catalog/2,048-cycle limit does not cover them. Integrate complete MSA state in the native builder, then implement actual drained raw-memory coordination and remaining wrapper/input/ARM/server state and barriers.
 - [ ] Implement actual backend/input/ARM service quiesce and acknowledgments with correct SYSTEM-reset lifetime; preserve SDRAM refresh and bind quarantine release to genuine machine reseed. Generic contracts and local board holds do not freeze the native machine.
 - [ ] Continue area reductions without dropping state until all enabled interfaces fit, then qualify complete-core timing and physical memory inference; no RBF/deployment yet.
 - [ ] Complete wrapper/backend/top-level sequential-state classification/access in addition to eleven-board state; native-wrapper154,037bit inventory is review-only.

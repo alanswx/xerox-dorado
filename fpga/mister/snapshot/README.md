@@ -1375,3 +1375,50 @@ Live Native59's last qualified rate remains 1,947,654.12 issues/s. Complete
 snapshots, original 60 ns clocks/timers, pinned comparisons and final boot/
 persistence/two-hour stress gates remain open. Goal ACTIVE. All jobs here are
 terminal.
+
+## Complete MSA serial board component (2026-10-19)
+
+**Complete MSA board serial access is qualified as a component. Shared transport/native wiring and real service barriers remain next; hardware speed is unchanged.**
+
+`generate_msa_board.py` binds the frozen native board source, 78 original
+sequential packages and 16 unchanged storage groups. All 866 FF/history + 1,824
+frontend bits form one 2,690-bit physical chain, 150 words with eight valid bits
+in the final word. Global hold and scan abort are separate; a lost boundary
+keeps every helper held. Local reset re-entry is tested under an independent
+global hold. Native SYSTEM reset still must mean genuine machine reseed.
+
+The actual frozen original board and generated adapter agree over 2,507,118 host
+edges / 22,720,360 checks: 40,002 guest edges, 55,552 raw requests and 8,672
+writes with variable backend stalls. All 458 fields and normal board/raw-port
+outputs are compared. 904 completed API calls cover every valid word, full
+physical inversion, destructive reads, complete restore, final-word padding,
+invalid 24-bit indices, competing valid requests and 20,000 resumed guest cycles.
+Partial-scan abort, lost external hold, raw handshake suppression and held reset
+re-entry pass; all seven actual RTL mutations reject. The corrected pre-edge
+counter records 2,421,007 physical scan edges, including the partial abort.
+This does not save external raw RAM or qualify the physical SDRAM controller.
+
+Fresh XML accounts for all 2,690 physical bits per side plus 83 private bits,
+without sequential exclusions; twelve geometry/schema/exact-module-alias
+controls reject. Inverting only the reviewed administrative edits recovers the
+original board bytes, including package pins/parameters and memory grouping.
+All eight helper bodies match their committed qualifications after namespace
+inversion; seven damaged-source controls reject. The source audit's own added-
+logic control exposed an overbroad fabric erasure, now restricted to an exact
+allowlist. Candidate/helper RTL is byte-identical across all four executed
+simulation versions; their corrections affect the C++ fixture or diagnostics.
+
+All 344 raw archive members pass hash readback. Extracted original board/cell/
+frontend inputs regenerate identical sources; extracted source/XML controls
+pass. Evidence: `fpga/mister/reports/2026-10-19-snapshot-msa-board/`.
+All experiments here are terminal. No combined fit, RBF or FPGA reload occurred.
+
+Next: qualify a larger shared response budget and indexed mapping for all eight
+MSAs (the 2,690-bit chain exceeds the existing 2,048-cycle limit), then wire them
+into the native machine and finish wrapper/raw-memory/input/ARM/server state and
+actual pause/disk-generation barriers. Qualify combined capacity/timing and
+atomic FPGA Cedar save/continue/restore. The last combined result remains
+45,228 / 41,910 ALMs, 3,318 over; isolated component qualification is not a new
+core fit. Last qualified Native59 stays 1,947,654.12 issues/s. Original 60 ns
+clocks/timers, pinned benchmarks, final three boots/cold persistence/two-hour
+stress remain required. Goal ACTIVE.
