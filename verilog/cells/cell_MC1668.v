@@ -4,16 +4,17 @@
 // Directions: observed in the .wl wire lists across all boards.
 // Used in 12 package position(s) across the sixteen boards.
 //
-// Dual clocked flip-flop with asynchronous Set and Reset (MECL III). EclDict
-// names every pin -- S, R, C, D, Q, Q' for each half -- so the function is
-// unambiguous without a datasheet, and there is no OR/NOR polarity question.
+// Dual HIGH-transparent clocked latch (MECL III). Motorola's 1978 MECL data
+// book, PDF p235 / printed4-30, gives C=1: Q follows D, ignoring S/R;
+// C=0: set/reset or hold. PARC's timing dictionary independently marks the
+// data arcs as HIGH-transparent. Treating this part as an edge-triggered FF
+// lost updates within the R read/bypass window.
 //
-// MECL S/R are ACTIVE HIGH and dominate the clock, as cell_MC10231 records
-// for the 10K equivalent; the two parts have the same shape and the same
-// treatment here.
+// S/R are active high while CLOSED. S=R=1,C=0 is unspecified by the sheet;
+// preserve deterministic set priority for that undefined input combination.
 //
-// FPGA: on `sys_clk` with C as an enable, like every other clocked cell --
-// see cell_MC10176 for why.
+// FPGA: sample on sys_clk throughout the high level, as the other latch cells
+// do. This does not qualify the surrounding board's fabric-sampling cadence.
 
 `default_nettype none
 
@@ -33,21 +34,16 @@ module cell_MC1668 (
     output wire p15// Q
 );
 
-  reg cka_d, ckb_d;
-  always @(posedge sys_clk) begin cka_d <= p7; ckb_d <= p9; end
-  wire cka_en = p7 & ~cka_d;
-  wire ckb_en = p9 & ~ckb_d;
-
   reg qa, qb;
   always @(posedge sys_clk) begin
-    if (p5)          qa <= 1'b1;      // S
+    if (p7)          qa <= p6;        // transparent while C high
+    else if (p5)     qa <= 1'b1;      // S while closed
     else if (p4)     qa <= 1'b0;      // R
-    else if (cka_en) qa <= p6;        // D
   end
   always @(posedge sys_clk) begin
-    if (p12)         qb <= 1'b1;
+    if (p9)          qb <= p11;
+    else if (p12)    qb <= 1'b1;
     else if (p13)    qb <= 1'b0;
-    else if (ckb_en) qb <= p11;
   end
 
   assign p2 =  qa;  assign p3  = ~qa;

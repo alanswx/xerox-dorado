@@ -37,6 +37,7 @@ on it.
 | `MC1660.pdf` | Dual 4-input OR/NOR, MECL III | yes | logic diagram, X = A+B+C+D and its complement | 1978 MECL data book p.231 |
 | `MC1662.pdf` | **Quad 2-input NOR**, MECL III | yes | logic diagram -- this is the sheet DL122 rev 7 had deleted, so the function no longer has to be inferred | 1978 MECL data book p.232 |
 | `MC1664.pdf` | Quad 2-input OR, MECL III | yes | logic diagram; the non-inverting counterpart of MC1662, which pins the polarity pair | 1978 MECL data book p.233 |
+| `MC1668.pdf` | Dual clocked latch, MECL III | yes | **HIGH-transparent**, with clock priority over S/R; C=0 enables S/R or hold. Corrects the old edge-triggered cell model | 1978 MECL data book PDF p.235 / printed4-30 |
 | `MC1672.pdf` | Triple 2-input XOR, MECL III (IFU, MemC) | yes | logic diagram | 1978 MECL data book p.239 |
 | `MC1674.pdf` | Triple 2-input XNOR, MECL III (MemX) | yes | logic diagram | 1978 MECL data book p.240 |
 | `MC1690.pdf` | UHF prescaler type-D flip-flop, MECL III | yes | flip-flop truth table + toggle-frequency test circuit | 1978 MECL data book pp.244-245 (bonus: this is the BaseBoard clock divider chain) |

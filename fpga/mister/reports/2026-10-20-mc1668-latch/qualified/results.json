@@ -1,0 +1,171 @@
+{
+  "status": "PASS_MC1668_SAMPLED_LATCH_TRUTH_TABLE",
+  "inputs": {
+    "verilog/cells/cell_MC1668.v": "c6b96c5ce2307872c65b1a130948a5141d77bd062e2730fdda8dff618bf1cea3",
+    "verilog/verilator/tb_mc1668_latch.sv": "b2c4c7fda710c8cf41243d895f894d9479c280a7295e7bbe50a1341a6dd22028",
+    "DoradoDocs/datasheets/MC1668.pdf": "6cac53ab28b20b4f2b12946fdc669b76c37a29464da2f3bda5eba47114e008dd",
+    "tools/test_mc1668.py": "1074ec2d94b341def249a11095c2135583d3f5b4e1eb77f4b2e612940f601adf"
+  },
+  "summary": "checks=1425 open_changes=1312 closed=176 clock_priority=1056 independent=768",
+  "cases": [
+    {
+      "case": "original",
+      "returncode": 0
+    },
+    {
+      "case": "edge_only",
+      "returncode": 1
+    },
+    {
+      "case": "closed_clock_transparency",
+      "returncode": 1
+    },
+    {
+      "case": "set_dominates_open",
+      "returncode": 1
+    },
+    {
+      "case": "shared_half_clock",
+      "returncode": 1
+    }
+  ],
+  "actions": [
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_mc1668_latch",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/original/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/original/cell_MC1668.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/executed-inputs/verilog/verilator/tb_mc1668_latch.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/original/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/original/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/original/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_mc1668_latch",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/edge_only/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/edge_only/cell_MC1668.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/executed-inputs/verilog/verilator/tb_mc1668_latch.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/edge_only/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/edge_only/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/edge_only/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_mc1668_latch",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/closed_clock_transparency/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/closed_clock_transparency/cell_MC1668.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/executed-inputs/verilog/verilator/tb_mc1668_latch.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/closed_clock_transparency/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/closed_clock_transparency/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/closed_clock_transparency/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_mc1668_latch",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/set_dominates_open/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/set_dominates_open/cell_MC1668.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/executed-inputs/verilog/verilator/tb_mc1668_latch.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/set_dominates_open/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/set_dominates_open/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/set_dominates_open/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_mc1668_latch",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/shared_half_clock/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/shared_half_clock/cell_MC1668.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/executed-inputs/verilog/verilator/tb_mc1668_latch.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/shared_half_clock/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/shared_half_clock/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/shared_half_clock/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_mc1668_latch",
+        "-Wno-fatal",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/verilator/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/executed-inputs/verilog/cells/cell_MC1668.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/executed-inputs/verilog/verilator/tb_mc1668_latch.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/verilator/compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/verilator/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-latch-qualified-20261020/verilator/test.log"
+    }
+  ],
+  "native_board_qualified": false,
+  "scope": "Check MC1668 against Motorola's level-sensitive truth table in both simulators.\n\nProduction cell samples at the fabric clock; this checks that sampled truth\ntable, not native board cadence or analog timing. Closed S=R=1 is undefined.\n"
+}

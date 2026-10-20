@@ -1,0 +1,27 @@
+[
+  {
+    "profile": "balanced",
+    "Icarus": "read_updates=1444 visible_updates=510 md=8068 pd=1308 file=8248 ifu=1128 closed=37968 directed=6",
+    "Verilator": "read_updates=1444 visible_updates=510 md=8068 pd=1308 file=8248 ifu=1128 closed=37968 directed=6"
+  },
+  {
+    "profile": "fast_gates",
+    "Icarus": "read_updates=1444 visible_updates=510 md=8068 pd=1308 file=8248 ifu=1128 closed=37968 directed=6",
+    "Verilator": "read_updates=1444 visible_updates=510 md=8068 pd=1308 file=8248 ifu=1128 closed=37968 directed=6"
+  },
+  {
+    "profile": "later_control",
+    "Icarus": "read_updates=1444 visible_updates=510 md=8068 pd=1308 file=8248 ifu=1128 closed=37968 directed=6",
+    "Verilator": "read_updates=1444 visible_updates=510 md=8068 pd=1308 file=8248 ifu=1128 closed=37968 directed=6"
+  },
+  {
+    "profile": "parc_parity_min",
+    "Icarus": "read_updates=1444 visible_updates=510 md=8068 pd=1308 file=8248 ifu=1128 closed=37968 directed=6",
+    "Verilator": "read_updates=1444 visible_updates=510 md=8068 pd=1308 file=8248 ifu=1128 closed=37968 directed=6"
+  },
+  {
+    "profile": "parc_parity_max",
+    "Icarus": "read_updates=1444 visible_updates=510 md=8068 pd=1308 file=8248 ifu=1128 closed=37968 directed=6",
+    "Verilator": "read_updates=1444 visible_updates=510 md=8068 pd=1308 file=8248 ifu=1128 closed=37968 directed=6"
+  }
+]

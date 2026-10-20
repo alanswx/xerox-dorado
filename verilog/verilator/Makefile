@@ -1843,6 +1843,16 @@ T_PARITY_OUT ?= build/t-parity
 t-parity-test:
 	@cd ../.. && python3 tools/test_t_parity.py --output "$(T_PARITY_OUT)" --mutations
 
+R_OPERAND_OUT ?= build/r-operand
+.PHONY: r-operand-test
+r-operand-test:
+	@cd ../.. && python3 tools/test_r_operand.py --output "$(R_OPERAND_OUT)" --mutations
+
+MC1668_OUT ?= build/mc1668-latch
+.PHONY: mc1668-latch-test
+mc1668-latch-test:
+	@cd ../.. && python3 tools/test_mc1668.py --output "$(MC1668_OUT)"
+
 RUN_CONTROL_OUT ?= build/run-control
 run-control-test:
 	@cd ../.. && python3 tools/test_run_control.py --output "$(RUN_CONTROL_OUT)" --mutations

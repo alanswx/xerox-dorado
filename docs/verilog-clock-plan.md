@@ -69,8 +69,10 @@ not a prerequisite for the performance goal.
    **Done:** T data/write/read windows with distinct per-task values (404 bits;
    conditional arrival contract below). **Done for an isolated slice:** T parity
    and R parity checking at its data/RAM-parity boundary (540 bits; below). Next
-   close R operand latches/functional RM/STK ports and Ready/MIR/hold producers,
-   then remaining
+   **Done for an isolated slice:** R operand latches/local bypass/sign Qs (592
+   bits; below). First regress original firmware with the corrected MC1668
+   latch semantics; then close functional RM/STK ports, complete sign/odd flags
+   and Ready/MIR/hold producers, then remaining
    board/latch/RAM families against original references. The existing
    eight-slot phase oracle is not a deployable full-speed clock solution.
 4. Fit only a justified native candidate, pass all operating conditions and
@@ -82,6 +84,33 @@ but require a separate future milestone and explicit acceptance scope. Cedar
 rollback restores the software world, not disk contents or a cycle-exact set
 of FPGA/ARM internals. See [the original guide](../DoradoDocs/manuals/Introduction_to_Cedar_7.0.md)
 and [our existing C-emulator checkpoint gate](cedar-checkpoint.md).
+
+### R operand staging and a real latch-model correction (2026-10-20)
+
+**MC1668 is HIGH-transparent, not edge-triggered.** The original Motorola table
+also gives its open clock priority over S/R. The production cell is corrected;
+both simulators pass 1,425 truth-table observations and reject four bad variants.
+The part appears at ProcH/ProcL l06+l07 and eight MemC address latches. Original-
+firmware/cache/processor regression is required before deploying this correction.
+
+The new coupled R/T/task/parity slice covers 592 original bits, including R's
+Pd/Md data, file/IFU read and visible operand latches plus l07's local state.
+Both simulators pass 23,672 events per profile across five profiles; eleven bad
+variants reject and one scoped old-bypass-data equivalence passes. Isolated 15ns
+FPGA timing passes all four conditions (setup +4.450ns, hold +0.159ns). This does
+not qualify native 60ns operation. RM/STK functional read data/parity and bypass/
+IFU producers remain boundaries; storage/address/write and complete sign/odd
+flags (l06's other contributions) remain open.
+
+Detailed scope, measurements and source anchors are at the top of
+[the handoff](verilog-handoff.md). Receipts: `reports/2026-10-20-r-operand-path/`
+and `reports/2026-10-20-mc1668-latch/` under `fpga/mister/`. Native59 remains at
+1,947,654.12 instruction issues/s; no new core/Main/daemon was deployed.
+
+Next: original-ROM/native regression for MC1668, then functional RM/STK ports,
+l06's flag contributions and remaining Ready/MIR/Hold/board timing, followed by
+native integration and the Cedar boot/rollback/final gates. Full snapshots stay
+deferred. Large RM/STK arrays stay behind RAM ports.
 
 ### T parity and R parity checking qualified (2026-10-20)
 

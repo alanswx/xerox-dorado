@@ -1,0 +1,211 @@
+{
+  "scope": "Original wire-list usage inventory; board timing and boot remain unqualified",
+  "positions": [
+    {
+      "board": "MemC-Rev-Be",
+      "package": "a14",
+      "pins": {
+        "2": "Aad.2'a",
+        "3": "Aad.2a",
+        "15": "Aad.3'a",
+        "14": "Aad.3a",
+        "6": "dAad.2'",
+        "11": "dAad.3'",
+        "7": "preFHCa",
+        "9": "preFHCa",
+        "4": "sAad.2",
+        "13": "sAad.3"
+      },
+      "source": "chm/sil/MemC-Rev-Be.dm!1_/MemC-Rev-Be.wl",
+      "sha256": "8615bee88184da291d3d959c5a33b441315712d9da9672b1113ffc0d637f93ee"
+    },
+    {
+      "board": "MemC-Rev-Be",
+      "package": "a15",
+      "pins": {
+        "3": "Aad.4'a",
+        "2": "Aad.4a",
+        "14": "Aad.5'a",
+        "15": "Aad.5a",
+        "6": "dAad.4",
+        "11": "dAad.5",
+        "9": "preFHCb",
+        "7": "preFHCb",
+        "5": "sAad.4",
+        "12": "sAad.5"
+      },
+      "source": "chm/sil/MemC-Rev-Be.dm!1_/MemC-Rev-Be.wl",
+      "sha256": "8615bee88184da291d3d959c5a33b441315712d9da9672b1113ffc0d637f93ee"
+    },
+    {
+      "board": "MemC-Rev-Be",
+      "package": "b14",
+      "pins": {
+        "2": "Aad.0'a",
+        "15": "Aad.0'b",
+        "3": "Aad.0a",
+        "14": "Aad.0b",
+        "6": "dAad.0'",
+        "11": "dAad.0'",
+        "7": "preFHCa",
+        "9": "preFHCa",
+        "13": "sAad.0",
+        "4": "sAad.0"
+      },
+      "source": "chm/sil/MemC-Rev-Be.dm!1_/MemC-Rev-Be.wl",
+      "sha256": "8615bee88184da291d3d959c5a33b441315712d9da9672b1113ffc0d637f93ee"
+    },
+    {
+      "board": "MemC-Rev-Be",
+      "package": "b15",
+      "pins": {
+        "3": "Aad.6'a",
+        "2": "Aad.6a",
+        "14": "Aad.7'a",
+        "15": "Aad.7a",
+        "6": "dAad.6",
+        "11": "dAad.7",
+        "7": "preFHCb",
+        "9": "preFHCb",
+        "5": "sAad.6",
+        "12": "sAad.7"
+      },
+      "source": "chm/sil/MemC-Rev-Be.dm!1_/MemC-Rev-Be.wl",
+      "sha256": "8615bee88184da291d3d959c5a33b441315712d9da9672b1113ffc0d637f93ee"
+    },
+    {
+      "board": "MemC-Rev-Be",
+      "package": "c14",
+      "pins": {
+        "2": "Aad.1'a",
+        "15": "Aad.1'b",
+        "3": "Aad.1a",
+        "14": "Aad.1b",
+        "6": "dAad.1'",
+        "11": "dAad.1'",
+        "9": "preFHCa",
+        "7": "preFHCa",
+        "13": "sAad.1",
+        "4": "sAad.1"
+      },
+      "source": "chm/sil/MemC-Rev-Be.dm!1_/MemC-Rev-Be.wl",
+      "sha256": "8615bee88184da291d3d959c5a33b441315712d9da9672b1113ffc0d637f93ee"
+    },
+    {
+      "board": "MemC-Rev-Be",
+      "package": "c15",
+      "pins": {
+        "3": "Aad.4'b",
+        "2": "Aad.4b",
+        "14": "Aad.5'b",
+        "15": "Aad.5b",
+        "6": "dAad.4",
+        "11": "dAad.5",
+        "9": "preFHCb",
+        "7": "preFHCb",
+        "5": "sAad.4",
+        "12": "sAad.5"
+      },
+      "source": "chm/sil/MemC-Rev-Be.dm!1_/MemC-Rev-Be.wl",
+      "sha256": "8615bee88184da291d3d959c5a33b441315712d9da9672b1113ffc0d637f93ee"
+    },
+    {
+      "board": "MemC-Rev-Be",
+      "package": "d14",
+      "pins": {
+        "2": "Aad.2'b",
+        "3": "Aad.2b",
+        "15": "Aad.3'b",
+        "14": "Aad.3b",
+        "6": "dAad.2'",
+        "11": "dAad.3'",
+        "7": "preFHCa",
+        "9": "preFHCa",
+        "4": "sAad.2",
+        "13": "sAad.3"
+      },
+      "source": "chm/sil/MemC-Rev-Be.dm!1_/MemC-Rev-Be.wl",
+      "sha256": "8615bee88184da291d3d959c5a33b441315712d9da9672b1113ffc0d637f93ee"
+    },
+    {
+      "board": "MemC-Rev-Be",
+      "package": "d15",
+      "pins": {
+        "3": "Aad.6'b",
+        "2": "Aad.6b",
+        "14": "Aad.7'b",
+        "15": "Aad.7b",
+        "6": "dAad.6",
+        "11": "dAad.7",
+        "7": "preFHCb",
+        "9": "preFHCb",
+        "5": "sAad.6",
+        "12": "sAad.7"
+      },
+      "source": "chm/sil/MemC-Rev-Be.dm!1_/MemC-Rev-Be.wl",
+      "sha256": "8615bee88184da291d3d959c5a33b441315712d9da9672b1113ffc0d637f93ee"
+    },
+    {
+      "board": "ProcH-Rev-Ce",
+      "package": "l06",
+      "pins": {
+        "6": "dMD.00",
+        "5": "DsMd",
+        "12": "DsPd",
+        "11": "Pdata.00",
+        "7": "ProcH10.sil+1",
+        "9": "ProcH10.sil+2",
+        "3": "RmLtZero'",
+        "14": "RmLtZero'"
+      },
+      "source": "chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.wl",
+      "sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23"
+    },
+    {
+      "board": "ProcH-Rev-Ce",
+      "package": "l07",
+      "pins": {
+        "9": "Clock1Bd",
+        "6": "ddR.00",
+        "5": "DsRd",
+        "7": "ProcH10.sil+3",
+        "11": "ProcH20.sil+6",
+        "15": "RbBypassDly",
+        "3": "RmLtZero'"
+      },
+      "source": "chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.wl",
+      "sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23"
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "package": "l06",
+      "pins": {
+        "6": "dMD.15",
+        "5": "DsMd",
+        "12": "DsPd",
+        "11": "Pdata.15",
+        "7": "ProcL10.sil+2",
+        "9": "ProcL10.sil+3",
+        "3": "RmOdd'",
+        "14": "RmOdd'"
+      },
+      "source": "chm/sil/ProcL-Rev-Ci.dm!1_/ProcL-Rev-Ci.wl",
+      "sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60"
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "package": "l07",
+      "pins": {
+        "9": "Clock1Bd",
+        "6": "ddR.15",
+        "5": "DsRd",
+        "7": "ProcL10.sil+4",
+        "11": "ProcL20.sil+8",
+        "15": "RbBypassDly",
+        "3": "RmOdd'"
+      },
+      "source": "chm/sil/ProcL-Rev-Ci.dm!1_/ProcL-Rev-Ci.wl",
+      "sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60"
+    }
+  ]
+}

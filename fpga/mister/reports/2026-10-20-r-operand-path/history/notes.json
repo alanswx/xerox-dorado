@@ -1,0 +1,7 @@
+{
+  "scope": "Diagnostic history; not final qualification",
+  "v1": "Elaboration failed because bench counters were declared after their use.",
+  "v2": "Initial R reference assumed MC1668 was an edge-triggered FF, matching the old production cell. The manufacturer table and PARC dictionary invalidate that assumption. Also stopped on a falsely classified old-bypass-data mutation.",
+  "v3": "Correct high-transparent MC1668 reference and candidate passed the first profile. The old-bypass-data control is equivalent under asserted non-overlapping read/visible windows; this run stopped on its incorrect negative-control classification.",
+  "v4": "Moves that scoped equivalence to passing controls, asserts window non-overlap and retains both original latch stages. Candidate and physical reference use the manufacturer latch truth table."
+}
