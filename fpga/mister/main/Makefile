@@ -1,7 +1,7 @@
 CXX ?= c++
 ROOT := ../../..
 OUT ?= $(ROOT)/build/dorado-main-transport-test
-.PHONY: test ddr-test control-test
+.PHONY: test ddr-test control-test snapshot-client-test
 test:
 	$(MAKE) -C ../server
 	mkdir -p $(dir $(OUT))
@@ -15,3 +15,5 @@ control-test:
 	$(CC) -O2 -Wall -Wextra -Werror -std=c11 -I../server -c ../server/dorado_ddr_control.c -o $(dir $(OUT))control-objects/control.o
 	$(CXX) -O2 -Wall -Wextra -Werror -std=c++14 -pthread -I../server dorado_control_client.cpp tests/test_control_client.cpp $(dir $(OUT))control-objects/ring.o $(dir $(OUT))control-objects/control.o -o $(OUT)-control-test
 	$(OUT)-control-test
+snapshot-client-test:
+	python3 ../snapshot/test_host_service_control.py --output $(ROOT)/build/host-services-main-client --mutations

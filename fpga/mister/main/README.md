@@ -1,5 +1,21 @@
 # Main's Dorado packet transport
 
+**Deferred FPGA snapshot prototype (2026-10-20).** This is outside the active
+speed/Checkpoint/Rollback goal. The experimental `DoradoSnapshotClient`
+exchanges bounded SPI transactions
+with the clocked host-service RTL and original board UIO in simulation. It checks
+build/schema/lease identity, requests the original board hold, and exposes
+explicit Begin/Grant/Release/Finish/Quarantine packets. Each packet is at most22
+words; transmit completion is not permission or a pause ACK. No automatic poll
+hook or native Core integration is installed yet. Future snapshot work would
+need the existing disk/daemon APIs and genuine local input/video/DDR visibility
+boundaries before enabling machine state access. No production Main change is
+required for this prototype; there are no callers in the normal polling path. See [the protocol](../snapshot/host-services-protocol.md).
+
+```
+python3 fpga/mister/snapshot/test_host_service_control.py --output build/host-services-main-client --mutations
+```
+
 ### Optional direct DDR transport (2026-10-18 candidate)
 
 After the four existing patches, apply `main-ddr-260912.patch`. Copy all
