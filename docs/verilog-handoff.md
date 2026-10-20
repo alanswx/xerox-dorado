@@ -2,7 +2,7 @@
 
 ## Current objective (2026-10-19 local; 2026-10-20 UTC)
 
-**Daemon PAUSE/CONTINUE passes Mac/Linux host qualification. Serial66 and Serial67 are rejected; Serial68 tests placement seed 2 on the better Serial65 RTL. Hardware remains Native59.**
+**Daemon PAUSE/CONTINUE and complete-MSA late freeze qualify as components. Serial66/67 are rejected; Serial68 is fitting the better Serial65 RTL with seed 2. Hardware remains Native59.**
 
 The last qualified hardware rate remains **1,947,654.12 instruction issues/s**.
 Cedar Viewers, mouse, exact keyboard and warm disk persistence pass on Native59;
@@ -60,6 +60,41 @@ The separate disk phase prototype qualifies at +4 ALMs (575 ->579), with all
 four physical-shell conditions passing (minimum +0.166 ns), no unconstrained
 clocks/IO and 18 new REQUIRED wrapper state bits. It is not integrated in
 Serial65/66/67/68. Evidence: `2026-10-19-snapshot-disk-phase/`.
+
+The new **late-frontend-freeze memory pause component qualifies on a complete
+MSA**, not yet in the native core. Guest/FF hold is immediate, accepted raw
+requests/responses continue, and frontend freeze latches only after guest-held,
+frontend-drained, arbiter-idle and raw-service-idle acknowledgments. The hold
+stays latched during serial rotation; abort/lost ownership quarantines until a
+true machine reseed. Physical SDRAM refresh must remain active.
+
+The actual-MSA/original-RTL comparison passes 17,123,973 checks over 1,941,317
+host edges, including eight pauses with 75 pending reads/five pending writes,
+all 86 words read without changing the held state, normal traffic, full serial
+write/restore, and 20,000 post-restore guest steps. Four deliberately broken
+early-freeze/raw-idle/arbiter-idle/nonsticky-hold variants reject. The raw queues
+here are a test oracle, not real native arbiter/SDRAM qualification.
+
+Independent inverse source review restores the exact frozen qualified MSA;
+all helpers and original state layout remain identical, with exactly one new
+frontend-hold input and sixteen changed hold connections. Five damaged source
+controls reject. Fresh XML accounts for all 1,538 candidate physical bits,
+2,690 original-reference bits and 81 private transport bits, plus **two new
+REQUIRED WRAPPER ACCESS PENDING phase bits**, none excluded; 18 inventory/alias
+controls reject. Four-state control qualification passes 17,209 checks across
+256 drain combinations and 4,096 boundary combinations plus abort/release;
+four broken controls reject. All 918 source/report members read back and the
+extracted fresh XML/four-state checks and rebuilt complete-MSA candidate replay.
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-memory-pause/`.
+
+Next actual integration must expose real arbiter/raw-backend quiescence (refresh
+must not look like guest work), route the coordinator's retained guest hold to
+CPU/board state and its late frontend hold to every MSA, and account for/access
+its phase bits. The existing native wrapper is UNCHANGED and still uses the old
+hold wiring; no real service barrier, fit, deployed pause or full snapshot is
+claimed by the component test. Main disk/input/video, daemon heap/history,
+matching disk generation, raw SDRAM bytes/controller state and true reseed are
+still required. Bare PLL reset must not clear a partial-import quarantine.
 
 Next: review Serial68's terminal actual sources/seed/capacity/all-condition
 and all 304 crossing results. Integrate real Main/daemon/FPGA service barriers,

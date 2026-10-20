@@ -1,0 +1,16 @@
+[
+  [
+    "iverilog",
+    "-g2012",
+    "-s",
+    "tb",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-fourstate-v2-20261019/candidate/test.vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-fourstate-v2-20261019/candidate/memory_pause_barrier.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-fourstate-v2-20261019/candidate/test_memory_pause_barrier.sv"
+  ],
+  [
+    "vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-fourstate-v2-20261019/candidate/test.vvp"
+  ]
+]

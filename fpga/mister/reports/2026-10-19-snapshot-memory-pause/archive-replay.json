@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "members": 918,
+  "scope": "Lossless readback, extracted inverse source proof/controls, fresh XML classification/18 controls, four-state gate/4 broken controls and rebuilt actual complete-MSA candidate. Prior immutable report dependencies only; no working HDL.",
+  "commands": [
+    [
+      "python3",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/tools/fpga/mister/snapshot/classify_msa_late_freeze.py",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa",
+      "--output",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/replayed-classification"
+    ],
+    [
+      "python3",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/tools/fpga/mister/snapshot/test_memory_pause_fourstate.py",
+      "--output",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/replayed-fourstate"
+    ],
+    [
+      "verilator",
+      "--cc",
+      "--exe",
+      "--build",
+      "-j",
+      "4",
+      "--top-module",
+      "msa_board_fixture",
+      "-Wno-fatal",
+      "--assert",
+      "--Mdir",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/candidate/obj",
+      "-CFLAGS",
+      "-I/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/candidate",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/candidate/fixture.sv",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/candidate/msa_board.sv",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/candidate/cell_MC10141.sv",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/candidate/cell_MC10176.sv",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/candidate/cell_F10016.sv",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/candidate/cell_SN74166.sv",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/candidate/cell_SN74S174.sv",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/candidate/cell_MK4096P_addr.sv",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/candidate/storage_group.sv",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/candidate/ff_scan_controller.sv",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/candidate/memory_pause_barrier.sv",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/msa_ddram.v",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/dorado_storage_group.sv",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/cell_MK4096P_addr.v",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/cell_MC10141.v",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/cell_MC10125.v",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/cell_SN74S174.v",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/cell_SN74H04.v",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/cell_SN74166.v",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/cell_MC10176.v",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/cell_MC10124.v",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/cell_MC10103.v",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/cell_MC10210.v",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/cell_F10016.v",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/memory-pause-archive-replay-20261019/qualified-msa/executed-inputs/test_msa_late_freeze.cpp"
+    ]
+  ],
+  "totals": {
+    "PHYSICAL DUT": 1538,
+    "PHYSICAL REFERENCE": 2690,
+    "PRIVATE TRANSPORT": 81,
+    "WRAPPER ACCESS PENDING": 2
+  }
+}

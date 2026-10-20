@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "scope": "Drain pending raw work under FF hold on one actual complete MSA board.\n\nCompare normal traffic/physical state to original frozen RTL, then stop guest\nedges with accepted work pending, drain under FF hold and serially read the\nentire 1538-bit state without changing it. Backend queues are a test oracle,\nnot a claim of native arbiter/SDRAM service qualification.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0
+    },
+    {
+      "case": "early_frontend_hold",
+      "returncode": 1
+    },
+    {
+      "case": "ignored_raw_drain",
+      "returncode": 1
+    },
+    {
+      "case": "ignored_arbiter_drain",
+      "returncode": 1
+    },
+    {
+      "case": "nonsticky_frontend_hold",
+      "returncode": 1
+    }
+  ],
+  "executed_inputs": {
+    "cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "cell_SN74S174.v": "88dad140f27625a0aa42ab98b5f1147b8c02ce2ece406f34852523dac0d55746",
+    "cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+    "generate_msa_late_freeze.py": "f00c3b523503ff70b97cef25aaf0cc8bb037ab18efe44295269c061338df7497",
+    "cell_MK4096P_addr.v": "fbb33241670944e9957c9f187bf8102473a1830a5b502f7ad05e66adb4c29d9a",
+    "cell_SN74H04.v": "0c2513703155ec6b9db87704a9f2052423d374b852036388c8f694d76b661b28",
+    "msa_ddram.v": "7ede320ffd5cbca8b8e83d97b7399f0a600f58e25cdaeb9c474238793ce85906",
+    "cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "test_msa_late_freeze.py": "fc532963e707df153d117baabc8e91c218aa051ed09ccbd9de11b403528ac40c",
+    "memory_pause_barrier.sv": "f32bfb8bb9492acfd126c29fe529b20e9496bd32807937479a0727fbb12ed1c8",
+    "cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "dorado_storage_group.sv": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+    "cell_SN74166.v": "ed87a73b4f61333de3d19ff700e2327d8b9003a8b4d59cae6d62a31b7f2b3232",
+    "cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "test_msa_late_freeze.cpp": "5d7a8400a53072cde51d72e1d4a7b0f713d33097d7ef2dc8cbfa05a9b34632dd"
+  },
+  "limits": "One complete MSA with oracle backend queues; real native arbiter/SDRAM drain, wrapper state access, fit and complete machine snapshot remain pending."
+}

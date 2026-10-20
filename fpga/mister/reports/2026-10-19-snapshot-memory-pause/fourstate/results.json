@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0
+    },
+    {
+      "case": "ignore_raw_idle",
+      "returncode": 1
+    },
+    {
+      "case": "release_on_abort",
+      "returncode": 1
+    },
+    {
+      "case": "nonsticky_hold",
+      "returncode": 1
+    },
+    {
+      "case": "unsafe_ready",
+      "returncode": 1
+    }
+  ],
+  "coordinator_required_wrapper_bits": 2,
+  "inputs": {
+    "memory_pause_barrier.sv": "f32bfb8bb9492acfd126c29fe529b20e9496bd32807937479a0727fbb12ed1c8",
+    "test_memory_pause_barrier.sv": "c798997ba3a3ffc8bf97f02613018f89b7d366e1d6d198ef747f362475074f30"
+  },
+  "limits": "Coordinator control only; true machine reseed and real native device barriers are integration requirements."
+}
