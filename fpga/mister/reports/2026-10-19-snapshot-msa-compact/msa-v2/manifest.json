@@ -1,0 +1,3968 @@
+{
+  "scope": "Complete MSA compact bridge candidate; original 866 FF/history bits retained.\n\nOnly the implementation bridge registers change. Original address latch\nequations remain byte-identical; a pure combinational output predicts actual\nrow/column changes on the next guest edge. Native transport/schema is separate.\n",
+  "module": "dorado_serial_MSA",
+  "source": "src/build/rtl-executive/native16-tx-cable/msa_ddram.v",
+  "original_sha256": "7ede320ffd5cbca8b8e83d97b7399f0a600f58e25cdaeb9c474238793ce85906",
+  "generated_sha256": "f21ad8174f4f183b2838e2b2fa22dc8350c8ad1a160fcc7cd9a069bf4f711522",
+  "logical_state_bits": 1650,
+  "ff_bits": 866,
+  "frontend_bits": 784,
+  "ff": [
+    {
+      "package": "u_a01",
+      "kind": "cell_MC10141",
+      "index": 0,
+      "lsb": 0,
+      "width": 13,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_a26",
+      "kind": "cell_MC10141",
+      "index": 1,
+      "lsb": 13,
+      "width": 13,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_l01",
+      "kind": "cell_MC10141",
+      "index": 2,
+      "lsb": 26,
+      "width": 13,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_l26",
+      "kind": "cell_MC10141",
+      "index": 3,
+      "lsb": 39,
+      "width": 13,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_b01",
+      "kind": "cell_MC10176",
+      "index": 4,
+      "lsb": 52,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_b26",
+      "kind": "cell_MC10176",
+      "index": 5,
+      "lsb": 65,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_c01",
+      "kind": "cell_MC10176",
+      "index": 6,
+      "lsb": 78,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_c26",
+      "kind": "cell_MC10176",
+      "index": 7,
+      "lsb": 91,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_e02",
+      "kind": "cell_MC10176",
+      "index": 8,
+      "lsb": 104,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_f01",
+      "kind": "cell_MC10176",
+      "index": 9,
+      "lsb": 117,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_f26",
+      "kind": "cell_MC10176",
+      "index": 10,
+      "lsb": 130,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_h02",
+      "kind": "cell_MC10176",
+      "index": 11,
+      "lsb": 143,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_j01",
+      "kind": "cell_MC10176",
+      "index": 12,
+      "lsb": 156,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_j26",
+      "kind": "cell_MC10176",
+      "index": 13,
+      "lsb": 169,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_k01",
+      "kind": "cell_MC10176",
+      "index": 14,
+      "lsb": 182,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_k26",
+      "kind": "cell_MC10176",
+      "index": 15,
+      "lsb": 195,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_g01",
+      "kind": "cell_F10016",
+      "index": 16,
+      "lsb": 208,
+      "width": 11,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "package": "u_g26",
+      "kind": "cell_F10016",
+      "index": 17,
+      "lsb": 219,
+      "width": 11,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "package": "u_a13",
+      "kind": "cell_SN74166",
+      "index": 18,
+      "lsb": 230,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_a14",
+      "kind": "cell_SN74166",
+      "index": 19,
+      "lsb": 239,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_b13",
+      "kind": "cell_SN74166",
+      "index": 20,
+      "lsb": 248,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_b14",
+      "kind": "cell_SN74166",
+      "index": 21,
+      "lsb": 257,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_c13",
+      "kind": "cell_SN74166",
+      "index": 22,
+      "lsb": 266,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_c14",
+      "kind": "cell_SN74166",
+      "index": 23,
+      "lsb": 275,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_d13",
+      "kind": "cell_SN74166",
+      "index": 24,
+      "lsb": 284,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_d14",
+      "kind": "cell_SN74166",
+      "index": 25,
+      "lsb": 293,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_e03",
+      "kind": "cell_SN74166",
+      "index": 26,
+      "lsb": 302,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_e24",
+      "kind": "cell_SN74166",
+      "index": 27,
+      "lsb": 311,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_f03",
+      "kind": "cell_SN74166",
+      "index": 28,
+      "lsb": 320,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_f24",
+      "kind": "cell_SN74166",
+      "index": 29,
+      "lsb": 329,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_g13",
+      "kind": "cell_SN74166",
+      "index": 30,
+      "lsb": 338,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_g14",
+      "kind": "cell_SN74166",
+      "index": 31,
+      "lsb": 347,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_h13",
+      "kind": "cell_SN74166",
+      "index": 32,
+      "lsb": 356,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_h14",
+      "kind": "cell_SN74166",
+      "index": 33,
+      "lsb": 365,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_i13",
+      "kind": "cell_SN74166",
+      "index": 34,
+      "lsb": 374,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_i14",
+      "kind": "cell_SN74166",
+      "index": 35,
+      "lsb": 383,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_j13",
+      "kind": "cell_SN74166",
+      "index": 36,
+      "lsb": 392,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_j14",
+      "kind": "cell_SN74166",
+      "index": 37,
+      "lsb": 401,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_a03",
+      "kind": "cell_SN74S174",
+      "index": 38,
+      "lsb": 410,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_a04",
+      "kind": "cell_SN74S174",
+      "index": 39,
+      "lsb": 417,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_a05",
+      "kind": "cell_SN74S174",
+      "index": 40,
+      "lsb": 424,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_a22",
+      "kind": "cell_SN74S174",
+      "index": 41,
+      "lsb": 431,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_a23",
+      "kind": "cell_SN74S174",
+      "index": 42,
+      "lsb": 438,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_a24",
+      "kind": "cell_SN74S174",
+      "index": 43,
+      "lsb": 445,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_b03",
+      "kind": "cell_SN74S174",
+      "index": 44,
+      "lsb": 452,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_b24",
+      "kind": "cell_SN74S174",
+      "index": 45,
+      "lsb": 459,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_c03",
+      "kind": "cell_SN74S174",
+      "index": 46,
+      "lsb": 466,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_c24",
+      "kind": "cell_SN74S174",
+      "index": 47,
+      "lsb": 473,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_d03",
+      "kind": "cell_SN74S174",
+      "index": 48,
+      "lsb": 480,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_d24",
+      "kind": "cell_SN74S174",
+      "index": 49,
+      "lsb": 487,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_g03",
+      "kind": "cell_SN74S174",
+      "index": 50,
+      "lsb": 494,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_g24",
+      "kind": "cell_SN74S174",
+      "index": 51,
+      "lsb": 501,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_h03",
+      "kind": "cell_SN74S174",
+      "index": 52,
+      "lsb": 508,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_h24",
+      "kind": "cell_SN74S174",
+      "index": 53,
+      "lsb": 515,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_i03",
+      "kind": "cell_SN74S174",
+      "index": 54,
+      "lsb": 522,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_i24",
+      "kind": "cell_SN74S174",
+      "index": 55,
+      "lsb": 529,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_j03",
+      "kind": "cell_SN74S174",
+      "index": 56,
+      "lsb": 536,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_j04",
+      "kind": "cell_SN74S174",
+      "index": 57,
+      "lsb": 543,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_j05",
+      "kind": "cell_SN74S174",
+      "index": 58,
+      "lsb": 550,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_j22",
+      "kind": "cell_SN74S174",
+      "index": 59,
+      "lsb": 557,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_j23",
+      "kind": "cell_SN74S174",
+      "index": 60,
+      "lsb": 564,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_j24",
+      "kind": "cell_SN74S174",
+      "index": 61,
+      "lsb": 571,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_0",
+      "kind": "cell_MK4096P_addr",
+      "index": 62,
+      "lsb": 578,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_1",
+      "kind": "cell_MK4096P_addr",
+      "index": 63,
+      "lsb": 596,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_10",
+      "kind": "cell_MK4096P_addr",
+      "index": 64,
+      "lsb": 614,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_11",
+      "kind": "cell_MK4096P_addr",
+      "index": 65,
+      "lsb": 632,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_12",
+      "kind": "cell_MK4096P_addr",
+      "index": 66,
+      "lsb": 650,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_13",
+      "kind": "cell_MK4096P_addr",
+      "index": 67,
+      "lsb": 668,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_14",
+      "kind": "cell_MK4096P_addr",
+      "index": 68,
+      "lsb": 686,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_15",
+      "kind": "cell_MK4096P_addr",
+      "index": 69,
+      "lsb": 704,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_2",
+      "kind": "cell_MK4096P_addr",
+      "index": 70,
+      "lsb": 722,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_3",
+      "kind": "cell_MK4096P_addr",
+      "index": 71,
+      "lsb": 740,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_4",
+      "kind": "cell_MK4096P_addr",
+      "index": 72,
+      "lsb": 758,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_5",
+      "kind": "cell_MK4096P_addr",
+      "index": 73,
+      "lsb": 776,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_6",
+      "kind": "cell_MK4096P_addr",
+      "index": 74,
+      "lsb": 794,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_7",
+      "kind": "cell_MK4096P_addr",
+      "index": 75,
+      "lsb": 812,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_8",
+      "kind": "cell_MK4096P_addr",
+      "index": 76,
+      "lsb": 830,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_9",
+      "kind": "cell_MK4096P_addr",
+      "index": 77,
+      "lsb": 848,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    }
+  ],
+  "frontends": [
+    {
+      "package": "u_storage_0",
+      "width": 12,
+      "lsb": 866,
+      "state_bits": 58
+    },
+    {
+      "package": "u_storage_1",
+      "width": 12,
+      "lsb": 924,
+      "state_bits": 58
+    },
+    {
+      "package": "u_storage_2",
+      "width": 8,
+      "lsb": 982,
+      "state_bits": 46
+    },
+    {
+      "package": "u_storage_3",
+      "width": 8,
+      "lsb": 1028,
+      "state_bits": 46
+    },
+    {
+      "package": "u_storage_4",
+      "width": 8,
+      "lsb": 1074,
+      "state_bits": 46
+    },
+    {
+      "package": "u_storage_5",
+      "width": 8,
+      "lsb": 1120,
+      "state_bits": 46
+    },
+    {
+      "package": "u_storage_6",
+      "width": 8,
+      "lsb": 1166,
+      "state_bits": 46
+    },
+    {
+      "package": "u_storage_7",
+      "width": 8,
+      "lsb": 1212,
+      "state_bits": 46
+    },
+    {
+      "package": "u_storage_8",
+      "width": 8,
+      "lsb": 1258,
+      "state_bits": 46
+    },
+    {
+      "package": "u_storage_9",
+      "width": 8,
+      "lsb": 1304,
+      "state_bits": 46
+    },
+    {
+      "package": "u_storage_10",
+      "width": 8,
+      "lsb": 1350,
+      "state_bits": 46
+    },
+    {
+      "package": "u_storage_11",
+      "width": 8,
+      "lsb": 1396,
+      "state_bits": 46
+    },
+    {
+      "package": "u_storage_12",
+      "width": 8,
+      "lsb": 1442,
+      "state_bits": 46
+    },
+    {
+      "package": "u_storage_13",
+      "width": 8,
+      "lsb": 1488,
+      "state_bits": 46
+    },
+    {
+      "package": "u_storage_14",
+      "width": 12,
+      "lsb": 1534,
+      "state_bits": 58
+    },
+    {
+      "package": "u_storage_15",
+      "width": 12,
+      "lsb": 1592,
+      "state_bits": 58
+    }
+  ],
+  "layout": [
+    {
+      "path": "u_a01.q",
+      "width": 4,
+      "lsb": 0
+    },
+    {
+      "path": "u_a01.d_pre",
+      "width": 4,
+      "lsb": 4
+    },
+    {
+      "path": "u_a01.s_pre",
+      "width": 2,
+      "lsb": 8
+    },
+    {
+      "path": "u_a01.dr_pre",
+      "width": 1,
+      "lsb": 10
+    },
+    {
+      "path": "u_a01.dl_pre",
+      "width": 1,
+      "lsb": 11
+    },
+    {
+      "path": "u_a01.ck_d",
+      "width": 1,
+      "lsb": 12
+    },
+    {
+      "path": "u_a26.q",
+      "width": 4,
+      "lsb": 13
+    },
+    {
+      "path": "u_a26.d_pre",
+      "width": 4,
+      "lsb": 17
+    },
+    {
+      "path": "u_a26.s_pre",
+      "width": 2,
+      "lsb": 21
+    },
+    {
+      "path": "u_a26.dr_pre",
+      "width": 1,
+      "lsb": 23
+    },
+    {
+      "path": "u_a26.dl_pre",
+      "width": 1,
+      "lsb": 24
+    },
+    {
+      "path": "u_a26.ck_d",
+      "width": 1,
+      "lsb": 25
+    },
+    {
+      "path": "u_l01.q",
+      "width": 4,
+      "lsb": 26
+    },
+    {
+      "path": "u_l01.d_pre",
+      "width": 4,
+      "lsb": 30
+    },
+    {
+      "path": "u_l01.s_pre",
+      "width": 2,
+      "lsb": 34
+    },
+    {
+      "path": "u_l01.dr_pre",
+      "width": 1,
+      "lsb": 36
+    },
+    {
+      "path": "u_l01.dl_pre",
+      "width": 1,
+      "lsb": 37
+    },
+    {
+      "path": "u_l01.ck_d",
+      "width": 1,
+      "lsb": 38
+    },
+    {
+      "path": "u_l26.q",
+      "width": 4,
+      "lsb": 39
+    },
+    {
+      "path": "u_l26.d_pre",
+      "width": 4,
+      "lsb": 43
+    },
+    {
+      "path": "u_l26.s_pre",
+      "width": 2,
+      "lsb": 47
+    },
+    {
+      "path": "u_l26.dr_pre",
+      "width": 1,
+      "lsb": 49
+    },
+    {
+      "path": "u_l26.dl_pre",
+      "width": 1,
+      "lsb": 50
+    },
+    {
+      "path": "u_l26.ck_d",
+      "width": 1,
+      "lsb": 51
+    },
+    {
+      "path": "u_b01.q",
+      "width": 6,
+      "lsb": 52
+    },
+    {
+      "path": "u_b01.d_pre",
+      "width": 6,
+      "lsb": 58
+    },
+    {
+      "path": "u_b01.ck_d",
+      "width": 1,
+      "lsb": 64
+    },
+    {
+      "path": "u_b26.q",
+      "width": 6,
+      "lsb": 65
+    },
+    {
+      "path": "u_b26.d_pre",
+      "width": 6,
+      "lsb": 71
+    },
+    {
+      "path": "u_b26.ck_d",
+      "width": 1,
+      "lsb": 77
+    },
+    {
+      "path": "u_c01.q",
+      "width": 6,
+      "lsb": 78
+    },
+    {
+      "path": "u_c01.d_pre",
+      "width": 6,
+      "lsb": 84
+    },
+    {
+      "path": "u_c01.ck_d",
+      "width": 1,
+      "lsb": 90
+    },
+    {
+      "path": "u_c26.q",
+      "width": 6,
+      "lsb": 91
+    },
+    {
+      "path": "u_c26.d_pre",
+      "width": 6,
+      "lsb": 97
+    },
+    {
+      "path": "u_c26.ck_d",
+      "width": 1,
+      "lsb": 103
+    },
+    {
+      "path": "u_e02.q",
+      "width": 6,
+      "lsb": 104
+    },
+    {
+      "path": "u_e02.d_pre",
+      "width": 6,
+      "lsb": 110
+    },
+    {
+      "path": "u_e02.ck_d",
+      "width": 1,
+      "lsb": 116
+    },
+    {
+      "path": "u_f01.q",
+      "width": 6,
+      "lsb": 117
+    },
+    {
+      "path": "u_f01.d_pre",
+      "width": 6,
+      "lsb": 123
+    },
+    {
+      "path": "u_f01.ck_d",
+      "width": 1,
+      "lsb": 129
+    },
+    {
+      "path": "u_f26.q",
+      "width": 6,
+      "lsb": 130
+    },
+    {
+      "path": "u_f26.d_pre",
+      "width": 6,
+      "lsb": 136
+    },
+    {
+      "path": "u_f26.ck_d",
+      "width": 1,
+      "lsb": 142
+    },
+    {
+      "path": "u_h02.q",
+      "width": 6,
+      "lsb": 143
+    },
+    {
+      "path": "u_h02.d_pre",
+      "width": 6,
+      "lsb": 149
+    },
+    {
+      "path": "u_h02.ck_d",
+      "width": 1,
+      "lsb": 155
+    },
+    {
+      "path": "u_j01.q",
+      "width": 6,
+      "lsb": 156
+    },
+    {
+      "path": "u_j01.d_pre",
+      "width": 6,
+      "lsb": 162
+    },
+    {
+      "path": "u_j01.ck_d",
+      "width": 1,
+      "lsb": 168
+    },
+    {
+      "path": "u_j26.q",
+      "width": 6,
+      "lsb": 169
+    },
+    {
+      "path": "u_j26.d_pre",
+      "width": 6,
+      "lsb": 175
+    },
+    {
+      "path": "u_j26.ck_d",
+      "width": 1,
+      "lsb": 181
+    },
+    {
+      "path": "u_k01.q",
+      "width": 6,
+      "lsb": 182
+    },
+    {
+      "path": "u_k01.d_pre",
+      "width": 6,
+      "lsb": 188
+    },
+    {
+      "path": "u_k01.ck_d",
+      "width": 1,
+      "lsb": 194
+    },
+    {
+      "path": "u_k26.q",
+      "width": 6,
+      "lsb": 195
+    },
+    {
+      "path": "u_k26.d_pre",
+      "width": 6,
+      "lsb": 201
+    },
+    {
+      "path": "u_k26.ck_d",
+      "width": 1,
+      "lsb": 207
+    },
+    {
+      "path": "u_g01.q",
+      "width": 4,
+      "lsb": 208
+    },
+    {
+      "path": "u_g01.setup_pre",
+      "width": 6,
+      "lsb": 212
+    },
+    {
+      "path": "u_g01.ck_d",
+      "width": 1,
+      "lsb": 218
+    },
+    {
+      "path": "u_g26.q",
+      "width": 4,
+      "lsb": 219
+    },
+    {
+      "path": "u_g26.setup_pre",
+      "width": 6,
+      "lsb": 223
+    },
+    {
+      "path": "u_g26.ck_d",
+      "width": 1,
+      "lsb": 229
+    },
+    {
+      "path": "u_a13.q",
+      "width": 8,
+      "lsb": 230
+    },
+    {
+      "path": "u_a13.ck_d",
+      "width": 1,
+      "lsb": 238
+    },
+    {
+      "path": "u_a14.q",
+      "width": 8,
+      "lsb": 239
+    },
+    {
+      "path": "u_a14.ck_d",
+      "width": 1,
+      "lsb": 247
+    },
+    {
+      "path": "u_b13.q",
+      "width": 8,
+      "lsb": 248
+    },
+    {
+      "path": "u_b13.ck_d",
+      "width": 1,
+      "lsb": 256
+    },
+    {
+      "path": "u_b14.q",
+      "width": 8,
+      "lsb": 257
+    },
+    {
+      "path": "u_b14.ck_d",
+      "width": 1,
+      "lsb": 265
+    },
+    {
+      "path": "u_c13.q",
+      "width": 8,
+      "lsb": 266
+    },
+    {
+      "path": "u_c13.ck_d",
+      "width": 1,
+      "lsb": 274
+    },
+    {
+      "path": "u_c14.q",
+      "width": 8,
+      "lsb": 275
+    },
+    {
+      "path": "u_c14.ck_d",
+      "width": 1,
+      "lsb": 283
+    },
+    {
+      "path": "u_d13.q",
+      "width": 8,
+      "lsb": 284
+    },
+    {
+      "path": "u_d13.ck_d",
+      "width": 1,
+      "lsb": 292
+    },
+    {
+      "path": "u_d14.q",
+      "width": 8,
+      "lsb": 293
+    },
+    {
+      "path": "u_d14.ck_d",
+      "width": 1,
+      "lsb": 301
+    },
+    {
+      "path": "u_e03.q",
+      "width": 8,
+      "lsb": 302
+    },
+    {
+      "path": "u_e03.ck_d",
+      "width": 1,
+      "lsb": 310
+    },
+    {
+      "path": "u_e24.q",
+      "width": 8,
+      "lsb": 311
+    },
+    {
+      "path": "u_e24.ck_d",
+      "width": 1,
+      "lsb": 319
+    },
+    {
+      "path": "u_f03.q",
+      "width": 8,
+      "lsb": 320
+    },
+    {
+      "path": "u_f03.ck_d",
+      "width": 1,
+      "lsb": 328
+    },
+    {
+      "path": "u_f24.q",
+      "width": 8,
+      "lsb": 329
+    },
+    {
+      "path": "u_f24.ck_d",
+      "width": 1,
+      "lsb": 337
+    },
+    {
+      "path": "u_g13.q",
+      "width": 8,
+      "lsb": 338
+    },
+    {
+      "path": "u_g13.ck_d",
+      "width": 1,
+      "lsb": 346
+    },
+    {
+      "path": "u_g14.q",
+      "width": 8,
+      "lsb": 347
+    },
+    {
+      "path": "u_g14.ck_d",
+      "width": 1,
+      "lsb": 355
+    },
+    {
+      "path": "u_h13.q",
+      "width": 8,
+      "lsb": 356
+    },
+    {
+      "path": "u_h13.ck_d",
+      "width": 1,
+      "lsb": 364
+    },
+    {
+      "path": "u_h14.q",
+      "width": 8,
+      "lsb": 365
+    },
+    {
+      "path": "u_h14.ck_d",
+      "width": 1,
+      "lsb": 373
+    },
+    {
+      "path": "u_i13.q",
+      "width": 8,
+      "lsb": 374
+    },
+    {
+      "path": "u_i13.ck_d",
+      "width": 1,
+      "lsb": 382
+    },
+    {
+      "path": "u_i14.q",
+      "width": 8,
+      "lsb": 383
+    },
+    {
+      "path": "u_i14.ck_d",
+      "width": 1,
+      "lsb": 391
+    },
+    {
+      "path": "u_j13.q",
+      "width": 8,
+      "lsb": 392
+    },
+    {
+      "path": "u_j13.ck_d",
+      "width": 1,
+      "lsb": 400
+    },
+    {
+      "path": "u_j14.q",
+      "width": 8,
+      "lsb": 401
+    },
+    {
+      "path": "u_j14.ck_d",
+      "width": 1,
+      "lsb": 409
+    },
+    {
+      "path": "u_a03.q",
+      "width": 6,
+      "lsb": 410
+    },
+    {
+      "path": "u_a03.ck_d",
+      "width": 1,
+      "lsb": 416
+    },
+    {
+      "path": "u_a04.q",
+      "width": 6,
+      "lsb": 417
+    },
+    {
+      "path": "u_a04.ck_d",
+      "width": 1,
+      "lsb": 423
+    },
+    {
+      "path": "u_a05.q",
+      "width": 6,
+      "lsb": 424
+    },
+    {
+      "path": "u_a05.ck_d",
+      "width": 1,
+      "lsb": 430
+    },
+    {
+      "path": "u_a22.q",
+      "width": 6,
+      "lsb": 431
+    },
+    {
+      "path": "u_a22.ck_d",
+      "width": 1,
+      "lsb": 437
+    },
+    {
+      "path": "u_a23.q",
+      "width": 6,
+      "lsb": 438
+    },
+    {
+      "path": "u_a23.ck_d",
+      "width": 1,
+      "lsb": 444
+    },
+    {
+      "path": "u_a24.q",
+      "width": 6,
+      "lsb": 445
+    },
+    {
+      "path": "u_a24.ck_d",
+      "width": 1,
+      "lsb": 451
+    },
+    {
+      "path": "u_b03.q",
+      "width": 6,
+      "lsb": 452
+    },
+    {
+      "path": "u_b03.ck_d",
+      "width": 1,
+      "lsb": 458
+    },
+    {
+      "path": "u_b24.q",
+      "width": 6,
+      "lsb": 459
+    },
+    {
+      "path": "u_b24.ck_d",
+      "width": 1,
+      "lsb": 465
+    },
+    {
+      "path": "u_c03.q",
+      "width": 6,
+      "lsb": 466
+    },
+    {
+      "path": "u_c03.ck_d",
+      "width": 1,
+      "lsb": 472
+    },
+    {
+      "path": "u_c24.q",
+      "width": 6,
+      "lsb": 473
+    },
+    {
+      "path": "u_c24.ck_d",
+      "width": 1,
+      "lsb": 479
+    },
+    {
+      "path": "u_d03.q",
+      "width": 6,
+      "lsb": 480
+    },
+    {
+      "path": "u_d03.ck_d",
+      "width": 1,
+      "lsb": 486
+    },
+    {
+      "path": "u_d24.q",
+      "width": 6,
+      "lsb": 487
+    },
+    {
+      "path": "u_d24.ck_d",
+      "width": 1,
+      "lsb": 493
+    },
+    {
+      "path": "u_g03.q",
+      "width": 6,
+      "lsb": 494
+    },
+    {
+      "path": "u_g03.ck_d",
+      "width": 1,
+      "lsb": 500
+    },
+    {
+      "path": "u_g24.q",
+      "width": 6,
+      "lsb": 501
+    },
+    {
+      "path": "u_g24.ck_d",
+      "width": 1,
+      "lsb": 507
+    },
+    {
+      "path": "u_h03.q",
+      "width": 6,
+      "lsb": 508
+    },
+    {
+      "path": "u_h03.ck_d",
+      "width": 1,
+      "lsb": 514
+    },
+    {
+      "path": "u_h24.q",
+      "width": 6,
+      "lsb": 515
+    },
+    {
+      "path": "u_h24.ck_d",
+      "width": 1,
+      "lsb": 521
+    },
+    {
+      "path": "u_i03.q",
+      "width": 6,
+      "lsb": 522
+    },
+    {
+      "path": "u_i03.ck_d",
+      "width": 1,
+      "lsb": 528
+    },
+    {
+      "path": "u_i24.q",
+      "width": 6,
+      "lsb": 529
+    },
+    {
+      "path": "u_i24.ck_d",
+      "width": 1,
+      "lsb": 535
+    },
+    {
+      "path": "u_j03.q",
+      "width": 6,
+      "lsb": 536
+    },
+    {
+      "path": "u_j03.ck_d",
+      "width": 1,
+      "lsb": 542
+    },
+    {
+      "path": "u_j04.q",
+      "width": 6,
+      "lsb": 543
+    },
+    {
+      "path": "u_j04.ck_d",
+      "width": 1,
+      "lsb": 549
+    },
+    {
+      "path": "u_j05.q",
+      "width": 6,
+      "lsb": 550
+    },
+    {
+      "path": "u_j05.ck_d",
+      "width": 1,
+      "lsb": 556
+    },
+    {
+      "path": "u_j22.q",
+      "width": 6,
+      "lsb": 557
+    },
+    {
+      "path": "u_j22.ck_d",
+      "width": 1,
+      "lsb": 563
+    },
+    {
+      "path": "u_j23.q",
+      "width": 6,
+      "lsb": 564
+    },
+    {
+      "path": "u_j23.ck_d",
+      "width": 1,
+      "lsb": 570
+    },
+    {
+      "path": "u_j24.q",
+      "width": 6,
+      "lsb": 571
+    },
+    {
+      "path": "u_j24.ck_d",
+      "width": 1,
+      "lsb": 577
+    },
+    {
+      "path": "u_dram_addr_0.row",
+      "width": 8,
+      "lsb": 578
+    },
+    {
+      "path": "u_dram_addr_0.col",
+      "width": 8,
+      "lsb": 586
+    },
+    {
+      "path": "u_dram_addr_0.ras_d",
+      "width": 1,
+      "lsb": 594
+    },
+    {
+      "path": "u_dram_addr_0.cas_d",
+      "width": 1,
+      "lsb": 595
+    },
+    {
+      "path": "u_dram_addr_1.row",
+      "width": 8,
+      "lsb": 596
+    },
+    {
+      "path": "u_dram_addr_1.col",
+      "width": 8,
+      "lsb": 604
+    },
+    {
+      "path": "u_dram_addr_1.ras_d",
+      "width": 1,
+      "lsb": 612
+    },
+    {
+      "path": "u_dram_addr_1.cas_d",
+      "width": 1,
+      "lsb": 613
+    },
+    {
+      "path": "u_dram_addr_10.row",
+      "width": 8,
+      "lsb": 614
+    },
+    {
+      "path": "u_dram_addr_10.col",
+      "width": 8,
+      "lsb": 622
+    },
+    {
+      "path": "u_dram_addr_10.ras_d",
+      "width": 1,
+      "lsb": 630
+    },
+    {
+      "path": "u_dram_addr_10.cas_d",
+      "width": 1,
+      "lsb": 631
+    },
+    {
+      "path": "u_dram_addr_11.row",
+      "width": 8,
+      "lsb": 632
+    },
+    {
+      "path": "u_dram_addr_11.col",
+      "width": 8,
+      "lsb": 640
+    },
+    {
+      "path": "u_dram_addr_11.ras_d",
+      "width": 1,
+      "lsb": 648
+    },
+    {
+      "path": "u_dram_addr_11.cas_d",
+      "width": 1,
+      "lsb": 649
+    },
+    {
+      "path": "u_dram_addr_12.row",
+      "width": 8,
+      "lsb": 650
+    },
+    {
+      "path": "u_dram_addr_12.col",
+      "width": 8,
+      "lsb": 658
+    },
+    {
+      "path": "u_dram_addr_12.ras_d",
+      "width": 1,
+      "lsb": 666
+    },
+    {
+      "path": "u_dram_addr_12.cas_d",
+      "width": 1,
+      "lsb": 667
+    },
+    {
+      "path": "u_dram_addr_13.row",
+      "width": 8,
+      "lsb": 668
+    },
+    {
+      "path": "u_dram_addr_13.col",
+      "width": 8,
+      "lsb": 676
+    },
+    {
+      "path": "u_dram_addr_13.ras_d",
+      "width": 1,
+      "lsb": 684
+    },
+    {
+      "path": "u_dram_addr_13.cas_d",
+      "width": 1,
+      "lsb": 685
+    },
+    {
+      "path": "u_dram_addr_14.row",
+      "width": 8,
+      "lsb": 686
+    },
+    {
+      "path": "u_dram_addr_14.col",
+      "width": 8,
+      "lsb": 694
+    },
+    {
+      "path": "u_dram_addr_14.ras_d",
+      "width": 1,
+      "lsb": 702
+    },
+    {
+      "path": "u_dram_addr_14.cas_d",
+      "width": 1,
+      "lsb": 703
+    },
+    {
+      "path": "u_dram_addr_15.row",
+      "width": 8,
+      "lsb": 704
+    },
+    {
+      "path": "u_dram_addr_15.col",
+      "width": 8,
+      "lsb": 712
+    },
+    {
+      "path": "u_dram_addr_15.ras_d",
+      "width": 1,
+      "lsb": 720
+    },
+    {
+      "path": "u_dram_addr_15.cas_d",
+      "width": 1,
+      "lsb": 721
+    },
+    {
+      "path": "u_dram_addr_2.row",
+      "width": 8,
+      "lsb": 722
+    },
+    {
+      "path": "u_dram_addr_2.col",
+      "width": 8,
+      "lsb": 730
+    },
+    {
+      "path": "u_dram_addr_2.ras_d",
+      "width": 1,
+      "lsb": 738
+    },
+    {
+      "path": "u_dram_addr_2.cas_d",
+      "width": 1,
+      "lsb": 739
+    },
+    {
+      "path": "u_dram_addr_3.row",
+      "width": 8,
+      "lsb": 740
+    },
+    {
+      "path": "u_dram_addr_3.col",
+      "width": 8,
+      "lsb": 748
+    },
+    {
+      "path": "u_dram_addr_3.ras_d",
+      "width": 1,
+      "lsb": 756
+    },
+    {
+      "path": "u_dram_addr_3.cas_d",
+      "width": 1,
+      "lsb": 757
+    },
+    {
+      "path": "u_dram_addr_4.row",
+      "width": 8,
+      "lsb": 758
+    },
+    {
+      "path": "u_dram_addr_4.col",
+      "width": 8,
+      "lsb": 766
+    },
+    {
+      "path": "u_dram_addr_4.ras_d",
+      "width": 1,
+      "lsb": 774
+    },
+    {
+      "path": "u_dram_addr_4.cas_d",
+      "width": 1,
+      "lsb": 775
+    },
+    {
+      "path": "u_dram_addr_5.row",
+      "width": 8,
+      "lsb": 776
+    },
+    {
+      "path": "u_dram_addr_5.col",
+      "width": 8,
+      "lsb": 784
+    },
+    {
+      "path": "u_dram_addr_5.ras_d",
+      "width": 1,
+      "lsb": 792
+    },
+    {
+      "path": "u_dram_addr_5.cas_d",
+      "width": 1,
+      "lsb": 793
+    },
+    {
+      "path": "u_dram_addr_6.row",
+      "width": 8,
+      "lsb": 794
+    },
+    {
+      "path": "u_dram_addr_6.col",
+      "width": 8,
+      "lsb": 802
+    },
+    {
+      "path": "u_dram_addr_6.ras_d",
+      "width": 1,
+      "lsb": 810
+    },
+    {
+      "path": "u_dram_addr_6.cas_d",
+      "width": 1,
+      "lsb": 811
+    },
+    {
+      "path": "u_dram_addr_7.row",
+      "width": 8,
+      "lsb": 812
+    },
+    {
+      "path": "u_dram_addr_7.col",
+      "width": 8,
+      "lsb": 820
+    },
+    {
+      "path": "u_dram_addr_7.ras_d",
+      "width": 1,
+      "lsb": 828
+    },
+    {
+      "path": "u_dram_addr_7.cas_d",
+      "width": 1,
+      "lsb": 829
+    },
+    {
+      "path": "u_dram_addr_8.row",
+      "width": 8,
+      "lsb": 830
+    },
+    {
+      "path": "u_dram_addr_8.col",
+      "width": 8,
+      "lsb": 838
+    },
+    {
+      "path": "u_dram_addr_8.ras_d",
+      "width": 1,
+      "lsb": 846
+    },
+    {
+      "path": "u_dram_addr_8.cas_d",
+      "width": 1,
+      "lsb": 847
+    },
+    {
+      "path": "u_dram_addr_9.row",
+      "width": 8,
+      "lsb": 848
+    },
+    {
+      "path": "u_dram_addr_9.col",
+      "width": 8,
+      "lsb": 856
+    },
+    {
+      "path": "u_dram_addr_9.ras_d",
+      "width": 1,
+      "lsb": 864
+    },
+    {
+      "path": "u_dram_addr_9.cas_d",
+      "width": 1,
+      "lsb": 865
+    },
+    {
+      "path": "u_storage_0.cas_d",
+      "width": 1,
+      "lsb": 866
+    },
+    {
+      "path": "u_storage_0.we_d",
+      "width": 1,
+      "lsb": 867
+    },
+    {
+      "path": "u_storage_0.write_pending",
+      "width": 1,
+      "lsb": 868
+    },
+    {
+      "path": "u_storage_0.write_data",
+      "width": 12,
+      "lsb": 869
+    },
+    {
+      "path": "u_storage_0.read_pipe",
+      "width": 12,
+      "lsb": 881
+    },
+    {
+      "path": "u_storage_0.data_out",
+      "width": 12,
+      "lsb": 893
+    },
+    {
+      "path": "u_storage_0.cache_valid",
+      "width": 1,
+      "lsb": 905
+    },
+    {
+      "path": "u_storage_0.write_done",
+      "width": 1,
+      "lsb": 906
+    },
+    {
+      "path": "u_storage_0.waiting",
+      "width": 1,
+      "lsb": 907
+    },
+    {
+      "path": "u_storage_0.cache_data",
+      "width": 16,
+      "lsb": 908
+    },
+    {
+      "path": "u_storage_1.cas_d",
+      "width": 1,
+      "lsb": 924
+    },
+    {
+      "path": "u_storage_1.we_d",
+      "width": 1,
+      "lsb": 925
+    },
+    {
+      "path": "u_storage_1.write_pending",
+      "width": 1,
+      "lsb": 926
+    },
+    {
+      "path": "u_storage_1.write_data",
+      "width": 12,
+      "lsb": 927
+    },
+    {
+      "path": "u_storage_1.read_pipe",
+      "width": 12,
+      "lsb": 939
+    },
+    {
+      "path": "u_storage_1.data_out",
+      "width": 12,
+      "lsb": 951
+    },
+    {
+      "path": "u_storage_1.cache_valid",
+      "width": 1,
+      "lsb": 963
+    },
+    {
+      "path": "u_storage_1.write_done",
+      "width": 1,
+      "lsb": 964
+    },
+    {
+      "path": "u_storage_1.waiting",
+      "width": 1,
+      "lsb": 965
+    },
+    {
+      "path": "u_storage_1.cache_data",
+      "width": 16,
+      "lsb": 966
+    },
+    {
+      "path": "u_storage_2.cas_d",
+      "width": 1,
+      "lsb": 982
+    },
+    {
+      "path": "u_storage_2.we_d",
+      "width": 1,
+      "lsb": 983
+    },
+    {
+      "path": "u_storage_2.write_pending",
+      "width": 1,
+      "lsb": 984
+    },
+    {
+      "path": "u_storage_2.write_data",
+      "width": 8,
+      "lsb": 985
+    },
+    {
+      "path": "u_storage_2.read_pipe",
+      "width": 8,
+      "lsb": 993
+    },
+    {
+      "path": "u_storage_2.data_out",
+      "width": 8,
+      "lsb": 1001
+    },
+    {
+      "path": "u_storage_2.cache_valid",
+      "width": 1,
+      "lsb": 1009
+    },
+    {
+      "path": "u_storage_2.write_done",
+      "width": 1,
+      "lsb": 1010
+    },
+    {
+      "path": "u_storage_2.waiting",
+      "width": 1,
+      "lsb": 1011
+    },
+    {
+      "path": "u_storage_2.cache_data",
+      "width": 16,
+      "lsb": 1012
+    },
+    {
+      "path": "u_storage_3.cas_d",
+      "width": 1,
+      "lsb": 1028
+    },
+    {
+      "path": "u_storage_3.we_d",
+      "width": 1,
+      "lsb": 1029
+    },
+    {
+      "path": "u_storage_3.write_pending",
+      "width": 1,
+      "lsb": 1030
+    },
+    {
+      "path": "u_storage_3.write_data",
+      "width": 8,
+      "lsb": 1031
+    },
+    {
+      "path": "u_storage_3.read_pipe",
+      "width": 8,
+      "lsb": 1039
+    },
+    {
+      "path": "u_storage_3.data_out",
+      "width": 8,
+      "lsb": 1047
+    },
+    {
+      "path": "u_storage_3.cache_valid",
+      "width": 1,
+      "lsb": 1055
+    },
+    {
+      "path": "u_storage_3.write_done",
+      "width": 1,
+      "lsb": 1056
+    },
+    {
+      "path": "u_storage_3.waiting",
+      "width": 1,
+      "lsb": 1057
+    },
+    {
+      "path": "u_storage_3.cache_data",
+      "width": 16,
+      "lsb": 1058
+    },
+    {
+      "path": "u_storage_4.cas_d",
+      "width": 1,
+      "lsb": 1074
+    },
+    {
+      "path": "u_storage_4.we_d",
+      "width": 1,
+      "lsb": 1075
+    },
+    {
+      "path": "u_storage_4.write_pending",
+      "width": 1,
+      "lsb": 1076
+    },
+    {
+      "path": "u_storage_4.write_data",
+      "width": 8,
+      "lsb": 1077
+    },
+    {
+      "path": "u_storage_4.read_pipe",
+      "width": 8,
+      "lsb": 1085
+    },
+    {
+      "path": "u_storage_4.data_out",
+      "width": 8,
+      "lsb": 1093
+    },
+    {
+      "path": "u_storage_4.cache_valid",
+      "width": 1,
+      "lsb": 1101
+    },
+    {
+      "path": "u_storage_4.write_done",
+      "width": 1,
+      "lsb": 1102
+    },
+    {
+      "path": "u_storage_4.waiting",
+      "width": 1,
+      "lsb": 1103
+    },
+    {
+      "path": "u_storage_4.cache_data",
+      "width": 16,
+      "lsb": 1104
+    },
+    {
+      "path": "u_storage_5.cas_d",
+      "width": 1,
+      "lsb": 1120
+    },
+    {
+      "path": "u_storage_5.we_d",
+      "width": 1,
+      "lsb": 1121
+    },
+    {
+      "path": "u_storage_5.write_pending",
+      "width": 1,
+      "lsb": 1122
+    },
+    {
+      "path": "u_storage_5.write_data",
+      "width": 8,
+      "lsb": 1123
+    },
+    {
+      "path": "u_storage_5.read_pipe",
+      "width": 8,
+      "lsb": 1131
+    },
+    {
+      "path": "u_storage_5.data_out",
+      "width": 8,
+      "lsb": 1139
+    },
+    {
+      "path": "u_storage_5.cache_valid",
+      "width": 1,
+      "lsb": 1147
+    },
+    {
+      "path": "u_storage_5.write_done",
+      "width": 1,
+      "lsb": 1148
+    },
+    {
+      "path": "u_storage_5.waiting",
+      "width": 1,
+      "lsb": 1149
+    },
+    {
+      "path": "u_storage_5.cache_data",
+      "width": 16,
+      "lsb": 1150
+    },
+    {
+      "path": "u_storage_6.cas_d",
+      "width": 1,
+      "lsb": 1166
+    },
+    {
+      "path": "u_storage_6.we_d",
+      "width": 1,
+      "lsb": 1167
+    },
+    {
+      "path": "u_storage_6.write_pending",
+      "width": 1,
+      "lsb": 1168
+    },
+    {
+      "path": "u_storage_6.write_data",
+      "width": 8,
+      "lsb": 1169
+    },
+    {
+      "path": "u_storage_6.read_pipe",
+      "width": 8,
+      "lsb": 1177
+    },
+    {
+      "path": "u_storage_6.data_out",
+      "width": 8,
+      "lsb": 1185
+    },
+    {
+      "path": "u_storage_6.cache_valid",
+      "width": 1,
+      "lsb": 1193
+    },
+    {
+      "path": "u_storage_6.write_done",
+      "width": 1,
+      "lsb": 1194
+    },
+    {
+      "path": "u_storage_6.waiting",
+      "width": 1,
+      "lsb": 1195
+    },
+    {
+      "path": "u_storage_6.cache_data",
+      "width": 16,
+      "lsb": 1196
+    },
+    {
+      "path": "u_storage_7.cas_d",
+      "width": 1,
+      "lsb": 1212
+    },
+    {
+      "path": "u_storage_7.we_d",
+      "width": 1,
+      "lsb": 1213
+    },
+    {
+      "path": "u_storage_7.write_pending",
+      "width": 1,
+      "lsb": 1214
+    },
+    {
+      "path": "u_storage_7.write_data",
+      "width": 8,
+      "lsb": 1215
+    },
+    {
+      "path": "u_storage_7.read_pipe",
+      "width": 8,
+      "lsb": 1223
+    },
+    {
+      "path": "u_storage_7.data_out",
+      "width": 8,
+      "lsb": 1231
+    },
+    {
+      "path": "u_storage_7.cache_valid",
+      "width": 1,
+      "lsb": 1239
+    },
+    {
+      "path": "u_storage_7.write_done",
+      "width": 1,
+      "lsb": 1240
+    },
+    {
+      "path": "u_storage_7.waiting",
+      "width": 1,
+      "lsb": 1241
+    },
+    {
+      "path": "u_storage_7.cache_data",
+      "width": 16,
+      "lsb": 1242
+    },
+    {
+      "path": "u_storage_8.cas_d",
+      "width": 1,
+      "lsb": 1258
+    },
+    {
+      "path": "u_storage_8.we_d",
+      "width": 1,
+      "lsb": 1259
+    },
+    {
+      "path": "u_storage_8.write_pending",
+      "width": 1,
+      "lsb": 1260
+    },
+    {
+      "path": "u_storage_8.write_data",
+      "width": 8,
+      "lsb": 1261
+    },
+    {
+      "path": "u_storage_8.read_pipe",
+      "width": 8,
+      "lsb": 1269
+    },
+    {
+      "path": "u_storage_8.data_out",
+      "width": 8,
+      "lsb": 1277
+    },
+    {
+      "path": "u_storage_8.cache_valid",
+      "width": 1,
+      "lsb": 1285
+    },
+    {
+      "path": "u_storage_8.write_done",
+      "width": 1,
+      "lsb": 1286
+    },
+    {
+      "path": "u_storage_8.waiting",
+      "width": 1,
+      "lsb": 1287
+    },
+    {
+      "path": "u_storage_8.cache_data",
+      "width": 16,
+      "lsb": 1288
+    },
+    {
+      "path": "u_storage_9.cas_d",
+      "width": 1,
+      "lsb": 1304
+    },
+    {
+      "path": "u_storage_9.we_d",
+      "width": 1,
+      "lsb": 1305
+    },
+    {
+      "path": "u_storage_9.write_pending",
+      "width": 1,
+      "lsb": 1306
+    },
+    {
+      "path": "u_storage_9.write_data",
+      "width": 8,
+      "lsb": 1307
+    },
+    {
+      "path": "u_storage_9.read_pipe",
+      "width": 8,
+      "lsb": 1315
+    },
+    {
+      "path": "u_storage_9.data_out",
+      "width": 8,
+      "lsb": 1323
+    },
+    {
+      "path": "u_storage_9.cache_valid",
+      "width": 1,
+      "lsb": 1331
+    },
+    {
+      "path": "u_storage_9.write_done",
+      "width": 1,
+      "lsb": 1332
+    },
+    {
+      "path": "u_storage_9.waiting",
+      "width": 1,
+      "lsb": 1333
+    },
+    {
+      "path": "u_storage_9.cache_data",
+      "width": 16,
+      "lsb": 1334
+    },
+    {
+      "path": "u_storage_10.cas_d",
+      "width": 1,
+      "lsb": 1350
+    },
+    {
+      "path": "u_storage_10.we_d",
+      "width": 1,
+      "lsb": 1351
+    },
+    {
+      "path": "u_storage_10.write_pending",
+      "width": 1,
+      "lsb": 1352
+    },
+    {
+      "path": "u_storage_10.write_data",
+      "width": 8,
+      "lsb": 1353
+    },
+    {
+      "path": "u_storage_10.read_pipe",
+      "width": 8,
+      "lsb": 1361
+    },
+    {
+      "path": "u_storage_10.data_out",
+      "width": 8,
+      "lsb": 1369
+    },
+    {
+      "path": "u_storage_10.cache_valid",
+      "width": 1,
+      "lsb": 1377
+    },
+    {
+      "path": "u_storage_10.write_done",
+      "width": 1,
+      "lsb": 1378
+    },
+    {
+      "path": "u_storage_10.waiting",
+      "width": 1,
+      "lsb": 1379
+    },
+    {
+      "path": "u_storage_10.cache_data",
+      "width": 16,
+      "lsb": 1380
+    },
+    {
+      "path": "u_storage_11.cas_d",
+      "width": 1,
+      "lsb": 1396
+    },
+    {
+      "path": "u_storage_11.we_d",
+      "width": 1,
+      "lsb": 1397
+    },
+    {
+      "path": "u_storage_11.write_pending",
+      "width": 1,
+      "lsb": 1398
+    },
+    {
+      "path": "u_storage_11.write_data",
+      "width": 8,
+      "lsb": 1399
+    },
+    {
+      "path": "u_storage_11.read_pipe",
+      "width": 8,
+      "lsb": 1407
+    },
+    {
+      "path": "u_storage_11.data_out",
+      "width": 8,
+      "lsb": 1415
+    },
+    {
+      "path": "u_storage_11.cache_valid",
+      "width": 1,
+      "lsb": 1423
+    },
+    {
+      "path": "u_storage_11.write_done",
+      "width": 1,
+      "lsb": 1424
+    },
+    {
+      "path": "u_storage_11.waiting",
+      "width": 1,
+      "lsb": 1425
+    },
+    {
+      "path": "u_storage_11.cache_data",
+      "width": 16,
+      "lsb": 1426
+    },
+    {
+      "path": "u_storage_12.cas_d",
+      "width": 1,
+      "lsb": 1442
+    },
+    {
+      "path": "u_storage_12.we_d",
+      "width": 1,
+      "lsb": 1443
+    },
+    {
+      "path": "u_storage_12.write_pending",
+      "width": 1,
+      "lsb": 1444
+    },
+    {
+      "path": "u_storage_12.write_data",
+      "width": 8,
+      "lsb": 1445
+    },
+    {
+      "path": "u_storage_12.read_pipe",
+      "width": 8,
+      "lsb": 1453
+    },
+    {
+      "path": "u_storage_12.data_out",
+      "width": 8,
+      "lsb": 1461
+    },
+    {
+      "path": "u_storage_12.cache_valid",
+      "width": 1,
+      "lsb": 1469
+    },
+    {
+      "path": "u_storage_12.write_done",
+      "width": 1,
+      "lsb": 1470
+    },
+    {
+      "path": "u_storage_12.waiting",
+      "width": 1,
+      "lsb": 1471
+    },
+    {
+      "path": "u_storage_12.cache_data",
+      "width": 16,
+      "lsb": 1472
+    },
+    {
+      "path": "u_storage_13.cas_d",
+      "width": 1,
+      "lsb": 1488
+    },
+    {
+      "path": "u_storage_13.we_d",
+      "width": 1,
+      "lsb": 1489
+    },
+    {
+      "path": "u_storage_13.write_pending",
+      "width": 1,
+      "lsb": 1490
+    },
+    {
+      "path": "u_storage_13.write_data",
+      "width": 8,
+      "lsb": 1491
+    },
+    {
+      "path": "u_storage_13.read_pipe",
+      "width": 8,
+      "lsb": 1499
+    },
+    {
+      "path": "u_storage_13.data_out",
+      "width": 8,
+      "lsb": 1507
+    },
+    {
+      "path": "u_storage_13.cache_valid",
+      "width": 1,
+      "lsb": 1515
+    },
+    {
+      "path": "u_storage_13.write_done",
+      "width": 1,
+      "lsb": 1516
+    },
+    {
+      "path": "u_storage_13.waiting",
+      "width": 1,
+      "lsb": 1517
+    },
+    {
+      "path": "u_storage_13.cache_data",
+      "width": 16,
+      "lsb": 1518
+    },
+    {
+      "path": "u_storage_14.cas_d",
+      "width": 1,
+      "lsb": 1534
+    },
+    {
+      "path": "u_storage_14.we_d",
+      "width": 1,
+      "lsb": 1535
+    },
+    {
+      "path": "u_storage_14.write_pending",
+      "width": 1,
+      "lsb": 1536
+    },
+    {
+      "path": "u_storage_14.write_data",
+      "width": 12,
+      "lsb": 1537
+    },
+    {
+      "path": "u_storage_14.read_pipe",
+      "width": 12,
+      "lsb": 1549
+    },
+    {
+      "path": "u_storage_14.data_out",
+      "width": 12,
+      "lsb": 1561
+    },
+    {
+      "path": "u_storage_14.cache_valid",
+      "width": 1,
+      "lsb": 1573
+    },
+    {
+      "path": "u_storage_14.write_done",
+      "width": 1,
+      "lsb": 1574
+    },
+    {
+      "path": "u_storage_14.waiting",
+      "width": 1,
+      "lsb": 1575
+    },
+    {
+      "path": "u_storage_14.cache_data",
+      "width": 16,
+      "lsb": 1576
+    },
+    {
+      "path": "u_storage_15.cas_d",
+      "width": 1,
+      "lsb": 1592
+    },
+    {
+      "path": "u_storage_15.we_d",
+      "width": 1,
+      "lsb": 1593
+    },
+    {
+      "path": "u_storage_15.write_pending",
+      "width": 1,
+      "lsb": 1594
+    },
+    {
+      "path": "u_storage_15.write_data",
+      "width": 12,
+      "lsb": 1595
+    },
+    {
+      "path": "u_storage_15.read_pipe",
+      "width": 12,
+      "lsb": 1607
+    },
+    {
+      "path": "u_storage_15.data_out",
+      "width": 12,
+      "lsb": 1619
+    },
+    {
+      "path": "u_storage_15.cache_valid",
+      "width": 1,
+      "lsb": 1631
+    },
+    {
+      "path": "u_storage_15.write_done",
+      "width": 1,
+      "lsb": 1632
+    },
+    {
+      "path": "u_storage_15.waiting",
+      "width": 1,
+      "lsb": 1633
+    },
+    {
+      "path": "u_storage_15.cache_data",
+      "width": 16,
+      "lsb": 1634
+    }
+  ],
+  "scan": {
+    "state_bits": 1650,
+    "words": 92,
+    "word_bits": 18,
+    "last_word_bits": 12,
+    "completion_edges": 1650
+  },
+  "parameters": {
+    "SYSPER": 4
+  },
+  "frontend_manifest": {
+    "scope": "Experimental native nondeferred frontend without duplicate transaction buffers.\n\nRequired contract: advance only when every group is ready; addr_will_change\npredicts the address-register update on that guest edge. Address/write_data\ntherefore stay stable for each accepted raw transaction. The cache commits a\ncompleted write AFTER the guest has sampled the old word. All actual registers\nare exported; a new schema is required. No native integration is implied.\n",
+    "original_sha256": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+    "generated_sha256": "fe85a6f7a3fbc0fb0cb61011cac142e29f26e6a3399ee0777d3a5e7b51225d03",
+    "fields": [
+      [
+        "cas_d",
+        1
+      ],
+      [
+        "we_d",
+        1
+      ],
+      [
+        "write_pending",
+        1
+      ],
+      [
+        "write_data",
+        "WIDTH"
+      ],
+      [
+        "read_pipe",
+        "WIDTH"
+      ],
+      [
+        "data_out",
+        "WIDTH"
+      ],
+      [
+        "cache_valid",
+        1
+      ],
+      [
+        "write_done",
+        1
+      ],
+      [
+        "waiting",
+        1
+      ],
+      [
+        "cache_data",
+        16
+      ]
+    ],
+    "physical_bits": {
+      "width8": 46,
+      "width12": 58
+    },
+    "private_bits": 1,
+    "removed_fields": [
+      "saved_write",
+      "cache_addr",
+      "saved_addr",
+      "saved_data",
+      "old_data"
+    ],
+    "removed_actual_register_bits_per_group": 65,
+    "state_relation": "cache_valid=reference.hit; cache_data=reference.read_value; eight other fields equal; no old snapshot-schema compatibility"
+  },
+  "original_cell_sha256": {
+    "cell_MK4096P_addr.v": "fbb33241670944e9957c9f187bf8102473a1830a5b502f7ad05e66adb4c29d9a",
+    "cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "cell_SN74S174.v": "88dad140f27625a0aa42ab98b5f1147b8c02ce2ece406f34852523dac0d55746",
+    "cell_SN74H04.v": "0c2513703155ec6b9db87704a9f2052423d374b852036388c8f694d76b661b28",
+    "cell_SN74166.v": "ed87a73b4f61333de3d19ff700e2327d8b9003a8b4d59cae6d62a31b7f2b3232",
+    "cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d"
+  },
+  "cloned_sources": {
+    "cell_MC10141.sv": "1be96a6bb92fb59423dfd0de29fcb8a3aec6bbd84906156ad569992834742103",
+    "cell_MC10176.sv": "d04172cf63e0f34992a0fdbc2bba4e64a65eca76bbf756c9969730a65c9f357b",
+    "cell_F10016.sv": "d3a34dd976018aa0efff99011be34e7f4411d47091d0c6804894ca568655e89a",
+    "cell_SN74166.sv": "2c19fdd1da2360572e9ffd777280e93490521fdcdc74d7549a81b56353ef214a",
+    "cell_SN74S174.sv": "ea7fa941c37b395691b265ea289bd6add6dbf911c02b76388ce11ea88185fd7a",
+    "cell_MK4096P_addr.sv": "18dee318dd47610a881c125815f4b37a1946edf070247c4fbafc530b8fb51237",
+    "storage_group.sv": "7f10d466724063f261efcd30e57d374f977ed6c45f56df80bfb96357eeb11b75",
+    "ff_scan_controller.sv": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c"
+  },
+  "native_transport_integration": "PENDING: new actual-state schema/word bounds required, no complete/native snapshot qualification",
+  "reference_generated_sha256": "094f2f373c0a723136727597c0eece460dd2b668c1bcaa9860592b6f940ddf5f"
+}

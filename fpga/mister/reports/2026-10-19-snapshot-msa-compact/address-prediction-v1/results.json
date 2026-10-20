@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "scope": "Predict actual address changes from real original helper edge behavior.\n\nRandom physical helper states include independently varied row/column/strobe\nhistory. Equal-address captures are directed. Tests known binary state, both\nROW_BITS7 and8; no four-state or native clock-barrier equivalence claim.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0
+    },
+    {
+      "case": "missing_column",
+      "returncode": 1
+    },
+    {
+      "case": "strobe_not_change",
+      "returncode": 1
+    },
+    {
+      "case": "wrong_history",
+      "returncode": 1
+    },
+    {
+      "case": "wrong_address_half",
+      "returncode": 1
+    }
+  ],
+  "candidate_sha256": "18dee318dd47610a881c125815f4b37a1946edf070247c4fbafc530b8fb51237",
+  "reference_sha256": "ef24f6f4c2a2da8a1e1f232506fc99191f4e6646544e6d1ba828e531bd8969fa"
+}

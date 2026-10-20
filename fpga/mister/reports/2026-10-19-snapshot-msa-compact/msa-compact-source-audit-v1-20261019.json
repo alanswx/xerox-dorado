@@ -1,0 +1,65 @@
+{
+  "status": "PASS_COMPACT_SOURCE_SCOPE",
+  "scope": "Invert compact-MSA wiring/pure predictor edits against qualified receipt bytes.\n\nGuest DRAM process and all original FF bodies are exact. Host bridge semantics\nrequire the independent original RTL/DRAM tests; this source audit alone is not\nbehavioral equivalence or native/global snapshot qualification.\n",
+  "original_ff_bits": 866,
+  "actual_frontend_bits": 784,
+  "actual_total_bits": 1650,
+  "fields": 378,
+  "normal_pins_parameters_equations_unchanged": true,
+  "guest_process_byte_identical": true,
+  "address_predictor": "Pure output on original row/column helper; sixteen exact group bindings",
+  "limits": "Host bridge relation requires behavioral tests. New transport/catalog and full core are pending.",
+  "failure_controls": [
+    {
+      "case": "cross_group_binding",
+      "rejected": true,
+      "diagnostic": "address predictor binding differs: 0",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "predictor_logic",
+      "rejected": true,
+      "diagnostic": "address predictor changed",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "original_ff",
+      "rejected": true,
+      "diagnostic": "original FF/control helper differs: cell_SN74166.sv",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "guest_pipeline",
+      "rejected": true,
+      "diagnostic": "original guest DRAM pipeline changed",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "extra_board_logic",
+      "rejected": true,
+      "diagnostic": "original pin/parameter/equation changed",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "wrong_clock",
+      "rejected": true,
+      "diagnostic": "original pin/parameter/equation changed",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "schema_alias",
+      "rejected": true,
+      "diagnostic": "compact scan omits/aliases fields"
+    },
+    {
+      "case": "schema_missing",
+      "rejected": true,
+      "diagnostic": "compact scan omits/aliases fields"
+    },
+    {
+      "case": "old_scan_bounds",
+      "rejected": true,
+      "diagnostic": ""
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "generation_fixture": "byte identical including all helpers",
+  "source_controls": 9,
+  "fit_controls": 5,
+  "classification_controls": 14,
+  "rebuilt": {
+    "frontend-v2": "COMPACT STORAGE PASS host=62316 checks=1802415 guest=5010 requests=10953 writes=929 scan=14704 snapshots=9 pending_read=2 pending_write=2 write_done=3 resets=8 physical=46/58 raw_bits=1310720",
+    "msa-v2": "COMPACT MSA PASS host=996995 checks=14097552 guest=40002 raw_requests=55928 raw_writes=8696 state_requests=558 scan_edges=910807 physical=1650 fields=378 packages=78 frontends=16 words=92 last=12 post_restore=20000"
+  },
+  "address_units": "12000 independent states/ROW_BITS7+8, four bad controls",
+  "dependencies": "Previously committed immutable receipt archives through tools/fpga/mister/reports symlink; no working HDL"
+}

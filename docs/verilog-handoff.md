@@ -2,6 +2,67 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**Compact raw-memory bridge qualifies on one complete MSA: 2,213 -> 1,721 ALMs, saving 492. Native integration is next.**
+
+The candidate removes five duplicate implementation fields per group (65 bits):
+transaction address, tagged cache address, saved write data, old data and saved
+operation kind. Original 866 FF/history bits and the byte-identical guest DRAM
+pipeline remain. Ready gating makes address/write data stable during accepted
+raw operations. A pure combinational output on the original address latch
+predicts actual row/column changes; the new untagged cache invalidates only on
+that guest edge. Write acknowledgment retains the old word until the guest
+samples it, then commits the new cached value. No original CPU/cache/map/ECC
+state is dropped. All actual remaining bridge registers are snapshot-accessible.
+
+One MSA now has 1,650 physical bits / 378 fields (866 original FF/history + 784
+bridge bits), versus 2,690 / 458. Scan is 92 words, last 12 bits. Component tests
+against untouched original RTL and DRAM arrays pass 1,802,415 checks, including
+pending read/write/write-done snapshots, reset, all-new-field scan/restore and
+full raw-array comparison; eight actual bad RTL cases reject. Complete-MSA
+comparison adds 14,097,552 checks / 40,002 guest advances, all normal outputs,
+raw traffic, complete inversion/restore/abort/first-resume and 20,000 resumed
+advances; seven bad RTL variants reject. A cross-group wiring mutant survived
+the first random workload; history is retained and the independent exact-wiring
+source audit rejects that same alias after rehashing its metadata. Dedicated
+address tests vary 12,000 independent physical states at ROW_BITS7/8, including
+equal-address captures, and reject four damaged predictor equations.
+
+Fresh XML accounts for all 1,650 candidate + all 2,690 original reference +81
+private bits; no sequential exclusions. Fourteen inventory/alias controls and
+nine independent source controls reject. Original FF/helper bodies, normal board
+pins/parameters/equations and guest DRAM process are checked against committed
+qualified bytes. This is valid reachable-state behavioral testing, not arbitrary
+old-schema compatibility or four-state equivalence of different representations.
+
+Matched full-MSA Quartus fits use the same 50 MHz shell, 991 virtual pins, 2 ns/0 ns
+IO budgets, device and area policy, without a new gated clock or timing cuts.
+Actual ALMs are 2,213 baseline / 1,721 compact; fitted registers 4,684/3,403. All four
+device conditions pass, minimum +0.119 ns, with zero unconstrained clocks/IO;
+five damaged fit/source/constraint cases reject. Builder 2399564 and shell 2399560
+are absent; the remote `/home/alans/mister/Dorado_MsaCompact_v2_20261019` run is
+TERMINAL. No assembly/RBF/reload or speed change. Do not infer combined capacity
+from isolated savings.
+
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-msa-compact/`.
+All 666 raw members pass lossless readback. Extracted source/fixture generation,
+source/XML/fit controls, both original-RTL/DRAM rebuilds and address-prediction
+units pass. The first prepared fit packet was not run; the corrected v2 driver
+keeps generator imports out of its remote execution path. Early local shell
+port-shape preparation assertions left no staged build and changed no RTL.
+
+Next: qualify the new compact board-only catalog and all eight real adapters
+through SPI, with 92 word bounds and a new incompatible schema tag. Preserve the
+other eleven maps, all service ownership, quarantine and true-reseed requirements.
+Then integrate the exact qualified candidate in the nineteen-board Native59
+capacity experiment with all original clock/IO constraints. Serial62Area's
+46,702/41,910ALMs is still the last full-core result; a legal fit and all-device
+timing remain unproven. Complete wrapper/ARM/disk-paired snapshots, original 60 ns
+clocks, pinned comparisons, three fresh boots/cold persistence and two-hour stress
+remain open. Native59 remains deployed at the last qualified 1,947,654.12 issues/s.
+Goal ACTIVE.
+
+Previous shared-clock experiment:
+
 **Shared physical-FF clock control is rejected for area: 2,222 versus 2,213 ALMs.**
 
 The complete-MSA component retains all 458 fields / 2,690 physical bits. Its

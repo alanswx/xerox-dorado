@@ -1,0 +1,19 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "storage_snapshot_fixture",
+  "-Wno-fatal",
+  "--assert",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-compact-simulation-v2-20261019/early_write_commit/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-compact-simulation-v2-20261019/early_write_commit/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-compact-simulation-v2-20261019/early_write_commit/storage_group_compact.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-compact-simulation-v2-20261019/executed-inputs/dorado_storage_group.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-compact-simulation-v2-20261019/executed-inputs/cell_MK4096P_6.v",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-compact-simulation-v2-20261019/executed-inputs/test_storage_compact.cpp"
+]

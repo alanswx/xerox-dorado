@@ -1,0 +1,306 @@
+{
+  "status": "PASS_MATCHED_COMPONENT_SAVING",
+  "scope": "Review matched original/compact full-MSA area, every corner and exact sources.\n\nAn isolated saving is not a legal complete-core fit or a deployed speed result.\n",
+  "results": {
+    "baseline": {
+      "alms": 2213,
+      "registers": 4684,
+      "synthesis_registers": 4017,
+      "timing": [
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "setup",
+          "slack_ns": 4.248
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "hold",
+          "slack_ns": 0.315
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "mpw",
+          "slack_ns": 9.247
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "setup",
+          "slack_ns": 3.851
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "hold",
+          "slack_ns": 0.337
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "mpw",
+          "slack_ns": 9.17
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "setup",
+          "slack_ns": 6.531
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "hold",
+          "slack_ns": 0.157
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "mpw",
+          "slack_ns": 9.047
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "setup",
+          "slack_ns": 5.967
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "hold",
+          "slack_ns": 0.18
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "mpw",
+          "slack_ns": 9.106
+        }
+      ],
+      "minimum_slack_ns": 0.157
+    },
+    "compact": {
+      "alms": 1721,
+      "registers": 3403,
+      "synthesis_registers": 2975,
+      "timing": [
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "setup",
+          "slack_ns": 4.265
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "hold",
+          "slack_ns": 0.233
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "mpw",
+          "slack_ns": 9.253
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "setup",
+          "slack_ns": 3.902
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "hold",
+          "slack_ns": 0.246
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "mpw",
+          "slack_ns": 9.167
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "setup",
+          "slack_ns": 6.578
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "hold",
+          "slack_ns": 0.119
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "mpw",
+          "slack_ns": 9.047
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "setup",
+          "slack_ns": 6.053
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "hold",
+          "slack_ns": 0.138
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "mpw",
+          "slack_ns": 9.104
+        }
+      ],
+      "minimum_slack_ns": 0.119
+    }
+  },
+  "saved_alms": 492,
+  "actual_physical_bits": {
+    "baseline": 2690,
+    "compact": 1650
+  },
+  "hardware_changed": false,
+  "limits": "No combined fit, native catalog/barrier, complete FPGA snapshot or speed claim.",
+  "failure_controls": [
+    {
+      "case": "loose_clock",
+      "rejected": true,
+      "diagnostic": "fixture/policy changed",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "policy_change",
+      "rejected": true,
+      "diagnostic": "unapproved fitter policy",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "bad_hold",
+      "rejected": true,
+      "diagnostic": "timing violation/missing report",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "missing_setup",
+      "rejected": true,
+      "diagnostic": "timing violation/missing report",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "cross_group",
+      "rejected": true,
+      "diagnostic": "address predictor binding differs: 0",
+      "damaged_metadata_rehashed": true
+    }
+  ],
+  "input_hashes": {
+    "terminal-state.json": "991d352ce22540b08deb29541a7638e8e07184bb6244a038f271ff1c3ce84c67",
+    "provenance.json": "fc46c66159c5379efb4c8517649df6ea2465c8c9dd3c37a50abfd10bb17a694f",
+    "driver.log": "80e4cc3142cb63d14541bd7cad154c7982456053e501e55787ef366323faa049",
+    "compact/bank-clocks-MIN_fast_1100mv_-40c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "compact/bank-hold-MIN_fast_1100mv_-40c.rpt": "b3819e51e4975679a882a4c78ac8666b755569a4b4591e4b0a4aed402e8c6b51",
+    "compact/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "compact/corners.log": "a05d0d982798565312a62c35f8f48e50811183ae46b61141d4e84e0099fcfb63",
+    "compact/original_cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "compact/snapshot_fit.flow.rpt": "ac67dab2ab0ce8d5bedbba2484a655c6983b00b66c386e52eadf8da363f3a5cb",
+    "compact/bank-removal-7_slow_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "compact/ff_scan_controller.sv": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c",
+    "compact/bank-setup-MIN_fast_1100mv_100c.rpt": "24feec676b3a78c89f1db5a39b322f4f967929571dd2a1fd3af51d38e6d33079",
+    "compact/cell_F10016.sv": "d3a34dd976018aa0efff99011be34e7f4411d47091d0c6804894ca568655e89a",
+    "compact/bank-setup-7_slow_1100mv_100c.rpt": "3af9cb6c2788499492401089e9de19bdaa4cf098ae2ccc42c46f42f417a356f0",
+    "compact/cell_SN74S174.sv": "ea7fa941c37b395691b265ea289bd6add6dbf911c02b76388ce11ea88185fd7a",
+    "compact/bank-removal-MIN_fast_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "compact/snapshot_fit.fit.summary": "e1e555ae6c8499dce108fa2212f6a18aa3fb6b22fe573d09f21689a6af0c8eb6",
+    "compact/cell_SN74166.sv": "2c19fdd1da2360572e9ffd777280e93490521fdcdc74d7549a81b56353ef214a",
+    "compact/bank-mpw-7_slow_1100mv_-40c.rpt": "8a19c1ca653c2abb06e326d3d47f837a9a7d191afc696e3e4b541253a0024ffb",
+    "compact/bank-removal-7_slow_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "compact/cell_MC10141.sv": "1be96a6bb92fb59423dfd0de29fcb8a3aec6bbd84906156ad569992834742103",
+    "compact/bank-clocks-MIN_fast_1100mv_100c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "compact/bank-hold-MIN_fast_1100mv_100c.rpt": "5e6042869f09b9e9b5597af155723a4854a9091c6476d908e1313569e218f39d",
+    "compact/bank-mpw-7_slow_1100mv_100c.rpt": "eb86e8af671d23ed6aa3895478ac2dcb4539147aefbeb75bda0c7e70cf044e10",
+    "compact/bank-setup-7_slow_1100mv_-40c.rpt": "d7d762f0de5bbf2bc5d7f94b561076c9a884f5c039c002f8afd9f1edcbab9e94",
+    "compact/bank-setup-MIN_fast_1100mv_-40c.rpt": "45a79c0952e089e562dce20c4f1519ce7261eca3ea87783d86ab7733ca9bf852",
+    "compact/original_cell_SN74H04.v": "0c2513703155ec6b9db87704a9f2052423d374b852036388c8f694d76b661b28",
+    "compact/top.sv": "9b16b27e4f87d02d6b1a2d408de523e8d350abceea3bb708d0ec42138e5cd35e",
+    "compact/bank-removal-MIN_fast_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "compact/snapshot_fit.map.summary": "0efb2650de2426494569fe53064bf01b6ef91e731e55a1a51cd97ab00519e779",
+    "compact/cell_MK4096P_addr.sv": "18dee318dd47610a881c125815f4b37a1946edf070247c4fbafc530b8fb51237",
+    "compact/snapshot_fit.fit.rpt": "dc2df56989a6e5e0257cea25bdffa7a1df99915b4ed7bbede10a3e024ae59846",
+    "compact/map.log": "caaf88c95bd4370014bd78d604dd4dc55d96404b73a344a2a31ee121a2e9d3cf",
+    "compact/original_cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "compact/bank-recovery-7_slow_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "compact/bank-ucp-7_slow_1100mv_100c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "compact/bank-recovery-MIN_fast_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "compact/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "compact/bank-ucp-MIN_fast_1100mv_100c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "compact/snapshot_fit.sta.summary": "3e05915087c37dccc5a1f17f363f3ef2438916000779443ae213463b9ca3bb56",
+    "compact/cell_MC10176.sv": "d04172cf63e0f34992a0fdbc2bba4e64a65eca76bbf756c9969730a65c9f357b",
+    "compact/fit.log": "801102176115aecd0d05cb1b54cd2042095c9d172f5066cd50748bcb2dee2d2b",
+    "compact/bank-mpw-MIN_fast_1100mv_100c.rpt": "3046a249980558f12cb3a4bf38e18fac537a3ec5d4e45618dad090bf34a708b0",
+    "compact/snapshot_fit.map.rpt": "8d881dfcbb1f2a934287b89e5e564e90fad838d1e78acc81fac0836268917c62",
+    "compact/bank-hold-7_slow_1100mv_-40c.rpt": "abdd2ec514397f0e35c70e3d9e61c25b8eb9a3c7787814f1db651f3f9fefbe83",
+    "compact/bank-clocks-7_slow_1100mv_100c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "compact/msa_board.sv": "f21ad8174f4f183b2838e2b2fa22dc8350c8ad1a160fcc7cd9a069bf4f711522",
+    "compact/bank-ucp-7_slow_1100mv_-40c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "compact/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "compact/bank-recovery-MIN_fast_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "compact/bank-recovery-7_slow_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "compact/sta.log": "eb4fefe4b58af17458ac9677d13ae3528011bbc2f4231a2be485bfe10947d425",
+    "compact/original_cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "compact/snapshot_fit.qsf": "1676f149b8683418ce56d2761f08ae9d17ac6ad70273c61e516e328630d2fe4c",
+    "compact/storage_group.sv": "7f10d466724063f261efcd30e57d374f977ed6c45f56df80bfb96357eeb11b75",
+    "compact/bank-hold-7_slow_1100mv_100c.rpt": "c3dc764774aa569d794957f82a8b7f39f2c5e7b2112bbd5f5f565cb31f42fa0f",
+    "compact/bank-clocks-7_slow_1100mv_-40c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "compact/bank-mpw-MIN_fast_1100mv_-40c.rpt": "c9e8e221af95892b599ced01b057fcb0417804658c88ce7f568df7bf71101b53",
+    "compact/original_cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "compact/snapshot_fit.sta.rpt": "ef31a8b24d819ef6002ac39059b81e7fc13a02dfcd18d7ebe529bdebab2f848c",
+    "compact/bank-ucp-MIN_fast_1100mv_-40c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "baseline/bank-clocks-MIN_fast_1100mv_-40c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "baseline/bank-hold-MIN_fast_1100mv_-40c.rpt": "d8983278e009bab513f9a8cbea17ceb6fed48e3df1abc2e9625b31badc19265c",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/corners.log": "e0325157b8011e4d4b35f2f1398b39fdca9e3f6482d9ce15dff3782444d2b950",
+    "baseline/original_cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "baseline/snapshot_fit.flow.rpt": "47476ccdf144fe9628fb6156df65560b0fbca30d195d3202a08178f70778bb8b",
+    "baseline/bank-removal-7_slow_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/ff_scan_controller.sv": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c",
+    "baseline/bank-setup-MIN_fast_1100mv_100c.rpt": "af5657843ed7a1e18b71dfcfc85a0482d816b00f1bb4dcef56790069a47462d4",
+    "baseline/cell_F10016.sv": "d3a34dd976018aa0efff99011be34e7f4411d47091d0c6804894ca568655e89a",
+    "baseline/bank-setup-7_slow_1100mv_100c.rpt": "d409a079238979073655b19cb7d75b7ba416b627bd77b109336caa64131878c7",
+    "baseline/cell_SN74S174.sv": "ea7fa941c37b395691b265ea289bd6add6dbf911c02b76388ce11ea88185fd7a",
+    "baseline/bank-removal-MIN_fast_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/snapshot_fit.fit.summary": "73d094324d85e3b96cae605005d7b8446c139e32d2e394a6e47c9d095774b693",
+    "baseline/cell_SN74166.sv": "2c19fdd1da2360572e9ffd777280e93490521fdcdc74d7549a81b56353ef214a",
+    "baseline/bank-mpw-7_slow_1100mv_-40c.rpt": "c2debdcb7a12a95ee35e42871f6ab153db56793292ab4df2d88a34bdf0b5ab1f",
+    "baseline/bank-removal-7_slow_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/cell_MC10141.sv": "1be96a6bb92fb59423dfd0de29fcb8a3aec6bbd84906156ad569992834742103",
+    "baseline/bank-clocks-MIN_fast_1100mv_100c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "baseline/bank-hold-MIN_fast_1100mv_100c.rpt": "e144d7c7e9ca7e14736dd7f56970c3e6760a7d71e3e3631ca112a324ada2a058",
+    "baseline/bank-mpw-7_slow_1100mv_100c.rpt": "d7df69b0fcaa7ced74f2320da6084b99ff3d9318d98b0762d01b3142c5327ae4",
+    "baseline/bank-setup-7_slow_1100mv_-40c.rpt": "19565a21d29c1340390a0335b24f33516ff55315468ef5e4fe7a2dec70647a64",
+    "baseline/bank-setup-MIN_fast_1100mv_-40c.rpt": "ebab5657f41ea1916fa46d5edf298d2749eb42e44112472f9b870bc54a62899c",
+    "baseline/original_cell_SN74H04.v": "0c2513703155ec6b9db87704a9f2052423d374b852036388c8f694d76b661b28",
+    "baseline/top.sv": "9b16b27e4f87d02d6b1a2d408de523e8d350abceea3bb708d0ec42138e5cd35e",
+    "baseline/bank-removal-MIN_fast_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/snapshot_fit.map.summary": "37f0141a0fed692de81af7c4f8880626646ba41031e2365c73b80d083c569186",
+    "baseline/cell_MK4096P_addr.sv": "930bbc95e7a24d10de07506eb24d5add19bce1bdf471c14cdff6f6239221959f",
+    "baseline/snapshot_fit.fit.rpt": "ca8394ae81e3a9598fe7b5919348d7817fefc2a4fe8b846a3d72c0703f389c51",
+    "baseline/map.log": "e3ad7ade5ebf51f17cb7aba4055d71b49bd0dc75597ddf67a0c1451ecefbf685",
+    "baseline/original_cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "baseline/bank-recovery-7_slow_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/bank-ucp-7_slow_1100mv_100c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "baseline/bank-recovery-MIN_fast_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/bank-ucp-MIN_fast_1100mv_100c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "baseline/snapshot_fit.sta.summary": "e3778e9f01e9f1cb209085587a880a0daa5e4b75122a92bafc942ba0f23c08ef",
+    "baseline/cell_MC10176.sv": "d04172cf63e0f34992a0fdbc2bba4e64a65eca76bbf756c9969730a65c9f357b",
+    "baseline/fit.log": "2f0e0131172b48724f2cff6ba7a901bcd12d2fadba45c3c0348a4d604951efc8",
+    "baseline/bank-mpw-MIN_fast_1100mv_100c.rpt": "0bfbb1d2da39a5d0434cca06e83d21f5c32c29916c57f8b95cf3838a502a9a16",
+    "baseline/snapshot_fit.map.rpt": "0d849a749a2764626591e38bff16a398fa9e3271dad9cb0f7c1bc2060f68e513",
+    "baseline/bank-hold-7_slow_1100mv_-40c.rpt": "a3b59821209ac1ed14634e83f780c0b05fd2daf39f96a9ab5cb1e200996df0c0",
+    "baseline/bank-clocks-7_slow_1100mv_100c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "baseline/msa_board.sv": "094f2f373c0a723136727597c0eece460dd2b668c1bcaa9860592b6f940ddf5f",
+    "baseline/bank-ucp-7_slow_1100mv_-40c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/bank-recovery-MIN_fast_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/bank-recovery-7_slow_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/sta.log": "2c6a1ce78750e1c3a23c21e5e0db59b2140a3cb7bf881c62d28f41df56ca5c77",
+    "baseline/original_cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "baseline/snapshot_fit.qsf": "1676f149b8683418ce56d2761f08ae9d17ac6ad70273c61e516e328630d2fe4c",
+    "baseline/storage_group.sv": "ffb8bb24b92b7f08bf92153a15ccf475f3aa339364b74adbffc6278b7ab5a755",
+    "baseline/bank-hold-7_slow_1100mv_100c.rpt": "131c7d4488d90e0c2379bea7ce13ef21af4c767c10d86fa46169285e1e14819c",
+    "baseline/bank-clocks-7_slow_1100mv_-40c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "baseline/bank-mpw-MIN_fast_1100mv_-40c.rpt": "40a84b0660df49eb0001fc0db14a515a8327a514594cad1c36718009e8804e0a",
+    "baseline/original_cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "baseline/snapshot_fit.sta.rpt": "1bf2bf0cadd08bacd477ddd3cf52164a869ad6a9be60e291e30c362279eb9007",
+    "baseline/bank-ucp-MIN_fast_1100mv_-40c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "executed-sources/generate_msa_compact.py": "0f406130e40c300b18167be37f7d85b4a339a1f62d96a89b73e9cb6bf2fc0215",
+    "executed-sources/generate_msa_board.py": "a561a8ffe871a1aac4dd5461f507f3e5548dd16c4ce91999596bf4dfe273b8b6",
+    "executed-sources/generate_storage_compact.py": "2d003ea527b22b4f71ae328ef0b64216bacfcb4f472195941c771411addbf5e5",
+    "executed-sources/fit_msa_compact.py": "57d81b85b8dab601865500e245f4511caa51cbfe681f7e745bdf2cf7a8b15e76"
+  }
+}
