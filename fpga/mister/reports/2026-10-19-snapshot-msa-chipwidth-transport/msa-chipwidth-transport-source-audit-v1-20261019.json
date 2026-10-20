@@ -1,0 +1,42 @@
+{
+  "status": "PASS_CHIPWIDTH_TRANSPORT_SOURCE",
+  "scope": "Exact inverse of chip-width transport bounds/module edits; owner/UIO unchanged.\n\nAll five service domains, deadline, quarantine and parser-reset ownership are\nretained. Actual eight-board routing is tested separately from native barriers.\n",
+  "legacy_owner_uio_unchanged_after_inverse": true,
+  "member_router_unchanged_after_inverse": true,
+  "word_limit": 86,
+  "deadline": 4096,
+  "service_domains": 5,
+  "limits": "No native service barriers or complete snapshot qualification.",
+  "failure_controls": [
+    {
+      "case": "outer_bounds",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "router_bounds",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "router_live_owner",
+      "rejected": true,
+      "diagnostic": "member router differs beyond compact bound/module name"
+    },
+    {
+      "case": "unknown_hold",
+      "rejected": true,
+      "diagnostic": "member router differs beyond compact bound/module name"
+    },
+    {
+      "case": "schema",
+      "rejected": true,
+      "diagnostic": "UIO differs"
+    },
+    {
+      "case": "deadline",
+      "rejected": true,
+      "diagnostic": "owner differs beyond compact word bound"
+    }
+  ]
+}

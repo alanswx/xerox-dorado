@@ -1,0 +1,71 @@
+{
+  "status": "PASS",
+  "scope": "Complete MSA chip-width cache with nonzero raw padding and original RTL oracle.\n\nThe original reference retains all 2690 bits. Candidate actual physical fields\nare 1538 bits and are all compared to the explicit reference abstraction.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "lost_prediction",
+      "returncode": 1,
+      "expected_failure": "ordinary physical state differs"
+    },
+    {
+      "case": "inverted_group_prediction",
+      "returncode": 1,
+      "expected_failure": "ordinary physical state differs"
+    },
+    {
+      "case": "strobe_instead_of_change",
+      "returncode": 1,
+      "expected_failure": "ordinary physical state differs"
+    },
+    {
+      "case": "early_write_commit",
+      "returncode": 1,
+      "expected_failure": "ordinary physical state differs"
+    },
+    {
+      "case": "lost_global_hold",
+      "returncode": 1,
+      "expected_failure": "held raw request/response leak"
+    },
+    {
+      "case": "broken_frontend_link",
+      "returncode": 1,
+      "expected_failure": "read rotation changed physical state"
+    },
+    {
+      "case": "lost_last_word",
+      "returncode": 1,
+      "expected_failure": "read word differs"
+    }
+  ],
+  "executed_inputs": {
+    "test_msa_board.cpp": "37eee89a6fcd941ddd34cafa2769b51817580828e03f871cfc0de97feaf47651",
+    "test_msa_board.py": "df75e61eb29ffc8cffa615f2948b000cf7e01762fa6090f8481b520aea191f71",
+    "cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "cell_SN74S174.v": "88dad140f27625a0aa42ab98b5f1147b8c02ce2ece406f34852523dac0d55746",
+    "test_msa_chipwidth.py": "a7c9f34d90159343e68de41fbd0c1f773cfbc6174440e74c35f16a540d5e3e2c",
+    "test_msa_chipwidth.cpp": "debc7a87656451161dc2c5cce64ff9e22e750be9b523aab894723ccc084acaf5",
+    "cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+    "generate_msa_compact.py": "0f406130e40c300b18167be37f7d85b4a339a1f62d96a89b73e9cb6bf2fc0215",
+    "generate_msa_board.py": "a561a8ffe871a1aac4dd5461f507f3e5548dd16c4ce91999596bf4dfe273b8b6",
+    "cell_MK4096P_addr.v": "fbb33241670944e9957c9f187bf8102473a1830a5b502f7ad05e66adb4c29d9a",
+    "cell_SN74H04.v": "0c2513703155ec6b9db87704a9f2052423d374b852036388c8f694d76b661b28",
+    "msa_ddram.v": "7ede320ffd5cbca8b8e83d97b7399f0a600f58e25cdaeb9c474238793ce85906",
+    "generate_msa_chipwidth.py": "8386f83ddefc38f3fd454f78513cd80560ed886cb05f5831a54d6a44ad2d7030",
+    "cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "generate_storage_compact.py": "2d003ea527b22b4f71ae328ef0b64216bacfcb4f472195941c771411addbf5e5",
+    "generate_storage_chipwidth.py": "54654c7ca967fc4da3bb23d870af0ebcea91e43c4215f945950bd9ec9f86c1e2",
+    "cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "dorado_storage_group.sv": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+    "cell_SN74166.v": "ed87a73b4f61333de3d19ff700e2327d8b9003a8b4d59cae6d62a31b7f2b3232",
+    "cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab"
+  },
+  "limits": "One complete MSA; new native catalog/transport, full-core fit, real service barriers and FPGA speed remain unqualified."
+}

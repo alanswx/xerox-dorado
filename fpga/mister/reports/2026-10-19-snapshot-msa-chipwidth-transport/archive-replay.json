@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "generation": "exact catalog/fixture/vectors/board/helpers/router/owner",
+  "schema_id": "af0b647cb43a3a62",
+  "board_bits": 1957048,
+  "format_controls": 10,
+  "source_controls": 6,
+  "classification_controls": 12,
+  "rebuilt_test": "CHIPWIDTH MSA TRANSPORT PASS ticks=75935 packets=326 checks=129 actual8MSAs/12slots/ABI2/schema/5stubservices/4096budget/sticky-global-hold/transport-vs-SYSTEM-reset/Ethernet\n/Users/alans/dev2/Dorado/build/rtl-executive/msa-chipwidth-transport-archive-replay-v1-20261019/simulation-v1/candidate/fixture.sv:910: $finish called at 303741 (1s)",
+  "dependencies": "Committed immutable original/compact and new sealed chip-width component receipts through tools/fpga/mister/reports symlink; no working HDL"
+}

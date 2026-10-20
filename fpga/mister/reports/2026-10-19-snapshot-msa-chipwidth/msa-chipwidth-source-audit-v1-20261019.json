@@ -1,0 +1,68 @@
+{
+  "status": "PASS_CHIPWIDTH_SOURCE_SCOPE",
+  "scope": "Invert only cache padding/type and scan-length edits to qualified MSA bytes.\n\nAll other helper/board bytes remain exact. Every original guest field is kept.\nThe changed implementation representation requires its new physical inventory\nand behavioral oracle; this is not compatibility with older snapshots.\n",
+  "actual_total_bits": 1538,
+  "original_ff_bits": 866,
+  "actual_frontend_bits": 672,
+  "fields": 378,
+  "removed_implementation_padding_bits": 112,
+  "limits": "No native catalog/barrier, complete-core fit or hardware qualification.",
+  "failure_controls": [
+    {
+      "case": "too_narrow",
+      "rejected": true,
+      "diagnostic": "cache width edit differs",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "guest_pipeline",
+      "rejected": true,
+      "diagnostic": "helper differs beyond cache type/assignment/scan width: storage_group.sv",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "raw_payload",
+      "rejected": true,
+      "diagnostic": "helper differs beyond cache type/assignment/scan width: storage_group.sv",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "cross_group",
+      "rejected": true,
+      "diagnostic": "board/pin/equation differs beyond scan length",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "old_scan",
+      "rejected": true,
+      "diagnostic": "",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "hidden_ff",
+      "rejected": true,
+      "diagnostic": "helper differs beyond cache type/assignment/scan width: cell_SN74166.sv",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "missing",
+      "rejected": true,
+      "diagnostic": "missing/aliased chip-width scan state"
+    },
+    {
+      "case": "alias",
+      "rejected": true,
+      "diagnostic": "missing/aliased chip-width scan state"
+    },
+    {
+      "case": "old_width",
+      "rejected": true,
+      "diagnostic": "chip-width field geometry differs"
+    },
+    {
+      "case": "old_bounds",
+      "rejected": true,
+      "diagnostic": ""
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "status": "TERMINAL",
+  "builder_pid": 2425360,
+  "builder_live": false,
+  "process_stdout": "    PID    PPID STAT     ELAPSED COMMAND\n",
+  "process_returncode": 1,
+  "unchanged_prepared_non_qsf": 40,
+  "assembly_started": false,
+  "rbfs": [],
+  "sofs": []
+}

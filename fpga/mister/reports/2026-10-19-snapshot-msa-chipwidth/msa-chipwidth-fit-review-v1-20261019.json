@@ -1,0 +1,310 @@
+{
+  "status": "PASS_MATCHED_COMPONENT_SAVING",
+  "scope": "Read terminal matched compact/chip-width full-MSA area and all timing corners.\n\nAll actual inputs are checked against the qualified parent fixture and source\nreceipts. Component savings do not establish complete-core capacity or speed.\n",
+  "results": {
+    "baseline": {
+      "alms": 1721,
+      "registers": 3403,
+      "timing": [
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "setup",
+          "slack_ns": 4.265
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "hold",
+          "slack_ns": 0.233
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "mpw",
+          "slack_ns": 9.253
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "setup",
+          "slack_ns": 3.902
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "hold",
+          "slack_ns": 0.246
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "mpw",
+          "slack_ns": 9.167
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "setup",
+          "slack_ns": 6.578
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "hold",
+          "slack_ns": 0.119
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "mpw",
+          "slack_ns": 9.047
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "setup",
+          "slack_ns": 6.053
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "hold",
+          "slack_ns": 0.138
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "mpw",
+          "slack_ns": 9.104
+        }
+      ],
+      "minimum_slack_ns": 0.119
+    },
+    "chipwidth": {
+      "alms": 1600,
+      "registers": 3088,
+      "timing": [
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "setup",
+          "slack_ns": 3.29
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "hold",
+          "slack_ns": 0.24
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "mpw",
+          "slack_ns": 9.268
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "setup",
+          "slack_ns": 2.922
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "hold",
+          "slack_ns": 0.253
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "mpw",
+          "slack_ns": 9.168
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "setup",
+          "slack_ns": 6.15
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "hold",
+          "slack_ns": 0.128
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "mpw",
+          "slack_ns": 9.047
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "setup",
+          "slack_ns": 5.56
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "hold",
+          "slack_ns": 0.144
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "mpw",
+          "slack_ns": 9.105
+        }
+      ],
+      "minimum_slack_ns": 0.128
+    }
+  },
+  "saved_alms": 121,
+  "actual_physical_bits": {
+    "baseline": 1650,
+    "chipwidth": 1538
+  },
+  "hardware_changed": false,
+  "limits": "No combined fit, native schema/barrier, complete FPGA snapshot or speed claim.",
+  "failure_controls": [
+    {
+      "case": "loose_clock",
+      "rejected": true,
+      "diagnostic": "unapproved fixture/policy change",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "area_policy",
+      "rejected": true,
+      "diagnostic": "unapproved fitter policy",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "bad_hold",
+      "rejected": true,
+      "diagnostic": "timing violation/missing report",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "missing_setup",
+      "rejected": true,
+      "diagnostic": "timing violation/missing report",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "wrong_width",
+      "rejected": true,
+      "diagnostic": "cache width edit differs",
+      "damaged_metadata_rehashed": true
+    }
+  ],
+  "input_hashes": {
+    "terminal-state.json": "aa6e54f26e6a0181218921863894bbb3e02a473d337b33631e4676b4c956ff54",
+    "provenance.json": "7d012e3f912e67b5d63a6bc7a7873467733abd10a0919aaee671f956c1071cd7",
+    "driver.pid": "486d93dba6c0c64469f0f1061f9aabbf9719a0412913c4a5e01d4c16905bdb65",
+    "driver.log": "f1a9e6a75545fcf17df98bd33389688da427335c496d2cb605782d0dc2599483",
+    "baseline/bank-clocks-MIN_fast_1100mv_-40c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "baseline/bank-hold-MIN_fast_1100mv_-40c.rpt": "b3819e51e4975679a882a4c78ac8666b755569a4b4591e4b0a4aed402e8c6b51",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/corners.log": "d9f103dac2f7fdc1bc03247cda6ebc15345fed9806cece94720166d01aab6973",
+    "baseline/original_cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "baseline/snapshot_fit.flow.rpt": "5e46ceae00d6a6bdca810c0147554adc9f27b146216e3df77f12e4758d5d4ed8",
+    "baseline/bank-removal-7_slow_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/ff_scan_controller.sv": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c",
+    "baseline/bank-setup-MIN_fast_1100mv_100c.rpt": "24feec676b3a78c89f1db5a39b322f4f967929571dd2a1fd3af51d38e6d33079",
+    "baseline/cell_F10016.sv": "d3a34dd976018aa0efff99011be34e7f4411d47091d0c6804894ca568655e89a",
+    "baseline/bank-setup-7_slow_1100mv_100c.rpt": "3af9cb6c2788499492401089e9de19bdaa4cf098ae2ccc42c46f42f417a356f0",
+    "baseline/cell_SN74S174.sv": "ea7fa941c37b395691b265ea289bd6add6dbf911c02b76388ce11ea88185fd7a",
+    "baseline/bank-removal-MIN_fast_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/snapshot_fit.fit.summary": "3ce17138bd0c210f3cdad7647f48db85618807d711014ba996afdf2accb2af2b",
+    "baseline/cell_SN74166.sv": "2c19fdd1da2360572e9ffd777280e93490521fdcdc74d7549a81b56353ef214a",
+    "baseline/bank-mpw-7_slow_1100mv_-40c.rpt": "8a19c1ca653c2abb06e326d3d47f837a9a7d191afc696e3e4b541253a0024ffb",
+    "baseline/bank-removal-7_slow_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/cell_MC10141.sv": "1be96a6bb92fb59423dfd0de29fcb8a3aec6bbd84906156ad569992834742103",
+    "baseline/bank-clocks-MIN_fast_1100mv_100c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "baseline/bank-hold-MIN_fast_1100mv_100c.rpt": "5e6042869f09b9e9b5597af155723a4854a9091c6476d908e1313569e218f39d",
+    "baseline/bank-mpw-7_slow_1100mv_100c.rpt": "eb86e8af671d23ed6aa3895478ac2dcb4539147aefbeb75bda0c7e70cf044e10",
+    "baseline/bank-setup-7_slow_1100mv_-40c.rpt": "d7d762f0de5bbf2bc5d7f94b561076c9a884f5c039c002f8afd9f1edcbab9e94",
+    "baseline/bank-setup-MIN_fast_1100mv_-40c.rpt": "45a79c0952e089e562dce20c4f1519ce7261eca3ea87783d86ab7733ca9bf852",
+    "baseline/original_cell_SN74H04.v": "0c2513703155ec6b9db87704a9f2052423d374b852036388c8f694d76b661b28",
+    "baseline/top.sv": "9b16b27e4f87d02d6b1a2d408de523e8d350abceea3bb708d0ec42138e5cd35e",
+    "baseline/bank-removal-MIN_fast_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/snapshot_fit.map.summary": "454001cae020f95548021ebc07d156dd360036119b4fb52db65e79ff5ff6b78d",
+    "baseline/cell_MK4096P_addr.sv": "18dee318dd47610a881c125815f4b37a1946edf070247c4fbafc530b8fb51237",
+    "baseline/snapshot_fit.fit.rpt": "391fb870f8978c615f58a0b2aa9196ac2dd430c023b8e39ff69e4b3aa2ea570e",
+    "baseline/map.log": "a61d83476461210517c224f2762e87265f6077281b58385b738577acc739d64b",
+    "baseline/original_cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "baseline/bank-recovery-7_slow_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/bank-ucp-7_slow_1100mv_100c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "baseline/bank-recovery-MIN_fast_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/bank-ucp-MIN_fast_1100mv_100c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "baseline/snapshot_fit.sta.summary": "3e05915087c37dccc5a1f17f363f3ef2438916000779443ae213463b9ca3bb56",
+    "baseline/cell_MC10176.sv": "d04172cf63e0f34992a0fdbc2bba4e64a65eca76bbf756c9969730a65c9f357b",
+    "baseline/fit.log": "ddb2cebd2f59c56bbb013d968da2d9997e6cd42ff4d85062ca2e36331e1ebdf2",
+    "baseline/bank-mpw-MIN_fast_1100mv_100c.rpt": "3046a249980558f12cb3a4bf38e18fac537a3ec5d4e45618dad090bf34a708b0",
+    "baseline/snapshot_fit.map.rpt": "c7604fb531a0f0ab58fb415cc0f854fa2f6c2f1100f33eff14d0a885034bc504",
+    "baseline/bank-hold-7_slow_1100mv_-40c.rpt": "abdd2ec514397f0e35c70e3d9e61c25b8eb9a3c7787814f1db651f3f9fefbe83",
+    "baseline/bank-clocks-7_slow_1100mv_100c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "baseline/msa_board.sv": "f21ad8174f4f183b2838e2b2fa22dc8350c8ad1a160fcc7cd9a069bf4f711522",
+    "baseline/bank-ucp-7_slow_1100mv_-40c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/bank-recovery-MIN_fast_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/bank-recovery-7_slow_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/sta.log": "f21f5d9ce6441e50b2a500a223e9584efedc9f59901cf242c540383616e74878",
+    "baseline/original_cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "baseline/snapshot_fit.qsf": "1676f149b8683418ce56d2761f08ae9d17ac6ad70273c61e516e328630d2fe4c",
+    "baseline/snapshot_fit.pin": "5a8437ef36245b348e6f516d63bcafc16374a461bafa322bd84fa662b5e8adfd",
+    "baseline/storage_group.sv": "7f10d466724063f261efcd30e57d374f977ed6c45f56df80bfb96357eeb11b75",
+    "baseline/bank-hold-7_slow_1100mv_100c.rpt": "c3dc764774aa569d794957f82a8b7f39f2c5e7b2112bbd5f5f565cb31f42fa0f",
+    "baseline/bank-clocks-7_slow_1100mv_-40c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "baseline/snapshot_fit.map.smsg": "ac90e2fd1ccf9512c4fccec1cf85adc868f12e78787189372db0cdb1d72656f7",
+    "baseline/bank-mpw-MIN_fast_1100mv_-40c.rpt": "c9e8e221af95892b599ced01b057fcb0417804658c88ce7f568df7bf71101b53",
+    "baseline/original_cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "baseline/snapshot_fit.sta.rpt": "99ffe3efa81f5739ad5a15ca093a17c24f17553bed4b9501826e7f8bfb119085",
+    "baseline/bank-ucp-MIN_fast_1100mv_-40c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "chipwidth/bank-clocks-MIN_fast_1100mv_-40c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "chipwidth/bank-hold-MIN_fast_1100mv_-40c.rpt": "3418eebf55e50706af744daa1e3e867e834f80c5e47edf3d011951e2c10d10db",
+    "chipwidth/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "chipwidth/corners.log": "e0ef42bd5c3348bca9f2fbd928f11dbb3e44091008ef3a363ecc427d648d54be",
+    "chipwidth/original_cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "chipwidth/snapshot_fit.flow.rpt": "434ca15babfa00174924d1babe513ff6beaf9b362a5d1a4da350f447f26641d4",
+    "chipwidth/bank-removal-7_slow_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "chipwidth/ff_scan_controller.sv": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c",
+    "chipwidth/bank-setup-MIN_fast_1100mv_100c.rpt": "992567c3d66495308264ed6ccda3d344a93724d07076ab93af39c0c6c12328a1",
+    "chipwidth/cell_F10016.sv": "d3a34dd976018aa0efff99011be34e7f4411d47091d0c6804894ca568655e89a",
+    "chipwidth/bank-setup-7_slow_1100mv_100c.rpt": "c00171b38b888c664c951659b904316d96bf039451c266ebf222c19fcb0681f7",
+    "chipwidth/cell_SN74S174.sv": "ea7fa941c37b395691b265ea289bd6add6dbf911c02b76388ce11ea88185fd7a",
+    "chipwidth/bank-removal-MIN_fast_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "chipwidth/snapshot_fit.fit.summary": "c7a0a770a6ffeb1cefdbfd68639e79de480a8f92a352dd329cce79029ede7fa4",
+    "chipwidth/cell_SN74166.sv": "2c19fdd1da2360572e9ffd777280e93490521fdcdc74d7549a81b56353ef214a",
+    "chipwidth/bank-mpw-7_slow_1100mv_-40c.rpt": "49430eae72fc6f18a61f6ca34a8ca491682d8ca2bc42851644ca5fbee5f0a25c",
+    "chipwidth/bank-removal-7_slow_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "chipwidth/cell_MC10141.sv": "1be96a6bb92fb59423dfd0de29fcb8a3aec6bbd84906156ad569992834742103",
+    "chipwidth/bank-clocks-MIN_fast_1100mv_100c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "chipwidth/bank-hold-MIN_fast_1100mv_100c.rpt": "6da685eade221f30f1faa128ec4e5ffd83531273af0c224e6309a945c44235a2",
+    "chipwidth/bank-mpw-7_slow_1100mv_100c.rpt": "112afff415f2fecea7715979acbeb0f03d9a28c73c785d62370e674d9820c91e",
+    "chipwidth/bank-setup-7_slow_1100mv_-40c.rpt": "938e9ef6e97cf424e0a61bd570949796a2711412d36f76cb6275bdd5f06a681e",
+    "chipwidth/bank-setup-MIN_fast_1100mv_-40c.rpt": "b5f2e68dad9e1bc30f224b5db1be65d3a4b81bfd9cfade10136bfa17aa81d378",
+    "chipwidth/original_cell_SN74H04.v": "0c2513703155ec6b9db87704a9f2052423d374b852036388c8f694d76b661b28",
+    "chipwidth/snapshot_fit.fit.smsg": "ead667318b0f946b12fc79e84b7151e81dd737cbf73ceb84063153e59eb16bc8",
+    "chipwidth/top.sv": "9b16b27e4f87d02d6b1a2d408de523e8d350abceea3bb708d0ec42138e5cd35e",
+    "chipwidth/bank-removal-MIN_fast_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "chipwidth/snapshot_fit.map.summary": "ae1fd9e6fd54d07ea6bd20d3ab6a3e5e59a55b1f005daab5ada9e249909f56e6",
+    "chipwidth/cell_MK4096P_addr.sv": "18dee318dd47610a881c125815f4b37a1946edf070247c4fbafc530b8fb51237",
+    "chipwidth/snapshot_fit.fit.rpt": "deaadff5715803ca79a2dbd1f2446c5da1d56a8b5fae9e757a0dca84a4f62bdc",
+    "chipwidth/map.log": "2f8a0a310158fb253e97e4e4e500e3b931c0236a9ce3d389810592ae555ec0ea",
+    "chipwidth/original_cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "chipwidth/bank-recovery-7_slow_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "chipwidth/bank-ucp-7_slow_1100mv_100c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "chipwidth/bank-recovery-MIN_fast_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "chipwidth/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "chipwidth/bank-ucp-MIN_fast_1100mv_100c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "chipwidth/snapshot_fit.sta.summary": "924eb6cf3c7dd49ca5691f4bc8676529db6b31517e73f8d63a73c681498943d8",
+    "chipwidth/cell_MC10176.sv": "d04172cf63e0f34992a0fdbc2bba4e64a65eca76bbf756c9969730a65c9f357b",
+    "chipwidth/fit.log": "c55d75707f3c51fd1cb9a8d44d4dce89791e1ef27c5f557760687afa49c2d60e",
+    "chipwidth/bank-mpw-MIN_fast_1100mv_100c.rpt": "d5a67ea2b0435b9fad978581e4d226a84196f08a0864c52a92d5ffbbb4a39d63",
+    "chipwidth/snapshot_fit.map.rpt": "3c70569283f7b9e9a2b108ae97562fe8dc08606e59772db427849229ad0af18e",
+    "chipwidth/bank-hold-7_slow_1100mv_-40c.rpt": "a35218c9c3db8cb679bd0b4e3a5c7b83e0074d4096317b823142a3636fdfa9f3",
+    "chipwidth/bank-clocks-7_slow_1100mv_100c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "chipwidth/msa_board.sv": "e7d834af6c5648fd91f5435d24b860d62bd6256a567238af2cadb0290232e162",
+    "chipwidth/bank-ucp-7_slow_1100mv_-40c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "chipwidth/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "chipwidth/bank-recovery-MIN_fast_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "chipwidth/bank-recovery-7_slow_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "chipwidth/sta.log": "c63f89416e558b07885e9683f0cda067ee4b3b6b3afb4652e92821874196844b",
+    "chipwidth/original_cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "chipwidth/snapshot_fit.qsf": "1676f149b8683418ce56d2761f08ae9d17ac6ad70273c61e516e328630d2fe4c",
+    "chipwidth/snapshot_fit.pin": "5a8437ef36245b348e6f516d63bcafc16374a461bafa322bd84fa662b5e8adfd",
+    "chipwidth/storage_group.sv": "a8e7da477697064458bd134d25cb76ea6fb91c384ea890e0e75f8345125e82ee",
+    "chipwidth/bank-hold-7_slow_1100mv_100c.rpt": "019594df89675ab7d9d91c79e3d0090f4e5dd0069e955dc025b17ef5c49fed11",
+    "chipwidth/bank-clocks-7_slow_1100mv_-40c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "chipwidth/snapshot_fit.map.smsg": "45fd0ce1d838d2edb574adc28215d5d56f7119ec597a3a85d8fd8828fb9f8692",
+    "chipwidth/bank-mpw-MIN_fast_1100mv_-40c.rpt": "8cd7675eaa987432042e19c43a9041e710c18fccf17dd75cc11c41434382b49b",
+    "chipwidth/original_cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "chipwidth/snapshot_fit.sta.rpt": "45284c04987dd6cbe6fc2c32acfce182500c4b379d33927d1b4f789e9064bd3e",
+    "chipwidth/bank-ucp-MIN_fast_1100mv_-40c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "executed-sources/generate_msa_board.py": "a561a8ffe871a1aac4dd5461f507f3e5548dd16c4ce91999596bf4dfe273b8b6",
+    "executed-sources/generate_msa_chipwidth.py": "8386f83ddefc38f3fd454f78513cd80560ed886cb05f5831a54d6a44ad2d7030",
+    "executed-sources/generate_storage_chipwidth.py": "54654c7ca967fc4da3bb23d870af0ebcea91e43c4215f945950bd9ec9f86c1e2",
+    "executed-sources/fit_msa_chipwidth.py": "6fcd294dd0b70b10266256867c86871a15b24bcc4ec851702228ee625f30d886"
+  }
+}

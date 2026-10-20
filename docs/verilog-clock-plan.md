@@ -42,6 +42,71 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Chip-width MSA caches qualify at 1,600 ALMs versus 1,721; the complete Serial64Chipwidth fit is running.**
+
+The bridge cache now holds exactly each original chip group's WIDTH (8 or 12)
+low data bits, preserving the raw 16-bit port, original guest pipeline and all
+866 original FF/history bits. Only unused implementation padding is removed.
+One complete MSA has 1,538 physical bits /378 fields (672 bridge bits), 86 words,
+last 8 bits. Nonzero raw padding is deliberately supplied in the original RTL
+oracles. Full-MSA testing passes 13,288,504 checks /40,002 guest advances, all
+remaining physical state/normal pins/raw traffic, full inversion/restore,
+first resume and 20,000 further advances; seven bad RTL variants reject.
+The frontend gate passes 1,768,540 checks, all original chip-array bits, nine
+pending/reset snapshots and eight bad variants. Source inverse review rejects
+ten rehashed damaged cases; fresh XML accounts for all 1,538 candidate +2,690
+unchanged reference +81 private bits with no exclusions, fourteen controls.
+
+Matched complete-MSA Quartus uses the same 50 MHz shell, 991 virtual pins, 2 ns/0 ns
+IO and area policy: 1,721 baseline /1,600 chip-width ALMs. All four device conditions
+pass with minimum +0.119 ns and zero unconstrained clocks/IO; five damaged fit
+cases reject. Builder 2425360 is absent; the component job is TERMINAL.
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-msa-chipwidth/`.
+All 500 raw members pass readback; extracted source/fixture generation, both
+original-RTL/DRAM rebuilds, source/XML/fit controls pass. No native speed claim.
+
+All eight real adapters also qualify over SPI under new board-only schema
+`af0b647cb43a3a62`, 1,957,048 physical board bits. The first eleven maps stay;
+slot11 has 86 words/member, stride 256, dense eight-member payload 1,538 bytes.
+Both owner/router reject words 86..255 before dispatch. Tests pass 75,935 ticks /
+326 SPI packets /129 checks, including 34 Python-built packets; old main, original
+MSA and prior compact schema tags reject before changes. Ten actual bad RTL
+variants, ten rehashed catalog mutations, six inverse source controls and twelve
+fresh XML/schema/deadline/alias controls reject. Actual state totals are 12,304
+physical MSA +648 private MSA +417 private transport, none excluded. Guest advances
+are stopped and other endpoints/services remain explicit stubs here.
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-msa-chipwidth-transport/`.
+All 380 raw members and extracted catalog/fixture/RTL, dense-format/source/XML
+controls and rebuilt eight-board SPI replay pass. No native pause claim.
+
+Serial64Chipwidth integrates these exact qualified bytes in frozen Serial63.
+All 659 parent inputs /413 Native59 receipts and 2,761 original pin/parameter
+bindings pass; 23 damaged source/policy/alias cases reject. All real timing
+constraints remain byte-identical after path rebase; no new cuts. Fresh actual
+QSF inventory uses 319 HDL /15 macros /3,945 instances, with 1,957,048 physical board
++4,578 private board +69 private owner/router +132,484 wrapper ACCESS PENDING:
+2,094,179 sequential bits, none excluded; fourteen damaged cases reject.
+Top emu/UIO, raw SDRAM and ARM state still require complete snapshot work.
+
+The remote job `/home/alans/mister/Dorado_Serial64Chipwidth_20261019` is ACTIVE,
+builder 2433951. Observe that same PID/child and driver.log; do NOT restart from
+a timeout or a state file. Staged packet SHA256:
+`a1e8e12bc900ebc46381331e13d148ec416a7c8b9353fab5aa36f392b675d8cc`.
+Local source/remote/input XML/audits are under
+`build/rtl-executive/serial64-chipwidth-{source,remote,inventory}-v1-20261019`.
+Assembly is disabled; no RBF/reload. Last terminal whole-core fit remains
+42,449 /41,910 ALMs, 539 over. Do not infer a combined fit from per-MSA savings.
+
+Next: observe Serial64 through terminal fit and (only if legal) all-device timing,
+verify all actual inputs/clock and memory policies, archive and review the result.
+Then finish real wrapper/raw-memory/input/video/Main/daemon/server capture,
+connection-preserving pause, true reseed and matching-disk generation barriers.
+Original 60 ns clocks/timers, pinned performance comparisons, three fresh boots/
+cold persistence and two-hour stress remain open. Native59/last qualified
+1,947,654.12 instruction issues/s is unchanged. Goal ACTIVE.
+
+Previous complete compact fit:
+
 **The complete compact nineteen-board fit saves 4,253 ALMs, but still fails capacity: 42,449 / 41,910 ALMs, 539 over.**
 
 Serial63Compact integrates the exact qualified compact MSA/transport receipts

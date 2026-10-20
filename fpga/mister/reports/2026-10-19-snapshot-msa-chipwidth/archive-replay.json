@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "generation_fixture": "exact board/helpers/fixture/header",
+  "source_controls": 10,
+  "fit_controls": 5,
+  "classification_controls": 14,
+  "rebuilt": {
+    "frontend-v1": "CHIPWIDTH STORAGE PASS host=59341 checks=1768540 guest=5010 requests=10930 writes=906 scan=12032 snapshots=9 pending_read=2 pending_write=2 write_done=2 resets=8 physical=38/54 raw_bits=1310720",
+    "msa-v1": "CHIPWIDTH MSA PASS host=879344 checks=13288504 guest=40002 raw_requests=55568 raw_writes=8568 state_requests=524 scan_edges=793615 physical=1538 fields=378 packages=78 frontends=16 words=86 last=8 post_restore=20000"
+  },
+  "dependencies": "Committed immutable original main-board/MSA and compact receipt archives through tools/fpga/mister/reports symlink; no working HDL"
+}
