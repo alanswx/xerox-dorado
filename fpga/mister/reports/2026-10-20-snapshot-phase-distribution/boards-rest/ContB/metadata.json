@@ -1,0 +1,2264 @@
+{
+  "inputs": 102,
+  "outputs": 71,
+  "sampled_physical_bits": 353,
+  "large_ram_probe_bits": 144,
+  "large_ram_fields": 144,
+  "frozen_flags": 8,
+  "small": [
+    {
+      "path": "snapshot_bank_0.saved_q",
+      "width": 18,
+      "bits": 18,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_1.saved_q",
+      "width": 18,
+      "bits": 18,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_2.saved_q",
+      "width": 18,
+      "bits": 18,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_3.saved_q",
+      "width": 18,
+      "bits": 18,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_4.saved_q",
+      "width": 18,
+      "bits": 18,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_5.saved_q",
+      "width": 18,
+      "bits": 18,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_6.saved_q",
+      "width": 18,
+      "bits": 18,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_7.saved_q",
+      "width": 18,
+      "bits": 18,
+      "dims": []
+    },
+    {
+      "path": "u_b02.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b02.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b02.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b23.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b23.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b23.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b23.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b23.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b23.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b24.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b24.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b24.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b24.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b24.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b24.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c02.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c02.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c02.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c04.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c04.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c24.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c24.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c24.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c24.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c24.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c24.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_d02.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_d02.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_d02.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_f22.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f22.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_f22.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g03.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g03.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g03.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g22.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g22.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g22.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g24.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g24.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g24.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g24.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g24.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g24.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h01.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h01.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h01.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h01.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h01.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h01.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h03.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h03.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_h03.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_h24.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h24.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h24.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h24.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h24.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h24.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i01.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i01.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i01.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i01.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i01.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i01.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i24.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i24.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i24.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i24.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i24.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i24.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j01.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j01.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j01.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j01.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j01.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j01.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j24.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j24.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j24.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j24.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j24.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j24.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k24.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k24.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k24.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k24.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k24.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k24.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l04.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l04.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l20.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l20.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l20.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l22.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l22.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l22.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    }
+  ],
+  "large": [
+    {
+      "path": "snapshot_bank_0.bits[0].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[10].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[11].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[12].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[13].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[14].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[15].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[16].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[17].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[1].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[2].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[3].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[4].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[5].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[6].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[7].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[8].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_0.bits[9].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[0].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[10].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[11].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[12].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[13].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[14].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[15].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[16].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[17].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[1].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[2].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[3].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[4].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[5].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[6].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[7].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[8].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.bits[9].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[0].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[10].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[11].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[12].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[13].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[14].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[15].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[16].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[17].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[1].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[2].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[3].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[4].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[5].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[6].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[7].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[8].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.bits[9].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[0].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[10].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[11].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[12].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[13].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[14].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[15].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[16].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[17].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[1].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[2].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[3].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[4].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[5].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[6].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[7].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[8].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.bits[9].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[0].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[10].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[11].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[12].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[13].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[14].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[15].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[16].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[17].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[1].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[2].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[3].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[4].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[5].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[6].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[7].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[8].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.bits[9].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[0].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[10].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[11].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[12].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[13].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[14].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[15].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[16].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[17].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[1].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[2].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[3].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[4].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[5].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[6].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[7].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[8].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.bits[9].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[0].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[10].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[11].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[12].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[13].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[14].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[15].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[16].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[17].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[1].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[2].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[3].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[4].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[5].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[6].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[7].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[8].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.bits[9].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[0].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[10].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[11].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[12].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[13].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[14].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[15].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[16].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[17].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[1].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[2].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[3].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[4].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[5].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[6].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[7].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[8].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.bits[9].mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    }
+  ],
+  "helper_frozen": [
+    "snapshot_bank_0.frozen",
+    "snapshot_bank_1.frozen",
+    "snapshot_bank_2.frozen",
+    "snapshot_bank_3.frozen",
+    "snapshot_bank_4.frozen",
+    "snapshot_bank_5.frozen",
+    "snapshot_bank_6.frozen",
+    "snapshot_bank_7.frozen"
+  ],
+  "qualified_families": [
+    {
+      "kind": "MC10176",
+      "instances": 11,
+      "original_sha256": "4f28fe4470fbc3112c25d4ea399de90075a7b8319a42be63d47aa7a85ef591fc",
+      "generated_sha256": "3928c98521b52320945d2666e1da7c2c274beaa41e6d2a9b9a90c5e4d9cc7523",
+      "default_off_inverse": true
+    },
+    {
+      "kind": "MC10231",
+      "instances": 11,
+      "original_sha256": "ed6feaa9a3dcb9d8fcb4abb7fdf0e3ddfb757214a67f15ba603b6b535a42bfe2",
+      "generated_sha256": "86d6267fab5399eaf8cf36c7f0e0cdaa3dff94abec8e0beb8a8635db1fe10171",
+      "default_off_inverse": true
+    }
+  ]
+}

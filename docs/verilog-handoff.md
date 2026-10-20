@@ -2,16 +2,23 @@
 
 ## Current objective (2026-10-20)
 
-The local advance-distribution prototype now passes component qualification:
-86,145 checks against frozen original FF state, nineteen same-falling-edge
-copies, destructive scan/restore, partial-import quarantine, and six rejected
-broken variants. See the [clock plan](verilog-clock-plan.md#benchmark-contract)
-and `fpga/mister/reports/2026-10-20-snapshot-phase-payload-component/`.
-This is two FF families under a synthetic synchronous hold producer only.
-Next TODO: prove the native hold/scan/advance producer contract, then test
-complete boards and SDRAM traffic before integration. RAM families, state
-access, actual Main controls, remaining board-data paths and timing stay open.
-No new full-core build or hardware change; no speed gain.
+Local advance qualification now passes all eleven whole-board oracles
+(8,399,378 checks), the frozen actual native hold-control cone (27,501 checks)
+and eight complete MSAs /128 raw groups with real SDRAM (52,931,566 checks).
+The MSA workload reproduces reference4,405 guest edges /41,760 reads /7,472
+writes, including pending I/O pauses, all12,304 state bits and partial-import
+quarantine with refresh live. Nineteen copies retain the original falling edge;
+479 MC10176/MC10231 helpers opt into the payload contract. Other RAM/payload
+families are unchanged. Default-off remains byte-invertible. The native control
+test uses small model payloads; physical boards/SDRAM are separate experiments.
+See the [clock plan](verilog-clock-plan.md#benchmark-contract) and receipt
+`fpga/mister/reports/2026-10-20-snapshot-phase-distribution/`.
+All19 archive-extracted board/control/SDRAM rebuild cases pass with fresh
+compiler objects; all raw source/report bytes read back.
+Next TODO: integrate the exact qualified assets into native sources, account and
+provide access for19 new bits, then finish actual Main controls and the remaining
+RAM-hold/ContA JCN-to-DMadr paths before fitting. Complete snapshots and original
+60ns clocks remain open. No full-core build, hardware change or speed gain.
 
 **Serial73 is terminal:41,642/41,910 ALMs; timing REJECTED at setup -1.095 ns /hold -1.326 ns. Registered readiness-to-advance now passes at +1.940 ns, but outgoing advance/predictor, snapshot-hold, virtual controls and additional board-data paths still fail. Main coordination, full snapshots, faster clocks and final FPGA qualification remain open.**
 

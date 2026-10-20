@@ -1,0 +1,13 @@
+{
+  "status": "COMPONENT_QUALIFICATIONS_ONLY",
+  "notes": [
+    "Eleven complete board tests cover original pins, classified small physical fields, sampled large RAM and helper frozen flags; prior exhaustive RAM qualifications remain prerequisites.",
+    "The native control test extracts actual Serial73 owner/router/coordinator instances and service/hold equations after verifying all 662 parent inputs. Nineteen 38-bit model leaves replace physical payloads; board tests and eight-MSA/SDRAM tests separately cover those payloads.",
+    "MSA v1/v2 preflight expected 16 MC10176 packages incorrectly; frozen board source has 12, now checked explicitly.",
+    "MSA v3 rejected a requested permission that arrived at capture; v4 passed physical comparisons but source review found an extra-guest scheduling race (7169 instead of 4405). V5 moves request changes one time unit beyond a caller edge and checks exactly one issued edge per request; it reproduces reference 4405/41760/7472 counts.",
+    "Native-domain v1 correctly retained sticky network quarantine after parser/system reset; corrected test uses fresh simulations for separate scenarios, preserving actual Core machine_reseed=0. V2 random-log quarantine flag was inaccurate; V3 reports 0 for that scenario.",
+    "Board v1 preflight required PRECAP bindings on all helpers; default bindings are now retained explicitly. V3 reached BaseBoard format difference after nine passing boards; V4 adapts its serial helper preserving post-payload scan_out.",
+    "No full native phase integration, inventory/access for 19 bits, mapped duplication, Quartus timing, Main coordination, RAM-family optimization or hardware speed gain is claimed."
+  ],
+  "authoritative_msa": "eight-msa-phase-v5-20261020"
+}

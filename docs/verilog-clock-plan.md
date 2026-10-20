@@ -43,6 +43,40 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Local advance / payload qualification (2026-10-20):** all eleven complete
+boards pass8,399,378 checks over2,104,093 host edges against their frozen
+originals: original pins, classified small physical fields, sampled large RAM,
+scan/read/destructive-import/restore,2,000 resumed steps per board, forced hold
+and partial-import quarantine.383 MC10176/MC10231 instances opt in; other
+payload/RAM families retain their existing hold checks. Default-off helpers
+invert byte-exactly, including the BaseBoard serial-port variant.
+
+The actual frozen Serial73 owner/router/memory/network/disk control cone passes
+27,501 checks in two fresh simulations, including all19 scan targets, four-state
+controls and parser-reset quarantine; three broken edge/permission/late-hold
+variants reject. All662 parent inputs and all19 native board hold/phase hookups
+are checked. The control experiment uses nineteen38-bit leaf models; it is
+separate from complete physical-board qualification and not a full-native run.
+
+All eight complete MSAs /128 raw groups and real SDRAM pin models pass
+52,931,566 checks with the same4,405 guest instructions /41,760 reads /7,472
+writes as the qualified reference. All12,304 original state bits, pins and raw
+controls agree; four pending read/write pauses, member3 partial-import quarantine
+and live refresh pass.96 MC10176 instances opt in. Wrong-edge and missing-payload-
+enable variants reject. Admission requests are stable before capture, and every
+request must produce exactly one guest edge; the earlier7169-edge fixture race
+is retained as superseded evidence. No clock period or SDRAM timing was changed.
+
+Receipt: `fpga/mister/reports/2026-10-20-snapshot-phase-distribution/`.
+The independent verifier matches every executed board/control/MSA asset to the
+current generator. An archive-extracted rebuild reproduces all eleven board
+results, five control scenarios and three eight-MSA cases using only archived
+HDL/headers/memory files and fresh compiler objects. All raw bytes read back;
+the final receipt retains every originally replayed member.
+**Next: full-native source integration, inventory/access for
+nineteen new phase bits, actual clocked Main controls and remaining RAM/DMadr
+timing paths.** No full-core fit, hardware reload or speed gain is claimed.
+
 **Local-enable component prototype (2026-10-20):** nineteen independent
 falling-edge advance registers match the existing global register without an
 extra cycle. Two optional FF families (MC10176/MC10231, both PRECAP modes)
@@ -444,12 +478,13 @@ No production Main/daemon/core changed; Native59's measured rate remains.
 Next, in delivery order:
 
 1. Preserve terminal Serial73 rejection and its successful registered NEXT-ready
-   cut. Qualify same-phase local advance AND snapshot-hold distribution, account
-   every added bit and preserve global gate/live guards. Inspect ContA JCN-to-
-   MemX/MemD DMadr separately. Use original full-board/SDRAM state, pin, traffic,
-   reset and partial-import quarantine oracles; local advance copies alone are
-   not sufficient proof. Keep clock periods/phase and placement policy; qualify
-   actual Main controls and all remaining measured paths before a combined fit.
+   cut. Eleven whole-board, native-control-cone and eight-MSA/SDRAM local-phase
+   qualifications now pass. Integrate those exact assets, account/access nineteen
+   added bits and preserve the global gate/live guards. Qualify remaining RAM
+   hold paths and inspect ContA JCN-to-MemX/MemD DMadr separately. Local advance
+   copies alone are not sufficient proof. Keep clock periods/phase and placement
+   policy; qualify actual Main controls and every remaining measured path before
+   a combined fit.
 2. Connect the qualified Main transport lease, disk-worker and daemon pause APIs
    through the actual snapshot coordinator and compatible-build checks, with real
    FPGA disk/network, input and video acknowledgments. Wire the qualified network

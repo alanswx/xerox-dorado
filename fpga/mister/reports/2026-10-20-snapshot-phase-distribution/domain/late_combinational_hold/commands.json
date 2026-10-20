@@ -1,0 +1,22 @@
+[
+  [
+    "iverilog",
+    "-g2012",
+    "-s",
+    "tb",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-phase-domain-v3-20261020/late_combinational_hold/test.vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-phase-domain-v3-20261020/executed-inputs/board_state_fabric_msa.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-phase-domain-v3-20261020/executed-inputs/msa_state_group.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-phase-domain-v3-20261020/executed-inputs/memory_pause_barrier.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-phase-domain-v3-20261020/executed-inputs/network_pause_barrier.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-phase-domain-v3-20261020/executed-inputs/disk_pause_barrier.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-phase-domain-v3-20261020/executed-inputs/ff_scan_controller.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-phase-domain-v3-20261020/executed-inputs/board_phase_enable.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-phase-domain-v3-20261020/late_combinational_hold/fixture.sv"
+  ],
+  [
+    "vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-phase-domain-v3-20261020/late_combinational_hold/test.vvp"
+  ]
+]

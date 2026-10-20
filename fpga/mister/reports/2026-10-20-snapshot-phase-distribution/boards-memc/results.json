@@ -1,0 +1,2392 @@
+{
+  "status": "PASS_BOARD_COMPONENTS",
+  "scope": "Complete original-board oracles for optional phase-qualified FF payloads.\n\nAll original board pins and classified physical state are compared. The\nproducer is an explicit same-falling-edge gate with synchronous hold inputs;\nnative integration/source-domain proof and RAM-family optimization remain open.\n",
+  "boards": [
+    {
+      "board": "MemC",
+      "source_hashes": {
+        "cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+        "cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+        "fixture.sv": "b4d1b2fd7d2b267ba3cdb00978ad7981e585dbd31ee192431767f9924f4dd631",
+        "cell_MC10101.v": "d7cce11dd4c6c75b83d1d40287144fffc35ac6df2b9f490a45aeb740dcab862f",
+        "ff_scan_controller.sv": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c",
+        "cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+        "cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+        "cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+        "cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+        "cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+        "cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+        "cell_F10016_snapshot.v": "6e4a8a7a9693da4d75ce9b8f935687e0df187a257659792e252f1ba37d3190c4",
+        "cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+        "MemC__cell_F10000_snapshot.v": "88213ad222ed171e92e37b26becaae32e212b6d7b3645dddd989b59e11773c0f",
+        "cell_MC10211.v": "5dff5af0f55a1f63dbfc7e98047f1f0fd18491ac1e06980c7991fc09a060272d",
+        "MemC__board.sv": "fda10a00b64b2ec8937dd71b84ff6ae74bdd353001d992d28540e4f4008f3e88",
+        "cell_MC10175_snapshot.v": "cdf7e1124e7ef3cf8d8deeda514957e4bdc6fd4d1f55854bdc671e3b62db2280",
+        "cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+        "MemC__ff_scan_controller.sv": "ee7728f66415f4422b521695047d5fddf7f741f8aa34417e5e350e94f5cd6097",
+        "cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+        "MemC__cell_F10016_snapshot.v": "81fea121ed0dfe9af3242f6bffe45e1e3bd7c22ccb2f94f6e4e92c51a25aa773",
+        "cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+        "cell_F10000_snapshot.v": "e4731ecd911d3789f6af5b621f4c1909844c565782717776cd245ccad3560df5",
+        "cell_F10145A_snapshot.sv": "6b28e8d25992952f0a502c101c8523b37fb1bd00e5fba7c2aae9057e4383825a",
+        "MemC__cell_F10145A_snapshot.sv": "458655f3a7bd78011a911e291ddd8298158cb2d35534a631fe49da4516a24a3a",
+        "cell_MC10173.v": "e5a5b884cc2aa3cc7dd3a547bb5722f1528f9a1e907a789545f85a3cf5eae530",
+        "MemC_original.v": "ed1b7f6cf85f6f7382024ba9bb3337a0a78cff5fea6ee7bcfc86b248b3cab54b",
+        "cell_MC10179.v": "664cb35457cd54d067fd9a23d2e9abf4efd0d01a391c108ba6d29c5382226c94",
+        "cell_MB7071H_snapshot.sv": "8b6d1a96ff8b8afcba08529fecae3c3306bfd4681627ec7dce19ab18c37f5cfd",
+        "cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+        "MemC__cell_MB7071H_snapshot.sv": "a60331f1bba10e3369c0e974865f4fb8a0dd00bab10daafca2b608fa133fed81",
+        "MemC__cell_MC10175_snapshot.v": "dd00406b5c2e897d522cfe4553b4f8c8d0d2b7b3090c06fc838db242af6fe085",
+        "top.sv": "8fb4e0f83233932a460276384e563606edb18721dcf7a9d18aeca684026b708b",
+        "cell_MC10212.v": "592b5a4ad9cf64bc846b3619f85d268cac4123e5893bdc2f93e520ff1e45b39f",
+        "board_phase_enable.sv": "18cbe6f5a77e0748ed296da8fe9bf68b3bd91410b4499cd167f408ecc69e3cdc",
+        "MemC__cell_F10414_snapshot.sv": "95d5481cda9297819491fd3cea91f8d0b581ce85c4512228e7cc7a99c65d803a",
+        "cell_MC10107.v": "dadd09a4dc0e4e6e126aa6f30c5b3fd92acbba8aaf25e94cb2f399b779011065",
+        "cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+        "parameters.h": "b82f1898a17a53ae7fb7eb7d3a2d44a620a2ffd40a1e7abb5f1cf680f9acdbd1",
+        "MemC__cell_F100181_snapshot.v": "3a5d3cc5f29021fa5334de9aacfeec5ecddfd5cd4e7f6f1301a3722ca07313db",
+        "cell_SE10231_snapshot.v": "607df39d45682c2e09ec2c72c3adffe752272f3901bbb727a8ad51004ff6950a",
+        "cell_MC10162.v": "11618612f2ac5106613f9eae75db522f669d12090d2407ee8256c44e8a14dd73",
+        "cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+        "cell_MC10231_snapshot.v": "17bf1e9fd267e3b0325c7c4794d6818eef2f50bd1cf27c7f536b0cbda26048e2",
+        "cell_MC1672.v": "47d2593da342d5090c5bc33802300695b1d1ba3627f9507e92a26199dd52334b",
+        "MemC__cell_MC10141_snapshot.v": "72368cf29c34f9a689dcdca43e37be70bb7a4aa1972995dfe48a456d5e066efa",
+        "MemC__cell_MC10176_snapshot.v": "209ed60f66d7f34c42ed7944c57615d9cad9550f9dc64fb85959b4f558d5c3e0",
+        "cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+        "driver.cpp": "9b5eedabbc07f2182735d0a60524cd9f52b893386ccfd21ae3ba1490c8468dbc",
+        "cell_MC10113.v": "3ad34b4dc8d3026412b4d300ce28f3a214fa42d3d6e1c1cc1afead9e601dec0b",
+        "MemC__cell_SE10231_snapshot.v": "da2649fe610466e5a1e29ea9349871119e097b8c6128a323748761ade74b86cb",
+        "cell_F100181_snapshot.v": "6f5f1c77a2ed2bf463c32bf509b38400ea204b97142c9023653c5938b3705f97",
+        "MemC__cell_MC10231_snapshot.v": "698405697258fc1c029b3599be2a8fc9e404d960ea4c498510f3a5c8d6676393",
+        "cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+        "cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+        "cell_MC10141_snapshot.v": "2ce357063c805920ce1f4583f4d3d22e9fe32a01fbd3782b9ab06c6c85502df0",
+        "cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e",
+        "MemC__cell_MC10173_snapshot.v": "20e26f6e60abc100ca69d07996fb8efbf5e597e3c5ed8edefa23e6d29b089edd",
+        "cell_MC1668.v": "fc852cf2cc55768887f43568dd9c29d6acb6d8c8a708fd5fc41381b183a124ad",
+        "cell_MC1668_snapshot.v": "f4b85f8096f5f543e45da6d93b9c109dbd698db19488cc86700e3433b384e415",
+        "cell_F10414_snapshot.sv": "47b6e3b885402a7aeeba873f920c04c005f7a71041e9a9bf02d4348cd5e65886",
+        "cell_F100181.v": "70e30781ed4372459bb63580fd1b955bb54568e70bc722e0b73ce9e46546cc27",
+        "cell_MC10159.v": "cdd04d5587a7427677bc5fe1f3ab694c52ad8d70b078919d265cd0036aa92f32",
+        "cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+        "MemC_snapshot.sv": "10ad791fa2747ee87ce5350e2c72d94d8bab2e663b58f9f1fdacc2220dc94b53",
+        "cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+        "cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+        "cell_MB7071H.v": "710b890c91d451c6023ba0396d170402ef95355703175d15417a0ccf2112bc2b",
+        "cell_MC10135_snapshot.v": "b46aec0a301d13133994a844321cdb352bc01a200dd898002e9641000ac0a389",
+        "MemC__cell_MC1668_snapshot.v": "ccf63f79c56b606107c714eb3c3a5b1c52fc57394e5166c36a0fb04f7bf70281",
+        "cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+        "cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+        "cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+        "cell_MC10161.v": "816c7d2eb044c210d256c32ce1f4215a988e312d02df81b527d6ba001795788b",
+        "cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+        "cell_MC10171.v": "cf6cea0c9e776032c109a46f8eb6e9a6f3b88bdf941a121e3b0bd3b31abed7d1",
+        "cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+        "cell_MC10175.v": "81ce9ab49d5a9788c1f93dd67704a27a7e0848243a7d10c9aec2d48deec1c0f1",
+        "cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+        "MemC__cell_MC10135_snapshot.v": "a473c67a5ca14e4c9109787b43333c8cbde70c15f0ce72d4ac94032404dd78d0"
+      },
+      "families": [
+        {
+          "kind": "MC10176",
+          "instances": 22,
+          "original_sha256": "bf042c5587ae4656363138f8806dbce2fff39ebb6503f357bd32786af41b211f",
+          "generated_sha256": "209ed60f66d7f34c42ed7944c57615d9cad9550f9dc64fb85959b4f558d5c3e0",
+          "default_off_inverse": true
+        },
+        {
+          "kind": "MC10231",
+          "instances": 9,
+          "original_sha256": "005db7d0ca96d87b427db20ea7dce995fcecb89c2ea1d68f936dd5076de82730",
+          "generated_sha256": "698405697258fc1c029b3599be2a8fc9e404d960ea4c498510f3a5c8d6676393",
+          "default_off_inverse": true
+        }
+      ],
+      "metadata": {
+        "inputs": 125,
+        "outputs": 87,
+        "sampled_physical_bits": 2214,
+        "large_ram_probe_bits": 84,
+        "large_ram_fields": 21,
+        "frozen_flags": 45,
+        "small": [
+          {
+            "path": "clk1B",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "clk1_p_B",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "clk1_p_Da",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "clk1_p_Db",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "clk1_p_Dc",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u__h_1c42.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u__h_1c43.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u__h_1f42.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u__h_1i42.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u__h_5b42.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u__h_5b43.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u__h_5e42.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u__h_5h42.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_a14.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_a14.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_a14.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_a14.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_a15.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_a15.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_a15.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_a15.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_b03.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_b03.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_b03.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_b05.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_b05.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_b05.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_b14.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_b14.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_b14.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_b14.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_b15.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_b15.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_b15.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_b15.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c14.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c14.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c14.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c14.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c15.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c15.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c15.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c15.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c17.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c17.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c17.d_pre_a",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c17.d_pre_b",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c17.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_c17.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d02.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d02.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_d02.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_d05.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_d06.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_d06.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d06.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_d06.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_d06.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d07.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_d07.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d07.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_d07.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_d07.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d14.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d14.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d14.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d14.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d15.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d15.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d15.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d15.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d17.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d17.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d17.d_pre_a",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d17.d_pre_b",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d17.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_d17.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e03.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e03.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_e03.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_e05.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_e06.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_e06.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e06.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_e06.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_e06.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e07.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_e07.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e07.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_e07.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_e07.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e14.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e14.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e14.d_pre_a",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e14.d_pre_b",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e14.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e14.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e22.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e22.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e22.d_pre_a",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e22.d_pre_b",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e22.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e22.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e23.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e23.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e23.d_pre_a",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e23.d_pre_b",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e23.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_e23.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_f05.q",
+            "width": 5,
+            "bits": 5,
+            "dims": []
+          },
+          {
+            "path": "u_f06.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_f06.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_f06.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_f06.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_f06.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_f07.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_f07.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_f07.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_f07.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_f07.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_f08.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_f08.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_f08.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_g02.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_g02.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g02.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_g02.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_g02.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g03.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_g03.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g03.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_g03.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_g03.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g09.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g09.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_g09.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_g14.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g14.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g14.d_pre_a",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g14.d_pre_b",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g14.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g14.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g17.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g17.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g17.d_pre_a",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g17.d_pre_b",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g17.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g17.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_g22.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_g24.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_h02.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_h02.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_h02.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_h02.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_h02.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_h03.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_h03.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_h03.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_h03.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_h03.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_h05.q",
+            "width": 5,
+            "bits": 5,
+            "dims": []
+          },
+          {
+            "path": "u_h06.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_h06.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_h06.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_h06.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_h06.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_h07.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_h07.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_h07.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_h07.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_h07.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_h22.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_h22.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_h22.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_h24.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_i02.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_i02.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i02.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_i02.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_i02.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i03.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_i03.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i03.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_i03.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_i03.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i05.q",
+            "width": 5,
+            "bits": 5,
+            "dims": []
+          },
+          {
+            "path": "u_i06.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_i06.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i06.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_i06.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_i06.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i07.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_i07.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i07.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_i07.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_i07.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i10.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i10.d_pre",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_i10.dl_pre",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i10.dr_pre",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i10.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_i10.s_pre",
+            "width": 2,
+            "bits": 2,
+            "dims": []
+          },
+          {
+            "path": "u_i14.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_i14.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i14.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_i14.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_i14.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i15.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i15.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_i15.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_i20.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i20.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_i20.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_i21.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_i21.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_i21.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_i23.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_j02.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_j02.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_j02.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_j03.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_j03.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_j03.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_j05.q",
+            "width": 5,
+            "bits": 5,
+            "dims": []
+          },
+          {
+            "path": "u_j06.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_j06.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_j06.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_j06.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_j06.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_j07.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_j07.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_j07.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_j07.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_j07.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_j15.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_j15.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_j15.d_pre_a",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_j15.d_pre_b",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_j15.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_j15.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_j21.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_j21.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_j21.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_k01.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k01.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_k01.setup_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_k02.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k02.d_pre",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_k02.dl_pre",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k02.dr_pre",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k02.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_k02.s_pre",
+            "width": 2,
+            "bits": 2,
+            "dims": []
+          },
+          {
+            "path": "u_k03.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_k03.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k03.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_k03.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_k03.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k04.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k04.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_k04.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_k06.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_k06.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k06.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_k06.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_k06.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k07.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_k07.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k07.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_k07.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_k07.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k08.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k08.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_k08.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_k09.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k09.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_k09.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_k12.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_k13.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k13.jk_pre",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_k13.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k13.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k21.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k21.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_k21.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_k24.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_k24.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_k24.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_l02.cka_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_l02.ckb_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_l02.d_pre_a",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_l02.d_pre_b",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_l02.qa",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_l02.qb",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_l03.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_l03.q",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_l03.setup_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_l04.a_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_l04.ce_lat",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_l04.d_lat",
+            "width": 4,
+            "bits": 4,
+            "dims": []
+          },
+          {
+            "path": "u_l04.mem",
+            "width": 4,
+            "bits": 64,
+            "dims": [
+              [
+                0,
+                15
+              ]
+            ]
+          },
+          {
+            "path": "u_l04.we_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_l07.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_l07.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_l07.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_l09.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_l09.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_l09.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_l13.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_l13.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_l13.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_l24.ck_d",
+            "width": 1,
+            "bits": 1,
+            "dims": []
+          },
+          {
+            "path": "u_l24.d_pre",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          },
+          {
+            "path": "u_l24.q",
+            "width": 6,
+            "bits": 6,
+            "dims": []
+          }
+        ],
+        "large": [
+          {
+            "path": "u_a08.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_a10.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_a12.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_a18.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_a20.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_b08.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_b10.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_b12.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_b18.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_b20.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_c08.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_c10.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_c12.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_c18.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_c20.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_c22.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_d08.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_d10.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_d12.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_d18.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          },
+          {
+            "path": "u_d20.mem",
+            "width": 4,
+            "bits": 1024,
+            "dims": [
+              [
+                0,
+                255
+              ]
+            ]
+          }
+        ],
+        "helper_frozen": [
+          "state_frozen",
+          "u_a08.state_frozen",
+          "u_a10.state_frozen",
+          "u_a12.state_frozen",
+          "u_a18.state_frozen",
+          "u_a20.state_frozen",
+          "u_b08.state_frozen",
+          "u_b10.state_frozen",
+          "u_b12.state_frozen",
+          "u_b18.state_frozen",
+          "u_b20.state_frozen",
+          "u_c08.state_frozen",
+          "u_c10.state_frozen",
+          "u_c12.state_frozen",
+          "u_c18.state_frozen",
+          "u_c20.state_frozen",
+          "u_c22.state_frozen",
+          "u_d06.state_frozen",
+          "u_d07.state_frozen",
+          "u_d08.state_frozen",
+          "u_d10.state_frozen",
+          "u_d12.state_frozen",
+          "u_d18.state_frozen",
+          "u_d20.state_frozen",
+          "u_e06.state_frozen",
+          "u_e07.state_frozen",
+          "u_f06.state_frozen",
+          "u_f07.state_frozen",
+          "u_g02.state_frozen",
+          "u_g03.state_frozen",
+          "u_h02.state_frozen",
+          "u_h03.state_frozen",
+          "u_h06.state_frozen",
+          "u_h07.state_frozen",
+          "u_i02.state_frozen",
+          "u_i03.state_frozen",
+          "u_i06.state_frozen",
+          "u_i07.state_frozen",
+          "u_i14.state_frozen",
+          "u_j06.state_frozen",
+          "u_j07.state_frozen",
+          "u_k03.state_frozen",
+          "u_k06.state_frozen",
+          "u_k07.state_frozen",
+          "u_l04.state_frozen"
+        ]
+      },
+      "returncode": 0
+    }
+  ],
+  "limits": "Eleven independent board components; native hold source-domain proof, native integration, MSA/SDRAM and routed timing remain required."
+}

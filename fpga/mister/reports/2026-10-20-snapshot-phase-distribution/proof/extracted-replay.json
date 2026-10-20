@@ -1,0 +1,88 @@
+{
+  "status": "PASS_EXTRACTED_PHASE_REPLAY",
+  "receipt": {
+    "status": "PASS",
+    "members": 1807,
+    "raw_bytes": 38349179,
+    "stored_bytes": 6504539
+  },
+  "cases": [
+    {
+      "board": "MemC",
+      "status": "PASS"
+    },
+    {
+      "board": "ContA",
+      "status": "PASS"
+    },
+    {
+      "board": "ContB",
+      "status": "PASS"
+    },
+    {
+      "board": "DispY",
+      "status": "PASS"
+    },
+    {
+      "board": "DskEth",
+      "status": "PASS"
+    },
+    {
+      "board": "IFU",
+      "status": "PASS"
+    },
+    {
+      "board": "MemD",
+      "status": "PASS"
+    },
+    {
+      "board": "MemX",
+      "status": "PASS"
+    },
+    {
+      "board": "ProcH",
+      "status": "PASS"
+    },
+    {
+      "board": "ProcL",
+      "status": "PASS"
+    },
+    {
+      "board": "BaseBd",
+      "status": "PASS"
+    },
+    {
+      "domain": "candidate",
+      "status": "PASS"
+    },
+    {
+      "domain": "fresh_random",
+      "status": "PASS"
+    },
+    {
+      "domain": "wrong_phase",
+      "status": "PASS"
+    },
+    {
+      "domain": "missing_hold_gate",
+      "status": "PASS"
+    },
+    {
+      "domain": "late_combinational_hold",
+      "status": "PASS"
+    },
+    {
+      "msa": "candidate",
+      "status": "PASS"
+    },
+    {
+      "msa": "wrong_phase",
+      "status": "PASS"
+    },
+    {
+      "msa": "lost_payload_gate",
+      "status": "PASS"
+    }
+  ],
+  "compiler_inputs": "Only archive-extracted HDL/headers/memory files; fresh compiler objects."
+}

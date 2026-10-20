@@ -7,6 +7,7 @@ payloads are unchanged. Default-off is byte-invertible to the original helper.
 This contract has NOT yet been proved for the complete native integration.
 """
 import hashlib
+import re
 from generate_serial_boards import ROOT,raw_receipt,once
 
 REPORT='2026-10-20-snapshot-native-ready-prediction-rejected'
@@ -23,17 +24,19 @@ def transform(source):
     source=once(source,'#(parameter PRECAP = 1)',
         '#(parameter PRECAP = 1, parameter PHASE_QUALIFIED = 0)')
     start=source.index('  always @(posedge state_host_clk) begin\n')
-    end=source.index('\nendmodule',start)
+    # BaseBoard uses serial ports instead of a parallel state_data word and
+    # keeps a combinational scan_out assignment after this payload block.
+    suffix='    end\n  end'
+    end=source.index(suffix,start)+len(suffix)
     original=source[start:end]
     # Keep the original normal payload verbatim. Only the already-qualified
     # scan/advance choices may change in the optional branch.
-    head='''  always @(posedge state_host_clk) begin
-    if (state_hold) begin
-      if (state_write) '''
-    assert original.startswith(head)
+    head=re.match(r'  always @\(posedge state_host_clk\) begin\n'
+        r'    if \(state_hold\) begin\n      if\s*\(state_write\)\s*',original)
+    assert head
     split='\n    end else if (state_advance) begin\n'
     assert original.count(split)==1
-    restore,normal=original[len(head):].split(split)
+    restore,normal=original[head.end():].split(split)
     assert restore.endswith(';')and normal.endswith('    end\n  end')
     payload=normal[:-len('    end\n  end')]
     branch='''  generate if(PHASE_QUALIFIED)begin:phase_payload
