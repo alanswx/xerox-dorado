@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Review actual terminal chip-width nineteen-board capacity, separately from timing.
+"""Review actual terminal chip-width/readiness nineteen-board capacity, separately from timing.
 
 A failed-fit estimate is diagnostic; a successful fit still requires timing,
 real service barriers, full snapshots and FPGA qualification. No deployment.
@@ -22,8 +22,15 @@ def review(root,source,classification,overrides=None):
     assert state['status'].startswith('TERMINAL')and not state['builder_live']and not state['assembly_started']and not state['rbfs']
     assert 'Analysis & Synthesis Status : Successful'in read('core/output_files/Dorado.map.summary')
     assert 'Device : 5CSEBA6U23I7'in summary and 'Total virtual pins : 7'in summary
-    assert source['status']=='PASS_CHIPWIDTH_NATIVE_SOURCE_ONLY'and source['boards']==19
-    assert source['original_pin_connections']==2761 and len(source['failure_controls'])==23
+    assert source['original_pin_connections']==2761
+    if source['status']=='PASS_READY_PATH_SOURCE_ONLY':
+        assert source['verified_parent_inputs']==659 and len(source['failure_controls'])==6
+        assert source['changed_logic_files']==['core/Dorado.sv']and source['constraints_unchanged']
+        assert (source['new_state_bits'],source['new_clocks'],source['new_ports'])==(0,0,0)
+        assert source['schema_id']=='af0b647cb43a3a62'and not source['real_pause_barriers']
+    else:
+        assert source['status']=='PASS_CHIPWIDTH_NATIVE_SOURCE_ONLY'and source['boards']==19
+        assert len(source['failure_controls'])==23
     assert classification['status']=='PASS_BOARD_GEOMETRY_WRAPPER_ACCESS_PENDING'and len(classification['failure_controls'])==14
     assert classification['totals']=={'PHYSICAL BOARD':1957048,'PRIVATE BOARD':4578,'PRIVATE TRANSPORT':69,'WRAPPER ACCESS PENDING':132484}
     match=re.search(r'Logic utilization \(in ALMs\) : ([\d,]+) / ([\d,]+)',summary);assert match
@@ -52,7 +59,8 @@ def review(root,source,classification,overrides=None):
     registers=re.search(r'Total registers : (\d+)',summary);memory=re.search(r'Total block memory bits : ([\d,]+) /',summary)
     assert registers and memory
     return dict(status=status,scope=__doc__,alms=needed,available_alms=available,excess_alms=max(0,needed-available),
-        reduction_from_serial63_compact=42449-needed,fit_registers=int(registers[1]),block_memory_bits=int(memory[1].replace(',','')),
+        reduction_from_serial63_compact=42449-needed,increase_from_serial64_chipwidth=needed-41381,
+        fit_registers=int(registers[1]),block_memory_bits=int(memory[1].replace(',','')),
         boards=[dict(instance=r['Full Hierarchy Name'],module=r['Entity Name'],fitter_alm_attribution=estimate(r))for r in boards],
         eight_msa_fitter_attribution_alms=round(sum(estimate(r)for r in boards if r['Entity Name']=='dorado_serial_MSA'),1),
         transport={n:estimate(v[0])for n,v in transport.items()},

@@ -1,8 +1,9 @@
 # Dorado RTL clock implementation plan
 
-Started 2026-10-18 UTC. Native49 is the selected50MHz Cedar desktop/input
-baseline (fresh49b repeats it); Native34 is the earlier50MHz reference and
-Native26 preserves the earlier33.333MHz reference. The user has released MiSTer14 for reloads/faster builds; keeping
+Started 2026-10-18 UTC. Native59 is the last qualified 50 MHz SDRAM/direct-DDR
+Cedar desktop/input baseline. Native49/fresh49b and Native34 preserve earlier
+50 MHz references; Native26 preserves the earlier 33.333 MHz reference.
+The user has released MiSTer14 for reloads/faster builds; keeping
 that session alive is no longer a constraint. See the [clock audit](verilog-from-sil.md#clock-architecture-audit-2026-10-18)
 for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
@@ -42,44 +43,46 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-**Readiness equivalence qualifies; Serial65Ready is ACTIVE. No new speed result.**
+**Serial65 fits at 41,414 ALMs; setup improves to -0.038 ns, all reported hold checks pass. Serial66 fanout-only fit is ACTIVE. Disk phase component qualifies at +4 ALMs.**
 
-The normal frontend-ready aggregate can replace the readiness term that also
-propagates per-board hold, provided storage initialization and the independent
-global hold remain explicit. Actual MSA traffic/save/restore passes 20,323,256
-checks /40,002 guest advances. Actual eight-MSA SPI ownership/quarantine passes
-151,874 readiness checks /326 packets (guest stopped, other service stubs
-explicit); both frontend widths pass all 65,536 four-state combinations. Broken
-guard/owner variants reject. Source review verifies all 659 parent inputs,
-2,761 original pin/parameter bindings and unchanged constraints, with six
-rehashed damaged cases rejected. Fresh actual-QSF XML retains 2,094,179 state
-bits and fourteen rejecting controls. No new state/clock/port/schema or timing
-exception. This aggregate does NOT replace full SDRAM/arbiter drainage.
+Serial65Ready is TERMINAL (builder2458594/fitter2461232 and STA children absent).
+All 659 prepared inputs remain unchanged; 2,761 original pins/parameters and
+2,094,179 native sequential bits remain accounted for, none excluded. Capacity
+leaves 496 ALMs, +33 used versus Serial64. All four reported hold conditions pass
+(minimum +0.106 ns), as do SDRAM input/output setup/hold. Timing is REJECTED for
+slow 100C setup -0.038 ns. Actual clocks and inherited framework IO exceptions
+match Native59 (zero illegal/unconstrained clocks; three input/fifty output
+exceptions). All 304 nineteen-board crossing reports are checked; only MemC
+input setup at slow 100C fails. The 10 ns path runs from network_step (273 loads)
+through shared state-accept logic into MemC u_c22's MB7071H snapshot RAM enable.
+Evidence and extracted source/capacity/timing/crossing controls replay:
+`fpga/mister/reports/2026-10-19-snapshot-serial-ready/` (1,653 raw members).
 
-`/home/alans/mister/Dorado_Serial65Ready_20261019` is fitting, builder2458594 /
-fitter2461232 confirmed live; observe the SAME processes rather than restart.
-All periods/IO/area policy and explicit virtual service contracts stay. No
-assembly, deployable snapshot core or speed gain. The separate disk prototype
-is not in Serial65. Last terminal capacity/timing remains Serial64 below.
+LIVE `/home/alans/mister/Dorado_Serial66Fanout_20261019`: builder2489421 /
+fitter2491688, both confirmed live. Observe the SAME job. Only MAX_FANOUT=64 and
+IGNORE_MAX_FANOUT_ASSIGNMENTS OFF on emu|network_step change; every RTL byte,
+clock period, IO delay, timing exception and schema is retained. Synthesis
+confirms four inserted logic cells on that exact source and all 659 actual inputs
+unchanged. Independent source review/6 controls and exact extracted restaging
+pass. Packet SHA256:290c13575512f1e0a9800d285b971117b918c1bebf22216660e6091129e77070.
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-serial-fanout/` (669 members).
+No assembly, hardware change or speed result; real service barriers remain open.
 
-Actual disk cache capture excludes a guest edge in the checked falling-edge
-clock contract: 200,004 host cycles /1,977 captures, including reset/remount,
-attachment, illegal heads, extra stalls and failed host acknowledgments; three
-bad gate/capture variants reject. A structural prototype stages cylinder/head
-on the falling edge for the next cache capture, preserving all 55 original
-sequential fields and passing the serial oracle/whole-image loopback (11,024
-bits, two reads, one write). It adds eighteen REQUIRED snapshot bits and still
-needs independent source/inventory and matched timing before integration.
-No new hold exception is applied. Evidence and extracted replay:
-`fpga/mister/reports/2026-10-19-snapshot-ready-path/` (1,403 members, lossless
-readback PASS; exact 659-input restaging and source/MSA/owner/four-state/disk
-controls replay; serial payload rebuild uses the archived hash-matched image).
+Separate disk source/XML/edge review preserves 131,816 original bits and accounts
+for 18 new REQUIRED wrapper snapshot bits, with 6 source/7 geometry/3 edge controls.
+Matched registered-shell real-clock-gate fits use 50 MHz/2 ns-max/0 ns-min IO:
+575 -> 579 ALMs, unchanged 16 RAM/131,072 buffer bits/two DSPs. All four corners pass,
+zero unconstrained clocks/IO, candidate minimum +0.166 ns, seven fit controls reject.
+Rejected syntax/unregistered-IO attempts remain archived. No timing exception;
+the prototype is not in Serial65/66 and still requires snapshot access/native
+integration. Evidence/replay:
+`fpga/mister/reports/2026-10-19-snapshot-disk-phase/` (263 members).
 
-Next: terminal Serial65 source/capacity/all-condition timing and crossing review;
-qualify the disk phase prototype, real service synchronization/barriers and full
-snapshots. Original 60 ns clocks/timers and final pinned performance, three fresh
-Cedar boots/cold persistence/two-hour stress remain required. Native59's last
-qualified **1,947,654.12 instruction issues/s** is unchanged. Goal ACTIVE.
+Next: Serial66 terminal source/capacity/all-corner/crossing review; real service
+barriers and full snapshots, then original 60 ns clocks/timers and final pinned
+performance, three fresh Cedar boots/cold persistence and two-hour stress.
+Native59's last qualified **1,947,654.12 instruction issues/s** is unchanged.
+Goal ACTIVE. Full detail and process receipts are in the handoff.
 
 Previous terminal nineteen-board result:
 

@@ -1,0 +1,310 @@
+{
+  "status": "REJECTED_UNREGISTERED_FIXTURE_IO_HOLD",
+  "scope": "Both unregistered virtual IO shells retain min0/max2ns. Actual slow -40C hold violations are retained; this is not the final matched component qualification.",
+  "cases": {
+    "original": {
+      "records": [
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "setup",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 7.676
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "hold",
+          "paths": 3,
+          "violations": 2,
+          "slack_ns": -0.035
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "mpw",
+          "paths": 1,
+          "violations": 0,
+          "slack_ns": 8.813
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "setup",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 7.742
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "hold",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 0.331
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "mpw",
+          "paths": 1,
+          "violations": 0,
+          "slack_ns": 8.807
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "setup",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 12.331
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "hold",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 0.15
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "mpw",
+          "paths": 1,
+          "violations": 0,
+          "slack_ns": 8.414
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "setup",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 11.391
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "hold",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 0.173
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "mpw",
+          "paths": 1,
+          "violations": 0,
+          "slack_ns": 8.485
+        }
+      ],
+      "clocks": [
+        [
+          {
+            "Clock Name": "host_clock",
+            "Type": "Base",
+            "Period": "20.000",
+            "Frequency": "50.0 MHz",
+            "Rise": "0.000",
+            "Fall": "10.000",
+            "Inverted": "",
+            "Master": "",
+            "Source": ""
+          }
+        ],
+        [
+          {
+            "Clock Name": "host_clock",
+            "Type": "Base",
+            "Period": "20.000",
+            "Frequency": "50.0 MHz",
+            "Rise": "0.000",
+            "Fall": "10.000",
+            "Inverted": "",
+            "Master": "",
+            "Source": ""
+          }
+        ],
+        [
+          {
+            "Clock Name": "host_clock",
+            "Type": "Base",
+            "Period": "20.000",
+            "Frequency": "50.0 MHz",
+            "Rise": "0.000",
+            "Fall": "10.000",
+            "Inverted": "",
+            "Master": "",
+            "Source": ""
+          }
+        ],
+        [
+          {
+            "Clock Name": "host_clock",
+            "Type": "Base",
+            "Period": "20.000",
+            "Frequency": "50.0 MHz",
+            "Rise": "0.000",
+            "Fall": "10.000",
+            "Inverted": "",
+            "Master": "",
+            "Source": ""
+          }
+        ]
+      ],
+      "minimum_slack_ns": -0.035,
+      "violations": [
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "hold",
+          "paths": 3,
+          "violations": 2,
+          "slack_ns": -0.035
+        }
+      ]
+    },
+    "candidate": {
+      "records": [
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "setup",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 7.294
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "hold",
+          "paths": 3,
+          "violations": 3,
+          "slack_ns": -0.095
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "mpw",
+          "paths": 1,
+          "violations": 0,
+          "slack_ns": 8.808
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "setup",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 7.334
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "hold",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 0.434
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "mpw",
+          "paths": 1,
+          "violations": 0,
+          "slack_ns": 8.811
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "setup",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 8.34
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "hold",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 0.165
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "mpw",
+          "paths": 1,
+          "violations": 0,
+          "slack_ns": 8.417
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "setup",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 8.263
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "hold",
+          "paths": 3,
+          "violations": 0,
+          "slack_ns": 0.18
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "mpw",
+          "paths": 1,
+          "violations": 0,
+          "slack_ns": 8.487
+        }
+      ],
+      "clocks": [
+        [
+          {
+            "Clock Name": "host_clock",
+            "Type": "Base",
+            "Period": "20.000",
+            "Frequency": "50.0 MHz",
+            "Rise": "0.000",
+            "Fall": "10.000",
+            "Inverted": "",
+            "Master": "",
+            "Source": ""
+          }
+        ],
+        [
+          {
+            "Clock Name": "host_clock",
+            "Type": "Base",
+            "Period": "20.000",
+            "Frequency": "50.0 MHz",
+            "Rise": "0.000",
+            "Fall": "10.000",
+            "Inverted": "",
+            "Master": "",
+            "Source": ""
+          }
+        ],
+        [
+          {
+            "Clock Name": "host_clock",
+            "Type": "Base",
+            "Period": "20.000",
+            "Frequency": "50.0 MHz",
+            "Rise": "0.000",
+            "Fall": "10.000",
+            "Inverted": "",
+            "Master": "",
+            "Source": ""
+          }
+        ],
+        [
+          {
+            "Clock Name": "host_clock",
+            "Type": "Base",
+            "Period": "20.000",
+            "Frequency": "50.0 MHz",
+            "Rise": "0.000",
+            "Fall": "10.000",
+            "Inverted": "",
+            "Master": "",
+            "Source": ""
+          }
+        ]
+      ],
+      "minimum_slack_ns": -0.095,
+      "violations": [
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "hold",
+          "paths": 3,
+          "violations": 3,
+          "slack_ns": -0.095
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "scope": "Extracted fit/source and fresh original/candidate XML/geometry/edge controls replay.",
+  "fit_controls": 7,
+  "source_controls": 6,
+  "geometry_controls": 7,
+  "edge_controls": 3,
+  "alms": [
+    575,
+    579
+  ],
+  "minimum_candidate_slack_ns": 0.166,
+  "new_required_snapshot_bits": 18,
+  "working_hdl_used": false
+}

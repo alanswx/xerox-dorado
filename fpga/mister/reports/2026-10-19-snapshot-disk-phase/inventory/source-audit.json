@@ -1,0 +1,50 @@
+{
+  "status": "PASS_DISK_PHASE_SOURCE_ONLY",
+  "scope": "Independent inverse review of the opposite-edge disk cache-tag prototype.\n\nOnly two host-falling-edge implementation registers and the exact cache source\nsubstitution are allowed. Every original tag/host/serial/buffer process, port,\nparameter and clock remains byte-identical to the qualified native receipt.\n",
+  "original_sha256": "9cdb7737014433de32502bb8a80961802e2d290fae6251747ff922d381ddceed",
+  "candidate_sha256": "e22701ab96bd2d6607a55865c418379362b99bc5c5a6fa867cc5dc7986d8b22b",
+  "original_register_bits": 131816,
+  "new_required_wrapper_snapshot_bits": 18,
+  "unchanged_original_ports": true,
+  "unchanged_original_processes": true,
+  "new_timing_exceptions": 0,
+  "limits": "Source proof only; additional state needs inventory and snapshot access; native integration/timing separate.",
+  "failure_controls": [
+    {
+      "case": "wrong_edge",
+      "rejected": true,
+      "reason": "opposite-edge state/clock/reset contract differs",
+      "damaged_sha256": "863c19ebfa06e591365ba60d3213b318cf8c1ce04b5066c18275af0c938ea15c"
+    },
+    {
+      "case": "wrong_source",
+      "rejected": true,
+      "reason": "opposite-edge state/clock/reset contract differs",
+      "damaged_sha256": "26cca499f87e8e11778de795de2dd65356416fcc5eb031989457bdbf40187321"
+    },
+    {
+      "case": "lost_head_bit",
+      "rejected": true,
+      "reason": "opposite-edge state/clock/reset contract differs",
+      "damaged_sha256": "c2f60b08ed8eba7df0ec0d8d8c406a235d3cdac9c9dedaaaf15aad38d387dfe3"
+    },
+    {
+      "case": "wrong_init",
+      "rejected": true,
+      "reason": "opposite-edge state/clock/reset contract differs",
+      "damaged_sha256": "f51fd01c14d6df2599a49fee1b7585edc6f8a16d13bce47036b524b707d2e1c9"
+    },
+    {
+      "case": "original_tag_edit",
+      "rejected": true,
+      "reason": "unapproved original disk logic/port/clock/parameter edit",
+      "damaged_sha256": "806fe89dabe116ad4b4ddd704bae99aaa37e5757bdaee510acac7b1e486b79b4"
+    },
+    {
+      "case": "old_capture",
+      "rejected": true,
+      "reason": "cache capture sources differ",
+      "damaged_sha256": "abff15b58ab2c0c8a16b0b3527d6230e6426c7db334c4eb9fa8b112c807ce98d"
+    }
+  ]
+}

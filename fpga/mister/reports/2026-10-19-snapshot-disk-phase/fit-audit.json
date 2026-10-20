@@ -1,0 +1,363 @@
+{
+  "status": "PASS_MATCHED_DISK_PHASE_COMPONENT",
+  "scope": "Independent matched disk source/fixture/capacity and all-corner timing review.\n\nCheck actual selected bytes, every original medium port, dedicated clock gate,\n50MHz and full I/O budgets. Candidate timing must pass all four conditions.\nOriginal timing failures, if any, are recorded. No new timing exceptions.\n",
+  "cases": {
+    "original": {
+      "alms": 575,
+      "registers": 977,
+      "timing": {
+        "records": [
+          {
+            "corner": "7_slow_1100mv_-40c",
+            "kind": "setup",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 7.554
+          },
+          {
+            "corner": "7_slow_1100mv_-40c",
+            "kind": "hold",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 0.324
+          },
+          {
+            "corner": "7_slow_1100mv_-40c",
+            "kind": "mpw",
+            "paths": 1,
+            "violations": 0,
+            "slack_ns": 8.808
+          },
+          {
+            "corner": "7_slow_1100mv_100c",
+            "kind": "setup",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 7.385
+          },
+          {
+            "corner": "7_slow_1100mv_100c",
+            "kind": "hold",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 0.44
+          },
+          {
+            "corner": "7_slow_1100mv_100c",
+            "kind": "mpw",
+            "paths": 1,
+            "violations": 0,
+            "slack_ns": 8.816
+          },
+          {
+            "corner": "MIN_fast_1100mv_-40c",
+            "kind": "setup",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 8.181
+          },
+          {
+            "corner": "MIN_fast_1100mv_-40c",
+            "kind": "hold",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 0.168
+          },
+          {
+            "corner": "MIN_fast_1100mv_-40c",
+            "kind": "mpw",
+            "paths": 1,
+            "violations": 0,
+            "slack_ns": 8.419
+          },
+          {
+            "corner": "MIN_fast_1100mv_100c",
+            "kind": "setup",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 8.036
+          },
+          {
+            "corner": "MIN_fast_1100mv_100c",
+            "kind": "hold",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 0.182
+          },
+          {
+            "corner": "MIN_fast_1100mv_100c",
+            "kind": "mpw",
+            "paths": 1,
+            "violations": 0,
+            "slack_ns": 8.49
+          }
+        ],
+        "clocks": [
+          [
+            {
+              "Clock Name": "host_clock",
+              "Type": "Base",
+              "Period": "20.000",
+              "Frequency": "50.0 MHz",
+              "Rise": "0.000",
+              "Fall": "10.000",
+              "Inverted": "",
+              "Master": "",
+              "Source": ""
+            }
+          ],
+          [
+            {
+              "Clock Name": "host_clock",
+              "Type": "Base",
+              "Period": "20.000",
+              "Frequency": "50.0 MHz",
+              "Rise": "0.000",
+              "Fall": "10.000",
+              "Inverted": "",
+              "Master": "",
+              "Source": ""
+            }
+          ],
+          [
+            {
+              "Clock Name": "host_clock",
+              "Type": "Base",
+              "Period": "20.000",
+              "Frequency": "50.0 MHz",
+              "Rise": "0.000",
+              "Fall": "10.000",
+              "Inverted": "",
+              "Master": "",
+              "Source": ""
+            }
+          ],
+          [
+            {
+              "Clock Name": "host_clock",
+              "Type": "Base",
+              "Period": "20.000",
+              "Frequency": "50.0 MHz",
+              "Rise": "0.000",
+              "Fall": "10.000",
+              "Inverted": "",
+              "Master": "",
+              "Source": ""
+            }
+          ]
+        ],
+        "minimum_slack_ns": 0.168,
+        "violations": []
+      }
+    },
+    "candidate": {
+      "alms": 579,
+      "registers": 1012,
+      "timing": {
+        "records": [
+          {
+            "corner": "7_slow_1100mv_-40c",
+            "kind": "setup",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 7.203
+          },
+          {
+            "corner": "7_slow_1100mv_-40c",
+            "kind": "hold",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 0.426
+          },
+          {
+            "corner": "7_slow_1100mv_-40c",
+            "kind": "mpw",
+            "paths": 1,
+            "violations": 0,
+            "slack_ns": 8.805
+          },
+          {
+            "corner": "7_slow_1100mv_100c",
+            "kind": "setup",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 7.175
+          },
+          {
+            "corner": "7_slow_1100mv_100c",
+            "kind": "hold",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 0.436
+          },
+          {
+            "corner": "7_slow_1100mv_100c",
+            "kind": "mpw",
+            "paths": 1,
+            "violations": 0,
+            "slack_ns": 8.81
+          },
+          {
+            "corner": "MIN_fast_1100mv_-40c",
+            "kind": "setup",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 8.277
+          },
+          {
+            "corner": "MIN_fast_1100mv_-40c",
+            "kind": "hold",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 0.166
+          },
+          {
+            "corner": "MIN_fast_1100mv_-40c",
+            "kind": "mpw",
+            "paths": 1,
+            "violations": 0,
+            "slack_ns": 8.415
+          },
+          {
+            "corner": "MIN_fast_1100mv_100c",
+            "kind": "setup",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 8.217
+          },
+          {
+            "corner": "MIN_fast_1100mv_100c",
+            "kind": "hold",
+            "paths": 3,
+            "violations": 0,
+            "slack_ns": 0.181
+          },
+          {
+            "corner": "MIN_fast_1100mv_100c",
+            "kind": "mpw",
+            "paths": 1,
+            "violations": 0,
+            "slack_ns": 8.486
+          }
+        ],
+        "clocks": [
+          [
+            {
+              "Clock Name": "host_clock",
+              "Type": "Base",
+              "Period": "20.000",
+              "Frequency": "50.0 MHz",
+              "Rise": "0.000",
+              "Fall": "10.000",
+              "Inverted": "",
+              "Master": "",
+              "Source": ""
+            }
+          ],
+          [
+            {
+              "Clock Name": "host_clock",
+              "Type": "Base",
+              "Period": "20.000",
+              "Frequency": "50.0 MHz",
+              "Rise": "0.000",
+              "Fall": "10.000",
+              "Inverted": "",
+              "Master": "",
+              "Source": ""
+            }
+          ],
+          [
+            {
+              "Clock Name": "host_clock",
+              "Type": "Base",
+              "Period": "20.000",
+              "Frequency": "50.0 MHz",
+              "Rise": "0.000",
+              "Fall": "10.000",
+              "Inverted": "",
+              "Master": "",
+              "Source": ""
+            }
+          ],
+          [
+            {
+              "Clock Name": "host_clock",
+              "Type": "Base",
+              "Period": "20.000",
+              "Frequency": "50.0 MHz",
+              "Rise": "0.000",
+              "Fall": "10.000",
+              "Inverted": "",
+              "Master": "",
+              "Source": ""
+            }
+          ]
+        ],
+        "minimum_slack_ns": 0.166,
+        "violations": []
+      }
+    }
+  },
+  "additional_alms": 4,
+  "new_required_wrapper_snapshot_bits": 18,
+  "source_review": {
+    "status": "PASS_DISK_PHASE_SOURCE_ONLY",
+    "scope": "Independent inverse review of the opposite-edge disk cache-tag prototype.\n\nOnly two host-falling-edge implementation registers and the exact cache source\nsubstitution are allowed. Every original tag/host/serial/buffer process, port,\nparameter and clock remains byte-identical to the qualified native receipt.\n",
+    "original_sha256": "9cdb7737014433de32502bb8a80961802e2d290fae6251747ff922d381ddceed",
+    "candidate_sha256": "e22701ab96bd2d6607a55865c418379362b99bc5c5a6fa867cc5dc7986d8b22b",
+    "original_register_bits": 131816,
+    "new_required_wrapper_snapshot_bits": 18,
+    "unchanged_original_ports": true,
+    "unchanged_original_processes": true,
+    "new_timing_exceptions": 0,
+    "limits": "Source proof only; additional state needs inventory and snapshot access; native integration/timing separate."
+  },
+  "new_timing_exceptions": 0,
+  "hardware_changed": false,
+  "limits": "Component source/physical timing only; no native integration, complete wrapper snapshot access or speed claim.",
+  "failure_controls": [
+    {
+      "case": "loose_clock",
+      "rejected": true,
+      "reason": "unapproved clock/delay/exception",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "changed_gate",
+      "rejected": true,
+      "reason": "clock bindings differ",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "aliased_input",
+      "rejected": true,
+      "reason": "original medium port mapping differs",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "removed_buffer",
+      "rejected": true,
+      "reason": "resource/fixture coverage differs: Total block memory bits : 131,072 /",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "bad_hold",
+      "rejected": true,
+      "reason": "candidate timing fails",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "different_clock",
+      "rejected": true,
+      "reason": "clock period/scope differs",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "new_exception",
+      "rejected": true,
+      "reason": "corner collection differs",
+      "damaged_metadata_rehashed": true
+    }
+  ]
+}

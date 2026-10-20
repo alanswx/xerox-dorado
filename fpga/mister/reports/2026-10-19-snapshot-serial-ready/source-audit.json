@@ -1,0 +1,48 @@
+{
+  "status": "PASS_READY_PATH_SOURCE_ONLY",
+  "scope": "Independent byte/pin/constraint review of the readiness-only full-core change.\n\nReverse the two exact combinational edits without importing the generator, then\napply the existing native source reviewer. Check every selected parent byte and\nthe real readiness/global-hold wiring. No timing or full-pause claim is made.\n",
+  "verified_parent_inputs": 659,
+  "changed_logic_files": [
+    "core/Dorado.sv"
+  ],
+  "schema_id": "af0b647cb43a3a62",
+  "original_pin_connections": 2761,
+  "constraints_unchanged": true,
+  "new_state_bits": 0,
+  "new_clocks": 0,
+  "new_ports": 0,
+  "real_pause_barriers": false,
+  "limits": "Frontend readiness is not whole SDRAM/arbiter drainage; timing, complete snapshots and hardware remain separate.",
+  "failure_controls": [
+    {
+      "case": "lost_init",
+      "rejected": true,
+      "reason": "CPU readiness guard differs"
+    },
+    {
+      "case": "lost_hold",
+      "rejected": true,
+      "reason": "CPU readiness guard differs"
+    },
+    {
+      "case": "constant_ready",
+      "rejected": true,
+      "reason": "CPU readiness guard differs"
+    },
+    {
+      "case": "wrong_aggregate",
+      "rejected": true,
+      "reason": "actual frontend aggregate not connected"
+    },
+    {
+      "case": "lost_member_global_hold",
+      "rejected": true,
+      "reason": "unapproved source/constraint edit: src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+    },
+    {
+      "case": "new_timing_cut",
+      "rejected": true,
+      "reason": "unapproved source/constraint edit: core/Dorado.qsf"
+    }
+  ]
+}

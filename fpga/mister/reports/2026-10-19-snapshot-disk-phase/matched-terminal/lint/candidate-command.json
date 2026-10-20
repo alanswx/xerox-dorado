@@ -1,0 +1,12 @@
+[
+  "verilator",
+  "--lint-only",
+  "--timing",
+  "--assert",
+  "--top-module",
+  "snapshot_fit",
+  "-Wno-fatal",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-phase-fit-v3-20261019/candidate/top.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-phase-fit-v3-20261019/candidate/medium.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-phase-fit-v3-20261019/lint/altclkctrl.sv"
+]

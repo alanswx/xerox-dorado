@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "scope": "Extracted source/capacity/timing and all304 adapter crossings replay.",
+  "source_controls": 6,
+  "capacity_controls": 4,
+  "timing_controls_against_passing_native59": 6,
+  "crossing_controls_against_passing_report": 3,
+  "capacity_alms": 41414,
+  "timing_disposition": "REJECTED_TIMING",
+  "worst_setup_ns": -0.038,
+  "working_hdl_used": false
+}

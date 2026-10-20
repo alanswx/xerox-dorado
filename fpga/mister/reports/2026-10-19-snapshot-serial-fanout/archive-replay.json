@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "scope": "Extracted source controls and exact659-input/three-record restaging replay.",
+  "source_controls": 6,
+  "exact_source_inputs": 659,
+  "exact_integration_records": 3,
+  "working_hdl_used": false,
+  "limits": "Actual assignment application, full fit/timing and real service barriers pending."
+}

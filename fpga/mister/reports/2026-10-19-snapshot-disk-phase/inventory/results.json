@@ -1,0 +1,91 @@
+{
+  "status": "PASS",
+  "scope": "Fresh original/prototype disk XML; preserve every original field plus18bits.\n\nCompare with the actual native Serial64 disk inventory, not a list inferred\nfrom the generator. All extra fields remain REQUIRED wrapper snapshot state.\n",
+  "cases": {
+    "original": {
+      "status": "PASS_DISK_GEOMETRY_ACCESS_PENDING",
+      "original_fields": 55,
+      "original_bits": 131816,
+      "total_fields": 55,
+      "total_bits": 131816,
+      "extra_required_snapshot_bits": 0,
+      "sequential_exclusions": [],
+      "limits": "Complete wrapper snapshot access is not implemented.",
+      "extra_state_edge_bindings": []
+    },
+    "candidate": {
+      "status": "PASS_DISK_GEOMETRY_ACCESS_PENDING",
+      "original_fields": 55,
+      "original_bits": 131816,
+      "total_fields": 57,
+      "total_bits": 131834,
+      "extra_required_snapshot_bits": 18,
+      "sequential_exclusions": [],
+      "limits": "Complete wrapper snapshot access is not implemented.",
+      "failure_controls": [
+        {
+          "case": "missing_original",
+          "rejected": true,
+          "reason": "original/extra disk state geometry differs"
+        },
+        {
+          "case": "missing_buffer",
+          "rejected": true,
+          "reason": "original/extra disk state geometry differs"
+        },
+        {
+          "case": "missing_extra",
+          "rejected": true,
+          "reason": "original/extra disk state geometry differs"
+        },
+        {
+          "case": "wrong_extra_width",
+          "rejected": true,
+          "reason": "original/extra disk state geometry differs"
+        },
+        {
+          "case": "extra_hidden",
+          "rejected": true,
+          "reason": "original/extra disk state geometry differs"
+        },
+        {
+          "case": "duplicate",
+          "rejected": true,
+          "reason": "duplicate state"
+        },
+        {
+          "case": "nonsequential",
+          "rejected": true,
+          "reason": "original/extra disk state geometry differs"
+        }
+      ],
+      "extra_state_edge_bindings": [
+        [
+          [
+            "NEG",
+            "clk_sys"
+          ]
+        ]
+      ],
+      "edge_failure_controls": [
+        {
+          "case": "wrong_edge",
+          "rejected": true,
+          "reason": "[('POS', 'clk_sys')]"
+        },
+        {
+          "case": "wrong_clock",
+          "rejected": true,
+          "reason": "[('NEG', 'machine_clk')]"
+        },
+        {
+          "case": "wrong_source",
+          "rejected": true,
+          "reason": "{'cache_source_cyl': 'cached_cyl', 'cache_source_head': 'head'}"
+        }
+      ]
+    }
+  },
+  "source_controls": 6,
+  "new_required_wrapper_snapshot_bits": 18
+}

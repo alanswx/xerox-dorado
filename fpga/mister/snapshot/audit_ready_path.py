@@ -64,7 +64,9 @@ def audit(project,reports,overrides=None):
         check(bp.count('.storage_ready(storage_board_ready['+str(i)+'])')==1,'missing member ready')
     check('wire state_hold=state_global_hold || (state_freeze && state_guest_held) || state_scan_hold_required;'in msa,'local hold relation differs')
     check('assign state_memory_drained=&state_storage_drained;'in msa,'member normal aggregate differs')
-    upstream=prior.audit(project,reports,{'core/Dorado.sv':restored})
+    # Preserve the caller's already-checked inverse view through the older
+    # reviewers too (for example, a separately reviewed physical QSF policy).
+    upstream=prior.audit(project,reports,{**overrides,'core/Dorado.sv':restored})
     return dict(status='PASS_READY_PATH_SOURCE_ONLY',scope=__doc__,verified_parent_inputs=659,
                 changed_logic_files=['core/Dorado.sv'],schema_id=upstream['schema_id'],
                 original_pin_connections=upstream['original_pin_connections'],constraints_unchanged=True,

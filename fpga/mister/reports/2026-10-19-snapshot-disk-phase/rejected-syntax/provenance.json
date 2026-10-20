@@ -1,0 +1,213 @@
+{
+  "scope": "Matched native-label10 disk fits with the actual falling-edge ALTCLKCTRL.\n\nBoth variants expose every original I/O, use50MHz,2ns/0ns virtual I/O and\nidentical fitter policy. All setup/hold paths stay timed; no false paths.\nOnly the18-bit cache-tag phase staging differs. No assembly or deployment.\n",
+  "builder_sha256": "c6240394430ecaa0b5dc451ff1f7abe5f51aa97a98c1ec50f015169f14eeb190",
+  "ports": [
+    {
+      "name": "clk_sys",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "machine_clk",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "reset",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "attached",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "readonly",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "remounted",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "tagbus_n",
+      "direction": "input",
+      "width": 12
+    },
+    {
+      "name": "cyltag_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "headtag_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "drivetag_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "conttag_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "selected",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "data_adv",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "pulse",
+      "direction": "input",
+      "width": 16
+    },
+    {
+      "name": "write_data_p",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "write_data_m",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "data_bit",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "write_gate",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "endofcyl_n",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "ready",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "dirty",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "fault",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "host_phase",
+      "direction": "output",
+      "width": 3
+    },
+    {
+      "name": "fault_debug",
+      "direction": "output",
+      "width": 32
+    },
+    {
+      "name": "fault_extra",
+      "direction": "output",
+      "width": 32
+    },
+    {
+      "name": "sd_lba",
+      "direction": "output",
+      "width": 32
+    },
+    {
+      "name": "sd_blk_cnt",
+      "direction": "output",
+      "width": 6
+    },
+    {
+      "name": "sd_rd",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "sd_wr",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "sd_ack",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "sd_buff_addr",
+      "direction": "input",
+      "width": 13
+    },
+    {
+      "name": "sd_buff_dout",
+      "direction": "input",
+      "width": 16
+    },
+    {
+      "name": "sd_buff_wr",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "sd_buff_din",
+      "direction": "output",
+      "width": 16
+    },
+    {
+      "name": "reads",
+      "direction": "output",
+      "width": 32
+    },
+    {
+      "name": "writes",
+      "direction": "output",
+      "width": 32
+    }
+  ],
+  "virtual_pin_bits": 265,
+  "compiled_files": {
+    "candidate/bank.sdc": "a50ee5c0cd9795635782f66d358310b80d06edb5490fb22660963f363a004c07",
+    "candidate/medium.sv": "e22701ab96bd2d6607a55865c418379362b99bc5c5a6fa867cc5dc7986d8b22b",
+    "candidate/top.sv": "759d0cb171515716ed039187061cf2fea854f528ae9866d5e78c67b358973548",
+    "candidate/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "candidate/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "candidate/snapshot_fit.qsf": "d02ce8b8ae3f1d37b2247985b88fb3737bf9bb9cb3895494a9805451d4af0a29",
+    "original/bank.sdc": "a50ee5c0cd9795635782f66d358310b80d06edb5490fb22660963f363a004c07",
+    "original/medium.sv": "9cdb7737014433de32502bb8a80961802e2d290fae6251747ff922d381ddceed",
+    "original/top.sv": "759d0cb171515716ed039187061cf2fea854f528ae9866d5e78c67b358973548",
+    "original/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "original/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "original/snapshot_fit.qsf": "d02ce8b8ae3f1d37b2247985b88fb3737bf9bb9cb3895494a9805451d4af0a29",
+    "executed-sources/original.xml": "dc2c2b98bdf49a991635b32d917579ad2389b7e4450c048aff779b073bfb1a98",
+    "executed-sources/audit_disk_cache_phase.py": "c72852f98a051bf0f205bb3d11ca321ed03fa1a790ec487f5c661dca21fe3dd4",
+    "executed-sources/fit_disk_cache_phase.py": "c6240394430ecaa0b5dc451ff1f7abe5f51aa97a98c1ec50f015169f14eeb190",
+    "executed-sources/generate_disk_cache_phase.py": "3421576c1d64feeea24d52264dd6b881bb7685db826e190f68888da6995c8c93"
+  },
+  "expected_top": "module snapshot_fit(\n input wire extra_ready,\n input wire clk_sys,\n input wire reset,\n input wire attached,\n input wire readonly,\n input wire remounted,\n input wire [11:0] tagbus_n,\n input wire cyltag_n,\n input wire headtag_n,\n input wire drivetag_n,\n input wire conttag_n,\n input wire selected,\n input wire data_adv,\n input wire [15:0] pulse,\n input wire write_data_p,\n input wire write_data_m,\n output wire data_bit,\n output wire write_gate,\n output wire endofcyl_n,\n output wire ready,\n output wire dirty,\n output wire fault,\n output wire [2:0] host_phase,\n output wire [31:0] fault_debug,\n output wire [31:0] fault_extra,\n output wire [31:0] sd_lba,\n output wire [5:0] sd_blk_cnt,\n output wire sd_rd,\n output wire sd_wr,\n input wire sd_ack,\n input wire [12:0] sd_buff_addr,\n input wire [15:0] sd_buff_dout,\n input wire sd_buff_wr,\n output wire [15:0] sd_buff_din,\n output wire [31:0] reads,\n output wire [31:0] writes);\n wire guest_clock;\n altclkctrl #(.clock_type(\"Global Clock\"),.ena_register_mode(\"falling edge\"),.intended_device_family(\"Cyclone V\")) machine_clock(\n .inclk({3'b000,clk_sys}),.clkselect(2'b00),.ena(!reset && ready && extra_ready),.outclk(guest_clock));\n dorado_pack_hps #(.LABEL_WORDS(10),.HOST_CLOCK_HZ(50000000)) medium(\n.clk_sys(clk_sys),\n.machine_clk(guest_clock),\n.reset(reset),\n.attached(attached),\n.readonly(readonly),\n.remounted(remounted),\n.tagbus_n(tagbus_n),\n.cyltag_n(cyltag_n),\n.headtag_n(headtag_n),\n.drivetag_n(drivetag_n),\n.conttag_n(conttag_n),\n.selected(selected),\n.data_adv(data_adv),\n.pulse(pulse),\n.write_data_p(write_data_p),\n.write_data_m(write_data_m),\n.data_bit(data_bit),\n.write_gate(write_gate),\n.endofcyl_n(endofcyl_n),\n.ready(ready),\n.dirty(dirty),\n.fault(fault),\n.host_phase(host_phase),\n.fault_debug(fault_debug),\n.fault_extra(fault_extra),\n.sd_lba(sd_lba),\n.sd_blk_cnt(sd_blk_cnt),\n.sd_rd(sd_rd),\n.sd_wr(sd_wr),\n.sd_ack(sd_ack),\n.sd_buff_addr(sd_buff_addr),\n.sd_buff_dout(sd_buff_dout),\n.sd_buff_wr(sd_buff_wr),\n.sd_buff_din(sd_buff_din),\n.reads(reads),\n.writes(writes));\nendmodule\n",
+  "expected_sdc": "create_clock -name host_clock -period 20.000 [get_ports clk_sys]\nderive_clock_uncertainty\nset_input_delay -clock host_clock -max 2.000 [remove_from_collection [all_inputs] [get_ports clk_sys]]\nset_input_delay -clock host_clock -min 0.000 [remove_from_collection [all_inputs] [get_ports clk_sys]]\nset_output_delay -clock host_clock -max 2.000 [all_outputs]\nset_output_delay -clock host_clock -min 0.000 [all_outputs]\n",
+  "expected_qsf": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name GENERATE_RBF_FILE OFF\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE medium.sv\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to clk_sys\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to clk_sys\nset_instance_assignment -name VIRTUAL_PIN ON -to extra_ready\nset_instance_assignment -name VIRTUAL_PIN ON -to reset\nset_instance_assignment -name VIRTUAL_PIN ON -to attached\nset_instance_assignment -name VIRTUAL_PIN ON -to readonly\nset_instance_assignment -name VIRTUAL_PIN ON -to remounted\nset_instance_assignment -name VIRTUAL_PIN ON -to tagbus_n[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to cyltag_n\nset_instance_assignment -name VIRTUAL_PIN ON -to headtag_n\nset_instance_assignment -name VIRTUAL_PIN ON -to drivetag_n\nset_instance_assignment -name VIRTUAL_PIN ON -to conttag_n\nset_instance_assignment -name VIRTUAL_PIN ON -to selected\nset_instance_assignment -name VIRTUAL_PIN ON -to data_adv\nset_instance_assignment -name VIRTUAL_PIN ON -to pulse[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to write_data_p\nset_instance_assignment -name VIRTUAL_PIN ON -to write_data_m\nset_instance_assignment -name VIRTUAL_PIN ON -to data_bit\nset_instance_assignment -name VIRTUAL_PIN ON -to write_gate\nset_instance_assignment -name VIRTUAL_PIN ON -to endofcyl_n\nset_instance_assignment -name VIRTUAL_PIN ON -to ready\nset_instance_assignment -name VIRTUAL_PIN ON -to dirty\nset_instance_assignment -name VIRTUAL_PIN ON -to fault\nset_instance_assignment -name VIRTUAL_PIN ON -to host_phase[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to fault_debug[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to fault_extra[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to sd_lba[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to sd_blk_cnt[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to sd_rd\nset_instance_assignment -name VIRTUAL_PIN ON -to sd_wr\nset_instance_assignment -name VIRTUAL_PIN ON -to sd_ack\nset_instance_assignment -name VIRTUAL_PIN ON -to sd_buff_addr[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to sd_buff_dout[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to sd_buff_wr\nset_instance_assignment -name VIRTUAL_PIN ON -to sd_buff_din[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to reads[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to writes[*]\n",
+  "expected_audit": "project_open snapshot_fit\ncreate_timing_netlist -model slow\nset corners {}\nforeach_in_collection op [get_available_operating_conditions] {\n lappend corners [get_operating_conditions_info $op -name]\n}\ndelete_timing_netlist\nif {[llength $corners]!=4} {error \"Expected four operating conditions: $corners\"}\nforeach name $corners {\n create_timing_netlist\n set_operating_conditions $name\n read_sdc\n update_timing_netlist\n puts \"AUDIT_DEVICE_CORNER $name\"\n foreach mode {setup hold recovery removal} {\n  report_timing -$mode -npaths 3 -detail full_path -file bank-$mode-$name.rpt\n }\n report_min_pulse_width -file bank-mpw-$name.rpt\n report_clocks -file bank-clocks-$name.rpt\n report_ucp -file bank-ucp-$name.rpt\n delete_timing_netlist\n}\nproject_close\n",
+  "original_sha256": "9cdb7737014433de32502bb8a80961802e2d290fae6251747ff922d381ddceed",
+  "candidate_sha256": "e22701ab96bd2d6607a55865c418379362b99bc5c5a6fa867cc5dc7986d8b22b",
+  "assembly_permitted": false,
+  "limits": "Matched embedded disk component only; physical board IO, whole-core clocks/timing and full snapshots remain separate."
+}

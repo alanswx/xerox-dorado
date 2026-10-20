@@ -1,0 +1,10 @@
+{
+  "status": "TERMINAL_FAILED_MAP",
+  "builder_pid": 2470441,
+  "builder_live": false,
+  "project_processes": [],
+  "assembly_started": false,
+  "rbfs": [],
+  "sta_started": false,
+  "observed_utc": "2026-10-20T05:09:09Z"
+}

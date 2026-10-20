@@ -1,0 +1,11 @@
+{
+  "status": "PASS_DISK_GEOMETRY_ACCESS_PENDING",
+  "original_fields": 55,
+  "original_bits": 131816,
+  "total_fields": 55,
+  "total_bits": 131816,
+  "extra_required_snapshot_bits": 0,
+  "sequential_exclusions": [],
+  "limits": "Complete wrapper snapshot access is not implemented.",
+  "extra_state_edge_bindings": []
+}
