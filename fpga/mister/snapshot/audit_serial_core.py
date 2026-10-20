@@ -247,7 +247,8 @@ set_output_delay -clock $capacity_clock -min 0.000 [get_ports CAPACITY_MEMORY_DR
         native_barriers_implemented=False,assembly_permitted=False,limits='Source integration only; full elaboration/fit/timing/hardware restore remain separate')
 
 
-def controls(baseline,project):
+def controls(baseline,project,reviewer=None):
+    reviewer=reviewer or audit
     cases=[('index',BP,'snapshot_index[14:0]','snapshot_index[13:0]'),
         ('msa_alias',BP,'.state_request(snapshot_msa_request[7])','.state_request(snapshot_msa_request[0])'),
         ('global_hold',BP,'.state_global_hold(snapshot_hold)',".state_global_hold(1'b0)"),
@@ -274,7 +275,7 @@ def controls(baseline,project):
     results=[]
     for name,path,before,after in cases:
         source=(project/path).read_text();check(before in source,'missing negative-control target: '+name)
-        try:audit(baseline,project,{path:source.replace(before,after,1)})
+        try:reviewer(baseline,project,{path:source.replace(before,after,1)})
         except ValueError as error:results.append(dict(case=name,rejected=True,diagnostic=str(error)))
         else:raise AssertionError('damaged native integration accepted: '+name)
     return results

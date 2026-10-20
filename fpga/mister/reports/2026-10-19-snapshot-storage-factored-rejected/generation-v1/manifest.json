@@ -1,0 +1,173 @@
+{
+  "scope": "Factor native frontend scan/normal D and clock-enable inference explicitly.\n\nPreserves every physical register, initial value, update priority, scan bit and\ninterface equation. Only the existing clocked process is transposed into a\ncombinational enable/value process and enabled registers. No new sequential\nstate or storage policy. Area/timing benefit requires matched FPGA evidence.\n",
+  "module": "dorado_storage_group_snapshot",
+  "reference": {
+    "scope": "Serial access to the selected native storage frontend's physical registers.\n\nThe host work continues during guest stalls. Only a final external hold stops\nboth domains; the caller must first drain accepted raw transactions and hold\nall consumers. SDRAM refresh and global service barriers are outside this cell.\nThe guest advance must be the actual clock gate's pre-edge enable. This pins\nthe exact frozen native nondeferred source; changing that policy needs a new schema/gate.\n",
+    "original_sha256": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+    "generated_sha256": "9ed5b31e83859ff06c9d536de7a90880a839e5f0af8abb468005eda194a163d1",
+    "module": "dorado_storage_group_snapshot",
+    "parameters": {
+      "ADDR_BITS": 16,
+      "WIDTH": [
+        8,
+        12
+      ]
+    },
+    "fields": [
+      [
+        "cas_d",
+        1
+      ],
+      [
+        "we_d",
+        1
+      ],
+      [
+        "write_pending",
+        1
+      ],
+      [
+        "write_data",
+        "WIDTH"
+      ],
+      [
+        "read_pipe",
+        "WIDTH"
+      ],
+      [
+        "data_out",
+        "WIDTH"
+      ],
+      [
+        "cache_valid",
+        1
+      ],
+      [
+        "write_done",
+        1
+      ],
+      [
+        "waiting",
+        1
+      ],
+      [
+        "saved_write",
+        1
+      ],
+      [
+        "cache_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "saved_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "cache_data",
+        16
+      ],
+      [
+        "saved_data",
+        16
+      ],
+      [
+        "old_data",
+        16
+      ]
+    ],
+    "physical_bits": {
+      "width8": 111,
+      "width12": 123
+    },
+    "private_bits": 1,
+    "policy": "Exact archived native nondeferred source, not the working-tree deferred-capable variant"
+  },
+  "reference_sha256": "9ed5b31e83859ff06c9d536de7a90880a839e5f0af8abb468005eda194a163d1",
+  "generated_sha256": "b230a50574aa288d514e342133a43d0c08016583897c78ee8555f9fa5595a1c2",
+  "physical_bits": {
+    "width8": 111,
+    "width12": 123
+  },
+  "private_bits": 1,
+  "fields": [
+    [
+      "cas_d",
+      1
+    ],
+    [
+      "we_d",
+      1
+    ],
+    [
+      "write_pending",
+      1
+    ],
+    [
+      "write_data",
+      "WIDTH"
+    ],
+    [
+      "read_pipe",
+      "WIDTH"
+    ],
+    [
+      "data_out",
+      "WIDTH"
+    ],
+    [
+      "cache_valid",
+      1
+    ],
+    [
+      "write_done",
+      1
+    ],
+    [
+      "waiting",
+      1
+    ],
+    [
+      "saved_write",
+      1
+    ],
+    [
+      "cache_addr",
+      "ADDR_BITS"
+    ],
+    [
+      "saved_addr",
+      "ADDR_BITS"
+    ],
+    [
+      "cache_data",
+      16
+    ],
+    [
+      "saved_data",
+      16
+    ],
+    [
+      "old_data",
+      16
+    ]
+  ],
+  "transformed_process_sha256": "7c7216092b8d2e830f55748e2564d04e5b968fd938e74c7ecd9ee70d016abafe",
+  "sequential_fields": [
+    "cas_d",
+    "we_d",
+    "write_pending",
+    "write_data",
+    "read_pipe",
+    "data_out",
+    "cache_valid",
+    "write_done",
+    "waiting",
+    "saved_write",
+    "cache_addr",
+    "saved_addr",
+    "cache_data",
+    "saved_data",
+    "old_data"
+  ],
+  "limits": "Component experiment only. No native integration, pause implementation, area/timing or speed claim."
+}

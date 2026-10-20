@@ -42,6 +42,66 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Same-coverage area optimization saves 2,548 ALMs, but Serial62Area still fails capacity: 46,702 / 41,910 ALMs, 4,792 over. Both experiments are terminal.**
+
+Serial62Area changes four supported Quartus17 options: Aggressive Area mode,
+Minimize Area with Chains packing, Area synthesis, and physical combinational
+area optimization ON. All 659 staged files otherwise match Serial61 after path
+rebasing. All nineteen qualified adapters / 1,966,264 physical board bits,
+macros, original clock/IO constraints, memory policy, transport and virtual service
+contracts are retained. No fresh XML is claimed; HDL/macros match the earlier
+logical inventory. Synthesis passes, but fitting needs 4,701 LABs / 4,191 and
+exits3, versus Serial61's 4,954 LABs and 49,250 ALMs. Neither fit is legal.
+No STA, assembly, RBF or hardware reload follows. The failed summary's zero RAM
+blocks is not a physical memory result; area-mode inference remains unqualified.
+Original clock periods are not relaxed.
+
+The independent source/policy audit rejects 27 damaged cases, including all 23
+inherited source cases through the area reviewer. Its optional reviewer test API
+retains the old default behavior, separately rechecked with 23 controls. Terminal
+Quartus aliases pass. All 413 Native59 receipts and 659 remote/local input matches
+pass; 658 non-QSF inputs remain byte-identical after the build. The capacity
+comparison explicitly adapts only the source-review envelope for the shared
+resource reader. Actual reports retain all nineteen board / three transport
+scopes; four damaged capacity cases reject. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-serial-area/`. All 1,553 raw members pass
+readback; extracted source/policy/alias controls, byte-identical 659-file
+restaging and terminal equal-coverage capacity review pass.
+
+Remote project `/home/alans/mister/Dorado_Serial62Area_20261019` is TERMINAL;
+builder2346741 and fitter2349070 are absent. Inputs remain isolated at
+`/home/alans/mister/Dorado_Serial62Area_inputs_20261019`. Do not restart it.
+No job from these experiments remains running.
+
+The preceding explicit frontend D/enable factoring is REJECTED: matched enabled
+native8/12 fits use 278 ALMs for qualified serial / 282 factored, despite passing
+2,237,064 untouched original RTL/DRAM-oracle checks and eleven RTL failure
+controls. Four-state comparison adds 12,143 ticks and three RTL failure controls.
+Both fits pass four conditions, minimum +0.160 ns, with no unconstrained paths;
+four damaged fit cases reject. All 650 raw members and extracted DRAM/four-state/
+fit-review replays pass. This candidate is absent from Serial62Area and the live
+core. Evidence: `fpga/mister/reports/2026-10-19-snapshot-storage-factored-rejected/`.
+
+Next prototype shared, glitch-free hardware clock enabling for ordinary physical
+FF helpers on actual guest advances and scans, first on one complete MSA. Keep
+host memory work/controllers running and retain all 458 fields / 2,690 bits and
+their schema. Test raw stalls, clock-high request changes, first/final scan edges,
+abort/sticky quarantine and first resumed operation against untouched original
+state/pins. Account for gate phase state and related-clock timing; then measure
+matched area before native integration. No such clock change is implemented here.
+Do not drop state or infer a combined fit from isolated savings. A legal enabled
+complete-core fit and all-device timing remain required before deployment.
+
+Complete wrapper/input/video/network/raw-memory/Main/daemon/server state and real
+pause/disk-generation barriers remain required, including true reseed ownership
+(the current PLL-unlock reset proxy cannot be a production quarantine clear).
+Then qualify atomic disk-paired FPGA Cedar save/continue/restore. Original 60 ns
+clocks/timers, pinned comparisons, three fresh boots, cold persistence and two-hour
+combined stress remain open. MiSTer14/Native59 and the last qualified rate of
+1,947,654.12 issues/s are unchanged. Goal ACTIVE.
+
+Previous nineteen-board integration:
+
 **Nineteen-board serial integration passes source/XML audits, but the combined fit is rejected: 49,250 / 41,910 ALMs, 7,340 over capacity.**
 
 `build_serial_core.py` stages the exact qualified eleven main-board adapters,

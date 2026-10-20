@@ -1,0 +1,173 @@
+{
+  "status": "PASS_SOURCE_AREA_OPTIONS_ONLY",
+  "scope": "Independent four-option area policy plus unchanged Serial61 source audit.\n\nThe source reviewer receives an explicitly rolled-back QSF after checking each\nallowed setting exactly. Every inherited damaged-source control runs through\nthis area reviewer; an area-policy mismatch cannot mask a broken-source test.\nNo area, timing, native barrier, hardware restore or speed qualification here.\n",
+  "boards": 19,
+  "slots": 12,
+  "original_pin_connections": 2761,
+  "physical_board_bits": 1966264,
+  "baseline_sources_verified": 405,
+  "unchanged_core_files": 84,
+  "capacity_only": true,
+  "native_barriers_implemented": false,
+  "assembly_permitted": false,
+  "limits": "Source integration only; full elaboration/fit/timing/hardware restore remain separate",
+  "area_options": [
+    {
+      "name": "OPTIMIZATION_MODE",
+      "before": "\"HIGH PERFORMANCE EFFORT\"",
+      "after": "\"Aggressive Area\""
+    },
+    {
+      "name": "QII_AUTO_PACKED_REGISTERS",
+      "before": "NORMAL",
+      "after": "\"Minimize Area with Chains\""
+    },
+    {
+      "name": "OPTIMIZATION_TECHNIQUE",
+      "before": "SPEED",
+      "after": "AREA"
+    },
+    {
+      "name": "PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA",
+      "before": "OFF",
+      "after": "ON"
+    }
+  ],
+  "failure_controls": [
+    {
+      "case": "index",
+      "rejected": true,
+      "diagnostic": "main-board state binding differs: ContB"
+    },
+    {
+      "case": "msa_alias",
+      "rejected": true,
+      "diagnostic": "MSA state binding differs: b_msa3Odd"
+    },
+    {
+      "case": "global_hold",
+      "rejected": true,
+      "diagnostic": "main-board state binding differs: ProcH"
+    },
+    {
+      "case": "guest_advance",
+      "rejected": true,
+      "diagnostic": "main-board state binding differs: ProcH"
+    },
+    {
+      "case": "processor_param",
+      "rejected": true,
+      "diagnostic": "module/parameter differs: DskEth"
+    },
+    {
+      "case": "wrapper",
+      "rejected": true,
+      "diagnostic": "snapshot wrapper binding differs: m"
+    },
+    {
+      "case": "reset",
+      "rejected": true,
+      "diagnostic": "lifecycle/parser reset conflated"
+    },
+    {
+      "case": "service_high",
+      "rejected": true,
+      "diagnostic": "service acknowledgment not virtual input"
+    },
+    {
+      "case": "normal_keyboard",
+      "rejected": true,
+      "diagnostic": "normal wrapper binding differs: u_native"
+    },
+    {
+      "case": "top_ack",
+      "rejected": true,
+      "diagnostic": "virtual contracts not propagated to top"
+    },
+    {
+      "case": "rbf",
+      "rejected": true,
+      "diagnostic": "assembly enabled"
+    },
+    {
+      "case": "storage_mode",
+      "rejected": true,
+      "diagnostic": "unapproved source/macro/fitter assignment differs"
+    },
+    {
+      "case": "host_clock",
+      "rejected": true,
+      "diagnostic": "unapproved source/macro/fitter assignment differs"
+    },
+    {
+      "case": "uio_schema",
+      "rejected": true,
+      "diagnostic": "UIO schema/deadline differs"
+    },
+    {
+      "case": "uio_deadline",
+      "rejected": true,
+      "diagnostic": "UIO schema/deadline differs"
+    },
+    {
+      "case": "backplane_equation",
+      "rejected": true,
+      "diagnostic": "ordinary backplane equations differ"
+    },
+    {
+      "case": "fabric_extra",
+      "rejected": true,
+      "diagnostic": "unapproved native fabric logic/declaration"
+    },
+    {
+      "case": "wrapper_equation",
+      "rejected": true,
+      "diagnostic": "ordinary wrapper equations differ"
+    },
+    {
+      "case": "core_equation",
+      "rejected": true,
+      "diagnostic": "ordinary outer-core equations differ"
+    },
+    {
+      "case": "virtual_false_path",
+      "rejected": true,
+      "diagnostic": "virtual timing constraints differ"
+    },
+    {
+      "case": "crossing_missing",
+      "rejected": true,
+      "diagnostic": "not all nineteen crossings covered"
+    },
+    {
+      "case": "corner_missing",
+      "rejected": true,
+      "diagnostic": "operating condition script differs"
+    },
+    {
+      "case": "hold_cut",
+      "rejected": true,
+      "diagnostic": "new hold exception or altered endpoint policy"
+    },
+    {
+      "case": "area_OPTIMIZATION_MODE",
+      "rejected": true,
+      "diagnostic": "area optimization differs: OPTIMIZATION_MODE"
+    },
+    {
+      "case": "area_QII_AUTO_PACKED_REGISTERS",
+      "rejected": true,
+      "diagnostic": "area optimization differs: QII_AUTO_PACKED_REGISTERS"
+    },
+    {
+      "case": "area_OPTIMIZATION_TECHNIQUE",
+      "rejected": true,
+      "diagnostic": "area optimization differs: OPTIMIZATION_TECHNIQUE"
+    },
+    {
+      "case": "area_PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA",
+      "rejected": true,
+      "diagnostic": "area optimization differs: PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA"
+    }
+  ]
+}

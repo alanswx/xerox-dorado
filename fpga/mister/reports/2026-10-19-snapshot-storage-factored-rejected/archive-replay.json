@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "files": 650,
+  "regenerated_rtl": "BYTE_IDENTICAL",
+  "extracted_original_validation": "PINNED_SHA256",
+  "dram_oracle_rebuild": "PASS",
+  "fourstate_rebuild": "PASS_12143_TICKS_3_RTL_CONTROLS",
+  "matched_fit_review": "REJECTED_NO_AREA_BENEFIT",
+  "fit_controls": 4,
+  "scope": "Extracted replay passes; RTL remains rejected for area. No whole-core or hardware change."
+}

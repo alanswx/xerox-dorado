@@ -1,0 +1,9 @@
+{
+  "status": "TERMINAL_FAILED_FIT",
+  "observed_utc": "2026-10-20T02:14:44.794664+00:00",
+  "builder_pid": 2346741,
+  "fitter_pid": 2349070,
+  "sta_started": false,
+  "assembly_started": false,
+  "rbfs": []
+}

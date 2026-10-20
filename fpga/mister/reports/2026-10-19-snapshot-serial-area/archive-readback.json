@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "files": 1553,
+  "raw_bytes": 82686269,
+  "stored_bytes": 9798008,
+  "scope": "Same-coverage terminal capacity reduction, still failed; no legal placed memory/timing/assembly/hardware claim."
+}

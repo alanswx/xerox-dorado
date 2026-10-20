@@ -1,0 +1,274 @@
+{
+  "status": "REJECTED_NO_AREA_BENEFIT",
+  "scope": "Read completed matched frontend fits; reject a correct but larger variant.",
+  "results": {
+    "baseline": {
+      "alms": 278,
+      "registers": 597,
+      "synthesis_registers": 519,
+      "timing": [
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "setup",
+          "slack_ns": 8.012
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "hold",
+          "slack_ns": 0.312
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "mpw",
+          "slack_ns": 9.279
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "setup",
+          "slack_ns": 7.919
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "hold",
+          "slack_ns": 0.331
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "mpw",
+          "slack_ns": 9.176
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "setup",
+          "slack_ns": 8.485
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "hold",
+          "slack_ns": 0.16
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "mpw",
+          "slack_ns": 9.049
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "setup",
+          "slack_ns": 8.429
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "hold",
+          "slack_ns": 0.187
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "mpw",
+          "slack_ns": 9.107
+        }
+      ],
+      "minimum_slack_ns": 0.16
+    },
+    "factored": {
+      "alms": 282,
+      "registers": 592,
+      "synthesis_registers": 519,
+      "timing": [
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "setup",
+          "slack_ns": 8.166
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "hold",
+          "slack_ns": 0.324
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "kind": "mpw",
+          "slack_ns": 9.234
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "setup",
+          "slack_ns": 8.035
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "hold",
+          "slack_ns": 0.341
+        },
+        {
+          "corner": "7_slow_1100mv_100c",
+          "kind": "mpw",
+          "slack_ns": 9.173
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "setup",
+          "slack_ns": 8.538
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "hold",
+          "slack_ns": 0.163
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "kind": "mpw",
+          "slack_ns": 9.05
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "setup",
+          "slack_ns": 8.507
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "hold",
+          "slack_ns": 0.181
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "kind": "mpw",
+          "slack_ns": 9.111
+        }
+      ],
+      "minimum_slack_ns": 0.163
+    }
+  },
+  "additional_alms": 4,
+  "hardware_changed": false,
+  "limits": "Matched component measurement only. No integration, legal complete-core fit or speed improvement.",
+  "failure_controls": [
+    {
+      "case": "loose_clock",
+      "rejected": true,
+      "diagnostic": "fixture/timing input differs"
+    },
+    {
+      "case": "changed_policy",
+      "rejected": true,
+      "diagnostic": "unapproved fixture policy"
+    },
+    {
+      "case": "bad_hold",
+      "rejected": true,
+      "diagnostic": "timing violation/missing report"
+    },
+    {
+      "case": "missing_timing",
+      "rejected": true,
+      "diagnostic": "timing violation/missing report"
+    }
+  ],
+  "input_hashes": {
+    "query-assignment-help.tcl": "a914eeef9dda792f189d8501a1fab204e52d1120a5e9d051bc1795f6060a3a34",
+    "provenance.json": "df60405d0607a189dacb9e9222f3dfbf0dc8bd43795b97b4c3f6e024e20b9811",
+    "query-area-options.txt": "9ef38c0c09c30c3b65afd1f1731eddac298990a8a9c6133365ef475a83843b94",
+    "query-assignment-help2.tcl": "294d8aa05e346bd6faec540c7b09f3e1ab202d80a70118d42d5a1cfb0d28957b",
+    "query-assignment-help.txt": "22df3659e8207d2e991dea2bb6de885ae1e41b92d43961db8aafd98850b6c5fb",
+    "driver.pid": "c6e1abe77615b1abbc8e36ac5c20074c5eccce0e028145d2cea65148b0f88e4a",
+    "query-area-options.tcl": "509b5d703ce216866fb92a790ac5876ac2f446f06172f9e13be3171cd8203c8f",
+    "query-assignment-api.tcl": "21a7408c1c487b8dadc88690adefc407459866381bd587ebcb75f5004819385b",
+    "driver.log": "39c0dc7da180bcec9e6af49333cb16e6a81046966d6722028126d0b422a77e75",
+    "query-assignment-help2.txt": "8813d7d22986f827e58304a260614970615639ac46b6549c3604768894f790c8",
+    "baseline/bank-clocks-MIN_fast_1100mv_-40c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "baseline/bank-hold-MIN_fast_1100mv_-40c.rpt": "d3a39c56d359eba17bda60b829cb4effe03df679505764c972b52e6e30091838",
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/corners.log": "205fc66b20dd34976fbc5e20b3dc1777c302418ebd1af81e73f7ee2a4fde0c7a",
+    "baseline/snapshot_fit.flow.rpt": "b14c180daef8772dc169d88f54267e5989dddf00fd6e09045171f689dff73af4",
+    "baseline/bank-removal-7_slow_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/storage_group_snapshot.sv": "9ed5b31e83859ff06c9d536de7a90880a839e5f0af8abb468005eda194a163d1",
+    "baseline/bank-setup-MIN_fast_1100mv_100c.rpt": "0d5ba3d1c7436e9725e7a4c2fd6e50107dbf0af8f429b781c9ae7b33d1ab578c",
+    "baseline/bank-setup-7_slow_1100mv_100c.rpt": "a37713ee19a8a491396b9b13ebf56cb35d324773eca077b791b20407212270c8",
+    "baseline/bank-removal-MIN_fast_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/snapshot_fit.fit.summary": "0bd87c9df59143572a8bdb0c3b4deab2f0e674d4b410b964cfa9874d773c59f1",
+    "baseline/bank-mpw-7_slow_1100mv_-40c.rpt": "7d63c454c7a28c29acd51ff62bdca9772b64179406c1c2582a91638304ff320d",
+    "baseline/bank-removal-7_slow_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/bank-clocks-MIN_fast_1100mv_100c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "baseline/bank-hold-MIN_fast_1100mv_100c.rpt": "4d204ab89ac8c04e3779989f1c9e474da91c8822a2861d2da7f53932a28c0a18",
+    "baseline/bank-mpw-7_slow_1100mv_100c.rpt": "b1867cffb355a40722e8fb7e7986f98f2e10633ebbb52ed50a81e73b992fbcff",
+    "baseline/bank-setup-7_slow_1100mv_-40c.rpt": "59f41973dbb7cfb55e779690606fd255dd217f99646fb9e5f00e370ab1a91d24",
+    "baseline/bank-setup-MIN_fast_1100mv_-40c.rpt": "80a9a6444cb221c09d90d32475b183c1d3aeaa2c7dcfc12b5a0f01caa9821854",
+    "baseline/top.sv": "27710b3fbe0cea77158c119faa888c42217ebd7493e8bc284c47b28f85f225f6",
+    "baseline/bank-removal-MIN_fast_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/snapshot_fit.map.summary": "7d578af4c912fe00fbce414f1dfbea60d8be63e295c06abcb4c92b1301945372",
+    "baseline/snapshot_fit.fit.rpt": "faa1ecc580a05fa2d80c38ddc286f535cd0816b5db6e029b11fef706142e0193",
+    "baseline/map.log": "cd96730d7f27cf3174049d6f39b1cc6054d0271a68819f48b1e46d16bc8c3aa2",
+    "baseline/bank-recovery-7_slow_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/bank-ucp-7_slow_1100mv_100c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "baseline/bank-recovery-MIN_fast_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/bank-ucp-MIN_fast_1100mv_100c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "baseline/snapshot_fit.sta.summary": "1b540a09779e329968b7b335ea187caeb533e87e164ead4cd6444c4b324b7e43",
+    "baseline/fit.log": "00482e01d559d854dcdccbc3572645d8af17c39e620f36666cac609f9f048b1a",
+    "baseline/bank-mpw-MIN_fast_1100mv_100c.rpt": "cc6e307d9d5eaaa77736c138d202ddb19ee94df069966a25f28ddfff5c9c3d3e",
+    "baseline/snapshot_fit.map.rpt": "c0bd733f74c997b819c4229e9ded0e42d6555b3405cf205b874ee5330002b74d",
+    "baseline/bank-hold-7_slow_1100mv_-40c.rpt": "b687011c0e2b96c7d802653e5957fb5dd002bfe2a37a73991a2a311d5838c508",
+    "baseline/bank-clocks-7_slow_1100mv_100c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "baseline/bank-ucp-7_slow_1100mv_-40c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/bank-recovery-MIN_fast_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/bank-recovery-7_slow_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "baseline/sta.log": "82f81faffbd573781595e5963df713c24ec71abb39f6d50b34494db8c0c7dff9",
+    "baseline/snapshot_fit.qsf": "0ce72dac01644fddc80814877ed392bceb0a648d4098f50c29b8e21cbc8f9d7b",
+    "baseline/bank-hold-7_slow_1100mv_100c.rpt": "012da2bb4978fe87a3bd40f2a74d332fe58d7ac74fefebeb1a06659182165eab",
+    "baseline/bank-clocks-7_slow_1100mv_-40c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "baseline/bank-mpw-MIN_fast_1100mv_-40c.rpt": "208ad6eeecbe03c687523cf3e40eecc3125e2265c50bc2576c0bde3f3cee71a0",
+    "baseline/snapshot_fit.sta.rpt": "714bf7d24da001ac1e461ebcfb63c56f033865a502a34d78cfb933fd7299f827",
+    "baseline/bank-ucp-MIN_fast_1100mv_-40c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "executed-sources/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "executed-sources/generate_storage_group.py": "706ffd66590d6ea8f08dcb5077856da7eff4aa6f89d183c961f094072e5da4c0",
+    "executed-sources/fit_storage_factored.py": "76c76b882365e0793ae46e23501116033fb47a3a9134906d7a93ccf045944bfc",
+    "executed-sources/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "executed-sources/generate_storage_factored.py": "16917b7f2817c7354f7f40c4ef023920e41af995791a61b49ac3647d5ccf3244",
+    "factored/bank-clocks-MIN_fast_1100mv_-40c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "factored/bank-hold-MIN_fast_1100mv_-40c.rpt": "c1fdcb6811f59985bd9e88dfcb07894cf26b8c5cc59cfc7c6e925b9cb50e9c87",
+    "factored/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "factored/corners.log": "abc1c6314dc049ff99478a4de2b1f0f356f3d42f654007f02dae44096cb7314d",
+    "factored/snapshot_fit.flow.rpt": "3a1a253e68d7f0a6b3b08276d3c077db0afa36790ea0e41afd4c50df86d7e4a8",
+    "factored/bank-removal-7_slow_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "factored/storage_group_snapshot.sv": "66e25acd304ff0965e4729789976dca67acefc3027446850b82086ab4c79e12a",
+    "factored/bank-setup-MIN_fast_1100mv_100c.rpt": "6716379e6c19b51c61e1d388141e8eb213a0ae58cd64f0cf606158f10b6471c5",
+    "factored/bank-setup-7_slow_1100mv_100c.rpt": "4d8ba84cb4a6475be48a3046df5171d67c3b5a743b776bd1234ecd10ce84fa79",
+    "factored/bank-removal-MIN_fast_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "factored/snapshot_fit.fit.summary": "0b51399553a8bfdbf77c3d0b1936a6474f5ed799f7f4ec462a591f352430e417",
+    "factored/bank-mpw-7_slow_1100mv_-40c.rpt": "e4c3e68e686145f3abd3e53c2593b91cc03f79e1dcf2ad20a418203338bb0c93",
+    "factored/bank-removal-7_slow_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "factored/bank-clocks-MIN_fast_1100mv_100c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "factored/bank-hold-MIN_fast_1100mv_100c.rpt": "828fde739cf91900ef4fe16bbe515343aea6ca4ae2344dd339bd7e05e69197eb",
+    "factored/bank-mpw-7_slow_1100mv_100c.rpt": "153a7feb9b5eb09173f4b5185c297e700770d3b958ff63c079b0ed0329c0f7c6",
+    "factored/bank-setup-7_slow_1100mv_-40c.rpt": "14782d82f24e361b21f35a2f192c95919c93a1a6067e198f499fc5e81824b6e1",
+    "factored/bank-setup-MIN_fast_1100mv_-40c.rpt": "8a42ec899f1fe7201c96bc2cf23ad3a792fd705948fdd984e0dcb0c85d4690ba",
+    "factored/top.sv": "27710b3fbe0cea77158c119faa888c42217ebd7493e8bc284c47b28f85f225f6",
+    "factored/bank-removal-MIN_fast_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "factored/snapshot_fit.map.summary": "24ef729e399f47dec82e1ec6e5db7542e94a2563745467621f617abedf61b49d",
+    "factored/snapshot_fit.fit.rpt": "ce27a4d9a999dd9e888e5aae3dc812cecb0089c464f53cd8413b7a5f7ecebda5",
+    "factored/map.log": "c98a084f9b2606f5802ef2664c4ebb237e10fdf5d48142549a19fe3d86526ce0",
+    "factored/bank-recovery-7_slow_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "factored/bank-ucp-7_slow_1100mv_100c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "factored/bank-recovery-MIN_fast_1100mv_-40c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "factored/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "factored/bank-ucp-MIN_fast_1100mv_100c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "factored/snapshot_fit.sta.summary": "3942a992bd114659ababb4f962014463fba558f218a24e0f3a9b2a00794164c6",
+    "factored/fit.log": "83cf46b3815ccfd938993fed40be66bdd0f9ff0fc2db94079e48daf38aea42ad",
+    "factored/bank-mpw-MIN_fast_1100mv_100c.rpt": "c0c7287d0bc6643da44af0c3c7675debab1e66defc93e1ca17efcd10d45e7280",
+    "factored/snapshot_fit.map.rpt": "a49263f75a405b40decdbe2036a686b6ea35c584e09f4386ccbd6a90eca4d133",
+    "factored/bank-hold-7_slow_1100mv_-40c.rpt": "a2238368b49c3f498eac1313ddfb2d51ee526dba64dc8885096ab7ac9a2d993e",
+    "factored/bank-clocks-7_slow_1100mv_100c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "factored/bank-ucp-7_slow_1100mv_-40c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490",
+    "factored/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "factored/bank-recovery-MIN_fast_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "factored/bank-recovery-7_slow_1100mv_100c.rpt": "cabd8f366c51d7b4534909948e8f712a1a82ba31c22c04d886da502e53b6fc52",
+    "factored/sta.log": "4e5d3f1da2455a4716cea476d25651daa720dd9b66ed7477948a6bf710f198fe",
+    "factored/snapshot_fit.qsf": "0ce72dac01644fddc80814877ed392bceb0a648d4098f50c29b8e21cbc8f9d7b",
+    "factored/bank-hold-7_slow_1100mv_100c.rpt": "fa9e991ab780c8c647277f1a651f953ea38585d15edc5616e42dd68a15826881",
+    "factored/bank-clocks-7_slow_1100mv_-40c.rpt": "41b27deb0fd5f875aead59056d0f712455692dd55dfe0df7279ac03aef256c31",
+    "factored/bank-mpw-MIN_fast_1100mv_-40c.rpt": "c2785a7c20d0296d211545f717f06fc2a8d8bdc415943abfc47e7c365223a6f2",
+    "factored/snapshot_fit.sta.rpt": "cfec4c3d4b117e5e72cad3ccb824af51321ec20f7e2bcffd10000e192a2c0a21",
+    "factored/bank-ucp-MIN_fast_1100mv_-40c.rpt": "751f57c6b8060f0543d2285de6ef71131e711adb56e76cef0991c30818a9b490"
+  }
+}

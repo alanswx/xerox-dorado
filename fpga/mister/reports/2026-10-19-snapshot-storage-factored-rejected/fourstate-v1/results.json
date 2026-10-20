@@ -1,0 +1,214 @@
+{
+  "status": "PASS",
+  "scope": "Four-state procedural/priority equivalence against the qualified serial cell.\n\nInputs include deliberately unreachable restored states and X/Z controls. Only\nthe original simulation assertions about legal guest advances are removed from\nBOTH cells for this algebra check. Valid guest/DRAM behavior is tested separately\nby test_storage_factored.py against untouched original RTL and actual DRAM cells.\n",
+  "manifest": {
+    "scope": "Factor native frontend scan/normal D and clock-enable inference explicitly.\n\nPreserves every physical register, initial value, update priority, scan bit and\ninterface equation. Only the existing clocked process is transposed into a\ncombinational enable/value process and enabled registers. No new sequential\nstate or storage policy. Area/timing benefit requires matched FPGA evidence.\n",
+    "module": "dorado_storage_group_snapshot",
+    "reference": {
+      "scope": "Serial access to the selected native storage frontend's physical registers.\n\nThe host work continues during guest stalls. Only a final external hold stops\nboth domains; the caller must first drain accepted raw transactions and hold\nall consumers. SDRAM refresh and global service barriers are outside this cell.\nThe guest advance must be the actual clock gate's pre-edge enable. This pins\nthe exact frozen native nondeferred source; changing that policy needs a new schema/gate.\n",
+      "original_sha256": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+      "generated_sha256": "9ed5b31e83859ff06c9d536de7a90880a839e5f0af8abb468005eda194a163d1",
+      "module": "dorado_storage_group_snapshot",
+      "parameters": {
+        "ADDR_BITS": 16,
+        "WIDTH": [
+          8,
+          12
+        ]
+      },
+      "fields": [
+        [
+          "cas_d",
+          1
+        ],
+        [
+          "we_d",
+          1
+        ],
+        [
+          "write_pending",
+          1
+        ],
+        [
+          "write_data",
+          "WIDTH"
+        ],
+        [
+          "read_pipe",
+          "WIDTH"
+        ],
+        [
+          "data_out",
+          "WIDTH"
+        ],
+        [
+          "cache_valid",
+          1
+        ],
+        [
+          "write_done",
+          1
+        ],
+        [
+          "waiting",
+          1
+        ],
+        [
+          "saved_write",
+          1
+        ],
+        [
+          "cache_addr",
+          "ADDR_BITS"
+        ],
+        [
+          "saved_addr",
+          "ADDR_BITS"
+        ],
+        [
+          "cache_data",
+          16
+        ],
+        [
+          "saved_data",
+          16
+        ],
+        [
+          "old_data",
+          16
+        ]
+      ],
+      "physical_bits": {
+        "width8": 111,
+        "width12": 123
+      },
+      "private_bits": 1,
+      "policy": "Exact archived native nondeferred source, not the working-tree deferred-capable variant"
+    },
+    "reference_sha256": "9ed5b31e83859ff06c9d536de7a90880a839e5f0af8abb468005eda194a163d1",
+    "generated_sha256": "66e25acd304ff0965e4729789976dca67acefc3027446850b82086ab4c79e12a",
+    "physical_bits": {
+      "width8": 111,
+      "width12": 123
+    },
+    "private_bits": 1,
+    "fields": [
+      [
+        "cas_d",
+        1
+      ],
+      [
+        "we_d",
+        1
+      ],
+      [
+        "write_pending",
+        1
+      ],
+      [
+        "write_data",
+        "WIDTH"
+      ],
+      [
+        "read_pipe",
+        "WIDTH"
+      ],
+      [
+        "data_out",
+        "WIDTH"
+      ],
+      [
+        "cache_valid",
+        1
+      ],
+      [
+        "write_done",
+        1
+      ],
+      [
+        "waiting",
+        1
+      ],
+      [
+        "saved_write",
+        1
+      ],
+      [
+        "cache_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "saved_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "cache_data",
+        16
+      ],
+      [
+        "saved_data",
+        16
+      ],
+      [
+        "old_data",
+        16
+      ]
+    ],
+    "transformed_process_sha256": "7c7216092b8d2e830f55748e2564d04e5b968fd938e74c7ecd9ee70d016abafe",
+    "sequential_fields": [
+      "cas_d",
+      "we_d",
+      "write_pending",
+      "write_data",
+      "read_pipe",
+      "data_out",
+      "cache_valid",
+      "write_done",
+      "waiting",
+      "saved_write",
+      "cache_addr",
+      "saved_addr",
+      "cache_data",
+      "saved_data",
+      "old_data"
+    ],
+    "limits": "Component experiment only. No native integration, pause implementation, area/timing or speed claim."
+  },
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0
+    },
+    {
+      "case": "x_hold_coercion",
+      "returncode": 1
+    },
+    {
+      "case": "priority_loss",
+      "returncode": 1
+    },
+    {
+      "case": "scan_enable_loss",
+      "returncode": 1
+    }
+  ],
+  "executed_hashes": {
+    "fixture.sv": "6bdab19892e5dca0945da4c8041ddfc596e39db4d0eae24d56d0bd0d1c9a7520",
+    "qualified-reference.sv": "9ed5b31e83859ff06c9d536de7a90880a839e5f0af8abb468005eda194a163d1",
+    "reference.sv": "926f0255d7734291e9868dfc79135b8e1731ed4830e48dc567b97a6a4f0f59e6",
+    "factored.sv": "66e25acd304ff0965e4729789976dca67acefc3027446850b82086ab4c79e12a",
+    "candidate/command.json": "6603811770b44247d0cb01d4778203e575df7d7d76ed4ecf29ea6376a63a4f5c",
+    "candidate/test.txt": "a276b02dce8760b93ddaaba34e9901f7130d530353f18d7cdde1a4ffc9d60b2d",
+    "candidate/source.sv": "a1b1d025f2df3444ee304431356de8c0eed9820dfa7bce88a154be29f70277a3",
+    "scan_enable_loss/command.json": "f2ed8679a49d2b9e2393008893e5788749561041a11a0fa5e6d646383b391a7f",
+    "scan_enable_loss/test.txt": "3bb49a958ec6595e025345d94d30130ca358a86992c04464f51043d790a127fc",
+    "scan_enable_loss/source.sv": "6a1510b34bda79af0f2a599e821244d1101b58387c7ea7ad22a1cdbe502c69bc",
+    "x_hold_coercion/command.json": "e01a76e0f6273148c6bbcf05732229bd00082951b2d9b6e92daac165d606cc26",
+    "x_hold_coercion/test.txt": "fe6dea32d83245c3706b7bb85789380f3d93cd87462651417a9de5f6eb725a88",
+    "x_hold_coercion/source.sv": "907abc62576ed2087f0c5bb28e1fc4496521a5446e513e2e3c1541369275b052",
+    "priority_loss/command.json": "bd0e059b3646ebfe61f2afbf0bc83145702ecffc2a5e2770a2c2323aa6ca86f2",
+    "priority_loss/test.txt": "77e3c99c8c925b1fb7f45075bc9b918d443c826e4576062f2a3c1ac72ae48aa7",
+    "priority_loss/source.sv": "92a56ffc94b59858d9c7fb2dd1b0e952c7aa397b7f4e7ec27fb80d4930ec423c"
+  },
+  "tool_sha256": "da8915662dbcc027bbf56ad700defd9aaec389736d1a03d4d760acb06d165b96"
+}

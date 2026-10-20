@@ -1,0 +1,10 @@
+{
+  "scope": "Rejected area experiment; no production RTL change",
+  "simulation_v1": "Generator emitted adjacent end/begin tokens; compile failed. Corrected token spacing only.",
+  "simulation_v2": "RTL candidate passes; final deliberately damaged RTL correctly fails with a different diagnostic than expected. Fixture diagnostic corrected only.",
+  "simulation_v3": "110808 host edges,2237064checks,5010guest,10948requests,924writes,63324scan,9snapshots;11actualRTLmutants rejected.",
+  "fourstate_v1": "12143 ticks pass; review found serial_out omitted by one-bit truncation of fixture comparison bus.",
+  "fourstate_v2": "Comparison bus corrected to55bits;12143ticks pass and all3actualRTLmutants rejected.",
+  "fit": "Matched baseline278ALMs/factored282ALMs;reject. All4conditions pass,min+.160ns,no unconstrained clocks/IO.4damagedfit controls reject.",
+  "next": "Same original nineteen-board RTL under four supported Quartus area options is a separate Serial62Area experiment; no adoption of factored RTL."
+}

@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "files": 1553,
+  "source_controls": 27,
+  "capacity_controls": 4,
+  "rebuilt_files": 659,
+  "actual_quartus_aliases": "PASS",
+  "default_reviewer_regression": "PASS_SOURCE_ONLY",
+  "scope": "Extracted source/policy controls, byte-identical659-file restaging and terminal equal-coverage failed-fit review pass. No legal core, timing or hardware gain."
+}

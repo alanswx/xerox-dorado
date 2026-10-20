@@ -1,0 +1,290 @@
+{
+  "scope": "Matched fully enabled native8/12 frontend fits: qualified serial vs factored.\n\nIdentical 50MHz registered shell, virtual IO budgets, device, fitter policy and\nfour operating conditions. No RAM-policy/clock/geometry change or deployment.\n",
+  "reference_manifest": {
+    "scope": "Serial access to the selected native storage frontend's physical registers.\n\nThe host work continues during guest stalls. Only a final external hold stops\nboth domains; the caller must first drain accepted raw transactions and hold\nall consumers. SDRAM refresh and global service barriers are outside this cell.\nThe guest advance must be the actual clock gate's pre-edge enable. This pins\nthe exact frozen native nondeferred source; changing that policy needs a new schema/gate.\n",
+    "original_sha256": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+    "generated_sha256": "9ed5b31e83859ff06c9d536de7a90880a839e5f0af8abb468005eda194a163d1",
+    "module": "dorado_storage_group_snapshot",
+    "parameters": {
+      "ADDR_BITS": 16,
+      "WIDTH": [
+        8,
+        12
+      ]
+    },
+    "fields": [
+      [
+        "cas_d",
+        1
+      ],
+      [
+        "we_d",
+        1
+      ],
+      [
+        "write_pending",
+        1
+      ],
+      [
+        "write_data",
+        "WIDTH"
+      ],
+      [
+        "read_pipe",
+        "WIDTH"
+      ],
+      [
+        "data_out",
+        "WIDTH"
+      ],
+      [
+        "cache_valid",
+        1
+      ],
+      [
+        "write_done",
+        1
+      ],
+      [
+        "waiting",
+        1
+      ],
+      [
+        "saved_write",
+        1
+      ],
+      [
+        "cache_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "saved_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "cache_data",
+        16
+      ],
+      [
+        "saved_data",
+        16
+      ],
+      [
+        "old_data",
+        16
+      ]
+    ],
+    "physical_bits": {
+      "width8": 111,
+      "width12": 123
+    },
+    "private_bits": 1,
+    "policy": "Exact archived native nondeferred source, not the working-tree deferred-capable variant"
+  },
+  "candidate_manifest": {
+    "scope": "Factor native frontend scan/normal D and clock-enable inference explicitly.\n\nPreserves every physical register, initial value, update priority, scan bit and\ninterface equation. Only the existing clocked process is transposed into a\ncombinational enable/value process and enabled registers. No new sequential\nstate or storage policy. Area/timing benefit requires matched FPGA evidence.\n",
+    "module": "dorado_storage_group_snapshot",
+    "reference": {
+      "scope": "Serial access to the selected native storage frontend's physical registers.\n\nThe host work continues during guest stalls. Only a final external hold stops\nboth domains; the caller must first drain accepted raw transactions and hold\nall consumers. SDRAM refresh and global service barriers are outside this cell.\nThe guest advance must be the actual clock gate's pre-edge enable. This pins\nthe exact frozen native nondeferred source; changing that policy needs a new schema/gate.\n",
+      "original_sha256": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+      "generated_sha256": "9ed5b31e83859ff06c9d536de7a90880a839e5f0af8abb468005eda194a163d1",
+      "module": "dorado_storage_group_snapshot",
+      "parameters": {
+        "ADDR_BITS": 16,
+        "WIDTH": [
+          8,
+          12
+        ]
+      },
+      "fields": [
+        [
+          "cas_d",
+          1
+        ],
+        [
+          "we_d",
+          1
+        ],
+        [
+          "write_pending",
+          1
+        ],
+        [
+          "write_data",
+          "WIDTH"
+        ],
+        [
+          "read_pipe",
+          "WIDTH"
+        ],
+        [
+          "data_out",
+          "WIDTH"
+        ],
+        [
+          "cache_valid",
+          1
+        ],
+        [
+          "write_done",
+          1
+        ],
+        [
+          "waiting",
+          1
+        ],
+        [
+          "saved_write",
+          1
+        ],
+        [
+          "cache_addr",
+          "ADDR_BITS"
+        ],
+        [
+          "saved_addr",
+          "ADDR_BITS"
+        ],
+        [
+          "cache_data",
+          16
+        ],
+        [
+          "saved_data",
+          16
+        ],
+        [
+          "old_data",
+          16
+        ]
+      ],
+      "physical_bits": {
+        "width8": 111,
+        "width12": 123
+      },
+      "private_bits": 1,
+      "policy": "Exact archived native nondeferred source, not the working-tree deferred-capable variant"
+    },
+    "reference_sha256": "9ed5b31e83859ff06c9d536de7a90880a839e5f0af8abb468005eda194a163d1",
+    "generated_sha256": "66e25acd304ff0965e4729789976dca67acefc3027446850b82086ab4c79e12a",
+    "physical_bits": {
+      "width8": 111,
+      "width12": 123
+    },
+    "private_bits": 1,
+    "fields": [
+      [
+        "cas_d",
+        1
+      ],
+      [
+        "we_d",
+        1
+      ],
+      [
+        "write_pending",
+        1
+      ],
+      [
+        "write_data",
+        "WIDTH"
+      ],
+      [
+        "read_pipe",
+        "WIDTH"
+      ],
+      [
+        "data_out",
+        "WIDTH"
+      ],
+      [
+        "cache_valid",
+        1
+      ],
+      [
+        "write_done",
+        1
+      ],
+      [
+        "waiting",
+        1
+      ],
+      [
+        "saved_write",
+        1
+      ],
+      [
+        "cache_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "saved_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "cache_data",
+        16
+      ],
+      [
+        "saved_data",
+        16
+      ],
+      [
+        "old_data",
+        16
+      ]
+    ],
+    "transformed_process_sha256": "7c7216092b8d2e830f55748e2564d04e5b968fd938e74c7ecd9ee70d016abafe",
+    "sequential_fields": [
+      "cas_d",
+      "we_d",
+      "write_pending",
+      "write_data",
+      "read_pipe",
+      "data_out",
+      "cache_valid",
+      "write_done",
+      "waiting",
+      "saved_write",
+      "cache_addr",
+      "saved_addr",
+      "cache_data",
+      "saved_data",
+      "old_data"
+    ],
+    "limits": "Component experiment only. No native integration, pause implementation, area/timing or speed claim."
+  },
+  "builder_sha256": "76c76b882365e0793ae46e23501116033fb47a3a9134906d7a93ccf045944bfc",
+  "compiled_files": {
+    "baseline/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "baseline/storage_group_snapshot.sv": "9ed5b31e83859ff06c9d536de7a90880a839e5f0af8abb468005eda194a163d1",
+    "baseline/top.sv": "27710b3fbe0cea77158c119faa888c42217ebd7493e8bc284c47b28f85f225f6",
+    "baseline/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "baseline/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "baseline/snapshot_fit.qsf": "849397b9ca408c4bbf8f8605def01ad3e3c6d3e34aa71de5e51da50b6114ef62",
+    "executed-sources/fit_f10415.py": "6ee7526a708159aa09c1225e792374f6f5314a638e53866d0a4c9c32caea7eed",
+    "executed-sources/generate_storage_group.py": "706ffd66590d6ea8f08dcb5077856da7eff4aa6f89d183c961f094072e5da4c0",
+    "executed-sources/fit_storage_factored.py": "76c76b882365e0793ae46e23501116033fb47a3a9134906d7a93ccf045944bfc",
+    "executed-sources/fit_f10415_enable.py": "cdee5106c2eb73ce57ca085939f731b167f9d5c049693f32ad94798a4fe4af49",
+    "executed-sources/generate_storage_factored.py": "16917b7f2817c7354f7f40c4ef023920e41af995791a61b49ac3647d5ccf3244",
+    "factored/bank.sdc": "b70037c82acf080c965507c25419e9d8306992eb9bd722298455b6fc960de591",
+    "factored/storage_group_snapshot.sv": "66e25acd304ff0965e4729789976dca67acefc3027446850b82086ab4c79e12a",
+    "factored/top.sv": "27710b3fbe0cea77158c119faa888c42217ebd7493e8bc284c47b28f85f225f6",
+    "factored/audit.tcl": "79e9cf8c42c345c9279f50798aff327cf03d1d2b9b83db59fdfafa3445c14f0f",
+    "factored/snapshot_fit.qpf": "b2d27b1a0ab5717461c25715d5348aae7da73e1224d99e20695170b83ec56772",
+    "factored/snapshot_fit.qsf": "849397b9ca408c4bbf8f8605def01ad3e3c6d3e34aa71de5e51da50b6114ef62"
+  },
+  "parameters": {
+    "ADDR_BITS": 16,
+    "WIDTH": [
+      8,
+      12
+    ]
+  },
+  "physical_bits": 234,
+  "private_bits": 2,
+  "expected_qsf": "set_global_assignment -name FAMILY \"Cyclone V\"\nset_global_assignment -name DEVICE 5CSEBA6U23I7\nset_global_assignment -name TOP_LEVEL_ENTITY snapshot_fit\nset_global_assignment -name MIN_CORE_JUNCTION_TEMP -40\nset_global_assignment -name MAX_CORE_JUNCTION_TEMP 100\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF\nset_global_assignment -name OPTIMIZATION_MODE \"HIGH PERFORMANCE EFFORT\"\nset_global_assignment -name OPTIMIZE_HOLD_TIMING ALL_PATHS\nset_global_assignment -name NUM_PARALLEL_PROCESSORS 4\nset_global_assignment -name GENERATE_RBF_FILE OFF\nset_global_assignment -name SYSTEMVERILOG_FILE top.sv\nset_global_assignment -name SYSTEMVERILOG_FILE storage_group_snapshot.sv\nset_global_assignment -name SDC_FILE bank.sdc\nset_location_assignment PIN_V11 -to host_clk\nset_instance_assignment -name IO_STANDARD \"3.3-V LVTTL\" -to host_clk\nset_instance_assignment -name VIRTUAL_PIN ON -to advance\nset_instance_assignment -name VIRTUAL_PIN ON -to hold\nset_instance_assignment -name VIRTUAL_PIN ON -to scan_step\nset_instance_assignment -name VIRTUAL_PIN ON -to serial_in\nset_instance_assignment -name VIRTUAL_PIN ON -to reset\nset_instance_assignment -name VIRTUAL_PIN ON -to ras_n[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to cas_n[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to we_n[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to req_ready[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to rsp_valid[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to addr[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to rsp_data[*]\nset_instance_assignment -name VIRTUAL_PIN ON -to outputs[*]\n",
+  "expected_sdc": "create_clock -name host_clock -period 20.000 [get_ports host_clk]\nderive_clock_uncertainty\nset_input_delay -clock host_clock -max 2.000 [remove_from_collection [all_inputs] [get_ports host_clk]]\nset_input_delay -clock host_clock -min 0.000 [remove_from_collection [all_inputs] [get_ports host_clk]]\nset_output_delay -clock host_clock -max 2.000 [all_outputs]\nset_output_delay -clock host_clock -min 0.000 [all_outputs]\n",
+  "expected_top": "module snapshot_fit(\n input wire host_clk,advance,hold,scan_step,serial_in,reset,\n input wire [1:0] ras_n,cas_n,we_n,req_ready,rsp_valid,\n input wire [31:0] addr,data,rsp_data,\n output reg [109:0] outputs);\n reg [110:0] input_stage,launch;\n always @(negedge host_clk)input_stage<={advance,hold,scan_step,serial_in,reset,ras_n,cas_n,we_n,req_ready,rsp_valid,addr,data,rsp_data};\n always @(posedge host_clk)launch<=input_stage;\n wire advance_r,hold_r,scan_r,serial_r,reset_r;\n wire [1:0] ras_r,cas_r,we_r,req_ready_r,rsp_valid_r;\n wire [31:0] addr_r,data_r,rsp_data_r;\n assign {advance_r,hold_r,scan_r,serial_r,reset_r,ras_r,cas_r,we_r,req_ready_r,rsp_valid_r,addr_r,data_r,rsp_data_r}=launch;\n wire [1:0] ready,req_valid,req_write,rsp_ready,frozen,drained,serial_out;\n wire [31:0] req_addr,req_data,data_out;\n dorado_storage_group_snapshot #(.ADDR_BITS(16),.WIDTH(8)) case0(\n .state_guest_advance(advance_r),.state_hold(hold_r),.state_scan_step(scan_r),.state_serial_in(serial_r),\n .state_serial_out(serial_out[0]),.state_frozen(frozen[0]),.state_drain_ready(drained[0]),\n .host_clk(host_clk),.machine_clk(host_clk),.reset(reset_r),.ras_n(ras_r[0]),.cas_n(cas_r[0]),.we_n(we_r[0]),\n .addr(addr_r[0+:16]),.data_in(data_r[0+:8]),.data_out(data_out[0+:8]),\n .ready(ready[0]),.req_valid(req_valid[0]),.req_write(req_write[0]),.req_addr(req_addr[0+:16]),\n .req_data(req_data[0+:16]),.req_ready(req_ready_r[0]),.rsp_valid(rsp_valid_r[0]),\n .rsp_ready(rsp_ready[0]),.rsp_data(rsp_data_r[0+:16]));\n assign data_out[8+:8]=0;\n dorado_storage_group_snapshot #(.ADDR_BITS(16),.WIDTH(12)) case1(\n .state_guest_advance(advance_r),.state_hold(hold_r),.state_scan_step(scan_r),.state_serial_in(serial_r),\n .state_serial_out(serial_out[1]),.state_frozen(frozen[1]),.state_drain_ready(drained[1]),\n .host_clk(host_clk),.machine_clk(host_clk),.reset(reset_r),.ras_n(ras_r[1]),.cas_n(cas_r[1]),.we_n(we_r[1]),\n .addr(addr_r[16+:16]),.data_in(data_r[16+:12]),.data_out(data_out[16+:12]),\n .ready(ready[1]),.req_valid(req_valid[1]),.req_write(req_write[1]),.req_addr(req_addr[16+:16]),\n .req_data(req_data[16+:16]),.req_ready(req_ready_r[1]),.rsp_valid(rsp_valid_r[1]),\n .rsp_ready(rsp_ready[1]),.rsp_data(rsp_data_r[16+:16]));\n assign data_out[28+:4]=0;\n always @(posedge host_clk)outputs<={ready,req_valid,req_write,rsp_ready,frozen,drained,serial_out,req_addr,req_data,data_out};\nendmodule\n",
+  "expected_audit": "project_open snapshot_fit\ncreate_timing_netlist -model slow\nset corners {}\nforeach_in_collection op [get_available_operating_conditions] {\n lappend corners [get_operating_conditions_info $op -name]\n}\ndelete_timing_netlist\nif {[llength $corners]!=4} {error \"Expected four operating conditions: $corners\"}\nforeach name $corners {\n create_timing_netlist\n set_operating_conditions $name\n read_sdc\n update_timing_netlist\n puts \"AUDIT_DEVICE_CORNER $name\"\n foreach mode {setup hold recovery removal} {\n  report_timing -$mode -npaths 3 -detail full_path -file bank-$mode-$name.rpt\n }\n report_min_pulse_width -file bank-mpw-$name.rpt\n report_clocks -file bank-clocks-$name.rpt\n report_ucp -file bank-ucp-$name.rpt\n delete_timing_netlist\n}\nproject_close\n"
+}

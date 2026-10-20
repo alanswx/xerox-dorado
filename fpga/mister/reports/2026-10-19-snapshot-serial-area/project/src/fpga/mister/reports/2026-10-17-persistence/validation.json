@@ -1,0 +1,21 @@
+{
+  "status": "first hardware persistence attempt exposed mount-order race; corrected guard is in the Network2 build",
+  "rbf_sha256": "4a2a9e9a8851303fc049e7d60c85314edfa35d68dbf7abe902e970f6b8121c46",
+  "core_setup_slack_ns": 8.686,
+  "core_hold_slack_ns": 0.114,
+  "failure": "Main sends img_size before img_mounted. Direct attached=nonzero_size starts a read before the notification; remount safety rejects that in-flight request and pauses before guest code.",
+  "working_and_seed_sha256": "c703e9df999a074d3c14abf941e706e9fa35a3520594075065a104bc48535332",
+  "guest_copy_executed": false,
+  "regression": "pack-mount-test fails with USE_MOUNT_GUARD=0 and passes with the guarded attachment; genuine interrupted remount still faults.",
+  "corrected_project": "misterubuntu:/home/alans/mister/Dorado_Network2_20261017/core",
+  "medium_tests": [
+    "hps-persistence-test: checked final-track change, fresh file-backed serial readback, clean cache invalidation, corrupt/readonly/interrupted write rejection, host timeout",
+    "hps-pack-test: 11024 bits, loopback, neighboring bytes unchanged",
+    "14M full Executive/mouse regression; no media fault"
+  ],
+  "pending": [
+    "Guest-created file on actual hardware",
+    "Fresh guest boot re-reading persisted filesystem",
+    "Power-loss durability; block acknowledgement does not prove fsync"
+  ]
+}

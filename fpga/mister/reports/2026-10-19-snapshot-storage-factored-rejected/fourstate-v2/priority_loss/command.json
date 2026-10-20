@@ -1,0 +1,11 @@
+[
+  "iverilog",
+  "-g2012",
+  "-s",
+  "fourstate",
+  "-o",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-factored-fourstate-v2-20261019/priority_loss/fixture.vvp",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-factored-fourstate-v2-20261019/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-factored-fourstate-v2-20261019/reference.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/storage-factored-fourstate-v2-20261019/priority_loss/source.sv"
+]

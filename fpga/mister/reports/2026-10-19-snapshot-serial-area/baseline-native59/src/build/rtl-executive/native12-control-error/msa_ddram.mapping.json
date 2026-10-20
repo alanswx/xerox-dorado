@@ -1,0 +1,295 @@
+{
+  "source_sha256": "d85ff9bcc86543d4a793a173d036e5528635793c08e42a9e65ddfe8149e831b5",
+  "group_words": 16384,
+  "raw_word_bits": 16,
+  "groups": [
+    {
+      "group": 0,
+      "address": "dram_addr_0",
+      "ras": "RAS_p_a0",
+      "cas": "CAS_p_a0",
+      "we": "WE_p_a0",
+      "bits": {
+        "b04": 11,
+        "b05": 10,
+        "c06": 9,
+        "d04": 8,
+        "d05": 7,
+        "e06": 6,
+        "f04": 5,
+        "f05": 4,
+        "g06": 3,
+        "h04": 2,
+        "h05": 1,
+        "i06": 0
+      }
+    },
+    {
+      "group": 1,
+      "address": "dram_addr_1",
+      "ras": "RAS_p_c0",
+      "cas": "CAS_p_c0",
+      "we": "WE_p_c0",
+      "bits": {
+        "b06": 11,
+        "c04": 10,
+        "c05": 9,
+        "d06": 8,
+        "e04": 7,
+        "e05": 6,
+        "f06": 5,
+        "g04": 4,
+        "g05": 3,
+        "h06": 2,
+        "i04": 1,
+        "i05": 0
+      }
+    },
+    {
+      "group": 2,
+      "address": "dram_addr_2",
+      "ras": "RAS_p_a1",
+      "cas": "CAS_p_a1",
+      "we": "WE_p_a1",
+      "bits": {
+        "b07": 7,
+        "c08": 6,
+        "d07": 5,
+        "e08": 4,
+        "f07": 3,
+        "g08": 2,
+        "h07": 1,
+        "i08": 0
+      }
+    },
+    {
+      "group": 3,
+      "address": "dram_addr_3",
+      "ras": "RAS_p_c1",
+      "cas": "CAS_p_c1",
+      "we": "WE_p_c1",
+      "bits": {
+        "b08": 7,
+        "c07": 6,
+        "d08": 5,
+        "e07": 4,
+        "f08": 3,
+        "g07": 2,
+        "h08": 1,
+        "i07": 0
+      }
+    },
+    {
+      "group": 4,
+      "address": "dram_addr_4",
+      "ras": "RAS_p_a2",
+      "cas": "CAS_p_a2",
+      "we": "WE_p_a2",
+      "bits": {
+        "b09": 7,
+        "c10": 6,
+        "d09": 5,
+        "e10": 4,
+        "f09": 3,
+        "g10": 2,
+        "h09": 1,
+        "i10": 0
+      }
+    },
+    {
+      "group": 5,
+      "address": "dram_addr_5",
+      "ras": "RAS_p_c2",
+      "cas": "CAS_p_c2",
+      "we": "WE_p_c2",
+      "bits": {
+        "b10": 7,
+        "c09": 6,
+        "d10": 5,
+        "e09": 4,
+        "f10": 3,
+        "g09": 2,
+        "h10": 1,
+        "i09": 0
+      }
+    },
+    {
+      "group": 6,
+      "address": "dram_addr_6",
+      "ras": "RAS_p_a3",
+      "cas": "CAS_p_a3",
+      "we": "WE_p_a3",
+      "bits": {
+        "b11": 7,
+        "c12": 6,
+        "d11": 5,
+        "e12": 4,
+        "f11": 3,
+        "g12": 2,
+        "h11": 1,
+        "i12": 0
+      }
+    },
+    {
+      "group": 7,
+      "address": "dram_addr_7",
+      "ras": "RAS_p_c3",
+      "cas": "CAS_p_c3",
+      "we": "WE_p_c3",
+      "bits": {
+        "b12": 7,
+        "c11": 6,
+        "d12": 5,
+        "e11": 4,
+        "f12": 3,
+        "g11": 2,
+        "h12": 1,
+        "i11": 0
+      }
+    },
+    {
+      "group": 8,
+      "address": "dram_addr_8",
+      "ras": "RAS_p_d3",
+      "cas": "CAS_p_d3",
+      "we": "WE_p_d3",
+      "bits": {
+        "b15": 7,
+        "c16": 6,
+        "d15": 5,
+        "e16": 4,
+        "f15": 3,
+        "g16": 2,
+        "h15": 1,
+        "i16": 0
+      }
+    },
+    {
+      "group": 9,
+      "address": "dram_addr_9",
+      "ras": "RAS_p_b3",
+      "cas": "CAS_p_b3",
+      "we": "WE_p_b3",
+      "bits": {
+        "b16": 7,
+        "c15": 6,
+        "d16": 5,
+        "e15": 4,
+        "f16": 3,
+        "g15": 2,
+        "h16": 1,
+        "i15": 0
+      }
+    },
+    {
+      "group": 10,
+      "address": "dram_addr_10",
+      "ras": "RAS_p_d2",
+      "cas": "CAS_p_d2",
+      "we": "WE_p_d2",
+      "bits": {
+        "b17": 7,
+        "c18": 6,
+        "d17": 5,
+        "e18": 4,
+        "f17": 3,
+        "g18": 2,
+        "h17": 1,
+        "i18": 0
+      }
+    },
+    {
+      "group": 11,
+      "address": "dram_addr_11",
+      "ras": "RAS_p_b2",
+      "cas": "CAS_p_b2",
+      "we": "WE_p_b2",
+      "bits": {
+        "b18": 7,
+        "c17": 6,
+        "d18": 5,
+        "e17": 4,
+        "f18": 3,
+        "g17": 2,
+        "h18": 1,
+        "i17": 0
+      }
+    },
+    {
+      "group": 12,
+      "address": "dram_addr_12",
+      "ras": "RAS_p_d1",
+      "cas": "CAS_p_d1",
+      "we": "WE_p_d1",
+      "bits": {
+        "b19": 7,
+        "c20": 6,
+        "d19": 5,
+        "e20": 4,
+        "f19": 3,
+        "g20": 2,
+        "h19": 1,
+        "i20": 0
+      }
+    },
+    {
+      "group": 13,
+      "address": "dram_addr_13",
+      "ras": "RAS_p_b1",
+      "cas": "CAS_p_b1",
+      "we": "WE_p_b1",
+      "bits": {
+        "b20": 7,
+        "c19": 6,
+        "d20": 5,
+        "e19": 4,
+        "f20": 3,
+        "g19": 2,
+        "h20": 1,
+        "i19": 0
+      }
+    },
+    {
+      "group": 14,
+      "address": "dram_addr_14",
+      "ras": "RAS_p_d0",
+      "cas": "CAS_p_d0",
+      "we": "WE_p_d0",
+      "bits": {
+        "b21": 11,
+        "c22": 10,
+        "c23": 9,
+        "d21": 8,
+        "e22": 7,
+        "e23": 6,
+        "f21": 5,
+        "g22": 4,
+        "g23": 3,
+        "h21": 2,
+        "i22": 1,
+        "i23": 0
+      }
+    },
+    {
+      "group": 15,
+      "address": "dram_addr_15",
+      "ras": "RAS_p_b0",
+      "cas": "CAS_p_b0",
+      "we": "WE_p_b0",
+      "bits": {
+        "b22": 11,
+        "b23": 10,
+        "c21": 9,
+        "d22": 8,
+        "d23": 7,
+        "e21": 6,
+        "f22": 5,
+        "f23": 4,
+        "g21": 3,
+        "h22": 2,
+        "h23": 1,
+        "i21": 0
+      }
+    }
+  ]
+}

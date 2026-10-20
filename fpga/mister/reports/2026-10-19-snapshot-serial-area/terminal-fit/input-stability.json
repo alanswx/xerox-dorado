@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "stable_files": 658,
+  "qsf": "Only Quartus source aliases; separately checked by terminal27-control source audit",
+  "scope": "Post-build byte stability of every staged input except the independently audited saved QSF"
+}
