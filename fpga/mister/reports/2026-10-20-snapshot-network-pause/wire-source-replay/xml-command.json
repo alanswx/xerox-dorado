@@ -1,0 +1,13 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "dorado_ddr_wire_fixture",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-wire-source-replay-v2-20261020/fixture.xml",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-wire-source-replay-v2-20261020/executed-inputs/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-wire-source-replay-v2-20261020/executed-inputs/dorado_ethernet_ddr.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-wire-source-replay-v2-20261020/executed-inputs/dorado_ethernet_uio.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-wire-source-replay-v2-20261020/executed-inputs/dorado_ethernet_wire.sv"
+]

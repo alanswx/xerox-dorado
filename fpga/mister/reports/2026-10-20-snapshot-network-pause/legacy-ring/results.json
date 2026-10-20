@@ -1,0 +1,37 @@
+[
+  {
+    "case": "zero",
+    "initial_count": 0,
+    "returncode": 0,
+    "expected_failure": null,
+    "source_sha256": "c7afb1573d32087d4ab7305cc8b50164450ab2cb0f5b219a0e911999fe172bb0"
+  },
+  {
+    "case": "wrap",
+    "initial_count": 4294967280,
+    "returncode": 0,
+    "expected_failure": null,
+    "source_sha256": "c7afb1573d32087d4ab7305cc8b50164450ab2cb0f5b219a0e911999fe172bb0"
+  },
+  {
+    "case": "bad_tx_byte_order",
+    "initial_count": 4294967280,
+    "returncode": 23,
+    "expected_failure": "TX content/length/order",
+    "source_sha256": "33274114cb1b0393cf0f62bd4c215d84ea366fdd28fdf9e9c0fbaeec3c3015f3"
+  },
+  {
+    "case": "bad_rx_epoch",
+    "initial_count": 4294967280,
+    "returncode": 23,
+    "expected_failure": "unsolicited/busy wire commit",
+    "source_sha256": "371c470be32ed6f18b5bac3ab2ebce0a68810ef1d9ce10a0b74f1fea2ecc806b"
+  },
+  {
+    "case": "false_stop",
+    "initial_count": 4294967280,
+    "returncode": 23,
+    "expected_failure": "stopped before invalidating magic",
+    "source_sha256": "a2411e6a71553a58a6eb1fec1de328c0d7867753554d9dbfab736da105a3b3ec"
+  }
+]

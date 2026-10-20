@@ -1,0 +1,10 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "dorado_ethernet_ddr",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-source-replay-20261020/original.xml",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-source-replay-20261020/executed-inputs/original.sv"
+]

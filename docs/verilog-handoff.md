@@ -113,6 +113,25 @@ already-issued FPGA disk requests BEFORE requesting this lease. Whole-machine
 ordering, actual FPGA disk/network/input/video ACKs and complete restore remain
 open. No production Main/core/daemon was replaced.
 
+Network/parser pause now passes actual RTL/C-peer continuation tests. The
+DDR engine finishes accepted frame/DDR work, preserves epoch/indices/timer phase,
+and waits for ACK/commit tails. The network UIO latches hold only between
+transactions, ignores shared EXT_BUS snapshot traffic while held, and releases
+only with the bus deselected. This adds one REQUIRED parser state bit. The
+production hooks remain disabled/tied low until real service coordination.
+The enabled production mux/UIO/engine/wire fixture holds all 34,339 observed
+sequential/task bits, including both packet RAMs (32,768 bits total), and resumes
+partial serial RX and guest TX capture with exact payload/CRC. Nonzero RAM seeds
+exercise unused words. Four early-hold/release/missing-hold/ungated-guest controls
+reject. Engine tests separately retain all 677 candidate bits, full 8TX/16RX
+queues plus pending TX, accepted reads and stalled frame tails, with four bad
+controls. Default-off production ring/wire/CRC regressions pass. All 277+125 raw
+members and extracted source rebuilds pass. Evidence:
+`fpga/mister/reports/2026-10-20-snapshot-network-pause/` and
+`2026-10-20-snapshot-network-uio-pause/`. This is NOT in Serial69. Main/daemon
+coordination, two wire-settling clocks, physical DDR write visibility, complete
+native state access/import and Cedar restore remain open. No hardware changed.
+
 Next, in delivery order:
 
 1. Close the remaining native setup paths through memory/pack readiness and
@@ -120,7 +139,9 @@ Next, in delivery order:
    previous fanout64/global-signal/seed2 experiments were rejected. Integrate
    only all-condition timing-qualified results.
 2. Coordinate the qualified Main disk-worker and daemon pause APIs with actual
-   FPGA disk/network, input and video acknowledgments. Finish in-flight guest
+   FPGA disk/network, input and video acknowledgments. Wire the qualified network
+   engine/parser pause (including SPI framing and two settling clocks). Finish
+   in-flight guest
    disk requests before taking the ARM image lease; the memory boundary alone
    is not whole-machine quiescence.
 3. Add access/export/import for required native wrapper and top emu/UIO state,

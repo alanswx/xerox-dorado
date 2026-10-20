@@ -1,0 +1,22 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "dorado_ethernet_ddr",
+  "-Wno-fatal",
+  "-Wno-PROCASSINIT",
+  "-GPOLL_CYCLES=4",
+  "-GINITIAL_COUNT=4294967280",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-legacy-ring-20261020/bad_rx_epoch/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-legacy-ring-20261020/bad_rx_epoch/dorado_ethernet_ddr.sv",
+  "/Users/alans/dev2/Dorado/fpga/mister/server/test_ddr_ring_rtl.cpp",
+  "-CFLAGS",
+  "-std=c++17 -I/Users/alans/dev2/Dorado/fpga/mister/server -DDDR_INITIAL_COUNT=4294967280u",
+  "-LDFLAGS",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-legacy-ring-20261020/host.o"
+]

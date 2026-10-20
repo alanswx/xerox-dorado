@@ -6,9 +6,12 @@
 `default_nettype none
 module dorado_ethernet_uio #(
     parameter integer MAX_WORDS=512,
-    parameter integer DDR_CAPABLE=0
+    parameter integer DDR_CAPABLE=0,
+    parameter integer SNAPSHOT_PAUSE=0
 ) (
     input wire clk, reset,
+    input wire snapshot_hold,
+    output wire snapshot_idle,
     inout wire [35:0] bus,
     input wire rx_ready,tx_valid,
     input wire [$clog2(MAX_WORDS):0] tx_words,
@@ -42,6 +45,12 @@ module dorado_ethernet_uio #(
   reg [15:0] ddr_mode=0,ddr_flags_snapshot=0;
   reg [63:0] ddr_pending_epoch=0,ddr_epoch_snapshot=0;
   reg [31:0] ddr_fault_snapshot=0,ddr_errors_snapshot=0;
+  // Latch only between transactions. While held, even another EXT_BUS
+  // decoder's snapshot traffic must not mutate this parser or issue data IO.
+  // Release only with the shared bus deselected, preserving framing.
+  reg snapshot_paused=0;
+  assign snapshot_idle=(SNAPSHOT_PAUSE!=0) && snapshot_hold && snapshot_paused &&
+      !reset && !tx_ack && !rx_wr && !rx_commit;
   // Ownership remains with DDR until its outstanding accesses have drained.
   assign ddr_owned=(DDR_CAPABLE!=0) && (ddr_enable || !ddr_stopped);
   assign bus[32]=enable && command>=16'h70 &&
@@ -52,9 +61,15 @@ module dorado_ethernet_uio #(
   always @(posedge clk)begin
     tx_ack<=0;rx_wr<=0;rx_commit<=0;
     if(reset)begin
+      snapshot_paused<=0;
       command<=0;count<=0;tx_addr<=0;receiving<=0;aborted<=0;
       ddr_control<=0;ddr_enable<=0;ddr_epoch<=0;ddr_control_errors<=0;
-    end else if(!enable)begin
+    end else if(snapshot_paused)begin
+      if(!snapshot_hold && !enable)snapshot_paused<=0;
+    end else begin
+      if((SNAPSHOT_PAUSE!=0) && snapshot_hold && !enable && !receiving &&
+         !ddr_control && !tx_ack && !rx_wr && !rx_commit)snapshot_paused<=1;
+      if(!enable)begin
       if(receiving)begin
         if(rx_allowed && received==rx_words && rx_words>=2)rx_commit<=1;
         else aborted<=aborted+1'b1;
@@ -161,6 +176,7 @@ module dorado_ethernet_uio #(
         endcase
         default: ;
       endcase
+    end
     end
   end
 endmodule

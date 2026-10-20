@@ -1,0 +1,13 @@
+[
+  "cc",
+  "-std=c11",
+  "-O2",
+  "-Wall",
+  "-Wextra",
+  "-Werror",
+  "-I/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-uio-v1-20261020/executed-inputs",
+  "-c",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-uio-v1-20261020/executed-inputs/dorado_ddr_ring.c",
+  "-o",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-uio-v1-20261020/host.o"
+]

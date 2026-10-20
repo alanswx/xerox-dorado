@@ -311,6 +311,7 @@ assign net_rx_words=net_ddr_owned ? net_ddr_rx_words : net_spi_rx_words;
 // independently of machine_enable; only the original wire advances with it.
 dorado_ethernet_ddr u_network_ddr (
     .clk(clk_sys),.reset(~pll_locked),.enable(net_ddr_enable),.epoch(net_ddr_epoch),
+    .snapshot_hold(1'b0),.snapshot_idle(),
     .stopped(net_ddr_stopped),.initialized(net_ddr_initialized),.fault(net_ddr_fault),
     .tx_valid(net_tx_valid),.tx_words(net_tx_words),.tx_data(net_tx_data),.rx_ready(net_rx_ready),
     .tx_addr(net_ddr_tx_addr),.tx_ack(net_ddr_tx_ack),.rx_addr(net_ddr_rx_addr),
@@ -387,6 +388,7 @@ dorado_ethernet_uio #(.MAX_WORDS(1024)
 `endif
 ) u_network_uio (
     .clk(clk_sys), .reset(~pll_locked), .bus(ethernet_ext_bus),
+    .snapshot_hold(1'b0),.snapshot_idle(),
     .rx_ready(net_rx_ready), .tx_valid(net_tx_valid), .tx_words(net_tx_words), .tx_data(net_tx_data),
     .tx_good(net_tx_good), .tx_bad(net_tx_bad), .tx_dropped(net_tx_dropped), .rx_bad(net_rx_bad),
 `ifdef DORADO_NATIVE

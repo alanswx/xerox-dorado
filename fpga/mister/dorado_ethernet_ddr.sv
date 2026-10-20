@@ -6,10 +6,13 @@
 `default_nettype none
 module dorado_ethernet_ddr #(
     parameter integer POLL_CYCLES=50000,
+    parameter integer SNAPSHOT_PAUSE=0,
     parameter [31:0] BYTE_BASE=32'h1ff00000,
     parameter [31:0] INITIAL_COUNT=0
 ) (
     input wire clk,reset,enable,
+    input wire snapshot_hold,
+    output wire snapshot_idle,
     input wire [63:0] epoch,
     output wire stopped,
     output reg initialized=0,
@@ -58,6 +61,18 @@ module dorado_ethernet_ddr #(
     assign ddram_write=state==DDR_WRITE;
     assign ddram_burstcount=8'd1;
 
+    // Snapshot continuation retains the epoch, ring indices and timer phase.
+    // Finish the current frame/accepted DDR operation before holding IDLE.
+    // STOP/reset/changed grants still revoke ownership through the original
+    // drained-stop path; a pause is never a substitute for lifecycle STOP.
+    // The caller separately pauses the daemon and guest wire, and must still
+    // establish physical DDR-fabric write visibility before memory capture.
+    wire snapshot_boundary=(SNAPSHOT_PAUSE!=0) && snapshot_hold && !reset &&
+        !stop_latched && fault==0 &&
+        ((state==IDLE && enable && epoch==active_epoch) ||
+         (state==STOPPED && !enable));
+    assign snapshot_idle=snapshot_boundary && !tx_ack && !rx_wr && !rx_commit;
+
     task automatic write_word(input [31:0] offset,input [63:0] data,
                               input [7:0] mask,input [7:0] following);
         begin
@@ -77,6 +92,7 @@ module dorado_ethernet_ddr #(
 
     always @(posedge clk)begin
         tx_ack<=0;rx_wr<=0;rx_commit<=0;
+        if(!snapshot_boundary)begin
         if(poll_count!=0)poll_count<=poll_count-1'b1;
         if(!enable)armed<=1;
         if(reset)armed<=0;
@@ -168,6 +184,7 @@ module dorado_ethernet_ddr #(
         DDR_RESPONSE:if(ddram_rvalid)begin read_data<=ddram_rdata;state<=return_state;end
         default:protocol_fault(7);
         endcase
+        end
     end
     initial begin
         if(POLL_CYCLES<1 || BYTE_BASE!=32'h1ff00000)

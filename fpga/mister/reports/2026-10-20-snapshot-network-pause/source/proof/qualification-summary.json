@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "gates": {
+    "engine": {
+      "status": "PASS",
+      "cases": 6,
+      "inputs": {
+        "test_network_snapshot.cpp": "f5af3288bcca1149fbd7a186397beb28c53fd5da92f5681eb2bc5ddff3dbe344",
+        "original-legacy-test.cpp": "b739037a69e51319f2b66a01d68555ae47e6c63ab802b6f301352248bdbdf814",
+        "dorado_ddr_ring.c": "0eff93c1db3e1f48e3b0034c6fe491021cc30510081edce09cd31a9326d0289e",
+        "test_network_snapshot.py": "a53c78f9e5f7217e461f85259302aa351981a3cdb9cb1f71280549c5d078dd5f",
+        "original.sv": "81dfa0431d188cc662b3067c8781c31499b72ec0c42fe74620be8d225009c20a",
+        "sil_state_inventory.py": "e953a67b80dbde6729e991dacf9efc31fdde78111b7f0feef1dc51681eb2fb35",
+        "dorado_ddr_ring.h": "99d9722285c2fa264ba08a3ed7541c5dee07ed1c749dfa24feff3cbe6e519cf5",
+        "candidate.sv": "c7afb1573d32087d4ab7305cc8b50164450ab2cb0f5b219a0e911999fe172bb0",
+        "legacy_test.cpp": "78f1e5816ae3fdeaa8e84f54f88c8912aecf17402acdf86dae596ab2ddb7ac51"
+      }
+    },
+    "wire": {
+      "status": "PASS",
+      "cases": 2,
+      "inputs": {
+        "fixture.sv": "5b39e266912a7a88e8e6e2559db784b90982553ea8669f9266059c218605c5bd",
+        "dorado_ethernet_wire.sv": "2b679015ff751e6122489f06524d8ac8bcddfa6f651d96f2f6774d132bfc18be",
+        "test_ddr_wire.py": "fda8b70ab8ea1713cdd199707d539df05224a503fdd4c12a947fa9872c94c068",
+        "dorado_ddr_ring.c": "0eff93c1db3e1f48e3b0034c6fe491021cc30510081edce09cd31a9326d0289e",
+        "dorado_ethernet_ddr.sv": "c7afb1573d32087d4ab7305cc8b50164450ab2cb0f5b219a0e911999fe172bb0",
+        "test_ddr_wire.cpp": "5013ad13da822ce8b265c8bc7ca8ac6dd198cfa93a9b3eba53034a628796e07d",
+        "legacy_wire_test.cpp": "54182fb77af7ad3181e7e3675f688a247b3130115a091472fa0b8f86b80904a6",
+        "test_network_snapshot_wire.py": "0d0a0c9b46e46667305f505888a9972c49c0eaa9e4d2718d6fa87ab3a07dc170",
+        "dorado_ethernet_uio.sv": "0c6512a485420a7bc73b6b2e19a273ec6378d67983cfc3fcd4bb68f13b23d278",
+        "test_network_snapshot_wire.cpp": "4b6d4c4006db8f13fa79202f654404aef512abab5b193642561bc61091c8b062",
+        "dorado_ddr_ring.h": "99d9722285c2fa264ba08a3ed7541c5dee07ed1c749dfa24feff3cbe6e519cf5",
+        "Dorado.sv": "972cc5c5f0ec4f9b3cf8f86378c311d065fe3d6c070ebc474ec3f52a6b9068ed"
+      }
+    },
+    "engine-replay": {
+      "status": "PASS",
+      "cases": 6,
+      "inputs": {
+        "test_network_snapshot.cpp": "f5af3288bcca1149fbd7a186397beb28c53fd5da92f5681eb2bc5ddff3dbe344",
+        "original-legacy-test.cpp": "b739037a69e51319f2b66a01d68555ae47e6c63ab802b6f301352248bdbdf814",
+        "dorado_ddr_ring.c": "0eff93c1db3e1f48e3b0034c6fe491021cc30510081edce09cd31a9326d0289e",
+        "test_network_snapshot.py": "a53c78f9e5f7217e461f85259302aa351981a3cdb9cb1f71280549c5d078dd5f",
+        "original.sv": "81dfa0431d188cc662b3067c8781c31499b72ec0c42fe74620be8d225009c20a",
+        "sil_state_inventory.py": "e953a67b80dbde6729e991dacf9efc31fdde78111b7f0feef1dc51681eb2fb35",
+        "dorado_ddr_ring.h": "99d9722285c2fa264ba08a3ed7541c5dee07ed1c749dfa24feff3cbe6e519cf5",
+        "candidate.sv": "c7afb1573d32087d4ab7305cc8b50164450ab2cb0f5b219a0e911999fe172bb0",
+        "legacy_test.cpp": "78f1e5816ae3fdeaa8e84f54f88c8912aecf17402acdf86dae596ab2ddb7ac51"
+      }
+    },
+    "wire-replay": {
+      "status": "PASS",
+      "cases": 2,
+      "inputs": {
+        "fixture.sv": "5b39e266912a7a88e8e6e2559db784b90982553ea8669f9266059c218605c5bd",
+        "dorado_ethernet_wire.sv": "2b679015ff751e6122489f06524d8ac8bcddfa6f651d96f2f6774d132bfc18be",
+        "test_ddr_wire.py": "fda8b70ab8ea1713cdd199707d539df05224a503fdd4c12a947fa9872c94c068",
+        "dorado_ddr_ring.c": "0eff93c1db3e1f48e3b0034c6fe491021cc30510081edce09cd31a9326d0289e",
+        "dorado_ethernet_ddr.sv": "c7afb1573d32087d4ab7305cc8b50164450ab2cb0f5b219a0e911999fe172bb0",
+        "test_ddr_wire.cpp": "5013ad13da822ce8b265c8bc7ca8ac6dd198cfa93a9b3eba53034a628796e07d",
+        "legacy_wire_test.cpp": "54182fb77af7ad3181e7e3675f688a247b3130115a091472fa0b8f86b80904a6",
+        "test_network_snapshot_wire.py": "0d0a0c9b46e46667305f505888a9972c49c0eaa9e4d2718d6fa87ab3a07dc170",
+        "dorado_ethernet_uio.sv": "0c6512a485420a7bc73b6b2e19a273ec6378d67983cfc3fcd4bb68f13b23d278",
+        "test_network_snapshot_wire.cpp": "4b6d4c4006db8f13fa79202f654404aef512abab5b193642561bc61091c8b062",
+        "dorado_ddr_ring.h": "99d9722285c2fa264ba08a3ed7541c5dee07ed1c749dfa24feff3cbe6e519cf5",
+        "Dorado.sv": "972cc5c5f0ec4f9b3cf8f86378c311d065fe3d6c070ebc474ec3f52a6b9068ed"
+      }
+    },
+    "legacy-ring": {
+      "status": "PASS",
+      "cases": 5
+    },
+    "legacy-wire": {
+      "status": "PASS",
+      "cases": 3
+    }
+  },
+  "scope": "Actual RTL/C endpoint and serial-wire continuation; arbitrary packet RAM contents; not complete snapshots or physical DDR visibility."
+}

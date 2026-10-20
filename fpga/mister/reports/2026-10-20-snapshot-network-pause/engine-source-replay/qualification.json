@@ -1,0 +1,102 @@
+{
+  "status": "PASS",
+  "scope": "Actual RTL/C-peer snapshot pause, all original state and independent DDR oracle.\n\nHost-side ring PAUSE is real. The wire-buffer peer and external DDR memory are\nindependent models. This is not physical DDR write visibility, whole-machine\nservice ordering, state import or a Cedar FPGA snapshot qualification.\n",
+  "state_review": {
+    "required_bits": 677,
+    "required_fields": 29,
+    "task_written_bits": 109,
+    "task_destinations": [
+      {
+        "name": "ddram_addr",
+        "bits": 29,
+        "tasks": [
+          "write_word",
+          "read_word"
+        ]
+      },
+      {
+        "name": "ddram_be",
+        "bits": 8,
+        "tasks": [
+          "write_word",
+          "read_word"
+        ]
+      },
+      {
+        "name": "ddram_wdata",
+        "bits": 64,
+        "tasks": [
+          "write_word"
+        ]
+      },
+      {
+        "name": "return_state",
+        "bits": 8,
+        "tasks": [
+          "write_word",
+          "read_word"
+        ]
+      }
+    ],
+    "sequential_exclusions": []
+  },
+  "cases": [
+    {
+      "case": "candidate-wrap",
+      "returncode": 0,
+      "expected_failure": null,
+      "source_sha256": "c7afb1573d32087d4ab7305cc8b50164450ab2cb0f5b219a0e911999fe172bb0",
+      "log_sha256": "a3ae72e7e7228eba053c8fda4b93c2f2ab596eb59d6b6d13e71d45bcd7cf814e"
+    },
+    {
+      "case": "candidate-zero",
+      "returncode": 0,
+      "expected_failure": null,
+      "source_sha256": "c7afb1573d32087d4ab7305cc8b50164450ab2cb0f5b219a0e911999fe172bb0",
+      "log_sha256": "429482d439e57184af2469ec53ca3e6689c3385fa03afc245d87fc3823cf4bad"
+    },
+    {
+      "case": "early_idle",
+      "returncode": 23,
+      "expected_failure": "pause acknowledged an accepted DDR read",
+      "source_sha256": "e87f05a9d9d398be19482996f2ce904a5fad82e09f614bc7cd29aafbd9d9647b",
+      "log_sha256": "a9971128775a999ed59fc6ecab9f62136bd8543412bbbcc9caa4a516aca6f66f"
+    },
+    {
+      "case": "changing_timer",
+      "returncode": 23,
+      "expected_failure": "paused engine state changed",
+      "source_sha256": "f8a30a3781df5ae1026a63b5cde603cb158fe38a3f9440fb24ee5b0c462186af",
+      "log_sha256": "d8f7b6fd9240716473d01aff1d1ea8c78850bda5c9eaf4b2e2058ed8cdaf8c70"
+    },
+    {
+      "case": "stale_epoch",
+      "returncode": 23,
+      "expected_failure": "pause hid lifecycle change",
+      "source_sha256": "641d193bda832c0b3aeb142e2e4e88e5fc36f39ce70d006bf5207c526b9706d6",
+      "log_sha256": "73fe05ba516003a0c7adf82227d2323fe522b1b04d46809a55869ce20ed1c7d0"
+    },
+    {
+      "case": "pulse_tail",
+      "returncode": 23,
+      "expected_failure": "paused engine state changed",
+      "source_sha256": "8b4bdf0c6fb7fa1de849ad809f69fdc2c7d210dba4df5946c7d8baa67c90ca5f",
+      "log_sha256": "1c513ceca99310c59ec5d636735323fd9fb7e635293542f098f65e94f7295bef"
+    }
+  ],
+  "original_sha256": "81dfa0431d188cc662b3067c8781c31499b72ec0c42fe74620be8d225009c20a",
+  "candidate_sha256": "c7afb1573d32087d4ab7305cc8b50164450ab2cb0f5b219a0e911999fe172bb0",
+  "new_state_bits": 0,
+  "inputs": {
+    "test_network_snapshot.cpp": "f5af3288bcca1149fbd7a186397beb28c53fd5da92f5681eb2bc5ddff3dbe344",
+    "original-legacy-test.cpp": "b739037a69e51319f2b66a01d68555ae47e6c63ab802b6f301352248bdbdf814",
+    "dorado_ddr_ring.c": "0eff93c1db3e1f48e3b0034c6fe491021cc30510081edce09cd31a9326d0289e",
+    "test_network_snapshot.py": "a53c78f9e5f7217e461f85259302aa351981a3cdb9cb1f71280549c5d078dd5f",
+    "original.sv": "81dfa0431d188cc662b3067c8781c31499b72ec0c42fe74620be8d225009c20a",
+    "sil_state_inventory.py": "e953a67b80dbde6729e991dacf9efc31fdde78111b7f0feef1dc51681eb2fb35",
+    "dorado_ddr_ring.h": "99d9722285c2fa264ba08a3ed7541c5dee07ed1c749dfa24feff3cbe6e519cf5",
+    "candidate.sv": "c7afb1573d32087d4ab7305cc8b50164450ab2cb0f5b219a0e911999fe172bb0",
+    "legacy_test.cpp": "78f1e5816ae3fdeaa8e84f54f88c8912aecf17402acdf86dae596ab2ddb7ac51"
+  },
+  "limits": "Isolated engine/C endpoint. Production enables no snapshot pause yet. Physical DDR visibility, guest wire pause, Main coordination, full export/import and FPGA restore remain open."
+}

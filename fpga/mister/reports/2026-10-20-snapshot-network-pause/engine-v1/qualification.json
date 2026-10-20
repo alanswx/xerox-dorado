@@ -1,0 +1,95 @@
+{
+  "status": "PASS",
+  "scope": "Actual RTL/C-peer snapshot pause, all original state and independent DDR oracle.\n\nHost-side ring PAUSE is real. The wire-buffer peer and external DDR memory are\nindependent models. This is not physical DDR write visibility, whole-machine\nservice ordering, state import or a Cedar FPGA snapshot qualification.\n",
+  "state_review": {
+    "required_bits": 677,
+    "required_fields": 29,
+    "task_written_bits": 109,
+    "task_destinations": [
+      {
+        "name": "ddram_addr",
+        "bits": 29,
+        "tasks": [
+          "write_word",
+          "read_word"
+        ]
+      },
+      {
+        "name": "ddram_be",
+        "bits": 8,
+        "tasks": [
+          "write_word",
+          "read_word"
+        ]
+      },
+      {
+        "name": "ddram_wdata",
+        "bits": 64,
+        "tasks": [
+          "write_word"
+        ]
+      },
+      {
+        "name": "return_state",
+        "bits": 8,
+        "tasks": [
+          "write_word",
+          "read_word"
+        ]
+      }
+    ],
+    "sequential_exclusions": []
+  },
+  "cases": [
+    {
+      "case": "candidate-wrap",
+      "returncode": 0,
+      "expected_failure": null,
+      "source_sha256": "b93a93590d543573df579f4b5d4129273f43076e61fe8252309f0abb7bdc3f34",
+      "log_sha256": "1ed70e59efb11df40ac6b58bd53e5200875d0180a720b0e4250b3759e4cc45e8"
+    },
+    {
+      "case": "candidate-zero",
+      "returncode": 0,
+      "expected_failure": null,
+      "source_sha256": "b93a93590d543573df579f4b5d4129273f43076e61fe8252309f0abb7bdc3f34",
+      "log_sha256": "dac45cb93073cb67d07f0f3855750a891d09e19892edb5922f6706fceba1d732"
+    },
+    {
+      "case": "early_idle",
+      "returncode": 23,
+      "expected_failure": "pause acknowledged an accepted DDR read",
+      "source_sha256": "0b359aa77fd1b33f57bcc8de089c3cd4469090de1f8226c354d5107677a7b3c4",
+      "log_sha256": "a9971128775a999ed59fc6ecab9f62136bd8543412bbbcc9caa4a516aca6f66f"
+    },
+    {
+      "case": "changing_timer",
+      "returncode": 23,
+      "expected_failure": "paused engine state changed",
+      "source_sha256": "459e904e190e0c0ed63eece8e7b30df85be0651a2f97d74a7b38ab7efa18b419",
+      "log_sha256": "d8f7b6fd9240716473d01aff1d1ea8c78850bda5c9eaf4b2e2058ed8cdaf8c70"
+    },
+    {
+      "case": "stale_epoch",
+      "returncode": 23,
+      "expected_failure": "pause hid lifecycle change",
+      "source_sha256": "ad7df484d277245ef0f2aad66c8bbb114240b95869ac9442ac16800808348f95",
+      "log_sha256": "c2b77fac65bb56b63196fa2be3daac4243544960cf7978eecd3bf7f6a21ed10e"
+    }
+  ],
+  "original_sha256": "81dfa0431d188cc662b3067c8781c31499b72ec0c42fe74620be8d225009c20a",
+  "candidate_sha256": "b93a93590d543573df579f4b5d4129273f43076e61fe8252309f0abb7bdc3f34",
+  "new_state_bits": 0,
+  "inputs": {
+    "test_network_snapshot.cpp": "bd7409b271f5bc9bbb80af4a0821ed8bdb2aee8078a42f0b07a36d7edb3aa322",
+    "original-legacy-test.cpp": "b739037a69e51319f2b66a01d68555ae47e6c63ab802b6f301352248bdbdf814",
+    "dorado_ddr_ring.c": "0eff93c1db3e1f48e3b0034c6fe491021cc30510081edce09cd31a9326d0289e",
+    "test_network_snapshot.py": "47e95e1b0bef27a58bca99bca01c736f68b6f9b57377759a220add4da1c58d68",
+    "original.sv": "81dfa0431d188cc662b3067c8781c31499b72ec0c42fe74620be8d225009c20a",
+    "sil_state_inventory.py": "e953a67b80dbde6729e991dacf9efc31fdde78111b7f0feef1dc51681eb2fb35",
+    "dorado_ddr_ring.h": "99d9722285c2fa264ba08a3ed7541c5dee07ed1c749dfa24feff3cbe6e519cf5",
+    "candidate.sv": "b93a93590d543573df579f4b5d4129273f43076e61fe8252309f0abb7bdc3f34",
+    "legacy_test.cpp": "78f1e5816ae3fdeaa8e84f54f88c8912aecf17402acdf86dae596ab2ddb7ac51"
+  },
+  "limits": "Isolated engine/C endpoint. Production enables no snapshot pause yet. Physical DDR visibility, guest wire pause, Main coordination, full export/import and FPGA restore remain open."
+}

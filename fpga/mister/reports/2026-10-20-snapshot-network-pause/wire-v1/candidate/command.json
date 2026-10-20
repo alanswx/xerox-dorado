@@ -1,0 +1,23 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "dorado_ddr_wire_fixture",
+  "-Wno-fatal",
+  "-Wno-PROCASSINIT",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-wire-v1-20261020/candidate/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-wire-v1-20261020/candidate/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-wire-v1-20261020/executed-inputs/dorado_ethernet_ddr.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-wire-v1-20261020/executed-inputs/dorado_ethernet_uio.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-wire-v1-20261020/executed-inputs/dorado_ethernet_wire.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-wire-v1-20261020/executed-inputs/test_network_snapshot_wire.cpp",
+  "-CFLAGS",
+  "-std=c++17 -I/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-wire-v1-20261020/executed-inputs -DNETWORK_STATE_WORDS=1074 -DNETWORK_STATE_BITS=34338",
+  "-LDFLAGS",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-wire-v1-20261020/host.o"
+]

@@ -1,0 +1,23 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "dorado_ethernet_ddr",
+  "-Wno-fatal",
+  "-Wno-PROCASSINIT",
+  "-GPOLL_CYCLES=4",
+  "-GSNAPSHOT_PAUSE=1",
+  "-GINITIAL_COUNT=4294967280",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-pause-v2-20261020/stale_epoch/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-pause-v2-20261020/stale_epoch/observed.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-pause-v2-20261020/executed-inputs/test_network_snapshot.cpp",
+  "-CFLAGS",
+  "-std=c++17 -I/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-pause-v2-20261020/executed-inputs -DDDR_INITIAL_COUNT=4294967280u -DDDR_PAUSE_STATE_WORDS=22 -DDDR_PAUSE_STATE_BITS=677",
+  "-LDFLAGS",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/network-snapshot-pause-v2-20261020/host.o"
+]
