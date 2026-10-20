@@ -43,6 +43,21 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Local-enable component prototype (2026-10-20):** nineteen independent
+falling-edge advance registers match the existing global register without an
+extra cycle. Two optional FF families (MC10176/MC10231, both PRECAP modes)
+match frozen Serial73 originals across all38 physical bits:86,145 checks,
+21,212 edges,2,926 phase transitions,30 scan requests,16,384 four-state
+default-off cycles, destructive import/restore and partial-import quarantine.
+Six broken phase/permission/payload/pre-capture/hold/write variants reject.
+Earlier fixture compile/coverage failures are retained alongside the passing
+v4 run in `fpga/mister/reports/2026-10-20-snapshot-phase-payload-component/`.
+This proves only a component with a synthetic synchronous hold producer.
+The optional payload simplification requires advance to imply no hold, and
+scan-write to imply hold, at every capturing edge. **Native producer proof,
+complete-board/RAM/SDRAM tests, state access and routed timing remain TODO.**
+No native integration, Quartus build, deployment or speed change is claimed.
+
 **Serial73 is terminal:41,642/41,910 ALMs; timing REJECTED at setup -1.095 ns /hold -1.326 ns. Registered readiness-to-advance now passes at +1.940 ns, but outgoing advance/predictor, snapshot-hold, virtual controls and additional board-data paths still fail. Main coordination, full snapshots, faster clocks and final FPGA qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and

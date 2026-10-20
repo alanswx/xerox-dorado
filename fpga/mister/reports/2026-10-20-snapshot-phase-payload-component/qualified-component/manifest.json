@@ -1,0 +1,23 @@
+{
+  "scope": "Optional phase-qualified payload FFs from exact frozen Serial73 helpers.\n\nThe producer must prove at every capturing edge that a definite advance has\nno hold and a definite scan write has a definite hold. The ordinary and scan\npayloads are unchanged. Default-off is byte-invertible to the original helper.\nThis contract has NOT yet been proved for the complete native integration.\n",
+  "families": {
+    "MC10176": {
+      "physical_bits": 13,
+      "additional_sequential_bits": 0,
+      "original_sha256": "bf042c5587ae4656363138f8806dbce2fff39ebb6503f357bd32786af41b211f",
+      "generated_sha256": "209ed60f66d7f34c42ed7944c57615d9cad9550f9dc64fb85959b4f558d5c3e0",
+      "default_off_inverse": true,
+      "phase_contract_required": true
+    },
+    "MC10231": {
+      "physical_bits": 6,
+      "additional_sequential_bits": 0,
+      "original_sha256": "005db7d0ca96d87b427db20ea7dce995fcecb89c2ea1d68f936dd5076de82730",
+      "generated_sha256": "698405697258fc1c029b3599be2a8fc9e404d960ea4c498510f3a5c8d6676393",
+      "default_off_inverse": true,
+      "phase_contract_required": true
+    }
+  },
+  "native_integration_qualified": false,
+  "limits": "Two FF-family component prototype only; complete native producer/consumer phase proof, RAM families, state access, routed timing and FPGA qualification remain required."
+}

@@ -2,6 +2,17 @@
 
 ## Current objective (2026-10-20)
 
+The local advance-distribution prototype now passes component qualification:
+86,145 checks against frozen original FF state, nineteen same-falling-edge
+copies, destructive scan/restore, partial-import quarantine, and six rejected
+broken variants. See the [clock plan](verilog-clock-plan.md#benchmark-contract)
+and `fpga/mister/reports/2026-10-20-snapshot-phase-payload-component/`.
+This is two FF families under a synthetic synchronous hold producer only.
+Next TODO: prove the native hold/scan/advance producer contract, then test
+complete boards and SDRAM traffic before integration. RAM families, state
+access, actual Main controls, remaining board-data paths and timing stay open.
+No new full-core build or hardware change; no speed gain.
+
 **Serial73 is terminal:41,642/41,910 ALMs; timing REJECTED at setup -1.095 ns /hold -1.326 ns. Registered readiness-to-advance now passes at +1.940 ns, but outgoing advance/predictor, snapshot-hold, virtual controls and additional board-data paths still fail. Main coordination, full snapshots, faster clocks and final FPGA qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and

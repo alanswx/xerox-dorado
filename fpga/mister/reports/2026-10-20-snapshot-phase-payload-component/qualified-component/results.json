@@ -1,0 +1,57 @@
+{
+  "status": "PASS_COMPONENT_CONTRACT_ONLY",
+  "scope": "Real FF scan controller, nineteen phase copies and frozen original FF oracles.\n\nBoth PRECAP variants of MC10176/MC10231 exercise four-state physical inputs,\ndestructive scan/restore/resume and partial-import quarantine. Default-off\ncopies additionally accept arbitrary raw control combinations. Deliberately\nunqualified hold/write timing MUST reject the optional producer contract.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "wrong_phase",
+      "returncode": 1,
+      "expected_failure": "local board advance phase differs"
+    },
+    {
+      "case": "lost_hold_permission",
+      "returncode": 1,
+      "expected_failure": "local board advance phase differs"
+    },
+    {
+      "case": "lost_payload_enable",
+      "returncode": 1,
+      "expected_failure": "phase payload physical state differs"
+    },
+    {
+      "case": "wrong_precapture",
+      "returncode": 1,
+      "expected_failure": "phase payload physical state differs"
+    },
+    {
+      "case": "late_hold_contract",
+      "returncode": 1,
+      "expected_failure": "phase payload advance/hold contract violated"
+    },
+    {
+      "case": "unheld_write_contract",
+      "returncode": 1,
+      "expected_failure": "phase payload scan/hold contract violated"
+    }
+  ],
+  "physical_bits": 38,
+  "required_distribution_bits": 19,
+  "additional_payload_bits": 0,
+  "inputs": {
+    "generate_phase_payload.py": "b9ffa5a59bde2b5077ea1b2b4fd963966b7ec0b415d83699bc8e7d832f0915bb",
+    "MC10176.v": "e49cee5612b8a5ac0dd028e8f57eb73814802a3b616bbd18d8e4c94c5f04081e",
+    "fixture.sv": "a8b1c53baaf2a6fe4478b825777211159685eea0152af808e9558e2d392b1715",
+    "ff_scan_controller.sv": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c",
+    "MC10231.v": "1faa8cba5cd39f53f7d5a82340ac3c634a082274e74d3baf0e634a2965bc5c63",
+    "board_phase_enable.sv": "18cbe6f5a77e0748ed296da8fe9bf68b3bd91410b4499cd167f408ecc69e3cdc",
+    "MC10176.sv": "209ed60f66d7f34c42ed7944c57615d9cad9550f9dc64fb85959b4f558d5c3e0",
+    "test_phase_payload.py": "edae08dc26b9b847f74140621ae50649441d7ce2e23683d69a9806af4b9eeaf6",
+    "test_phase_payload.sv": "45c70795dd9444220f784350a637e93c3afb5e442487a94656c7eacff15f8636",
+    "MC10231.sv": "698405697258fc1c029b3599be2a8fc9e404d960ea4c498510f3a5c8d6676393"
+  },
+  "limits": "Synthetic synchronous hold producer with actual scan controller and original FF payload oracles. Native source-domain/phase proof, full boards/SDRAM, RAM families, inventory/access and routed timing remain required."
+}

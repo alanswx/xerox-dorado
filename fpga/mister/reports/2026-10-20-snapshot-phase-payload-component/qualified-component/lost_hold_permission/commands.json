@@ -1,0 +1,21 @@
+[
+  [
+    "iverilog",
+    "-g2012",
+    "-s",
+    "tb",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/phase-payload-contract-v4-20261020/lost_hold_permission/test.vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/phase-payload-contract-v4-20261020/executed-inputs/MC10176.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/phase-payload-contract-v4-20261020/executed-inputs/MC10231.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/phase-payload-contract-v4-20261020/executed-inputs/MC10176.v",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/phase-payload-contract-v4-20261020/executed-inputs/MC10231.v",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/phase-payload-contract-v4-20261020/executed-inputs/board_phase_enable.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/phase-payload-contract-v4-20261020/executed-inputs/ff_scan_controller.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/phase-payload-contract-v4-20261020/lost_hold_permission/fixture.sv"
+  ],
+  [
+    "vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/phase-payload-contract-v4-20261020/lost_hold_permission/test.vvp"
+  ]
+]
