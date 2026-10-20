@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "scope": "Re-run the serial disk/HPS payload gate for original and staged cache tags.\n\nThe period file-backed serial medium is the independent oracle. Loop back a\nsector, seek, and require byte-identical whole-image writeback. Both builds use\nthe same falling-before-rising host phases and deterministic extra guest stalls.\n",
+  "cases": [
+    {
+      "case": "reference",
+      "returncode": 0,
+      "output": "tb_exec: +pack -- /Users/alans/dev2/Dorado/build/rtl-executive/ready-path-final-replay-20261019/disk-payload/input.pack at the end of the disk cable (unit 0)\nHPS-PACK PASS: 11024 serial bits identical, 2 reads, 1 writes, full image unchanged after loopback\n"
+    },
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "output": "tb_exec: +pack -- /Users/alans/dev2/Dorado/build/rtl-executive/ready-path-final-replay-20261019/disk-payload/input.pack at the end of the disk cable (unit 0)\nHPS-PACK PASS: 11024 serial bits identical, 2 reads, 1 writes, full image unchanged after loopback\n"
+    }
+  ],
+  "image": {
+    "path": "/Users/alans/dev2/Dorado/build/rtl-executive/ready-path-final-replay-20261019/disk-payload/input.pack",
+    "bytes": 63105450,
+    "sha256": "6c1ddeecd18bedd282cc72b48d393858f9b127293d6a37ba89b02bccb2561fdc"
+  },
+  "executed_inputs": {
+    "tb_hps_pack.sv": "df3a1f756cc6fb28dd81970063b5619d79d31c92411e8e311fa4896c639d051c",
+    "test_disk_cache_payload.py": "e6d6bcf1ef4422b85fa9aeae782d75ee99b581fa7bb6364a7a3fec0dd38d5200",
+    "hps_pack_test.cpp": "a4d6b5fdedeb67513a8f3056e7efba4d25ae4a1be94614be630555b49f94f83b",
+    "hps_disk_test.h": "c2d031c62aa19ae9b90ec7d8ad75cc7c75dee9f3629eeb6f96c0e65640d5cdc8",
+    "dorado_pack.sv": "ebf7aa6d76734ca7f081c77379a04ee3bad911c1085e5ba5d0a4846f5cef0cf3",
+    "generate_disk_cache_phase.py": "3421576c1d64feeea24d52264dd6b881bb7685db826e190f68888da6995c8c93"
+  },
+  "limits": "Component payload regression only; no native integration, wrapper snapshot access or timing qualification."
+}

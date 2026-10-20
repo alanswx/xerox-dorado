@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "scope": "Actual frozen disk RTL: cache-tag capture excludes a simultaneous guest edge.\n\nUse the core's falling-edge ALTCLKCTRL contract, initially enabled, with PLL\nreset held through startup. Exercise tags, illegal heads, remount, attachment,\nreset, arbitrary additional guest stalls and delayed/failed host acknowledgments.\nThis is a functional clock-condition proof, not vendor timing simulation or disk\npayload/CRC qualification. No timing exception is generated or approved here.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0
+    },
+    {
+      "case": "bypass_pack_gate",
+      "returncode": 1
+    },
+    {
+      "case": "capture_illegal_head",
+      "returncode": 1
+    },
+    {
+      "case": "always_guest_clock",
+      "returncode": 1
+    }
+  ],
+  "original_sha256": "9cdb7737014433de32502bb8a80961802e2d290fae6251747ff922d381ddceed",
+  "executed_inputs": {
+    "dorado_pack_hps.sv": "9cdb7737014433de32502bb8a80961802e2d290fae6251747ff922d381ddceed",
+    "test_disk_cache_capture.py": "cf4f29678764a3f7c9b0b8cfd69674959e139eb50ae8e8c1be6f7ca61f7eb76b",
+    "Dorado.sv": "c059f8a6aac01b0daadc3216f3ca0ebca30478136845d4c2350c538f810ffcfd"
+  },
+  "limits": "Falling-edge clock contract, with PLL-reset startup; no vendor encrypted timing model, full disk payload test, new SDC exception or snapshot wrapper claim."
+}

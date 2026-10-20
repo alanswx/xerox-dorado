@@ -1,0 +1,23 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "--timing",
+  "--assert",
+  "-j",
+  "4",
+  "--top-module",
+  "tb_hps_pack",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-payload-v1-20261019/reference/obj",
+  "-CFLAGS",
+  "-O2 -std=c++20 -I/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-payload-v1-20261019/executed-inputs",
+  "-o",
+  "test-payload",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-payload-v1-20261019/executed-inputs/tb_hps_pack.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-payload-v1-20261019/reference/medium.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-payload-v1-20261019/executed-inputs/dorado_pack.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-payload-v1-20261019/executed-inputs/hps_pack_test.cpp"
+]

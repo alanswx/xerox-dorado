@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "scope": "Paired original/staged disk RTL under the real core clock-gating contract.\n\nCompare all original sequential fields from the frozen native XML, including\nthe entire buffer at completion. Covers the capture proof's reset/remount/tag/\nstall/host-failure workload. Serial write/CRC payload qualification is separate.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0
+    },
+    {
+      "case": "wrong_sampling_edge",
+      "returncode": 1
+    },
+    {
+      "case": "wrong_cyl",
+      "returncode": 1
+    },
+    {
+      "case": "wrong_head",
+      "returncode": 1
+    }
+  ],
+  "original_fields": 55,
+  "original_bits": 131816,
+  "new_required_snapshot_bits": 18,
+  "integrated": false,
+  "timing_qualified": false,
+  "new_timing_exceptions": 0,
+  "executed_inputs": {
+    "test_disk_cache_capture.py": "cf4f29678764a3f7c9b0b8cfd69674959e139eb50ae8e8c1be6f7ca61f7eb76b",
+    "test_disk_cache_phase.py": "5f496252a6b59762b5396320f19025e00f015ed3454606b22c9079f3716467e7",
+    "native-inventory.json": "b326da2877d43ec5cfdd01e5723a030238c9245d31628e3b5be5d9fefeb046ee",
+    "original.sv": "9cdb7737014433de32502bb8a80961802e2d290fae6251747ff922d381ddceed",
+    "candidate.sv": "e22701ab96bd2d6607a55865c418379362b99bc5c5a6fa867cc5dc7986d8b22b",
+    "generate_disk_cache_phase.py": "3421576c1d64feeea24d52264dd6b881bb7685db826e190f68888da6995c8c93"
+  },
+  "limits": "Functional prototype; no native integration, new wrapper snapshot schema, matched fit/timing or serial payload regression claim."
+}

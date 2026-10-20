@@ -2,6 +2,66 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**The readiness-path replacement qualifies functionally; Serial65Ready is fitting. A separate disk hold fix passes component comparison and serial payload checks.**
+
+The CPU enable now uses the existing normal frontend-ready aggregate, explicitly
+retaining storage initialization and the independent global snapshot hold. Only
+two combinational connections in `core/Dorado.sv` change. No new state, port,
+clock, schema, period or timing exception. Actual complete-MSA traffic/restore
+passes 20,323,256 checks /879,344 host cycles /40,002 guest advances, including
+20,000 post-restore advances. The real eight-MSA SPI owner passes 151,874
+readiness checks /326 packets, including faults, partial scans, quarantine and
+unknown inputs; its guest is stopped and other endpoints/services remain stubs.
+Both frontend widths pass all 65,536 0/1/X/Z flag/guard combinations. Deliberate
+loss of initialization, hold or readiness protection rejects in each relevant
+fixture. Source review verifies all 659 parent inputs and 2,761 original pin/
+parameter bindings; six rehashed damaged sources reject. Fresh actual-QSF XML
+still accounts for 2,094,179 sequential bits, none excluded; fourteen damaged
+geometry/binding cases reject. This frontend aggregate is NOT complete SDRAM/
+arbiter transaction drainage; real service barriers remain required.
+
+The authorized unchanged-period capacity experiment is ACTIVE on misterubuntu:
+`/home/alans/mister/Dorado_Serial65Ready_20261019`, builder **2458594**, fitter
+**2461232**, both confirmed live (fitter consuming CPU). Observe these processes
+and `driver.log`/`fit.log`; do not restart from a timeout. Packet SHA256
+`9a4e93d8fadb7b64e3fa97e91c0ae8b37809ece5636f965914354a504e22160d`.
+Assembly is disabled. Virtual service contracts are still explicit; no native
+snapshot pause, RBF, reload or speed gain is claimed. The disk prototype below
+is NOT included in Serial65.
+
+Separately, actual frozen disk RTL passes the cache-capture exclusion check:
+200,004 host cycles, 1,977 captures, 86,989 guest edges, reset/remount/attachment,
+illegal heads, tags, extra stalls and delayed/failed host replies. The clock
+model retains the actual falling-edge enable contract and PLL-reset startup,
+including an initially enabled gate; it is not an encrypted vendor timing model.
+Three broken gate/capture variants reject. An alternative to a hold exception
+now samples cylinder/head on the falling edge for the next rising-edge capture.
+The paired prototype matches all 55 original sequential fields /131,816 bits
+(buffer checked fully at completion); wrong sampling edge/data variants reject.
+Original and candidate serial payload gates both pass 11,024 identical bits,
+two reads, one write and byte-identical whole-image loopback with extra guest
+stalls. It adds **18 REQUIRED wrapper snapshot bits**, is not integrated, and
+still needs independent source/inventory and matched component area/timing.
+No new timing exception has been applied.
+
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-ready-path/` (1,403 raw members,
+182,902,459 raw bytes, lossless readback PASS). Extracted tools/source and failure
+controls replay; the extracted builder reproduces all 659 staged inputs and
+both integration records. The serial payload rebuild uses the archived disk
+image, whose hash matches the executed test. Required generator cell models are
+pinned from prior receipts; no current working HDL is needed for replay.
+
+Next: observe the SAME Serial65 run through terminal fit and all four timing
+conditions, review actual sources/clocks/crossings and archive results. Qualify
+the disk phase prototype's source/extra state and matched timing before native
+adoption. Real service synchronization/barriers and complete wrapper/raw RAM/
+input/video/Main/daemon/server snapshots remain open, followed by the original
+60 ns clock/timer migration, pinned speed comparisons, three fresh Cedar boots/
+cold persistence and two-hour stress. Native59 remains the last qualified
+hardware, **1,947,654.12 instruction issues/s**. Goal ACTIVE.
+
+Previous terminal nineteen-board result:
+
 **The complete nineteen-board core now fits: 41,381 / 41,910 ALMs. Timing rejects it: setup -0.239 ns, hold -0.155 ns.**
 
 Serial64Chipwidth is the first legal routed capacity result for all eleven main

@@ -1,0 +1,10 @@
+[
+  "iverilog",
+  "-g2012",
+  "-s",
+  "ready_path_fourstate",
+  "-o",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ready-path-fourstate-v1-20261019/lost_init/test.vvp",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ready-path-fourstate-v1-20261019/lost_init/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ready-path-fourstate-v1-20261019/lost_init/frontend.sv"
+]

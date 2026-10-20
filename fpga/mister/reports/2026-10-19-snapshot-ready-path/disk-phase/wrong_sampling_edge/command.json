@@ -1,0 +1,11 @@
+[
+  "iverilog",
+  "-g2012",
+  "-s",
+  "disk_cache_capture",
+  "-o",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-phase-v1-20261019/wrong_sampling_edge/test.vvp",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-phase-v1-20261019/wrong_sampling_edge/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-phase-v1-20261019/wrong_sampling_edge/reference.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-phase-v1-20261019/wrong_sampling_edge/candidate.sv"
+]

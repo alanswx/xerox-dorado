@@ -1,0 +1,11 @@
+[
+  "iverilog",
+  "-g2012",
+  "-s",
+  "disk_cache_capture",
+  "-o",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-phase-v1-20261019/candidate/test.vvp",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-phase-v1-20261019/candidate/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-phase-v1-20261019/candidate/reference.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-phase-v1-20261019/candidate/candidate.sv"
+]

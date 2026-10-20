@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "source_inputs": 659,
+  "integration_records": 2,
+  "all_bytes_equal": true,
+  "scope": "Extracted builder restaging; all existing replay inputs byte-identical with final receipt, except archive collector and newly added original payload fixtures."
+}

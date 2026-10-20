@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "scope": "Exhaustive 0/1/X/Z readiness checks on actual WIDTH8/12 frontend RTL.\n\nAll 65,536 combinations of reset, waiting, cache-valid, pending-write,\nwrite-done, local/global hold, initialization and pack-ready are evaluated.\nThis proves the local predicate; actual global-to-local hold is a separate test.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0
+    },
+    {
+      "case": "lost_init",
+      "returncode": 1
+    },
+    {
+      "case": "lost_hold",
+      "returncode": 1
+    },
+    {
+      "case": "wrong_ready",
+      "returncode": 1
+    }
+  ],
+  "combinations": 65536,
+  "widths": [
+    8,
+    12
+  ],
+  "frontend_sha256": "13bf0279d19f378052a8480dbdd571bec9902a913c4c792e8b3fece4f87a9a8f",
+  "executed_inputs": {
+    "generate_storage_chipwidth.py": "54654c7ca967fc4da3bb23d870af0ebcea91e43c4215f945950bd9ec9f86c1e2",
+    "generate_ready_path.py": "d4d6ea4bf324c2218ee13403da0978b6e9b0c0b2fc93d096529e1f0295ecd6bb",
+    "test_ready_path_fourstate.py": "d6116d2bbf08240a080986d895b7fa880c9e8875b88af216fe8905195be66597"
+  }
+}

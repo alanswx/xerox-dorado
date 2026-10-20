@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "source_inputs_reproduced": 659,
+  "integration_records_reproduced": 2,
+  "source_controls": 6,
+  "msa_controls": 3,
+  "owner_controls": 3,
+  "fourstate_controls": 3,
+  "inventory_controls": 14,
+  "disk_capture_controls": 3,
+  "disk_phase_controls": 3,
+  "serial_payload": true,
+  "working_hdl_used": false,
+  "prior_immutable_receipt_archives_required": true,
+  "limits": "Component/source evidence only; Serial65 full fit/timing still live; real service barriers and complete FPGA snapshots pending."
+}

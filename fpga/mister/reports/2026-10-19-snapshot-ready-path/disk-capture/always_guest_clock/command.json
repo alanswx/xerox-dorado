@@ -1,0 +1,10 @@
+[
+  "iverilog",
+  "-g2012",
+  "-s",
+  "disk_cache_capture",
+  "-o",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-capture-v2-20261019/always_guest_clock/test.vvp",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-capture-v2-20261019/always_guest_clock/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-cache-capture-v2-20261019/always_guest_clock/medium.sv"
+]

@@ -42,6 +42,47 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Readiness equivalence qualifies; Serial65Ready is ACTIVE. No new speed result.**
+
+The normal frontend-ready aggregate can replace the readiness term that also
+propagates per-board hold, provided storage initialization and the independent
+global hold remain explicit. Actual MSA traffic/save/restore passes 20,323,256
+checks /40,002 guest advances. Actual eight-MSA SPI ownership/quarantine passes
+151,874 readiness checks /326 packets (guest stopped, other service stubs
+explicit); both frontend widths pass all 65,536 four-state combinations. Broken
+guard/owner variants reject. Source review verifies all 659 parent inputs,
+2,761 original pin/parameter bindings and unchanged constraints, with six
+rehashed damaged cases rejected. Fresh actual-QSF XML retains 2,094,179 state
+bits and fourteen rejecting controls. No new state/clock/port/schema or timing
+exception. This aggregate does NOT replace full SDRAM/arbiter drainage.
+
+`/home/alans/mister/Dorado_Serial65Ready_20261019` is fitting, builder2458594 /
+fitter2461232 confirmed live; observe the SAME processes rather than restart.
+All periods/IO/area policy and explicit virtual service contracts stay. No
+assembly, deployable snapshot core or speed gain. The separate disk prototype
+is not in Serial65. Last terminal capacity/timing remains Serial64 below.
+
+Actual disk cache capture excludes a guest edge in the checked falling-edge
+clock contract: 200,004 host cycles /1,977 captures, including reset/remount,
+attachment, illegal heads, extra stalls and failed host acknowledgments; three
+bad gate/capture variants reject. A structural prototype stages cylinder/head
+on the falling edge for the next cache capture, preserving all 55 original
+sequential fields and passing the serial oracle/whole-image loopback (11,024
+bits, two reads, one write). It adds eighteen REQUIRED snapshot bits and still
+needs independent source/inventory and matched timing before integration.
+No new hold exception is applied. Evidence and extracted replay:
+`fpga/mister/reports/2026-10-19-snapshot-ready-path/` (1,403 members, lossless
+readback PASS; exact 659-input restaging and source/MSA/owner/four-state/disk
+controls replay; serial payload rebuild uses the archived hash-matched image).
+
+Next: terminal Serial65 source/capacity/all-condition timing and crossing review;
+qualify the disk phase prototype, real service synchronization/barriers and full
+snapshots. Original 60 ns clocks/timers and final pinned performance, three fresh
+Cedar boots/cold persistence/two-hour stress remain required. Native59's last
+qualified **1,947,654.12 instruction issues/s** is unchanged. Goal ACTIVE.
+
+Previous terminal nineteen-board result:
+
 **The complete nineteen-board core now fits: 41,381 / 41,910 ALMs. Timing rejects it: setup -0.239 ns, hold -0.155 ns.**
 
 Serial64Chipwidth is the first legal routed capacity result for all eleven main

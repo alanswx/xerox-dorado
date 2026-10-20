@@ -1,0 +1,82 @@
+{
+  "status": "PASS_BOARD_GEOMETRY_WRAPPER_ACCESS_PENDING",
+  "totals": {
+    "WRAPPER ACCESS PENDING": 132484,
+    "PRIVATE BOARD": 4578,
+    "PHYSICAL BOARD": 1957048,
+    "PRIVATE TRANSPORT": 69
+  },
+  "failure_controls": [
+    {
+      "case": "missing_board",
+      "rejected": true,
+      "diagnostic": "missing native state: ['dorado_native_machine.m.b_BaseBd.regular_done', 'dorado_native_machine.m.b_BaseBd.regular_error', 'dorado_native_machine.m.b_BaseBd.snapshot_sram_0.memory.done']"
+    },
+    {
+      "case": "missing_msa",
+      "rejected": true,
+      "diagnostic": "missing native state: ['dorado_native_machine.m.b_msa3Odd.u_a01.ck_d', 'dorado_native_machine.m.b_msa3Odd.u_a01.d_pre', 'dorado_native_machine.m.b_msa3Odd.u_a01.dl_pre']"
+    },
+    {
+      "case": "missing_wrapper",
+      "rejected": true,
+      "diagnostic": "missing native state: ['dorado_native_machine.u_media.buffer']"
+    },
+    {
+      "case": "missing_owner",
+      "rejected": true,
+      "diagnostic": "missing native state: ['dorado_native_machine.m.u_snapshot_msa.owner']"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate native state: dorado_native_machine.m.b_msa.u_storage_0.cache_data"
+    },
+    {
+      "case": "extra",
+      "rejected": true,
+      "diagnostic": "extra/duplicate native state: dorado_native_machine.m.b_msa.u_storage_0.cache_data_hidden"
+    },
+    {
+      "case": "width",
+      "rejected": true,
+      "diagnostic": "native geometry differs: dorado_native_machine.m.b_msa.u_storage_0.cache_data"
+    },
+    {
+      "case": "dimensions",
+      "rejected": true,
+      "diagnostic": "native geometry differs: dorado_native_machine.m.b_msa.u_storage_0.cache_data"
+    },
+    {
+      "case": "nonsequential",
+      "rejected": true,
+      "diagnostic": "missing native state: ['dorado_native_machine.m.b_msa.u_storage_0.cache_data']"
+    },
+    {
+      "case": "clock_binding",
+      "rejected": true,
+      "diagnostic": "actual board/deadline parameter bindings differ"
+    },
+    {
+      "case": "input_delay",
+      "rejected": true,
+      "diagnostic": "actual board/deadline parameter bindings differ"
+    },
+    {
+      "case": "deadline",
+      "rejected": true,
+      "diagnostic": "actual board/deadline parameter bindings differ"
+    },
+    {
+      "case": "unknown_module",
+      "rejected": true,
+      "diagnostic": "unresolved XML module alias: unreviewed_missing_module"
+    },
+    {
+      "case": "missing_exact_specialization",
+      "rejected": true,
+      "diagnostic": "unresolved XML module alias: dorado_serial_ProcH___05Fcell_F10016_snapshot"
+    }
+  ],
+  "raw_xml_sha256": "f79120cff893b21841dc5e646f5e7a6f323ed7d1fd7b82665b728a2fa938a1f4"
+}
