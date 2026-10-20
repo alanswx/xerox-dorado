@@ -3,6 +3,7 @@
 // neighboring bytes needed to write an unaligned track back without damage.
 // The machine pauses during host transfers; HPS and HDMI clocks keep running.
 module dorado_pack_hps #(
+    parameter integer SNAPSHOT_PAUSE = 0,
     parameter integer SECTORS_PER_TRACK = 29,
     parameter integer LABEL_WORDS = 8,
     parameter [11:0] INITIAL_CYL = 0,
@@ -19,6 +20,8 @@ module dorado_pack_hps #(
     parameter integer HOST_TIMEOUT_CLOCKS = 4 * HOST_CLOCK_HZ
 ) (
     input wire clk_sys, machine_clk, reset, attached, readonly, remounted,
+    input wire snapshot_hold, snapshot_guest_held,
+    output wire snapshot_idle, snapshot_held,
     input wire [11:0] tagbus_n,
     input wire cyltag_n, headtag_n, drivetag_n, conttag_n,
     input wire selected, data_adv,
@@ -85,9 +88,12 @@ module dorado_pack_hps #(
   reg [15:0] store_data = 0;
   wire [12:0] read_addr;
   wire [12:0] disk_addr = store ? store_addr : read_addr;
+  wire snapshot_block;
   always @(posedge clk_sys) begin
+    if (!snapshot_block) begin
     sd_buff_din <= buffer[sd_buff_addr];
     if (sd_buff_wr) buffer[sd_buff_addr] <= sd_buff_dout;
+    end
   end
   always @(posedge machine_clk) begin
     word_q <= buffer[disk_addr];
@@ -109,6 +115,28 @@ module dorado_pack_hps #(
   // Illegal-head probes only need EndOfCyl; keep the CPU running for them.
   assign ready = attached && !remounted && !fault && host_state == 0 && (!need_track || head >= 5);
   wire [31:0] target_word = (cyl*5 + head)*TRACK_WORDS;
+  // Complete already-issued HPS work before leasing the ARM image. Partial
+  // serial blocks, pending guest-port stores and dirty buffer generations
+  // remain machine state; never finish a guest write or flush partial data.
+  reg snapshot_paused = 0;
+  reg snapshot_attached = 0;
+  wire snapshot_media_known = (attached===1'b1) ||
+      ((attached===1'b0) && (valid===1'b0) && (dirty===1'b0));
+  wire snapshot_quiet = (snapshot_guest_held===1'b1) &&
+      (reset===1'b0) && snapshot_media_known && (remounted===1'b0) &&
+      (fault===1'b0) && (host_state===3'd0) &&
+      (sd_rd===1'b0) && (sd_wr===1'b0) && (sd_ack===1'b0) && (sd_buff_wr===1'b0);
+  wire snapshot_enter = (SNAPSHOT_PAUSE!=0) && (snapshot_hold===1'b1) && snapshot_quiet;
+  assign snapshot_block = (SNAPSHOT_PAUSE!=0) && (snapshot_paused || snapshot_enter);
+  assign snapshot_held = (SNAPSHOT_PAUSE!=0) && snapshot_paused;
+  assign snapshot_idle = snapshot_held && (snapshot_hold===1'b1) && snapshot_quiet &&
+      (attached===snapshot_attached);
+  always @(posedge clk_sys) begin
+    if (reset) begin snapshot_paused <= 0; snapshot_attached <= 0; end
+    else if (snapshot_paused) begin
+      if ((snapshot_hold===1'b0) && (sd_ack===1'b0) && (sd_buff_wr===1'b0)) snapshot_paused <= 0;
+    end else if (snapshot_enter) begin snapshot_paused <= 1; snapshot_attached <= attached; end
+  end
   always @(posedge clk_sys) begin
     if (reset) begin
       valid <= 0; host_state <= 0; sd_rd <= 0; sd_wr <= 0;
@@ -122,7 +150,7 @@ module dorado_pack_hps #(
         if (!host_fault) begin host_debug<=host_fault_status(5);host_extra<=sd_lba;end
       end
       valid <= 0; host_state <= 0; sd_rd <= 0; sd_wr <= 0; host_wait <= 0;
-    end else begin
+    end else if (!snapshot_block) begin
       if (host_state == 0) host_wait <= 0;
       else host_wait <= host_wait+1'b1;
       case (host_state)

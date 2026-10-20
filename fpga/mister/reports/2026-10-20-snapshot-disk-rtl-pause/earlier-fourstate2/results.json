@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "inputs": {
+        "medium.sv": "8db9370357bdab0fd6f044332ed84201b32ace5827c7d70734140a201d15bf39",
+        "fixture.sv": "2f980e8e6547ae7804752d0017e1e77402d0720b8d174191770aa89471474ba1"
+      }
+    },
+    {
+      "case": "guest_not_held",
+      "returncode": 1,
+      "inputs": {
+        "medium.sv": "9ef2d122149c28c3058c4c8784c3c98fe1c37e8ac5a4fed3cb220c948e217361",
+        "fixture.sv": "2f980e8e6547ae7804752d0017e1e77402d0720b8d174191770aa89471474ba1"
+      }
+    },
+    {
+      "case": "ignore_host_ack",
+      "returncode": 1,
+      "inputs": {
+        "medium.sv": "dc9924b02345487937491f352ec805bfb7ef889234741c60bdb1264634ac47c1",
+        "fixture.sv": "2f980e8e6547ae7804752d0017e1e77402d0720b8d174191770aa89471474ba1"
+      }
+    },
+    {
+      "case": "unheld_ram",
+      "returncode": 1,
+      "inputs": {
+        "medium.sv": "41fe83ebb2f1f3c05780278a1c35241e9250e2c0f3ee36421e9e72b949f83fc9",
+        "fixture.sv": "2f980e8e6547ae7804752d0017e1e77402d0720b8d174191770aa89471474ba1"
+      }
+    },
+    {
+      "case": "early_release",
+      "returncode": 1,
+      "inputs": {
+        "medium.sv": "e6a25a0cbcdd0f53f0011d7a9dea13e40d38d94577ba21fcc6947d55a5a8eb47",
+        "fixture.sv": "2f980e8e6547ae7804752d0017e1e77402d0720b8d174191770aa89471474ba1"
+      }
+    },
+    {
+      "case": "nonsticky_ram_hold",
+      "returncode": 1,
+      "inputs": {
+        "medium.sv": "03072581da4223290520b933d340a5538d96ce4965cd18fa25d1b02e17cc3f5d",
+        "fixture.sv": "2f980e8e6547ae7804752d0017e1e77402d0720b8d174191770aa89471474ba1"
+      }
+    }
+  ],
+  "new_required_wrapper_bits": 1,
+  "inputs": {
+    "medium.sv": "f9d658bc711ed954c42ab2e8467e425ecbf26f0a7e52f41b386f55ca0db77ec4",
+    "test_disk_snapshot_fourstate.py": "66963108499b6c8912403c2619f84d17086e6c3223e040c62de510831f95d2f0",
+    "test_disk_snapshot_barrier.sv": "2f980e8e6547ae7804752d0017e1e77402d0720b8d174191770aa89471474ba1"
+  },
+  "limits": "Disk lease only; real global quarantine and Main/HPS lifecycle ordering still require coordinator integration."
+}

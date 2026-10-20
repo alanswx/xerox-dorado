@@ -1,0 +1,16 @@
+[
+  [
+    "iverilog",
+    "-g2012",
+    "-s",
+    "tb",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-extracted-fourstate-20261020/nonsticky_ram_hold/test.vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-extracted-fourstate-20261020/nonsticky_ram_hold/medium.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-extracted-fourstate-20261020/nonsticky_ram_hold/fixture.sv"
+  ],
+  [
+    "vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-extracted-fourstate-20261020/nonsticky_ram_hold/test.vvp"
+  ]
+]

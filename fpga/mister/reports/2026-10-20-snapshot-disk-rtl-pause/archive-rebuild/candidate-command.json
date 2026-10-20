@@ -1,0 +1,13 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "dorado_pack_hps",
+  "-Wno-fatal",
+  "-GLABEL_WORDS=10",
+  "-GHOST_CLOCK_HZ=50000000",
+  "-GSNAPSHOT_PAUSE=1",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-extracted-20261020/candidate.xml",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-extracted-20261020/executed-inputs/medium.sv"
+]

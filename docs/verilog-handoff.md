@@ -2,21 +2,52 @@
 
 ## Current objective (2026-10-20)
 
-**The network pause controller now qualifies, including parser release before guest restart. Serial71 integrates it with the native memory hold and is building on misterubuntu; fit/timing are pending. Serial70 remains rejected. Complete snapshots, faster clocks and final hardware qualification remain open.**
+**The real serial/HPS disk pause now qualifies, preserving partial writes and the complete track buffer. Serial71 fits but its first timing reports fail; all-corner/crossing review is still running. Complete snapshots, faster clocks and final hardware qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and
 warm disk persistence pass. Its last qualified rate remains **1,947,654.12
 instruction issues/s**. This work has not deployed a new core/Main/daemon or
 produced a new speed measurement.
 
-**LIVE Serial71NetworkPause:**
+**Qualified disk component, NOT in Serial71:** `dorado_pack_hps` now has an
+opt-in snapshot pause (default off). After the guest clock is held it drains
+only HPS requests already issued, then freezes its host FSM and BRAM port.
+It preserves partial header/label/data writes, Fire-code position, a pending
+guest-port RAM store and dirty generations; it never completes a guest write
+or flushes a partial block. The actual held latch controls framed release.
+A second required bit retains attachment identity, supporting an inactive
+disk and revoking readiness on mount/removal/remount/reset or unexpected HPS
+activity. The global coordinator still must quarantine a revoked lease.
+
+Real Pilot serial/HPS tests observe all131,818 bits (55 original fields /
+131,816 bits +2 implementation bits), including the entire131,072-bit track
+buffer. Nine pauses cover inactive media, accepted HPS read/write tails,
+serial reads, partial header/label/data, a pending store and a bad Fire code.
+Changed labels/data persist with every neighboring image byte intact; corrupt
+Fire codes retain their real failure/residue and invent no host write.
+Default-off payload/CRC gates pass. Three compiled broken serial variants and
+six broken four-state hold/identity variants reject; 560 four-state checks cover
+256 admission combinations. Frozen and archive-extracted rebuilds repeat exact
+inputs/results. All913 raw members read back; extracted proof passes.
+Evidence: `fpga/mister/reports/2026-10-20-snapshot-disk-rtl-pause/`.
+This is not disk state export/import, native integration, timing or a complete
+snapshot. Next connect this real FPGA boundary BEFORE the existing ARM disk
+lease, with actual Main/FPGA acknowledgments and retained global release hold.
+
+**LIVE Serial71NetworkPause, all-corner timing:**
 `/home/alans/mister/Dorado_Serial71NetworkPause_20261020`, builder **2664220**,
-fitter **2666775**, verified live after successful synthesis (zero errors;
-615 warnings). Mapper2664230 completed in 3m36s. Observe these SAME
+builder **2664220** remains live; fitter2666775 completed successfully in20m23s
+(zero errors;11 warnings). Native STA and clock audit completed; the original
+driver is running device-corners.tcl, then adapter crossings. Synthesis had
+zero errors/615 warnings. Mapper2664230 completed in3m36s. Observe these SAME
 processes and this project; a polling timeout is not completion or permission
 to restart. All 661 prepared sources were unchanged. Packet SHA256
 `faeba8e8e591be64073dae4647a45d0203b50fef393becfab68ef52fd544e009`.
 No assembly or deployment is allowed by this capacity/timing driver.
+The completed fit uses41,464 /41,910 ALMs (446 free),52,155 registers,
+329 RAM blocks/2,498,471 bits,35 DSPs/3 PLLs. Preliminary reports fail slow100C
+setup at-1.668 ns and slow-40C hold at-0.292 ns. Preserve all remaining reports
+and independently review the terminal result; this cannot be deployed.
 
 Serial71 starts from immutable Serial69, with no fanout/global/seed policy or
 period changes. The DDR engine follows the final global hold. The SPI parser

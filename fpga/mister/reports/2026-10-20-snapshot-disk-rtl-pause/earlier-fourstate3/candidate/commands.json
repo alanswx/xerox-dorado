@@ -1,0 +1,16 @@
+[
+  [
+    "iverilog",
+    "-g2012",
+    "-s",
+    "tb",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-fourstate-v3-20261020/candidate/test.vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-fourstate-v3-20261020/candidate/medium.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-fourstate-v3-20261020/candidate/fixture.sv"
+  ],
+  [
+    "vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-fourstate-v3-20261020/candidate/test.vvp"
+  ]
+]

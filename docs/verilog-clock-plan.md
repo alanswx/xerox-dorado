@@ -43,20 +43,43 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-**The network pause controller now qualifies, including parser release before guest restart. Serial71 integrates it with the native memory hold and is building on misterubuntu; fit/timing are pending. Serial70 remains rejected. Complete snapshots, faster clocks and final hardware qualification remain open.**
+**The real serial/HPS disk pause now qualifies, preserving partial writes and the complete track buffer. Serial71 fits but its first timing reports fail; all-corner/crossing review is still running. Complete snapshots, faster clocks and final hardware qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and
 warm disk persistence pass. Its last qualified rate remains **1,947,654.12
 instruction issues/s**. This work has not deployed a new core/Main/daemon or
 produced a new speed measurement.
 
+**Qualified disk boundary (not yet in native RTL):** an opt-in/default-off pause
+drains already-issued HPS requests after the guest clock stops, then holds the
+host FSM and track-buffer port. Partial serial blocks, pending RAM stores and
+dirty generations remain saved machine state; no guest write is completed or
+partial block flushed. Two required wrapper bits hold the pause latch and media
+identity. Known inactive media can pause; attachment changes/reset/unexpected
+host activity revoke readiness. Global fault quarantine remains the caller's
+job. Main must acquire its ARM disk lease only AFTER this FPGA acknowledgment.
+Tests observe131,818 bits including all131,072 buffer bits, with nine pauses
+across real Pilot serial/HPS paths and an independent whole-image/Fire-code
+oracle. Default-off gates pass, three serial and six four-state broken variants
+reject, and560 four-state checks cover256 admission combinations. Frozen and
+archive-extracted rebuilds repeat exact inputs/results; all913 raw receipt
+members read back and the extracted verifier passes. Evidence:
+`2026-10-20-snapshot-disk-rtl-pause/`. No native integration, timing, state access
+or full restore is claimed. These two new disk bits are NOT in Serial71's
+2,094,301-bit native inventory.
+
 **Current integration: Serial71NetworkPause** at
-`/home/alans/mister/Dorado_Serial71NetworkPause_20261020`, builder2664220 /
-fitter2666775 verified LIVE after successful synthesis (zero errors;615
-warnings;mapper2664230 completed in3m36s), all661 prepared inputs
+`/home/alans/mister/Dorado_Serial71NetworkPause_20261020`, builder2664220 is
+LIVE in all-corner timing. Fitter2666775 completed successfully in20m23s (zero
+errors;11 warnings); native STA/clocks finished, device corners and adapter
+crossings follow sequentially. Synthesis had zero errors/615 warnings;
+mapper2664230 completed in3m36s. All661 prepared inputs
 unchanged. Source packet SHA256
 `faeba8e8e591be64073dae4647a45d0203b50fef393becfab68ef52fd544e009`.
 Observe the SAME job; do not restart after observation timeouts. No assembly.
+The fit uses41,464 /41,910 ALMs,52,155 registers,329 RAM blocks/2,498,471 bits,
+35 DSPs/3 PLLs. Preliminary slow100C setup is-1.668 ns; slow-40C hold is-0.292 ns.
+It cannot be deployed. Retain and independently review all terminal reports.
 It derives from Serial69 with identical ordinary clocks, enables, board pins,
 seed and timing policy. The final global hold freezes the DDR adapter; a
 separate parser request permits framed release before any guest clock resumes.
@@ -255,7 +278,8 @@ Next, in delivery order:
 2. Connect the qualified Main transport lease, disk-worker and daemon pause APIs
    through the actual snapshot coordinator and compatible-build checks, with real
    FPGA disk/network, input and video acknowledgments. Wire the qualified network
-   engine/parser pause (including SPI framing and two settling clocks). Finish
+   engine/parser pause (including SPI framing and two settling clocks) and the
+   new real serial/HPS disk boundary. Finish
    in-flight guest
    disk requests before taking the ARM image lease; the memory boundary alone
    is not whole-machine quiescence.

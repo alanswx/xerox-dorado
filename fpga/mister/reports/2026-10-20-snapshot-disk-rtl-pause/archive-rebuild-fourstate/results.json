@@ -1,0 +1,68 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "inputs": {
+        "medium.sv": "c2848a565e94aa40735725600c3e045cb82c20201544f69d9e5b58d5efd5be54",
+        "fixture.sv": "090fc87ee0a6519d0ca093a30e9e6e682ed4ab7ff2ef185e7eea28145c36cddd"
+      }
+    },
+    {
+      "case": "guest_not_held",
+      "returncode": 1,
+      "inputs": {
+        "medium.sv": "1ac58b4f65e3995747a7bb6d7ae27b101011e8c1878f77b4255c3b7fdf8d58dd",
+        "fixture.sv": "090fc87ee0a6519d0ca093a30e9e6e682ed4ab7ff2ef185e7eea28145c36cddd"
+      }
+    },
+    {
+      "case": "ignore_host_ack",
+      "returncode": 1,
+      "inputs": {
+        "medium.sv": "2c7633821c6758552fd2633a5cd1072b4f37335c6cbc80085d898417575d322d",
+        "fixture.sv": "090fc87ee0a6519d0ca093a30e9e6e682ed4ab7ff2ef185e7eea28145c36cddd"
+      }
+    },
+    {
+      "case": "unheld_ram",
+      "returncode": 1,
+      "inputs": {
+        "medium.sv": "dd325ca27de0acfd0cd07595f52b8d3305b7f78d58dd4583ac23e9b986b00b35",
+        "fixture.sv": "090fc87ee0a6519d0ca093a30e9e6e682ed4ab7ff2ef185e7eea28145c36cddd"
+      }
+    },
+    {
+      "case": "early_release",
+      "returncode": 1,
+      "inputs": {
+        "medium.sv": "fad9620497dc059231733ffabd8f17fde06bab5f1ba766e3e94b87d359d49b28",
+        "fixture.sv": "090fc87ee0a6519d0ca093a30e9e6e682ed4ab7ff2ef185e7eea28145c36cddd"
+      }
+    },
+    {
+      "case": "ignore_media_identity",
+      "returncode": 1,
+      "inputs": {
+        "medium.sv": "7050e5bd3a5777645f13cda302b54c57788747c7ad734c20b21850a9d996d246",
+        "fixture.sv": "090fc87ee0a6519d0ca093a30e9e6e682ed4ab7ff2ef185e7eea28145c36cddd"
+      }
+    },
+    {
+      "case": "nonsticky_ram_hold",
+      "returncode": 1,
+      "inputs": {
+        "medium.sv": "f7ee1fb8157e5223d8fe94bf1eb72e6930cea0e6fb8fb09e85091e07b77e12fe",
+        "fixture.sv": "090fc87ee0a6519d0ca093a30e9e6e682ed4ab7ff2ef185e7eea28145c36cddd"
+      }
+    }
+  ],
+  "new_required_wrapper_bits": 2,
+  "inputs": {
+    "medium.sv": "5ad0039b64f9fc829bbfe38b6e00909eea6b81308722b341310ec2112c16b87c",
+    "test_disk_snapshot_fourstate.py": "54c8767dbf703c78cd952e07e6c297059516411b1dba5844c57e7748b6883f29",
+    "test_disk_snapshot_barrier.sv": "090fc87ee0a6519d0ca093a30e9e6e682ed4ab7ff2ef185e7eea28145c36cddd"
+  },
+  "limits": "Disk lease only; real global quarantine and Main/HPS lifecycle ordering still require coordinator integration."
+}

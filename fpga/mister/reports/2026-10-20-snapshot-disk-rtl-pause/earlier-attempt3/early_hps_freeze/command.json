@@ -1,0 +1,18 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "tb_pilot_pack",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-v3-20261020/early_hps_freeze/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-v3-20261020/early_hps_freeze/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-v3-20261020/early_hps_freeze/medium.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-v3-20261020/executed-inputs/test.cpp",
+  "-CFLAGS",
+  "-O2 -std=c++17 -I/Users/alans/dev2/Dorado/build/rtl-executive/disk-rtl-snapshot-v3-20261020/executed-inputs -DDISK_STATE_BITS=131817 -DDISK_STATE_WORDS=4120 -DDISK_PAUSE_TEST=1"
+]
