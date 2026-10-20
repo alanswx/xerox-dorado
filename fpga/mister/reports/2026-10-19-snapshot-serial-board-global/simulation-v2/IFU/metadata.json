@@ -1,0 +1,2229 @@
+{
+  "inputs": 79,
+  "outputs": 83,
+  "sampled_physical_bits": 1005,
+  "large_ram_probe_bits": 27,
+  "large_ram_fields": 11,
+  "frozen_flags": 12,
+  "small": [
+    {
+      "path": "clk1_p_Aa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "clk1_p_Ab",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "clk1_p_Ac",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "clk1_p_Da",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_0.saved_q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_1.saved_q",
+      "width": 5,
+      "bits": 5,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_10.saved_q",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_2.saved_q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_3.saved_q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_4.saved_q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_5.saved_q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_6.saved_q",
+      "width": 5,
+      "bits": 5,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_7.saved_q",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_8.saved_q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "snapshot_bank_9.saved_q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_a04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a04.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_a04.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a05.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a05.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_a05.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a08.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a08.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_a08.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a11.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a11.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_a11.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a13.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a13.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a13.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a15.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a15.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_a15.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a16.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a16.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a16.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a17.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a17.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a17.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a18.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a18.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a18.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a20.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a20.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_a20.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a21.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a21.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a21.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a21.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a21.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a21.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b01.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_b04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b04.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b04.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b05.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b05.d_pre",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_b05.dl_pre",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b05.dr_pre",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b05.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_b05.s_pre",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_b06.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b06.d_pre",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_b06.dl_pre",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b06.dr_pre",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b06.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_b06.s_pre",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_b08.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b08.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_b08.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b11.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b11.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_b11.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b13.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b13.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b13.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b15.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b15.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_b15.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b16.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b16.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b16.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b18.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b18.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b18.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b20.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b20.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b20.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c01.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_c04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c04.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_c04.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c08.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c08.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_c08.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c11.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c11.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_c11.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c13.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c13.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c13.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c14.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c14.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c14.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c15.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c15.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c15.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c16.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c16.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c16.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c17.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c17.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c17.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c17.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c17.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c17.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c20.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c20.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c20.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c22.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c22.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_c22.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_d04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_d04.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_d04.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_d08.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_d08.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_d08.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_d11.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_d11.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_d11.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_d13.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_d13.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_d13.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_d14.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_d14.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_d14.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_d16.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_d16.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_d16.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_d16.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_d16.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_d16.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_e01.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_e04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_e04.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_e04.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_e06.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_e06.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_e06.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_e07.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_e07.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_e07.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_e13.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_e13.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_e13.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_e17.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_e17.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_e17.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_e17.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_e17.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_e17.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f01.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_f03.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f03.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_f03.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_f04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f04.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_f04.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_f06.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f06.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_f06.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_f14.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f14.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_f14.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_f20.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f20.jk_pre",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_f20.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f20.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f21.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f21.jk_pre",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_f21.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f21.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f24.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f24.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_f24.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g04.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g04.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g05.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g05.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g05.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g07.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g07.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g07.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g19.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g19.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_g19.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_h03.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h03.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_h03.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_h04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h04.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_h04.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_h07.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h07.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_h07.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_h11.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h11.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_h11.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_h12.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h12.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_h12.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_h13.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h13.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h13.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h13.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h13.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h13.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h17.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h17.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_h17.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_i03.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i03.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_i03.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_i04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i04.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_i04.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_i11.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i11.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_i11.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_i12.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i12.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_i12.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_i16.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i16.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i16.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i16.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i16.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i16.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i20.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i20.jk_pre",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_i20.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i20.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i24.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i24.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i24.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i24.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i24.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i24.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j06.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j06.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j06.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j06.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j06.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j06.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j08.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j08.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j08.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j08.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j08.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j08.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j11.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j11.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_j11.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_j12.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j12.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_j12.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_j20.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j20.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j20.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j20.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j20.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j20.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j24.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j24.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j24.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j24.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j24.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j24.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k03.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k03.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_k03.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_k05.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k05.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_k05.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_k06.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k06.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_k06.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_k08.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k08.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k08.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k08.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k08.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k08.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k11.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k11.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_k11.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_k12.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k12.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_k12.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_k17.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k17.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_k17.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_k22.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k22.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k22.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k22.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k22.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k22.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k23.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k23.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k23.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k23.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k23.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k23.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k24.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k24.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k24.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k24.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k24.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k24.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l01.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l01.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l01.d_pre_a",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l01.d_pre_b",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l01.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l01.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l03.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l03.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_l03.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l04.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_l04.setup_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l06.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l06.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l06.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l19.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l19.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l19.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l21.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l21.jk_pre",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_l21.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l21.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l22.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l22.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l22.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    }
+  ],
+  "large": [
+    {
+      "path": "snapshot_bank_0.mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_1.mem",
+      "width": 5,
+      "bits": 5120,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_10.mem",
+      "width": 2,
+      "bits": 2048,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_2.mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_3.mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_4.mem",
+      "width": 4,
+      "bits": 4096,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_5.mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_6.mem",
+      "width": 5,
+      "bits": 5120,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_7.mem",
+      "width": 2,
+      "bits": 2048,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_8.mem",
+      "width": 1,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_bank_9.mem",
+      "width": 4,
+      "bits": 4096,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    }
+  ],
+  "helper_frozen": [
+    "snapshot_bank_0.frozen",
+    "snapshot_bank_1.frozen",
+    "snapshot_bank_10.frozen",
+    "snapshot_bank_2.frozen",
+    "snapshot_bank_3.frozen",
+    "snapshot_bank_4.frozen",
+    "snapshot_bank_5.frozen",
+    "snapshot_bank_6.frozen",
+    "snapshot_bank_7.frozen",
+    "snapshot_bank_8.frozen",
+    "snapshot_bank_9.frozen",
+    "state_frozen"
+  ]
+}

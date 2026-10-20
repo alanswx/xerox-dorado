@@ -1,0 +1,96 @@
+{
+  "status": "PASS",
+  "scope": "Actual-board negative tests for independent global hold/scan/auxiliary gates.",
+  "cases": [
+    {
+      "board": "ContA",
+      "case": "lost_global_hold",
+      "returncode": 1,
+      "expected_failure": [
+        "ordinary outputs differ",
+        "physical state differs",
+        "RAM probe differs",
+        "forced hold did not freeze"
+      ],
+      "mutated_source_sha256": "790fb04532e84412a212a85eafa0ce79db1490009df07e6cd50f01c5a0538d90"
+    },
+    {
+      "board": "ContA",
+      "case": "lost_scan_abort",
+      "returncode": 1,
+      "expected_failure": [
+        "global abort did not quarantine scan"
+      ],
+      "mutated_source_sha256": "47e7fc475162bf2609d77606f8c3f26d579e1395570ceb82f52d0919c288b3b8"
+    },
+    {
+      "board": "ContA",
+      "case": "lost_aux_abort",
+      "returncode": 1,
+      "expected_failure": [
+        "global abort admitted auxiliary access"
+      ],
+      "mutated_source_sha256": "cddea10d948b64bdd65d12e6371873423e76bdd76fc8f7b40b5b708d484fa1d8"
+    },
+    {
+      "board": "MemX",
+      "case": "lost_global_hold",
+      "returncode": 1,
+      "expected_failure": [
+        "ordinary outputs differ",
+        "physical state differs",
+        "RAM probe differs",
+        "forced hold did not freeze"
+      ],
+      "mutated_source_sha256": "64c4d70c2dc938a22fc5885043fed5c360e4c482eb7d0dcbc32c0dc9dce04262"
+    },
+    {
+      "board": "MemX",
+      "case": "lost_scan_abort",
+      "returncode": 1,
+      "expected_failure": [
+        "global abort did not quarantine scan"
+      ],
+      "mutated_source_sha256": "88ba5c25d32ad1c0b87d41a931d5543f489c5e759165ee9c61b925a15c8d2f61"
+    },
+    {
+      "board": "MemX",
+      "case": "lost_aux_abort",
+      "returncode": 1,
+      "expected_failure": [
+        "global abort admitted auxiliary access"
+      ],
+      "mutated_source_sha256": "e0620a29fb0ce91b726d9e23f8d9075534aae838a2cadf5fde2480e243897de4"
+    },
+    {
+      "board": "BaseBd",
+      "case": "lost_global_hold",
+      "returncode": 1,
+      "expected_failure": [
+        "ordinary outputs differ",
+        "physical state differs",
+        "RAM probe differs",
+        "forced hold did not freeze"
+      ],
+      "mutated_source_sha256": "817e96e6e97b0d18b65c515d5b5829f4752a96512d819f3e849b9a67a7c327ff"
+    },
+    {
+      "board": "BaseBd",
+      "case": "lost_scan_abort",
+      "returncode": 1,
+      "expected_failure": [
+        "global abort did not quarantine scan"
+      ],
+      "mutated_source_sha256": "144644edbcdd9ee098919ef01b1aef2bfea8f57c41d737ce1ffdca919816f059"
+    },
+    {
+      "board": "BaseBd",
+      "case": "lost_aux_abort",
+      "returncode": 1,
+      "expected_failure": [
+        "global abort admitted auxiliary access"
+      ],
+      "mutated_source_sha256": "b1ff510f2c30495f6ed8873b8b6a49a59b69d96b02ea8cd02c3276c5cb6cf68d"
+    }
+  ]
+}

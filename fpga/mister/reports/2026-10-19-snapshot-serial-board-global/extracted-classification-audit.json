@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "boards": 11,
+  "physical_bits": 1944744,
+  "private_transport_bits": 3930,
+  "failure_controls": 77
+}

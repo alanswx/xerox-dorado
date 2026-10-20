@@ -42,6 +42,54 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**All eleven main-board serial adapters now pass namespace and global hold/abort qualification. Native MSA/wrapper state and service barriers are next; no new full-core fit or deployment is claimed.**
+
+`generate_serial_boards.py` derives the adapters from the exact qualified fit
+sources and receipts. All 148 module definitions have board-specific names,
+including the differing BaseBoard helpers. ContA's counter cast is normalized
+with its valid-index equivalence checked. Inverting the namespace and exactly
+four administrative hook edits recovers the original source bytes; 66 damaged
+source controls reject. Original clocks, normal processes, RAM grouping,
+parameters, pins and state addresses are preserved.
+
+Every board passes 20,180 host edges / 81,029 checks against its original
+qualified adapter: 20,000 ordinary cycles, 32 forced-hold probe rows, partial
+scan abort and 32 further held edges. Physical fields and direct large-RAM
+samples are compared; every helper's hold flag is checked. These tests supplement
+the earlier exhaustive board memory gates rather than repeating full memory
+traversal. Nine actual RTL mutations on ContA, MemX and BaseBoard independently
+reject missing forced hold, scan abort and auxiliary-access abort guards.
+
+Fresh reference/DUT XML retains all 1,944,744 physical and 3,930 private bits,
+with no sequential exclusions; 77 damaged inventory/alias controls reject.
+A narrow XML adapter resolves Verilator's encoded cell module references only
+to an exact existing specialization. Raw XML remains unchanged; normalized XML
+and every alias rewrite are retained. All 2,983 raw archive members pass lossless
+hash readback. Regeneration from extracted original receipts is byte-identical;
+extracted source and classification audits pass. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-serial-board-global/`.
+The board-only catalog identity remains `c876f8b45b768814`.
+
+Revalidating all 216 native support source receipts makes the next gap explicit:
+the 154,037 candidate support bits include EIGHT MSA storage-board instances,
+2,690 bits each / 21,520 total. Their original latches, DRAM address histories
+and native storage frontends are outside the eleven adapters. This inventory
+is still review-only: classify and expose those fields, then the other wrapper,
+backend, input, video, network and external 16 MiB raw-memory state. Implement
+actual backend/Main/daemon/disk-generation barriers and a preserving server
+pause/resume with timer rebasing. SDRAM refresh must continue while guest
+interfaces are held. SYSTEM reset must mean a genuine machine reseed; parser
+reset or a soft reset leaving shifted physical state cannot release quarantine.
+
+Qualify combined serial capacity/timing and atomic disk-paired FPGA Cedar
+save/continue/restore before claiming full snapshots. The last combined result
+remains 45,228 / 41,910 ALMs (3,318 over). Live Native59 and its last qualified
+1,947,654.12 issues/s are unchanged. Original 60 ns clocks/timers, pinned
+comparisons, three final fresh boots, cold persistence and two-hour stress
+remain required. Goal ACTIVE; all experiments in this entry are terminal.
+
+Earlier transport qualification (superseded next-action list):
+
 **Serial transport ownership and the compact eleven-board format are qualified as isolated components. The new transport costs 39 additional ALMs and passes four-condition timing. Native machine/service barriers and the combined serial core are not yet integrated.**
 
 `board_state_fabric_serial.sv` replaces the old 16-edge deadline with a bounded

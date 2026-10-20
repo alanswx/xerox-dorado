@@ -1,0 +1,628 @@
+{
+  "status": "PASS",
+  "scope": "Inverse-source proof of eleven-board namespace and global hold/abort conversion.\n\nErase exactly four approved administrative edits and invert the bijective name\nmap: every original board/helper byte must return. No ordinary pin, clock,\nmemory map, process or source change is permitted. Timing remains separate.\n",
+  "boards": [
+    {
+      "board": "ContA",
+      "status": "PASS",
+      "state_bits": 1353,
+      "modules": 10,
+      "exact_source_identity_after_inverse": true,
+      "normal_behavior_when_global_inputs_zero": "Boolean identities and bijective alpha rename; unchanged ordinary source bytes",
+      "parameters": "#(.SYSPER(4))",
+      "source_hashes": {
+        "ContA__board.sv": "ad3b52e7db3b6a6ebce24505c67dbc02a82dc16b4b95db6da00bc2527d78bfc3",
+        "ContA__cell_MC10176_snapshot.v": "1f884ab0ba0739dece1e4b1ba51b2de8eca36defe4e57315b54e4fcf4ca9f654",
+        "ContA__cell_MC10231_snapshot.v": "8e9ec3a2343d5ceb71145b66d5e7a9df62ff4247a14d718a984e0ba0bb13e3da",
+        "ContA__cell_F10000_snapshot.v": "9c3755e0b102291f04792efbdeb06b49e2c205db970fda82691b001ec6f6d90b",
+        "ContA__cell_F10016_snapshot.v": "23f033f8e4b8ae53bbded27e906e908ac7c891d395493e49ef970a8803d1d082",
+        "ContA__cell_MC10141_snapshot.v": "97d09c5b8f3c6248a9b8db434f0ce941ea8123d4a213e5f18793d64e53ecec10",
+        "ContA__cell_MC10173_snapshot.v": "0f49340d3e5690e84a367cd6d9de16698e9b84b8165fe19ea6b8775d3422ced9",
+        "ContA__cell_SE10231_snapshot.v": "587a8816c7f58d4e24c3c0be91dc59fa4d27c00b8f9f2a688a13ce540f80c29f",
+        "ContA__cell_F10145A_snapshot.sv": "01d098833b2a42c811880f9b997a6a8f34d1b8aa256adc7dc011197cf6367706",
+        "ContA__ff_scan_controller.sv": "9ba8d5964cc6281b152fd75f9964e5143ce63a50b6726cebf3f1a667f553db1d"
+      },
+      "failure_controls": [
+        {
+          "case": "hold",
+          "rejected": true,
+          "diagnostic": "forced hold missing"
+        },
+        {
+          "case": "abort_admission",
+          "rejected": true,
+          "diagnostic": "abort admission guard missing"
+        },
+        {
+          "case": "scan_abort",
+          "rejected": true,
+          "diagnostic": "scan abort hook missing/duplicated"
+        },
+        {
+          "case": "ordinary_advance",
+          "rejected": true,
+          "diagnostic": "ordinary source/process/map differs: ContA__board.sv"
+        },
+        {
+          "case": "missing_interface",
+          "rejected": true,
+          "diagnostic": "missing/duplicate global interface"
+        },
+        {
+          "case": "helper_binding",
+          "rejected": true,
+          "diagnostic": "unconverted original helper reference"
+        }
+      ]
+    },
+    {
+      "board": "ContB",
+      "status": "PASS",
+      "state_bits": 147809,
+      "modules": 5,
+      "exact_source_identity_after_inverse": true,
+      "normal_behavior_when_global_inputs_zero": "Boolean identities and bijective alpha rename; unchanged ordinary source bytes",
+      "parameters": "#(.SYSPER(4))",
+      "source_hashes": {
+        "ContB__board.sv": "08f3dc2cc4eb14dbf31844a3a2dff1b52bbc83bb07814378137bf74da77f3824",
+        "ContB__cell_MC10176_snapshot.v": "4f28fe4470fbc3112c25d4ea399de90075a7b8319a42be63d47aa7a85ef591fc",
+        "ContB__cell_MC10231_snapshot.v": "ed6feaa9a3dcb9d8fcb4abb7fdf0e3ddfb757214a67f15ba603b6b535a42bfe2",
+        "ContB__f10415_enable_bank.sv": "8478317ec2ebba8f4209d11e3b1f9009863f2c63dfe8f4c0db9518c45d34af56",
+        "ContB__ff_scan_controller.sv": "0f01c6f5c7884e1ef3af4929b852af290fd0deb4a68b841f93a7befebfc10338"
+      },
+      "failure_controls": [
+        {
+          "case": "hold",
+          "rejected": true,
+          "diagnostic": "forced hold missing"
+        },
+        {
+          "case": "abort_admission",
+          "rejected": true,
+          "diagnostic": "abort admission guard missing"
+        },
+        {
+          "case": "scan_abort",
+          "rejected": true,
+          "diagnostic": "scan abort hook missing/duplicated"
+        },
+        {
+          "case": "ordinary_advance",
+          "rejected": true,
+          "diagnostic": "ordinary source/process/map differs: ContB__board.sv"
+        },
+        {
+          "case": "missing_interface",
+          "rejected": true,
+          "diagnostic": "missing/duplicate global interface"
+        },
+        {
+          "case": "helper_binding",
+          "rejected": true,
+          "diagnostic": "unconverted original helper reference"
+        }
+      ]
+    },
+    {
+      "board": "ProcH",
+      "status": "PASS",
+      "state_bits": 5712,
+      "modules": 14,
+      "exact_source_identity_after_inverse": true,
+      "normal_behavior_when_global_inputs_zero": "Boolean identities and bijective alpha rename; unchanged ordinary source bytes",
+      "parameters": "#(.SYSPER(4))",
+      "source_hashes": {
+        "ProcH__board.sv": "099ea8b76143178f5a9f79d0707e30da447e8d548b67928e19918b2865804419",
+        "ProcH__cell_MC10176_snapshot.v": "6997cabd19bd66d35f0d4fc568935e7558943295af197566e2ecbe42746e36ce",
+        "ProcH__cell_MC10231_snapshot.v": "f6469e4406786dd2e4f26bd86887601f8f41b9f57eb7307fea3791ad978215f2",
+        "ProcH__cell_F10000_snapshot.v": "a4464e3f75f6ff4df0c942ed77e982b672ee91cda230e42118d94cf5bcc6f5cb",
+        "ProcH__cell_F10016_snapshot.v": "edbdee5e34f3ceeebb18b8d8f06368e89233ea0abf7329e422d0016edbd35963",
+        "ProcH__cell_MC10141_snapshot.v": "0dc53d722970ced710af99d00b8c56b2460261f0e80bb80f07c7d3baf34dce62",
+        "ProcH__cell_MC10173_snapshot.v": "9bb17a70c4643578421d5eaedccb57570fc107b4dc791643abfeef20500e0c98",
+        "ProcH__cell_SE10231_snapshot.v": "6d526452122ab9bd6aa62f4d31d82a1f6355b99614d39a6226b583a3488e4a2f",
+        "ProcH__cell_MC10175_snapshot.v": "9271e48999fad9f049f2f7fc2288bb5d360cbe968eafba8c078f0680d4599f9e",
+        "ProcH__cell_MC1668_snapshot.v": "8595681d22b23bcfba763f9c5ed1dcf6022f9f8a36335013ba9acdc9af3106e9",
+        "ProcH__cell_F10145A_snapshot.sv": "ed6d1a5ecbfa9c058de60f016f43321a71455c1598c93fe5784c0dcdae574ac0",
+        "ProcH__cell_MB7071H_snapshot.sv": "38e53228bbc657bf93b10859dee62d4ab76b3ab2bbde61e2877f54a880f7085e",
+        "ProcH__cell_F10414_snapshot.sv": "be78118bc271b1fb27721eaed3420c6ca2a1d2c1bd0a36b8d3ffdcc5d2f8afcd",
+        "ProcH__ff_scan_controller.sv": "9803eb4d74fe248455be65982c443ae2a519c32c4c042443cc69a5ae84108b1a"
+      },
+      "failure_controls": [
+        {
+          "case": "hold",
+          "rejected": true,
+          "diagnostic": "forced hold missing"
+        },
+        {
+          "case": "abort_admission",
+          "rejected": true,
+          "diagnostic": "abort admission guard missing"
+        },
+        {
+          "case": "scan_abort",
+          "rejected": true,
+          "diagnostic": "scan abort hook missing/duplicated"
+        },
+        {
+          "case": "ordinary_advance",
+          "rejected": true,
+          "diagnostic": "ordinary source/process/map differs: ProcH__board.sv"
+        },
+        {
+          "case": "missing_interface",
+          "rejected": true,
+          "diagnostic": "missing/duplicate global interface"
+        },
+        {
+          "case": "helper_binding",
+          "rejected": true,
+          "diagnostic": "unconverted original helper reference"
+        }
+      ]
+    },
+    {
+      "board": "ProcL",
+      "status": "PASS",
+      "state_bits": 5581,
+      "modules": 14,
+      "exact_source_identity_after_inverse": true,
+      "normal_behavior_when_global_inputs_zero": "Boolean identities and bijective alpha rename; unchanged ordinary source bytes",
+      "parameters": "#(.SYSPER(4))",
+      "source_hashes": {
+        "ProcL__board.sv": "2be9f6b622ca4509461faa46f4430c622a7a900f77a99f73147403e7ad9786f5",
+        "ProcL__cell_MC10176_snapshot.v": "0c58bebe3bba0e2cae68268fff43d02c4fbace37370fdf2c21737ae495ae4cbe",
+        "ProcL__cell_MC10231_snapshot.v": "efd958626c3d7df35ada3228b99b47c4528e7678bf5e97b5e9d28cccc9e1e98b",
+        "ProcL__cell_F10000_snapshot.v": "bb8598c06d2c06a69ec7b68b5742d9a6513203fd01adc92bffe81ee858175262",
+        "ProcL__cell_F10016_snapshot.v": "c974618bd5af2d3f963565389faec619769d571d7dd6ad80c24c6a0e02c87edc",
+        "ProcL__cell_MC10141_snapshot.v": "67210e930c1ddc60d989dc7299147aa67e9d37d0e0cba2de8aa04bac0b388e1b",
+        "ProcL__cell_MC10173_snapshot.v": "a94ca1a078ac36e65424bf22e5dd677b89a1a9344cfa78ef11383ad3ff2bd5f0",
+        "ProcL__cell_SE10231_snapshot.v": "68c4a5d222141ee192beaa7bb22bc443489493b7e8debdabd3f4834d817bce72",
+        "ProcL__cell_MC10175_snapshot.v": "ed18306a9889d58becfd2511b06c4496bec99d56e1e138444bb35aa2d3770791",
+        "ProcL__cell_MC1668_snapshot.v": "5f922a33bb67d0cc1f837a9c92eb0f0394b8068893ea2f610acf5b069ceb8a01",
+        "ProcL__cell_F10145A_snapshot.sv": "693599e41650dfb8f27bb0ee474deb859cddc5b7c321980cfd6e8c304649a177",
+        "ProcL__cell_MB7071H_snapshot.sv": "0000258fbe32c58df7b58af72388f52f70413298cbf1cd02bc9a2b78f456db3c",
+        "ProcL__cell_F10414_snapshot.sv": "1a1547cc5fe84f0672a3e67e68c7cdb09320d25fb99d11871048f5bda13af30c",
+        "ProcL__ff_scan_controller.sv": "84f7054552f76e3e64817e0ab349acee778ad33222a027dfd1a1f74d1e74b314"
+      },
+      "failure_controls": [
+        {
+          "case": "hold",
+          "rejected": true,
+          "diagnostic": "forced hold missing"
+        },
+        {
+          "case": "abort_admission",
+          "rejected": true,
+          "diagnostic": "abort admission guard missing"
+        },
+        {
+          "case": "scan_abort",
+          "rejected": true,
+          "diagnostic": "scan abort hook missing/duplicated"
+        },
+        {
+          "case": "ordinary_advance",
+          "rejected": true,
+          "diagnostic": "ordinary source/process/map differs: ProcL__board.sv"
+        },
+        {
+          "case": "missing_interface",
+          "rejected": true,
+          "diagnostic": "missing/duplicate global interface"
+        },
+        {
+          "case": "helper_binding",
+          "rejected": true,
+          "diagnostic": "unconverted original helper reference"
+        }
+      ]
+    },
+    {
+      "board": "IFU",
+      "status": "PASS",
+      "state_bits": 28653,
+      "modules": 9,
+      "exact_source_identity_after_inverse": true,
+      "normal_behavior_when_global_inputs_zero": "Boolean identities and bijective alpha rename; unchanged ordinary source bytes",
+      "parameters": "#(.SYSPER(4))",
+      "source_hashes": {
+        "IFU__board.sv": "82825a9d7049732be6a3bda40fa3bb20d02f5f6a625997abf1bc7d682a158cab",
+        "IFU__cell_F10016_snapshot.v": "52fe35d19c342cfb2711b72370783cf36d9ca3c0aa050049473d972bef0e1e8b",
+        "IFU__cell_MC10176_snapshot.v": "def8fa7a51efdcfd96a030f4954de504d64772101d0fb6a1fbb96309918da92e",
+        "IFU__cell_MC10231_snapshot.v": "3e9521e530a90d202c63092778fe889ed0a84ec8981519ce532d25278b1185f6",
+        "IFU__cell_MC10173_snapshot.v": "b34cea7078cfcbc11fb1a82742568c9d7a9fbb00f42e501153a95f84639c06f4",
+        "IFU__cell_MC10141_snapshot.v": "4c518c9efa73530b61bb7d9702f43ff7d16534b58d64baddb825b73e21c32aee",
+        "IFU__cell_MC10135_snapshot.v": "86e38cd7b38e1e66a47020503b3ad5273cfa8145f3620687981fdaf4fc517f16",
+        "IFU__f10415_word_bank.sv": "c352fc2a15e5b4d1f3152c666b7a50126b4096ea97ea82244ff5c91556a196a2",
+        "IFU__ff_scan_controller.sv": "69f1c62abebe7885ae5c29cfed2886614eb27431bb764073784d01a8f59c68db"
+      },
+      "failure_controls": [
+        {
+          "case": "hold",
+          "rejected": true,
+          "diagnostic": "forced hold missing"
+        },
+        {
+          "case": "abort_admission",
+          "rejected": true,
+          "diagnostic": "abort admission guard missing"
+        },
+        {
+          "case": "scan_abort",
+          "rejected": true,
+          "diagnostic": "scan abort hook missing/duplicated"
+        },
+        {
+          "case": "ordinary_advance",
+          "rejected": true,
+          "diagnostic": "ordinary source/process/map differs: IFU__board.sv"
+        },
+        {
+          "case": "missing_interface",
+          "rejected": true,
+          "diagnostic": "missing/duplicate global interface"
+        },
+        {
+          "case": "helper_binding",
+          "rejected": true,
+          "diagnostic": "unconverted original helper reference"
+        }
+      ]
+    },
+    {
+      "board": "MemC",
+      "status": "PASS",
+      "state_bits": 23718,
+      "modules": 16,
+      "exact_source_identity_after_inverse": true,
+      "normal_behavior_when_global_inputs_zero": "Boolean identities and bijective alpha rename; unchanged ordinary source bytes",
+      "parameters": "#(.SYSPER(4))",
+      "source_hashes": {
+        "MemC__board.sv": "69011013abd276c03edeee3799cfd6ef8ebd8f678aa18ddb6f109f38856b9743",
+        "MemC__cell_MC10176_snapshot.v": "bf042c5587ae4656363138f8806dbce2fff39ebb6503f357bd32786af41b211f",
+        "MemC__cell_MC10231_snapshot.v": "005db7d0ca96d87b427db20ea7dce995fcecb89c2ea1d68f936dd5076de82730",
+        "MemC__cell_F10000_snapshot.v": "88213ad222ed171e92e37b26becaae32e212b6d7b3645dddd989b59e11773c0f",
+        "MemC__cell_F10016_snapshot.v": "81fea121ed0dfe9af3242f6bffe45e1e3bd7c22ccb2f94f6e4e92c51a25aa773",
+        "MemC__cell_MC10141_snapshot.v": "72368cf29c34f9a689dcdca43e37be70bb7a4aa1972995dfe48a456d5e066efa",
+        "MemC__cell_MC10173_snapshot.v": "20e26f6e60abc100ca69d07996fb8efbf5e597e3c5ed8edefa23e6d29b089edd",
+        "MemC__cell_SE10231_snapshot.v": "da2649fe610466e5a1e29ea9349871119e097b8c6128a323748761ade74b86cb",
+        "MemC__cell_MC10175_snapshot.v": "dd00406b5c2e897d522cfe4553b4f8c8d0d2b7b3090c06fc838db242af6fe085",
+        "MemC__cell_MC1668_snapshot.v": "ccf63f79c56b606107c714eb3c3a5b1c52fc57394e5166c36a0fb04f7bf70281",
+        "MemC__cell_MC10135_snapshot.v": "a473c67a5ca14e4c9109787b43333c8cbde70c15f0ce72d4ac94032404dd78d0",
+        "MemC__cell_F100181_snapshot.v": "3a5d3cc5f29021fa5334de9aacfeec5ecddfd5cd4e7f6f1301a3722ca07313db",
+        "MemC__cell_F10145A_snapshot.sv": "458655f3a7bd78011a911e291ddd8298158cb2d35534a631fe49da4516a24a3a",
+        "MemC__cell_MB7071H_snapshot.sv": "a60331f1bba10e3369c0e974865f4fb8a0dd00bab10daafca2b608fa133fed81",
+        "MemC__cell_F10414_snapshot.sv": "95d5481cda9297819491fd3cea91f8d0b581ce85c4512228e7cc7a99c65d803a",
+        "MemC__ff_scan_controller.sv": "ee7728f66415f4422b521695047d5fddf7f741f8aa34417e5e350e94f5cd6097"
+      },
+      "failure_controls": [
+        {
+          "case": "hold",
+          "rejected": true,
+          "diagnostic": "forced hold missing"
+        },
+        {
+          "case": "abort_admission",
+          "rejected": true,
+          "diagnostic": "abort admission guard missing"
+        },
+        {
+          "case": "scan_abort",
+          "rejected": true,
+          "diagnostic": "scan abort hook missing/duplicated"
+        },
+        {
+          "case": "ordinary_advance",
+          "rejected": true,
+          "diagnostic": "ordinary source/process/map differs: MemC__board.sv"
+        },
+        {
+          "case": "missing_interface",
+          "rejected": true,
+          "diagnostic": "missing/duplicate global interface"
+        },
+        {
+          "case": "helper_binding",
+          "rejected": true,
+          "diagnostic": "unconverted original helper reference"
+        }
+      ]
+    },
+    {
+      "board": "MemD",
+      "status": "PASS",
+      "state_bits": 296591,
+      "modules": 11,
+      "exact_source_identity_after_inverse": true,
+      "normal_behavior_when_global_inputs_zero": "Boolean identities and bijective alpha rename; unchanged ordinary source bytes",
+      "parameters": "#(.SYSPER(4),.STORAGE_INPUT_DELAY(2))",
+      "source_hashes": {
+        "MemD__board.sv": "81c0a7cebe8beabf19e2968e2824eb5b54538f87326fe77285c7a7f985a74112",
+        "MemD__cell_MC10231_snapshot.v": "db001d41795cf02dc988662c0a81119da60278d62ab519284bfb0ef9a9fd2fee",
+        "MemD__cell_F10016_snapshot.v": "5b17fbdfd7a73c7b7892d1b573de6c5a5866652a217d0de295ee9873691d69d8",
+        "MemD__cell_MC10176_snapshot.v": "8b1fe990754b3cbf04ceadb9bf1fc97c23f926a2ba1ebb90e2037e0201a600f5",
+        "MemD__cell_F10000_snapshot.v": "bea03557fcf4c7843ca3c4dbc1f24092201cfd1ad15dafbb22f711e3e3e2548b",
+        "MemD__cell_MC10175_snapshot.v": "10e088bd8d49ce28e33e55eeb7a4d09c31515f05a66fb75a0419e56eb9c470f5",
+        "MemD__cell_SE10231_snapshot.v": "d908dcd6685a3f1daac931ab03d12620f6c40b2358e27cf0d77f764000481ba4",
+        "MemD__cell_MC10141_snapshot.v": "770ff942d6553a324858fa561740247cbb2c2c0a85238cb624f1706f0b03064c",
+        "MemD__cell_F10145A_snapshot.sv": "13b97c18d8c7d927910580671e3f6c6365816aa04b222e60d3ab778e826cb1c9",
+        "MemD__f10470_word_bank.sv": "7f57286bd668a21ec2c21f43ead010614bc3ee801c295ce9ec616c0f2d91170b",
+        "MemD__ff_scan_controller.sv": "0c5a2fbc5f0064317883c54610f1109af6205cb33b6e93aff868ee17b2187eff"
+      },
+      "failure_controls": [
+        {
+          "case": "hold",
+          "rejected": true,
+          "diagnostic": "forced hold missing"
+        },
+        {
+          "case": "abort_admission",
+          "rejected": true,
+          "diagnostic": "abort admission guard missing"
+        },
+        {
+          "case": "scan_abort",
+          "rejected": true,
+          "diagnostic": "scan abort hook missing/duplicated"
+        },
+        {
+          "case": "ordinary_advance",
+          "rejected": true,
+          "diagnostic": "ordinary source/process/map differs: MemD__board.sv"
+        },
+        {
+          "case": "missing_interface",
+          "rejected": true,
+          "diagnostic": "missing/duplicate global interface"
+        },
+        {
+          "case": "helper_binding",
+          "rejected": true,
+          "diagnostic": "unconverted original helper reference"
+        }
+      ]
+    },
+    {
+      "board": "MemX",
+      "status": "PASS",
+      "state_bits": 1378312,
+      "modules": 13,
+      "exact_source_identity_after_inverse": true,
+      "normal_behavior_when_global_inputs_zero": "Boolean identities and bijective alpha rename; unchanged ordinary source bytes",
+      "parameters": "#(.SYSPER(4))",
+      "source_hashes": {
+        "MemX__board.sv": "ca13f8a8e865a9c3e7e1f1b96e878619f4f2dd1b5913243b12cb532045c99efc",
+        "MemX__cell_F10016_snapshot.v": "e7d8d937bf0bf7b52c2429e174bcc1e2441bff8c33c1f60461ae621994138d8c",
+        "MemX__cell_MC10141_snapshot.v": "d24f354595fd4251fa27ceee8add301bace4714c9e0d9bcb04cfcdb6bc2d50df",
+        "MemX__cell_MC10175_snapshot.v": "8aed257ab98434dde5bcec9f0ba8dd106aa15ed75a6d6da6216ee5f058de4fb9",
+        "MemX__cell_MC10231_snapshot.v": "6006095ad58c50d6f8e113cc7e643ccfaf81b0590b9975ace4e6fd0c4404da39",
+        "MemX__cell_MC10176_snapshot.v": "5fe607fa2461bdc42f478c3ae75c837b8994942b997f898d742a2a4f1bf43643",
+        "MemX__cell_MC10173_snapshot.v": "e27e523a4c732159c343d617800f1c7328a5b831456ce1dfabee106813d98b61",
+        "MemX__cell_F10000_snapshot.v": "1707255c4cf261999928e93ddf416da8e1347e6328844b9112fdd93d03a18e98",
+        "MemX__cell_MC10135_snapshot.v": "7ad7b9d1eb1123a7c0984138163a9b9b9392667c3ec3b2834cb58538692f2b8c",
+        "MemX__cell_SE10231_snapshot.v": "b2bd0b538593b75b7d0d907906d0832121972f3f527cccdfaba89974631dc340",
+        "MemX__cell_F10145A_snapshot.sv": "cb16eeb72dcfa23883b5e18695aef0be8860047dd7ea77e3fd28575502c8c85c",
+        "MemX__cell_MosRam_snapshot.sv": "81d27f683f9a399e00e56713c79f3d2092cdacc415f6aa54d11dfa72ba01c9a4",
+        "MemX__ff_scan_controller.sv": "332bb929053806f385fb954edf5af1635478420718835a118f04d3b74468c2fa"
+      },
+      "failure_controls": [
+        {
+          "case": "hold",
+          "rejected": true,
+          "diagnostic": "forced hold missing"
+        },
+        {
+          "case": "abort_admission",
+          "rejected": true,
+          "diagnostic": "abort admission guard missing"
+        },
+        {
+          "case": "scan_abort",
+          "rejected": true,
+          "diagnostic": "scan abort hook missing/duplicated"
+        },
+        {
+          "case": "ordinary_advance",
+          "rejected": true,
+          "diagnostic": "ordinary source/process/map differs: MemX__board.sv"
+        },
+        {
+          "case": "missing_interface",
+          "rejected": true,
+          "diagnostic": "missing/duplicate global interface"
+        },
+        {
+          "case": "helper_binding",
+          "rejected": true,
+          "diagnostic": "unconverted original helper reference"
+        }
+      ]
+    },
+    {
+      "board": "DskEth",
+      "status": "PASS",
+      "state_bits": 2656,
+      "modules": 20,
+      "exact_source_identity_after_inverse": true,
+      "normal_behavior_when_global_inputs_zero": "Boolean identities and bijective alpha rename; unchanged ordinary source bytes",
+      "parameters": "#(.SYSPER(4))",
+      "source_hashes": {
+        "DskEth__board.sv": "64d395a623b71c1739e24b9428c07e49eeb438d5473d66e94796fff7338a147f",
+        "DskEth__cell_SN74LS169_snapshot.sv": "3689373c46fddaa45d729d1b6c3d4e865ef140e8081c0ff0aa27bd3256b05478",
+        "DskEth__cell_SN74LS174_snapshot.sv": "aea7f5e11f10dec60b009dae81777bc82f4519bdc3d859bdb6a616be7af37607",
+        "DskEth__cell_F10016_snapshot.v": "c9ff1f9a55cc1a4cbeccff6421d86c94c1065db5d5a5d638f8d91d13c54ee6d6",
+        "DskEth__cell_MC10176_snapshot.v": "a519aef4d62502a5b6822aa1345d7305460b840a2c180208df77d4c748c30525",
+        "DskEth__cell_MC10231_snapshot.v": "edc34f6bf19c05bb8948bf6cdafba79d36e265283538659b7b49f30adea4ad9b",
+        "DskEth__cell_MC1650_snapshot.sv": "cbae2fc544779aaeb299ab0d0a573fd5029f838248fe78ab31679f4ba640f942",
+        "DskEth__cell_MC10135_snapshot.v": "33c9be09889df700f562042181cd629621d5bc7d350d4af23d40ab32380c16d9",
+        "DskEth__cell_MC10136_snapshot.sv": "5340b5bbf6651b7e7fa205c7e196f94ab2a88115bcc03608f0faad50b24036ae",
+        "DskEth__cell_MC10173_snapshot.v": "6db4d045a5f8bcd19292403963a9b10feeb98de8fdc1825c1ca70fd6e2ab7b71",
+        "DskEth__cell_MC10175_snapshot.v": "c1c11311008b65a6cc8babb2da307c88215ca08c9774daa2c6b94d2780028229",
+        "DskEth__cell_F10000_snapshot.v": "b9973bd0d7a5aa2efde9696ec6f1d18161703925edac3c778096cbbd4c2599a3",
+        "DskEth__cell_MC10141_snapshot.v": "8a14404ce1f4bad913888fb9ae2263cfe17895e1f02a4c75772517f0ff241c83",
+        "DskEth__cell_SE10231_snapshot.v": "909cdb72a6fecc951c7e2b47c5fece40d713d30959446d186739ae0c8261c564",
+        "DskEth__cell_F10145A_snapshot.sv": "52244766bf2b38dd120d817a4c892caf70a85dfd0ac8ea389cd54159d9602fd6",
+        "DskEth__cell_SN74123_snapshot.sv": "e870a3658f46334b27b924cbfba00dbcbd495d9265e49646d8f1690ca5cb98db",
+        "DskEth__cell_F9401_snapshot.sv": "c8e32cabd2901a9eabeb01267d2b116a9e46c1c73ab1d2fbaa65692ec8546a1f",
+        "DskEth__cell_K1115A_snapshot.sv": "0eeddba7630abb558f36a45b5f27286e78d5843283f1e1ec962a88d04b6683c5",
+        "DskEth__dorado_receive_monitor_snapshot.sv": "53eed9a6a7447bef85e5209cb9d114bf8e48d4ea594ae2eccc005128e4b0d6ac",
+        "DskEth__ff_scan_controller.sv": "92728e252fa2d1b492538c1f11aa952c9eda9b229da5a855da3a0454e76e2974"
+      },
+      "failure_controls": [
+        {
+          "case": "hold",
+          "rejected": true,
+          "diagnostic": "forced hold missing"
+        },
+        {
+          "case": "abort_admission",
+          "rejected": true,
+          "diagnostic": "abort admission guard missing"
+        },
+        {
+          "case": "scan_abort",
+          "rejected": true,
+          "diagnostic": "scan abort hook missing/duplicated"
+        },
+        {
+          "case": "ordinary_advance",
+          "rejected": true,
+          "diagnostic": "ordinary source/process/map differs: DskEth__board.sv"
+        },
+        {
+          "case": "missing_interface",
+          "rejected": true,
+          "diagnostic": "missing/duplicate global interface"
+        },
+        {
+          "case": "helper_binding",
+          "rejected": true,
+          "diagnostic": "unconverted original helper reference"
+        }
+      ]
+    },
+    {
+      "board": "DispY",
+      "status": "PASS",
+      "state_bits": 13993,
+      "modules": 13,
+      "exact_source_identity_after_inverse": true,
+      "normal_behavior_when_global_inputs_zero": "Boolean identities and bijective alpha rename; unchanged ordinary source bytes",
+      "parameters": "",
+      "source_hashes": {
+        "DispY__board.sv": "a5766b6ee2e8d60715e8c5e1134d5ed768cef7a268884d9ca614751fd0f542ef",
+        "DispY__cell_F10016_snapshot.v": "1fdfb0b22e3a789569527c8a9b6f498188852ac02d6de8939b73f95d9647be7d",
+        "DispY__cell_MC10231_snapshot.v": "c3b1fe6d9b207c65f075da2dc6b454846cea13ec3b2a74f9bd084802b0a8a6c8",
+        "DispY__cell_F10000_snapshot.v": "b48234958af1ec742c40041f48ab5bcae7c8e23b4c8b4b06e6b2f4538d071de7",
+        "DispY__cell_MC10176_snapshot.v": "c4d945a84cf4be013f281d330af895ad25be941331f5300a4a87ac8886d4a2fd",
+        "DispY__cell_MC10135_snapshot.v": "855f56467cb989e259cc4c76588668e891e1c9fc85b220386f14d4db2795dfe4",
+        "DispY__cell_MC10141_snapshot.v": "3fd9e39c4ccb1795daf740279ee894b65d38d5c5f32d0fca28c1ee360a61ded7",
+        "DispY__cell_SE10231_snapshot.v": "b3968ec90b7ecb525344a88a04a83e4bcd9174d6a43f2f3bea08b7397545d9ba",
+        "DispY__cell_F10145A_snapshot.sv": "6316515bd38a36be074f39129f9bbe4b325c9410f398313fd2dbeb467e057a18",
+        "DispY__cell_MB7071H_snapshot.sv": "000ed49f66aee64b0b086728f4a9693f43567ce105d6e788c3ce9b53a7879b64",
+        "DispY__f10415_word_bank.sv": "0c7058f2c6adce3a9137cf474def0ef9998a65147fdaa028f72066b4a1c9bb1c",
+        "DispY__cell_K1115A_snapshot.sv": "684c7f854d096cc4b8ed0084a34b116a526d87735cd6a5f5638e2056dbbae9b2",
+        "DispY__ff_scan_controller.sv": "a46b3677028310e8fe979012c9762f1d5629cf4c13ce42bc7d4144729908378c"
+      },
+      "failure_controls": [
+        {
+          "case": "hold",
+          "rejected": true,
+          "diagnostic": "forced hold missing"
+        },
+        {
+          "case": "abort_admission",
+          "rejected": true,
+          "diagnostic": "abort admission guard missing"
+        },
+        {
+          "case": "scan_abort",
+          "rejected": true,
+          "diagnostic": "scan abort hook missing/duplicated"
+        },
+        {
+          "case": "ordinary_advance",
+          "rejected": true,
+          "diagnostic": "ordinary source/process/map differs: DispY__board.sv"
+        },
+        {
+          "case": "missing_interface",
+          "rejected": true,
+          "diagnostic": "missing/duplicate global interface"
+        },
+        {
+          "case": "helper_binding",
+          "rejected": true,
+          "diagnostic": "unconverted original helper reference"
+        }
+      ]
+    },
+    {
+      "board": "BaseBd",
+      "status": "PASS",
+      "state_bits": 40366,
+      "modules": 23,
+      "exact_source_identity_after_inverse": true,
+      "normal_behavior_when_global_inputs_zero": "Boolean identities and bijective alpha rename; unchanged ordinary source bytes",
+      "parameters": "#(.SYSPER(4))",
+      "source_hashes": {
+        "BaseBd__board.sv": "b0f735bb0db590e0c88d13064b74300424b16c4444007cf4c1112c916529681a",
+        "BaseBd__cell_SN74LS259_snapshot.sv": "2adf1ebf5cfb6d1b1493eb8f43af40d0539fc285854d795ecc47957353da32dc",
+        "BaseBd__cell_SN74LS163_snapshot.sv": "4a3a433e43aff720c670661ddfa3276d11feaa2160c59846f70537e0a4b37787",
+        "BaseBd__cell_SN74LS175_snapshot.sv": "fe44e9d7f5e5dea1975d2dd56a5f74bf64bb99da2993d8928f7654ed80a10563",
+        "BaseBd__cell_SN74LS74_snapshot.sv": "2d59d80618638f735ad081f588d2b3ab68f7af6569d4c58b9b6ebfdb0640fe0d",
+        "BaseBd__cell_MC1690_snapshot.sv": "477b2d4c22606e1f42b68c5a65573bef14e022f93144be42ecf4b372e316d79c",
+        "BaseBd__cell_MC12061_snapshot.sv": "9bd96c26cf0235d7923966b70d16c629aab0e0175b03983304d19a79f163f709",
+        "BaseBd__cell_MC14521B_snapshot.sv": "2d9c0f051ad575752d5037afc1bbbd3c2a752020069ce400223820348bb806bb",
+        "BaseBd__cell_MPQ3303_snapshot.sv": "5279362e92f6c7def2f940b5dbb8416257785df38fb9933a73642467a8b1b932",
+        "BaseBd__cell_CLOCKGEN_snapshot.sv": "06aa7fc5d8a34a7a0bf41d6f0a7c07b62a6baadd3242ce42cd3cd9ce647c2f5f",
+        "BaseBd__cell_MC10176_snapshot.v": "4dcd5e6c06f5f18df5d43d5e28d5decfbe22d554bdd9d3f981719cbf1211f702",
+        "BaseBd__cell_MC10136_snapshot.sv": "9b48dfbdcbf313da7ea75d87405e93f5be355eb73b0947c9dae81072b363a546",
+        "BaseBd__cell_SN74LS174_snapshot.sv": "00f5e1a7910322c33fb676e8d51273a91126eaf82a9ad33a64e602b35646a4c9",
+        "BaseBd__f10415_word_bank.sv": "e9cd38db38727a7c82fa495354611f962ff2887c578e36716436b4d0f0fc57b3",
+        "BaseBd__i2125_byte_bank.sv": "68a16859fdab7d964a3825fa50e916a6e9d4513da04ed6987bda3d9bbb9554f5",
+        "BaseBd__cell_i2716_snapshot.sv": "f16944f0a723c29e8587778d6d181505386040ef09ce9d0598eae091bfc814b4",
+        "BaseBd__cell_MCS6532_snapshot.sv": "13c96c6f054898cf6f2fa14e9dc69f630bb7a429e732543ce48db755e103cc74",
+        "BaseBd__M6532_snapshot.sv": "5381edc332d586af42771b40f5e2bbb03f2760efe91897b1667e481833795669",
+        "BaseBd__chip_6502_snapshot.sv": "71445e189f85e6938511d93bd9ee8180972b3d1a789844921df69bc4fc8af06e",
+        "BaseBd__cell_MCS6502_snapshot.sv": "94b81a66a289ce36e8a1b1c450b5568f54685bb867ef0b17b3764666ae4d072d",
+        "BaseBd__ff_scan_controller.sv": "69000f4826a0803c1c71251612ee3a26aafebaf032b7dba8222dfde3419d27fd"
+      },
+      "failure_controls": [
+        {
+          "case": "hold",
+          "rejected": true,
+          "diagnostic": "forced hold missing"
+        },
+        {
+          "case": "abort_admission",
+          "rejected": true,
+          "diagnostic": "abort admission guard missing"
+        },
+        {
+          "case": "scan_abort",
+          "rejected": true,
+          "diagnostic": "scan abort hook missing/duplicated"
+        },
+        {
+          "case": "ordinary_advance",
+          "rejected": true,
+          "diagnostic": "ordinary source/process/map differs: BaseBd__board.sv"
+        },
+        {
+          "case": "missing_interface",
+          "rejected": true,
+          "diagnostic": "missing/duplicate global interface"
+        },
+        {
+          "case": "helper_binding",
+          "rejected": true,
+          "diagnostic": "unconverted original helper reference"
+        }
+      ]
+    }
+  ],
+  "board_bits": 1944744,
+  "module_definitions": 148,
+  "failure_controls": 66
+}

@@ -1,0 +1,3588 @@
+{
+  "status": "PASS",
+  "results": {
+    "reference": {
+      "physical_bits": 5581,
+      "private_transport_bits": 209
+    },
+    "dut": {
+      "physical_bits": 5581,
+      "private_transport_bits": 209
+    }
+  },
+  "sequential_exclusions": [],
+  "decisions": [
+    {
+      "path": "global_fixture.dut.Clock1Bd",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.Clock1_p_Aa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.Clock1_p_Ac",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.Clock1_p_Ba",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.Clock1_p_Bb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.Clock1_p_Ca",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.Clock1_p_Cb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.Clock1_p_Da",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.Clock1_p_Db",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.Clock1_p_Dc",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.regular_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.regular_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.state_aux_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.state_response_ff",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.state_response_memory",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.state_response_memory_index",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_a03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a03.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a04.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a10.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a10.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a10.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a10.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a10.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a10.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a11.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a11.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a11.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a11.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a11.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a11.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a20.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a20.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a20.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a20.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a20.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a21.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a21.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a21.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a21.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_a21.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b10.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b10.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b10.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b10.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b10.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b10.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b11.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b11.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b11.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b15.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_b15.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c10.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c10.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c11.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c11.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c11.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c12.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c12.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c12.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_c12.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_d05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_d15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_d15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_d15.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_d17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_d17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_d17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e12.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e12.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e13.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e13.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e13.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e13.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e13.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_e13.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_e13.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_e13.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_e13.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e14.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e14.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e14.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e14.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e14.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_e14.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_e14.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_e14.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_e14.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e15.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_e17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_f06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_f16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_ff_scan.busy",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_ff_scan.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_ff_scan.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_ff_scan.fault",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_ff_scan.first_bit",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_ff_scan.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_ff_scan.payload",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_ff_scan.position",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_ff_scan.result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_ff_scan.writing",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_g05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g07.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g08.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g08.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g10.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g10.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g10.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g10.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g10.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g10.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g15.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g15.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g15.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g15.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g15.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_g15.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_g15.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_g15.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_g15.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g16.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g18.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g18.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g18.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_g24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h06.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_h06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_h06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_h06.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_h10.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h10.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h10.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h10.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h10.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h10.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h14.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h14.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h22.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h22.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h22.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h22.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h22.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_h22.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i01.q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i02.q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i06.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_i06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_i06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_i06.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_i08.mem",
+      "bits": 256,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i08.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_i08.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_i08.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_i08.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_i13.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i13.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i13.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i13.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i13.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_i13.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_i13.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_i13.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_i13.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i14.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i14.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i14.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i14.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i15.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i15.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_i17.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j01.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j02.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j06.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_j06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_j06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_j06.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_j08.mem",
+      "bits": 256,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j08.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_j08.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_j08.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_j08.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_j11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j11.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j11.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j19.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j19.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j19.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j19.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j19.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_j19.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_k01.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_k02.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_k06.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_k06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_k06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_k06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_k06.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_k11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_k11.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_k11.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_k22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_k22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_k22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l02.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l02.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l02.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l02.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l02.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l02.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l03.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l03.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l03.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l03.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l03.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_l03.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_l03.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_l03.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_l03.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l04.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l04.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l04.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l04.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l04.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_l04.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_l04.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_l04.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.dut.u_l04.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l06.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l06.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l06.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l06.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l07.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l07.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l07.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l07.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l11.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l11.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l11.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l11.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l11.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l11.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l14.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l14.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l15.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l15.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l16.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l18.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l18.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l18.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.dut.u_l22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.Clock1Bd",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.Clock1_p_Aa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.Clock1_p_Ac",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.Clock1_p_Ba",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.Clock1_p_Bb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.Clock1_p_Ca",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.Clock1_p_Cb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.Clock1_p_Da",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.Clock1_p_Db",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.Clock1_p_Dc",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.regular_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.regular_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.state_aux_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.state_response_ff",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.state_response_memory",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.state_response_memory_index",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_a03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a03.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a04.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a10.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a10.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a10.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a10.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a10.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a10.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a11.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a11.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a11.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a11.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a11.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a11.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a20.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a20.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a20.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a20.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a20.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a21.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a21.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a21.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a21.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_a21.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b10.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b10.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b10.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b10.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b10.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b10.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b11.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b11.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b11.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b13.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b15.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_b15.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c10.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c10.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c10.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c11.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c11.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c11.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c11.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c12.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c12.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c12.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_c12.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_d05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_d15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_d15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_d15.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_d17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_d17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_d17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e12.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e12.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e13.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e13.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e13.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e13.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e13.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_e13.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_e13.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_e13.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_e13.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e14.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e14.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e14.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e14.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e14.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_e14.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_e14.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_e14.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_e14.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e15.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_e17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_f06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_f16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_ff_scan.busy",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_ff_scan.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_ff_scan.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_ff_scan.fault",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_ff_scan.first_bit",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_ff_scan.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_ff_scan.payload",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_ff_scan.position",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_ff_scan.result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_ff_scan.writing",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_g05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g07.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g08.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g08.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g10.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g10.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g10.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g10.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g10.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g10.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g15.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g15.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g15.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g15.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g15.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_g15.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_g15.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_g15.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_g15.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g16.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g18.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g18.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g18.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_g24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h06.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_h06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_h06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_h06.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_h10.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h10.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h10.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h10.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h10.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h10.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h14.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h14.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h22.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h22.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h22.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h22.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h22.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_h22.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i01.q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i02.q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i06.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_i06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_i06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_i06.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_i08.mem",
+      "bits": 256,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i08.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_i08.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_i08.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_i08.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_i13.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i13.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i13.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i13.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i13.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_i13.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_i13.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_i13.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_i13.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i14.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i14.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i14.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i14.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i15.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i15.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_i17.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j01.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j02.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j06.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_j06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_j06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_j06.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_j08.mem",
+      "bits": 256,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j08.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_j08.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_j08.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_j08.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_j11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j11.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j11.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j19.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j19.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j19.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j19.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j19.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_j19.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_k01.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_k02.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_k06.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_k06.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_k06.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_k06.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_k06.state_result",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_k11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_k11.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_k11.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_k22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_k22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_k22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l02.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l02.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l02.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l02.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l02.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l02.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l03.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l03.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l03.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l03.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l03.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_l03.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_l03.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_l03.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_l03.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l04.a_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l04.ce_lat",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l04.d_lat",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l04.mem",
+      "bits": 64,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l04.state_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_l04.state_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_l04.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_l04.state_result",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "global_fixture.reference.u_l04.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l06.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l06.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l06.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l06.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l07.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l07.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l07.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l07.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l11.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l11.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l11.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l11.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l11.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l11.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l14.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l14.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l15.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l15.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l15.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l15.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l15.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l15.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l16.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l16.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l18.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l18.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l18.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "global_fixture.reference.u_l22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    }
+  ],
+  "xml_sha256": "5ce6c068e2ae79756c900cf69e22cd4a535fd8e32ab21b7843860311cfcddf93",
+  "normalized_xml_sha256": "0c70cf8f6c1cf8d1ce524cc5f0d56e77d997ff0e27f8ce34bd815328112b3c16",
+  "resolved_module_aliases": [
+    {
+      "cell": "global_fixture.dut.u_a03",
+      "raw": "dorado_serial_ProcL___05Fcell_F10000_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10000_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_a04",
+      "raw": "dorado_serial_ProcL___05Fcell_F10000_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10000_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_a10",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10231_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10231_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_a11",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10231_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10231_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_a12",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_a13",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_a20",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10141_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10141_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_a21",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10141_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10141_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_b05",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_b10",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10231_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10231_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_b11",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10141_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10141_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_b12",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_b13",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_b15",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_c05",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_c10",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_c11",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10141_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10141_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_c12",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10141_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10141_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_d05",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_d15",
+      "raw": "dorado_serial_ProcL___05Fcell_F10016_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10016_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_d17",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_e05",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_e06",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_e12",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_e13",
+      "raw": "dorado_serial_ProcL___05Fcell_F10145A_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10145A_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_e14",
+      "raw": "dorado_serial_ProcL___05Fcell_F10145A_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10145A_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_e15",
+      "raw": "dorado_serial_ProcL___05Fcell_F10016_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10016_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_e17",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_f06",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_f16",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_g05",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_g06",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_g07",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_g08",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_g10",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10231_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10231_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_g14",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_g15",
+      "raw": "dorado_serial_ProcL___05Fcell_F10145A_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10145A_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_g16",
+      "raw": "dorado_serial_ProcL___05Fcell_F10000_snapshot__pi3",
+      "resolved": "dorado_serial_ProcL__cell_F10000_snapshot__pi3"
+    },
+    {
+      "cell": "global_fixture.dut.u_g18",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_g24",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10231_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10231_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_h05",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_h06",
+      "raw": "dorado_serial_ProcL___05Fcell_MB7071H_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MB7071H_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_h10",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10231_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10231_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_h14",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_h15",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_h22",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10231_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10231_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_i01",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10175_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10175_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_i02",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10175_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10175_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_i03",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_i04",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_i06",
+      "raw": "dorado_serial_ProcL___05Fcell_MB7071H_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MB7071H_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_i08",
+      "raw": "dorado_serial_ProcL___05Fcell_F10414_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10414_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_i13",
+      "raw": "dorado_serial_ProcL___05Fcell_F10145A_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10145A_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_i14",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10141_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10141_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_i15",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_i16",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_i17",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_j01",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_j02",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_j03",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_j04",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_j06",
+      "raw": "dorado_serial_ProcL___05Fcell_MB7071H_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MB7071H_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_j08",
+      "raw": "dorado_serial_ProcL___05Fcell_F10414_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10414_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_j11",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_j19",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10231_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10231_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_k01",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_k02",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10173_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10173_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_k06",
+      "raw": "dorado_serial_ProcL___05Fcell_MB7071H_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MB7071H_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_k11",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_k22",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_l02",
+      "raw": "dorado_serial_ProcL___05Fcell_SE10231_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_SE10231_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_l03",
+      "raw": "dorado_serial_ProcL___05Fcell_F10145A_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10145A_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_l04",
+      "raw": "dorado_serial_ProcL___05Fcell_F10145A_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10145A_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_l06",
+      "raw": "dorado_serial_ProcL___05Fcell_MC1668_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC1668_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_l07",
+      "raw": "dorado_serial_ProcL___05Fcell_MC1668_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC1668_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_l11",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10231_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10231_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_l14",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_l15",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10231_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10231_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_l16",
+      "raw": "dorado_serial_ProcL___05Fcell_F10000_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10000_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_l18",
+      "raw": "dorado_serial_ProcL___05Fcell_F10000_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_F10000_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_l22",
+      "raw": "dorado_serial_ProcL___05Fcell_MC10176_snapshot",
+      "resolved": "dorado_serial_ProcL__cell_MC10176_snapshot"
+    },
+    {
+      "cell": "global_fixture.dut.u_ff_scan",
+      "raw": "dorado_serial_ProcL___05Fdorado_ff_scan_controller__pi4",
+      "resolved": "dorado_serial_ProcL__dorado_ff_scan_controller__pi4"
+    }
+  ],
+  "failure_controls": [
+    {
+      "case": "missing",
+      "rejected": true,
+      "diagnostic": "missing converted/reference state: {'dut': ['Clock1Bd']}"
+    },
+    {
+      "case": "extra",
+      "rejected": true,
+      "diagnostic": "extra/duplicate converted state: global_fixture.dut.Clock1Bd_hidden"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate converted state: global_fixture.dut.Clock1Bd"
+    },
+    {
+      "case": "width",
+      "rejected": true,
+      "diagnostic": "state geometry differs: global_fixture.dut.Clock1Bd"
+    },
+    {
+      "case": "dimensions",
+      "rejected": true,
+      "diagnostic": "state geometry differs: global_fixture.dut.Clock1Bd"
+    }
+  ],
+  "board": "ProcL"
+}

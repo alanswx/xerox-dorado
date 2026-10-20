@@ -1,0 +1,2334 @@
+{
+  "status": "PASS",
+  "scope": "Fresh complete IFU scan inventory, including canonical held RAM pipelines.\n\nAt the frozen boundary saved_q is the original guest pipeline. Other RAM read\nand response registers belong to private transport; no sequential exclusions.\n",
+  "physical_bits": 28653,
+  "private_transport_bits": 171,
+  "sequential_exclusions": [],
+  "immutable_prom_bits": 256,
+  "decisions": [
+    {
+      "path": "IFU_full_snapshot_experiment.clk1_p_Aa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.clk1_p_Ab",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.clk1_p_Ac",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.clk1_p_Da",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.regular_done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.regular_error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_0.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_0.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_0.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_0.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_0.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_0.ram_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_0.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_0.saved_q",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_1.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_1.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_1.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_1.mem",
+      "bits": 5120,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_1.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_1.ram_q",
+      "bits": 5,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_1.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_1.saved_q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_10.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_10.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_10.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_10.mem",
+      "bits": 2048,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_10.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_10.ram_q",
+      "bits": 2,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_10.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_10.saved_q",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_2.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_2.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_2.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_2.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_2.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_2.ram_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_2.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_2.saved_q",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_3.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_3.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_3.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_3.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_3.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_3.ram_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_3.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_3.saved_q",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_4.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_4.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_4.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_4.mem",
+      "bits": 4096,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_4.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_4.ram_q",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_4.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_4.saved_q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_5.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_5.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_5.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_5.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_5.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_5.ram_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_5.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_5.saved_q",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_6.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_6.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_6.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_6.mem",
+      "bits": 5120,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_6.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_6.ram_q",
+      "bits": 5,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_6.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_6.saved_q",
+      "bits": 5,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_7.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_7.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_7.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_7.mem",
+      "bits": 2048,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_7.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_7.ram_q",
+      "bits": 2,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_7.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_7.saved_q",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_8.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_8.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_8.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_8.mem",
+      "bits": 1024,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_8.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_8.ram_q",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_8.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_8.saved_q",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_9.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_9.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_9.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_9.mem",
+      "bits": 4096,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_9.pending",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_9.ram_q",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_9.response_pipeline",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.snapshot_bank_9.saved_q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.state_aux_result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.state_response_ff",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.state_response_memory",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.state_response_memory_index",
+      "bits": 4,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a04.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a05.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a05.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a08.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a08.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a11.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a13.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a13.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a15.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a16.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a16.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a18.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a18.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a18.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a20.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a20.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a21.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a21.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a21.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a21.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a21.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_a21.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b01.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b04.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b04.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b05.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b05.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b05.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b05.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b05.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b06.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b06.d_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b06.dl_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b06.dr_pre",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b06.s_pre",
+      "bits": 2,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b08.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b08.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b11.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b13.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b13.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b15.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b15.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b16.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b16.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b18.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b18.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b18.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b20.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_b20.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c01.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c04.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c08.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c08.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c11.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c13.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c13.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c14.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c14.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c15.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c15.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c15.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c16.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c16.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c16.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c17.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c17.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c17.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c17.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c17.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c17.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c20.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c20.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_c22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d04.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d08.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d08.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d08.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d11.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d13.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d13.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d14.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d14.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d16.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d16.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d16.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d16.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d16.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_d16.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e01.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e04.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e04.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e06.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e06.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e07.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e07.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e07.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e13.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e13.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e13.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e17.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e17.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e17.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e17.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e17.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_e17.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f01.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f03.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f04.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f04.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f06.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f06.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f06.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f14.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f14.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f14.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f20.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f20.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f20.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f21.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f21.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f21.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f24.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f24.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_f24.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_ff_scan.busy",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_ff_scan.done",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_ff_scan.error",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_ff_scan.fault",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_ff_scan.first_bit",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_ff_scan.frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_ff_scan.payload",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_ff_scan.position",
+      "bits": 10,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_ff_scan.result",
+      "bits": 18,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_ff_scan.writing",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_g04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_g04.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_g04.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_g05.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_g05.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_g05.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_g07.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_g07.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_g07.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_g19.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_g19.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_g19.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h03.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h04.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h07.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h07.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h07.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h11.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h12.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h13.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h13.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h13.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h13.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h13.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h13.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h17.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_h17.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i03.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i04.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i11.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i12.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i16.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i16.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i16.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i16.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i16.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i16.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i20.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i20.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i20.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i20.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_i24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j06.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j06.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j06.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j06.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j06.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j06.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j08.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j08.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j08.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j08.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j08.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j08.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j11.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j12.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j20.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j20.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j20.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j20.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j20.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j20.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_j24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k03.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k05.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k05.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k05.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k06.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k06.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k06.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k08.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k08.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k08.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k08.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k08.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k08.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k11.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k11.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k11.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k12.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k12.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k12.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k17.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k17.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k17.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k22.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k22.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k22.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k22.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k22.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k22.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k23.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k23.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k23.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k23.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k23.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k23.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k24.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k24.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k24.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k24.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k24.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_k24.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l01.cka_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l01.ckb_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l01.d_pre_a",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l01.d_pre_b",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l01.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l01.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l03.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l03.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l03.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l04.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l04.q",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l04.setup_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l06.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l06.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l06.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l19.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l19.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l19.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l21.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l21.jk_pre",
+      "bits": 4,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l21.qa",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l21.qb",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l22.ck_d",
+      "bits": 1,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l22.d_pre",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    },
+    {
+      "path": "IFU_full_snapshot_experiment.u_l22.q",
+      "bits": 6,
+      "scope": "PHYSICAL"
+    }
+  ],
+  "xml_sha256": "ded9a203a11b7a128ef8bc992daad2f243324e7180cb5dba049ec3fb1385bd55",
+  "failure_controls": [
+    {
+      "case": "missing_ff_history",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "wrong_ram_depth",
+      "rejected": true,
+      "diagnostic": "state geometry differs: IFU_full_snapshot_experiment.snapshot_bank_0.mem"
+    },
+    {
+      "case": "extra_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential state: IFU_full_snapshot_experiment.clk1_p_Aa_unexported"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate sequential state: IFU_full_snapshot_experiment.clk1_p_Aa"
+    },
+    {
+      "case": "missing_phase",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "wrong_offset",
+      "rejected": true,
+      "diagnostic": "unreviewed IFU scan schema/source"
+    },
+    {
+      "case": "missing_layout_bit",
+      "rejected": true,
+      "diagnostic": "unreviewed IFU scan schema/source"
+    },
+    {
+      "case": "legacy_alias",
+      "rejected": true,
+      "diagnostic": "unreviewed IFU scan schema/source"
+    },
+    {
+      "case": "wrong_counter",
+      "rejected": true,
+      "diagnostic": "state geometry differs: IFU_full_snapshot_experiment.u_ff_scan.position"
+    },
+    {
+      "case": "missing_pipeline",
+      "rejected": true,
+      "diagnostic": "state or immutable PROM absent from XML"
+    },
+    {
+      "case": "wrong_bank_width",
+      "rejected": true,
+      "diagnostic": "state geometry differs: IFU_full_snapshot_experiment.snapshot_bank_1.mem"
+    },
+    {
+      "case": "mutable_prom",
+      "rejected": true,
+      "diagnostic": "immutable IFU PROM differs"
+    },
+    {
+      "case": "merged_bank",
+      "rejected": true,
+      "diagnostic": "unreviewed IFU scan schema/source"
+    },
+    {
+      "case": "ce_tie",
+      "rejected": true,
+      "diagnostic": "unreviewed IFU scan schema/source"
+    }
+  ],
+  "input_hashes": {
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/classify_ifu_ff_scan.py": "6c0967405ecbb0ad44bc8ef4c4e00168b91f251769b8e01cd08be2080c49976f",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/generate_ifu_ff_scan.py": "795f9868f7654abb01511cb971bcf703390f789f3cb353b56b9340a1b09e0a88",
+    "/Users/alans/dev2/Dorado/tools/sil_state_inventory.py": "e953a67b80dbde6729e991dacf9efc31fdde78111b7f0feef1dc51681eb2fb35",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/generated/IFU-Rev-Ch.v": "b7f3b3275e8428fe03d6f3f645259a67205bcc382223267578503d492667d161",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_F10415A.v": "44cb1c6eee73b8507f7a66e5781073f916d0c02a221618dedf4d09879a9a7227",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_LM3911_20K.v": "7bac5b0e7235f7840a51a6ab47321745bceda31c5216652cb4550eae83d32ecc",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10101.v": "d7cce11dd4c6c75b83d1d40287144fffc35ac6df2b9f490a45aeb740dcab862f",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10118.v": "db67c73173b2707f29f6160b12572b0f0a3192beea1eb95b74ddfb03fd3b23ac",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10119.v": "852a85246f0f5d9a2d3b9f9cbf97e3b070a09e7643934f370e139c518f95abf8",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10135.v": "6fe69a194472a8af14723a8efcac70442c8d9221b8072d89b2d42dcfabc6b30c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10161.v": "816c7d2eb044c210d256c32ce1f4215a988e312d02df81b527d6ba001795788b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10164.v": "5e8978b4ceed6b2e5dee8a4c9f5dd841bfe175059e5dcc19f1b6099e8e156e0c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10173.v": "e5a5b884cc2aa3cc7dd3a547bb5722f1528f9a1e907a789545f85a3cf5eae530",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10181.v": "6d12fa3385eec395899363453743d0665bbdc2ee6a455739001e6f4fc7e0eee0",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10212.v": "592b5a4ad9cf64bc846b3619f85d268cac4123e5893bdc2f93e520ff1e45b39f",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC1664.v": "ce9217e73068f27571aa032ddfb2a80393fb340a9648be1618c3af5d5e6be8a6",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MC1672.v": "47d2593da342d5090c5bc33802300695b1d1ba3627f9507e92a26199dd52334b",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native59-snapshot-budget-baseline/src/verilog/cells/cell_SG10139.v": "bcf5d25bac812a4143cb6e7fc893ab746837711d7038d3b4a496e7f228b9189d"
+  }
+}

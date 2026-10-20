@@ -1,0 +1,128 @@
+{
+  "status": "REVIEW_ONLY_SOURCE_REVALIDATED",
+  "scope": "Not classification/access/hold implementation; candidates must not be silently excluded.",
+  "support_xml_sha256": "2fddc842cc8176a4567ed7c8b44cd7fae0bea00a0c8b8e5002b92a4ac0ef817b",
+  "source_files_verified": 216,
+  "support_candidate_bits": 154037,
+  "msa_candidate_bits": 21520,
+  "msa_instances": {
+    "dorado_native_machine.m.b_msa": 2690,
+    "dorado_native_machine.m.b_msa1": 2690,
+    "dorado_native_machine.m.b_msa1Odd": 2690,
+    "dorado_native_machine.m.b_msa2": 2690,
+    "dorado_native_machine.m.b_msa2Odd": 2690,
+    "dorado_native_machine.m.b_msa3": 2690,
+    "dorado_native_machine.m.b_msa3Odd": 2690,
+    "dorado_native_machine.m.b_msaOdd": 2690
+  },
+  "msa_sequential_sources": {
+    "cell_MC10141.v": {
+      "bits": 416,
+      "fields": 192
+    },
+    "cell_SN74S174.v": {
+      "bits": 1344,
+      "fields": 384
+    },
+    "cell_SN74166.v": {
+      "bits": 1440,
+      "fields": 320
+    },
+    "cell_MC10176.v": {
+      "bits": 1248,
+      "fields": 288
+    },
+    "cell_MK4096P_addr.v": {
+      "bits": 2304,
+      "fields": 512
+    },
+    "cell_F10016.v": {
+      "bits": 176,
+      "fields": 48
+    },
+    "dorado_storage_group.sv": {
+      "bits": 14592,
+      "fields": 1920
+    }
+  },
+  "groups": {
+    "dorado_native_machine.(self)": {
+      "bits": 1,
+      "fields": 1
+    },
+    "dorado_native_machine.m.b_msa": {
+      "bits": 2690,
+      "fields": 458
+    },
+    "dorado_native_machine.m.b_msa1": {
+      "bits": 2690,
+      "fields": 458
+    },
+    "dorado_native_machine.m.b_msa1Odd": {
+      "bits": 2690,
+      "fields": 458
+    },
+    "dorado_native_machine.m.b_msa2": {
+      "bits": 2690,
+      "fields": 458
+    },
+    "dorado_native_machine.m.b_msa2Odd": {
+      "bits": 2690,
+      "fields": 458
+    },
+    "dorado_native_machine.m.b_msa3": {
+      "bits": 2690,
+      "fields": 458
+    },
+    "dorado_native_machine.m.b_msa3Odd": {
+      "bits": 2690,
+      "fields": 458
+    },
+    "dorado_native_machine.m.b_msaOdd": {
+      "bits": 2690,
+      "fields": 458
+    },
+    "dorado_native_machine.m.u_snapshot_fabric": {
+      "bits": 33,
+      "fields": 8
+    },
+    "dorado_native_machine.u_arb": {
+      "bits": 49,
+      "fields": 6
+    },
+    "dorado_native_machine.u_drive": {
+      "bits": 114,
+      "fields": 6
+    },
+    "dorado_native_machine.u_initialize": {
+      "bits": 25,
+      "fields": 3
+    },
+    "dorado_native_machine.u_keyboard": {
+      "bits": 65,
+      "fields": 5
+    },
+    "dorado_native_machine.u_media": {
+      "bits": 131816,
+      "fields": 55
+    },
+    "dorado_native_machine.u_pixclk": {
+      "bits": 33,
+      "fields": 2
+    },
+    "dorado_native_machine.u_sdram": {
+      "bits": 211,
+      "fields": 20
+    },
+    "dorado_native_machine.u_terminal": {
+      "bits": 170,
+      "fields": 15
+    }
+  },
+  "next": [
+    "Eight MSA storage-board instances are outside the eleven main-board adapters and require explicit state classification/access/hold, including original latches/address histories and storage request/front-end state.",
+    "Classify disk buffer/host transfer, raw controller/arbiter, drive/pixel/keyboard/terminal/wrapper state; add top-level input/video/network and16MiBrawRAM separately.",
+    "SDRAM refresh must continue while guest state is held; quiesce/capture the logical memory interface rather than blindly stopping the physical controller.",
+    "Bind SYSTEM reset to a genuine machine reseed/lifecycle event; parser reset or a soft reset that leaves shifted guest state cannot release quarantine."
+  ]
+}

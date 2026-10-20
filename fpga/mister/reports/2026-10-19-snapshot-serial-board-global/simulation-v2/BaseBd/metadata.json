@@ -1,0 +1,1203 @@
+{
+  "inputs": 64,
+  "outputs": 100,
+  "sampled_physical_bits": 7598,
+  "large_ram_probe_bits": 32,
+  "large_ram_fields": 4,
+  "frozen_flags": 22,
+  "small": [
+    {
+      "path": "snapshot_sram_0.memory.saved_q",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "snapshot_sram_1.memory.saved_q",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "snapshot_sram_2.memory.saved_q",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "snapshot_sram_3.memory.saved_q",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_a01.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_a01.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_a01.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_b02.cin_pre",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b02.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b02.d_pre",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_b02.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_b02.sd_pre",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b02.su_pre",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b60.d",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_b60.en_q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_b61.d",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_b61.en_q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c20.q",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_c60.d",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_c60.en_q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c61.d",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_c61.en_q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c62.phase_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c62.u_riot.d_out",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_c62.u_riot.dir_a",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_c62.u_riot.dir_b",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_c62.u_riot.edge_detect",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c62.u_riot.incr",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_c62.u_riot.interrupt",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_c62.u_riot.irq_en",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_c62.u_riot.old_pa7",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c62.u_riot.out_a",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_c62.u_riot.out_b",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_c62.u_riot.prescaler",
+      "width": 10,
+      "bits": 10,
+      "dims": []
+    },
+    {
+      "path": "u_c62.u_riot.riot_ram",
+      "width": 8,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          127
+        ]
+      ]
+    },
+    {
+      "path": "u_c62.u_riot.rollover",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_c62.u_riot.timer",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_clockgen.phase",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_d08.osc_div",
+      "width": 3,
+      "bits": 3,
+      "dims": []
+    },
+    {
+      "path": "u_e07.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_e07.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_e60.d",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_e60.en_q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f19.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f19.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_f19.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_f20.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f20.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_f20.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_f60.d",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f60.en_q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f61.u_cpu.q",
+      "width": 1725,
+      "bits": 1725,
+      "dims": []
+    },
+    {
+      "path": "u_f62.phase_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f62.u_riot.d_out",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f62.u_riot.dir_a",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f62.u_riot.dir_b",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f62.u_riot.edge_detect",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f62.u_riot.incr",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_f62.u_riot.interrupt",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f62.u_riot.irq_en",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_f62.u_riot.old_pa7",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f62.u_riot.out_a",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f62.u_riot.out_b",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f62.u_riot.prescaler",
+      "width": 10,
+      "bits": 10,
+      "dims": []
+    },
+    {
+      "path": "u_f62.u_riot.riot_ram",
+      "width": 8,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          127
+        ]
+      ]
+    },
+    {
+      "path": "u_f62.u_riot.rollover",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f62.u_riot.timer",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f63.phase_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f63.u_riot.d_out",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f63.u_riot.dir_a",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f63.u_riot.dir_b",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f63.u_riot.edge_detect",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f63.u_riot.incr",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_f63.u_riot.interrupt",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f63.u_riot.irq_en",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_f63.u_riot.old_pa7",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f63.u_riot.out_a",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f63.u_riot.out_b",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_f63.u_riot.prescaler",
+      "width": 10,
+      "bits": 10,
+      "dims": []
+    },
+    {
+      "path": "u_f63.u_riot.riot_ram",
+      "width": 8,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          127
+        ]
+      ]
+    },
+    {
+      "path": "u_f63.u_riot.rollover",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_f63.u_riot.timer",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_g03.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g03.q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g04.q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g07.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g07.q",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_g08.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g08.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g08.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g08.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g20.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g20.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g20.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_g21.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g21.cnt",
+      "width": 24,
+      "bits": 24,
+      "dims": []
+    },
+    {
+      "path": "u_g22.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g22.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g22.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_g22.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h03.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h03.q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h04.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h04.q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h06.por",
+      "width": 16,
+      "bits": 16,
+      "dims": []
+    },
+    {
+      "path": "u_h06.vco",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_h20.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_h20.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_h20.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_h61.d",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_h61.en_q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i61.d",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_i61.en_q",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i62.phase_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i62.u_riot.d_out",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_i62.u_riot.dir_a",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_i62.u_riot.dir_b",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_i62.u_riot.edge_detect",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i62.u_riot.incr",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_i62.u_riot.interrupt",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_i62.u_riot.irq_en",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_i62.u_riot.old_pa7",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i62.u_riot.out_a",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_i62.u_riot.out_b",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_i62.u_riot.prescaler",
+      "width": 10,
+      "bits": 10,
+      "dims": []
+    },
+    {
+      "path": "u_i62.u_riot.riot_ram",
+      "width": 8,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          127
+        ]
+      ]
+    },
+    {
+      "path": "u_i62.u_riot.rollover",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_i62.u_riot.timer",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_j08.cka_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j08.ckb_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j08.qa",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_j08.qb",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k02.cin_pre",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k02.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k02.d_pre",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_k02.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_k02.sd_pre",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k02.su_pre",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k03.cin_pre",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k03.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k03.d_pre",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_k03.q",
+      "width": 4,
+      "bits": 4,
+      "dims": []
+    },
+    {
+      "path": "u_k03.sd_pre",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k03.su_pre",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k07.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k07.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_k07.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_k08.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k08.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_k08.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_k09.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_k09.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_k09.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l07.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l07.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l07.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l08.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l08.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l08.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l18.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l18.q",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_l21.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l21.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l21.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l22.ck_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l22.d_pre",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l22.q",
+      "width": 6,
+      "bits": 6,
+      "dims": []
+    },
+    {
+      "path": "u_l62.phase_d",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l62.u_riot.d_out",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_l62.u_riot.dir_a",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_l62.u_riot.dir_b",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_l62.u_riot.edge_detect",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l62.u_riot.incr",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_l62.u_riot.interrupt",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_l62.u_riot.irq_en",
+      "width": 2,
+      "bits": 2,
+      "dims": []
+    },
+    {
+      "path": "u_l62.u_riot.old_pa7",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l62.u_riot.out_a",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_l62.u_riot.out_b",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    },
+    {
+      "path": "u_l62.u_riot.prescaler",
+      "width": 10,
+      "bits": 10,
+      "dims": []
+    },
+    {
+      "path": "u_l62.u_riot.riot_ram",
+      "width": 8,
+      "bits": 1024,
+      "dims": [
+        [
+          0,
+          127
+        ]
+      ]
+    },
+    {
+      "path": "u_l62.u_riot.rollover",
+      "width": 1,
+      "bits": 1,
+      "dims": []
+    },
+    {
+      "path": "u_l62.u_riot.timer",
+      "width": 8,
+      "bits": 8,
+      "dims": []
+    }
+  ],
+  "large": [
+    {
+      "path": "snapshot_sram_0.memory.mem",
+      "width": 8,
+      "bits": 8192,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_sram_1.memory.mem",
+      "width": 8,
+      "bits": 8192,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_sram_2.memory.mem",
+      "width": 8,
+      "bits": 8192,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    },
+    {
+      "path": "snapshot_sram_3.memory.mem",
+      "width": 8,
+      "bits": 8192,
+      "dims": [
+        [
+          0,
+          1023
+        ]
+      ]
+    }
+  ],
+  "helper_frozen": [
+    "snapshot_sram_0.memory.frozen",
+    "snapshot_sram_1.memory.frozen",
+    "snapshot_sram_2.memory.frozen",
+    "snapshot_sram_3.memory.frozen",
+    "u_b60.state_frozen",
+    "u_b61.state_frozen",
+    "u_c60.state_frozen",
+    "u_c61.state_frozen",
+    "u_c62.phase_frozen",
+    "u_c62.u_riot.state_frozen",
+    "u_e60.state_frozen",
+    "u_f60.state_frozen",
+    "u_f62.phase_frozen",
+    "u_f62.u_riot.state_frozen",
+    "u_f63.phase_frozen",
+    "u_f63.u_riot.state_frozen",
+    "u_h61.state_frozen",
+    "u_i61.state_frozen",
+    "u_i62.phase_frozen",
+    "u_i62.u_riot.state_frozen",
+    "u_l62.phase_frozen",
+    "u_l62.u_riot.state_frozen"
+  ]
+}

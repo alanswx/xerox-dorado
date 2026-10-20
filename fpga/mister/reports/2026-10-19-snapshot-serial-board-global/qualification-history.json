@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "generation": "V1 corrects ContA reset-fit receipt path. V2 corrects scalar ContB port metadata. V3 generates all11boards/148unique modules.",
+  "simulation": "ContA smoke V1 and all11V2 pass. All9actual-board mutations on ContA/MemX/BaseBd reject, independently checking force hold, scan abort and post-reset auxiliary access.",
+  "classification": "V1 encounters Verilator escaped module cell aliases. V2 adds alias resolution and then fixes an import. V3 exposes shared origName parameter aliases. V4 uses exact decoded specialization; V5 removes fallback entirely and adds unknown/missing-specialization controls. Raw XML remains unchanged; normalized XML and complete alias tables are separately retained.",
+  "coverage": "1944744physical+3930private bits; no sequential exclusions; source inverse66controls and fresh inventory77controls pass.",
+  "limits": "Component functional/source/state qualification only; no new Quartus fit, combined capacity/timing, native pause barriers, whole-machine snapshot, hardware deployment or speed improvement."
+}
