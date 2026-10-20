@@ -44,7 +44,7 @@ not a prerequisite for the performance goal.
 
 | Milestone | Change | Evidence required to finish |
 | --- | --- | --- |
-| 0. Establish the smaller working baseline | Qualify Native36's opt-in M10K placement on MiSTer14. Freeze recipes, original seed, Main/server binaries and benchmark inputs. Define an instruction-progress counter from the original control-board strobes. | Original firmware, Cedar desktop, exact keyboard echo, mouse/click and disk persistence pass; all four timing conditions pass. Independent known microprograms check the counter, including extended instructions and holds. Until then retain the explicit edge-ceiling label. |
+| 0. Preserve the working speed baseline | Use qualified Native59 with state administration inactive. Freeze its original firmware, Main/server binaries, benchmark inputs and original-control-strobe issue counter; reconstruct from its archived compiled inputs. | Original Native59 timing/hardware receipts remain authoritative. Restaging checks all413 original compiled inputs and498 archived baseline files. Keep issue counts distinct from retirement and edge ceilings. Recheck deployment identity and use pinned workloads for subsequent comparisons; cold persistence and repeated boots remain final gates. |
 | 1. Move bulk RAM to SDRAM | Add a selectable SDRAM raw-storage backend, initially retaining the same 16 MiB padded data/ECC layout for 8 MiB guest RAM. Derive controller geometry, initialization, refresh and IO timing from an appropriate MiSTer 128 MB controller/module reference. Keep the DDR backend selectable. | Independent storage/ECC/read-before-write/reset/stall fixtures agree. Constrain the new SDRAM clock and IO, pass all-device timing, then cold-boot Cedar and verify input and persisted disk writes. Compare with the same-frequency DDR control. |
 | 2. Reduce memory request overhead | Use measured traffic to improve grouping, locality and the single-outstanding frontend. Investigate unnecessary raw fetches on address changes; change them only after proving the original DRAM output pipeline remains correct. | Fewer raw operations and/or shorter waits on pinned workloads, with storage equivalence and original firmware preserved. Demonstrate a repeatable end-to-end improvement; increasing buffer capacity alone is not an acceptance criterion. |
 | 3. Keep disk I/O responsive | Adapt the Mac write-coalescing approach and move blocking file reads/writes/flushes to a bounded ARM worker. Main remains the sole SPI owner and handles explicit completions. Separately reduce whole-track write amplification where guest sector/CRC semantics permit. | Read-after-write, neighboring bytes, eviction, remount/core-load draining and write errors pass. An injected multi-second file operation does not block Main's poll/input service; target under 100 ms poll gaps in that controlled test. Real Cedar disk writes persist after close/remount. |
@@ -58,11 +58,12 @@ not a prerequisite for the performance goal.
 1. Preserve the unintegrated host-service/Main-client prototype as deferred
    work. Its v6 component evidence passes, but native wiring and the actual
    Main coordinator do not exist. Do not expand that work for this goal.
-2. Reconstruct and hash-check the archived Native59 normal-operation inputs.
+2. **Done:** reconstruct and hash-check the archived Native59 normal-operation inputs.
    Retain SDRAM, disk-worker/cache and direct-DDR network behavior and the
    original pin, memory and timing contracts. No snapshot-only virtual controls.
-3. Resume the original clock-family migration: establish exact capture/hold
-   ordering from the original boards, starting with T/StartCycle/Run/extension,
+3. Continue the original clock-family migration: the seven-state instruction
+   phase/extension component now passes (receipt below). Establish remaining
+   capture/hold ordering from T/StartCycle/Run/Stop/Hold/Freeze/RunRefresh,
    and test against an independent event-driven reference. The existing
    eight-slot phase oracle is not a deployable full-speed clock solution.
 4. Fit only a justified native candidate, pass all operating conditions and
@@ -94,6 +95,49 @@ than1/8 and its low window1/4 rather than3/8; at N2 the ECP/SCP edges coincide.
 This reproduces the known phase-quantization defect, not a newly fixed clock.
 Next: complete the original T/StartCycle/Run/extension event-order reference
 before translating capture enables or reducing the divider.
+
+### Original instruction-phase contract qualified (2026-10-20)
+
+`verilog/rtl/dorado_control_phase_next.sv` now expresses the seven original
+ContA phase-register next values as explicit capture enables: k03.B pre-start,
+k04.B StartCycle, l07.B/A Phase0/1, k05.B/A Phase2/3 and j01.B Phase4. This is
+a combinational next-state component, not seven additional pipeline stages;
+it is not instantiated in the native core. Original sPhase0 set/reset priority
+is evaluated at the supplied event boundary. No new power-up/reset state,
+PLL change or native timing exception is introduced.
+
+The original-wiring audit checks13 packages,74 pins,30 absent/pulldown inputs
+and unique drivers. The pre/main clock pins have a common Boolean source
+`CLK.ca' | Stop | Run'` through different original buffer chains; Boolean equality
+is not proof of coincident arrival or permission to remove their ordering.
+The candidate keeps separate pre/main capture inputs. Run/Hold/Freeze state,
+physical fanout delay, SC&NoFreeze, CRamClock and scheduling of asynchronous
+control changes remain outside this component.
+
+Against actual combinational pin functions and independently event-driven
+MC10231 flip-flops:546,739 Icarus checks (including524,288 exhaustive four-state
+transitions),22,451 Verilator checks,2,048 known-state cases,20,000 mixed
+closed-loop events, and exact manual ordinary2-clock /IM-TPC6-clock cadence.
+All eight broken extension/cascade/clock-merge/initialization/four-state/phase
+variants reject. A first fixture's cadence query read D before combinational
+settling and failed its coverage count; the corrected query waits for D and
+all cases pass. Earlier raw logs are preserved as history, not qualification.
+
+Receipt: `fpga/mister/reports/2026-10-20-control-phase-contract/`.
+All nine executed input files match the working sources. Archive extraction
+and a fresh rebuild/replay reproduce wiring, both simulators and all eight
+negative results without working RTL inputs. See receipt proof for terminal
+status. No FPGA clock, Main, daemon or measured speed changed.
+
+Reproduce with a fresh output directory:
+
+```
+make -C verilog control-phases-test CONTROL_PHASE_OUT=build/control-phase-new
+```
+
+Next: translate and test upstream Run/Stop/Hold/Freeze/RunRefresh controls and
+the actual processor T-clock capture ordering before enabling this component
+in a native candidate. Full FPGA snapshots remain deferred.
 
 ### Benchmark contract
 

@@ -1,0 +1,422 @@
+[
+  {
+    "raw_name": "qualified/cascade_new_state/compile.log",
+    "stored": "qualified/cascade_new_state/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/cascade_new_state/dorado_control_phase_next.sv",
+    "stored": "qualified/cascade_new_state/dorado_control_phase_next.sv.gz",
+    "raw_bytes": 1887,
+    "raw_sha256": "6d38f263703c889da121b0ca78d5351087801eda66ca78eba8df9cb8632b742b"
+  },
+  {
+    "raw_name": "qualified/cascade_new_state/test.log",
+    "stored": "qualified/cascade_new_state/test.log.gz",
+    "raw_bytes": 299,
+    "raw_sha256": "87591b9251606c0e334fe4cb88b8791733e1d6f144f849493fb8dcbec524a443"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.lc",
+    "stored": "qualified/executed-inputs/chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.lc.gz",
+    "raw_bytes": 5192,
+    "raw_sha256": "2cbfb904a6a6de0fde3afe2cd43c5162a3fe8cdc14dab87785acf2da773cc58d"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.wl",
+    "stored": "qualified/executed-inputs/chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.wl.gz",
+    "raw_bytes": 130176,
+    "raw_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/tools/__pycache__/sil_netlist.cpython-314.pyc",
+    "stored": "qualified/executed-inputs/tools/__pycache__/sil_netlist.cpython-314.pyc.gz",
+    "raw_bytes": 28623,
+    "raw_sha256": "60e3b9fdd31280e03a309cdb7fb78acf07c8f10746b75657f3aad8ff013bcdef"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/tools/check_control_phase_wiring.py",
+    "stored": "qualified/executed-inputs/tools/check_control_phase_wiring.py.gz",
+    "raw_bytes": 4704,
+    "raw_sha256": "9665887f912879f4b846ce58e9d530bff6089ad3b967133097b2561a89676ced"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/tools/sil_netlist.py",
+    "stored": "qualified/executed-inputs/tools/sil_netlist.py.gz",
+    "raw_bytes": 34072,
+    "raw_sha256": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/tools/test_control_phases.py",
+    "stored": "qualified/executed-inputs/tools/test_control_phases.py.gz",
+    "raw_bytes": 6067,
+    "raw_sha256": "e91559bac3378f5d5ff103ecc5a75550387630eae50039cd6e087d22733d79e2"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/cells/cell_MC10104.v",
+    "stored": "qualified/executed-inputs/verilog/cells/cell_MC10104.v.gz",
+    "raw_bytes": 2491,
+    "raw_sha256": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/cells/cell_MC10117.v",
+    "stored": "qualified/executed-inputs/verilog/cells/cell_MC10117.v.gz",
+    "raw_bytes": 1983,
+    "raw_sha256": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/rtl/dorado_control_phase_next.sv",
+    "stored": "qualified/executed-inputs/verilog/rtl/dorado_control_phase_next.sv.gz",
+    "raw_bytes": 1889,
+    "raw_sha256": "d716f54cf76448de682e70f6ec8108a64c8587f4d0cd18945e52ef146ca2d48a"
+  },
+  {
+    "raw_name": "qualified/executed-inputs/verilog/verilator/tb_control_phase_next.sv",
+    "stored": "qualified/executed-inputs/verilog/verilator/tb_control_phase_next.sv.gz",
+    "raw_bytes": 7672,
+    "raw_sha256": "a18e162d7deb3fe49dc65358d5aa2f18fd319312e4f5e89d87c1c6b709f7c6ee"
+  },
+  {
+    "raw_name": "qualified/gate_async_initialization/compile.log",
+    "stored": "qualified/gate_async_initialization/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/gate_async_initialization/dorado_control_phase_next.sv",
+    "stored": "qualified/gate_async_initialization/dorado_control_phase_next.sv.gz",
+    "raw_bytes": 1905,
+    "raw_sha256": "77aa7b7308b2abd3d510fb210dbd220b32e35f1610d8c95e74ff468994fd12a4"
+  },
+  {
+    "raw_name": "qualified/gate_async_initialization/test.log",
+    "stored": "qualified/gate_async_initialization/test.log.gz",
+    "raw_bytes": 298,
+    "raw_sha256": "b0cbe424dd985a76a62c34aa0c235de2226260f38b6b52affd625629d0629d61"
+  },
+  {
+    "raw_name": "qualified/hold_pre_with_main/compile.log",
+    "stored": "qualified/hold_pre_with_main/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/hold_pre_with_main/dorado_control_phase_next.sv",
+    "stored": "qualified/hold_pre_with_main/dorado_control_phase_next.sv.gz",
+    "raw_bytes": 1905,
+    "raw_sha256": "d84cbb432743ff100f3de988a56db17ed9ba35d6b7cfd493fc7f7b15f08848b5"
+  },
+  {
+    "raw_name": "qualified/hold_pre_with_main/test.log",
+    "stored": "qualified/hold_pre_with_main/test.log.gz",
+    "raw_bytes": 299,
+    "raw_sha256": "3881c445e140ab885ef3f9dedf74bfb112a632c63ba30595a23582c7a5ad68ed"
+  },
+  {
+    "raw_name": "qualified/ignore_extension/compile.log",
+    "stored": "qualified/ignore_extension/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/ignore_extension/dorado_control_phase_next.sv",
+    "stored": "qualified/ignore_extension/dorado_control_phase_next.sv.gz",
+    "raw_bytes": 1887,
+    "raw_sha256": "65f260a6dc05efa82e6b3132a05a80189a10b36ae31ba568cdcae7b1fc78abb7"
+  },
+  {
+    "raw_name": "qualified/ignore_extension/test.log",
+    "stored": "qualified/ignore_extension/test.log.gz",
+    "raw_bytes": 259,
+    "raw_sha256": "478bb55a83793a128e103c998592f27e09ba0f3ea1a0c9f9f799aa0dcc35b34e"
+  },
+  {
+    "raw_name": "qualified/ignore_initialization/compile.log",
+    "stored": "qualified/ignore_initialization/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/ignore_initialization/dorado_control_phase_next.sv",
+    "stored": "qualified/ignore_initialization/dorado_control_phase_next.sv.gz",
+    "raw_bytes": 1882,
+    "raw_sha256": "77cbfb962658dc5c5064aac66c0442ea0e66dc5ec47c604e7299fb3afd468e63"
+  },
+  {
+    "raw_name": "qualified/ignore_initialization/test.log",
+    "stored": "qualified/ignore_initialization/test.log.gz",
+    "raw_bytes": 298,
+    "raw_sha256": "b0cbe424dd985a76a62c34aa0c235de2226260f38b6b52affd625629d0629d61"
+  },
+  {
+    "raw_name": "qualified/merge_pre_clock/compile.log",
+    "stored": "qualified/merge_pre_clock/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/merge_pre_clock/dorado_control_phase_next.sv",
+    "stored": "qualified/merge_pre_clock/dorado_control_phase_next.sv.gz",
+    "raw_bytes": 1890,
+    "raw_sha256": "711659f85929f1a86db04b50fbc10290fb6b78ef38121343ece60d61ab73487f"
+  },
+  {
+    "raw_name": "qualified/merge_pre_clock/test.log",
+    "stored": "qualified/merge_pre_clock/test.log.gz",
+    "raw_bytes": 298,
+    "raw_sha256": "25bc4d67d8aa8d059101fabe07ee710bf335f7d3f47d700de8c58776d66e6f38"
+  },
+  {
+    "raw_name": "qualified/original/compile.log",
+    "stored": "qualified/original/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/original/dorado_control_phase_next.sv",
+    "stored": "qualified/original/dorado_control_phase_next.sv.gz",
+    "raw_bytes": 1889,
+    "raw_sha256": "d716f54cf76448de682e70f6ec8108a64c8587f4d0cd18945e52ef146ca2d48a"
+  },
+  {
+    "raw_name": "qualified/original/test.log",
+    "stored": "qualified/original/test.log.gz",
+    "raw_bytes": 322,
+    "raw_sha256": "c6620fcabcc1ef717476e6fe5458df64f0da5541867708c41a9372223883dba8"
+  },
+  {
+    "raw_name": "qualified/results.json",
+    "stored": "qualified/results.json.gz",
+    "raw_bytes": 18787,
+    "raw_sha256": "c662b6c911081f14c6945593e4f4d15f14d9f496c58bbb522dcde0495e4cf61f"
+  },
+  {
+    "raw_name": "qualified/toggle_phase0/compile.log",
+    "stored": "qualified/toggle_phase0/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/toggle_phase0/dorado_control_phase_next.sv",
+    "stored": "qualified/toggle_phase0/dorado_control_phase_next.sv.gz",
+    "raw_bytes": 1890,
+    "raw_sha256": "436e426d4c37353d8067d70138168b856d4933cab9d103cfea126550f4bc357a"
+  },
+  {
+    "raw_name": "qualified/toggle_phase0/test.log",
+    "stored": "qualified/toggle_phase0/test.log.gz",
+    "raw_bytes": 298,
+    "raw_sha256": "a4a57e8b8618080db0873215ade0f5b98c7f518325b6e0cf1ece0627b6f5020b"
+  },
+  {
+    "raw_name": "qualified/unsafe_four_state_reduction/compile.log",
+    "stored": "qualified/unsafe_four_state_reduction/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "qualified/unsafe_four_state_reduction/dorado_control_phase_next.sv",
+    "stored": "qualified/unsafe_four_state_reduction/dorado_control_phase_next.sv.gz",
+    "raw_bytes": 1896,
+    "raw_sha256": "5d99d18977803cc7fcccf3f1116863c1262e20b320287bd65f3b48fdad5b42ae"
+  },
+  {
+    "raw_name": "qualified/unsafe_four_state_reduction/test.log",
+    "stored": "qualified/unsafe_four_state_reduction/test.log.gz",
+    "raw_bytes": 301,
+    "raw_sha256": "55e37c91b5487f77cf8773b86f1d2af5933856255ab2f649f3ee5ffbc881108e"
+  },
+  {
+    "raw_name": "qualified/verilator/compile.log",
+    "stored": "qualified/verilator/compile.log.gz",
+    "raw_bytes": 5868,
+    "raw_sha256": "8b3fe02dc18751cfd98e0ed899c3f0190271726e39006b20202faecca0c1b975"
+  },
+  {
+    "raw_name": "qualified/verilator/test.log",
+    "stored": "qualified/verilator/test.log.gz",
+    "raw_bytes": 479,
+    "raw_sha256": "c7a6f09a1d7e592e6d1629bb8f6ddbdeb9c4efaf16cd5e4ee7c05a3a4645a768"
+  },
+  {
+    "raw_name": "qualified/wiring.log",
+    "stored": "qualified/wiring.log.gz",
+    "raw_bytes": 59,
+    "raw_sha256": "e8e445c10f862fc0496a0a34d7a9a145082f39a422a6d80fe96296f7e5de415f"
+  },
+  {
+    "raw_name": "entrypoints/verilog/Makefile",
+    "stored": "entrypoints/verilog/Makefile.gz",
+    "raw_bytes": 16450,
+    "raw_sha256": "bc34e4e9e199951aaf576598a452d064f687f79dd70dc4365412ced556a693bf"
+  },
+  {
+    "raw_name": "entrypoints/verilog/verilator/Makefile",
+    "stored": "entrypoints/verilog/verilator/Makefile.gz",
+    "raw_bytes": 107634,
+    "raw_sha256": "420b085e588bf971036ced1980831dbb9fcf60b83a2eff5742e5d665489e106b"
+  },
+  {
+    "raw_name": "history/control-phase-next-v1-20261020/test.log",
+    "stored": "history/control-phase-next-v1-20261020/test.log.gz",
+    "raw_bytes": 161,
+    "raw_sha256": "6781982124266fee63da5ed7617d36d9a79f005aa60b33108d24138249e06e03"
+  },
+  {
+    "raw_name": "history/control-phase-next-v2-20261020/test.log",
+    "stored": "history/control-phase-next-v2-20261020/test.log.gz",
+    "raw_bytes": 220,
+    "raw_sha256": "ab3b1a79f52a8697edd3a2d6c459d53d18a94e02e810f755475affa1ff8ed338"
+  },
+  {
+    "raw_name": "history/control-phase-next-qualified-v1-20261020.log",
+    "stored": "history/control-phase-next-qualified-v1-20261020.log.gz",
+    "raw_bytes": 125,
+    "raw_sha256": "ebb89d11ed6836c1967ab02febe71790df1ba1b550cae54eefd5bcf8acfbee4f"
+  },
+  {
+    "raw_name": "history/control-phase-next-qualified-v2-20261020.log",
+    "stored": "history/control-phase-next-qualified-v2-20261020.log.gz",
+    "raw_bytes": 125,
+    "raw_sha256": "ebb89d11ed6836c1967ab02febe71790df1ba1b550cae54eefd5bcf8acfbee4f"
+  },
+  {
+    "raw_name": "replay/cascade_new_state/compile.log",
+    "stored": "replay/cascade_new_state/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/cascade_new_state/test.log",
+    "stored": "replay/cascade_new_state/test.log.gz",
+    "raw_bytes": 299,
+    "raw_sha256": "75af769844082b4a73b6f29a631ca8306ff333084452ea7661673b507b3605a2"
+  },
+  {
+    "raw_name": "replay/gate_async_initialization/compile.log",
+    "stored": "replay/gate_async_initialization/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/gate_async_initialization/test.log",
+    "stored": "replay/gate_async_initialization/test.log.gz",
+    "raw_bytes": 298,
+    "raw_sha256": "27f414f1392dbe7dbd4f757e4c22e5b14dd8ce0565bd9341fcb8f0a025c7526d"
+  },
+  {
+    "raw_name": "replay/hold_pre_with_main/compile.log",
+    "stored": "replay/hold_pre_with_main/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/hold_pre_with_main/test.log",
+    "stored": "replay/hold_pre_with_main/test.log.gz",
+    "raw_bytes": 299,
+    "raw_sha256": "3608a6e5a4cbe08c9d58e031b188129ebb6e555e380f73a80b69ab56be5d3612"
+  },
+  {
+    "raw_name": "replay/ignore_extension/compile.log",
+    "stored": "replay/ignore_extension/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/ignore_extension/test.log",
+    "stored": "replay/ignore_extension/test.log.gz",
+    "raw_bytes": 259,
+    "raw_sha256": "a94df3dd5823728dd83d042131d4c8257e92d4f8e96d90b6d7f0b528944b8d5c"
+  },
+  {
+    "raw_name": "replay/ignore_initialization/compile.log",
+    "stored": "replay/ignore_initialization/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/ignore_initialization/test.log",
+    "stored": "replay/ignore_initialization/test.log.gz",
+    "raw_bytes": 298,
+    "raw_sha256": "27f414f1392dbe7dbd4f757e4c22e5b14dd8ce0565bd9341fcb8f0a025c7526d"
+  },
+  {
+    "raw_name": "replay/merge_pre_clock/compile.log",
+    "stored": "replay/merge_pre_clock/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/merge_pre_clock/test.log",
+    "stored": "replay/merge_pre_clock/test.log.gz",
+    "raw_bytes": 298,
+    "raw_sha256": "a00d078c61a89d5f32719d467df75fd61084c1e5b17e6e17c7c264049f4c23a7"
+  },
+  {
+    "raw_name": "replay/original/compile.log",
+    "stored": "replay/original/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/original/test.log",
+    "stored": "replay/original/test.log.gz",
+    "raw_bytes": 322,
+    "raw_sha256": "5c42ee68f8f3c6348aa6512bd2fe257756c74ad88d4d95ace750a02144c68310"
+  },
+  {
+    "raw_name": "replay/results.json",
+    "stored": "replay/results.json.gz",
+    "raw_bytes": 18787,
+    "raw_sha256": "62afc5b95e9d1307d31fcf3373af3efff6ecffd9993894b42553b5d8454c80d3"
+  },
+  {
+    "raw_name": "replay/toggle_phase0/compile.log",
+    "stored": "replay/toggle_phase0/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/toggle_phase0/test.log",
+    "stored": "replay/toggle_phase0/test.log.gz",
+    "raw_bytes": 298,
+    "raw_sha256": "69fb2c59ff9f9ffd2733fa339527ce7609e3c1c34363f752d2d1f67c3bcc429b"
+  },
+  {
+    "raw_name": "replay/unsafe_four_state_reduction/compile.log",
+    "stored": "replay/unsafe_four_state_reduction/compile.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "raw_name": "replay/unsafe_four_state_reduction/test.log",
+    "stored": "replay/unsafe_four_state_reduction/test.log.gz",
+    "raw_bytes": 301,
+    "raw_sha256": "db18eaf848b4be3c4cf251db79692f2607b2452030f370a0fcc49080ede5e7ee"
+  },
+  {
+    "raw_name": "replay/verilator/compile.log",
+    "stored": "replay/verilator/compile.log.gz",
+    "raw_bytes": 5868,
+    "raw_sha256": "1f4a8b33eadd3415e85edfe9ba585ff4ac85e20abf69c3fe308b16e7f9f1175a"
+  },
+  {
+    "raw_name": "replay/verilator/test.log",
+    "stored": "replay/verilator/test.log.gz",
+    "raw_bytes": 479,
+    "raw_sha256": "5b134f5cc80d5b824ddc86d9038ded5fd0da4d56749a8b1dd1179fbe07817da7"
+  },
+  {
+    "raw_name": "replay/wiring.log",
+    "stored": "replay/wiring.log.gz",
+    "raw_bytes": 59,
+    "raw_sha256": "e8e445c10f862fc0496a0a34d7a9a145082f39a422a6d80fe96296f7e5de415f"
+  },
+  {
+    "raw_name": "proof/replay.json",
+    "stored": "proof/replay.json.gz",
+    "raw_bytes": 500,
+    "raw_sha256": "94604112704bde74202a562e699ba0d684855640f05e307ceb4e9b97d3a0b3d0"
+  }
+]

@@ -52,6 +52,49 @@ This reproduces the known phase-quantization defect, not a newly fixed clock.
 Next: complete the original T/StartCycle/Run/extension event-order reference
 before translating capture enables or reducing the divider.
 
+### Original instruction-phase contract qualified (2026-10-20)
+
+`verilog/rtl/dorado_control_phase_next.sv` now expresses the seven original
+ContA phase-register next values as explicit capture enables: k03.B pre-start,
+k04.B StartCycle, l07.B/A Phase0/1, k05.B/A Phase2/3 and j01.B Phase4. This is
+a combinational next-state component, not seven additional pipeline stages;
+it is not instantiated in the native core. Original sPhase0 set/reset priority
+is evaluated at the supplied event boundary. No new power-up/reset state,
+PLL change or native timing exception is introduced.
+
+The original-wiring audit checks13 packages,74 pins,30 absent/pulldown inputs
+and unique drivers. The pre/main clock pins have a common Boolean source
+`CLK.ca' | Stop | Run'` through different original buffer chains; Boolean equality
+is not proof of coincident arrival or permission to remove their ordering.
+The candidate keeps separate pre/main capture inputs. Run/Hold/Freeze state,
+physical fanout delay, SC&NoFreeze, CRamClock and scheduling of asynchronous
+control changes remain outside this component.
+
+Against actual combinational pin functions and independently event-driven
+MC10231 flip-flops:546,739 Icarus checks (including524,288 exhaustive four-state
+transitions),22,451 Verilator checks,2,048 known-state cases,20,000 mixed
+closed-loop events, and exact manual ordinary2-clock /IM-TPC6-clock cadence.
+All eight broken extension/cascade/clock-merge/initialization/four-state/phase
+variants reject. A first fixture's cadence query read D before combinational
+settling and failed its coverage count; the corrected query waits for D and
+all cases pass. Earlier raw logs are preserved as history, not qualification.
+
+Receipt: `fpga/mister/reports/2026-10-20-control-phase-contract/`.
+All nine executed input files match the working sources. Archive extraction
+and a fresh rebuild/replay reproduce wiring, both simulators and all eight
+negative results without working RTL inputs. See receipt proof for terminal
+status. No FPGA clock, Main, daemon or measured speed changed.
+
+Reproduce with a fresh output directory:
+
+```
+make -C verilog control-phases-test CONTROL_PHASE_OUT=build/control-phase-new
+```
+
+Next: translate and test upstream Run/Stop/Hold/Freeze/RunRefresh controls and
+the actual processor T-clock capture ordering before enabling this component
+in a native candidate. Full FPGA snapshots remain deferred.
+
 ### Preserved snapshot experiment status (deferred)
 
 **Serial74 source-only native integration passes source/state review.** Stage
