@@ -1,0 +1,44 @@
+{
+  "status": "PASS: original-firmware fresh Viewers desktop, mouse/click, exact short and alphabet/digit echoes; normal warm file create/close/type",
+  "main_pid": 3486,
+  "server_pid": 3485,
+  "rbf_sha256": "15730f449bae786a3cee9ffa93d4bbc7de2e90083483f1a59cfd607c02af49a8",
+  "clock": "50MHz/SYSPER4 unchanged; state administration inactive",
+  "desktop": "Ready, CommandTool, live Clock, WatchTool and EditTool",
+  "input": "Real virtual USB mouse to native912,8 Cmd, click, visibly initialized second CommandTool, separate focus737,608; actual paced keyboard .2 seconds/event",
+  "short_echo": "rtlmc1668 keyboard ok",
+  "alphabet_echo": "abcdefghijklmnopqrstuvwxyz0123456789",
+  "warm_marker": {
+    "path": "///rtlmc1668persist.txt",
+    "expected": "rtlmc1668persist",
+    "status": "PASS: echo redirection and type return exact marker"
+  },
+  "captures": {
+    "keyboard-short.png": {
+      "sha256": "6de05698887dd3ca8b0b2f4afd80e392bf3f06eab38f020813902baa26d526b0",
+      "bytes": 430887,
+      "mtime_utc": "2026-10-20T19:47:37.331400+00:00"
+    },
+    "marker-check.png": {
+      "sha256": "1d6f87624f353c7d598a3436146adf163c03e6829e0ed642a7310b323a1026ce",
+      "bytes": 451951,
+      "mtime_utc": "2026-10-20T19:49:05.614203+00:00"
+    },
+    "marker-settled.png": {
+      "sha256": "8969f2f855001cb10833700c4440c79a5de88a4b67e21e5fbb60b80aa9ca6621",
+      "bytes": 454762,
+      "mtime_utc": "2026-10-20T19:49:47.653113+00:00"
+    },
+    "mouse-on-cmd.png": {
+      "sha256": "4cc2a0e4f6c1d0406223d45671ad652daf1c84572362c9af6520b6c2395a4585",
+      "bytes": 526328,
+      "mtime_utc": "2026-10-20T19:43:25.840002+00:00"
+    },
+    "second-commandtool.png": {
+      "sha256": "aafcc5a7fefe08a8d20409c77c89c316f28df480f60eb12fedc1a2efb506455b",
+      "bytes": 411583,
+      "mtime_utc": "2026-10-20T19:44:10.249294+00:00"
+    }
+  },
+  "scope": "Reviewed actual captures and input logs. First marker capture was mid-render; settled result completed without retyping. Background startup remains active. No clean OS shutdown, cold persistence, full snapshot, 60ns cadence or speed gain claim"
+}

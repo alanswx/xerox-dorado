@@ -58,9 +58,9 @@ not a prerequisite for the performance goal.
 Live update: the interrupted MC1668 load was continued from its verified stopped
 boundary, preserving the old volume and its explicitly incomplete historical
 trace. Main3486/server3485 now run the corrected same-clock candidate. Original
-firmware/Cedar login/all34 base transfers/final guest ACK pass; idle issues average
-1,947,686.01/s, effectively unchanged. Cedar is attaching fonts; finish this SAME
-boot's Viewers/input/marker regression. No speed gain or full boot claim yet.
+firmware/Cedar login/all34 base transfers/final guest ACK and Viewers/mouse/click/
+exact keyboard/warm file readback pass; idle issues average1,947,686.01/s,
+effectively unchanged. No speed gain, cold persistence or rollback claim yet.
 The complete596-bit R sign/odd component also passes both simulators and isolated
 15ns timing; functional RM/STK ports, Ready/MIR/Hold and native clock integration
 remain open. Exact evidence and process state are at the top of the handoff.
@@ -84,7 +84,8 @@ remain open. Exact evidence and process state are at the top of the handoff.
    component regression. Full same-clock candidate passes all-device build/memory/timing review
    (`Dorado_Mc1668_20261020`, RBF15730f44; job terminal, do not restart).
    **Done:** normal load continuation, actual original firmware/Cedar login and
-   base34/finalACK for this correction; finish the SAME boot's desktop/input.
+   base34/finalACK and the SAME boot's Viewers/mouse/click/exact keyboard/warm
+   marker for this correction. Cold persistence remains a final gate.
    **Done for an isolated slice:** complete596-bit sign/odd nets, both simulators
    and15ns timing (setup+4.242ns/hold+0.135ns). Close functional RM/STK ports
    and Ready/MIR/hold producers, then remaining

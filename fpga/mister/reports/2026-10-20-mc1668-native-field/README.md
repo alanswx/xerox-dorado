@@ -1,4 +1,8 @@
-# Corrected MC1668 native firmware/login regression
+# Corrected MC1668 native firmware/login regression (earlier checkpoint)
+
+The SAME boot subsequently passes Viewers, mouse/click, exact keyboard and warm
+file readback. See `../2026-10-20-mc1668-native-desktop/`. The archived checkpoint
+below records what had been qualified at its collection time.
 
 PASS: original BaseBoard/Initial/Cedar BFN113/Pilot, actual Cedar login, real
 Guest input, all 34 base transfers (33 BCDs / 1,345,843 bytes), and the exact

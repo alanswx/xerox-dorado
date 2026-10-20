@@ -17,8 +17,9 @@ components/evidence and reuse clock work only after checking Native59 contracts.
 
 The corrected MC1668 candidate now measures **1,947,686.01 instruction issues/s**
 at Cedar's idle login, effectively unchanged from Native59's 1,947,654.12.
-Original firmware/login and all 34 base transfers/final guest ACK pass; Cedar
-is currently attaching fonts. Viewers/input and persistence remain pending.
+Original firmware, all34 base transfers/final guest ACK, Viewers, mouse/click,
+exact keyboard echoes and warm file create/readback now pass. Cold persistence
+remains pending.
 FPGA rollback and hardware speedup are not claimed. A same-clock
 MC1668 native regression build now passes full timing/memory review; actual
 firmware/Cedar regression is next (details below). The
@@ -26,7 +27,7 @@ coupled R/T/task/parity slice now passes an explicit-arrival contract for 592
 original bits and isolated 15ns FPGA timing. MC1668's old edge-triggered cell
 model was corrected to its manufacturer's HIGH-transparent latch truth table.
 Initial's ROM component and the actual native copy now pass; the full native
-BaseBoard/login regression now passes; full Cedar desktop regression is pending.
+BaseBoard/Cedar desktop/input regression now passes.
 The complete 596-bit sign/odd component also passes both simulators and isolated
 15ns timing. Functional RM/STK ports, remaining Ready/MIR/Hold producers and
 native clock integration follow.
@@ -44,7 +45,36 @@ absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
 
-### Live MC1668 original firmware/login/base loader PASS (2026-10-20)
+### MC1668 native Viewers/input/warm marker PASS (2026-10-20)
+
+Same Main3486/server3485/RBF15730f44, original fresh-seed firmware boot,
+50MHz/SYSPER4/adminOFF. Ready, two CommandTools, Clock, WatchTool and EditTool
+are live. Actual relative mouse reaches native912,8 Cmd; click opens a second
+CommandTool, which visibly initializes before separate focus737,608. Paced .2s
+keyboard emits exact `rtlmc1668 keyboard ok` and
+`abcdefghijklmnopqrstuvwxyz0123456789`. Normal
+`echo rtlmc1668persist > ///rtlmc1668persist.txt` then
+`type ///rtlmc1668persist.txt` returns the exact marker. The first capture was
+mid-render; the settled result completes without retyping. Background startup
+continues in the original pane. No reset/retry or guest-state/IOCB patch.
+
+Screenshot `docs/images/cedar-mc1668-native-input-2026-10-20.png`. Bounded fixed
+prefix collector verifies105,666 complete disk records/no error or trace loss;
+all collected raw bytes match their hashes after extraction. No active pack
+copy, guest Boot, host barrier, clean shutdown, cold persistence or full snapshot
+claim. Login issue rate remains1,947,686.01/s; no speed gain.
+
+**Next: functional RM/STK ports and bypass/IFU producers, Ready/MIR/Hold, then
+native clock integration against these corrected-part contracts.** The596-bit
+coupled sign/odd component already passes simulation and isolated15ns timing
+(below). Preserve this corrected MC1668 baseline and Native59; stop/reload only
+through normal Main disk/network barriers. Authentic Cedar Checkpoint/Rollback,
+original60ns cadence/timer calibration, three fresh boots, cold persistence and
+two-hour combined stress remain open. Goal ACTIVE; full snapshots deferred.
+All our simulator/fit/loader/input/collector jobs are terminal. Only normal
+Main3486/server3485 and Cedar's own background work remain live.
+
+### MC1668 original firmware/login/base loader PASS, earlier checkpoint (2026-10-20)
 
 The interrupted load was continued from its exact stopped boundary with
 `tools/resume_mc1668_native.py`; no second load request, forced programming or
@@ -70,8 +100,8 @@ Observer22074/remote3705 stopped normally AFTER actual ACK and is independently
 absent. Never restart it. Original profile prompt was visibly answered n+Return;
 BootEssentials completes and font DF attachments are progressing. No retry/reset.
 
-**Next: observe this SAME boot through Viewers, mouse/click, exact short/alphabet/
-digit echo and warm marker create/readback.** Do not type ahead during attachment.
+That SAME boot subsequently passes Viewers, mouse/click, exact short/alphabet/
+digit echo and warm marker create/readback, as recorded above.
 Current Main log `/tmp/dorado-mc1668-main.log`, disk trace
 `/tmp/dorado-mc1668-disk.jsonl`, server log
 `/media/fat/games/DoradoRTL/CedarMC1668_20261020/server.log`.
