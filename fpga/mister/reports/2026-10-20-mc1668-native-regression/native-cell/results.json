@@ -1,0 +1,143 @@
+{
+  "status": "PASS_NATIVE_MC1668_NORMAL_OPERATION",
+  "summary": [
+    "NATIVE_MC1668_PAUSED checks=4272",
+    "MC1668_LATCH PASS checks=1425 open_changes=1312 closed=176 clock_priority=1056 independent=768"
+  ],
+  "inputs": {
+    "tb_mc1668_latch.sv": "69ca0a9f3bef478642969c69064b8059dde01bb3f5876498289226217a367c17",
+    "test_native_mc1668.py": "750ed8c67235f6ba671d6f9c55ed968b3347bff2a39a45b23581be9c21a20544",
+    "cell_MC1668.v": "c6b96c5ce2307872c65b1a130948a5141d77bd062e2730fdda8dff618bf1cea3",
+    "cell_MC1668_snapshot.v": "0055cd34c334bab9911d3f0499ee955d112f5764235a39333a49f429e06d3c82",
+    "legacy_MC1668_snapshot.v": "f4b85f8096f5f543e45da6d93b9c109dbd698db19488cc86700e3433b384e415"
+  },
+  "candidate": {
+    "src/verilog/cells/cell_MC1668.v": {
+      "before": "fc852cf2cc55768887f43568dd9c29d6acb6d8c8a708fd5fc41381b183a124ad",
+      "after": "c6b96c5ce2307872c65b1a130948a5141d77bd062e2730fdda8dff618bf1cea3"
+    },
+    "src/fpga/mister/snapshot_native_processor/cell_MC1668_snapshot.v": {
+      "before": "f4b85f8096f5f543e45da6d93b9c109dbd698db19488cc86700e3433b384e415",
+      "after": "0055cd34c334bab9911d3f0499ee955d112f5764235a39333a49f429e06d3c82"
+    }
+  },
+  "actions": [
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_mc1668_latch",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/original/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/original/cell_MC1668_snapshot.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/executed-inputs/tb_mc1668_latch.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/original/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/original/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/original/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_mc1668_latch",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/legacy_edge_only/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/legacy_edge_only/cell_MC1668_snapshot.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/executed-inputs/tb_mc1668_latch.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/legacy_edge_only/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/legacy_edge_only/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/legacy_edge_only/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_mc1668_latch",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/ignore_machine_pause/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/ignore_machine_pause/cell_MC1668_snapshot.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/executed-inputs/tb_mc1668_latch.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/ignore_machine_pause/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/ignore_machine_pause/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/ignore_machine_pause/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_mc1668_latch",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/shared_half_clock/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/shared_half_clock/cell_MC1668_snapshot.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/executed-inputs/tb_mc1668_latch.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/shared_half_clock/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/shared_half_clock/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/shared_half_clock/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_mc1668_latch",
+        "-Wno-fatal",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/verilator/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/executed-inputs/cell_MC1668_snapshot.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/executed-inputs/tb_mc1668_latch.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/verilator/compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/verilator/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/mc1668-native-cell-qualified-20261020/verilator/test.log"
+    }
+  ],
+  "physical_instances": 12,
+  "state_admin": "INACTIVE",
+  "firmware_qualified": false,
+  "scope": "Qualify the MC1668 copy actually used by all twelve Native59 positions.\n\nNormal operation only: the existing state-admin inputs are tied inactive.\nCheck the manufacturer table and paused machine advances in both simulators.\nThis is not full-core firmware, timing or enabled snapshot qualification.\n"
+}

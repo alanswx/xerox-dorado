@@ -70,8 +70,11 @@ not a prerequisite for the performance goal.
    conditional arrival contract below). **Done for an isolated slice:** T parity
    and R parity checking at its data/RAM-parity boundary (540 bits; below). Next
    **Done for an isolated slice:** R operand latches/local bypass/sign Qs (592
-   bits; below). First regress original firmware with the corrected MC1668
-   latch semantics; then close functional RM/STK ports, complete sign/odd flags
+   bits; below). **Done:** actual native MC1668 copy and Original Initial
+   component regression. Full same-clock candidate is fitting on misterubuntu
+   (`Dorado_Mc1668_20261020`, builder3979425/fitter3983817; observe, do not restart).
+   Finish all-device build/memory/timing review and real firmware/Cedar/input
+   regression for this correction; then close functional RM/STK ports, sign/odd flags
    and Ready/MIR/hold producers, then remaining
    board/latch/RAM families against original references. The existing
    eight-slot phase oracle is not a deployable full-speed clock solution.
@@ -84,6 +87,24 @@ but require a separate future milestone and explicit acceptance scope. Cedar
 rollback restores the software world, not disk contents or a cycle-exact set
 of FPGA/ARM internals. See [the original guide](../DoradoDocs/manuals/Introduction_to_Cedar_7.0.md)
 and [our existing C-emulator checkpoint gate](cedar-checkpoint.md).
+
+### Actual native MC1668 copy and ROM regression (2026-10-20)
+
+The twelve FPGA positions use a generated cell copy. The new stager changes
+that copy and the generic cell, preserving all other Native59 inputs, inactive
+administration, 50MHz/SYSPER4, services, storage and constraints. Both simulators
+pass 1,425 manufacturer-table observations plus 4,272 paused advances; three
+broken copies reject. Initial's F43 component fixture passes 15 task initializations
+and 2,611,683 samples with all errors enabled. This is not a native BaseBoard boot.
+
+The same-clock full candidate is live at
+`/home/alans/mister/Dorado_Mc1668_20261020`; builder 3979425/fitter 3983817 were
+confirmed alive after routing. Observe the existing job. Full fit/memory/four-
+corner/crossing review and physical Cedar boot/input/persistence remain pending.
+No new image has been loaded; last measured hardware rate remains 1,947,654.12
+issues/s. Details and continuation commands are at the top of the handoff;
+completed component evidence is in `reports/2026-10-20-mc1668-native-regression/`
+under `fpga/mister/`. Full snapshots remain deferred.
 
 ### R operand staging and a real latch-model correction (2026-10-20)
 

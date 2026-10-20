@@ -16,12 +16,14 @@ sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
 The last measured rate remains **1,947,654.12 instruction issues/s**. No new
-full-core clock build, FPGA rollback or hardware speedup is claimed. The
+hardware load, FPGA rollback or hardware speedup is claimed. A same-clock
+MC1668 native regression build is live (details below). The
 coupled R/T/task/parity slice now passes an explicit-arrival contract for 592
 original bits and isolated 15ns FPGA timing. MC1668's old edge-triggered cell
 model was corrected to its manufacturer's HIGH-transparent latch truth table.
-Next: original-ROM/native regression with that correction, functional RM/STK
-ports and remaining flag/Ready/MIR/Hold producers, then native clock integration.
+Initial's ROM component and the actual native copy now pass; the full native
+fit/BaseBoard/Cedar regression is pending. Functional RM/STK ports, remaining
+flag/Ready/MIR/Hold producers and native clock integration follow.
 Full board timing, faster Cedar boot and rollback remain unqualified.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
 qualify it through original firmware and the germ/disk path. Rollback preserves
@@ -35,6 +37,66 @@ existing UIO bits. Component-only; native and actual Main coordination are
 absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
+
+### Native MC1668 copy and Initial regression (2026-10-20)
+
+**Native-copy normal operation and Initial component PASS. Full native fit is
+still running; no new hardware deployment or speed measurement.** Native59
+remains on MiSTer14 (Main 29511/server 29510). Captured HDMI was blanked; Escape
+revealed Cedar at its personal-profile question. No guest Boot/core load/disk
+barrier was performed. The old image/source and volume remain in place.
+
+The actual Native59 processor/MemC boards instantiate `cell_MC1668_snapshot`,
+so changing only the generic cell would not correct any of the twelve FPGA
+positions. `tools/stage_mc1668_native.py` reconstructs/checks 413 compiled and 498
+archived inputs and changes exactly the generic MC1668 plus that native copy.
+It takes the normal processes from the corrected production source. The existing
+inactive state interface/history slots remain compatible, but history no longer
+selects capture. No Main/server, clock, memory layout, pins or SDC change.
+Enabled snapshot behavior/generator migration is deferred, not qualified here.
+
+Both simulators pass 1,425 table observations through the instantiated copy,
+plus 4,272 paused-advance checks. Legacy edge-only, ignoring pause and shared-half
+clock defects reject. The isolated Original Initial component then passes:
+960 original ROM instructions load/read back without error, 15 task initializations,
+and 2,611,683 samples with all six errors enabled without error. It uses the
+existing F43 debug entry, CPU manifold and ALUFM fixture; this is NOT a BaseBoard
+firmware boot or Cedar qualification. The initial compile's DskEth type mismatch
+was fixed by binding Native59's existing output-only receive-observer type in
+the fixture top, preserving board/cell logic and hierarchy.
+
+Live native candidate: `/home/alans/mister/Dorado_Mc1668_20261020` on
+misterubuntu. Builder 3979425 / fitter 3983817, SSH exec session 20239. The fitter
+was confirmed live via ps after routing completed; no terminal fit is claimed.
+Observe that same job, not a replacement. `run-state.json` records all stage
+PIDs/exit codes. Never rerun because an observation expires or the session is
+missing; check the recorded processes and files first. Source synthesis has
+all twelve MC1668 positions and 20 normal latch registers versus 36 previously,
+removing 16 obsolete edge-history registers; duplicate inputs share storage.
+This is not final fitted resource/timing evidence. Cadence remains 50MHz/SYSPER4.
+
+The builder runs map/fit/STA/clock coverage/four-corner/crossing reports
+sequentially, then permits assembly after timing checks. The terminal collector
+checks process absence and exact 498 source readback; the independent auditor
+checks the two qualified deltas, all RAM geometry/OLD_DATA, all 31 summaries/
+196 detailed timing categories/four conditions and unchanged clock/I/O coverage.
+Those full-build positive checks are still PENDING. Historical `native59-*`
+report prefixes are labels, not an old artifact identity. The normal-loader
+recipe is prepared but has not run; it preserves the old host-closed volume
+through Main's real network/disk barriers and uses a fresh original seed and
+unchanged Main/server. No clean guest shutdown or FPGA snapshot is implied.
+
+Completed receipt: `fpga/mister/reports/2026-10-20-mc1668-native-regression/`.
+Raw executed source/ROM fixtures/logs and the failed compile are losslessly
+archived/read back; no second full replay after extraction is claimed.
+
+Next: observe the existing full build to terminal, collect and audit, then
+normally load/boot original firmware to Cedar and qualify input/persistent
+files/pinned issue and hold counts. If timing or firmware fails, diagnose this
+same candidate before changing scope. After MC1668's native regression, resume
+functional RM/STK/flag/Ready/MIR/Hold work and the real clock integration.
+Full snapshots stay deferred; final three fresh boots, rollback, cold persistence
+and two-hour combined stress remain open.
 
 ### R operand staging and MC1668 latch correction (2026-10-20)
 

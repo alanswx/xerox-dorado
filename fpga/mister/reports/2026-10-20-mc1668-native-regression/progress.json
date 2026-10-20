@@ -1,0 +1,18 @@
+{
+  "scope": "Completed native-cell/Initial component work; full native fit remains live, not hardware qualification",
+  "project": "/home/alans/mister/Dorado_Mc1668_20261020",
+  "builder_pid": 3979425,
+  "fit_pid": 3983817,
+  "ssh_session": 20239,
+  "last_verified_phase": "routing; quartus_fit confirmed alive via ps",
+  "main_pid": 29511,
+  "server_pid": 29510,
+  "hardware": "Native59 unchanged; observed Cedar profile question after dismissing blanker",
+  "initial_component": "PASS: 960 original microinstructions loaded/read back;15 task initializations;2611683 samples with all six error sources enabled",
+  "native_cell": "PASS:1425 manufacturer-table observations;4272 paused advances;three defective copies rejected",
+  "qualification_pending": [
+    "Full native fit/STA/all-corner/crossing/memory review",
+    "Normal Main loader, old-volume preservation, fresh original firmware/Cedar boot",
+    "Input, persistent disk writes and pinned instruction issue/hold comparison"
+  ]
+}
