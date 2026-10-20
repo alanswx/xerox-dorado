@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "packet_sha256": "dc423f2b4effbc1ec2009305dad6b7a180af659aaef476fe999e6b4e60986ba9",
+  "prepared_inputs": 660,
+  "no_assembly": true
+}

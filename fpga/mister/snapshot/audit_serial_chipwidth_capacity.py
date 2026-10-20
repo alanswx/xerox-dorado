@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Review actual terminal chip-width/readiness nineteen-board capacity, separately from timing.
+"""Review terminal nineteen-board capacity, including real memory-pause integration.
 
 A failed-fit estimate is diagnostic; a successful fit still requires timing,
 real service barriers, full snapshots and FPGA qualification. No deployment.
@@ -23,7 +23,24 @@ def review(root,source,classification,overrides=None):
     assert 'Analysis & Synthesis Status : Successful'in read('core/output_files/Dorado.map.summary')
     assert 'Device : 5CSEBA6U23I7'in summary and 'Total virtual pins : 7'in summary
     assert source['original_pin_connections']==2761
-    if source['status']in ('PASS_READY_PATH_SOURCE_ONLY','PASS_TARGETED_FANOUT_SOURCE_ONLY','PASS_GLOBAL_SIGNAL_SOURCE_ONLY','PASS_PLACEMENT_SEED_SOURCE_ONLY'):
+    memory_pause=source['status']=='PASS_NATIVE_MEMORY_PAUSE_SOURCE_ONLY'
+    if memory_pause:
+        assert source['verified_parent_inputs']==659 and source['actual_inputs']==660
+        assert state['prepared_inputs']==660 and state['prepared_inputs_changed']==[]
+        assert len(source['failure_controls'])==10 and source['constraints_unchanged']
+        assert set(source['changed_parent_inputs'])=={
+            'core/Dorado.qsf','core/Dorado.sv',
+            'src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v',
+            'src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv',
+            'src/fpga/mister/dorado_storage_arb.sv','src/fpga/mister/dorado_storage_sdram.sv',
+            'src/fpga/mister/snapshot_serial/assets.json','src/fpga/mister/snapshot_serial/MSA__msa_board.sv'}
+        assert (source['new_state_bits'],source['new_clocks'],source['new_ports'])==(2,0,0)
+        assert source['schema_id']=='af0b647cb43a3a62'
+        assert source['real_memory_pause'] and not source['real_pause_barriers']
+        assert classification['status']=='PASS_NATIVE_MEMORY_PAUSE_STATE_ACCESS_PENDING'
+        assert len(classification['failure_controls'])==15 and not classification['sequential_exclusions']
+        assert classification['totals']=={'PHYSICAL BOARD':1957048,'PRIVATE BOARD':4578,'PRIVATE TRANSPORT':69,'WRAPPER ACCESS PENDING':132606}
+    elif source['status']in ('PASS_READY_PATH_SOURCE_ONLY','PASS_TARGETED_FANOUT_SOURCE_ONLY','PASS_GLOBAL_SIGNAL_SOURCE_ONLY','PASS_PLACEMENT_SEED_SOURCE_ONLY'):
         assert source['verified_parent_inputs']==659 and len(source['failure_controls'])==6
         assert source['constraints_unchanged']
         if source['status']=='PASS_READY_PATH_SOURCE_ONLY':assert source['changed_logic_files']==['core/Dorado.sv']
@@ -39,8 +56,9 @@ def review(root,source,classification,overrides=None):
     else:
         assert source['status']=='PASS_CHIPWIDTH_NATIVE_SOURCE_ONLY'and source['boards']==19
         assert len(source['failure_controls'])==23
-    assert classification['status']=='PASS_BOARD_GEOMETRY_WRAPPER_ACCESS_PENDING'and len(classification['failure_controls'])==14
-    assert classification['totals']=={'PHYSICAL BOARD':1957048,'PRIVATE BOARD':4578,'PRIVATE TRANSPORT':69,'WRAPPER ACCESS PENDING':132484}
+    if not memory_pause:
+        assert classification['status']=='PASS_BOARD_GEOMETRY_WRAPPER_ACCESS_PENDING'and len(classification['failure_controls'])==14
+        assert classification['totals']=={'PHYSICAL BOARD':1957048,'PRIVATE BOARD':4578,'PRIVATE TRANSPORT':69,'WRAPPER ACCESS PENDING':132484}
     match=re.search(r'Logic utilization \(in ALMs\) : ([\d,]+) / ([\d,]+)',summary);assert match
     needed,available=(int(x.replace(',',''))for x in match.groups());assert available==41910
     successful='Fitter Status : Successful'in summary
@@ -102,6 +120,19 @@ def controls(root,source,classification):
         try:review(root,source,classification,{path:damaged})
         except AssertionError as error:result.append(dict(case='wrong_actual_seed',rejected=True,diagnostic=str(error)))
         else:raise AssertionError('unapplied placement seed accepted')
+    if source['status']=='PASS_NATIVE_MEMORY_PAUSE_SOURCE_ONLY':
+        for name,key,value in (('wrong_actual_input_count','actual_inputs',659),
+                               ('fake_memory_pause','real_memory_pause',False),
+                               ('unearned_full_barrier','real_pause_barriers',True)):
+            damaged=dict(source);damaged[key]=value
+            try:review(root,damaged,classification)
+            except AssertionError as error:result.append(dict(case=name,rejected=True,diagnostic=str(error)))
+            else:raise AssertionError('damaged memory pause source accepted: '+name)
+        damaged=dict(classification);damaged['totals']=dict(classification['totals'])
+        damaged['totals']['WRAPPER ACCESS PENDING']-=120
+        try:review(root,source,damaged)
+        except AssertionError as error:result.append(dict(case='omitted_task_state',rejected=True,diagnostic=str(error)))
+        else:raise AssertionError('omitted SDRAM task state accepted')
     return result
 
 

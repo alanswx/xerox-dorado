@@ -1,0 +1,24 @@
+{
+  "capacity": {
+    "status": "PASS_CAPACITY_TIMING_AND_BARRIERS_PENDING",
+    "alms": 41468,
+    "available_alms": 41910,
+    "fit_registers": 53121,
+    "block_memory_bits": 2498471,
+    "failure_controls": 8
+  },
+  "timing": {
+    "status": "REJECTED_TIMING",
+    "minimum_slack_ns": -0.435,
+    "failure_controls": 6
+  },
+  "crossings": {
+    "status": "REJECTED_CROSSING_TIMING",
+    "reports": 304,
+    "boards": 19,
+    "corners": 4,
+    "failure_controls": 3
+  },
+  "limits": "Other services remain virtual; complete snapshots/restore and original60ns clocks are unfinished. REJECTED TIMING. No assembly, deployment or speed claim.",
+  "terminal_packet_sha256": "cd009807214dea2ab6a35515a2e35a4a99fc6f044d0cd52cbe4770ba5235a271"
+}

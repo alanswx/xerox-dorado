@@ -2,7 +2,7 @@
 
 ## Current objective (2026-10-20)
 
-**All eight MSAs now qualify on the real 128-client SDRAM path. Serial69 integrates that memory pause into the nineteen-board native core and is FITTING. Complete snapshots, faster clocks and final hardware qualification remain open.**
+**Serial69 integrates the qualified eight-MSA memory pause and fits at 41,468 ALMs, but setup timing fails at -0.435 ns. The ARM disk snapshot lease now qualifies on MiSTer14. Complete snapshots, faster clocks and final hardware qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and
 warm disk persistence pass. Its last qualified rate remains **1,947,654.12
@@ -22,10 +22,11 @@ members read back and a fresh extracted circuit rebuild/run repeats the exact
 counts without working HDL. Evidence:
 `fpga/mister/reports/2026-10-20-snapshot-eight-msa-sdram-pause/`.
 
-**LIVE Serial69MemoryPause:** `/home/alans/mister/Dorado_Serial69MemoryPause_20261020`,
-builder2566540, fitter2568554 last verified live. Observe these SAME jobs and
-children through terminal; an observation timeout is never a restart reason.
-Packet SHA256:dc423f2b4effbc1ec2009305dad6b7a180af659aaef476fe999e6b4e60986ba9.
+**TERMINAL Serial69MemoryPause:** `/home/alans/mister/Dorado_Serial69MemoryPause_20261020`.
+Builder2566540 and all project children are absent. All 660 actual prepared
+inputs remain unchanged. Terminal packet SHA256:
+`cd009807214dea2ab6a35515a2e35a4a99fc6f044d0cd52cbe4770ba5235a271`.
+No Quartus job remains live; no assembly, RBF/SOF or reload occurred.
 
 Serial69 starts from the better Serial65 RTL and original placement seed1.
 It connects the qualified late freeze to all eight MSAs and retained guest hold
@@ -44,7 +45,10 @@ reject, including fake idle and a ready/abort feedback loop. Actual-QSF XML
 uses 320 HDL sources/15 macros, no native UNOPTFLAT loop. Extracted source,
 fresh-XML classification/control and exact660-input restaging replays pass.
 Evidence: `fpga/mister/reports/2026-10-20-snapshot-native-memory-pause/`
-(1,149 members, source/classification only; capacity/timing still pending).
+(1,149 members, source/classification precursor). Terminal evidence is in
+`2026-10-20-snapshot-native-memory-pause-rejected/`: 2,207 raw members, all
+lossless readback and extracted source/fresh XML/capacity/timing/crossing reviews
+pass, and restaging reproduces all 660 exact input hashes without working HDL.
 
 **Inventory correction:** the previous 2,094,179-bit count included only generic
 `sequential` candidates. Two real SDRAM fields were separately marked
@@ -69,13 +73,21 @@ Previous nineteen-board physical experiments (all TERMINAL, no deployment):
 | Serial66 fanout64 | 41,360 | -1.067 ns | +0.117 ns | Rejected |
 | Serial67 global signal | 41,280 | -6.078 ns | +0.118 ns | Rejected |
 | Serial68 seed2 | 41,395 | -0.287 ns | -1.758 ns | Rejected |
+| Serial69 real memory pause | 41,468 | -0.435 ns | +0.076 ns | Rejected |
 
 Their all-condition/304-crossing evidence and negative reader controls remain
 in snapshot-serial-ready /serial-fanout-rejected /serial-global-rejected /
 serial-seed2-rejected reports. Actual clocks/SDRAM IO and inherited framework IO
 exceptions are checked: zero illegal/unconstrained clocks, SAME three input/
 fifty output exceptions, explicitly not complete physical framework IO coverage.
-Serial69 requires its own terminal review; no cut or relaxed period is permitted.
+Serial69's independent terminal review checks all four conditions and 304
+crossing reports (fourteen setup-failing groups). Slow-40C setup is -0.204 ns;
+hold and SDRAM IO pass every condition. Capacity/source/state/timing/crossing
+readers reject 8/10/15/6/3 damaged controls. The worst path remains MSA2Odd
+storage15 write_pending -> readiness -> falling-edge network_step (10 ns).
+Other failures include network_step -> MemX RAM write enable and img_size/pack
+readiness -> network_step. These are real setup paths; no cut or relaxed period
+is permitted.
 
 Daemon PAUSE4/CONTINUE5 already passes isolated Mac/Linux tests with identical
 86 inputs, exact EFTP/BSP continuation, protected paused MMIO and a pause-aware
@@ -91,9 +103,9 @@ holds the mounted generation, defers normal SPI capture/ACK, drains accepted
 work on the existing worker and exports bounded clean chunks only after fsync.
 Final Linux candidate/4 compiled mutation/legacy cache+adapter gates pass.
 The exact static ARM test also passes on MiSTer14 with temporary images and SPI
-spies: three normal/write-error/sync-error cases, max poll gap3.533ms during a
-4.2-second write, full256KiB physical-file and cold-remount oracle. Failed writes
-retain31 dirty sectors; failed sync retains needs_sync. All319 raw archive members
+spies: three normal/write-error/sync-error cases, max poll gap 3.533 ms during a
+4.2-second write, full 256 KiB file and close/remount oracle. Failed writes
+retain 31 dirty sectors; failed sync retains needs_sync. All 319 raw archive members
 and extracted input/log/provenance checks pass. Evidence:
 `fpga/mister/reports/2026-10-20-snapshot-disk-pause/`.
 This is the ARM FILE-WORK boundary only: stop guest disk activity and finish
@@ -103,8 +115,10 @@ open. No production Main/core/daemon was replaced.
 
 Next, in delivery order:
 
-1. Review this SAME Serial69 job's terminal actual660-input/capacity/four-condition/
-   all304-crossing results. Integrate only timing-qualified results.
+1. Close the remaining native setup paths through memory/pack readiness and
+   network_step distribution. Preserve phase behavior and actual periods; the
+   previous fanout64/global-signal/seed2 experiments were rejected. Integrate
+   only all-condition timing-qualified results.
 2. Coordinate the qualified Main disk-worker and daemon pause APIs with actual
    FPGA disk/network, input and video acknowledgments. Finish in-flight guest
    disk requests before taking the ARM image lease; the memory boundary alone
