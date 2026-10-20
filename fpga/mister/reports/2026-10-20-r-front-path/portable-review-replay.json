@@ -1,0 +1,11 @@
+{
+  "status": "PASS_RAW_ARCHIVE_AND_REVIEW_REPLAY",
+  "raw_members": 4821,
+  "primary_inputs_verified": 87,
+  "reviews_byte_identical": {
+    "observer": "1647ff9abb4f2d1942dba1d846ade4806fe6c0f4fa6be587f579af8a53caf57f",
+    "functional": "b56fd211f7da470b4a42fd76607da4b8b2f01b2ee9236db31e95ee87a8d80c4f"
+  },
+  "full_simulation_replayed_after_extraction": false,
+  "native_integrated": false
+}

@@ -34,7 +34,9 @@ both simulators plus isolated15ns timing with their actual MLAB banks. The final
 R address/select stages now also pass separately at636 bits. Their functional
 RAM handoff now passes the original circuit comparison and isolated15ns timing
 (setup+3.241ns/hold+0.136ns). Directed startup/control checks also pass in both simulators across six profiles.
-Front producers, remaining Ready/MIR/Hold and native integration follow.
+The expanded RBase/stack/bypass front passes simulation, but its functional15ns
+fit misses setup by2.617ns. Shorten the task-feedback consistency path, then
+finish IFU/Ready/MIR/Hold and native integration.
 Full board timing, faster Cedar boot and rollback remain unqualified.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
 qualify it through original firmware and the germ/disk path. Rollback preserves
@@ -48,6 +50,109 @@ existing UIO bits. Component-only; native and actual Main coordination are
 absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
+
+### RBase/stack/bypass extension in qualification (2026-10-20)
+
+The new `dorado_r_front_step.sv` extends the coupled graph to736 processor
+bits/57 clocks, retaining all9,216 functional RM/STK bits. It includes real
+RBase storage and pointer/save/write-address stages, every original RM/STK
+bypass driver, and raw FF/ASEL/FFok decoding. ASEL memory-reference forms force
+FA0 independently of raw FF's top bits. The ContA f24 FFok alias is audited
+against its actual replicated NOR output pins. The saved-pointer reference
+retains both F10000 clock inputs. Shared combinational cell wiring/functions
+are explicit; delayed capture/storage models are independent.
+
+`build/rtl-executive/r-front-dev-v2-20261020` is TERMINAL: six profiles pass
+both simulators at8,929 events/profile, with all100 added bits changed. Its
+old summary printer incorrectly says636bits/45clocks; its actual manifest,
+state comparator and clock records use736/57. This is development evidence,
+not the final qualification. Original incomplete v1 is also terminal.
+
+The stronger `r-front-qualified-v3-20261020` is TERMINAL/PASS across six
+profiles in BOTH simulators at11,236 events/profile: every736 processor and
+9,216 RM/STK bit agrees after every event. All57 clocks are exercised and all100
+added bits change. Raw decoder/adapters pass4,352 checks in both simulators,
+including4,096 raw ASEL/FF/disable cases; all seven bad variants reject. Directed
+checks fill all16 RBase slots at both extremes and independently check all256
+StkP loads. Resolved-source comparison and original write-window monitors pass:
+266 RBase windows/all16 addresses/zero address changes;155 RM/STK windows/half,
+zero address/select changes.620 writes/3,362 reads/810 old/new parity epochs.
+All87 frozen inputs match current source. PARC correlated profiles enforce
+1.7/1.1ns g16 setup/hold, observe702/2ns. Generous fixtures are not60ns proof.
+
+[`verilog-r-front-contract.md`](verilog-r-front-contract.md) describes state and
+boundaries. Three first map attempts are TERMINAL/FAILED and preserved locally:
+`r-front-fit-failed-terminal-20261020` (4193364/4193367, implicit generate),
+`r-front-fit-v2-failed-terminal-20261020` (2199/2206, inline genvar), and
+`r-front-fit-v3-failed-terminal-20261020` (3993/4003, hierarchical package-pin
+observations). Every recorded PID is absent and every prepared input reads
+back unchanged. These are compile failures, not timing measurements.
+
+The synthesis adapter now uses separate genvar/explicit generate syntax and
+ordinary ProcL front-data output ports. Local package-clock/Q observations
+resolve to the exact existing pin connections and sampled clock expressions.
+No wiring function, stored state or capture equation changes. Both simulators
+pass4,352 original decoder/adapter checks on this form. A separate pure
+combinational miter compares all1,085 consumed/sample-Q bits against the frozen
+qualified cone for16,384 arbitrary736-Q/236-pin/root samples: low8,254/high8,130,
+BOTH simulators agree. `r-front-lowering-check-20261020` and
+`r-front-synthesis-cone-v5-check-20261020` are TERMINAL/PASS. The initial local
+v4 preparation encountered a comment while resolving observations; it is a
+partial development directory, not a Quartus job.
+
+The corrected v5 fit is TERMINAL/REJECTED for15ns: setup-3.041ns,
+hold+0.164ns, mpw+6.115ns,3,117ALMs/3,060registers/9,216MLABbits and no
+M10K/DSP/PLL. All four conditions, every memory parameter and source byte are
+reviewed. Builder8154/map8155/fit8682/sta11516/corners11880 are absent. The
+19-level worst path serializes task arbitration with a subsequent RBase read
+for the test-only `source_pins[156]` export (result164). The rejected review
+reproduces byte-identically with the reader extended for the functional profile.
+
+`source_pins`/`fa_n` export post-state observations, with no state/port/invariant
+consumer. The new functional fixture retains EVERY736-Q,57-event/repeat,
+RAM/read/write/control/address/data/parity output and unsettled check, while
+leaving only those210 test bits unregistered. Same15ns constraints and1,211
+launch bits;971 registered results. All state/capture RTL is unchanged; all
+observation values remain simulation-checked. `--capture-observers` preserves
+the old1,181-result experiment. No timing exception or added pipeline stage.
+The functional fit v6 is TERMINAL/REJECTED for15ns: setup-2.617ns,
+hold+0.156ns, mpw+6.117ns;2,979ALMs/2,785registers/9,216MLABbits,0M10K/DSP/PLL.
+Its four-condition review passes all source, constraint, coverage and memory
+checks, and correctly rejects setup. The real worst path now starts at a task
+request/Ready input, passes18 logic levels through priority/current-task
+feedback and ends at `unsettled` (result120),17.003ns data delay in the slow
+-40C condition. Retain this check and the original15ns constraint during the next revision.
+Next: shorten that feedback calculation using original capture epochs, then
+repeat original-circuit qualification and fit. No host completion shortcuts.
+
+Remote `/home/alans/mister/r-front-fit-v6-20261020` and local
+`r-front-fit-v6-terminal-20261020` are terminal. Builder14971/map14978/fit15519/
+sta18117/corners18383 are absent; all21 prepared files read back exactly apart
+from the permitted Quartus version annotation. No job needs restarting.
+All simulation, representation-check and fit jobs from this work are terminal.
+
+`build/rtl-executive/r-front-remaining-boundaries-20261020.json` inventories247
+consumer-boundary nets against15 original wiring lists. These are same-named
+producer candidates, not an assertion that local nets on different boards are
+one physical bus. Hold reaches IFU/MemC and processor repeat logic; PRhold comes
+from MemC; RSTK from ContB; IfuRBaseSel' from IFU. Preserve those arrival
+relationships rather than substituting constant-ready inputs.
+The extended timing reader reproduces the earlier R-memory and R-storage reviews
+byte-identically; its existing16 damaged controls still reject. Both new front profiles correctly reject their measured setup failures. Main/server/RBF are
+unchanged; last measured1,947,686.01issues/s. Speedup, rollback, cold persistence
+and final hardware gates remain open. Latest23:15:33UTC hardware sample:
+Main3486/server3485/RBF15730f44, good3334/dropped33/CRC0/RX0/abort0. All fit jobs
+are terminal; no FPGA/Main/server binary or guest-volume operation changed.
+
+Receipt: [R-front raw sources/reports](../fpga/mister/reports/2026-10-20-r-front-path/README.md).
+4,821 selected raw members/187,144,831bytes compress losslessly to15,868,097bytes;
+readback and extraction verify every byte and all87 primary inputs. Both rejected
+reviews reproduce byte-identically using extracted tools/data. No second full
+simulation after extraction is claimed. The critical core is
+`verilog/rtl/dorado_task_capture_step.sv`: inspect the original priority/Switch/
+CurrentTask capture epochs, reduce serialized feedback within the host period,
+then repeat its callers' full-state/arrival gates and fit. Preserve16-way priority,
+Hold/repeat behavior, error checks and full memory/source-epoch invariants.
 
 ### MC1668 native Viewers/input/warm marker PASS (2026-10-20)
 
@@ -68,8 +173,8 @@ all collected raw bytes match their hashes after extraction. No active pack
 copy, guest Boot, host barrier, clean shutdown, cold persistence or full snapshot
 claim. Login issue rate remains1,947,686.01/s; no speed gain.
 
-**Next: remaining front/bypass/IFU/Ready/MIR/Hold producers and native clock
-integration.** The coupled RM/STK handoff now passes six primary profiles,
+**Next: shorten R-front task-feedback consistency timing, then remaining
+IFU/Ready/MIR/Hold producers and native clock integration.** The coupled RM/STK handoff now passes six primary profiles,
 directed reset/stop/maintenance checks in both simulators and15ns component timing;
 the old g16 sample and stable write addresses are checked. The596-bit
 coupled sign/odd component already passes simulation and isolated15ns timing
@@ -77,8 +182,10 @@ coupled sign/odd component already passes simulation and isolated15ns timing
 through normal Main disk/network barriers. Authentic Cedar Checkpoint/Rollback,
 original60ns cadence/timer calibration, three fresh boots, cold persistence and
 two-hour combined stress remain open. Goal ACTIVE; full snapshots deferred.
-All our simulator/fit/loader/input/collector jobs are terminal. Only normal
-Main3486/server3485 and Cedar's own background work remain live.
+The earlier R-memory simulator/fit/loader/input/collector jobs are terminal.
+The R-front simulation and both reviewed fits above are terminal. Its15ns
+functional setup failure remains open.
+MiSTer14 still runs Main3486/server3485 and Cedar's background work.
 
 ### Real R address/storage handoff and isolated timing PASS (2026-10-20)
 

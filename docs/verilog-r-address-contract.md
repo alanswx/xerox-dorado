@@ -101,8 +101,11 @@ The coupled implementation now passes six primary arrival profiles, six directed
 reset/stop/maintenance profiles in both simulators, and the isolated15ns budget
 (setup+3.241ns/hold+0.136ns). Evidence and limits are in
 [the coupled receipt](../fpga/mister/reports/2026-10-20-r-memory-path/README.md).
-Include remaining front RBase/stack data, complete comparison, IFU/Ready/MIR/Hold
-and board producers before native integration.
+The [front RBase/stack/bypass extension](verilog-r-front-contract.md) now
+passes six profiles in both simulators at736 processor bits/57 clocks. Its
+isolated15ns functional fit misses setup by2.617ns on task-feedback consistency.
+Shorten that calculation and requalify, then finish IFU/Ready/MIR/Hold and
+remaining board producers before native integration.
 The address-only fixture deliberately probes transparent front inputs; its
 evidence alone does not establish coupled RAM write correctness. Keep the old
 g16 source epoch and write-address stability as explicit gates as the cone grows.

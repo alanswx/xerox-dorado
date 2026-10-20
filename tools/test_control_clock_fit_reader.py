@@ -21,11 +21,14 @@ def run(source, qualified, output):
             p.write_text(json.dumps(q,indent=2)+'\n')
     names=['wrong_dimensions','relaxed_period_rehashed','changed_evaluator_rehashed',
            'changed_dependency_rehashed','missing_corner','missing_evaluator','negative_setup','negative_evaluator']
-    if json.loads((source/'provenance.json').read_text()).get('component')in ('r_storage','r_memory'):
+    component=json.loads((source/'provenance.json').read_text()).get('component')
+    if component in ('r_storage','r_memory','r_front','r_front_functional'):
         names+=['missing_ram_bank','wrong_ram_width','wrong_ram_type','wrong_ram_init',
                 'wrong_ram_bits','wrong_ram_output_register','wrong_ram_collision_mode']
-    if json.loads((source/'provenance.json').read_text()).get('component')=='r_memory':
+    if component in ('r_memory','r_front','r_front_functional'):
         names+=['wrong_ram_address_register']
+    if component in ('r_front','r_front_functional'):
+        names+=['changed_generated_cone_rehashed']
     for name in names:
         d=output/name;shutil.copytree(source,d)
         if name=='wrong_dimensions':
@@ -35,6 +38,8 @@ def run(source, qualified, output):
         elif name.startswith('changed_'):
             evaluator=json.loads((d/'provenance.json').read_text())['component']
             target='dorado_'+evaluator+'_step.sv' if name.startswith('changed_evaluator') else 'dorado_task_capture_step.sv'
+            if evaluator in ('r_front','r_front_functional')and name.startswith('changed_evaluator'):target='dorado_r_front_step.sv'
+            if name=='changed_generated_cone_rehashed':target='dorado_r_front_cone.sv'
             changed_input(d,target,lambda s:s+'\n// changed qualified source\n')
         elif name=='missing_corner':
             (d/'clock-hold-MIN_fast_1100mv_-40c.rpt').unlink()

@@ -1,0 +1,13 @@
+{
+  "builder_pid": 3993,
+  "status": "TERMINAL_FAILED",
+  "stages": [
+    {
+      "stage": "map",
+      "pid": 4003,
+      "started": 1792536684.4436767,
+      "returncode": 3,
+      "finished": 1792536695.7916372
+    }
+  ]
+}

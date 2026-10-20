@@ -1,0 +1,384 @@
+{
+  "boards": [
+    {
+      "board": "ContA-Rev-Cd",
+      "packages": {
+        "f12": "SE10210",
+        "f13": "SE10210",
+        "f19": "SE10211",
+        "f20": "MC1660",
+        "g04": "MC10104",
+        "g05": "MC10195",
+        "g12": "SE10212",
+        "g13": "SE10210",
+        "h03": "MC10103",
+        "i03": "MC10176",
+        "i04": "MC10104",
+        "i05": "MC10210",
+        "i06": "SE10210",
+        "i07": "SE10210",
+        "j01": "MC10231",
+        "j04": "MC10231",
+        "j05": "MC10117",
+        "j06": "SE10210",
+        "j07": "SE10210",
+        "j18": "SE10210",
+        "k01": "MC10231",
+        "k02": "MC10231",
+        "k03": "MC10231",
+        "k04": "MC10231",
+        "k05": "MC10231",
+        "l01": "SE10210",
+        "l02": "MC10231",
+        "l03": "MC10231",
+        "l04": "MC10231",
+        "l05": "MC10231",
+        "l06": "SE10231",
+        "l07": "MC10231",
+        "l08": "MC10211"
+      },
+      "sequential": {
+        "i03": [
+          0,
+          6
+        ],
+        "j04": [
+          6,
+          2
+        ],
+        "k01": [
+          8,
+          2
+        ],
+        "k02": [
+          10,
+          2
+        ],
+        "l02": [
+          12,
+          2
+        ],
+        "l03": [
+          14,
+          2
+        ],
+        "l04": [
+          16,
+          2
+        ],
+        "l05": [
+          18,
+          2
+        ],
+        "l06": [
+          20,
+          2
+        ],
+        "k03": [
+          22,
+          2
+        ],
+        "k04": [
+          24,
+          2
+        ],
+        "k05": [
+          26,
+          2
+        ],
+        "l07": [
+          28,
+          2
+        ],
+        "j01": [
+          30,
+          2
+        ]
+      },
+      "physical_bits": 32,
+      "original_pins": 283,
+      "boundary_bindings": {
+        "CLK.ca'": "base",
+        "rStop": "pins[7]",
+        "SetRun": "pins[6]",
+        "SetSS'": "pins[5]",
+        "SetRunRfsh": "pins[4]",
+        "Error'": "pins[3]",
+        "StopAtT1": "pins[2]",
+        "RWTPCorRWIM": "pins[1]",
+        "NoDispatch": "pins[0]",
+        "WIM'": "pins[8]",
+        "Hold": "pins[26]",
+        "SwitchUp": "pins[27]",
+        "CPAddr.0'": "1'b1",
+        "CPStrb'": "1'b1",
+        "ContA28.sil+7": "1'b0",
+        "ContA30.sil+1": "1'b0",
+        "GetTLink": "1'b0"
+      },
+      "clock_taps": [
+        "prepreclk'd",
+        "StopRunClock",
+        "preRunClk'Bc",
+        "RunClk'a",
+        "preclk2'Bb",
+        "clk2'Bc",
+        "@l06.ca",
+        "@k04.ca",
+        "preCRamClock",
+        "clk0'Ba",
+        "h*fclk0'Ba",
+        "h*fclk0'Da"
+      ],
+      "flag_taps": [
+        "CAHold",
+        "RepeatCur",
+        "FreezeBD",
+        "CLKEnable'c",
+        "CLKEnable'b",
+        "StartCycle'a"
+      ],
+      "source_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "combinational_sources": [
+        "verilog/cells/cell_MC10103.v",
+        "verilog/cells/cell_MC10104.v",
+        "verilog/cells/cell_MC10117.v",
+        "verilog/cells/cell_MC10195.v",
+        "verilog/cells/cell_MC10210.v",
+        "verilog/cells/cell_MC10211.v",
+        "verilog/cells/cell_MC1660.v",
+        "verilog/cells/cell_SE10210.v",
+        "verilog/cells/cell_SE10211.v",
+        "verilog/cells/cell_SE10212.v"
+      ]
+    },
+    {
+      "board": "ProcH-Rev-Ce",
+      "packages": {
+        "a01": "MC10102",
+        "a20": "MC10141",
+        "a21": "MC10141",
+        "a22": "MC10113",
+        "a24": "MC10101",
+        "c18": "SE10210",
+        "f12": "SE10212",
+        "f13": "SE10210",
+        "f18": "MC10102",
+        "f19": "MC1660",
+        "f20": "MC10100",
+        "g12": "SE10211",
+        "g13": "SE10210",
+        "h22": "MC10176",
+        "h23": "MC10102",
+        "h24": "MC10101",
+        "i18": "SE10210",
+        "l01": "SE10210",
+        "l02": "SE10231"
+      },
+      "sequential": {
+        "l02": [
+          0,
+          2
+        ],
+        "h22": [
+          2,
+          6
+        ],
+        "a21": [
+          8,
+          4
+        ],
+        "a20": [
+          12,
+          4
+        ]
+      },
+      "physical_bits": 16,
+      "original_pins": 183,
+      "boundary_bindings": {
+        "CLK.ph'": "base",
+        "CLKEnable'c": "en",
+        "StartCycle'a": "start_a",
+        "PRhold": "pins[25]",
+        "BNTGtCT'a": "pins[24]",
+        "LC.0": "pins[11]",
+        "LC.1": "pins[10]",
+        "LC.2": "pins[9]",
+        "Next.0": "pins[20]",
+        "Next.1": "pins[21]",
+        "Next.2": "pins[22]",
+        "Next.3": "pins[23]",
+        "FA=0'b": "(pins[19:18]!=2'd0)",
+        "FC=5'": "(pins[14:12]!=3'd5)",
+        "FB=7'": "(pins[17:15]!=3'd7)",
+        "FB=3'": "(pins[17:15]!=3'd3)",
+        "FC=6'": "(pins[14:12]!=3'd6)",
+        "BSEL.0'": "1'b0",
+        "BSEL.1'": "1'b0",
+        "BSEL.2'": "1'b0",
+        "IOBout": "1'b0",
+        "FA=1'a": "(pins[19:18]!=2'd1)",
+        "FA=3'": "(pins[19:18]!=2'd3)",
+        "FC=7'": "(pins[14:12]!=3'd7)",
+        "FF.2'a": "~pins[17]",
+        "FF.2a": "pins[17]",
+        "FF.3'a": "~pins[16]",
+        "ProcH26.sil+3": "1'b0",
+        "ProcH27.sil+12": "1'b0"
+      },
+      "clock_taps": [
+        "@l02.ca",
+        "@l02.cb",
+        "SHCP'C",
+        "Clock0'Da",
+        "Clock1'Ca"
+      ],
+      "flag_taps": [
+        "RepeatCurrC",
+        "Hold",
+        "Curr=Next'"
+      ],
+      "source_sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "combinational_sources": [
+        "verilog/cells/cell_MC10100.v",
+        "verilog/cells/cell_MC10101.v",
+        "verilog/cells/cell_MC10102.v",
+        "verilog/cells/cell_MC10113.v",
+        "verilog/cells/cell_MC1660.v",
+        "verilog/cells/cell_SE10210.v",
+        "verilog/cells/cell_SE10211.v",
+        "verilog/cells/cell_SE10212.v"
+      ]
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "packages": {
+        "a01": "MC10102",
+        "a20": "MC10141",
+        "a21": "MC10141",
+        "a22": "MC10113",
+        "a24": "MC10101",
+        "c18": "SE10210",
+        "d17": "MC10176",
+        "f12": "SE10212",
+        "f13": "SE10210",
+        "f19": "MC1660",
+        "f20": "MC10100",
+        "g12": "SE10211",
+        "g13": "SE10210",
+        "g23": "MC10102",
+        "h23": "MC10102",
+        "h24": "MC10101",
+        "l01": "SE10210",
+        "l02": "SE10231"
+      },
+      "sequential": {
+        "l02": [
+          0,
+          2
+        ],
+        "d17": [
+          2,
+          6
+        ],
+        "a21": [
+          8,
+          4
+        ],
+        "a20": [
+          12,
+          4
+        ]
+      },
+      "physical_bits": 16,
+      "original_pins": 176,
+      "boundary_bindings": {
+        "CLK.pl'": "base",
+        "CLKEnable'b": "en",
+        "StartCycle'a": "start_a",
+        "PRhold": "pins[25]",
+        "BNTGtCT'a": "pins[24]",
+        "LC.0": "pins[11]",
+        "LC.1": "pins[10]",
+        "LC.2": "pins[9]",
+        "Next.0": "pins[20]",
+        "Next.1": "pins[21]",
+        "Next.2": "pins[22]",
+        "Next.3": "pins[23]",
+        "FA=0'b": "(pins[19:18]!=2'd0)",
+        "FC=5'": "(pins[14:12]!=3'd5)",
+        "FB=7'": "(pins[17:15]!=3'd7)",
+        "FB=3'": "(pins[17:15]!=3'd3)",
+        "FC=6'": "(pins[14:12]!=3'd6)",
+        "BSEL.0'": "1'b0",
+        "BSEL.1'": "1'b0",
+        "BSEL.2'": "1'b0",
+        "IOBout": "1'b0",
+        "FB=2'": "(pins[17:15]!=3'd2)",
+        "FC=4/5'": "((pins[14:12]!=3'd4)&&(pins[14:12]!=3'd5))",
+        "HoldDly": "1'b0",
+        "IOBin'": "1'b0",
+        "ProcL26.sil+1": "1'b0",
+        "ProcL27.sil+11": "1'b0",
+        "TisIFdata": "1'b0"
+      },
+      "clock_taps": [
+        "@l02.ca",
+        "@l02.cb",
+        "SHCP'C",
+        "PreClock0'B",
+        "Clock1'Ca"
+      ],
+      "flag_taps": [
+        "RepeatCurrC",
+        "Hold",
+        "Curr=Next'"
+      ],
+      "source_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "combinational_sources": [
+        "verilog/cells/cell_MC10100.v",
+        "verilog/cells/cell_MC10101.v",
+        "verilog/cells/cell_MC10102.v",
+        "verilog/cells/cell_MC10113.v",
+        "verilog/cells/cell_MC1660.v",
+        "verilog/cells/cell_SE10210.v",
+        "verilog/cells/cell_SE10211.v",
+        "verilog/cells/cell_SE10212.v"
+      ]
+    }
+  ],
+  "physical_bits": 64,
+  "original_pins": 642,
+  "packages": 70,
+  "seams": [
+    {
+      "signal": "StartCycle'a",
+      "consumer": "ProcH-Rev-Ce",
+      "source_pin": "C24",
+      "sink_pin": "C5"
+    },
+    {
+      "signal": "StartCycle'a",
+      "consumer": "ProcL-Rev-Ci",
+      "source_pin": "C24",
+      "sink_pin": "C5"
+    },
+    {
+      "signal": "CLKEnable'c",
+      "consumer": "ProcH-Rev-Ce",
+      "source_pin": "C13",
+      "sink_pin": "C8"
+    },
+    {
+      "signal": "CLKEnable'b",
+      "consumer": "ProcL-Rev-Ci",
+      "source_pin": "C12",
+      "sink_pin": "C8"
+    }
+  ],
+  "clock_source": {
+    "board": "chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.wl",
+    "sha256": "ca1a3acdc926f56f6da5ebceb46209bf45473b5ddcf102860358813dfdcd6152",
+    "contract": "CLK.ca/ph/pl are parallel outputs of BaseBd l01 from the same j02 pulse; analog skew is not modeled."
+  }
+}

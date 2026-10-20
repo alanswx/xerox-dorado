@@ -73,6 +73,28 @@ front/bypass/IFU/Ready/MIR/Hold producers
 and native clock integration remain open. Exact evidence
 and process state are at the top of the handoff.
 
+The front RBase/stack/bypass extension passes six profiles in both simulators
+at736 processor bits/57 clocks, with11,236 events/profile. All16 RBase slots,
+all256 expected pointer loads, every added bit/clock, resolved sources and stable
+write windows pass. Raw decoder/adapters pass4,352 checks in both engines; seven
+bad variants reject. Its ordinary-port synthesis representation passes another
+16,384 arbitrary-state/input comparison in both engines. Both fits are terminal:
+observation-inclusive v5 misses15ns setup by3.041ns; full functional-interface v6
+still misses by2.617ns (hold+0.156ns). V6 keeps every state/event/port/invariant bit,
+leaving only210 post-state observation bits unregistered. Its actual18-level
+critical path is task priority/current-task feedback into `unsettled`. Shorten
+that computation with original capture epochs, retain the check and original
+15ns constraint, and requalify before expanding the cone or integrating natively.
+See the handoff and [component contract](verilog-r-front-contract.md). All jobs
+are terminal; hardware remains unchanged. Speed,60ns whole-board timing and
+rollback remain open.
+
+The source/report receipt is [archived here](../fpga/mister/reports/2026-10-20-r-front-path/README.md):
+4,821 raw members, lossless readback/extraction and identical replay of both
+rejected timing reviews. The next timing target is the task core's priority/
+Switch/CurrentTask feedback; make its original capture epochs explicit and
+requalify all callers after changing it. Goal ACTIVE, all jobs terminal.
+
 1. Preserve the unintegrated host-service/Main-client prototype as deferred
    work. Its v6 component evidence passes, but native wiring and the actual
    Main coordinator do not exist. Do not expand that work for this goal.

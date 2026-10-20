@@ -1,0 +1,64 @@
+{
+  "status": "PASS_R_FRONT_SYNTHESIS_LOWERING",
+  "inputs": {
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/hierarchical-cone.sv": "ec493c465319f234359441e3640032a2409635bbf8d610a71f0022761a95fcb8",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-fit-v5-inputs-20261020/dorado_r_front_cone.sv": "ec341b927c16b60b5ea8f927ec2d8f412fa06a11ee338b6f556aaf2b6797f4e8",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/tb_r_front_cone_lowering.sv": "67544459b80ae8bea878e81aa27cdf1c3540b5a6f2721ff5f08d2222e58f6666"
+  },
+  "actions": [
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_r_front_cone_lowering",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/hierarchical-cone.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-fit-v5-inputs-20261020/dorado_r_front_cone.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/tb_r_front_cone_lowering.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_r_front_cone_lowering",
+        "-Wno-fatal",
+        "-Wno-PINMISSING",
+        "-Wno-TIMESCALEMOD",
+        "-Wno-MULTIDRIVEN",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/hierarchical-cone.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-fit-v5-inputs-20261020/dorado_r_front_cone.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/tb_r_front_cone_lowering.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/verilator-compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-lowering-check-20261020/verilator-test.log"
+    }
+  ],
+  "summary": "checks=16384 observed_bits=1085 roots_low=8254 roots_high=8130",
+  "native_qualified": false
+}

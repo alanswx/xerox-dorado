@@ -32,9 +32,9 @@ def slack(path,model):
 
 
 def r_storage_memory(directory,qualified,processor_bits):
-    assert processor_bits in (596,636) and qualified['physical_bits']==processor_bits
+    assert processor_bits in (596,636,736) and qualified['physical_bits']==processor_bits
     assert qualified['ram_bits']==9216 and qualified['total_physical_bits']==9216+processor_bits
-    if processor_bits==636:
+    if processor_bits>=636:
         assert qualified['R_final_address_stage_qualified'] and qualified['all_R_memory_bits_compared']
     assert qualified['r_read_write_nonoverlap_checked'] and qualified['post_commit_source_epoch_checked']
     assert qualified['ram_arrays_flattened'] is False
@@ -57,7 +57,7 @@ def r_storage_memory(directory,qualified,processor_bits):
     # the read-address port. The new component requires a truly async read;
     # retain the older externally registered-address fixture's exact contract.
     parameters={'INDATA_REG':'INCLOCK','WRADDRESS_REG':'INCLOCK','WRCONTROL_REG':'INCLOCK',
-        'RDADDRESS_REG':'UNREGISTERED'if processor_bits==636 else'OUTCLOCK',
+        'RDADDRESS_REG':'UNREGISTERED'if processor_bits>=636 else'OUTCLOCK',
         'RDCONTROL_REG':'UNREGISTERED','OUTDATA_REG':'UNREGISTERED',
         'RAM_BLOCK_TYPE':'LUTRAM','READ_DURING_WRITE_MODE_MIXED_PORTS':'DONT_CARE'}
     for name in names:
@@ -82,10 +82,15 @@ def audit(directory,qualified,allow_missing):
               'r_flags':(902,689,'r_flags','PASS_R_FLAGS_ARRIVAL_CONTRACT','dorado_r_flags_step.sv'),
               'r_address':(1042,791,'r_address','PASS_R_ADDRESS_ARRIVAL_CONTRACT','dorado_r_address_step.sv'),
               'r_memory':(1043,847,'r_memory','PASS_R_MEMORY_ARRIVAL_CONTRACT','dorado_r_memory_step.sv'),
+              'r_front':(1211,1181,'r_front','PASS_R_FRONT_ARRIVAL_CONTRACT','dorado_r_front_step.sv'),
+              'r_front_functional':(1211,971,'r_front_functional','PASS_R_FRONT_ARRIVAL_CONTRACT','dorado_r_front_step.sv'),
               'r_storage':(939,709,'r_storage','PASS_R_STORAGE_ARRIVAL_CONTRACT','dorado_r_storage_step.sv')}
     assert provenance.get('component')in profiles,'Unknown fixture profile'
     expected_launch,expected_result,component,expected_status,evaluator=profiles[provenance.get('component')]
     assert provenance['clock_period_ns']==15 and provenance['launch_bits']==expected_launch and provenance['result_bits']==expected_result
+    if component=='r_front_functional':
+        assert provenance['observation_outputs_registered'] is False
+        assert provenance['observation_only_outputs']==['source_pins','fa_n']
     assert not provenance['assembly_permitted']and not provenance['native_qualified']
     annotation=b'\nset_global_assignment -name LAST_QUARTUS_VERSION "17.0.2 Lite Edition"'
     for name,digest in provenance['files'].items():
@@ -100,7 +105,16 @@ def audit(directory,qualified,allow_missing):
     assert sha((directory/evaluator).read_bytes())==evaluator_digest
     for name in provenance['files']:
         if name.endswith('.sv')and name!='top.sv':
-            assert sha((directory/name).read_bytes())==qualified_record['inputs']['verilog/rtl/'+name],('unqualified RTL dependency',name)
+            if component in ('r_front','r_front_functional')and name=='dorado_r_front_cone.sv':
+                from fit_r_front import quartus_cone
+                cone=json.loads((qualified/'dorado_r_front_cone.json').read_text())
+                assert (directory/name).read_text()==quartus_cone((qualified/name).read_text())
+                assert sha((directory/'qualified-cone.sv.txt').read_bytes())==cone['output_sha256']
+                assert sha((qualified/name).read_bytes())==cone['output_sha256']
+                for source,digest in cone['source_cells'].items():
+                    assert qualified_record['inputs'][source]==digest,source
+            else:
+                assert sha((directory/name).read_bytes())==qualified_record['inputs']['verilog/rtl/'+name],('unqualified RTL dependency',name)
     sdc=(directory/'clock.sdc').read_text();qsf=(directory/'clock_fit.qsf').read_text()
     assert sdc.splitlines()==[
         'create_clock -name host_clock -period 15.000 [get_ports host_clk]',
@@ -149,7 +163,8 @@ def audit(directory,qualified,allow_missing):
         match=re.search(re.escape(label)+r'\s*:\s*([\d,]+)',summary);assert match,label
         resources[key]=int(match[1].replace(',',''))
     assert resources['memory_bits']==resources['ram_blocks']==resources['dsp']==resources['plls']==0
-    memory=r_storage_memory(directory,qualified_record,636 if component=='r_memory'else 596)if component in ('r_storage','r_memory')else None
+    memory_bits={'r_storage':596,'r_memory':636,'r_front':736,'r_front_functional':736}
+    memory=r_storage_memory(directory,qualified_record,memory_bits[component])if component in memory_bits else None
     if memory:resources['mlab_memory_bits']=memory['bits']
     minimum={mode:min(r[mode]for r in records)for mode in ['setup','hold','mpw']}
     passing=(targeted_complete and all(v>=0 for v in minimum.values()) and
@@ -161,6 +176,9 @@ def audit(directory,qualified,allow_missing):
         permitted_qsf_delta='Quartus17.0.2 LAST_QUARTUS_VERSION annotation only',
         native_qualified=False,hardware_speedup_claimed=False)
     if memory:result['memory_contract']=memory
+    if component=='r_front_functional':
+        result['observation_outputs']=dict(registered=False,names=['source_pins','fa_n'],
+            scope='Post-state test observations are retained in simulation. Every state bit, clock event, functional port and unsettled check remains in the registered budget.')
     return result
 
 
