@@ -1,0 +1,388 @@
+{
+  "status": "PASS",
+  "scope": "Fresh native8/12 frontend state classification; DRAM oracle is outside this XML.\n\nUses the tested frontend/reference source bytes and parameter bindings. Only\nthe simulation-only DRAM oracle block is removed from the test fixture: its\nhierarchical initial RAM writes are deliberately rejected by the generic\ninventory reader. All frontend and fixture address state remains accounted.\n",
+  "physical_bits_per_side": 234,
+  "private_bits": 2,
+  "fixture_bits": 64,
+  "sequential_exclusions": [],
+  "decisions": [
+    {
+      "path": "storage_snapshot_fixture.case0.addr",
+      "bits": 16,
+      "scope": "FIXTURE ADDRESS"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.cache_addr",
+      "bits": 16,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.cache_data",
+      "bits": 16,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.cache_valid",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.cas_d",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.data_out",
+      "bits": 8,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.old_data",
+      "bits": 16,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.read_pipe",
+      "bits": 8,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.saved_addr",
+      "bits": 16,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.saved_data",
+      "bits": 16,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.saved_write",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.waiting",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.write_data",
+      "bits": 8,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.write_done",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.dut.write_pending",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.cache_addr",
+      "bits": 16,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.cache_data",
+      "bits": 16,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.cache_valid",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.cas_d",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.data_out",
+      "bits": 8,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.old_data",
+      "bits": 16,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.read_pipe",
+      "bits": 8,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.saved_addr",
+      "bits": 16,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.saved_data",
+      "bits": 16,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.saved_write",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.waiting",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.write_data",
+      "bits": 8,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.write_done",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference.write_pending",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case0.reference_addr",
+      "bits": 16,
+      "scope": "FIXTURE ADDRESS"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.addr",
+      "bits": 16,
+      "scope": "FIXTURE ADDRESS"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.cache_addr",
+      "bits": 16,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.cache_data",
+      "bits": 16,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.cache_valid",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.cas_d",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.data_out",
+      "bits": 12,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.old_data",
+      "bits": 16,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.read_pipe",
+      "bits": 12,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.saved_addr",
+      "bits": 16,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.saved_data",
+      "bits": 16,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.saved_write",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.state_frozen",
+      "bits": 1,
+      "scope": "PRIVATE TRANSPORT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.waiting",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.write_data",
+      "bits": 12,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.write_done",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.dut.write_pending",
+      "bits": 1,
+      "scope": "PHYSICAL DUT"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.cache_addr",
+      "bits": 16,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.cache_data",
+      "bits": 16,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.cache_valid",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.cas_d",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.data_out",
+      "bits": 12,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.old_data",
+      "bits": 16,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.read_pipe",
+      "bits": 12,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.saved_addr",
+      "bits": 16,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.saved_data",
+      "bits": 16,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.saved_write",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.waiting",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.we_d",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.write_data",
+      "bits": 12,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.write_done",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference.write_pending",
+      "bits": 1,
+      "scope": "PHYSICAL REFERENCE"
+    },
+    {
+      "path": "storage_snapshot_fixture.case1.reference_addr",
+      "bits": 16,
+      "scope": "FIXTURE ADDRESS"
+    }
+  ],
+  "xml_sha256": "43dcf2d0d8dc4168e166797f97663a6e256e989fb3c2a75d05f76c77760ec4f4",
+  "failure_controls": [
+    {
+      "case": "old_data_missing",
+      "rejected": true,
+      "diagnostic": "missing frontend state: ['storage_snapshot_fixture.case1.dut.old_data']"
+    },
+    {
+      "case": "waiting_missing",
+      "rejected": true,
+      "diagnostic": "missing frontend state: ['storage_snapshot_fixture.case1.dut.waiting']"
+    },
+    {
+      "case": "extra",
+      "rejected": true,
+      "diagnostic": "extra/duplicate frontend state: storage_snapshot_fixture.case1.dut.old_data_hidden"
+    },
+    {
+      "case": "duplicate",
+      "rejected": true,
+      "diagnostic": "extra/duplicate frontend state: storage_snapshot_fixture.case1.dut.old_data"
+    },
+    {
+      "case": "width",
+      "rejected": true,
+      "diagnostic": "frontend geometry differs: storage_snapshot_fixture.case1.dut.old_data"
+    },
+    {
+      "case": "dimensions",
+      "rejected": true,
+      "diagnostic": "frontend geometry differs: storage_snapshot_fixture.case1.dut.old_data"
+    },
+    {
+      "case": "history_not_sequential",
+      "rejected": true,
+      "diagnostic": "missing frontend state: ['storage_snapshot_fixture.case1.dut.cas_d']"
+    },
+    {
+      "case": "fixed_pipeline_becomes_state",
+      "rejected": true,
+      "diagnostic": "extra/duplicate frontend state: storage_snapshot_fixture.case1.dut.pipe_known"
+    },
+    {
+      "case": "frozen_missing",
+      "rejected": true,
+      "diagnostic": "missing frontend state: ['storage_snapshot_fixture.case1.dut.state_frozen']"
+    }
+  ]
+}

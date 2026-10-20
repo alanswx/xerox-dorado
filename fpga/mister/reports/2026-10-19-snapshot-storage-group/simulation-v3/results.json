@@ -1,0 +1,167 @@
+{
+  "status": "PASS",
+  "scope": "Native8/12 frontend serial state versus original RTL and original DRAM chips.",
+  "manifest": {
+    "scope": "Serial access to the selected native storage frontend's physical registers.\n\nThe host work continues during guest stalls. Only a final external hold stops\nboth domains; the caller must first drain accepted raw transactions and hold\nall consumers. SDRAM refresh and global service barriers are outside this cell.\nThe guest advance must be the actual clock gate's pre-edge enable. This pins\nthe native DEFER_READS=0 path; changing that policy needs a new schema/gate.\n",
+    "original_sha256": "4cc548cf769757956c61c8075a50c3ba341f73cbfcbedd4f4de8c2ed40e0b334",
+    "generated_sha256": "c8643dcf89c553436a0ac6c71e351f75695a0a6c0f16674201ebf06dfb82e1a0",
+    "module": "dorado_storage_group_snapshot",
+    "parameters": {
+      "ADDR_BITS": 16,
+      "WIDTH": [
+        8,
+        12
+      ],
+      "DEFER_READS": 0
+    },
+    "fields": [
+      [
+        "cas_d",
+        1
+      ],
+      [
+        "we_d",
+        1
+      ],
+      [
+        "write_pending",
+        1
+      ],
+      [
+        "write_data",
+        "WIDTH"
+      ],
+      [
+        "read_pipe",
+        "WIDTH"
+      ],
+      [
+        "data_out",
+        "WIDTH"
+      ],
+      [
+        "cache_valid",
+        1
+      ],
+      [
+        "write_done",
+        1
+      ],
+      [
+        "waiting",
+        1
+      ],
+      [
+        "saved_write",
+        1
+      ],
+      [
+        "cache_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "saved_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "cache_data",
+        16
+      ],
+      [
+        "saved_data",
+        16
+      ],
+      [
+        "old_data",
+        16
+      ]
+    ],
+    "physical_bits": {
+      "width8": 111,
+      "width12": 123
+    },
+    "private_bits": 1,
+    "fixed_defer0_fields": {
+      "pipe_addr": 0,
+      "pipe_known": 1
+    }
+  },
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "lost_hold",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "lost_guest_enable",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "host_frozen_with_guest",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "held_request_leak",
+      "returncode": 1,
+      "expected_failure": "held raw request/response leak"
+    },
+    {
+      "case": "held_response_leak",
+      "returncode": 1,
+      "expected_failure": "held raw request/response leak"
+    },
+    {
+      "case": "false_drain_boundary",
+      "returncode": 1,
+      "expected_failure": "drain boundary differs"
+    },
+    {
+      "case": "lost_old_word",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "lost_saved_address",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "serial_history_loss",
+      "returncode": 1,
+      "expected_failure": "serial read order differs"
+    },
+    {
+      "case": "scan_when_running",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    }
+  ],
+  "source_controls": [
+    {
+      "case": "extra_state",
+      "rejected": true,
+      "diagnostic": "unreviewed original storage frontend"
+    },
+    {
+      "case": "changed_process",
+      "rejected": true,
+      "diagnostic": "unreviewed original storage frontend"
+    }
+  ],
+  "executed_inputs": {
+    "generate_storage_group.py": "fd2405de0405e0e24ed4266f3c65ec71fe885f259d3d248fcb79eeca86488e17",
+    "test_storage_group_snapshot.cpp": "44c194678b9fbb11481c22a9d2b02b5250c71e07334ebb50f1078f1565fb6484",
+    "generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "test_storage_group_snapshot.py": "e540cfe21fd4e977524a950012c586ee0df629ea5d5600dc853845987467c002",
+    "dorado_storage_group.sv": "4cc548cf769757956c61c8075a50c3ba341f73cbfcbedd4f4de8c2ed40e0b334",
+    "cell_MK4096P_6.v": "abeb76aa468b903df946c01c0bb147991929aee33573c660ca2398018d16759e"
+  },
+  "limits": "Two native frontend widths at address16/defer0; no MSA board, native/global barrier, SDRAM refresh or machine snapshot qualification."
+}

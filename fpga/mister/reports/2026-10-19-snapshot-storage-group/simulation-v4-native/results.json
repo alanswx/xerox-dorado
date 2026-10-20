@@ -1,0 +1,163 @@
+{
+  "status": "PASS",
+  "scope": "Native8/12 frontend serial state versus original RTL and original DRAM chips.",
+  "manifest": {
+    "scope": "Serial access to the selected native storage frontend's physical registers.\n\nThe host work continues during guest stalls. Only a final external hold stops\nboth domains; the caller must first drain accepted raw transactions and hold\nall consumers. SDRAM refresh and global service barriers are outside this cell.\nThe guest advance must be the actual clock gate's pre-edge enable. This pins\nthe exact frozen native nondeferred source; changing that policy needs a new schema/gate.\n",
+    "original_sha256": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+    "generated_sha256": "9ed5b31e83859ff06c9d536de7a90880a839e5f0af8abb468005eda194a163d1",
+    "module": "dorado_storage_group_snapshot",
+    "parameters": {
+      "ADDR_BITS": 16,
+      "WIDTH": [
+        8,
+        12
+      ]
+    },
+    "fields": [
+      [
+        "cas_d",
+        1
+      ],
+      [
+        "we_d",
+        1
+      ],
+      [
+        "write_pending",
+        1
+      ],
+      [
+        "write_data",
+        "WIDTH"
+      ],
+      [
+        "read_pipe",
+        "WIDTH"
+      ],
+      [
+        "data_out",
+        "WIDTH"
+      ],
+      [
+        "cache_valid",
+        1
+      ],
+      [
+        "write_done",
+        1
+      ],
+      [
+        "waiting",
+        1
+      ],
+      [
+        "saved_write",
+        1
+      ],
+      [
+        "cache_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "saved_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "cache_data",
+        16
+      ],
+      [
+        "saved_data",
+        16
+      ],
+      [
+        "old_data",
+        16
+      ]
+    ],
+    "physical_bits": {
+      "width8": 111,
+      "width12": 123
+    },
+    "private_bits": 1,
+    "policy": "Exact archived native nondeferred source, not the working-tree deferred-capable variant"
+  },
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "lost_hold",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "lost_guest_enable",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "host_frozen_with_guest",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "held_request_leak",
+      "returncode": 1,
+      "expected_failure": "held raw request/response leak"
+    },
+    {
+      "case": "held_response_leak",
+      "returncode": 1,
+      "expected_failure": "held raw request/response leak"
+    },
+    {
+      "case": "false_drain_boundary",
+      "returncode": 1,
+      "expected_failure": "drain boundary differs"
+    },
+    {
+      "case": "lost_old_word",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "lost_saved_address",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    },
+    {
+      "case": "serial_history_loss",
+      "returncode": 1,
+      "expected_failure": "serial read order differs"
+    },
+    {
+      "case": "scan_when_running",
+      "returncode": 1,
+      "expected_failure": "physical state differs"
+    }
+  ],
+  "source_controls": [
+    {
+      "case": "extra_state",
+      "rejected": true,
+      "diagnostic": "unreviewed original storage frontend"
+    },
+    {
+      "case": "changed_process",
+      "rejected": true,
+      "diagnostic": "unreviewed original storage frontend"
+    }
+  ],
+  "executed_inputs": {
+    "generate_storage_group.py": "706ffd66590d6ea8f08dcb5077856da7eff4aa6f89d183c961f094072e5da4c0",
+    "test_storage_group_snapshot.cpp": "44c194678b9fbb11481c22a9d2b02b5250c71e07334ebb50f1078f1565fb6484",
+    "generate_snapshot_ff.py": "82c442fcdfb250cb26e8f5a286293584ce305f0418c00aa8a8e015bdb34466e0",
+    "test_storage_group_snapshot.py": "64f996f60bc607e8aed2d6d8f31d9717e0e7d1f1a2cb8121149e280b0535885d",
+    "dorado_storage_group.sv": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+    "cell_MK4096P_6.v": "abeb76aa468b903df946c01c0bb147991929aee33573c660ca2398018d16759e"
+  },
+  "limits": "Two exact frozen native frontend widths at address16, nondeferred; no MSA board, native/global barrier, SDRAM refresh or machine snapshot qualification."
+}

@@ -1,0 +1,13 @@
+{
+  "status": "PASS_COMPONENT_ONLY",
+  "raw_files": 263,
+  "regeneration_byte_identical": true,
+  "original_matches_archived_native_source": true,
+  "original_sha256": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+  "alternate_working_tree_source_rejected": true,
+  "physical_bits_per_side": 234,
+  "private_bits": 2,
+  "fixture_bits": 64,
+  "classification_failure_controls": 9,
+  "limits": "Exact native component only; no MSA board/backend barrier, refresh, timing/core capacity, full snapshot or speed claim."
+}

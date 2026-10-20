@@ -1330,3 +1330,48 @@ reset must mean a genuine machine reseed; parser reset or a soft reset leaving
 shifted physical state cannot release quarantine.
 
 No combined fit, clock/timer change, hardware deployment or speed improvement is claimed.
+
+## Exact native storage frontend serial access (2026-10-19)
+
+**The native storage frontend now has qualified physical serial access. MSA board integration and the coordinated raw-memory boundary remain pending.**
+
+`generate_storage_group.py` binds the exact archived native nondeferred source
+(SHA256 `542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa`).
+Both normal process bodies and original pin logic are retained. The actual
+pre-edge guest enable advances the guest-clocked fields; host completion keeps
+running through guest stalls. Final hold freezes both domains, suppresses raw
+request/response handshakes and permits rotation of the existing physical FFs.
+The drain-ready output is a pre-hold condition, not a persistent acknowledgment
+while physical state rotates. Every accepted raw transaction must be drained by
+the eventual external coordinator; physical SDRAM refresh must keep running.
+
+Both native widths pass against the original frontend AND original DRAM bit
+chips: 110,808 host edges / 2,237,064 checks / 5,010 guest edges / 10,948 raw
+requests / 924 writes / 63,324 scan edges. Nine destructive save/restore exercises
+include pending reads, pending writes and physical write-done before guest
+commit; first legal guest edges, changing held pins/reset/handshakes, unheld
+scan attempts, full walking-bit loads, eight reset episodes and all 1,310,720
+oracle RAM bits pass. Ten actual RTL mutations and two changed-source controls
+reject, including a falsely asserted drain-ready boundary.
+
+Fresh frontend-only XML retains 234 physical bits per side, two private hold
+acknowledgments and 64 fixture address bits, with no sequential exclusions;
+nine damaged inventory controls reject. The functional fixture retains the DRAM
+oracle. Its hierarchical RAM initialization is deliberately outside this XML,
+whose generic reader correctly rejects such cross-hierarchy assignments.
+Initial working-tree deferred-capable-source trials were rejected by the native
+source identity check; the final generator and both references use the frozen
+native bytes, and the complete suite reproduces there. All 263 raw archive
+members pass hash readback. Extracted native-source regeneration, XML/state
+controls and alternate-source rejection pass. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-storage-group/`.
+
+Next: combine the 866 original FF/history and 1,824 frontend bits per MSA board,
+qualify complete board access/hold/abort, then finish remaining wrapper state and
+actual service barriers. A single 2,690-bit MSA chain exceeds the existing
+2,048-cycle transport budget; its mapping/deadline must be explicitly qualified.
+No new combined area/timing, RBF, hardware restore or speed result is claimed.
+Live Native59's last qualified rate remains 1,947,654.12 issues/s. Complete
+snapshots, original 60 ns clocks/timers, pinned comparisons and final boot/
+persistence/two-hour stress gates remain open. Goal ACTIVE. All jobs here are
+terminal.

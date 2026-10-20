@@ -1,0 +1,13 @@
+[
+  "verilator",
+  "--xml-only",
+  "--assert",
+  "--top-module",
+  "storage_snapshot_fixture",
+  "-Wno-fatal",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-storage-group-classification-v4-20261019/state.xml",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-storage-group-classification-v4-20261019/frontend-fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-storage-group-v3-20261019/candidate/storage_group_snapshot.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/snapshot-storage-group-v3-20261019/executed-inputs/dorado_storage_group.sv"
+]

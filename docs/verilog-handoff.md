@@ -2,6 +2,51 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**The native storage frontend now has qualified physical serial access. MSA board integration and the coordinated raw-memory boundary remain pending.**
+
+`generate_storage_group.py` binds the exact archived native nondeferred source
+(SHA256 `542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa`).
+Both normal process bodies and original pin logic are retained. The actual
+pre-edge guest enable advances the guest-clocked fields; host completion keeps
+running through guest stalls. Final hold freezes both domains, suppresses raw
+request/response handshakes and permits rotation of the existing physical FFs.
+The drain-ready output is a pre-hold condition, not a persistent acknowledgment
+while physical state rotates. Every accepted raw transaction must be drained by
+the eventual external coordinator; physical SDRAM refresh must keep running.
+
+Both native widths pass against the original frontend AND original DRAM bit
+chips: 110,808 host edges / 2,237,064 checks / 5,010 guest edges / 10,948 raw
+requests / 924 writes / 63,324 scan edges. Nine destructive save/restore exercises
+include pending reads, pending writes and physical write-done before guest
+commit; first legal guest edges, changing held pins/reset/handshakes, unheld
+scan attempts, full walking-bit loads, eight reset episodes and all 1,310,720
+oracle RAM bits pass. Ten actual RTL mutations and two changed-source controls
+reject, including a falsely asserted drain-ready boundary.
+
+Fresh frontend-only XML retains 234 physical bits per side, two private hold
+acknowledgments and 64 fixture address bits, with no sequential exclusions;
+nine damaged inventory controls reject. The functional fixture retains the DRAM
+oracle. Its hierarchical RAM initialization is deliberately outside this XML,
+whose generic reader correctly rejects such cross-hierarchy assignments.
+Initial working-tree deferred-capable-source trials were rejected by the native
+source identity check; the final generator and both references use the frozen
+native bytes, and the complete suite reproduces there. All 263 raw archive
+members pass hash readback. Extracted native-source regeneration, XML/state
+controls and alternate-source rejection pass. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-storage-group/`.
+
+Next: combine the 866 original FF/history and 1,824 frontend bits per MSA board,
+qualify complete board access/hold/abort, then finish remaining wrapper state and
+actual service barriers. A single 2,690-bit MSA chain exceeds the existing
+2,048-cycle transport budget; its mapping/deadline must be explicitly qualified.
+No new combined area/timing, RBF, hardware restore or speed result is claimed.
+Live Native59's last qualified rate remains 1,947,654.12 issues/s. Complete
+snapshots, original 60 ns clocks/timers, pinned comparisons and final boot/
+persistence/two-hour stress gates remain open. Goal ACTIVE. All jobs here are
+terminal.
+
+Earlier board and primitive qualification:
+
 **All eleven main-board serial adapters now pass namespace and global hold/abort qualification. Native MSA/wrapper state and service barriers are next; no new full-core fit or deployment is claimed.**
 
 `generate_serial_boards.py` derives the adapters from the exact qualified fit
@@ -3184,7 +3229,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Namespace all eleven serial boards/148 modules, normalize ContA's equivalent cast and qualify forced global hold/separate scan abort: inverse-source proof/66 controls, all-board ordinary/hold/abort comparison, nine actual RTL mutations, fresh 1,944,744 physical + 3,930 private inventory/77 controls. Archive 2,983 raw files and pass extracted regeneration/source/XML audits.
 - [x] Qualify three MSA primitive adapter families / four geometries / 50 representative bits: 106,111 host edges, independent original/state/pin oracles, destructive restore/first edge/20K more; seven actual RTL mutations and three source controls reject. Fresh complete 50-bit-per-side XML/seven controls pass.
 - [x] Classify all eight exact native MSA instances: 21,520 required SAVE bits / 3,664 fields, 866 original + 1,824 frontend bits per board; nine damaged controls reject, all 216 native source receipts revalidated. Archive 364 raw files and pass extracted source regeneration/XML audits.
-- [ ] Implement MSA board access (866 FF/history bits per board) using the qualified families, then all 1,824 frontend bits per board with faithful host/guest clock holds and a drained raw-memory boundary; classification is not access.
+- [x] Qualify exact-native nondeferred frontend serial access for widths 8/12: all 111/123 physical bits, original frontend/DRAM chip oracles, pending read/write/write-done checkpoints, full walking-bit loads/restore/first legal guest edges, all 1,310,720 oracle RAM bits; 110,808 host / 2,237,064 checks / ten actual RTL mutants / two source controls. Fresh 234 physical per side + 2 private + 64 fixture inventory/nine controls; archive 263 raw files and pass extracted exact-native regeneration/XML audits.
+- [ ] Implement complete MSA board access (866 FF/history + 1,824 frontend bits per board), local hold/abort and actual drained raw-memory coordination. Qualify the 2,690-bit chain's mapping and response deadline beyond the current 2,048-cycle budget. Native MSA integration is still pending.
 - [ ] Implement actual backend/input/ARM service quiesce and acknowledgments with correct SYSTEM-reset lifetime; preserve SDRAM refresh and bind quarantine release to genuine machine reseed. Generic contracts and local board holds do not freeze the native machine.
 - [ ] Continue area reductions without dropping state until all enabled interfaces fit, then qualify complete-core timing and physical memory inference; no RBF/deployment yet.
 - [ ] Complete wrapper/backend/top-level sequential-state classification/access in addition to eleven-board state; native-wrapper154,037bit inventory is review-only.
