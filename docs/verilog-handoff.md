@@ -1,6 +1,58 @@
 # Verilog from Sil: handoff
 
-## Current objective (2026-10-20)
+## Current objective (revised 2026-10-20)
+
+**Replacement goal ACTIVE: speed -> authentic Cedar Checkpoint/Rollback -> final
+qualification. Complete FPGA snapshots are deferred follow-up.** User cleared
+the previous paused goal and explicitly requested this new goal and resumption.
+The authoritative delivery order is at the top of
+[the clock plan](verilog-clock-plan.md#active-delivery-plan-and-goal-revised-2026-10-20).
+
+Start native speed work from qualified Native59 with administrative state access
+inactive. Keep its SDRAM, responsive ARM disk path and direct-DDR networking.
+Do not make whole-machine state access, the new host-service endpoint, a large
+Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
+sole SPI owner; minimize and isolate its required changes. Preserve qualified
+components/evidence and reuse clock work only after checking Native59 contracts.
+
+The last measured rate remains **1,947,654.12 instruction issues/s**. No new
+clock build, FPGA rollback or hardware speedup is claimed. Immediate work:
+reconstruct/check the frozen Native59 inputs, then resume the original capture/
+phase contract from T/StartCycle/Run/extension and test before native integration.
+Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
+qualify it through original firmware and the germ/disk path. Rollback preserves
+later filesystem changes; it is not a disk rewind or a raw FPGA snapshot.
+
+Deferred unintegrated host-service/Main-client prototype is preserved in source.
+Local v6 evidence: `build/rtl-executive/host-services-main-client-v6-20261020`;
+125 RTL checks, 1,930 client checks, 49 SPI transactions (max22 words), 11 bad
+variants rejected, C++14 compilation, 332 endpoint bits inventoried plus353
+existing UIO bits. Component-only; native and actual Main coordination are
+absent. Provenance verifier matches all10 executed inputs. A portable archived
+replay receipt has not been packaged; do not claim one. No production binary
+or FPGA change resulted from this prototype.
+
+### Speed work resumed: baseline and clock checks
+
+`tools/stage_native_speed.py` reconstructs the Native59 normal-operation project
+from frozen receipts, verifies all413 original compiled inputs against the
+separate original qualification report and all498 archived baseline files, and
+allows only project-root relocation in configuration. Fresh staging and a
+separate verify pass succeed at
+`build/rtl-executive/native-speed-baseline-20261020`. No working generated HDL
+or Serial74 source is used. No new fit/deployment/speed claim.
+
+The existing original-wiring/T-control, independent phase and divider audit
+checks pass (`make -C verilog t-controls-test clock-phases-test clock-phase-audit`;
+log `build/rtl-executive/speed-resume-clock-contract-20261020.log`). T controls:
+8,192 comparisons,8,164 manual checks,2,048 holds; the universal-enable bad
+variant disagrees4,096 times. At N4 the divider's ECP lead is1/4 period rather
+than1/8 and its low window1/4 rather than3/8; at N2 the ECP/SCP edges coincide.
+This reproduces the known phase-quantization defect, not a newly fixed clock.
+Next: complete the original T/StartCycle/Run/extension event-order reference
+before translating capture enables or reducing the divider.
+
+### Preserved snapshot experiment status (deferred)
 
 **Serial74 source-only native integration passes source/state review.** Stage
 `build/rtl-executive/serial74-native-phase-distribution-20261020` contains663

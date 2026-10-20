@@ -7,7 +7,7 @@ The user has released MiSTer14 for reloads/faster builds; keeping
 that session alive is no longer a constraint. See the [clock audit](verilog-from-sil.md#clock-architecture-audit-2026-10-18)
 for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
-## Active delivery plan and goal (2026-10-18)
+## Active delivery plan and goal (revised 2026-10-20)
 
 Deliver a faster, correct Dorado on MiSTer that cold-boots the original
 firmware to Cedar's Viewers desktop and an interactive CommandTool. Use the
@@ -18,8 +18,20 @@ clock/enable and timer migration to target the original 60 ns ordinary
 microinstruction cadence. Report measured instruction progress and waits;
 a higher PLL frequency or an enabled-edge ceiling is not proof of speed.
 
-This is an active implementation goal. The numbered milestones below are
-the delivery order and take precedence over historical candidate diaries.
+This is the replacement implementation goal authorized on 2026-10-20. The
+user cleared the previous paused goal and the new tracked goal is ACTIVE.
+**Speed and authentic Cedar Checkpoint/Rollback come first; complete FPGA
+snapshots are deferred follow-up.** Snapshot-specific Main coordination,
+whole-state access and daemon serialization are not prerequisites. Preserve
+those prototypes and evidence without integrating them into the speed core.
+Minimize and isolate necessary Main changes; Main remains the sole SPI owner.
+
+The numbered milestones below are the delivery order and take precedence
+over historical candidate diaries. Restart speed integration from qualified
+Native59, whose state-administration inputs are inactive, rather than treating
+the unqualified Serial74 snapshot-enabled source as the next deployable core.
+Retain useful qualified clock components only after checking their contracts
+against this normal-operation baseline.
 Native34 is the earlier desktop/input reference; Native35 provides
 the earlier diagnostic baseline. SDRAM41c now passes original-firmware
 Viewers/input and41d cold marker readback. Direct-DDR network47 passes real
@@ -37,11 +49,59 @@ not a prerequisite for the performance goal.
 | 2. Reduce memory request overhead | Use measured traffic to improve grouping, locality and the single-outstanding frontend. Investigate unnecessary raw fetches on address changes; change them only after proving the original DRAM output pipeline remains correct. | Fewer raw operations and/or shorter waits on pinned workloads, with storage equivalence and original firmware preserved. Demonstrate a repeatable end-to-end improvement; increasing buffer capacity alone is not an acceptance criterion. |
 | 3. Keep disk I/O responsive | Adapt the Mac write-coalescing approach and move blocking file reads/writes/flushes to a bounded ARM worker. Main remains the sole SPI owner and handles explicit completions. Separately reduce whole-track write amplification where guest sector/CRC semantics permit. | Read-after-write, neighboring bytes, eviction, remount/core-load draining and write errors pass. An injected multi-second file operation does not block Main's poll/input service; target under 100 ms poll gaps in that controlled test. Real Cedar disk writes persist after close/remount. |
 | 4. Connect the daemon through DDR | Adapt the Mac/Sun frame-ring pattern for direct `dorado-server` access. Reserve a non-overlapping region, retain the full 2048-byte payload capacity, define ownership/order/generation, and add an acknowledged stop/resume handshake around core loads. Keep SPI/socket transport selectable during qualification. | Random DDR stalls, full/wrap, malformed lengths, reset/reload and stale-generation tests pass. Original DskEth/CRC/wire timing stay in RTL. Boot-file and STP payloads match, Cedar cold-boots, and packet delivery continues while Main has delayed disk work. |
-| 4a. Complete machine snapshots (user added) | After SDRAM/ARM I/O interfaces settle, add generated state export/import for every sequential chip/board and mutable RAM, plus device/clock phase, input queues, disk state and local server connection state. Use the ARM daemon and DDR staging to save/load an atomic, checksummed snapshot bundle with its matching disk image or COW generation. | Restore the full machine at a defined safe boundary. Save/continue/restore tests reproduce subsequent state, output, input, transfers and disk writes. Test pending operations and reset/error cases. Qualify a saved Cedar desktop on FPGA with a measured restore-time benefit. Reject incompatible schemas/builds before modifying the machine. |
 | 5. Finish accurate clocks | Integrate the independently checked phase contract and T-control cone, then remaining processor/control/IFU/map/cache latch families. Calibrate BaseBoard, Junk/RCLK, display, Ethernet and disk timers together. | Board/microengine and extended-instruction checks, original-ROM startup, all-device timing and cold Cedar/input pass at each step. Demonstrate the original 60 ns nominal ordinary-instruction cadence and report actual instruction progress, holds and external waits separately. |
-| 6. Qualify and release the combined result | Combine individually qualified changes including complete snapshots, repeat the benchmark set, run sustained disk/network/input activity, and publish reproducible artifacts with the handoff updated. | Three consecutive fresh-seed original-firmware Cedar desktop boots; verified complete desktop snapshot restore; exact short and alphabet/digit echo; mouse/click; verified disk persistence; at least two hours of sustained operation without pack/CRC/RX faults. Archive timing, traces, captures, measured speed and remaining limits; commit and push. |
+| 5a. Qualify authentic Cedar Checkpoint/Rollback | Use Cedar's own Checkpoint command, boot/germ outload/inload and disk checkpoint file. Reuse the software-emulator test procedure without importing emulator state. | A quiescent desktop checkpoints and repeatedly restarts on FPGA with working applications, exact keyboard echo and mouse/click. Files created or modified after a checkpoint survive rollback, as Xerox specifies. Measure startup time and verify close/remount and a fresh power/core-load startup with the saved volume. |
+| 6. Qualify and release the combined result | Combine individually qualified speed changes, repeat pinned benchmarks, run sustained disk/network/input activity, and publish reproducible artifacts. Full hardware snapshots are deferred. | Three consecutive fresh-seed original-firmware Cedar desktop boots; repeated authentic Cedar rollback; exact short and alphabet/digit echo; mouse/click; verified disk persistence; at least two hours sustained operation without pack/CRC/RX faults. Archive timing, traces, captures, measured speed and remaining limits; commit and push. |
+
+### Immediate work after resumption
+
+1. Preserve the unintegrated host-service/Main-client prototype as deferred
+   work. Its v6 component evidence passes, but native wiring and the actual
+   Main coordinator do not exist. Do not expand that work for this goal.
+2. Reconstruct and hash-check the archived Native59 normal-operation inputs.
+   Retain SDRAM, disk-worker/cache and direct-DDR network behavior and the
+   original pin, memory and timing contracts. No snapshot-only virtual controls.
+3. Resume the original clock-family migration: establish exact capture/hold
+   ordering from the original boards, starting with T/StartCycle/Run/extension,
+   and test against an independent event-driven reference. The existing
+   eight-slot phase oracle is not a deployable full-speed clock solution.
+4. Fit only a justified native candidate, pass all operating conditions and
+   SDRAM I/O timing, then perform original-firmware and pinned speed tests.
+5. Qualify Cedar's original checkpoint/rollback and final combined gates above.
+
+Deferred FPGA snapshots remain valuable for arbitrary software and debugging,
+but require a separate future milestone and explicit acceptance scope. Cedar
+rollback restores the software world, not disk contents or a cycle-exact set
+of FPGA/ARM internals. See [the original guide](../DoradoDocs/manuals/Introduction_to_Cedar_7.0.md)
+and [our existing C-emulator checkpoint gate](cedar-checkpoint.md).
+
+### Speed work resumed: baseline and clock checks
+
+`tools/stage_native_speed.py` reconstructs the Native59 normal-operation project
+from frozen receipts, verifies all413 original compiled inputs against the
+separate original qualification report and all498 archived baseline files, and
+allows only project-root relocation in configuration. Fresh staging and a
+separate verify pass succeed at
+`build/rtl-executive/native-speed-baseline-20261020`. No working generated HDL
+or Serial74 source is used. No new fit/deployment/speed claim.
+
+The existing original-wiring/T-control, independent phase and divider audit
+checks pass (`make -C verilog t-controls-test clock-phases-test clock-phase-audit`;
+log `build/rtl-executive/speed-resume-clock-contract-20261020.log`). T controls:
+8,192 comparisons,8,164 manual checks,2,048 holds; the universal-enable bad
+variant disagrees4,096 times. At N4 the divider's ECP lead is1/4 period rather
+than1/8 and its low window1/4 rather than3/8; at N2 the ECP/SCP edges coincide.
+This reproduces the known phase-quantization defect, not a newly fixed clock.
+Next: complete the original T/StartCycle/Run/extension event-order reference
+before translating capture enables or reducing the divider.
 
 ### Benchmark contract
+
+The Serial74/73 entries below are preserved historical snapshot experiments.
+Their pending state-access/Main-coordinator work is **not** the active next step.
+Native59 remains the last qualified hardware baseline at 1,947,654.12 instruction
+issues/s; no faster core or FPGA rollback has been qualified yet.
+
 
 **Serial74 native phase source integrated (2026-10-20):** local stage
 `build/rtl-executive/serial74-native-phase-distribution-20261020`, intended remote
@@ -503,36 +563,11 @@ before taking the ARM image lease, wire actual FPGA/network/input/video ACKs,
 establish physical DDR visibility and implement genuine fault recovery/reseed.
 No production Main/daemon/core changed; Native59's measured rate remains.
 
-Next, in delivery order:
-
-1. Preserve terminal Serial73 rejection and its successful registered NEXT-ready
-   cut. Eleven whole-board, native-control-cone and eight-MSA/SDRAM local-phase
-   qualifications now pass. Serial74 integrates those exact assets and accounts
-   nineteen added bits; provide their access and preserve the global gate/live
-   guards. Qualify remaining RAM
-   hold paths and inspect ContA JCN-to-MemX/MemD DMadr separately. Local advance
-   copies alone are not sufficient proof. Keep clock periods/phase and placement
-   policy; qualify actual Main controls and every remaining measured path before
-   a combined fit.
-2. Connect the qualified Main transport lease, disk-worker and daemon pause APIs
-   through the actual snapshot coordinator and compatible-build checks, with real
-   FPGA disk/network, input and video acknowledgments. Wire the qualified network
-   engine/parser pause (including SPI framing and two settling clocks) and the
-   new real serial/HPS disk boundary. Read local device ACKs separately from
-   host permissions; verify FPGA disk drain before acquiring its ARM lease. Finish
-   in-flight guest
-   disk requests before taking the ARM image lease; the memory boundary alone
-   is not whole-machine quiescence.
-3. Add access/export/import for required native wrapper and top emu/UIO state,
-   including task-written SDRAM fields. Keep physical refresh running; capture/
-   restore the memory controller at a proven safe physical boundary.
-4. Save/restore raw16MiB SDRAM backing, DDR packet queues, ARM connection/history/
-   timer state and matching disk generation as an atomic checked bundle. Qualify
-   complete Cedar FPGA save/continue/restore, pending I/O and failure/reseed cases.
-5. Finish original60ns clock/enable and BaseBoard/Junk/RCLK/display/Ethernet/disk
-   timer migration, then repeat pinned progress/wait measurements.
-6. Three fresh original-firmware Cedar boots, cold disk persistence, exact input,
-   at least two hours of sustained combined activity, reproducible release/push.
+Historical snapshot delivery sequence (superseded 2026-10-20): state-access,
+Main/daemon admission, raw-memory export and complete bundle restore are deferred.
+Follow the immediate work and milestones at the top of this document. Preserve
+Serial73's timing rejection and Serial74's component/source evidence for later
+reuse; neither is a qualified speed build.
 
 Goal ACTIVE; the complete requested outcome remains unfinished.
 
