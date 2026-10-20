@@ -23,11 +23,18 @@ def review(root,source,classification,overrides=None):
     assert 'Analysis & Synthesis Status : Successful'in read('core/output_files/Dorado.map.summary')
     assert 'Device : 5CSEBA6U23I7'in summary and 'Total virtual pins : 7'in summary
     assert source['original_pin_connections']==2761
-    memory_pause=source['status']=='PASS_NATIVE_MEMORY_PAUSE_SOURCE_ONLY'
+    memory_fanout=source['status']=='PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY'
+    memory_pause=source['status']=='PASS_NATIVE_MEMORY_PAUSE_SOURCE_ONLY'or memory_fanout
     if memory_pause:
         assert source['verified_parent_inputs']==659 and source['actual_inputs']==660
         assert state['prepared_inputs']==660 and state['prepared_inputs_changed']==[]
-        assert len(source['failure_controls'])==10 and source['constraints_unchanged']
+        assert len(source['failure_controls'])==(6 if memory_fanout else 10) and source['constraints_unchanged']
+        if memory_fanout:
+            assert source['verified_policy_parent_inputs']==660 and source['new_policy_state_bits']==0
+            assert source['changed_policy_files']==['core/Dorado.qsf']
+            assert(source['target'],source['max_fanout'])==('emu|network_step',256)
+            assert re.search(r';\s*emu:emu\|network_step\s*;\s*256\s*;\s*4\s*;',read('core/output_files/Dorado.map.rpt')),'actual fanout setting/replication differs'
+            assert 'Inserted 4 logic cells for Maximum Fan-Out assignment on "emu:emu|network_step"'in read('map.log'),'mapper did not apply targeted replication'
         assert set(source['changed_parent_inputs'])=={
             'core/Dorado.qsf','core/Dorado.sv',
             'src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v',
@@ -120,10 +127,12 @@ def controls(root,source,classification):
         try:review(root,source,classification,{path:damaged})
         except AssertionError as error:result.append(dict(case='wrong_actual_seed',rejected=True,diagnostic=str(error)))
         else:raise AssertionError('unapplied placement seed accepted')
-    if source['status']=='PASS_NATIVE_MEMORY_PAUSE_SOURCE_ONLY':
-        for name,key,value in (('wrong_actual_input_count','actual_inputs',659),
+    if source['status']in('PASS_NATIVE_MEMORY_PAUSE_SOURCE_ONLY','PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY'):
+        cases=[('wrong_actual_input_count','actual_inputs',659),
                                ('fake_memory_pause','real_memory_pause',False),
-                               ('unearned_full_barrier','real_pause_barriers',True)):
+                               ('unearned_full_barrier','real_pause_barriers',True)]
+        if source['status']=='PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY':cases.append(('wrong_policy_limit','max_fanout',64))
+        for name,key,value in cases:
             damaged=dict(source);damaged[key]=value
             try:review(root,damaged,classification)
             except AssertionError as error:result.append(dict(case=name,rejected=True,diagnostic=str(error)))
@@ -133,6 +142,19 @@ def controls(root,source,classification):
         try:review(root,source,damaged)
         except AssertionError as error:result.append(dict(case='omitted_task_state',rejected=True,diagnostic=str(error)))
         else:raise AssertionError('omitted SDRAM task state accepted')
+    if source['status']=='PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY':
+        path='core/output_files/Dorado.map.rpt';raw=(root/path).read_text(encoding='latin1')
+        damaged,count=re.subn(r'(;\s*emu:emu\|network_step\s*;\s*)256(\s*;\s*4\s*;)',lambda m:m[1]+'128'+m[2],raw,count=1)
+        assert count==1
+        try:review(root,source,classification,{path:damaged})
+        except AssertionError as error:result.append(dict(case='wrong_applied_fanout',rejected=True,diagnostic=str(error)))
+        else:raise AssertionError('wrong applied fanout accepted')
+        raw=(root/'map.log').read_text(encoding='latin1')
+        damaged=raw.replace('Inserted 4 logic cells for Maximum Fan-Out assignment','Inserted 0 logic cells for Maximum Fan-Out assignment')
+        assert damaged!=raw
+        try:review(root,source,classification,{'map.log':damaged})
+        except AssertionError as error:result.append(dict(case='missing_actual_replication',rejected=True,diagnostic=str(error)))
+        else:raise AssertionError('unapplied replication accepted')
     return result
 
 

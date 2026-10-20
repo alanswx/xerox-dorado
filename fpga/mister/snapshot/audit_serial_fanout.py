@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 from generate_serial_boards import ROOT,raw_receipt
 import audit_ready_path as prior
+import audit_native_memory_pause as memory
 
 
 def sha(raw):return hashlib.sha256(raw).hexdigest()
@@ -22,11 +23,11 @@ def check(ok,why):
 
 
 @lru_cache(maxsize=1)
-def parent(reports):
-    report=reports/'2026-10-19-snapshot-serial-ready'
-    record=json.loads(raw_receipt(report,'terminal-fit/ready-path-integration.json'))
+def parent(reports,native_memory=False):
+    report=reports/('2026-10-20-snapshot-native-memory-pause-rejected'if native_memory else'2026-10-19-snapshot-serial-ready')
+    record=json.loads(raw_receipt(report,'terminal-fit/'+('memory-pause-integration.json'if native_memory else'ready-path-integration.json')))
     files={n:raw_receipt(report,'terminal-fit/'+n)for n in record['source_hashes']}
-    check(len(files)==659,'parent count differs')
+    check(len(files)==(660 if native_memory else 659),'parent count differs')
     for n,raw in files.items():check(sha(raw)==record['source_hashes'][n],'damaged parent '+n)
     return record,files
 
@@ -35,15 +36,18 @@ def audit(project,reports,overrides=None):
     overrides=overrides or {}
     def read(name):
         raw=overrides.get(name,(project/name).read_bytes());return raw.encode()if isinstance(raw,str)else raw
-    record=json.loads(read('fanout-integration.json'));old,files=parent(reports)
+    record=json.loads(read('fanout-integration.json'));native_memory=record.get('native_memory_pause',False)
+    old,files=parent(reports,native_memory)
     check(record['verified_parent_inputs']==old['source_hashes'],'parent hashes differ')
-    check((record['target'],record['max_fanout'])==('emu|network_step',64),'target/limit differs')
+    limit=256 if native_memory else 64
+    check((record['target'],record['max_fanout'])==('emu|network_step',limit),'target/limit differs')
     check(record['capacity_only']and not record['assembly_permitted']and not record['real_pause_barriers'],'capacity scope differs')
     suffix='''
 # Target the registered guest-advance source; retain all real timing checks.
 set_instance_assignment -name MAX_FANOUT 64 -to "emu|network_step"
 set_instance_assignment -name IGNORE_MAX_FANOUT_ASSIGNMENTS OFF -to "emu|network_step"
 '''
+    if native_memory:suffix=suffix.replace('MAX_FANOUT 64','MAX_FANOUT 256')
     qsf=read('core/Dorado.qsf');check(qsf.count(suffix.encode())==1,'targeted fanout policy differs')
     inverse=qsf.replace(suffix.encode(),b'',1)
     for name,raw in files.items():
@@ -52,6 +56,13 @@ set_instance_assignment -name IGNORE_MAX_FANOUT_ASSIGNMENTS OFF -to "emu|network
         actual=inverse if name=='core/Dorado.qsf'else read(name)
         check(actual==expected,'unapproved source/clock/constraint edit: '+name)
         check(record['source_hashes'].get(name)==sha(read(name)),'actual source hash differs: '+name)
+    if native_memory:
+        rolled=json.loads(read('memory-pause-integration.json'));rolled['source_hashes']['core/Dorado.qsf']=sha(inverse)
+        upstream=memory.audit(project,reports,{'core/Dorado.qsf':inverse,'memory-pause-integration.json':json.dumps(rolled)})
+        upstream.update(status='PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY',verified_policy_parent_inputs=660,
+            changed_policy_files=['core/Dorado.qsf'],target='emu|network_step',max_fanout=256,new_policy_state_bits=0,
+            limits='Only fanout policy differs from Serial69. Actual application, capacity and all-condition timing pending; foreign service ACKs remain virtual.')
+        return upstream
     rolled=json.loads(read('ready-path-integration.json'));rolled['source_hashes']['core/Dorado.qsf']=sha(inverse)
     upstream=prior.audit(project,reports,{'core/Dorado.qsf':inverse,'ready-path-integration.json':json.dumps(rolled)})
     return dict(status='PASS_TARGETED_FANOUT_SOURCE_ONLY',scope=__doc__,verified_parent_inputs=659,
@@ -62,12 +73,14 @@ set_instance_assignment -name IGNORE_MAX_FANOUT_ASSIGNMENTS OFF -to "emu|network
 
 
 def controls(project,reports):
+    native_memory=json.loads((project/'fanout-integration.json').read_text()).get('native_memory_pause',False)
+    limit=256 if native_memory else 64
     cases=[('wrong_target','core/Dorado.qsf','-to "emu|network_step"','-to "emu|machine_enable"'),
-           ('wrong_limit','core/Dorado.qsf','MAX_FANOUT 64','MAX_FANOUT 128'),
+           ('wrong_limit','core/Dorado.qsf','MAX_FANOUT '+str(limit),'MAX_FANOUT 128'),
            ('ignored_limit','core/Dorado.qsf','IGNORE_MAX_FANOUT_ASSIGNMENTS OFF','IGNORE_MAX_FANOUT_ASSIGNMENTS ON'),
-           ('new_exception','core/Dorado.qsf','-name MAX_FANOUT 64','-name SDC_FILE hidden.sdc\nset_instance_assignment -name MAX_FANOUT 64'),
+           ('new_exception','core/Dorado.qsf','-name MAX_FANOUT '+str(limit),'-name SDC_FILE hidden.sdc\nset_instance_assignment -name MAX_FANOUT '+str(limit)),
            ('lost_init','core/Dorado.sv',' && storage_initialized && snapshot_frontends_ready',' && snapshot_frontends_ready'),
-           ('fake_service','core/Dorado.sv','.services_held(CAPACITY_SERVICES_HELD)',".services_held(5'h1f)")]
+           ('fake_service','core/Dorado.sv','.services_held(board_state_services_held)'if native_memory else'.services_held(CAPACITY_SERVICES_HELD)',".services_held(5'h1f)")]
     out=[]
     for label,name,before,after in cases:
         raw=(project/name).read_text();check(before in raw,'missing control anchor');damaged=raw.replace(before,after,1)

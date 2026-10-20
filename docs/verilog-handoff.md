@@ -2,7 +2,7 @@
 
 ## Current objective (2026-10-20)
 
-**Serial69 integrates the qualified eight-MSA memory pause and fits at 41,468 ALMs, but setup timing fails at -0.435 ns. The ARM disk snapshot lease now qualifies on MiSTer14. Complete snapshots, faster clocks and final hardware qualification remain open.**
+**Network/parser pause now qualifies in RTL, alongside the ARM disk lease. Serial70 fanout256 fits but fails setup timing at -0.561 ns; it is rejected. Complete snapshots, faster clocks and final hardware qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and
 warm disk persistence pass. Its last qualified rate remains **1,947,654.12
@@ -21,6 +21,26 @@ early-freeze/member-routing/nonsticky-hold controls reject. All 125 archive
 members read back and a fresh extracted circuit rebuild/run repeats the exact
 counts without working HDL. Evidence:
 `fpga/mister/reports/2026-10-20-snapshot-eight-msa-sdram-pause/`.
+
+**TERMINAL Serial70MemoryFanout:**
+`/home/alans/mister/Dorado_Serial70MemoryFanout_20261020`. Builder2602043 and
+all children are absent; no build from this sequence remains live. All 660
+prepared inputs remain unchanged. Terminal packet SHA256:
+`9dffd8993b2f049cdb3bf21112585bd2e60c86f08b35197892ded6fcecd1f56e`.
+Actual mapper limit256 inserts four replication cells; routed paths use
+network_step~SynDup_3 with256 loads. Capacity is 41,449 /41,910 ALMs,
+52,826 registers, 329 RAM blocks, 2,498,471 bits,35 DSPs/3 PLLs. Setup fails
+-0.561 ns slow100C /-0.328 ns slow-40C. Hold passes every condition, minimum
++0.111 ns. SDRAM IO/clocks/inherited framework exceptions still pass; sixteen
+of304 crossing groups fail setup. Source/state/capacity/timing/crossing controls
+reject6/15/11/6/3 damaged cases, including wrong applied settings and absent
+replication. All2,207 raw archive members and extracted source/fresh XML/
+capacity/timing/crossing controls pass; restaging repeats all660 exact inputs.
+Reports: `2026-10-20-snapshot-native-memory-fanout-source/` (precursor) and
+`2026-10-20-snapshot-native-memory-fanout-rejected/` (terminal). No RBF/SOF,
+assembly, deployment or speed change. The new network/parser pause is NOT in
+this frozen run. Return to Serial69 for real service integration; no more
+undirected fanout limits, global-signal assignments or placement-seed trials.
 
 **TERMINAL Serial69MemoryPause:** `/home/alans/mister/Dorado_Serial69MemoryPause_20261020`.
 Builder2566540 and all project children are absent. All 660 actual prepared
@@ -74,6 +94,7 @@ Previous nineteen-board physical experiments (all TERMINAL, no deployment):
 | Serial67 global signal | 41,280 | -6.078 ns | +0.118 ns | Rejected |
 | Serial68 seed2 | 41,395 | -0.287 ns | -1.758 ns | Rejected |
 | Serial69 real memory pause | 41,468 | -0.435 ns | +0.076 ns | Rejected |
+| Serial70 fanout256 | 41,449 | -0.561 ns | +0.111 ns | Rejected |
 
 Their all-condition/304-crossing evidence and negative reader controls remain
 in snapshot-serial-ready /serial-fanout-rejected /serial-global-rejected /
@@ -128,16 +149,17 @@ queues plus pending TX, accepted reads and stalled frame tails, with four bad
 controls. Default-off production ring/wire/CRC regressions pass. All 277+125 raw
 members and extracted source rebuilds pass. Evidence:
 `fpga/mister/reports/2026-10-20-snapshot-network-pause/` and
-`2026-10-20-snapshot-network-uio-pause/`. This is NOT in Serial69. Main/daemon
+`2026-10-20-snapshot-network-uio-pause/`. This is NOT in Serial69/70. Main/daemon
 coordination, two wire-settling clocks, physical DDR write visibility, complete
 native state access/import and Cedar restore remain open. No hardware changed.
 
 Next, in delivery order:
 
-1. Close the remaining native setup paths through memory/pack readiness and
-   network_step distribution. Preserve phase behavior and actual periods; the
-   previous fanout64/global-signal/seed2 experiments were rejected. Integrate
-   only all-condition timing-qualified results.
+1. Use Serial69 as the integration base for real services and qualified
+   network/parser pause. Address advance distribution structurally with the
+   original phase contract; limit64/256, global-signal and seed2 experiments
+   were rejected. Preserve actual periods and prove any enable change against
+   original guest/state/traffic oracles. Integrate only timing-qualified results.
 2. Coordinate the qualified Main disk-worker and daemon pause APIs with actual
    FPGA disk/network, input and video acknowledgments. Wire the qualified network
    engine/parser pause (including SPI framing and two settling clocks). Finish

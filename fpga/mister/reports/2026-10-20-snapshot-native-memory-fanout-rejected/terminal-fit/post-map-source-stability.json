@@ -1,0 +1,12 @@
+{
+  "status": "LIVE_SOURCE_STABILITY",
+  "builder_pid": 2602043,
+  "processes": {
+    "2602043": "python3 /home/alans/mister/Dorado_Serial70MemoryFanout_20261020/tools/fpga/mister/snapshot/build_serial_fanout.py --run /home/alans/mister/Dorado_Serial70MemoryFanout_20261020 ",
+    "2604107": "quartus_fit Dorado "
+  },
+  "prepared_inputs": 660,
+  "prepared_inputs_changed": [],
+  "observed_utc": "2026-10-20T08:33:12Z",
+  "assembly_permitted": false
+}

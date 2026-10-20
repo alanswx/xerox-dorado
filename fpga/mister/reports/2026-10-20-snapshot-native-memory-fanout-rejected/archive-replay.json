@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "restaged_inputs": 660,
+  "actual_inputs_changed": [],
+  "source_controls": 6,
+  "classification_controls": 15,
+  "actual_mapper_limit": 256,
+  "inserted_replication_cells": 4,
+  "source": "PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY",
+  "classification": "PASS_NATIVE_MEMORY_PAUSE_STATE_ACCESS_PENDING",
+  "capacity": "PASS_CAPACITY_TIMING_AND_BARRIERS_PENDING",
+  "capacity_controls": 11,
+  "timing": "REJECTED_TIMING",
+  "timing_controls": 6,
+  "crossings": "REJECTED_CROSSING_TIMING",
+  "crossings_controls": 3,
+  "limits": "Replays actual rejected timing and passing reader controls; no complete barriers, assembled core, complete snapshots or speed claim."
+}

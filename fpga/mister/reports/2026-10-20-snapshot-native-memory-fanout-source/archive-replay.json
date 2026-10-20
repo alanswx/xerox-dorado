@@ -1,0 +1,13 @@
+{
+  "status": "PASS_SOURCE_ONLY",
+  "exact_restaged_inputs": 660,
+  "source_controls": 6,
+  "classification_controls": 15,
+  "totals": {
+    "WRAPPER ACCESS PENDING": 132606,
+    "PRIVATE BOARD": 4578,
+    "PHYSICAL BOARD": 1957048,
+    "PRIVATE TRANSPORT": 69
+  },
+  "limits": "No capacity/timing/application or hardware claim; live Quartus candidate requires terminal review."
+}

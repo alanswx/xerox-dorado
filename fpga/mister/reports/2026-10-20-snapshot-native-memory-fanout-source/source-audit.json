@@ -1,0 +1,71 @@
+{
+  "status": "PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY",
+  "scope": "Independent inverse/source/pin review of real native memory-pause wiring.\n\nUse immutable Serial65 and the executed eight-board physical-memory receipt.\nDo not import the integration generator. Retain all original clocks, normal\nreadiness and architectural pins; foreign service ACKs remain explicit inputs.\n",
+  "verified_parent_inputs": 659,
+  "actual_inputs": 660,
+  "original_pin_connections": 2761,
+  "schema_id": "af0b647cb43a3a62",
+  "changed_parent_inputs": [
+    "core/Dorado.qsf",
+    "core/Dorado.sv",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv",
+    "src/fpga/mister/dorado_storage_arb.sv",
+    "src/fpga/mister/dorado_storage_sdram.sv",
+    "src/fpga/mister/snapshot_serial/assets.json",
+    "src/fpga/mister/snapshot_serial/MSA__msa_board.sv"
+  ],
+  "new_state_bits": 2,
+  "new_ports": 0,
+  "new_clocks": 0,
+  "constraints_unchanged": true,
+  "real_memory_pause": true,
+  "real_pause_barriers": false,
+  "quarantine_reseed": "RBF configuration only; PLL and parser reset cannot clear snapshot control.",
+  "limits": "Only fanout policy differs from Serial69. Actual application, capacity and all-condition timing pending; foreign service ACKs remain virtual.",
+  "verified_policy_parent_inputs": 660,
+  "changed_policy_files": [
+    "core/Dorado.qsf"
+  ],
+  "target": "emu|network_step",
+  "max_fanout": 256,
+  "new_policy_state_bits": 0,
+  "failure_controls": [
+    {
+      "case": "wrong_target",
+      "rejected": true,
+      "reason": "targeted fanout policy differs",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "wrong_limit",
+      "rejected": true,
+      "reason": "targeted fanout policy differs",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "ignored_limit",
+      "rejected": true,
+      "reason": "targeted fanout policy differs",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "new_exception",
+      "rejected": true,
+      "reason": "targeted fanout policy differs",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "lost_init",
+      "rejected": true,
+      "reason": "unapproved source/clock/constraint edit: core/Dorado.sv",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "fake_service",
+      "rejected": true,
+      "reason": "unapproved source/clock/constraint edit: core/Dorado.sv",
+      "damaged_metadata_rehashed": true
+    }
+  ]
+}
