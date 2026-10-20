@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "exact_frozen_files": 647,
+  "native_files_compared": 662,
+  "required_bits": 2094314,
+  "new_required_wrapper_bits": 8,
+  "quartus_live_at_source_receipt": true,
+  "builder_pid": 2721605,
+  "limits": "No native fit/timing or deployment claim. New reporting-only TCL is pending execution after the existing builder and all STA processes end."
+}

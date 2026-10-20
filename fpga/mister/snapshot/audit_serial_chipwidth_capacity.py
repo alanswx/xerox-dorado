@@ -25,8 +25,26 @@ def review(root,source,classification,overrides=None):
     assert source['original_pin_connections']==2761
     memory_fanout=source['status']=='PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY'
     network_pause=source['status']=='PASS_NATIVE_NETWORK_PAUSE_SOURCE_ONLY'
+    ready_prediction=source['status']=='PASS_NATIVE_READY_PREDICTION_SOURCE'
     memory_pause=source['status']=='PASS_NATIVE_MEMORY_PAUSE_SOURCE_ONLY'or memory_fanout or network_pause
-    if memory_pause:
+    if ready_prediction:
+        assert source['verified_parent_inputs']==source['actual_inputs']==state['prepared_inputs']==662
+        assert state['prepared_inputs_changed']==[] and len(source['failure_controls'])==13
+        assert source['constraints_unchanged']and source['ordinary_advance_phase_unchanged']and source['raw_drain_unchanged']
+        assert(source['new_required_wrapper_bits'],source['new_clocks'],source['new_external_ports'])==(8,0,0)
+        assert source['schema_id']=='af0b647cb43a3a62'
+        assert set(source['changed_parent_inputs'])=={'core/Dorado.sv',
+            'src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v',
+            'src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv',
+            'src/fpga/mister/snapshot_serial/MSA__msa_board.sv',
+            'src/fpga/mister/snapshot_serial/MSA__storage_group.sv',
+            'src/fpga/mister/snapshot_serial/assets.json'}
+        assert classification['status']=='PASS_NATIVE_READY_PREDICTION_STATE_ACCESS_PENDING'
+        assert len(classification['failure_controls'])==24 and not classification['sequential_exclusions']
+        assert classification['new_required_wrapper_bits']==8
+        assert classification['source_hashes']==source['source_hashes']and len(source['source_hashes'])==662
+        assert classification['totals']=={'PHYSICAL BOARD':1957048,'PRIVATE BOARD':4578,'PRIVATE TRANSPORT':69,'WRAPPER ACCESS PENDING':132619}
+    elif memory_pause:
         assert source['verified_parent_inputs']==(660 if network_pause else 659)
         assert source['actual_inputs']==(661 if network_pause else 660)
         assert state['prepared_inputs']==source['actual_inputs']and state['prepared_inputs_changed']==[]
@@ -72,7 +90,7 @@ def review(root,source,classification,overrides=None):
     else:
         assert source['status']=='PASS_CHIPWIDTH_NATIVE_SOURCE_ONLY'and source['boards']==19
         assert len(source['failure_controls'])==23
-    if not memory_pause:
+    if not(memory_pause or ready_prediction):
         assert classification['status']=='PASS_BOARD_GEOMETRY_WRAPPER_ACCESS_PENDING'and len(classification['failure_controls'])==14
         assert classification['totals']=={'PHYSICAL BOARD':1957048,'PRIVATE BOARD':4578,'PRIVATE TRANSPORT':69,'WRAPPER ACCESS PENDING':132484}
     match=re.search(r'Logic utilization \(in ALMs\) : ([\d,]+) / ([\d,]+)',summary);assert match
@@ -100,9 +118,10 @@ def review(root,source,classification,overrides=None):
     transport={n:[r for r in records if r['Entity Name']==n]for n in ('dorado_board_state_fabric_msa','dorado_board_state_uio_msa','dorado_msa_state_group_chipwidth')}
     assert all(len(v)==1 for v in transport.values()),'enabled owner/UIO/router missing'
     services={}
-    if network_pause:
-        services={n:[r for r in records if r['Entity Name']==n]for n in(
-            'dorado_memory_pause_barrier','dorado_network_pause_barrier','dorado_ethernet_ddr','dorado_ethernet_uio','dorado_ethernet_wire')}
+    if network_pause or ready_prediction:
+        names=['dorado_memory_pause_barrier','dorado_network_pause_barrier','dorado_ethernet_ddr','dorado_ethernet_uio','dorado_ethernet_wire']
+        if ready_prediction:names+=['dorado_disk_pause_barrier','dorado_pack_hps']
+        services={n:[r for r in records if r['Entity Name']==n]for n in names}
         assert all(len(v)==1 for v in services.values()),'real memory/network service hierarchy missing/duplicated'
     estimate=lambda r:float(r['ALMs needed [=A-B+C]'].split()[0])
     own=lambda r:float(r['ALMs needed [=A-B+C]'].split()[1].strip('()'))
@@ -166,6 +185,24 @@ def controls(root,source,classification):
             try:review(root,source,classification,{path:raw.replace(module,'missing_'+module)})
             except AssertionError as error:result.append(dict(case=name,rejected=True,diagnostic=str(error)))
             else:raise AssertionError('missing real service accepted: '+name)
+    if source['status']=='PASS_NATIVE_READY_PREDICTION_SOURCE':
+        for name,key,value in [('wrong_actual_input_count','actual_inputs',661),
+            ('omitted_ready_state','new_required_wrapper_bits',0),('relaxed_constraints','constraints_unchanged',False),
+            ('wrong_advance_phase','ordinary_advance_phase_unchanged',False),('cached_drain','raw_drain_unchanged',False)]:
+            damaged=dict(source);damaged[key]=value
+            try:review(root,damaged,classification)
+            except AssertionError as error:result.append(dict(case=name,rejected=True,diagnostic=str(error)))
+            else:raise AssertionError('damaged readiness source accepted: '+name)
+        damaged=dict(classification);damaged['totals']=dict(classification['totals']);damaged['totals']['WRAPPER ACCESS PENDING']-=8
+        try:review(root,source,damaged)
+        except AssertionError as error:result.append(dict(case='omitted_eight_register_bits',rejected=True,diagnostic=str(error)))
+        else:raise AssertionError('missing readiness state accepted')
+        for module in ('dorado_memory_pause_barrier','dorado_network_pause_barrier','dorado_disk_pause_barrier',
+            'dorado_ethernet_ddr','dorado_ethernet_uio','dorado_ethernet_wire','dorado_pack_hps'):
+            path='core/output_files/Dorado.fit.rpt';raw=(root/path).read_text(encoding='latin1');assert module in raw
+            try:review(root,source,classification,{path:raw.replace(module,'missing_'+module)})
+            except AssertionError as error:result.append(dict(case='missing_'+module,rejected=True,diagnostic=str(error)))
+            else:raise AssertionError('missing real readiness service accepted: '+module)
     if source['status']=='PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY':
         path='core/output_files/Dorado.map.rpt';raw=(root/path).read_text(encoding='latin1')
         damaged,count=re.subn(r'(;\s*emu:emu\|network_step\s*;\s*)256(\s*;\s*4\s*;)',lambda m:m[1]+'128'+m[2],raw,count=1)

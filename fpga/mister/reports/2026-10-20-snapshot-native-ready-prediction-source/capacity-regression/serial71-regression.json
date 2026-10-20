@@ -1,0 +1,82 @@
+{
+  "status": "PASS",
+  "exact_capacity_result": true,
+  "alms": 41464,
+  "failure_controls": [
+    {
+      "case": "wrong_capacity",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "missing_msa",
+      "rejected": true,
+      "diagnostic": "nineteen-board hierarchy missing/duplicated"
+    },
+    {
+      "case": "missing_router",
+      "rejected": true,
+      "diagnostic": "enabled owner/UIO/router missing"
+    },
+    {
+      "case": "live_builder",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "wrong_actual_input_count",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "fake_memory_pause",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "unearned_full_barrier",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "fake_network_pause",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "omitted_top_state",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "omitted_task_state",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "missing_memory_coordinator",
+      "rejected": true,
+      "diagnostic": "real memory/network service hierarchy missing/duplicated"
+    },
+    {
+      "case": "missing_network_coordinator",
+      "rejected": true,
+      "diagnostic": "real memory/network service hierarchy missing/duplicated"
+    },
+    {
+      "case": "missing_network_engine",
+      "rejected": true,
+      "diagnostic": "real memory/network service hierarchy missing/duplicated"
+    },
+    {
+      "case": "missing_network_parser",
+      "rejected": true,
+      "diagnostic": "real memory/network service hierarchy missing/duplicated"
+    },
+    {
+      "case": "missing_network_wire",
+      "rejected": true,
+      "diagnostic": "real memory/network service hierarchy missing/duplicated"
+    }
+  ]
+}

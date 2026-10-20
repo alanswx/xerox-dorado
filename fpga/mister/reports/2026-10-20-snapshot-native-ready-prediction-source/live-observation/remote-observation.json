@@ -1,0 +1,32 @@
+{
+  "observed_unix": 1792496939.498072,
+  "project": "/home/alans/mister/Dorado_Serial73ReadyPrediction_20261020",
+  "builder_pid": 2721605,
+  "builder_live": true,
+  "project_processes": [
+    {
+      "pid": 2721605,
+      "ppid": 1,
+      "stat": "Ss",
+      "elapsed": "03:37",
+      "args": "python3 /home/alans/mister/Dorado_Serial73ReadyPrediction_20261020/build_native_ready_prediction.py --run /home/alans/mister/Dorado_Serial73ReadyPrediction_20261020"
+    }
+  ],
+  "prepared_inputs": 662,
+  "prepared_inputs_changed": [],
+  "assembly_started": false,
+  "artifacts": [],
+  "log_tails": {
+    "builder": [
+      "Serial73ReadyPrediction map",
+      "Serial73ReadyPrediction fit"
+    ],
+    "map": [
+      "    Info: Peak virtual memory: 2738 megabytes",
+      "    Info: Processing ended: Tue Oct 20 04:48:57 2026",
+      "    Info: Elapsed time: 00:03:35",
+      "    Info: Total CPU time (on all processors): 00:03:59"
+    ],
+    "fit": []
+  }
+}

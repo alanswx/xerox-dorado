@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "scope": "Rebuild Serial73 native sources, inverse review and fresh XML from receipts.\n\nImmutable older qualification receipts are shared dependencies. Compare all\n662 actual staged files and complete state decisions; only XML path-dependent\nhashes differ. No Quartus run or generated build executable is invoked.\n",
+  "archive_readback": {
+    "status": "PASS",
+    "members": 1330,
+    "raw_bytes": 98414250,
+    "stored_bytes": 10054643
+  },
+  "frozen_sources": 647,
+  "actual_rebuilt_file_bytes": 662,
+  "source_audit_exact": true,
+  "classification_exact_except_xml_path_hashes": true,
+  "required_bits": 2094314,
+  "new_required_wrapper_bits": 8,
+  "limits": "Source and fresh native XML only; actual Quartus capacity/timing, state access and FPGA qualification remain separate."
+}

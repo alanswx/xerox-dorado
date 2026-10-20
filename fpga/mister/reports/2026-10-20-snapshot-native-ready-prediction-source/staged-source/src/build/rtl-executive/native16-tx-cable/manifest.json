@@ -1,0 +1,23 @@
+{
+  "native": true,
+  "storage_modules": 4,
+  "pilot_disk": true,
+  "receive_monitor": true,
+  "control_error_monitor": true,
+  "pack_fault_monitor": true,
+  "display_field": true,
+  "control_clock_monitor": true,
+  "hps_pack": true,
+  "ethernet_wire": true,
+  "ethernet_host_port": true,
+  "storage_chip_kbits": 64,
+  "map_kwords": 64,
+  "memory_geometry_experimental": true,
+  "storage_backend": "sdram",
+  "storage_line_cache_bits": 0,
+  "required_sdram_bytes": 134217728,
+  "instruction_monitor": true,
+  "storage_prefetch": true,
+  "storage_interleave": true,
+  "raw_layout": "group-interleaved-v1"
+}
