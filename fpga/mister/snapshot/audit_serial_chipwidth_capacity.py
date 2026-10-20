@@ -23,7 +23,7 @@ def review(root,source,classification,overrides=None):
     assert 'Analysis & Synthesis Status : Successful'in read('core/output_files/Dorado.map.summary')
     assert 'Device : 5CSEBA6U23I7'in summary and 'Total virtual pins : 7'in summary
     assert source['original_pin_connections']==2761
-    if source['status']in ('PASS_READY_PATH_SOURCE_ONLY','PASS_TARGETED_FANOUT_SOURCE_ONLY','PASS_GLOBAL_SIGNAL_SOURCE_ONLY'):
+    if source['status']in ('PASS_READY_PATH_SOURCE_ONLY','PASS_TARGETED_FANOUT_SOURCE_ONLY','PASS_GLOBAL_SIGNAL_SOURCE_ONLY','PASS_PLACEMENT_SEED_SOURCE_ONLY'):
         assert source['verified_parent_inputs']==659 and len(source['failure_controls'])==6
         assert source['constraints_unchanged']
         if source['status']=='PASS_READY_PATH_SOURCE_ONLY':assert source['changed_logic_files']==['core/Dorado.sv']
@@ -31,8 +31,9 @@ def review(root,source,classification,overrides=None):
             assert source['changed_logic_files']==[]and source['changed_policy_files']==['core/Dorado.qsf']
             if source['status']=='PASS_TARGETED_FANOUT_SOURCE_ONLY':
                 assert (source['target'],source['max_fanout'])==('emu|network_step',64)
-            else:
+            elif source['status']=='PASS_GLOBAL_SIGNAL_SOURCE_ONLY':
                 assert (source['target'],source['global_signal'])==('emu|network_step','Global Clock')
+            else:assert source['seed']==2
         assert (source['new_state_bits'],source['new_clocks'],source['new_ports'])==(0,0,0)
         assert source['schema_id']=='af0b647cb43a3a62'and not source['real_pause_barriers']
     else:
@@ -55,7 +56,10 @@ def review(root,source,classification,overrides=None):
         labs=re.search(r'Error \(170012\): Fitter requires (\d+) LABs.*only (\d+) LABs',log)
         assert labs and int(labs[1])>int(labs[2])==4191
         status='REJECTED_CAPACITY'
-    records=rows(read('core/output_files/Dorado.fit.rpt'))
+    report=read('core/output_files/Dorado.fit.rpt')
+    if source['status']=='PASS_PLACEMENT_SEED_SOURCE_ONLY':
+        assert re.search(r';\s*Fitter Initial Placement Seed\s*;\s*2\s*;\s*1\s*;',report),'fitter seed not applied'
+    records=rows(report)
     boards=[r for r in records if r['Entity Name']in {'dorado_serial_'+n for n in MAIN}|{'dorado_serial_MSA'}]
     wanted={f'|dorado_serial_{n}:b_{n}|'for n in MAIN}|{f'|dorado_serial_MSA:{n}|'for n in MSA}
     assert len(boards)==19 and {r['Compilation Hierarchy Node']for r in boards}==wanted,'nineteen-board hierarchy missing/duplicated'
@@ -90,6 +94,14 @@ def controls(root,source,classification):
     try:review(root,source,classification,{'terminal-state.json':json.dumps(damaged)})
     except AssertionError as error:result.append(dict(case='live_builder',rejected=True,diagnostic=str(error)))
     else:raise AssertionError('live builder reported terminal')
+    if source['status']=='PASS_PLACEMENT_SEED_SOURCE_ONLY':
+        path='core/output_files/Dorado.fit.rpt';raw=(root/path).read_text(encoding='latin1')
+        damaged,count=re.subn(r'(;\s*Fitter Initial Placement Seed\s*;\s*)2(\s*;\s*1\s*;)',
+                             lambda m:m[1]+'3'+m[2],raw,count=1)
+        assert count==1
+        try:review(root,source,classification,{path:damaged})
+        except AssertionError as error:result.append(dict(case='wrong_actual_seed',rejected=True,diagnostic=str(error)))
+        else:raise AssertionError('unapplied placement seed accepted')
     return result
 
 

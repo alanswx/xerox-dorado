@@ -43,7 +43,7 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-**Daemon PAUSE/CONTINUE and complete-MSA late freeze qualify as components. Serial66/67 are rejected; Serial68 is fitting the better Serial65 RTL with seed 2. Hardware remains Native59.**
+**The actual one-MSA/arbiter/SDRAM pause path qualifies, with physical refresh preserved. Serial66/67/68 are rejected; full native/ARM snapshot integration remains next. Hardware stays Native59.**
 
 The last qualified hardware rate remains **1,947,654.12 instruction issues/s**.
 Cedar Viewers, mouse, exact keyboard and warm disk persistence pass on Native59;
@@ -71,14 +71,22 @@ receipts and extracted source/capacity/timing/crossing controls replay:
 `fpga/mister/reports/2026-10-19-snapshot-serial-fanout-rejected/`,
 `fpga/mister/reports/2026-10-19-snapshot-serial-global-rejected/`.
 
-**LIVE Serial68Seed2**, `/home/alans/mister/Dorado_Serial68Seed2_20261019`,
-builder2532081. Observe the SAME job and children; no timeout restart. Only
-Serial65's QSF placement SEED changes 1 ->2; all RTL/clock periods/IO budgets/
-exceptions/schema remain. No Serial66 duplication or Serial67 global policy.
-Independent source review checks 659 parents/2,761 pins; six rehashed source/
-policy controls reject. Assembly remains disabled and services remain virtual.
-Packet SHA256:9f00ba410fd3a0ea9ebedfa3c57bc4852199c5c843b4ccc4111afc819735349e.
-Source evidence: `fpga/mister/reports/2026-10-19-snapshot-serial-seed2/`.
+Serial68Seed2 is TERMINAL/REJECTED. Builder2532081/fitter2534171 and all
+project processes are absent; every one of 659 prepared inputs is unchanged.
+It fits 41,395 /41,910 ALMs (515 free), 52,780 registers, 329 RAM blocks and
+2,498,471 memory bits. Actual fitter settings confirm seed2 applied (default1).
+Timing fails setup -0.287 ns at slow100C /-0.245 ns at slow-40C, with hold failures
+in all four conditions (worst -1.758 ns). SDRAM IO passes. Actual clocks and the
+inherited three input/fifty output framework exceptions remain unchanged;
+zero illegal/unconstrained clocks. All 304 crossing reports are checked; ten
+MSA-output setup groups fail. Worst setup includes u_media.cyl -> network_step;
+worst hold is virtual CAPACITY_SERVICES_HELD[2] -> UIO capture. Neither is waived.
+Six source/five capacity-and-actual-seed/six timing/three crossing controls reject.
+All 1,670 receipt members read back and extracted readers/controls replay:
+`fpga/mister/reports/2026-10-19-snapshot-serial-seed2-rejected/`.
+The 1,081-member source-only precursor remains preserved. No assembly/hardware
+change. Serial65 remains the better candidate; further full-core timing work
+must include the actual native service wiring, not promote a rejected fit.
 
 Snapshot daemon commands PAUSE4/CONTINUE5 retain the active epoch, mapping,
 queue cursors, EFTP/BSP connections and pending frames. Protected paused MMIO
@@ -158,18 +166,35 @@ arbiter/SDRAM/DDR candidates replay. Evidence:
 `fpga/mister/reports/2026-10-19-snapshot-memory-idle/`.
 
 These signals are still unconnected in the frozen native wrapper and Serial68;
-no real complete-machine drain or speed gain is claimed. Next couple them to
-the qualified coordinator and actual MSA(s), retaining physical SDRAM refresh,
-then perform full native integration/fit and state access.
+no real complete-machine drain or speed gain is claimed. The one-MSA coupling
+now passes below; all-eight-board/native integration, fit and state access remain.
 
-Next: review Serial68's terminal actual sources/seed/capacity/all-condition
-and all 304 crossing results. Integrate real Main/daemon/FPGA service barriers,
+The **connected one-MSA/actual-arbiter/physical-SDRAM pause path now passes**.
+Its coordinator consumes actual adapter-idle outputs, with no tied-high service
+acknowledgments and no host raw-memory completion. The original frozen MSA sees
+the same raw peer and is compared bit-for-bit during ordinary/draining traffic.
+The complete circuit passes 2,011,195 checks /605,280 host edges /4,477 guest
+advances; 5,456 reads/992 writes; four pauses beginning with two accepted reads/
+two accepted writes; every one of 86 state words read without disturbing state;
+and 3,290 physical refresh commands. The XSDS model reports zero errors/warnings.
+Guest hold persists through frontend thaw. Four compiled bad variants reject:
+early frontend freeze, stopped refresh (independent tRAS(max) failure), nonsticky
+hold during rotation and early guest release. All 159 archived members read
+back; extracted actual circuit rebuilds/runs without working HDL. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-msa-sdram-pause/`.
+This is one board/16 raw groups, not eight-board/128-group native integration,
+external SDRAM save/restore, a hardware fit, a complete machine snapshot or a
+speed measurement. Earlier header-parser/diagnostic harness attempts are retained.
+
+Next: extend the qualified real memory-pause wiring to all eight MSAs/native
+wrapper; account for/access coordinator phase and real raw-controller state.
+Integrate Main/daemon/input/video/disk-generation service barriers,
 finish all wrapper/raw-memory/input/video/server state and matching disk
 snapshots, then original 60ns clocks/timers, pinned performance, three fresh
 Cedar boots/cold persistence and two-hour stress. Frontend-ready is not a raw
-arbiter/SDRAM drain. Current MSA state_global_hold blocks rsp_ready, so accepted
-raw operations must finish before frontend freeze; simply tying drain ACKs to
-that aggregate can deadlock. Keep physical SDRAM refresh running throughout.
+arbiter/SDRAM drain. The unchanged frozen native MSA state_global_hold still blocks rsp_ready;
+replace it with the qualified split board/frontend holds before native snapshot
+admission. Simply tying drain ACKs to frontend-ready can deadlock. Keep physical SDRAM refresh running throughout.
 Bare PLL loss is not a proven full original-state reseed after a partial import.
 Goal ACTIVE; complete snapshots and accurate clock delivery remain incomplete.
 

@@ -10,7 +10,7 @@ or complete snapshot claim.
 All 1,081 raw source/tool members read back losslessly. Extracted reviewers and
 controls pass; extracted builder reproduces all 659 inputs and three integration
 records byte-for-byte using prior immutable report dependencies. No working HDL.
-The builder is 2532081 at /home/alans/mister/Dorado_Serial68Seed2_20261019;
-observe this same process/children through terminal timing, do not restart on
-observation timeout. Actual application, capacity, all four device conditions
-and 304 adapter crossing reports must still be reviewed before adoption.
+The builder2532081 and every project process are now absent. The full terminal
+run is REJECTED for setup/hold timing; actual seed application, capacity, all
+four device conditions and 304 adapter crossing reports are reviewed in
+`../2026-10-19-snapshot-serial-seed2-rejected/`. Do not restart this experiment.
