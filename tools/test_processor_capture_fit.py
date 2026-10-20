@@ -32,6 +32,10 @@ def run(source, qualified, out, expected_component='processor_capture'):
     cases = ['missing_evaluator', 'missing_corner', 'wrong_profile', 'wrong_dimensions',
              'changed_evaluator_rehashed', 'changed_min_delay_rehashed', 'relaxed_period_rehashed',
              'unconstrained_input', 'negative_setup']
+    provenance=json.loads((source/'provenance.json').read_text())
+    dependencies=[name for name in provenance['files'] if name.endswith('.sv') and name not in ('top.sv',evaluator)]
+    if dependencies:
+        cases.append('changed_dependency_rehashed')
     rows = []
     corner = next(iter(CORNERS))
     for name in cases:
@@ -49,8 +53,8 @@ def run(source, qualified, out, expected_component='processor_capture'):
             else:
                 record['launch_bits'] = 52
             path.write_text(json.dumps(record, indent=2) + '\n')
-        elif name == 'changed_evaluator_rehashed':
-            path = directory / evaluator
+        elif name in ['changed_evaluator_rehashed','changed_dependency_rehashed']:
+            path = directory / (dependencies[0] if name=='changed_dependency_rehashed' else evaluator)
             path.write_bytes(path.read_bytes() + b'\n// changed after qualification\n')
             rehash(directory, path.name)
         elif name in ['changed_min_delay_rehashed', 'relaxed_period_rehashed']:
@@ -94,6 +98,6 @@ if __name__ == '__main__':
     parser.add_argument('directory', type=Path)
     parser.add_argument('--qualified', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--component', choices=['processor_capture', 'task_capture'], default='processor_capture')
+    parser.add_argument('--component', choices=['processor_capture', 'task_capture', 't_file'], default='processor_capture')
     args = parser.parse_args()
     run(args.directory.resolve(), args.qualified.resolve(), args.output.resolve(), args.component)

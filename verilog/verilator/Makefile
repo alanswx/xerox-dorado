@@ -1833,6 +1833,11 @@ TASK_CAPTURE_OUT ?= build/task-capture
 task-capture-test:
 	@cd ../.. && python3 tools/test_task_capture.py --output "$(TASK_CAPTURE_OUT)" --mutations
 
+T_FILE_OUT ?= build/t-file
+.PHONY: t-file-test
+t-file-test:
+	@cd ../.. && python3 tools/test_t_file.py --output "$(T_FILE_OUT)" --mutations
+
 RUN_CONTROL_OUT ?= build/run-control
 run-control-test:
 	@cd ../.. && python3 tools/test_run_control.py --output "$(RUN_CONTROL_OUT)" --mutations

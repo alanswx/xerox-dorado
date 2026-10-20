@@ -35,7 +35,8 @@ def audit(directory,qualified,allow_missing):
     provenance=json.loads((directory/'provenance.json').read_text())
     profiles={None:(52,51,'control_clock','PASS_COUPLED_ORIGINAL_CONTROL_CLOCK_COMPONENT','dorado_control_clock_step.sv'),
               'processor_capture':(122,109,'processor_capture','PASS_COUPLED_PROCESSOR_CAPTURE_COMPONENT','dorado_processor_capture_step.sv'),
-              'task_capture':(242,139,'task_capture','PASS_TASK_CAPTURE_ARRIVAL_CONTRACT','dorado_task_capture_step.sv')}
+              'task_capture':(242,139,'task_capture','PASS_TASK_CAPTURE_ARRIVAL_CONTRACT','dorado_task_capture_step.sv'),
+              't_file':(660,463,'t_file','PASS_T_FILE_ARRIVAL_CONTRACT','dorado_t_file_step.sv')}
     assert provenance.get('component')in profiles,'Unknown fixture profile'
     expected_launch,expected_result,component,expected_status,evaluator=profiles[provenance.get('component')]
     assert provenance['clock_period_ns']==15 and provenance['launch_bits']==expected_launch and provenance['result_bits']==expected_result
@@ -51,6 +52,9 @@ def audit(directory,qualified,allow_missing):
     assert qualified_record['status']==expected_status
     evaluator_digest=qualified_record['inputs']['verilog/rtl/'+evaluator]
     assert sha((directory/evaluator).read_bytes())==evaluator_digest
+    for name in provenance['files']:
+        if name.endswith('.sv')and name!='top.sv':
+            assert sha((directory/name).read_bytes())==qualified_record['inputs']['verilog/rtl/'+name],('unqualified RTL dependency',name)
     sdc=(directory/'clock.sdc').read_text();qsf=(directory/'clock_fit.qsf').read_text()
     assert sdc.splitlines()==[
         'create_clock -name host_clock -period 15.000 [get_ports host_clk]',
@@ -102,7 +106,7 @@ def audit(directory,qualified,allow_missing):
     minimum={mode:min(r[mode]for r in records)for mode in ['setup','hold','mpw']}
     passing=targeted_complete and all(v>=0 for v in minimum.values())
     return dict(status='PASS_COMPONENT_TIMING'if passing else'REJECTED_COMPONENT_TIMING',
-        scope=__doc__,component=component,period_ns=15,resources=resources,minimum_slack_ns=minimum,conditions=records,
+        scope=__doc__,component=component,functional_qualification_status=qualified_record['status'],period_ns=15,resources=resources,minimum_slack_ns=minimum,conditions=records,
         input_staging_bits=provenance.get('input_staging_bits',0),
         targeted_coverage_complete=targeted_complete,evaluator_sha256=evaluator_digest,
         permitted_qsf_delta='Quartus17.0.2 LAST_QUARTUS_VERSION annotation only',

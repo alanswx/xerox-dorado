@@ -17,10 +17,10 @@ components/evidence and reuse clock work only after checking Native59 contracts.
 
 The last measured rate remains **1,947,654.12 instruction issues/s**. No new
 full-core clock build, FPGA rollback or hardware speedup is claimed. The
-coupled task/address slice now passes an explicit-arrival digital contract for
-88 Qs and isolated 15ns FPGA timing. Its illustrative delay profiles are not
-vendor/board timing qualification. Immediate work: actual T data/write windows
-and remaining Ready/MIR/hold producers, then native integration and firmware gates.
+coupled T-data/task-file/read slice now passes an explicit-arrival contract for
+404 original bits and isolated 15ns FPGA timing. Its illustrative profiles are
+not vendor/board timing qualification. Next: T/R parity, operand/register-file
+timing and remaining Ready/MIR/hold producers, then native integration and boot.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
 qualify it through original firmware and the germ/disk path. Rollback preserves
 later filesystem changes; it is not a disk rewind or a raw FPGA snapshot.
@@ -33,6 +33,80 @@ existing UIO bits. Component-only; native and actual Main coordination are
 absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
+
+### T-data, task-file writes and visible T reads qualified (2026-10-20)
+
+The new `dorado_t_file_step.sv` couples the unchanged 88-Q task/capture kernel
+to both g18 HoldDly packages, k01/k02 transparent T-data latches, four 16x4
+T-file SRAMs, j03/j04 file/IFU read latches and i03/i04 visible T latches.
+The independent wire-list extraction covers 404 original bits in 139 packages /
+1,403 connected pins. Pdata/dMD, IFU data/sign/control, unused g18 inputs and
+the inherited Ready/MIR/memory-Hold producers remain explicit boundaries.
+No native core, Main or daemon is changed.
+
+Both Icarus and Verilator pass 21,962 events in EACH of the three illustrative
+arrival profiles from the prior task slice. All 404 bits and 25 clock channels,
+write/latch/bypass gates and task/hold flags are compared. Directed tests write
+and rewrite distinct values in all 16 tasks through Pd, Md and FF075 TgetsMd;
+perform 16 held-write checks; revisit every task through the real read latches,
+including a switch down to task 0; and check signed IFU T input without changing
+SRAM. Random ordinary/extended instructions cover all LC values. Each run sees
+1,698 transparent data updates (462 Md / 1,236 Pd), 113 changed-memory
+observations, 593 write windows per half, 3,612 closed-latch data probes and
+558 delayed-Hold blocks. Neither half's SRAM address moves inside a write window.
+Seventeen compiled defective variants reject; two scoped equivalence controls
+pass. Archive-extracted replay reproduces the full suite.
+
+The new data/write non-overlap assertion explains the equivalence controls:
+under the tested running contract, using the old or settled T-data image for
+a write gives the same value, and the low write gate can use the masked high
+control without changing these observations. This does not authorize merging
+the original high/low capture FFs or removing their startup/producer contracts.
+The original latches and both control paths are retained.
+
+The expanded graph also checks every consumed net for omitted wired-OR
+drivers. ProcH g18 D5 needs BOTH f20's FF076 decode and h17's Freeze contribution;
+previously that output was unused by the slice. The reference now includes both.
+The first asynchronous-SRAM reference used nonblocking assignments in a
+combinational process; Verilator warned about converting their semantics and
+exited without a passing receipt. The accepted reference uses explicit physical
+pin sensitivity and blocking level-sensitive SRAM updates; the mux latch keeps
+its explicit arrival delay. Both simulators agree. Failed coverage/diagnostic
+runs and their frozen source inputs are retained as history, not qualification.
+
+One isolated 15.000ns Quartus17.0.2 fit on misterubuntu passes all four operating
+conditions: minimum setup +4.378ns, hold +0.179ns, pulse width +6.548ns; internal
+launch-to-result setup at least +5.336ns. Resources including the staged virtual-
+I/O shell are 941 ALMs / 1,526 registers (562 ALMs contain virtual pins), no
+RAM/DSP/PLL. Targeted collections cover 553 launch / 439 result registers. The
+shell preserves 2ns max / 0ns min I/O and adds no native pipeline stage. There
+are no timing exceptions, assembly or deployment. The job is terminal and all
+five recorded processes were absent at collection. The independent reader checks
+BOTH RTL dependencies against executed simulation inputs; ten damaged/rehashed
+receipt cases reject, including a changed child kernel. Prior 32/64/88-bit
+reader profiles still pass. Archived timing review and controls reproduce.
+
+Receipt: `fpga/mister/reports/2026-10-20-t-data-path/`. This remains a conditional
+digital arrival contract with 20ns boundary settling and NoDispatch low, not
+vendor delay characterization, analog setup/hold, complete processor/boot
+qualification or a 60ns operating result. T/R parity, the ALU and register-file
+producer paths, Ready/MIR/memory Hold, startup/freeze coupling and remaining
+board/peripheral timing are still open. Native59 remains the hardware reference
+at 1,947,654.12 instruction issues/s. Complete FPGA snapshots stay deferred.
+
+```
+make -C verilog t-file-test T_FILE_OUT=build/t-file-new
+```
+
+Next: close the T/R parity and operand/register-file timing paths, then the
+remaining producer boundaries and native integration from Native59. T-parity
+starts at k04, ProcH i11 / ProcL i13 SRAM, g16 capture and d06 check; c06 checks
+R parity. Preserve g16's setup data across its Clock1/address handoff. Keep
+large RM/STK arrays behind functional RAM ports rather than expanding a whole-
+state transport; full snapshots are deferred. Preserve
+ordinary/extended instruction semantics and verify original-ROM diagnostics,
+firmware boot and actual instruction progress. Cedar rollback, repeated fresh
+boots, disk close/remount persistence and two-hour stress remain acceptance gates.
 
 ### Task-selection feedback and task-file addressing (2026-10-20)
 
