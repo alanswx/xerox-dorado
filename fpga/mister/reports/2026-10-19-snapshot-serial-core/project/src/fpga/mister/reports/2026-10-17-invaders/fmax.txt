@@ -1,0 +1,13 @@
++-------------------------------------------------------------------------------------------------------------------------+
+; Fmax Summary                                                                                                            ;
++------------+-----------------+-----------------------------------------------------------------------------------+------+
+; Fmax       ; Restricted Fmax ; Clock Name                                                                        ; Note ;
++------------+-----------------+-----------------------------------------------------------------------------------+------+
+; 38.19 MHz  ; 38.19 MHz       ; pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk   ;      ;
+; 45.45 MHz  ; 45.45 MHz       ; emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk           ;      ;
+; 80.69 MHz  ; 80.69 MHz       ; FPGA_CLK1_50                                                                      ;      ;
+; 148.15 MHz ; 148.15 MHz      ; FPGA_CLK2_50                                                                      ;      ;
+; 164.58 MHz ; 164.58 MHz      ; pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk ;      ;
+; 220.99 MHz ; 220.99 MHz      ; spi_sck                                                                           ;      ;
++------------+-----------------+-----------------------------------------------------------------------------------+------+
+This panel reports FMAX for every clock in the design, regardless of the user-specified clock periods.  FMAX is only computed for paths where the source and destination registers or ports are driven by the same clock.  Paths of different clocks, including generated clocks, are ignored.  For paths between a clock and its inversion, FMAX is computed as if the rising and falling edges are scaled along with FMAX, such that the duty cycle (in terms of a percentage) is maintained. Altera recommends that you always use clock constraints and other slack reports for sign-off analysis.

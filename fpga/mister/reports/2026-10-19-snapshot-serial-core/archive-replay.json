@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "archived_files": 1546,
+  "source_controls": 23,
+  "xml_controls": 14,
+  "physical_board_bits": 1966264,
+  "wrapper_access_pending_bits": 132484,
+  "rebuilt_files": 659,
+  "quartus_saved_aliases": "PASS",
+  "executed_inventory_tool_hash": "PASS",
+  "scope": "Extracted source/XML audits and byte-identical restaging PASS; extracted terminal failed-fit audit/controls PASS. No legal placement/timing/FPGA snapshot claim.",
+  "capacity_review": "REJECTED_CAPACITY_49250_OF_41910",
+  "capacity_failure_controls": 4
+}

@@ -1,0 +1,297 @@
+{
+  "status": "REJECTED_CAPACITY",
+  "scope": "Check a terminal nineteen-board capacity rejection; never implies legal timing.\n\nFailed-fit hierarchy attribution is diagnostic. It cannot predict another fit,\nand the failed summary's zero RAM-block count is not a physical RAM result.\n",
+  "alms_needed": 49250,
+  "available_alms": 41910,
+  "excess_alms": 7340,
+  "labs_needed": 4954,
+  "available_labs": 4191,
+  "boards": [
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_BaseBd:b_BaseBd",
+      "module": "dorado_serial_BaseBd",
+      "failed_fit_alm_estimate": 4963.7,
+      "registers": 7886
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_ContA:b_ContA",
+      "module": "dorado_serial_ContA",
+      "failed_fit_alm_estimate": 940.1,
+      "registers": 988
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_ContB:b_ContB",
+      "module": "dorado_serial_ContB",
+      "failed_fit_alm_estimate": 687.5,
+      "registers": 457
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_DispY:b_DispY",
+      "module": "dorado_serial_DispY",
+      "failed_fit_alm_estimate": 1634.8,
+      "registers": 1711
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_DskEth:b_DskEth",
+      "module": "dorado_serial_DskEth",
+      "failed_fit_alm_estimate": 1756.0,
+      "registers": 1970
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_IFU:b_IFU",
+      "module": "dorado_serial_IFU",
+      "failed_fit_alm_estimate": 1010.1,
+      "registers": 1112
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa",
+      "module": "dorado_serial_MSA",
+      "failed_fit_alm_estimate": 1737.1,
+      "registers": 2772
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa1",
+      "module": "dorado_serial_MSA",
+      "failed_fit_alm_estimate": 1713.9,
+      "registers": 2772
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa1Odd",
+      "module": "dorado_serial_MSA",
+      "failed_fit_alm_estimate": 1714.3,
+      "registers": 2772
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa2",
+      "module": "dorado_serial_MSA",
+      "failed_fit_alm_estimate": 1702.1,
+      "registers": 2772
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa2Odd",
+      "module": "dorado_serial_MSA",
+      "failed_fit_alm_estimate": 1741.5,
+      "registers": 2772
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa3",
+      "module": "dorado_serial_MSA",
+      "failed_fit_alm_estimate": 1734.2,
+      "registers": 2772
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa3Odd",
+      "module": "dorado_serial_MSA",
+      "failed_fit_alm_estimate": 1736.4,
+      "registers": 2772
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msaOdd",
+      "module": "dorado_serial_MSA",
+      "failed_fit_alm_estimate": 1725.0,
+      "registers": 2772
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC",
+      "module": "dorado_serial_MemC",
+      "failed_fit_alm_estimate": 2014.0,
+      "registers": 1303
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemD:b_MemD",
+      "module": "dorado_serial_MemD",
+      "failed_fit_alm_estimate": 1395.2,
+      "registers": 1450
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemX:b_MemX",
+      "module": "dorado_serial_MemX",
+      "failed_fit_alm_estimate": 1973.5,
+      "registers": 2195
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_ProcH:b_ProcH",
+      "module": "dorado_serial_ProcH",
+      "failed_fit_alm_estimate": 1014.6,
+      "registers": 830
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_ProcL:b_ProcL",
+      "module": "dorado_serial_ProcL",
+      "failed_fit_alm_estimate": 1020.9,
+      "registers": 795
+    }
+  ],
+  "eight_msa_failed_fit_attribution_alms": 13804.5,
+  "transport": {
+    "dorado_board_state_fabric_msa": 406.8,
+    "dorado_board_state_uio_msa": 186.2,
+    "dorado_msa_state_group": 69.3
+  },
+  "largest_exclusive_attribution": [
+    {
+      "instance": "|sys_top|ascal:ascal",
+      "module": "ascal",
+      "self_attribution_alms": 2395.2
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_storage_arb:u_arb",
+      "module": "dorado_storage_arb",
+      "self_attribution_alms": 1509.2
+    },
+    {
+      "instance": "|sys_top",
+      "module": "sys_top",
+      "self_attribution_alms": 870.4
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_BaseBd:b_BaseBd|dorado_serial_BaseBd__cell_MCS6502_snapshot:u_f61|dorado_serial_BaseBd__chip_6502_snapshot:u_cpu",
+      "module": "dorado_serial_BaseBd__chip_6502_snapshot",
+      "self_attribution_alms": 757.9
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_BaseBd:b_BaseBd|dorado_serial_BaseBd__cell_MCS6532_snapshot:u_c62|dorado_serial_BaseBd__M6532_snapshot:u_riot",
+      "module": "dorado_serial_BaseBd__M6532_snapshot",
+      "self_attribution_alms": 688.4
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_BaseBd:b_BaseBd|dorado_serial_BaseBd__cell_MCS6532_snapshot:u_f62|dorado_serial_BaseBd__M6532_snapshot:u_riot",
+      "module": "dorado_serial_BaseBd__M6532_snapshot",
+      "self_attribution_alms": 675.8
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_BaseBd:b_BaseBd|dorado_serial_BaseBd__cell_MCS6532_snapshot:u_l62|dorado_serial_BaseBd__M6532_snapshot:u_riot",
+      "module": "dorado_serial_BaseBd__M6532_snapshot",
+      "self_attribution_alms": 673.8
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_BaseBd:b_BaseBd|dorado_serial_BaseBd__cell_MCS6532_snapshot:u_i62|dorado_serial_BaseBd__M6532_snapshot:u_riot",
+      "module": "dorado_serial_BaseBd__M6532_snapshot",
+      "self_attribution_alms": 652.2
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_BaseBd:b_BaseBd|dorado_serial_BaseBd__cell_MCS6532_snapshot:u_f63|dorado_serial_BaseBd__M6532_snapshot:u_riot",
+      "module": "dorado_serial_BaseBd__M6532_snapshot",
+      "self_attribution_alms": 646.0
+    },
+    {
+      "instance": "|sys_top|pll_hdmi_adj:pll_hdmi_adj",
+      "module": "pll_hdmi_adj",
+      "self_attribution_alms": 528.5
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_ethernet_ddr:u_network_ddr",
+      "module": "dorado_ethernet_ddr",
+      "self_attribution_alms": 514.7
+    },
+    {
+      "instance": "|sys_top|osd:hdmi_osd",
+      "module": "osd",
+      "self_attribution_alms": 501.9
+    },
+    {
+      "instance": "|sys_top|osd:vga_osd",
+      "module": "osd",
+      "self_attribution_alms": 462.2
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_pack_hps:u_media",
+      "module": "dorado_pack_hps",
+      "self_attribution_alms": 441.3
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_board_state_fabric_msa:u_snapshot_fabric",
+      "module": "dorado_board_state_fabric_msa",
+      "self_attribution_alms": 406.8
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_speed_monitor:u_speed_monitor",
+      "module": "dorado_speed_monitor",
+      "self_attribution_alms": 397.2
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_ethernet_uio:u_network_uio",
+      "module": "dorado_ethernet_uio",
+      "self_attribution_alms": 374.3
+    },
+    {
+      "instance": "|sys_top|emu:emu",
+      "module": "emu",
+      "self_attribution_alms": 337.8
+    },
+    {
+      "instance": "|sys_top|alsa:alsa",
+      "module": "alsa",
+      "self_attribution_alms": 301.8
+    },
+    {
+      "instance": "|sys_top|emu:emu|hps_io:hps_io|video_calc:video_calc",
+      "module": "video_calc",
+      "self_attribution_alms": 301.0
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemX:b_MemX",
+      "module": "dorado_serial_MemX",
+      "self_attribution_alms": 257.4
+    },
+    {
+      "instance": "|sys_top|yc_out:yc_out",
+      "module": "yc_out",
+      "self_attribution_alms": 235.8
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_ContB:b_ContB",
+      "module": "dorado_serial_ContB",
+      "self_attribution_alms": 228.8
+    },
+    {
+      "instance": "|sys_top|emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC",
+      "module": "dorado_serial_MemC",
+      "self_attribution_alms": 210.7
+    }
+  ],
+  "source_audit": "PASS_SOURCE_ONLY",
+  "geometry_audit": "PASS_BOARD_GEOMETRY_WRAPPER_ACCESS_PENDING",
+  "sta_started": false,
+  "assembly_started": false,
+  "hardware_changed": false,
+  "comparison_limit": "Earlier 45,228-ALM experiment lacked the eight enabled MSA adapters. Coverage differs; this is not an equal-coverage serial/parallel comparison.",
+  "failure_controls": [
+    {
+      "case": "false_success",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "wrong_capacity",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "missing_msa",
+      "rejected": true,
+      "diagnostic": "nineteen-board fitted attribution missing/duplicated"
+    },
+    {
+      "case": "missing_owner",
+      "rejected": true,
+      "diagnostic": "enabled owner/UIO/router missing"
+    }
+  ],
+  "input_hashes": {
+    "build/rtl-executive/serial61-terminal-fit-20261019/source-audit-final.json": "d24088a7ed11ebe1c21e3aa2ab0a5c3acbde8b3340bd00fce4a2b3dd9a96a171",
+    "build/rtl-executive/serial61-inventory-v1-20261019/classification.json": "48b21d3294397d59936f784590c82c4a6372c99724d5beebe6193417ff13e1c0",
+    "/Users/alans/dev2/Dorado/fpga/mister/snapshot/audit_serial_capacity.py": "a78fb50dcfb40fda90939312c6591e1c74afcc2b2dc27991a5653d1e60b0cca5",
+    "build/rtl-executive/serial61-terminal-fit-20261019/terminal-state.json": "41adcc66cf7c8a920255ba7771b2108bfc573e9586450d6777ffec5691797c25",
+    "build/rtl-executive/serial61-terminal-fit-20261019/map.log": "02cf7a700411d6334679d30872610e3dcdd016bd7ab4a225869d7daaf96714be",
+    "build/rtl-executive/serial61-terminal-fit-20261019/driver.pid": "f8e737b76afda6f2b679434e7ebe80eb803961bce1ae3cd35649acba9b93d31c",
+    "build/rtl-executive/serial61-terminal-fit-20261019/fit.log": "8711b29f4c69e8d05006408aac47b65ea599828b235db687861d9794e026fab3",
+    "build/rtl-executive/serial61-terminal-fit-20261019/driver.log": "0b2240343a145338ac616962bcb6bc915894ce4a38055d032b50133b58797457",
+    "build/rtl-executive/serial61-terminal-fit-20261019/core/Dorado.qsf": "3354a56ec92bc02ed832965145a2a18a0e701ffa20681f68573c50a73e5761fe",
+    "build/rtl-executive/serial61-terminal-fit-20261019/core/output_files/Dorado.map.summary": "2332f83bfee69006eb6f56d6919c428a46f45d305d26b074b4275536e9a96079",
+    "build/rtl-executive/serial61-terminal-fit-20261019/core/output_files/Dorado.fit.summary": "47e2a7effb82d4c6cb47e870482336376934f17d5adbc70357ce0cec0fe91f59",
+    "build/rtl-executive/serial61-terminal-fit-20261019/core/output_files/Dorado.map.rpt": "de21230d58d849472be7e2b11e0d3a8cc276374c6b8490447bbc104465c066db",
+    "build/rtl-executive/serial61-terminal-fit-20261019/core/output_files/Dorado.fit.rpt": "7e6647e8ab8f8bc840ed97e61a9c82178b1b57f4c2d589ab3551af969399a0af",
+    "build/rtl-executive/serial61-terminal-fit-20261019/core/output_files/Dorado.flow.rpt": "f4e29c904b0ddee962a1aedfad0f217e2b7e1ed1dc728581a481a3614a113aec"
+  }
+}

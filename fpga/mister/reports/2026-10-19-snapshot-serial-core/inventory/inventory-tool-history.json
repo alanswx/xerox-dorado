@@ -1,0 +1,5 @@
+{
+  "executed_tool_sha256": "4097fb83ccf539cbbc0cf88d789d1924a88827e90376e6fb2493bb8e553f425f",
+  "current_tool_sha256": "862760d90ebf79a33de90c370f99ff1fd5bae39b2912d79d7ce9c0a10658079c",
+  "change": "Add archived expected-fields.json; same elaboration/classification/controls. File generated separately without repeating elaboration."
+}

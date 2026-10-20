@@ -1,0 +1,115 @@
+{
+  "status": "PASS_SOURCE_ONLY",
+  "scope": "Independent nineteen-board serial integration audit against frozen Native59.\n\nChecks every original board pin/parameter, all admin bindings, hierarchy,\nvirtual capacity contracts, source selection and allowed timing-policy edits.\nNot a capacity/timing result, native barrier or complete snapshot claim.\n",
+  "boards": 19,
+  "slots": 12,
+  "original_pin_connections": 2761,
+  "physical_board_bits": 1966264,
+  "baseline_sources_verified": 405,
+  "capacity_only": true,
+  "native_barriers_implemented": false,
+  "assembly_permitted": false,
+  "limits": "Source integration only; full elaboration/fit/timing/hardware restore remain separate",
+  "failure_controls": [
+    {
+      "case": "index",
+      "rejected": true,
+      "diagnostic": "main-board state binding differs: ContB"
+    },
+    {
+      "case": "msa_alias",
+      "rejected": true,
+      "diagnostic": "MSA state binding differs: b_msa3Odd"
+    },
+    {
+      "case": "global_hold",
+      "rejected": true,
+      "diagnostic": "main-board state binding differs: ProcH"
+    },
+    {
+      "case": "guest_advance",
+      "rejected": true,
+      "diagnostic": "main-board state binding differs: ProcH"
+    },
+    {
+      "case": "processor_param",
+      "rejected": true,
+      "diagnostic": "module/parameter differs: DskEth"
+    },
+    {
+      "case": "wrapper",
+      "rejected": true,
+      "diagnostic": "snapshot wrapper binding differs: m"
+    },
+    {
+      "case": "reset",
+      "rejected": true,
+      "diagnostic": "lifecycle/parser reset conflated"
+    },
+    {
+      "case": "service_high",
+      "rejected": true,
+      "diagnostic": "service acknowledgment not virtual input"
+    },
+    {
+      "case": "normal_keyboard",
+      "rejected": true,
+      "diagnostic": "normal wrapper binding differs: u_native"
+    },
+    {
+      "case": "top_ack",
+      "rejected": true,
+      "diagnostic": "virtual contracts not propagated to top"
+    },
+    {
+      "case": "rbf",
+      "rejected": true,
+      "diagnostic": "assembly enabled"
+    },
+    {
+      "case": "storage_mode",
+      "rejected": true,
+      "diagnostic": "unapproved source/macro/fitter assignment differs"
+    },
+    {
+      "case": "host_clock",
+      "rejected": true,
+      "diagnostic": "unapproved source/macro/fitter assignment differs"
+    },
+    {
+      "case": "uio_schema",
+      "rejected": true,
+      "diagnostic": "UIO schema/deadline differs"
+    },
+    {
+      "case": "uio_deadline",
+      "rejected": true,
+      "diagnostic": "UIO schema/deadline differs"
+    },
+    {
+      "case": "backplane_equation",
+      "rejected": true,
+      "diagnostic": "ordinary backplane equations differ"
+    },
+    {
+      "case": "fabric_extra",
+      "rejected": true,
+      "diagnostic": "unapproved native fabric logic/declaration"
+    },
+    {
+      "case": "wrapper_equation",
+      "rejected": true,
+      "diagnostic": "ordinary wrapper equations differ"
+    },
+    {
+      "case": "core_equation",
+      "rejected": true,
+      "diagnostic": "ordinary outer-core equations differ"
+    },
+    {
+      "case": "hold_cut",
+      "rejected": true,
+      "diagnostic": "new hold exception or altered endpoint policy"
+    }
+  ]
+}

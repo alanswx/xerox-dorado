@@ -1,0 +1,9 @@
+{
+  "observed_utc": "2026-10-20T01:31:01.367790+00:00",
+  "processes": [
+    "2322395       1     527  0.0 20880 Ss   python3 -u /home/alans/mister/Dorado_Serial61_inputs_20261019/fpga/mister/snapshot/build_serial_core.py --run /home/alans/mister/Dorado_Serial61Capacity_20261019",
+    "2325036 2322395     298  169 2796088 Rl quartus_fit Dorado"
+  ],
+  "driver_log": "Serial61 map\nSerial61 fit\n",
+  "scope": "Synthesis checkpoint; fitter/STA may still run. Never restart solely on observation timeout."
+}

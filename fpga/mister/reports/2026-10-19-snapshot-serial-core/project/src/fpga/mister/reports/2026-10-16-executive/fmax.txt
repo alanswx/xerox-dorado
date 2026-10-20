@@ -1,0 +1,15 @@
+; Fmax Summary                                                                                                            ;
++------------+-----------------+-----------------------------------------------------------------------------------+------+
+; Fmax       ; Restricted Fmax ; Clock Name                                                                        ; Note ;
++------------+-----------------+-----------------------------------------------------------------------------------+------+
+; 40.92 MHz  ; 40.92 MHz       ; pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk   ;      ;
+; 48.06 MHz  ; 48.06 MHz       ; emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk           ;      ;
+; 82.51 MHz  ; 82.51 MHz       ; FPGA_CLK1_50                                                                      ;      ;
+; 125.25 MHz ; 125.25 MHz      ; FPGA_CLK2_50                                                                      ;      ;
+; 155.11 MHz ; 155.11 MHz      ; pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk ;      ;
+; 198.33 MHz ; 198.33 MHz      ; spi_sck                                                                           ;      ;
++------------+-----------------+-----------------------------------------------------------------------------------+------+
+This panel reports FMAX for every clock in the design, regardless of the user-specified clock periods.  FMAX is only computed for paths where the source and destination registers or ports are driven by the same clock.  Paths of different clocks, including generated clocks, are ignored.  For paths between a clock and its inversion, FMAX is computed as if the rising and falling edges are scaled along with FMAX, such that the duty cycle (in terms of a percentage) is maintained. Altera recommends that you always use clock constraints and other slack reports for sign-off analysis.
+
+
+----------------------------------

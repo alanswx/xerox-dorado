@@ -2,6 +2,59 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**Nineteen-board serial integration passes source/XML audits, but the combined fit is rejected: 49,250 / 41,910 ALMs, 7,340 over capacity.**
+
+`build_serial_core.py` stages the exact qualified eleven main-board adapters,
+eight MSA adapters and twelve-slot owner/router in frozen Native59. All 2,761
+original board pins/parameter bindings and original ordinary core equations
+are preserved. The independent audit rejects twenty-three damaged source/QSF/
+schema/constraint cases. Real clock periods/IO stay unchanged; the renamed MSA
+own-source hold cuts retain exact endpoints with an explicit scan-mode mux
+exclusion proof. Added virtual-contract IO is constrained; no setup cuts added.
+
+Fresh Mac XML uses the actual QSF-selected 319 unique HDL files, fifteen macros
+and 3,945 native-machine instances. It accounts for 1,966,264 physical board bits,
+4,594 private board bits, 69 private owner/router bits and 132,484 unchanged
+wrapper bits with ACCESS PENDING. Fourteen missing-state/geometry/parameter/
+exact-alias cases reject. No sequential exclusions; other categories remain
+review items. emu/UIO, top-level MiSTer, raw SDRAM and ARM state are outside XML.
+All 413 frozen Native59 input receipts verified before remote staging; all 659
+staged files match the local project after path rebasing.
+
+Quartus synthesis passes. The fitter then exits3: 4,954 LABs required / 4,191
+available, 49,250 ALMs / 41,910. All nineteen board scopes and three transport
+entities remain in the failed-fit attribution. The eight MSA adapters account
+for 13,804.5 estimated ALMs. These are failed-fit diagnostics, not legal placement
+or a prediction from summed savings. The earlier 45,228-ALM experiment did not
+include eight enabled MSA adapters, so coverage differs. No STA/assembly/RBF or
+hardware reload followed. The failed summary's zero RAM blocks is no RAM result.
+
+Run `/home/alans/mister/Dorado_Serial61Capacity_20261019` is TERMINAL; builder
+2322395 and fitter2325036 are absent. Inputs remain isolated at
+`/home/alans/mister/Dorado_Serial61_inputs_20261019`. Do not restart it.
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-serial-core/`. All 1,546 raw
+archive members pass readback; extracted source/XML/terminal-capacity controls,
+actual Quartus aliases and byte-identical 659-file restaging pass.
+
+Next: investigate shared enable/scan-mux factoring in the actual MSA frontends
+and FF adapters, preserving every physical field. Qualify any reduction against
+the frozen original, full save/restore/abort/first-resume tests and matched
+component timing before another combined fit; do not assume an isolated saving
+solves the whole-core budget. A legal enabled fit/all-condition timing remains
+required. Then finish wrapper/input/video/network/raw-memory/Main/daemon/server
+state and real pause/disk-generation barriers. PLL-unlock is only a reset proxy
+in this capacity experiment: production must prevent quarantine clearing without
+genuine machine reseed. Drain accepted raw transactions before frontend freeze;
+keep physical SDRAM refresh running. Daemon pause/resume must preserve connections
+and rebase timers rather than using reconfiguring lifecycle RESUME. Qualify
+atomic disk-paired FPGA Cedar save/continue/restore.
+
+MiSTer14/Native59 is unchanged; last qualified rate remains 1,947,654.12 issues/s.
+Original 60 ns clocks/timers, pinned comparisons, three fresh boots, cold disk
+persistence and two-hour combined stress remain required. Goal ACTIVE.
+
+Previous component qualification:
+
 **The shared transport now qualifies all eight actual MSA adapters through SPI. Native builder wiring, real service barriers and a new combined fit are next.**
 
 The new `board_state_fabric_msa.sv` / `board_state_uio_msa.sv` retain slots0..10

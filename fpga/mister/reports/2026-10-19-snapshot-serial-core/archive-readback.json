@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "files": 1546,
+  "raw_bytes": 149008269,
+  "stored_bytes": 14398886,
+  "scope": "Lossless readback, including terminal capacity failure. No legal placement/STA/assembly/hardware claim."
+}
