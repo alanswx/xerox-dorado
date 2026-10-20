@@ -73,6 +73,7 @@ def audit(directory,qualified,allow_missing):
               't_parity':(846,607,'t_parity','PASS_T_PARITY_ARRIVAL_CONTRACT','dorado_t_parity_step.sv'),
               'r_operand':(898,675,'r_operand','PASS_R_OPERAND_ARRIVAL_CONTRACT','dorado_r_operand_step.sv'),
               'r_flags':(902,689,'r_flags','PASS_R_FLAGS_ARRIVAL_CONTRACT','dorado_r_flags_step.sv'),
+              'r_address':(1042,791,'r_address','PASS_R_ADDRESS_ARRIVAL_CONTRACT','dorado_r_address_step.sv'),
               'r_storage':(939,709,'r_storage','PASS_R_STORAGE_ARRIVAL_CONTRACT','dorado_r_storage_step.sv')}
     assert provenance.get('component')in profiles,'Unknown fixture profile'
     expected_launch,expected_result,component,expected_status,evaluator=profiles[provenance.get('component')]

@@ -63,8 +63,11 @@ exact keyboard/warm file readback pass; idle issues average1,947,686.01/s,
 effectively unchanged. No speed gain, cold persistence or rollback claim yet.
 The complete596-bit R sign/odd component now couples functional RM/STK ports
 (9,216 bits in four256×9 MLAB banks). Both simulators and isolated15ns timing
-pass (setup+4.190ns/hold+0.105ns). Physical address/select handoff,
-bypass/IFU/Ready/MIR/Hold and native clock integration remain open. Exact evidence
+pass (setup+4.190ns/hold+0.105ns). The final R address/select stages now pass
+separately at636 bits/45 clocks in both simulators and isolated15ns timing
+(setup+3.982ns/hold+0.155ns). Coupling real addresses to functional RAM while
+preserving the old g16 sample, remaining front/bypass/IFU/Ready/MIR/Hold producers
+and native clock integration remain open. Exact evidence
 and process state are at the top of the handoff.
 
 1. Preserve the unintegrated host-service/Main-client prototype as deferred
@@ -91,8 +94,12 @@ and process state are at the top of the handoff.
    **Done for an isolated slice:** complete596-bit sign/odd nets, both simulators
    and15ns timing (setup+4.242ns/hold+0.135ns). **Done for an isolated slice:**
    functional RM/STK data/parity ports coupled to this component; real MLAB
-   implementation passes15ns (setup+4.190ns/hold+0.105ns). Close the actual
-   address/select register/mux handoff, preserving old g16 sample data and stable
+   implementation passes15ns (setup+4.190ns/hold+0.105ns). **Done separately:**
+   final R address/select register/mux graph,636 bits/193 packages; all45 clocks
+   and256 addresses per port, both simulators/five profiles/seven bad variants;
+   isolated15ns setup+3.982ns/hold+0.155ns. Include all four mixed low-address
+   drivers and preserve DblClock'B's different StartA qualification. Couple these
+   actual address/select stages to functional RAM, preserving old g16 data and stable
    write addresses; then bypass/IFU and Ready/MIR/hold producers, then remaining
    board/latch/RAM families against original references. The existing
    eight-slot phase oracle is not a deployable full-speed clock solution.

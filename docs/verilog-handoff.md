@@ -30,8 +30,10 @@ Initial's ROM component and the actual native copy now pass; the full native
 BaseBoard/Cedar desktop/input regression now passes.
 The complete 596-bit sign/odd component also passes both simulators and isolated
 15ns timing. Functional RM/STK ports are now coupled to this component and pass
-both simulators plus isolated15ns timing with their actual MLAB banks. Physical
-address/select producers, remaining Ready/MIR/Hold and native integration follow.
+both simulators plus isolated15ns timing with their actual MLAB banks. The final
+R address/select stages now also pass separately at636 bits.
+Coupling those stages to RAM, front producers, remaining Ready/MIR/Hold and native
+integration follow.
 Full board timing, faster Cedar boot and rollback remain unqualified.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
 qualify it through original firmware and the germ/disk path. Rollback preserves
@@ -65,9 +67,9 @@ all collected raw bytes match their hashes after extraction. No active pack
 copy, guest Boot, host barrier, clean shutdown, cold persistence or full snapshot
 claim. Login issue rate remains1,947,686.01/s; no speed gain.
 
-**Next: actual RM/STK address/select handoff and bypass/IFU producers,
-Ready/MIR/Hold, then native clock integration against these corrected-part
-contracts.** Functional RAM ports are now coupled/qualified below. The596-bit
+**Next: couple the now-qualified final RM/STK address/select stages to the
+functional RAM ports, preserving old g16 sample data and stable write addresses.
+Then remaining front/bypass/IFU/Ready/MIR/Hold producers and native integration.** Functional RAM ports are now coupled/qualified below. The596-bit
 coupled sign/odd component already passes simulation and isolated15ns timing
 (below). Preserve this corrected MC1668 baseline and Native59; stop/reload only
 through normal Main disk/network barriers. Authentic Cedar Checkpoint/Rollback,
@@ -75,6 +77,56 @@ original60ns cadence/timer calibration, three fresh boots, cold persistence and
 two-hour combined stress remain open. Goal ACTIVE; full snapshots deferred.
 All our simulator/fit/loader/input/collector jobs are terminal. Only normal
 Main3486/server3485 and Cedar's own background work remain live.
+
+### Final R address/select stages and isolated timing PASS (2026-10-20)
+
+`dorado_r_address_step.sv` extends the coupled processor from596 to636 bits.
+Independent PARC graph:193 original packages/1,991 connected pins. ProcH l05;
+ProcL g10/h10, i15, k11/g08/j11, l11 and LOW-transparent h15; both k08/k09 muxes,
+g09 selects and l10 shared RbBypass are included. h17 also internalizes the Md
+parity input of g18. The low-address cone includes ALL h12/h13/i11 drivers plus
+i19's fourth contribution on bit3. Consumed mixed nets reject missing drivers.
+
+**Clock distinction:** DblClock'B is ppClk without StartA qualification;
+Clock0'D includes it. The final address registers therefore cannot simply reuse
+ordinary write-clock enables. Source task/phase epochs agree with explicit-delay
+originals. Full boundary/state/output map: [R address contract](verilog-r-address-contract.md).
+
+The strengthened gate passes16,448 events/profile in both Icarus and Verilator
+across five profiles. All636 state bits, all45 clock channels and actual address/
+select/bypass/operand outputs agree. Every256 address of each physical bank is
+seen; both legal bank selections, all LC values and all four mixed-net drivers
+are exercised.5,997 address changes/1,120 select changes/565 bypass changes/
+1,672 transparent updates; seven deliberately broken variants reject. g16 records
+8,240 setup/11,851 hold observations; PARC correlated min/max controls enforce
+1.7ns/1.1ns and observe604ns setup with3ns/10.9ns hold. These generous fixture
+intervals do not prove60ns operation or independent skew.
+
+The isolated15ns registered-shell fit passes all four conditions: minimum
+setup/evaluator+3.982ns, hold+0.155ns, mpw+6.547ns.1,485ALMs/2,487regs;
+zero block RAM/DSP/PLL.1,042 launch/791 result bits. Exact prepared input/readback
+and all five absent job PIDs verified; eight damaged/rehashed reader controls
+reject. The previous functional-R-storage profile still passes the extended
+reader unchanged.881 selected raw source/report members are losslessly archived,
+read back and extracted; the extracted positive timing review is byte-identical.
+No second full simulation replay after extraction is claimed.
+
+Remote `/home/alans/mister/r-address-fit-20261020`: builder4107985/map4107986/
+fit4108290/sta4109537/corners4109696 are TERMINAL/absent. Do not restart.
+Accepted `build/rtl-executive/r-address-qualified-20261020`; timing
+`r-address-fit-terminal-20261020`; receipt
+`fpga/mister/reports/2026-10-20-r-address-path/`. All our jobs are terminal.
+MiSTer14 remains Main3486/server3485/RBF15730f44, CRC/RX/abort0; no FPGA/Main/
+server changes or speed gain. Last measured login1,947,686.01issues/s.
+
+**Next:** couple this graph to the functional RM/STK banks. The address-only
+fixture still uses external R data/parity and probes transparent front inputs;
+it does not prove the actual level-sensitive RAM write/address handoff. Preserve
+the OLD RAM parity/data epoch at g16 before address/phase registers expose the
+next entry; prove write-address/select stability and actual j05 write timing.
+Front RBase/stack D, complete comparisons, RSTK, PrBlock/Q14 and inherited
+IFU/Ready/MIR/Hold producers remain boundaries. Then native integration, cadence/
+timers, authentic Cedar rollback and final cold/repeated/stress gates. Goal ACTIVE.
 
 ### Functional R storage coupled and isolated timing PASS (2026-10-20)
 
