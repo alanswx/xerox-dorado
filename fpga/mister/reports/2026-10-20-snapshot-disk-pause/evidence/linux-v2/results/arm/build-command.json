@@ -1,0 +1,21 @@
+[
+  "arm-linux-gnueabihf-g++",
+  "-std=c++14",
+  "-D_FILE_OFFSET_BITS=64",
+  "-O2",
+  "-g",
+  "-Wall",
+  "-Wextra",
+  "-Werror",
+  "-pthread",
+  "-I/home/alans/mister/Dorado_DiskSnapshotPause2_20261020/results/arm/executed-inputs",
+  "/home/alans/mister/Dorado_DiskSnapshotPause2_20261020/results/arm/executed-inputs/test.cpp",
+  "/home/alans/mister/Dorado_DiskSnapshotPause2_20261020/results/arm/executed-inputs/dorado_disk.cpp",
+  "/home/alans/mister/Dorado_DiskSnapshotPause2_20261020/results/arm/executed-inputs/dorado_disk_cache.cpp",
+  "/home/alans/mister/Dorado_DiskSnapshotPause2_20261020/results/arm/executed-inputs/dorado_disk_trace.cpp",
+  "-Wl,--wrap=pwrite64",
+  "-Wl,--wrap=fsync",
+  "-static",
+  "-o",
+  "/home/alans/mister/Dorado_DiskSnapshotPause2_20261020/results/arm/disk-snapshot-test"
+]

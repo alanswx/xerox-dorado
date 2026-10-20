@@ -1,0 +1,74 @@
+{
+  "status": "PASS",
+  "steps": [
+    {
+      "step": "snapshot",
+      "returncode": 0,
+      "log_sha256": "452e6b4ecf0abc9d23efbf68f1c3f995409cda8d9c70a067bb2f8d25e00c5f82"
+    },
+    {
+      "step": "legacy-cache",
+      "returncode": 0,
+      "log_sha256": "dd4153cab85b6148bfd7fed78b0bf4177a9391bc925de15e3cac9aef13b1b880"
+    },
+    {
+      "step": "legacy-adapter",
+      "returncode": 0,
+      "log_sha256": "4bd598fa3262decdbe1c8e31267329d33477712bf8a8f8080da807aab32b6f1a"
+    },
+    {
+      "step": "arm-build",
+      "returncode": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "source_hashes": {
+    "qualify.py": "3b68bc004af9477984abe2ef2911ffb6784ffa545d69e6bfc19d188d09c60ee5",
+    "pinned-main/input.cpp": "a90de527ab42a03369e34dfa89cdbf40c39b7f1aa2c3eaa0221422a089b0f4f5",
+    "pinned-main/offload.cpp": "021a3bb911fd8225dec2335a7caf7898c9555755c90113a3a7346521d86f3c24",
+    "pinned-main/profiling.h": "db7b5670c3613f534d88f377cb0e307157476b911b0f368d7ed5efcf8d2d2b00",
+    "pinned-main/offload.h": "6621dad69c4d288c26297b84994a4027cd5ce263767947eb7cb6dd004f12526a",
+    "fpga/mister/main/main-disk-260912.patch": "e0f66425912d0552b0dbbb51639d6345abccdb23010b2be36716c8e6a2c4865c",
+    "fpga/mister/main/dorado_disk.cpp": "d840150ed5c3a70017ac90e4392a65ad452a5c3dece4e4c19a8cfa4fcc71be2f",
+    "fpga/mister/main/dorado_control_client.cpp": "ea5c0241bbfca73b55890eb054f18c9de15303491cd73b854c286737f2f45402",
+    "fpga/mister/main/dorado_disk_cache.h": "382c4c799b44ab1de31c3ea94941b24c049d025192d86d553c69f613722bf949",
+    "fpga/mister/main/dorado_disk.h": "4acf85a0089286600e2fcfde8d2aed7b69e27951756a3d9a91d6c0d719a62c54",
+    "fpga/mister/main/dorado_disk_cache.cpp": "f76e7821e2045adf654438edfab6231e9dc3bd42be34072782c31e921cfc0182",
+    "fpga/mister/main/main-video-mode-260912.patch": "ca6a9ef4c58837490668e4ecb7efa4bee82e7661648c25f9393d4e1e0561daac",
+    "fpga/mister/main/dorado_net.cpp": "12ecad94136cc4bc62441c723d538db2e30d7465a6277907f5ad334c99fd6262",
+    "fpga/mister/main/Makefile": "9b164d2cab0c5d02350378fa1fdc49b2e40a9f324dc6adccaa266b6afdfdaffe",
+    "fpga/mister/main/dorado_net.h": "79b6c4dc2ff9641bf9950a6b763537eee2961869b4575be340832df3ac9c4f76",
+    "fpga/mister/main/main-ddr-260912.patch": "f2fd083ef8441e5a6127159cad2274eabb9b3add51b36d58af4ca74199fb27e3",
+    "fpga/mister/main/dorado_ddr.cpp": "da541faea74c0ad241276f91990f8b0555490bbe01c224ec6b8e5d9ce3bd6138",
+    "fpga/mister/main/main-260912.patch": "6fe24ad4aed593584353d334dd244e08c616ed2314b7d372f1d3cd0def81c122",
+    "fpga/mister/main/main-offload-260912.patch": "169b6b8ad4ff17fd2e0b7165c7f56ea4ec49b4cb7960741f3a1190aa0e0f3337",
+    "fpga/mister/main/dorado_ddr.h": "3997b89ad89d581a79dbb99662f2e9531a167c1dfa8407e7c2608ee2c822437c",
+    "fpga/mister/main/dorado_control_client.h": "9d6a5057136b9bc8e645287443488b2a4799fd754320ba02db521606d47fa058",
+    "fpga/mister/main/dorado_disk_trace.h": "3c2462495773ed94cf3ed00fafe3d5736279f12a9d53895d9a23aac99d7bf4de",
+    "fpga/mister/main/dorado_disk_trace.cpp": "ca81134fa1c6fb8732b354d3a82eb07444b0bfc87f98fe3d4bd8a899eea00b72",
+    "fpga/mister/main/tests/test_disk_adapter.cpp": "a9af2a96fe55dfb8edbb4d4f78c1a23ca5c684630717395f94ad2dce41745ab6",
+    "fpga/mister/main/tests/run.py": "da13e715b6aae65bf3a41d74032cc0b75894a56f0725ab01d30409a8ec5def6c",
+    "fpga/mister/main/tests/test_disk_adapter.py": "96617783992c0cf48ac2674fa2d3f60a3c4e52bb23beea1806f9ce385c454260",
+    "fpga/mister/main/tests/test_ddr_transport.cpp": "270fb580e6819726c694cb9f0eacde7e8b8825c8205b195334330344d8951b65",
+    "fpga/mister/main/tests/test_disk_cache.cpp": "2f19fd2dff3926fa668a75c3266082a906cccfd5b5afaa6daccaf68414f97954",
+    "fpga/mister/main/tests/test_main_transport.cpp": "1e127f86b3d1b4d1168ee6fd1747eeb69d277f4184f4e46953f994df3ec67aa2",
+    "fpga/mister/main/tests/test_video_modeline.py": "1070a32e33ab567c8bf43c045ffb5d40491d9a29c32287f64ecbc54b11640c82",
+    "fpga/mister/main/tests/test_disk_snapshot.py": "fe6a41dc96124d585a661c1056cc5833b636c74f9fcc7cf0847a7be01df6bd34",
+    "fpga/mister/main/tests/slow_sync_probe.cpp": "a90704424ec4dd044adffa42c251f178711d51a3b21b38e9e0b181838dff6048",
+    "fpga/mister/main/tests/spi.h": "1b459a7c4eeaf583c2a408e1190ec308285719f7e51ea801e26722fdc27f0e67",
+    "fpga/mister/main/tests/test_disk_snapshot.cpp": "006a26894e0351a4f0a209ca138794af667e4029605083dbf6cea3cc3817552d",
+    "fpga/mister/main/tests/user_io.h": "ac80ab96191ddca6acf4d374d6a23e2bc7823c1559c8348a0916b8046b54ba04",
+    "fpga/mister/main/tests/test_disk_cache.py": "7caa22b58c891418b32363fbbab2444acc1c70ff8620a1fc5d5b0f692e8b6357",
+    "fpga/mister/main/tests/test_ddr_transport.py": "f537685b9497c12654c2d02dca4f006310e4c71756e814467a897447f7ef7faa",
+    "fpga/mister/main/tests/test_offload.py": "7866f7bf67195f4d461541fbd3a7081e6b4ca7d31a7e806036c120f850e99523",
+    "fpga/mister/main/tests/test_slow_sync_probe.cpp": "7b81345dd6b430b7b42007b76444bd7f51d249d2e4d666c5089299305b55ea4d",
+    "fpga/mister/main/tests/test_offload.cpp": "b692d1b972cec8c98f9a2188d18c800bd2b6e3cb76a78c721cc3a23a97d47a44",
+    "fpga/mister/main/tests/test_slow_sync_probe.py": "dc5660653605beb79ed1355195a7d9ed6d7d111121b16107507b73d8f8e4d1a2",
+    "fpga/mister/main/tests/test_control_client.cpp": "bfff51ddbb9ce5f685e374ababbeda78f274fa4c1045b22ea76867b1bb2e639d",
+    "fpga/mister/main/tests/disk/file_io.h": "0b0730d78e0194b0c00140b7b74d5723bcba7548e0d8aff2227e4d6b6f5dda23",
+    "fpga/mister/main/tests/disk/spi.h": "8575ab2a9bf5ae6cbb70b5b24b42e8ba9c00ce39beb77aafcc1d102ecf5df9c8",
+    "fpga/mister/main/tests/disk/user_io.h": "7d60bb5f7f1fb35abe43c98f5bce3fcf88e97ee5f2492dcb7758844891470924"
+  },
+  "arm_binary_sha256": "1cecbdbd750424967ab9e16c6085682312051f35c323e295b73918780b39d743",
+  "hardware_access": false
+}

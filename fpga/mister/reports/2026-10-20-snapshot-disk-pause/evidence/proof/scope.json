@@ -1,0 +1,8 @@
+{
+  "status": "PASS_DISK_SNAPSHOT_LEASE_WORKER_ADAPTER_ARM",
+  "terminal_packet_sha256": "23f4e0f943ff76becfe4738477c8411c635ef9a00be1090c0dcdf396c3424656",
+  "source_packet_sha256": "ab83e6fc16b1b5db1cd450fe57a4c4328153ab8a1f680b9a768f39dfcf5c8c8c",
+  "metadata_correction": "linux-v2 test driver reused original for mutation text, so original_main_inputs was a string. linux-v3 fixes that driver variable; all actual ARM/C++ inputs are byte-identical.",
+  "deployed_main_core_daemon_changed": false,
+  "full_snapshot_qualified": false
+}

@@ -32,7 +32,7 @@ DoradoDiskCache::~DoradoDiskCache() {
 
 bool DoradoDiskCache::start(int owned_fd, uint64_t size, bool writable) {
     std::lock_guard<std::mutex> guard(lock_);
-    if (state_ != State::Empty || owned_fd < 0 || !size || size > MaxImage || size % Sector)
+    if (state_ != State::Empty || snapshot_requested_ || owned_fd < 0 || !size || size > MaxImage || size % Sector)
         return false;
     fd_ = owned_fd;
     size_ = size;
@@ -101,6 +101,7 @@ DoradoDiskCache::Result DoradoDiskCache::read(uint64_t generation, uint64_t offs
     Result r = check(generation, offset, bytes);
     if (r != Result::Done) return r;
     if (!dst || bytes > Run) return Result::Invalid;
+    if (snapshot_requested_) return Result::Wait;
     std::memcpy(dst, image_.data() + offset, bytes);
     return Result::Done;
 }
@@ -117,6 +118,7 @@ DoradoDiskCache::Result DoradoDiskCache::capture_write(uint64_t generation, uint
     Result r = check(generation, offset, bytes);
     if (r != Result::Done) return r;
     if (!writable_ || !capture || bytes > Run) return Result::Invalid;
+    if (snapshot_requested_) return Result::Wait;
     // Full-sector snapshots preserve unchanged neighboring bytes even when
     // the caller's write is unaligned. Dirty RAM itself reserves all capacity.
     capture(image_.data() + offset);
@@ -177,7 +179,51 @@ void DoradoDiskCache::sync_job() {
 
 DoradoDiskCache::Status DoradoDiskCache::status() const {
     std::lock_guard<std::mutex> guard(lock_);
-    return {state_, generation_, size_, dirty_count_, accepted_, written_, queued_, needs_sync_, error_};
+    return {state_, generation_, size_, dirty_count_, accepted_, written_, queued_, needs_sync_, error_,
+            snapshot_requested_, snapshot_boundary(generation_) == Result::Done};
+}
+
+DoradoDiskCache::Result DoradoDiskCache::snapshot_boundary(uint64_t generation) const {
+    if (generation != generation_ || state_ == State::Empty) return Result::Invalid;
+    if (state_ == State::Error) return Result::Failed;
+    if (!snapshot_requested_) return Result::Invalid;
+    return state_ == State::Ready && !queued_ && !dirty_count_ && !needs_sync_
+        ? Result::Done : Result::Wait;
+}
+
+DoradoDiskCache::Result DoradoDiskCache::snapshot_pause(uint64_t generation) {
+    std::lock_guard<std::mutex> guard(lock_);
+    if (generation != generation_ || state_ == State::Empty) return Result::Invalid;
+    if (state_ == State::Error) return Result::Failed;
+    snapshot_requested_ = true;
+    return snapshot_boundary(generation);
+}
+
+DoradoDiskCache::Result DoradoDiskCache::snapshot_ready(uint64_t generation) const {
+    std::lock_guard<std::mutex> guard(lock_);
+    return snapshot_boundary(generation);
+}
+
+DoradoDiskCache::Result DoradoDiskCache::snapshot_read(uint64_t generation, uint64_t offset,
+                                                     void *dst, size_t bytes) const {
+    std::lock_guard<std::mutex> guard(lock_);
+    Result r = check(generation, offset, bytes);
+    if (r != Result::Done) return r;
+    if (!dst || bytes > Run) return Result::Invalid;
+    r = snapshot_boundary(generation);
+    if (r != Result::Done) return r;
+    std::memcpy(dst, image_.data() + offset, bytes);
+    return Result::Done;
+}
+
+DoradoDiskCache::Result DoradoDiskCache::snapshot_continue(uint64_t generation) {
+    std::lock_guard<std::mutex> guard(lock_);
+    if (generation != generation_ || state_ == State::Empty) return Result::Invalid;
+    if (state_ == State::Error) return Result::Failed;
+    if (!snapshot_requested_) return state_ == State::Ready ? Result::Done : Result::Wait;
+    Result r = snapshot_boundary(generation);
+    if (r == Result::Done) snapshot_requested_ = false;
+    return r;
 }
 
 DoradoDiskCache::Result DoradoDiskCache::read_retained(uint64_t generation, uint64_t offset, void *dst, size_t bytes) {
@@ -202,6 +248,10 @@ bool DoradoDiskCache::drain() {
 }
 
 bool DoradoDiskCache::close() {
+    {
+        std::lock_guard<std::mutex> guard(lock_);
+        if (snapshot_requested_) return false; // Retain snapshot file/generation ownership.
+    }
     if (!drain()) return false;
     std::lock_guard<std::mutex> guard(lock_);
     if (fd_ >= 0) ::close(fd_);

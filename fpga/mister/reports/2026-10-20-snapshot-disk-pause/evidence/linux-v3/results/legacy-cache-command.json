@@ -1,0 +1,8 @@
+{
+  "command": [
+    "python3",
+    "/home/alans/mister/Dorado_DiskSnapshotPause3_20261020/source/fpga/mister/main/tests/test_disk_cache.py",
+    "/home/alans/mister/Dorado_DiskSnapshotPause3_20261020/source/pinned-main"
+  ],
+  "environment": {}
+}

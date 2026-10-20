@@ -126,12 +126,30 @@ That code is host-qualified, not deployed ARM32/whole-machine pause. Evidence:
 four-state/idle gates remain preserved. Disk phase staging separately qualifies
 at +4 ALMs and 18 new REQUIRED wrapper bits; it is NOT in Serial69.
 
+
+The actual Main disk cache/adapter now has a nonblocking snapshot lease. It
+holds the mounted generation, defers normal SPI capture/ACK, drains accepted
+work on the existing worker and exports bounded clean chunks only after fsync.
+Final Linux candidate/4 compiled mutation/legacy cache+adapter gates pass.
+The exact static ARM test also passes on MiSTer14 with temporary images and SPI
+spies: three normal/write-error/sync-error cases, max poll gap3.533ms during a
+4.2-second write, full256KiB physical-file and cold-remount oracle. Failed writes
+retain31 dirty sectors; failed sync retains needs_sync. All319 raw archive members
+and extracted input/log/provenance checks pass. Evidence:
+`fpga/mister/reports/2026-10-20-snapshot-disk-pause/`.
+This is the ARM FILE-WORK boundary only: stop guest disk activity and finish
+already-issued FPGA disk requests BEFORE requesting this lease. Whole-machine
+ordering, actual FPGA disk/network/input/video ACKs and complete restore remain
+open. No production Main/core/daemon was replaced.
+
 Next, in delivery order:
 
 1. Review this SAME Serial69 job's terminal actual660-input/capacity/four-condition/
    all304-crossing results. Integrate only timing-qualified results.
-2. Implement actual Main disk-worker, daemon, FPGA network, input and video pause
-   acknowledgments. The memory boundary alone is not whole-machine quiescence.
+2. Coordinate the qualified Main disk-worker and daemon pause APIs with actual
+   FPGA disk/network, input and video acknowledgments. Finish in-flight guest
+   disk requests before taking the ARM image lease; the memory boundary alone
+   is not whole-machine quiescence.
 3. Add access/export/import for required native wrapper and top emu/UIO state,
    including task-written SDRAM fields. Keep physical refresh running; capture/
    restore the memory controller at a proven safe physical boundary.

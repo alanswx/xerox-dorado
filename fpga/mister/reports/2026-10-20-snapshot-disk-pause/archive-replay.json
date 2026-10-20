@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "results": {
+    "linux-v2": {
+      "status": "PASS",
+      "snapshot_cases": 7,
+      "legacy_cache": true,
+      "legacy_adapter": true,
+      "arm_build_only": true
+    },
+    "linux-v3": {
+      "status": "PASS",
+      "snapshot_cases": 7,
+      "legacy_cache": true,
+      "legacy_adapter": true,
+      "arm_build_only": true
+    },
+    "arm-runtime": {
+      "status": "PASS",
+      "binary_sha256": "1cecbdbd750424967ab9e16c6085682312051f35c323e295b73918780b39d743",
+      "max_poll_gap_ms": 3.533,
+      "cases": 3,
+      "fpga_io": false
+    }
+  },
+  "limits": "Cache/adapter/actual worker only; no FPGA pause, complete machine bundle or restore."
+}

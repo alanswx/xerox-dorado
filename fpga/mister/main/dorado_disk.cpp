@@ -84,6 +84,10 @@ bool dorado_disk_prepare_exit() { return install_exit_handler(); }
 
 bool dorado_disk_barrier(const char *reason) {
     if (!mounted) return true;
+    if (cache().status().snapshot_requested) {
+        fprintf(stderr, "Dorado disk: refusing %s: snapshot owns the image generation\n", reason);
+        return false;
+    }
     trace().record("barrier_begin");
     if (!cache().drain()) {
         auto s = cache().status();
@@ -94,6 +98,24 @@ bool dorado_disk_barrier(const char *reason) {
     }
     trace().record("barrier_end"); trace().flush();
     return true;
+}
+
+DoradoDiskCache::Status dorado_disk_snapshot_status() { return cache().status(); }
+
+DoradoDiskCache::Result dorado_disk_snapshot_pause(uint64_t generation) {
+    if (!mounted || !dorado_disk_enabled()) return DoradoDiskCache::Result::Invalid;
+    return cache().snapshot_pause(generation);
+}
+
+DoradoDiskCache::Result dorado_disk_snapshot_read(uint64_t generation, uint64_t offset,
+                                                void *dst, size_t bytes) {
+    if (!mounted || !dorado_disk_enabled()) return DoradoDiskCache::Result::Invalid;
+    return cache().snapshot_read(generation, offset, dst, bytes);
+}
+
+DoradoDiskCache::Result dorado_disk_snapshot_continue(uint64_t generation) {
+    if (!mounted || !dorado_disk_enabled()) return DoradoDiskCache::Result::Invalid;
+    return cache().snapshot_continue(generation);
 }
 
 bool dorado_disk_before_mount(unsigned index) {

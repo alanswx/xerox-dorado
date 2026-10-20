@@ -1,0 +1,19 @@
+[
+  "g++",
+  "-std=c++14",
+  "-D_FILE_OFFSET_BITS=64",
+  "-O2",
+  "-g",
+  "-Wall",
+  "-Wextra",
+  "-Werror",
+  "-pthread",
+  "/home/alans/mister/Dorado_DiskSnapshotPause_20261020/qualified/executed-inputs/test.cpp",
+  "/home/alans/mister/Dorado_DiskSnapshotPause_20261020/qualified/executed-inputs/dorado_disk.cpp",
+  "/home/alans/mister/Dorado_DiskSnapshotPause_20261020/qualified/executed-inputs/dorado_disk_cache.cpp",
+  "/home/alans/mister/Dorado_DiskSnapshotPause_20261020/qualified/executed-inputs/dorado_disk_trace.cpp",
+  "-Wl,--wrap=pwrite64",
+  "-Wl,--wrap=fsync",
+  "-o",
+  "/home/alans/mister/Dorado_DiskSnapshotPause_20261020/qualified/disk-snapshot-test"
+]

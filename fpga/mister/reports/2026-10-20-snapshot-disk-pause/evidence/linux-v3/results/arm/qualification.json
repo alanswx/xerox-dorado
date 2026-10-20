@@ -1,0 +1,31 @@
+{
+  "status": "BUILD_ONLY",
+  "scope": "Actual Main worker/cache/adapter snapshot lease against temporary files.\n\nLinux host or static ARM build; SPI boundaries are spies. A 4.2-second write\nand held fsync must never block Main polling or admit premature checkpoint data.\nThis does not qualify FPGA/device pause or a complete snapshot bundle.\n",
+  "cases": [],
+  "original_main_inputs": {
+    "input.cpp": "a90de527ab42a03369e34dfa89cdbf40c39b7f1aa2c3eaa0221422a089b0f4f5",
+    "offload.cpp": "021a3bb911fd8225dec2335a7caf7898c9555755c90113a3a7346521d86f3c24",
+    "profiling.h": "db7b5670c3613f534d88f377cb0e307157476b911b0f368d7ed5efcf8d2d2b00",
+    "offload.h": "6621dad69c4d288c26297b84994a4027cd5ce263767947eb7cb6dd004f12526a"
+  },
+  "executed_inputs": {
+    "dorado_disk.cpp": "d840150ed5c3a70017ac90e4392a65ad452a5c3dece4e4c19a8cfa4fcc71be2f",
+    "file_io.h": "0b0730d78e0194b0c00140b7b74d5723bcba7548e0d8aff2227e4d6b6f5dda23",
+    "dorado_disk_cache.h": "382c4c799b44ab1de31c3ea94941b24c049d025192d86d553c69f613722bf949",
+    "dorado_disk.h": "4acf85a0089286600e2fcfde8d2aed7b69e27951756a3d9a91d6c0d719a62c54",
+    "input_handler.inc": "e8ad4152bdaf6d30b7dcb822be154d9e131098661b00cb4bee80aaa4715bee3e",
+    "dorado_disk_cache.cpp": "f76e7821e2045adf654438edfab6231e9dc3bd42be34072782c31e921cfc0182",
+    "input.cpp": "89a5cdbf897864f92e0a99a8e925b8b0eae951c950c8a90614378da999d71b33",
+    "test.cpp": "006a26894e0351a4f0a209ca138794af667e4029605083dbf6cea3cc3817552d",
+    "spi.h": "8575ab2a9bf5ae6cbb70b5b24b42e8ba9c00ce39beb77aafcc1d102ecf5df9c8",
+    "dorado_net.h": "79b6c4dc2ff9641bf9950a6b763537eee2961869b4575be340832df3ac9c4f76",
+    "legacy_adapter.cpp": "2abd09fc450b62b34e6707596d4e89133923da051879efab9b8b989928ae5aeb",
+    "offload.cpp": "8f3329ba13ec374fb05170dc3719e13e00ed813a5057e71872aa40217662279a",
+    "user_io.h": "7d60bb5f7f1fb35abe43c98f5bce3fcf88e97ee5f2492dcb7758844891470924",
+    "profiling.h": "db7b5670c3613f534d88f377cb0e307157476b911b0f368d7ed5efcf8d2d2b00",
+    "offload.h": "b5fa87439245ef0ac533c13d92e4b78ab7966cff32f8fd8cbfe970d445967d94",
+    "dorado_disk_trace.h": "3c2462495773ed94cf3ed00fafe3d5736279f12a9d53895d9a23aac99d7bf4de",
+    "dorado_disk_trace.cpp": "ca81134fa1c6fb8732b354d3a82eb07444b0bfc87f98fe3d4bd8a899eea00b72"
+  },
+  "limits": "Actual host worker/cache/adapter and SPI ownership spies. No FPGA service barrier, disk snapshot file/COW bundle or complete machine restore."
+}

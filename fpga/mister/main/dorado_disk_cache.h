@@ -22,6 +22,7 @@ public:
         uint64_t generation, size, dirty_sectors, accepted_bytes, written_bytes;
         bool job_pending, needs_sync;
         int error;
+        bool snapshot_requested, snapshot_ready;
     };
     struct IO {
         std::function<ssize_t(int, void *, size_t, off_t)> read;
@@ -47,6 +48,13 @@ public:
     Result capture_write(uint64_t generation, uint64_t offset, size_t bytes,
                          const std::function<void(uint8_t *)> &capture);
     Status status() const;
+    // Nonblocking snapshot lease on the current mounted generation. Normal
+    // reads/writes defer before capture; poll keeps draining accepted work.
+    // Done means a clean, synced image with no worker job, not FPGA quiescence.
+    Result snapshot_pause(uint64_t generation);
+    Result snapshot_ready(uint64_t generation) const;
+    Result snapshot_read(uint64_t generation, uint64_t offset, void *dst, size_t bytes) const;
+    Result snapshot_continue(uint64_t generation);
     // Explicit recovery access after an IO error, never normal disk service.
     Result read_retained(uint64_t generation, uint64_t offset, void *dst, size_t bytes);
     // Explicit lifecycle boundary, never the regular polling path. Must run
@@ -62,6 +70,7 @@ private:
     void sync_job();
     void finish_error(int error);
     Result check(uint64_t generation, uint64_t offset, size_t bytes) const;
+    Result snapshot_boundary(uint64_t generation) const; // lock held
     Submit submit_;
     IO io_;
     mutable std::mutex lock_;
@@ -69,6 +78,7 @@ private:
     State state_ = State::Empty;
     int fd_ = -1, error_ = 0;
     bool writable_ = false, queued_ = false, needs_sync_ = false;
+    bool snapshot_requested_ = false;
     uint64_t generation_ = 0, size_ = 0, dirty_count_ = 0;
     uint64_t accepted_ = 0, written_ = 0;
     std::vector<uint8_t> image_, dirty_;
