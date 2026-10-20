@@ -1,0 +1,26 @@
+[
+  [
+    "verilator",
+    "--binary",
+    "--timing",
+    "--assert",
+    "-j",
+    "4",
+    "--top-module",
+    "tb_storage_arb",
+    "-Wno-fatal",
+    "--Mdir",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-idle-v2-20261019/arb128/obj",
+    "-o",
+    "test",
+    "-GGROUPS=128",
+    "-GPREFETCH_NEXT=1",
+    "-GINTERLEAVE_GROUPS=1",
+    "-GGROUP_ADDR_BITS=16",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-idle-v2-20261019/arb128/dorado_storage_arb.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-idle-v2-20261019/executed-inputs/tb_storage_arb.sv"
+  ],
+  [
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-idle-v2-20261019/arb128/obj/test"
+  ]
+]

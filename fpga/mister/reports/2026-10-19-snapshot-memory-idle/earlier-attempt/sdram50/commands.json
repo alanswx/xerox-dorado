@@ -1,0 +1,24 @@
+[
+  [
+    "verilator",
+    "--binary",
+    "--timing",
+    "--assert",
+    "-j",
+    "4",
+    "--top-module",
+    "tb_storage_sdram",
+    "-Wno-fatal",
+    "--Mdir",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-idle-v1-20261019/sdram50/obj",
+    "-o",
+    "test",
+    "-GCLOCK_HZ=50000000",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-idle-v1-20261019/sdram50/dorado_storage_sdram.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-idle-v1-20261019/executed-inputs/tb_storage_sdram.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-idle-v1-20261019/executed-inputs/xsds_128mbyte_sdram_model.sv"
+  ],
+  [
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-idle-v1-20261019/sdram50/obj/test"
+  ]
+]

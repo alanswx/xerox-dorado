@@ -13,6 +13,7 @@ module dorado_storage_arb #(
     parameter integer INTERLEAVE_GROUPS=0
 ) (
     input wire clk,reset,
+    output wire snapshot_idle,
     input wire [GROUPS-1:0] req_valid,req_write,
     output reg [GROUPS-1:0] req_ready,
     input wire [GROUPS*GROUP_ADDR_BITS-1:0] req_addr,
@@ -36,6 +37,8 @@ module dorado_storage_arb #(
     reg [GROUP_ADDR_BITS-1:0] address_latched=0;
     reg [15:0] data_latched=0;
     reg write_latched=0;
+    // Observation only. Include queued producers as well as a latched owner.
+    assign snapshot_idle=!reset && state==IDLE && !(|req_valid);
     // Prefer the first request at/above next_group, wrapping to the lowest
     // requester if necessary. Carry its payload through the SAME balanced
     // tree. The old variable-index scan selected an owner, then ran a second

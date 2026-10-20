@@ -13,6 +13,7 @@ module dorado_storage_ddram #(
     parameter integer GROUP_ADDR_BITS = 16
 ) (
     input wire clk, reset,
+    output wire snapshot_idle,
     input wire req_valid,
     output wire req_ready,
     input wire req_write,
@@ -37,6 +38,9 @@ module dorado_storage_ddram #(
     reg [ADDR_BITS-1:0] address_latched=0;
     reg [15:0] data_latched=0;
     wire [5:0] shift = {address_latched[1:0],4'b0000};
+    // Adapter-idle only; physical DDR-fabric write drainage is a separate
+    // lifecycle/snapshot requirement. No state or normal handshake changes.
+    assign snapshot_idle=!reset && state==IDLE && !req_valid;
     wire line_hit;
     wire [63:0] line_data;
     generate if(LINE_CACHE_BITS>0)begin:line_buffer

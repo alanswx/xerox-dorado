@@ -1,0 +1,78 @@
+{
+  "status": "PASS",
+  "scope": "Qualify passive idle outputs on the actual arbiter/SDRAM/DDR adapters.\n\nInverse bytes must match the immutable Serial65 source. Existing independent\ntransaction and physical-pin scoreboards remain; added external-handshake\nmonitors reject idle during queued/accepted/unconsumed operations. Autonomous\nSDRAM refresh must remain active and report no guest work after drainage.\n",
+  "source_proof": {
+    "arb": {
+      "source_sha256": "3176dd51976861e68913e0b5b44896a40f3802eead2d0334e77ca9647b653d45",
+      "frozen_original_sha256": "750e623b4a2bf59fee9718fa98d1ac77ddde55e19b4e90df22d3e047a6fdd743",
+      "new_state_bits": 0,
+      "new_output_ports": [
+        "snapshot_idle"
+      ]
+    },
+    "sdram": {
+      "source_sha256": "ecc2e76e7a136ed60217d606e77c2c3b9333aa0e34fea168177b589085e4da30",
+      "frozen_original_sha256": "0cc289e155f5b05b588e710c8621f21098de41f39e21a27a535f50cc00bcbeb7",
+      "new_state_bits": 0,
+      "new_output_ports": [
+        "snapshot_idle"
+      ]
+    },
+    "ddram": {
+      "source_sha256": "01cfbf392774ee5f071354fdd76c2b0c95811d1706f9f78e86c9f6a8ca9e19de",
+      "frozen_original_sha256": "b70226a872f56e8f88787f682e132258eaab4fb215f3159f4204fd6776a34393",
+      "new_state_bits": 0,
+      "new_output_ports": [
+        "snapshot_idle"
+      ]
+    }
+  },
+  "cases": [
+    {
+      "case": "arb128",
+      "returncode": 0
+    },
+    {
+      "case": "arb16",
+      "returncode": 0
+    },
+    {
+      "case": "sdram50",
+      "returncode": 0
+    },
+    {
+      "case": "ddram",
+      "returncode": 0
+    },
+    {
+      "case": "arb_ignores_queued",
+      "returncode": 1
+    },
+    {
+      "case": "sdram_ignores_response",
+      "returncode": 1
+    },
+    {
+      "case": "sdram_blocks_refresh",
+      "returncode": 1
+    },
+    {
+      "case": "ddram_ignores_response",
+      "returncode": 1
+    }
+  ],
+  "inputs": {
+    "dorado_storage_arb.sv": "3176dd51976861e68913e0b5b44896a40f3802eead2d0334e77ca9647b653d45",
+    "tb_storage_sdram.sv": "d9022a876749792da15f619b6cd18e736994d74856c834d940970a141b3f4f3c",
+    "original-tb_storage_ddram.sv": "4bd2fffcbf8afe1836c0072dcb766478897251775cf7cd595634745bef640a02",
+    "dorado_storage_ddram.sv": "01cfbf392774ee5f071354fdd76c2b0c95811d1706f9f78e86c9f6a8ca9e19de",
+    "tb_storage_ddram.sv": "546027c927366dda872a9ebf11e1781dd846dc231f5ebfb3176bdcb7570b4f15",
+    "tb_storage_arb.sv": "fa5f2f1a2c30cfcad21d7350db5bc9a3447eb313a7f1982d203746293584b01a",
+    "xsds_128mbyte_sdram_model.sv": "1424ef8bf568bef770a9ab1f3ae469c5df3d509892237336344b98c04c6379ae",
+    "dorado_storage_sdram.sv": "ecc2e76e7a136ed60217d606e77c2c3b9333aa0e34fea168177b589085e4da30",
+    "qualify_memory_idle.py": "9740258f917378df2298192410747f62ed1d98b2515f6ba7a95e5af8418f36ed",
+    "original-tb_storage_arb.sv": "4a2493d17273312ada660d160efeba1a4017f24667ae1c9279d67f5c16a17a84",
+    "original-tb_storage_sdram.sv": "8d4277a54439a161a63a667b0ffb77705e8de02315afd6b7029db5a5df55ed61"
+  },
+  "limits": "Passive per-adapter signals only, not native pause integration, SDRAM bank closure/controller snapshot, physical DDR-fabric write drain or a complete machine snapshot."
+}

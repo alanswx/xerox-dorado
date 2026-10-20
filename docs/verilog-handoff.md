@@ -96,6 +96,31 @@ claimed by the component test. Main disk/input/video, daemon heap/history,
 matching disk generation, raw SDRAM bytes/controller state and true reseed are
 still required. Bare PLL reset must not clear a partial-import quarantine.
 
+Passive **real-adapter snapshot_idle outputs now qualify** on the actual
+128-client arbiter, SDRAM backend and selectable DDR adapter. Each adds exactly
+one output and zero state; inverse byte review restores the immutable Serial65
+source exactly, preserving every normal handshake/timing process. The arbiter
+includes queued producers and latched work; SDRAM distinguishes pending guest
+work from autonomous refresh. DDR reports adapter idle, not completion of writes
+inside the physical DDR fabric.
+
+External-handshake monitors augment the existing independent scoreboards.
+The 128-group interleaved/prefetch arbiter passes 8,384 transactions /80,197 idle
+checks, with request/response stalls and three reset phases; the 16-group case
+passes too. The actual 50MHz XSDS pin model passes 309 reads/writes across both
+ranks/banks, rows, lanes, backpressure refresh and reset/drain; idle monitoring
+covers 20,682 observations including 18 quiescent refresh commands. The DDR
+adapter passes its lane/stall/read/backpressure/reset tests. Four deliberately
+broken queued-request/response/refresh predicates reject. All 77 archived
+source/report members read back and extracted inverse proof plus rebuilt actual
+arbiter/SDRAM/DDR candidates replay. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-memory-idle/`.
+
+These signals are still unconnected in the frozen native wrapper and Serial68;
+no real complete-machine drain or speed gain is claimed. Next couple them to
+the qualified coordinator and actual MSA(s), retaining physical SDRAM refresh,
+then perform full native integration/fit and state access.
+
 Next: review Serial68's terminal actual sources/seed/capacity/all-condition
 and all 304 crossing results. Integrate real Main/daemon/FPGA service barriers,
 finish all wrapper/raw-memory/input/video/server state and matching disk

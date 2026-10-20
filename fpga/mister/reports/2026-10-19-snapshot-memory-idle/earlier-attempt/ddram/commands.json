@@ -1,0 +1,22 @@
+[
+  [
+    "verilator",
+    "--binary",
+    "--timing",
+    "--assert",
+    "-j",
+    "4",
+    "--top-module",
+    "tb_storage_ddram",
+    "-Wno-fatal",
+    "--Mdir",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-idle-v1-20261019/ddram/obj",
+    "-o",
+    "test",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-idle-v1-20261019/ddram/dorado_storage_ddram.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-idle-v1-20261019/executed-inputs/tb_storage_ddram.sv"
+  ],
+  [
+    "/Users/alans/dev2/Dorado/build/rtl-executive/memory-idle-v1-20261019/ddram/obj/test"
+  ]
+]

@@ -16,6 +16,7 @@ module dorado_storage_sdram #(
     parameter integer CLOCK_HZ=50000000
 ) (
     input wire clk,reset,
+    output wire snapshot_idle,
     input wire req_valid,
     output wire req_ready,
     input wire req_write,
@@ -66,6 +67,12 @@ module dorado_storage_sdram #(
     reg writing=0,aborted=0,response_pending=0;
     wire [2:0] owner=address[25:23];
     wire refresh_due=refresh_count>=32'(REFRESH_CLOCKS);
+    // Guest/raw work is idle during autonomous refresh. The physical SDRAM
+    // clock and refresh controller must continue while frontends are frozen.
+    // This does not claim that banks are closed or controller state is saved.
+    assign snapshot_idle=initialized && !reset && !req_valid && !response_pending &&
+        (state==IDLE || state==REF_PRE1 || state==REF_PRE_WAIT ||
+         state==REF_WAIT0 || state==REF_WAIT1);
     assign req_ready=initialized && state==IDLE && !response_pending &&
         !refresh_due && !reset;
     assign rsp_valid=response_pending && !reset;
