@@ -1,0 +1,8 @@
+[
+  "python3",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/serial73-terminal-extracted-replay-v1-20261020/qualification/review-tools/fpga/mister/snapshot/build_native_ready_prediction.py",
+  "--stage",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/serial73-terminal-extracted-replay-v1-20261020/rebuilt-source",
+  "--destination",
+  "/home/alans/mister/Dorado_Serial73ReadyPrediction_20261020"
+]

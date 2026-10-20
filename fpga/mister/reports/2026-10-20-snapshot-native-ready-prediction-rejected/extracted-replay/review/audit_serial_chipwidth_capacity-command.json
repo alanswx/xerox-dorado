@@ -1,0 +1,11 @@
+[
+  "python3",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/serial73-terminal-extracted-replay-v1-20261020/qualification/review-tools/fpga/mister/snapshot/audit_serial_chipwidth_capacity.py",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/serial73-terminal-extracted-replay-v1-20261020/terminal-fit",
+  "--source-audit",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/serial73-terminal-extracted-replay-v1-20261020/rebuilt-review/source-audit.json",
+  "--classification",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/serial73-terminal-extracted-replay-v1-20261020/rebuilt-classification/classification.json",
+  "--output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/serial73-terminal-extracted-replay-v1-20261020/rebuilt-review/capacity-audit.json"
+]

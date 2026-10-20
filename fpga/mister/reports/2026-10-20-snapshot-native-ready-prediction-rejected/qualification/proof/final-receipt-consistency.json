@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "frozen_source_files": 650,
+  "original_replayed_raw_members": 1946,
+  "actual_restaged_source_files": 662,
+  "note": "Final receipt preserves all raw bytes used in the successful extracted rejection replay; adds only complete fresh XML, reviewer commands/logs/results and replay evidence."
+}

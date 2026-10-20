@@ -1,0 +1,42 @@
+{
+  "status": "PASS_TERMINAL_REJECTION_REPLAY",
+  "scope": "Replay Serial73 terminal rejection using extracted sources and raw reports.\n\nRe-stage all actual input bytes, run the independent inverse audit, elaborate\nfresh actual-QSF native XML and repeat capacity, all-device/crossing and\nregistered-readiness reviews with their corruption controls. No Quartus run.\n",
+  "archive_readback": {
+    "status": "PASS",
+    "members": 1946,
+    "raw_bytes": 245393130,
+    "stored_bytes": 16091337
+  },
+  "frozen_sources": 650,
+  "actual_rebuilt_source_files": 662,
+  "exact_reviews": [
+    {
+      "review": "source-audit",
+      "status": "PASS_NATIVE_READY_PREDICTION_SOURCE",
+      "failure_controls": 13
+    },
+    {
+      "review": "capacity-audit",
+      "status": "PASS_CAPACITY_TIMING_AND_BARRIERS_PENDING",
+      "failure_controls": 17
+    },
+    {
+      "review": "timing-audit",
+      "status": "REJECTED_TIMING",
+      "failure_controls": 6
+    },
+    {
+      "review": "crossings-audit",
+      "status": "REJECTED_CROSSING_TIMING",
+      "failure_controls": 3
+    },
+    {
+      "review": "ready-path-audit",
+      "status": "REJECTED_READY_PREDICTION_TIMING",
+      "failure_controls": 6
+    }
+  ],
+  "complete_native_classification": true,
+  "required_bits": 2094314,
+  "limits": "Serial73 remains timing-rejected. No assembly, FPGA load, full snapshot or speed qualification."
+}

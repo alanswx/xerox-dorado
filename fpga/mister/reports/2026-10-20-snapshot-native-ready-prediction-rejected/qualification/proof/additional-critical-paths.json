@@ -1,0 +1,652 @@
+{
+  "status": "ADDITIONAL_PATHS_REQUIRE_REVIEW",
+  "scope": "Worst endpoint of every failing board crossing group; not an exhaustive path classification.",
+  "records": [
+    {
+      "board": "proch",
+      "direction": "in",
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.057",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_ProcH:b_ProcH|dorado_serial_ProcH__cell_F10414_snapshot:u_i08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|lutrama1~OBSERVABLEVIRTUALREGOUT0",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.861",
+        "Data Delay": "8.916"
+      }
+    },
+    {
+      "board": "procl",
+      "direction": "in",
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.130",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_ProcL:b_ProcL|dorado_serial_ProcL__cell_F10414_snapshot:u_i08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|lutrama4~OBSERVABLEVIRTUALREGOUT0",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.847",
+        "Data Delay": "9.003"
+      }
+    },
+    {
+      "board": "memc",
+      "direction": "in",
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.451",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC|dorado_serial_MemC__cell_MB7071H_snapshot:u_a20|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|lutrama2~OBSERVABLEVIRTUALREGOUT0",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.918",
+        "Data Delay": "9.253"
+      }
+    },
+    {
+      "board": "memd",
+      "direction": "out",
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "snapshot admission/hold distribution",
+      "worst_path": {
+        "Slack": "-0.211",
+        "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemD:b_MemD|dorado_serial_MemD__dorado_ff_scan_controller:u_ff_scan|busy~DUPLICATE",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC|dorado_serial_MemC__cell_MC10231_snapshot:u_g17|d_pre_b",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "20.000",
+        "Clock Skew": "-0.521",
+        "Data Delay": "19.410"
+      }
+    },
+    {
+      "board": "memx",
+      "direction": "in",
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.324",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemX:b_MemX|dorado_serial_MemX__cell_MosRam_snapshot:u_d11|altsyncram:mem_rtl_0|altsyncram_u9q1:auto_generated|ram_block1a7~porta_we_reg",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "0.439",
+        "Data Delay": "10.483"
+      }
+    },
+    {
+      "board": "dsketh",
+      "direction": "in",
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.022",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_DskEth:b_DskEth|dorado_serial_DskEth__cell_F10145A_snapshot:u_j14|altdpram:mem__dual_rtl_0|dpram_07o1:auto_generated|lutrama3~OBSERVABLEVIRTUALREGOUT0",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.889",
+        "Data Delay": "8.853"
+      }
+    },
+    {
+      "board": "dispy",
+      "direction": "in",
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.237",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_DispY:b_DispY|dorado_serial_DispY__cell_MB7071H_snapshot:u_g22|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|lutrama3~OBSERVABLEVIRTUALREGOUT0",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.877",
+        "Data Delay": "9.080"
+      }
+    },
+    {
+      "board": "basebd",
+      "direction": "in",
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.372",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_BaseBd:b_BaseBd|dorado_serial_BaseBd__cell_MCS6532_snapshot:u_l62|dorado_serial_BaseBd__M6532_snapshot:u_riot|riot_ram[73][1]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.575",
+        "Data Delay": "9.517"
+      }
+    },
+    {
+      "board": "msaodd",
+      "direction": "out",
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "snapshot admission/hold distribution",
+      "worst_path": {
+        "Slack": "-0.208",
+        "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msaOdd|dorado_ff_scan_controller:u_ff_scan|fault",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC|dorado_serial_MemC__cell_MC10231_snapshot:u_g17|d_pre_b",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "20.000",
+        "Clock Skew": "-0.572",
+        "Data Delay": "19.356"
+      }
+    },
+    {
+      "board": "msa2odd",
+      "direction": "in",
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.250",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa2Odd|dorado_serial_MSA__cell_MK4096P_addr_msa_snapshot:u_dram_addr_8|col[7]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.527",
+        "Data Delay": "9.443"
+      }
+    },
+    {
+      "board": "msa2odd",
+      "direction": "out",
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "snapshot admission/hold distribution",
+      "worst_path": {
+        "Slack": "-0.380",
+        "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa2Odd|dorado_ff_scan_controller:u_ff_scan|fault~DUPLICATE",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC|dorado_serial_MemC__cell_MC10231_snapshot:u_g17|d_pre_b",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "20.000",
+        "Clock Skew": "-0.541",
+        "Data Delay": "19.559"
+      }
+    },
+    {
+      "board": "msa3odd",
+      "direction": "in",
+      "corner": "7_slow_1100mv_-40c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.070",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa3Odd|dorado_ff_scan_controller:u_ff_scan|payload[10]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.564",
+        "Data Delay": "9.226"
+      }
+    },
+    {
+      "board": "conta",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.012",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_ContA:b_ContA|dorado_serial_ContA__cell_F10145A_snapshot:u_j13|altdpram:mem_rtl_0|dpram_nlo1:auto_generated|rdaddr_reg[3]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.523",
+        "Data Delay": "9.209"
+      }
+    },
+    {
+      "board": "conta",
+      "direction": "out",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "board data/control",
+      "worst_path": {
+        "Slack": "-0.519",
+        "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_ContA:b_ContA|dorado_serial_ContA__cell_MC10231_snapshot:u_e24|qb",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemX:b_MemX|dorado_serial_MemX__cell_MC10176_snapshot:u_l23|d_pre[5]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "20.000",
+        "Clock Skew": "-0.486",
+        "Data Delay": "19.753"
+      }
+    },
+    {
+      "board": "contb",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.570",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_ContB:b_ContB|dorado_serial_ContB__dorado_ff_scan_controller:u_ff_scan|payload[0]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.640",
+        "Data Delay": "9.650"
+      }
+    },
+    {
+      "board": "proch",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.809",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_ProcH:b_ProcH|dorado_serial_ProcH__cell_F10414_snapshot:u_i08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|lutrama1~OBSERVABLEVIRTUALREGOUT0",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.999",
+        "Data Delay": "9.530"
+      }
+    },
+    {
+      "board": "procl",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.830",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_ProcL:b_ProcL|dorado_serial_ProcL__cell_F10414_snapshot:u_i08|altdpram:mem_rtl_0|dpram_n8o1:auto_generated|lutrama4~OBSERVABLEVIRTUALREGOUT0",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.972",
+        "Data Delay": "9.578"
+      }
+    },
+    {
+      "board": "ifu",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.030",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_IFU:b_IFU|dorado_serial_IFU__dorado_snapshot_f10415_word_bank:snapshot_bank_7|altsyncram:mem_rtl_0|altsyncram_l2s1:auto_generated|ram_block1a0~porta_we_reg",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "0.322",
+        "Data Delay": "10.072"
+      }
+    },
+    {
+      "board": "memc",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-1.021",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC|dorado_serial_MemC__cell_MB7071H_snapshot:u_d12|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|lutrama15~OBSERVABLEVIRTUALREGOUT0",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-1.061",
+        "Data Delay": "9.680"
+      }
+    },
+    {
+      "board": "memd",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "board data/control",
+      "worst_path": {
+        "Slack": "-0.363",
+        "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_ContA:b_ContA|dorado_serial_ContA__cell_MC10231_snapshot:u_e24|qb",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemD:b_MemD|dorado_serial_MemD__cell_MC10176_snapshot:u_l21|d_pre[5]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "20.000",
+        "Clock Skew": "-0.500",
+        "Data Delay": "19.583"
+      }
+    },
+    {
+      "board": "memd",
+      "direction": "out",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "snapshot admission/hold distribution",
+      "worst_path": {
+        "Slack": "-0.579",
+        "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemD:b_MemD|dorado_serial_MemD__dorado_ff_scan_controller:u_ff_scan|busy~DUPLICATE",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC|dorado_serial_MemC__cell_MC10231_snapshot:u_g17|d_pre_b",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "20.000",
+        "Clock Skew": "-0.523",
+        "Data Delay": "19.776"
+      }
+    },
+    {
+      "board": "memx",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-1.095",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemX:b_MemX|dorado_serial_MemX__cell_MosRam_snapshot:u_d11|altsyncram:mem_rtl_0|altsyncram_u9q1:auto_generated|ram_block1a7~porta_we_reg",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "0.250",
+        "Data Delay": "11.065"
+      }
+    },
+    {
+      "board": "memx",
+      "direction": "out",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "snapshot admission/hold distribution",
+      "worst_path": {
+        "Slack": "-0.046",
+        "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemX:b_MemX|dorado_serial_MemX__dorado_ff_scan_controller:u_ff_scan|busy",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC|dorado_serial_MemC__cell_MC10231_snapshot:u_g17|d_pre_b",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "20.000",
+        "Clock Skew": "-0.159",
+        "Data Delay": "19.607"
+      }
+    },
+    {
+      "board": "dsketh",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.818",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_DskEth:b_DskEth|dorado_serial_DskEth__cell_F10145A_snapshot:u_j14|altdpram:mem__dual_rtl_0|dpram_07o1:auto_generated|lutrama3~OBSERVABLEVIRTUALREGOUT0",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-1.017",
+        "Data Delay": "9.521"
+      }
+    },
+    {
+      "board": "dsketh",
+      "direction": "out",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "snapshot admission/hold distribution",
+      "worst_path": {
+        "Slack": "-0.317",
+        "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_DskEth:b_DskEth|dorado_serial_DskEth__dorado_ff_scan_controller:u_ff_scan|fault",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC|dorado_serial_MemC__cell_MC10231_snapshot:u_g17|d_pre_b",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "20.000",
+        "Clock Skew": "-0.668",
+        "Data Delay": "19.369"
+      }
+    },
+    {
+      "board": "dispy",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.759",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_DispY:b_DispY|dorado_serial_DispY__cell_MB7071H_snapshot:u_g22|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|lutrama3~OBSERVABLEVIRTUALREGOUT0",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-1.008",
+        "Data Delay": "9.471"
+      }
+    },
+    {
+      "board": "dispy",
+      "direction": "out",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "snapshot admission/hold distribution",
+      "worst_path": {
+        "Slack": "-0.410",
+        "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_DispY:b_DispY|dorado_serial_DispY__dorado_ff_scan_controller:u_ff_scan|busy",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC|dorado_serial_MemC__cell_MC10231_snapshot:u_g17|d_pre_b",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "20.000",
+        "Clock Skew": "-0.642",
+        "Data Delay": "19.488"
+      }
+    },
+    {
+      "board": "basebd",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-1.032",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_BaseBd:b_BaseBd|dorado_serial_BaseBd__cell_MCS6532_snapshot:u_l62|dorado_serial_BaseBd__M6532_snapshot:u_riot|riot_ram[73][1]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.655",
+        "Data Delay": "10.097"
+      }
+    },
+    {
+      "board": "basebd",
+      "direction": "out",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "snapshot admission/hold distribution",
+      "worst_path": {
+        "Slack": "-0.160",
+        "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_BaseBd:b_BaseBd|dorado_serial_BaseBd__dorado_ff_scan_controller:u_ff_scan|fault",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC|dorado_serial_MemC__cell_MC10231_snapshot:u_g17|d_pre_b",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "20.000",
+        "Clock Skew": "-0.665",
+        "Data Delay": "19.215"
+      }
+    },
+    {
+      "board": "msa",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.364",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa|dorado_ff_scan_controller:u_ff_scan|busy",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.641",
+        "Data Delay": "9.443"
+      }
+    },
+    {
+      "board": "msa",
+      "direction": "out",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "snapshot admission/hold distribution",
+      "worst_path": {
+        "Slack": "-0.054",
+        "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa|dorado_ff_scan_controller:u_ff_scan|fault",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC|dorado_serial_MemC__cell_MC10231_snapshot:u_g17|d_pre_b",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "20.000",
+        "Clock Skew": "-0.165",
+        "Data Delay": "19.609"
+      }
+    },
+    {
+      "board": "msaodd",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.077",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msaOdd|dorado_ff_scan_controller:u_ff_scan|payload[4]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.651",
+        "Data Delay": "9.146"
+      }
+    },
+    {
+      "board": "msaodd",
+      "direction": "out",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "snapshot admission/hold distribution",
+      "worst_path": {
+        "Slack": "-0.496",
+        "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msaOdd|dorado_ff_scan_controller:u_ff_scan|fault",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC|dorado_serial_MemC__cell_MC10231_snapshot:u_g17|d_pre_b",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "20.000",
+        "Clock Skew": "-0.571",
+        "Data Delay": "19.645"
+      }
+    },
+    {
+      "board": "msa1",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.263",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa1|dorado_ff_scan_controller:u_ff_scan|payload[10]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.640",
+        "Data Delay": "9.343"
+      }
+    },
+    {
+      "board": "msa1odd",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.214",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa1Odd|dorado_ff_scan_controller:u_ff_scan|payload[10]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.649",
+        "Data Delay": "9.285"
+      }
+    },
+    {
+      "board": "msa2",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.214",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa2|dorado_ff_scan_controller:u_ff_scan|payload[0]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.650",
+        "Data Delay": "9.284"
+      }
+    },
+    {
+      "board": "msa2odd",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.676",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa2Odd|dorado_serial_MSA__cell_MK4096P_addr_msa_snapshot:u_dram_addr_8|col[7]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.611",
+        "Data Delay": "9.785"
+      }
+    },
+    {
+      "board": "msa2odd",
+      "direction": "out",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "snapshot admission/hold distribution",
+      "worst_path": {
+        "Slack": "-0.819",
+        "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa2Odd|dorado_ff_scan_controller:u_ff_scan|fault~DUPLICATE",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MemC:b_MemC|dorado_serial_MemC__cell_MC10231_snapshot:u_g17|d_pre_b",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "20.000",
+        "Clock Skew": "-0.541",
+        "Data Delay": "19.998"
+      }
+    },
+    {
+      "board": "msa3",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.106",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa3|dorado_serial_MSA__cell_MC10141_snapshot:u_a26|d_pre[3]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.620",
+        "Data Delay": "9.206"
+      }
+    },
+    {
+      "board": "msa3odd",
+      "direction": "in",
+      "corner": "7_slow_1100mv_100c",
+      "kind": "advance distribution",
+      "worst_path": {
+        "Slack": "-0.752",
+        "From Node": "emu:emu|network_step",
+        "To Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_serial_MSA:b_msa3Odd|dorado_ff_scan_controller:u_ff_scan|payload[10]",
+        "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+        "Relationship": "10.000",
+        "Clock Skew": "-0.648",
+        "Data Delay": "9.824"
+      }
+    }
+  ],
+  "next_action": "Retain registered NEXT-ready. Qualify same-phase advance and snapshot-hold distribution against complete-board state/pin/traffic and partial-import quarantine oracles, explicitly inspect the ContA JCN-to-MemX/MemD DMadr control/data cones, and connect actual clocked Main/service controls before another combined timing fit. No claim that board-local advance copies alone close all failures.",
+  "worst_endpoint_categories": {
+    "advance distribution": 27,
+    "board data/control": 2,
+    "snapshot admission/hold distribution": 11
+  }
+}

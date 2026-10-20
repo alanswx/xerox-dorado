@@ -43,56 +43,80 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-**Serial73 integrates the qualified registered NEXT-ready change and passes independent native source/state review. Quartus is LIVE on misterubuntu (builder2721605, fitter2723784); actual capacity/timing are unqualified. Serial71 remains rejected at setup -1.668 ns /hold -0.292 ns. Main coordination, full snapshots, faster clocks and final FPGA qualification remain open.**
+**Serial73 is terminal:41,642/41,910 ALMs; timing REJECTED at setup -1.095 ns /hold -1.326 ns. Registered readiness-to-advance now passes at +1.940 ns, but outgoing advance/predictor, snapshot-hold, virtual controls and additional board-data paths still fail. Main coordination, full snapshots, faster clocks and final FPGA qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and
 warm disk persistence pass. Its last qualified rate remains **1,947,654.12
 instruction issues/s**. This work has not deployed a new core/Main/daemon or
 produced a new speed measurement.
 
-**LIVE Serial73ReadyPrediction native experiment (2026-10-20):** remote
-`/home/alans/mister/Dorado_Serial73ReadyPrediction_20261020`, builder2721605
-and fitter2723784. Mapping completed; fitting is in progress. Re-poll those
-same processes/project; observation timeout is not termination. No assembly,
-RBF/SOF or hardware reload. All662 prepared inputs match the reviewed source.
-Local source: `build/rtl-executive/serial73-native-ready-prediction-v2-20261020`.
+**TERMINAL Serial73ReadyPrediction (2026-10-20):** remote
+`/home/alans/mister/Dorado_Serial73ReadyPrediction_20261020`. Builder2721605,
+fitter2723784 and all project processes are ABSENT. Map, fit, ordinary STA,
+clock/IO audit, four device conditions and304 board-crossing groups completed
+sequentially. Only after all of those processes ended, reporting-only
+STA2745148 measured32 readiness path groups; it completed successfully and
+confirmed all eight actual aggregate registers in every condition. All662
+prepared inputs remain exact. No assembly, RBF/SOF or hardware reload.
 
-The exact qualified MSA/frontend sources feed eight rising-host-edge
-aggregate registers in the native backplane. Core enable uses their AND,
-retaining live reset, storage initialization, disk readiness and global hold.
-Raw memory-drain acknowledgments remain live independent equations. All2,761
-original board pins, actual periods, phase and placement policy are preserved.
-The independent reviewer inverts only the approved wiring, checks immutable
-component asset bytes, then replays the complete Serial72/71 source review.
-Thirteen rehashed damaged register/phase/member/guard/source/constraint cases
-reject. Fresh actual-QSF XML accounts for2,094,314 REQUIRED bits:1,957,048
-physical board +4,578 private board +69 transport +132,619 wrapper ACCESS
-PENDING. The8 aggregate bits are REQUIRED; access is pending. Task-written
-SDRAM state120bits remains required; automatic predictor locals add1,024bits
-of reviewed function scratch (total1,239), carrying no retained history.
-Twenty-four inventory/alias controls reject. Board-only schema remains
-`af0b647cb43a3a62`; existing11 top network/UIO bits remain outside this count.
+Capacity passes:41,642/41,910 ALMs (268 free),52,561 fitted registers,
+329 RAM blocks /2,498,471 bits,35 DSPs and3 PLLs. This is178 ALMs above
+Serial71. **TIMING REJECTED:** setup -1.095 ns at slow100C /-0.651 ns at
+slow-40C; hold -1.326 ns at slow-40C /-0.963 ns at slow100C, also negative
+in both fast conditions (-0.426/-0.189 ns). SDRAM IO passes (minimum+2.020 ns).
+Actual clocks/phase match Native59; zero illegal/unconstrained clocks and
+exactly the inherited3 input /50 output framework IO exceptions. This is not
+complete physical framework IO coverage.
 
-The capacity reviewer now accepts only the exact Serial73 source/state contract
-and checks all seven real memory/disk/network service entities. Its complete
-Serial71 result and all15 failure controls replay unchanged. Actual Serial73
-capacity/timing still require terminal fitter and sequential STA review.
-`audit_ready_prediction.tcl` is reporting-only and NOT YET RUN: run only AFTER
-the builder and every STA process end. Require eight actual readiness registers
-and review all four conditions into/out of them and to/from `network_step`.
-Never run concurrent STA on this database or relax periods to pass.
+The registered predictor achieved its intended cut: cache-to-`network_step`
+setup is positive in all conditions (minimum+1.940 ns). Its hold paths also
+pass. The remaining half-cycle outgoing `network_step` path is now critical:
+-1.095 ns to MemX MosRam write-enable, with additional BaseBoard/MemC enables;
+`network_step` back to the predictor register is -0.965 ns (slow100C) and
+-0.651 ns (slow-40C). The worst hold path is virtual
+`CAPACITY_SERVICES_HELD[0]` to UIO `services_snapshot[0]`; virtual transport
+reset to owner fault is also negative. Do not hide these with timing exceptions.
 
-Receipt: `fpga/mister/reports/2026-10-20-snapshot-native-ready-prediction-source/`
-contains1,346 raw members (177,569,982 raw /14,981,705 stored bytes).
-All source/native-XML bytes read back; extracted frozen sources reproduce all
-662 actual staged files, exact inverse-audit results and the complete native
-classification (only XML path-dependent hashes differ). Successful local replay:
-`build/rtl-executive/serial73-ready-extracted-source-rebuild-v1-20261020`.
-This source receipt records a LIVE experiment, not a terminal fit. Observe it
-through completion; collect every raw map/fit/STA/clock/corner/crossing report,
-then independently review capacity/timing and the eight-register path. If
-rejected, retain that result and choose a measured structural correction.
-No speed, legal placement/timing, full snapshot or deployment is claimed.
+All304 board-crossing groups were read:40 setup-failing groups, no crossing
+hold failures. Triage of EACH failing group's worst endpoint finds27 outgoing
+advance groups,11 snapshot scan/admission/hold groups, and2 original board
+control/data groups: ContA `u_e24.qb` (JCN) to MemX `u_l23.d_pre[5]` (-0.519 ns)
+and MemD `u_l21.d_pre[5]` (-0.363 ns), through the DMadr path. This is a worst-
+endpoint triage, not an exhaustive classification of every reported path.
+Local advance copies alone are not proven sufficient to close the design.
+
+Independent source/native-state review still passes:2,761 original board pins,
+unchanged periods/phase/placement and raw drain equations; exact component
+predictor assets and all662 staged files. Fresh XML accounts for2,094,314
+required bits (physical1,957,048 /private board4,578 /transport69 /wrapper
+ACCESS PENDING132,619). The8 aggregate bits require access; top network/UIO11
+bits remain outside this count. Task-written SDRAM120bits stay required;
+1,239 function scratch bits are reviewed without retained history. Schema
+`af0b647cb43a3a62` remains board-only. Source/state/capacity/timing/crossing/
+readiness readers reject13/24/17/6/3/6 damaged controls.
+
+Terminal packet `/private/tmp/dorado-serial73-terminal-20261020.tar.gz`:
+SHA256 `71d0f167279cb9062028c59d2a53fa9916235c9d10388093bd7dfd17302dbbb8`,
+6,809,574 bytes /1,076 raw members. The lossless receipt is
+`fpga/mister/reports/2026-10-20-snapshot-native-ready-prediction-rejected/`:
+1,976 raw members,325,313,132 raw /21,218,555 stored bytes.
+All raw members read back. Extracted frozen source independently reproduces
+all662 staged file bytes, fresh XML/complete classification, every capacity/
+timing/crossing/readiness result and corruption control. The final receipt
+retains every originally replayed raw byte and adds complete extracted replay
+evidence plus the additional-path triage. Local review:
+`build/rtl-executive/serial73-terminal-qualification-20261020`; extracted replay:
+`build/rtl-executive/serial73-terminal-extracted-replay-v1-20261020`.
+The earlier source-only receipt remains immutable historical provenance.
+
+Next retain the exact NEXT-ready predictor, then qualify explicit same-falling-
+edge local advance AND snapshot-hold distribution using original complete-board
+state/pin/traffic and partial-import quarantine oracles. Inspect the two ContA
+JCN-to-DMadr cones separately. Connect actual clocked Main/service controls
+before expecting the virtual-control hold failures to disappear. Preserve the
+global clock-gate phase, live guards and real DDR visibility; account all new
+state. No blind seed/fanout/global changes or period relaxation. Full machine
+snapshots, original60ns clocks and final FPGA gates remain open; no speed gain.
 
 **Previous native source: Serial72 (source only)** at local
 `build/rtl-executive/serial72-native-disk-pause-20261020`. No upload, Quartus,
@@ -159,8 +183,8 @@ state/pins/raw traffic remain independent frozen-RTL oracles.
 
 Serial73 now integrates these exact qualified sources and eight registers,
 with independent inverse review and fresh native state accounting (above).
-Actual capacity/all-device timing is pending; initialization and outgoing
-advance paths still need review. No RBF, hardware speed or complete snapshot
+The terminal timing review above rejects outgoing advance, snapshot hold,
+virtual controls and additional board-data paths. No RBF, hardware speed or complete snapshot
 is claimed. Main coordination/full state access and the original
 60ns clock/timer migration still follow.
 
@@ -324,6 +348,8 @@ Previous nineteen-board physical experiments (all TERMINAL, no deployment):
 | Serial68 seed2 | 41,395 | -0.287 ns | -1.758 ns | Rejected |
 | Serial69 real memory pause | 41,468 | -0.435 ns | +0.076 ns | Rejected |
 | Serial70 fanout256 | 41,449 | -0.561 ns | +0.111 ns | Rejected |
+| Serial71 network/memory pause | 41,464 | -1.668 ns | -0.292 ns | Rejected |
+| Serial73 registered NEXT-ready +disk | 41,642 | -1.095 ns | -1.326 ns | Rejected; ready-to-advance +1.940 ns |
 
 Their all-condition/304-crossing evidence and negative reader controls remain
 in snapshot-serial-ready /serial-fanout-rejected /serial-global-rejected /
@@ -402,14 +428,13 @@ No production Main/daemon/core changed; Native59's measured rate remains.
 
 Next, in delivery order:
 
-1. Observe the SAME live Serial73 builder2721605/fitter2723784 through terminal
-   capacity and sequential timing; inspect all eight actual registered-ready
-   stages and the remaining initialization/outgoing advance paths. Preserve
-   Serial71 rejection and the independent source/state/phase proofs. Connect
-   remaining services and address advance distribution structurally with the
-   original phase contract; limit64/256, global-signal and seed2 experiments
-   were rejected. Preserve actual periods and prove any enable change against
-   original guest/state/traffic oracles. Integrate only timing-qualified results.
+1. Preserve terminal Serial73 rejection and its successful registered NEXT-ready
+   cut. Qualify same-phase local advance AND snapshot-hold distribution, account
+   every added bit and preserve global gate/live guards. Inspect ContA JCN-to-
+   MemX/MemD DMadr separately. Use original full-board/SDRAM state, pin, traffic,
+   reset and partial-import quarantine oracles; local advance copies alone are
+   not sufficient proof. Keep clock periods/phase and placement policy; qualify
+   actual Main controls and all remaining measured paths before a combined fit.
 2. Connect the qualified Main transport lease, disk-worker and daemon pause APIs
    through the actual snapshot coordinator and compatible-build checks, with real
    FPGA disk/network, input and video acknowledgments. Wire the qualified network

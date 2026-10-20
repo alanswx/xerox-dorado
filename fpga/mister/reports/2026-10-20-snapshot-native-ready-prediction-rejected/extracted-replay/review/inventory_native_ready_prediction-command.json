@@ -1,0 +1,7 @@
+[
+  "python3",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/serial73-terminal-extracted-replay-v1-20261020/qualification/review-tools/fpga/mister/snapshot/inventory_native_ready_prediction.py",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/serial73-terminal-extracted-replay-v1-20261020/terminal-fit",
+  "--output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/serial73-terminal-extracted-replay-v1-20261020/rebuilt-classification"
+]

@@ -1,0 +1,49 @@
+{
+  "status": "REJECTED_TIMING",
+  "builder_pid": 2721605,
+  "fitter_pid": 2723784,
+  "ready_path_pid": 2745148,
+  "terminal_processes_absent": true,
+  "prepared_inputs": 662,
+  "prepared_inputs_changed": [],
+  "assembly_started": false,
+  "hardware_changed": false,
+  "alms": 41642,
+  "available_alms": 41910,
+  "free_alms": 268,
+  "ordinary_setup_ns": -1.095,
+  "hold_ns": -1.326,
+  "device_conditions": [
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "setup_ns": -0.651,
+      "hold_ns": -1.326
+    },
+    {
+      "corner": "7_slow_1100mv_100c",
+      "setup_ns": -1.095,
+      "hold_ns": -0.963
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "setup_ns": 4.253,
+      "hold_ns": -0.426
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "setup_ns": 3.536,
+      "hold_ns": -0.189
+    }
+  ],
+  "actual_cached_ready_registers": 8,
+  "ready_to_step_setup_ns": 1.94,
+  "step_to_ready_setup_ns": -0.965,
+  "readiness_path_groups": 32,
+  "failed_readiness_groups": 4,
+  "board_crossing_groups": 304,
+  "failed_board_crossing_groups": 40,
+  "failed_board_crossing_hold_groups": 0,
+  "sdram_minimum_slack_ns": 2.02,
+  "next_action": "Retain exact registered NEXT-ready. Qualify explicit same-falling-edge board-local advance distribution against original complete-board and SDRAM state/traffic, including predictor input; preserve global gate/guest hold and all clock periods. Replace virtual snapshot controls with actual clocked Main/service coordination, keeping fault quarantine and real DDR visibility, before expecting a legal combined fit.",
+  "limits": "No routed timing, assembly, snapshot restore, new 60 ns cadence or speed qualification. Native59 last qualified 1947654.12 instruction issues/s remains unchanged."
+}

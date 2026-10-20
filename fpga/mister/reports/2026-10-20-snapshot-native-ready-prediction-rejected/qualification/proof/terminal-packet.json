@@ -1,0 +1,21 @@
+{
+  "project": "/home/alans/mister/Dorado_Serial73ReadyPrediction_20261020",
+  "builder_pid": 2721605,
+  "members": 1076,
+  "bytes": 6809574,
+  "sha256": "71d0f167279cb9062028c59d2a53fa9916235c9d10388093bd7dfd17302dbbb8",
+  "packet": "/tmp/dorado-serial73-terminal-20261020.tar.gz",
+  "terminal_state": {
+    "status": "TERMINAL_DRIVER_COMPLETE",
+    "builder_pid": 2721605,
+    "builder_live": false,
+    "project_processes": [],
+    "assembly_started": false,
+    "rbfs": [],
+    "sta_started": true,
+    "observed_utc": "2026-10-20T12:21:48.143251+00:00",
+    "prepared_inputs": 662,
+    "prepared_inputs_changed": [],
+    "ready_path_tool_success": true
+  }
+}
