@@ -1,0 +1,4399 @@
+{
+  "scope": "MSA component with a shared external clock for its 78 physical FF helpers.\n\nThe supplied FF clock must pulse on precisely each real guest advance or scan\nstep. Host memory frontends and the scan controller retain the free-running\nstorage clock. Every physical field/helper equation and scan address remains.\nThis exposes a clock contract; native global clock implementation is separate.\n",
+  "module": "dorado_serial_MSA",
+  "source": "src/build/rtl-executive/native16-tx-cable/msa_ddram.v",
+  "original_sha256": "7ede320ffd5cbca8b8e83d97b7399f0a600f58e25cdaeb9c474238793ce85906",
+  "generated_sha256": "560de9f594f966ed52502b3f274fbd4c07cbc145114176eb94a645efedd13dea",
+  "logical_state_bits": 2690,
+  "ff_bits": 866,
+  "frontend_bits": 1824,
+  "ff": [
+    {
+      "package": "u_a01",
+      "kind": "cell_MC10141",
+      "index": 0,
+      "lsb": 0,
+      "width": 13,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_a26",
+      "kind": "cell_MC10141",
+      "index": 1,
+      "lsb": 13,
+      "width": 13,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_l01",
+      "kind": "cell_MC10141",
+      "index": 2,
+      "lsb": 26,
+      "width": 13,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_l26",
+      "kind": "cell_MC10141",
+      "index": 3,
+      "lsb": 39,
+      "width": 13,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 4,
+          "lsb": 4
+        },
+        {
+          "name": "s_pre",
+          "width": 2,
+          "lsb": 8
+        },
+        {
+          "name": "dr_pre",
+          "width": 1,
+          "lsb": 10
+        },
+        {
+          "name": "dl_pre",
+          "width": 1,
+          "lsb": 11
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_b01",
+      "kind": "cell_MC10176",
+      "index": 4,
+      "lsb": 52,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_b26",
+      "kind": "cell_MC10176",
+      "index": 5,
+      "lsb": 65,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_c01",
+      "kind": "cell_MC10176",
+      "index": 6,
+      "lsb": 78,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_c26",
+      "kind": "cell_MC10176",
+      "index": 7,
+      "lsb": 91,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_e02",
+      "kind": "cell_MC10176",
+      "index": 8,
+      "lsb": 104,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_f01",
+      "kind": "cell_MC10176",
+      "index": 9,
+      "lsb": 117,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_f26",
+      "kind": "cell_MC10176",
+      "index": 10,
+      "lsb": 130,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_h02",
+      "kind": "cell_MC10176",
+      "index": 11,
+      "lsb": 143,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_j01",
+      "kind": "cell_MC10176",
+      "index": 12,
+      "lsb": 156,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_j26",
+      "kind": "cell_MC10176",
+      "index": 13,
+      "lsb": 169,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_k01",
+      "kind": "cell_MC10176",
+      "index": 14,
+      "lsb": 182,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_k26",
+      "kind": "cell_MC10176",
+      "index": 15,
+      "lsb": 195,
+      "width": 13,
+      "parameters": "#(.PRECAP(0))",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ]
+    },
+    {
+      "package": "u_g01",
+      "kind": "cell_F10016",
+      "index": 16,
+      "lsb": 208,
+      "width": 11,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "package": "u_g26",
+      "kind": "cell_F10016",
+      "index": 17,
+      "lsb": 219,
+      "width": 11,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 4,
+          "lsb": 0
+        },
+        {
+          "name": "setup_pre",
+          "width": 6,
+          "lsb": 4
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 10
+        }
+      ]
+    },
+    {
+      "package": "u_a13",
+      "kind": "cell_SN74166",
+      "index": 18,
+      "lsb": 230,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_a14",
+      "kind": "cell_SN74166",
+      "index": 19,
+      "lsb": 239,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_b13",
+      "kind": "cell_SN74166",
+      "index": 20,
+      "lsb": 248,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_b14",
+      "kind": "cell_SN74166",
+      "index": 21,
+      "lsb": 257,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_c13",
+      "kind": "cell_SN74166",
+      "index": 22,
+      "lsb": 266,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_c14",
+      "kind": "cell_SN74166",
+      "index": 23,
+      "lsb": 275,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_d13",
+      "kind": "cell_SN74166",
+      "index": 24,
+      "lsb": 284,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_d14",
+      "kind": "cell_SN74166",
+      "index": 25,
+      "lsb": 293,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_e03",
+      "kind": "cell_SN74166",
+      "index": 26,
+      "lsb": 302,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_e24",
+      "kind": "cell_SN74166",
+      "index": 27,
+      "lsb": 311,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_f03",
+      "kind": "cell_SN74166",
+      "index": 28,
+      "lsb": 320,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_f24",
+      "kind": "cell_SN74166",
+      "index": 29,
+      "lsb": 329,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_g13",
+      "kind": "cell_SN74166",
+      "index": 30,
+      "lsb": 338,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_g14",
+      "kind": "cell_SN74166",
+      "index": 31,
+      "lsb": 347,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_h13",
+      "kind": "cell_SN74166",
+      "index": 32,
+      "lsb": 356,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_h14",
+      "kind": "cell_SN74166",
+      "index": 33,
+      "lsb": 365,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_i13",
+      "kind": "cell_SN74166",
+      "index": 34,
+      "lsb": 374,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_i14",
+      "kind": "cell_SN74166",
+      "index": 35,
+      "lsb": 383,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_j13",
+      "kind": "cell_SN74166",
+      "index": 36,
+      "lsb": 392,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_j14",
+      "kind": "cell_SN74166",
+      "index": 37,
+      "lsb": 401,
+      "width": 9,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 8
+        }
+      ]
+    },
+    {
+      "package": "u_a03",
+      "kind": "cell_SN74S174",
+      "index": 38,
+      "lsb": 410,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_a04",
+      "kind": "cell_SN74S174",
+      "index": 39,
+      "lsb": 417,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_a05",
+      "kind": "cell_SN74S174",
+      "index": 40,
+      "lsb": 424,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_a22",
+      "kind": "cell_SN74S174",
+      "index": 41,
+      "lsb": 431,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_a23",
+      "kind": "cell_SN74S174",
+      "index": 42,
+      "lsb": 438,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_a24",
+      "kind": "cell_SN74S174",
+      "index": 43,
+      "lsb": 445,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_b03",
+      "kind": "cell_SN74S174",
+      "index": 44,
+      "lsb": 452,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_b24",
+      "kind": "cell_SN74S174",
+      "index": 45,
+      "lsb": 459,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_c03",
+      "kind": "cell_SN74S174",
+      "index": 46,
+      "lsb": 466,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_c24",
+      "kind": "cell_SN74S174",
+      "index": 47,
+      "lsb": 473,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_d03",
+      "kind": "cell_SN74S174",
+      "index": 48,
+      "lsb": 480,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_d24",
+      "kind": "cell_SN74S174",
+      "index": 49,
+      "lsb": 487,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_g03",
+      "kind": "cell_SN74S174",
+      "index": 50,
+      "lsb": 494,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_g24",
+      "kind": "cell_SN74S174",
+      "index": 51,
+      "lsb": 501,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_h03",
+      "kind": "cell_SN74S174",
+      "index": 52,
+      "lsb": 508,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_h24",
+      "kind": "cell_SN74S174",
+      "index": 53,
+      "lsb": 515,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_i03",
+      "kind": "cell_SN74S174",
+      "index": 54,
+      "lsb": 522,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_i24",
+      "kind": "cell_SN74S174",
+      "index": 55,
+      "lsb": 529,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_j03",
+      "kind": "cell_SN74S174",
+      "index": 56,
+      "lsb": 536,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_j04",
+      "kind": "cell_SN74S174",
+      "index": 57,
+      "lsb": 543,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_j05",
+      "kind": "cell_SN74S174",
+      "index": 58,
+      "lsb": 550,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_j22",
+      "kind": "cell_SN74S174",
+      "index": 59,
+      "lsb": 557,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_j23",
+      "kind": "cell_SN74S174",
+      "index": 60,
+      "lsb": 564,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_j24",
+      "kind": "cell_SN74S174",
+      "index": 61,
+      "lsb": 571,
+      "width": 7,
+      "parameters": "",
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 6
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_0",
+      "kind": "cell_MK4096P_addr",
+      "index": 62,
+      "lsb": 578,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_1",
+      "kind": "cell_MK4096P_addr",
+      "index": 63,
+      "lsb": 596,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_10",
+      "kind": "cell_MK4096P_addr",
+      "index": 64,
+      "lsb": 614,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_11",
+      "kind": "cell_MK4096P_addr",
+      "index": 65,
+      "lsb": 632,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_12",
+      "kind": "cell_MK4096P_addr",
+      "index": 66,
+      "lsb": 650,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_13",
+      "kind": "cell_MK4096P_addr",
+      "index": 67,
+      "lsb": 668,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_14",
+      "kind": "cell_MK4096P_addr",
+      "index": 68,
+      "lsb": 686,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_15",
+      "kind": "cell_MK4096P_addr",
+      "index": 69,
+      "lsb": 704,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_2",
+      "kind": "cell_MK4096P_addr",
+      "index": 70,
+      "lsb": 722,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_3",
+      "kind": "cell_MK4096P_addr",
+      "index": 71,
+      "lsb": 740,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_4",
+      "kind": "cell_MK4096P_addr",
+      "index": 72,
+      "lsb": 758,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_5",
+      "kind": "cell_MK4096P_addr",
+      "index": 73,
+      "lsb": 776,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_6",
+      "kind": "cell_MK4096P_addr",
+      "index": 74,
+      "lsb": 794,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_7",
+      "kind": "cell_MK4096P_addr",
+      "index": 75,
+      "lsb": 812,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_8",
+      "kind": "cell_MK4096P_addr",
+      "index": 76,
+      "lsb": 830,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    },
+    {
+      "package": "u_dram_addr_9",
+      "kind": "cell_MK4096P_addr",
+      "index": 77,
+      "lsb": 848,
+      "width": 18,
+      "parameters": "#(.ROW_BITS(8))",
+      "fields": [
+        {
+          "name": "row",
+          "width": 8,
+          "lsb": 0
+        },
+        {
+          "name": "col",
+          "width": 8,
+          "lsb": 8
+        },
+        {
+          "name": "ras_d",
+          "width": 1,
+          "lsb": 16
+        },
+        {
+          "name": "cas_d",
+          "width": 1,
+          "lsb": 17
+        }
+      ]
+    }
+  ],
+  "frontends": [
+    {
+      "package": "u_storage_0",
+      "width": 12,
+      "lsb": 866,
+      "state_bits": 123
+    },
+    {
+      "package": "u_storage_1",
+      "width": 12,
+      "lsb": 989,
+      "state_bits": 123
+    },
+    {
+      "package": "u_storage_2",
+      "width": 8,
+      "lsb": 1112,
+      "state_bits": 111
+    },
+    {
+      "package": "u_storage_3",
+      "width": 8,
+      "lsb": 1223,
+      "state_bits": 111
+    },
+    {
+      "package": "u_storage_4",
+      "width": 8,
+      "lsb": 1334,
+      "state_bits": 111
+    },
+    {
+      "package": "u_storage_5",
+      "width": 8,
+      "lsb": 1445,
+      "state_bits": 111
+    },
+    {
+      "package": "u_storage_6",
+      "width": 8,
+      "lsb": 1556,
+      "state_bits": 111
+    },
+    {
+      "package": "u_storage_7",
+      "width": 8,
+      "lsb": 1667,
+      "state_bits": 111
+    },
+    {
+      "package": "u_storage_8",
+      "width": 8,
+      "lsb": 1778,
+      "state_bits": 111
+    },
+    {
+      "package": "u_storage_9",
+      "width": 8,
+      "lsb": 1889,
+      "state_bits": 111
+    },
+    {
+      "package": "u_storage_10",
+      "width": 8,
+      "lsb": 2000,
+      "state_bits": 111
+    },
+    {
+      "package": "u_storage_11",
+      "width": 8,
+      "lsb": 2111,
+      "state_bits": 111
+    },
+    {
+      "package": "u_storage_12",
+      "width": 8,
+      "lsb": 2222,
+      "state_bits": 111
+    },
+    {
+      "package": "u_storage_13",
+      "width": 8,
+      "lsb": 2333,
+      "state_bits": 111
+    },
+    {
+      "package": "u_storage_14",
+      "width": 12,
+      "lsb": 2444,
+      "state_bits": 123
+    },
+    {
+      "package": "u_storage_15",
+      "width": 12,
+      "lsb": 2567,
+      "state_bits": 123
+    }
+  ],
+  "layout": [
+    {
+      "path": "u_a01.q",
+      "width": 4,
+      "lsb": 0
+    },
+    {
+      "path": "u_a01.d_pre",
+      "width": 4,
+      "lsb": 4
+    },
+    {
+      "path": "u_a01.s_pre",
+      "width": 2,
+      "lsb": 8
+    },
+    {
+      "path": "u_a01.dr_pre",
+      "width": 1,
+      "lsb": 10
+    },
+    {
+      "path": "u_a01.dl_pre",
+      "width": 1,
+      "lsb": 11
+    },
+    {
+      "path": "u_a01.ck_d",
+      "width": 1,
+      "lsb": 12
+    },
+    {
+      "path": "u_a26.q",
+      "width": 4,
+      "lsb": 13
+    },
+    {
+      "path": "u_a26.d_pre",
+      "width": 4,
+      "lsb": 17
+    },
+    {
+      "path": "u_a26.s_pre",
+      "width": 2,
+      "lsb": 21
+    },
+    {
+      "path": "u_a26.dr_pre",
+      "width": 1,
+      "lsb": 23
+    },
+    {
+      "path": "u_a26.dl_pre",
+      "width": 1,
+      "lsb": 24
+    },
+    {
+      "path": "u_a26.ck_d",
+      "width": 1,
+      "lsb": 25
+    },
+    {
+      "path": "u_l01.q",
+      "width": 4,
+      "lsb": 26
+    },
+    {
+      "path": "u_l01.d_pre",
+      "width": 4,
+      "lsb": 30
+    },
+    {
+      "path": "u_l01.s_pre",
+      "width": 2,
+      "lsb": 34
+    },
+    {
+      "path": "u_l01.dr_pre",
+      "width": 1,
+      "lsb": 36
+    },
+    {
+      "path": "u_l01.dl_pre",
+      "width": 1,
+      "lsb": 37
+    },
+    {
+      "path": "u_l01.ck_d",
+      "width": 1,
+      "lsb": 38
+    },
+    {
+      "path": "u_l26.q",
+      "width": 4,
+      "lsb": 39
+    },
+    {
+      "path": "u_l26.d_pre",
+      "width": 4,
+      "lsb": 43
+    },
+    {
+      "path": "u_l26.s_pre",
+      "width": 2,
+      "lsb": 47
+    },
+    {
+      "path": "u_l26.dr_pre",
+      "width": 1,
+      "lsb": 49
+    },
+    {
+      "path": "u_l26.dl_pre",
+      "width": 1,
+      "lsb": 50
+    },
+    {
+      "path": "u_l26.ck_d",
+      "width": 1,
+      "lsb": 51
+    },
+    {
+      "path": "u_b01.q",
+      "width": 6,
+      "lsb": 52
+    },
+    {
+      "path": "u_b01.d_pre",
+      "width": 6,
+      "lsb": 58
+    },
+    {
+      "path": "u_b01.ck_d",
+      "width": 1,
+      "lsb": 64
+    },
+    {
+      "path": "u_b26.q",
+      "width": 6,
+      "lsb": 65
+    },
+    {
+      "path": "u_b26.d_pre",
+      "width": 6,
+      "lsb": 71
+    },
+    {
+      "path": "u_b26.ck_d",
+      "width": 1,
+      "lsb": 77
+    },
+    {
+      "path": "u_c01.q",
+      "width": 6,
+      "lsb": 78
+    },
+    {
+      "path": "u_c01.d_pre",
+      "width": 6,
+      "lsb": 84
+    },
+    {
+      "path": "u_c01.ck_d",
+      "width": 1,
+      "lsb": 90
+    },
+    {
+      "path": "u_c26.q",
+      "width": 6,
+      "lsb": 91
+    },
+    {
+      "path": "u_c26.d_pre",
+      "width": 6,
+      "lsb": 97
+    },
+    {
+      "path": "u_c26.ck_d",
+      "width": 1,
+      "lsb": 103
+    },
+    {
+      "path": "u_e02.q",
+      "width": 6,
+      "lsb": 104
+    },
+    {
+      "path": "u_e02.d_pre",
+      "width": 6,
+      "lsb": 110
+    },
+    {
+      "path": "u_e02.ck_d",
+      "width": 1,
+      "lsb": 116
+    },
+    {
+      "path": "u_f01.q",
+      "width": 6,
+      "lsb": 117
+    },
+    {
+      "path": "u_f01.d_pre",
+      "width": 6,
+      "lsb": 123
+    },
+    {
+      "path": "u_f01.ck_d",
+      "width": 1,
+      "lsb": 129
+    },
+    {
+      "path": "u_f26.q",
+      "width": 6,
+      "lsb": 130
+    },
+    {
+      "path": "u_f26.d_pre",
+      "width": 6,
+      "lsb": 136
+    },
+    {
+      "path": "u_f26.ck_d",
+      "width": 1,
+      "lsb": 142
+    },
+    {
+      "path": "u_h02.q",
+      "width": 6,
+      "lsb": 143
+    },
+    {
+      "path": "u_h02.d_pre",
+      "width": 6,
+      "lsb": 149
+    },
+    {
+      "path": "u_h02.ck_d",
+      "width": 1,
+      "lsb": 155
+    },
+    {
+      "path": "u_j01.q",
+      "width": 6,
+      "lsb": 156
+    },
+    {
+      "path": "u_j01.d_pre",
+      "width": 6,
+      "lsb": 162
+    },
+    {
+      "path": "u_j01.ck_d",
+      "width": 1,
+      "lsb": 168
+    },
+    {
+      "path": "u_j26.q",
+      "width": 6,
+      "lsb": 169
+    },
+    {
+      "path": "u_j26.d_pre",
+      "width": 6,
+      "lsb": 175
+    },
+    {
+      "path": "u_j26.ck_d",
+      "width": 1,
+      "lsb": 181
+    },
+    {
+      "path": "u_k01.q",
+      "width": 6,
+      "lsb": 182
+    },
+    {
+      "path": "u_k01.d_pre",
+      "width": 6,
+      "lsb": 188
+    },
+    {
+      "path": "u_k01.ck_d",
+      "width": 1,
+      "lsb": 194
+    },
+    {
+      "path": "u_k26.q",
+      "width": 6,
+      "lsb": 195
+    },
+    {
+      "path": "u_k26.d_pre",
+      "width": 6,
+      "lsb": 201
+    },
+    {
+      "path": "u_k26.ck_d",
+      "width": 1,
+      "lsb": 207
+    },
+    {
+      "path": "u_g01.q",
+      "width": 4,
+      "lsb": 208
+    },
+    {
+      "path": "u_g01.setup_pre",
+      "width": 6,
+      "lsb": 212
+    },
+    {
+      "path": "u_g01.ck_d",
+      "width": 1,
+      "lsb": 218
+    },
+    {
+      "path": "u_g26.q",
+      "width": 4,
+      "lsb": 219
+    },
+    {
+      "path": "u_g26.setup_pre",
+      "width": 6,
+      "lsb": 223
+    },
+    {
+      "path": "u_g26.ck_d",
+      "width": 1,
+      "lsb": 229
+    },
+    {
+      "path": "u_a13.q",
+      "width": 8,
+      "lsb": 230
+    },
+    {
+      "path": "u_a13.ck_d",
+      "width": 1,
+      "lsb": 238
+    },
+    {
+      "path": "u_a14.q",
+      "width": 8,
+      "lsb": 239
+    },
+    {
+      "path": "u_a14.ck_d",
+      "width": 1,
+      "lsb": 247
+    },
+    {
+      "path": "u_b13.q",
+      "width": 8,
+      "lsb": 248
+    },
+    {
+      "path": "u_b13.ck_d",
+      "width": 1,
+      "lsb": 256
+    },
+    {
+      "path": "u_b14.q",
+      "width": 8,
+      "lsb": 257
+    },
+    {
+      "path": "u_b14.ck_d",
+      "width": 1,
+      "lsb": 265
+    },
+    {
+      "path": "u_c13.q",
+      "width": 8,
+      "lsb": 266
+    },
+    {
+      "path": "u_c13.ck_d",
+      "width": 1,
+      "lsb": 274
+    },
+    {
+      "path": "u_c14.q",
+      "width": 8,
+      "lsb": 275
+    },
+    {
+      "path": "u_c14.ck_d",
+      "width": 1,
+      "lsb": 283
+    },
+    {
+      "path": "u_d13.q",
+      "width": 8,
+      "lsb": 284
+    },
+    {
+      "path": "u_d13.ck_d",
+      "width": 1,
+      "lsb": 292
+    },
+    {
+      "path": "u_d14.q",
+      "width": 8,
+      "lsb": 293
+    },
+    {
+      "path": "u_d14.ck_d",
+      "width": 1,
+      "lsb": 301
+    },
+    {
+      "path": "u_e03.q",
+      "width": 8,
+      "lsb": 302
+    },
+    {
+      "path": "u_e03.ck_d",
+      "width": 1,
+      "lsb": 310
+    },
+    {
+      "path": "u_e24.q",
+      "width": 8,
+      "lsb": 311
+    },
+    {
+      "path": "u_e24.ck_d",
+      "width": 1,
+      "lsb": 319
+    },
+    {
+      "path": "u_f03.q",
+      "width": 8,
+      "lsb": 320
+    },
+    {
+      "path": "u_f03.ck_d",
+      "width": 1,
+      "lsb": 328
+    },
+    {
+      "path": "u_f24.q",
+      "width": 8,
+      "lsb": 329
+    },
+    {
+      "path": "u_f24.ck_d",
+      "width": 1,
+      "lsb": 337
+    },
+    {
+      "path": "u_g13.q",
+      "width": 8,
+      "lsb": 338
+    },
+    {
+      "path": "u_g13.ck_d",
+      "width": 1,
+      "lsb": 346
+    },
+    {
+      "path": "u_g14.q",
+      "width": 8,
+      "lsb": 347
+    },
+    {
+      "path": "u_g14.ck_d",
+      "width": 1,
+      "lsb": 355
+    },
+    {
+      "path": "u_h13.q",
+      "width": 8,
+      "lsb": 356
+    },
+    {
+      "path": "u_h13.ck_d",
+      "width": 1,
+      "lsb": 364
+    },
+    {
+      "path": "u_h14.q",
+      "width": 8,
+      "lsb": 365
+    },
+    {
+      "path": "u_h14.ck_d",
+      "width": 1,
+      "lsb": 373
+    },
+    {
+      "path": "u_i13.q",
+      "width": 8,
+      "lsb": 374
+    },
+    {
+      "path": "u_i13.ck_d",
+      "width": 1,
+      "lsb": 382
+    },
+    {
+      "path": "u_i14.q",
+      "width": 8,
+      "lsb": 383
+    },
+    {
+      "path": "u_i14.ck_d",
+      "width": 1,
+      "lsb": 391
+    },
+    {
+      "path": "u_j13.q",
+      "width": 8,
+      "lsb": 392
+    },
+    {
+      "path": "u_j13.ck_d",
+      "width": 1,
+      "lsb": 400
+    },
+    {
+      "path": "u_j14.q",
+      "width": 8,
+      "lsb": 401
+    },
+    {
+      "path": "u_j14.ck_d",
+      "width": 1,
+      "lsb": 409
+    },
+    {
+      "path": "u_a03.q",
+      "width": 6,
+      "lsb": 410
+    },
+    {
+      "path": "u_a03.ck_d",
+      "width": 1,
+      "lsb": 416
+    },
+    {
+      "path": "u_a04.q",
+      "width": 6,
+      "lsb": 417
+    },
+    {
+      "path": "u_a04.ck_d",
+      "width": 1,
+      "lsb": 423
+    },
+    {
+      "path": "u_a05.q",
+      "width": 6,
+      "lsb": 424
+    },
+    {
+      "path": "u_a05.ck_d",
+      "width": 1,
+      "lsb": 430
+    },
+    {
+      "path": "u_a22.q",
+      "width": 6,
+      "lsb": 431
+    },
+    {
+      "path": "u_a22.ck_d",
+      "width": 1,
+      "lsb": 437
+    },
+    {
+      "path": "u_a23.q",
+      "width": 6,
+      "lsb": 438
+    },
+    {
+      "path": "u_a23.ck_d",
+      "width": 1,
+      "lsb": 444
+    },
+    {
+      "path": "u_a24.q",
+      "width": 6,
+      "lsb": 445
+    },
+    {
+      "path": "u_a24.ck_d",
+      "width": 1,
+      "lsb": 451
+    },
+    {
+      "path": "u_b03.q",
+      "width": 6,
+      "lsb": 452
+    },
+    {
+      "path": "u_b03.ck_d",
+      "width": 1,
+      "lsb": 458
+    },
+    {
+      "path": "u_b24.q",
+      "width": 6,
+      "lsb": 459
+    },
+    {
+      "path": "u_b24.ck_d",
+      "width": 1,
+      "lsb": 465
+    },
+    {
+      "path": "u_c03.q",
+      "width": 6,
+      "lsb": 466
+    },
+    {
+      "path": "u_c03.ck_d",
+      "width": 1,
+      "lsb": 472
+    },
+    {
+      "path": "u_c24.q",
+      "width": 6,
+      "lsb": 473
+    },
+    {
+      "path": "u_c24.ck_d",
+      "width": 1,
+      "lsb": 479
+    },
+    {
+      "path": "u_d03.q",
+      "width": 6,
+      "lsb": 480
+    },
+    {
+      "path": "u_d03.ck_d",
+      "width": 1,
+      "lsb": 486
+    },
+    {
+      "path": "u_d24.q",
+      "width": 6,
+      "lsb": 487
+    },
+    {
+      "path": "u_d24.ck_d",
+      "width": 1,
+      "lsb": 493
+    },
+    {
+      "path": "u_g03.q",
+      "width": 6,
+      "lsb": 494
+    },
+    {
+      "path": "u_g03.ck_d",
+      "width": 1,
+      "lsb": 500
+    },
+    {
+      "path": "u_g24.q",
+      "width": 6,
+      "lsb": 501
+    },
+    {
+      "path": "u_g24.ck_d",
+      "width": 1,
+      "lsb": 507
+    },
+    {
+      "path": "u_h03.q",
+      "width": 6,
+      "lsb": 508
+    },
+    {
+      "path": "u_h03.ck_d",
+      "width": 1,
+      "lsb": 514
+    },
+    {
+      "path": "u_h24.q",
+      "width": 6,
+      "lsb": 515
+    },
+    {
+      "path": "u_h24.ck_d",
+      "width": 1,
+      "lsb": 521
+    },
+    {
+      "path": "u_i03.q",
+      "width": 6,
+      "lsb": 522
+    },
+    {
+      "path": "u_i03.ck_d",
+      "width": 1,
+      "lsb": 528
+    },
+    {
+      "path": "u_i24.q",
+      "width": 6,
+      "lsb": 529
+    },
+    {
+      "path": "u_i24.ck_d",
+      "width": 1,
+      "lsb": 535
+    },
+    {
+      "path": "u_j03.q",
+      "width": 6,
+      "lsb": 536
+    },
+    {
+      "path": "u_j03.ck_d",
+      "width": 1,
+      "lsb": 542
+    },
+    {
+      "path": "u_j04.q",
+      "width": 6,
+      "lsb": 543
+    },
+    {
+      "path": "u_j04.ck_d",
+      "width": 1,
+      "lsb": 549
+    },
+    {
+      "path": "u_j05.q",
+      "width": 6,
+      "lsb": 550
+    },
+    {
+      "path": "u_j05.ck_d",
+      "width": 1,
+      "lsb": 556
+    },
+    {
+      "path": "u_j22.q",
+      "width": 6,
+      "lsb": 557
+    },
+    {
+      "path": "u_j22.ck_d",
+      "width": 1,
+      "lsb": 563
+    },
+    {
+      "path": "u_j23.q",
+      "width": 6,
+      "lsb": 564
+    },
+    {
+      "path": "u_j23.ck_d",
+      "width": 1,
+      "lsb": 570
+    },
+    {
+      "path": "u_j24.q",
+      "width": 6,
+      "lsb": 571
+    },
+    {
+      "path": "u_j24.ck_d",
+      "width": 1,
+      "lsb": 577
+    },
+    {
+      "path": "u_dram_addr_0.row",
+      "width": 8,
+      "lsb": 578
+    },
+    {
+      "path": "u_dram_addr_0.col",
+      "width": 8,
+      "lsb": 586
+    },
+    {
+      "path": "u_dram_addr_0.ras_d",
+      "width": 1,
+      "lsb": 594
+    },
+    {
+      "path": "u_dram_addr_0.cas_d",
+      "width": 1,
+      "lsb": 595
+    },
+    {
+      "path": "u_dram_addr_1.row",
+      "width": 8,
+      "lsb": 596
+    },
+    {
+      "path": "u_dram_addr_1.col",
+      "width": 8,
+      "lsb": 604
+    },
+    {
+      "path": "u_dram_addr_1.ras_d",
+      "width": 1,
+      "lsb": 612
+    },
+    {
+      "path": "u_dram_addr_1.cas_d",
+      "width": 1,
+      "lsb": 613
+    },
+    {
+      "path": "u_dram_addr_10.row",
+      "width": 8,
+      "lsb": 614
+    },
+    {
+      "path": "u_dram_addr_10.col",
+      "width": 8,
+      "lsb": 622
+    },
+    {
+      "path": "u_dram_addr_10.ras_d",
+      "width": 1,
+      "lsb": 630
+    },
+    {
+      "path": "u_dram_addr_10.cas_d",
+      "width": 1,
+      "lsb": 631
+    },
+    {
+      "path": "u_dram_addr_11.row",
+      "width": 8,
+      "lsb": 632
+    },
+    {
+      "path": "u_dram_addr_11.col",
+      "width": 8,
+      "lsb": 640
+    },
+    {
+      "path": "u_dram_addr_11.ras_d",
+      "width": 1,
+      "lsb": 648
+    },
+    {
+      "path": "u_dram_addr_11.cas_d",
+      "width": 1,
+      "lsb": 649
+    },
+    {
+      "path": "u_dram_addr_12.row",
+      "width": 8,
+      "lsb": 650
+    },
+    {
+      "path": "u_dram_addr_12.col",
+      "width": 8,
+      "lsb": 658
+    },
+    {
+      "path": "u_dram_addr_12.ras_d",
+      "width": 1,
+      "lsb": 666
+    },
+    {
+      "path": "u_dram_addr_12.cas_d",
+      "width": 1,
+      "lsb": 667
+    },
+    {
+      "path": "u_dram_addr_13.row",
+      "width": 8,
+      "lsb": 668
+    },
+    {
+      "path": "u_dram_addr_13.col",
+      "width": 8,
+      "lsb": 676
+    },
+    {
+      "path": "u_dram_addr_13.ras_d",
+      "width": 1,
+      "lsb": 684
+    },
+    {
+      "path": "u_dram_addr_13.cas_d",
+      "width": 1,
+      "lsb": 685
+    },
+    {
+      "path": "u_dram_addr_14.row",
+      "width": 8,
+      "lsb": 686
+    },
+    {
+      "path": "u_dram_addr_14.col",
+      "width": 8,
+      "lsb": 694
+    },
+    {
+      "path": "u_dram_addr_14.ras_d",
+      "width": 1,
+      "lsb": 702
+    },
+    {
+      "path": "u_dram_addr_14.cas_d",
+      "width": 1,
+      "lsb": 703
+    },
+    {
+      "path": "u_dram_addr_15.row",
+      "width": 8,
+      "lsb": 704
+    },
+    {
+      "path": "u_dram_addr_15.col",
+      "width": 8,
+      "lsb": 712
+    },
+    {
+      "path": "u_dram_addr_15.ras_d",
+      "width": 1,
+      "lsb": 720
+    },
+    {
+      "path": "u_dram_addr_15.cas_d",
+      "width": 1,
+      "lsb": 721
+    },
+    {
+      "path": "u_dram_addr_2.row",
+      "width": 8,
+      "lsb": 722
+    },
+    {
+      "path": "u_dram_addr_2.col",
+      "width": 8,
+      "lsb": 730
+    },
+    {
+      "path": "u_dram_addr_2.ras_d",
+      "width": 1,
+      "lsb": 738
+    },
+    {
+      "path": "u_dram_addr_2.cas_d",
+      "width": 1,
+      "lsb": 739
+    },
+    {
+      "path": "u_dram_addr_3.row",
+      "width": 8,
+      "lsb": 740
+    },
+    {
+      "path": "u_dram_addr_3.col",
+      "width": 8,
+      "lsb": 748
+    },
+    {
+      "path": "u_dram_addr_3.ras_d",
+      "width": 1,
+      "lsb": 756
+    },
+    {
+      "path": "u_dram_addr_3.cas_d",
+      "width": 1,
+      "lsb": 757
+    },
+    {
+      "path": "u_dram_addr_4.row",
+      "width": 8,
+      "lsb": 758
+    },
+    {
+      "path": "u_dram_addr_4.col",
+      "width": 8,
+      "lsb": 766
+    },
+    {
+      "path": "u_dram_addr_4.ras_d",
+      "width": 1,
+      "lsb": 774
+    },
+    {
+      "path": "u_dram_addr_4.cas_d",
+      "width": 1,
+      "lsb": 775
+    },
+    {
+      "path": "u_dram_addr_5.row",
+      "width": 8,
+      "lsb": 776
+    },
+    {
+      "path": "u_dram_addr_5.col",
+      "width": 8,
+      "lsb": 784
+    },
+    {
+      "path": "u_dram_addr_5.ras_d",
+      "width": 1,
+      "lsb": 792
+    },
+    {
+      "path": "u_dram_addr_5.cas_d",
+      "width": 1,
+      "lsb": 793
+    },
+    {
+      "path": "u_dram_addr_6.row",
+      "width": 8,
+      "lsb": 794
+    },
+    {
+      "path": "u_dram_addr_6.col",
+      "width": 8,
+      "lsb": 802
+    },
+    {
+      "path": "u_dram_addr_6.ras_d",
+      "width": 1,
+      "lsb": 810
+    },
+    {
+      "path": "u_dram_addr_6.cas_d",
+      "width": 1,
+      "lsb": 811
+    },
+    {
+      "path": "u_dram_addr_7.row",
+      "width": 8,
+      "lsb": 812
+    },
+    {
+      "path": "u_dram_addr_7.col",
+      "width": 8,
+      "lsb": 820
+    },
+    {
+      "path": "u_dram_addr_7.ras_d",
+      "width": 1,
+      "lsb": 828
+    },
+    {
+      "path": "u_dram_addr_7.cas_d",
+      "width": 1,
+      "lsb": 829
+    },
+    {
+      "path": "u_dram_addr_8.row",
+      "width": 8,
+      "lsb": 830
+    },
+    {
+      "path": "u_dram_addr_8.col",
+      "width": 8,
+      "lsb": 838
+    },
+    {
+      "path": "u_dram_addr_8.ras_d",
+      "width": 1,
+      "lsb": 846
+    },
+    {
+      "path": "u_dram_addr_8.cas_d",
+      "width": 1,
+      "lsb": 847
+    },
+    {
+      "path": "u_dram_addr_9.row",
+      "width": 8,
+      "lsb": 848
+    },
+    {
+      "path": "u_dram_addr_9.col",
+      "width": 8,
+      "lsb": 856
+    },
+    {
+      "path": "u_dram_addr_9.ras_d",
+      "width": 1,
+      "lsb": 864
+    },
+    {
+      "path": "u_dram_addr_9.cas_d",
+      "width": 1,
+      "lsb": 865
+    },
+    {
+      "path": "u_storage_0.cas_d",
+      "width": 1,
+      "lsb": 866
+    },
+    {
+      "path": "u_storage_0.we_d",
+      "width": 1,
+      "lsb": 867
+    },
+    {
+      "path": "u_storage_0.write_pending",
+      "width": 1,
+      "lsb": 868
+    },
+    {
+      "path": "u_storage_0.write_data",
+      "width": 12,
+      "lsb": 869
+    },
+    {
+      "path": "u_storage_0.read_pipe",
+      "width": 12,
+      "lsb": 881
+    },
+    {
+      "path": "u_storage_0.data_out",
+      "width": 12,
+      "lsb": 893
+    },
+    {
+      "path": "u_storage_0.cache_valid",
+      "width": 1,
+      "lsb": 905
+    },
+    {
+      "path": "u_storage_0.write_done",
+      "width": 1,
+      "lsb": 906
+    },
+    {
+      "path": "u_storage_0.waiting",
+      "width": 1,
+      "lsb": 907
+    },
+    {
+      "path": "u_storage_0.saved_write",
+      "width": 1,
+      "lsb": 908
+    },
+    {
+      "path": "u_storage_0.cache_addr",
+      "width": 16,
+      "lsb": 909
+    },
+    {
+      "path": "u_storage_0.saved_addr",
+      "width": 16,
+      "lsb": 925
+    },
+    {
+      "path": "u_storage_0.cache_data",
+      "width": 16,
+      "lsb": 941
+    },
+    {
+      "path": "u_storage_0.saved_data",
+      "width": 16,
+      "lsb": 957
+    },
+    {
+      "path": "u_storage_0.old_data",
+      "width": 16,
+      "lsb": 973
+    },
+    {
+      "path": "u_storage_1.cas_d",
+      "width": 1,
+      "lsb": 989
+    },
+    {
+      "path": "u_storage_1.we_d",
+      "width": 1,
+      "lsb": 990
+    },
+    {
+      "path": "u_storage_1.write_pending",
+      "width": 1,
+      "lsb": 991
+    },
+    {
+      "path": "u_storage_1.write_data",
+      "width": 12,
+      "lsb": 992
+    },
+    {
+      "path": "u_storage_1.read_pipe",
+      "width": 12,
+      "lsb": 1004
+    },
+    {
+      "path": "u_storage_1.data_out",
+      "width": 12,
+      "lsb": 1016
+    },
+    {
+      "path": "u_storage_1.cache_valid",
+      "width": 1,
+      "lsb": 1028
+    },
+    {
+      "path": "u_storage_1.write_done",
+      "width": 1,
+      "lsb": 1029
+    },
+    {
+      "path": "u_storage_1.waiting",
+      "width": 1,
+      "lsb": 1030
+    },
+    {
+      "path": "u_storage_1.saved_write",
+      "width": 1,
+      "lsb": 1031
+    },
+    {
+      "path": "u_storage_1.cache_addr",
+      "width": 16,
+      "lsb": 1032
+    },
+    {
+      "path": "u_storage_1.saved_addr",
+      "width": 16,
+      "lsb": 1048
+    },
+    {
+      "path": "u_storage_1.cache_data",
+      "width": 16,
+      "lsb": 1064
+    },
+    {
+      "path": "u_storage_1.saved_data",
+      "width": 16,
+      "lsb": 1080
+    },
+    {
+      "path": "u_storage_1.old_data",
+      "width": 16,
+      "lsb": 1096
+    },
+    {
+      "path": "u_storage_2.cas_d",
+      "width": 1,
+      "lsb": 1112
+    },
+    {
+      "path": "u_storage_2.we_d",
+      "width": 1,
+      "lsb": 1113
+    },
+    {
+      "path": "u_storage_2.write_pending",
+      "width": 1,
+      "lsb": 1114
+    },
+    {
+      "path": "u_storage_2.write_data",
+      "width": 8,
+      "lsb": 1115
+    },
+    {
+      "path": "u_storage_2.read_pipe",
+      "width": 8,
+      "lsb": 1123
+    },
+    {
+      "path": "u_storage_2.data_out",
+      "width": 8,
+      "lsb": 1131
+    },
+    {
+      "path": "u_storage_2.cache_valid",
+      "width": 1,
+      "lsb": 1139
+    },
+    {
+      "path": "u_storage_2.write_done",
+      "width": 1,
+      "lsb": 1140
+    },
+    {
+      "path": "u_storage_2.waiting",
+      "width": 1,
+      "lsb": 1141
+    },
+    {
+      "path": "u_storage_2.saved_write",
+      "width": 1,
+      "lsb": 1142
+    },
+    {
+      "path": "u_storage_2.cache_addr",
+      "width": 16,
+      "lsb": 1143
+    },
+    {
+      "path": "u_storage_2.saved_addr",
+      "width": 16,
+      "lsb": 1159
+    },
+    {
+      "path": "u_storage_2.cache_data",
+      "width": 16,
+      "lsb": 1175
+    },
+    {
+      "path": "u_storage_2.saved_data",
+      "width": 16,
+      "lsb": 1191
+    },
+    {
+      "path": "u_storage_2.old_data",
+      "width": 16,
+      "lsb": 1207
+    },
+    {
+      "path": "u_storage_3.cas_d",
+      "width": 1,
+      "lsb": 1223
+    },
+    {
+      "path": "u_storage_3.we_d",
+      "width": 1,
+      "lsb": 1224
+    },
+    {
+      "path": "u_storage_3.write_pending",
+      "width": 1,
+      "lsb": 1225
+    },
+    {
+      "path": "u_storage_3.write_data",
+      "width": 8,
+      "lsb": 1226
+    },
+    {
+      "path": "u_storage_3.read_pipe",
+      "width": 8,
+      "lsb": 1234
+    },
+    {
+      "path": "u_storage_3.data_out",
+      "width": 8,
+      "lsb": 1242
+    },
+    {
+      "path": "u_storage_3.cache_valid",
+      "width": 1,
+      "lsb": 1250
+    },
+    {
+      "path": "u_storage_3.write_done",
+      "width": 1,
+      "lsb": 1251
+    },
+    {
+      "path": "u_storage_3.waiting",
+      "width": 1,
+      "lsb": 1252
+    },
+    {
+      "path": "u_storage_3.saved_write",
+      "width": 1,
+      "lsb": 1253
+    },
+    {
+      "path": "u_storage_3.cache_addr",
+      "width": 16,
+      "lsb": 1254
+    },
+    {
+      "path": "u_storage_3.saved_addr",
+      "width": 16,
+      "lsb": 1270
+    },
+    {
+      "path": "u_storage_3.cache_data",
+      "width": 16,
+      "lsb": 1286
+    },
+    {
+      "path": "u_storage_3.saved_data",
+      "width": 16,
+      "lsb": 1302
+    },
+    {
+      "path": "u_storage_3.old_data",
+      "width": 16,
+      "lsb": 1318
+    },
+    {
+      "path": "u_storage_4.cas_d",
+      "width": 1,
+      "lsb": 1334
+    },
+    {
+      "path": "u_storage_4.we_d",
+      "width": 1,
+      "lsb": 1335
+    },
+    {
+      "path": "u_storage_4.write_pending",
+      "width": 1,
+      "lsb": 1336
+    },
+    {
+      "path": "u_storage_4.write_data",
+      "width": 8,
+      "lsb": 1337
+    },
+    {
+      "path": "u_storage_4.read_pipe",
+      "width": 8,
+      "lsb": 1345
+    },
+    {
+      "path": "u_storage_4.data_out",
+      "width": 8,
+      "lsb": 1353
+    },
+    {
+      "path": "u_storage_4.cache_valid",
+      "width": 1,
+      "lsb": 1361
+    },
+    {
+      "path": "u_storage_4.write_done",
+      "width": 1,
+      "lsb": 1362
+    },
+    {
+      "path": "u_storage_4.waiting",
+      "width": 1,
+      "lsb": 1363
+    },
+    {
+      "path": "u_storage_4.saved_write",
+      "width": 1,
+      "lsb": 1364
+    },
+    {
+      "path": "u_storage_4.cache_addr",
+      "width": 16,
+      "lsb": 1365
+    },
+    {
+      "path": "u_storage_4.saved_addr",
+      "width": 16,
+      "lsb": 1381
+    },
+    {
+      "path": "u_storage_4.cache_data",
+      "width": 16,
+      "lsb": 1397
+    },
+    {
+      "path": "u_storage_4.saved_data",
+      "width": 16,
+      "lsb": 1413
+    },
+    {
+      "path": "u_storage_4.old_data",
+      "width": 16,
+      "lsb": 1429
+    },
+    {
+      "path": "u_storage_5.cas_d",
+      "width": 1,
+      "lsb": 1445
+    },
+    {
+      "path": "u_storage_5.we_d",
+      "width": 1,
+      "lsb": 1446
+    },
+    {
+      "path": "u_storage_5.write_pending",
+      "width": 1,
+      "lsb": 1447
+    },
+    {
+      "path": "u_storage_5.write_data",
+      "width": 8,
+      "lsb": 1448
+    },
+    {
+      "path": "u_storage_5.read_pipe",
+      "width": 8,
+      "lsb": 1456
+    },
+    {
+      "path": "u_storage_5.data_out",
+      "width": 8,
+      "lsb": 1464
+    },
+    {
+      "path": "u_storage_5.cache_valid",
+      "width": 1,
+      "lsb": 1472
+    },
+    {
+      "path": "u_storage_5.write_done",
+      "width": 1,
+      "lsb": 1473
+    },
+    {
+      "path": "u_storage_5.waiting",
+      "width": 1,
+      "lsb": 1474
+    },
+    {
+      "path": "u_storage_5.saved_write",
+      "width": 1,
+      "lsb": 1475
+    },
+    {
+      "path": "u_storage_5.cache_addr",
+      "width": 16,
+      "lsb": 1476
+    },
+    {
+      "path": "u_storage_5.saved_addr",
+      "width": 16,
+      "lsb": 1492
+    },
+    {
+      "path": "u_storage_5.cache_data",
+      "width": 16,
+      "lsb": 1508
+    },
+    {
+      "path": "u_storage_5.saved_data",
+      "width": 16,
+      "lsb": 1524
+    },
+    {
+      "path": "u_storage_5.old_data",
+      "width": 16,
+      "lsb": 1540
+    },
+    {
+      "path": "u_storage_6.cas_d",
+      "width": 1,
+      "lsb": 1556
+    },
+    {
+      "path": "u_storage_6.we_d",
+      "width": 1,
+      "lsb": 1557
+    },
+    {
+      "path": "u_storage_6.write_pending",
+      "width": 1,
+      "lsb": 1558
+    },
+    {
+      "path": "u_storage_6.write_data",
+      "width": 8,
+      "lsb": 1559
+    },
+    {
+      "path": "u_storage_6.read_pipe",
+      "width": 8,
+      "lsb": 1567
+    },
+    {
+      "path": "u_storage_6.data_out",
+      "width": 8,
+      "lsb": 1575
+    },
+    {
+      "path": "u_storage_6.cache_valid",
+      "width": 1,
+      "lsb": 1583
+    },
+    {
+      "path": "u_storage_6.write_done",
+      "width": 1,
+      "lsb": 1584
+    },
+    {
+      "path": "u_storage_6.waiting",
+      "width": 1,
+      "lsb": 1585
+    },
+    {
+      "path": "u_storage_6.saved_write",
+      "width": 1,
+      "lsb": 1586
+    },
+    {
+      "path": "u_storage_6.cache_addr",
+      "width": 16,
+      "lsb": 1587
+    },
+    {
+      "path": "u_storage_6.saved_addr",
+      "width": 16,
+      "lsb": 1603
+    },
+    {
+      "path": "u_storage_6.cache_data",
+      "width": 16,
+      "lsb": 1619
+    },
+    {
+      "path": "u_storage_6.saved_data",
+      "width": 16,
+      "lsb": 1635
+    },
+    {
+      "path": "u_storage_6.old_data",
+      "width": 16,
+      "lsb": 1651
+    },
+    {
+      "path": "u_storage_7.cas_d",
+      "width": 1,
+      "lsb": 1667
+    },
+    {
+      "path": "u_storage_7.we_d",
+      "width": 1,
+      "lsb": 1668
+    },
+    {
+      "path": "u_storage_7.write_pending",
+      "width": 1,
+      "lsb": 1669
+    },
+    {
+      "path": "u_storage_7.write_data",
+      "width": 8,
+      "lsb": 1670
+    },
+    {
+      "path": "u_storage_7.read_pipe",
+      "width": 8,
+      "lsb": 1678
+    },
+    {
+      "path": "u_storage_7.data_out",
+      "width": 8,
+      "lsb": 1686
+    },
+    {
+      "path": "u_storage_7.cache_valid",
+      "width": 1,
+      "lsb": 1694
+    },
+    {
+      "path": "u_storage_7.write_done",
+      "width": 1,
+      "lsb": 1695
+    },
+    {
+      "path": "u_storage_7.waiting",
+      "width": 1,
+      "lsb": 1696
+    },
+    {
+      "path": "u_storage_7.saved_write",
+      "width": 1,
+      "lsb": 1697
+    },
+    {
+      "path": "u_storage_7.cache_addr",
+      "width": 16,
+      "lsb": 1698
+    },
+    {
+      "path": "u_storage_7.saved_addr",
+      "width": 16,
+      "lsb": 1714
+    },
+    {
+      "path": "u_storage_7.cache_data",
+      "width": 16,
+      "lsb": 1730
+    },
+    {
+      "path": "u_storage_7.saved_data",
+      "width": 16,
+      "lsb": 1746
+    },
+    {
+      "path": "u_storage_7.old_data",
+      "width": 16,
+      "lsb": 1762
+    },
+    {
+      "path": "u_storage_8.cas_d",
+      "width": 1,
+      "lsb": 1778
+    },
+    {
+      "path": "u_storage_8.we_d",
+      "width": 1,
+      "lsb": 1779
+    },
+    {
+      "path": "u_storage_8.write_pending",
+      "width": 1,
+      "lsb": 1780
+    },
+    {
+      "path": "u_storage_8.write_data",
+      "width": 8,
+      "lsb": 1781
+    },
+    {
+      "path": "u_storage_8.read_pipe",
+      "width": 8,
+      "lsb": 1789
+    },
+    {
+      "path": "u_storage_8.data_out",
+      "width": 8,
+      "lsb": 1797
+    },
+    {
+      "path": "u_storage_8.cache_valid",
+      "width": 1,
+      "lsb": 1805
+    },
+    {
+      "path": "u_storage_8.write_done",
+      "width": 1,
+      "lsb": 1806
+    },
+    {
+      "path": "u_storage_8.waiting",
+      "width": 1,
+      "lsb": 1807
+    },
+    {
+      "path": "u_storage_8.saved_write",
+      "width": 1,
+      "lsb": 1808
+    },
+    {
+      "path": "u_storage_8.cache_addr",
+      "width": 16,
+      "lsb": 1809
+    },
+    {
+      "path": "u_storage_8.saved_addr",
+      "width": 16,
+      "lsb": 1825
+    },
+    {
+      "path": "u_storage_8.cache_data",
+      "width": 16,
+      "lsb": 1841
+    },
+    {
+      "path": "u_storage_8.saved_data",
+      "width": 16,
+      "lsb": 1857
+    },
+    {
+      "path": "u_storage_8.old_data",
+      "width": 16,
+      "lsb": 1873
+    },
+    {
+      "path": "u_storage_9.cas_d",
+      "width": 1,
+      "lsb": 1889
+    },
+    {
+      "path": "u_storage_9.we_d",
+      "width": 1,
+      "lsb": 1890
+    },
+    {
+      "path": "u_storage_9.write_pending",
+      "width": 1,
+      "lsb": 1891
+    },
+    {
+      "path": "u_storage_9.write_data",
+      "width": 8,
+      "lsb": 1892
+    },
+    {
+      "path": "u_storage_9.read_pipe",
+      "width": 8,
+      "lsb": 1900
+    },
+    {
+      "path": "u_storage_9.data_out",
+      "width": 8,
+      "lsb": 1908
+    },
+    {
+      "path": "u_storage_9.cache_valid",
+      "width": 1,
+      "lsb": 1916
+    },
+    {
+      "path": "u_storage_9.write_done",
+      "width": 1,
+      "lsb": 1917
+    },
+    {
+      "path": "u_storage_9.waiting",
+      "width": 1,
+      "lsb": 1918
+    },
+    {
+      "path": "u_storage_9.saved_write",
+      "width": 1,
+      "lsb": 1919
+    },
+    {
+      "path": "u_storage_9.cache_addr",
+      "width": 16,
+      "lsb": 1920
+    },
+    {
+      "path": "u_storage_9.saved_addr",
+      "width": 16,
+      "lsb": 1936
+    },
+    {
+      "path": "u_storage_9.cache_data",
+      "width": 16,
+      "lsb": 1952
+    },
+    {
+      "path": "u_storage_9.saved_data",
+      "width": 16,
+      "lsb": 1968
+    },
+    {
+      "path": "u_storage_9.old_data",
+      "width": 16,
+      "lsb": 1984
+    },
+    {
+      "path": "u_storage_10.cas_d",
+      "width": 1,
+      "lsb": 2000
+    },
+    {
+      "path": "u_storage_10.we_d",
+      "width": 1,
+      "lsb": 2001
+    },
+    {
+      "path": "u_storage_10.write_pending",
+      "width": 1,
+      "lsb": 2002
+    },
+    {
+      "path": "u_storage_10.write_data",
+      "width": 8,
+      "lsb": 2003
+    },
+    {
+      "path": "u_storage_10.read_pipe",
+      "width": 8,
+      "lsb": 2011
+    },
+    {
+      "path": "u_storage_10.data_out",
+      "width": 8,
+      "lsb": 2019
+    },
+    {
+      "path": "u_storage_10.cache_valid",
+      "width": 1,
+      "lsb": 2027
+    },
+    {
+      "path": "u_storage_10.write_done",
+      "width": 1,
+      "lsb": 2028
+    },
+    {
+      "path": "u_storage_10.waiting",
+      "width": 1,
+      "lsb": 2029
+    },
+    {
+      "path": "u_storage_10.saved_write",
+      "width": 1,
+      "lsb": 2030
+    },
+    {
+      "path": "u_storage_10.cache_addr",
+      "width": 16,
+      "lsb": 2031
+    },
+    {
+      "path": "u_storage_10.saved_addr",
+      "width": 16,
+      "lsb": 2047
+    },
+    {
+      "path": "u_storage_10.cache_data",
+      "width": 16,
+      "lsb": 2063
+    },
+    {
+      "path": "u_storage_10.saved_data",
+      "width": 16,
+      "lsb": 2079
+    },
+    {
+      "path": "u_storage_10.old_data",
+      "width": 16,
+      "lsb": 2095
+    },
+    {
+      "path": "u_storage_11.cas_d",
+      "width": 1,
+      "lsb": 2111
+    },
+    {
+      "path": "u_storage_11.we_d",
+      "width": 1,
+      "lsb": 2112
+    },
+    {
+      "path": "u_storage_11.write_pending",
+      "width": 1,
+      "lsb": 2113
+    },
+    {
+      "path": "u_storage_11.write_data",
+      "width": 8,
+      "lsb": 2114
+    },
+    {
+      "path": "u_storage_11.read_pipe",
+      "width": 8,
+      "lsb": 2122
+    },
+    {
+      "path": "u_storage_11.data_out",
+      "width": 8,
+      "lsb": 2130
+    },
+    {
+      "path": "u_storage_11.cache_valid",
+      "width": 1,
+      "lsb": 2138
+    },
+    {
+      "path": "u_storage_11.write_done",
+      "width": 1,
+      "lsb": 2139
+    },
+    {
+      "path": "u_storage_11.waiting",
+      "width": 1,
+      "lsb": 2140
+    },
+    {
+      "path": "u_storage_11.saved_write",
+      "width": 1,
+      "lsb": 2141
+    },
+    {
+      "path": "u_storage_11.cache_addr",
+      "width": 16,
+      "lsb": 2142
+    },
+    {
+      "path": "u_storage_11.saved_addr",
+      "width": 16,
+      "lsb": 2158
+    },
+    {
+      "path": "u_storage_11.cache_data",
+      "width": 16,
+      "lsb": 2174
+    },
+    {
+      "path": "u_storage_11.saved_data",
+      "width": 16,
+      "lsb": 2190
+    },
+    {
+      "path": "u_storage_11.old_data",
+      "width": 16,
+      "lsb": 2206
+    },
+    {
+      "path": "u_storage_12.cas_d",
+      "width": 1,
+      "lsb": 2222
+    },
+    {
+      "path": "u_storage_12.we_d",
+      "width": 1,
+      "lsb": 2223
+    },
+    {
+      "path": "u_storage_12.write_pending",
+      "width": 1,
+      "lsb": 2224
+    },
+    {
+      "path": "u_storage_12.write_data",
+      "width": 8,
+      "lsb": 2225
+    },
+    {
+      "path": "u_storage_12.read_pipe",
+      "width": 8,
+      "lsb": 2233
+    },
+    {
+      "path": "u_storage_12.data_out",
+      "width": 8,
+      "lsb": 2241
+    },
+    {
+      "path": "u_storage_12.cache_valid",
+      "width": 1,
+      "lsb": 2249
+    },
+    {
+      "path": "u_storage_12.write_done",
+      "width": 1,
+      "lsb": 2250
+    },
+    {
+      "path": "u_storage_12.waiting",
+      "width": 1,
+      "lsb": 2251
+    },
+    {
+      "path": "u_storage_12.saved_write",
+      "width": 1,
+      "lsb": 2252
+    },
+    {
+      "path": "u_storage_12.cache_addr",
+      "width": 16,
+      "lsb": 2253
+    },
+    {
+      "path": "u_storage_12.saved_addr",
+      "width": 16,
+      "lsb": 2269
+    },
+    {
+      "path": "u_storage_12.cache_data",
+      "width": 16,
+      "lsb": 2285
+    },
+    {
+      "path": "u_storage_12.saved_data",
+      "width": 16,
+      "lsb": 2301
+    },
+    {
+      "path": "u_storage_12.old_data",
+      "width": 16,
+      "lsb": 2317
+    },
+    {
+      "path": "u_storage_13.cas_d",
+      "width": 1,
+      "lsb": 2333
+    },
+    {
+      "path": "u_storage_13.we_d",
+      "width": 1,
+      "lsb": 2334
+    },
+    {
+      "path": "u_storage_13.write_pending",
+      "width": 1,
+      "lsb": 2335
+    },
+    {
+      "path": "u_storage_13.write_data",
+      "width": 8,
+      "lsb": 2336
+    },
+    {
+      "path": "u_storage_13.read_pipe",
+      "width": 8,
+      "lsb": 2344
+    },
+    {
+      "path": "u_storage_13.data_out",
+      "width": 8,
+      "lsb": 2352
+    },
+    {
+      "path": "u_storage_13.cache_valid",
+      "width": 1,
+      "lsb": 2360
+    },
+    {
+      "path": "u_storage_13.write_done",
+      "width": 1,
+      "lsb": 2361
+    },
+    {
+      "path": "u_storage_13.waiting",
+      "width": 1,
+      "lsb": 2362
+    },
+    {
+      "path": "u_storage_13.saved_write",
+      "width": 1,
+      "lsb": 2363
+    },
+    {
+      "path": "u_storage_13.cache_addr",
+      "width": 16,
+      "lsb": 2364
+    },
+    {
+      "path": "u_storage_13.saved_addr",
+      "width": 16,
+      "lsb": 2380
+    },
+    {
+      "path": "u_storage_13.cache_data",
+      "width": 16,
+      "lsb": 2396
+    },
+    {
+      "path": "u_storage_13.saved_data",
+      "width": 16,
+      "lsb": 2412
+    },
+    {
+      "path": "u_storage_13.old_data",
+      "width": 16,
+      "lsb": 2428
+    },
+    {
+      "path": "u_storage_14.cas_d",
+      "width": 1,
+      "lsb": 2444
+    },
+    {
+      "path": "u_storage_14.we_d",
+      "width": 1,
+      "lsb": 2445
+    },
+    {
+      "path": "u_storage_14.write_pending",
+      "width": 1,
+      "lsb": 2446
+    },
+    {
+      "path": "u_storage_14.write_data",
+      "width": 12,
+      "lsb": 2447
+    },
+    {
+      "path": "u_storage_14.read_pipe",
+      "width": 12,
+      "lsb": 2459
+    },
+    {
+      "path": "u_storage_14.data_out",
+      "width": 12,
+      "lsb": 2471
+    },
+    {
+      "path": "u_storage_14.cache_valid",
+      "width": 1,
+      "lsb": 2483
+    },
+    {
+      "path": "u_storage_14.write_done",
+      "width": 1,
+      "lsb": 2484
+    },
+    {
+      "path": "u_storage_14.waiting",
+      "width": 1,
+      "lsb": 2485
+    },
+    {
+      "path": "u_storage_14.saved_write",
+      "width": 1,
+      "lsb": 2486
+    },
+    {
+      "path": "u_storage_14.cache_addr",
+      "width": 16,
+      "lsb": 2487
+    },
+    {
+      "path": "u_storage_14.saved_addr",
+      "width": 16,
+      "lsb": 2503
+    },
+    {
+      "path": "u_storage_14.cache_data",
+      "width": 16,
+      "lsb": 2519
+    },
+    {
+      "path": "u_storage_14.saved_data",
+      "width": 16,
+      "lsb": 2535
+    },
+    {
+      "path": "u_storage_14.old_data",
+      "width": 16,
+      "lsb": 2551
+    },
+    {
+      "path": "u_storage_15.cas_d",
+      "width": 1,
+      "lsb": 2567
+    },
+    {
+      "path": "u_storage_15.we_d",
+      "width": 1,
+      "lsb": 2568
+    },
+    {
+      "path": "u_storage_15.write_pending",
+      "width": 1,
+      "lsb": 2569
+    },
+    {
+      "path": "u_storage_15.write_data",
+      "width": 12,
+      "lsb": 2570
+    },
+    {
+      "path": "u_storage_15.read_pipe",
+      "width": 12,
+      "lsb": 2582
+    },
+    {
+      "path": "u_storage_15.data_out",
+      "width": 12,
+      "lsb": 2594
+    },
+    {
+      "path": "u_storage_15.cache_valid",
+      "width": 1,
+      "lsb": 2606
+    },
+    {
+      "path": "u_storage_15.write_done",
+      "width": 1,
+      "lsb": 2607
+    },
+    {
+      "path": "u_storage_15.waiting",
+      "width": 1,
+      "lsb": 2608
+    },
+    {
+      "path": "u_storage_15.saved_write",
+      "width": 1,
+      "lsb": 2609
+    },
+    {
+      "path": "u_storage_15.cache_addr",
+      "width": 16,
+      "lsb": 2610
+    },
+    {
+      "path": "u_storage_15.saved_addr",
+      "width": 16,
+      "lsb": 2626
+    },
+    {
+      "path": "u_storage_15.cache_data",
+      "width": 16,
+      "lsb": 2642
+    },
+    {
+      "path": "u_storage_15.saved_data",
+      "width": 16,
+      "lsb": 2658
+    },
+    {
+      "path": "u_storage_15.old_data",
+      "width": 16,
+      "lsb": 2674
+    }
+  ],
+  "scan": {
+    "state_bits": 2690,
+    "words": 150,
+    "word_bits": 18,
+    "last_word_bits": 8,
+    "completion_edges": 2690
+  },
+  "parameters": {
+    "SYSPER": 4
+  },
+  "frontend_manifest": {
+    "scope": "Serial access to the selected native storage frontend's physical registers.\n\nThe host work continues during guest stalls. Only a final external hold stops\nboth domains; the caller must first drain accepted raw transactions and hold\nall consumers. SDRAM refresh and global service barriers are outside this cell.\nThe guest advance must be the actual clock gate's pre-edge enable. This pins\nthe exact frozen native nondeferred source; changing that policy needs a new schema/gate.\n",
+    "original_sha256": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+    "generated_sha256": "9ed5b31e83859ff06c9d536de7a90880a839e5f0af8abb468005eda194a163d1",
+    "module": "dorado_storage_group_snapshot",
+    "parameters": {
+      "ADDR_BITS": 16,
+      "WIDTH": [
+        8,
+        12
+      ]
+    },
+    "fields": [
+      [
+        "cas_d",
+        1
+      ],
+      [
+        "we_d",
+        1
+      ],
+      [
+        "write_pending",
+        1
+      ],
+      [
+        "write_data",
+        "WIDTH"
+      ],
+      [
+        "read_pipe",
+        "WIDTH"
+      ],
+      [
+        "data_out",
+        "WIDTH"
+      ],
+      [
+        "cache_valid",
+        1
+      ],
+      [
+        "write_done",
+        1
+      ],
+      [
+        "waiting",
+        1
+      ],
+      [
+        "saved_write",
+        1
+      ],
+      [
+        "cache_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "saved_addr",
+        "ADDR_BITS"
+      ],
+      [
+        "cache_data",
+        16
+      ],
+      [
+        "saved_data",
+        16
+      ],
+      [
+        "old_data",
+        16
+      ]
+    ],
+    "physical_bits": {
+      "width8": 111,
+      "width12": 123
+    },
+    "private_bits": 1,
+    "policy": "Exact archived native nondeferred source, not the working-tree deferred-capable variant"
+  },
+  "original_cell_sha256": {
+    "cell_MK4096P_addr.v": "fbb33241670944e9957c9f187bf8102473a1830a5b502f7ad05e66adb4c29d9a",
+    "cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "cell_SN74S174.v": "88dad140f27625a0aa42ab98b5f1147b8c02ce2ece406f34852523dac0d55746",
+    "cell_SN74H04.v": "0c2513703155ec6b9db87704a9f2052423d374b852036388c8f694d76b661b28",
+    "cell_SN74166.v": "ed87a73b4f61333de3d19ff700e2327d8b9003a8b4d59cae6d62a31b7f2b3232",
+    "cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d"
+  },
+  "cloned_sources": {
+    "cell_MC10141.sv": "1be96a6bb92fb59423dfd0de29fcb8a3aec6bbd84906156ad569992834742103",
+    "cell_MC10176.sv": "d04172cf63e0f34992a0fdbc2bba4e64a65eca76bbf756c9969730a65c9f357b",
+    "cell_F10016.sv": "d3a34dd976018aa0efff99011be34e7f4411d47091d0c6804894ca568655e89a",
+    "cell_SN74166.sv": "2c19fdd1da2360572e9ffd777280e93490521fdcdc74d7549a81b56353ef214a",
+    "cell_SN74S174.sv": "ea7fa941c37b395691b265ea289bd6add6dbf911c02b76388ce11ea88185fd7a",
+    "cell_MK4096P_addr.sv": "930bbc95e7a24d10de07506eb24d5add19bce1bdf471c14cdff6f6239221959f",
+    "storage_group.sv": "ffb8bb24b92b7f08bf92153a15ccf475f3aa339364b74adbffc6278b7ab5a755",
+    "ff_scan_controller.sv": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c"
+  },
+  "native_transport_integration": "PENDING: external FF-clock contract is not integrated in the current4096-cycle twelve-slot transport.",
+  "reference_sha256": "094f2f373c0a723136727597c0eece460dd2b668c1bcaa9860592b6f940ddf5f",
+  "declaration_normalization": {
+    "scope": "Exact inverse of declaration-order-only fabric relocation; no normal logic/pin/state-map edits",
+    "original_sha256": "a765807b4871cde4f0f94eac7c958820b7a861483d18248d987054750fac1a30",
+    "normalized_sha256": "094f2f373c0a723136727597c0eece460dd2b668c1bcaa9860592b6f940ddf5f",
+    "byte_identity_after_inverse": true
+  },
+  "ff_clocked_packages": 78,
+  "physical_bits": 2690,
+  "board_private_bits": 83,
+  "clock_contract": "Related storage-clock rising edges only; real guest advances or scans. Other-board scan pulses require this board already held. External gate phase must be captured/reconstructed by a future global barrier.",
+  "limits": "Component experiment; no native clock gate/barrier, area/timing, FPGA or speed qualification."
+}

@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "generation": "byte identical including eight helpers",
+  "source_controls": 6,
+  "fit_controls": 5,
+  "classification_controls": 17,
+  "rebuilt_original_dram_oracle": "MSA BOARD PASS host=2507166 checks=32840341 guest=40002 raw_requests=55632 raw_writes=8672 state_requests=904 scan_edges=2421007 physical=2690 fields=458 packages=78 frontends=16 words=150 last=8 post_restore=20000",
+  "unit_models": "falling and transparent-latch contracts each pass with three bad controls",
+  "dependencies": "Previously committed immutable receipt archives accessed through tools/fpga/mister/reports symlink; no working HDL used"
+}

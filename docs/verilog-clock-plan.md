@@ -42,6 +42,53 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Shared physical-FF clock control is rejected for area: 2,222 versus 2,213 ALMs.**
+
+The complete-MSA component retains all 458 fields / 2,690 physical bits. Its
+78 FF helpers use a dedicated ALTCLKCTRL global clock (866 fanout); host memory
+frontends and scan control keep running. The gate samples raw guest intent at
+the falling edge, before the latched actual-advance flag becomes available.
+All four device conditions pass, minimum slack +0.157 ns, with zero
+unconstrained clock/IO paths. Five damaged fit/phase/constraint cases reject.
+This is a matched component result; no native gate/barrier or speed claim.
+Do not integrate this candidate: it costs nine additional ALMs.
+
+The authoritative simulation-v3 supplies raw intent before that falling edge,
+then checks the latched guest flag. It passes 32,840,341 checks / 40,002 guest
+advances, original board outputs/raw traffic, all physical fields, complete
+save/invert/restore and 20,000 resumed advances; four actual bad RTL variants
+reject. Earlier low-latch and v2 contracts are retained as exploratory history,
+not vendor-netlist equivalence. Fresh XML accounts for every board bit plus the
+required clock phase and fixture enable/monitor; seventeen damaged cases reject.
+Six source controls and both 5,000-cycle clock-model units also pass. The first
+Quartus fixture omitted five combinational sources and failed; the corrected
+isolated run completed. Both remote builders are terminal; no RBF or reload.
+
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-msa-clocked-rejected/`.
+All 692 raw archive members pass lossless readback. Extracted generation,
+source controls, original-DRAM test rebuild, XML/alias controls, clock-model
+units and matched-fit review pass against the committed qualified receipts.
+
+Next: compact the native nondeferred raw-memory frontend by eliminating duplicate
+address/write-data transaction buffers. The first component prototype has
+46/58 actual physical bits versus 111/123, with all its remaining registers
+exported under a future new schema. The original guest DRAM pipeline is retained;
+a completed write commits its cached new value only after the guest samples the
+old word. Guest advances require ready, so address/data stay stable while a raw
+transaction is pending. An exact address-change predictor must invalidate the
+untagged cache at the real address-register edge. Component original RTL/DRAM,
+all-new-state scan/restore and eight damaged RTL cases pass; complete MSA
+prediction/integration, independent inventory, area/timing and full-core capacity
+remain unqualified. No reduction is adopted into the core yet. No area saving
+is inferred from a register count.
+
+Serial62Area still needs 46,702 / 41,910 ALMs. Complete wrapper/ARM snapshots,
+real pause/disk-generation barriers, original 60 ns clocks/timers, three fresh
+boots, cold persistence and two-hour stress remain open. Native59 is unchanged;
+last qualified measurement is 1,947,654.12 instruction issues/s. Goal ACTIVE.
+
+Previous same-coverage area experiment:
+
 **Same-coverage area optimization saves 2,548 ALMs, but Serial62Area still fails capacity: 46,702 / 41,910 ALMs, 4,792 over. Both experiments are terminal.**
 
 Serial62Area changes four supported Quartus17 options: Aggressive Area mode,

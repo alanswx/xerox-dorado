@@ -1,0 +1,10 @@
+[
+  "iverilog",
+  "-g2012",
+  "-s",
+  "clock_fixture",
+  "-o",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ff-clock-model-v1-20261019/wrong_phase/clock.vvp",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ff-clock-model-v1-20261019/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ff-clock-model-v1-20261019/wrong_phase/clock.sv"
+]

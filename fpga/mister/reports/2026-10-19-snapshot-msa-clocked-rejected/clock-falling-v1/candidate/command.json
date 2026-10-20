@@ -1,0 +1,11 @@
+[
+  "iverilog",
+  "-g2012",
+  "-s",
+  "clock_fixture",
+  "-Pclock_fixture.FALLING_ONLY=1",
+  "-o",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ff-clock-falling-v1-20261019/candidate/clock.vvp",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ff-clock-falling-v1-20261019/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/ff-clock-falling-v1-20261019/candidate/clock.sv"
+]

@@ -1,0 +1,48 @@
+{
+  "status": "PASS_CLOCK_INTERFACE_SOURCE_ONLY",
+  "scope": "Invert the precise MSA clock-interface edits against qualified receipt bytes.\n\nAll original pins/equations/parameters, physical fields, scan addresses and eight\nhelper bodies remain exact. This is source proof, not gate/barrier qualification.\n",
+  "ff_packages": 78,
+  "physical_bits": 2690,
+  "fields": 458,
+  "helper_bodies": 8,
+  "byte_identity_after_inverse": true,
+  "reference_sha256": "094f2f373c0a723136727597c0eece460dd2b668c1bcaa9860592b6f940ddf5f",
+  "clock_gate_implementation": "External; not qualified by this audit",
+  "failure_controls": [
+    {
+      "case": "ff_clock",
+      "rejected": true,
+      "diagnostic": "not all78physical helpers use the new clock",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "old_advance",
+      "rejected": true,
+      "diagnostic": "not all78physical helpers use the new clock",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "clock_request",
+      "rejected": true,
+      "diagnostic": "",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "extra_logic",
+      "rejected": true,
+      "diagnostic": "normal pins/equations/scan wiring differs",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "helper_logic",
+      "rejected": true,
+      "diagnostic": "qualified helper changed: cell_SN74166.sv",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "schema_alias",
+      "rejected": true,
+      "diagnostic": "physical schema differs: layout"
+    }
+  ]
+}

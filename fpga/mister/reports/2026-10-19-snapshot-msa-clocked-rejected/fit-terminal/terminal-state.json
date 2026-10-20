@@ -1,0 +1,9 @@
+{
+  "status": "TERMINAL_MATCHED_FITS",
+  "observed_utc": "2026-10-20T03:03:51.483623+00:00",
+  "first_builder": 2373794,
+  "matched_builder": 2380826,
+  "first_status": "Failed map: combinational cell sources omitted",
+  "assembly_started": false,
+  "rbfs": []
+}

@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "scope": "Check the low-latch simulation clock contract, including high-half toggles.\n\nThis does not stand in for the actual ALTCLKCTRL falling-edge implementation.\nKnown binary enables are driven; real integration must supply its raw request\nbefore the hardware's falling-edge sampling boundary.\n",
+  "falling_only": false,
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0
+    },
+    {
+      "case": "runt",
+      "returncode": 1
+    },
+    {
+      "case": "wrong_phase",
+      "returncode": 1
+    },
+    {
+      "case": "inverted",
+      "returncode": 1
+    }
+  ],
+  "source_sha256": "2eab197886953bc007e592e088f6d8de8e39ad260af5d3ea2b8e67886530757c",
+  "tool_sha256": "12bc65f9de6cd26f6dd1ef6d44d9e1024bfb243d81e78ae49592f14be41d3981"
+}
