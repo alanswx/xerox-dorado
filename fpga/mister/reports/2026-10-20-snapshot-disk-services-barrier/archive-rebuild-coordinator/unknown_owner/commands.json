@@ -1,0 +1,16 @@
+[
+  [
+    "iverilog",
+    "-g2012",
+    "-s",
+    "tb",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-coordinator-20261020/unknown_owner/test.vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-coordinator-20261020/unknown_owner/disk_pause_barrier.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-coordinator-20261020/unknown_owner/test_disk_pause_barrier.sv"
+  ],
+  [
+    "vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-coordinator-20261020/unknown_owner/test.vvp"
+  ]
+]

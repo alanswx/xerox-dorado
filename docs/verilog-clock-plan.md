@@ -43,12 +43,54 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-**The real serial/HPS disk pause qualifies, preserving partial writes and the complete track buffer. Serial71 is terminal and rejected on timing: setup -1.668 ns and hold -0.292 ns. Complete snapshots, faster clocks and final hardware qualification remain open.**
+**Serial72 now wires real memory/network/disk pause and separate local ACK status in a source-only native candidate. Source/state/component proofs pass; Main coordination and full snapshots remain open. No new Quartus run: Serial71 remains rejected at setup -1.668 ns /hold -0.292 ns. Faster clocks and final hardware qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and
 warm disk persistence pass. Its last qualified rate remains **1,947,654.12
 instruction issues/s**. This work has not deployed a new core/Main/daemon or
 produced a new speed measurement.
+
+**Current native source: Serial72** at local
+`build/rtl-executive/serial72-native-disk-pause-20261020`. No upload, Quartus,
+assembly, RBF or hardware change. The stager cannot run Quartus; qualify a
+structural advance change first. All661 Serial71 parent sources are reviewed
+and662 actual inputs retain2,761 original pins, normal readiness, clocks,
+periods and placement policy. Fourteen damaged source/control/status variants
+reject. A real three-bit disk coordinator holds all consumers through HPS-latch
+release and retains fault quarantine; actual disk ACK AND external ARM permit
+tightens service bit1 alongside memory0/network2. No permission is tied high.
+
+New optional UIO flag11/status words18..20 report coherent local ACKs, mask7
+and version ac01 separately from host permission. Memory/disk/network adapter
+ACKs are available; input/video are unavailable/zero. Main can now observe
+FPGA disk drain BEFORE leasing ARM cache/image state. Raw ACKs do not grant
+state access; physical DDR visibility and actual Main coordination remain open.
+Default-off UIO agrees on all348 original bits; enabled status adds5 REQUIRED
+top bits. The reader retains board-only schema/ABI2 checks, rejecting nine bad
+statuses. Enabled old clients require this extension reader.
+
+Real Pilot/HPS +disk/memory-coordinator tests preserve131,823 observed bits
+through nine pauses; payload/CRC/neighboring bytes agree. Four broken variants
+reject. Three coordinators pass104 controlled-ACK chain checks; four-state
+disk control passes65,826 checks over64 drain /16,384 ready combinations,
+rejecting six broken variants. Real UIO/owner tests reject five compiled
+variants; default-off medium and archive-extracted rebuilds pass.
+
+Actual-QSF native inventory requires2,094,306 bits, including132,611 wrapper
+ACCESS PENDING. Medium2 +disk controller3 add5 required wrapper bits. Eighteen
+inventory/alias controls reject; task-written120bits and function scratch215
+remain reviewed. The5 new UIO top bits and prior6 network top bits are outside
+this count and still need access. No full snapshot claim. Reports:
+`2026-10-20-snapshot-disk-services-barrier/` (833 raw members) and
+`2026-10-20-snapshot-native-disk-pause-source/` (1,179 raw members); all raw bytes,
+extracted source/fresh XML and exact662-input restaging verify.
+
+Next timing candidate: a per-MSA registered NEXT normal-ready aggregate with
+exact frontend transition/scan semantics. Prove the original state/traffic and
+readiness contract through reset, stalls, freeze and partial imports while
+retaining initialization, disk and global-hold guards and original periods.
+Account all additional state and qualify before a full fit. Main coordination,
+full export/import, original60ns clocks/timers and final FPGA gates still follow.
 
 **Qualified disk boundary (not yet in native RTL):** an opt-in/default-off pause
 drains already-issued HPS requests after the guest clock stops, then holds the
@@ -277,8 +319,8 @@ No production Main/daemon/core changed; Native59's measured rate remains.
 
 Next, in delivery order:
 
-1. Use the source-reviewed Serial71 memory/network integration as the next
-   integration base, preserving its timing rejection. Connect real remaining
+1. Use source-only Serial72 memory/network/disk integration as the next
+   integration base, preserving Serial71's timing rejection. Connect remaining
    services and address advance distribution structurally with the
    original phase contract; limit64/256, global-signal and seed2 experiments
    were rejected. Preserve actual periods and prove any enable change against
@@ -287,7 +329,8 @@ Next, in delivery order:
    through the actual snapshot coordinator and compatible-build checks, with real
    FPGA disk/network, input and video acknowledgments. Wire the qualified network
    engine/parser pause (including SPI framing and two settling clocks) and the
-   new real serial/HPS disk boundary. Finish
+   new real serial/HPS disk boundary. Read local device ACKs separately from
+   host permissions; verify FPGA disk drain before acquiring its ARM lease. Finish
    in-flight guest
    disk requests before taking the ARM image lease; the memory boundary alone
    is not whole-machine quiescence.

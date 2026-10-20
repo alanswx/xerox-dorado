@@ -1,0 +1,20 @@
+[
+  "verilator",
+  "--cc",
+  "--exe",
+  "--build",
+  "-j",
+  "4",
+  "--top-module",
+  "tb_pilot_pack",
+  "-Wno-fatal",
+  "--Mdir",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-payload-v2-20261020/candidate/obj",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-payload-v2-20261020/candidate/fixture.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-payload-v2-20261020/candidate/medium.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-payload-v2-20261020/executed-inputs/disk_pause_barrier.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-payload-v2-20261020/executed-inputs/memory_pause_barrier.sv",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-payload-v2-20261020/executed-inputs/test.cpp",
+  "-CFLAGS",
+  "-O2 -std=c++17 -I/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-payload-v2-20261020/executed-inputs -DDISK_STATE_BITS=131823 -DDISK_STATE_WORDS=4120 -DDISK_PAUSE_TEST=1 -DDISK_PAUSE_BARRIER=1"
+]

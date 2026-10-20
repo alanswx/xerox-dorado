@@ -1,0 +1,91 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null,
+      "inputs": {
+        "disk_pause_barrier.sv": "967ceeb32ec1813d6b7506a7eaa6d59365cb6e1894327e214c5fff64057fba0e",
+        "test_disk_pause_barrier.sv": "28f4b63992d47fa79f62e9c866683249c80fdd08355dbe82596401af6140fa9d"
+      }
+    },
+    {
+      "case": "ignore_disk_latch",
+      "returncode": 1,
+      "expected_failure": "unknown/incomplete disk drain qualified",
+      "inputs": {
+        "disk_pause_barrier.sv": "7f0d89133ea1b2a7c79f3f4de86befba770e8cfabadc349914232e66cc8aa78b",
+        "test_disk_pause_barrier.sv": "28f4b63992d47fa79f62e9c866683249c80fdd08355dbe82596401af6140fa9d"
+      }
+    },
+    {
+      "case": "early_ready",
+      "returncode": 1,
+      "expected_failure": "disk drain staging differs",
+      "inputs": {
+        "disk_pause_barrier.sv": "3ff812a38eb83574bd8990626e5a74bcb7c5e30830d7cc44e0b7cfb281b05058",
+        "test_disk_pause_barrier.sv": "28f4b63992d47fa79f62e9c866683249c80fdd08355dbe82596401af6140fa9d"
+      }
+    },
+    {
+      "case": "early_global_release",
+      "returncode": 1,
+      "expected_failure": "disk latch release lost guest hold",
+      "inputs": {
+        "disk_pause_barrier.sv": "7f8a654b46d547393ced9579b8f12627aa11fd6024f6f5bf3c34f9f369baa96d",
+        "test_disk_pause_barrier.sv": "28f4b63992d47fa79f62e9c866683249c80fdd08355dbe82596401af6140fa9d"
+      }
+    },
+    {
+      "case": "release_on_fault",
+      "returncode": 1,
+      "expected_failure": "disk revocation coincident with release escaped quarantine",
+      "inputs": {
+        "disk_pause_barrier.sv": "fc06eb5b902147316a96a9c636eda5e1ebe52b9945e90b16db076dd9c90f15a0",
+        "test_disk_pause_barrier.sv": "28f4b63992d47fa79f62e9c866683249c80fdd08355dbe82596401af6140fa9d"
+      }
+    },
+    {
+      "case": "unknown_owner",
+      "returncode": 1,
+      "expected_failure": "unknown disk owner failed open",
+      "inputs": {
+        "disk_pause_barrier.sv": "1b3450d61f022412f4d1bcffd199a036ad11c15a1580123657e97d2107548fe0",
+        "test_disk_pause_barrier.sv": "28f4b63992d47fa79f62e9c866683249c80fdd08355dbe82596401af6140fa9d"
+      }
+    },
+    {
+      "case": "chain",
+      "returncode": 0,
+      "expected_failure": null,
+      "inputs": {
+        "disk_pause_barrier.sv": "967ceeb32ec1813d6b7506a7eaa6d59365cb6e1894327e214c5fff64057fba0e",
+        "network_pause_barrier.sv": "eb15f99e502d93d4f1326d56ceab9cda174ea0ff18eb341d2c2a25c855c4b989",
+        "memory_pause_barrier.sv": "f32bfb8bb9492acfd126c29fe529b20e9496bd32807937479a0727fbb12ed1c8",
+        "test_services_pause_chain.sv": "cd663156f8a0dac5db5b735afb6fdcf5746f0f8697ed0ef7701c5886ddc885e4"
+      }
+    },
+    {
+      "case": "chain_early_memory_release",
+      "returncode": 1,
+      "expected_failure": "network release thawed held disk",
+      "inputs": {
+        "disk_pause_barrier.sv": "967ceeb32ec1813d6b7506a7eaa6d59365cb6e1894327e214c5fff64057fba0e",
+        "network_pause_barrier.sv": "eb15f99e502d93d4f1326d56ceab9cda174ea0ff18eb341d2c2a25c855c4b989",
+        "memory_pause_barrier.sv": "f32bfb8bb9492acfd126c29fe529b20e9496bd32807937479a0727fbb12ed1c8",
+        "test_services_pause_chain.sv": "c0d151c3e5bd9ccb390b5125d4637e9d40fc1df69bcf6905f44aa6d824d25d4c"
+      }
+    }
+  ],
+  "new_required_disk_coordinator_bits": 3,
+  "inputs": {
+    "test_disk_pause_barrier.sv": "28f4b63992d47fa79f62e9c866683249c80fdd08355dbe82596401af6140fa9d",
+    "test_disk_pause_fourstate.py": "302e7f9166f290cf995e5ee54c3ac436a5cd6041cb9d8e5c18250fc9c9a79b8a",
+    "disk_pause_barrier.sv": "967ceeb32ec1813d6b7506a7eaa6d59365cb6e1894327e214c5fff64057fba0e",
+    "network_pause_barrier.sv": "eb15f99e502d93d4f1326d56ceab9cda174ea0ff18eb341d2c2a25c855c4b989",
+    "memory_pause_barrier.sv": "f32bfb8bb9492acfd126c29fe529b20e9496bd32807937479a0727fbb12ed1c8",
+    "test_services_pause_chain.sv": "cd663156f8a0dac5db5b735afb6fdcf5746f0f8697ed0ef7701c5886ddc885e4"
+  },
+  "limits": "Actual coordinators, independently controlled device ACKs. Disk/wire/physical-memory fixtures separately qualify devices; full Main coordination and restore remain required."
+}

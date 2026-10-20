@@ -1,0 +1,260 @@
+{
+  "status": "PASS",
+  "scope": "Actual UIO/owner local ACK status; default-off matches every original bit.\n\nCheck coherent raw device ACKs while ARM permission is missing. Device and\nendpoint signals are controlled test models; no native/Main admission claim.\n",
+  "original_fields": 29,
+  "original_bits": 348,
+  "new_required_top_bits": 5,
+  "sequential_exclusions": [],
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null,
+      "log_sha256": "f955b55bb89a2a6a8c306375cd30e64f2cd59cc09e46c0351a43bf0a0d55dd8c",
+      "rtl_sha256": "39ab89f7cc05c540f7005e410a707b3294a4dff1d121a34e6e680d1690a3706e"
+    },
+    {
+      "case": "torn_local",
+      "returncode": 1,
+      "expected_failure": "local ACK snapshot tore",
+      "log_sha256": "7926aa3cf00fbd2b034f759b05750e132ab5bc226f18ee75c19cc2b4d24c5f47",
+      "rtl_sha256": "6b03be6813a7b65e2d5affa06b11235b72a6a9f4be96a909f96f5a99a4e3ba6a"
+    },
+    {
+      "case": "foreign_as_local",
+      "returncode": 1,
+      "expected_failure": "local ACK snapshot tore",
+      "log_sha256": "90229dbea400e24c3c4ec1420deaaaf53ac97cddfd5716eb73039dee49731f1c",
+      "rtl_sha256": "1cf7649c6f92fa18a44152c6b787323e33a7f48ddea97c3dcc7fea176966b89a"
+    },
+    {
+      "case": "capability_missing",
+      "returncode": 1,
+      "expected_failure": "local status capability",
+      "log_sha256": "fd9f4c8098e7a521c6fbcf148e7a93c31a126f569943299f2fd29e72f1dd12bf",
+      "rtl_sha256": "bc648ef1dd79f9e645baa0ba908f5703c612aa3bbe6388e90f9d89618c8ae7f0"
+    },
+    {
+      "case": "wrong_mask",
+      "returncode": 1,
+      "expected_failure": "default-off UIO output differs",
+      "log_sha256": "7f47b28151de1c47d9f34c0849463e5bb550f96b16bce1db9712519c76317991",
+      "rtl_sha256": "fd160a7b42ae7ea27f68ad89cded96121e27354c530a750ddd2da3eb5629f3ca"
+    },
+    {
+      "case": "wrong_version",
+      "returncode": 1,
+      "expected_failure": "local status mask/version differs",
+      "log_sha256": "876db6fd81faf5df241a96d3cc7d97f44975c12b0ba4748fd65c9d74dd7b349a",
+      "rtl_sha256": "c1eeef8aba6a2b3a0b50c6f707cb7209333bee5e5cdc4d5ec47f271f2a639fbb"
+    }
+  ],
+  "status_words": [
+    [
+      53424,
+      2,
+      3335,
+      12,
+      4095,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      14946,
+      46138,
+      25724,
+      44811,
+      29,
+      4096,
+      7,
+      7,
+      44033
+    ],
+    [
+      53424,
+      2,
+      3975,
+      12,
+      4095,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      14946,
+      46138,
+      25724,
+      44811,
+      31,
+      4096,
+      7,
+      7,
+      44033
+    ],
+    [
+      53424,
+      2,
+      3335,
+      12,
+      4095,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      14946,
+      46138,
+      25724,
+      44811,
+      24,
+      4096,
+      0,
+      7,
+      44033
+    ],
+    [
+      53424,
+      2,
+      3975,
+      12,
+      4095,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      14946,
+      46138,
+      25724,
+      44811,
+      31,
+      4096,
+      7,
+      7,
+      44033
+    ]
+  ],
+  "parsed_status": [
+    {
+      "hold": true,
+      "busy": false,
+      "complete": false,
+      "fault": false,
+      "ready": false,
+      "frozen": 4095,
+      "sequence": 0,
+      "result": 0,
+      "error": 0,
+      "control_errors": 0,
+      "services_held": 29,
+      "local_services_held": 7,
+      "local_services_available": 7,
+      "local_status_version": 44033
+    },
+    {
+      "hold": true,
+      "busy": false,
+      "complete": false,
+      "fault": false,
+      "ready": true,
+      "frozen": 4095,
+      "sequence": 0,
+      "result": 0,
+      "error": 0,
+      "control_errors": 0,
+      "services_held": 31,
+      "local_services_held": 7,
+      "local_services_available": 7,
+      "local_status_version": 44033
+    },
+    {
+      "hold": true,
+      "busy": false,
+      "complete": false,
+      "fault": false,
+      "ready": false,
+      "frozen": 4095,
+      "sequence": 0,
+      "result": 0,
+      "error": 0,
+      "control_errors": 0,
+      "services_held": 24,
+      "local_services_held": 0,
+      "local_services_available": 7,
+      "local_status_version": 44033
+    },
+    {
+      "hold": true,
+      "busy": false,
+      "complete": false,
+      "fault": false,
+      "ready": true,
+      "frozen": 4095,
+      "sequence": 0,
+      "result": 0,
+      "error": 0,
+      "control_errors": 0,
+      "services_held": 31,
+      "local_services_held": 7,
+      "local_services_available": 7,
+      "local_status_version": 44033
+    }
+  ],
+  "client_failure_controls": [
+    {
+      "case": "short",
+      "rejected": true
+    },
+    {
+      "case": "long",
+      "rejected": true
+    },
+    {
+      "case": "missing_flag",
+      "rejected": true
+    },
+    {
+      "case": "version",
+      "rejected": true
+    },
+    {
+      "case": "schema",
+      "rejected": true
+    },
+    {
+      "case": "unsupported_mask",
+      "rejected": true
+    },
+    {
+      "case": "outside_mask",
+      "rejected": true
+    },
+    {
+      "case": "reserved_flag",
+      "rejected": true
+    },
+    {
+      "case": "noninteger",
+      "rejected": true
+    }
+  ],
+  "inputs": {
+    "test_local_service_status.py": "ea2e3660fb57f7b25a374de288c99e6117f188fd51e9d6601d421271eaa5c7c2",
+    "test_local_service_status.sv": "e79d6132861016462e9bac2e6b1881ff056053700c788103b68f01bf2e22fd15",
+    "serial_state_format_service_status.py": "fd0a3a5422468f015f5e272393f04c4ca82a12ca74b70f3af0c24cb066476029",
+    "fabric.sv": "9d61797d8f886b45f6800050a7676dfffb977e09cb363e1e1fd74356b3bc014c",
+    "original.sv": "310d402ec6b480e7bc456233966ab483b85ec81f051fe4487adeb7792018e1ca",
+    "reference.sv": "2bde7b0c017aeba6b574f26658ea95d4b09cba77f4b8c64aa13b80ed41a23c90",
+    "candidate.sv": "39ab89f7cc05c540f7005e410a707b3294a4dff1d121a34e6e680d1690a3706e"
+  },
+  "limits": "Real UIO and owner only; endpoints/device ACKs controlled. No whole-machine permission, Main coordinator, native fit or restore."
+}

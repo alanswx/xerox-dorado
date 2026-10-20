@@ -1,0 +1,18 @@
+[
+  [
+    "iverilog",
+    "-g2012",
+    "-s",
+    "tb",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-status-20261020/torn_local/test.vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-status-20261020/torn_local/fixture.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-status-20261020/torn_local/candidate.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-status-20261020/executed-inputs/reference.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-status-20261020/executed-inputs/fabric.sv"
+  ],
+  [
+    "vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-status-20261020/torn_local/test.vvp"
+  ]
+]

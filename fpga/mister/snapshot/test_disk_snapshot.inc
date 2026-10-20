@@ -27,7 +27,14 @@
   top.snapshot_hold=0;limit=8; \
   do{held_clock(false);}while(top.snapshot_held&&--limit); \
   if(!limit)throw std::runtime_error("disk parser latch failed to release"); \
+  DISK_CHECK_RELEASE \
  };
 #else
 #define DISK_DEFINE_PAUSE
+#endif
+
+#ifdef DISK_PAUSE_BARRIER
+#define DISK_CHECK_RELEASE if(top.disk_device_held)throw std::runtime_error("guest released before disk latch");
+#else
+#define DISK_CHECK_RELEASE
 #endif

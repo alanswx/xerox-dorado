@@ -1,0 +1,16 @@
+[
+  [
+    "iverilog",
+    "-g2012",
+    "-s",
+    "tb",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-coordinator-v2-20261020/early_global_release/test.vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-coordinator-v2-20261020/early_global_release/disk_pause_barrier.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-coordinator-v2-20261020/early_global_release/test_disk_pause_barrier.sv"
+  ],
+  [
+    "vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-coordinator-v2-20261020/early_global_release/test.vvp"
+  ]
+]

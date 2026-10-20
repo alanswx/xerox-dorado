@@ -7,12 +7,17 @@
 module dorado_board_state_uio_msa #(
  parameter [63:0] SCHEMA_ID=64'b0,
  parameter integer SERVICE_DOMAINS=5,
+ // Optional local ACKs are distinct from host permission. Status flag11
+ // advertises words18=coherent local ACKs,19=mask,20=extension version ac01.
+ // Keep ABI2 board-only scope; default-off status remains byte-identical.
+ parameter [SERVICE_DOMAINS-1:0] LOCAL_SERVICES_MASK=0,
  parameter integer RESPONSE_LIMIT=4096
 )(
  input wire clk,system_reset,transport_reset,inout wire [35:0] bus,
  output reg hold_update=1'b0,hold_value=1'b0,
  input wire hold,command_hold,local_held,
  input wire [SERVICE_DOMAINS-1:0] services_held,
+ input wire [SERVICE_DOMAINS-1:0] local_services_held,
  input wire control_error,input wire [11:0] board_frozen,
  output reg request=1'b0,write=1'b0,output reg [3:0] board=0,
  output reg [23:0] index=0,output reg [17:0] data=0,
@@ -29,6 +34,7 @@ module dorado_board_state_uio_msa #(
  reg [31:0] sequence_snapshot=0,errors_snapshot=0;
  reg [17:0] result_snapshot=0;reg [2:0] error_snapshot=0;
  reg [SERVICE_DOMAINS-1:0] services_snapshot=0;
+ reg [SERVICE_DOMAINS-1:0] local_services_snapshot=0;
  wire is_status=command==16'h76 || command==16'h79;
  wire is_control=command==16'h77;
  wire is_request=command==16'h78;
@@ -68,9 +74,10 @@ module dorado_board_state_uio_msa #(
      case(din)
       16'h76,16'h79:begin
        dout<=16'hd0b0;
-       flags_snapshot<={5'b0,command_hold,(&services_held),1'b1,ready,fault,(|last_error),complete,busy,(&board_frozen),local_held,hold};
+       flags_snapshot<={4'b0,(LOCAL_SERVICES_MASK!=0),command_hold,(&services_held),1'b1,ready,fault,(|last_error),complete,busy,(&board_frozen),local_held,hold};
        frozen_snapshot<=board_frozen;sequence_snapshot<=txn_sequence;errors_snapshot<=control_errors;
        result_snapshot<=last_result;error_snapshot<=last_error;services_snapshot<=services_held;
+       local_services_snapshot<=local_services_held & LOCAL_SERVICES_MASK;
       end
       16'h77,16'h78:dout<=16'hd0b0;
       default:dout<=0;
@@ -94,6 +101,9 @@ module dorado_board_state_uio_msa #(
       15:dout<=SCHEMA_ID[63:48];
       16:dout<={{(16-SERVICE_DOMAINS){1'b0}},services_snapshot};
       17:dout<=16'(RESPONSE_LIMIT);
+      18:dout<={{(16-SERVICE_DOMAINS){1'b0}},local_services_snapshot};
+      19:dout<={{(16-SERVICE_DOMAINS){1'b0}},LOCAL_SERVICES_MASK};
+      20:dout<=(LOCAL_SERVICES_MASK!=0) ? 16'hac01 : 16'b0;
       default:dout<=0;
      endcase
     end else if(is_control || is_request)begin

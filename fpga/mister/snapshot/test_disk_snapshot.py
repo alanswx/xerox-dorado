@@ -56,7 +56,7 @@ def inverse(text):
         'end else begin\n      if (host_state == 0)')
 
 
-def run(out,image):
+def run(out,image,barrier=False):
     out.mkdir(parents=True,exist_ok=False);inputs=out/'executed-inputs';inputs.mkdir()
     source=(ROOT/'fpga/mister/dorado_pack_hps.sv').read_bytes()
     original=raw_receipt(ROOT/'fpga/mister/reports/2026-10-20-snapshot-native-memory-pause-rejected','terminal-fit/src/fpga/mister/dorado_pack_hps.sv')
@@ -83,6 +83,10 @@ def run(out,image):
                     observed.extend('u_medium.buffer['+str(i)+']'for i in range(8192))
                 else:observed.append('u_medium.'+field)
     bits=descriptions['candidate']['bits'];assert bits==131818
+    if barrier:
+        observed.extend(('u_disk_pause.phase','u_memory_pause.phase'));bits+=5
+        for name in('disk_pause_barrier.sv','memory_pause_barrier.sv'):
+            (inputs/name).write_bytes((Path(__file__).parent/name).read_bytes())
     top=(inputs/'tb_pilot_pack.sv').read_text()
     top=once(top,' input wire clk_host,sys_clk,reset,attached,data_adv,writing,write_bit,',
         f''' input wire snapshot_hold,output wire snapshot_idle,snapshot_held,
@@ -95,6 +99,33 @@ def run(out,image):
         '#(.SNAPSHOT_PAUSE(PAUSE_MODE),.INITIAL_CYL(3),.LABEL_WORDS(10))')
     top=once(top,'.clk_sys(clk_host),.machine_clk(sys_clk),',
         '.clk_sys(clk_host),.machine_clk(sys_clk),\n  .snapshot_hold(snapshot_hold),.snapshot_guest_held(snapshot_hold && !sys_clk),\n  .snapshot_idle(snapshot_idle),.snapshot_held(snapshot_held),')
+    if barrier:
+        top=once(top,' input wire snapshot_hold,output wire snapshot_idle,snapshot_held,',
+            ''' input wire snapshot_hold,output wire snapshot_idle,snapshot_held,
+ input wire frontends_drained,arbiter_idle,raw_service_idle,
+ output wire disk_device_held,''')
+        top=once(top,'.snapshot_hold(snapshot_hold),.snapshot_guest_held(snapshot_hold && !sys_clk),\n  .snapshot_idle(snapshot_idle),.snapshot_held(snapshot_held),',
+            '.snapshot_hold(disk_request),.snapshot_guest_held(guest_held),\n  .snapshot_idle(disk_idle),.snapshot_held(disk_device_held),')
+        top=once(top,' dorado_pack_hps #', ''' wire disk_request,disk_idle,disk_hold,disk_ready,disk_fault;
+ wire frontend_hold,memory_ready,memory_fault;
+ reg frontends_frozen=0;
+ wire guest_held=snapshot_held && !sys_clk;
+ always @(posedge clk_host)frontends_frozen<=frontend_hold;
+ // Actual coordinators; memory-device ACKs are independently supplied by
+ // this fixture. The eight-MSA physical-memory proof is a separate gate.
+ dorado_memory_pause_barrier u_memory_pause(
+  .clk(clk_host),.machine_reseed(reset),.owner_hold(snapshot_hold || disk_hold),
+  .guest_held(guest_held),.abort(disk_fault),.frontends_drained(frontends_drained),
+  .arbiter_idle(arbiter_idle),.raw_service_idle(raw_service_idle),
+  .frontends_frozen(frontends_frozen),.guest_hold(snapshot_held),.frontend_hold(frontend_hold),
+  .ready(memory_ready),.fault(memory_fault));
+ dorado_disk_pause_barrier u_disk_pause(
+  .clk(clk_host),.machine_reseed(reset),.owner_hold(snapshot_hold),.guest_held(guest_held),
+  .abort(memory_fault),.device_reset(reset),.device_fault(pack_fault),
+  .device_idle(disk_idle),.device_held(disk_device_held),
+  .hold(disk_hold),.device_hold(disk_request),.ready(disk_ready),.fault(disk_fault));
+ assign snapshot_idle=memory_ready && disk_ready;
+ dorado_pack_hps #''')
     top=once(top,'endmodule','''assign write_state=u_medium.wr_state;assign write_block=u_medium.wr_block;
 assign write_bits=u_medium.wr_bits;assign write_count=u_medium.wr_count;
 assign pending_store=u_medium.store;
@@ -107,6 +138,8 @@ endmodule''')
     cpp=once(cpp,'#include <cstdlib>','#include <cstdlib>\n#include <array>\n#include <functional>\n#include "disk_pause_test.inc"')
     cpp=once(cpp,'top.clk_host=top.sys_clk=0;top.reset=1;',
         'top.snapshot_hold=0;top.clk_host=top.sys_clk=0;top.reset=1;')
+    if barrier:cpp=once(cpp,'top.snapshot_hold=0;',
+        'top.frontends_drained=top.arbiter_idle=top.raw_service_idle=1;top.snapshot_hold=0;')
     cpp=once(cpp,' auto tick=[&](){',' unsigned pause_mask=0;std::function<void()> take_snapshot;\n auto tick=[&](){')
     cpp=once(cpp,'bool run=top.pack_ready&&!top.reset;',
         'bool run=top.pack_ready&&!top.reset&&!top.snapshot_hold&&!top.snapshot_held;')
@@ -140,11 +173,20 @@ endmodule''')
         ('early_hps_freeze',1,once(source.decode(),"wire snapshot_enter = (SNAPSHOT_PAUSE!=0) && (snapshot_hold===1'b1) && snapshot_quiet;","wire snapshot_enter = (SNAPSHOT_PAUSE!=0) && (snapshot_hold===1'b1) && (snapshot_guest_held===1'b1);"),'disk pause failed to drain HPS'),
         ('unheld_ram_port',1,once(source.decode(),'    if (!snapshot_block) begin\n    sd_buff_din','    if (1\'b1) begin\n    sd_buff_din'),'held disk state changed'),
         ('unheld_timer',1,once(source.decode(),'    else if (snapshot_paused) begin','    else if (snapshot_paused) begin\n      host_wait <= host_wait+1\'b1;'),'held disk state changed')]
+    if barrier:
+        cases=[row for row in cases if row[0]!='default_off']
+        cases.append(('early_memory_release',1,source.decode(),'guest released before disk latch'))
     results=[]
     for label,mode,body,diagnostic in cases:
         case=out/label;case.mkdir();(case/'fixture.sv').write_text(top.replace('PAUSE_MODE',str(mode)));(case/'medium.sv').write_text(body)
-        cmd=['verilator','--cc','--exe','--build','-j','4','--top-module','tb_pilot_pack','-Wno-fatal','--Mdir',str(case/'obj'),str(case/'fixture.sv'),str(case/'medium.sv'),str(inputs/'test.cpp'),
-            '-CFLAGS',f'-O2 -std=c++17 -I{inputs} -DDISK_STATE_BITS={bits} -DDISK_STATE_WORDS={(bits+31)//32}'+(' -DDISK_PAUSE_TEST=1'if mode else'')]
+        rtl=[]
+        if barrier:
+            rtl=[str(inputs/name)for name in('disk_pause_barrier.sv','memory_pause_barrier.sv')]
+            if label=='early_memory_release':
+                text=once((case/'fixture.sv').read_text(),'.owner_hold(snapshot_hold || disk_hold)', '.owner_hold(snapshot_hold)')
+                (case/'fixture.sv').write_text(text)
+        cmd=['verilator','--cc','--exe','--build','-j','4','--top-module','tb_pilot_pack','-Wno-fatal','--Mdir',str(case/'obj'),str(case/'fixture.sv'),str(case/'medium.sv'),*rtl,str(inputs/'test.cpp'),
+            '-CFLAGS',f'-O2 -std=c++17 -I{inputs} -DDISK_STATE_BITS={bits} -DDISK_STATE_WORDS={(bits+31)//32}'+(' -DDISK_PAUSE_TEST=1'if mode else'')+(' -DDISK_PAUSE_BARRIER=1'if barrier else'')]
         (case/'command.json').write_text(json.dumps(cmd,indent=2)+'\n')
         with(case/'build.log').open('w')as log:subprocess.run(cmd,stdout=log,stderr=subprocess.STDOUT,check=True)
         result=subprocess.run([str(case/'obj/Vtb_pilot_pack'),str(image)],capture_output=True,text=True,timeout=60)
@@ -156,7 +198,8 @@ endmodule''')
         results.append(dict(case=label,returncode=result.returncode,expected_failure=diagnostic,log_sha256=sha((case/'test.log').read_bytes())))
     # Retain the exact independently checked input medium, never alter it.
     (inputs/'pilot.pack').write_bytes(image.read_bytes())
-    result=dict(status='PASS',scope=__doc__,cases=results,geometry=descriptions,new_required_wrapper_bits=2,sequential_exclusions=[],
+    result=dict(status='PASS',scope=__doc__,cases=results,geometry=descriptions,new_required_wrapper_bits=7 if barrier else 2,
+        real_pause_coordinators=barrier,observed_bits=bits,sequential_exclusions=[],
         observed_expressions=observed,inputs={p.name:sha(p.read_bytes())for p in inputs.iterdir()},
         limits='Actual serial/HPS medium only; no Main disk lease/coordinator, native integration, timing, state export/import or complete machine restore.')
     (out/'qualification.json').write_text(json.dumps(result,indent=2)+'\n')
@@ -164,4 +207,5 @@ endmodule''')
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True)
-    p.add_argument('--image',type=Path,default=ROOT/'build/rtl-executive/pilot-pack-fixture.pack');a=p.parse_args();run(a.output.resolve(),a.image.resolve())
+    p.add_argument('--image',type=Path,default=ROOT/'build/rtl-executive/pilot-pack-fixture.pack');p.add_argument('--barrier',action='store_true')
+    a=p.parse_args();run(a.output.resolve(),a.image.resolve(),a.barrier)

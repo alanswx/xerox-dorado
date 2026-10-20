@@ -1,0 +1,18 @@
+[
+  [
+    "iverilog",
+    "-g2012",
+    "-s",
+    "tb",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-coordinator-20261020/chain_early_memory_release/test.vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-coordinator-20261020/chain_early_memory_release/disk_pause_barrier.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-coordinator-20261020/chain_early_memory_release/network_pause_barrier.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-coordinator-20261020/chain_early_memory_release/memory_pause_barrier.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-coordinator-20261020/chain_early_memory_release/test_services_pause_chain.sv"
+  ],
+  [
+    "vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-coordinator-20261020/chain_early_memory_release/test.vvp"
+  ]
+]

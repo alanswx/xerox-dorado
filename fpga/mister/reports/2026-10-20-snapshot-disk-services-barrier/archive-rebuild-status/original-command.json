@@ -1,0 +1,11 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "dorado_board_state_uio_msa",
+  "-Wno-fatal",
+  "-GSCHEMA_ID=64'haf0b647cb43a3a62",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-status-20261020/original.xml",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-extracted-status-20261020/executed-inputs/original.sv"
+]

@@ -1,0 +1,12 @@
+[
+  "verilator",
+  "--xml-only",
+  "--top-module",
+  "dorado_pack_hps",
+  "-Wno-fatal",
+  "-GLABEL_WORDS=10",
+  "-GHOST_CLOCK_HZ=50000000",
+  "--xml-output",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-legacy-regression-20261020/original.xml",
+  "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-legacy-regression-20261020/executed-inputs/original.sv"
+]

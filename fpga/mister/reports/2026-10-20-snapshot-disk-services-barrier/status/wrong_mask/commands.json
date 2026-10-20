@@ -1,0 +1,18 @@
+[
+  [
+    "iverilog",
+    "-g2012",
+    "-s",
+    "tb",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-status-20261020/wrong_mask/test.vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-status-20261020/wrong_mask/fixture.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-status-20261020/wrong_mask/candidate.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-status-20261020/executed-inputs/reference.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-status-20261020/executed-inputs/fabric.sv"
+  ],
+  [
+    "vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/disk-services-frozen-status-20261020/wrong_mask/test.vvp"
+  ]
+]

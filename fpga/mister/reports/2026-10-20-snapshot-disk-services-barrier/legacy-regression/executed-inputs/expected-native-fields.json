@@ -1,0 +1,282 @@
+{
+  "dorado_pack_hps.bi": [
+    4,
+    4,
+    []
+  ],
+  "dorado_pack_hps.blk": [
+    2,
+    2,
+    []
+  ],
+  "dorado_pack_hps.buffer": [
+    16,
+    131072,
+    [
+      [
+        0,
+        8191
+      ]
+    ]
+  ],
+  "dorado_pack_hps.cached_count": [
+    6,
+    6,
+    []
+  ],
+  "dorado_pack_hps.cached_cyl": [
+    12,
+    12,
+    []
+  ],
+  "dorado_pack_hps.cached_head": [
+    6,
+    6,
+    []
+  ],
+  "dorado_pack_hps.cached_lba": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.cnt": [
+    13,
+    13,
+    []
+  ],
+  "dorado_pack_hps.conttag_d": [
+    1,
+    1,
+    []
+  ],
+  "dorado_pack_hps.cyl": [
+    12,
+    12,
+    []
+  ],
+  "dorado_pack_hps.cyltag_d": [
+    1,
+    1,
+    []
+  ],
+  "dorado_pack_hps.data_bit": [
+    1,
+    1,
+    []
+  ],
+  "dorado_pack_hps.ecc": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.ecc_next": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.eoc": [
+    1,
+    1,
+    []
+  ],
+  "dorado_pack_hps.first_word": [
+    8,
+    8,
+    []
+  ],
+  "dorado_pack_hps.flushed_generation": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.generation": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.head": [
+    6,
+    6,
+    []
+  ],
+  "dorado_pack_hps.headtag_d": [
+    1,
+    1,
+    []
+  ],
+  "dorado_pack_hps.host_debug": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.host_extra": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.host_fault": [
+    1,
+    1,
+    []
+  ],
+  "dorado_pack_hps.host_state": [
+    3,
+    3,
+    []
+  ],
+  "dorado_pack_hps.host_wait": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.next_ecc": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.phase": [
+    3,
+    3,
+    []
+  ],
+  "dorado_pack_hps.pulse_d": [
+    16,
+    16,
+    []
+  ],
+  "dorado_pack_hps.reads": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.sd_blk_cnt": [
+    6,
+    6,
+    []
+  ],
+  "dorado_pack_hps.sd_buff_din": [
+    16,
+    16,
+    []
+  ],
+  "dorado_pack_hps.sd_lba": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.sd_rd": [
+    1,
+    1,
+    []
+  ],
+  "dorado_pack_hps.sd_wr": [
+    1,
+    1,
+    []
+  ],
+  "dorado_pack_hps.sec": [
+    5,
+    5,
+    []
+  ],
+  "dorado_pack_hps.serial_debug": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.serial_extra": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.serial_fault": [
+    1,
+    1,
+    []
+  ],
+  "dorado_pack_hps.shift_next": [
+    16,
+    16,
+    []
+  ],
+  "dorado_pack_hps.store": [
+    1,
+    1,
+    []
+  ],
+  "dorado_pack_hps.store_addr": [
+    13,
+    13,
+    []
+  ],
+  "dorado_pack_hps.store_data": [
+    16,
+    16,
+    []
+  ],
+  "dorado_pack_hps.sync_word": [
+    16,
+    16,
+    []
+  ],
+  "dorado_pack_hps.valid": [
+    1,
+    1,
+    []
+  ],
+  "dorado_pack_hps.wi": [
+    9,
+    9,
+    []
+  ],
+  "dorado_pack_hps.word_q": [
+    16,
+    16,
+    []
+  ],
+  "dorado_pack_hps.wr_base": [
+    13,
+    13,
+    []
+  ],
+  "dorado_pack_hps.wr_bits": [
+    6,
+    6,
+    []
+  ],
+  "dorado_pack_hps.wr_block": [
+    2,
+    2,
+    []
+  ],
+  "dorado_pack_hps.wr_count": [
+    9,
+    9,
+    []
+  ],
+  "dorado_pack_hps.wr_ecc": [
+    32,
+    32,
+    []
+  ],
+  "dorado_pack_hps.wr_gate_d": [
+    1,
+    1,
+    []
+  ],
+  "dorado_pack_hps.wr_shift": [
+    16,
+    16,
+    []
+  ],
+  "dorado_pack_hps.wr_state": [
+    2,
+    2,
+    []
+  ],
+  "dorado_pack_hps.writes": [
+    32,
+    32,
+    []
+  ]
+}

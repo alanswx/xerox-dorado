@@ -2,19 +2,78 @@
 
 ## Current objective (2026-10-20)
 
-**The real serial/HPS disk pause qualifies, preserving partial writes and the complete track buffer. Serial71 is terminal and rejected on timing: setup -1.668 ns and hold -0.292 ns. Complete snapshots, faster clocks and final hardware qualification remain open.**
+**Serial72 now wires real memory/network/disk pause and separate local ACK status in a source-only native candidate. Source/state/component proofs pass; Main coordination and full snapshots remain open. No new Quartus run: Serial71 remains rejected at setup -1.668 ns /hold -0.292 ns. Faster clocks and final hardware qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and
 warm disk persistence pass. Its last qualified rate remains **1,947,654.12
 instruction issues/s**. This work has not deployed a new core/Main/daemon or
 produced a new speed measurement.
 
+**Serial72 source-only integration:** local stage
+`build/rtl-executive/serial72-native-disk-pause-20261020`; its intended remote
+path is provenance only, with NO upload/build/job. The staging driver has no
+Quartus run mode and marks Quartus/assembly/deployment forbidden until a
+structural advance change qualifies. It derives from all661 frozen Serial71
+inputs, adds one controller source (662 actual inputs), and preserves all2,761
+original board pins, normal readiness, clocks, constraints and placement policy.
+Fourteen rehashed damaged source/status/reset/permission variants reject.
+
+The actual HPS medium drains issued transfers, then its three-bit disk
+coordinator retains global guest/memory hold until the host pause latch releases.
+Disk revocation, including a fault coincident with release, quarantines all
+three coordinators until genuine RBF reseed. Memory service bit0 and disk bit1
+AND local readiness with the original external permits; network bit2 retains
+its existing equivalent guard. Both owner and UIO report the same final vector.
+
+New optional ABI2 diagnostic extension separates local ACKs from host grants:
+status flag11, word18=coherent local ACK bitmap, word19=available mask7,
+word20=version ac01. Bits0/1/2 are memory/disk/network adapter boundaries;
+input/video bits remain zero/unavailable. Main can observe disk drain before
+taking its ARM image lease; local ACKs never grant board-state access by
+themselves. The Python reader validates the original board-only schema and
+extension. Default-off UIO matches all348 original bits through shared SPI
+traffic/resets; enabled status adds five REQUIRED top-level bits. Old clients
+need the extension reader when flag11 is advertised. Physical DDR visibility
+and complete-build checks remain separate requirements.
+
+Tests: real Pilot/HPS medium plus actual disk/memory coordinators preserve all
+131,823 observed bits through nine pause points, including partial blocks,
+pending stores, inactive media and accepted HPS tails; changed payloads, Fire
+codes and neighboring image bytes agree. Four broken payload variants reject.
+The three-coordinator controlled-ACK chain passes104 checks in both release
+orders. Disk four-state tests pass65,826 checks over64 drain /16,384 ready
+combinations; six broken coordinator/chain variants reject. Real UIO/owner
+status tests reject five compiled variants and nine malformed client statuses.
+Default-off medium regression and frozen/archive-extracted rebuilds pass.
+
+Fresh actual-QSF native XML accounts for2,094,306 required bits:1,957,048
+physical board +4,578 private board +69 owner/router +132,611 wrapper ACCESS
+PENDING. The increase is medium latch/media identity2 +disk coordinator3;
+all are REQUIRED. Eighteen inventory/alias controls reject. The five new top
+UIO bits and existing six network top bits lie outside that native count and
+still need export/import. Task-written SDRAM state120 and reviewed function
+scratch215 remain accounted. Board-only schema af0b647cb43a3a62 is unchanged.
+
+Evidence: `2026-10-20-snapshot-disk-services-barrier/` (833 raw members) and
+`2026-10-20-snapshot-native-disk-pause-source/` (1,179 raw members), under
+`fpga/mister/reports/`. All bytes read back; extracted source/fresh native XML
+and exact662-input restaging repeat. No complete Main/input/video/DDR-fence
+coordination, full snapshot, legal timing or hardware speed claim.
+
+Next connect this diagnostic/status contract to actual Main coordination and
+qualified ARM leases. For timing, prototype a registered per-MSA NEXT normal
+readiness aggregate, derived from exact frontend transitions and scan behavior;
+prove equality against frozen original state/traffic in reset, stall, pause and
+partial-import cases. Keep initialization/disk/global-hold guards and actual
+periods; account every added bit. Qualify that structural change before another
+full fit, then continue full-state access and the original60ns clock migration.
+
 **Qualified disk component, NOT in Serial71:** `dorado_pack_hps` now has an
 opt-in snapshot pause (default off). After the guest clock is held it drains
 only HPS requests already issued, then freezes its host FSM and BRAM port.
 It preserves partial header/label/data writes, Fire-code position, a pending
 guest-port RAM store and dirty generations; it never completes a guest write
-or flushes a partial block. The actual held latch controls framed release.
+or flushes a partial block. Release waits for HPS ACK/write strobes to clear.
 A second required bit retains attachment identity, supporting an inactive
 disk and revoking readiness on mount/removal/remount/reset or unexpected HPS
 activity. The global coordinator still must quarantine a revoked lease.

@@ -1,0 +1,115 @@
+{
+  "status": "PASS_NATIVE_DISK_PAUSE_SOURCE_ONLY",
+  "scope": "Independent inverse review of disk drain, retained hold and raw ACK status.\n\nReconstruct immutable Serial71, then replay its original native pin/clock/source\nreview. No ordinary clock, readiness, board pin or timing-policy edit is allowed.\n",
+  "verified_parent_inputs": 661,
+  "actual_inputs": 662,
+  "original_pin_connections": 2761,
+  "schema_id": "af0b647cb43a3a62",
+  "changed_parent_inputs": [
+    "core/Dorado.qsf",
+    "core/Dorado.sv",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv",
+    "src/fpga/mister/dorado_pack_hps.sv",
+    "src/fpga/mister/snapshot_serial/board_state_uio_msa.sv",
+    "src/fpga/mister/snapshot_serial/assets.json"
+  ],
+  "new_wrapper_state_bits": 5,
+  "new_top_state_bits": 5,
+  "existing_network_top_bits": 6,
+  "new_clocks": 0,
+  "new_external_ports": 0,
+  "local_status_mask": 7,
+  "constraints_unchanged": true,
+  "real_memory_pause": true,
+  "real_network_pause": true,
+  "real_disk_pause": true,
+  "real_pause_barriers": false,
+  "quartus_permitted": false,
+  "limits": "Source-only real memory/network/disk boundaries and raw local ACK status. Host permissions, input/video, DDR visibility, Main coordinator, complete state access/restore and legal timing remain required.",
+  "failure_controls": [
+    {
+      "case": "disk_not_enabled",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor: dorado_pack_hps #(.SNAPSHOT_PAUSE(1),.SECTORS_PER_TRACK(29),.LABEL_WORDS(10))",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "wrong_disk_owner",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor:   // Real disk HPS drain is visible before the ARM image permission. The\n  // independent hold keeps",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "disk_latch_unobserved",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor:   // Real disk HPS drain is visible before the ARM image permission. The\n  // independent hold keeps",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "memory_released_early",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor: .owner_hold(snapshot_owner_hold || snapshot_service_hold || snapshot_disk_hold),",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "missing_disk_permission",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor:   assign snapshot_services_status={snapshot_services_held[4:2],\n      (snapshot_services_held[1] && ",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "wrong_local_disk_ack",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor: \n .local_services_held({2'b00,snapshot_network_drained,board_state_disk_drained,CAPACITY_MEMORY_DRAI",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "pretend_input_video_ack",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor: \n .local_services_held({2'b00,snapshot_network_drained,board_state_disk_drained,CAPACITY_MEMORY_DRAI",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "wrong_raw_status_mask",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor: .SCHEMA_ID(64'haf0b647cb43a3a62),.LOCAL_SERVICES_MASK(5'b00111),.RESPONSE_LIMIT(4096)",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "reset_reseeds_disk",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor:   // Real disk HPS drain is visible before the ARM image permission. The\n  // independent hold keeps",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "disk_fault_not_retained",
+      "rejected": true,
+      "diagnostic": "unexpected inverse anchor: .abort(snapshot_owner_fault || snapshot_service_fault || snapshot_disk_fault || (snapshot_transport_",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "disk_medium_changed",
+      "rejected": true,
+      "diagnostic": "unqualified device asset: src/fpga/mister/dorado_pack_hps.sv",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "status_source_changed",
+      "rejected": true,
+      "diagnostic": "unqualified device asset: src/fpga/mister/snapshot_serial/board_state_uio_msa.sv",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "ordinary_enable_changed",
+      "rejected": true,
+      "diagnostic": "unapproved ordinary/pin/clock/constraint edit: core/Dorado.sv",
+      "metadata_rehashed": true
+    },
+    {
+      "case": "timing_relaxed",
+      "rejected": true,
+      "diagnostic": "unapproved ordinary/pin/clock/constraint edit: core/Dorado.sdc",
+      "metadata_rehashed": true
+    }
+  ]
+}
