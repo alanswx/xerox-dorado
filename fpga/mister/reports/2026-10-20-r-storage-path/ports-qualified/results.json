@@ -1,0 +1,715 @@
+{
+  "status": "PASS_R_FILE_FUNCTIONAL_PORTS",
+  "scope": "Compare functional R ports with original 12 SRAMs and two parity generators.\n\nThe RAM arrays remain behind physical ports. This gate checks bank/address/data,\nbyte parity, chip selects/wired OR, half writes and the FPGA advance contract.\nIt does not qualify address producers, control coupling, SRAM setup/hold or 60ns.\n",
+  "inputs": {
+    "chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.lc": "2a7ddbf9dc7a6d701ea2b1eac15d7dba60790faacd950d4844695896e17d2c15",
+    "chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+    "chm/sil/ProcL-Rev-Ci.dm!1_/ProcL-Rev-Ci.lc": "0770e808e0424e6468328ed2ec71220d7c1a22752eee55c8606695debf278fef",
+    "chm/sil/ProcL-Rev-Ci.dm!1_/ProcL-Rev-Ci.wl": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+    "tools/generate_control_clock_reference.py": "c5255000f877c5e66940e94c9c74167a0d02e1947bd0e3be03b5fccc2b8e5b0f",
+    "tools/generate_processor_capture_reference.py": "f8a75e6ffc0ea66141685378d05da3acaa47b1b89fa29255c4cb804f241b9b6d",
+    "tools/generate_r_file_reference.py": "0062c60f7c3392e8e4113a7a7055a9d79ef95709a231f16d72c114c55294112d",
+    "tools/generate_run_control_reference.py": "658d092df35b6f98b6c341b63911d50f96fbaf96829046acb230bdda038b22e6",
+    "tools/sil_netlist.py": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1",
+    "tools/test_r_file_ports.py": "1a3cd1d2631d3a272e060f50f8f29ba8ae87e9bc3ddf3b4a35460d97c34a6afd",
+    "verilog/cells/cell_F10414.v": "85a32a3fcf0e8026682e94881d85d356b6155f0a8fd6ae5b9503d20264333a3c",
+    "verilog/cells/cell_MB7071H.v": "710b890c91d451c6023ba0396d170402ef95355703175d15417a0ccf2112bc2b",
+    "verilog/cells/cell_MC10170.v": "90dc10079db3d5611562f4454534221971d98606de64ac33a0e9cc335478d910",
+    "verilog/rtl/dorado_r_file_ports.sv": "45e87cb0bed39bc39560293c0498ad03f774fd77481b4f143fb33aa29256fc6e",
+    "verilog/verilator/r_file_original_storage.sv": "956cd1bff7362ec90d50b5a0cfe842535318628097718945d921468c87f1febb",
+    "verilog/verilator/tb_r_file_ports.sv": "1d848b788510e17354fa02af5ea99dda8317f1cf43a07021c242489a408d767a"
+  },
+  "actions": [
+    {
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/tools/generate_r_file_reference.py",
+        "--output",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/reference"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/generation.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_r_file_ports",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/original/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/original/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/original/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/original/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/original/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_r_file_ports",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/lose_advance/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/lose_advance/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/lose_advance/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/lose_advance/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/lose_advance/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_r_file_ports",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_low_gate/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_low_gate/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_low_gate/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_low_gate/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_low_gate/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_r_file_ports",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_high_parity/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_high_parity/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_high_parity/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_high_parity/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_high_parity/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_r_file_ports",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_high_address/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_high_address/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_high_address/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_high_address/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_high_address/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_r_file_ports",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/lost_stack_write/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/lost_stack_write/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/lost_stack_write/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/lost_stack_write/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/lost_stack_write/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_r_file_ports",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wired_and/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wired_and/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wired_and/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wired_and/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wired_and/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_r_file_ports",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/deselected_output/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/deselected_output/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/deselected_output/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/deselected_output/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/deselected_output/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_r_file_ports",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_low_byte/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_low_byte/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_low_byte/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_low_byte/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/wrong_low_byte/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_r_file_ports",
+        "-Wno-fatal",
+        "-Wno-MULTIDRIVEN",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/verilator/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/rtl/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/verilator/compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/verilator/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/balanced/verilator/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_r_file_ports",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/original/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/original/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/original/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/original/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/original/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_r_file_ports",
+        "-Wno-fatal",
+        "-Wno-MULTIDRIVEN",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/verilator/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/rtl/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/verilator/compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/verilator/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_ram/verilator/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_r_file_ports",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/original/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/original/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/original/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/original/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/original/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_r_file_ports",
+        "-Wno-fatal",
+        "-Wno-MULTIDRIVEN",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/verilator/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/rtl/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/executed-inputs/verilog/verilator/tb_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/reference/cell_MC10170.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/verilator/compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/verilator/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-file-ports-qualified-20261020/late_parity/verilator/test.log"
+    }
+  ],
+  "profiles": [
+    [
+      "balanced",
+      1000,
+      1000
+    ],
+    [
+      "late_ram",
+      1000,
+      9900
+    ],
+    [
+      "late_parity",
+      6600,
+      2000
+    ]
+  ],
+  "cases": [
+    {
+      "profile": "balanced",
+      "case": "original",
+      "returncode": 0,
+      "expected_failure": false
+    },
+    {
+      "profile": "balanced",
+      "case": "lose_advance",
+      "returncode": 1,
+      "expected_failure": true
+    },
+    {
+      "profile": "balanced",
+      "case": "wrong_low_gate",
+      "returncode": 1,
+      "expected_failure": true
+    },
+    {
+      "profile": "balanced",
+      "case": "wrong_high_parity",
+      "returncode": 1,
+      "expected_failure": true
+    },
+    {
+      "profile": "balanced",
+      "case": "wrong_high_address",
+      "returncode": 1,
+      "expected_failure": true
+    },
+    {
+      "profile": "balanced",
+      "case": "lost_stack_write",
+      "returncode": 1,
+      "expected_failure": true
+    },
+    {
+      "profile": "balanced",
+      "case": "wired_and",
+      "returncode": 1,
+      "expected_failure": true
+    },
+    {
+      "profile": "balanced",
+      "case": "deselected_output",
+      "returncode": 1,
+      "expected_failure": true
+    },
+    {
+      "profile": "balanced",
+      "case": "wrong_low_byte",
+      "returncode": 1,
+      "expected_failure": true
+    },
+    {
+      "profile": "late_ram",
+      "case": "original",
+      "returncode": 0,
+      "expected_failure": false
+    },
+    {
+      "profile": "late_parity",
+      "case": "original",
+      "returncode": 0,
+      "expected_failure": false
+    }
+  ],
+  "summary": "checks=12928 writes=2748 paused=1665 injected=1024 select_masks=ffff both_reads=4163",
+  "reference": {
+    "boards": [
+      {
+        "board": "ProcH-Rev-Ce",
+        "packages": {
+          "h06": "MB7071H",
+          "i06": "MB7071H",
+          "i08": "F10414",
+          "j06": "MB7071H",
+          "j08": "F10414",
+          "k03": "MC10170",
+          "k06": "MB7071H"
+        },
+        "sequential": {
+          "h06": [
+            0,
+            1024
+          ],
+          "j06": [
+            1024,
+            1024
+          ],
+          "i06": [
+            2048,
+            1024
+          ],
+          "k06": [
+            3072,
+            1024
+          ],
+          "j08": [
+            4096,
+            256
+          ],
+          "i08": [
+            4352,
+            256
+          ]
+        },
+        "physical_bits": 4608,
+        "original_pins": 122,
+        "boundary_bindings": {
+          "TrueA": "1'b1",
+          "RbAdr.0": "pins[7]",
+          "RbAdr.1": "pins[6]",
+          "RbAdr.2": "pins[5]",
+          "RbAdr.3": "pins[4]",
+          "RbAdr.4'": "pins[3]",
+          "RbAdr.5'": "pins[2]",
+          "RbAdr.6'": "pins[1]",
+          "RbAdr.7'": "pins[0]",
+          "SelectRm'a": "pins[16]",
+          "RbWrite'a": "pins[26]",
+          "VEE176": "1'b0",
+          "dRm.00": "pins[18]",
+          "dRm.01": "pins[19]",
+          "dRm.02": "pins[20]",
+          "dRm.03": "pins[21]",
+          "RbWrite'b": "pins[26]",
+          "VEE224": "1'b0",
+          "dRm.04": "pins[22]",
+          "dRm.05": "pins[23]",
+          "dRm.06": "pins[24]",
+          "dRm.07": "pins[25]",
+          "StkAdr.0a": "pins[15]",
+          "StkAdr.1a": "pins[14]",
+          "StkAdr.2a": "pins[13]",
+          "StkAdr.3a": "pins[12]",
+          "StkAdr.4a": "pins[11]",
+          "StkAdr.5a": "pins[10]",
+          "StkAdr.6a": "pins[9]",
+          "StkAdr.7a": "pins[8]",
+          "SelectStk'a": "pins[17]",
+          "VEE200": "1'b0",
+          "VEE248": "1'b0",
+          "RbWrite'c": "pins[26]"
+        },
+        "clock_taps": [
+          "@h06.p2",
+          "@i06.p2"
+        ],
+        "flag_taps": [
+          "ddR.00",
+          "ProcH03.sil+1",
+          "ProcH04.sil+1",
+          "ProcH05.sil+1",
+          "ProcH06.sil+1",
+          "ProcH07.sil+1",
+          "ProcH08.sil+1",
+          "ProcH09.sil+1",
+          "ProcH27.sil+1",
+          "ProcH27.sil+2"
+        ],
+        "source_sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+        "combinational_sources": [
+          "verilog/cells/cell_MC10170.v"
+        ]
+      },
+      {
+        "board": "ProcL-Rev-Ci",
+        "packages": {
+          "h06": "MB7071H",
+          "i06": "MB7071H",
+          "i08": "F10414",
+          "j06": "MB7071H",
+          "j08": "F10414",
+          "k03": "MC10170",
+          "k06": "MB7071H"
+        },
+        "sequential": {
+          "h06": [
+            0,
+            1024
+          ],
+          "j06": [
+            1024,
+            1024
+          ],
+          "i06": [
+            2048,
+            1024
+          ],
+          "k06": [
+            3072,
+            1024
+          ],
+          "j08": [
+            4096,
+            256
+          ],
+          "i08": [
+            4352,
+            256
+          ]
+        },
+        "physical_bits": 4608,
+        "original_pins": 122,
+        "boundary_bindings": {
+          "TrueA": "1'b1",
+          "RbAdr.0'": "pins[7]",
+          "RbAdr.1'": "pins[6]",
+          "RbAdr.2'": "pins[5]",
+          "RbAdr.3'": "pins[4]",
+          "RbAdr.4'": "pins[3]",
+          "RbAdr.5'": "pins[2]",
+          "RbAdr.6'": "pins[1]",
+          "RbAdr.7'": "pins[0]",
+          "SelectRm'b": "pins[16]",
+          "RbWrite'a": "pins[26]",
+          "VEE176": "1'b0",
+          "dRm.08": "pins[18]",
+          "dRm.09": "pins[19]",
+          "dRm.10": "pins[20]",
+          "dRm.11": "pins[21]",
+          "RbWrite'b": "pins[26]",
+          "VEE224": "1'b0",
+          "dRm.12": "pins[22]",
+          "dRm.13": "pins[23]",
+          "dRm.14": "pins[24]",
+          "dRm.15": "pins[25]",
+          "StkAdr.0b": "pins[15]",
+          "StkAdr.1b": "pins[14]",
+          "StkAdr.2b": "pins[13]",
+          "StkAdr.3b": "pins[12]",
+          "StkAdr.4b": "pins[11]",
+          "StkAdr.5b": "pins[10]",
+          "StkAdr.6b": "pins[9]",
+          "StkAdr.7b": "pins[8]",
+          "SelectStk'b": "pins[17]",
+          "VEE200": "1'b0",
+          "VEE248": "1'b0",
+          "RbWrite'c": "pins[26]"
+        },
+        "clock_taps": [
+          "@h06.p2",
+          "@i06.p2"
+        ],
+        "flag_taps": [
+          "ProcL02.sil+1",
+          "ProcL03.sil+1",
+          "ProcL04.sil+1",
+          "ProcL05.sil+1",
+          "ProcL06.sil+1",
+          "ProcL07.sil+1",
+          "ProcL08.sil+1",
+          "ddR.15",
+          "ProcL27.sil+1",
+          "ProcL27.sil+2"
+        ],
+        "source_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+        "combinational_sources": [
+          "verilog/cells/cell_MC10170.v"
+        ]
+      }
+    ],
+    "physical_bits": 9216,
+    "packages": 14,
+    "original_pins": 244,
+    "scope": "Extract all twelve RM/STK SRAMs and both byte-parity generators from PARC wiring.\n\nRAM state exists only inside the reference fixture. Production ports use four\nphysical addresses and chip selects; no array state travels through the core.\n",
+    "native_integrated": false,
+    "boundary": "Physical SRAM address/select and RbWrite window/data are external; address pipeline and coupled control timing not qualified"
+  },
+  "native_integrated": false,
+  "coupled_control_qualified": false,
+  "physical_timing_qualified": false
+}

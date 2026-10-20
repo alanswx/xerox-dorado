@@ -31,6 +31,39 @@ def slack(path,model):
     return value
 
 
+def r_storage_memory(directory,qualified):
+    assert qualified['ram_bits']==9216 and qualified['total_physical_bits']==9812
+    assert qualified['r_read_write_nonoverlap_checked'] and qualified['post_commit_source_epoch_checked']
+    assert qualified['ram_arrays_flattened'] is False
+    text=(directory/'clock_fit.map.rpt').read_text()
+    match=re.search(r';\s*Total MLAB memory bits\s*;\s*([\d,]+)\s*;',text)
+    assert match and int(match[1].replace(',',''))==9216,'Missing/wrong MLAB bit count'
+    rows=[]
+    for line in text.splitlines():
+        if 'ALTDPRAM_INSTANCE' not in line or ';'not in line:continue
+        fields=[x.strip()for x in line.split(';')][1:-1]
+        if len(fields)==9:rows.append(fields)
+    assert len(rows)==4,('Missing/extra R memory bank',len(rows))
+    names=[]
+    for row in rows:
+        match=re.search(r'altdpram:(rm_h|stk_h|rm_l|stk_l)_rtl_0\|',row[0])
+        assert match and row[1:]==['MLAB','Simple Dual Port','256','9','256','9','2304','None'],row
+        names.append(match[1])
+    assert set(names)=={'rm_h','stk_h','rm_l','stk_l'} and len(set(names))==4
+    parameters={'INDATA_REG':'INCLOCK','WRADDRESS_REG':'INCLOCK','WRCONTROL_REG':'INCLOCK',
+        'RDADDRESS_REG':'OUTCLOCK','RDCONTROL_REG':'UNREGISTERED','OUTDATA_REG':'UNREGISTERED',
+        'RAM_BLOCK_TYPE':'LUTRAM','READ_DURING_WRITE_MODE_MIXED_PORTS':'DONT_CARE'}
+    for name in names:
+        match=re.search(r'; Parameter Settings for Inferred Entity Instance: [^\n]*altdpram:'+name+r'_rtl_0 ;\n(.*?)(?=\n\n)',text,re.S)
+        assert match,('Missing R memory parameter table',name)
+        for key,value in parameters.items():
+            found=re.search(r';\s*'+key+r'\s*;\s*([^;]+?)\s*;',match[1])
+            assert found and found[1]==value,(name,key,found[1]if found else None)
+    return dict(logical_banks=sorted(names),bits=9216,depth=256,width=9,type='MLAB',
+        initialization='None',inferred_parameters=parameters,
+        collision_scope='no_rw_check: architecture reads outside write windows; coupled nonoverlap/source-epoch checks required. No same-edge raw-output value guarantee.')
+
+
 def audit(directory,qualified,allow_missing):
     provenance=json.loads((directory/'provenance.json').read_text())
     profiles={None:(52,51,'control_clock','PASS_COUPLED_ORIGINAL_CONTROL_CLOCK_COMPONENT','dorado_control_clock_step.sv'),
@@ -39,7 +72,8 @@ def audit(directory,qualified,allow_missing):
               't_file':(660,463,'t_file','PASS_T_FILE_ARRIVAL_CONTRACT','dorado_t_file_step.sv'),
               't_parity':(846,607,'t_parity','PASS_T_PARITY_ARRIVAL_CONTRACT','dorado_t_parity_step.sv'),
               'r_operand':(898,675,'r_operand','PASS_R_OPERAND_ARRIVAL_CONTRACT','dorado_r_operand_step.sv'),
-              'r_flags':(902,689,'r_flags','PASS_R_FLAGS_ARRIVAL_CONTRACT','dorado_r_flags_step.sv')}
+              'r_flags':(902,689,'r_flags','PASS_R_FLAGS_ARRIVAL_CONTRACT','dorado_r_flags_step.sv'),
+              'r_storage':(939,709,'r_storage','PASS_R_STORAGE_ARRIVAL_CONTRACT','dorado_r_storage_step.sv')}
     assert provenance.get('component')in profiles,'Unknown fixture profile'
     expected_launch,expected_result,component,expected_status,evaluator=profiles[provenance.get('component')]
     assert provenance['clock_period_ns']==15 and provenance['launch_bits']==expected_launch and provenance['result_bits']==expected_result
@@ -106,15 +140,19 @@ def audit(directory,qualified,allow_missing):
         match=re.search(re.escape(label)+r'\s*:\s*([\d,]+)',summary);assert match,label
         resources[key]=int(match[1].replace(',',''))
     assert resources['memory_bits']==resources['ram_blocks']==resources['dsp']==resources['plls']==0
+    memory=r_storage_memory(directory,qualified_record)if component=='r_storage'else None
+    if memory:resources['mlab_memory_bits']=memory['bits']
     minimum={mode:min(r[mode]for r in records)for mode in ['setup','hold','mpw']}
     passing=(targeted_complete and all(v>=0 for v in minimum.values()) and
              all(r['evaluator_setup'] is not None and r['evaluator_setup']>=0 for r in records))
-    return dict(status='PASS_COMPONENT_TIMING'if passing else'REJECTED_COMPONENT_TIMING',
+    result=dict(status='PASS_COMPONENT_TIMING'if passing else'REJECTED_COMPONENT_TIMING',
         scope=__doc__,component=component,functional_qualification_status=qualified_record['status'],period_ns=15,resources=resources,minimum_slack_ns=minimum,conditions=records,
         input_staging_bits=provenance.get('input_staging_bits',0),
         targeted_coverage_complete=targeted_complete,evaluator_sha256=evaluator_digest,
         permitted_qsf_delta='Quartus17.0.2 LAST_QUARTUS_VERSION annotation only',
         native_qualified=False,hardware_speedup_claimed=False)
+    if memory:result['memory_contract']=memory
+    return result
 
 
 if __name__=='__main__':

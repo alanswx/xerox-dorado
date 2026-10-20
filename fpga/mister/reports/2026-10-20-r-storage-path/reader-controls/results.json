@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "wrong_dimensions",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "relaxed_period_rehashed",
+      "rejected": true,
+      "diagnostic": "Unexpected timing constraints"
+    },
+    {
+      "case": "changed_evaluator_rehashed",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "changed_dependency_rehashed",
+      "rejected": true,
+      "diagnostic": "('unqualified RTL dependency', 'dorado_task_capture_step.sv')"
+    },
+    {
+      "case": "missing_corner",
+      "rejected": true,
+      "diagnostic": "[Errno 2] No such file or directory: '/Users/alans/dev2/Dorado/build/rtl-executive/r-storage-reader-controls-20261020/missing_corner/clock-hold-MIN_fast_1100mv_-40c.rpt'"
+    },
+    {
+      "case": "missing_evaluator",
+      "rejected": true,
+      "diagnostic": "Missing launch/result path report"
+    },
+    {
+      "case": "negative_setup",
+      "rejected": true,
+      "diagnostic": "REJECTED_COMPONENT_TIMING"
+    },
+    {
+      "case": "negative_evaluator",
+      "rejected": true,
+      "diagnostic": "REJECTED_COMPONENT_TIMING"
+    },
+    {
+      "case": "missing_ram_bank",
+      "rejected": true,
+      "diagnostic": "('Missing/extra R memory bank', 3)"
+    },
+    {
+      "case": "wrong_ram_width",
+      "rejected": true,
+      "diagnostic": "['dorado_r_storage_step:evaluator|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_mno1:auto_generated|ALTDPRAM_INSTANCE', 'MLAB', 'Simple Dual Port', '256', '8', '256', '9', '2304', 'None']"
+    },
+    {
+      "case": "wrong_ram_type",
+      "rejected": true,
+      "diagnostic": "['dorado_r_storage_step:evaluator|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_mno1:auto_generated|ALTDPRAM_INSTANCE', 'M10K', 'Simple Dual Port', '256', '9', '256', '9', '2304', 'None']"
+    },
+    {
+      "case": "wrong_ram_init",
+      "rejected": true,
+      "diagnostic": "['dorado_r_storage_step:evaluator|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_mno1:auto_generated|ALTDPRAM_INSTANCE', 'MLAB', 'Simple Dual Port', '256', '9', '256', '9', '2304', 'nonzero.mif']"
+    },
+    {
+      "case": "wrong_ram_bits",
+      "rejected": true,
+      "diagnostic": "Missing/wrong MLAB bit count"
+    },
+    {
+      "case": "wrong_ram_output_register",
+      "rejected": true,
+      "diagnostic": "('rm_h', 'OUTDATA_REG', 'CLOCK0')"
+    },
+    {
+      "case": "wrong_ram_collision_mode",
+      "rejected": true,
+      "diagnostic": "('rm_h', 'READ_DURING_WRITE_MODE_MIXED_PORTS', 'OLD_DATA')"
+    }
+  ]
+}

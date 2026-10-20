@@ -61,9 +61,11 @@ trace. Main3486/server3485 now run the corrected same-clock candidate. Original
 firmware/Cedar login/all34 base transfers/final guest ACK and Viewers/mouse/click/
 exact keyboard/warm file readback pass; idle issues average1,947,686.01/s,
 effectively unchanged. No speed gain, cold persistence or rollback claim yet.
-The complete596-bit R sign/odd component also passes both simulators and isolated
-15ns timing; functional RM/STK ports, Ready/MIR/Hold and native clock integration
-remain open. Exact evidence and process state are at the top of the handoff.
+The complete596-bit R sign/odd component now couples functional RM/STK ports
+(9,216 bits in four256×9 MLAB banks). Both simulators and isolated15ns timing
+pass (setup+4.190ns/hold+0.105ns). Physical address/select handoff,
+bypass/IFU/Ready/MIR/Hold and native clock integration remain open. Exact evidence
+and process state are at the top of the handoff.
 
 1. Preserve the unintegrated host-service/Main-client prototype as deferred
    work. Its v6 component evidence passes, but native wiring and the actual
@@ -87,8 +89,11 @@ remain open. Exact evidence and process state are at the top of the handoff.
    base34/finalACK and the SAME boot's Viewers/mouse/click/exact keyboard/warm
    marker for this correction. Cold persistence remains a final gate.
    **Done for an isolated slice:** complete596-bit sign/odd nets, both simulators
-   and15ns timing (setup+4.242ns/hold+0.135ns). Close functional RM/STK ports
-   and Ready/MIR/hold producers, then remaining
+   and15ns timing (setup+4.242ns/hold+0.135ns). **Done for an isolated slice:**
+   functional RM/STK data/parity ports coupled to this component; real MLAB
+   implementation passes15ns (setup+4.190ns/hold+0.105ns). Close the actual
+   address/select register/mux handoff, preserving old g16 sample data and stable
+   write addresses; then bypass/IFU and Ready/MIR/hold producers, then remaining
    board/latch/RAM families against original references. The existing
    eight-slot phase oracle is not a deployable full-speed clock solution.
 4. Fit only a justified native candidate, pass all operating conditions and

@@ -19,8 +19,12 @@ def run(source, qualified, output):
         for file,key in [('provenance.json','files'),('collected-input-check.json','actual')]:
             p=directory/file;q=json.loads(p.read_text());q[key][name]=digest
             p.write_text(json.dumps(q,indent=2)+'\n')
-    for name in ['wrong_dimensions','relaxed_period_rehashed','changed_evaluator_rehashed',
-                 'changed_dependency_rehashed','missing_corner','missing_evaluator','negative_setup','negative_evaluator']:
+    names=['wrong_dimensions','relaxed_period_rehashed','changed_evaluator_rehashed',
+           'changed_dependency_rehashed','missing_corner','missing_evaluator','negative_setup','negative_evaluator']
+    if json.loads((source/'provenance.json').read_text()).get('component')=='r_storage':
+        names+=['missing_ram_bank','wrong_ram_width','wrong_ram_type','wrong_ram_init',
+                'wrong_ram_bits','wrong_ram_output_register','wrong_ram_collision_mode']
+    for name in names:
         d=output/name;shutil.copytree(source,d)
         if name=='wrong_dimensions':
             p=d/'provenance.json';q=json.loads(p.read_text());q['launch_bits']-=1;p.write_text(json.dumps(q))
@@ -34,6 +38,25 @@ def run(source, qualified, output):
             (d/'clock-hold-MIN_fast_1100mv_-40c.rpt').unlink()
         elif name=='missing_evaluator':
             (d/'clock-evaluator-7_slow_1100mv_100c.rpt').unlink()
+        elif '_ram_'in name:
+            p=d/'clock_fit.map.rpt';text=p.read_text();lines=text.splitlines()
+            index=next(i for i,line in enumerate(lines)if 'ALTDPRAM_INSTANCE'in line and '; MLAB'in line)
+            if name=='missing_ram_bank':lines.pop(index)
+            elif name in ('wrong_ram_width','wrong_ram_type','wrong_ram_init'):
+                fields=lines[index].split(';')
+                if name=='wrong_ram_width':fields[5]=' 8 '
+                elif name=='wrong_ram_type':fields[2]=' M10K '
+                else:fields[-2]=' nonzero.mif '
+                lines[index]=';'.join(fields)
+            elif name=='wrong_ram_bits':
+                lines=[re.sub(r'(Total MLAB memory bits\s*;\s*)9216',r'\g<1>9217',line)for line in lines]
+            else:
+                key='OUTDATA_REG'if name=='wrong_ram_output_register'else'READ_DURING_WRITE_MODE_MIXED_PORTS'
+                replacement='CLOCK0'if name=='wrong_ram_output_register'else'OLD_DATA'
+                text='\n'.join(lines)+'\n'
+                text,count=re.subn(r'(;\s*'+key+r'\s*;\s*)[^;]+',lambda m:m[1]+replacement+' ',text,count=1)
+                assert count==1;lines=text.splitlines()
+            p.write_text('\n'.join(lines)+'\n')
         else:
             mode='evaluator' if name=='negative_evaluator' else 'setup'
             p=d/('clock-'+mode+'-7_slow_1100mv_100c.rpt');s=p.read_text()

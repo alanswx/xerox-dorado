@@ -21,16 +21,17 @@ Original firmware, all34 base transfers/final guest ACK, Viewers, mouse/click,
 exact keyboard echoes and warm file create/readback now pass. Cold persistence
 remains pending.
 FPGA rollback and hardware speedup are not claimed. A same-clock
-MC1668 native regression build now passes full timing/memory review; actual
-firmware/Cedar regression is next (details below). The
+MC1668 native regression build passes full timing/memory and original-firmware/
+Cedar desktop/input review (details below). The
 coupled R/T/task/parity slice now passes an explicit-arrival contract for 592
 original bits and isolated 15ns FPGA timing. MC1668's old edge-triggered cell
 model was corrected to its manufacturer's HIGH-transparent latch truth table.
 Initial's ROM component and the actual native copy now pass; the full native
 BaseBoard/Cedar desktop/input regression now passes.
 The complete 596-bit sign/odd component also passes both simulators and isolated
-15ns timing. Functional RM/STK ports, remaining Ready/MIR/Hold producers and
-native clock integration follow.
+15ns timing. Functional RM/STK ports are now coupled to this component and pass
+both simulators plus isolated15ns timing with their actual MLAB banks. Physical
+address/select producers, remaining Ready/MIR/Hold and native integration follow.
 Full board timing, faster Cedar boot and rollback remain unqualified.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
 qualify it through original firmware and the germ/disk path. Rollback preserves
@@ -64,8 +65,9 @@ all collected raw bytes match their hashes after extraction. No active pack
 copy, guest Boot, host barrier, clean shutdown, cold persistence or full snapshot
 claim. Login issue rate remains1,947,686.01/s; no speed gain.
 
-**Next: functional RM/STK ports and bypass/IFU producers, Ready/MIR/Hold, then
-native clock integration against these corrected-part contracts.** The596-bit
+**Next: actual RM/STK address/select handoff and bypass/IFU producers,
+Ready/MIR/Hold, then native clock integration against these corrected-part
+contracts.** Functional RAM ports are now coupled/qualified below. The596-bit
 coupled sign/odd component already passes simulation and isolated15ns timing
 (below). Preserve this corrected MC1668 baseline and Native59; stop/reload only
 through normal Main disk/network barriers. Authentic Cedar Checkpoint/Rollback,
@@ -73,6 +75,59 @@ original60ns cadence/timer calibration, three fresh boots, cold persistence and
 two-hour combined stress remain open. Goal ACTIVE; full snapshots deferred.
 All our simulator/fit/loader/input/collector jobs are terminal. Only normal
 Main3486/server3485 and Cedar's own background work remain live.
+
+### Functional R storage coupled and isolated timing PASS (2026-10-20)
+
+`dorado_r_file_ports.sv` keeps RM/STK behind four256×9 physical ports, including
+byte parity. No scan/init port or large flattened RAM-state interface is added.
+The independent reference extracts the original twelve SRAMs plus two parity
+generators (9,216 bits /14 packages /244 pins). The port gate passes12,928 checks
+per profile in both simulators across three illustrative arrival profiles;
+all256 addresses/bank,16 select masks, wired-OR data/parity, half writes,
+advance suppression and1,024 stored-parity-bit injections. Eight bad variants reject.
+
+`dorado_r_storage_step.sv` now couples these functional ports to the existing
+596-bit processor component. Original combined state:9,812 bits; the evaluator's
+explicit Q vector remains596. The accepted v3 gate passes20,816 events/profile in
+both simulators across six profiles; all33 clock-edge channels match.
+It checks5,822 R write-window and10,402 read-window observations, every address/
+select/LC value,128 Hold cases and eight directed Md/Pd writes covering each bank.
+Actual original j05 write outputs are observed independently. Read/write windows
+do not overlap; RAM commit cannot change the sampled processor-source epoch.
+Five coupled bad variants reject. g16 data setup/hold is measured from actual
+ports; the PARC min/max parity controls enforce1.7ns/1.1ns limits and pass.
+The deliberately settled fixture is not an original60ns timing proof.
+
+The real-RAM isolated15ns fit is TERMINAL PASS: four conditions, minimum
+setup/evaluator+4.190ns, hold+0.105ns, mpw+6.113ns, no illegal/unconstrained clock
+or virtual-I/O paths.1,819ALMs/2,303regs/9,216MLAB bits; no M10Ks/DSPs/PLLs.
+All four256×9 banks, no initialization and inferred parameter tables are checked.
+`no_rw_check` retains DONT_CARE collisions, justified only by the coupled
+architectural read/write nonoverlap and source-epoch contract; no same-edge raw
+output guarantee. Exact prepared input/readback and all five absent job PIDs
+verified. Fifteen damaged/rehashed reader controls reject; prior596-bit sign/odd
+profile still passes.1,442 archived members/readback/extracted positive review
+pass; no second full simulation replay after extraction is claimed.
+
+Remote `/home/alans/mister/r-storage-fit-20261020`; builder4082211 /map4082212 /
+fit4082478 /sta4084204 /corners4084380 are TERMINAL/absent. Do not restart.
+Local accepted simulation `build/rtl-executive/r-storage-qualified-v3-20261020`,
+port gate `r-file-ports-qualified-20261020`, timing `r-storage-fit-terminal-20261020`.
+Receipt `fpga/mister/reports/2026-10-20-r-storage-path/`. All our jobs are stopped;
+MiSTer14 remains Main3486/server3485/RBF15730f44, CRC/RX/abort0. No native load,
+new instruction-speed measurement or speed gain; last login1,947,686.01issues/s.
+
+**Next:** replace the physical-address/select boundary with original producers:
+ProcL g10/h10 RbAdr low bits; ProcH l05 /ProcL i15 RbWadr stages; both boards'
+k08/k09 address muxes; ProcL k11/g08/j11 stack-address stages and g09 selects.
+Derive their full data/control cone and actual clock taps from the wire lists,
+including each mixed-net driver. Current ports change ONLY in a closed high-root
+window; this does not qualify the real address-register handoff. Preserve the
+OLD RAM parity/data epoch at g16 capture when those producers change address,
+and prove write-window address stability before native integration. Keep the
+arrays behind ports. Then bypass/IFU/Ready/MIR/Hold and remaining board families,
+original60ns cadence/timers, authentic rollback and final repeated/stress gates.
+Full FPGA snapshots remain deferred; goal ACTIVE.
 
 ### MC1668 original firmware/login/base loader PASS, earlier checkpoint (2026-10-20)
 
