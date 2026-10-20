@@ -61,10 +61,10 @@ not a prerequisite for the performance goal.
 2. **Done:** reconstruct and hash-check the archived Native59 normal-operation inputs.
    Retain SDRAM, disk-worker/cache and direct-DDR network behavior and the
    original pin, memory and timing contracts. No snapshot-only virtual controls.
-3. Continue the original clock-family migration: the seven-state instruction
-   phase/extension and22-Q run/refresh components pass (receipts below). Couple
-   them in the original graph, then qualify Hold/Freeze and T/task capture,
-   and test against an independent event-driven reference. The existing
+3. Continue the original clock-family migration: the coupled32-Q phase/run/
+   refresh component and its isolated15ns timing now pass (receipt below).
+   Qualify Hold/repeat and processor T/task captures with this controller,
+   then the remaining board/latch/RAM families against original references. The existing
    eight-slot phase oracle is not a deployable full-speed clock solution.
 4. Fit only a justified native candidate, pass all operating conditions and
    SDRAM I/O timing, then perform original-firmware and pinned speed tests.
@@ -75,6 +75,60 @@ but require a separate future milestone and explicit acceptance scope. Cedar
 rollback restores the software world, not disk contents or a cycle-exact set
 of FPGA/ARM internals. See [the original guide](../DoradoDocs/manuals/Introduction_to_Cedar_7.0.md)
 and [our existing C-emulator checkpoint gate](cedar-checkpoint.md).
+
+### Coupled control clocks and FPGA budget qualified (2026-10-20)
+
+The run/refresh and instruction-phase feedback now share one tested component,
+`verilog/rtl/dorado_control_clock_step.sv`. Its32 existing Qs cover all halves
+of fourteen original sequential packages, including MemSH, SC&NoFreeze and
+CRamClock. The independently extracted reference contains28 packages /235 pins.
+Both Icarus and Verilator pass69,864 ordered binary events: all32 Qs, nine clock
+channels, enable/decoded outputs,196 ordinary two-clock intervals,64 extended
+six-clock intervals, single-step stop/restart and2,568 MemSH transitions while
+halted with refresh enabled. Twelve broken variants reject. External controls
+meet setup; internal phase/run feedback is live, not supplied by the fixture.
+
+An initial early-exit evaluator failed isolated15ns timing (743ALMs,
+all-condition setup -19.867ns). Removing intermediate stability gates preserves
+the circuit functions and collapses the implementation to82ALMs. The arbitrary-
+function Z3 fixed-point theorem is UNSAT for a counterexample; two invalid
+stability criteria admit counterexamples. The RTL rewrite checker allows only
+removal of that guard. Both simulators, all12 bad RTL cases, the theorem and
+its controls reproduce from archive-extracted inputs.
+
+Final isolated Quartus17.0.2 fit on5CSEBA6U23I7 passes all four conditions:
+minimum setup +5.678ns, hold +0.190ns, pulse width +6.551ns. The evaluator's
+launch-to-result setup margin is at least +11.237ns at a15.000ns clock. It uses
+82ALMs /137 registers including the measurement shell, no RAM/DSP/PLL. Virtual
+I/O keeps2ns maximum /0ns minimum delays; the shell stages inputs on the
+opposite edge before the launch register. Its staging path has a7.5ns budget;
+the evaluator retains15ns. This fixture adds no native CPU pipeline stage.
+
+Earlier fixed-wave fits without this input staging passed internal setup but
+failed a virtual-input cold hold path (-0.329ns); enabling multicorner analysis
+alone did not change that fit. All rejected experiments are retained. The
+original targeted-report filter also missed output-register aliases; later
+reporting checks nonempty launch/result collections. The independent reader
+checks source hashes, constraints, all four corners and unconstrained paths;
+seven damaged/rehashed evidence cases reject. Only Quartus's version annotation
+is allowed as a prepared-QSF delta. No timing exceptions or period relaxation.
+
+Receipt: `fpga/mister/reports/2026-10-20-coupled-control-clock/`. Four isolated
+builds are terminal, recorded processes absent at collection, no assembly or
+programming. Functional replay and read-only timing review reproduce from the
+archive. No production core/Main/daemon changed and the last qualified hardware
+rate remains1,947,654.12 instruction issues/s. This is component timing, not
+full-core speed or board-I/O qualification.
+
+```
+make -C verilog control-clock-test CONTROL_CLOCK_OUT=build/control-clock-new
+```
+
+Next: Hold/repeat and processor T/task capture ordering with this coupled
+controller, then complete native integration/timing and original-firmware gates.
+The original BaseBoard divider phase relationships and peripheral timebases
+still need integration. Cedar rollback, three fresh boots, cold disk persistence
+and two-hour stress remain open; complete FPGA snapshots stay deferred.
 
 ### Run/refresh control contract qualified (2026-10-20)
 

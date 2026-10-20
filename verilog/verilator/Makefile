@@ -1749,7 +1749,7 @@ mouse-terminal-test:
 
 PROGRESS_MONITOR_RTL ?= fpga/mister/dorado_instruction_monitor.sv
 PROGRESS_TEST_OBJ ?= verilog/verilator/obj_instruction_progress_$(SYSPER)
-.PHONY: instruction-progress-build instruction-progress-test storage-sdram-board-test storage-sdram-test pause-monitor-test speed-monitor-test t-controls-test control-phases-test run-control-test clock-phases-test clock-phase-audit key-queue-test keyboard-terminal-test
+.PHONY: instruction-progress-build instruction-progress-test storage-sdram-board-test storage-sdram-test pause-monitor-test speed-monitor-test t-controls-test control-phases-test run-control-test control-clock-test clock-phases-test clock-phase-audit key-queue-test keyboard-terminal-test
 instruction-progress-build:
 	@cd ../.. && mkdir -p "$(PROGRESS_TEST_OBJ)" && python3 tools/sil_backplane.py \
 		--emit "$(PROGRESS_TEST_OBJ)/dorado_world.v" --module dorado_world \
@@ -1818,6 +1818,10 @@ speed-monitor-test:
 		--Mdir verilog/verilator/obj_speed_monitor -o tb_speed_monitor \
 		fpga/mister/dorado_speed_monitor.sv verilog/verilator/tb_speed_monitor.sv >/dev/null
 	@./obj_speed_monitor/tb_speed_monitor
+
+CONTROL_CLOCK_OUT ?= build/control-clock
+control-clock-test:
+	@cd ../.. && python3 tools/test_control_clock.py --output "$(CONTROL_CLOCK_OUT)" --mutations
 
 RUN_CONTROL_OUT ?= build/run-control
 run-control-test:
