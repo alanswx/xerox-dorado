@@ -2,6 +2,62 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**All eight compact MSA adapters now qualify through SPI under a new schema. Next: the complete nineteen-board fit.**
+
+`serial_state_format_msa_compact.py` binds the qualified component receipts to
+board-only schema `56e997e5c1fb54d0`: 1,957,944 actual physical board bits.
+The first eleven board maps are unchanged; slot11 indexes the eight members
+with unit bits 10..8 and word bits 7..0. Each member has 1,650 bits / 92 words,
+last word 12 bits. Unit stride remains 256 addresses, with no per-member padding
+in the dense 1,650-byte eight-member payload. Both the outer owner and member
+router reject words 92..255 before dispatch. The 4,096-cycle budget, twelve
+frozen bits, five explicit service contracts and reset/quarantine ownership stay.
+This schema is incompatible with old 2,690-bit member snapshots by design.
+
+The four-state SPI test passes 78,859 host ticks / 293 packets / 113 result
+checks, including 34 actual Python-formatted packets through all eight real
+compact adapters. It checks unique member values, first/final words, new holes
+and high bits, old main-only AND old MSA schema rejection, held competing
+requests through completion, missing/unknown boundaries, timeout, active parser
+reset, sticky quarantine and unchanged Ethernet. Ten actual damaged RTL cases
+reject; ten rehashed catalog mutations and status/padding checks reject. This
+transport fixture stops guest advances and retains eleven endpoint/five service
+stubs. The original guest behavior and restore/resume qualification are the
+separate complete-MSA receipt; no native pause or FPGA snapshot is claimed.
+
+Fresh XML accounts for all 13,200 physical MSA  + 648 private MSA  + 417 private
+transport bits, with no sequential exclusions. Twelve inventory/schema/deadline/
+exact-alias controls reject. Exact inverse source review checks unchanged owner,
+UIO and router logic apart from the explicit bound/module edits, plus the complete
+compact-board source proof; six damaged source cases reject. The first transport
+run exposed an outer-owner bound still set to 150: it returned child error 3
+rather than rejecting hole 92 as error 2. Updating that generated owner bound to 92
+fixes it; the old-bound control now reproduces the failure. The first XML runner
+omitted an imported test utility; its corrected v2 inventory is authoritative.
+
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-msa-compact-transport/`.
+All 414 raw members pass lossless readback. Extracted catalog/fixture/vector/RTL
+regeneration is byte-identical; dense-format/source/XML controls and a rebuilt
+actual eight-board SPI test pass against committed immutable receipts.
+
+Next: replace the exact qualified compact MSA/transport assets and schema in the
+nineteen-board Native59 capacity experiment. Retain all original pins, main-board
+adapters, memory policy, clocks and real IO constraints. Remove only obsolete
+MSA hold exceptions whose saved_addr/saved_data destinations no longer exist;
+add no setup cuts. Verify every compiled source and regenerate a complete native
+state inventory before another full fit. The old whole-core result remains
+46,702 / 41,910 ALMs; the matched component saving of 492 ALMs does not prove that
+the combined design fits. The compiled-native schema, whole-core fit/timing and
+real external service barriers are still pending. No Quartus job remains live.
+
+Complete wrapper/raw-memory/input/video/ARM/server state, true reseed ownership,
+connection-preserving pause and atomic matching-disk generation remain required
+for full snapshots. Original 60 ns clocks/timers, pinned performance comparisons,
+three fresh Cedar boots/cold persistence and two-hour stress remain open.
+MiSTer14/Native59 is unchanged at the last qualified 1,947,654.12 issues/s. Goal ACTIVE.
+
+Previous compact component qualification:
+
 **Compact raw-memory bridge qualifies on one complete MSA: 2,213 -> 1,721 ALMs, saving 492. Native integration is next.**
 
 The candidate removes five duplicate implementation fields per group (65 bits):

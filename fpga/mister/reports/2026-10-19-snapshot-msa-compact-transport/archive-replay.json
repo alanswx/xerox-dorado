@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "generation": "exact catalog/fixture/vectors/board/helpers/router/owner",
+  "schema_id": "56e997e5c1fb54d0",
+  "board_bits": 1957944,
+  "format_controls": 10,
+  "source_controls": 6,
+  "classification_controls": 12,
+  "rebuilt_test": "COMPACT MSA TRANSPORT PASS ticks=78859 packets=293 checks=113 actual8MSAs/12slots/ABI2/schema/5stubservices/4096budget/sticky-global-hold/transport-vs-SYSTEM-reset/Ethernet\n/Users/alans/dev2/Dorado/build/rtl-executive/msa-compact-transport-archive-replay-v1-20261019/simulation-v2/candidate/fixture.sv:905: $finish called at 315437 (1s)",
+  "dependencies": "Committed immutable main-board, msa-ff/board/transport and compact receipt archives through tools/fpga/mister/reports symlink; no working HDL"
+}
