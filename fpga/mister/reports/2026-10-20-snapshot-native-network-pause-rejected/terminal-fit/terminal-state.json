@@ -1,0 +1,12 @@
+{
+  "status": "TERMINAL_DRIVER_COMPLETE",
+  "builder_pid": 2664220,
+  "builder_live": false,
+  "project_processes": [],
+  "assembly_started": false,
+  "rbfs": [],
+  "sta_started": true,
+  "observed_utc": "2026-10-20T10:36:24Z",
+  "prepared_inputs": 661,
+  "prepared_inputs_changed": []
+}

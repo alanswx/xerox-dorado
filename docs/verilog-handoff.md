@@ -2,7 +2,7 @@
 
 ## Current objective (2026-10-20)
 
-**The real serial/HPS disk pause now qualifies, preserving partial writes and the complete track buffer. Serial71 fits but its first timing reports fail; all-corner/crossing review is still running. Complete snapshots, faster clocks and final hardware qualification remain open.**
+**The real serial/HPS disk pause qualifies, preserving partial writes and the complete track buffer. Serial71 is terminal and rejected on timing: setup -1.668 ns and hold -0.292 ns. Complete snapshots, faster clocks and final hardware qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and
 warm disk persistence pass. Its last qualified rate remains **1,947,654.12
@@ -34,20 +34,28 @@ This is not disk state export/import, native integration, timing or a complete
 snapshot. Next connect this real FPGA boundary BEFORE the existing ARM disk
 lease, with actual Main/FPGA acknowledgments and retained global release hold.
 
-**LIVE Serial71NetworkPause, all-corner timing:**
-`/home/alans/mister/Dorado_Serial71NetworkPause_20261020`, builder **2664220**,
-builder **2664220** remains live; fitter2666775 completed successfully in20m23s
-(zero errors;11 warnings). Native STA and clock audit completed; the original
-driver is running device-corners.tcl, then adapter crossings. Synthesis had
-zero errors/615 warnings. Mapper2664230 completed in3m36s. Observe these SAME
-processes and this project; a polling timeout is not completion or permission
-to restart. All 661 prepared sources were unchanged. Packet SHA256
-`faeba8e8e591be64073dae4647a45d0203b50fef393becfab68ef52fd544e009`.
-No assembly or deployment is allowed by this capacity/timing driver.
-The completed fit uses41,464 /41,910 ALMs (446 free),52,155 registers,
-329 RAM blocks/2,498,471 bits,35 DSPs/3 PLLs. Preliminary reports fail slow100C
-setup at-1.668 ns and slow-40C hold at-0.292 ns. Preserve all remaining reports
-and independently review the terminal result; this cannot be deployed.
+**TERMINAL Serial71NetworkPause:**
+`/home/alans/mister/Dorado_Serial71NetworkPause_20261020`. Builder2664220,
+fitter2666775 and every project child are absent. All661 prepared inputs are
+unchanged. Map, fit, native STA/clocks, four device conditions and all304
+board-crossing groups completed sequentially. No job remains live from this
+sequence. No assembly, RBF/SOF or hardware reload occurred. Terminal packet
+SHA256 `df16a82ded4be9f2f0f472ff36c0259f54106d14c4818acb5a0b4f2ede6f1e3c`.
+
+Capacity passes41,464 /41,910 ALMs (446 free),52,155 registers,329 RAM blocks /
+2,498,471 bits,35 DSPs/3 PLLs. Actual memory/network coordinators, DDR engine,
+UIO parser and wire hierarchy are present. Timing REJECTS it: slow100C setup
+-1.668 ns, slow-40C setup-1.326 ns and hold-0.292 ns. Other hold conditions pass
+(+0.074/+0.083/+0.132 ns). Seventeen of304 crossing groups fail setup. SDRAM IO
+passes with minimum+1.662 ns; actual clocks match Native59 with zero illegal /
+unconstrained clocks. Exactly the inherited3 input /50 output framework IO
+exceptions remain; this is not full physical framework IO coverage.
+
+Worst setup is MSA3Odd u_storage_2.waiting -> network_step across the10ns
+half-cycle; initialization ready -> network_step and network_step -> MSA
+pre-capture state also fail. Hold failures are virtual service inputs into UIO
+status capture. Keep real service integration and a structural advance/phase
+change as the next work; no blind seed/fanout/global or relaxed-period trials.
 
 Serial71 starts from immutable Serial69, with no fanout/global/seed policy or
 period changes. The DDR engine follows the final global hold. The SPI parser
@@ -79,11 +87,15 @@ af0b647cb43a3a62 is unchanged. No complete top/ARM state or restore is claimed.
 
 Evidence: `fpga/mister/reports/2026-10-20-snapshot-network-barrier/` (328 raw
 members) and `2026-10-20-snapshot-native-network-pause-source/` (1,277 raw
-members). All members read back; the source/native inventory proof verifies
-after extraction. Next observe Serial71 to terminal, then independently review
-actual capacity, clocks, all-condition setup/hold and crossings. Do not adopt
-it based on fit alone. Continue structural advance/phase work and the real Main
-coordinator; no more blind placement/fanout trials.
+members), plus terminal `2026-10-20-snapshot-native-network-pause-rejected/`
+(2,244 raw members). Source/state/capacity/timing/crossing controls reject
+12/15/15/6/3 damaged cases. New capacity checks retain the actual five service
+hierarchies and task-written state; old69/70 capacity gates repeat8/11 controls.
+All raw bytes read back, extracted rejection checks pass, fresh native XML and
+source review repeat, and restaging reproduces all661 source bytes. The two
+additional disk-pause bits and their component hooks are NOT in Serial71.
+Next integrate that real disk boundary/Main coordinator and qualify a structural
+advance change against original state/traffic oracles before another full fit.
 
 The eight-board circuit uses one pause coordinator and the real member router,
 128-client interleaved/prefetch arbiter, 50MHz SDRAM backend and independent

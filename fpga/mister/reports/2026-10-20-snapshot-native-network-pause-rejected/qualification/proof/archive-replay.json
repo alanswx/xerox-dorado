@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "restaged_inputs": 661,
+  "source_audit_equal": true,
+  "native_classification_equal_except_xml_paths": true,
+  "native_provenance_identical": true
+}

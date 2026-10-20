@@ -1,0 +1,14 @@
+{
+  "timing": [
+    true,
+    true
+  ],
+  "framework_exceptions": [
+    false,
+    true
+  ],
+  "clocks": [
+    true,
+    true
+  ]
+}

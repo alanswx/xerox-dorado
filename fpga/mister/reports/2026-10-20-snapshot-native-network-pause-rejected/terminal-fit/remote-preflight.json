@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "packet_sha256": "faeba8e8e591be64073dae4647a45d0203b50fef393becfab68ef52fd544e009",
+  "prepared_inputs": 661,
+  "no_assembly": true,
+  "other_quartus_processes": []
+}

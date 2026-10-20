@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Review terminal nineteen-board capacity, including real memory-pause integration.
+"""Review terminal nineteen-board capacity, including real memory/network pause.
 
 A failed-fit estimate is diagnostic; a successful fit still requires timing,
 real service barriers, full snapshots and FPGA qualification. No deployment.
@@ -24,24 +24,33 @@ def review(root,source,classification,overrides=None):
     assert 'Device : 5CSEBA6U23I7'in summary and 'Total virtual pins : 7'in summary
     assert source['original_pin_connections']==2761
     memory_fanout=source['status']=='PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY'
-    memory_pause=source['status']=='PASS_NATIVE_MEMORY_PAUSE_SOURCE_ONLY'or memory_fanout
+    network_pause=source['status']=='PASS_NATIVE_NETWORK_PAUSE_SOURCE_ONLY'
+    memory_pause=source['status']=='PASS_NATIVE_MEMORY_PAUSE_SOURCE_ONLY'or memory_fanout or network_pause
     if memory_pause:
-        assert source['verified_parent_inputs']==659 and source['actual_inputs']==660
-        assert state['prepared_inputs']==660 and state['prepared_inputs_changed']==[]
-        assert len(source['failure_controls'])==(6 if memory_fanout else 10) and source['constraints_unchanged']
+        assert source['verified_parent_inputs']==(660 if network_pause else 659)
+        assert source['actual_inputs']==(661 if network_pause else 660)
+        assert state['prepared_inputs']==source['actual_inputs']and state['prepared_inputs_changed']==[]
+        assert len(source['failure_controls'])==(12 if network_pause else 6 if memory_fanout else 10)and source['constraints_unchanged']
         if memory_fanout:
             assert source['verified_policy_parent_inputs']==660 and source['new_policy_state_bits']==0
             assert source['changed_policy_files']==['core/Dorado.qsf']
             assert(source['target'],source['max_fanout'])==('emu|network_step',256)
             assert re.search(r';\s*emu:emu\|network_step\s*;\s*256\s*;\s*4\s*;',read('core/output_files/Dorado.map.rpt')),'actual fanout setting/replication differs'
             assert 'Inserted 4 logic cells for Maximum Fan-Out assignment on "emu:emu|network_step"'in read('map.log'),'mapper did not apply targeted replication'
-        assert set(source['changed_parent_inputs'])=={
-            'core/Dorado.qsf','core/Dorado.sv',
-            'src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v',
-            'src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv',
-            'src/fpga/mister/dorado_storage_arb.sv','src/fpga/mister/dorado_storage_sdram.sv',
-            'src/fpga/mister/snapshot_serial/assets.json','src/fpga/mister/snapshot_serial/MSA__msa_board.sv'}
-        assert (source['new_state_bits'],source['new_clocks'],source['new_ports'])==(2,0,0)
+        if network_pause:
+            assert set(source['changed_parent_inputs'])=={'core/Dorado.qsf','core/Dorado.sv',
+                'src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv',
+                'src/fpga/mister/dorado_ethernet_ddr.sv','src/fpga/mister/dorado_ethernet_uio.sv'}
+            assert(source['new_top_state_bits'],source['new_wrapper_state_bits'],source['new_clocks'],source['new_external_ports'])==(6,0,0,0)
+            assert source['real_network_pause']
+        else:
+            assert set(source['changed_parent_inputs'])=={
+                'core/Dorado.qsf','core/Dorado.sv',
+                'src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v',
+                'src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv',
+                'src/fpga/mister/dorado_storage_arb.sv','src/fpga/mister/dorado_storage_sdram.sv',
+                'src/fpga/mister/snapshot_serial/assets.json','src/fpga/mister/snapshot_serial/MSA__msa_board.sv'}
+            assert (source['new_state_bits'],source['new_clocks'],source['new_ports'])==(2,0,0)
         assert source['schema_id']=='af0b647cb43a3a62'
         assert source['real_memory_pause'] and not source['real_pause_barriers']
         assert classification['status']=='PASS_NATIVE_MEMORY_PAUSE_STATE_ACCESS_PENDING'
@@ -90,6 +99,11 @@ def review(root,source,classification,overrides=None):
     assert len(boards)==19 and {r['Compilation Hierarchy Node']for r in boards}==wanted,'nineteen-board hierarchy missing/duplicated'
     transport={n:[r for r in records if r['Entity Name']==n]for n in ('dorado_board_state_fabric_msa','dorado_board_state_uio_msa','dorado_msa_state_group_chipwidth')}
     assert all(len(v)==1 for v in transport.values()),'enabled owner/UIO/router missing'
+    services={}
+    if network_pause:
+        services={n:[r for r in records if r['Entity Name']==n]for n in(
+            'dorado_memory_pause_barrier','dorado_network_pause_barrier','dorado_ethernet_ddr','dorado_ethernet_uio','dorado_ethernet_wire')}
+        assert all(len(v)==1 for v in services.values()),'real memory/network service hierarchy missing/duplicated'
     estimate=lambda r:float(r['ALMs needed [=A-B+C]'].split()[0])
     own=lambda r:float(r['ALMs needed [=A-B+C]'].split()[1].strip('()'))
     registers=re.search(r'Total registers : (\d+)',summary);memory=re.search(r'Total block memory bits : ([\d,]+) /',summary)
@@ -100,6 +114,7 @@ def review(root,source,classification,overrides=None):
         boards=[dict(instance=r['Full Hierarchy Name'],module=r['Entity Name'],fitter_alm_attribution=estimate(r))for r in boards],
         eight_msa_fitter_attribution_alms=round(sum(estimate(r)for r in boards if r['Entity Name']=='dorado_serial_MSA'),1),
         transport={n:estimate(v[0])for n,v in transport.items()},
+        real_service_hierarchy={n:dict(instance=v[0]['Full Hierarchy Name'],fitter_alm_attribution=estimate(v[0]))for n,v in services.items()},
         largest_exclusive_attribution=[dict(instance=r['Full Hierarchy Name'],module=r['Entity Name'],self_attribution_alms=own(r))for r in sorted(records,key=own,reverse=True)[:24]],
         legal_capacity=successful,timing_qualified=False,assembly_started=False,hardware_changed=False,
         limits='Failed-fit zero RAM-block count is not physical RAM qualification. No all-device timing, real service barrier, complete FPGA snapshot or speed claim.')
@@ -127,11 +142,13 @@ def controls(root,source,classification):
         try:review(root,source,classification,{path:damaged})
         except AssertionError as error:result.append(dict(case='wrong_actual_seed',rejected=True,diagnostic=str(error)))
         else:raise AssertionError('unapplied placement seed accepted')
-    if source['status']in('PASS_NATIVE_MEMORY_PAUSE_SOURCE_ONLY','PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY'):
+    if source['status']in('PASS_NATIVE_MEMORY_PAUSE_SOURCE_ONLY','PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY','PASS_NATIVE_NETWORK_PAUSE_SOURCE_ONLY'):
         cases=[('wrong_actual_input_count','actual_inputs',659),
                                ('fake_memory_pause','real_memory_pause',False),
                                ('unearned_full_barrier','real_pause_barriers',True)]
         if source['status']=='PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY':cases.append(('wrong_policy_limit','max_fanout',64))
+        if source['status']=='PASS_NATIVE_NETWORK_PAUSE_SOURCE_ONLY':
+            cases.extend([('fake_network_pause','real_network_pause',False),('omitted_top_state','new_top_state_bits',1)])
         for name,key,value in cases:
             damaged=dict(source);damaged[key]=value
             try:review(root,damaged,classification)
@@ -142,6 +159,13 @@ def controls(root,source,classification):
         try:review(root,source,damaged)
         except AssertionError as error:result.append(dict(case='omitted_task_state',rejected=True,diagnostic=str(error)))
         else:raise AssertionError('omitted SDRAM task state accepted')
+    if source['status']=='PASS_NATIVE_NETWORK_PAUSE_SOURCE_ONLY':
+        for name,module in(('missing_memory_coordinator','dorado_memory_pause_barrier'),('missing_network_coordinator','dorado_network_pause_barrier'),
+            ('missing_network_engine','dorado_ethernet_ddr'),('missing_network_parser','dorado_ethernet_uio'),('missing_network_wire','dorado_ethernet_wire')):
+            path='core/output_files/Dorado.fit.rpt';raw=(root/path).read_text(encoding='latin1');assert module in raw
+            try:review(root,source,classification,{path:raw.replace(module,'missing_'+module)})
+            except AssertionError as error:result.append(dict(case=name,rejected=True,diagnostic=str(error)))
+            else:raise AssertionError('missing real service accepted: '+name)
     if source['status']=='PASS_NATIVE_MEMORY_FANOUT_SOURCE_ONLY':
         path='core/output_files/Dorado.map.rpt';raw=(root/path).read_text(encoding='latin1')
         damaged,count=re.subn(r'(;\s*emu:emu\|network_step\s*;\s*)256(\s*;\s*4\s*;)',lambda m:m[1]+'128'+m[2],raw,count=1)

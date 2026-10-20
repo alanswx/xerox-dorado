@@ -43,7 +43,7 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-**The real serial/HPS disk pause now qualifies, preserving partial writes and the complete track buffer. Serial71 fits but its first timing reports fail; all-corner/crossing review is still running. Complete snapshots, faster clocks and final hardware qualification remain open.**
+**The real serial/HPS disk pause qualifies, preserving partial writes and the complete track buffer. Serial71 is terminal and rejected on timing: setup -1.668 ns and hold -0.292 ns. Complete snapshots, faster clocks and final hardware qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and
 warm disk persistence pass. Its last qualified rate remains **1,947,654.12
@@ -68,18 +68,22 @@ members read back and the extracted verifier passes. Evidence:
 or full restore is claimed. These two new disk bits are NOT in Serial71's
 2,094,301-bit native inventory.
 
-**Current integration: Serial71NetworkPause** at
-`/home/alans/mister/Dorado_Serial71NetworkPause_20261020`, builder2664220 is
-LIVE in all-corner timing. Fitter2666775 completed successfully in20m23s (zero
-errors;11 warnings); native STA/clocks finished, device corners and adapter
-crossings follow sequentially. Synthesis had zero errors/615 warnings;
-mapper2664230 completed in3m36s. All661 prepared inputs
-unchanged. Source packet SHA256
-`faeba8e8e591be64073dae4647a45d0203b50fef393becfab68ef52fd544e009`.
-Observe the SAME job; do not restart after observation timeouts. No assembly.
-The fit uses41,464 /41,910 ALMs,52,155 registers,329 RAM blocks/2,498,471 bits,
-35 DSPs/3 PLLs. Preliminary slow100C setup is-1.668 ns; slow-40C hold is-0.292 ns.
-It cannot be deployed. Retain and independently review all terminal reports.
+**TERMINAL Serial71NetworkPause** at
+`/home/alans/mister/Dorado_Serial71NetworkPause_20261020`. Builder2664220,
+fitter2666775 and all project processes are absent; all661 prepared inputs
+remain unchanged. No assembly/RBF/SOF/reload. Terminal packet SHA256
+`df16a82ded4be9f2f0f472ff36c0259f54106d14c4818acb5a0b4f2ede6f1e3c`.
+The fit uses41,464 /41,910 ALMs (446 free),52,155 registers,329 RAM blocks /
+2,498,471 bits,35 DSPs/3 PLLs. Actual memory/network coordinators and production
+engine/parser/wire are retained. Timing REJECTS it: setup-1.668 ns slow100C /
+-1.326 ns slow-40C; hold-0.292 ns slow-40C (other hold corners pass). Seventeen
+of304 crossing groups fail setup. SDRAM IO minimum+1.662 ns passes, actual
+clocks match Native59, zero illegal/unconstrained clocks; exactly inherited3
+input /50 output framework IO exceptions remain, not full framework IO coverage.
+The worst path remains MSA3Odd waiting -> falling network_step; init-ready ->
+network_step and network_step -> MSA pre-capture also fail. Hold fails on virtual
+service inputs into UIO status. Continue real service integration and structural
+advance/phase work without seed/fanout/global trials or period relaxation.
 It derives from Serial69 with identical ordinary clocks, enables, board pins,
 seed and timing policy. The final global hold freezes the DDR adapter; a
 separate parser request permits framed release before any guest clock resumes.
@@ -101,8 +105,13 @@ ACCESS PENDING; fifteen controls reject. The six added top-level parser/control
 bits are outside that native count and need access. No full snapshot claim.
 Reports: `2026-10-20-snapshot-network-barrier/` (328 raw members) and
 `2026-10-20-snapshot-native-network-pause-source/` (1,277 raw members); all raw
-bytes read back and extracted proofs pass. Fit, all-condition timing and actual
-hardware qualification are pending. See the handoff for the full current receipt.
+bytes read back and extracted proofs pass. Terminal rejection report:
+`2026-10-20-snapshot-native-network-pause-rejected/` (2,244 raw members).
+Source/state/capacity/timing/crossing controls reject12/15/15/6/3 damaged cases;
+old69/70 capacity gates repeat8/11 controls. All raw bytes read back, extracted
+rejection/source/fresh XML checks repeat and restaging reproduces all661 actual
+inputs. No hardware adoption or speed improvement. The new disk hooks are NOT
+in this terminal core. See the handoff for the full receipt.
 
 The eight-board circuit uses one pause coordinator and the real member router,
 128-client interleaved/prefetch arbiter, 50MHz SDRAM backend and independent
@@ -268,10 +277,9 @@ No production Main/daemon/core changed; Native59's measured rate remains.
 
 Next, in delivery order:
 
-1. Observe the SAME Serial71 native network/memory-pause build through terminal
-   and independently review actual capacity, all-condition timing, clocks and
-   crossings. Only adopt a fully legal result. It uses Serial69 as its base.
-   Address advance distribution structurally with the
+1. Use the source-reviewed Serial71 memory/network integration as the next
+   integration base, preserving its timing rejection. Connect real remaining
+   services and address advance distribution structurally with the
    original phase contract; limit64/256, global-signal and seed2 experiments
    were rejected. Preserve actual periods and prove any enable change against
    original guest/state/traffic oracles. Integrate only timing-qualified results.
