@@ -55,12 +55,15 @@ not a prerequisite for the performance goal.
 
 ### Immediate work after resumption
 
-Live update: the MC1668 normal deployment stopped after Main exited because
-the old disk trace contains one historical dropped-record event. Main is
-currently absent; server 29510 remains without its DDR mapping. Do not rerun the
-deployment or claim a successful boot. Preserve the closed old volume and
-incomplete trace, then prepare a targeted continuation from the existing fresh
-seed. Exact observed state is at the top of `verilog-handoff.md`.
+Live update: the interrupted MC1668 load was continued from its verified stopped
+boundary, preserving the old volume and its explicitly incomplete historical
+trace. Main3486/server3485 now run the corrected same-clock candidate. Original
+firmware/Cedar login/all34 base transfers/final guest ACK pass; idle issues average
+1,947,686.01/s, effectively unchanged. Cedar is attaching fonts; finish this SAME
+boot's Viewers/input/marker regression. No speed gain or full boot claim yet.
+The complete596-bit R sign/odd component also passes both simulators and isolated
+15ns timing; functional RM/STK ports, Ready/MIR/Hold and native clock integration
+remain open. Exact evidence and process state are at the top of the handoff.
 
 1. Preserve the unintegrated host-service/Main-client prototype as deferred
    work. Its v6 component evidence passes, but native wiring and the actual
@@ -80,8 +83,10 @@ seed. Exact observed state is at the top of `verilog-handoff.md`.
    bits; below). **Done:** actual native MC1668 copy and Original Initial
    component regression. Full same-clock candidate passes all-device build/memory/timing review
    (`Dorado_Mc1668_20261020`, RBF15730f44; job terminal, do not restart).
-   Complete normal Main load and actual original firmware/Cedar/input
-   regression for this correction; then close functional RM/STK ports, sign/odd flags
+   **Done:** normal load continuation, actual original firmware/Cedar login and
+   base34/finalACK for this correction; finish the SAME boot's desktop/input.
+   **Done for an isolated slice:** complete596-bit sign/odd nets, both simulators
+   and15ns timing (setup+4.242ns/hold+0.135ns). Close functional RM/STK ports
    and Ready/MIR/hold producers, then remaining
    board/latch/RAM families against original references. The existing
    eight-slot phase oracle is not a deployable full-speed clock solution.

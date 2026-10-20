@@ -15,8 +15,10 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-The last measured rate remains **1,947,654.12 instruction issues/s**. The MC1668
-normal load started but stopped at an old trace-gap check; firmware qualification,
+The corrected MC1668 candidate now measures **1,947,686.01 instruction issues/s**
+at Cedar's idle login, effectively unchanged from Native59's 1,947,654.12.
+Original firmware/login and all 34 base transfers/final guest ACK pass; Cedar
+is currently attaching fonts. Viewers/input and persistence remain pending.
 FPGA rollback and hardware speedup are not claimed. A same-clock
 MC1668 native regression build now passes full timing/memory review; actual
 firmware/Cedar regression is next (details below). The
@@ -24,8 +26,10 @@ coupled R/T/task/parity slice now passes an explicit-arrival contract for 592
 original bits and isolated 15ns FPGA timing. MC1668's old edge-triggered cell
 model was corrected to its manufacturer's HIGH-transparent latch truth table.
 Initial's ROM component and the actual native copy now pass; the full native
-BaseBoard/Cedar regression is pending (full fit now passes). Functional RM/STK ports, remaining
-flag/Ready/MIR/Hold producers and native clock integration follow.
+BaseBoard/login regression now passes; full Cedar desktop regression is pending.
+The complete 596-bit sign/odd component also passes both simulators and isolated
+15ns timing. Functional RM/STK ports, remaining Ready/MIR/Hold producers and
+native clock integration follow.
 Full board timing, faster Cedar boot and rollback remain unqualified.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
 qualify it through original firmware and the germ/disk path. Rollback preserves
@@ -40,7 +44,71 @@ absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
 
-### Live deployment interrupted at trace-gap check (2026-10-20)
+### Live MC1668 original firmware/login/base loader PASS (2026-10-20)
+
+The interrupted load was continued from its exact stopped boundary with
+`tools/resume_mc1668_native.py`; no second load request, forced programming or
+guard removal. Main **3486**, daemon **3485**, core RBF **15730f44**;
+unchanged Main21e6/serverc599, 50MHz/SYSPER4 and inactive state administration.
+Fresh seed f3bce2a8 was rechecked before activation. Actual Main SPI74 returns
+fresh epoch **c27c53f36e1a3ad8**, flags22, fault/errors0. Main is sole SPI owner.
+
+Three real CoolBoot chords plus C held until original Initial BFN113 passed.
+C watcher20892 and boot pulses83640 are TERMINAL; C released normally.
+Original Pilot reaches Cedar's actual login; paced Guest is accepted and
+Grapevine-down fallback enters Basic.Loadees. Three adjacent ten-second idle
+windows: 1,947,589.69 / 1,947,879.69 / 1,947,588.65 issues/s; mean
+1,947,686.0104402797, +0.00164% versus Native59, **no speed gain**.
+These are StartCycle issues, not drained retirements or three fresh boot trials.
+
+All34 transfers /33 BCDs /1,345,843 bytes and exact final guest ACK pass, with
+286.376846345..286.481087635s visibility bounds. Interior instruction progress
+1.614349603M/s; whole-loader issues460,151,142..463,512,461.57 replays (1 Installer,
+56 Tioga), nonzero queue/drop counter; CRC/RX/abort0. This single observed boot
+does not establish causal performance change or received-payload hashes.
+Observer22074/remote3705 stopped normally AFTER actual ACK and is independently
+absent. Never restart it. Original profile prompt was visibly answered n+Return;
+BootEssentials completes and font DF attachments are progressing. No retry/reset.
+
+**Next: observe this SAME boot through Viewers, mouse/click, exact short/alphabet/
+digit echo and warm marker create/readback.** Do not type ahead during attachment.
+Current Main log `/tmp/dorado-mc1668-main.log`, disk trace
+`/tmp/dorado-mc1668-disk.jsonl`, server log
+`/media/fat/games/DoradoRTL/CedarMC1668_20261020/server.log`.
+Local completed evidence `build/rtl-executive/mc1668-native-field-20261020`;
+login prefix readback verifies54,761 complete disk records/no error or trace loss.
+No live pack copy or clean shutdown/cold persistence/full snapshot claim.
+
+Native59's closed volume remains at its original path/SHAe31e9069. Its historical
+trace gap is explicitly retained in the preservation proof and complete SD trace.
+Only two closed tmpfs log duplicates were removed AFTER exact SD byte hashes,
+unchanged-file and no-open-descriptor checks, freeing23,472,978bytes. Current logs
+and debugger ELF remain intact. Source-exact recovery/cleanup evidence is retained.
+
+### Complete R sign/odd component and isolated timing PASS (2026-10-20)
+
+`dorado_r_flags_step.sv` extends the existing592-bit slice with both halves of
+ProcH/ProcL l06:596 bits /170 packages /1,748 original pins /33 clocks. Original
+RmLtZero'/RmOdd' each wire-OR THREE complemented outputs (l06 A+B and l07 A),
+rather than just l07's local Q. Both simulators agree for23,672 events in each
+of five arrival profiles. All four new bits take both values;493 state-changing
+observations. Seven broken variants reject, including edge-only transparent
+updates and missing wired-OR contributors. RM/STK functional ports and inherited
+producers remain boundaries; no native integration or 60ns proof.
+
+Isolated15ns fixture passes four conditions: setup+4.242ns /hold+0.135ns /
+mpw+6.547ns; evaluator minimum+4.469ns.1,321ALMs/2,199regs/noRAM.
+Builder4041912 and all four stage PIDs are TERMINAL/absent; do not restart.
+Remote `/home/alans/mister/r-flags-fit-20261020`, local terminal
+`build/rtl-executive/r-flags-fit-terminal-20261020`. Exact prepared source readback
+passes. Eight damaged/rehashed reader controls reject; evaluator-specific negative
+slack is now explicitly rejected. Prior592-bit reader profile still passes.
+851 archived members/readback/extracted positive review pass; full simulation
+replay after extraction is not claimed. Receipt `reports/2026-10-20-r-flags-path/`
+under `fpga/mister`. Complete firmware/input regression, functional RM/STK ports,
+Ready/MIR/Hold and native clock migration remain next. Goal ACTIVE.
+
+### Historical deployment interruption, now continued (2026-10-20)
 
 Do not rerun `tools/deploy_mc1668_native.py`. Its original SSH session is gone
 and no deployment Python/Main process remains. The candidate core/MGL and fresh
@@ -63,7 +131,8 @@ firmware boot or new speed measurement has occurred.
 The user requested another fresh tracked goal. The goal service still reports
 the preceding goal ACTIVE and rejects `create_goal` with "this thread has an
 unfinished goal". A request to clear it again is pending. Do not mark unfinished
-work complete to replace that goal. Delivery scope below remains applicable.
+work complete to replace that goal. The subsequent active-goal continuation
+authorizes ongoing work under the same delivery scope; this is not a work blocker.
 
 ### MC1668 full native build PASS; hardware regression pending (2026-10-20)
 

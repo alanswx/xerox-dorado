@@ -38,7 +38,8 @@ def audit(directory,qualified,allow_missing):
               'task_capture':(242,139,'task_capture','PASS_TASK_CAPTURE_ARRIVAL_CONTRACT','dorado_task_capture_step.sv'),
               't_file':(660,463,'t_file','PASS_T_FILE_ARRIVAL_CONTRACT','dorado_t_file_step.sv'),
               't_parity':(846,607,'t_parity','PASS_T_PARITY_ARRIVAL_CONTRACT','dorado_t_parity_step.sv'),
-              'r_operand':(898,675,'r_operand','PASS_R_OPERAND_ARRIVAL_CONTRACT','dorado_r_operand_step.sv')}
+              'r_operand':(898,675,'r_operand','PASS_R_OPERAND_ARRIVAL_CONTRACT','dorado_r_operand_step.sv'),
+              'r_flags':(902,689,'r_flags','PASS_R_FLAGS_ARRIVAL_CONTRACT','dorado_r_flags_step.sv')}
     assert provenance.get('component')in profiles,'Unknown fixture profile'
     expected_launch,expected_result,component,expected_status,evaluator=profiles[provenance.get('component')]
     assert provenance['clock_period_ns']==15 and provenance['launch_bits']==expected_launch and provenance['result_bits']==expected_result
@@ -106,7 +107,8 @@ def audit(directory,qualified,allow_missing):
         resources[key]=int(match[1].replace(',',''))
     assert resources['memory_bits']==resources['ram_blocks']==resources['dsp']==resources['plls']==0
     minimum={mode:min(r[mode]for r in records)for mode in ['setup','hold','mpw']}
-    passing=targeted_complete and all(v>=0 for v in minimum.values())
+    passing=(targeted_complete and all(v>=0 for v in minimum.values()) and
+             all(r['evaluator_setup'] is not None and r['evaluator_setup']>=0 for r in records))
     return dict(status='PASS_COMPONENT_TIMING'if passing else'REJECTED_COMPONENT_TIMING',
         scope=__doc__,component=component,functional_qualification_status=qualified_record['status'],period_ns=15,resources=resources,minimum_slack_ns=minimum,conditions=records,
         input_staging_bits=provenance.get('input_staging_bits',0),
