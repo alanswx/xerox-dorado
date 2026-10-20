@@ -2,6 +2,60 @@
 
 ## Current objective (2026-10-19 UTC)
 
+**The shared transport now qualifies all eight actual MSA adapters through SPI. Native builder wiring, real service barriers and a new combined fit are next.**
+
+The new `board_state_fabric_msa.sv` / `board_state_uio_msa.sv` retain slots0..10
+and add slot11 through `msa_state_group.sv`. Index bits10..8 select the eight
+MSAs in the explicit native member order; bits7..0 select words0..149. Holes
+and high bits reject. The group latches its member through completion, requires
+every member frozen and aggregates hold/fault ownership. Unknown child ownership
+fails closed. The shared budget is 4,096 cycles, covering actual 2,690-edge scans.
+Status reports twelve slots/frozen bits; old transport sources remain unchanged.
+
+`serial_state_format_msa.py` binds the qualified receipts into board-only schema
+`b80a00977d7e7992`: 1,966,264 physical board bits / 401 runs, including all 21,520
+MSA bits. Each member has a 256-word address stride but dense payloads have NO
+per-member padding. An independent integer oracle verifies all 1,200 MSA words /
+2,690 bytes; invalid holes/padding/status and nine rehashed damaged catalogs reject.
+Cached packet lookup runs remain immutable after source-JSON changes.
+
+The four-state test passes 115,191 host ticks / 260 SPI packets / 97 result checks,
+including 34 actual Python-formatted packets through all eight real MSA adapters,
+the inherited legacy transport contract and unchanged Ethernet. It covers unique
+member readback after all writes, first/final words, coherent twelve-bit status,
+competing indices held THROUGH completion, busy release, invalid indices/schema,
+missing/unknown member/service acknowledgments, timeout, parser-vs-SYSTEM reset,
+partial-scan quarantine and stable physical state. All ten damaged RTL variants
+reject, including coherent member aliasing, live completion selection, shortened
+timeout and a truncated frozen bitmap. Guest advances are stopped here; the other
+eleven endpoints and foreign services remain explicit test stubs, not native pause.
+
+Fresh XML retains all 21,520 physical MSA bits + 664 private MSA bits + 417 private
+transport bits, with no sequential exclusions; twelve geometry/binding/exact-alias
+controls reject. Inverting only the approved owner/UIO edits returns the committed
+original serial transport bytes; seven source controls reject. Icarus required
+declarations before use, so the qualified MSA's administrative fabric is relocated
+with exact byte identity after inverse; original pins/logic/state maps are unchanged.
+The surviving live-owner negative control exposed an insufficient fixture interval,
+now extended through completion. No production RTL correction was needed for it.
+
+All 641 raw archive members pass hash readback. Consumed original receipt bytes,
+including both processor variants, regenerate the exact catalog from extraction.
+Extracted MSA/source/fixture regeneration, format and source/XML controls pass.
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-msa-transport/`. All jobs here
+are terminal. No new Quartus area/timing, RBF, hardware reload or speed gain.
+
+Next: integrate the twelve-slot transport, eleven main boards and eight indexed
+MSAs in the native builder, retaining the qualified declaration normalization.
+Finish wrapper/input/video/network/raw-memory/Main/daemon/server state and real
+pause/disk-generation barriers, then qualify enabled combined capacity/timing and
+atomic FPGA Cedar save/continue/restore. Last combined capacity remains 45,228 /
+41,910 ALMs (3,318 over); last qualified Native59 remains 1,947,654.12 issues/s.
+Original 60 ns clocks/timers, pinned benchmarks, final three fresh boots, cold
+persistence and two-hour combined stress remain required. Goal ACTIVE.
+
+Earlier complete-board qualification:
+
 **Complete MSA board serial access is qualified as a component. Shared transport/native wiring and real service barriers remain next; hardware speed is unchanged.**
 
 `generate_msa_board.py` binds the frozen native board source, 78 original
@@ -3278,7 +3332,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Classify all eight exact native MSA instances: 21,520 required SAVE bits / 3,664 fields, 866 original + 1,824 frontend bits per board; nine damaged controls reject, all 216 native source receipts revalidated. Archive 364 raw files and pass extracted source regeneration/XML audits.
 - [x] Qualify exact-native nondeferred frontend serial access for widths 8/12: all 111/123 physical bits, original frontend/DRAM chip oracles, pending read/write/write-done checkpoints, full walking-bit loads/restore/first legal guest edges, all 1,310,720 oracle RAM bits; 110,808 host / 2,237,064 checks / ten actual RTL mutants / two source controls. Fresh 234 physical per side + 2 private + 64 fixture inventory/nine controls; archive 263 raw files and pass extracted exact-native regeneration/XML audits.
 - [x] Qualify complete MSA component access: 2,690 physical bits / 458 fields / 78 original packages / 16 unchanged frontends / 150 words, all valid words and final padding, full inversion/destructive reads/restore/first resumed edge/20K more, forced hold/partial abort/quarantine/reset re-entry; 2,507,118 host / 22,720,360 checks / seven actual RTL mutants. Fresh 2,690 physical per side + 83 private inventory/twelve controls, exact inverse-source and eight committed helper identities/seven controls. Archive 344 raw files and pass extracted regeneration/source/XML audits.
-- [ ] Qualify a shared response budget covering 2,690-cycle MSA access and an indexed mapping for all eight MSA instances; the existing eleven-board catalog/2,048-cycle limit does not cover them. Integrate complete MSA state in the native builder, then implement actual drained raw-memory coordination and remaining wrapper/input/ARM/server state and barriers.
+- [x] Qualify twelve-slot shared transport/indexed eight-MSA router and 4,096-cycle budget through all eight actual 2,690-bit adapters: 115,191 four-state ticks / 260 packets / 97 result checks / ten damaged RTL variants. New board-only catalog b80a00977d7e7992 covers 1,966,264 bits / 401 runs; dense MSA integer oracle, nine bad catalogs and 34 Python-formatted real SPI packets pass. Fresh 21,520 physical + 664 private MSA + 417 private transport inventory/twelve controls; inverse source proof/seven controls. Archive 641 raw files and pass extracted receipt/catalog/source/XML audits.
+- [ ] Integrate the twelve-slot transport, eleven main boards and eight indexed MSAs in the native builder, preserving the qualified declaration-order normalization. Implement actual drained raw-memory coordination and remaining wrapper/input/video/network/ARM/server state and barriers; measure fully enabled combined capacity/timing before hardware restore.
 - [ ] Implement actual backend/input/ARM service quiesce and acknowledgments with correct SYSTEM-reset lifetime; preserve SDRAM refresh and bind quarantine release to genuine machine reseed. Generic contracts and local board holds do not freeze the native machine.
 - [ ] Continue area reductions without dropping state until all enabled interfaces fit, then qualify complete-core timing and physical memory inference; no RBF/deployment yet.
 - [ ] Complete wrapper/backend/top-level sequential-state classification/access in addition to eleven-board state; native-wrapper154,037bit inventory is review-only.

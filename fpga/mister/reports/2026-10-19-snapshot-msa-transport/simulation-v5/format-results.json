@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "msa_bits": 21520,
+  "msa_bytes": 2690,
+  "words": 1200,
+  "independent_dense_integer_oracle": true,
+  "status_caps_and_padding": true,
+  "failure_controls": [
+    {
+      "case": "alias",
+      "rejected": true
+    },
+    {
+      "case": "stride",
+      "rejected": true
+    },
+    {
+      "case": "member_order",
+      "rejected": true
+    },
+    {
+      "case": "missing_member",
+      "rejected": true
+    },
+    {
+      "case": "total",
+      "rejected": true
+    },
+    {
+      "case": "budget",
+      "rejected": true
+    },
+    {
+      "case": "missing_slot",
+      "rejected": true
+    },
+    {
+      "case": "padding",
+      "rejected": true
+    },
+    {
+      "case": "abi",
+      "rejected": true
+    }
+  ]
+}

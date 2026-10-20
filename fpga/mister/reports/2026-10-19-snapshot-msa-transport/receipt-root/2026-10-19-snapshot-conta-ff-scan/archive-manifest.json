@@ -1,0 +1,20 @@
+[
+  {
+    "raw_name": "simulation-v7/manifest.json",
+    "stored": "simulation-v7/manifest.json",
+    "raw_bytes": 96482,
+    "raw_sha256": "50ab2db98655b2c600177938afc3e6266c269b3e2a8e1d47a32800eef857190d"
+  },
+  {
+    "raw_name": "simulation-v7/results.json",
+    "stored": "simulation-v7/results.json",
+    "raw_bytes": 10504,
+    "raw_sha256": "256bc5696b040b8ff9f6e16d324895a6ff980fd00603115bdc09091d48359187"
+  },
+  {
+    "raw_name": "simulation-v7/fixture-metadata.json",
+    "stored": "simulation-v7/fixture-metadata.json",
+    "raw_bytes": 32947,
+    "raw_sha256": "9fa7b3ba0f3ddad0638824664e8b09609a1d411aa0c4b8350b43999e3695a6d2"
+  }
+]

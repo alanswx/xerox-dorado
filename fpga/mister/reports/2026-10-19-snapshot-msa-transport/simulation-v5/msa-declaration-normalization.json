@@ -1,0 +1,6 @@
+{
+  "scope": "Exact inverse of declaration-order-only fabric relocation; no normal logic/pin/state-map edits",
+  "original_sha256": "a765807b4871cde4f0f94eac7c958820b7a861483d18248d987054750fac1a30",
+  "normalized_sha256": "094f2f373c0a723136727597c0eece460dd2b668c1bcaa9860592b6f940ddf5f",
+  "byte_identity_after_inverse": true
+}

@@ -1,0 +1,15 @@
+{
+  "status": "PASS_COMPONENT_ONLY",
+  "raw_files": 641,
+  "catalog_regenerated_from_extracted_receipts": true,
+  "schema_id": "b80a00977d7e7992",
+  "normalized_msa_and_spi_fixture_byte_identical": true,
+  "old_transport_byte_identity_after_inverse": true,
+  "physical_msa_bits": 21520,
+  "private_msa_bits": 664,
+  "private_transport_bits": 417,
+  "source_controls": 7,
+  "classification_controls": 12,
+  "catalog_controls": 9,
+  "limits": "Component transport only; no native barriers, external RAM/ARM snapshot, full-core fit/timing or hardware change"
+}

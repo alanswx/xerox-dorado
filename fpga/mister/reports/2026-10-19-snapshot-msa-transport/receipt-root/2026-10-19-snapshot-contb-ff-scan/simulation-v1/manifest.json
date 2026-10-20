@@ -1,0 +1,3101 @@
+{
+  "scope": "Compact ContB FF rotation, retaining all original IM groups and pipelines.\n\nNo shadow bank or memory regrouping. Local quarantine and reset-entry gates\ndo not replace the required global machine/service hold.\n",
+  "module": "ContB_full_snapshot_experiment",
+  "groups": [
+    {
+      "index": 0,
+      "bank": 0,
+      "half": "left",
+      "address": [
+        "RA_01a",
+        "RA_02a",
+        "RA_03a",
+        "RA_04a",
+        "RA_05a",
+        "RA_06a",
+        "RA_07a",
+        "RA_08a",
+        "RA_09a",
+        "RA_10a"
+      ],
+      "ce": "CS0_p_ACa",
+      "we": "WEL_p_Aa",
+      "bits": [
+        {
+          "package": "a06",
+          "field": "dASEL.0",
+          "bank": 0,
+          "we": "WEL'Aa",
+          "ce": "CS0'ACa",
+          "data": "RBMux_13",
+          "output": "dASEL_0__a06_1",
+          "bit": 0
+        },
+        {
+          "package": "b06",
+          "field": "dASEL.1",
+          "bank": 0,
+          "we": "WEL'Ab",
+          "ce": "CS0'ACa",
+          "data": "RBMux_14",
+          "output": "dASEL_1__b06_1",
+          "bit": 1
+        },
+        {
+          "package": "c06",
+          "field": "dASEL.2",
+          "bank": 0,
+          "we": "WEL'Ab",
+          "ce": "CS0'ACb",
+          "data": "RBMux_15",
+          "output": "dASEL_2__c06_1",
+          "bit": 2
+        },
+        {
+          "package": "d06",
+          "field": "dIMLH",
+          "bank": 0,
+          "we": "WEL'Ad",
+          "ce": "CS0'ACb",
+          "data": "RBMuxP",
+          "output": "dIMLH__d06_1",
+          "bit": 3
+        },
+        {
+          "package": "f06",
+          "field": "dBSEL.0",
+          "bank": 0,
+          "we": "WEL'Ad",
+          "ce": "CS0'ACc",
+          "data": "RBMux_07",
+          "output": "dBSEL_0__f06_1",
+          "bit": 4
+        },
+        {
+          "package": "g06",
+          "field": "dBSEL.1",
+          "bank": 0,
+          "we": "WEL'Ad",
+          "ce": "CS0'BDa",
+          "data": "RBMux_08",
+          "output": "dBSEL_1__g06_1",
+          "bit": 5
+        },
+        {
+          "package": "h06",
+          "field": "dBSEL.2",
+          "bank": 0,
+          "we": "WEL'Bg",
+          "ce": "CS0'BDa",
+          "data": "RBMux_09",
+          "output": "dBSEL_2__h06_1",
+          "bit": 6
+        },
+        {
+          "package": "i06",
+          "field": "dRSTK.0",
+          "bank": 0,
+          "we": "WEL'Bh",
+          "ce": "CS0'BDb",
+          "data": "MidasOrRSTK_2",
+          "output": "dRSTK_0__i06_1",
+          "bit": 7
+        },
+        {
+          "package": "i10",
+          "field": "dALUF.0",
+          "bank": 0,
+          "we": "WEL'Bi",
+          "ce": "CS0'BDb",
+          "data": "RBMux_03",
+          "output": "dALUF_0__i10_1",
+          "bit": 8
+        },
+        {
+          "package": "j06",
+          "field": "dRSTK.1",
+          "bank": 0,
+          "we": "WEL'Bj",
+          "ce": "CS0'BDb",
+          "data": "RBMux_00",
+          "output": "dRSTK_1__j06_1",
+          "bit": 9
+        },
+        {
+          "package": "j10",
+          "field": "dALUF.1",
+          "bank": 0,
+          "we": "WEL'Bj",
+          "ce": "CS0'BDc",
+          "data": "RBMux_04",
+          "output": "dALUF_1__j10_1",
+          "bit": 10
+        },
+        {
+          "package": "j16",
+          "field": "dLC.0",
+          "bank": 0,
+          "we": "WEL'Dj",
+          "ce": "CS0'BDc",
+          "data": "RBMux_10",
+          "output": "dLC_0__j16_1",
+          "bit": 11
+        },
+        {
+          "package": "k06",
+          "field": "dRSTK.2",
+          "bank": 0,
+          "we": "WEL'Bk",
+          "ce": "CS0'BDc",
+          "data": "RBMux_01",
+          "output": "dRSTK_2__k06_1",
+          "bit": 12
+        },
+        {
+          "package": "k10",
+          "field": "dALUF.2",
+          "bank": 0,
+          "we": "WEL'Bk",
+          "ce": "CS0'BDd",
+          "data": "RBMux_05",
+          "output": "dALUF_2__k10_1",
+          "bit": 13
+        },
+        {
+          "package": "k16",
+          "field": "dLC.1",
+          "bank": 0,
+          "we": "WEL'Dk",
+          "ce": "CS0'BDd",
+          "data": "RBMux_11",
+          "output": "dLC_1__k16_1",
+          "bit": 14
+        },
+        {
+          "package": "l06",
+          "field": "dRSTK.3",
+          "bank": 0,
+          "we": "WEL'Bl",
+          "ce": "CS0'BDc",
+          "data": "RBMux_02",
+          "output": "dRSTK_3__l06_1",
+          "bit": 15
+        },
+        {
+          "package": "l10",
+          "field": "dALUF.3",
+          "bank": 0,
+          "we": "WEL'Bl",
+          "ce": "CS0'BDd",
+          "data": "RBMux_06",
+          "output": "dALUF_3__l10_1",
+          "bit": 16
+        },
+        {
+          "package": "l16",
+          "field": "dLC.2",
+          "bank": 0,
+          "we": "WEL'Dl",
+          "ce": "CS0'BDd",
+          "data": "RBMux_12",
+          "output": "dLC_2__l16_1",
+          "bit": 17
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "bank": 0,
+      "half": "right",
+      "address": [
+        "RA_01a",
+        "RA_02a",
+        "RA_03a",
+        "RA_04a",
+        "RA_05a",
+        "RA_06a",
+        "RA_07a",
+        "RA_08a",
+        "RA_09a",
+        "RA_10a"
+      ],
+      "ce": "CS0_p_ACa",
+      "we": "WER_p_Aa",
+      "bits": [
+        {
+          "package": "a10",
+          "field": "dFF.0",
+          "bank": 0,
+          "we": "WER'Aa",
+          "ce": "CS0'ACa",
+          "data": "RBMux_00",
+          "output": "dFF_0__a10_1",
+          "bit": 0
+        },
+        {
+          "package": "a16",
+          "field": "dFF.4",
+          "bank": 0,
+          "we": "WER'Ca",
+          "ce": "CS0'ACa",
+          "data": "RBMux_04",
+          "output": "dFF_4__a16_1",
+          "bit": 1
+        },
+        {
+          "package": "b10",
+          "field": "dFF.1",
+          "bank": 0,
+          "we": "WER'Aa",
+          "ce": "CS0'ACa",
+          "data": "RBMux_01",
+          "output": "dFF_1__b10_1",
+          "bit": 2
+        },
+        {
+          "package": "b16",
+          "field": "dFF.5",
+          "bank": 0,
+          "we": "WER'Cb",
+          "ce": "CS0'ACa",
+          "data": "RBMux_05",
+          "output": "dFF_5__b16_1",
+          "bit": 3
+        },
+        {
+          "package": "c10",
+          "field": "dFF.2",
+          "bank": 0,
+          "we": "WER'Aa",
+          "ce": "CS0'ACb",
+          "data": "RBMux_02",
+          "output": "dFF_2__c10_1",
+          "bit": 4
+        },
+        {
+          "package": "c16",
+          "field": "dFF.6",
+          "bank": 0,
+          "we": "WER'Cc",
+          "ce": "CS0'ACb",
+          "data": "RBMux_06",
+          "output": "dFF_6__c16_1",
+          "bit": 5
+        },
+        {
+          "package": "d10",
+          "field": "dFF.3",
+          "bank": 0,
+          "we": "WER'Ab",
+          "ce": "CS0'ACb",
+          "data": "RBMux_03",
+          "output": "dFF_3__d10_1",
+          "bit": 6
+        },
+        {
+          "package": "d16",
+          "field": "dFF.7",
+          "bank": 0,
+          "we": "WER'Cd",
+          "ce": "CS0'ACb",
+          "data": "RBMux_07",
+          "output": "dFF_7__d16_1",
+          "bit": 7
+        },
+        {
+          "package": "e06",
+          "field": "dJCN.0",
+          "bank": 0,
+          "we": "WER'Ab",
+          "ce": "CS0'ACc",
+          "data": "RBMux_08",
+          "output": "dJCN_0__e06_1",
+          "bit": 8
+        },
+        {
+          "package": "e10",
+          "field": "dJCN.1",
+          "bank": 0,
+          "we": "WER'Ac",
+          "ce": "CS0'ACc",
+          "data": "RBMux_09",
+          "output": "dJCN_1__e10_1",
+          "bit": 9
+        },
+        {
+          "package": "e16",
+          "field": "dIMRH",
+          "bank": 0,
+          "we": "WER'Ce",
+          "ce": "CS0'ACc",
+          "data": "RBMuxP",
+          "output": "dIMRH__e16_1",
+          "bit": 10
+        },
+        {
+          "package": "f10",
+          "field": "dJCN.2",
+          "bank": 0,
+          "we": "WER'Ac",
+          "ce": "CS0'ACc",
+          "data": "RBMux_10",
+          "output": "dJCN_2__f10_1",
+          "bit": 11
+        },
+        {
+          "package": "f16",
+          "field": "dBlock'",
+          "bank": 0,
+          "we": "WER'Cf",
+          "ce": "CS0'ACd",
+          "data": "ContB04_sil_pl_1",
+          "output": "dBlock_p___f16_1",
+          "bit": 12
+        },
+        {
+          "package": "g10",
+          "field": "dJCN.3",
+          "bank": 0,
+          "we": "WER'Ac",
+          "ce": "CS0'BDa",
+          "data": "RBMux_11",
+          "output": "dJCN_3__g10_1",
+          "bit": 13
+        },
+        {
+          "package": "g16",
+          "field": "dJCN.5",
+          "bank": 0,
+          "we": "WER'Da",
+          "ce": "CS0'BDa",
+          "data": "RBMux_13",
+          "output": "dJCN_5__g16_1",
+          "bit": 14
+        },
+        {
+          "package": "h10",
+          "field": "dJCN.4",
+          "bank": 0,
+          "we": "WER'Dc",
+          "ce": "CS0'BDa",
+          "data": "RBMux_12",
+          "output": "dJCN_4__h10_1",
+          "bit": 15
+        },
+        {
+          "package": "h16",
+          "field": "dJCN.6",
+          "bank": 0,
+          "we": "WER'Db",
+          "ce": "CS0'BDb",
+          "data": "RBMux_14",
+          "output": "dJCN_6__h16_1",
+          "bit": 16
+        },
+        {
+          "package": "i16",
+          "field": "dJCN.7",
+          "bank": 0,
+          "we": "WER'Dc",
+          "ce": "CS0'BDb",
+          "data": "RBMux_15",
+          "output": "dJCN_7__i16_1",
+          "bit": 17
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "bank": 1,
+      "half": "left",
+      "address": [
+        "RA_01a",
+        "RA_02a",
+        "RA_03a",
+        "RA_04a",
+        "RA_05a",
+        "RA_06a",
+        "RA_07a",
+        "RA_08a",
+        "RA_09a",
+        "RA_10a"
+      ],
+      "ce": "CS1_p_ACa",
+      "we": "WEL_p_Aa",
+      "bits": [
+        {
+          "package": "a07",
+          "field": "dASEL.0",
+          "bank": 1,
+          "we": "WEL'Aa",
+          "ce": "CS1'ACa",
+          "data": "RBMux_13",
+          "output": "dASEL_0__a07_1",
+          "bit": 0
+        },
+        {
+          "package": "b07",
+          "field": "dASEL.1",
+          "bank": 1,
+          "we": "WEL'Ab",
+          "ce": "CS1'ACa",
+          "data": "RBMux_14",
+          "output": "dASEL_1__b07_1",
+          "bit": 1
+        },
+        {
+          "package": "c07",
+          "field": "dASEL.2",
+          "bank": 1,
+          "we": "WEL'Ab",
+          "ce": "CS1'ACb",
+          "data": "RBMux_15",
+          "output": "dASEL_2__c07_1",
+          "bit": 2
+        },
+        {
+          "package": "d07",
+          "field": "dIMLH",
+          "bank": 1,
+          "we": "WEL'Ad",
+          "ce": "CS1'ACb",
+          "data": "RBMuxP",
+          "output": "dIMLH__d07_1",
+          "bit": 3
+        },
+        {
+          "package": "f07",
+          "field": "dBSEL.0",
+          "bank": 1,
+          "we": "WEL'Bg",
+          "ce": "CS1'ACc",
+          "data": "RBMux_07",
+          "output": "dBSEL_0__f07_1",
+          "bit": 4
+        },
+        {
+          "package": "g07",
+          "field": "dBSEL.1",
+          "bank": 1,
+          "we": "WEL'Bg",
+          "ce": "CS1'BDa",
+          "data": "RBMux_08",
+          "output": "dBSEL_1__g07_1",
+          "bit": 5
+        },
+        {
+          "package": "h07",
+          "field": "dBSEL.2",
+          "bank": 1,
+          "we": "WEL'Bg",
+          "ce": "CS1'BDa",
+          "data": "RBMux_09",
+          "output": "dBSEL_2__h07_1",
+          "bit": 6
+        },
+        {
+          "package": "i07",
+          "field": "dRSTK.0",
+          "bank": 1,
+          "we": "WEL'Bh",
+          "ce": "CS1'BDb",
+          "data": "MidasOrRSTK_2",
+          "output": "dRSTK_0__i07_1",
+          "bit": 7
+        },
+        {
+          "package": "i11",
+          "field": "dALUF.0",
+          "bank": 1,
+          "we": "WEL'Bi",
+          "ce": "CS1'BDb",
+          "data": "RBMux_03",
+          "output": "dALUF_0__i11_1",
+          "bit": 8
+        },
+        {
+          "package": "j07",
+          "field": "dRSTK.1",
+          "bank": 1,
+          "we": "WEL'Bj",
+          "ce": "CS1'BDb",
+          "data": "RBMux_00",
+          "output": "dRSTK_1__j07_1",
+          "bit": 9
+        },
+        {
+          "package": "j11",
+          "field": "dALUF.1",
+          "bank": 1,
+          "we": "WEL'Bj",
+          "ce": "CS1'BDc",
+          "data": "RBMux_04",
+          "output": "dALUF_1__j11_1",
+          "bit": 10
+        },
+        {
+          "package": "j17",
+          "field": "dLC.0",
+          "bank": 1,
+          "we": "WEL'Dj",
+          "ce": "CS1'BDc",
+          "data": "RBMux_10",
+          "output": "dLC_0__j17_1",
+          "bit": 11
+        },
+        {
+          "package": "k07",
+          "field": "dRSTK.2",
+          "bank": 1,
+          "we": "WEL'Bk",
+          "ce": "CS1'BDc",
+          "data": "RBMux_01",
+          "output": "dRSTK_2__k07_1",
+          "bit": 12
+        },
+        {
+          "package": "k11",
+          "field": "dALUF.2",
+          "bank": 1,
+          "we": "WEL'Bk",
+          "ce": "CS1'BDd",
+          "data": "RBMux_05",
+          "output": "dALUF_2__k11_1",
+          "bit": 13
+        },
+        {
+          "package": "k17",
+          "field": "dLC.1",
+          "bank": 1,
+          "we": "WEL'Dk",
+          "ce": "CS1'BDd",
+          "data": "RBMux_11",
+          "output": "dLC_1__k17_1",
+          "bit": 14
+        },
+        {
+          "package": "l07",
+          "field": "dRSTK.3",
+          "bank": 1,
+          "we": "WEL'Bl",
+          "ce": "CS1'BDc",
+          "data": "RBMux_02",
+          "output": "dRSTK_3__l07_1",
+          "bit": 15
+        },
+        {
+          "package": "l11",
+          "field": "dALUF.3",
+          "bank": 1,
+          "we": "WEL'Bl",
+          "ce": "CS1'BDd",
+          "data": "RBMux_06",
+          "output": "dALUF_3__l11_1",
+          "bit": 16
+        },
+        {
+          "package": "l17",
+          "field": "dLC.2",
+          "bank": 1,
+          "we": "WEL'Dl",
+          "ce": "CS1'BDd",
+          "data": "RBMux_12",
+          "output": "dLC_2__l17_1",
+          "bit": 17
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "bank": 1,
+      "half": "right",
+      "address": [
+        "RA_01a",
+        "RA_02a",
+        "RA_03a",
+        "RA_04a",
+        "RA_05a",
+        "RA_06a",
+        "RA_07a",
+        "RA_08a",
+        "RA_09a",
+        "RA_10a"
+      ],
+      "ce": "CS1_p_ACa",
+      "we": "WER_p_Aa",
+      "bits": [
+        {
+          "package": "a11",
+          "field": "dFF.0",
+          "bank": 1,
+          "we": "WER'Aa",
+          "ce": "CS1'ACa",
+          "data": "RBMux_00",
+          "output": "dFF_0__a11_1",
+          "bit": 0
+        },
+        {
+          "package": "a17",
+          "field": "dFF.4",
+          "bank": 1,
+          "we": "WER'Ca",
+          "ce": "CS1'ACa",
+          "data": "RBMux_04",
+          "output": "dFF_4__a17_1",
+          "bit": 1
+        },
+        {
+          "package": "b11",
+          "field": "dFF.1",
+          "bank": 1,
+          "we": "WER'Aa",
+          "ce": "CS1'ACa",
+          "data": "RBMux_01",
+          "output": "dFF_1__b11_1",
+          "bit": 2
+        },
+        {
+          "package": "b17",
+          "field": "dFF.5",
+          "bank": 1,
+          "we": "WER'Cb",
+          "ce": "CS1'ACa",
+          "data": "RBMux_05",
+          "output": "dFF_5__b17_1",
+          "bit": 3
+        },
+        {
+          "package": "c11",
+          "field": "dFF.2",
+          "bank": 1,
+          "we": "WER'Aa",
+          "ce": "CS1'ACb",
+          "data": "RBMux_02",
+          "output": "dFF_2__c11_1",
+          "bit": 4
+        },
+        {
+          "package": "c17",
+          "field": "dFF.6",
+          "bank": 1,
+          "we": "WER'Cc",
+          "ce": "CS1'ACb",
+          "data": "RBMux_06",
+          "output": "dFF_6__c17_1",
+          "bit": 5
+        },
+        {
+          "package": "d11",
+          "field": "dFF.3",
+          "bank": 1,
+          "we": "WER'Ab",
+          "ce": "CS1'ACb",
+          "data": "RBMux_03",
+          "output": "dFF_3__d11_1",
+          "bit": 6
+        },
+        {
+          "package": "d17",
+          "field": "dFF.7",
+          "bank": 1,
+          "we": "WER'Cd",
+          "ce": "CS1'ACb",
+          "data": "RBMux_07",
+          "output": "dFF_7__d17_1",
+          "bit": 7
+        },
+        {
+          "package": "e07",
+          "field": "dJCN.0",
+          "bank": 1,
+          "we": "WER'Ab",
+          "ce": "CS1'ACc",
+          "data": "RBMux_08",
+          "output": "dJCN_0__e07_1",
+          "bit": 8
+        },
+        {
+          "package": "e11",
+          "field": "dJCN.1",
+          "bank": 1,
+          "we": "WER'Ac",
+          "ce": "CS1'ACc",
+          "data": "RBMux_09",
+          "output": "dJCN_1__e11_1",
+          "bit": 9
+        },
+        {
+          "package": "e17",
+          "field": "dIMRH",
+          "bank": 1,
+          "we": "WER'Ce",
+          "ce": "CS1'ACc",
+          "data": "RBMuxP",
+          "output": "dIMRH__e17_1",
+          "bit": 10
+        },
+        {
+          "package": "f11",
+          "field": "dJCN.2",
+          "bank": 1,
+          "we": "WER'Ac",
+          "ce": "CS1'ACc",
+          "data": "RBMux_10",
+          "output": "dJCN_2__f11_1",
+          "bit": 11
+        },
+        {
+          "package": "f17",
+          "field": "dBlock'",
+          "bank": 1,
+          "we": "WER'Cf",
+          "ce": "CS1'ACd",
+          "data": "ContB04_sil_pl_1",
+          "output": "dBlock_p___f17_1",
+          "bit": 12
+        },
+        {
+          "package": "g11",
+          "field": "dJCN.3",
+          "bank": 1,
+          "we": "WER'Ac",
+          "ce": "CS1'BDa",
+          "data": "RBMux_11",
+          "output": "dJCN_3__g11_1",
+          "bit": 13
+        },
+        {
+          "package": "g17",
+          "field": "dJCN.5",
+          "bank": 1,
+          "we": "WER'Da",
+          "ce": "CS1'BDa",
+          "data": "RBMux_13",
+          "output": "dJCN_5__g17_1",
+          "bit": 14
+        },
+        {
+          "package": "h11",
+          "field": "dJCN.4",
+          "bank": 1,
+          "we": "WER'Dc",
+          "ce": "CS1'BDa",
+          "data": "RBMux_12",
+          "output": "dJCN_4__h11_1",
+          "bit": 15
+        },
+        {
+          "package": "h17",
+          "field": "dJCN.6",
+          "bank": 1,
+          "we": "WER'Db",
+          "ce": "CS1'BDb",
+          "data": "RBMux_14",
+          "output": "dJCN_6__h17_1",
+          "bit": 16
+        },
+        {
+          "package": "i17",
+          "field": "dJCN.7",
+          "bank": 1,
+          "we": "WER'Dc",
+          "ce": "CS1'BDb",
+          "data": "RBMux_15",
+          "output": "dJCN_7__i17_1",
+          "bit": 17
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "bank": 2,
+      "half": "left",
+      "address": [
+        "RA_01a",
+        "RA_02a",
+        "RA_03a",
+        "RA_04a",
+        "RA_05a",
+        "RA_06a",
+        "RA_07a",
+        "RA_08a",
+        "RA_09a",
+        "RA_10a"
+      ],
+      "ce": "CS2_p_ACa",
+      "we": "WEL_p_Aa",
+      "bits": [
+        {
+          "package": "a08",
+          "field": "dASEL.0",
+          "bank": 2,
+          "we": "WEL'Aa",
+          "ce": "CS2'ACa",
+          "data": "RBMux_13",
+          "output": "dASEL_0__a08_1",
+          "bit": 0
+        },
+        {
+          "package": "b08",
+          "field": "dASEL.1",
+          "bank": 2,
+          "we": "WEL'Ab",
+          "ce": "CS2'ACa",
+          "data": "RBMux_14",
+          "output": "dASEL_1__b08_1",
+          "bit": 1
+        },
+        {
+          "package": "c08",
+          "field": "dASEL.2",
+          "bank": 2,
+          "we": "WEL'Ab",
+          "ce": "CS2'ACb",
+          "data": "RBMux_15",
+          "output": "dASEL_2__c08_1",
+          "bit": 2
+        },
+        {
+          "package": "d08",
+          "field": "dIMLH",
+          "bank": 2,
+          "we": "WEL'Ad",
+          "ce": "CS2'ACb",
+          "data": "RBMuxP",
+          "output": "dIMLH__d08_1",
+          "bit": 3
+        },
+        {
+          "package": "f08",
+          "field": "dBSEL.0",
+          "bank": 2,
+          "we": "WEL'Bg",
+          "ce": "CS2'ACc",
+          "data": "RBMux_07",
+          "output": "dBSEL_0__f08_1",
+          "bit": 4
+        },
+        {
+          "package": "g08",
+          "field": "dBSEL.1",
+          "bank": 2,
+          "we": "WEL'Bg",
+          "ce": "CS2'BDa",
+          "data": "RBMux_08",
+          "output": "dBSEL_1__g08_1",
+          "bit": 5
+        },
+        {
+          "package": "h08",
+          "field": "dBSEL.2",
+          "bank": 2,
+          "we": "WEL'Bh",
+          "ce": "CS2'BDa",
+          "data": "RBMux_09",
+          "output": "dBSEL_2__h08_1",
+          "bit": 6
+        },
+        {
+          "package": "i08",
+          "field": "dRSTK.0",
+          "bank": 2,
+          "we": "WEL'Bi",
+          "ce": "CS2'BDb",
+          "data": "MidasOrRSTK_2",
+          "output": "dRSTK_0__i08_1",
+          "bit": 7
+        },
+        {
+          "package": "i14",
+          "field": "dALUF.0",
+          "bank": 2,
+          "we": "WEL'Bi",
+          "ce": "CS2'BDb",
+          "data": "RBMux_03",
+          "output": "dALUF_0__i14_1",
+          "bit": 8
+        },
+        {
+          "package": "j08",
+          "field": "dRSTK.1",
+          "bank": 2,
+          "we": "WEL'Bj",
+          "ce": "CS2'BDb",
+          "data": "RBMux_00",
+          "output": "dRSTK_1__j08_1",
+          "bit": 9
+        },
+        {
+          "package": "j14",
+          "field": "dALUF.1",
+          "bank": 2,
+          "we": "WEL'Dj",
+          "ce": "CS2'BDc",
+          "data": "RBMux_04",
+          "output": "dALUF_1__j14_1",
+          "bit": 10
+        },
+        {
+          "package": "j18",
+          "field": "dLC.0",
+          "bank": 2,
+          "we": "WEL'Dj",
+          "ce": "CS2'BDc",
+          "data": "RBMux_10",
+          "output": "dLC_0__j18_1",
+          "bit": 11
+        },
+        {
+          "package": "k08",
+          "field": "dRSTK.2",
+          "bank": 2,
+          "we": "WEL'Bk",
+          "ce": "CS2'BDc",
+          "data": "RBMux_01",
+          "output": "dRSTK_2__k08_1",
+          "bit": 12
+        },
+        {
+          "package": "k14",
+          "field": "dALUF.2",
+          "bank": 2,
+          "we": "WEL'Dk",
+          "ce": "CS2'BDd",
+          "data": "RBMux_05",
+          "output": "dALUF_2__k14_1",
+          "bit": 13
+        },
+        {
+          "package": "k18",
+          "field": "dLC.1",
+          "bank": 2,
+          "we": "WEL'Dk",
+          "ce": "CS2'BDd",
+          "data": "RBMux_11",
+          "output": "dLC_1__k18_1",
+          "bit": 14
+        },
+        {
+          "package": "l08",
+          "field": "dRSTK.3",
+          "bank": 2,
+          "we": "WEL'Bl",
+          "ce": "CS2'BDc",
+          "data": "RBMux_02",
+          "output": "dRSTK_3__l08_1",
+          "bit": 15
+        },
+        {
+          "package": "l14",
+          "field": "dALUF.3",
+          "bank": 2,
+          "we": "WEL'Dl",
+          "ce": "CS2'BDd",
+          "data": "RBMux_06",
+          "output": "dALUF_3__l14_1",
+          "bit": 16
+        },
+        {
+          "package": "l18",
+          "field": "dLC.2",
+          "bank": 2,
+          "we": "WEL'Dl",
+          "ce": "CS2'BDd",
+          "data": "RBMux_12",
+          "output": "dLC_2__l18_1",
+          "bit": 17
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "bank": 2,
+      "half": "right",
+      "address": [
+        "RA_01a",
+        "RA_02a",
+        "RA_03a",
+        "RA_04a",
+        "RA_05a",
+        "RA_06a",
+        "RA_07a",
+        "RA_08a",
+        "RA_09a",
+        "RA_10a"
+      ],
+      "ce": "CS2_p_ACa",
+      "we": "WER_p_Ca",
+      "bits": [
+        {
+          "package": "a14",
+          "field": "dFF.0",
+          "bank": 2,
+          "we": "WER'Ca",
+          "ce": "CS2'ACa",
+          "data": "RBMux_00",
+          "output": "dFF_0__a14_1",
+          "bit": 0
+        },
+        {
+          "package": "a18",
+          "field": "dFF.4",
+          "bank": 2,
+          "we": "WER'Ca",
+          "ce": "CS2'ACa",
+          "data": "RBMux_04",
+          "output": "dFF_4__a18_1",
+          "bit": 1
+        },
+        {
+          "package": "b14",
+          "field": "dFF.1",
+          "bank": 2,
+          "we": "WER'Cb",
+          "ce": "CS2'ACa",
+          "data": "RBMux_01",
+          "output": "dFF_1__b14_1",
+          "bit": 2
+        },
+        {
+          "package": "b18",
+          "field": "dFF.5",
+          "bank": 2,
+          "we": "WER'Cb",
+          "ce": "CS2'ACa",
+          "data": "RBMux_05",
+          "output": "dFF_5__b18_1",
+          "bit": 3
+        },
+        {
+          "package": "c14",
+          "field": "dFF.2",
+          "bank": 2,
+          "we": "WER'Cc",
+          "ce": "CS2'ACb",
+          "data": "RBMux_02",
+          "output": "dFF_2__c14_1",
+          "bit": 4
+        },
+        {
+          "package": "c18",
+          "field": "dFF.6",
+          "bank": 2,
+          "we": "WER'Cc",
+          "ce": "CS2'ACb",
+          "data": "RBMux_06",
+          "output": "dFF_6__c18_1",
+          "bit": 5
+        },
+        {
+          "package": "d14",
+          "field": "dFF.3",
+          "bank": 2,
+          "we": "WER'Cd",
+          "ce": "CS2'ACb",
+          "data": "RBMux_03",
+          "output": "dFF_3__d14_1",
+          "bit": 6
+        },
+        {
+          "package": "d18",
+          "field": "dFF.7",
+          "bank": 2,
+          "we": "WER'Cd",
+          "ce": "CS2'ACb",
+          "data": "RBMux_07",
+          "output": "dFF_7__d18_1",
+          "bit": 7
+        },
+        {
+          "package": "e08",
+          "field": "dJCN.0",
+          "bank": 2,
+          "we": "WER'Ab",
+          "ce": "CS2'ACc",
+          "data": "RBMux_08",
+          "output": "dJCN_0__e08_1",
+          "bit": 8
+        },
+        {
+          "package": "e14",
+          "field": "dJCN.1",
+          "bank": 2,
+          "we": "WER'Ce",
+          "ce": "CS2'ACc",
+          "data": "RBMux_09",
+          "output": "dJCN_1__e14_1",
+          "bit": 9
+        },
+        {
+          "package": "e18",
+          "field": "dIMRH",
+          "bank": 2,
+          "we": "WER'Ce",
+          "ce": "CS2'ACc",
+          "data": "RBMuxP",
+          "output": "dIMRH__e18_1",
+          "bit": 10
+        },
+        {
+          "package": "f14",
+          "field": "dJCN.2",
+          "bank": 2,
+          "we": "WER'Cf",
+          "ce": "CS2'ACc",
+          "data": "RBMux_10",
+          "output": "dJCN_2__f14_1",
+          "bit": 11
+        },
+        {
+          "package": "f18",
+          "field": "dBlock'",
+          "bank": 2,
+          "we": "WER'Cf",
+          "ce": "CS2'ACd",
+          "data": "ContB04_sil_pl_1",
+          "output": "dBlock_p___f18_1",
+          "bit": 12
+        },
+        {
+          "package": "g14",
+          "field": "dJCN.3",
+          "bank": 2,
+          "we": "WER'Da",
+          "ce": "CS2'BDa",
+          "data": "RBMux_11",
+          "output": "dJCN_3__g14_1",
+          "bit": 13
+        },
+        {
+          "package": "g18",
+          "field": "dJCN.5",
+          "bank": 2,
+          "we": "WER'Da",
+          "ce": "CS2'BDa",
+          "data": "RBMux_13",
+          "output": "dJCN_5__g18_1",
+          "bit": 14
+        },
+        {
+          "package": "h14",
+          "field": "dJCN.4",
+          "bank": 2,
+          "we": "WER'Db",
+          "ce": "CS2'BDa",
+          "data": "RBMux_12",
+          "output": "dJCN_4__h14_1",
+          "bit": 15
+        },
+        {
+          "package": "h18",
+          "field": "dJCN.6",
+          "bank": 2,
+          "we": "WER'Db",
+          "ce": "CS2'BDd",
+          "data": "RBMux_14",
+          "output": "dJCN_6__h18_1",
+          "bit": 16
+        },
+        {
+          "package": "i18",
+          "field": "dJCN.7",
+          "bank": 2,
+          "we": "WER'Dc",
+          "ce": "CS2'BDb",
+          "data": "RBMux_15",
+          "output": "dJCN_7__i18_1",
+          "bit": 17
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "bank": 3,
+      "half": "left",
+      "address": [
+        "RA_01a",
+        "RA_02a",
+        "RA_03a",
+        "RA_04a",
+        "RA_05a",
+        "RA_06a",
+        "RA_07a",
+        "RA_08a",
+        "RA_09a",
+        "RA_10a"
+      ],
+      "ce": "CS3_p_ACa",
+      "we": "WEL_p_Aa",
+      "bits": [
+        {
+          "package": "a09",
+          "field": "dASEL.0",
+          "bank": 3,
+          "we": "WEL'Aa",
+          "ce": "CS3'ACa",
+          "data": "RBMux_13",
+          "output": "dASEL_0__a09_1",
+          "bit": 0
+        },
+        {
+          "package": "b09",
+          "field": "dASEL.1",
+          "bank": 3,
+          "we": "WEL'Aa",
+          "ce": "CS3'ACa",
+          "data": "RBMux_14",
+          "output": "dASEL_1__b09_1",
+          "bit": 1
+        },
+        {
+          "package": "c09",
+          "field": "dASEL.2",
+          "bank": 3,
+          "we": "WEL'Aa",
+          "ce": "CS3'ACb",
+          "data": "RBMux_15",
+          "output": "dASEL_2__c09_1",
+          "bit": 2
+        },
+        {
+          "package": "d09",
+          "field": "dIMLH",
+          "bank": 3,
+          "we": "WEL'Ad",
+          "ce": "CS3'ACb",
+          "data": "RBMuxP",
+          "output": "dIMLH__d09_1",
+          "bit": 3
+        },
+        {
+          "package": "f09",
+          "field": "dBSEL.0",
+          "bank": 3,
+          "we": "WEL'Bh",
+          "ce": "CS3'ACc",
+          "data": "RBMux_07",
+          "output": "dBSEL_0__f09_1",
+          "bit": 4
+        },
+        {
+          "package": "g09",
+          "field": "dBSEL.1",
+          "bank": 3,
+          "we": "WEL'Bh",
+          "ce": "CS3'BDa",
+          "data": "RBMux_08",
+          "output": "dBSEL_1__g09_1",
+          "bit": 5
+        },
+        {
+          "package": "h09",
+          "field": "dBSEL.2",
+          "bank": 3,
+          "we": "WEL'Bh",
+          "ce": "CS3'BDa",
+          "data": "RBMux_09",
+          "output": "dBSEL_2__h09_1",
+          "bit": 6
+        },
+        {
+          "package": "i09",
+          "field": "dRSTK.0",
+          "bank": 3,
+          "we": "WEL'Bi",
+          "ce": "CS3'BDb",
+          "data": "MidasOrRSTK_2",
+          "output": "dRSTK_0__i09_1",
+          "bit": 7
+        },
+        {
+          "package": "i15",
+          "field": "dALUF.0",
+          "bank": 3,
+          "we": "WEL'Bi",
+          "ce": "CS3'BDb",
+          "data": "RBMux_03",
+          "output": "dALUF_0__i15_1",
+          "bit": 8
+        },
+        {
+          "package": "j09",
+          "field": "dRSTK.1",
+          "bank": 3,
+          "we": "WEL'Bj",
+          "ce": "CS3'BDb",
+          "data": "RBMux_00",
+          "output": "dRSTK_1__j09_1",
+          "bit": 9
+        },
+        {
+          "package": "j15",
+          "field": "dALUF.1",
+          "bank": 3,
+          "we": "WEL'Dj",
+          "ce": "CS3'BDc",
+          "data": "RBMux_04",
+          "output": "dALUF_1__j15_1",
+          "bit": 10
+        },
+        {
+          "package": "j19",
+          "field": "dLC.0",
+          "bank": 3,
+          "we": "WEL'Dj",
+          "ce": "CS3'BDc",
+          "data": "RBMux_10",
+          "output": "dLC_0__j19_1",
+          "bit": 11
+        },
+        {
+          "package": "k09",
+          "field": "dRSTK.2",
+          "bank": 3,
+          "we": "WEL'Bk",
+          "ce": "CS3'BDc",
+          "data": "RBMux_01",
+          "output": "dRSTK_2__k09_1",
+          "bit": 12
+        },
+        {
+          "package": "k15",
+          "field": "dALUF.2",
+          "bank": 3,
+          "we": "WEL'Dk",
+          "ce": "CS3'BDd",
+          "data": "RBMux_05",
+          "output": "dALUF_2__k15_1",
+          "bit": 13
+        },
+        {
+          "package": "k19",
+          "field": "dLC.1",
+          "bank": 3,
+          "we": "WEL'Dk",
+          "ce": "CS3'BDd",
+          "data": "RBMux_11",
+          "output": "dLC_1__k19_1",
+          "bit": 14
+        },
+        {
+          "package": "l09",
+          "field": "dRSTK.3",
+          "bank": 3,
+          "we": "WEL'Bl",
+          "ce": "CS3'BDc",
+          "data": "RBMux_02",
+          "output": "dRSTK_3__l09_1",
+          "bit": 15
+        },
+        {
+          "package": "l15",
+          "field": "dALUF.3",
+          "bank": 3,
+          "we": "WEL'Dl",
+          "ce": "CS3'BDd",
+          "data": "RBMux_06",
+          "output": "dALUF_3__l15_1",
+          "bit": 16
+        },
+        {
+          "package": "l19",
+          "field": "dLC.2",
+          "bank": 3,
+          "we": "WEL'Dl",
+          "ce": "CS3'BDd",
+          "data": "RBMux_12",
+          "output": "dLC_2__l19_1",
+          "bit": 17
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "bank": 3,
+      "half": "right",
+      "address": [
+        "RA_01a",
+        "RA_02a",
+        "RA_03a",
+        "RA_04a",
+        "RA_05a",
+        "RA_06a",
+        "RA_07a",
+        "RA_08a",
+        "RA_09a",
+        "RA_10a"
+      ],
+      "ce": "CS3_p_ACa",
+      "we": "WER_p_Ca",
+      "bits": [
+        {
+          "package": "a15",
+          "field": "dFF.0",
+          "bank": 3,
+          "we": "WER'Ca",
+          "ce": "CS3'ACa",
+          "data": "RBMux_00",
+          "output": "dFF_0__a15_1",
+          "bit": 0
+        },
+        {
+          "package": "a19",
+          "field": "dFF.4",
+          "bank": 3,
+          "we": "WER'Ca",
+          "ce": "CS3'ACa",
+          "data": "RBMux_04",
+          "output": "dFF_4__a19_1",
+          "bit": 1
+        },
+        {
+          "package": "b15",
+          "field": "dFF.1",
+          "bank": 3,
+          "we": "WER'Cb",
+          "ce": "CS3'ACa",
+          "data": "RBMux_01",
+          "output": "dFF_1__b15_1",
+          "bit": 2
+        },
+        {
+          "package": "b19",
+          "field": "dFF.5",
+          "bank": 3,
+          "we": "WER'Cb",
+          "ce": "CS3'ACa",
+          "data": "RBMux_05",
+          "output": "dFF_5__b19_1",
+          "bit": 3
+        },
+        {
+          "package": "c15",
+          "field": "dFF.2",
+          "bank": 3,
+          "we": "WER'Cc",
+          "ce": "CS3'ACb",
+          "data": "RBMux_02",
+          "output": "dFF_2__c15_1",
+          "bit": 4
+        },
+        {
+          "package": "c19",
+          "field": "dFF.6",
+          "bank": 3,
+          "we": "WER'Cc",
+          "ce": "CS3'ACb",
+          "data": "RBMux_06",
+          "output": "dFF_6__c19_1",
+          "bit": 5
+        },
+        {
+          "package": "d15",
+          "field": "dFF.3",
+          "bank": 3,
+          "we": "WER'Cd",
+          "ce": "CS3'ACb",
+          "data": "RBMux_03",
+          "output": "dFF_3__d15_1",
+          "bit": 6
+        },
+        {
+          "package": "d19",
+          "field": "dFF.7",
+          "bank": 3,
+          "we": "WER'Cd",
+          "ce": "CS3'ACb",
+          "data": "RBMux_07",
+          "output": "dFF_7__d19_1",
+          "bit": 7
+        },
+        {
+          "package": "e09",
+          "field": "dJCN.0",
+          "bank": 3,
+          "we": "WER'Ab",
+          "ce": "CS3'ACc",
+          "data": "RBMux_08",
+          "output": "dJCN_0__e09_1",
+          "bit": 8
+        },
+        {
+          "package": "e15",
+          "field": "dJCN.1",
+          "bank": 3,
+          "we": "WER'Ce",
+          "ce": "CS3'ACc",
+          "data": "RBMux_09",
+          "output": "dJCN_1__e15_1",
+          "bit": 9
+        },
+        {
+          "package": "e19",
+          "field": "dIMRH",
+          "bank": 3,
+          "we": "WER'Ce",
+          "ce": "CS3'ACc",
+          "data": "RBMuxP",
+          "output": "dIMRH__e19_1",
+          "bit": 10
+        },
+        {
+          "package": "f15",
+          "field": "dJCN.2",
+          "bank": 3,
+          "we": "WER'Cf",
+          "ce": "CS3'ACc",
+          "data": "RBMux_10",
+          "output": "dJCN_2__f15_1",
+          "bit": 11
+        },
+        {
+          "package": "f19",
+          "field": "dBlock'",
+          "bank": 3,
+          "we": "WER'Cf",
+          "ce": "CS3'ACd",
+          "data": "ContB04_sil_pl_1",
+          "output": "dBlock_p___f19_1",
+          "bit": 12
+        },
+        {
+          "package": "g15",
+          "field": "dJCN.3",
+          "bank": 3,
+          "we": "WER'Da",
+          "ce": "CS3'BDa",
+          "data": "RBMux_11",
+          "output": "dJCN_3__g15_1",
+          "bit": 13
+        },
+        {
+          "package": "g19",
+          "field": "dJCN.5",
+          "bank": 3,
+          "we": "WER'Da",
+          "ce": "CS3'BDa",
+          "data": "RBMux_13",
+          "output": "dJCN_5__g19_1",
+          "bit": 14
+        },
+        {
+          "package": "h15",
+          "field": "dJCN.4",
+          "bank": 3,
+          "we": "WER'Db",
+          "ce": "CS3'BDa",
+          "data": "RBMux_12",
+          "output": "dJCN_4__h15_1",
+          "bit": 15
+        },
+        {
+          "package": "h19",
+          "field": "dJCN.6",
+          "bank": 3,
+          "we": "WER'Db",
+          "ce": "CS3'BDd",
+          "data": "RBMux_14",
+          "output": "dJCN_6__h19_1",
+          "bit": 16
+        },
+        {
+          "package": "i19",
+          "field": "dJCN.7",
+          "bank": 3,
+          "we": "WER'Dc",
+          "ce": "CS3'BDb",
+          "data": "RBMux_15",
+          "output": "dJCN_7__i19_1",
+          "bit": 17
+        }
+      ]
+    }
+  ],
+  "generated_sha256": "a05191184c5fa144d9c314ad3de6aca74d689c0af0ff10499337cb7f360a9dea",
+  "original_sha256": "172f68891c2ad75dd8f69a9d8a8a3d369bc83d4f6db1d54b77a7b0be595add58",
+  "grouping_sources": {
+    "verilog/cells/cell_F10415A.v": "44cb1c6eee73b8507f7a66e5781073f916d0c02a221618dedf4d09879a9a7227",
+    "verilog/cells/cell_MC10211.v": "5dff5af0f55a1f63dbfc7e98047f1f0fd18491ac1e06980c7991fc09a060272d",
+    "verilog/cells/cell_LM3911_20K.v": "7bac5b0e7235f7840a51a6ab47321745bceda31c5216652cb4550eae83d32ecc",
+    "verilog/cells/cell_MC10197.v": "d9628d2e615bdfc377f0e1b32eae5e84a41d2edc0b6f9cf4a8a88bda89c29bba",
+    "verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "verilog/cells/cell_MC10164.v": "5e8978b4ceed6b2e5dee8a4c9f5dd841bfe175059e5dcc19f1b6099e8e156e0c",
+    "verilog/cells/cell_MU10164.v": "1d0338b3f8d84b1d1ec760411571451fdc38f39566062922cd1124a5d63cf046",
+    "verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "verilog/cells/cell_MC10101.v": "d7cce11dd4c6c75b83d1d40287144fffc35ac6df2b9f490a45aeb740dcab862f",
+    "verilog/cells/cell_SE10211.v": "4f7c8607bdaad0f3fa7b0a49c679c004817b3032c3d37b20cb0a46f3ab1cb11d",
+    "verilog/cells/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+    "verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "verilog/cells/cell_MC10172.v": "559a7747f2e4b967edf4a8651dfb1e7bb286210d70b9aa6f8c6a64ae4f87231b",
+    "verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+    "verilog/cells/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+    "verilog/cells/cell_MC10161.v": "816c7d2eb044c210d256c32ce1f4215a988e312d02df81b527d6ba001795788b",
+    "verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+    "verilog/cells/cell_MC10107.v": "dadd09a4dc0e4e6e126aa6f30c5b3fd92acbba8aaf25e94cb2f399b779011065",
+    "verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0"
+  },
+  "wirelist_sha256": "25e82daa80f25dce0986b269ce0a145981fbb7d2be24b80e3d6c649d2e02ba68",
+  "ff": [
+    {
+      "index": 0,
+      "package": "b02",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "legacy_parallel_word": 16384
+    },
+    {
+      "index": 1,
+      "package": "b23",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ],
+      "legacy_parallel_word": 16385
+    },
+    {
+      "index": 2,
+      "package": "b24",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ],
+      "legacy_parallel_word": 16386
+    },
+    {
+      "index": 3,
+      "package": "c02",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "legacy_parallel_word": 16387
+    },
+    {
+      "index": 4,
+      "package": "c04",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "legacy_parallel_word": 16388
+    },
+    {
+      "index": 5,
+      "package": "c24",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ],
+      "legacy_parallel_word": 16389
+    },
+    {
+      "index": 6,
+      "package": "d02",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "legacy_parallel_word": 16390
+    },
+    {
+      "index": 7,
+      "package": "f22",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "legacy_parallel_word": 16391
+    },
+    {
+      "index": 8,
+      "package": "g03",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "legacy_parallel_word": 16392
+    },
+    {
+      "index": 9,
+      "package": "g22",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "legacy_parallel_word": 16393
+    },
+    {
+      "index": 10,
+      "package": "g24",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ],
+      "legacy_parallel_word": 16394
+    },
+    {
+      "index": 11,
+      "package": "h01",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ],
+      "legacy_parallel_word": 16395
+    },
+    {
+      "index": 12,
+      "package": "h03",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "legacy_parallel_word": 16396
+    },
+    {
+      "index": 13,
+      "package": "h24",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ],
+      "legacy_parallel_word": 16397
+    },
+    {
+      "index": 14,
+      "package": "i01",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ],
+      "legacy_parallel_word": 16398
+    },
+    {
+      "index": 15,
+      "package": "i24",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ],
+      "legacy_parallel_word": 16399
+    },
+    {
+      "index": 16,
+      "package": "j01",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ],
+      "legacy_parallel_word": 16400
+    },
+    {
+      "index": 17,
+      "package": "j24",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ],
+      "legacy_parallel_word": 16401
+    },
+    {
+      "index": 18,
+      "package": "k24",
+      "kind": "cell_MC10231",
+      "width": 6,
+      "fields": [
+        {
+          "name": "qb",
+          "width": 1,
+          "lsb": 0
+        },
+        {
+          "name": "qa",
+          "width": 1,
+          "lsb": 1
+        },
+        {
+          "name": "d_pre_b",
+          "width": 1,
+          "lsb": 2
+        },
+        {
+          "name": "d_pre_a",
+          "width": 1,
+          "lsb": 3
+        },
+        {
+          "name": "ckb_d",
+          "width": 1,
+          "lsb": 4
+        },
+        {
+          "name": "cka_d",
+          "width": 1,
+          "lsb": 5
+        }
+      ],
+      "legacy_parallel_word": 16402
+    },
+    {
+      "index": 19,
+      "package": "l04",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "legacy_parallel_word": 16403
+    },
+    {
+      "index": 20,
+      "package": "l20",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "legacy_parallel_word": 16404
+    },
+    {
+      "index": 21,
+      "package": "l22",
+      "kind": "cell_MC10176",
+      "width": 13,
+      "fields": [
+        {
+          "name": "q",
+          "width": 6,
+          "lsb": 0
+        },
+        {
+          "name": "d_pre",
+          "width": 6,
+          "lsb": 6
+        },
+        {
+          "name": "ck_d",
+          "width": 1,
+          "lsb": 12
+        }
+      ],
+      "legacy_parallel_word": 16405
+    }
+  ],
+  "sequential_bits": 209,
+  "logical_state_bits": 147809,
+  "cloned_sources": {
+    "cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e",
+    "cell_MC10231_snapshot.v": "17bf1e9fd267e3b0325c7c4794d6818eef2f50bd1cf27c7f536b0cbda26048e2",
+    "f10415_enable_bank.sv": "6df465a02e8ad84759d82c2be1a96b2de2f9ab630042ae00c670db3105b5f0a6",
+    "ff_scan_controller.sv": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c"
+  },
+  "qualified_parallel_predecessor_sha256": "7bc9b48357567afa85ef7cc3141cbb2ff3903b5530534cadce1fd81cf906c2f5",
+  "ff_bits": 209,
+  "index_bits": 15,
+  "state_access_schema": "compact-ff-v1",
+  "scan": {
+    "state_bits": 209,
+    "words": 12,
+    "base_word": 16384,
+    "word_bits": 18,
+    "layout": [
+      {
+        "package": "u_b02",
+        "kind": "cell_MC10176",
+        "lsb": 0,
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "package": "u_b23",
+        "kind": "cell_MC10231",
+        "lsb": 13,
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "package": "u_b24",
+        "kind": "cell_MC10231",
+        "lsb": 19,
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "package": "u_c02",
+        "kind": "cell_MC10176",
+        "lsb": 25,
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "package": "u_c04",
+        "kind": "cell_MC10176",
+        "lsb": 38,
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "package": "u_c24",
+        "kind": "cell_MC10231",
+        "lsb": 51,
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "package": "u_d02",
+        "kind": "cell_MC10176",
+        "lsb": 57,
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "package": "u_f22",
+        "kind": "cell_MC10176",
+        "lsb": 70,
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "package": "u_g03",
+        "kind": "cell_MC10176",
+        "lsb": 83,
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "package": "u_g22",
+        "kind": "cell_MC10176",
+        "lsb": 96,
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "package": "u_g24",
+        "kind": "cell_MC10231",
+        "lsb": 109,
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "package": "u_h01",
+        "kind": "cell_MC10231",
+        "lsb": 115,
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "package": "u_h03",
+        "kind": "cell_MC10176",
+        "lsb": 121,
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "package": "u_h24",
+        "kind": "cell_MC10231",
+        "lsb": 134,
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "package": "u_i01",
+        "kind": "cell_MC10231",
+        "lsb": 140,
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "package": "u_i24",
+        "kind": "cell_MC10231",
+        "lsb": 146,
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "package": "u_j01",
+        "kind": "cell_MC10231",
+        "lsb": 152,
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "package": "u_j24",
+        "kind": "cell_MC10231",
+        "lsb": 158,
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "package": "u_k24",
+        "kind": "cell_MC10231",
+        "lsb": 164,
+        "width": 6,
+        "fields": [
+          {
+            "name": "qb",
+            "width": 1,
+            "lsb": 0
+          },
+          {
+            "name": "qa",
+            "width": 1,
+            "lsb": 1
+          },
+          {
+            "name": "d_pre_b",
+            "width": 1,
+            "lsb": 2
+          },
+          {
+            "name": "d_pre_a",
+            "width": 1,
+            "lsb": 3
+          },
+          {
+            "name": "ckb_d",
+            "width": 1,
+            "lsb": 4
+          },
+          {
+            "name": "cka_d",
+            "width": 1,
+            "lsb": 5
+          }
+        ]
+      },
+      {
+        "package": "u_l04",
+        "kind": "cell_MC10176",
+        "lsb": 170,
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "package": "u_l20",
+        "kind": "cell_MC10176",
+        "lsb": 183,
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      },
+      {
+        "package": "u_l22",
+        "kind": "cell_MC10176",
+        "lsb": 196,
+        "width": 13,
+        "fields": [
+          {
+            "name": "q",
+            "width": 6,
+            "lsb": 0
+          },
+          {
+            "name": "d_pre",
+            "width": 6,
+            "lsb": 6
+          },
+          {
+            "name": "ck_d",
+            "width": 1,
+            "lsb": 12
+          }
+        ]
+      }
+    ],
+    "word_map": [
+      {
+        "index": 16384,
+        "lsb": 0,
+        "width": 18
+      },
+      {
+        "index": 16385,
+        "lsb": 18,
+        "width": 18
+      },
+      {
+        "index": 16386,
+        "lsb": 36,
+        "width": 18
+      },
+      {
+        "index": 16387,
+        "lsb": 54,
+        "width": 18
+      },
+      {
+        "index": 16388,
+        "lsb": 72,
+        "width": 18
+      },
+      {
+        "index": 16389,
+        "lsb": 90,
+        "width": 18
+      },
+      {
+        "index": 16390,
+        "lsb": 108,
+        "width": 18
+      },
+      {
+        "index": 16391,
+        "lsb": 126,
+        "width": 18
+      },
+      {
+        "index": 16392,
+        "lsb": 144,
+        "width": 18
+      },
+      {
+        "index": 16393,
+        "lsb": 162,
+        "width": 18
+      },
+      {
+        "index": 16394,
+        "lsb": 180,
+        "width": 18
+      },
+      {
+        "index": 16395,
+        "lsb": 198,
+        "width": 11
+      }
+    ],
+    "last_word_bits": 11,
+    "completion_edges": 209
+  },
+  "comment_only_source_deltas": [
+    {
+      "file": "verilog/cells/cell_MC10170.v",
+      "compiled_sha256": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+      "current_sha256": "90dc10079db3d5611562f4454534221971d98606de64ac33a0e9cc335478d910",
+      "review": "MC10170 comment only; exact Verilog token stream is unchanged."
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "raw_name": "simulation-v4/manifest.json",
+    "stored": "simulation-v4/manifest.json",
+    "raw_bytes": 78004,
+    "raw_sha256": "eb930b5bdf40205a2cd41ff360f9b0def2d06a02ff55175d39c683be07f6fe1d"
+  },
+  {
+    "raw_name": "simulation-v4/results.json",
+    "stored": "simulation-v4/results.json",
+    "raw_bytes": 3038,
+    "raw_sha256": "f7799ac5f4be2ead283fcc05b02ea955f2b79a0e8ccb42634dfaf470fd2b8cd4"
+  },
+  {
+    "raw_name": "classification/classification.json",
+    "stored": "classification/classification.json.gz",
+    "raw_bytes": 137214,
+    "raw_sha256": "14189ca0e99dd1dae013e5365f0539e657c79507d27b0e13fef8c1bfd0e53ab0"
+  },
+  {
+    "raw_name": "source-audit.json",
+    "stored": "source-audit.json",
+    "raw_bytes": 1724,
+    "raw_sha256": "07397a9e0dbb490ce40890ca34ee5eea2dbd66f83eceeb4e753ca1f9957c18a5"
+  }
+]

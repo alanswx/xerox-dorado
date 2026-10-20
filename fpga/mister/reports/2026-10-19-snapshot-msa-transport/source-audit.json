@@ -1,0 +1,49 @@
+{
+  "status": "PASS_SOURCE_ONLY",
+  "scope": "Inverse source proof for the twelve-slot extension of the qualified transport.\n\nOnly widths/counts, response budget, slot11 decoding and fail-closed child\npredicates may differ. The novel MSA router is covered by behavioral tests\nand fresh state inventory, not claimed equivalent to a predecessor router.\n",
+  "predecessor_transport_byte_identity_after_inverse": true,
+  "msa_declaration_normalization": {
+    "scope": "Exact inverse of declaration-order-only fabric relocation; no normal logic/pin/state-map edits",
+    "original_sha256": "a765807b4871cde4f0f94eac7c958820b7a861483d18248d987054750fac1a30",
+    "normalized_sha256": "094f2f373c0a723136727597c0eece460dd2b668c1bcaa9860592b6f940ddf5f",
+    "byte_identity_after_inverse": true
+  },
+  "msa_normalized_sha256": "094f2f373c0a723136727597c0eece460dd2b668c1bcaa9860592b6f940ddf5f",
+  "failure_controls": [
+    {
+      "case": "budget",
+      "rejected": true,
+      "diagnostic": "('RESPONSE_LIMIT=4096', 0)"
+    },
+    {
+      "case": "legacy_width",
+      "rejected": true,
+      "diagnostic": "ordinary serial transport differs after inverse: board_state_fabric_serial.sv"
+    },
+    {
+      "case": "msa_hole",
+      "rejected": true,
+      "diagnostic": "(\"   11:index_valid=!(|index[23:11]) && index[7:0]<8'd150;\\n\", 0)"
+    },
+    {
+      "case": "child_unknown",
+      "rejected": true,
+      "diagnostic": "(\"wire children_holding=(board_hold_required!==12'b0);\", 0)"
+    },
+    {
+      "case": "parser_schema",
+      "rejected": true,
+      "diagnostic": "ordinary serial transport differs after inverse: board_state_uio_serial.sv"
+    },
+    {
+      "case": "parser_reset",
+      "rejected": true,
+      "diagnostic": "ordinary serial transport differs after inverse: board_state_uio_serial.sv"
+    },
+    {
+      "case": "frozen_width",
+      "rejected": true,
+      "diagnostic": "('[11:0] frozen_snapshot', 0)"
+    }
+  ]
+}

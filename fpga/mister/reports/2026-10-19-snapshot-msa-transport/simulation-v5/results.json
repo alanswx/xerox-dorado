@@ -1,0 +1,66 @@
+{
+  "status": "PASS",
+  "scope": "Four-state ABI2 transport, original contract and eight actual indexed MSAs.\n\nGuest advances are stopped in this transport fixture. Foreign service barriers\nand eleven other endpoints remain stubs; this is not native machine pause or\nan FPGA snapshot. MSA normal behavior/full physical restore is qualified by\nthe prerequisite complete-board receipt, not by these SPI routing exercises.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null
+    },
+    {
+      "case": "short_timeout",
+      "returncode": 1,
+      "expected_failure": "result differs"
+    },
+    {
+      "case": "wrong_member",
+      "returncode": 1,
+      "expected_failure": "result differs"
+    },
+    {
+      "case": "unstripped_index",
+      "returncode": 1,
+      "expected_failure": "result differs"
+    },
+    {
+      "case": "live_owner",
+      "returncode": 1,
+      "expected_failure": "result differs"
+    },
+    {
+      "case": "group_boundary",
+      "returncode": 1,
+      "expected_failure": "missing MSA boundary accepted"
+    },
+    {
+      "case": "hold_unknown",
+      "returncode": 1,
+      "expected_failure": "unknown MSA hold did not fail closed"
+    },
+    {
+      "case": "write_payload",
+      "returncode": 1,
+      "expected_failure": "result differs"
+    },
+    {
+      "case": "old_schema",
+      "returncode": 1,
+      "expected_failure": "bad schema accepted"
+    },
+    {
+      "case": "status_count",
+      "returncode": 1,
+      "expected_failure": "serial capability/schema differs"
+    },
+    {
+      "case": "frozen_width",
+      "returncode": 1,
+      "expected_failure": "status acknowledgment bitmap differs"
+    }
+  ],
+  "physical_msa_bits": 21520,
+  "schema_id": "b80a00977d7e7992",
+  "catalog_sha256": "b80a00977d7e799275e61e48b5f27876fa1f815343621e5a24adf50c0eab2edb",
+  "formatted_packets": 34,
+  "limits": "Four-state transport with eight actual MSA adapters; original eleven endpoints/foreign services are stubs, guest advances stopped. Not native machine pause, external RAM capture, core fit/timing or FPGA snapshot."
+}

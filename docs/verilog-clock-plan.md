@@ -42,6 +42,60 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**The shared transport now qualifies all eight actual MSA adapters through SPI. Native builder wiring, real service barriers and a new combined fit are next.**
+
+The new `board_state_fabric_msa.sv` / `board_state_uio_msa.sv` retain slots0..10
+and add slot11 through `msa_state_group.sv`. Index bits10..8 select the eight
+MSAs in the explicit native member order; bits7..0 select words0..149. Holes
+and high bits reject. The group latches its member through completion, requires
+every member frozen and aggregates hold/fault ownership. Unknown child ownership
+fails closed. The shared budget is 4,096 cycles, covering actual 2,690-edge scans.
+Status reports twelve slots/frozen bits; old transport sources remain unchanged.
+
+`serial_state_format_msa.py` binds the qualified receipts into board-only schema
+`b80a00977d7e7992`: 1,966,264 physical board bits / 401 runs, including all 21,520
+MSA bits. Each member has a 256-word address stride but dense payloads have NO
+per-member padding. An independent integer oracle verifies all 1,200 MSA words /
+2,690 bytes; invalid holes/padding/status and nine rehashed damaged catalogs reject.
+Cached packet lookup runs remain immutable after source-JSON changes.
+
+The four-state test passes 115,191 host ticks / 260 SPI packets / 97 result checks,
+including 34 actual Python-formatted packets through all eight real MSA adapters,
+the inherited legacy transport contract and unchanged Ethernet. It covers unique
+member readback after all writes, first/final words, coherent twelve-bit status,
+competing indices held THROUGH completion, busy release, invalid indices/schema,
+missing/unknown member/service acknowledgments, timeout, parser-vs-SYSTEM reset,
+partial-scan quarantine and stable physical state. All ten damaged RTL variants
+reject, including coherent member aliasing, live completion selection, shortened
+timeout and a truncated frozen bitmap. Guest advances are stopped here; the other
+eleven endpoints and foreign services remain explicit test stubs, not native pause.
+
+Fresh XML retains all 21,520 physical MSA bits + 664 private MSA bits + 417 private
+transport bits, with no sequential exclusions; twelve geometry/binding/exact-alias
+controls reject. Inverting only the approved owner/UIO edits returns the committed
+original serial transport bytes; seven source controls reject. Icarus required
+declarations before use, so the qualified MSA's administrative fabric is relocated
+with exact byte identity after inverse; original pins/logic/state maps are unchanged.
+The surviving live-owner negative control exposed an insufficient fixture interval,
+now extended through completion. No production RTL correction was needed for it.
+
+All 641 raw archive members pass hash readback. Consumed original receipt bytes,
+including both processor variants, regenerate the exact catalog from extraction.
+Extracted MSA/source/fixture regeneration, format and source/XML controls pass.
+Evidence: `fpga/mister/reports/2026-10-19-snapshot-msa-transport/`. All jobs here
+are terminal. No new Quartus area/timing, RBF, hardware reload or speed gain.
+
+Next: integrate the twelve-slot transport, eleven main boards and eight indexed
+MSAs in the native builder, retaining the qualified declaration normalization.
+Finish wrapper/input/video/network/raw-memory/Main/daemon/server state and real
+pause/disk-generation barriers, then qualify enabled combined capacity/timing and
+atomic FPGA Cedar save/continue/restore. Last combined capacity remains 45,228 /
+41,910 ALMs (3,318 over); last qualified Native59 remains 1,947,654.12 issues/s.
+Original 60 ns clocks/timers, pinned benchmarks, final three fresh boots, cold
+persistence and two-hour combined stress remain required. Goal ACTIVE.
+
+Earlier complete-board qualification:
+
 **Complete MSA board serial access is qualified as a component. Shared transport/native wiring and real service barriers remain next; hardware speed is unchanged.**
 
 `generate_msa_board.py` binds the frozen native board source, 78 original

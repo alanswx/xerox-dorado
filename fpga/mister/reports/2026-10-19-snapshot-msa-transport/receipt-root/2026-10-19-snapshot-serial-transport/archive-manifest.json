@@ -1,0 +1,14 @@
+[
+  {
+    "raw_name": "simulation-v6/candidate/board_state_fabric_serial.sv",
+    "stored": "simulation-v6/candidate/board_state_fabric_serial.sv.gz",
+    "raw_bytes": 4300,
+    "raw_sha256": "0590bcab69fae2169e572980ed9b0a3b2a06d15d795845b8189f563bd61d9951"
+  },
+  {
+    "raw_name": "simulation-v6/candidate/board_state_uio_serial.sv",
+    "stored": "simulation-v6/candidate/board_state_uio_serial.sv.gz",
+    "raw_bytes": 5645,
+    "raw_sha256": "526fd866a3c6c4abf5be4acc8d3c42d0bb1e83db1849e3069e40e51b99392102"
+  }
+]
