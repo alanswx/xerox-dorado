@@ -15,8 +15,9 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-The last measured rate remains **1,947,654.12 instruction issues/s**. No new
-hardware load, FPGA rollback or hardware speedup is claimed. A same-clock
+The last measured rate remains **1,947,654.12 instruction issues/s**. The MC1668
+normal load started but stopped at an old trace-gap check; firmware qualification,
+FPGA rollback and hardware speedup are not claimed. A same-clock
 MC1668 native regression build now passes full timing/memory review; actual
 firmware/Cedar regression is next (details below). The
 coupled R/T/task/parity slice now passes an explicit-arrival contract for 592
@@ -38,6 +39,31 @@ existing UIO bits. Component-only; native and actual Main coordination are
 absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
+
+### Live deployment interrupted at trace-gap check (2026-10-20)
+
+Do not rerun `tools/deploy_mc1668_native.py`. Its original SSH session is gone
+and no deployment Python/Main process remains. The candidate core/MGL and fresh
+seed exist under `DoradoRTL_CedarMC1668_20261020` / `CedarMC1668_20261020`.
+Normal Main replacement and temporary Main exit occurred: the old log names
+the new MGL, the closed disk trace ends with two completed barrier pairs, and
+server 29510 no longer maps `/dev/mem`. The server is still running; Main is
+absent. `preparation.json` exists; `deployment.json` and the new Main/server logs
+do not. Do not assume a working Cedar or rerun the normal loader blindly.
+
+The all-record trace check rejects a historical `trace_dropped` record at
+ns=153679932108714, bytes=80580. The trace has 116,146 records and ends at
+ns=155948302370802 with `barrier_end`; there are no other error/drop events.
+The gap prevents claiming complete old-volume trace coverage. Preserve that
+evidence and the closed old volume explicitly before any targeted continuation;
+do not erase the gap or silently weaken the guard. No clean guest shutdown is
+claimed. The new seed still hashes to the original f3bce2a8 SHA256. No original
+firmware boot or new speed measurement has occurred.
+
+The user requested another fresh tracked goal. The goal service still reports
+the preceding goal ACTIVE and rejects `create_goal` with "this thread has an
+unfinished goal". A request to clear it again is pending. Do not mark unfinished
+work complete to replace that goal. Delivery scope below remains applicable.
 
 ### MC1668 full native build PASS; hardware regression pending (2026-10-20)
 

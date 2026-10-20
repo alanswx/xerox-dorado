@@ -55,6 +55,13 @@ not a prerequisite for the performance goal.
 
 ### Immediate work after resumption
 
+Live update: the MC1668 normal deployment stopped after Main exited because
+the old disk trace contains one historical dropped-record event. Main is
+currently absent; server 29510 remains without its DDR mapping. Do not rerun the
+deployment or claim a successful boot. Preserve the closed old volume and
+incomplete trace, then prepare a targeted continuation from the existing fresh
+seed. Exact observed state is at the top of `verilog-handoff.md`.
+
 1. Preserve the unintegrated host-service/Main-client prototype as deferred
    work. Its v6 component evidence passes, but native wiring and the actual
    Main coordinator do not exist. Do not expand that work for this goal.
