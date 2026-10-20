@@ -1,0 +1,56 @@
+{
+  "status": "PASS_COMPONENT_TIMING",
+  "scope": "Read isolated control-clock timing evidence; never infer native speed.\n\nRequires unchanged prepared inputs (only Quartus's version annotation allowed),\nsimulation-qualified evaluator bytes, four timing conditions, the 15 ns clock\nand fully constrained virtual I/O. Rejects missing targeted path coverage unless\nexplicitly reviewing the historical rejected experiment.\n",
+  "component": "r_address",
+  "functional_qualification_status": "PASS_R_ADDRESS_ARRIVAL_CONTRACT",
+  "period_ns": 15,
+  "resources": {
+    "alms": 1485,
+    "registers": 2487,
+    "memory_bits": 0,
+    "ram_blocks": 0,
+    "dsp": 0,
+    "plls": 0
+  },
+  "minimum_slack_ns": {
+    "setup": 3.982,
+    "hold": 0.155,
+    "mpw": 6.547
+  },
+  "conditions": [
+    {
+      "corner": "7_slow_1100mv_100c",
+      "setup": 4.213,
+      "hold": 0.346,
+      "mpw": 6.686,
+      "evaluator_setup": 4.213
+    },
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "setup": 3.982,
+      "hold": 0.297,
+      "mpw": 6.776,
+      "evaluator_setup": 3.982
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "setup": 5.209,
+      "hold": 0.176,
+      "mpw": 6.607,
+      "evaluator_setup": 9.519
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "setup": 5.377,
+      "hold": 0.155,
+      "mpw": 6.547,
+      "evaluator_setup": 10.247
+    }
+  ],
+  "input_staging_bits": 1042,
+  "targeted_coverage_complete": true,
+  "evaluator_sha256": "34e89a662aa602a9aafa6d8d9b37d10cbc8f986121f7cb036a83f2dac7224b39",
+  "permitted_qsf_delta": "Quartus17.0.2 LAST_QUARTUS_VERSION annotation only",
+  "native_qualified": false,
+  "hardware_speedup_claimed": false
+}

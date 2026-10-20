@@ -1,0 +1,35 @@
+{
+  "development": {
+    "path": "r-memory-dev-v1-20261020",
+    "status": "SUPERSEDED_AFTER_BALANCED_PASS",
+    "reason": "Added original write-address/select window monitors and old parity-source check before final qualification"
+  },
+  "rejected": {
+    "functional": "r-memory-qualified-20261020",
+    "timing": "r-memory-fit-terminal-20261020",
+    "status": "REJECTED_COMPONENT_TIMING",
+    "minimum_setup_slack_ns": -26.346,
+    "critical_data_delay_ns": 41.018,
+    "logic_levels": 49,
+    "reason": "Full task-arbiter event solver was unrolled into the SRAM address preview"
+  },
+  "split_preview_smoke": {
+    "path": "r-memory-qualified-v2-20261020",
+    "status": "SUPERSEDED_AFTER_1088_EVENT_BOUNDED_SMOKE",
+    "reason": "Final version adds explicit repeated-clock and parity-event agreement guards"
+  },
+  "accepted_candidate": {
+    "functional": "r-memory-qualified-v3-20261020",
+    "timing": "r-memory-fit-v2-terminal-20261020",
+    "status": "PASS_R_MEMORY_ARRIVAL_CONTRACT_AND_COMPONENT_TIMING",
+    "changes": "Separate clock/address preview uses pre-event task source; complete task/address evaluator remains CPU state source with runtime address/select/parity-event agreement"
+  },
+  "auxiliary_controls": {
+    "initial": "r-memory-control-20261020",
+    "initial_status": "TEST_HARNESS_FALLTHROUGH_AFTER_MATCHING_STATE",
+    "correction": "The generated auxiliary initial block now ends after its own checks; do not execute primary random-workload coverage after $finish",
+    "rtl_changed": false,
+    "corrected": "r-memory-control-v2-20261020",
+    "status": "PASS_R_MEMORY_CONTROL_TRANSITIONS"
+  }
+}

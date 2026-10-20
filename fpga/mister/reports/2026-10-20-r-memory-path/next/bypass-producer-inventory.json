@@ -1,0 +1,196 @@
+{
+  "source": "chm/sil/ProcL-Rev-Ci.dm!1_/ProcL-Rev-Ci.wl",
+  "sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+  "nets": [
+    {
+      "net": "NextMacroDly",
+      "drivers": [
+        {
+          "package": "h14",
+          "pin": 15,
+          "kind": "MC10176"
+        }
+      ]
+    },
+    {
+      "net": "ProcL24.sil+10",
+      "drivers": [
+        {
+          "package": "h17",
+          "pin": 7,
+          "kind": "MC10105"
+        }
+      ]
+    },
+    {
+      "net": "ProcL24.sil+11",
+      "drivers": [
+        {
+          "package": "j20",
+          "pin": 15,
+          "kind": "MC10117"
+        }
+      ]
+    },
+    {
+      "net": "StkP.0",
+      "drivers": [
+        {
+          "package": "l14",
+          "pin": 2,
+          "kind": "MC10176"
+        }
+      ]
+    },
+    {
+      "net": "StkP.1",
+      "drivers": [
+        {
+          "package": "l14",
+          "pin": 3,
+          "kind": "MC10176"
+        }
+      ]
+    },
+    {
+      "net": "StkP.2",
+      "drivers": [
+        {
+          "package": "l14",
+          "pin": 4,
+          "kind": "MC10176"
+        }
+      ]
+    },
+    {
+      "net": "StkP.3",
+      "drivers": [
+        {
+          "package": "l14",
+          "pin": 13,
+          "kind": "MC10176"
+        }
+      ]
+    },
+    {
+      "net": "StkP.4",
+      "drivers": [
+        {
+          "package": "l14",
+          "pin": 14,
+          "kind": "MC10176"
+        }
+      ]
+    },
+    {
+      "net": "StkP.5",
+      "drivers": [
+        {
+          "package": "l14",
+          "pin": 15,
+          "kind": "MC10176"
+        }
+      ]
+    },
+    {
+      "net": "StkP.6",
+      "drivers": [
+        {
+          "package": "l15",
+          "pin": 15,
+          "kind": "MC10231"
+        }
+      ]
+    },
+    {
+      "net": "StkP.7",
+      "drivers": [
+        {
+          "package": "l15",
+          "pin": 2,
+          "kind": "MC10231"
+        }
+      ]
+    },
+    {
+      "net": "StkWadr.0",
+      "drivers": [
+        {
+          "package": "i16",
+          "pin": 1,
+          "kind": "MC10173"
+        }
+      ]
+    },
+    {
+      "net": "StkWadr.1",
+      "drivers": [
+        {
+          "package": "i16",
+          "pin": 2,
+          "kind": "MC10173"
+        }
+      ]
+    },
+    {
+      "net": "StkWadr.2",
+      "drivers": [
+        {
+          "package": "i16",
+          "pin": 15,
+          "kind": "MC10173"
+        }
+      ]
+    },
+    {
+      "net": "StkWadr.3",
+      "drivers": [
+        {
+          "package": "i16",
+          "pin": 14,
+          "kind": "MC10173"
+        }
+      ]
+    },
+    {
+      "net": "StkWadr.4",
+      "drivers": [
+        {
+          "package": "i17",
+          "pin": 1,
+          "kind": "MC10173"
+        }
+      ]
+    },
+    {
+      "net": "StkWadr.5",
+      "drivers": [
+        {
+          "package": "i17",
+          "pin": 2,
+          "kind": "MC10173"
+        }
+      ]
+    },
+    {
+      "net": "StkWadr.6",
+      "drivers": [
+        {
+          "package": "i17",
+          "pin": 15,
+          "kind": "MC10173"
+        }
+      ]
+    },
+    {
+      "net": "StkWadr.7",
+      "drivers": [
+        {
+          "package": "i17",
+          "pin": 14,
+          "kind": "MC10173"
+        }
+      ]
+    }
+  ]
+}

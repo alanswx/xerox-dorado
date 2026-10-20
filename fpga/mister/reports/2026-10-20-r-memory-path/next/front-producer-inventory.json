@@ -1,0 +1,712 @@
+[
+  {
+    "board": "ProcH-Rev-Ce",
+    "net": "RSTK.0",
+    "binding": "pins[172]",
+    "drivers": []
+  },
+  {
+    "board": "ProcH-Rev-Ce",
+    "net": "RSTK.1",
+    "binding": "pins[173]",
+    "drivers": []
+  },
+  {
+    "board": "ProcH-Rev-Ce",
+    "net": "RSTK.2",
+    "binding": "pins[174]",
+    "drivers": []
+  },
+  {
+    "board": "ProcH-Rev-Ce",
+    "net": "RSTK.3",
+    "binding": "pins[175]",
+    "drivers": []
+  },
+  {
+    "board": "ProcH-Rev-Ce",
+    "net": "ProcH22.sil+3",
+    "binding": "pins[152]",
+    "drivers": [
+      {
+        "pkg": "k05",
+        "pin": 14,
+        "kind": "MC10158"
+      }
+    ]
+  },
+  {
+    "board": "ProcH-Rev-Ce",
+    "net": "ProcH22.sil+4",
+    "binding": "pins[153]",
+    "drivers": [
+      {
+        "pkg": "k05",
+        "pin": 15,
+        "kind": "MC10158"
+      }
+    ]
+  },
+  {
+    "board": "ProcH-Rev-Ce",
+    "net": "ProcH22.sil+5",
+    "binding": "pins[154]",
+    "drivers": [
+      {
+        "pkg": "k05",
+        "pin": 2,
+        "kind": "MC10158"
+      }
+    ]
+  },
+  {
+    "board": "ProcH-Rev-Ce",
+    "net": "ProcH22.sil+6",
+    "binding": "pins[155]",
+    "drivers": [
+      {
+        "pkg": "k05",
+        "pin": 1,
+        "kind": "MC10158"
+      }
+    ]
+  },
+  {
+    "board": "ProcH-Rev-Ce",
+    "net": "PropCnt'",
+    "binding": "pins[180]",
+    "drivers": []
+  },
+  {
+    "board": "ProcH-Rev-Ce",
+    "net": "ProcH17.sil+3",
+    "binding": "pins[181]",
+    "drivers": [
+      {
+        "pkg": "e16",
+        "pin": 4,
+        "kind": "F10016"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "StkPSaveEn'",
+    "binding": "pins[186]",
+    "drivers": [
+      {
+        "pkg": "h18",
+        "pin": 2,
+        "kind": "MC10103"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "IfuRBaseSel'",
+    "binding": "pins[187]",
+    "drivers": []
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "RSTK.0",
+    "binding": "pins[172]",
+    "drivers": []
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "RSTK.1",
+    "binding": "pins[173]",
+    "drivers": []
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "RSTK.2",
+    "binding": "pins[174]",
+    "drivers": []
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "RSTK.3",
+    "binding": "pins[175]",
+    "drivers": []
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL23.sil+3",
+    "binding": "pins[156]",
+    "drivers": [
+      {
+        "pkg": "g15",
+        "pin": 2,
+        "kind": "F10145A"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL23.sil+6",
+    "binding": "pins[157]",
+    "drivers": [
+      {
+        "pkg": "g15",
+        "pin": 1,
+        "kind": "F10145A"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL23.sil+7",
+    "binding": "pins[158]",
+    "drivers": [
+      {
+        "pkg": "g15",
+        "pin": 15,
+        "kind": "F10145A"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL23.sil+9",
+    "binding": "pins[159]",
+    "drivers": [
+      {
+        "pkg": "g15",
+        "pin": 14,
+        "kind": "F10145A"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL23.sil+11",
+    "binding": "pins[160]",
+    "drivers": [
+      {
+        "pkg": "h16",
+        "pin": 14,
+        "kind": "MC10159"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL23.sil+12",
+    "binding": "pins[161]",
+    "drivers": [
+      {
+        "pkg": "h16",
+        "pin": 15,
+        "kind": "MC10159"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL23.sil+13",
+    "binding": "pins[162]",
+    "drivers": [
+      {
+        "pkg": "h16",
+        "pin": 2,
+        "kind": "MC10159"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL23.sil+14",
+    "binding": "pins[163]",
+    "drivers": [
+      {
+        "pkg": "h16",
+        "pin": 1,
+        "kind": "MC10159"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL25.sil+5",
+    "binding": "pins[164]",
+    "drivers": [
+      {
+        "pkg": "j13",
+        "pin": 2,
+        "kind": "MC10174"
+      },
+      {
+        "pkg": "k14",
+        "pin": 2,
+        "kind": "MC10101"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL25.sil+1",
+    "binding": "pins[165]",
+    "drivers": [
+      {
+        "pkg": "j13",
+        "pin": 15,
+        "kind": "MC10174"
+      },
+      {
+        "pkg": "k14",
+        "pin": 3,
+        "kind": "MC10101"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL25.sil+2",
+    "binding": "pins[166]",
+    "drivers": [
+      {
+        "pkg": "j14",
+        "pin": 2,
+        "kind": "MC10174"
+      },
+      {
+        "pkg": "k14",
+        "pin": 14,
+        "kind": "MC10101"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL25.sil+4",
+    "binding": "pins[167]",
+    "drivers": [
+      {
+        "pkg": "j14",
+        "pin": 15,
+        "kind": "MC10174"
+      },
+      {
+        "pkg": "k14",
+        "pin": 15,
+        "kind": "MC10101"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL25.sil+3",
+    "binding": "pins[168]",
+    "drivers": [
+      {
+        "pkg": "j15",
+        "pin": 2,
+        "kind": "MC10174"
+      },
+      {
+        "pkg": "k16",
+        "pin": 2,
+        "kind": "MC10101"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL25.sil+14",
+    "binding": "pins[169]",
+    "drivers": [
+      {
+        "pkg": "j15",
+        "pin": 15,
+        "kind": "MC10174"
+      },
+      {
+        "pkg": "k16",
+        "pin": 3,
+        "kind": "MC10101"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL25.sil+12",
+    "binding": "pins[170]",
+    "drivers": [
+      {
+        "pkg": "j16",
+        "pin": 2,
+        "kind": "MC10174"
+      },
+      {
+        "pkg": "k16",
+        "pin": 14,
+        "kind": "MC10101"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL25.sil+13",
+    "binding": "pins[171]",
+    "drivers": [
+      {
+        "pkg": "j16",
+        "pin": 15,
+        "kind": "MC10174"
+      },
+      {
+        "pkg": "k16",
+        "pin": 15,
+        "kind": "MC10101"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "PrBlock'",
+    "binding": "pins[176]",
+    "drivers": []
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "RmBypass'",
+    "binding": "pins[177]",
+    "drivers": [
+      {
+        "pkg": "k12",
+        "pin": 14,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "k13",
+        "pin": 15,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "k15",
+        "pin": 3,
+        "kind": "MC10107"
+      },
+      {
+        "pkg": "k13",
+        "pin": 14,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "k13",
+        "pin": 2,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "k13",
+        "pin": 3,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "k12",
+        "pin": 15,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "k12",
+        "pin": 2,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "k12",
+        "pin": 3,
+        "kind": "MC10113"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "StkBypass'",
+    "binding": "pins[178]",
+    "drivers": [
+      {
+        "pkg": "l13",
+        "pin": 14,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "l13",
+        "pin": 15,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "l13",
+        "pin": 2,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "l13",
+        "pin": 3,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "l12",
+        "pin": 14,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "l12",
+        "pin": 15,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "l12",
+        "pin": 2,
+        "kind": "MC10113"
+      },
+      {
+        "pkg": "l12",
+        "pin": 3,
+        "kind": "MC10113"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "Q.14",
+    "binding": "pins[179]",
+    "drivers": [
+      {
+        "pkg": "c11",
+        "pin": 2,
+        "kind": "MC10141"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "CkMdParity'",
+    "binding": "pins[182]",
+    "drivers": [
+      {
+        "pkg": "g19",
+        "pin": 15,
+        "kind": "MC10117"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "Md.Perr'",
+    "binding": "pins[183]",
+    "drivers": [
+      {
+        "pkg": "a05",
+        "pin": 2,
+        "kind": "MC10170"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL24.sil+3",
+    "binding": "pins[184]",
+    "drivers": [
+      {
+        "pkg": "k19",
+        "pin": 14,
+        "kind": "MC10101"
+      },
+      {
+        "pkg": "k19",
+        "pin": 15,
+        "kind": "MC10101"
+      },
+      {
+        "pkg": "k19",
+        "pin": 3,
+        "kind": "MC10101"
+      },
+      {
+        "pkg": "k19",
+        "pin": 2,
+        "kind": "MC10101"
+      },
+      {
+        "pkg": "l19",
+        "pin": 2,
+        "kind": "MC10121"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "RBaseWriteEn'",
+    "binding": "pins[185]",
+    "drivers": [
+      {
+        "pkg": "h19",
+        "pin": 2,
+        "kind": "MC10102"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "RBase.0'",
+    "binding": "pins[188]",
+    "drivers": [
+      {
+        "pkg": "h14",
+        "pin": 2,
+        "kind": "MC10176"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "RBase.1'",
+    "binding": "pins[189]",
+    "drivers": [
+      {
+        "pkg": "h14",
+        "pin": 3,
+        "kind": "MC10176"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "RBase.2'",
+    "binding": "pins[190]",
+    "drivers": [
+      {
+        "pkg": "h14",
+        "pin": 4,
+        "kind": "MC10176"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "RBase.3'",
+    "binding": "pins[191]",
+    "drivers": [
+      {
+        "pkg": "h14",
+        "pin": 13,
+        "kind": "MC10176"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "CntMux.12'",
+    "binding": "pins[192]",
+    "drivers": [
+      {
+        "pkg": "h11",
+        "pin": 1,
+        "kind": "MC10159"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "CntMux.13'",
+    "binding": "pins[193]",
+    "drivers": [
+      {
+        "pkg": "h11",
+        "pin": 2,
+        "kind": "MC10159"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "CntMux.14'",
+    "binding": "pins[194]",
+    "drivers": [
+      {
+        "pkg": "h11",
+        "pin": 15,
+        "kind": "MC10159"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "CntMux.15'",
+    "binding": "pins[195]",
+    "drivers": [
+      {
+        "pkg": "h11",
+        "pin": 14,
+        "kind": "MC10159"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "SelRBaseWadr'",
+    "binding": "pins[196]",
+    "drivers": [
+      {
+        "pkg": "g19",
+        "pin": 3,
+        "kind": "MC10117"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "RBaseBypass'",
+    "binding": "pins[197]",
+    "drivers": [
+      {
+        "pkg": "g19",
+        "pin": 2,
+        "kind": "MC10117"
+      },
+      {
+        "pkg": "i10",
+        "pin": 3,
+        "kind": "MC10102"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "SubTask.0",
+    "binding": "pins[198]",
+    "drivers": []
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "SubTask.1",
+    "binding": "pins[199]",
+    "drivers": []
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "ProcL22.sil+4",
+    "binding": "pins[200]",
+    "drivers": [
+      {
+        "pkg": "h20",
+        "pin": 2,
+        "kind": "MC10106"
+      }
+    ]
+  },
+  {
+    "board": "ProcL-Rev-Ci",
+    "net": "BumpRBase",
+    "binding": "pins[201]",
+    "drivers": [
+      {
+        "pkg": "g20",
+        "pin": 15,
+        "kind": "MC10100"
+      }
+    ]
+  }
+]

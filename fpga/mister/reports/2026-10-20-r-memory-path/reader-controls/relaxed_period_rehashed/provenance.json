@@ -1,0 +1,30 @@
+{
+  "scope": "Measure the 636-bit R address/control plus functional RAM evaluator using the qualified 15ns shell.\n\nThis is an isolated implementation-budget measurement, without assembly or\ndeployment. It does not establish native Dorado timing or instruction speed.\nRun Quartus only on misterubuntu.\n",
+  "component": "r_memory",
+  "clock_period_ns": 15,
+  "ram_bits": 9216,
+  "input_staging_bits": 1043,
+  "launch_bits": 1043,
+  "result_bits": 847,
+  "files": {
+    "dorado_r_port_preview.sv": "a133630074281f1513948928b1f71dac9171430afc4ba7bd155726a21579625c",
+    "dorado_r_address_step.sv": "34e89a662aa602a9aafa6d8d9b37d10cbc8f986121f7cb036a83f2dac7224b39",
+    "dorado_t_parity_step.sv": "1f29c255ec4bcc6e838ba8a8b3110c3e97c2e7c6d7a5940f4ee6933c40281ca8",
+    "dorado_r_file_ports.sv": "45e87cb0bed39bc39560293c0498ad03f774fd77481b4f143fb33aa29256fc6e",
+    "fit_control_clock.py": "d3b04b7f9b8c745620001bf30be430b6fd0f46326f44e09179340ec010be6727",
+    "fit_r_memory.py": "fc99425b3f6bbb03ebd6bd9a26af28764ac3b507adc79ef60e88b969dec8dc29",
+    "dorado_task_capture_step.sv": "ce6633d31135f19c8c64a66c85c5c931f90aef62e2eaefe60e49484df74f8ee2",
+    "clock.sdc": "3e8b710bb7dff68ceb760d9e1255f781d46ac9bb86badb4fb00476b561b87731",
+    "top.sv": "68fd1ba64b9ba101e4872fc0af24fbf4a236dd3a69b812c3f5de7ef09fb69fdf",
+    "dorado_r_flags_step.sv": "1afb371b6bcc9e8234f4faeae5e0ce150dde65a8407752b01eddef54696c9e71",
+    "dorado_r_memory_step.sv": "51ce2a2aa05e41c4c0d9e20fff2c1115cb73e058ce96b5e48eac1198e5cb6ea5",
+    "clock_fit.qpf": "4930956ed5ce00ee6a40fb691fea958b90ee2e28fec7ef03685661e6a7392484",
+    "audit.tcl": "64aea4243f893e5658768eacbbbf9a029c88ee27a0f35c7e83ae4419778208f7",
+    "clock_fit.qsf": "8fc7448f1f2df0df60b0b8ba32efcc0b19028bdb6a46fd0cb71c06fa448a6306",
+    "dorado_processor_capture_step.sv": "16eb9e14999f6383cb4ded023e34375e531dee15707cbf79628d28fb773e26e2",
+    "dorado_t_file_step.sv": "d54ba9ee3c5abfafd6f3bcd260883db381f855e0c5cbfef7db90b9dbcb34d7f8",
+    "dorado_r_operand_step.sv": "2e113c7dd0464def7603bc8c6cf6cebc165088bf655f27cd51185062909eb8d5"
+  },
+  "assembly_permitted": false,
+  "native_qualified": false
+}

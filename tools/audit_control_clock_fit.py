@@ -31,8 +31,11 @@ def slack(path,model):
     return value
 
 
-def r_storage_memory(directory,qualified):
-    assert qualified['ram_bits']==9216 and qualified['total_physical_bits']==9812
+def r_storage_memory(directory,qualified,processor_bits):
+    assert processor_bits in (596,636) and qualified['physical_bits']==processor_bits
+    assert qualified['ram_bits']==9216 and qualified['total_physical_bits']==9216+processor_bits
+    if processor_bits==636:
+        assert qualified['R_final_address_stage_qualified'] and qualified['all_R_memory_bits_compared']
     assert qualified['r_read_write_nonoverlap_checked'] and qualified['post_commit_source_epoch_checked']
     assert qualified['ram_arrays_flattened'] is False
     text=(directory/'clock_fit.map.rpt').read_text()
@@ -50,8 +53,12 @@ def r_storage_memory(directory,qualified):
         assert match and row[1:]==['MLAB','Simple Dual Port','256','9','256','9','2304','None'],row
         names.append(match[1])
     assert set(names)=={'rm_h','stk_h','rm_l','stk_l'} and len(set(names))==4
+    # With real address muxes Quartus cannot absorb the launch flip-flop into
+    # the read-address port. The new component requires a truly async read;
+    # retain the older externally registered-address fixture's exact contract.
     parameters={'INDATA_REG':'INCLOCK','WRADDRESS_REG':'INCLOCK','WRCONTROL_REG':'INCLOCK',
-        'RDADDRESS_REG':'OUTCLOCK','RDCONTROL_REG':'UNREGISTERED','OUTDATA_REG':'UNREGISTERED',
+        'RDADDRESS_REG':'UNREGISTERED'if processor_bits==636 else'OUTCLOCK',
+        'RDCONTROL_REG':'UNREGISTERED','OUTDATA_REG':'UNREGISTERED',
         'RAM_BLOCK_TYPE':'LUTRAM','READ_DURING_WRITE_MODE_MIXED_PORTS':'DONT_CARE'}
     for name in names:
         match=re.search(r'; Parameter Settings for Inferred Entity Instance: [^\n]*altdpram:'+name+r'_rtl_0 ;\n(.*?)(?=\n\n)',text,re.S)
@@ -74,6 +81,7 @@ def audit(directory,qualified,allow_missing):
               'r_operand':(898,675,'r_operand','PASS_R_OPERAND_ARRIVAL_CONTRACT','dorado_r_operand_step.sv'),
               'r_flags':(902,689,'r_flags','PASS_R_FLAGS_ARRIVAL_CONTRACT','dorado_r_flags_step.sv'),
               'r_address':(1042,791,'r_address','PASS_R_ADDRESS_ARRIVAL_CONTRACT','dorado_r_address_step.sv'),
+              'r_memory':(1043,847,'r_memory','PASS_R_MEMORY_ARRIVAL_CONTRACT','dorado_r_memory_step.sv'),
               'r_storage':(939,709,'r_storage','PASS_R_STORAGE_ARRIVAL_CONTRACT','dorado_r_storage_step.sv')}
     assert provenance.get('component')in profiles,'Unknown fixture profile'
     expected_launch,expected_result,component,expected_status,evaluator=profiles[provenance.get('component')]
@@ -141,7 +149,7 @@ def audit(directory,qualified,allow_missing):
         match=re.search(re.escape(label)+r'\s*:\s*([\d,]+)',summary);assert match,label
         resources[key]=int(match[1].replace(',',''))
     assert resources['memory_bits']==resources['ram_blocks']==resources['dsp']==resources['plls']==0
-    memory=r_storage_memory(directory,qualified_record)if component=='r_storage'else None
+    memory=r_storage_memory(directory,qualified_record,636 if component=='r_memory'else 596)if component in ('r_storage','r_memory')else None
     if memory:resources['mlab_memory_bits']=memory['bits']
     minimum={mode:min(r[mode]for r in records)for mode in ['setup','hold','mpw']}
     passing=(targeted_complete and all(v>=0 for v in minimum.values()) and

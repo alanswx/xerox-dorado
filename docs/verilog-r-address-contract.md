@@ -64,14 +64,48 @@ cone must be included together in a later extension. Selecting just i10 would
 silently lose the other contribution. FFeqMul' and FF4'..7' are decoded from the
 existing FF field; FF4' corresponds to the highest numbered source pin bit.
 
+## Functional memory handoff
+
+`dorado_r_memory_step.sv` connects these stages to the four functional RM/STK
+banks. During a g16 capture, each half's physical port retains its pre-event
+address and select. Other events use the resolved address. Writes are closed
+during that capture, so one address port per bank suffices; no RAM copies or
+extra architectural state are needed. The CPU's address outputs still report
+the resolved circuit address, separately from this sampled port address.
+
+`dorado_r_port_preview.sv` evaluates the needed clock/address cone without
+serially unrolling task arbitration into a RAM read. It reuses the qualified
+64-bit processor/controller evaluator and captures SwitchUp' from the pre-event
+task source once at task Clock0, with the inherited masked-high producer setup
+contract. The complete task/address evaluator remains the CPU-state source.
+Runtime agreement checks cover the resolved addresses, selects and both parity
+capture events. The independent test compares the full original circuit.
+
+The test observes all 9,216 physical SRAM bits after each resolved event, not
+only the currently selected read port. It checks the original level-sensitive
+write windows, actual j05 write gates, pre-event parity sampling, suppression of
+a RAM commit when advance is clear, and unchanged sampled CPU state after RAM
+commit. Initial storage contents are test-only fixtures; production adds no
+RAM initialization or scan interface.
+
+The coupled component requires four256×9 MLAB banks with unregistered read
+addresses and outputs. This differs from the earlier external-address timing
+fixture, where Quartus absorbed its launch flip-flop into the read-address port.
+The timing reader checks these two profiles separately, including initialization,
+collision mode and register settings. The original RAM read/write nonoverlap and
+sampled-source checks remain prerequisites for `no_rw_check`.
+
 ## Remaining integration work
 
-Connect these real address/select outputs to the functional four-bank RM/STK
-ports. Check actual write-enable/address/select arrival ordering throughout the
-original level-sensitive write window. Preserve the OLD RAM parity/data epoch
-at g16 capture before the phase/address registers expose the next address.
-The address-only fixture deliberately probes transparent front inputs and does
-not establish that coupled RAM writes remain correct.
+The coupled implementation now passes six primary arrival profiles, six directed
+reset/stop/maintenance profiles in both simulators, and the isolated15ns budget
+(setup+3.241ns/hold+0.136ns). Evidence and limits are in
+[the coupled receipt](../fpga/mister/reports/2026-10-20-r-memory-path/README.md).
+Include remaining front RBase/stack data, complete comparison, IFU/Ready/MIR/Hold
+and board producers before native integration.
+The address-only fixture deliberately probes transparent front inputs; its
+evidence alone does not establish coupled RAM write correctness. Keep the old
+g16 source epoch and write-address stability as explicit gates as the cone grows.
 
 The simulation's generous settled intervals and illustrative arrival profiles
 do not prove a complete 60 ns board cycle. The 15 ns registered-shell fit is an

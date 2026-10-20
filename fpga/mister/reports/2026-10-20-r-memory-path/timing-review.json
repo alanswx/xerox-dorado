@@ -1,0 +1,81 @@
+{
+  "status": "PASS_COMPONENT_TIMING",
+  "scope": "Read isolated control-clock timing evidence; never infer native speed.\n\nRequires unchanged prepared inputs (only Quartus's version annotation allowed),\nsimulation-qualified evaluator bytes, four timing conditions, the 15 ns clock\nand fully constrained virtual I/O. Rejects missing targeted path coverage unless\nexplicitly reviewing the historical rejected experiment.\n",
+  "component": "r_memory",
+  "functional_qualification_status": "PASS_R_MEMORY_ARRIVAL_CONTRACT",
+  "period_ns": 15,
+  "resources": {
+    "alms": 1992,
+    "registers": 2507,
+    "memory_bits": 0,
+    "ram_blocks": 0,
+    "dsp": 0,
+    "plls": 0,
+    "mlab_memory_bits": 9216
+  },
+  "minimum_slack_ns": {
+    "setup": 3.241,
+    "hold": 0.136,
+    "mpw": 6.111
+  },
+  "conditions": [
+    {
+      "corner": "7_slow_1100mv_100c",
+      "setup": 3.482,
+      "hold": 0.383,
+      "mpw": 6.46,
+      "evaluator_setup": 3.482
+    },
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "setup": 3.241,
+      "hold": 0.348,
+      "mpw": 6.492,
+      "evaluator_setup": 3.241
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "setup": 4.787,
+      "hold": 0.177,
+      "mpw": 6.174,
+      "evaluator_setup": 8.674
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "setup": 5.032,
+      "hold": 0.136,
+      "mpw": 6.111,
+      "evaluator_setup": 9.614
+    }
+  ],
+  "input_staging_bits": 1043,
+  "targeted_coverage_complete": true,
+  "evaluator_sha256": "51ce2a2aa05e41c4c0d9e20fff2c1115cb73e058ce96b5e48eac1198e5cb6ea5",
+  "permitted_qsf_delta": "Quartus17.0.2 LAST_QUARTUS_VERSION annotation only",
+  "native_qualified": false,
+  "hardware_speedup_claimed": false,
+  "memory_contract": {
+    "logical_banks": [
+      "rm_h",
+      "rm_l",
+      "stk_h",
+      "stk_l"
+    ],
+    "bits": 9216,
+    "depth": 256,
+    "width": 9,
+    "type": "MLAB",
+    "initialization": "None",
+    "inferred_parameters": {
+      "INDATA_REG": "INCLOCK",
+      "WRADDRESS_REG": "INCLOCK",
+      "WRCONTROL_REG": "INCLOCK",
+      "RDADDRESS_REG": "UNREGISTERED",
+      "RDCONTROL_REG": "UNREGISTERED",
+      "OUTDATA_REG": "UNREGISTERED",
+      "RAM_BLOCK_TYPE": "LUTRAM",
+      "READ_DURING_WRITE_MODE_MIXED_PORTS": "DONT_CARE"
+    },
+    "collision_scope": "no_rw_check: architecture reads outside write windows; coupled nonoverlap/source-epoch checks required. No same-edge raw-output value guarantee."
+  }
+}

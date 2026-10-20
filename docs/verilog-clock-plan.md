@@ -65,8 +65,11 @@ The complete596-bit R sign/odd component now couples functional RM/STK ports
 (9,216 bits in four256×9 MLAB banks). Both simulators and isolated15ns timing
 pass (setup+4.190ns/hold+0.105ns). The final R address/select stages now pass
 separately at636 bits/45 clocks in both simulators and isolated15ns timing
-(setup+3.982ns/hold+0.155ns). Coupling real addresses to functional RAM while
-preserving the old g16 sample, remaining front/bypass/IFU/Ready/MIR/Hold producers
+(setup+3.982ns/hold+0.155ns). Their coupled functional RAM handoff now passes all
+six primary profiles and15ns timing (setup+3.241ns/hold+0.136ns). Extra directed
+startup/control checks also pass six profiles in both simulators. The old g16
+sample and original write-window stability are explicit gates. Remaining
+front/bypass/IFU/Ready/MIR/Hold producers
 and native clock integration remain open. Exact evidence
 and process state are at the top of the handoff.
 
@@ -98,9 +101,17 @@ and process state are at the top of the handoff.
    final R address/select register/mux graph,636 bits/193 packages; all45 clocks
    and256 addresses per port, both simulators/five profiles/seven bad variants;
    isolated15ns setup+3.982ns/hold+0.155ns. Include all four mixed low-address
-   drivers and preserve DblClock'B's different StartA qualification. Couple these
-   actual address/select stages to functional RAM, preserving old g16 data and stable
-   write addresses; then bypass/IFU and Ready/MIR/hold producers, then remaining
+   drivers and preserve DblClock'B's different StartA qualification. **Primary
+   simulation/timing PASS:** these actual address/select stages now drive functional
+   RAM, preserving old g16 data and321 stable original write windows per half;
+   every636 processor/9,216 RAM bit is compared after every event in six profiles.
+   First fit failed-26.346ns from an unrolled arbiter preview; the separated
+   pre-event clock/address cone passes15ns at+3.241ns setup/+0.136ns hold. Extra
+   directed startup/control qualification also passes1,680 events/profile in both
+   simulators across six profiles. Sixteen damaged reader cases reject;2,315
+   raw receipt members are losslessly archived/read back/extracted, with positive
+   and rejected reviews reproduced byte-identically. Next front/bypass/IFU and
+   Ready/MIR/hold producers, then remaining
    board/latch/RAM families against original references. The existing
    eight-slot phase oracle is not a deployable full-speed clock solution.
 4. Fit only a justified native candidate, pass all operating conditions and

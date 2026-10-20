@@ -21,9 +21,11 @@ def run(source, qualified, output):
             p.write_text(json.dumps(q,indent=2)+'\n')
     names=['wrong_dimensions','relaxed_period_rehashed','changed_evaluator_rehashed',
            'changed_dependency_rehashed','missing_corner','missing_evaluator','negative_setup','negative_evaluator']
-    if json.loads((source/'provenance.json').read_text()).get('component')=='r_storage':
+    if json.loads((source/'provenance.json').read_text()).get('component')in ('r_storage','r_memory'):
         names+=['missing_ram_bank','wrong_ram_width','wrong_ram_type','wrong_ram_init',
                 'wrong_ram_bits','wrong_ram_output_register','wrong_ram_collision_mode']
+    if json.loads((source/'provenance.json').read_text()).get('component')=='r_memory':
+        names+=['wrong_ram_address_register']
     for name in names:
         d=output/name;shutil.copytree(source,d)
         if name=='wrong_dimensions':
@@ -51,8 +53,9 @@ def run(source, qualified, output):
             elif name=='wrong_ram_bits':
                 lines=[re.sub(r'(Total MLAB memory bits\s*;\s*)9216',r'\g<1>9217',line)for line in lines]
             else:
-                key='OUTDATA_REG'if name=='wrong_ram_output_register'else'READ_DURING_WRITE_MODE_MIXED_PORTS'
-                replacement='CLOCK0'if name=='wrong_ram_output_register'else'OLD_DATA'
+                key={'wrong_ram_output_register':'OUTDATA_REG','wrong_ram_address_register':'RDADDRESS_REG',
+                     'wrong_ram_collision_mode':'READ_DURING_WRITE_MODE_MIXED_PORTS'}[name]
+                replacement='OLD_DATA'if name=='wrong_ram_collision_mode'else'CLOCK0'
                 text='\n'.join(lines)+'\n'
                 text,count=re.subn(r'(;\s*'+key+r'\s*;\s*)[^;]+',lambda m:m[1]+replacement+' ',text,count=1)
                 assert count==1;lines=text.splitlines()
