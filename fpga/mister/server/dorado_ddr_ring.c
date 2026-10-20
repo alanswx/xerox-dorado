@@ -50,6 +50,7 @@ static int fail(dorado_ddr_ring *r, int error) {
 }
 static int session(dorado_ddr_ring *r) {
     if (!r || !r->active) return -ENOTCONN;
+    if (r->paused) return -EAGAIN;
     order();
     if (pair(r,DORADO_DDR_MAGIC_OFF)!=DORADO_DDR_MAGIC ||
         pair(r,DORADO_DDR_EPOCH_OFF)!=r->epoch ||
@@ -83,7 +84,26 @@ void dorado_ddr_quiesce(dorado_ddr_ring *r) {
     if (!r) return;
     /* Caller is the sole owner/service thread: there is no background MMIO
      * after this barrier or while sending the local control STOP ACK. */
-    r->active=0;complete();r->memory=NULL;
+    r->active=0;r->paused=0;complete();r->memory=NULL;
+}
+int dorado_ddr_pause(dorado_ddr_ring *r) {
+    if (!r || !r->active) return -ENOTCONN;
+    if (r->paused) return 0;
+    int result=session(r);if(result)return result;
+    complete();r->paused=1;return 0;
+}
+int dorado_ddr_continue(dorado_ddr_ring *r) {
+    if (!r || !r->active) return -ENOTCONN;
+    if (!r->paused) return -EINVAL;
+    /* No other service call can interleave in the sole owner thread. A
+     * failed check deactivates access; it cannot leave a live stale grant. */
+    r->paused=0;
+    int result=session(r);if(result)return result;
+    uint32_t pending=load(r,DORADO_DDR_TX_PROD)-r->tx_cons;
+    uint32_t occupied=r->rx_prod-load(r,DORADO_DDR_RX_CONS);
+    if(pending>DORADO_DDR_TX_SLOTS || occupied>DORADO_DDR_RX_SLOTS)
+        return fail(r,EPROTO);
+    return session(r);
 }
 int dorado_ddr_send(dorado_ddr_ring *r, const unsigned char *bytes, size_t size) {
     if (!bytes || size<4 || size>DORADO_DDR_SLOT_BYTES || (size&1)) return -EINVAL;

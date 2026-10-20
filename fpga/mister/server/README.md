@@ -8,12 +8,13 @@ The process/socket regression passes natively and on MiSTer14's ARM:
 18,728 microcode payload bytes and 7,080 EFTP bytes match their source files;
 dropping the first EFTP packet produces an identical retransmission.
 
-Direct DDR transport is being implemented separately. The bounded C ring
-endpoint and standalone RTL engine pass cross-language stall/full/wrap/reset
-and2048-byte payload tests, including actual ARM endpoint tests. They are
-**not connected to this daemon or deployed**. The existing socket path stays
-the default until Main's acknowledged stop/resume grant and FPGA capability
-checks are integrated and qualified. Protocol and reproduction commands:
+Direct DDR transport is integrated and qualified on the Native59 baseline.
+The daemon exclusively maps the reserved 64 KiB aperture at 0x1ff00000 after
+Main grants a validated epoch; Main remains the sole SPI owner. The bounded
+ring and RTL engine pass stall/full/wrap/reset and2048-byte payload tests,
+including ARM endpoint tests. `DORADO_NET_DDR=1` enables the control listener;
+the socket path remains available when no DDR grant is active. The daemon
+never maps guest memory or completes guest instructions. Protocol and commands:
 [dorado-ddr-protocol.md](../dorado-ddr-protocol.md).
 
 ```sh
@@ -56,7 +57,8 @@ on core initialization, including same-name Dorado reloads.
 The adapter strips the C controller queue's dummy CRC and attention/status
 entries. It adds the missing nil Pup checksum to that code's old microcode-
 boot packets, whose length already includes it. EFTP's actual Pup checksum
-stays in the packet. Server timers advance with monotonic time; alternating
+stays in the packet. Server timers advance with monotonic service time, excluding
+explicit snapshot pauses; alternating
 breath-of-life and routing/time broadcasts are attempted once per second,
 only when the underlying server is idle. After a Cedar BFN113 request,
 unsolicited boot/routing broadcasts stop: Cedar's routing initializer needs
@@ -86,6 +88,36 @@ discards later live history; full mid-transfer restore requires serializing
 it in the planned complete-machine snapshot bundle (milestone 4a). A daemon
 restart does not preserve live BSP connections.
 
+Snapshot pause is a separate control operation from lifecycle STOP/RESUME.
+Commands 4/5 are PAUSE/CONTINUE for the existing epoch and fixed aperture. A
+successful PAUSE reply has flags 3 (active grant plus paused); CONTINUE has
+flags 1 and must match the same epoch. Duplicate requests do not remap or repeat
+lifecycle transitions. Paused STATUS and ring calls make no DDR accesses.
+CONTINUE validates the retained header/cursors and rejects stale/invalid state.
+STOP or controller EOF still revokes the grant and requires the normal lifecycle
+barrier; neither is a snapshot continuation.
+
+While paused, the sole daemon thread services control without pumping timers,
+consuming/publishing frames, probing connections or resetting Pup state. Its
+local retry clock excludes paused wall time, while Pup wall-clock replies keep
+their original meaning. Main's control client checks the exact pause/continue
+flags and epoch. The full Main snapshot coordinator, FPGA/raw-service draining,
+heap/history export/import and disk-generation pairing are still pending; this
+daemon ACK alone is not a whole-machine snapshot barrier. The new pause feature
+is host-qualified and is not yet deployed on MiSTer.
+
+```sh
+make -C fpga/mister/server ddr-control-test service-clock-test snapshot-pause-test
+make -C fpga/mister/main control-test
+python3 fpga/mister/server/test_snapshot_pause_mutations.py --output /tmp/dorado-pause-proof
+```
+
+The real process test pauses pending EFTP data/ACKs and a BSP/STP retrieve, then
+requires all 7,080 boot bytes and 66,296 file bytes to continue exactly. Guarded
+memory tests forbid MMIO while paused; broken lifecycle reset, timer and MMIO
+variants reject. The mapper fixture is link-only and absent from production.
+These tests neither serialize a server checkpoint nor restore an FPGA.
+
 The MiSTer Main/RTL packet bridge now delivers actual guest TX packets to
 this service on MiSTer14. Main owns SPI and Dorado-specific UIO queues; RTL
 serializes Manchester data and checks hardware CRC through the Sil-derived
@@ -110,9 +142,9 @@ The observed FPGA failure was a lost20-byte Helvetica7 transfer-completion
 tail after all font bytes arrived. With no later acknowledgement-requesting
 packet, Cedar and the server waited indefinitely at the gray Viewers screen.
 Protocol probes elicited the stalled byte cursor; duplicate ACK replayed the
-tail and the desktop resumed. This does not implement a general retransmit
-ring for every STP metadata packet; it makes the existing retransmission path
-live when an unrequested final packet is lost.
+tail and the desktop resumed. Probes elicit the stalled byte cursor; the history
+ring described above supplies the metadata/data/completion replay. This makes
+recovery possible when an unrequested final packet is lost.
 
 `make bsp-retry-test` drops that tail, supplies ACKs only when BSP requests
 them, and verifies recovery plus all1036 file bytes. It passes natively and

@@ -1,0 +1,10 @@
+[
+  "make",
+  "-C",
+  "/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/executed-inputs/fpga/mister/server",
+  "OUT=/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/dorado-server",
+  "ddr-control-test",
+  "service-clock-test",
+  "ddr-ring-test",
+  "ddr-map-test"
+]

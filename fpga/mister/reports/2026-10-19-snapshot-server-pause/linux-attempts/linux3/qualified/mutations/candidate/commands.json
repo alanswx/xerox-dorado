@@ -1,0 +1,26 @@
+{
+  "build": [
+    "cc",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-std=gnu11",
+    "-I/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/mutations/executed-inputs/fpga/mister/server",
+    "-I/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/mutations/executed-inputs/dorado/include",
+    "-DDORADO_TEST_PAUSE_MAPPER",
+    "/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/mutations/candidate/dorado_server.c",
+    "/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/mutations/candidate/dorado_ddr_ring.c",
+    "/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/mutations/executed-inputs/fpga/mister/server/dorado_ddr_control.c",
+    "/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/mutations/executed-inputs/fpga/mister/server/test_pause_mapper.c",
+    "/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/mutations/executed-inputs/dorado/src/ethernet.c",
+    "/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/mutations/executed-inputs/dorado/src/io.c",
+    "-o",
+    "/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/mutations/candidate/test"
+  ],
+  "test": [
+    "python3",
+    "/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/mutations/executed-inputs/fpga/mister/server/test_snapshot_pause.py",
+    "/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/mutations/candidate/test",
+    "/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/mutations/executed-inputs"
+  ]
+}

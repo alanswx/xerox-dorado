@@ -12,7 +12,7 @@ endif
 LDFLAGS ?= $(GC)
 CFLAGS ?= -O2 -Wall -Wextra -ffunction-sections -fdata-sections
 
-.PHONY: all test cedar-test bsp-retry-test bsp-ack-race-test ddr-ring-test ddr-control-test ddr-map-test ddr-wire-test
+.PHONY: all test cedar-test bsp-retry-test bsp-ack-race-test ddr-ring-test ddr-control-test ddr-map-test ddr-wire-test service-clock-test snapshot-pause-test
 all:
 	mkdir -p $(dir $(OUT))
 	$(CC) $(CFLAGS) -I$(ROOT)/dorado/include dorado_server.c \
@@ -38,5 +38,15 @@ ddr-map-test:
 	mkdir -p $(dir $(OUT))
 	$(CC) $(CFLAGS) -std=c11 -Werror dorado_ddr_mapping.c test_ddr_mapping.c -o $(OUT)-ddr-map-test
 	$(OUT)-ddr-map-test
+service-clock-test:
+	mkdir -p $(dir $(OUT))
+	$(CC) $(CFLAGS) -std=c11 -Werror test_service_clock.c -o $(OUT)-service-clock-test
+	$(OUT)-service-clock-test
+snapshot-pause-test:
+	mkdir -p $(dir $(OUT))
+	$(CC) $(CFLAGS) -DDORADO_TEST_PAUSE_MAPPER -I$(ROOT)/dorado/include dorado_server.c \
+		dorado_ddr_ring.c dorado_ddr_control.c test_pause_mapper.c \
+		$(ROOT)/dorado/src/ethernet.c $(ROOT)/dorado/src/io.c $(LDFLAGS) -o $(OUT)-pause-fixture
+	python3 test_snapshot_pause.py $(OUT)-pause-fixture $(ROOT)
 ddr-wire-test:
 	python3 test_ddr_wire.py --mutations

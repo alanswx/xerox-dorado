@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "members": 874,
+  "scope": "Lossless byte readback, exact executed source/data/log hashes, identical Mac/Linux inputs and all four candidate/mutation outcomes. Actual process tests ran from staged copies; no working HDL or hardware.",
+  "runs": [
+    {
+      "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+      "steps": 7,
+      "executed_inputs": 86,
+      "mutations": [
+        {
+          "case": "candidate",
+          "returncode": 0
+        },
+        {
+          "case": "lifecycle_reset",
+          "returncode": 1
+        },
+        {
+          "case": "wall_time_jump",
+          "returncode": 1
+        },
+        {
+          "case": "unguarded_paused_mmio",
+          "returncode": -10
+        }
+      ]
+    },
+    {
+      "platform": "Linux-6.8.0-142-generic-x86_64-with-glibc2.39",
+      "steps": 7,
+      "executed_inputs": 86,
+      "mutations": [
+        {
+          "case": "candidate",
+          "returncode": 0
+        },
+        {
+          "case": "lifecycle_reset",
+          "returncode": 1
+        },
+        {
+          "case": "wall_time_jump",
+          "returncode": 1
+        },
+        {
+          "case": "unguarded_paused_mmio",
+          "returncode": -11
+        }
+      ]
+    }
+  ]
+}

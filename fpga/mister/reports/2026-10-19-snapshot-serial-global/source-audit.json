@@ -1,0 +1,57 @@
+{
+  "status": "PASS_GLOBAL_SIGNAL_SOURCE_ONLY",
+  "scope": "Independent exact parent/source review of targeted network_step global routing.\n\nOne routing assignment to the registered signal are the only permitted policy\nchange. Reverse them and invoke the readiness/native pin/constraint review.\nNo logical state, clock, schema, IO delay or timing exception may change.\n",
+  "verified_parent_inputs": 659,
+  "original_pin_connections": 2761,
+  "schema_id": "af0b647cb43a3a62",
+  "changed_logic_files": [],
+  "changed_policy_files": [
+    "core/Dorado.qsf"
+  ],
+  "target": "emu|network_step",
+  "global_signal": "Global Clock",
+  "new_state_bits": 0,
+  "new_clocks": 0,
+  "new_ports": 0,
+  "constraints_unchanged": true,
+  "real_pause_barriers": false,
+  "limits": "Source/policy proof only; check actual assignment application and full fit/timing before adoption.",
+  "failure_controls": [
+    {
+      "case": "wrong_target",
+      "rejected": true,
+      "reason": "targeted global-routing policy differs",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "wrong_routing",
+      "rejected": true,
+      "reason": "targeted global-routing policy differs",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "duplicate_policy",
+      "rejected": true,
+      "reason": "unapproved source/clock/constraint edit: core/Dorado.qsf",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "new_exception",
+      "rejected": true,
+      "reason": "targeted global-routing policy differs",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "lost_init",
+      "rejected": true,
+      "reason": "unapproved source/clock/constraint edit: core/Dorado.sv",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "fake_service",
+      "rejected": true,
+      "reason": "unapproved source/clock/constraint edit: core/Dorado.sv",
+      "damaged_metadata_rehashed": true
+    }
+  ]
+}

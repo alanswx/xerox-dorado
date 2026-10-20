@@ -109,8 +109,49 @@ int main(void){
     rpc(fd,2,1,epoch+4,EINVAL,0);
     packet(p,2,2,epoch+5);p[0]^=1;send_bytes(fd,p,32);pump(3);
     check(service.client<0&&!service.granted,"malformed magic retained controller");close(fd);
+    /* Snapshot pause is a different operation from lifecycle STOP/RESUME.
+     * Pending frames and both private cursors must survive without mapping
+     * again or polling any DDR byte while the pause is acknowledged. */
+    fd=connect_client(path);seed(epoch+6);rpc(fd,DORADO_CTRL_RESUME,1,epoch+6,0,1);
+    unsigned pause_opens=opens,pause_closes=closes;
+    check(!dorado_ddr_send(&service.ring,data,4),"seed pending RX");
+    put32(memory+DORADO_DDR_TX_DESC,4);put32(memory+DORADO_DDR_TX_DESC+4,0);
+    put64(memory+DORADO_DDR_TX_DESC+8,epoch+6);
+    memcpy(memory+DORADO_DDR_TX_DATA,data,4);put32(memory+DORADO_DDR_TX_PROD,1);
+    unsigned char saved[65536];memcpy(saved,memory,sizeof saved);
+    events=0;rpc(fd,DORADO_CTRL_PAUSE,2,epoch+6,0,3);
+    check(events==DORADO_CTRL_PAUSED_EVENT && service.ring.paused,"pause event/state differs");
+    check(opens==pause_opens && closes==pause_closes && service.mapped==memory,"pause remapped/unmapped");
+    check(!mprotect(memory,65536,PROT_NONE),"protect paused DDR");
+    events=0;rpc(fd,DORADO_CTRL_STATUS,3,0,0,3);
+    rpc(fd,DORADO_CTRL_PAUSE,4,epoch+6,0,3);
+    packet(p,DORADO_CTRL_PAUSE,4,epoch+6);send_bytes(fd,p,32);response(fd,r);
+    check(!events && get32(r+28)==3,"duplicate pause changed continuation");
+    unsigned char receive[4]={9,9,9,9};
+    check(dorado_ddr_send(&service.ring,data,4)==-EAGAIN,"paused send touched DDR");
+    check(dorado_ddr_receive(&service.ring,receive,4)==-EAGAIN && receive[0]==9,"paused receive touched DDR/destination");
+    rpc(fd,DORADO_CTRL_CONTINUE,5,epoch+7,ESTALE,3);
+    packet(p,DORADO_CTRL_PAUSE,6,epoch+6);put32(p+24,0x30000000);send_bytes(fd,p,32);response(fd,r);
+    check(get32(r+24)==EINVAL && get32(r+28)==3,"pause accepted arbitrary aperture");
+    second=connect_client(path);check(recv(second,&byte,1,MSG_DONTWAIT)==0 && service.ring.paused,"paused owner was replaced");close(second);
+    check(!mprotect(memory,65536,PROT_READ|PROT_WRITE),"restore paused DDR access");
+    check(!memcmp(saved,memory,sizeof saved),"paused control changed queued bytes/cursors");
+    events=0;rpc(fd,DORADO_CTRL_CONTINUE,7,epoch+6,0,1);
+    check(events==DORADO_CTRL_CONTINUED_EVENT && !service.ring.paused,"continue reset lifecycle");
+    check(opens==pause_opens && closes==pause_closes && !memcmp(saved,memory,sizeof saved),"continue remapped or changed ring state");
+    check(service.ring.tx_cons==0 && service.ring.rx_prod==1,"continue lost private cursors");
+    events=0;packet(p,DORADO_CTRL_CONTINUE,7,epoch+6);send_bytes(fd,p,32);response(fd,r);
+    check(!events && !get32(r+24) && get32(r+28)==1,"duplicate continue changed state");
+    rpc(fd,DORADO_CTRL_CONTINUE,8,epoch+6,EINVAL,1);
+    check(dorado_ddr_receive(&service.ring,receive,4)==4 && !memcmp(receive,data,4),"pending TX did not survive pause");
+    rpc(fd,DORADO_CTRL_PAUSE,9,epoch+6,0,3);put64(memory+DORADO_DDR_EPOCH_OFF,epoch+7);
+    events=0;rpc(fd,DORADO_CTRL_CONTINUE,10,epoch+6,ESTALE,0);
+    check(events==DORADO_CTRL_STOPPED_EVENT && !service.mapped && !service.ring.active,"stale paused ring retained grant");
+    seed(epoch+7);rpc(fd,DORADO_CTRL_RESUME,11,epoch+7,0,1);
+    rpc(fd,DORADO_CTRL_PAUSE,12,epoch+7,0,3);close(fd);pump(4);
+    check(!service.granted && !service.mapped && !service.ring.paused,"paused EOF did not revoke mapping");
     check(!dorado_ddr_control_close(&service),"control close");
     check(access(path,F_OK)<0 && errno==ENOENT,"socket not removed");
     check(!rmdir(directory)&&!munmap(memory,65536),"cleanup");
-    printf("DDR CONTROL PASS: fragments/EOF, duplicate ownership, fresh/stale/wrapped sequences, failed cleanup ACK, protected stopped memory, ring fault and endpoint lifetime; opens=%u closes=%u\n",opens,closes);
+    printf("DDR CONTROL PASS: fragments/EOF, ownership, epochs/sequences, failed cleanup, protected stopped/paused memory, pending-frame/cursor preservation, duplicate pause/continue, stale continuation and endpoint lifetime; opens=%u closes=%u\n",opens,closes);
 }

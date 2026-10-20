@@ -11,6 +11,8 @@ import json
 from pathlib import Path
 
 SKIP={'db','incremental_db','obj','obj_xml','__pycache__'}
+BINARY_MAGIC=(b'\x7fELF',b'\xcf\xfa\xed\xfe',b'\xce\xfa\xed\xfe',
+              b'\xfe\xed\xfa\xcf',b'\xfe\xed\xfa\xce',b'\xca\xfe\xba\xbe')
 
 
 def sha(raw):return hashlib.sha256(raw).hexdigest()
@@ -39,7 +41,9 @@ def archive(root,trees,files):
             rel=p.relative_to(directory)
             if not p.is_file()or p.is_symlink()or any(x in SKIP for x in rel.parts)or p.name.startswith('._')or p.suffix in ('.pyc','.vvp','.o','.a','.so','.dylib'):continue
             assert p.suffix not in ('.rbf','.sof'),'unexpected FPGA image in source/report bundle'
-            add(label+'/'+str(rel),p.read_bytes())
+            raw=p.read_bytes()
+            if raw.startswith(BINARY_MAGIC):continue
+            add(label+'/'+str(rel),raw)
     for name,path in files:add(name,Path(path).read_bytes())
     (root/'archive-manifest.json.gz').write_bytes(gzip.compress((json.dumps(rows,indent=2)+'\n').encode(),mtime=0))
     return readback(root)

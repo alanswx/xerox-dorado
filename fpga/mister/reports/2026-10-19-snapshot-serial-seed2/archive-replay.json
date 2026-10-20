@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "scope": "All archived bytes, extracted source reviewer/six rehashed controls, exact extracted-builder restaging of 659 inputs and three records. Prior immutable reports and readiness tools/frozen cells only; no working HDL.",
+  "commands": [
+    [
+      "python3",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/serial68-source-replay-20261019/dependency-tools/fpga/mister/snapshot/audit_serial_seed.py",
+      "--project",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/serial68-source-replay-20261019/staged-source",
+      "--reports",
+      "/Users/alans/dev2/Dorado/fpga/mister/reports",
+      "--output",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/serial68-source-replay-20261019/source-audit.json"
+    ],
+    [
+      "python3",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/serial68-source-replay-20261019/dependency-tools/fpga/mister/snapshot/build_serial_seed.py",
+      "--stage",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/serial68-source-replay-20261019/restaged",
+      "--destination",
+      "/home/alans/mister/Dorado_Serial68Seed2_20261019",
+      "--reports",
+      "/Users/alans/dev2/Dorado/fpga/mister/reports"
+    ]
+  ]
+}

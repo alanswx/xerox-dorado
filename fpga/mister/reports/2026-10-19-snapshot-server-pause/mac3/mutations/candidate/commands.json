@@ -1,0 +1,26 @@
+{
+  "build": [
+    "cc",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-std=gnu11",
+    "-I/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/mutations/executed-inputs/fpga/mister/server",
+    "-I/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/mutations/executed-inputs/dorado/include",
+    "-DDORADO_TEST_PAUSE_MAPPER",
+    "/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/mutations/candidate/dorado_server.c",
+    "/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/mutations/candidate/dorado_ddr_ring.c",
+    "/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/mutations/executed-inputs/fpga/mister/server/dorado_ddr_control.c",
+    "/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/mutations/executed-inputs/fpga/mister/server/test_pause_mapper.c",
+    "/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/mutations/executed-inputs/dorado/src/ethernet.c",
+    "/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/mutations/executed-inputs/dorado/src/io.c",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/mutations/candidate/test"
+  ],
+  "test": [
+    "python3",
+    "/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/mutations/executed-inputs/fpga/mister/server/test_snapshot_pause.py",
+    "/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/mutations/candidate/test",
+    "/Users/alans/dev2/Dorado/build/server-pause-qualified-mac-v3-20261019/mutations/executed-inputs"
+  ]
+}

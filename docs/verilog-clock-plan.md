@@ -43,46 +43,75 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
-**Serial65 fits at 41,414 ALMs; setup improves to -0.038 ns, all reported hold checks pass. Serial66 fanout-only fit is ACTIVE. Disk phase component qualifies at +4 ALMs.**
+**Daemon PAUSE/CONTINUE passes Mac/Linux host qualification. Serial66 and Serial67 are rejected; Serial68 tests placement seed 2 on the better Serial65 RTL. Hardware remains Native59.**
 
-Serial65Ready is TERMINAL (builder2458594/fitter2461232 and STA children absent).
-All 659 prepared inputs remain unchanged; 2,761 original pins/parameters and
-2,094,179 native sequential bits remain accounted for, none excluded. Capacity
-leaves 496 ALMs, +33 used versus Serial64. All four reported hold conditions pass
-(minimum +0.106 ns), as do SDRAM input/output setup/hold. Timing is REJECTED for
-slow 100C setup -0.038 ns. Actual clocks and inherited framework IO exceptions
-match Native59 (zero illegal/unconstrained clocks; three input/fifty output
-exceptions). All 304 nineteen-board crossing reports are checked; only MemC
-input setup at slow 100C fails. The 10 ns path runs from network_step (273 loads)
-through shared state-accept logic into MemC u_c22's MB7071H snapshot RAM enable.
-Evidence and extracted source/capacity/timing/crossing controls replay:
-`fpga/mister/reports/2026-10-19-snapshot-serial-ready/` (1,653 raw members).
+The last qualified hardware rate remains **1,947,654.12 instruction issues/s**.
+Cedar Viewers, mouse, exact keyboard and warm disk persistence pass on Native59;
+no new core, Main or daemon has been deployed by the snapshot experiments.
 
-LIVE `/home/alans/mister/Dorado_Serial66Fanout_20261019`: builder2489421 /
-fitter2491688, both confirmed live. Observe the SAME job. Only MAX_FANOUT=64 and
-IGNORE_MAX_FANOUT_ASSIGNMENTS OFF on emu|network_step change; every RTL byte,
-clock period, IO delay, timing exception and schema is retained. Synthesis
-confirms four inserted logic cells on that exact source and all 659 actual inputs
-unchanged. Independent source review/6 controls and exact extracted restaging
-pass. Packet SHA256:290c13575512f1e0a9800d285b971117b918c1bebf22216660e6091129e77070.
-Evidence: `fpga/mister/reports/2026-10-19-snapshot-serial-fanout/` (669 members).
-No assembly, hardware change or speed result; real service barriers remain open.
+Serial65Ready is terminal at 41,414 /41,910 ALMs, 496 free. All 659 prepared
+inputs /2,761 original pins and the board-only schema af0b647cb43a3a62 check.
+All 2,094,179 native sequential bits remain accounted for, none excluded;
+wrapper access remains pending. It still fails slow100C setup by 0.038 ns,
+while every reported hold and SDRAM IO check passes. Actual clocks match
+Native59; zero illegal/unconstrained clocks and the same three input/fifty
+output framework IO exceptions (not complete physical framework IO coverage).
+All 304 adapter crossing reports are checked. Evidence/replay:
+`fpga/mister/reports/2026-10-19-snapshot-serial-ready/`.
 
-Separate disk source/XML/edge review preserves 131,816 original bits and accounts
-for 18 new REQUIRED wrapper snapshot bits, with 6 source/7 geometry/3 edge controls.
-Matched registered-shell real-clock-gate fits use 50 MHz/2 ns-max/0 ns-min IO:
-575 -> 579 ALMs, unchanged 16 RAM/131,072 buffer bits/two DSPs. All four corners pass,
-zero unconstrained clocks/IO, candidate minimum +0.166 ns, seven fit controls reject.
-Rejected syntax/unregistered-IO attempts remain archived. No timing exception;
-the prototype is not in Serial65/66 and still requires snapshot access/native
-integration. Evidence/replay:
-`fpga/mister/reports/2026-10-19-snapshot-disk-phase/` (263 members).
+Serial66Fanout is TERMINAL/REJECTED: 41,360 ALMs, worst setup -1.067 ns;
+forcing MAX_FANOUT64 duplicates network_step and makes MSA-to-enable paths
+worse. Serial67Global is TERMINAL/REJECTED: 41,280 ALMs, worst setup -6.078 ns;
+Quartus applies global routing but its insertion delay worsens board inputs.
+All 659 actual inputs remain unchanged after both runs. All four conditions
+and 304 crossings are independently reviewed; hold/SDRAM IO pass and inherited
+clocks/IO exceptions are unchanged. Both builders and every project child are
+absent (66:2489421; 67:2513527). No assembly. Their 1,665/1,668-member lossless
+receipts and extracted source/capacity/timing/crossing controls replay:
+`fpga/mister/reports/2026-10-19-snapshot-serial-fanout-rejected/`,
+`fpga/mister/reports/2026-10-19-snapshot-serial-global-rejected/`.
 
-Next: Serial66 terminal source/capacity/all-corner/crossing review; real service
-barriers and full snapshots, then original 60 ns clocks/timers and final pinned
-performance, three fresh Cedar boots/cold persistence and two-hour stress.
-Native59's last qualified **1,947,654.12 instruction issues/s** is unchanged.
-Goal ACTIVE. Full detail and process receipts are in the handoff.
+**LIVE Serial68Seed2**, `/home/alans/mister/Dorado_Serial68Seed2_20261019`,
+builder2532081. Observe the SAME job and children; no timeout restart. Only
+Serial65's QSF placement SEED changes 1 ->2; all RTL/clock periods/IO budgets/
+exceptions/schema remain. No Serial66 duplication or Serial67 global policy.
+Independent source review checks 659 parents/2,761 pins; six rehashed source/
+policy controls reject. Assembly remains disabled and services remain virtual.
+Packet SHA256:9f00ba410fd3a0ea9ebedfa3c57bc4852199c5c843b4ccc4111afc819735349e.
+Source evidence: `fpga/mister/reports/2026-10-19-snapshot-serial-seed2/`.
+
+Snapshot daemon commands PAUSE4/CONTINUE5 retain the active epoch, mapping,
+queue cursors, EFTP/BSP connections and pending frames. Protected paused MMIO
+is never touched; CONTINUE validates retained ownership/header/window state.
+A local service clock excludes pause time from retransmit/probe deadlines.
+The Main client validates exact flags/epoch. STOP/EOF still revoke the lease;
+they are NOT snapshot continuation. Actual deployed baseline source (56 files)
+is pinned to server c59962490772f12d before edits.
+
+Fresh isolated Mac/Linux runs use identical 86 source/data inputs. Seven gates
+pass, including actual server traffic, lifecycle manager, Main client/transport,
+EFTP 7,080-byte and BSP 66,296-byte pause/continue and three deliberately broken
+lifecycle/timer/MMIO controls. Linux's two earlier failed test compiles are
+preserved; test-only unsigned-comparison/GNU-C mode fixes qualify. All 874
+receipt members and exact executed input/log hashes read back. Evidence:
+`fpga/mister/reports/2026-10-19-snapshot-server-pause/`.
+This is HOST qualification, not deployed ARM32/FPGA pause or a saved machine.
+
+The separate disk phase prototype qualifies at +4 ALMs (575 ->579), with all
+four physical-shell conditions passing (minimum +0.166 ns), no unconstrained
+clocks/IO and 18 new REQUIRED wrapper state bits. It is not integrated in
+Serial65/66/67/68. Evidence: `2026-10-19-snapshot-disk-phase/`.
+
+Next: review Serial68's terminal actual sources/seed/capacity/all-condition
+and all 304 crossing results. Integrate real Main/daemon/FPGA service barriers,
+finish all wrapper/raw-memory/input/video/server state and matching disk
+snapshots, then original 60ns clocks/timers, pinned performance, three fresh
+Cedar boots/cold persistence and two-hour stress. Frontend-ready is not a raw
+arbiter/SDRAM drain. Current MSA state_global_hold blocks rsp_ready, so accepted
+raw operations must finish before frontend freeze; simply tying drain ACKs to
+that aggregate can deadlock. Keep physical SDRAM refresh running throughout.
+Bare PLL loss is not a proven full original-state reseed after a partial import.
+Goal ACTIVE; complete snapshots and accurate clock delivery remain incomplete.
 
 Previous terminal nineteen-board result:
 

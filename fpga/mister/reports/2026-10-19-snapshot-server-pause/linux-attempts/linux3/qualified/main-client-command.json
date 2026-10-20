@@ -1,0 +1,7 @@
+[
+  "make",
+  "-C",
+  "/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/executed-inputs/fpga/mister/main",
+  "OUT=/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/main",
+  "control-test"
+]

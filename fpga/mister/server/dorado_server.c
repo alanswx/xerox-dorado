@@ -4,6 +4,7 @@
 #include "ethernet.h"
 #include "dorado_ddr_control.h"
 #include "dorado_ddr_mapping.h"
+#include "dorado_service_clock.h"
 #include <errno.h>
 #include <poll.h>
 #include <signal.h>
@@ -105,7 +106,8 @@ int main(int argc, char **argv) {
         fprintf(stderr,"Dorado DDR control listening on %s; no mapping without Main grant\n",path);
     }
     socklen_t peer_len = 0;
-    uint64_t previous = monotonic_ns(), broadcast_at = previous + 1000000000ull;
+    dorado_service_clock clock={0};
+    uint64_t previous = dorado_service_clock_sample(&clock,monotonic_ns(),0), broadcast_at = previous + 1000000000ull;
     uint64_t probe_at = previous + 1000000000ull;
     unsigned probe_cursor = 0;
     unsigned broadcast_kind = 0;
@@ -114,14 +116,21 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Dorado Pup server listening on %s (raw frames, no CRC/status)\n", argv[1]);
     while (!stopping) {
         unsigned control_events=dorado_ddr_control_poll(&control);
-        uint64_t now = monotonic_ns();
-        if(control_events) {
+        int paused=control.granted && control.ring.paused;
+        uint64_t now = dorado_service_clock_sample(&clock,monotonic_ns(),paused);
+        if(control_events & (DORADO_CTRL_RESUMED_EVENT|DORADO_CTRL_STOPPED_EVENT)) {
             peer_len=0;session_stale=1;
             if(control.granted && control.ring.active) {
                 dorado_ethernet_free(&eth);configure(&eth,argc,argv);session_stale=0;
                 previous=now;broadcast_at=probe_at=now+1000000000ull;
                 probe_cursor=broadcast_kind=0;
             }
+        }
+        if(paused) {
+            /* Control remains responsive. Do not pump timers, touch DDR,
+             * accept socket frames, probe, or reconfigure Pup connections. */
+            if(poll(NULL,0,1)<0 && errno!=EINTR) {perror("poll paused");result=1;break;}
+            continue;
         }
         int direct=control.granted && control.ring.active;
         int has_peer=peer_len || direct;

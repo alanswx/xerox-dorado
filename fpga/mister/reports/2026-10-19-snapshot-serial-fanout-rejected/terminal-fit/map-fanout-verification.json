@@ -1,0 +1,10 @@
+{
+  "status": "PASS_POST_MAP_PREPARED_INPUTS_AND_TARGET_BINDING",
+  "prepared_inputs": 659,
+  "changed_inputs": [],
+  "map_complete": true,
+  "fanout_log_lines": [
+    "Info (18062): Inserted logic cells for Maximum Fan-Out assignment",
+    "    Info (18058): Inserted 4 logic cells for Maximum Fan-Out assignment on \"emu:emu|network_step\" File: /home/alans/mister/Dorado_Serial66Fanout_20261019/core/Dorado.sv Line: 337"
+  ]
+}

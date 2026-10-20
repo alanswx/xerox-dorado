@@ -30,7 +30,7 @@ typedef struct {
     volatile unsigned char *memory;
     uint64_t epoch;
     uint32_t tx_cons, rx_prod;
-    int active;
+    int active, paused;
 } dorado_ddr_ring;
 
 /* The caller must hold an EXCLUSIVE Main-issued grant for this exact epoch.
@@ -42,6 +42,12 @@ typedef struct {
 int dorado_ddr_bind(dorado_ddr_ring *, volatile void *, size_t, uint64_t epoch);
 /* Stop in the daemon's sole service thread; complete CPU MMIO before ACK. */
 void dorado_ddr_quiesce(dorado_ddr_ring *);
+/* Snapshot pause retains mapping, epoch, cursors and queued bytes. Complete
+ * prior MMIO before ACK; no MMIO, including header polling, while paused.
+ * Continue validates the same session before allowing data access again.
+ * Sole-thread calls only; FPGA drain/state capture is a separate barrier. */
+int dorado_ddr_pause(dorado_ddr_ring *);
+int dorado_ddr_continue(dorado_ddr_ring *);
 /* Nonblocking. Send returns0 or negative errno. Receive returns byte count
  * or negative errno. EAGAIN leaves ownership unchanged. EMSGSIZE leaves a
  * pending TX frame and the destination unchanged. Protocol/session faults

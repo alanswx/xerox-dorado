@@ -16,7 +16,7 @@ extern "C" {
 
 static void check(bool good,const char *why){if(!good){fprintf(stderr,"MAIN CONTROL FAIL: %s\n",why);std::_Exit(23);}}
 static unsigned sends,receives,rx_offset;
-static bool corrupt_sequence;
+static bool corrupt_sequence,corrupt_pause_flag;
 static ssize_t limited_send(int fd,const void *p,size_t n,int flags){
     if(++sends%7==0){errno=EINTR;return -1;}
     return send(fd,p,n>3?3:n,flags);
@@ -27,6 +27,8 @@ static ssize_t limited_receive(int fd,void *p,size_t n,int flags){
     if(count>0){
         if(corrupt_sequence && rx_offset<=12 && rx_offset+unsigned(count)>12)
             static_cast<unsigned char *>(p)[12-rx_offset]^=1;
+        if(corrupt_pause_flag && rx_offset<=28 && rx_offset+unsigned(count)>28)
+            static_cast<unsigned char *>(p)[28-rx_offset]^=DORADO_CTRL_PAUSED_FLAG;
         rx_offset=(rx_offset+unsigned(count))%32;
     }
     return count;
@@ -105,6 +107,21 @@ int main(){
     check(client.stop(10)==-ETIMEDOUT && client.pending(),"timeout granted core-load permission or lost pending stream");
     check(!client.stop(1000),"retry did not finish real stop acknowledgement");
     f.delay_ms=0;f.seed(epoch+2);check(!client.begin(DORADO_CTRL_RESUME,epoch+2),"third resume");finish(client);
+    check(client.begin(DORADO_CTRL_PAUSE)==-EINVAL,"pause without epoch accepted");
+    check(!client.begin(DORADO_CTRL_PAUSE,epoch+2),"start pause");finish(client);
+    check(!client.reply().error && client.reply().active && client.reply().paused,"pause acknowledgement flags");
+    unsigned pause_opens=f.opens.load(),pause_closes=f.closes.load();previous=f.writes.load();
+    check(!mprotect(f.memory,65536,PROT_NONE),"protect paused oracle");
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    check(f.writes==previous,"MMIO after PAUSE ACK");
+    check(!client.begin(DORADO_CTRL_STATUS),"paused status");finish(client);
+    check(client.reply().active && client.reply().paused,"status lost paused state");
+    check(!client.begin(DORADO_CTRL_CONTINUE,epoch+3),"stale continue request");finish(client);
+    check(client.reply().error==ESTALE && client.reply().paused,"stale continue released pause");
+    check(!mprotect(f.memory,65536,PROT_READ|PROT_WRITE),"unprotect paused oracle");
+    check(!client.begin(DORADO_CTRL_CONTINUE,epoch+2),"start continue");finish(client);
+    check(!client.reply().error && client.reply().active && !client.reply().paused,"continue acknowledgement flags");
+    check(f.opens==pause_opens && f.closes==pause_closes,"pause/continue remapped");
     f.fail_close=true;check(client.stop(1000)==-EIO,"cleanup failure reported safe");
     f.fail_close=false;check(!client.stop(1000),"failed-cleanup retry");
     f.seed(epoch+3);corrupt_sequence=true;
@@ -118,6 +135,13 @@ int main(){
     // STOP ACK after the old socket's EOF rather than treating EOF as an ACK.
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
     check(!client.open(f.path) && !client.stop(1000),"fresh controller stop");
+    f.seed(epoch+4);check(!client.begin(DORADO_CTRL_RESUME,epoch+4),"pause-corruption resume");finish(client);
+    corrupt_pause_flag=true;check(!client.begin(DORADO_CTRL_PAUSE,epoch+4),"corrupt pause start");
+    result=0;
+    for(unsigned i=0;i<2000 && !result;i++){result=client.pump();std::this_thread::sleep_for(std::chrono::microseconds(50));}
+    check(result==-EPROTO && !client.connected(),"PAUSE accepted a running acknowledgement");
+    corrupt_pause_flag=false;std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    check(!client.open(f.path) && !client.stop(1000),"stop after bad paused acknowledgement");
     client.close();
-    printf("MAIN CONTROL CLIENT PASS: actual daemon service,3/5-byte fragments, EINTR/EAGAIN, pending request then STOP, delayed ACK refusal/retry, cleanup failure, wrong reply rejection and reconnect; opens=%u closes=%u\n",f.opens.load(),f.closes.load());
+    printf("MAIN CONTROL CLIENT PASS: actual daemon,3/5-byte fragments, EINTR/EAGAIN, pending STOP, delayed/failed cleanup, protected PAUSE, stale CONTINUE, exact flags/epoch, no remap, corrupted replies and reconnect; opens=%u closes=%u\n",f.opens.load(),f.closes.load());
 }

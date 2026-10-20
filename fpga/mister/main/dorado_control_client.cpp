@@ -55,8 +55,9 @@ int DoradoControlClient::open(const char *path){
 int DoradoControlClient::begin(uint32_t command,uint64_t epoch){
     if(fd_<0)return -ENOTCONN;
     if(pending_)return -EBUSY;
-    if(command!=DORADO_CTRL_STOP && command!=DORADO_CTRL_STATUS && command!=DORADO_CTRL_RESUME)return -EINVAL;
-    if(command==DORADO_CTRL_RESUME && !epoch)return -EINVAL;
+    if(command!=DORADO_CTRL_STOP && command!=DORADO_CTRL_STATUS && command!=DORADO_CTRL_RESUME &&
+       command!=DORADO_CTRL_PAUSE && command!=DORADO_CTRL_CONTINUE)return -EINVAL;
+    if((command==DORADO_CTRL_RESUME || command==DORADO_CTRL_PAUSE || command==DORADO_CTRL_CONTINUE) && !epoch)return -EINVAL;
     if(++sequence_==0)++sequence_;
     command_=command;epoch_=epoch;sent_=received_=0;pending_=true;reply_={};
     put64(output_,DORADO_CTRL_MAGIC);put32(output_+8,command);put32(output_+12,sequence_);
@@ -88,10 +89,15 @@ int DoradoControlClient::pump(){
     if(n<0){if(errno==EINTR || errno==EAGAIN || errno==EWOULDBLOCK)return 0;return fail(errno);}
     if(!n)return fail(ECONNRESET);
     received_+=unsigned(n);if(received_<32)return 0;
+    uint32_t flags=get32(input_+28);
     if(get64(input_)!=DORADO_CTRL_MAGIC || get32(input_+8)!=(command_|DORADO_CTRL_ACK) ||
-       get32(input_+12)!=sequence_ || get32(input_+28)>1 || get32(input_+24)>4095)return fail(EPROTO);
-    reply_.error=get32(input_+24);reply_.active=get32(input_+28)!=0;reply_.epoch=get64(input_+16);
-    if(!reply_.error && command_==DORADO_CTRL_RESUME && (!reply_.active || reply_.epoch!=epoch_))return fail(EPROTO);
+       get32(input_+12)!=sequence_ || flags>3 || flags==DORADO_CTRL_PAUSED_FLAG || get32(input_+24)>4095)return fail(EPROTO);
+    reply_.error=get32(input_+24);reply_.active=(flags&DORADO_CTRL_ACTIVE_FLAG)!=0;
+    reply_.paused=(flags&DORADO_CTRL_PAUSED_FLAG)!=0;reply_.epoch=get64(input_+16);
+    if(!reply_.error && (command_==DORADO_CTRL_RESUME || command_==DORADO_CTRL_CONTINUE) &&
+       (!reply_.active || reply_.paused || reply_.epoch!=epoch_))return fail(EPROTO);
+    if(!reply_.error && command_==DORADO_CTRL_PAUSE &&
+       (!reply_.active || !reply_.paused || reply_.epoch!=epoch_))return fail(EPROTO);
     if(!reply_.error && command_==DORADO_CTRL_STOP && reply_.active)return fail(EPROTO);
     pending_=false;return 1;
 }

@@ -11,7 +11,7 @@ public:
         ssize_t (*send)(int,const void *,size_t,int)=nullptr;
         ssize_t (*receive)(int,void *,size_t,int)=nullptr;
     };
-    struct Reply { uint32_t error=0;bool active=false;uint64_t epoch=0; };
+    struct Reply { uint32_t error=0;bool active=false,paused=false;uint64_t epoch=0; };
     DoradoControlClient()=default;
     explicit DoradoControlClient(IO io):io_(io){}
     ~DoradoControlClient(){close();}

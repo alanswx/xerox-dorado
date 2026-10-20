@@ -1,0 +1,56 @@
+{
+  "status": "PASS_PLACEMENT_SEED_SOURCE_ONLY",
+  "scope": "Independent exact parent/source review of Serial65 placement seed 2.\n\nOnly the fitter seed changes. Reverse it and invoke the readiness/native\npin/constraint review. No RTL, clock, schema, IO delay or exception changes.\n",
+  "verified_parent_inputs": 659,
+  "original_pin_connections": 2761,
+  "schema_id": "af0b647cb43a3a62",
+  "changed_logic_files": [],
+  "changed_policy_files": [
+    "core/Dorado.qsf"
+  ],
+  "seed": 2,
+  "new_state_bits": 0,
+  "new_clocks": 0,
+  "new_ports": 0,
+  "constraints_unchanged": true,
+  "real_pause_barriers": false,
+  "limits": "Source/policy proof only; check actual fitter seed and full fit/timing before adoption.",
+  "failure_controls": [
+    {
+      "case": "wrong_seed",
+      "rejected": true,
+      "reason": "placement seed policy differs",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "duplicate_seed",
+      "rejected": true,
+      "reason": "placement seed policy differs",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "new_exception",
+      "rejected": true,
+      "reason": "unapproved source/clock/constraint edit: core/Dorado.qsf",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "new_global",
+      "rejected": true,
+      "reason": "unapproved source/clock/constraint edit: core/Dorado.qsf",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "lost_init",
+      "rejected": true,
+      "reason": "unapproved source/clock/constraint edit: core/Dorado.sv",
+      "damaged_metadata_rehashed": true
+    },
+    {
+      "case": "fake_service",
+      "rejected": true,
+      "reason": "unapproved source/clock/constraint edit: core/Dorado.sv",
+      "damaged_metadata_rehashed": true
+    }
+  ]
+}

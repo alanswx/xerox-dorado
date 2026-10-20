@@ -39,7 +39,7 @@ void DisableIO(){
   }
   check(incoming[1]==01000 && incoming[3]==0265,"unexpected server packet");
   check(incoming[5]==frames,"packet dropped, duplicated or reordered");
-  check(length*2==incoming[2]+4 && incoming.back()==0177777,"wrong wire packet boundary");
+  check(length*2==unsigned(incoming[2])+4 && incoming.back()==0177777,"wrong wire packet boundary");
   frames++;if(length==13)ended=true;
   received.insert(received.end(),incoming.begin()+12,incoming.end()-1);
  }

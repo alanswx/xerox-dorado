@@ -23,9 +23,16 @@ def review(root,source,classification,overrides=None):
     assert 'Analysis & Synthesis Status : Successful'in read('core/output_files/Dorado.map.summary')
     assert 'Device : 5CSEBA6U23I7'in summary and 'Total virtual pins : 7'in summary
     assert source['original_pin_connections']==2761
-    if source['status']=='PASS_READY_PATH_SOURCE_ONLY':
+    if source['status']in ('PASS_READY_PATH_SOURCE_ONLY','PASS_TARGETED_FANOUT_SOURCE_ONLY','PASS_GLOBAL_SIGNAL_SOURCE_ONLY'):
         assert source['verified_parent_inputs']==659 and len(source['failure_controls'])==6
-        assert source['changed_logic_files']==['core/Dorado.sv']and source['constraints_unchanged']
+        assert source['constraints_unchanged']
+        if source['status']=='PASS_READY_PATH_SOURCE_ONLY':assert source['changed_logic_files']==['core/Dorado.sv']
+        else:
+            assert source['changed_logic_files']==[]and source['changed_policy_files']==['core/Dorado.qsf']
+            if source['status']=='PASS_TARGETED_FANOUT_SOURCE_ONLY':
+                assert (source['target'],source['max_fanout'])==('emu|network_step',64)
+            else:
+                assert (source['target'],source['global_signal'])==('emu|network_step','Global Clock')
         assert (source['new_state_bits'],source['new_clocks'],source['new_ports'])==(0,0,0)
         assert source['schema_id']=='af0b647cb43a3a62'and not source['real_pause_barriers']
     else:

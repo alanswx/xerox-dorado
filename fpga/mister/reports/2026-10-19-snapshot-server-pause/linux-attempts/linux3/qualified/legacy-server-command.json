@@ -1,0 +1,11 @@
+[
+  "make",
+  "-C",
+  "/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/executed-inputs/fpga/mister/server",
+  "OUT=/home/alans/mister/Dorado_ServerSnapshotPause3_20261019/qualified/dorado-server",
+  "all",
+  "test",
+  "cedar-test",
+  "bsp-retry-test",
+  "bsp-ack-race-test"
+]

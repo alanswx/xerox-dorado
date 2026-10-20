@@ -80,6 +80,20 @@ static unsigned dispatch(dorado_ddr_control *c) {
     else if(command==DORADO_CTRL_STOP)error=stop_access(c,&events);
     else if(command==DORADO_CTRL_STATUS) {
         if(c->granted && !c->ring.active)error=stop_access(c,&events);
+    } else if(command==DORADO_CTRL_PAUSE || command==DORADO_CTRL_CONTINUE) {
+        if(!c->granted || !c->ring.active)error=ENOTCONN;
+        else if(epoch!=c->last_epoch)error=ESTALE;
+        else if(get32(c->request+24)!=DORADO_DDR_BASE || get32(c->request+28)!=DORADO_DDR_SIZE)error=EINVAL;
+        else {
+            int was_paused=c->ring.paused;
+            int result=command==DORADO_CTRL_PAUSE ? dorado_ddr_pause(&c->ring) : dorado_ddr_continue(&c->ring);
+            if(result)error=-result;
+            else if(command==DORADO_CTRL_PAUSE && !was_paused)events|=DORADO_CTRL_PAUSED_EVENT;
+            else if(command==DORADO_CTRL_CONTINUE)events|=DORADO_CTRL_CONTINUED_EVENT;
+            if(!c->ring.active) {
+                int cleanup=stop_access(c,&events);if(cleanup)error=cleanup;
+            }
+        }
     } else if(command==DORADO_CTRL_RESUME) {
         if(c->granted || c->mapped)error=EBUSY;
         else if(!epoch || epoch==c->last_epoch || get32(c->request+24)!=DORADO_DDR_BASE ||
@@ -102,7 +116,9 @@ static unsigned dispatch(dorado_ddr_control *c) {
     }
     put64(c->reply,DORADO_CTRL_MAGIC);put32(c->reply+8,command|DORADO_CTRL_ACK);
     put32(c->reply+12,seq);put64(c->reply+16,c->last_epoch);
-    put32(c->reply+24,(uint32_t)error);put32(c->reply+28,c->granted && c->ring.active);
+    uint32_t flags=c->granted && c->ring.active ? DORADO_CTRL_ACTIVE_FLAG : 0;
+    if(flags && c->ring.paused)flags|=DORADO_CTRL_PAUSED_FLAG;
+    put32(c->reply+24,(uint32_t)error);put32(c->reply+28,flags);
     memcpy(c->last_request,c->request,32);memcpy(c->last_reply,c->reply,32);
     c->last_valid=1;c->used=c->sent=0;c->pending=1;return events;
 }

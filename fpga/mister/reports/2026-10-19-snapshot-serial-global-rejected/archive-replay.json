@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "scope": "All archived bytes and extracted source/capacity/timing/crossing readers, including negative controls. Prior immutable tools supply dependencies; no working HDL.",
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/dependency-tools/fpga/mister/snapshot/audit_serial_global.py",
+        "--project",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/terminal-fit",
+        "--output",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/replay-source.json"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "python3",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/dependency-tools/fpga/mister/snapshot/audit_serial_chipwidth_capacity.py",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/terminal-fit",
+        "--source-audit",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/replay-source.json",
+        "--classification",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/classification/classification.json",
+        "--output",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/replay-capacity.json"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "python3",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/dependency-tools/fpga/mister/snapshot/audit_serial_chipwidth_timing.py",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/terminal-fit/core",
+        "--baseline",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/baseline-native59-timing",
+        "--allow-timing-failure",
+        "--output",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/replay-timing.json"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "python3",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/dependency-tools/fpga/mister/snapshot/audit_adapter_crossings.py",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/terminal-fit/core",
+        "--allow-timing-failure",
+        "--output",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/serial67-rejected-replay-20261019/replay-crossing.json"
+      ],
+      "returncode": 0
+    }
+  ]
+}

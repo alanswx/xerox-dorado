@@ -4,16 +4,24 @@
 
 /* Local fixed32-byte stream records, all integers little-endian:
  * magic64, command32, sequence32, epoch64, base32, size32.
- * Reply: same magic, command|0x80000000, sequence, epoch, errno32, active32.
+ * Reply: same magic, command|0x80000000, sequence, epoch, errno32, flags32.
+ * Flags: bit0 active grant, bit1 snapshot-paused. Legacy commands still
+ * return0/1 unless a new controller has explicitly requested PAUSE.
  * A socket disconnect quiesces before another controller can take over. */
 #define DORADO_CTRL_MAGIC UINT64_C(0x00314c5254434444) /* DDCTRL1 NUL */
 #define DORADO_CTRL_STOP 1u
 #define DORADO_CTRL_RESUME 2u
 #define DORADO_CTRL_STATUS 3u
+#define DORADO_CTRL_PAUSE 4u
+#define DORADO_CTRL_CONTINUE 5u
+#define DORADO_CTRL_ACTIVE_FLAG 1u
+#define DORADO_CTRL_PAUSED_FLAG 2u
 #define DORADO_CTRL_ACK UINT32_C(0x80000000)
 #define DORADO_CTRL_BYTES 32u
 #define DORADO_CTRL_RESUMED_EVENT 1u
 #define DORADO_CTRL_STOPPED_EVENT 2u
+#define DORADO_CTRL_PAUSED_EVENT 4u
+#define DORADO_CTRL_CONTINUED_EVENT 8u
 
 typedef struct {
     /* Production callbacks validate/map the fixed physical aperture. Tests

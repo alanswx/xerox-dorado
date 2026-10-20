@@ -1,0 +1,8 @@
+[
+  "python3",
+  "/home/alans/mister/Dorado_ServerSnapshotPause2_20261019/qualified/executed-inputs/fpga/mister/server/test_snapshot_pause_mutations.py",
+  "--output",
+  "/home/alans/mister/Dorado_ServerSnapshotPause2_20261019/qualified/mutations",
+  "--root",
+  "/home/alans/mister/Dorado_ServerSnapshotPause2_20261019/qualified/executed-inputs"
+]

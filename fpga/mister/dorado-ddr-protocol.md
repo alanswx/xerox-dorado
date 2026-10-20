@@ -110,11 +110,28 @@ The daemon's optional same-UID,0600 Unix-stream control socket defaults to
 `DORADO_NET_DDR=1` enables negotiation in Main and the control listener in
 the daemon. Daemon startup alone never maps memory. Each32-byte record is
 little-endian: magic64 (`DDCTRL1\0`), command32, sequence32, epoch64, base32,
-size32. Commands are STOP1, RESUME2, STATUS3. Replies carry command|0x80000000,
-the exact sequence, current epoch, errno32 and active32. Duplicate identical
+size32. Commands are STOP1, RESUME2, STATUS3, PAUSE4 and CONTINUE5. Replies carry
+command|0x80000000, the exact sequence, current epoch, errno32 and flags32:
+bit0 means active grant, bit1 means snapshot-paused. Unpaused lifecycle replies
+retain the original 0/1 values. Duplicate identical
 requests replay their ACK without repeating mapping/reset; stale or altered
 sequences disconnect/quiesce. A live second controller cannot replace its
 owner. Old-owner EOF is processed before accepting a replacement connection.
+
+PAUSE/CONTINUE require the current nonzero epoch and exact fixed aperture.
+PAUSE completes prior daemon MMIO, retains the mapping/cursors/queued bytes,
+and returns flags 3. While paused, neither ring calls nor control polling read
+DDR; the server also freezes local retries/probes/broadcast timers and preserves
+Pup connection state. CONTINUE validates the same header, epoch and cursor
+ownership before returning flags 1. Stale/malformed retained state revokes access
+rather than granting a false continuation. STOP and owner EOF retain their
+existing lifecycle revocation semantics.
+
+This is a daemon-only snapshot prerequisite. Main's full snapshot coordinator,
+FPGA/raw DDR/SDRAM draining, serialized server heap/history, input/wrapper state
+and atomic matching disk generation are still required. No snapshot PAUSE ACK
+alone authorizes a core reload or constitutes a complete machine save. The new
+pause feature is host-qualified; the deployed Native59 daemon remains unchanged.
 
 Main runs a bounded nonblocking STOP/drain/fresh-epoch/initialize/RESUME
 state machine. It verifies ongoing FPGA and daemon ownership; faults hold
@@ -130,6 +147,8 @@ Tests additionally include:
 
 ```
 make -C fpga/mister/server ddr-control-test ddr-map-test
+make -C fpga/mister/server service-clock-test snapshot-pause-test
+make -C fpga/mister/main control-test
 python3 fpga/mister/main/tests/test_ddr_transport.py --main-source /path/to/patched/Main
 ```
 
