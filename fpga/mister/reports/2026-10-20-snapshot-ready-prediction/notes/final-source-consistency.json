@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "exact_frozen_files": 645,
+  "frozen_manifest_sha256": "3eab141060dba3f4ab45069f25cabbef309bccf82ebb46f893a52acfdd945a9b",
+  "note": "Final archive retains the exact proof-source and original-test bytes rebuilt in verification.json. Added only raw extracted-rebuild evidence."
+}

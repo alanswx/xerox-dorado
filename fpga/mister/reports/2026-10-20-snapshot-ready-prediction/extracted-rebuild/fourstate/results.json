@@ -1,0 +1,84 @@
+{
+  "status": "PASS",
+  "scope": "Exact post-edge predictor versus frozen original frontend, two chip widths.\n\nCompare every original state/output and registered CPU-ready value. Exercise\nall binary controls, unknown flags/scan data/control, and live reset/init guards.\nThe added aggregate register is REQUIRED state; no native timing claim.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0,
+      "expected_failure": null,
+      "rtl_sha256": "5edd1962f8e26d3b8578e39af4a8cb8bb0c5941982cd8125eab8cbc2526ba169",
+      "fixture_sha256": "5247622e4c6058a066cf55b47df7f30b1c381d037b62bb852519487f28fe9140",
+      "log_sha256": "7803994a04e3c49b5ac8a57794be709c35e6d93665c346dcf54471365edaebd7"
+    },
+    {
+      "case": "current_instead_of_next",
+      "returncode": 1,
+      "expected_failure": "registered readiness differs",
+      "rtl_sha256": "a45ad4af1e7614d2dad7e041ffe408605ec1a4de3629b607647fe163e86ff78f",
+      "fixture_sha256": "5247622e4c6058a066cf55b47df7f30b1c381d037b62bb852519487f28fe9140",
+      "log_sha256": "50166001703577d097a57fb644102d4d538e3967c9ecd69df03492a83f3d6d03"
+    },
+    {
+      "case": "wrong_hold_priority",
+      "returncode": 1,
+      "expected_failure": "registered readiness differs",
+      "rtl_sha256": "e02234bc751dcb1e55532c8e972588fda70f2c1c72ac5a061b66f8b9d08347bc",
+      "fixture_sha256": "5247622e4c6058a066cf55b47df7f30b1c381d037b62bb852519487f28fe9140",
+      "log_sha256": "45aaf63a896794194a4ab2231be0684646f2b3013853d1bd077eb59adb4cc758"
+    },
+    {
+      "case": "wrong_scan_source",
+      "returncode": 1,
+      "expected_failure": "registered readiness differs",
+      "rtl_sha256": "534c333a2bad74e341e911d8022320c130867b4df47b3325de3c1c74a6ca76f4",
+      "fixture_sha256": "5247622e4c6058a066cf55b47df7f30b1c381d037b62bb852519487f28fe9140",
+      "log_sha256": "2f8c6294e55959f1991bd298262583446308c827d356dbecf8072ed7f320e552"
+    },
+    {
+      "case": "wrong_response_kind",
+      "returncode": 1,
+      "expected_failure": "registered readiness differs",
+      "rtl_sha256": "f75d84f83435c57137bb0ca07ace87f9210472a3340f476bb5dc59d55dc2090d",
+      "fixture_sha256": "5247622e4c6058a066cf55b47df7f30b1c381d037b62bb852519487f28fe9140",
+      "log_sha256": "7a7378850aadb6f40f2b3f6d7823e0e62a9f456c45674a050ea667f0c845ca0d"
+    },
+    {
+      "case": "lost_reset_transition",
+      "returncode": 1,
+      "expected_failure": "registered readiness differs",
+      "rtl_sha256": "6bb51ae7980fb008fbca9606bd46f6de2cea811b588d57181582f3588cf922ea",
+      "fixture_sha256": "5247622e4c6058a066cf55b47df7f30b1c381d037b62bb852519487f28fe9140",
+      "log_sha256": "9966c45f52f133479af85e0070694e852017e1aa8849a1f1e3856dff92980849"
+    },
+    {
+      "case": "wrong_register_edge",
+      "returncode": 1,
+      "expected_failure": "registered readiness differs",
+      "rtl_sha256": "5edd1962f8e26d3b8578e39af4a8cb8bb0c5941982cd8125eab8cbc2526ba169",
+      "fixture_sha256": "6de605611ffe851f18a221e5ed71998423e0874a0da845ef6d3c2b462fb09457",
+      "log_sha256": "0d910df25d49f3b8b10359cdee4001ac2b8fde18569a1bc31fefd20c1f4e0a74"
+    },
+    {
+      "case": "guest_only_prediction",
+      "returncode": 1,
+      "expected_failure": "registered readiness differs",
+      "rtl_sha256": "5edd1962f8e26d3b8578e39af4a8cb8bb0c5941982cd8125eab8cbc2526ba169",
+      "fixture_sha256": "8ebdd0fa47a33f73156b8850eaf28d6c15552b80e11e9042be8fab9dc94f62e4",
+      "log_sha256": "4dac82bbd8038439b689ea7b42e04d3c55dcb0289c674e1ea48f85491b8c5371"
+    }
+  ],
+  "new_frontend_sequential_bits": 0,
+  "required_external_register_bits_per_msa": 1,
+  "original_rtl_inverse_equal": true,
+  "removed_test_diagnostics_only": true,
+  "inputs": {
+    "reference-test.sv": "66a7d50ab62965ea9ae68516e22f45e08d2e0647571ecd66637a254559febc7f",
+    "test_storage_ready_prediction.py": "e750d7568418f8ee912e9f88bd46d0e5ff1c719b5510470661621d38f9f60534",
+    "test_storage_ready_prediction.sv": "c399f4c98d40aeaf14e147d7aecbe2d7e65e2a44c66b263e29708ab9540adf08",
+    "diagnostics-only.sv": "9cc4e5015ad6cf2f040988a933be7fc3663d99acea93f53b25377602e8dffdcc",
+    "original.sv": "a8e7da477697064458bd134d25cb76ea6fb91c384ea890e0e75f8345125e82ee",
+    "generate_msa_ready_prediction.py": "53a13c1f746794f2a04de2d8657a898c659e9daf926ae67a24201be3f1175b32",
+    "candidate.sv": "9e9ebb00acd56fbb52b724f7ab9fffb83e599976979dc8f6039908de41a5ffa1"
+  },
+  "limits": "Frontend and one external aggregate-register prototype only. Complete MSA/SDRAM traffic, native integration, state access, actual capacity/timing and FPGA boot remain required."
+}

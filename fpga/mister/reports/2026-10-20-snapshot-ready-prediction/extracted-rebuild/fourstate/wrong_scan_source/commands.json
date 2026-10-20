@@ -1,0 +1,17 @@
+[
+  [
+    "iverilog",
+    "-g2012",
+    "-s",
+    "tb",
+    "-o",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/ready-prediction-extracted-rebuild-v2-20261020/rebuilt-fourstate/wrong_scan_source/test.vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/ready-prediction-extracted-rebuild-v2-20261020/rebuilt-fourstate/wrong_scan_source/fixture.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/ready-prediction-extracted-rebuild-v2-20261020/rebuilt-fourstate/wrong_scan_source/candidate.sv",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/ready-prediction-extracted-rebuild-v2-20261020/rebuilt-fourstate/executed-inputs/reference-test.sv"
+  ],
+  [
+    "vvp",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/ready-prediction-extracted-rebuild-v2-20261020/rebuilt-fourstate/wrong_scan_source/test.vvp"
+  ]
+]

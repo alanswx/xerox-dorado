@@ -2,7 +2,7 @@
 
 ## Current objective (2026-10-20)
 
-**Serial72 now wires real memory/network/disk pause and separate local ACK status in a source-only native candidate. Source/state/component proofs pass; Main coordination and full snapshots remain open. No new Quartus run: Serial71 remains rejected at setup -1.668 ns /hold -0.292 ns. Faster clocks and final hardware qualification remain open.**
+**Registered NEXT-ready passes frontend, complete-MSA restore and eight-MSA/SDRAM component proofs. Native integration and routed timing remain next; Serial72 is still the source-only native base. Serial71 remains rejected at setup -1.668 ns /hold -0.292 ns. Main coordination, full snapshots, faster clocks and final FPGA qualification remain open.**
 
 The last qualified hardware is Native59: Cedar Viewers/mouse/exact keyboard and
 warm disk persistence pass. Its last qualified rate remains **1,947,654.12
@@ -60,13 +60,53 @@ Evidence: `2026-10-20-snapshot-disk-services-barrier/` (833 raw members) and
 and exact662-input restaging repeat. No complete Main/input/video/DDR-fence
 coordination, full snapshot, legal timing or hardware speed claim.
 
-Next connect this diagnostic/status contract to actual Main coordination and
-qualified ARM leases. For timing, prototype a registered per-MSA NEXT normal
-readiness aggregate, derived from exact frontend transitions and scan behavior;
-prove equality against frozen original state/traffic in reset, stall, pause and
-partial-import cases. Keep initialization/disk/global-hold guards and actual
-periods; account every added bit. Qualify that structural change before another
-full fit, then continue full-state access and the original60ns clock migration.
+**Registered NEXT-ready component qualification (2026-10-20):** predict the
+original frontend's exact post-rising-edge readiness flags, AND sixteen per
+MSA and capture one external bit per MSA on that same rising edge. This moves
+the long frontend-to-global-enable cone toward a full host-clock period while
+retaining the original guest advance phase. Actual routed timing is unproven.
+All original sequential writes and raw drain equations remain byte-inverse to
+frozen Serial72; reset-free cached flags retain live reset/initialization,
+disk-ready and global-hold guards. Hold/scan priority and accepted-request,
+response-kind and reset transitions are included. There are no new frontend
+or physical-board bits; all eight external aggregate registers are REQUIRED
+implementation state whose native access/inventory is still pending.
+
+Four-state WIDTH8/12 tests pass5,916,160 checks:262,144 binary cases,
+263,680 unknown-valued cases and65,536 between-edge live-guard cases; seven
+compiled damaged predictors/registers reject. Only this exhaustive arbitrary-
+state fixture removes the original simulation-only legality diagnostic from
+BOTH reference and candidate; complete-board/SDRAM tests retain assertions.
+The complete original-oracle MSA passes22,081,944 checks,7,034,752 readiness
+checks,40,002 guest edges and all1,538 original physical bits through full
+read/invert/write/restore,20,000 post-restore steps and quarantine/recovery;
+two damaged group/hold variants reject. The real eight-MSA/128-client arbiter/
+50MHz SDRAM test passes43,560,320 checks,9,385,584 readiness-edge comparisons,
+4,405 guest edges,41,760 raw reads,7,472 writes and four pending-I/O pauses.
+It covers8,465,170 scan edge observations and a partial member3 import followed
+by parser reset: all eight consumers stay quarantined while physical refresh
+continues. Both stale-current and wrong-clock-edge variants reject. Original
+state/pins/raw traffic remain independent frozen-RTL oracles.
+
+Next integrate these exact qualified sources and eight registers into a new
+native candidate derived from immutable Serial72, independently invert all
+non-readiness changes and account every required/scratch field. Preserve
+periods, pin bindings, global hold and live initialization/disk guards. Then
+qualify real capacity/all-device timing; the initialization and outgoing
+advance paths also need review. No new fit, RBF, hardware speed or complete
+snapshot is claimed. Main coordination/full state access and the original
+60ns clock/timer migration still follow.
+
+Evidence: `fpga/mister/reports/2026-10-20-snapshot-ready-prediction/` contains
+967 lossless raw members (13,728,150 raw /3,147,938 stored bytes). All members
+read back. `verify_ready_prediction.py` extracts frozen sources and rebuilds
+all three suites and their failure controls; exact inputs/results agree
+(simulator log paths are retained but excluded from log-hash equality).
+The first rebuild exposed a missing `tools/sil_netlist.py` import dependency;
+its raw failure is retained, the frozen tools closure was completed, and all
+three unchanged HDL/test suites then rebuilt. Final archive source/result
+bytes match that successful rebuild. The local replay is
+`build/rtl-executive/ready-prediction-extracted-rebuild-v2-20261020`.
 
 **Qualified disk component, NOT in Serial71:** `dorado_pack_hps` now has an
 opt-in snapshot pause (default off). After the guest clock is held it drains

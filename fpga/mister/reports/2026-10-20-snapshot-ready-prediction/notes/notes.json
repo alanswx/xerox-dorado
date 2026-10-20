@@ -1,0 +1,4 @@
+{
+  "first_rebuild": "Missing tools/sil_netlist.py import closure; add frozen tools/*.py. No HDL or test changes.",
+  "original_tests": "All three suites PASS before archive rebuild."
+}

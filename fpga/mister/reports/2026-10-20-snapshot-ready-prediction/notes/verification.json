@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "archive_readback": {
+    "status": "PASS",
+    "members": 805,
+    "raw_bytes": 8934917,
+    "stored_bytes": 2419144
+  },
+  "frozen_sources": 645,
+  "cases": [
+    {
+      "case": "fourstate",
+      "status": "PASS",
+      "exact_results_and_inputs": true,
+      "rebuilt_results_sha256": "348e1f2b11244ffe0f8626a8c6e1bf422f35a4271c844a5dce8694d3becaa9fe"
+    },
+    {
+      "case": "msa",
+      "status": "PASS",
+      "exact_results_and_inputs": true,
+      "rebuilt_results_sha256": "01505d1a33298c14de5146dfd9b645cf6807a053fa8e4b94e9b9738e7b3f66e7"
+    },
+    {
+      "case": "eight-msa",
+      "status": "PASS",
+      "exact_results_and_inputs": true,
+      "rebuilt_results_sha256": "7e5100c1766321fa03dfc247694e84e0c45f757aa52bde4baa7f267a6003b2db"
+    }
+  ],
+  "limits": "Component prototype only; native integration, state access and routed timing remain required."
+}

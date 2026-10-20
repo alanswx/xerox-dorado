@@ -1,0 +1,58 @@
+{
+  "status": "PASS",
+  "scope": "Registered NEXT-ready across eight original-oracle MSAs and real SDRAM.\n\nThe existing eight-board stimulus and physical state/pin/raw-traffic checks\nremain intact. Add one external required register per MSA, check it against\nall actual post-edge frontend flags, and compare the native enable equations.\nGuest requests pass through the new gate; both original and candidate boards\nreceive that same accepted advance. The old gate must agree at every edge.\n",
+  "cases": [
+    {
+      "case": "candidate",
+      "returncode": 0
+    },
+    {
+      "case": "current_instead_of_next",
+      "returncode": 1
+    },
+    {
+      "case": "wrong_register_edge",
+      "returncode": 1
+    }
+  ],
+  "physical_board_bits": 12304,
+  "required_external_register_bits": 8,
+  "msa_boards": 8,
+  "raw_groups": 128,
+  "executed_inputs": {
+    "cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "dorado_storage_arb.sv": "3176dd51976861e68913e0b5b44896a40f3802eead2d0334e77ca9647b653d45",
+    "cell_MC10124.v": "fc4d8e978c143e996c1e7fc125747b2e28fea8fe8b2f57d61c17da91261f158e",
+    "ff_scan_controller.sv": "895dcecd28f67ea92fd74349eec63b726d387e34c972daeec8084922da0b9b4c",
+    "cell_SN74S174.v": "88dad140f27625a0aa42ab98b5f1147b8c02ce2ece406f34852523dac0d55746",
+    "cell_F10016.sv": "d3a34dd976018aa0efff99011be34e7f4411d47091d0c6804894ca568655e89a",
+    "cell_SN74S174.sv": "ea7fa941c37b395691b265ea289bd6add6dbf911c02b76388ce11ea88185fd7a",
+    "cell_F10016.v": "b2de61bb2f71e7f34984b0140523265d9396fe55b51450f2afa47cee6b0e8d7d",
+    "cell_SN74166.sv": "2c19fdd1da2360572e9ffd777280e93490521fdcdc74d7549a81b56353ef214a",
+    "tb.sv": "e7c11bfbc8c6db9b2737b31683212f0f98122487cb442a3e6974b9efa369a639",
+    "leaf.sv": "db4701f04ce0c3ec49fb22d7d10bdd68afe85b06fb9994298d9a927f888eb60d",
+    "cell_MC10141.sv": "1be96a6bb92fb59423dfd0de29fcb8a3aec6bbd84906156ad569992834742103",
+    "test_eight_msa_sdram_pause.py": "633528a31f57ba6f95fab097c8ecf6e29d74c6e87dc7ce5122dc745f1b916825",
+    "cell_MK4096P_addr.v": "fbb33241670944e9957c9f187bf8102473a1830a5b502f7ad05e66adb4c29d9a",
+    "cell_SN74H04.v": "0c2513703155ec6b9db87704a9f2052423d374b852036388c8f694d76b661b28",
+    "cell_MK4096P_addr.sv": "18dee318dd47610a881c125815f4b37a1946edf070247c4fbafc530b8fb51237",
+    "msa_ddram.v": "7ede320ffd5cbca8b8e83d97b7399f0a600f58e25cdaeb9c474238793ce85906",
+    "xsds_128mbyte_sdram_model.sv": "1424ef8bf568bef770a9ab1f3ae469c5df3d509892237336344b98c04c6379ae",
+    "cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "cell_MC10176.sv": "d04172cf63e0f34992a0fdbc2bba4e64a65eca76bbf756c9969730a65c9f357b",
+    "msa_state_group.sv": "a87e1e4013f34ee6a5d2bbc4a3dcc4dee702addcc16c20ca993e0dfe1587e4b7",
+    "cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "msa_board.sv": "88384a43b8e14fc97542b7c3429fb6cc234ad695ce1ff7c23a91e4b1dcb4c43c",
+    "generate_msa_ready_prediction.py": "53a13c1f746794f2a04de2d8657a898c659e9daf926ae67a24201be3f1175b32",
+    "dorado_storage_sdram.sv": "ecc2e76e7a136ed60217d606e77c2c3b9333aa0e34fea168177b589085e4da30",
+    "memory_pause_barrier.sv": "f32bfb8bb9492acfd126c29fe529b20e9496bd32807937479a0727fbb12ed1c8",
+    "cell_MC10125.v": "b2261920e05baf7479c3d908d99a75de9f1b3685c84ed45a8de13c626104c7fb",
+    "dorado_storage_group.sv": "542b7f2b27a27fca6d7263e8d2a9631ce24de13cab952c791687aef4ee30fcfa",
+    "cell_SN74166.v": "ed87a73b4f61333de3d19ff700e2327d8b9003a8b4d59cae6d62a31b7f2b3232",
+    "storage_group.sv": "9e9ebb00acd56fbb52b724f7ab9fffb83e599976979dc8f6039908de41a5ffa1",
+    "test_eight_msa_ready_prediction.py": "8d71a178ea837b588469219981bbfed62c9d472a23ba6bdc739e19ace18bf9ea",
+    "test_msa_sdram_pause.sv": "194ad5029c4efa94da4dce447283c839225098f4ee709750744b73fd4519c1bc",
+    "cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab"
+  },
+  "limits": "Complete eight-MSA/SDRAM prototype. Native wrapper integration, access for eight added registers, actual capacity/timing and FPGA boot remain required."
+}
