@@ -1,0 +1,22 @@
+{
+  "scope": "Measure the 540-bit T/parity evaluator using the qualified 15ns shell.\n\nThis is an isolated implementation-budget measurement, without assembly or\ndeployment. It does not establish native Dorado timing or instruction speed.\nRun Quartus only on misterubuntu.\n",
+  "component": "t_parity",
+  "clock_period_ns": 15,
+  "input_staging_bits": 846,
+  "launch_bits": 846,
+  "result_bits": 607,
+  "files": {
+    "fit_t_parity.py": "ebfc69118e29e7b25624561f782857ce00aa01bb445e972eff1f39036ff49937",
+    "dorado_t_parity_step.sv": "1f29c255ec4bcc6e838ba8a8b3110c3e97c2e7c6d7a5940f4ee6933c40281ca8",
+    "fit_control_clock.py": "d3b04b7f9b8c745620001bf30be430b6fd0f46326f44e09179340ec010be6727",
+    "dorado_task_capture_step.sv": "ce6633d31135f19c8c64a66c85c5c931f90aef62e2eaefe60e49484df74f8ee2",
+    "clock.sdc": "b46e34c5a34d0f5d5fbf199d3c0060292979aa69628b03599cc55019fdbffc52",
+    "top.sv": "86fc13d004cbc52a99d93425dfe7c691df99aa1ad63fa221211bdf714f348166",
+    "clock_fit.qpf": "4930956ed5ce00ee6a40fb691fea958b90ee2e28fec7ef03685661e6a7392484",
+    "audit.tcl": "64aea4243f893e5658768eacbbbf9a029c88ee27a0f35c7e83ae4419778208f7",
+    "clock_fit.qsf": "c8a56e96f8fe1c2b9a57cd8649bc76f004ca38eca59dc79b0e3724aff2e2b442",
+    "dorado_t_file_step.sv": "d54ba9ee3c5abfafd6f3bcd260883db381f855e0c5cbfef7db90b9dbcb34d7f8"
+  },
+  "assembly_permitted": false,
+  "native_qualified": false
+}

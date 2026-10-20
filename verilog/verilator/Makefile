@@ -1838,6 +1838,11 @@ T_FILE_OUT ?= build/t-file
 t-file-test:
 	@cd ../.. && python3 tools/test_t_file.py --output "$(T_FILE_OUT)" --mutations
 
+T_PARITY_OUT ?= build/t-parity
+.PHONY: t-parity-test
+t-parity-test:
+	@cd ../.. && python3 tools/test_t_parity.py --output "$(T_PARITY_OUT)" --mutations
+
 RUN_CONTROL_OUT ?= build/run-control
 run-control-test:
 	@cd ../.. && python3 tools/test_run_control.py --output "$(RUN_CONTROL_OUT)" --mutations

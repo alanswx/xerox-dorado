@@ -1,0 +1,6 @@
+{
+  "scope": "Diagnostic history, not final qualification",
+  "v1": "Functional five-profile comparison passed before arrival monitoring was added.",
+  "v2": "Both balanced functional runs passed and their minimum margins agreed; initialized constant inputs produced different setup sample counts (Icarus7395, Verilator16400). No final receipt was produced.",
+  "v3": "Explicitly start each fixture observation epoch with every input valid, a conservative last-change timestamp, and no prior clock sample. All five profiles agree including sample counts. No candidate RTL changed for this monitor correction."
+}

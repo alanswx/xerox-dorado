@@ -67,8 +67,10 @@ not a prerequisite for the performance goal.
    captures with this controller (64 Qs), then actual task-selection feedback
    and task-file addresses (88 Qs; conditional arrival contract below). Next
    **Done:** T data/write/read windows with distinct per-task values (404 bits;
-   conditional arrival contract below). Next close T/R parity, operand/register-
-   file timing and the remaining Ready/MIR/hold producers, then remaining
+   conditional arrival contract below). **Done for an isolated slice:** T parity
+   and R parity checking at its data/RAM-parity boundary (540 bits; below). Next
+   close R operand latches/functional RM/STK ports and Ready/MIR/hold producers,
+   then remaining
    board/latch/RAM families against original references. The existing
    eight-slot phase oracle is not a deployable full-speed clock solution.
 4. Fit only a justified native candidate, pass all operating conditions and
@@ -80,6 +82,50 @@ but require a separate future milestone and explicit acceptance scope. Cedar
 rollback restores the software world, not disk contents or a cycle-exact set
 of FPGA/ARM internals. See [the original guide](../DoradoDocs/manuals/Introduction_to_Cedar_7.0.md)
 and [our existing C-emulator checkpoint gate](cedar-checkpoint.md).
+
+### T parity and R parity checking qualified (2026-10-20)
+
+`dorado_t_parity_step.sv` extends the coupled T path to 540 original bits:
+T-parity SRAMs, both complete g16 packages, T/R checkers and the actual low-half
+fault capture into g18. Its independent wire-list graph covers 150 packages /
+1,506 connected pins. Clock1 samples the OLD parity address before the task
+address changes. R data/RAM-parity outputs and R bypass/IFU masks remain boundary
+inputs; R storage and the inherited Ready/MIR/Hold producers are not qualified.
+
+Both simulators agree on 23,400 checks per profile across five arrival profiles.
+All 540 bits, 25 clocks and parity/fault/window outputs are compared. Directed
+injections cover 16 T-data faults, two stored T-parity faults and 16 R-data faults,
+with 33 mask checks. Twelve compiled bad variants reject. Both halves retain 583
+write windows with no address movement inside a write window.
+
+Three profiles retain the prior illustrative delays. Two targeted correlated
+controls additionally use PARC's original `ecldict.analyze` annotations for
+F10000 clock-to-Q, MC10170 A and SRAM read delay. They enforce the g16 data
+setup/hold limits 1.7/1.1ns; minimum measured setup is 44ns and hold 3/ 10.9ns.
+Both simulators record 16,400 setup and 10,700 hold samples. The inherited clock
+network remains illustrative: this is not full-board min/max/skew, analog or
+60ns qualification. An initial monitor counted constant initialized pins
+differently; explicit observation epochs correct that without changing RTL.
+
+One terminal isolated 15ns Quartus fit passes all four conditions: setup +4.470ns,
+hold +0.139ns, pulse width +6.548ns; evaluator setup at least +4.470ns. The virtual-
+I/O shell uses 1,232 ALMs / 2,001 registers, no RAM/DSP/PLL; targeted collections
+cover 725 launch / 583 result registers. No exceptions, assembly or deployment.
+All five recorded processes were absent at collection. The independent reader
+matches all three RTL dependencies to executed inputs; ten damaged/rehashed
+controls reject and all four prior reader profiles still pass.
+
+Receipt: `fpga/mister/reports/2026-10-20-t-parity-path/`. Frozen executed sources
+and reports are losslessly archived and read back. Extracted timing review and
+reader controls reproduce; a second full archive simulation run is not claimed.
+Native59 remains at 1,947,654.12 instruction issues/s; no new core/Main/daemon
+was deployed. Complete FPGA snapshots remain deferred.
+
+Next: qualify the R read/IFU/bypass latches with functional RM/STK ports; then
+remaining producer/board timing and native integration from Native59. Keep large
+RM/STK arrays behind RAM ports rather than whole-state transport. Original-ROM
+boot, speed, Cedar rollback, repeated fresh boots, cold persistence and two-hour
+stress remain open.
 
 ### T-data, task-file writes and visible T reads qualified (2026-10-20)
 
@@ -145,9 +191,8 @@ at 1,947,654.12 instruction issues/s. Complete FPGA snapshots stay deferred.
 make -C verilog t-file-test T_FILE_OUT=build/t-file-new
 ```
 
-Next: close the T/R parity and operand/register-file timing paths, then the
-remaining producer boundaries and native integration from Native59. T-parity
-starts at k04, ProcH i11 / ProcL i13 SRAM, g16 capture and d06 check; c06 checks
+The subsequent parity qualification above supersedes this section's next step.
+The original T-parity investigation started at k04, ProcH i11 / ProcL i13 SRAM, g16 capture and d06 check; c06 checks
 R parity. Preserve g16's setup data across its Clock1/address handoff. Keep
 large RM/STK arrays behind functional RAM ports rather than expanding a whole-
 state transport; full snapshots are deferred. Preserve

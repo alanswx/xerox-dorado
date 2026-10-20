@@ -98,6 +98,6 @@ if __name__ == '__main__':
     parser.add_argument('directory', type=Path)
     parser.add_argument('--qualified', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--component', choices=['processor_capture', 'task_capture', 't_file'], default='processor_capture')
+    parser.add_argument('--component', choices=['processor_capture', 'task_capture', 't_file', 't_parity'], default='processor_capture')
     args = parser.parse_args()
     run(args.directory.resolve(), args.qualified.resolve(), args.output.resolve(), args.component)

@@ -1,0 +1,112 @@
+{
+  "status": "PASS_T_PARITY_TIMING_READER_CONTROLS",
+  "baseline": {
+    "status": "PASS_COMPONENT_TIMING",
+    "scope": "Read isolated control-clock timing evidence; never infer native speed.\n\nRequires unchanged prepared inputs (only Quartus's version annotation allowed),\nsimulation-qualified evaluator bytes, four timing conditions, the 15 ns clock\nand fully constrained virtual I/O. Rejects missing targeted path coverage unless\nexplicitly reviewing the historical rejected experiment.\n",
+    "component": "t_parity",
+    "functional_qualification_status": "PASS_T_PARITY_ARRIVAL_CONTRACT",
+    "period_ns": 15,
+    "resources": {
+      "alms": 1232,
+      "registers": 2001,
+      "memory_bits": 0,
+      "ram_blocks": 0,
+      "dsp": 0,
+      "plls": 0
+    },
+    "minimum_slack_ns": {
+      "setup": 4.47,
+      "hold": 0.139,
+      "mpw": 6.548
+    },
+    "conditions": [
+      {
+        "corner": "7_slow_1100mv_100c",
+        "setup": 4.632,
+        "hold": 0.345,
+        "mpw": 6.686,
+        "evaluator_setup": 4.659
+      },
+      {
+        "corner": "7_slow_1100mv_-40c",
+        "setup": 4.47,
+        "hold": 0.326,
+        "mpw": 6.777,
+        "evaluator_setup": 4.47
+      },
+      {
+        "corner": "MIN_fast_1100mv_100c",
+        "setup": 5.413,
+        "hold": 0.177,
+        "mpw": 6.608,
+        "evaluator_setup": 9.848
+      },
+      {
+        "corner": "MIN_fast_1100mv_-40c",
+        "setup": 5.546,
+        "hold": 0.139,
+        "mpw": 6.548,
+        "evaluator_setup": 10.496
+      }
+    ],
+    "input_staging_bits": 846,
+    "targeted_coverage_complete": true,
+    "evaluator_sha256": "1f29c255ec4bcc6e838ba8a8b3110c3e97c2e7c6d7a5940f4ee6933c40281ca8",
+    "permitted_qsf_delta": "Quartus17.0.2 LAST_QUARTUS_VERSION annotation only",
+    "native_qualified": false,
+    "hardware_speedup_claimed": false
+  },
+  "cases": [
+    {
+      "case": "missing_evaluator",
+      "rejected": true,
+      "reason": "AssertionError: Missing launch/result path report"
+    },
+    {
+      "case": "missing_corner",
+      "rejected": true,
+      "reason": "FileNotFoundError: [Errno 2] No such file or directory: '/Users/alans/dev2/Dorado/build/rtl-executive/t-parity-archived-reader-controls-20261020/missing_corner/clock-hold-7_slow_1100mv_100c.rpt'"
+    },
+    {
+      "case": "wrong_profile",
+      "rejected": true,
+      "reason": "AssertionError: Unknown fixture profile"
+    },
+    {
+      "case": "wrong_dimensions",
+      "rejected": true,
+      "reason": "AssertionError: "
+    },
+    {
+      "case": "changed_evaluator_rehashed",
+      "rejected": true,
+      "reason": "AssertionError: "
+    },
+    {
+      "case": "changed_min_delay_rehashed",
+      "rejected": true,
+      "reason": "AssertionError: Unexpected timing constraints"
+    },
+    {
+      "case": "relaxed_period_rehashed",
+      "rejected": true,
+      "reason": "AssertionError: Unexpected timing constraints"
+    },
+    {
+      "case": "unconstrained_input",
+      "rejected": true,
+      "reason": "AssertionError: ('7_slow_1100mv_100c', 'Unconstrained Input Ports')"
+    },
+    {
+      "case": "negative_setup",
+      "rejected": true,
+      "reason": "REJECTED_COMPONENT_TIMING"
+    },
+    {
+      "case": "changed_dependency_rehashed",
+      "rejected": true,
+      "reason": "AssertionError: ('unqualified RTL dependency', 'dorado_task_capture_step.sv')"
+    }
+  ],
+  "quartus_run": false
+}
