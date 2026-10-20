@@ -1,0 +1,17 @@
+{
+  "status": "PASS: original firmware Cedar login and 34 base transfers/final guest ACK; Viewers/input/persistence pending",
+  "main_pid": 3486,
+  "server_pid": 3485,
+  "rbf_sha256": "15730f449bae786a3cee9ffa93d4bbc7de2e90083483f1a59cfd607c02af49a8",
+  "clock": "50MHz/SYSPER4 unchanged; administration inactive",
+  "idle_mean_issues_per_s": 1947686.0104402797,
+  "loader_elapsed_bounds_s": [
+    286.376846345,
+    286.481087635
+  ],
+  "profile": "Observed original personal-profile question, answered n+Return through real keyboard",
+  "desktop_qualified": false,
+  "firmware_full_regression_complete": false,
+  "hardware_speedup_claimed": false,
+  "scope": "Original BaseBoard/Initial/BFN113/Pilot/Cedar/Guest/base files; partial native regression, no state import, cold persistence, snapshots or faster clocks"
+}

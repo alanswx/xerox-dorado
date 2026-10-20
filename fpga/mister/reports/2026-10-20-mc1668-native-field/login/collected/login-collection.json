@@ -1,0 +1,27 @@
+{
+  "utc": "2026-10-20T19:25:35.122655+00:00",
+  "main_pid": 3486,
+  "server_pid": 3485,
+  "completed_disk_trace_records": 54761,
+  "partial_final_record": false,
+  "disk_errors_or_trace_loss": false,
+  "files": {
+    "main-through-login.log": {
+      "source": "/tmp/dorado-mc1668-main.log",
+      "bytes": 218901,
+      "sha256": "3bb16725973f0c34dd7937c1640be5b24c51c624af8c360556b06307be16323d"
+    },
+    "disk-through-login.jsonl": {
+      "source": "/tmp/dorado-mc1668-disk.jsonl",
+      "bytes": 5694267,
+      "sha256": "fcd87ac94677676486cfcc80eba9aff69fefd8ee1da1d00409b25625c1f852a2"
+    },
+    "server-through-login.log": {
+      "source": "/media/fat/games/DoradoRTL/CedarMC1668_20261020/server.log",
+      "bytes": 896889,
+      "sha256": "6b26d7e01601a9619cee165ce94114de337327e0e67ad062e6399d6c0d23506a"
+    }
+  },
+  "collector_memory": "Streaming fixed-size prefixes, disk spooling and one parsed record at a time",
+  "scope": "Read-only live log prefixes after observed original firmware login/base34/final guest ACK and profile-No; Viewers/input remain pending; no live-pack copy, guest Boot, host disk barrier, clean shutdown, cold persistence or full machine snapshot"
+}

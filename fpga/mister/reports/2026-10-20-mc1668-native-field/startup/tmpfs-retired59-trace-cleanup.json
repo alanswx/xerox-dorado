@@ -1,0 +1,21 @@
+{
+  "utc": "2026-10-20 19:16:11 UTC",
+  "scope": "Closed Native59 duplicates only; exact retained SD hashes and no open descriptors. Current MC1668 files untouched. Historical trace gap is retained in the SD copy and preservation proof.",
+  "files": [
+    {
+      "removed": "/tmp/dorado59-disk.jsonl",
+      "retained": "/media/fat/games/DoradoRTL/Cedar59_20261019/disk-through-mc1668-load.jsonl",
+      "bytes": 11779414,
+      "sha256": "df91dba74ef6775a5d3c8191c0679f5673820627e71e790cb83737c059fda6bd",
+      "open_descriptors": false
+    },
+    {
+      "removed": "/tmp/dorado59-main.log",
+      "retained": "/media/fat/games/DoradoRTL/Cedar59_20261019/main-through-mc1668-load.log",
+      "bytes": 11693564,
+      "sha256": "979c0eed0c027e70c6fd2f543770aae6ff8d6e37acd21e3661ac8f9514e4b4ef",
+      "open_descriptors": false
+    }
+  ],
+  "freed_bytes": 23472978
+}

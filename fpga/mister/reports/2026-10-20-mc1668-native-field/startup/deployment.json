@@ -1,0 +1,33 @@
+{
+  "old_main": 29511,
+  "old_server": 29510,
+  "main_pid": 3486,
+  "server_pid": 3485,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "server_sha256": "c59962490772f12d061ec61aa64e6a567144d26d7802a28349a8d9a044eda87e",
+  "rbf_sha256": "15730f449bae786a3cee9ffa93d4bbc7de2e90083483f1a59cfd607c02af49a8",
+  "seed_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+  "preserved_old_volume": {
+    "path": "/media/fat/games/DoradoRTL/Cedar59_20261019/cedar-work.pack",
+    "bytes": 63578624,
+    "sha256": "e31e9069affd412e0deb3a0fd1cd45b31d6f24841a42c201b62cba828644a499",
+    "disk_records": 116146,
+    "disk_trace_sha256": "df91dba74ef6775a5d3c8191c0679f5673820627e71e790cb83737c059fda6bd",
+    "disk_trace_complete": false,
+    "historical_trace_gaps": [
+      {
+        "ns": 153679932108714,
+        "event": "trace_dropped",
+        "offset": 0,
+        "bytes": 80580,
+        "result": 0,
+        "duration_ns": 0
+      }
+    ],
+    "boundary": "Normal Main loader and temporary Main exit; final two disk barriers complete; no pack descriptor open",
+    "guest": "No clean guest shutdown, filesystem-integrity proof or FPGA snapshot claimed"
+  },
+  "main_log": "/tmp/dorado-mc1668-main.log",
+  "disk_trace": "/tmp/dorado-mc1668-disk.jsonl",
+  "phase": "Resumed interrupted normal load; original firmware boot pending"
+}

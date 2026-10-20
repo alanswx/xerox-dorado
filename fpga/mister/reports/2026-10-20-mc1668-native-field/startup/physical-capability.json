@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "main_pid": 3486,
+  "raw_words": [
+    53460,
+    1,
+    0,
+    8176,
+    0,
+    1,
+    22,
+    0,
+    0,
+    49788,
+    21491,
+    28186,
+    15064,
+    2048,
+    8,
+    16,
+    0,
+    0
+  ],
+  "epoch": "c27c53f36e1a3ad8",
+  "flags": 22,
+  "fault": 0,
+  "errors": 0,
+  "scope": "Actual Main sole-owner SPI74 at input_poll; fresh epoch differs from Native59 aa846a314ec45d23"
+}

@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "actual_request": "TX n=13: 000042 001000 000026 000264 000001 000113 000000 000000 000004 000042 000001 000001 177777",
+  "boot_file_number_octal": "113",
+  "physical_boot_pulses": 3,
+  "c_released": true,
+  "scope": "Original Initial firmware packet through actual DskEth/DDR; no imported CPU state or host instruction completion"
+}

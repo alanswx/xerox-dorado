@@ -1,0 +1,25 @@
+{
+  "pid": 3464,
+  "time": 1792522837.1560464,
+  "preserved_old_volume": {
+    "path": "/media/fat/games/DoradoRTL/Cedar59_20261019/cedar-work.pack",
+    "bytes": 63578624,
+    "sha256": "e31e9069affd412e0deb3a0fd1cd45b31d6f24841a42c201b62cba828644a499",
+    "disk_records": 116146,
+    "disk_trace_sha256": "df91dba74ef6775a5d3c8191c0679f5673820627e71e790cb83737c059fda6bd",
+    "disk_trace_complete": false,
+    "historical_trace_gaps": [
+      {
+        "ns": 153679932108714,
+        "event": "trace_dropped",
+        "offset": 0,
+        "bytes": 80580,
+        "result": 0,
+        "duration_ns": 0
+      }
+    ],
+    "boundary": "Normal Main loader and temporary Main exit; final two disk barriers complete; no pack descriptor open",
+    "guest": "No clean guest shutdown, filesystem-integrity proof or FPGA snapshot claimed"
+  },
+  "phase": "Verified interrupted boundary; normal server stop and fresh Main start next"
+}
