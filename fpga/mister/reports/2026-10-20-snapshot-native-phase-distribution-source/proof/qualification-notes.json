@@ -1,0 +1,8 @@
+{
+  "status": "SOURCE_AND_INVENTORY_ONLY",
+  "native_stage": "serial74-native-phase-distribution-20261020",
+  "classification": "serial74-phase-classification-v1-20261020",
+  "state_access_complete": false,
+  "quartus_started": false,
+  "limits": "Original 2761 pins and all old sequential geometry preserved. 19 added phase bits require native access; 132638 wrapper bits remain ACCESS PENDING. Top Core/UIO and ARM state remain outside the native-machine XML. No new clock, period, deployment or speed gain."
+}

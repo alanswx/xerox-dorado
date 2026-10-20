@@ -43,6 +43,34 @@ not a prerequisite for the performance goal.
 
 ### Benchmark contract
 
+**Serial74 native phase source integrated (2026-10-20):** local stage
+`build/rtl-executive/serial74-native-phase-distribution-20261020`, intended remote
+path `/home/alans/mister/Dorado_Serial74PhaseDistribution_20261020` (provenance
+only; no upload/job). All662 frozen Serial73 inputs are verified;663 actual
+inputs include the exact qualified nineteen-register falling-edge distributor.
+All479 qualified MC10176/MC10231 helpers are enabled with original PRECAP values.
+The original global gate remains; no extra pipeline stage, clock or top-level
+port is added. Independent inversion restores every original source, all2,761
+pins, raw drain, live guards, hold/quarantine logic, periods and placement policy;
+13 rehashed broken source variants reject.39 parent files change plus one added
+source. No Quartus, assembly or deployment mode exists in the staging driver.
+
+Fresh actual-QSF XML accounts for2,094,333 REQUIRED bits: physical1,957,048,
+private board4,578, transport69 and wrapper ACCESS PENDING132,638. All19 new
+phase bits are REQUIRED/ACCESS PENDING; all old geometry is preserved. All479
+helper phase/PRECAP bindings match;34 damaged state/binding/alias controls reject.
+The120 task-written SDRAM bits remain required and1,239 function scratch bits
+retain the previous lifetime review. Core/UIO state, raw SDRAM bytes and ARM
+remain outside this native-machine XML. Schema remains board-only af0b647cb43a3a62.
+Receipt: `fpga/mister/reports/2026-10-20-snapshot-native-phase-distribution-source/`.
+Archive-extracted frozen tools reproduce all663 staged bytes, fresh complete XML,
+classification and all47 negative controls. Only the two XML path hashes differ;
+every other classification/verification value agrees. The initial extracted
+attempt lacked cell-model audit dependencies; the corrected closure is archived,
+with no HDL changes. All raw bytes read back and every replayed input is retained.
+Next: native state access, actual Main/service controls and remaining RAM/DMadr
+timing paths before a combined fit. Native59's measured speed is unchanged.
+
 **Local advance / payload qualification (2026-10-20):** all eleven complete
 boards pass8,399,378 checks over2,104,093 host edges against their frozen
 originals: original pins, classified small physical fields, sampled large RAM,
@@ -73,9 +101,9 @@ current generator. An archive-extracted rebuild reproduces all eleven board
 results, five control scenarios and three eight-MSA cases using only archived
 HDL/headers/memory files and fresh compiler objects. All raw bytes read back;
 the final receipt retains every originally replayed member.
-**Next: full-native source integration, inventory/access for
-nineteen new phase bits, actual clocked Main controls and remaining RAM/DMadr
-timing paths.** No full-core fit, hardware reload or speed gain is claimed.
+**Follow-up: Serial74 integrates these assets and accounts the nineteen added
+bits; state access, actual clocked Main controls and remaining RAM/DMadr timing
+paths remain open.** No full-core fit, hardware reload or speed gain is claimed.
 
 **Local-enable component prototype (2026-10-20):** nineteen independent
 falling-edge advance registers match the existing global register without an
@@ -479,8 +507,9 @@ Next, in delivery order:
 
 1. Preserve terminal Serial73 rejection and its successful registered NEXT-ready
    cut. Eleven whole-board, native-control-cone and eight-MSA/SDRAM local-phase
-   qualifications now pass. Integrate those exact assets, account/access nineteen
-   added bits and preserve the global gate/live guards. Qualify remaining RAM
+   qualifications now pass. Serial74 integrates those exact assets and accounts
+   nineteen added bits; provide their access and preserve the global gate/live
+   guards. Qualify remaining RAM
    hold paths and inspect ContA JCN-to-MemX/MemD DMadr separately. Local advance
    copies alone are not sufficient proof. Keep clock periods/phase and placement
    policy; qualify actual Main controls and every remaining measured path before

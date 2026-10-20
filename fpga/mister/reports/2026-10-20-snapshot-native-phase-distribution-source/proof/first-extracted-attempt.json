@@ -1,0 +1,5 @@
+{
+  "status": "FAILED_TOOL_CLOSURE",
+  "attempt": "serial74-phase-extracted-v1-20261020",
+  "reason": "The ancestor MSA source audit reads verilog/cells/cell_MC10176.v from the frozen tool root; that directory was omitted. Fresh XML/state accounting passed, but inverse source audit and final verification did not finish. Add exact cell sources; no staged HDL changes."
+}

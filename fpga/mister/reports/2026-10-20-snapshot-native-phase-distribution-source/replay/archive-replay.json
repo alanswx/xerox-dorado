@@ -1,0 +1,12 @@
+{
+  "status": "PASS_EXTRACTED_NATIVE_PHASE_REPLAY",
+  "members": 1368,
+  "source_inputs": 663,
+  "source_controls": 13,
+  "state_controls": 34,
+  "required_bits": 2094333,
+  "classification_normalizations": [
+    "xml_sha256",
+    "normalized_xml_sha256"
+  ]
+}

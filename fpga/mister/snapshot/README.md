@@ -2,9 +2,13 @@
 
 Complete machine save/restore is required milestone4a in
 [the delivery plan](../../../docs/verilog-clock-plan.md). It is not implemented
-in the running MiSTer core. This directory now qualifies bounded RAM access
-and complete modeled ContB state restore in isolated RTL/routed experiments.
-Machine-wide state access, coherent barriers and physical restore remain open.
+in the running MiSTer core. Serial74 now integrates qualified local advance
+distribution across the nineteen native boards: source/inventory checks preserve
+all old state and require nineteen new phase bits. This is source-only; the last
+full snapshot-capable fit (Serial73) failed timing. Machine-wide state access,
+Main coordination, remaining timing paths and physical restore remain open.
+See the [current handoff](../../../docs/verilog-handoff.md) before the historical
+component notes below.
 
 The complete actual BaseBoard now passes 40,366-bit save/restore, untouched
 original/independent-model comparison, fresh complete XML classification and

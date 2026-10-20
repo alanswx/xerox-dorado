@@ -2,6 +2,23 @@
 
 ## Current objective (2026-10-20)
 
+**Serial74 source-only native integration passes source/state review.** Stage
+`build/rtl-executive/serial74-native-phase-distribution-20261020` contains663
+inputs derived from662 exact Serial73 inputs, with nineteen same-falling-edge
+local advance registers and all479 qualified payload helpers. Independent
+inversion preserves all2,761 original pins, the global gate/live guards, raw
+drain, hold/quarantine and timing/placement policy;13 damaged source variants
+reject. Fresh native XML accounts for2,094,333 REQUIRED bits, including19 new
+phase bits and132,638 wrapper ACCESS PENDING bits;34 damaged state/binding/alias
+cases reject. Every old field and helper PRECAP binding is preserved. Core/UIO,
+raw SDRAM and ARM remain outside this XML. No upload, Quartus job, assembly or
+hardware change. Receipt:
+`fpga/mister/reports/2026-10-20-snapshot-native-phase-distribution-source/`.
+Archive-extracted tools reproduce all663 source bytes, fresh complete XML and
+all source/state reviews/47 negative controls; all raw receipts read back.
+Next: native access, actual Main/service controls and remaining RAM/DMadr paths
+before a combined fit. Native59 remains the qualified hardware/speed baseline.
+
 Local advance qualification now passes all eleven whole-board oracles
 (8,399,378 checks), the frozen actual native hold-control cone (27,501 checks)
 and eight complete MSAs /128 raw groups with real SDRAM (52,931,566 checks).
@@ -15,8 +32,8 @@ See the [clock plan](verilog-clock-plan.md#benchmark-contract) and receipt
 `fpga/mister/reports/2026-10-20-snapshot-phase-distribution/`.
 All19 archive-extracted board/control/SDRAM rebuild cases pass with fresh
 compiler objects; all raw source/report bytes read back.
-Next TODO: integrate the exact qualified assets into native sources, account and
-provide access for19 new bits, then finish actual Main controls and the remaining
+Serial74 now integrates these exact assets and accounts for all19 new bits.
+Next TODO: provide native state access, then finish actual Main controls and the remaining
 RAM-hold/ContA JCN-to-DMadr paths before fitting. Complete snapshots and original
 60ns clocks remain open. No full-core build, hardware change or speed gain.
 
