@@ -1,0 +1,34 @@
+[
+  {
+    "arm": "control",
+    "old_run": "r-front-ready-memory-line-control-v16-20261021",
+    "new_run": "r-front-ready-memory-line-control-v17-20261021",
+    "changed_inputs": [
+      "test_r_front_ready_boot.py",
+      "verilog/verilator/tb_exec.sv"
+    ],
+    "old_provenance_sha256": "8ff1be650c48d01f3faf10c756001dc21318f6cf187d0ff9d62b51e0ec5ba976",
+    "new_provenance_sha256": "031d5558a3ba40a766671e30beb71f85813ae875bfc0b1f83f47b5f975cbad54",
+    "pid": 9099,
+    "verified_live_command": "9099 03:48 /Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-memory-line-control-v17-20261021/obj/test +preload=fixture/im.txt +start=3907 +mb0 +nostuck +terminal +pendulum +hasram +ioreset +imparityon +keepmirdebug +cpu-manifold +paritysources +initial-rom-check +cycles=50000000 +cycle-limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-memory-line-control-v17-20261021/cycle-limit.txt +terminal-key=21 +etherhost=34 +largeformat +loaded-eb=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +rcvplay=/Users/alans/dev2/Dorado/build/rtl-executive/cedar113-bol-replies.txt +rcvdelay=100000 +pack=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +frame +bootio-germ-copy +bootiofrom=0 +rxtrace +inspect-state=/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-memory-line-control-v17-20261021/register-map-inspection.txt +inspect-at=49900000",
+    "status": "RUNNING_PREFIX_NOT_A_RESULT",
+    "unchanged_inputs": 419,
+    "lossless_readback": true
+  },
+  {
+    "arm": "candidate",
+    "old_run": "r-front-ready-memory-line-candidate-v16-20261021",
+    "new_run": "r-front-ready-memory-line-candidate-v17-20261021",
+    "changed_inputs": [
+      "test_r_front_ready_boot.py",
+      "verilog/verilator/tb_exec.sv"
+    ],
+    "old_provenance_sha256": "244bcaaffd0fe75b22ea708773d096779e715f6ace3d7da96e98e0efcd5a832d",
+    "new_provenance_sha256": "9ad461fb7eae9a5d38385dcd24b12ccfa196e351473e640b8613781f62928cea",
+    "pid": 9203,
+    "verified_live_command": "9203 03:44 /Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-memory-line-candidate-v17-20261021/obj/test +preload=fixture/im.txt +start=3907 +mb0 +nostuck +terminal +pendulum +hasram +ioreset +imparityon +keepmirdebug +cpu-manifold +paritysources +initial-rom-check +cycles=50000000 +cycle-limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-memory-line-candidate-v17-20261021/cycle-limit.txt +terminal-key=21 +etherhost=34 +largeformat +loaded-eb=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +rcvplay=/Users/alans/dev2/Dorado/build/rtl-executive/cedar113-bol-replies.txt +rcvdelay=100000 +pack=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +frame +bootio-germ-copy +bootiofrom=0 +rxtrace +inspect-state=/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-memory-line-candidate-v17-20261021/register-map-inspection.txt +inspect-at=49900000",
+    "status": "RUNNING_PREFIX_NOT_A_RESULT",
+    "unchanged_inputs": 434,
+    "lossless_readback": true
+  }
+]

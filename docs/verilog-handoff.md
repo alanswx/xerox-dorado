@@ -96,8 +96,8 @@ are unsettled; consumed MD/data provenance is not yet established by that trace.
 
 **Current processes to observe, not restart:**
 
-- `r-front-ready-memory-line-control-v16-20261021`: test7072, prior native CPU.
-- `r-front-ready-memory-line-candidate-v16-20261021`: test7220, new CPU.
+- `r-front-ready-memory-line-control-v17-20261021`: test9099, prior native CPU.
+- `r-front-ready-memory-line-candidate-v17-20261021`: test9203, new CPU.
 - `r-front-native-q-shadows-v3-20261021`: test7608, full50M/one-sample capture probe.
 
 All directories are under `build/rtl-executive/`; use their exact run-state and
@@ -105,7 +105,18 @@ actual process handles. The line probes compile and preserve full original
 IM/IFUM readback gates. Passive logging covers Initial's xxxxE10 accesses and
 the input task's matching BootDataPtr, plus32 trailing samples: CPU/MD/VA/phase/
 Hold, all14 cache-bank addresses/selects/writes, D0/D1 inputs and raw/delayed
-storage data. Some early setup records precede full error enable; align valid
+storage data. V16's broader xxxxE10 predicate also matched the idle I/O VAfe1d,
+producing irrelevant repeated rows. Both exact live V16 simulations were
+deliberately stopped with SIGTERM (terminal-15), not on a polling timeout.
+Their full observed output remains losslessly in each local `test.log.gz`:
+1,471,393,267/528,458,759 raw bytes become32,244,785/11,354,955 bytes, verified
+by decompressed SHA/length before raw removal. This is an observer failure,
+not a new guest-failure result. V17 restricts VA/BP to0e10/1e10/2e10/3e10 and
+stops explicitly if the diagnostic exceeds200,000 rows. Both compile and are
+verified live. Only bench/helper inputs differ;419 control/434 candidate
+inputs remain identical to archived V16. The correction's sources, status,
+hashes and lineage are under the closed receipt's `trace-filter-correction/`.
+Q3 continues unchanged. Some early setup records precede full error enable; align valid
 records to the original parity-enable event and instruction/task, rather than
 assuming every early sample number matches. Original RTL/firmware executes all
 memory work. Find the first changed data/capture epoch before changing RTL.
@@ -113,7 +124,8 @@ memory work. Find the first changed data/capture epoch before changing RTL.
 Receipts: [V13/V14 and running native prefixes](../fpga/mister/reports/2026-10-21-r-front-native-handoff-diagnostic/README.md),
 [closed native comparison and RAM/capture checks](../fpga/mister/reports/2026-10-21-r-front-native-handoff-closed/README.md).
 The latter verifies3,982 logical members/481 blobs,48,273,578 raw/5,507,584 stored
-bytes. Its V16/Q3 logs are explicitly verified running prefixes. Exact helpers,
+bytes. Its V16/Q3 logs remain historical running prefixes. The correction
+extension replaces only the stopped observer jobs with V17. Exact helpers,
 frozen inputs and failed/insufficient checks remain preserved. Main16808 and
 server16807 were revalidated at09:41:54 UTC on MiSTer14; no hardware reload.
 

@@ -89,7 +89,7 @@ OBSERVER = r'''
 '''
 
 MEMORY_LINE_OBSERVER = r'''
-  // Read-only cache/storage visibility around Initial's VM xxxxE10 line.
+  // Read-only visibility at the boot image's 0E10/1E10/2E10/3E10 lines.
   // Keep a short tail so a request remains visible after shared VA changes.
   integer boot_diag_memory_tail=0,boot_diag_memory_rows=0;
   wire [15:0] boot_diag_bp=bootio_rm(8'h11);
@@ -98,11 +98,14 @@ MEMORY_LINE_OBSERVER = r'''
   wire [13:0] boot_diag_cache_ce={SELECT_BANKS};
   wire [17:0] boot_diag_d0={D0_BITS},boot_diag_d1={D1_BITS};
   always @(negedge sys_clk)if(paritysources_arm && !boot_diag_world)begin
-    if(w_procva[11:4]==8'he1 || (pct_ctask==7 && boot_diag_bp[11:4]==8'he1))
+    if((w_procva[25:14]==0 && w_procva[11:4]==8'he1) ||
+       (pct_ctask==7 && boot_diag_bp[15:14]==0 && boot_diag_bp[11:4]==8'he1))
       boot_diag_memory_tail=32;
     else if(boot_diag_memory_tail>0)boot_diag_memory_tail--;
     if(boot_diag_memory_tail>0)begin
       boot_diag_memory_rows++;
+      if(boot_diag_memory_rows>200000)
+        $fatal(1,"DIAGNOSTIC_TRACE_LIMIT_REACHED: memory-line observer exceeded200000 rows; no guest-failure conclusion");
       $display("BOOT_DIAG_MEMORY_LINE sample=%0d CIA=%h task=%h CTD=%h clocks=%b%b%b T=%h A=%h B=%h ALU=%h MD=%h VA=%h BP=%h RMar=%h Hold=%b MDHoldN=%b RefHoldN=%b NoRef=%b D0=%h D1=%h raw=%h delayed=%h cache_addr=%h cache_we=%b cache_ce=%b",
         n_cyc2,ring_cia,pct_ctask,ring_ctd,m.b_ContA.clk0_p_Ca,m.b_ContA.clk1_p_Ca,
         m.b_ContA.clk2_p_Ca,brc_t,brc_alua,brc_alub,brc_alu,bootio_md,w_procva,

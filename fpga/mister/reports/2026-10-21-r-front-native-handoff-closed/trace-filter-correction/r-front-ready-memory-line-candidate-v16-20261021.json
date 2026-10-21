@@ -1,0 +1,21 @@
+{
+  "run": "r-front-ready-memory-line-candidate-v16-20261021",
+  "status": "TERMINAL_FAILED",
+  "test_returncode": -15,
+  "reason": {
+    "time": 1792576348.161278,
+    "reason": "Observer matched IO VA fe10..fe1f while Initial waited; excess irrelevant repeated rows. Deliberate diagnostic stop, not a polling timeout or core failure.",
+    "pid": 7220,
+    "actual_command": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-memory-line-candidate-v16-20261021/obj/test +preload=fixture/im.txt +start=3907 +mb0 +nostuck +terminal +pendulum +hasram +ioreset +imparityon +keepmirdebug +cpu-manifold +paritysources +initial-rom-check +cycles=50000000 +cycle-limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-memory-line-candidate-v16-20261021/cycle-limit.txt +terminal-key=21 +etherhost=34 +largeformat +loaded-eb=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +rcvplay=/Users/alans/dev2/Dorado/build/rtl-executive/cedar113-bol-replies.txt +rcvdelay=100000 +pack=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +frame +bootio-germ-copy +bootiofrom=0 +rxtrace +inspect-state=/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-memory-line-candidate-v16-20261021/register-map-inspection.txt +inspect-at=49900000",
+    "log_bytes": 528458759,
+    "action": "SIGTERM to exact verified simulation only; keep full closed log locally"
+  },
+  "raw_bytes": 528458759,
+  "raw_sha256": "1c0ec3eade0d85874fcd9f739209afeb7f3c15398e54f380bd9920eda6c4c531",
+  "local_gzip": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-memory-line-candidate-v16-20261021/test.log.gz",
+  "gzip_bytes": 11354955,
+  "gzip_sha256": "76735e778732764a12b72b322e275c011caacd944951674aeda3480c5475a0df",
+  "full_log_preserved_locally": true,
+  "lossless_readback": true,
+  "raw_file_removed": true
+}

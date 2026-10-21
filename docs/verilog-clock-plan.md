@@ -148,7 +148,12 @@ RAM shadows with actual memory controllers pass50M stored-word/closed-write
 checks and settled asynchronous read-pin comparisons. A three-sample Q filter
 missed20 packages and is explicitly rejected as incomplete; a one-sample20M
 capture probe observes all91 packages but ends before the download. Full50M
-capture and paired cache/storage line traces are running. Diagnose the first
+capture and paired cache/storage line traces are running.
+The first line observer matched an idle I/O address as well; its two V16 jobs
+were deliberately stopped and their full logs preserved with verified gzip
+readback. Corrected V17 narrows the predicate to the four boot-image lines and
+bounds emitted rows. Only observer bench/helper inputs change; the other419/
+434 inputs remain identical. The independent Q3 run continues. Diagnose the first
 data/capture divergence before changing production RTL. Baseline's later09c
 wait is task12 starvation after2,153 emulator samples, not established IFU
 failure or a desktop boot. Current process handles/receipt paths are in the
