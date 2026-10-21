@@ -76,6 +76,44 @@ have been optimized out and are initialized placeholders: do not interpret
 those structure members as live pins. Logger summaries use assigned internal
 cache/miss/wait/write state; no memory-cause conclusion from sparse samples.
 
+Read-only capture is now extended on BOTH existing runs. Candidate samples
+include RM/STK, lower/upper evaluator Qs, saved/live pins, calculated next Q and
+common clock. Control samples read the original h06/j06/i06/k06 SRAMs and
+i03/i04/g06/g07 T/R latch Qs. Original bit/address permutations from the checked
+fixtures derive logical RM words. Control's model pointer is0x7b1cc28000,
+rootp offset344; candidate root0x7518800100. Layouts compile against each exact
+generated header, not another model's ABI. Both observers only use ReadMemory.
+
+LLDB breakpoint3 on `VL_WRITEF_NX` now captures a one-time register/event sample
+at `NATIVE_FIRST_TRAP host=...`, after the retained pin ring. The log format's
+macOS libc++ string layout passes independent short/long calibration and actual
+progress-format recognition. Neither first-trap callback has fired yet. The
+existing finish breakpoint still retains queue/limit state. Control's initial
+four-positional-argument callback binding raised an AttributeError and paused
+at host230M; `reason` is now keyword-only, both callbacks rebound, and the SAME
+control resumes and captures progress240M successfully. Rejected scripts and
+recovery metadata remain in `host-inspection/`; no guest writes or restart.
+
+New `tools/check_native_front_observation.py` exposes otherwise-unused event/
+unsettled diagnostics from a captured point in a separate Icarus instance.
+Exact staged component/RAM inputs reproduce all752 calculated next-Q bits at
+440M/450M host ticks; events0/33807, repeated0/0, unsettled false/false. A copied
+expected-state bit corruption rejects with exit1. This checks observation
+consistency, not processor correctness or Cedar behavior; no native process is
+changed. Runs `native-front-observation-{440m,450m,450m-negative}-20261021` are
+terminal and must not be rerun. Their699-member/597-blob
+[receipt](../fpga/mister/reports/2026-10-21-r-front-operand-observer/native-front-observation-prefix/README.md)
+is losslessly verified. At latest observation V38 host500M/162,782,246 enabled
+edges and V39 host240M remain pre-boot, no113 or device faults yet. Boot window
+is200M..240M ENABLED edges, not host ticks. Follow these same jobs.
+
+The default ignored `dorado/build/mbdis` was stale and still returned the old
+neighbor-label answer. It is rebuilt from the committed inverse-placement
+source; six-PC output matches the reviewed private resolver exactly. Actual
+221=MTrap,238=BootOrStart; the four queue PCs retain offsets1/2/3/0. Keep the
+mixed-SDK linker warnings in its build log; no guest core/image changed.
+[Resolver refresh evidence](../fpga/mister/reports/2026-10-21-r-front-operand-observer/default-resolver-refresh/README.md).
+
 **Matched MC1668 control V39 is also LIVE:** driver83197/test83509, runner
 exec48450 and LLDB exec66643 (`VL_FINISH_MT` breakpoint1 resolved/continued).
 Directory `build/rtl-executive/native-cedar-memory-control-v39-20261021`.
@@ -6293,6 +6331,9 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Follow existing V38 driver79190/test79583 (LLDB11479) through its production boot window to actual113/first trap/queue data; inspect real memory completion and consumed operands. Enabled-edge progress is not MIPS or firmware qualification.
 - [x] Freeze/compile matched full-memory control V39 from the498-file qualified MC1668 stage; preserve source/link checks and running prefixes. No operand observer exists in this control; only its PC/device observations are meaningful.
 - [ ] Compare V38 against existing V39 driver83197/test83509 (LLDB66643) through original firmware; distinguish a common harness failure from the new front/processor regression before an RTL repair.
+- [x] Extend both existing jobs with read-only actual RM/T/R/event capture and first-MTrap callbacks; recover the control logger's callback-ABI exception without a restart. Preserve exact layouts, rejected scripts and original fixture bit/address mappings.
+- [x] Check captured native event evaluations at440M/450M independently in Icarus and reject an intentionally corrupted capture. These are consistency diagnostics, not independent functional correctness or Cedar gates.
+- [x] Rebuild the stale default mbdis executable from committed inverse-placement source; verify all six relevant PCs match the reviewed resolver and preserve linker warnings.
 - [x] Test live progressive1080p60 through normal Main controls; preserve black capture and restore previous1080p30. Shared capture service/other MiSTers remain untouched; capture recovery is still open.
 - [ ] Trace the earlier queue/memory fault with phase-correct consumed operands through native memory holds; recover original Cedar/login/Viewers/mouse/click/exact keyboard echo and HDMI capture before accelerating.
 - [ ] Complete original 60 ns ordinary-instruction clock/enable and timer migration, reducing avoidable memory waits while preserving cache/map/ECC and peripheral behavior. Report instruction issues and holds separately on pinned workloads.

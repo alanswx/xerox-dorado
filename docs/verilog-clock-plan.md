@@ -29,6 +29,14 @@ Compile/link checks pass; seed/service/host timing match V38. Compare both
 original-firmware outcomes before changing RTL. The control has no operand
 observer; its zero operand-ring fields are placeholders. Both jobs remain live,
 not terminal firmware qualifications; V38 was not restarted or modified.
+Both existing runs now have read-only first-MTrap register/event capture via
+LLDB and periodic physical RM observations. Control's logger callback ABI error
+was corrected and the same process continues. Isolated Icarus point evaluations
+reproduce candidate next-Q at440M/450M (no repeated/unsettled events); an offline
+corruption rejects. These are capture-consistency checks, not independent
+processor correctness or a Cedar gate. The stale default local mbdis executable
+is rebuilt to match the committed inverse-placement source. No guest RTL,
+clock, firmware or hardware binary changed; continue the same cold runs to113.
 
 2026-10-21 continuation: the visible-R v4 FPGA boot still displays Pilot812.
 Inverse MicroD placement now resolves all sampled CIA239/23a/6c1/6c2 to

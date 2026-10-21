@@ -13,6 +13,10 @@ V38 was still running at collection; no terminal firmware result is claimed.
 The [paired control prefix](production-native-control-prefix/README.md) adds
 the qualified MC1668 source control, successful compile/link checks and actual
 live-process observations for both runs. Both firmware outcomes remain pending.
+The [native register/point-observation prefix](native-front-observation-prefix/README.md)
+preserves read-only first-trap capture setup, logger recovery and isolated
+capture-consistency checks. The [default resolver refresh](default-resolver-refresh/README.md)
+corrects a stale local executable to match the committed inverse-placement tool.
 
 The root manifest freezes V5 staged inputs and terminal V29/V31/V30 component
 tests:1,871 members/539 unique blobs. **V5 is rejected as an operand diagnostic**:
