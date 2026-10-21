@@ -116,10 +116,14 @@ pass; these are bounded observations, not loaded-image or desktop gates.
    pages in that window also store0 in the candidate. Clock/hold/map-control
    records match across the boundary. This demonstrates a CPU-to-MapBuf data
    capture failure in the matched component, not a qualified hardware fix.
-3. Follow V21's paired native producer probes before changing RTL. They add
+3. V21's paired native producer probes are now terminal, exit0 through14M.
+   They add
    R/dR/dRm, bypass, R read/visible clocks, B-mux clocks/selects and root clock.
-   Establish whether the R visibility epoch precedes the retained B selector;
-   do not repair this by forcing map contents or adding arbitrary delays.
+   At9,393,607 the candidate exposes R=0 while the baseline retains R=1;
+   both still select R and have identical R-visible/B-selector clock levels.
+   At9,393,608 the selector switches to T in both, too late for the candidate's
+   MapBuf. This confirms mixed capture epochs between collapsed R visibility
+   and the retained B selector. Do not force map contents or add arbitrary delays.
    V20's observer failed compile before any simulation because a shorter
    generated-vector token was replaced inside a longer token. V21 replaces
    longer tokens first; the prepared V20 inputs/logs are preserved unchanged.
@@ -127,13 +131,31 @@ pass; these are bounded observations, not loaded-image or desktop gates.
    data as well as the full original loaded-image readback. Requalify component
    arrival contracts/all-device timing and same-clock native Cedar/input before
    accelerating. Hardware cause, speed gain and rollback remain unproven.
+5. V22 now tests the original visible-R latches: only ProcH/ProcL g06/g07
+   (16 physical bits) are restored from hash-verified MC1668 wrappers, with
+   the original MC10173 helper/clock/data connections. Source audit checks
+   all frozen files and proves exactly four package-block replacements;
+   observer changes are only output paths. No forced data or instructions.
+   Central predicted R remains an internal duplicate: this is a diagnostic,
+   not a reviewed production storage representation. V22 is now terminal,
+   exit0 through14M with the original Initial gate. All16,384 map entries
+   (including flag planes) and256 RM words match the native baseline exactly.
+   All6,000 sampled R/B/BMux/MapBuf/written-data records match, as do the23
+   actual map writes. The original candidate had8,191 map mismatches and22
+   bad writes. V23 applies the same change to the full55M
+   original-image gate (3,600 IM/256 IFUM/entry), with handoff task sampling.
+   Before promoting, resolve canonical R ownership in the evaluator or prove
+   the retained internal prediction's parity/fault capture contract; do not
+   treat this diagnostic duplicate as a qualified production representation.
 
 **Current probe directories to observe, not restart:**
 
 - `r-front-ready-map-phase-control-v19-20261021`: terminal, exit0.
 - `r-front-ready-map-phase-candidate-v19-20261021`: terminal, exit0.
-- `r-front-ready-map-producer-control-v21-20261021`: test14928, paired producer observer.
-- `r-front-ready-map-producer-candidate-v21-20261021`: test15028, paired producer observer.
+- `r-front-ready-map-producer-control-v21-20261021`: terminal, exit0.
+- `r-front-ready-map-producer-candidate-v21-20261021`: terminal, exit0.
+- `r-front-ready-map-r-visible-v22-20261021`: terminal, exit0; exact map/RM match.
+- `r-front-ready-r-visible-image-v23-20261021`: test16407, full-image diagnostic; use run-state/exact process.
 
 Both V19 runs complete14M and the original Initial check; all6,000 phase rows
 align at the same sample numbers (zero map-write offset). All map control,
@@ -178,6 +200,16 @@ The frozen analyzer replays both map comparisons from receipt-only extraction.
 The exact Main16808/server16807 executable paths/hashes were revalidated again
 at11:20:13 UTC; no service, pack or FPGA mutation. Frozen inputs remain
 authoritative; the live producer jobs have not been restarted.
+
+The [producer extension](../fpga/mister/reports/2026-10-21-r-front-map-capture-diagnostic/producer-epoch/README.md)
+preserves both terminal V21 runs and a verified V22 live prefix:1,336 members,
+447 blobs,28,536,230 raw/3,936,484 stored bytes. V23 was launched afterward and
+is not part of that prefix. Observe the existing jobs; no timeout restart.
+
+The `visible-r-map-closed` extension preserves terminal V22 and a verified
+V23 live prefix. Its V22 `restored-r-map-comparison.json` compares against
+terminal native V21 control (preserved in the producer extension). Earlier
+prefixes are immutable. No production RTL/Main/daemon/core load resulted.
 
 Clock/core deployment remains RBF57a552af at50MHz/SYSPER4,6.25M/s nominal ceiling;
 last QUALIFIED Cedar login remains1,947,686.01 issues/s. No new speed/Cedar/

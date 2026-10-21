@@ -72,3 +72,10 @@ The last qualified Cedar login measurement remains 1,947,686.01 issues/s.
 Same-clock Cedar recovery, acceleration, authentic Checkpoint/Rollback,
 persistence, three fresh boots and sustained operation remain open.
 Complete FPGA snapshots remain deferred; the goal is active.
+
+Follow-up: the [closed producer comparison](producer-epoch/README.md) identifies
+R becoming visible before the retained B-selector capture. The
+[original-R diagnostic](visible-r-map-closed/README.md) restores the original
+four visible-R latch packages and now matches every map/RM word and every
+sampled R/B/MapBuf record. Its longer original-image test remains in progress;
+no production fix or hardware qualification is claimed.

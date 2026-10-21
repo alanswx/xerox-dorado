@@ -175,6 +175,16 @@ clock/select visibility to identify the producer epoch before changing RTL.
 The [map capture receipt](../fpga/mister/reports/2026-10-21-r-front-map-capture-diagnostic/README.md)
 preserves terminal observations, the failed observer and verified live V21
 prefixes, with lossless readback and receipt-only analysis replay.
+V21 is now terminal and confirms the candidate exposes R=0 one host sample
+before the baseline while the identical retained B selector still selects R.
+V22 restores only the four original visible-R latch packages (16 bits) to test
+this boundary; source/helper/observer identities are audited. It now finishes
+14M with original Initial checks: all16,384 map entries/all256 RM words match
+the native baseline, and all6,000 sampled R/B/BMux/MapBuf/write-data records
+match. All23 sampled writes are correct. V23 runs the
+same diagnostic through the full original-image gate. Predicted central R is
+still an internal duplicate, so neither is a reviewed production candidate.
+Their current handles and the archived producer extension are in the handoff.
 Baseline's later09c
 wait is task12 starvation after2,153 emulator samples, not established IFU
 failure or a desktop boot. Current process handles/receipt paths are in the
