@@ -15,9 +15,18 @@ Inverse MicroD placement now resolves all sampled CIA239/23a/6c1/6c2 to
 Output-only operand ports pass original-image/map and deliberately swapped-byte
 tests. Observer V5 was rejected before assembly because it patched an unused
 top copy. Corrected V6's actual `core/Dorado.sv` and all four board/wrapper files
-are confirmed used by synthesis; existing full fit/report jobs remain running.
-Require complete timing/memory review,19 damaged-evidence rejections and the
-live `d0d0bad0` diagnostic marker before trusting its operands. Main/daemon and
+are confirmed used by synthesis. V6 now passes full timing/memory/source review
+(minimum+0.029ns, actual100ps margin/four corners),19 damaged-evidence rejections
+and guarded assembly. It is normally loaded on14 with a fresh seed and unchanged
+Main3401/server3400. The live `d0d0bad0` marker and selector restoration pass;
+original Cedar113/C release now passes after three verified OSD BaseBoard boot
+pulses (the initial USB-chord attempt selected default Alto110). Native capture
+shows812;80 live operand/PC pairs confirm RequeueSearchSQ but do not establish
+its earlier cause. HDMI capture is black while the native framebuffer is white.
+V4's closed pack remains f3bce2a8 and its
+trace's983-event transition gap is retained explicitly. Additional bounded
+Initial/map runs match all6,000 retained flag samples and final RM/map; transient
+T/ALU differences there do not establish a Cedar-loop cause. Main/daemon and
 the50MHz/SYSPER4 cadence are unchanged. Last measured qualified login remains
 1,947,686.01 issues/s; no speed gain claimed. See the current
 [handoff](verilog-handoff.md#operand-diagnosis-corrected-pc-mapping-and-compiled-observer-2026-10-21-utc)

@@ -1,0 +1,16 @@
+{
+  "status": "PASS_ACTUAL_UNUSED_TOP_V5_REJECTED",
+  "cases": [
+    {
+      "case": "reconstruct_original_v5",
+      "rejected": true,
+      "reason": "Operand candidate metadata does not reconstruct from its qualified parent"
+    },
+    {
+      "case": "real_v5_source_inventory_even_with_corrected_top_label",
+      "rejected": true,
+      "reason": "('Observer HDL was not compiled', 'src/fpga/mister/Dorado.sv')"
+    }
+  ],
+  "assembly_permitted": false
+}

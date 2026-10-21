@@ -1,0 +1,33 @@
+{
+  "scope": "Bounded Main-owned command70 physical operand observations; pages are NOT one instruction trace",
+  "main_pid": 3401,
+  "rbf_sha256": "803cb43f5357f14bdef1097a9b3a3a660d5c5f4191462b6a9610663a88daf898",
+  "started": 1792600573.056438,
+  "marker_verified": true,
+  "selector_restored": true,
+  "marker": {
+    "page": 15,
+    "words": [
+      53364,
+      12,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      47824,
+      53456,
+      17194,
+      28672,
+      49404
+    ],
+    "machine": 3503340240,
+    "cpu": 3237769216,
+    "task": 0,
+    "CIA": 4039,
+    "TPC": 0
+  },
+  "samples": [],
+  "finished": 1792600573.1550832
+}

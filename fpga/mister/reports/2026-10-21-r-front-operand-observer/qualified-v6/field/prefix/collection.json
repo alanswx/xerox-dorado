@@ -1,0 +1,128 @@
+{
+  "scope": "Collect bounded live prefixes from the Ready/front test on MiSTer14.\n\nRun on MiSTer14. This reads files and process identities only, does not copy\nan active disk pack, and does not claim a coherent machine snapshot or a\ncompleted boot. Prefixes and their original hashes are retained losslessly.\n",
+  "started": 1792601201.1747897,
+  "main_pid": 3401,
+  "server_pid": 3400,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "server_sha256": "c59962490772f12d061ec61aa64e6a567144d26d7802a28349a8d9a044eda87e",
+  "rbf_sha256": "803cb43f5357f14bdef1097a9b3a3a660d5c5f4191462b6a9610663a88daf898",
+  "host_clock_hz": 50000000,
+  "sysper": 4,
+  "state_admin": "INACTIVE",
+  "files": [
+    {
+      "source": "/media/fat/games/DoradoRTL/CedarROperands6_20261021/deployment.json",
+      "file": "deployment.json.gz",
+      "prefix_bytes": 1714,
+      "sha256": "e195420c0af8b830e68292016523290d65248049d94b7a139c658649186fd910",
+      "stored_sha256": "dd6a9d9feb6feb250e3ffb4be77e56a283fc23a067d7f79794d3c893712a6239"
+    },
+    {
+      "source": "/media/fat/games/DoradoRTL/CedarROperands6_20261021/preparation.json",
+      "file": "preparation.json.gz",
+      "prefix_bytes": 1348,
+      "sha256": "c558f3b7bbd862796af3d94d3cde837f08abccc45ae00db70f2095a26f6c7102",
+      "stored_sha256": "12d2e4aa58fe4965ecd7b60a7ead0ff835c2b1d5212cc0af022a1780931fdd77"
+    },
+    {
+      "source": "/media/fat/games/DoradoRTL/CedarROperands6_20261021/reboot-resume.json",
+      "file": "reboot-resume.json.gz",
+      "prefix_bytes": 1522,
+      "sha256": "ac8f75d1a7622e8fc0bf23550b02b9a406a001cdbde1cd70940ee3e58aa9818d",
+      "stored_sha256": "963ae45b5a741a8b3c971b188b104262dbae90be7025fa77e469b5e10d09d87f"
+    },
+    {
+      "source": "/tmp/dorado-r-operands6-main.log",
+      "file": "dorado-r-operands6-main.log.gz",
+      "prefix_bytes": 122188,
+      "sha256": "9048b680cc18cf21f064088383383d78a409d2217fb04bf6ddc79acf75919adf",
+      "stored_sha256": "f5132824225d2052a46f2921ecac7f873ce729661d79d1a56b9c4bdab8744e5e"
+    },
+    {
+      "source": "/tmp/dorado-r-operands6-disk.jsonl",
+      "file": "dorado-r-operands6-disk.jsonl.gz",
+      "prefix_bytes": 208594,
+      "sha256": "7831b50aed3e4125143e6abd608a0e65f615259866a60321eab582b4613cbbc6",
+      "stored_sha256": "f09e6b411e14eb5b899f24886a8b2f903dd9ee4836229201f6f09ed8076265f1"
+    },
+    {
+      "source": "/media/fat/games/DoradoRTL/CedarROperands6_20261021/server.log",
+      "file": "server.log.gz",
+      "prefix_bytes": 41376,
+      "sha256": "cc1ec65ad62c9ce0551aa87b9d5917cae8ec619192f3c1d6f8b2fb0d9d368f75",
+      "stored_sha256": "07797c664058f0371ac6b86fdedda5bd9405ab534cc5929e2a7a88c3d58171eb"
+    },
+    {
+      "source": "/media/fat/games/DoradoRTL/CedarRVisible4_20261021/preservation-before-r-operands6.json",
+      "file": "preservation-before-r-operands6.json.gz",
+      "prefix_bytes": 985,
+      "sha256": "789f192a8d3069b4fc6fa0a5f873e58b5bd4c8ef47a061e2378f0db68668597c",
+      "stored_sha256": "e82e130e8875b469cd1bcd605d8e5e9afd5b77cff8854b5547ecd3f5855922d1"
+    },
+    {
+      "source": "/media/fat/games/DoradoRTL/CedarRVisible4_20261021/disk-through-r-operands6-load.jsonl",
+      "file": "disk-through-r-operands6-load.jsonl.gz",
+      "prefix_bytes": 913407,
+      "sha256": "440d5843aa274540a5070a75df63f451efadc287a8c4faccc5118943d19c3cc9",
+      "stored_sha256": "b7f70d743906f52fff4dc2865494cb54e4d7b280623cde17a2cecc2a5d7c1c30"
+    },
+    {
+      "source": "/media/fat/games/DoradoRTL/CedarRVisible4_20261021/main-through-r-operands6-load.log",
+      "file": "main-through-r-operands6-load.log.gz",
+      "prefix_bytes": 1166546,
+      "sha256": "3934392bce87c7d1a6665a0c25baef64c6a631e43decc40665840c68224c62a1",
+      "stored_sha256": "63670df28b192cc1f53e88b8892ac9ab217375cac011d6e988ac18dbaf52fbe6"
+    },
+    {
+      "source": "/media/fat/games/DoradoRTL/CedarROperands6_20261021/qualification.json",
+      "file": "qualification.json.gz",
+      "prefix_bytes": 387251,
+      "sha256": "150cf1cdac47babf736ee42b5bd2d432ecc124644c02b9addaf41052cbb0c857",
+      "stored_sha256": "d6db52e52196566d599e4ee04a69a847ebdced7e9ae3e5f41bafb6f9534d8afc"
+    },
+    {
+      "source": "/media/fat/games/DoradoRTL/CedarROperands6_20261021/assembly-state.json",
+      "file": "assembly-state.json.gz",
+      "prefix_bytes": 553,
+      "sha256": "5f4d9aced11e9cae3fd3a26f79d2d0d14d20069a022c6c6b9168ab7da74adff6",
+      "stored_sha256": "9112092dfda6ac1e53b7f1688d19a1a15023cb75b94876ecfb3c909d1185cb9c"
+    },
+    {
+      "source": "/media/fat/games/DoradoRTL/CedarROperands6_20261021/fit-review-controls.json",
+      "file": "fit-review-controls.json.gz",
+      "prefix_bytes": 3869,
+      "sha256": "87a9d382d443e36a4a102423eb138d37f1bbd6cfe9bda3541485f192a91742a9",
+      "stored_sha256": "0ca190b14c589be25158aaad1da725d999dbada97ead2d4f1f75361c13694d83"
+    },
+    {
+      "source": "/media/fat/games/DoradoRTL/CedarROperands6_20261021/r-front-ready-native.json",
+      "file": "r-front-ready-native.json.gz",
+      "prefix_bytes": 151290,
+      "sha256": "fc21ff5db76ad8be789feacd21b843834c8ef309f472aee68be2a93b26ccfa64",
+      "stored_sha256": "6b720238cb804b305bebbe310c57a32466da202310ef28ed2898aa665f46a81c"
+    },
+    {
+      "source": "/media/fat/games/DoradoRTL/CedarROperands6_20261021/component-image-handoff.json",
+      "file": "component-image-handoff.json.gz",
+      "prefix_bytes": 63610,
+      "sha256": "ce77d7fc0622dadabcfe8608be4f12bcbc18c6d2b6f45ca6512d1ffdcc65e75e",
+      "stored_sha256": "b229d48634a5416b0cb0423c56c4e6320d6b62d1da356877ecece599432ff2e9"
+    },
+    {
+      "source": "/media/fat/games/DoradoRTL/CedarROperands6_20261021/operand-source-review.json",
+      "file": "operand-source-review.json.gz",
+      "prefix_bytes": 2640,
+      "sha256": "ebcfda21e0c1aaad55c32c463a11761c8a9786272f528b92289177aa3c35b180",
+      "stored_sha256": "63f2ee49a98b65e28fc33126b3d905ca2c9463faa9d77c4c94f367e08119bf21"
+    }
+  ],
+  "executed_tools": {
+    "collect_r_front_ready_field.py": "c24b7b1ac8c2f4264c2cadba9ded3b7aed9fd196258b405621fb31992a68c72c",
+    "deploy_mc1668_native.py": "d9dc9021017dc4d18bea6afd922f7cf8aa65052cb8a5a636aa092e870acd84c4",
+    "deploy_r_front_ready_native.py": "c6840834d1947dd62a62006dbcc2c429d8e6ce18c3668b7d4a21fca1141419fc"
+  },
+  "finished": 1792601202.7676177,
+  "desktop_qualified": false,
+  "hardware_speedup_claimed": false,
+  "note": "Live prefixes, not closed logs. Disk file excludes still-buffered RAM records."
+}

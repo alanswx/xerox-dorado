@@ -1,0 +1,43 @@
+{
+  "status": "PASS_OUTPUT_ONLY_OPERAND_MONITOR_SOURCE",
+  "parent": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-r-canonical-native-v4-20261021",
+  "compiled_top": "core/Dorado.sv",
+  "parent_manifest_sha256": "b65a8e5464eb1841a02e71a5bc18f7da48d23e7c1a2040d1df227da84a8e29c6",
+  "changed": [
+    "core/Dorado.qsf",
+    "core/Dorado.sv",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv",
+    "src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv",
+    "src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv"
+  ],
+  "core_logic_identical_after_removing_exact_output_only_additions": true,
+  "guest_inputs_state_clocks_memory_protocol_changed": false,
+  "new_sequential_logic": false,
+  "Main_changed": false,
+  "daemon_changed": false,
+  "firmware_qualified": false,
+  "timing_qualified": false,
+  "pages": {
+    "0": "T[31:16],ALUA[15:0]",
+    "1": "ALUB[31:16],Md[15:0]",
+    "2": "R[31:16],ALU[15:0]",
+    "3": "Control13,Instruction5,Hflags8,Lphases6"
+  },
+  "input_hashes": {
+    "src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "4cf012a745fb41adc81158fe0434721c6b339964c686b4dfdf053fe7d09e2b9d",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv": "f7437962accfeb45bf5d921abc18e5921613c225a347ce143106c8be1bebef77",
+    "core/Dorado.sv": "6e00eb03e3428b4c1f594609d1f1d3ef82a188e036954f4f14fc9e982fcd8ec9",
+    "core/Dorado.qsf": "2537bdec75854f4ccb6f603864d40f8fe3758f351d4856d2c512ab55a4b53fa9",
+    "src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "9c7dafb64804b6d18ba08c9337a9e5a236d67190983857d7b5b7745d1d0bc789",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "f0091a9cdf3546e16346e949641b5e9690de1e3c29423b6543ec897ad1602f91"
+  },
+  "output_hashes": {
+    "src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "c441aa025d1da5d88f86f9cdbfba8e8b74a6fecb5761c9e05af7801b11e6d254",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv": "2ced5f65f2b93c6ed1d840a9e2d35c9f06d307cf832d05ad6225279d7da18e9d",
+    "core/Dorado.sv": "8e73970459fde2bc416c690f4021e9f57193b94a422b9ff9086ace85728a1974",
+    "core/Dorado.qsf": "8ffd646207223c47709266eff499fce55e7b1f0582c5cd374aef89e57647ed6b",
+    "src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "dcd8dd6ffb1d53209fa81510bf85ddbb4229093f4967b859f3fe82b2f5169e9c",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "67f7bda45a2284f1ae5ed48adc8e8511e339632f27b7a0f71632bce70d44cad7"
+  }
+}

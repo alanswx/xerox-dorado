@@ -1,0 +1,14 @@
+{
+  "status": "TERMINAL_ASSEMBLED_REVIEWED_NATIVE_CANDIDATE",
+  "driver_pid": 3393478,
+  "started": 1792600362.3503916,
+  "qualification_sha256": "150cf1cdac47babf736ee42b5bd2d432ecc124644c02b9addaf41052cbb0c857",
+  "controls_sha256": "87a9d382d443e36a4a102423eb138d37f1bbd6cfe9bda3541485f192a91742a9",
+  "assembler_pid": 3393479,
+  "returncode": 0,
+  "finished": 1792600390.398374,
+  "rbf_sha256": "803cb43f5357f14bdef1097a9b3a3a660d5c5f4191462b6a9610663a88daf898",
+  "rbf_bytes": 3884936,
+  "firmware_qualified": false,
+  "hardware_deployed": false
+}

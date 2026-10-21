@@ -1,0 +1,10 @@
+{
+  "qualification.json": "150cf1cdac47babf736ee42b5bd2d432ecc124644c02b9addaf41052cbb0c857",
+  "preassembly-qualification.json": "150cf1cdac47babf736ee42b5bd2d432ecc124644c02b9addaf41052cbb0c857",
+  "fit-review-controls.json": "87a9d382d443e36a4a102423eb138d37f1bbd6cfe9bda3541485f192a91742a9",
+  "assembly-state.json": "5f4d9aced11e9cae3fd3a26f79d2d0d14d20069a022c6c6b9168ab7da74adff6",
+  "asm.log": "a814a92ce8e0da9570de095fdd7b7393c6aa742bb0f9a761f21de5fb857e5df9",
+  "operand-source-review.json": "ebcfda21e0c1aaad55c32c463a11761c8a9786272f528b92289177aa3c35b180",
+  "component-image-handoff.json": "ce77d7fc0622dadabcfe8608be4f12bcbc18c6d2b6f45ca6512d1ffdcc65e75e",
+  "executed-assembler.py": "2973bf7d69855b25cd981cb464c865b3014ab42521e997febe44af8ca3194b7c"
+}

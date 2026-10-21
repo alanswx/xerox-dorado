@@ -59,8 +59,13 @@ or FPGA change resulted from this prototype.
 
 ### Operand diagnosis: corrected PC mapping and compiled observer (2026-10-21 UTC)
 
-MiSTer14 still runs qualified visible-R v4, Main32012/server32011, at Pilot812.
-No new hardware speed measurement or desktop qualification. The last qualified
+MiSTer14 now runs timing-qualified operand V6, Main3401/server3400, from the
+original fresh seed; original Cedar now displays Pilot812 and loops in
+RequeueSearchSQ, without login/Viewers. V4 was normally
+retired with its unchanged f3bce2a8 pack preserved. Its10,139-record closed trace
+includes a983-event dropped-buffer transition, explicitly retained; no gap-free
+trace or clean guest shutdown claim. No new speed measurement or desktop
+qualification. The last qualified
 login is1,947,686.01 issues/s; target16.667M cycles/s (60ns), current ordinary
 issue ceiling6.25M/s before waits. The active goal and deferred snapshots remain
 unchanged.
@@ -86,6 +91,17 @@ differences against the older native control PREEXIST the observer; these
 samples do not establish consumed-operand equivalence. All component jobs are
 terminal; do not restart them. Failed V28 was preparation only, no simulation.
 
+Follow-up V32/V33 now also finish14M samples each with an appended passive
+condition readout. The parent's6,000 phase rows and final RM/map dumps remain
+byte-identical. T/A/ALU differ at60/30/26 isolated host samples; all match again
+on the next sample. Retained zero/sign/overflow/carry flags match atall6,000
+samples, including4,500 closed-clock samples. This rules out those Initial/map
+transients as evidence for changing T; it does not qualify Cedar's later queue
+loop or all consumed operands. V32 inherited one unused private frame output;
+its bytes match the parent and are classified separately. The preparer now
+copies declared inputs only; both preparer versions and terminal evidence are
+preserved under `retained-conditions/`. Do not restart these jobs.
+
 **V5 is terminal REJECTED as an operand diagnostic.** Its generator changed the
 unused `src/fpga/mister/Dorado.sv` copy; Quartus actually compiles
 `core/Dorado.sv`. Its original passing timing review remains preserved alongside
@@ -102,21 +118,65 @@ changing mid-transaction. Disabling the observer rejects as expected. This
 does not replace the hardware marker check. Current reader replays v4 qualification byte-identically
 (d04113ed9fe06d0f971ab4050fbfaff48802610e9bc8c67870142d8d42d02593).
 
-V6 build: `/home/alans/mister/Dorado_RFrontOperands_v6_20261021` on misterubuntu;
-builder3352677/fitter3356827/central3352704/video3356065 observed live. Map passes;
-full fit/STA/central/video review remain pending. Observe these existing handles;
-never restart because observation expired. Local stage:
+V6 build is TERMINAL: all8 stages and central/video reports succeed and their
+processes are absent. Full review passes31 summaries/196 legacy+160 central/R
+paths/four corners, minimum+0.029ns, core setup+1.175ns/hold+0.153ns. The100ps
+additive margin appears in20 sampled central hold paths/corner. All513 sources,
+five compiled observer files, physical memory families and unchanged272-bit
+host-video mapping pass.700 central physical registers remain;16 original R
+bits plus14 fitter copies are all covered.31,054ALMs/52,582regs/324M10Ks/35DSPs.
+All19 damaged-evidence controls reject. The guarded assembler succeeds; no V5
+image was assembled. Remote: `/home/alans/mister/Dorado_RFrontOperands_v6_20261021`.
+Qualification SHA150cf1cdac47babf736ee42b5bd2d432ecc124644c02b9addaf41052cbb0c857;
+controls SHA87a9d382d443e36a4a102423eb138d37f1bbd6cfe9bda3541485f192a91742a9.
+Local stage:
 `build/rtl-executive/r-front-operands-native-v6-20261021`.
 
-**Next:** require full timing/memory/source review and19 rejected evidence
-controls before assembly. Normally preserve/close v4 through Main barriers and
-load reviewed V6 with a fresh seed on14 only. Unchanged Main/server remain sole
-SPI owner/DDR daemon. Before trusting operands, enable status15 with page15 and
-require command70 machine value `d0d0bad0`; then use pages0..3 with the atomically
-paired task/CIA/TPC. Clear status15:11 and restore instruction view1 afterwards.
-The marker is not yet hardware-verified. Do not treat asynchronous pages as one
-instruction trace. Diagnose the original RequeueSearchSQ loop, restore desktop/
+Normal Main close/drain/load and temporary Main exit preserve v4; new RBF
+SHA803cb43f5357f14bdef1097a9b3a3a660d5c5f4191462b6a9610663a88daf898 is
+loaded in `/media/fat/_Computer/DoradoRTL_CedarROperands6_20261021/Dorado.rbf`.
+Fresh volume `/media/fat/games/DoradoRTL/CedarROperands6_20261021/cedar-work.pack`;
+logs `/tmp/dorado-r-operands6-{main.log,disk.jsonl}` and volume `server.log`.
+Unchanged Main/server hashes21e67a3f/c5996249; Main remains sole SPI owner.
+Fresh direct-DDR epoch769eaac36598b767 and cache-ready pass. The actual
+command70 marker `d0d0bad0` PASSES on hardware with the paired PC; selector
+cleared and instruction view1 restored. No guest CPU/state writes. The first
+USB chord sequence completed but firmware selected default Alto110. With the
+same C watcher still holding C, three NORMAL OSD boot-bit3 pulses through Main
+were verified at the actual BaseBoard pin (assertion/release on each pulse).
+A NEW original Cedar113 request then arrived and C was released. All input and
+GDB jobs are terminal; Main3401/server3400 remain live, both TracerPid0.
+
+The live marker and80 bounded operand/PC pairs are preserved. At least one
+compare observation has R0400/ALU03fc; separate same-loop T/A samples show
+07fc/0400. Those values are consistent with a nonzero comparison, but other
+samples include task/phase transients. Do not combine different pages into one
+instruction or infer a fixed queue chain from them. Zero CRC/drop/RX/abort
+counters in those observations; selectors restored. No speed measurement.
+The native MiSTer framebuffer is white with actual812. The HDMI capture is
+black, so it does not show the framebuffer state; capture/output recovery is
+still needed. The native screenshot is saved on14 as
+`Dorado/20261021_164428-screen.png` and locally as `startup/cedar-native.png`.
+The live disk-file prefix has preload records only; guest requests still in
+Main's RAM are not represented by that file. No active pack was copied.
+
+**Next:** use these actual physical operands to trace the earlier queue/memory
+fault and compare consumed data/conditions through native memory holds before
+changing branch logic. The bounded Initial flag check does not cover Cedar.
+Do not treat asynchronous pages as one instruction trace. Recover desktop/
 input correctness at this cadence, then resume acceleration and rollback gates.
+Local field/scripts: `build/rtl-executive/r-operands6-native-field-20261021/startup`.
+
+Host/enable follow-up is RUNNING on the Mac: V34 control and V35 candidate at
+`build/rtl-executive/r-front-host-pause-{control-v34,candidate-v35}-20261021`.
+Drivers74064/74065 and tests74845/74960 were observed live; exec sessions46062/
+70125 retain the same jobs. Both compiles pass. Only fixture backplane/bench
+change: eight snapshot boards now receive production-style storage host clock
+and advance, and a127-host-tick profile inserts14 pauses across phases. CPU/
+helper/ROM bytes remain identical to their terminal parents. This targets the
+continuous-clock fixture gap; it is synthetic pause coverage, not the actual
+SDRAM controller, native BaseBoard or a firmware/desktop gate. Inspect these
+same processes/results; never restart because an observation expires.
 
 [Preserved component/source evidence and rejected V5](../fpga/mister/reports/2026-10-21-r-front-operand-observer/README.md).
 
@@ -6136,7 +6196,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Normally load reviewed v4 on14 with fresh seed, preserve Boot2's closed pack/trace including its transition gap, verify new DDR epoch, original BFN113/C release and actual Pilot812 display.
 - [x] Resolve CIA239/23a/6c1/6c2 through inverse MicroD placement: all four belong to RequeueSearchSQ. Fix mbdis source-label attribution and bind original MB/EB contents.
 - [x] Qualify passive processor operand ports with original image/map fixtures and a swapped-readout negative; reject V5's unused top copy before assembly. Bind corrected V6's five HDL files to the actual compiled top; preserve all terminal evidence.
-- [ ] Finish existing V6 full timing/memory/19-control review and guarded assembly; normally load on14, require live diagnostic marker, inspect queue/operand/branch behavior and recover original Cedar/login/Viewers/mouse/click/exact keyboard echo before accelerating.
+- [x] Finish V6 full timing/memory/19-control review and guarded assembly; normally preserve v4/load V6 from fresh seed on14; actual diagnostic marker, fresh DDR epoch and selector restoration pass. Preserve v4's explicit transition trace gap.
+- [x] Observe actual V6 Cedar113/C release, native812, marker/restoration and80 physical operand/PC pairs. Preserve the preceding default Alto110, verified OSD boot pulses, black HDMI/native-white discrepancy and live prefixes without copying the active pack.
+- [ ] Trace the earlier queue/memory fault with phase-correct consumed operands through native memory holds; recover original Cedar/login/Viewers/mouse/click/exact keyboard echo and HDMI capture before accelerating.
 - [ ] Complete original 60 ns ordinary-instruction clock/enable and timer migration, reducing avoidable memory waits while preserving cache/map/ECC and peripheral behavior. Report instruction issues and holds separately on pinned workloads.
 - [ ] Qualify Cedar's authentic Checkpoint/Rollback through its own germ/disk path, including repeated restarts, working applications/input and preservation of later filesystem changes.
 - [ ] Finish disk close/remount persistence, independent physical network evidence, three fresh-seed original-firmware desktop boots and at least two hours sustained operation without pack/CRC/RX faults. Archive and commit/push qualified results.

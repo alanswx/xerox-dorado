@@ -1,0 +1,22 @@
+{
+  "status": "TERMINAL_ORIGINAL_BFN113_C_RELEASED",
+  "driver_pid": 73035,
+  "started": 1792600614.9541838,
+  "actions": [
+    {
+      "name": "cool-boot",
+      "pid": 73037,
+      "started": 1792600614.955982,
+      "returncode": 0,
+      "finished": 1792600621.991466
+    },
+    {
+      "name": "c-until-request",
+      "pid": 73041,
+      "started": 1792600621.9932969,
+      "returncode": 0,
+      "finished": 1792600926.9304771
+    }
+  ],
+  "finished": 1792600926.930826
+}

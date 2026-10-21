@@ -1,5 +1,11 @@
 # Original Cedar operand observer: component evidence and rejected V5
 
+Current result: corrected V6 passes full source/memory/timing review,19 damaged
+controls and guarded assembly, and is normally loaded on MiSTer14. Its live
+marker passes. Original Cedar113 reaches native812/RequeueSearchSQ;80 physical
+operand/PC observations are retained. See [qualified-v6](qualified-v6/README.md).
+No desktop, speedup, rollback or complete-goal qualification is claimed.
+
 The root manifest freezes V5 staged inputs and terminal V29/V31/V30 component
 tests:1,871 members/539 unique blobs. **V5 is rejected as an operand diagnostic**:
 it changed an unused top copy. Its CPU ports pass the component gates, but its
@@ -32,6 +38,17 @@ including pages, marker, fault priority and atomic data/status/PC with every
 input changing during the reply. Removing the observer define fails. The first
 test attempt had a declaration syntax error; its source/compiler log is kept.
 This test does not execute the CPU or qualify hardware timing.
+
+`retained-conditions/` preserves terminal V32/V33 original-Initial/map runs:
+892 members/439 blobs, plus hashed review/preparer/analyzer files. Their6,000
+original phase rows and final RM/map dumps match their respective parents
+byte-for-byte. Retained zero/sign/overflow/carry flags match atall6,000 samples,
+including4,500 closed-clock samples. T/A/ALU differ only at60/30/26 isolated host
+samples and match again on the next sample. This does not cover Cedar's later
+queue loop. V32's first preparer inherited the parent's unused private frame
+output; its bytes match and the inspector classifies that single extra file.
+The corrected preparer copies declared inputs only; both versions are kept.
+The actual rejected V5 is also rejected by both new source-binding checks.
 
 All6,000 phase rows match prior qualified V26. Transient T/ALU differences from
 the older native control predate this observer; no consumed-operand equivalence

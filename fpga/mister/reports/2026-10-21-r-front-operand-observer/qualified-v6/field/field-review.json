@@ -1,0 +1,386 @@
+{
+  "status": "OBSERVED_ORIGINAL_CEDAR_REQUEUE_LOOP_WITH_PHYSICAL_OPERANDS",
+  "native_display_code": 812,
+  "HDMI_capture_black": true,
+  "native_framebuffer_nonblack": true,
+  "initial_default_request": "110B",
+  "subsequent_original_Cedar_request": "113B",
+  "explicit_BaseBoard_boot_pin_pulses_verified": 3,
+  "C_released": true,
+  "debug_selectors_restored": true,
+  "transient_pages_not_one_instruction_trace": true,
+  "hardware_cause_established": false,
+  "observations": [
+    {
+      "file": "dorado-r-operands6-observation.json",
+      "duration_seconds": 1.1975266933441162,
+      "samples": 16,
+      "task0": {
+        "0": [
+          {
+            "CIA": "0x23a",
+            "TPC": "0x23a",
+            "value": "0x7fc0400"
+          },
+          {
+            "CIA": "0x6c1",
+            "TPC": "0x23a",
+            "value": "0x7fc0400"
+          }
+        ],
+        "1": [
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0x37ff37ff"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0x37ff37ff"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x239",
+            "value": "0x0"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x7fc0000"
+          }
+        ],
+        "2": [
+          {
+            "CIA": "0x239",
+            "TPC": "0x239",
+            "value": "0xffc07fc"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x7fc"
+          },
+          {
+            "CIA": "0x6c1",
+            "TPC": "0x23a",
+            "value": "0x40003fc"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x7fc0000"
+          }
+        ],
+        "3": [
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0x1c21979e"
+          },
+          {
+            "CIA": "0x6c2",
+            "TPC": "0x6c2",
+            "value": "0x1f25a514"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0x1c21b79e"
+          }
+        ]
+      }
+    },
+    {
+      "file": "dorado-r-operands6-loop-observation.json",
+      "duration_seconds": 4.447659730911255,
+      "samples": 64,
+      "task0": {
+        "0": [
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x7fc07fc"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x239",
+            "value": "0x7fc0ffc"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0x7fc0ffc"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x239",
+            "value": "0xffc"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x239",
+            "value": "0x7fc0ffc"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x239",
+            "value": "0xffc"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0x7fc0ffc"
+          },
+          {
+            "CIA": "0x6c1",
+            "TPC": "0x6c1",
+            "value": "0x7fc8000"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x239",
+            "value": "0x0"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x23a",
+            "value": "0x7fc0400"
+          },
+          {
+            "CIA": "0x6c1",
+            "TPC": "0x6c1",
+            "value": "0x400"
+          }
+        ],
+        "1": [
+          {
+            "CIA": "0x23a",
+            "TPC": "0x23a",
+            "value": "0x0"
+          },
+          {
+            "CIA": "0x6c2",
+            "TPC": "0x6c2",
+            "value": "0x37ff"
+          },
+          {
+            "CIA": "0x6c2",
+            "TPC": "0x6c2",
+            "value": "0x37ff"
+          },
+          {
+            "CIA": "0x6c1",
+            "TPC": "0x23a",
+            "value": "0x7fc37ff"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0x37ff37ff"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x23a",
+            "value": "0x0"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x23a",
+            "value": "0x7fc37ff"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x23a",
+            "value": "0x0"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x23a",
+            "value": "0x0"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x23a",
+            "value": "0x7fc37ff"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x37ff"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0x0"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x23a",
+            "value": "0x7fc37ff"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x7fc0000"
+          },
+          {
+            "CIA": "0x6c1",
+            "TPC": "0x6c1",
+            "value": "0x800037ff"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x23a",
+            "value": "0x7fc37ff"
+          }
+        ],
+        "2": [
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0xffc0000"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x7fc0000"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x23a",
+            "value": "0x40003fc"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x7fc0000"
+          },
+          {
+            "CIA": "0x6c1",
+            "TPC": "0x23a",
+            "value": "0x4000400"
+          },
+          {
+            "CIA": "0x6c1",
+            "TPC": "0x23a",
+            "value": "0x4000400"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x7fc0000"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0xffc07fc"
+          },
+          {
+            "CIA": "0x6c1",
+            "TPC": "0x6c1",
+            "value": "0x80008000"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x239",
+            "value": "0xffc0000"
+          },
+          {
+            "CIA": "0x6c1",
+            "TPC": "0x23a",
+            "value": "0x40003fc"
+          }
+        ],
+        "3": [
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0x1c21979e"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x1c21a79e"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x239",
+            "value": "0x1f25b514"
+          },
+          {
+            "CIA": "0x6c1",
+            "TPC": "0x23a",
+            "value": "0x1c21b79e"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0x1c21979e"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x1c21a79e"
+          },
+          {
+            "CIA": "0x6c2",
+            "TPC": "0x6c1",
+            "value": "0x1c21b79e"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x23a",
+            "value": "0x1f25b514"
+          },
+          {
+            "CIA": "0x6c1",
+            "TPC": "0x23a",
+            "value": "0x1c21979e"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0x1c21b79e"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x1c21a79e"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x239",
+            "value": "0x1f069514"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x1c21a79e"
+          },
+          {
+            "CIA": "0x23a",
+            "TPC": "0x239",
+            "value": "0x1c21979e"
+          },
+          {
+            "CIA": "0x239",
+            "TPC": "0x6c2",
+            "value": "0x1c21a79e"
+          },
+          {
+            "CIA": "0x6c1",
+            "TPC": "0x6c1",
+            "value": "0x1f25b514"
+          }
+        ]
+      }
+    }
+  ],
+  "desktop_qualified": false,
+  "hardware_speedup_claimed": false,
+  "screenshot_sha256": {
+    "cedar-after-bfn113.png": "c431ff780d23ad2e7e29059afe6323bab4bcbfd9d71a4398250959b1eb497417",
+    "cedar-native.png": "f50b593f7acb5e07c1e672e1d68cdb9770d67f2cbc49887093351379de150e4e"
+  }
+}

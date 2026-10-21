@@ -1,0 +1,39 @@
+{
+  "status": "OBSERVED_RETAINED_CONDITION_COMPARISON",
+  "samples_per_run": 6000,
+  "differences": {
+    "CIA": 0,
+    "task": 0,
+    "T": 60,
+    "A": 30,
+    "B": 0,
+    "ALU": 26,
+    "Flags": 0,
+    "HFlagClock": 0,
+    "HTClock": 0,
+    "LTClock": 0,
+    "Root": 0
+  },
+  "closed_clock_samples": 4500,
+  "closed_clock_flag_differences": 0,
+  "first_flag_difference": null,
+  "parent_phase_rows_and_final_RM_map_unchanged": true,
+  "scope": "Only bounded original Initial/map window; not Cedar loop, full CPU consumption or firmware qualification",
+  "inherited_private_outputs": {
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-conditions-control-v32-20261021": [
+      "dorado_frame.pgm"
+    ],
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-conditions-candidate-v33-20261021": []
+  },
+  "hardware_cause_established": false,
+  "inputs": {
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-conditions-control-v32-20261021/provenance.json.gz": "53dbd11c1c8bc91fa36c998416ec0039e1716a132625e7165da3f2461df9a641",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-conditions-control-v32-20261021/test.log": "e4fe474d75b6926a0ead3dfb3283e40c7c2e7324104f03ff41cfa5c3aaf45a83",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-conditions-control-v32-20261021/run-state.json": "1d15827a7274e513aa46beeab2fae5381356086d611999ee6d77734ffd1b089c",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-conditions-control-v32-20261021/register-map-inspection.txt": "f04cef8608eb1ea9160fabfa49935737c4e61e802f03b4b3dc13ee0fc0f0e11a",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-conditions-candidate-v33-20261021/provenance.json.gz": "a9b7fffcfd6f383ebc85267b311e6a1838c11c1703a8087186bde52fc5cc7c3a",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-conditions-candidate-v33-20261021/test.log": "3350f9ec46ef8477768d61fd7026be91a9b4552273e55f45066f31a76050879a",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-conditions-candidate-v33-20261021/run-state.json": "b77ac49d52b14ce4bbbb946db8e7280a5258c03f038acb3f57832d525eb9e1a1",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-conditions-candidate-v33-20261021/register-map-inspection.txt": "f04cef8608eb1ea9160fabfa49935737c4e61e802f03b4b3dc13ee0fc0f0e11a"
+  }
+}
