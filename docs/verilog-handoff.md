@@ -15,6 +15,14 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
+**Latest hardware (2026-10-21 UTC): raw-memory diagnostic confirms a real data
+mismatch before guest release.** Main11889/server11888 run the reviewed
+StorageSelftest1 image on14. Its first read of raw address0 expects0xA59 and
+returns0xA58; phase1/failed1/ready0 is stable. The guest is intentionally held.
+The native build/assembly/timing pass; physical memory integrity and this image's
+Cedar boot do not. See the current hardware section below. Earlier live PIDs
+and pending-build statements are historical and superseded by that section.
+
 The corrected MC1668 candidate now measures **1,947,686.01 instruction issues/s**
 at Cedar's idle login, effectively unchanged from Native59's 1,947,654.12.
 Original firmware, all34 base transfers/final guest ACK, Viewers, mouse/click,
@@ -57,7 +65,81 @@ absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
 
-### Current hardware diagnosis: original failed-boot breakpoint (2026-10-21 UTC)
+### Current hardware: raw SDRAM mismatch before guest release (2026-10-21 UTC)
+
+RBF SHA `c63d0a6a8f2f361097523e7902b5b7a96987b075efa1463143d54f74731bb864`
+(3,949,064 bytes) is loaded at
+`/media/fat/_Computer/DoradoRTL_CedarStorageSelftest1_20261021/Dorado.rbf`.
+MGL `CedarStorageSelftest1.mgl`, launcher `DoradoMemTest1_20261021`.
+Fresh seed volume `/media/fat/games/DoradoRTL/CedarStorageSelftest1_20261021/`.
+Current Main11889/server11888 are verified live, TracerPid0, unchanged binary
+hashes21e67a3f/c5996249. Main remains sole SPI owner and daemon's DDR grant is
+ready. Deployment driver11853 is terminal; temporaryMain11878 exited normally.
+Logs `/tmp/dorado-storage-selftest1-{main.log,disk.jsonl}` and volume `server.log`.
+
+**Actual FPGA result: first raw read address0, expected0xA59, actual0xA58.**
+Both bounded Main-owned metadata samples show phase1, failed=true, ready=false,
+pending=false, markerB157. All8,388,608 raw pattern-write requests completed at the controller interface
+before this first forward read; that does not prove correct data was stored. The failure retains its first data and correctly prevents
+storage/guest release; no original-firmware boot was attempted with this image.
+Selectors restore to zero and GDB detaches normally. Address1's written pattern
+is0xA58, so a shifted burst is a strong candidate; the single sample cannot
+exclude write corruption or a data-bit fault. Do not claim the burst timing is
+already proved wrong, or that the software model's pass clears real hardware.
+Actual capture/analysis/deployment/process proof:
+`build/rtl-executive/storage-selftest1-native-field-20261021/startup/`.
+
+All eight build stages, supplementary fitted-register inventory and guarded
+assembly are terminal/pass. Review covers31 device summaries,196 original,
+56 backend,8 first-error and24 self-test timing categories over four conditions;
+minimum+0.116ns. All170 RAM entries/165 parameter tables preserve contracts,
+including40 guest-cache M10Ks and the shared seven-block BaseBoard ROM pool.
+Fit30,992ALMs/53,584regs/332M10Ks/35DSPs; all501 source hashes reconstruct the
+qualified MC1668 parent and explicit diagnostic changes. Thirteen damaged-
+evidence controls reject. First review rejected the old placement's response
+copy expectation; actual inventory now requires bit5's single response copy,
+all82 observer bits plus `valid~DUPLICATE`, and all79 logical self-test bits
+(ready aliases `observation[0]`) plus12 exact named fitter copies. No RTL or
+constraint changed to accommodate placement. Supplementary inventory is read-only.
+
+Local build `build/rtl-executive/native-storage-selftest-v1-20261021/`;
+terminal-v1 preserves873 original report members; terminal-v2 preserves877
+including the supplementary inventory. Full portable952-member native/field/
+input-prefix receipt, lossless readback passes:
+`fpga/mister/reports/2026-10-21-storage-selftest/native-fit/`.
+The earlier543-member component receipt remains immutable. The full chip-pin
+simulation passed50,331,648 transactions; this physical mismatch is unresolved.
+
+Normal Main barriers preserved BootFault2's closed seed-identical pack
+SHAf3bce2a8,4,715 disk trace records, two barriers and no historical/transition
+trace gaps (traceSHAc904f225). No clean guest shutdown/filesystem qualification
+claim. BootFault2's first parity stop was the ROM's deliberate MicrocodeBootFailed
+breakpoint; this separate pre-guest test now demonstrates a raw-memory mismatch.
+
+**Next:** expose/capture the first complete eight-word raw burst and compare its
+ordering with the written pattern and the pin model/physical-clock constraints.
+Distinguish a one-word capture shift from write corruption/data-bit failure;
+compare a BL1 control if needed. Preserve this failing image/evidence. Do not
+adjust wait counts, skip a firmware breakpoint or change the chip model merely
+to make a test pass. Then repair the demonstrated controller/protocol issue,
+repeat full-memory verification on14, and resume original-firmware Cedar/input
+and pinned issue/hold speed gates. Main and guest-state import stay unchanged.
+Clock acceleration, FPGA Checkpoint/Rollback, cold persistence, three fresh boots
+and two-hour sustained operation remain open. Last working Cedar login remains
+1,947,686.01 instruction issues/s against original16,666,667/s.
+
+V38/V39 remain separate original processes; latest archived observations are
+candidate1440M/control1470M host ticks, CPUd0fff000. Both process statuses were
+RX at the archive observation. Their three normal button pulses are terminal;
+no Cedar113/first trap is claimed. Counter writes were only testbench input
+scheduling; capture callbacks remain read-only. Control's logger-bound source
+correction is prepared but NOT loaded after automatic review rejected interrupting
+its preserved debugger. Follow the actual sessions; do not restart on timeout.
+
+The following sections retain preceding diagnosis/build stages and their old
+live identities. This current section supersedes those identities and states.
+
+### Preceding hardware diagnosis: original failed-boot breakpoint (2026-10-21 UTC)
 
 **The passive first-error observer is timing-reviewed, assembled and loaded on
 MiSTer14.** Main10661/server10660 use the unchanged21e67a3f/c5996249 binaries.

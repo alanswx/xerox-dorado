@@ -231,7 +231,7 @@ def review(root, parent, parent_qualification, parent_reports, observer_componen
         # Physical optimization makes one extra copy of the unchanged raw
         # response bit1 in this placement. Preserve all twelve originals and
         # accept exactly that named fitter copy, with all its paths timed.
-        assert len(response_copies) == 1 and response_copies[0].endswith('|rsp_data[1]~DUPLICATE')
+        assert len(response_copies) == 1 and response_copies[0].endswith('|rsp_data[' + ('5' if has_selftest else '1') + ']~DUPLICATE')
         expected_counts['response'] = 13
     else:
         assert not response_copies
@@ -248,7 +248,7 @@ def review(root, parent, parent_qualification, parent_reports, observer_componen
     if has_observer:
         inventory = re.findall(r'^BOOT_FAULT_REGISTERS (\S+) (\d+)$', log, re.M)
         assert len(inventory) == 4 and {c for c, _ in inventory} == readers.CORNERS
-        assert all(int(count) == 82 for _, count in inventory)
+        assert all(int(count) == (83 if has_selftest else 82) for _, count in inventory)
         for corner in sorted(readers.CORNERS):
             for mode in ['setup', 'hold']:
                 name = f'burst-first-fault-{mode}-{corner}.rpt'
@@ -262,9 +262,27 @@ def review(root, parent, parent_qualification, parent_reports, observer_componen
         selftest_registers = re.findall(r'^STORAGE_SELFTEST_REGISTER (.+)$', log, re.M)
         assert len(selftest_registers) == len(set(selftest_registers))
         assert all(int(n) == len(selftest_registers) for _, n in inventory)
-        assert 65 <= len(selftest_registers) <= 90, 'Unexpected self-test register inventory'
-        for field in ['address', 'first_address', 'first_expected', 'first_actual', 'phase', 'pending', 'ready', 'failed']:
-            assert any(re.search(r'\|' + field + r'(?:\[|$)', n) for n in selftest_registers), field
+        expected_selftest = {f'{field}[{i}]' for field, width in [('address',23),('first_address',23),('first_expected',12),('first_actual',12),('phase',3),('first_phase',3)] for i in range(width)} | {'observation[0]', 'pending', 'failed'}
+        expected_copies = {f'address[{i}]~DUPLICATE' for i in [0,1,11,14,17,18,19,20,21]} | {'phase[0]~DUPLICATE','phase[1]~DUPLICATE','pending~DUPLICATE'}
+        assert len(selftest_registers) == 91 and {n.rsplit('|',1)[-1] for n in selftest_registers} == expected_selftest | expected_copies, 'Self-test logical bits/copies differ'
+        fitted_state = json_at(root / 'register-inventory-v1/state.json')
+        assert fitted_state['status'] == 'TERMINAL_FITTED_REGISTER_INVENTORY' and fitted_state['returncode'] == 0
+        absent = json_at(root / 'register-inventory-v1/absence.json')
+        assert set(absent['absent_pids']) == {fitted_state['driver_pid'],fitted_state['child_pid']}
+        assert fitted_state['tcl_sha256'] == sha(raw(root / 'inspect_storage_selftest_fit.tcl')) == sha((ROOT / 'tools/inspect_storage_selftest_fit.tcl').read_bytes())
+        fitted_log = raw(root / 'register-inventory-v1/inventory.log').decode()
+        assert '0 errors, 0 warnings' in fitted_log
+        inventories = {}
+        for group, count in re.findall(r'^SELFTEST_FIT_COUNT (\S+) (\d+)$', fitted_log, re.M):
+            names = re.findall(r'^SELFTEST_FIT_REGISTER ' + group + r' (.+)$', fitted_log, re.M)
+            assert len(names) == len(set(names)) == int(count)
+            inventories[group] = names
+        expected_observer = {f'{field}[{i}]' for field, width in [('first_processor',32),('first_sources',16),('preceding_sources',16),('previous_sources',16)] for i in range(width)} | {'armed','valid','valid~DUPLICATE'}
+        assert set(inventories) == {'observer','selftest','response'}
+        assert {n.rsplit('|',1)[-1] for n in inventories['observer']} == expected_observer and len(inventories['observer']) == 83
+        assert set(inventories['selftest']) == set(selftest_registers)
+        assert set(inventories['response']) == set(response_registers)
+
         for corner in sorted(readers.CORNERS):
             for label in ['selftest-internal', 'selftest-input', 'selftest-output']:
                 for mode in ['setup', 'hold']:
@@ -308,7 +326,7 @@ def review(root, parent, parent_qualification, parent_reports, observer_componen
         if name.endswith('.gz'):
             name = name[:-3]
         if ((name.startswith('core/') and Path(name).suffix in ('.rpt', '.summary', '.log')) or
-                name in ['run-state.json', 'burst-review-v2-state.json', 'burst-review-v2.log',
+                name.startswith('register-inventory-v1/') or name in ['inspect_storage_selftest_fit.tcl', 'run-state.json', 'burst-review-v2-state.json', 'burst-review-v2.log',
                          'collected-input-check.json', tcl_name, 'map.log', 'fit.log']):
             evidence[name] = sha(raw(root / name))
     return dict(status='PASS_NATIVE_SDRAM_BURST_PREASSEMBLY_REVIEW', scope=__doc__,

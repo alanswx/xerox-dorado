@@ -9,31 +9,37 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-Current hardware: passive first-error observer loaded on MiSTer14, RBF107c3874,
-Main10661/server10660 with unchanged binaries. Full timing/memory/source review
-and guarded assembly pass (minimum+0.115ns); ten damaged-evidence controls reject.
-Actual first fault is CIA0xD44, both IM parity halves, matching a deliberate
-breakpoint in the ORIGINAL BaseBoard ROM table. The instruction branches to0xCD2,
-the observed stopped PC: Initial's failed-microcode-boot path. This is not proof
-of random IM corruption or SDRAM deadlock. Raw memory/fabric continue while
-instruction issues stop. Receive EOP totals do not prove downloaded data correct.
+Current hardware: **pre-guest raw SDRAM test fails at address0**, expected0xA59,
+actual0xA58. MarkerB157 and two metadata samples confirm phase1/failed1/ready0;
+the guest stays held. Address1's pattern is0xA58, suggesting a shifted burst,
+but read alignment, write corruption and a data-bit fault remain distinguishable
+possibilities. Do not call this a proved capture fix or a guest boot failure:
+no firmware boot was attempted with this diagnostic image.
 
-Next: isolate download acceptance/checksum versus actual raw SDRAM integrity.
-The pre-guest RTL diagnostic now passes the FULL23-bit chip-pin sweep:
-50,331,648 requests/completions across8,388,608 raw cells, followed by verified
-zeros. The bounded test detects return corruption/address aliasing/bad zero
-readback and rejects a removed comparator. Its first full-run deadline failure
-is preserved; only that bench deadline changes in the passing full run.
-The501-source native diagnostic stage reconstructs MC1668 plus the exact BL8/
-observer/zero-fill-test deltas; synthesis uses the actual top/wrapper/self-test.
-Its same fit is routing on misterubuntu (builder3585434,fit3586935); queued
-reporter3590070 follows it. Full timing/memory review, assembly and actual FPGA
-test remain pending. No new desktop or speedup is qualified. Last working Cedar
-login:1,947,686.01 instruction issues/s, about11.7% of original16.67M/s.
-Preserve original firmware and native state; no imported C state or guest patches.
-Hardware rollback, cold persistence, repeated boots and sustained tests remain.
-See the [handoff](verilog-handoff.md#current-hardware-diagnosis-original-failed-boot-breakpoint-2026-10-21-utc)
-and [component evidence](../fpga/mister/reports/2026-10-21-storage-selftest/component/README.md).
+StorageSelftest1 RBFc63d0a6a is loaded normally on MiSTer14, Main11889/server11888,
+unchanged binaries and50MHz/SYSPER4. All eight build stages, fitted inventory,
+31 device summaries/196 original/56 backend/8 observer/24 self-test categories
+pass (minimum+0.116ns). All170 RAM entries/165 parameter tables preserve their
+contracts;332M10Ks/35DSPs. Thirteen damaged-evidence controls reject; assembly
+passes. The full pin-model test previously passed50,331,648 transactions across
+8,388,608 raw cells, so the physical/model discrepancy remains unresolved.
+
+Next: capture the first complete eight-word returned burst against the written
+pattern and actual physical clock constraints. Distinguish ordering from write
+corruption/data-bit failure; compare a BL1 control if needed. Repair the proved
+cause, repeat full raw-memory testing on14, then resume original-firmware Cedar/
+input/pinned issue+hold qualification. Preserve the failing image, original
+firmware and guest state; do not change wait counts/model just to pass tests.
+Last working Cedar login remains1,947,686.01 instruction issues/s (~11.7% of
+original16.67M/s); clock acceleration, rollback, persistence, repeated boots and
+sustained operation remain pending. Complete FPGA snapshots stay deferred.
+
+Normal Main barriers preserved BootFault2's closed seed and complete trace with
+two barriers/no gaps. Full952-member native/field/input-prefix archive:
+[terminal evidence](../fpga/mister/reports/2026-10-21-storage-selftest/native-fit/README.md).
+Current identities/results and next TODOs are in the
+[handoff](verilog-handoff.md#current-hardware-raw-sdram-mismatch-before-guest-release-2026-10-21-utc).
+The following paragraphs retain earlier live statuses for history.
 
 V38/V39 completed three normal boot-button pulses via only their bench input
 counter; final input observations1170M/1040M host ticks still show startup.
