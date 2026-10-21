@@ -32,6 +32,13 @@ the50MHz/SYSPER4 cadence are unchanged. Last measured qualified login remains
 [handoff](verilog-handoff.md#operand-diagnosis-corrected-pc-mapping-and-compiled-observer-2026-10-21-utc)
 and [component/source receipt](../fpga/mister/reports/2026-10-21-r-front-operand-observer/README.md).
 
+V34/V35 now also pass the bounded native host-clock/advance comparison:14M
+guest samples each,1,734,978 paused host ticks, all16,384 map rows/256 RM words,
+and unchanged6,000 parent phase rows/final dumps. Only fixture clock wiring and
+bench change; CPU/helper/ROM bytes remain unchanged. This covers synthetic
+pauses, not actual SDRAM response arrival during a pause or the later Cedar
+fault. Exercise that memory boundary next; no speedup or firmware repair yet.
+
 Deliver a faster, correct Dorado on MiSTer that cold-boots the original
 firmware to Cedar's Viewers desktop and an interactive CommandTool. Use the
 confirmed 128 MB SDRAM module for bulk main memory, keep hot architectural

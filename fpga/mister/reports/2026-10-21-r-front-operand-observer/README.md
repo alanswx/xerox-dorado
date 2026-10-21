@@ -50,6 +50,15 @@ output; its bytes match and the inspector classifies that single extra file.
 The corrected preparer copies declared inputs only; both versions are kept.
 The actual rejected V5 is also rejected by both new source-binding checks.
 
+`bounded-host-pauses/` preserves882 terminal members/428 blobs (407 shared from
+the root). V34/V35 each run14M guest samples/15,738,741 host ticks, including
+1,734,978 paused ticks. Eight native-board host/advance connections replace
+continuous fixture clocks; all CPU/helper/ROM bytes remain unchanged. All16,384
+map entries/256 RM words and6,000 phase rows match the respective unpaused
+parents. Complete source diffs and the executed reviewer are retained. This
+does not exercise actual SDRAM responses arriving during a pause or Cedar's
+later queue fault, and does not qualify a firmware boot or speed gain.
+
 All6,000 phase rows match prior qualified V26. Transient T/ALU differences from
 the older native control predate this observer; no consumed-operand equivalence
 is claimed. The original MB and served EB match3,600 shared IM/3,857 shared items.

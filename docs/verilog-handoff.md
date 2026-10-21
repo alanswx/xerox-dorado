@@ -167,16 +167,24 @@ Do not treat asynchronous pages as one instruction trace. Recover desktop/
 input correctness at this cadence, then resume acceleration and rollback gates.
 Local field/scripts: `build/rtl-executive/r-operands6-native-field-20261021/startup`.
 
-Host/enable follow-up is RUNNING on the Mac: V34 control and V35 candidate at
+Host/enable follow-up is TERMINAL on the Mac: V34 control and V35 candidate at
 `build/rtl-executive/r-front-host-pause-{control-v34,candidate-v35}-20261021`.
-Drivers74064/74065 and tests74845/74960 were observed live; exec sessions46062/
-70125 retain the same jobs. Both compiles pass. Only fixture backplane/bench
+Both14M runs pass, including all16,384 map entries/256 RM words and exact
+parent6,000 phase rows/final dumps. Each runs15,738,741 host ticks with1,734,978
+paused ticks. Both exec sessions46062/70125 are consumed; do not restart.
+Only fixture backplane/bench
 change: eight snapshot boards now receive production-style storage host clock
 and advance, and a127-host-tick profile inserts14 pauses across phases. CPU/
 helper/ROM bytes remain identical to their terminal parents. This targets the
 continuous-clock fixture gap; it is synthetic pause coverage, not the actual
-SDRAM controller, native BaseBoard or a firmware/desktop gate. Inspect these
-same processes/results; never restart because an observation expires.
+SDRAM controller, response-arrival-during-pause, native BaseBoard or a firmware/
+desktop gate. The882-member shared-blob receipt and manual source diffs are
+preserved under `bounded-host-pauses/`. Next exercise the actual memory handoff
+and trace the first later Cedar fault. Older harness references:
+`build/rtl-executive/native21-ddrcheck/prepare.py` and `native23-candidate/`;
+stage current V6 CPU/helper bytes and verify the real controller bindings.
+Do not import older RTL POD states into a changed model or substitute them for
+an original-firmware FPGA boot.
 
 [Preserved component/source evidence and rejected V5](../fpga/mister/reports/2026-10-21-r-front-operand-observer/README.md).
 
