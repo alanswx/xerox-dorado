@@ -12,7 +12,7 @@ from pathlib import Path
 import re
 import sys
 
-from audit_r_front_ready_native import BASELINE,raw,ram_table,synthesis_memory,synthesis_warnings
+from audit_r_front_ready_native import BASELINE,raw,ram_table,synthesis_memory,synthesis_warnings,VIDEO_SHIFT_RAMS,video_register_mapping
 from fit_r_front_ready import RTL
 from stage_r_front_ready_native import HOLD_MARGIN_SDC
 
@@ -200,8 +200,10 @@ def review(root,candidate,baseline,initial,component,initial_map_control=None):
     assert set(collected['absent_central_pids'])=={central['review_pid'],central['actions'][0]['pid']}
     core=root/'core';mapping=raw(core/'output_files/Dorado.map.rpt').decode()
     fitted=raw(core/'output_files/Dorado.fit.rpt').decode('latin-1')
+    mapped_names=set(ram_table(mapping,'Analysis & Synthesis RAM Summary'))
+    video=video_register_mapping(root,candidate)if set(VIDEO_SHIFT_RAMS)-mapped_names else None
     meta=lambda b:json.loads(raw(root/'src/fpga/mister'/('snapshot_native_'+b)/'assets.json'))
-    memories={'synthesis':synthesis_memory(mapping,raw(BASELINE/'core/output_files/Dorado.map.rpt').decode()),
+    memories={'synthesis':synthesis_memory(mapping,raw(BASELINE/'core/output_files/Dorado.map.rpt').decode(),video),
         'front_physical':physical_front(fitted),'instruction':readers.instruction_ram(mapping),
         'instruction_physical':physical_instruction(fitted)}
     memc=meta('memc')['manifests']['MemC']
@@ -229,9 +231,15 @@ def review(root,candidate,baseline,initial,component,initial_map_control=None):
     if canonical:
         modes += ['native-r-'+direction+'-'+mode for direction in ['in','out','mapbuf']for mode in ['setup','hold']]
     extra=[]
+    applied_hold_margin={}
     for c in sorted(readers.CORNERS):
         for mode in modes:
             n=f'r-front-ready-{mode}-{c}.rpt';extra.append(readers.timed(raw(core/n).decode(),n))
+        if hold_margin:
+            report=raw(core/f'r-front-ready-internal-hold-{c}.rpt').decode()
+            values=re.findall(r'^;[^;\n]+;\s*([-+\d.]+)\s*;[^\n]*;\s*clock uncertainty\s*;',report,re.M)
+            assert values and {float(v)for v in values}=={.100},('Added hold uncertainty missing from fitted paths',c,values)
+            applied_hold_margin[c]=len(values)
     assert len(extra)==(160 if canonical else 136)
     log=raw(root/'central-crossings.log').decode()
     qrows=re.findall(r'R_FRONT_READY_CORNER (\S+) central_Q=(\d+) rest=(\d+)',log)
@@ -257,13 +265,15 @@ def review(root,candidate,baseline,initial,component,initial_map_control=None):
     for key,label in [('alms','Logic utilization (in ALMs)'),('registers','Total registers'),('ram_blocks','Total RAM Blocks'),('dsp','Total DSP Blocks')]:
         hit=re.search(re.escape(label)+r'\s*:\s*([\d,]+)',summary);assert hit,label
         resources[key]=int(hit[1].replace(',',''))
-    assert resources['ram_blocks']==332-40+memories['cache']['unique_m10ks'] and resources['dsp']==35
+    assert resources['ram_blocks']==332-40+memories['cache']['unique_m10ks']-(7 if video else 0)and resources['dsp']==35
     return dict(status='PASS_NATIVE_R_FRONT_READY_PREASSEMBLY_REVIEW',scope=__doc__,
         source_hashes=record['source_hashes'],memory_evidence=memories,timing_checks=checks,
         detailed_paths=paths,central_paths=extra,unconstrained_coverage=coverage,warnings=warnings,
         central_Q_registers=int(qrows[0][1]),native_visible_R_registers=16 if canonical else 0,
         native_visible_R_physical_registers=physical_r['physical_registers']if canonical else 0,
         additional_hold_uncertainty_ps=hold_margin,
+        applied_hold_margin_paths_by_corner=applied_hold_margin,
+        host_video_register_mapping=video,
         resources=resources,initial_component_enabled_samples=initial_proof['enabled_samples'],initial_component_evidence=initial_proof,
         minimum_slack_ns=min(p['slack_ns']for p in paths+extra),frequency_mhz=50,sysper=4,
         state_admin='INACTIVE',assembly_review_only=True,firmware_qualified=False,hardware_speedup_claimed=False)

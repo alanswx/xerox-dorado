@@ -1,0 +1,79 @@
+{
+  "recorded": 1792592163.209492,
+  "scope": "First corrected v4 original-firmware boot; not a desktop/speed qualification",
+  "main_pid": 32012,
+  "server_pid": 32011,
+  "rbf_sha256": "7a90adb9ae15e96a6c6121751460e343a1aa7683126bb641b6c9dc97af353de4",
+  "firmware_BFN113_observed": true,
+  "C_key_released": true,
+  "boot_button_job_terminal": true,
+  "actual_HDMI_status": "812",
+  "disk_read_requests": 5,
+  "disk_read_acks": 5,
+  "read_ack_latency_ms": [
+    3.212913,
+    3.156852,
+    3.160381,
+    3.166162,
+    3.160881
+  ],
+  "disk_writes": 0,
+  "ring_dropped": 0,
+  "first_pc_observation": {
+    "scope": "16 passive snapshots only; debugger poll gaps excluded from speed measurements",
+    "samples": 16,
+    "pcs": [
+      {
+        "task": 0,
+        "cia": "23a",
+        "tpc": "239",
+        "samples": 6
+      },
+      {
+        "task": 0,
+        "cia": "6c1",
+        "tpc": "23a",
+        "samples": 3
+      },
+      {
+        "task": 0,
+        "cia": "23a",
+        "tpc": "23a",
+        "samples": 2
+      },
+      {
+        "task": 0,
+        "cia": "6c1",
+        "tpc": "6c1",
+        "samples": 1
+      },
+      {
+        "task": 0,
+        "cia": "239",
+        "tpc": "239",
+        "samples": 1
+      },
+      {
+        "task": 2,
+        "cia": "d86",
+        "tpc": "6c1",
+        "samples": 1
+      },
+      {
+        "task": 0,
+        "cia": "6c2",
+        "tpc": "6c1",
+        "samples": 1
+      },
+      {
+        "task": 3,
+        "cia": "9e3",
+        "tpc": "d89",
+        "samples": 1
+      }
+    ]
+  },
+  "desktop_qualified": false,
+  "speed_qualified": false,
+  "note": "On-disk trace contains preload only; ring includes actual guest read requests. Debugger poll gaps are excluded from speed/cache latency claims."
+}

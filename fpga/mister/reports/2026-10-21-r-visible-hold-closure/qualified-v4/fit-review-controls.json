@@ -1,0 +1,91 @@
+{
+  "status": "PASS_NATIVE_READY_FIT_READER_CONTROLS",
+  "positive_status": "PASS_NATIVE_R_FRONT_READY_PREASSEMBLY_REVIEW",
+  "cases": [
+    {
+      "case": "negative_hold",
+      "rejected": true,
+      "diagnostic": "('native59-hold-MIN_fast_1100mv_-40c.rpt', ('3', '0', '-0.100'))"
+    },
+    {
+      "case": "violated_hold",
+      "rejected": true,
+      "diagnostic": "('native59-hold-MIN_fast_1100mv_-40c.rpt', ('3', '1', '0.062'))"
+    },
+    {
+      "case": "processor_ram_type",
+      "rejected": true,
+      "diagnostic": "('Native front physical RAM differs', 'rm_h', 'Type', 'M10K block', 'MLAB')"
+    },
+    {
+      "case": "registered_processor_read",
+      "rejected": true,
+      "diagnostic": "('Native front physical RAM differs', 'rm_h', 'Port B Input Registers', 'yes', 'no')"
+    },
+    {
+      "case": "cache_old_data",
+      "rejected": true,
+      "diagnostic": "('native cache differs', 3, 'Mixed Width RDW Mode', 'Dont care')"
+    },
+    {
+      "case": "instruction_physical_old_data",
+      "rejected": true,
+      "diagnostic": "('Physical instruction RAM differs', 3, 'Mixed Width RDW Mode', 'Dont care', 'Old data')"
+    },
+    {
+      "case": "disk_state_count",
+      "rejected": true,
+      "diagnostic": "Disk/Ethernet state changed beyond the single zero-state gate"
+    },
+    {
+      "case": "central_coverage",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "native_R_mapbuf_hold",
+      "rejected": true,
+      "diagnostic": "('r-front-ready-native-r-mapbuf-hold-MIN_fast_1100mv_-40c.rpt', ('16', '0', '-0.100'))"
+    },
+    {
+      "case": "native_R_register_coverage",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "native_R_bit_identity",
+      "rejected": true,
+      "diagnostic": "('Unclassified native R physical register', 'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MC10173_snapshot:u_g07|q[4]~DUPLICATE')"
+    },
+    {
+      "case": "video_pipeline_register_coverage",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "hold_margin_not_applied",
+      "rejected": true,
+      "diagnostic": "('Added hold uncertainty missing from fitted paths', 'MIN_fast_1100mv_-40c', ['0.000', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100', '0.100'])"
+    },
+    {
+      "case": "missing_existing_hold",
+      "rejected": true,
+      "diagnostic": "[Errno 2] No such file or directory: '/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-r-canonical-native-v4-controls-20261021/missing_existing_hold/core/native59-hold-MIN_fast_1100mv_-40c.rpt.gz'"
+    },
+    {
+      "case": "missing_central_hold",
+      "rejected": true,
+      "diagnostic": "[Errno 2] No such file or directory: '/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-r-canonical-native-v4-controls-20261021/missing_central_hold/core/r-front-ready-internal-hold-MIN_fast_1100mv_-40c.rpt.gz'"
+    },
+    {
+      "case": "missing_native_R_mapbuf_hold",
+      "rejected": true,
+      "diagnostic": "[Errno 2] No such file or directory: '/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-r-canonical-native-v4-controls-20261021/missing_native_R_mapbuf_hold/core/r-front-ready-native-r-mapbuf-hold-MIN_fast_1100mv_-40c.rpt.gz'"
+    },
+    {
+      "case": "rehashed_constraint",
+      "rejected": true,
+      "diagnostic": "Fitted candidate identity differs from tested candidate"
+    }
+  ]
+}

@@ -23,6 +23,16 @@ PARAMETERS={'WIDTH':'9','WIDTHAD':'8','NUMWORDS':'256',
     'OUTDATA_REG':'UNREGISTERED','RAM_BLOCK_TYPE':'LUTRAM',
     'READ_DURING_WRITE_MODE_MIXED_PORTS':'DONT_CARE','FILE':'UNUSED'}
 
+# Quartus may leave these short, unchanged host-video pipelines in registers
+# rather than infer altshift_taps. Never extend this list to Dorado memories.
+VIDEO_SHIFT_RAMS={
+    'ascal:ascal|altshift_taps:o_dev_rtl_0|shift_taps_5gv:auto_generated|altsyncram_er91:altsyncram5|ALTSYNCRAM':(11,3),
+    'ascal:ascal|altshift_taps:o_vpix_inner[2].r_rtl_0|shift_taps_agv:auto_generated|altsyncram_jr91:altsyncram4|ALTSYNCRAM':(4,24),
+    'shadowmask:HDMI_shadowmask|altshift_taps:vid_rtl_0|shift_taps_0vu:auto_generated|altsyncram_pr91:altsyncram4|ALTSYNCRAM':(4,81),
+    'vga_out:vga_scaler_out|altshift_taps:din1_rtl_0|shift_taps_quu:auto_generated|altsyncram_dr91:altsyncram4|ALTSYNCRAM':(3,31),
+    'yc_out:yc_out|altshift_taps:phase[2].y_rtl_0|shift_taps_puu:auto_generated|altsyncram_br91:altsyncram4|ALTSYNCRAM':(3,12),
+}
+
 
 def sha(raw):return hashlib.sha256(raw).hexdigest()
 
@@ -73,15 +83,70 @@ def bank_name(name):
     return m[1]if m else None
 
 
-def synthesis_memory(mapping,baseline):
+def video_register_mapping(root,candidate):
+    """Classify vendor RAM-to-register mapping of unchanged host-video RTL.
+
+    This is physical retention/source evidence, not a hardware video test or
+    a bit-for-bit comparison of the compiler's internal shift RAM encoding.
+    """
+    state=json.loads(raw(root/'video-review-state.json'))
+    assert state['status']=='TERMINAL_CENTRAL_REPORTS_REVIEW_REQUIRED'
+    assert len(state['actions'])==1 and state['actions'][0]['returncode']==0
+    script=raw(root/'inspect-video-registers.tcl')
+    assert sha(script)==state['tcl_sha256']==sha((ROOT/'tools/audit_r_front_video_registers.tcl').read_bytes())
+    collected=json.loads(raw(root/'collected-input-check.json'))
+    assert set(collected['absent_video_pids'])=={state['review_pid'],state['actions'][0]['pid']}
+    log=raw(root/'video-registers.log').decode()
+    headers=re.findall(r'^VIDEO_REGISTERS (\w+) count=(\d+)$',log,re.M)
+    prefixes={'ascal':'ascal:ascal|','shadowmask':'shadowmask:HDMI_shadowmask|',
+              'vga':'vga_out:vga_scaler_out|','yc':'yc_out:yc_out|'}
+    assert len(headers)==4 and {n for n,_ in headers}==set(prefixes)
+    names={};counts={}
+    for label,count in headers:
+        group=re.findall(r'^VIDEO_REGISTER '+label+r' (\S+)$',log,re.M)
+        assert len(group)==len(set(group))==int(count)>0
+        assert all(n.startswith(prefixes[label])for n in group)
+        names[label]=set(group);counts[label]=int(count)
+    expected={
+        'ascal':{f'o_dev[{i}]'for i in range(12)}|
+            {f'o_vpix_inner[{i}].{c}[{b}]'for i in range(6)for c in 'rgb'for b in range(8)},
+        'shadowmask':{f'vid[{i}]'for i in range(12)},
+        'vga':{f'{r}[{b}]'for r in ['din1','din2','rgb']for b in range(24)},
+        'yc':{f'phase[{i}].y[{b}]'for i in range(2,6)for b in range(10,18)},
+    }
+    for label,ends in expected.items():
+        assert {prefixes[label]+n for n in ends}<=names[label],('Video pipeline register missing',label)
+    source_hashes={}
+    record=json.loads(raw(candidate/'r-front-ready-native.json'))
+    for name in ['ascal.vhd','shadowmask.sv','vga_out.sv','yc_out.sv']:
+        relative='core/sys/'+name;source=raw(candidate/relative)
+        assert source==raw(BASELINE/relative)==raw(root/relative)
+        assert sha(source)==record['source_hashes'][relative]
+        source_hashes[relative]=sha(source)
+    return dict(status='PASS_UNCHANGED_HOST_VIDEO_REGISTER_MAPPING',
+        source_hashes=source_hashes,physical_register_counts=counts,
+        named_pipeline_bits_verified=sum(map(len,expected.values())),
+        register_log_sha256=sha(raw(root/'video-registers.log')),
+        removed_inferred_RAM_rows=5,removed_logical_RAM_bits=582,removed_M10Ks=7,
+        hardware_video_qualified=False)
+
+
+def synthesis_memory(mapping,baseline,video_register_evidence=None):
     before=ram_table(baseline,'Analysis & Synthesis RAM Summary')
     after=ram_table(mapping,'Analysis & Synthesis RAM Summary')
     removed={n for n in before if selected_old(n)}
     added={n for n in after if bank_name(n)}
-    assert len(before)==170 and len(after)==162 and len(removed)==12 and len(added)==4
-    assert set(before)-set(after)==removed and set(after)-set(before)==added,'unintended memory addition/removal'
+    video=set(VIDEO_SHIFT_RAMS)if video_register_evidence else set()
+    if video:
+        assert video_register_evidence['status']=='PASS_UNCHANGED_HOST_VIDEO_REGISTER_MAPPING'
+        for n,(depth,width)in VIDEO_SHIFT_RAMS.items():
+            assert before[n]==dict(Name=n,Type='AUTO',Mode='Simple Dual Port',
+                **{'Port A Depth':str(depth),'Port A Width':str(width),
+                   'Port B Depth':str(depth),'Port B Width':str(width),'Size':str(depth*width),'MIF':'None'})
+    assert len(before)==170 and len(after)==162-len(video) and len(removed)==12 and len(added)==4
+    assert set(before)-set(after)==removed|video and set(after)-set(before)==added,'unintended memory addition/removal'
     same=set(before)&set(after)
-    assert len(same)==158
+    assert len(same)==158-len(video)
     for n in same:assert before[n]==after[n],('unchanged native RAM differs',n,before[n],after[n])
     seen=set()
     for n in added:
@@ -94,6 +159,8 @@ def synthesis_memory(mapping,baseline):
     gone={n for n in old_params if selected_old(n)}
     new={n for n in new_params if bank_name(n)}
     assert len(gone)==12 and len(new)==4
+    # The inferred vendor shift primitives are separate from the explicit
+    # altdpram/altsyncram tables. All153 unchanged native tables still match.
     assert set(old_params)-set(new_params)==gone and set(new_params)-set(old_params)==new,'unexpected inferred RAM parameter coverage'
     common=set(old_params)&set(new_params);assert len(common)==153
     for n in common:assert old_params[n]==new_params[n],('unchanged native memory parameters differ',n)
@@ -103,16 +170,18 @@ def synthesis_memory(mapping,baseline):
     for key,expected in [('Total MLAB memory bits',38912),('Total block memory bits',2506566)]:
         values=[int(x.replace(',',''))for x in re.findall(r';\s*'+re.escape(key)+r'\s*;\s*([\d,]+)\s*;',mapping)]
         previous=[int(x.replace(',',''))for x in re.findall(r';\s*'+re.escape(key)+r'\s*;\s*([\d,]+)\s*;',baseline)]
-        assert values and previous and set(values)==set(previous)=={expected},('native memory total differs',key,values,previous)
-        totals[key]=expected
+        current=expected-(582 if video and key=='Total block memory bits'else 0)
+        assert values and previous and set(previous)=={expected}and set(values)=={current},('native memory total differs',key,values,previous)
+        totals[key]=current
     return dict(status='PASS_NATIVE_SYNTHESIS_MEMORY_REVIEW',unchanged_RAM_rows=len(same),
         unchanged_inferred_parameter_tables=len(common),removed_physical_banks=12,new_banks=sorted(seen),
         new_bits=9216,new_parameters=PARAMETERS,memory_totals=totals,
+        host_video_register_mapping=video_register_evidence,
         new_rows={bank_name(n):after[n]for n in sorted(added)},
         fitted_memory_qualified=False,timing_qualified=False,hardware_speedup_claimed=False)
 
 
-def negative_controls(mapping,baseline):
+def negative_controls(mapping,baseline,video_register_evidence=None):
     lines=mapping.splitlines(keepends=True)
     index=next(i for i,l in enumerate(lines)if bank_name(l)and '; MLAB 'in l)
     samples={}
@@ -133,7 +202,7 @@ def negative_controls(mapping,baseline):
     results=[]
     for name,text in samples.items():
         assert text!=mapping
-        try:synthesis_memory(text,baseline)
+        try:synthesis_memory(text,baseline,video_register_evidence)
         except AssertionError as error:results.append(dict(case=name,rejected=True,diagnostic=str(error)))
         else:raise AssertionError('Invalid synthesis memory report accepted: '+name)
     return results
@@ -178,20 +247,29 @@ def synthesis_warnings(text,before,candidate,component):
     # Preserve the baseline reader's category-count contract for those; pin
     # BOTH new warning categories to exact diagnostics and qualified sources.
     increase=Counter(re.findall(r'Warning \((\d+)\)',text))-Counter(re.findall(r'Warning \((\d+)\)',before))
-    assert not(set(increase)-{'10036','10027','10275'}),('unreviewed warning increase',increase)
+    allowed={'10036','10027','10275'}
+    if record.get('additional_hold_uncertainty_ps')==100:
+        diagnostic='Warning (330000): Timing-Driven Synthesis is skipped because it could not initialize the timing netlist'
+        assert text.splitlines().count(diagnostic)==1 and increase['330000']==1
+        assert diagnostic not in before
+        expected.append(diagnostic);allowed.add('330000')
+        evidence['330000']=dict(diagnostic=diagnostic,
+            reason='Timing-driven synthesis was skipped. Source/physical native memory and the five host-video register mappings require separate review; full fitted STA and actual100ps uncertainty at all four corners remain mandatory. This does not waive any fitted timing check.')
+    assert not(set(increase)-allowed),('unreviewed warning increase',increase)
     assert increase['10027']==increase['10275']==1
-    selected=lambda s:Counter(l for l in s.splitlines()if re.match(r'Warning \((10027|10275)\)',l))
+    selected=lambda s:Counter(l for l in s.splitlines()if re.match(r'Warning \((10027|10275|330000)\)',l))
     assert not selected(before),'Unexpected reviewed warning in baseline'
     assert selected(text)==Counter(expected),'Unreviewed diagnostic in the two new warning categories'
     return dict(increases=dict(increase),reviewed=evidence,
         comparison_scope='Existing categories cannot increase except unused-object10036; both new categories pin exact diagnostics/qualified sources. Existing per-message text changes with board line numbers/project paths.')
 
 
-def run(report,baseline,out,log,candidate,component):
+def run(report,baseline,out,log,candidate,component,video_receipt=None):
     current=raw(report);previous=raw(baseline)
-    result=synthesis_memory(current.decode(),previous.decode())
+    video=video_register_mapping(video_receipt,candidate)if video_receipt else None
+    result=synthesis_memory(current.decode(),previous.decode(),video)
     result.update(scope=__doc__,mapping_sha256=sha(current),baseline_mapping_sha256=sha(previous),
-                  negative_controls=negative_controls(current.decode(),previous.decode()))
+                  negative_controls=negative_controls(current.decode(),previous.decode(),video))
     if log:
         assert candidate and component,'Warning review needs exact candidate and qualified component sources'
         result['warnings']=synthesis_warnings(raw(log).decode(),raw(BASELINE/'map.log').decode(),candidate,component)
@@ -207,5 +285,6 @@ if __name__=='__main__':
     p.add_argument('--map-log',type=Path)
     p.add_argument('--candidate',type=Path)
     p.add_argument('--component',type=Path)
+    p.add_argument('--video-receipt',type=Path,help='Closed source/register evidence for the five optional host-video RAM-to-FF mappings')
     p.add_argument('--output',type=Path,required=True)
-    a=p.parse_args();run(a.mapping,a.baseline,a.output,a.map_log,a.candidate,a.component)
+    a=p.parse_args();run(a.mapping,a.baseline,a.output,a.map_log,a.candidate,a.component,a.video_receipt)

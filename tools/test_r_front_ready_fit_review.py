@@ -70,6 +70,15 @@ def run(source,out,candidate,baseline,initial,component,initial_map_control=None
         modifications['native_R_register_coverage']=('central-crossings.log',re.sub(r'^R_FRONT_READY_NATIVE_R [^\n]+\n','',central,count=1,flags=re.M))
         modifications['native_R_bit_identity']=('central-crossings.log',re.sub(
             r'(^R_FRONT_READY_R_REGISTER [^\n]+\|q\[)[0-3](\])',r'\g<1>4\2',central,count=1,flags=re.M))
+    if positive.get('host_video_register_mapping'):
+        text=reader.raw(source/'video-registers.log').decode()
+        modifications['video_pipeline_register_coverage']=('video-registers.log',re.sub(
+            r'^VIDEO_REGISTER ascal ascal:ascal\|o_dev\[11\]\n','',text,count=1,flags=re.M))
+    if positive.get('additional_hold_uncertainty_ps'):
+        name='core/r-front-ready-internal-hold-MIN_fast_1100mv_-40c.rpt'
+        text=reader.raw(source/name).decode()
+        modifications['hold_margin_not_applied']=(name,re.sub(
+            r'(^;[^;\n]+;\s*)0\.100(\s*;[^\n]*;\s*clock uncertainty\s*;)',r'\g<1>0.000\2',text,count=1,flags=re.M))
     results=[]
     for name,(member,text)in modifications.items():
         assert text!=reader.raw(source/member).decode('latin-1'if member.endswith('fit.rpt')else'utf-8'),name

@@ -1,0 +1,21 @@
+{
+  "status": "PASS_UNCHANGED_HOST_VIDEO_REGISTER_MAPPING",
+  "source_hashes": {
+    "core/sys/ascal.vhd": "3f74c7b52d749cf523b11cbd06a9269f831ad86967ee983b4a0d1f5792b645f6",
+    "core/sys/shadowmask.sv": "88429d137b4ce9f6538a052f03d874604f46decf6d69b3fc824cc795efcf3193",
+    "core/sys/vga_out.sv": "02a533c3dfd547afddea2946019ecc79bbe9c27bb6128c0999fa5fc9e78f8108",
+    "core/sys/yc_out.sv": "c52d7bfcc8dbc5a0cda2b3117172cbba790fb97b7de61722ddac205f6ec8bc20"
+  },
+  "physical_register_counts": {
+    "ascal": 7123,
+    "shadowmask": 302,
+    "vga": 229,
+    "yc": 336
+  },
+  "named_pipeline_bits_verified": 272,
+  "register_log_sha256": "5339aa1b74da00101eedc15f1538b88afc19b2644db3ef0fdf23ecac8857ba2c",
+  "removed_inferred_RAM_rows": 5,
+  "removed_logical_RAM_bits": 582,
+  "removed_M10Ks": 7,
+  "hardware_video_qualified": false
+}

@@ -1,0 +1,9 @@
+{
+  "status": "TERMINAL",
+  "driver_pid": 59046,
+  "started": 1792591554.108941,
+  "script": "/Users/alans/dev2/Dorado/build/rtl-executive/r-visible4-native-field-20261021/startup/cool-boot.py",
+  "pid": 59047,
+  "returncode": 0,
+  "finished": 1792591561.139263
+}

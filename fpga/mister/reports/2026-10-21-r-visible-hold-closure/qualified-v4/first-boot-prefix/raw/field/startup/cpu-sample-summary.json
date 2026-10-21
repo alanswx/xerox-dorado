@@ -1,0 +1,54 @@
+{
+  "scope": "16 passive snapshots only; debugger poll gaps excluded from speed measurements",
+  "samples": 16,
+  "pcs": [
+    {
+      "task": 0,
+      "cia": "23a",
+      "tpc": "239",
+      "samples": 6
+    },
+    {
+      "task": 0,
+      "cia": "6c1",
+      "tpc": "23a",
+      "samples": 3
+    },
+    {
+      "task": 0,
+      "cia": "23a",
+      "tpc": "23a",
+      "samples": 2
+    },
+    {
+      "task": 0,
+      "cia": "6c1",
+      "tpc": "6c1",
+      "samples": 1
+    },
+    {
+      "task": 0,
+      "cia": "239",
+      "tpc": "239",
+      "samples": 1
+    },
+    {
+      "task": 2,
+      "cia": "d86",
+      "tpc": "6c1",
+      "samples": 1
+    },
+    {
+      "task": 0,
+      "cia": "6c2",
+      "tpc": "6c1",
+      "samples": 1
+    },
+    {
+      "task": 3,
+      "cia": "9e3",
+      "tpc": "d89",
+      "samples": 1
+    }
+  ]
+}

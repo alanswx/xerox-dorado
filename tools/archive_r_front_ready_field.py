@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Archive the failed Ready/front hardware boots and component diagnostics.
+"""Archive Ready/front hardware prefixes and component diagnostics.
 
 Lossless evidence only. Running test logs are bounded prefixes; their capture
 does not imply termination or qualification. Excludes FPGA images, executables
@@ -28,14 +28,14 @@ RUNS=[
 def sha(raw):return hashlib.sha256(raw).hexdigest()
 
 
-def archive(out):
+def archive(out,field=None,field_only=False):
     out.mkdir(parents=True,exist_ok=False)
     files={}
-    field=ROOT/'build/rtl-executive/r-front-ready-native-field-20261021'
+    field=field or ROOT/'build/rtl-executive/r-front-ready-native-field-20261021'
     for path in field.rglob('*'):
         if path.is_file():files['field/'+str(path.relative_to(field))]=path
     processes=[]
-    for name in RUNS:
+    for name in ([]if field_only else RUNS):
         directory=ROOT/'build/rtl-executive'/name
         for path in directory.iterdir():
             if path.is_file() and path.suffix in ('.json','.gz','.log','.txt'):
@@ -77,7 +77,7 @@ def archive(out):
         rows.append(dict(raw_name=name,stored=stored,raw_bytes=len(data),raw_sha256=sha(data),
                          stored_sha256=sha(target.read_bytes()),gzip=packed))
     record=dict(scope=__doc__,captured=time.time(),members=rows,processes=processes,
-                status='COLLECTED_STARTUP_FAILURE_DIAGNOSTICS',desktop_qualified=False,
+                status='COLLECTED_LIVE_HARDWARE_PREFIXES'if field_only else'COLLECTED_STARTUP_FAILURE_DIAGNOSTICS',desktop_qualified=False,
                 speedup_qualified=False,whole_machine_snapshot=False)
     (out/'archive-manifest.json.gz').write_bytes(gzip.compress(
         (json.dumps(record,indent=2)+'\n').encode(),mtime=0))
@@ -94,4 +94,8 @@ def archive(out):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output',type=Path,required=True)
-    archive(p.parse_args().output.resolve())
+    p.add_argument('--field',type=Path,help='Explicit field directory for a separately named boot')
+    p.add_argument('--field-only',action='store_true',help='Preserve only this field run, excluding historical simulations')
+    args=p.parse_args()
+    if args.field_only:assert args.field,'Field-only capture needs an explicit run directory'
+    archive(args.output.resolve(),args.field.resolve()if args.field else None,args.field_only)

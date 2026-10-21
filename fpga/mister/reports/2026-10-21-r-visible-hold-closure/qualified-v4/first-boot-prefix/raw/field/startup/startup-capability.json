@@ -1,0 +1,29 @@
+{
+  "recorded_after_call": 1792591775.7849119,
+  "main_pid": 32012,
+  "server_pid": 32011,
+  "command": "gdb -batch /tmp/dorado-main-21e6.elf -p 32012 -x /tmp/setup-r-visible4.gdb",
+  "setup_script_sha256": "6fe77e7f09cca35a87cc53bb85fef1af52c304bcf7e4976fc6bead771c93192b",
+  "Main_owned_SPI": true,
+  "words": [
+    53460,
+    1,
+    0,
+    8176,
+    0,
+    1,
+    22,
+    0,
+    0,
+    62088,
+    3285,
+    59039,
+    6210,
+    2048,
+    8,
+    16,
+    0,
+    0
+  ],
+  "fresh_epoch_verified": true
+}

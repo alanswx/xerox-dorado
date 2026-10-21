@@ -200,20 +200,31 @@ classification covers16 originals plus11 named fitter copies. All160 additional
 central/R reports pass (+0.163ns minimum), without overriding negative global hold.
 The rejected fit and separate corrected reports are closed and preserved.
 
-Current v4 retains identical RTL/ROM/all original SDCs and adds100ps hold
-uncertainty to the same20ns core clock. All511 other existing files match after
-project-path normalization. On the same placed v3 netlist this turns-0.031 into
--0.131ns: a stricter fitter target, no waiver or changed cycle. Builder2852373,
-fitter2880461 and serialized observer2852399 are verified live with routing
-active; observe those jobs. The exact-source V26 Initial/map and V27 full-image
-proofs apply to the unchanged v4 RTL and have been revalidated. Next collect
-terminal full-device timing/physical-memory evidence, require all31 summaries/
-196 legacy/160 central-R paths and15 rejected damaged-evidence controls, then
-assemble and use the guarded normal Main loader on14. The loader preparation
-passes twelve invalid metadata/MGL controls; no real image or hardware boot is
-qualified by those tests. Preserve Boot2 volume/trace, use a fresh original
-seed, and recover original-firmware Cedar/input before acceleration.
-[Closed fit and staged-source evidence](../fpga/mister/reports/2026-10-21-r-visible-hold-closure/README.md).
+V4 now PASSES full timing/memory/source review:31 summaries/196 legacy/
+160 central-R paths/four conditions, minimum+0.062ns, global core setup+1.418ns/
+hold+0.317ns. All513 compiled sources verify;17 damaged controls reject. Its
+unchanged RTL/ROM/original SDCs retain50MHz/SYSPER4, with100ps additive hold
+uncertainty explicitly present in20 sampled central paths/corner. One synthesis
+warning records skipped timing-driven synthesis; full fitted STA runs/applies
+the margin. Five unchanged host-video shift pipelines remain in registers:
+all four sources match baseline/272 named bits retained/153 remaining RAM rows
+and all153 native memory parameter tables match. All native memory families
+pass; the seven freed M10Ks explain324 total.16 primary R bits+13 fitter copies
+are all accounted;705 central physical registers remain. No Dorado RAM or timing
+check is waived. All build/report jobs are terminal; guarded assembly succeeds.
+
+Reviewed RBF7a90adb9 is now normally loaded on14, unchanged Main32012/server32011,
+fresh original seed in `CedarRVisible4_20261021`, Main sole SPI owner. Original
+BFN113/C release and actual Pilot812 pass, but login/Viewers/input do not yet.
+Five real disk requests have matching ACKs in3.157..3.213ms, no writes/zero ring
+drops at the passive observation.16 PC snapshots find task0 mostly239/23a and
+6c1/6c2. Continue this original boot and diagnose the next native handoff before
+acceleration; do not replace evidence with an assumed slow boot or service timeout.
+The on-disk trace has preload only; the requests are in Main's live RAM ring.
+No debugger-induced gap is a speed/cache measurement. Boot2 pack/logs are
+closed/preserved including its one explicit transition trace gap.
+[Qualified fit and first firmware-boot evidence](../fpga/mister/reports/2026-10-21-r-visible-hold-closure/qualified-v4/README.md).
+Last qualified login remains1.947686Missues/s; no new speed gain/rollback claim.
 Baseline's later09c
 wait is task12 starvation after2,153 emulator samples, not established IFU
 failure or a desktop boot. Current process handles/receipt paths are in the

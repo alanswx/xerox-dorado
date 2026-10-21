@@ -1,0 +1,9 @@
+{
+  "status": "PREPARED_NOT_EXECUTED",
+  "scope": "Normal keyboard boot-button input only; no C state or guest instruction completion",
+  "inputs": {
+    "c-until-request.py": "5e389b57f3218e1f226aca517a456232c7197b3c8a2b87ba02f8a857cafe8597",
+    "cool-boot.py": "711d80bf969c37f3df3d490671905fe5ccef8a662433e48982ed6facb41e2590"
+  },
+  "hardware_changed": false
+}

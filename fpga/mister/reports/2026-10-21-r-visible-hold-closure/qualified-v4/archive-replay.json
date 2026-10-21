@@ -1,0 +1,7 @@
+{
+  "status": "PASS_EXTRACTED_NATIVE_RECEIPT_REPLAY",
+  "members": 962,
+  "qualification_sha256": "d04113ed9fe06d0f971ab4050fbfaff48802610e9bc8c67870142d8d42d02593",
+  "byte_identical_qualification": true,
+  "external_functional_inputs": "Existing hash-verified V26/V21 and qualified component; this is a fit-receipt replay, not a fresh firmware simulation"
+}

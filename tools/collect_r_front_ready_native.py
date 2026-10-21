@@ -24,7 +24,13 @@ def collect(project):
     central=json.loads((project/'central-review-state.json').read_text())
     assert central['status'] in ['TERMINAL_CENTRAL_REPORTS_REVIEW_REQUIRED','TERMINAL_FAILED']
     central_pids=[central['review_pid']]+[r['pid']for r in central['actions']]
-    for pid in pids+central_pids:
+    video_pids=[]
+    if(project/'video-review-state.json').exists():
+        video=json.loads((project/'video-review-state.json').read_text())
+        assert video['status']=='TERMINAL_CENTRAL_REPORTS_REVIEW_REQUIRED'
+        assert len(video['actions'])==1 and video['actions'][0]['returncode']==0
+        video_pids=[video['review_pid'],video['actions'][0]['pid']]
+    for pid in pids+central_pids+video_pids:
         try:os.kill(pid,0)
         except ProcessLookupError:continue
         raise RuntimeError('Recorded process still exists; observe it: '+str(pid))
@@ -34,6 +40,7 @@ def collect(project):
     readback=dict(status='TERMINAL_NATIVE_INPUT_READBACK',run_status=state['status'],
                   absent_pids=pids,absent_central_pids=central_pids,
                   central_run_status=central['status'],actual=actual,assembly_collected=False)
+    if video_pids:readback['absent_video_pids']=video_pids
     (project/'collected-input-check.json').write_text(json.dumps(readback,indent=2)+'\n')
     files=set(record['source_hashes'])
     for suffix in ['*.log','*.json','*.py','*.tcl']:

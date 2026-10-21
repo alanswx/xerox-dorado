@@ -4,7 +4,8 @@
 Require unchanged compiled inputs, completed/absent build and review jobs,
 31 timing summaries, 332 legacy or 356 canonical-R targeted reports,
 actual-wrapper Initial, and eleven legacy or fifteen canonical-R rejected
-evidence controls. Observe the same assembly job if output yields.
+evidence controls, plus video-register and applied-margin controls when used.
+Observe the same assembly job if output yields.
 """
 import argparse
 import hashlib
@@ -27,10 +28,16 @@ def run(project,quartus):
     canonical=q.get('native_visible_R_registers',0)==16
     assert len(q['timing_checks'])==31 and len(q['detailed_paths'])==196 and len(q['central_paths'])==(160 if canonical else 136)
     assert q['initial_component_enabled_samples']>=100000 and not q['firmware_qualified']
-    assert controls['status']=='PASS_NATIVE_READY_FIT_READER_CONTROLS' and len(controls['cases'])==(15 if canonical else 11)
+    expected_controls=(15 if canonical else 11)+bool(q.get('host_video_register_mapping'))+bool(q.get('additional_hold_uncertainty_ps'))
+    assert controls['status']=='PASS_NATIVE_READY_FIT_READER_CONTROLS'and len(controls['cases'])==expected_controls
     assert all(r['rejected']for r in controls['cases'])
     record=json.loads((project/'r-front-ready-native.json').read_text())
+    assert q.get('additional_hold_uncertainty_ps',0)==record.get('additional_hold_uncertainty_ps',0)
     if canonical:
+        if q.get('host_video_register_mapping'):
+            assert any(r['case']=='video_pipeline_register_coverage'for r in controls['cases'])
+        if q.get('additional_hold_uncertainty_ps'):
+            assert any(r['case']=='hold_margin_not_applied'for r in controls['cases'])
         assert record['native_visible_R_bits']==16 and record['evaluator_owned_Q_bits']==736
         assert record['internal_predicted_R_duplicate']is False
         proof=json.loads((project/'component-image-handoff.json').read_text())

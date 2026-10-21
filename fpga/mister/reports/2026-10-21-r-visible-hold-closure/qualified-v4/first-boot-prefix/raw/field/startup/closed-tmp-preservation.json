@@ -1,0 +1,26 @@
+{
+  "started": 1792591265.0685318,
+  "scope": "Closed historical log duplicates only; all bytes retained on SD",
+  "files": [
+    {
+      "source": "/tmp/dorado49b-disk.jsonl",
+      "preserved": "/media/fat/games/DoradoRTL/ClosedTmpLogs_20261021_RVisible4/dorado49b-disk.jsonl",
+      "bytes": 11447136,
+      "sha256": "b5155c7a9fa8c5ed1f07264ec61123471310e227db727a5fde1aa03667102a3d",
+      "last_event": "barrier_end",
+      "no_open_descriptors": true,
+      "removed_tmp_duplicate": true
+    },
+    {
+      "source": "/tmp/dorado55-disk.jsonl",
+      "preserved": "/media/fat/games/DoradoRTL/ClosedTmpLogs_20261021_RVisible4/dorado55-disk.jsonl",
+      "bytes": 11286573,
+      "sha256": "927ea809a0ac436a04a8a6e57d52c7b565fd7a280227890513e1c1139d35918c",
+      "last_event": "barrier_end",
+      "no_open_descriptors": true,
+      "removed_tmp_duplicate": true
+    }
+  ],
+  "finished": 1792591273.2366354,
+  "reclaimed_tmp_bytes": 22733709
+}

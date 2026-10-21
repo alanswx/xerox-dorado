@@ -38,11 +38,13 @@ def reviewed_image(staging,canonical=False):
     assert sha(staging/'qualification.json')==a['qualification_sha256']
     assert sha(staging/'fit-review-controls.json')==a['controls_sha256']
     assert controls['status']=='PASS_NATIVE_READY_FIT_READER_CONTROLS'
-    assert len(controls['cases'])==(15 if canonical else 11)and all(r['rejected']for r in controls['cases'])
+    expected_controls=(15 if canonical else 11)+bool(q.get('host_video_register_mapping'))+bool(q.get('additional_hold_uncertainty_ps'))
+    assert len(controls['cases'])==expected_controls and all(r['rejected']for r in controls['cases'])
     image_hash=sha(staging/'Dorado.rbf');assert image_hash==a['rbf_sha256']
     if canonical:
         assert q['native_visible_R_registers']==16
         record=json.loads((staging/'r-front-ready-native.json').read_text())
+        assert q.get('additional_hold_uncertainty_ps',0)==record.get('additional_hold_uncertainty_ps',0)
         assert q['source_hashes']==record['source_hashes']
         assert record['native_visible_R_bits']==16 and record['evaluator_owned_Q_bits']==736
         assert record['internal_predicted_R_duplicate']is False
@@ -53,7 +55,9 @@ def reviewed_image(staging,canonical=False):
         assert proof['Cedar_entry_executed']and proof['final_RM_map_dump_identical']
         assert {h for n,h in proof['inputs'].items()if Path(n).name=='r-front-ready-native.json'}=={sha(staging/'r-front-ready-native.json')}
         required={'native_R_mapbuf_hold','native_R_register_coverage','missing_native_R_mapbuf_hold','native_R_bit_identity'}
-        assert len({r['case']for r in controls['cases']})==15
+        if q.get('host_video_register_mapping'):required.add('video_pipeline_register_coverage')
+        if q.get('additional_hold_uncertainty_ps'):required.add('hold_margin_not_applied')
+        assert len({r['case']for r in controls['cases']})==expected_controls
         assert required<={r['case']for r in controls['cases']}
     else:
         assert image_hash==RBF

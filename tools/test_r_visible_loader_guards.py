@@ -41,6 +41,23 @@ def run():
     with tempfile.TemporaryDirectory(prefix='dorado-loader-guards-')as scratch:
         root=Path(scratch)
         fixture(root/'positive');assert reviewed_image(root/'positive',True)==sha(root/'positive/Dorado.rbf')
+        def current_revision(q,r,c,p):
+            q.update(host_video_register_mapping={'status':'PASS_UNCHANGED_HOST_VIDEO_REGISTER_MAPPING'},
+                     additional_hold_uncertainty_ps=100)
+            r['additional_hold_uncertainty_ps']=100
+            c['cases'] += [dict(case=n,rejected=True)for n in
+                           ['video_pipeline_register_coverage','hold_margin_not_applied']]
+        fixture(root/'video-margin-positive',current_revision)
+        assert reviewed_image(root/'video-margin-positive',True)==sha(root/'video-margin-positive/Dorado.rbf')
+        for name,missing in [('missing_video_control','video_pipeline_register_coverage'),
+                             ('missing_margin_control','hold_margin_not_applied')]:
+            def change(q,r,c,p,missing=missing):
+                current_revision(q,r,c,p)
+                next(row for row in c['cases']if row['case']==missing)['case']='other-control'
+            fixture(root/name,change)
+            try:reviewed_image(root/name,True)
+            except AssertionError:rejected.append(name)
+            else:raise AssertionError('Missing deployment control accepted: '+missing)
         cases={
             'missing_R_timing':lambda q,r,c,p:q.update(central_paths=[0]*136),
             'zero_slack':lambda q,r,c,p:q.update(minimum_slack_ns=0),
