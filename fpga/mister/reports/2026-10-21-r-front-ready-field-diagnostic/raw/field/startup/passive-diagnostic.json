@@ -1,0 +1,181 @@
+{
+  "scope": "Passive diagnostic samples, not desktop/retirement/speed qualification",
+  "samples": 128,
+  "pcs": [
+    {
+      "task": 0,
+      "cia": "346",
+      "samples": 21
+    },
+    {
+      "task": 0,
+      "cia": "342",
+      "samples": 13
+    },
+    {
+      "task": 11,
+      "cia": "c02",
+      "samples": 9
+    },
+    {
+      "task": 2,
+      "cia": "d86",
+      "samples": 8
+    },
+    {
+      "task": 0,
+      "cia": "402",
+      "samples": 7
+    },
+    {
+      "task": 0,
+      "cia": "216",
+      "samples": 7
+    },
+    {
+      "task": 0,
+      "cia": "3c5",
+      "samples": 6
+    },
+    {
+      "task": 0,
+      "cia": "3cd",
+      "samples": 5
+    },
+    {
+      "task": 0,
+      "cia": "3c9",
+      "samples": 5
+    },
+    {
+      "task": 0,
+      "cia": "221",
+      "samples": 5
+    },
+    {
+      "task": 11,
+      "cia": "c0e",
+      "samples": 5
+    },
+    {
+      "task": 0,
+      "cia": "229",
+      "samples": 4
+    },
+    {
+      "task": 0,
+      "cia": "401",
+      "samples": 4
+    },
+    {
+      "task": 0,
+      "cia": "412",
+      "samples": 4
+    },
+    {
+      "task": 0,
+      "cia": "380",
+      "samples": 3
+    },
+    {
+      "task": 0,
+      "cia": "3c0",
+      "samples": 3
+    },
+    {
+      "task": 3,
+      "cia": "9de",
+      "samples": 2
+    },
+    {
+      "task": 0,
+      "cia": "341",
+      "samples": 2
+    },
+    {
+      "task": 3,
+      "cia": "9cd",
+      "samples": 2
+    },
+    {
+      "task": 0,
+      "cia": "413",
+      "samples": 2
+    },
+    {
+      "task": 3,
+      "cia": "9f3",
+      "samples": 2
+    },
+    {
+      "task": 3,
+      "cia": "9e4",
+      "samples": 1
+    },
+    {
+      "task": 3,
+      "cia": "5a6",
+      "samples": 1
+    },
+    {
+      "task": 3,
+      "cia": "488",
+      "samples": 1
+    },
+    {
+      "task": 3,
+      "cia": "589",
+      "samples": 1
+    },
+    {
+      "task": 2,
+      "cia": "d8b",
+      "samples": 1
+    },
+    {
+      "task": 3,
+      "cia": "581",
+      "samples": 1
+    },
+    {
+      "task": 11,
+      "cia": "c04",
+      "samples": 1
+    },
+    {
+      "task": 0,
+      "cia": "3c6",
+      "samples": 1
+    },
+    {
+      "task": 2,
+      "cia": "d9a",
+      "samples": 1
+    }
+  ],
+  "buffered_trace_events": 1195,
+  "buffered_trace_dropped": 0,
+  "event_counts": {
+    "read_request": 3,
+    "read_ack": 3,
+    "poll": 1180,
+    "poll_gap": 9
+  },
+  "read_acks": [
+    {
+      "offset": 0,
+      "bytes": 15872,
+      "ack_delay_ms": 3.462154
+    },
+    {
+      "offset": 233984,
+      "bytes": 15872,
+      "ack_delay_ms": 3.161992
+    },
+    {
+      "offset": 311808,
+      "bytes": 15872,
+      "ack_delay_ms": 3.168402
+    }
+  ]
+}

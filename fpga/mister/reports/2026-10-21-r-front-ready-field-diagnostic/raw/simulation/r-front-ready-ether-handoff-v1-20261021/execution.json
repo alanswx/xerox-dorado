@@ -1,0 +1,38 @@
+{
+  "command": [
+    "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-native-initial-v5-20261021/obj/test",
+    "+preload=fixture/im.txt",
+    "+start=3907",
+    "+cycles=170000000",
+    "+mb0",
+    "+nostuck",
+    "+terminal",
+    "+pendulum",
+    "+hasram",
+    "+ioreset",
+    "+fastwait",
+    "+imparityon",
+    "+keepmirdebug",
+    "+cpu-manifold",
+    "+paritysources",
+    "+initial-rom-check",
+    "+terminal-key=21",
+    "+etherhost=34",
+    "+largeformat",
+    "+loaded-eb=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6",
+    "+rcvplay=/Users/alans/dev2/Dorado/build/rtl-executive/cedar113-bol-replies.txt",
+    "+rcvdelay=100000"
+  ],
+  "cwd": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-native-initial-v5-20261021/executed-inputs",
+  "provenance_sha256": "dc45b8643bd32fe9a1862586f22bf156bbfdd7171ecdf8c5dbfc64e06a005a06",
+  "binary_sha256": "bbba4abcc69d547626011b417592bf2f6f0acea88cbb4c0de07ad704fcff176d",
+  "inputs": {
+    "chm/dorado/CedarDorado.eb!6": "bbb6ca595e09b109fce669fec7a0e5c4d0638eebe1f8a5f9da7543df066840c4",
+    "build/rtl-executive/cedar113-bol-replies.txt": "30034e290dc0d63e3022e378fecd8686ce5d2f2725d1761ff6bf16b560206cf6"
+  },
+  "pid": 77894,
+  "started": 1792552761.4728498,
+  "status": "TERMINAL",
+  "returncode": 1,
+  "finished": 1792554858.223851
+}

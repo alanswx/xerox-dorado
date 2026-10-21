@@ -1,0 +1,4 @@
+{
+  "status": "TERMINAL_PREPARATION_FAILED",
+  "reason": "Inspector capability assertion checked the top-module text after a local variable was reused, rather than the frozen bench. No compilation or simulation started; source preserved."
+}

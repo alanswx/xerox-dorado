@@ -109,10 +109,23 @@ disk/Ethernet state matches, with only one zero-state combinational gate gone.
 Eight PHYSICAL instruction banks also enforce OLD_DATA after a negative test
 exposed a missing reader check. Eleven final damaged-evidence controls reject.
 Builder138712, fitter146109, serial reviewer165785/STA182575 and all stages are
-absent. Assembly201198/201199 succeeds; RBF57a552af is staged/hash-verified on14
-but NOT LOADED. Next normal Main-loader preservation/fresh firmware Cedar/input
-at unchanged clocks, then actual clock acceleration and rollback/final gates.
-No physical speed gain claimed; last hardware figure remains1.947686M issues/s.
+absent. Assembly201198/201199 succeeds; RBF57a552af is staged/hash-verified and
+now tested on14. The first original-firmware attempt requests BFN113 twice,
+receives microcode and enters Cedar/Mesa trap/transfer routines, but never
+reaches login. Three ARM track reads are acknowledged in~3ms; no pack/network
+errors or disk writes. Preserve this as an unqualified hardware regression,
+not a service timeout or speed success. The first CLOSED pack remains exactly
+the original seed;3862 complete trace records/no gaps/two loader barrier_ends.
+A repeat from another original seed on Main16808/server16807 reproduces the
+same Mesa trap loop and three completed reads, with unchanged binaries/RBF. An overlong launcher initially caused a stock-Main
+re-exec; exact stopped-boundary resume fixes its name without another FPGA
+load. Keep that setup interruption in the receipt. Four matched Mac component
+runs now cover the Ethernet handoff and the original Pilot cable/germ path;
+results pending. See current paths/handles in the handoff. Debug the first
+storage/producer divergence, qualify same-clock Cedar/input, then accelerate.
+No physical speed gain claimed; last QUALIFIED login figure remains1.947686M
+issues/s. Current50MHz/SYSPER4 ceiling6.25M/s; target16.667M/s before waits.
+Authentic rollback, persistence, three fresh boots and2h stress remain open.
 
 ### Milestones and acceptance
 

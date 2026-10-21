@@ -1,0 +1,77 @@
+{
+  "status": "RUNNING_READ_ONLY_INSPECTION_EXTENSION",
+  "scope": "Original register/map inspection at60M and first640 CPU Ethernet reads; diagnostic-only, no guest state writes/import.",
+  "captured": 1792555600.4970691,
+  "base_provenance_sha256": "afbc2f53b98458d5d7fae97b712a13813e5530340a153b7621211f9c40e51a36",
+  "new_provenance_sha256": "5d1f33d29f66c0ae20177aa479da6cf97b91aa6d17f89b941ce3279770e3f7c9",
+  "changed_inputs": [
+    "test_r_front_ready_boot.py",
+    "verilog/verilator/tb_exec.sv"
+  ],
+  "unchanged_inputs": 418,
+  "pid": 90671,
+  "authoritative_live_command": "90671 01:39 /Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-pilot-control-v5-20261021/obj/test +preload=fixture/im.txt +start=3907 +mb0 +nostuck +terminal +pendulum +hasram +ioreset +fastwait +imparityon +keepmirdebug +cpu-manifold +paritysources +initial-rom-check +cycles=65000000 +cycle-limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-pilot-control-v5-20261021/cycle-limit.txt +terminal-key=21 +etherhost=34 +largeformat +loaded-eb=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +rcvplay=/Users/alans/dev2/Dorado/build/rtl-executive/cedar113-bol-replies.txt +rcvdelay=100000 +pack=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +check-cedar-mapwrites +frame +bootio-germ-copy +bootiofrom=0 +rxtrace +inspect-state=/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-pilot-control-v5-20261021/register-map-inspection.txt +inspect-at=60000000",
+  "binary_sha256": "1f91ecc150f9c6257e48cd3b1860f229b9aaa95283bcbfcd4dad9164b85494d1",
+  "members": [
+    {
+      "raw_name": "v5/provenance.json.gz",
+      "stored": "v5/provenance.json.gz",
+      "raw_sha256": "5d1f33d29f66c0ae20177aa479da6cf97b91aa6d17f89b941ce3279770e3f7c9",
+      "raw_bytes": 20395
+    },
+    {
+      "raw_name": "v5/run-state.json",
+      "stored": "v5/run-state.json",
+      "raw_sha256": "109539914d1cd8b1bda318cd4692ea863138aea3e49e4c2fd49761f05caecccb",
+      "raw_bytes": 4544
+    },
+    {
+      "raw_name": "v5/compile.log",
+      "stored": "v5/compile.log.gz",
+      "raw_sha256": "61bae724d5fa9646946f6e8d51e6a22965400c6d3b72f861c40fe95bbb218bb9",
+      "raw_bytes": 71770
+    },
+    {
+      "raw_name": "v5/test.log",
+      "stored": "v5/test.log.gz",
+      "raw_sha256": "4733d3d0a8242fb88a06e69e066c19e009d06de104e4b41809676a17617bc9f4",
+      "raw_bytes": 578404
+    },
+    {
+      "raw_name": "v5/cycle-limit.txt",
+      "stored": "v5/cycle-limit.txt.gz",
+      "raw_sha256": "9a74bc10301c47abc0354c4a9219ab920008d058ab62e3a94ee5c438853422b0",
+      "raw_bytes": 9
+    },
+    {
+      "raw_name": "v5/executed-inputs/test_r_front_ready_boot.py",
+      "stored": "v5/executed-inputs/test_r_front_ready_boot.py.gz",
+      "raw_sha256": "d0687f5af019b551f95cfc4fa31e4888f610ce331c0fd7dd6fb806ad2622148e",
+      "raw_bytes": 10437
+    },
+    {
+      "raw_name": "v5/executed-inputs/verilog/verilator/tb_exec.sv",
+      "stored": "v5/executed-inputs/verilog/verilator/tb_exec.sv.gz",
+      "raw_sha256": "98d1b072eeb73bedd59000297f1bef5cb4de2da458557cfcc430a73ad27a4e4f",
+      "raw_bytes": 327244
+    },
+    {
+      "raw_name": "v4/preparation-failure.json",
+      "stored": "v4/preparation-failure.json",
+      "raw_sha256": "05e3cdcd23e3fafa9e06cd0273bb1d438a090bbcd7d0187081a6955a19861e98",
+      "raw_bytes": 241
+    },
+    {
+      "raw_name": "v4/executed-inputs/test_r_front_ready_boot.py",
+      "stored": "v4/executed-inputs/test_r_front_ready_boot.py.gz",
+      "raw_sha256": "69237e3b6bead01858e6bddf2468f0b139e555a509c0b0f6332475f081491001",
+      "raw_bytes": 10462
+    },
+    {
+      "raw_name": "v4/executed-inputs/verilog/verilator/tb_exec.sv",
+      "stored": "v4/executed-inputs/verilog/verilator/tb_exec.sv.gz",
+      "raw_sha256": "0219907b36af919d7af04e4b440b6f638081496797f8492d6a1ad3c47a0488d1",
+      "raw_bytes": 327244
+    }
+  ]
+}

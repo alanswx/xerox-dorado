@@ -39,8 +39,11 @@ timing after explicit pre-event task/address data capture (setup+0.474ns,
 hold+0.099ns). Ready/arbiter coupling passes at104 Qs and now with the full
 memory/front slice at752 Qs. Actual native-wrapper Initial and full-device
 timing/memory now pass at unchanged50MHz/SYSPER4. The reviewed image is
-assembled and staged on MiSTer14, not loaded yet. Fresh native Cedar/input,
-clock acceleration and rollback remain unqualified.
+assembled and tested on MiSTer14. The first hardware attempt enters Cedar
+microcode but does not reach login; it repeatedly samples Mesa trap/transfer
+routines. A second original-firmware attempt reproduces the same failure after
+preserving the first closed seed/trace. Fresh native Cedar/input, clock acceleration and
+rollback remain unqualified. See the live field section below.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
 qualify it through original firmware and the germ/disk path. Rollback preserves
 later filesystem changes; it is not a disk rewind or a raw FPGA snapshot.
@@ -54,7 +57,129 @@ absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
 
-### Native Ready/front full build PASS, staged for hardware (2026-10-21 UTC)
+### Ready/front hardware diagnostic — two failures; simulation correction active (2026-10-21 UTC)
+
+**Current hardware is RBF57a552af at unchanged50MHz/SYSPER4, not a speedup.**
+The ordinary-instruction ceiling remains6.25M/s before waits; target16.667M/s.
+Last QUALIFIED Cedar login measurement remains MC1668's1,947,686.01 issues/s.
+Do not compare a Mesa trap loop with that pinned login workload. New core
+Cedar desktop/input and release acceptance have not passed.
+
+First attempt: Main15708/server15703, same21e67a3f/c5996249 binaries and policies,
+fresh f3bce2a8 seed. Original USB C/three CoolBoot pushes produce TWO BFN113
+requests; C and all chord keys were released. The daemon's live counters show
+2 requests/126 queued microcode replies, last offset0113; FPGA receive observer
+shows132 received/126 consumed, last wire/CPU status0. TX good2, CRC/RX/abort/
+drop0. `FTP_UNSERVED type264` is a PRELIMINARY log before the downstream boot
+handler, not proof of no response. Leave services unchanged while debugging.
+
+128 passive PC snapshots through Main show task0 in SPCIL0 (342/346), XFERMD,
+MTRAP, ZERODEST and SaveRTemp1AndTrap; Junk/cursor/display tasks also run. This
+establishes running Cedar microcode, not a loaded/interactive software world.
+The display remains uninitialized. A passive copy of Main's buffered trace
+finds1195 records,0 dropped and three read/ack pairs: offset0,233984,311808,
+15872bytes each. ACKs follow in3.462/3.162/3.168ms. No writes/errors. The on-disk
+trace ended at preload because Main buffers events until worker I/O/barriers;
+absence from that file alone did NOT prove no guest disk requests. The debugger
+copy changes no cache/guest state and does not force a trace flush. Debugger
+poll gaps are observational disturbances, not cache latency measurements.
+
+The diagnosed first attempt is retired through Main's normal loader barriers.
+Its CLOSED volume remains
+`/media/fat/games/DoradoRTL/CedarRFrontReady_20261021/cedar-work.pack`, still
+byte-identical to original f3bce2a8. Its preserved complete disk trace has3862
+records,0 gaps/errors and two transition barrier_ends; SHA
+fbf0632739d76c9d62fa0e3395b0731ca50a82b794c4dbfa5c3c340c802113bf.
+Files `disk-through-rfront-ready-boot2-load.jsonl`,
+`main-through-rfront-ready-boot2-load.log`, `preservation-before-rfront-ready-boot2.json`
+are beside it. No clean guest shutdown, filesystem-integrity or snapshot claim.
+The earlier MC1668 mutated pack is ALSO preserved in its original directory;
+that earlier historical trace has one documented gap, no transition gaps.
+
+Repeat setup initially used an overlong launcher name. Main truncated it to
+`DoradoCedarRFrontReady_Boot2_20`, missed the full-name INI section and re-execed
+stock Main16708 (adeae62b). Driver correctly stopped when temporary custom
+Main16705 disappeared. Authoritative process/log inspection identified the
+re-exec; stock Main was stopped normally, no pack descriptors remained, and
+the original seed hash verified. The name is now `DoradoRFrontB2_20261021`.
+The resume driver continues that stopped boundary without another FPGA load.
+Record this setup interruption; do not count it as a successful fresh boot.
+
+**Live repeat:** custom Main16808/server16807, same approved binaries/RBF,
+new original seed in `CedarRFrontReady_Boot2_20261021`. Logs:
+`/tmp/dorado-rfront-ready-boot2-main.log`,
+`/tmp/dorado-rfront-ready-boot2-disk.jsonl`, and that volume's `server.log`.
+`deployment.json`/`preparation.json`/`reboot-resume.json` bind the current paths.
+Normal capability has fresh epoch words6614/47110/22414/2726, flags22,
+fault/control errors0. Main remains sole SPI owner. Display enable/disable
+workaround applied through its OWN functions; instruction debug view1 selected.
+The C watcher completed on a NEW BFN113 and released C; all three USB boot
+pushes completed with chord keys up. The repeat again sends TWO BFN113s,
+then128 new passive samples show the SAME task0 SPCIL0/XFERMD/MTRAP loop.
+Its buffered trace has262 records/0 drops, the same three read/ack pairs,
+3.996/3.162/3.168ms, no writes/errors. Actual HDMI is still uninitialized.
+This reproduces the startup failure; leave this core available for diagnosis.
+Current instruction debug view is1; CPU log words are counters in that view.
+
+Local field work: `build/rtl-executive/r-front-ready-native-field-20261021/`.
+Startup receipts include exact executed deploy helpers, guarded Main GDB
+scripts,128 CPU samples, passive trace RAM copy and lossless live log prefixes.
+`boot2/startup/` includes the failed loader/resume logs and short-name fix.
+
+The FIRST matched Ethernet-only CONTROL is terminal FAILED at170M samples:
+all3600 IM+256 IFUM items differ, Cedar entry238 never executes. Its Initial
+ROM gate still passes (15 task initializations/all6 error sources). This
+rejects the extended generic-DskEth receive fixture, not the new RTL. Candidate
+77894 also finishes with the identical3856 mismatches/entry not reached; both
+Ethernet-only jobs are terminal1 and their PIDs absent. Full logs and
+commands: `r-front-ready-ether-handoff[-control]-v1-20261021`.
+
+The two generic-I/O Pilot runs were deliberately stopped with verified-command
+SIGTERM after this control failure (test PIDs79825/79870; both terminal-15).
+The inherited frozen bench did not support today's runtime-limit option;
+setting its limit file was ineffective. That control gap is now fixed in the
+actual prepared bench. V2 then correctly fails compilation because shared
+native cell definitions were missing; its errors/source are retained.
+
+**Corrected V3 simulations are RUNNING:** control85741, candidate86221,
+`r-front-ready-pilot[-control]-v3-20261021/run-state.json`. Both compile and
+source readback pass. Both now use the SAME exact deployed DskEth board and
+all shared native cell helpers, state administration inactive,10-word Pilot
+labels, original f3bce2a8 pack/response stream, passive RX/germ/trap observers,
+and an explicit prepared-bench runtime-limit control. Inspect actual handles
+before calling them terminal; do not restart on an observation timeout.
+RX traces show the initial broadcast's status0020 followed by good0000
+microcode-frame statuses. Do not infer globally broken wire CRC from that
+first frame. Inspect original receive sequence/filter/RAM behavior next.
+They inherit direct-ROM-entry/display fixture setup and omit native
+BaseBoard/SDRAM/ARM services, so they cannot qualify a hardware boot. No C
+state or host guest-instruction/IOCB completion is involved.
+
+Receipt: [two failed hardware boots and matched diagnostic inputs](../fpga/mister/reports/2026-10-21-r-front-ready-field-diagnostic/README.md).
+971 members/36,714,889 raw bytes/10,011,817 stored bytes verify losslessly.
+V3 logs in that receipt are bounded RUNNING prefixes; actual current process
+state must be rechecked. Their complete frozen inputs are included; executables,
+FPGA images and active disk packs are excluded.
+
+Additional live control V5: PID90671 in
+`build/rtl-executive/r-front-ready-pilot-control-v5-20261021`, compile PASS,
+65M-sample limit, read-only register/map inspection at60M and first640 CPU
+Ethernet-read breadcrumbs. Existing inspector capability is verified in the
+prepared bench. Only bench/observer-helper inputs differ from archived V3;
+all remaining inputs compare identical. V4 stopped during PREPARATION because
+a capability assertion checked top-module text instead of bench text; no
+compile/run occurred. Both the failed helper and corrected compiled extension
+are preserved under the field receipt's `inspection/`, with actual live PID/
+command/binary SHA. Finish V5 and inspect sequence/filter/packet-buffer state
+before taking another diagnostic branch.
+
+Next: finish the corrected matched receive/germ diagnostics and compare the
+first changed storage/producer behavior against the preserved hardware loop. Find the first changed storage/producer behavior
+before accelerating clocks. Then qualify Cedar/input at the same clock and
+resume60ns migration, authentic rollback and final persistence/three-boot/2h
+gates. Full FPGA snapshots remain deferred; goal ACTIVE.
+
+### Native Ready/front full build PASS, predeployment history (2026-10-21 UTC)
 
 Full native review now PASSES:31 timing summaries,196 existing targeted reports
 plus136 central-Q reports across four conditions; minimum slack+0.118ns.
@@ -90,8 +215,9 @@ Assembly driver201198/assembler201199 exit0. Image:
 `57a552aff6fd0131f307a25ee75316c56b4c4da9118a437d2c9c17b0172dfd21`.
 At02:58:26UTC it is hash-verified on14 in
 `/media/fat/games/DoradoRTL/RFrontReadyBuild_20261021/` with qualification,
-assembly identity and eleven controls. NOT LOADED; Main3486/server3485 still
-run MC1668. No new hardware speed measurement or Cedar qualification yet.
+assembly identity and eleven controls. At that PREDEPLOYMENT boundary it was
+not loaded and Main3486/server3485 still ran MC1668; the field section above
+supersedes those process identities. No new hardware speed measurement or Cedar qualification yet.
 The preassembly qualification includes the RBF's source/timing identity;
 `assembly-state.json` binds its exact qualification SHA to the RBF SHA.
 
@@ -103,7 +229,8 @@ RBF15730f44/Main21e67a3f/serverc5996249 identities remain; good3395/dropped33,
 CRC/RX/abort0. No reset, active pack copy or cold-persistence claim. All scripted
 keys are up. Keep the old mutated pack through Main's real loader barriers.
 
-Next: adapt the prior normal MC1668 loader for current3486/3485, preserve the
+Predeployment next step (now executed; see field section): adapt the prior
+normal MC1668 loader for3486/3485, preserve the
 closed old volume/trace, reclaim only verified closed old `/tmp` logs if needed
 (22MiB free before transition), and boot a fresh f3bce2a8 seed with the new image.
 Main/server binaries and policies stay unchanged. Startup helpers are in

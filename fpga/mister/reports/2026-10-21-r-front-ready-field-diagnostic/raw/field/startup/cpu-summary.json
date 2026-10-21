@@ -1,0 +1,342 @@
+{
+  "samples": 128,
+  "hold_samples": 41,
+  "status": {
+    "47ea": 36,
+    "472a": 71,
+    "472f": 15,
+    "47ef": 6
+  },
+  "pc_counts": [
+    {
+      "task": 0,
+      "cia": "346",
+      "tpc": "346",
+      "samples": 17
+    },
+    {
+      "task": 0,
+      "cia": "342",
+      "tpc": "342",
+      "samples": 9
+    },
+    {
+      "task": 0,
+      "cia": "3c5",
+      "tpc": "3cd",
+      "samples": 6
+    },
+    {
+      "task": 0,
+      "cia": "402",
+      "tpc": "342",
+      "samples": 6
+    },
+    {
+      "task": 0,
+      "cia": "3cd",
+      "tpc": "3c6",
+      "samples": 4
+    },
+    {
+      "task": 0,
+      "cia": "401",
+      "tpc": "413",
+      "samples": 4
+    },
+    {
+      "task": 0,
+      "cia": "221",
+      "tpc": "402",
+      "samples": 4
+    },
+    {
+      "task": 11,
+      "cia": "c02",
+      "tpc": "c02",
+      "samples": 4
+    },
+    {
+      "task": 0,
+      "cia": "216",
+      "tpc": "216",
+      "samples": 4
+    },
+    {
+      "task": 0,
+      "cia": "342",
+      "tpc": "346",
+      "samples": 4
+    },
+    {
+      "task": 0,
+      "cia": "229",
+      "tpc": "229",
+      "samples": 3
+    },
+    {
+      "task": 0,
+      "cia": "346",
+      "tpc": "c02",
+      "samples": 3
+    },
+    {
+      "task": 0,
+      "cia": "3c9",
+      "tpc": "3c9",
+      "samples": 3
+    },
+    {
+      "task": 0,
+      "cia": "216",
+      "tpc": "229",
+      "samples": 3
+    },
+    {
+      "task": 2,
+      "cia": "d86",
+      "tpc": "229",
+      "samples": 3
+    },
+    {
+      "task": 0,
+      "cia": "380",
+      "tpc": "401",
+      "samples": 2
+    },
+    {
+      "task": 0,
+      "cia": "3c9",
+      "tpc": "3c5",
+      "samples": 2
+    },
+    {
+      "task": 3,
+      "cia": "9de",
+      "tpc": "488",
+      "samples": 2
+    },
+    {
+      "task": 11,
+      "cia": "c02",
+      "tpc": "216",
+      "samples": 2
+    },
+    {
+      "task": 0,
+      "cia": "412",
+      "tpc": "400",
+      "samples": 2
+    },
+    {
+      "task": 0,
+      "cia": "412",
+      "tpc": "412",
+      "samples": 2
+    },
+    {
+      "task": 2,
+      "cia": "d86",
+      "tpc": "412",
+      "samples": 2
+    },
+    {
+      "task": 3,
+      "cia": "9cd",
+      "tpc": "d89",
+      "samples": 2
+    },
+    {
+      "task": 0,
+      "cia": "413",
+      "tpc": "413",
+      "samples": 2
+    },
+    {
+      "task": 3,
+      "cia": "9f3",
+      "tpc": "9f2",
+      "samples": 2
+    },
+    {
+      "task": 0,
+      "cia": "3c0",
+      "tpc": "216",
+      "samples": 2
+    },
+    {
+      "task": 0,
+      "cia": "402",
+      "tpc": "402",
+      "samples": 1
+    },
+    {
+      "task": 3,
+      "cia": "9e4",
+      "tpc": "9cd",
+      "samples": 1
+    },
+    {
+      "task": 2,
+      "cia": "d86",
+      "tpc": "400",
+      "samples": 1
+    },
+    {
+      "task": 0,
+      "cia": "341",
+      "tpc": "c02",
+      "samples": 1
+    },
+    {
+      "task": 3,
+      "cia": "5a6",
+      "tpc": "c0e",
+      "samples": 1
+    },
+    {
+      "task": 3,
+      "cia": "488",
+      "tpc": "4bf",
+      "samples": 1
+    },
+    {
+      "task": 3,
+      "cia": "589",
+      "tpc": "581",
+      "samples": 1
+    },
+    {
+      "task": 11,
+      "cia": "c02",
+      "tpc": "229",
+      "samples": 1
+    },
+    {
+      "task": 0,
+      "cia": "341",
+      "tpc": "341",
+      "samples": 1
+    },
+    {
+      "task": 11,
+      "cia": "c02",
+      "tpc": "346",
+      "samples": 1
+    },
+    {
+      "task": 0,
+      "cia": "346",
+      "tpc": "341",
+      "samples": 1
+    },
+    {
+      "task": 0,
+      "cia": "3cd",
+      "tpc": "3cd",
+      "samples": 1
+    },
+    {
+      "task": 11,
+      "cia": "c0e",
+      "tpc": "48c",
+      "samples": 1
+    },
+    {
+      "task": 11,
+      "cia": "c0e",
+      "tpc": "402",
+      "samples": 1
+    },
+    {
+      "task": 0,
+      "cia": "221",
+      "tpc": "221",
+      "samples": 1
+    },
+    {
+      "task": 11,
+      "cia": "c02",
+      "tpc": "3c6",
+      "samples": 1
+    },
+    {
+      "task": 0,
+      "cia": "380",
+      "tpc": "380",
+      "samples": 1
+    },
+    {
+      "task": 2,
+      "cia": "d8b",
+      "tpc": "d89",
+      "samples": 1
+    },
+    {
+      "task": 3,
+      "cia": "581",
+      "tpc": "580",
+      "samples": 1
+    },
+    {
+      "task": 0,
+      "cia": "229",
+      "tpc": "c02",
+      "samples": 1
+    },
+    {
+      "task": 11,
+      "cia": "c04",
+      "tpc": "c17",
+      "samples": 1
+    },
+    {
+      "task": 0,
+      "cia": "3c0",
+      "tpc": "3c0",
+      "samples": 1
+    },
+    {
+      "task": 11,
+      "cia": "c0e",
+      "tpc": "9d4",
+      "samples": 1
+    },
+    {
+      "task": 2,
+      "cia": "d86",
+      "tpc": "d9a",
+      "samples": 1
+    },
+    {
+      "task": 2,
+      "cia": "d86",
+      "tpc": "342",
+      "samples": 1
+    },
+    {
+      "task": 11,
+      "cia": "c0e",
+      "tpc": "216",
+      "samples": 1
+    },
+    {
+      "task": 0,
+      "cia": "3c6",
+      "tpc": "3c0",
+      "samples": 1
+    },
+    {
+      "task": 2,
+      "cia": "d9a",
+      "tpc": "c02",
+      "samples": 1
+    },
+    {
+      "task": 11,
+      "cia": "c0e",
+      "tpc": "346",
+      "samples": 1
+    }
+  ]
+}

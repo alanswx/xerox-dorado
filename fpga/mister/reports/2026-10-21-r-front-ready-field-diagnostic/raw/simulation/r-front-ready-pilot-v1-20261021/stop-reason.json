@@ -1,0 +1,7 @@
+{
+  "time": 1792554571.744158,
+  "reason": "Matched Ethernet-only control failed original IM/IFUM readback at170M, entry not reached. Generic DskEth receive fixture is inadequate; finish these component diagnostics at next million-cycle boundary. No hardware restart.",
+  "action": "Set existing runtime cycle limit to1; preserve final failed readback and all frozen inputs.",
+  "actual_action": "SIGTERM after exact live command verification: frozen parent bench lacks runtime-limit parser; limit option was ignored",
+  "stopped_pid": 79825
+}
