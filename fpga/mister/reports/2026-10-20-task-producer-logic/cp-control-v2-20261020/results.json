@@ -1,0 +1,687 @@
+{
+  "status": "PASS_CP_CONTROL_PRODUCERS",
+  "scope": "Compare original ContA CP decoder/control storage with explicit event RTL.\n\nAll 12 physical Qs, including unwired-output stages, are compared after every\nCP event. Original wiring and delayed event-driven FFs are independent of the\ncandidate equations. This is CP-bus component qualification, not native clock\nintegration, task-producer closure, metastability/skew or 60ns board proof.\n",
+  "inputs": {
+    "verilog/rtl/dorado_cp_control_step.sv": "3ec58b7149731b90d69e6311729f19cc72c0199b5da9150f14ea649c74203dec",
+    "tools/test_cp_control.py": "e46b2b52fc82b3c194f8382936437daeb3692bfa7b38cb1656c7856da578a05d",
+    "tools/generate_processor_capture_reference.py": "f8a75e6ffc0ea66141685378d05da3acaa47b1b89fa29255c4cb804f241b9b6d",
+    "tools/generate_control_clock_reference.py": "c5255000f877c5e66940e94c9c74167a0d02e1947bd0e3be03b5fccc2b8e5b0f",
+    "tools/generate_run_control_reference.py": "658d092df35b6f98b6c341b63911d50f96fbaf96829046acb230bdda038b22e6",
+    "tools/sil_netlist.py": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1",
+    "verilog/cells/cell_MC10161.v": "816c7d2eb044c210d256c32ce1f4215a988e312d02df81b527d6ba001795788b",
+    "verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "verilog/verilator/run_control_original_ff.sv": "7bcadd4fe8c5aa82781fa21ba3694fadba3f6c186870008506226d9e79ebb2a9",
+    "chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.wl": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+    "chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.lc": "2cbfb904a6a6de0fde3afe2cd43c5162a3fe8cdc14dab87785acf2da773cc58d",
+    "chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.wl": "ca1a3acdc926f56f6da5ebceb46209bf45473b5ddcf102860358813dfdcd6152",
+    "tb_cp_control.sv": "626a90411cc07cb2f8110c6cec263a5f2444889e89f18ac42b9c501c7055f5b5"
+  },
+  "reference": {
+    "board": "ContA-Rev-Cd",
+    "packages": {
+      "a01": "MC10161",
+      "i02": "MC10176",
+      "j02": "MC10176"
+    },
+    "sequential": {
+      "j02": [
+        0,
+        6
+      ],
+      "i02": [
+        6,
+        6
+      ]
+    },
+    "physical_bits": 12,
+    "original_pins": 29,
+    "boundary_bindings": {
+      "CPStrb'": "pins[10]",
+      "CPAddr.0'": "pins[9]",
+      "CPAddr.1'": "pins[8]",
+      "CPAddr.2'": "pins[7]",
+      "CPOut.1": "pins[0]",
+      "CPOut.2": "pins[1]",
+      "CPOut.3": "pins[2]",
+      "CPOut.4": "pins[3]",
+      "CPOut.5": "pins[4]",
+      "CPOut.6": "pins[5]",
+      "CPOut.7": "pins[6]"
+    },
+    "clock_taps": [
+      "CPStrb0'",
+      "CPStrb1'"
+    ],
+    "flag_taps": [
+      "@j02.state_q[0]",
+      "@j02.state_q[1]",
+      "@j02.state_q[2]",
+      "@j02.state_q[3]",
+      "@j02.state_q[4]",
+      "@j02.state_q[5]",
+      "@i02.state_q[0]",
+      "@i02.state_q[1]",
+      "@i02.state_q[2]",
+      "@i02.state_q[3]",
+      "@i02.state_q[4]",
+      "@i02.state_q[5]"
+    ],
+    "source_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+    "combinational_sources": [
+      "verilog/cells/cell_MC10161.v"
+    ]
+  },
+  "profiles": [
+    {
+      "profile": "balanced",
+      "gate_delay_ps": 1000,
+      "ff_delay_ps": 1000,
+      "summary": "checks=4113 clock0=129 clock1=129 changed=fff addresses=ff",
+      "timed_source_hashes": {
+        "cell_MC10161.v": "c3c04e0d6e1757a66afe2a58c77e945fb5c33446236d2c9ac58a2dead5c9da78",
+        "run_control_original_ff.sv": "d00e06cd4ac75ed03de2f9a7ff888a875ab0b9d87eac9634b2f32a3aecd09f2f"
+      }
+    },
+    {
+      "profile": "fast_decode",
+      "gate_delay_ps": 500,
+      "ff_delay_ps": 1000,
+      "summary": "checks=4113 clock0=129 clock1=129 changed=fff addresses=ff",
+      "timed_source_hashes": {
+        "cell_MC10161.v": "a20b096e90ebc67b380023fd07fb389f70819b742fd3d3b50a01baab67bfa85a",
+        "run_control_original_ff.sv": "d00e06cd4ac75ed03de2f9a7ff888a875ab0b9d87eac9634b2f32a3aecd09f2f"
+      }
+    },
+    {
+      "profile": "late_capture",
+      "gate_delay_ps": 1000,
+      "ff_delay_ps": 2000,
+      "summary": "checks=4113 clock0=129 clock1=129 changed=fff addresses=ff",
+      "timed_source_hashes": {
+        "cell_MC10161.v": "c3c04e0d6e1757a66afe2a58c77e945fb5c33446236d2c9ac58a2dead5c9da78",
+        "run_control_original_ff.sv": "5dfd5e1608e0330d5897d662a30b298ab3da5fa4d88d98588fcdd7d863e567cd"
+      }
+    }
+  ],
+  "summary": "checks=4113 clock0=129 clock1=129 changed=fff addresses=ff",
+  "actions": [
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_cp_control",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/reference/cp_control_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/tb_cp_control.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_cp_control",
+        "-Wno-fatal",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/reference/cp_control_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/tb_cp_control.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/verilator-compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/verilator-test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_cp_control",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/wrong_bank_select/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/wrong_bank_select/candidate.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/reference/cp_control_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/tb_cp_control.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/wrong_bank_select/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/wrong_bank_select/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/wrong_bank_select/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_cp_control",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/active_high_decode/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/active_high_decode/candidate.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/reference/cp_control_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/tb_cp_control.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/active_high_decode/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/active_high_decode/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/active_high_decode/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_cp_control",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/falling_capture/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/falling_capture/candidate.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/reference/cp_control_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/tb_cp_control.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/falling_capture/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/falling_capture/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/falling_capture/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_cp_control",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/swap_banks/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/swap_banks/candidate.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/reference/cp_control_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/tb_cp_control.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/swap_banks/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/swap_banks/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/swap_banks/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_cp_control",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/ignore_strobe/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/ignore_strobe/candidate.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/reference/cp_control_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/tb_cp_control.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/ignore_strobe/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/ignore_strobe/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/ignore_strobe/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_cp_control",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/wrong_data/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/wrong_data/candidate.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/reference/cp_control_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/tb_cp_control.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/wrong_data/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/wrong_data/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/wrong_data/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_cp_control",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/invented_unused_data/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/invented_unused_data/candidate.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/reference/cp_control_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/tb_cp_control.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/invented_unused_data/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/invented_unused_data/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/balanced/invented_unused_data/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_cp_control",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/fast_decode/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/reference/cp_control_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/fast_decode/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/fast_decode/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/tb_cp_control.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/fast_decode/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/fast_decode/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/fast_decode/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_cp_control",
+        "-Wno-fatal",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/fast_decode/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/reference/cp_control_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/fast_decode/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/fast_decode/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/tb_cp_control.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/fast_decode/verilator-compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/fast_decode/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/fast_decode/verilator-test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_cp_control",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/late_capture/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/reference/cp_control_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/late_capture/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/late_capture/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/tb_cp_control.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/late_capture/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/late_capture/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/late_capture/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_cp_control",
+        "-Wno-fatal",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/late_capture/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/reference/cp_control_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/late_capture/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/late_capture/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/executed-inputs/tb_cp_control.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/late_capture/verilator-compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/late_capture/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-control-v2-20261020/late_capture/verilator-test.log"
+    }
+  ],
+  "backplane_seams": [
+    {
+      "net": "CPStrb'",
+      "conta_connector": [
+        "C89"
+      ],
+      "baseboard_connector": [
+        "C89"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "f02",
+          "pin": 12,
+          "dir": "out",
+          "xy": [
+            205,
+            52
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPAddr.0'",
+      "conta_connector": [
+        "C92"
+      ],
+      "baseboard_connector": [
+        "C92"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "f01",
+          "pin": 12,
+          "dir": "out",
+          "xy": [
+            205,
+            28
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPAddr.1'",
+      "conta_connector": [
+        "C93"
+      ],
+      "baseboard_connector": [
+        "C93"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "f01",
+          "pin": 3,
+          "dir": "out",
+          "xy": [
+            213,
+            16
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPAddr.2'",
+      "conta_connector": [
+        "C96"
+      ],
+      "baseboard_connector": [
+        "C96"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "f01",
+          "pin": 4,
+          "dir": "out",
+          "xy": [
+            209,
+            16
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.1",
+      "conta_connector": [
+        "C72"
+      ],
+      "baseboard_connector": [
+        "C72"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g01",
+          "pin": 15,
+          "dir": "out",
+          "xy": [
+            280,
+            28
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.2",
+      "conta_connector": [
+        "C73"
+      ],
+      "baseboard_connector": [
+        "C73"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g01",
+          "pin": 1,
+          "dir": "out",
+          "xy": [
+            284,
+            16
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.3",
+      "conta_connector": [
+        "C76"
+      ],
+      "baseboard_connector": [
+        "C76"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g01",
+          "pin": 2,
+          "dir": "out",
+          "xy": [
+            280,
+            16
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.4",
+      "conta_connector": [
+        "C77"
+      ],
+      "baseboard_connector": [
+        "C77"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g02",
+          "pin": 14,
+          "dir": "out",
+          "xy": [
+            276,
+            52
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.5",
+      "conta_connector": [
+        "C80"
+      ],
+      "baseboard_connector": [
+        "C80"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g02",
+          "pin": 15,
+          "dir": "out",
+          "xy": [
+            280,
+            52
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.6",
+      "conta_connector": [
+        "C81"
+      ],
+      "baseboard_connector": [
+        "C81"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g02",
+          "pin": 1,
+          "dir": "out",
+          "xy": [
+            284,
+            40
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.7",
+      "conta_connector": [
+        "C84"
+      ],
+      "baseboard_connector": [
+        "C84"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g02",
+          "pin": 2,
+          "dir": "out",
+          "xy": [
+            280,
+            40
+          ],
+          "type": "MC10124"
+        }
+      ]
+    }
+  ],
+  "rejected_mutations": [
+    "wrong_bank_select",
+    "active_high_decode",
+    "falling_capture",
+    "swap_banks",
+    "ignore_strobe",
+    "wrong_data",
+    "invented_unused_data"
+  ],
+  "native_integrated": false,
+  "full_task_producers_closed": false
+}

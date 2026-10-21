@@ -1,0 +1,21 @@
+{
+  "status": "TERMINAL_LOCAL_QUALIFICATION",
+  "accepted": {
+    "cp-control-v2-20261020": "PASS_CP_CONTROL_PRODUCERS",
+    "task-ready-v3-20261020": "PASS_TASK_READY_PRODUCERS",
+    "task-producers-v1-20261020": "PASS_COUPLED_TASK_PRODUCERS"
+  },
+  "development": {
+    "cp-control-v1-20261020": "passed with earlier direct-address fixture; replaced by v2 which sets data before changing active address",
+    "task-ready-v1-20261020": "terminal generator failure: two unrelated d08 input boundaries missing",
+    "task-ready-v2-20261020": "balanced Icarus/Verilator comparison passed; terminal mutation-control failure: invented_unused_bit changed overwritten bit0, corrected to physical d09 unused bit12 in v3"
+  },
+  "local_handles": {
+    "69726": "terminal exit0 CPv1",
+    "11931": "terminal exit0 CPv2",
+    "25388": "terminal exit1 Readyv2 mutation guard",
+    "57404": "terminal exit0 Readyv3",
+    "52541": "terminal exit0 coupled producers"
+  },
+  "native_changed": false
+}

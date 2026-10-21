@@ -161,3 +161,11 @@ hardware gates remain open.
 The accepted task/address data epoch and rejected first-capture trial are
 preserved in the [portable raw receipt](../fpga/mister/reports/2026-10-20-task-capture-epoch/README.md).
 Both timing reviews replay byte-identically from extracted sources/reports.
+
+Actual CP/Ready producer components now pass separately and coupled, including
+all three SetReady drivers and i02.Q3 asynchronous clear. Their28-Q component
+passes four-condition15ns timing, setup+5.640ns/hold+0.155ns. See the
+[producer receipt](../fpga/mister/reports/2026-10-20-task-producer-logic/README.md).
+They are not yet coupled to this736-Q front's arbiter/control graph. Its actual
+CP/MIR/phase/Hold/IFU producer timing remains unqualified; do not treat these
+separate fits as a complete native timing proof.

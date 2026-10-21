@@ -1,0 +1,290 @@
+{
+  "graph": {
+    "board": "ContA-Rev-Cd",
+    "packages": {
+      "a01": "MC10161",
+      "i02": "MC10176",
+      "j02": "MC10176"
+    },
+    "sequential": {
+      "j02": [
+        0,
+        6
+      ],
+      "i02": [
+        6,
+        6
+      ]
+    },
+    "physical_bits": 12,
+    "original_pins": 29,
+    "boundary_bindings": {
+      "CPStrb'": "pins[10]",
+      "CPAddr.0'": "pins[9]",
+      "CPAddr.1'": "pins[8]",
+      "CPAddr.2'": "pins[7]",
+      "CPOut.1": "pins[0]",
+      "CPOut.2": "pins[1]",
+      "CPOut.3": "pins[2]",
+      "CPOut.4": "pins[3]",
+      "CPOut.5": "pins[4]",
+      "CPOut.6": "pins[5]",
+      "CPOut.7": "pins[6]"
+    },
+    "clock_taps": [
+      "CPStrb0'",
+      "CPStrb1'"
+    ],
+    "flag_taps": [
+      "@j02.state_q[0]",
+      "@j02.state_q[1]",
+      "@j02.state_q[2]",
+      "@j02.state_q[3]",
+      "@j02.state_q[4]",
+      "@j02.state_q[5]",
+      "@i02.state_q[0]",
+      "@i02.state_q[1]",
+      "@i02.state_q[2]",
+      "@i02.state_q[3]",
+      "@i02.state_q[4]",
+      "@i02.state_q[5]"
+    ],
+    "source_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+    "combinational_sources": [
+      "verilog/cells/cell_MC10161.v"
+    ]
+  },
+  "backplane_seams": [
+    {
+      "net": "CPStrb'",
+      "conta_connector": [
+        "C89"
+      ],
+      "baseboard_connector": [
+        "C89"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "f02",
+          "pin": 12,
+          "dir": "out",
+          "xy": [
+            205,
+            52
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPAddr.0'",
+      "conta_connector": [
+        "C92"
+      ],
+      "baseboard_connector": [
+        "C92"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "f01",
+          "pin": 12,
+          "dir": "out",
+          "xy": [
+            205,
+            28
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPAddr.1'",
+      "conta_connector": [
+        "C93"
+      ],
+      "baseboard_connector": [
+        "C93"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "f01",
+          "pin": 3,
+          "dir": "out",
+          "xy": [
+            213,
+            16
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPAddr.2'",
+      "conta_connector": [
+        "C96"
+      ],
+      "baseboard_connector": [
+        "C96"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "f01",
+          "pin": 4,
+          "dir": "out",
+          "xy": [
+            209,
+            16
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.1",
+      "conta_connector": [
+        "C72"
+      ],
+      "baseboard_connector": [
+        "C72"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g01",
+          "pin": 15,
+          "dir": "out",
+          "xy": [
+            280,
+            28
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.2",
+      "conta_connector": [
+        "C73"
+      ],
+      "baseboard_connector": [
+        "C73"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g01",
+          "pin": 1,
+          "dir": "out",
+          "xy": [
+            284,
+            16
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.3",
+      "conta_connector": [
+        "C76"
+      ],
+      "baseboard_connector": [
+        "C76"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g01",
+          "pin": 2,
+          "dir": "out",
+          "xy": [
+            280,
+            16
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.4",
+      "conta_connector": [
+        "C77"
+      ],
+      "baseboard_connector": [
+        "C77"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g02",
+          "pin": 14,
+          "dir": "out",
+          "xy": [
+            276,
+            52
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.5",
+      "conta_connector": [
+        "C80"
+      ],
+      "baseboard_connector": [
+        "C80"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g02",
+          "pin": 15,
+          "dir": "out",
+          "xy": [
+            280,
+            52
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.6",
+      "conta_connector": [
+        "C81"
+      ],
+      "baseboard_connector": [
+        "C81"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g02",
+          "pin": 1,
+          "dir": "out",
+          "xy": [
+            284,
+            40
+          ],
+          "type": "MC10124"
+        }
+      ]
+    },
+    {
+      "net": "CPOut.7",
+      "conta_connector": [
+        "C84"
+      ],
+      "baseboard_connector": [
+        "C84"
+      ],
+      "baseboard_drivers": [
+        {
+          "pkg": "g02",
+          "pin": 2,
+          "dir": "out",
+          "xy": [
+            280,
+            40
+          ],
+          "type": "MC10124"
+        }
+      ]
+    }
+  ]
+}

@@ -57,6 +57,15 @@ preserves3,001 raw members with lossless readback/extraction and byte-identical
 replay of rejected v1 and passing v2 timing reviews. All45/47/87 accepted
 task/control/front frozen inputs were rechecked.
 
+Actual CP/Ready producer follow-up now also passes:12-Q CP,16-Q Ready and
+28-Q coupled original circuits, both simulators/three profiles at4113/98516/
+99470 events respectively,7/8/3 rejected bad variants. The coupled component
+passes four-condition15ns timing (+5.640ns setup/+0.155ns hold),126ALMs/205regs,
+no RAM/DSP/PLL. Actual ClrReady is internal; all three SetReady drivers remain.
+[Portable raw evidence](../fpga/mister/reports/2026-10-20-task-producer-logic/README.md)
+includes extracted replay. Next couple actual arbiter/control/MIR/phase/Hold/IFU
+sources before native integration. All jobs terminal; live speed unchanged.
+
 ### Milestones and acceptance
 
 | Milestone | Change | Evidence required to finish |

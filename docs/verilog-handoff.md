@@ -52,6 +52,46 @@ absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
 
+### Actual CP/Ready producer component PASS (2026-10-20)
+
+`dorado_cp_control_step.sv`, `dorado_task_ready_step.sv` and their coupled
+`dorado_task_producers_step.sv` now implement the real original maintenance
+registers, Ready storage, all three wired-OR SetReady drivers and IsNext
+decoders. CP is captured on the selected active-low strobe release. The
+combined circuit connects i02.Q3 to Ready asynchronous clear internally.
+All28 physical Qs/four clocks/30 functional outputs agree with one extracted
+18-package/201-pin reference after99,470 events/profile, BOTH simulators/three
+profiles.32798 Ready captures,128 CP0/190 CP1,314 clear/300 held observations.
+The separate CP/Ready gates pass4113/98516 events/profile, both/three; all
+7/8/3 bad CP/Ready/coupled RTL variants reject. Every physical Q changes.
+
+The coupled15ns fit is TERMINAL/PASS across four conditions: setup+5.640ns,
+hold+0.155ns,mpw+6.555ns;126ALMs/205registers,0RAM/DSP/PLL. All98 launch and66
+result interface bits remain in the fully constrained fixture, no timing
+exceptions. All nine damaged/rehashed reader controls reject; the previous
+rejected/accepted task/address reviews remain byte-identical and all17 front
+reader controls still reject. Builder73298/map73299/fit73466/sta74104/
+corners74168 are absent. All local simulations and this fit are terminal.
+
+Receipt: [CP/Ready raw logic and implementation](../fpga/mister/reports/2026-10-20-task-producer-logic/README.md).
+308 logic members plus1147 implementation members are losslessly archived,
+read back and extracted.13/15/24 accepted frozen inputs verify; extracted tools
+reproduce the timing review byte-identically. Full simulation was not rerun
+after extraction. Development Ready v1 stopped on two missing unrelated d08
+bindings. Ready v2 comparison passed but one ineffective mutation targeted an
+overwritten bit; v3 targets the actual unused d09 bit12 and rejects it.
+
+These are actual producer components, not yet the complete arbiter/control
+closure or native integration. The existing736-Q front still has its declared
+control constants; do not replace it until actual CP/MIR/phase/Hold/IFU
+coupling passes. Next connect Ready/IsNext with the original arbiter and close
+CP/controller effects, including GetTLink/tasking/WTPC. Preserve pre-event data
+and all three SetReady drivers. No FPGA/Main/server/volume operation occurred;
+last measured1,947,686.01issues/s remains the hardware figure. Target ordinary
+unstalled cadence is60ns/16.67million per second, not a claim about actual
+throughput under original memory/I/O waits. Speed, rollback and final gates
+remain open; goal ACTIVE.
+
 ### Task/address capture epoch and isolated15ns timing PASS (2026-10-20)
 
 Baseline94b229ed misses15ns by2.617ns through task feedback/unsettled.

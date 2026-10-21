@@ -1,0 +1,23 @@
+{
+  "scope": "Fit the qualified coupled CP/Ready producers in the isolated 15ns shell.\n\nNo assembly or deployment. This checks a component implementation budget;\nphase/MIR/task/Hold arrivals and native Dorado timing remain unqualified.\nRun Quartus only on misterubuntu.\n",
+  "component": "task_producers",
+  "clock_period_ns": 15,
+  "input_staging_bits": 98,
+  "launch_bits": 98,
+  "result_bits": 66,
+  "files": {
+    "dorado_task_ready_step.sv": "451a444b3535d8a9007ba7ad46dd860c5d9f6a6056b84710b483bbbe3747c76f",
+    "fit_control_clock.py": "d3b04b7f9b8c745620001bf30be430b6fd0f46326f44e09179340ec010be6727",
+    "clock.sdc": "b46e34c5a34d0f5d5fbf199d3c0060292979aa69628b03599cc55019fdbffc52",
+    "top.sv": "41956d788f4a2e5d9a5d720825ed61d25cda935427cb90f5e982a68ffce6b7a2",
+    "fit_task_producers.py": "1a4dc6db6f8de0781fb62464633ba98035efc186912b5946c4072430fa98f1b1",
+    "clock_fit.qpf": "4930956ed5ce00ee6a40fb691fea958b90ee2e28fec7ef03685661e6a7392484",
+    "audit.tcl": "64aea4243f893e5658768eacbbbf9a029c88ee27a0f35c7e83ae4419778208f7",
+    "clock_fit.qsf": "db4a68fa2e18256a1b0e56ebfcb4d85f439bff0b76c21f9562cdf3a10a676da9",
+    "dorado_task_producers_step.sv": "7df9209657bfbefdd2cd0863fec6ef66fd706f7a80632848895eadd14d0630a0",
+    "functional-gate.json": "650bfafda1722c14e37a84c408fc7c89099dcb9b829f5623238e4c368e1b1bfd",
+    "dorado_cp_control_step.sv": "580bfe23ae578908666e5a0cbe1e0ff91ebfa6a7faba241ea37134a45a026104"
+  },
+  "assembly_permitted": false,
+  "native_qualified": false
+}

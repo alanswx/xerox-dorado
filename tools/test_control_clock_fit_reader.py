@@ -22,6 +22,7 @@ def run(source, qualified, output):
     names=['wrong_dimensions','relaxed_period_rehashed','changed_evaluator_rehashed',
            'changed_dependency_rehashed','missing_corner','missing_evaluator','negative_setup','negative_evaluator']
     component=json.loads((source/'provenance.json').read_text()).get('component')
+    if component=='task_producers':names+=['changed_cp_dependency_rehashed']
     if component in ('r_storage','r_memory','r_front','r_front_functional'):
         names+=['missing_ram_bank','wrong_ram_width','wrong_ram_type','wrong_ram_init',
                 'wrong_ram_bits','wrong_ram_output_register','wrong_ram_collision_mode']
@@ -39,6 +40,8 @@ def run(source, qualified, output):
             evaluator=json.loads((d/'provenance.json').read_text())['component']
             target='dorado_'+evaluator+'_step.sv' if name.startswith('changed_evaluator') else 'dorado_task_capture_step.sv'
             if evaluator in ('r_front','r_front_functional')and name.startswith('changed_evaluator'):target='dorado_r_front_step.sv'
+            if evaluator=='task_producers'and name=='changed_dependency_rehashed':target='dorado_task_ready_step.sv'
+            if evaluator=='task_producers'and name=='changed_cp_dependency_rehashed':target='dorado_cp_control_step.sv'
             if name=='changed_generated_cone_rehashed':target='dorado_r_front_cone.sv'
             changed_input(d,target,lambda s:s+'\n// changed qualified source\n')
         elif name=='missing_corner':

@@ -1,0 +1,14 @@
+{
+  "status": "PASS_PORTABLE_PRODUCER_ARCHIVE_REPLAY",
+  "extracted_members": {
+    "logic": 308,
+    "implementation": 1147
+  },
+  "frozen_input_counts": {
+    "cp-control-v2-20261020": 13,
+    "task-ready-v3-20261020": 15,
+    "task-producers-v1-20261020": 24
+  },
+  "timing_review_byte_identical": true,
+  "simulation_rerun_after_extraction": false
+}
