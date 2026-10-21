@@ -57,7 +57,75 @@ absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
 
-### Operand diagnosis: corrected PC mapping and compiled observer (2026-10-21 UTC)
+### Current hardware diagnosis: original failed-boot breakpoint (2026-10-21 UTC)
+
+**The passive first-error observer is timing-reviewed, assembled and loaded on
+MiSTer14.** Main10661/server10660 use the unchanged21e67a3f/c5996249 binaries.
+RBF SHA `107c3874a59af2d33a6b817d515be8562778a94802633b19d0e2d373c4127b91`
+is `/media/fat/_Computer/DoradoRTL_CedarSDRAMBootFault2_20261021/Dorado.rbf`.
+Fresh volume: `/media/fat/games/DoradoRTL/CedarSDRAMBootFault2_20261021/`.
+Burst1 Main9242/server9241 have stopped; their closed pack remains seed-identical.
+The historical Burst1 identities below are superseded by these identities.
+
+The first captured error is CIA0xD44/TPC0xD76, task0, with BOTH IM-half parity
+flags and all six enables set. IO/RM/STK/T/memory/MD error flags are clear.
+The actual original EPROM's Boot1 breakpoint table includes0xD44; its BaseBoard
+loader deliberately marks both halves bad parity there. Its instruction branches
+to0xCD2, matching the stopped processor. This matches InitialMain.mc's
+`MicrocodeBootFailed: Breakpoint, Branch[BootEmulator]`. It establishes an
+intentional failed-boot stop; it does NOT distinguish packet acceptance, image
+checksum failure or raw-memory corruption. Do not call this random IM corruption.
+Private proof and actual hardware capture:
+`build/rtl-executive/boot-fault2-native-field-20261021/startup/rom-breakpoint-proof.json`
+and `first-error.json`. Static inspector: `tools/inspect_baseboard_breakpoints.py`.
+The embedded ROM build differs from standalone Initial.mb; use the actual ROM.
+
+Raw memory is still progressing while instruction issues stop. A Burst1 paired
+interval advances25,086,756 enabled fabric edges; a separate raw completion
+interval advances5,024,512. Another instruction interval advances24,228,698 host
+edges with ZERO new instruction issues/holds/cycles/clocks. Separate views have
+separate intervals. ReceiveC2BC/C2BD reports194 received and188/189 consumed
+EOPs modulo256, not word counts or proof of correct downloaded bytes.
+Private counter evidence:
+`build/rtl-executive/sdram-burst1-native-field-20261021/memory-stall/`.
+
+Observer build: all eight stages and guarded assembly terminal/pass,500 frozen
+sources;31 timing summaries,196 original/56 backend/8 observer categories over
+four conditions, minimum+0.115ns. All170 RAM rows/165 parameter tables preserve
+contracts. Fit30,944ALMs/53,346regs/332M10Ks/35DSP;82 observer registers.
+Ten damaged-evidence controls reject. Both simulators pass the observer component,
+three compiled runtime controls and1000 retention/live checks. V1's timescale
+warning failure is preserved. Actual marker pagesD0E1/D0E2 and selector restoration
+pass on hardware. Observer changes diagnostic wires/readout only; guest CPU,
+cache/map/ECC/backend/clocks/SDCs retain their functional source.
+Local terminal receipt:
+`build/rtl-executive/native-sdram-boot-fault-v2-20261021/terminal-v1/receipt/`.
+Portable943-member evidence archive (lossless readback passes):
+`fpga/mister/reports/2026-10-21-boot-fault-observer/`. It includes the reviewed
+fit, ten rejection controls, first-fault capture and original ROM/source proof.
+No new Cedar desktop or hardware speed gain is qualified. Last working Cedar
+login remains1,947,686.01 instruction issues/s; original target16,666,667/s.
+
+**Next diagnosis:** distinguish downloaded-data acceptance/checksum from actual
+raw-SDRAM data integrity. A pre-boot RTL address-pattern write/read test covering
+all eight raw memory boards is the proposed next hardware diagnostic, followed
+by the existing normal zero-fill. It is not implemented or qualified yet. Keep
+original firmware and guest state untouched; do not skip the breakpoint or import
+C-emulator state. Full-speed clocks, authentic FPGA Checkpoint/Rollback, cold
+persistence, repeated fresh boots and sustained operation remain open.
+
+**V38/V39 normal external boot-button input is terminal; firmware runs are not.**
+The original processes received three verified press/release pulses via only the
+bench's four-byte `boot_samples` scheduling counter, at step=0 with other observed
+fields unchanged. No CPU/IM/RAM/clock/cycle/IOCB writes. Candidate79583 events:
+970M/1000M,1040M/1070M,1100M/1130M host ticks; final input observation1170M.
+Control83509:840M/870M,900M/940M,970M/1000M; final input observation1040M.
+Both still show startup CPUd0fff000 in those observations; no Cedar request or
+first trap is established. Preserve their original binaries/models and read-only
+capture callbacks. Follow actual process/LLDB and `normal-input/input-state.json`;
+do not restart on a polling timeout. Diagnostic host budgets extend1.5B->3B;
+this does not advance guest time. The input-phase receipts are private and have
+not yet been archived with this observer milestone.
 
 **Raw BL8 candidate now timing-reviewed, assembled and loaded on MiSTer14.**
 This is the qualified MC1668 CPU/cache/map/ECC/clock parent with only the raw

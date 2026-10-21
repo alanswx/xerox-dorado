@@ -46,6 +46,8 @@ def run(args):
                    '--parent-qualification', str(args.parent_qualification.resolve()),
                    '--parent-reports', str(args.parent_reports.resolve()),
                    '--output', str(directory / 'must-not-qualify.json')]
+        if args.observer_component:
+            command += ['--observer-component', str(args.observer_component.resolve())]
         with (out / (label + '.log')).open('x') as log:
             p = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT)
             row = dict(case=label, pid=p.pid, command=command, started=time.time())
@@ -94,6 +96,25 @@ def run(args):
     assert value_old
     exercise('negative-original-SDRAM-hold', lambda p: replace(p / name_old, value_old[0], b'Worst case slack is -0.001'))
     exercise('missing-new-timing-corner', lambda p: (p / name).unlink(), 'FileNotFoundError')
+    if args.observer_component:
+        entry_observer = [line for line in mapping[mapping.index(b'; Analysis & Synthesis Source Files Read'):].split(b'\n\n', 1)[0].splitlines() if b'dorado_boot_fault_monitor.sv' in line]
+        assert len(entry_observer) == 1 and b'; yes ' in entry_observer[0]
+        exercise('observer-not-used-in-netlist', lambda p: replace(p / map_path, entry_observer[0], entry_observer[0].replace(b'; yes ', b'; no  ', 1)))
+        def swapped_pins(directory):
+            name = 'src/fpga/mister/snapshot_native/ContB_full_snapshot.sv'
+            path = directory / (name + '.gz')
+            replace(path, b'IOPE,RamPE,MemPE,MdPE,IMLHPEenable_p_', b'RamPE,IOPE,MemPE,MdPE,IMLHPEenable_p_')
+            path_manifest = directory / 'sdram-burst-native.json.gz'
+            r = json.loads(read(path_manifest))
+            r['source_hashes'][name] = hashlib.sha256(read(path)).hexdigest()
+            tmp = path_manifest.with_name('rehashed-observer.tmp')
+            tmp.write_bytes(gzip.compress(json.dumps(r).encode(), mtime=0))
+            os.replace(tmp, path_manifest)
+        exercise('observer-pins-swapped-rehashed', swapped_pins)
+        faults = sorted((original / 'core').glob('burst-first-fault-hold-*.rpt.gz'))
+        assert len(faults) == 4
+        fault_name = str(faults[0].relative_to(original))
+        exercise('missing-observer-timing-corner', lambda p: (p / fault_name).unlink(), 'FileNotFoundError')
     assert hashlib.sha256((original / 'archive-manifest.json.gz').read_bytes()).hexdigest() == manifest_hash
     for row in json.loads(gzip.decompress((original / 'archive-manifest.json.gz').read_bytes())):
         data = read(original / row['stored'])
@@ -107,4 +128,5 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     for name in ['root', 'parent', 'parent-qualification', 'parent-reports', 'output']:
         p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--observer-component', type=Path)
     run(p.parse_args())

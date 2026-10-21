@@ -28,12 +28,14 @@ def collect(project):
         raise RuntimeError('Recorded process still exists; observe ' + str(pid))
     record = json.loads((project / 'sdram-burst-native.json').read_text())
     actual = {n: sha((project / n).read_bytes()) for n in record['source_hashes']}
-    assert actual == record['source_hashes'] and len(actual) == 499
+    assert actual == record['source_hashes'] and len(actual) == (500 if record.get('passive_boot_fault_observer') else 499)
     check = dict(status='TERMINAL_NATIVE_BURST_INPUT_READBACK', actual=actual,
                  absent_pids=pids, assembly_collected=False)
     (project / 'collected-input-check.json').write_text(json.dumps(check, indent=2) + '\n')
     files = set(actual)
     for directory in [project, project / 'core', project / 'core/output_files', project / 'rejected-burst-review-v1']:
+        if not directory.exists():
+            continue
         files.update(str(p.relative_to(project)) for p in directory.iterdir()
                      if p.is_file() and p.suffix in ['.log', '.json', '.py', '.tcl', '.rpt', '.summary'])
     out = project / 'burst-terminal-receipt-v1'

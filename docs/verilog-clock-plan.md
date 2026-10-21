@@ -9,6 +9,34 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Current hardware: passive first-error observer loaded on MiSTer14, RBF107c3874,
+Main10661/server10660 with unchanged binaries. Full timing/memory/source review
+and guarded assembly pass (minimum+0.115ns); ten damaged-evidence controls reject.
+Actual first fault is CIA0xD44, both IM parity halves, matching a deliberate
+breakpoint in the ORIGINAL BaseBoard ROM table. The instruction branches to0xCD2,
+the observed stopped PC: Initial's failed-microcode-boot path. This is not proof
+of random IM corruption or SDRAM deadlock. Raw memory/fabric continue while
+instruction issues stop. Receive EOP totals do not prove downloaded data correct.
+
+Next: isolate download acceptance/checksum versus raw SDRAM data integrity.
+A pre-boot RTL full-address pattern test across all eight raw boards is proposed,
+not implemented. Preserve original firmware; no C-state import or guest-state
+patches. No new desktop or speedup is qualified. Last working Cedar login:
+1,947,686.01 instruction issues/s, about11.7% of the original16.67M/s target.
+Hardware rollback, cold persistence, repeated boots and sustained tests remain.
+Actual retained error/ROM proof and current build/field identities are in the
+[handoff](verilog-handoff.md#current-hardware-diagnosis-original-failed-boot-breakpoint-2026-10-21-utc).
+
+V38/V39 completed three normal boot-button pulses via only their bench input
+counter; final input observations1170M/1040M host ticks still show startup.
+No CPU/IM/RAM/clock/cycle/IOCB writes. Existing processes/models and read-only
+capture callbacks are preserved; diagnostic host limits extend to3B. Input
+completion is not firmware qualification. Continue the original runs to a
+meaningful boot result; do not restart on observation timeout.
+
+The paragraphs below retain earlier progress; hardware identities and diagnosis
+above supersede their live-status statements.
+
 Production-memory continuation: V38 is running on the Mac (driver79190,
 simulator79583), using exact V6 native CPU/boards/helpers/original EPROMs,
 full eight-board SDRAM and the independent physical chip model. SDRAM zero-fill
