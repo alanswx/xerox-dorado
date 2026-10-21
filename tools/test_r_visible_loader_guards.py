@@ -28,6 +28,8 @@ def fixture(path,change=None):
     if change:change(q,record,controls,proof)
     for name,data in [('qualification.json',q),('r-front-ready-native.json',record),('fit-review-controls.json',controls)]:
         (path/name).write_text(json.dumps(data))
+    if q.get('passive_operand_monitor'):
+        (path/'operand-source-review.json').write_text(json.dumps(q['operand_monitor_source_review']))
     if not proof['inputs']:proof['inputs']={'test-only/r-front-ready-native.json':sha(path/'r-front-ready-native.json')}
     (path/'component-image-handoff.json').write_text(json.dumps(proof))
     a=dict(status='TERMINAL_ASSEMBLED_REVIEWED_NATIVE_CANDIDATE',returncode=0,
@@ -49,6 +51,28 @@ def run():
                            ['video_pipeline_register_coverage','hold_margin_not_applied']]
         fixture(root/'video-margin-positive',current_revision)
         assert reviewed_image(root/'video-margin-positive',True)==sha(root/'video-margin-positive/Dorado.rbf')
+        def operand_revision(q,r,c,p):
+            current_revision(q,r,c,p)
+            q.update(passive_operand_monitor=True,operand_monitor_source_review={
+                'status':'PASS_OUTPUT_ONLY_OPERAND_MONITOR_SOURCE','compiled_top':'core/Dorado.sv'},
+                operand_monitor_compiled_sources={str(i):{}for i in range(5)})
+            c['cases'].append(dict(case='operand_source_proof',rejected=True))
+            c['cases'].append(dict(case='operand_compiled_source',rejected=True))
+            p.update(passive_operand_monitor=True,operand_pin_alias_checks={'image':6875000,'map':1750000},
+                     operand_readout_negative={'status':'PASS_SWAPPED_READOUT_REJECTED'})
+        fixture(root/'operand-positive',operand_revision)
+        assert reviewed_image(root/'operand-positive',True)==sha(root/'operand-positive/Dorado.rbf')
+        for name,damage in [
+            ('wrong_compiled_operand_top',lambda q,r,c,p:q['operand_monitor_source_review'].update(compiled_top='src/fpga/mister/Dorado.sv')),
+            ('missing_operand_control',lambda q,r,c,p:c['cases'][-1].update(case='other-control')),
+            ('missing_operand_alias_gate',lambda q,r,c,p:p.update(operand_pin_alias_checks={})),
+            ('unverified_operand_negative',lambda q,r,c,p:p['operand_readout_negative'].update(status='NOT_CHECKED'))]:
+            def change(q,r,c,p,damage=damage):
+                operand_revision(q,r,c,p);damage(q,r,c,p)
+            fixture(root/name,change)
+            try:reviewed_image(root/name,True)
+            except AssertionError:rejected.append(name)
+            else:raise AssertionError('Unsafe operand metadata accepted: '+name)
         for name,missing in [('missing_video_control','video_pipeline_register_coverage'),
                              ('missing_margin_control','hold_margin_not_applied')]:
             def change(q,r,c,p,missing=missing):

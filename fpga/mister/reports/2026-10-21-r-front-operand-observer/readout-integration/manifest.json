@@ -1,0 +1,22 @@
+{
+  "scope": "Actual top readout integration; no CPU/hardware qualification",
+  "files": {
+    "failed-preparation/actual-top-readout.svh": "0b6a12e6942653e98745fa275317ced698ae5e8c2049f6bef6e237287e86210d",
+    "failed-preparation/inputs/core/Dorado.qsf": "8ffd646207223c47709266eff499fce55e7b1f0582c5cd374aef89e57647ed6b",
+    "failed-preparation/inputs/core/Dorado.sv": "8e73970459fde2bc416c690f4021e9f57193b94a422b9ff9086ace85728a1974",
+    "failed-preparation/inputs/src/fpga/mister/dorado_ethernet_uio.sv": "0c6512a485420a7bc73b6b2e19a273ec6378d67983cfc3fcd4bb68f13b23d278",
+    "failed-preparation/positive-compile.log": "73609a962d8921c3597667fbc2d03cad488e7771a177dedb2153a301262b2275",
+    "failed-preparation/tb.sv": "cb2543b222b8c49d238a5171e51f75a0ded5d3e0ac6a8758cffa7d7834ce3cce",
+    "passing/actual-top-readout.svh": "0b6a12e6942653e98745fa275317ced698ae5e8c2049f6bef6e237287e86210d",
+    "passing/inputs/core/Dorado.qsf": "8ffd646207223c47709266eff499fce55e7b1f0582c5cd374aef89e57647ed6b",
+    "passing/inputs/core/Dorado.sv": "8e73970459fde2bc416c690f4021e9f57193b94a422b9ff9086ace85728a1974",
+    "passing/inputs/src/fpga/mister/dorado_ethernet_uio.sv": "0c6512a485420a7bc73b6b2e19a273ec6378d67983cfc3fcd4bb68f13b23d278",
+    "passing/negative-monitor-disabled-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "passing/negative-monitor-disabled.log": "0a0a1e61ba0a92f0923ad251c6a4c6679227826519dc7e332979ce2b5bfb8be8",
+    "passing/positive-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "passing/positive.log": "944aa027efd098e4e178f76b3d818b181b0163758dd93a3a54497886580a4ae3",
+    "passing/results.json": "69a94976f6d5c818b399a175e79d94e65f1f803b6e6af1487a351beeeff5f6b1",
+    "passing/tb.sv": "3d62ac4ae2e18f754ec0990dd882f7a3e4cb9487b1dadc499fc7ba95255c30a4",
+    "test_r_front_operand_uio.py": "dc7d35fa5f24a07820765a37f9f2205c164176741ca4ef126bd417e9b3e496e8"
+  }
+}

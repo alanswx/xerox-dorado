@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* -r ADDR: resolve a REAL IM address (as seen at runtime, post-MicroD
- * placement) to the nearest preceding source label + offset. Handles a
- * comma-separated list. Used to map runtime PC traces back to routines. */
+/* -r ADDR: undo MicroD placement before finding a preceding SOURCE label.
+ * Adjacent physical addresses can belong to unrelated routines. Handles a
+ * comma-separated list. Offsets below are in source image order. */
 static int resolve_real_addrs(const mb_file *mb, const char *list)
 {
     static dorado_microcode mc;
@@ -24,17 +24,28 @@ static int resolve_real_addrs(const mb_file *mb, const char *list)
             target = (int)strtol(tok + 2, NULL, 8);   /* 0o.. octal */
         else
             target = (int)strtol(tok, NULL, 0);        /* decimal/hex/leading-0 octal */
+        int image = -1;
+        for (int i = 0; i < IM_SIZE; i++)
+            if (mc.image_present[i] && mc.image_to_real[i] == target) {
+                image = i;
+                break;
+            }
+        if (image < 0) {
+            printf("real 0o%o (%d): <unplaced>\n", target, target);
+            continue;
+        }
         const char *name = NULL;
-        int at = target;
+        int at = image;
         for (; at >= 0; at--) {
-            name = dorado_microcode_symbol_at_real(&mc, at);
+            name = mb_lookup_symbol(mb, mb->im_id, at);
             if (name) break;
         }
         if (name)
-            printf("real 0o%o (%d): %s+0o%o\n",
-                   target, target, name, target - at);
+            printf("real 0o%o (%d), image 0o%o: %s+image0o%o (label real 0o%o)\n",
+                   target, target, image, name, image - at, mc.image_to_real[at]);
         else
-            printf("real 0o%o (%d): <no preceding label>\n", target, target);
+            printf("real 0o%o (%d), image 0o%o: <no preceding source label>\n",
+                   target, target, image);
     }
     return 0;
 }
@@ -126,6 +137,7 @@ static void usage(const char *prog)
             "  -m, --memory NAME   dump only the named memory (e.g. IM, RM)\n"
             "  -d, --disasm        also print symbolic decoding for IM entries\n"
             "  -y, --symbols       list every symbol (mem, addr, name)\n"
+            "  -r, --real ADDRS    resolve real PCs to source image labels/offsets\n"
             "  -h, --help          this help\n",
             prog);
 }

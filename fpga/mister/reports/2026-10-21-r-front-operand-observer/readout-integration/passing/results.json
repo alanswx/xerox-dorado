@@ -1,0 +1,40 @@
+{
+  "status": "PASS_ACTUAL_COMPILED_TOP_OPERAND_UIO_INTEGRATION",
+  "inputs": {
+    "core/Dorado.sv": "8e73970459fde2bc416c690f4021e9f57193b94a422b9ff9086ace85728a1974",
+    "core/Dorado.qsf": "8ffd646207223c47709266eff499fce55e7b1f0582c5cd374aef89e57647ed6b",
+    "src/fpga/mister/dorado_ethernet_uio.sv": "0c6512a485420a7bc73b6b2e19a273ec6378d67983cfc3fcd4bb68f13b23d278"
+  },
+  "qsf_defines": [
+    "DORADO_STORAGE_INPUT_DELAY=2",
+    "DORADO_NATIVE",
+    "DORADO_CONTROL_ERROR_MONITOR",
+    "DORADO_DISPLAY_FIELD",
+    "DORADO_HPS_PACK",
+    "DORADO_ETHERNET_HOST_PORT",
+    "DORADO_ETHERNET",
+    "DORADO_RX_MONITOR",
+    "DORADO_PACK_FAULT_MONITOR",
+    "DORADO_HOST_CLOCK_HZ=50000000",
+    "DORADO_F10415_M10K",
+    "DORADO_STORAGE_SDRAM",
+    "DORADO_F10145_LOGIC",
+    "DORADO_INSTRUCTION_MONITOR",
+    "DORADO_ETHERNET_DDR",
+    "DORADO_OPERAND_MONITOR"
+  ],
+  "observations": 20,
+  "command70_snapshot_atomic": true,
+  "disabled_monitor_negative_rejected": true,
+  "actions": [
+    {
+      "case": "positive",
+      "returncode": 0
+    },
+    {
+      "case": "negative-monitor-disabled",
+      "returncode": 1
+    }
+  ],
+  "hardware_qualified": false
+}

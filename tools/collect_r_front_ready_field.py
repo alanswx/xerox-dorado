@@ -16,9 +16,10 @@ from deploy_mc1668_native import MAIN, SERVER, sha,matches
 from deploy_r_front_ready_native import RBF,reviewed_image
 
 
-def collect(out, boot2=False,canonical=False):
+def collect(out, boot2=False,canonical=False,operand=False):
+    canonical=canonical or operand
     assert not(boot2 and canonical)
-    name=('CedarRVisible4_20261021'if canonical else
+    name=('CedarROperands6_20261021'if operand else'CedarRVisible4_20261021'if canonical else
           'CedarRFrontReady_Boot2_20261021'if boot2 else'CedarRFrontReady_20261021')
     base=Path('/media/fat/games/DoradoRTL')/name
     deployment=json.loads((base/'deployment.json').read_text())
@@ -40,7 +41,7 @@ def collect(out, boot2=False,canonical=False):
         with TemporaryDirectory(prefix='dorado-field-review-')as scratch:
             staging=Path(scratch)
             for item in ['qualification.json','assembly-state.json','fit-review-controls.json',
-                         'r-front-ready-native.json','component-image-handoff.json']:
+                         'r-front-ready-native.json','component-image-handoff.json']+(['operand-source-review.json']if operand else[]):
                 (staging/item).symlink_to(base/item)
             (staging/'Dorado.rbf').symlink_to(core)
             assert reviewed_image(staging,True)==expected_rbf
@@ -54,19 +55,21 @@ def collect(out, boot2=False,canonical=False):
                     Path(__file__).with_name('deploy_r_front_ready_native.py')]})
     sources=[base/n for n in ('deployment.json','preparation.json','reboot-resume.json')]
     sources += [Path(deployment['main_log']),Path(deployment['disk_trace']),base/'server.log']
-    sources += [base.parent/('CedarRFrontReady_Boot2_20261021/preservation-before-r-visible4.json'if canonical else
+    sources += [base.parent/('CedarRVisible4_20261021/preservation-before-r-operands6.json'if operand else
+                            'CedarRFrontReady_Boot2_20261021/preservation-before-r-visible4.json'if canonical else
                             'CedarRFrontReady_20261021/preservation-before-rfront-ready-boot2.json'if boot2 else
                             'CedarMC1668_20261020/preservation-before-rfront-ready.json')]
     if boot2 or canonical:
-        old=base.parent/('CedarRFrontReady_Boot2_20261021'if canonical else'CedarRFrontReady_20261021')
+        old=base.parent/('CedarRVisible4_20261021'if operand else'CedarRFrontReady_Boot2_20261021'if canonical else'CedarRFrontReady_20261021')
         proof=json.loads(sources[-1].read_text())
-        suffix='r-visible4'if canonical else'rfront-ready-boot2'
+        suffix='r-operands6'if operand else'r-visible4'if canonical else'rfront-ready-boot2'
         trace=old/('disk-through-'+suffix+'-load.jsonl')
         assert sha(trace)==proof['disk_trace_sha256']
         sources += [trace,old/('main-through-'+suffix+'-load.log')]
     if canonical:
         sources += [base/n for n in ['qualification.json','assembly-state.json','fit-review-controls.json',
                                     'r-front-ready-native.json','component-image-handoff.json']]
+    if operand:sources.append(base/'operand-source-review.json')
     for source in sources:
         with source.open('rb') as stream:
             limit=source.stat().st_size
@@ -92,4 +95,5 @@ if __name__=='__main__':
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--boot2',action='store_true')
     p.add_argument('--canonical-r',action='store_true')
-    a=p.parse_args();collect(a.output,a.boot2,a.canonical_r)
+    p.add_argument('--operand-monitor',action='store_true')
+    a=p.parse_args();collect(a.output,a.boot2,a.canonical_r,a.operand_monitor)

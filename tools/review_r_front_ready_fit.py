@@ -110,7 +110,8 @@ def initial_evidence(root,initial,record,additions,map_control=None):
         bp=raw(root/'src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v').decode()
         logic=bp.split('  // Physical state only;',1)[1].split('endmodule',1)[0]
         fixture=raw(initial/'executed-inputs/verilog/generated/dorado_full.v').decode()
-        assert logic in fixture,'Original Initial evaluator/owner wiring differs'
+        wiring=lambda text:'\n'.join(line for line in text.splitlines()if line.strip())
+        assert wiring(logic)in wiring(fixture),'Original Initial evaluator/owner wiring differs'
         from inspect_r_front_map_capture import inspect
         data_proof=inspect(map_control,initial)
         assert data_proof['RM_mismatches']==data_proof['map_row_mismatches']==0
@@ -151,10 +152,16 @@ def native_r_register_coverage(log):
     return dict(architectural_registers=16,physical_registers=physical_counts[0],replicas=physical_counts[0]-16)
 
 
-def review(root,candidate,baseline,initial,component,initial_map_control=None):
+def review(root,candidate,baseline,initial,component,initial_map_control=None,operand_parent=None):
     record=json.loads(raw(root/'r-front-ready-native.json'))
     expected=json.loads(raw(candidate/'r-front-ready-native.json'))
     assert record==expected,'Fitted candidate identity differs from tested candidate'
+    operand_source=None
+    if record.get('passive_operand_monitor'):
+        assert operand_parent is not None,'Output-only observer requires its independently qualified parent'
+        from stage_r_front_operand_monitor import verify,WRAPPER,TOP
+        operand_source=verify(operand_parent,candidate)
+        assert raw(root/'operand-source-review.json')==raw(candidate/'operand-source-review.json')
     assert record['state_admin']=='INACTIVE' and record['frequency_mhz']==50 and record['sysper']==4
     assert record['physical_bits']==752 and record['ram_bits']==9216
     for n,h in record['source_hashes'].items():
@@ -166,9 +173,11 @@ def review(root,candidate,baseline,initial,component,initial_map_control=None):
         if Path(n).suffix in ['.qsf','.qip','.qpf','.sdc','.tcl']:
             original=original.replace(old['project'].encode(),record['project'].encode())
         if original!=raw(root/n):changed.append(n)
-    assert set(changed)=={'core/Dorado.qsf',
+    allowed_changes={'core/Dorado.qsf',
         'src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v',
         *['src/fpga/mister/'+('snapshot_native_conta'if b=='ContA'else'snapshot_native_processor')+'/'+b+'_full_snapshot.sv'for b in ['ContA','ProcH','ProcL']]}
+    if operand_source:allowed_changes|={WRAPPER,TOP}
+    assert set(changed)==allowed_changes
     additions={'src/verilog/rtl/'+n for n in [*RTL,'dorado_r_front_cone.sv']}
     hold_margin=record.get('additional_hold_uncertainty_ps',0)
     assert hold_margin in(0,100)
@@ -184,8 +193,12 @@ def review(root,candidate,baseline,initial,component,initial_map_control=None):
     assignments=[l for l in tail.decode().splitlines()if l and not l.startswith('#')]
     expected_assignments=['set_global_assignment -name SYSTEMVERILOG_FILE '+record['project']+'/src/verilog/rtl/'+n for n in [*RTL,'dorado_r_front_cone.sv']]
     if hold_margin:expected_assignments+=['set_global_assignment -name SDC_FILE r-front-hold-margin.sdc']
+    if operand_source:expected_assignments+=['set_global_assignment -name VERILOG_MACRO DORADO_OPERAND_MONITOR']
     assert assignments==expected_assignments
     initial_proof=initial_evidence(root,initial,record,additions,initial_map_control)
+    if operand_source:
+        aliases=re.findall(r'OPERAND_MONITOR_PIN_ALIAS_PASS checks=(\d+)',raw(initial/'test.log').decode())
+        assert len(aliases)==1 and int(aliases[0])>100000
     state=json.loads(raw(root/'run-state.json'));central=json.loads(raw(root/'central-review-state.json'))
     assert state['status']=='TERMINAL_TIMING_OBSERVED_REVIEW_REQUIRED'
     assert [s['stage']for s in state['stages']]==['map','fit','sta','clocks','corners','control-crossings','contb-crossings','adapter-crossings']
@@ -200,6 +213,9 @@ def review(root,candidate,baseline,initial,component,initial_map_control=None):
     assert set(collected['absent_central_pids'])=={central['review_pid'],central['actions'][0]['pid']}
     core=root/'core';mapping=raw(core/'output_files/Dorado.map.rpt').decode()
     fitted=raw(core/'output_files/Dorado.fit.rpt').decode('latin-1')
+    if operand_source:
+        from stage_r_front_operand_monitor import compiled_sources
+        operand_compiled=compiled_sources(mapping,record,operand_source)
     mapped_names=set(ram_table(mapping,'Analysis & Synthesis RAM Summary'))
     video=video_register_mapping(root,candidate)if set(VIDEO_SHIFT_RAMS)-mapped_names else None
     meta=lambda b:json.loads(raw(root/'src/fpga/mister'/('snapshot_native_'+b)/'assets.json'))
@@ -276,12 +292,15 @@ def review(root,candidate,baseline,initial,component,initial_map_control=None):
         host_video_register_mapping=video,
         resources=resources,initial_component_enabled_samples=initial_proof['enabled_samples'],initial_component_evidence=initial_proof,
         minimum_slack_ns=min(p['slack_ns']for p in paths+extra),frequency_mhz=50,sysper=4,
-        state_admin='INACTIVE',assembly_review_only=True,firmware_qualified=False,hardware_speedup_claimed=False)
+        state_admin='INACTIVE',assembly_review_only=True,firmware_qualified=False,hardware_speedup_claimed=False,
+        **(dict(passive_operand_monitor=True,operand_monitor_source_review=operand_source,
+                operand_monitor_compiled_sources=operand_compiled)if operand_source else {}))
 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('root',type=Path)
     for n in ['candidate','baseline','initial','component','output']:p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--initial-map-control',type=Path)
-    a=p.parse_args();r=review(a.root,a.candidate,a.baseline,a.initial,a.component,a.initial_map_control)
+    p.add_argument('--operand-parent',type=Path)
+    a=p.parse_args();r=review(a.root,a.candidate,a.baseline,a.initial,a.component,a.initial_map_control,a.operand_parent)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(r['status'],r['minimum_slack_ns'],r['resources'])

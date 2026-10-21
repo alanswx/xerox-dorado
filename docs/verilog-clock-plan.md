@@ -9,6 +9,20 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+2026-10-21 continuation: the visible-R v4 FPGA boot still displays Pilot812.
+Inverse MicroD placement now resolves all sampled CIA239/23a/6c1/6c2 to
+`RequeueSearchSQ`; physical proximity to BootOrStart/MiniMixer was misleading.
+Output-only operand ports pass original-image/map and deliberately swapped-byte
+tests. Observer V5 was rejected before assembly because it patched an unused
+top copy. Corrected V6's actual `core/Dorado.sv` and all four board/wrapper files
+are confirmed used by synthesis; existing full fit/report jobs remain running.
+Require complete timing/memory review,19 damaged-evidence rejections and the
+live `d0d0bad0` diagnostic marker before trusting its operands. Main/daemon and
+the50MHz/SYSPER4 cadence are unchanged. Last measured qualified login remains
+1,947,686.01 issues/s; no speed gain claimed. See the current
+[handoff](verilog-handoff.md#operand-diagnosis-corrected-pc-mapping-and-compiled-observer-2026-10-21-utc)
+and [component/source receipt](../fpga/mister/reports/2026-10-21-r-front-operand-observer/README.md).
+
 Deliver a faster, correct Dorado on MiSTer that cold-boots the original
 firmware to Cedar's Viewers desktop and an interactive CommandTool. Use the
 confirmed 128 MB SDRAM module for bulk main memory, keep hot architectural

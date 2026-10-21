@@ -21,6 +21,7 @@ from deploy_mc1668_native import MAIN,SERVER,SEED,sha,matches,stopped
 
 OLD_RBF='15730f449bae786a3cee9ffa93d4bbc7de2e90083483f1a59cfd607c02af49a8'
 RBF='57a552aff6fd0131f307a25ee75316c56b4c4da9118a437d2c9c17b0172dfd21'
+VISIBLE4_RBF='7a90adb9ae15e96a6c6121751460e343a1aa7683126bb641b6c9dc97af353de4'
 
 
 def reviewed_image(staging,canonical=False):
@@ -38,7 +39,7 @@ def reviewed_image(staging,canonical=False):
     assert sha(staging/'qualification.json')==a['qualification_sha256']
     assert sha(staging/'fit-review-controls.json')==a['controls_sha256']
     assert controls['status']=='PASS_NATIVE_READY_FIT_READER_CONTROLS'
-    expected_controls=(15 if canonical else 11)+bool(q.get('host_video_register_mapping'))+bool(q.get('additional_hold_uncertainty_ps'))
+    expected_controls=(15 if canonical else 11)+bool(q.get('host_video_register_mapping'))+bool(q.get('additional_hold_uncertainty_ps'))+2*bool(q.get('passive_operand_monitor'))
     assert len(controls['cases'])==expected_controls and all(r['rejected']for r in controls['cases'])
     image_hash=sha(staging/'Dorado.rbf');assert image_hash==a['rbf_sha256']
     if canonical:
@@ -49,6 +50,13 @@ def reviewed_image(staging,canonical=False):
         assert record['native_visible_R_bits']==16 and record['evaluator_owned_Q_bits']==736
         assert record['internal_predicted_R_duplicate']is False
         proof=json.loads((staging/'component-image-handoff.json').read_text())
+        if q.get('passive_operand_monitor'):
+            assert proof['passive_operand_monitor']and len(proof['operand_pin_alias_checks'])==2
+            assert min(proof['operand_pin_alias_checks'].values())>100000
+            assert proof['operand_readout_negative']['status']=='PASS_SWAPPED_READOUT_REJECTED'
+            assert q['operand_monitor_source_review']==json.loads((staging/'operand-source-review.json').read_text())
+            assert q['operand_monitor_source_review']['compiled_top']=='core/Dorado.sv'
+            assert len(q['operand_monitor_compiled_sources'])==5
         assert proof['status']=='PASS_REPAIRED_NATIVE_COMPONENT_IMAGE_HANDOFF'
         assert proof['exact_staged_native_sources_verified']and proof['canonical_native_R']
         assert proof['original_IM_words_verified']==3600 and proof['original_IFUM_entries_verified']==256
@@ -57,6 +65,7 @@ def reviewed_image(staging,canonical=False):
         required={'native_R_mapbuf_hold','native_R_register_coverage','missing_native_R_mapbuf_hold','native_R_bit_identity'}
         if q.get('host_video_register_mapping'):required.add('video_pipeline_register_coverage')
         if q.get('additional_hold_uncertainty_ps'):required.add('hold_margin_not_applied')
+        if q.get('passive_operand_monitor'):required|={'operand_source_proof','operand_compiled_source'}
         assert len({r['case']for r in controls['cases']})==expected_controls
         assert required<={r['case']for r in controls['cases']}
     else:
@@ -85,17 +94,19 @@ def no_open(path):
         except(FileNotFoundError,PermissionError):continue
 
 
-def deploy(staging, repeat_boot2=False,canonical=False):
+def deploy(staging, repeat_boot2=False,canonical=False,operand=False):
+    canonical=canonical or operand
     assert not(repeat_boot2 and canonical)
     base=Path('/media/fat/games/DoradoRTL')
-    old=base/('CedarRFrontReady_Boot2_20261021'if canonical else
+    old=base/('CedarRVisible4_20261021'if operand else'CedarRFrontReady_Boot2_20261021'if canonical else
               'CedarRFrontReady_20261021'if repeat_boot2 else'CedarMC1668_20261020')
-    new=base/('CedarRVisible4_20261021'if canonical else
+    new=base/('CedarROperands6_20261021'if operand else'CedarRVisible4_20261021'if canonical else
               'CedarRFrontReady_Boot2_20261021'if repeat_boot2 else'CedarRFrontReady_20261021')
     oldcore=Path('/media/fat/_Computer')/('DoradoRTL_'+old.name)
     core=Path('/media/fat/_Computer')/('DoradoRTL_'+new.name)
     expected_rbf=reviewed_image(staging,canonical)
-    old_rbf=RBF if(repeat_boot2 or canonical)else OLD_RBF
+    if operand:assert json.loads((staging/'qualification.json').read_text())['passive_operand_monitor']
+    old_rbf=VISIBLE4_RBF if operand else RBF if(repeat_boot2 or canonical)else OLD_RBF
     c=json.loads((old/'reboot-resume.json').read_text())
     if canonical:
         found_main=matches(c['main']['exe'],c['main']['argv']);found_server=matches(c['server']['exe'],c['server']['argv'])
@@ -106,16 +117,16 @@ def deploy(staging, repeat_boot2=False,canonical=False):
     assert sha('/proc/%d/exe'%old_main)==MAIN and sha('/proc/%d/exe'%old_server)==SERVER
     assert '/dev/mem'in Path('/proc/%d/maps'%old_server).read_text()and sha(oldcore/'Dorado.rbf')==old_rbf
     assert not new.exists()and not core.exists(),'Inspect prior preparation/load; never blindly rerun'
-    stem='dorado-r-visible4'if canonical else'dorado-rfront-ready-boot2'if repeat_boot2 else'dorado-rfront-ready'
+    stem='dorado-r-operands6'if operand else'dorado-r-visible4'if canonical else'dorado-rfront-ready-boot2'if repeat_boot2 else'dorado-rfront-ready'
     main_log=Path('/tmp')/(stem+'-main.log');disk_log=Path('/tmp')/(stem+'-disk.jsonl')
     assert not main_log.exists()and not disk_log.exists()
     oldtrace=Path(c['main']['env']['DORADO_DISK_TRACE']);oldlog=Path(c['main_stdout'])
     oldtrace_offset=oldtrace.stat().st_size
     seed=base/'System_20261017/cedar-work-native-hints-f3bce2a8.pack';assert sha(seed)==SEED
-    old_mgl=oldcore/('CedarRFrontReadyBoot2.mgl'if canonical else'CedarRFrontReady.mgl'if repeat_boot2 else'CedarMC1668.mgl')
-    launcher='DoradoRVis4_20261021'if canonical else'DoradoRFrontB2_20261021'if repeat_boot2 else'Dorado'+new.name
+    old_mgl=oldcore/('CedarRVisible4.mgl'if operand else'CedarRFrontReadyBoot2.mgl'if canonical else'CedarRFrontReady.mgl'if repeat_boot2 else'CedarMC1668.mgl')
+    launcher='DoradoROps6_20261021'if operand else'DoradoRVis4_20261021'if canonical else'DoradoRFrontB2_20261021'if repeat_boot2 else'Dorado'+new.name
     mgl=rewrite_mgl(old_mgl.read_text(),old.name,new.name,launcher)
-    mgl_path=core/('CedarRVisible4.mgl'if canonical else'CedarRFrontReadyBoot2.mgl'if repeat_boot2 else'CedarRFrontReady.mgl')
+    mgl_path=core/('CedarROperands6.mgl'if operand else'CedarRVisible4.mgl'if canonical else'CedarRFrontReadyBoot2.mgl'if repeat_boot2 else'CedarRFrontReady.mgl')
     section='['+launcher+']'
     ini=Path('/media/fat/MiSTer.ini');text=ini.read_text();assert section not in text
     new.mkdir();core.mkdir();shutil.copy2(seed,new/'cedar-work.pack');assert sha(new/'cedar-work.pack')==SEED
@@ -125,6 +136,7 @@ def deploy(staging, repeat_boot2=False,canonical=False):
     ini.write_text(text+'\n'+section+'\nvideo_mode=1920,88,44,148,1080,4,5,36,74250,1,1\nvsync_adjust=0\nmain='+c['main']['exe']+'\n')
     artifacts=['qualification.json','assembly-state.json','fit-review-controls.json']
     if canonical:artifacts+=['r-front-ready-native.json','component-image-handoff.json']
+    if operand:artifacts+=['operand-source-review.json']
     for name in artifacts:shutil.copy2(staging/name,new/name)
     journal=dict(driver_pid=os.getpid(),started=time.time(),old_main=old_main,old_server=old_server,old_trace_offset=oldtrace_offset,phase='PREPARED')
     def save(): (new/'preparation.json').write_text(json.dumps(journal,indent=2)+'\n')
@@ -154,7 +166,7 @@ def deploy(staging, repeat_boot2=False,canonical=False):
     assert sum(r['event']=='barrier_end'for r in window)>=2,window[-5:]
     recent_errors=[r for r in window if 'error'in r['event']or r.get('result',0)<0]
     assert not recent_errors,recent_errors
-    prefix='through-r-visible4-load'if canonical else'through-rfront-ready-boot2-load'if repeat_boot2 else'through-rfront-ready-load'
+    prefix='through-r-operands6-load'if operand else'through-r-visible4-load'if canonical else'through-rfront-ready-boot2-load'if repeat_boot2 else'through-rfront-ready-load'
     trace_copy=old/('disk-'+prefix+'.jsonl');log_copy=old/('main-'+prefix+'.log')
     no_open(oldtrace);no_open(oldlog)
     shutil.copyfile(oldtrace,trace_copy);shutil.copyfile(oldlog,log_copy)
@@ -168,8 +180,9 @@ def deploy(staging, repeat_boot2=False,canonical=False):
         disk_trace=str(trace_copy),disk_trace_sha256=sha(trace_copy),disk_records=records,historical_trace_gaps=gaps,
         transition_trace_gaps=[r for r in window if r['event']=='trace_dropped'],barriers=sum(r['event']=='barrier_end'for r in window),
         boundary='Normal Main loader and temporary Main exit; no pack descriptors open',
-        guest=('Ready/front boot reached Cedar microcode/Mesa trap loop without desktop; no clean shutdown or snapshot claim' if(repeat_boot2 or canonical)else'Earlier desktop/marker observed; no clean guest shutdown, filesystem-integrity or FPGA snapshot claim'))
-    (old/('preservation-before-r-visible4.json'if canonical else'preservation-before-rfront-ready-boot2.json'if repeat_boot2 else'preservation-before-rfront-ready.json')).write_text(json.dumps(proof,indent=2)+'\n')
+        guest=('Canonical-R boot reached Pilot812/RequeueSearchSQ; no desktop or clean guest shutdown'if operand else
+               'Ready/front boot reached Cedar microcode/Mesa trap loop without desktop; no clean shutdown or snapshot claim' if(repeat_boot2 or canonical)else'Earlier desktop/marker observed; no clean guest shutdown, filesystem-integrity or FPGA snapshot claim'))
+    (old/('preservation-before-r-operands6.json'if operand else'preservation-before-r-visible4.json'if canonical else'preservation-before-rfront-ready-boot2.json'if repeat_boot2 else'preservation-before-rfront-ready.json')).write_text(json.dumps(proof,indent=2)+'\n')
     # Only verified CLOSED logs are removed from tmpfs. Their original bytes
     # remain in the old volume directory. Other temporary artifacts stay put.
     reclaimed=oldtrace.stat().st_size+oldlog.stat().st_size
@@ -203,4 +216,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--staging',type=Path,required=True)
     p.add_argument('--repeat-boot2',action='store_true',help='Preserve the diagnosed first boot and repeat the same image from the original seed')
     p.add_argument('--canonical-r',action='store_true',help='Load the fully reviewed canonical-R correction after preserving the diagnosed Boot2 volume')
-    a=p.parse_args();deploy(a.staging.resolve(),a.repeat_boot2,a.canonical_r)
+    p.add_argument('--operand-monitor',action='store_true',help='Preserve the diagnosed v4 volume and load its fully reviewed output-only operand diagnostic')
+    a=p.parse_args();deploy(a.staging.resolve(),a.repeat_boot2,a.canonical_r,a.operand_monitor)

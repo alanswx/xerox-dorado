@@ -57,6 +57,69 @@ absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
 
+### Operand diagnosis: corrected PC mapping and compiled observer (2026-10-21 UTC)
+
+MiSTer14 still runs qualified visible-R v4, Main32012/server32011, at Pilot812.
+No new hardware speed measurement or desktop qualification. The last qualified
+login is1,947,686.01 issues/s; target16.667M cycles/s (60ns), current ordinary
+issue ceiling6.25M/s before waits. The active goal and deferred snapshots remain
+unchanged.
+
+**The four sampled PCs are RequeueSearchSQ, not neighboring physical labels.**
+MicroD placement scatters source instructions. `mbdis -r` now inverts placement
+before finding the preceding SOURCE-image label. CIA6c2/239/23a/6c1 are source
+offsets0/1/2/3 of RequeueSearchSQ in `PilotMesaProcess.mc`: fetch queue link,
+mask MD, compare Process with T, branch on nonzero. Original Cedar.mb!6 and
+served CedarDorado.eb!6 match all3,600 shared IM words/all3,857 shared items;
+the archive EB has64 extra RM entries. No original image was changed or loaded
+for this analysis. Queue contents, operand capture and branch timing remain
+candidate causes; no disk/network timeout has been established.
+
+The output-only observer exports actual T/A/B/Md/R/ALU and phase/condition pins
+through explicit board ports and existing command70. It adds no CPU storage,
+clock, guest input, memory, Main/daemon or protocol change. Original-image V29
+passes55M samples,3,600 IM/256 IFUM/entry238 and native-control final RM/map;
+V31 passes14M/all16,384 map entries/256 RM words. Respectively6,875,000 and
+1,750,000 pin-alias checks pass. A trace-only swapped T/Md byte fails atsample3835.
+All6,000 raw phase rows match qualified V26 exactly. Some transient T/ALU
+differences against the older native control PREEXIST the observer; these
+samples do not establish consumed-operand equivalence. All component jobs are
+terminal; do not restart them. Failed V28 was preparation only, no simulation.
+
+**V5 is terminal REJECTED as an operand diagnostic.** Its generator changed the
+unused `src/fpga/mister/Dorado.sv` copy; Quartus actually compiles
+`core/Dorado.sv`. Its original passing timing review remains preserved alongside
+this explicit rejection. No V5 assembler/RBF/load was run. The corrected V6
+changes the actual top, reconstructs all513 inputs from qualified v4 plus exact
+output-only additions, and checks every changed HDL source in Quartus's
+used-in-netlist table. All five changed HDL files now pass that binding check.
+V6 reuses terminal board tests only after proving the two emu copies are the
+only differences from tested V5; the corrected top readout is outside that
+component proof. A separate actual-top/real-UIO integration test passes20
+command70 observations: pages0..3, invalid pages4..15, normal/speed readout,
+pack-fault priority and atomically paired data/status/PC despite all inputs
+changing mid-transaction. Disabling the observer rejects as expected. This
+does not replace the hardware marker check. Current reader replays v4 qualification byte-identically
+(d04113ed9fe06d0f971ab4050fbfaff48802610e9bc8c67870142d8d42d02593).
+
+V6 build: `/home/alans/mister/Dorado_RFrontOperands_v6_20261021` on misterubuntu;
+builder3352677/fitter3356827/central3352704/video3356065 observed live. Map passes;
+full fit/STA/central/video review remain pending. Observe these existing handles;
+never restart because observation expired. Local stage:
+`build/rtl-executive/r-front-operands-native-v6-20261021`.
+
+**Next:** require full timing/memory/source review and19 rejected evidence
+controls before assembly. Normally preserve/close v4 through Main barriers and
+load reviewed V6 with a fresh seed on14 only. Unchanged Main/server remain sole
+SPI owner/DDR daemon. Before trusting operands, enable status15 with page15 and
+require command70 machine value `d0d0bad0`; then use pages0..3 with the atomically
+paired task/CIA/TPC. Clear status15:11 and restore instruction view1 afterwards.
+The marker is not yet hardware-verified. Do not treat asynchronous pages as one
+instruction trace. Diagnose the original RequeueSearchSQ loop, restore desktop/
+input correctness at this cadence, then resume acceleration and rollback gates.
+
+[Preserved component/source evidence and rejected V5](../fpga/mister/reports/2026-10-21-r-front-operand-observer/README.md).
+
 ### Visible-R v4 passes full timing; first native firmware boot at812 (2026-10-21 UTC)
 
 The Ready/front regression exposed R before the retained B selector. Keeping
@@ -6071,7 +6134,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Stage identical RTL/ROM with a strictly stronger 100 ps additive hold target; revalidate exact-source component evidence, loader guards and short launcher name. Commit/push the qualified evidence milestone.
 - [x] Finish v4 full timing/physical-memory/source review, actual100ps margin at all corners, seventeen rejected evidence controls and guarded assembly. Preserve the skipped timing-driven-synthesis warning and independently classified host-video register mapping.
 - [x] Normally load reviewed v4 on14 with fresh seed, preserve Boot2's closed pack/trace including its transition gap, verify new DDR epoch, original BFN113/C release and actual Pilot812 display.
-- [ ] Diagnose this same boot's CIA239/23a/6c1/6c2 observations and recover original Cedar/login/Viewers/mouse/click/exact keyboard echo before accelerating.
+- [x] Resolve CIA239/23a/6c1/6c2 through inverse MicroD placement: all four belong to RequeueSearchSQ. Fix mbdis source-label attribution and bind original MB/EB contents.
+- [x] Qualify passive processor operand ports with original image/map fixtures and a swapped-readout negative; reject V5's unused top copy before assembly. Bind corrected V6's five HDL files to the actual compiled top; preserve all terminal evidence.
+- [ ] Finish existing V6 full timing/memory/19-control review and guarded assembly; normally load on14, require live diagnostic marker, inspect queue/operand/branch behavior and recover original Cedar/login/Viewers/mouse/click/exact keyboard echo before accelerating.
 - [ ] Complete original 60 ns ordinary-instruction clock/enable and timer migration, reducing avoidable memory waits while preserving cache/map/ECC and peripheral behavior. Report instruction issues and holds separately on pinned workloads.
 - [ ] Qualify Cedar's authentic Checkpoint/Rollback through its own germ/disk path, including repeated restarts, working applications/input and preservation of later filesystem changes.
 - [ ] Finish disk close/remount persistence, independent physical network evidence, three fresh-seed original-firmware desktop boots and at least two hours sustained operation without pack/CRC/RX faults. Archive and commit/push qualified results.

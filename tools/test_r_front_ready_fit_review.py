@@ -40,8 +40,8 @@ def row_change(text,title,needle,column,value):
     raise AssertionError('Missing damaged-evidence anchor '+needle)
 
 
-def run(source,out,candidate,baseline,initial,component,initial_map_control=None):
-    def check(root):return reader.review(root,candidate,baseline,initial,component,initial_map_control)
+def run(source,out,candidate,baseline,initial,component,initial_map_control=None,operand_parent=None):
+    def check(root):return reader.review(root,candidate,baseline,initial,component,initial_map_control,operand_parent)
     positive=check(source)
     assert positive['status']=='PASS_NATIVE_R_FRONT_READY_PREASSEMBLY_REVIEW'
     out.mkdir(exist_ok=False)
@@ -79,6 +79,12 @@ def run(source,out,candidate,baseline,initial,component,initial_map_control=None
         text=reader.raw(source/name).decode()
         modifications['hold_margin_not_applied']=(name,re.sub(
             r'(^;[^;\n]+;\s*)0\.100(\s*;[^\n]*;\s*clock uncertainty\s*;)',r'\g<1>0.000\2',text,count=1,flags=re.M))
+    if positive.get('passive_operand_monitor'):
+        text=reader.raw(source/'operand-source-review.json').decode()
+        modifications['operand_source_proof']=('operand-source-review.json',text.replace('"new_sequential_logic": false','"new_sequential_logic": true',1))
+        text=reader.raw(source/'core/output_files/Dorado.map.rpt').decode()
+        modifications['operand_compiled_source']=('core/output_files/Dorado.map.rpt',re.sub(
+            r'^(; Dorado\.sv\s*;)\s*yes(\s*;)',r'\1 no \2',text,count=1,flags=re.M))
     results=[]
     for name,(member,text)in modifications.items():
         assert text!=reader.raw(source/member).decode('latin-1'if member.endswith('fit.rpt')else'utf-8'),name
@@ -112,4 +118,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for name in ['source','output','candidate','baseline','initial','component']:p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--initial-map-control',type=Path)
-    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.candidate.resolve(),a.baseline.resolve(),a.initial.resolve(),a.component.resolve(),a.initial_map_control)
+    p.add_argument('--operand-parent',type=Path)
+    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.candidate.resolve(),a.baseline.resolve(),a.initial.resolve(),a.component.resolve(),a.initial_map_control,a.operand_parent)

@@ -28,12 +28,18 @@ def run(project,quartus):
     canonical=q.get('native_visible_R_registers',0)==16
     assert len(q['timing_checks'])==31 and len(q['detailed_paths'])==196 and len(q['central_paths'])==(160 if canonical else 136)
     assert q['initial_component_enabled_samples']>=100000 and not q['firmware_qualified']
-    expected_controls=(15 if canonical else 11)+bool(q.get('host_video_register_mapping'))+bool(q.get('additional_hold_uncertainty_ps'))
+    expected_controls=(15 if canonical else 11)+bool(q.get('host_video_register_mapping'))+bool(q.get('additional_hold_uncertainty_ps'))+2*bool(q.get('passive_operand_monitor'))
     assert controls['status']=='PASS_NATIVE_READY_FIT_READER_CONTROLS'and len(controls['cases'])==expected_controls
     assert all(r['rejected']for r in controls['cases'])
     record=json.loads((project/'r-front-ready-native.json').read_text())
     assert q.get('additional_hold_uncertainty_ps',0)==record.get('additional_hold_uncertainty_ps',0)
     if canonical:
+        if q.get('passive_operand_monitor'):
+            assert any(r['case']=='operand_source_proof'for r in controls['cases'])
+            assert any(r['case']=='operand_compiled_source'for r in controls['cases'])
+            assert q['operand_monitor_source_review']==json.loads((project/'operand-source-review.json').read_text())
+            assert q['operand_monitor_source_review']['compiled_top']=='core/Dorado.sv'
+            assert len(q['operand_monitor_compiled_sources'])==5
         if q.get('host_video_register_mapping'):
             assert any(r['case']=='video_pipeline_register_coverage'for r in controls['cases'])
         if q.get('additional_hold_uncertainty_ps'):
@@ -41,6 +47,10 @@ def run(project,quartus):
         assert record['native_visible_R_bits']==16 and record['evaluator_owned_Q_bits']==736
         assert record['internal_predicted_R_duplicate']is False
         proof=json.loads((project/'component-image-handoff.json').read_text())
+        if q.get('passive_operand_monitor'):
+            assert proof['passive_operand_monitor']and len(proof['operand_pin_alias_checks'])==2
+            assert min(proof['operand_pin_alias_checks'].values())>100000
+            assert proof['operand_readout_negative']['status']=='PASS_SWAPPED_READOUT_REJECTED'
         assert proof['status']=='PASS_REPAIRED_NATIVE_COMPONENT_IMAGE_HANDOFF'
         assert proof['exact_staged_native_sources_verified']and proof['canonical_native_R']
         assert proof['original_IM_words_verified']==3600 and proof['original_IFUM_entries_verified']==256

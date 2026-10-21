@@ -1,0 +1,780 @@
+# --------------------------------------------------------------------------
+#
+# MiSTer project
+#
+# WARNING WARNING WARNING:
+# Do not add files to project in Quartus IDE! It will mess this file!
+# Add the files manually to files.qip file.
+#
+# --------------------------------------------------------------------------
+
+set_global_assignment -name TOP_LEVEL_ENTITY sys_top
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+set_global_assignment -name LAST_QUARTUS_VERSION "17.0.2 Lite Edition"
+
+set_global_assignment -name GENERATE_RBF_FILE ON
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name SAVE_DISK_SPACE OFF
+set_global_assignment -name SMART_RECOMPILE ON
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP "-40"
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 100
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF
+set_global_assignment -name OPTIMIZE_POWER_DURING_FITTING OFF
+set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION ALWAYS
+set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
+set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
+set_global_assignment -name QII_AUTO_PACKED_REGISTERS NORMAL
+set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
+set_global_assignment -name OPTIMIZATION_TECHNIQUE SPEED
+set_global_assignment -name MUX_RESTRUCTURE ON
+set_global_assignment -name REMOVE_REDUNDANT_LOGIC_CELLS ON
+set_global_assignment -name AUTO_DELAY_CHAINS_FOR_HIGH_FANOUT_INPUT_PINS ON
+set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
+set_global_assignment -name SYNTH_GATED_CLOCK_CONVERSION ON
+set_global_assignment -name PRE_MAPPING_RESYNTHESIS ON
+set_global_assignment -name ROUTER_CLOCKING_TOPOLOGY_ANALYSIS ON
+set_global_assignment -name ECO_OPTIMIZE_TIMING ON
+set_global_assignment -name PERIPHERY_TO_CORE_PLACEMENT_AND_ROUTING_OPTIMIZATION ON
+set_global_assignment -name ALM_REGISTER_PACKING_EFFORT MEDIUM
+set_global_assignment -name SEED 1
+
+#set_global_assignment -name VERILOG_MACRO "MISTER_FB=1"
+
+#enable it only if 8bit indexed mode is used in core
+#set_global_assignment -name VERILOG_MACRO "MISTER_FB_PALETTE=1"
+
+#do not enable DEBUG_NOHDMI in release!
+#set_global_assignment -name VERILOG_MACRO "MISTER_DEBUG_NOHDMI=1"
+
+# disable bilinear filtering when downscaling
+#set_global_assignment -name VERILOG_MACRO "MISTER_DOWNSCALE_NN=1"
+
+# disable adaptive scanline filtering
+#set_global_assignment -name VERILOG_MACRO "MISTER_DISABLE_ADAPTIVE=1"
+
+#use only 1MB per frame for scaler to free ~21MB DDR3 RAM
+#set_global_assignment -name VERILOG_MACRO "MISTER_SMALL_VBUF=1"
+
+# Disable YC / Composite output to save some resources
+#set_global_assignment -name VERILOG_MACRO "MISTER_DISABLE_YC=1"
+
+# Disable ALSA audio output to save some resources
+#set_global_assignment -name VERILOG_MACRO "MISTER_DISABLE_ALSA=1"
+
+source sys/sys.tcl
+source sys/sys_analog.tcl
+source files.qip
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+# ---- the Dorado, generated from PARC's Sil wire lists ----
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 2
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC OFF
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION OFF
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA OFF
+set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING OFF
+set_global_assignment -name VERILOG_MACRO "DORADO_STORAGE_INPUT_DELAY=2"
+set_global_assignment -name SEARCH_PATH "/home/alans/mister/Dorado_RFrontOperands_v6_20261021/src"
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/dorado_mouse.sv
+set_global_assignment -name VERILOG_MACRO DORADO_NATIVE
+set_global_assignment -name SDC_FILE native_timing.sdc
+set_global_assignment -name VERILOG_MACRO DORADO_CONTROL_ERROR_MONITOR
+set_global_assignment -name VERILOG_MACRO DORADO_DISPLAY_FIELD
+set_global_assignment -name ALLOW_POWER_UP_DONT_CARE OFF
+set_global_assignment -name SDC_FILE checkpoint_timing.sdc
+set_global_assignment -name VERILOG_MACRO DORADO_HPS_PACK
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/dorado_pack_mount.sv
+set_global_assignment -name VERILOG_MACRO DORADO_ETHERNET_HOST_PORT
+set_global_assignment -name VERILOG_MACRO DORADO_ETHERNET
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/dorado_ethernet_wire.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/dorado_ethernet_uio.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/build/rtl-executive/native16-tx-cable/msa_ddram.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/build/rtl-executive/native16-tx-cable/ContA_monitor.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/build/rtl-executive/native16-tx-cable/DispY_field.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/generated/ProcH-Rev-Ce.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/generated/ProcL-Rev-Ci.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/generated/ContB-Rev-Cd.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/generated/IFU-Rev-Ch.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/generated/MemC-Rev-Be.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/generated/MemD-Rev-Ca.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/generated/MemX-Rev-Ch.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/generated/DskEth-Rev-Cf.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_ADC_MC8BC.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_AM2615.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_AUGATCG16.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_CA3140.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_CD4051.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_CLOCKGEN.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_DS3649.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_F10000.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_F10016.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_F100181.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_F10145A.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_F10414.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_F10415A.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_F10470.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_F9401.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_F95016.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_K1115A.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_LM339.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_LM3911_20K.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MB7071H.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10100.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10101.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10102.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10103.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10104.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10105.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10106.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10107.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10109.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10113.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10117.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10118.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10119.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10121.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10124.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10125.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10135.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10136.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10141.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10158.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10159.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10161.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10162.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10163.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10164.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10166.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10170.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10171.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10172.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10173.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10174.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10175.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10176.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10179.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10180.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10181.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10182.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10195.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10197.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10210.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10211.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10212.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10231.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC10318.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC12040.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC12061.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC14521B.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC1648.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC1650.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC1660.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC1662.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC1664.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC1668.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC1672.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC1674.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MC1690.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MCM10149.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MCS6502.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MCS6532.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MK4096P_6.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MK4096P_addr.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MPQ3303.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MPQ6002.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MU10164.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_MosRam.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_PLAT1816.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SE10210.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SE10211.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SE10212.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SE10231.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SG10139.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SIPpackage.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74123.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74125.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74128.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74166.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN7438.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN7486.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74H04.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS00.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS01.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS04.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS08.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS109.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS138.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS139.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS151.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS153.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS155.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS157.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS163.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS169.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS174.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS175.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS251.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS253.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS259.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS32.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS74.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74LS85.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74S01.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74S174.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74S288.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_SN74S374.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_i2125.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_i2716.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/cell_p_8T98.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/dorado_keyboard.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/dorado_terminal.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/cells/dorado_trident.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/vendor/6502/chip_6502.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/vendor/riot/M6532.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/dorado_pack_hps.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/dorado_storage_group.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/dorado_storage_arb.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/dorado_storage_ddram.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/dorado_storage_init.sv
+
+set_global_assignment -name SDC_FILE fixed-720p.sdc
+
+set_global_assignment -name PRE_FLOW_SCRIPT_FILE "quartus_sh:sys/build_id.tcl"
+set_location_assignment PIN_U9 -to ADC_CONVST
+set_location_assignment PIN_V10 -to ADC_SCK
+set_location_assignment PIN_AC4 -to ADC_SDI
+set_location_assignment PIN_AD4 -to ADC_SDO
+set_location_assignment PIN_AC24 -to AUDIO_L
+set_location_assignment PIN_AE25 -to AUDIO_R
+set_location_assignment PIN_AG26 -to AUDIO_SPDIF
+set_location_assignment PIN_AG25 -to BTN_OSD
+set_location_assignment PIN_AG23 -to BTN_RESET
+set_location_assignment PIN_AH24 -to BTN_USER
+set_location_assignment PIN_V11 -to FPGA_CLK1_50
+set_location_assignment PIN_Y13 -to FPGA_CLK2_50
+set_location_assignment PIN_E11 -to FPGA_CLK3_50
+set_location_assignment PIN_U10 -to HDMI_I2C_SCL
+set_location_assignment PIN_AA4 -to HDMI_I2C_SDA
+set_location_assignment PIN_T13 -to HDMI_I2S
+set_location_assignment PIN_T11 -to HDMI_LRCLK
+set_location_assignment PIN_U11 -to HDMI_MCLK
+set_location_assignment PIN_T12 -to HDMI_SCLK
+set_location_assignment PIN_AG5 -to HDMI_TX_CLK
+set_location_assignment PIN_AD19 -to HDMI_TX_DE
+set_location_assignment PIN_AD12 -to HDMI_TX_D[0]
+set_location_assignment PIN_AE9 -to HDMI_TX_D[10]
+set_location_assignment PIN_AB4 -to HDMI_TX_D[11]
+set_location_assignment PIN_AE7 -to HDMI_TX_D[12]
+set_location_assignment PIN_AF6 -to HDMI_TX_D[13]
+set_location_assignment PIN_AF8 -to HDMI_TX_D[14]
+set_location_assignment PIN_AF5 -to HDMI_TX_D[15]
+set_location_assignment PIN_AE4 -to HDMI_TX_D[16]
+set_location_assignment PIN_AH2 -to HDMI_TX_D[17]
+set_location_assignment PIN_AH4 -to HDMI_TX_D[18]
+set_location_assignment PIN_AH5 -to HDMI_TX_D[19]
+set_location_assignment PIN_AE12 -to HDMI_TX_D[1]
+set_location_assignment PIN_AH6 -to HDMI_TX_D[20]
+set_location_assignment PIN_AG6 -to HDMI_TX_D[21]
+set_location_assignment PIN_AF9 -to HDMI_TX_D[22]
+set_location_assignment PIN_AE8 -to HDMI_TX_D[23]
+set_location_assignment PIN_W8 -to HDMI_TX_D[2]
+set_location_assignment PIN_Y8 -to HDMI_TX_D[3]
+set_location_assignment PIN_AD11 -to HDMI_TX_D[4]
+set_location_assignment PIN_AD10 -to HDMI_TX_D[5]
+set_location_assignment PIN_AE11 -to HDMI_TX_D[6]
+set_location_assignment PIN_Y5 -to HDMI_TX_D[7]
+set_location_assignment PIN_AF10 -to HDMI_TX_D[8]
+set_location_assignment PIN_Y4 -to HDMI_TX_D[9]
+set_location_assignment PIN_T8 -to HDMI_TX_HS
+set_location_assignment PIN_AF11 -to HDMI_TX_INT
+set_location_assignment PIN_V13 -to HDMI_TX_VS
+set_location_assignment PIN_U14 -to IO_SCL
+set_location_assignment PIN_AG9 -to IO_SDA
+set_location_assignment PIN_AH17 -to KEY[0]
+set_location_assignment PIN_AH16 -to KEY[1]
+set_location_assignment PIN_W15 -to LED[0]
+set_location_assignment PIN_AA24 -to LED[1]
+set_location_assignment PIN_V16 -to LED[2]
+set_location_assignment PIN_V15 -to LED[3]
+set_location_assignment PIN_AF26 -to LED[4]
+set_location_assignment PIN_AE26 -to LED[5]
+set_location_assignment PIN_Y16 -to LED[6]
+set_location_assignment PIN_AA23 -to LED[7]
+set_location_assignment PIN_AA15 -to LED_HDD
+set_location_assignment PIN_AG28 -to LED_POWER
+set_location_assignment PIN_Y15 -to LED_USER
+set_location_assignment PIN_AH7 -to SDCD_SPDIF
+set_location_assignment PIN_AH26 -to SDIO_CLK
+set_location_assignment PIN_AF27 -to SDIO_CMD
+set_location_assignment PIN_AF25 -to SDIO_DAT[0]
+set_location_assignment PIN_AF23 -to SDIO_DAT[1]
+set_location_assignment PIN_AD26 -to SDIO_DAT[2]
+set_location_assignment PIN_AF28 -to SDIO_DAT[3]
+set_location_assignment PIN_Y11 -to SDRAM_A[0]
+set_location_assignment PIN_AB26 -to SDRAM_A[10]
+set_location_assignment PIN_AD17 -to SDRAM_A[11]
+set_location_assignment PIN_D12 -to SDRAM_A[12]
+set_location_assignment PIN_AA26 -to SDRAM_A[1]
+set_location_assignment PIN_AA13 -to SDRAM_A[2]
+set_location_assignment PIN_AA11 -to SDRAM_A[3]
+set_location_assignment PIN_W11 -to SDRAM_A[4]
+set_location_assignment PIN_Y19 -to SDRAM_A[5]
+set_location_assignment PIN_AB23 -to SDRAM_A[6]
+set_location_assignment PIN_AC23 -to SDRAM_A[7]
+set_location_assignment PIN_AC22 -to SDRAM_A[8]
+set_location_assignment PIN_C12 -to SDRAM_A[9]
+set_location_assignment PIN_Y17 -to SDRAM_BA[0]
+set_location_assignment PIN_AB25 -to SDRAM_BA[1]
+set_location_assignment PIN_AG10 -to SDRAM_CKE
+set_location_assignment PIN_AD20 -to SDRAM_CLK
+set_location_assignment PIN_AF13 -to SDRAM_DQMH
+set_location_assignment PIN_AG13 -to SDRAM_DQML
+set_location_assignment PIN_E8 -to SDRAM_DQ[0]
+set_location_assignment PIN_AE6 -to SDRAM_DQ[10]
+set_location_assignment PIN_AE23 -to SDRAM_DQ[11]
+set_location_assignment PIN_AG14 -to SDRAM_DQ[12]
+set_location_assignment PIN_AD5 -to SDRAM_DQ[13]
+set_location_assignment PIN_AF4 -to SDRAM_DQ[14]
+set_location_assignment PIN_AH3 -to SDRAM_DQ[15]
+set_location_assignment PIN_V12 -to SDRAM_DQ[1]
+set_location_assignment PIN_D11 -to SDRAM_DQ[2]
+set_location_assignment PIN_W12 -to SDRAM_DQ[3]
+set_location_assignment PIN_AH13 -to SDRAM_DQ[4]
+set_location_assignment PIN_D8 -to SDRAM_DQ[5]
+set_location_assignment PIN_AH14 -to SDRAM_DQ[6]
+set_location_assignment PIN_AF7 -to SDRAM_DQ[7]
+set_location_assignment PIN_AE24 -to SDRAM_DQ[8]
+set_location_assignment PIN_AD23 -to SDRAM_DQ[9]
+set_location_assignment PIN_AA18 -to SDRAM_nCAS
+set_location_assignment PIN_Y18 -to SDRAM_nCS
+set_location_assignment PIN_W14 -to SDRAM_nRAS
+set_location_assignment PIN_AA19 -to SDRAM_nWE
+set_location_assignment PIN_AG8 -to SD_SPI_CLK
+set_location_assignment PIN_AE15 -to SD_SPI_CS
+set_location_assignment PIN_AH8 -to SD_SPI_MISO
+set_location_assignment PIN_U13 -to SD_SPI_MOSI
+set_location_assignment PIN_Y24 -to SW[0]
+set_location_assignment PIN_W24 -to SW[1]
+set_location_assignment PIN_W21 -to SW[2]
+set_location_assignment PIN_W20 -to SW[3]
+set_location_assignment PIN_AG11 -to USER_IO[0]
+set_location_assignment PIN_AH9 -to USER_IO[1]
+set_location_assignment PIN_AH12 -to USER_IO[2]
+set_location_assignment PIN_AH11 -to USER_IO[3]
+set_location_assignment PIN_AG16 -to USER_IO[4]
+set_location_assignment PIN_AF15 -to USER_IO[5]
+set_location_assignment PIN_AF17 -to USER_IO[6]
+set_location_assignment PIN_AG21 -to VGA_B[0]
+set_location_assignment PIN_AA20 -to VGA_B[1]
+set_location_assignment PIN_AE22 -to VGA_B[2]
+set_location_assignment PIN_AF22 -to VGA_B[3]
+set_location_assignment PIN_AH23 -to VGA_B[4]
+set_location_assignment PIN_AH21 -to VGA_B[5]
+set_location_assignment PIN_AH27 -to VGA_EN
+set_location_assignment PIN_AE19 -to VGA_G[0]
+set_location_assignment PIN_AG15 -to VGA_G[1]
+set_location_assignment PIN_AF18 -to VGA_G[2]
+set_location_assignment PIN_AG18 -to VGA_G[3]
+set_location_assignment PIN_AG19 -to VGA_G[4]
+set_location_assignment PIN_AG20 -to VGA_G[5]
+set_location_assignment PIN_AH22 -to VGA_HS
+set_location_assignment PIN_AE17 -to VGA_R[0]
+set_location_assignment PIN_AE20 -to VGA_R[1]
+set_location_assignment PIN_AF20 -to VGA_R[2]
+set_location_assignment PIN_AH18 -to VGA_R[3]
+set_location_assignment PIN_AH19 -to VGA_R[4]
+set_location_assignment PIN_AF21 -to VGA_R[5]
+set_location_assignment PIN_AG24 -to VGA_VS
+set_global_assignment -name DEVICE_FILTER_PACKAGE UFBGA
+set_global_assignment -name DEVICE_FILTER_PIN_COUNT 672
+set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 7
+set_global_assignment -name DEVICE 5CSEBA6U23I7
+set_global_assignment -name FAMILY "Cyclone V"
+set_global_assignment -name CDF_FILE jtag.cdf
+set_global_assignment -name QIP_FILE sys/sys.qip
+set_global_assignment -name VERILOG_FILE rtl/lfsr.v
+set_global_assignment -name SYSTEMVERILOG_FILE rtl/cos.sv
+set_global_assignment -name SDC_FILE Dorado.sdc
+set_global_assignment -name SYSTEMVERILOG_FILE Dorado.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_mouse.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_pack_mount.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_ethernet_wire.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_ethernet_uio.sv
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v"
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v"
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/build/rtl-executive/native16-tx-cable/msa_ddram.v"
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/build/rtl-executive/native16-tx-cable/ContA_monitor.v"
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/build/rtl-executive/native16-tx-cable/DispY_field.v"
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv"
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/verilog/generated/ProcH-Rev-Ce.v"
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/verilog/generated/ProcL-Rev-Ci.v"
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/verilog/generated/ContB-Rev-Cd.v"
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/verilog/generated/IFU-Rev-Ch.v"
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/verilog/generated/MemC-Rev-Be.v"
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/verilog/generated/MemD-Rev-Ca.v"
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/verilog/generated/MemX-Rev-Ch.v"
+set_global_assignment -name SYSTEMVERILOG_FILE "../src/verilog/generated/DskEth-Rev-Cf.v"
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_ADC_MC8BC.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_AM2615.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_AUGATCG16.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_CA3140.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_CD4051.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_CLOCKGEN.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_DS3649.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_F10000.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_F10016.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_F100181.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_F10145A.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_F10414.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_F10415A.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_F10470.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_F9401.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_F95016.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_K1115A.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_LM339.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_LM3911_20K.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MB7071H.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10100.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10101.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10102.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10103.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10104.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10105.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10106.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10107.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10109.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10113.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10117.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10118.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10119.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10121.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10124.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10125.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10135.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10136.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10141.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10158.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10159.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10161.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10162.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10163.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10164.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10166.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10170.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10171.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10172.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10173.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10174.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10175.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10176.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10179.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10180.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10181.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10182.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10195.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10197.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10210.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10211.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10212.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10231.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC10318.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC12040.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC12061.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC14521B.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC1648.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC1650.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC1660.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC1662.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC1664.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC1668.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC1672.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC1674.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MC1690.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MCM10149.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MCS6502.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MCS6532.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MK4096P_6.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MK4096P_addr.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MPQ3303.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MPQ6002.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MU10164.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_MosRam.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_PLAT1816.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SE10210.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SE10211.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SE10212.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SE10231.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SG10139.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SIPpackage.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74123.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74125.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74128.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74166.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN7438.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN7486.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74H04.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS00.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS01.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS04.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS08.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS109.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS138.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS139.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS151.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS153.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS155.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS157.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS163.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS169.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS174.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS175.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS251.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS253.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS259.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS32.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS74.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74LS85.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74S01.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74S174.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74S288.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_SN74S374.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_i2125.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_i2716.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/cell_p_8T98.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/dorado_keyboard.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/dorado_terminal.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/cells/dorado_trident.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/vendor/6502/chip_6502.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/verilog/vendor/riot/M6532.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_pack_hps.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_storage_group.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_storage_arb.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_storage_ddram.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_storage_init.sv
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to SDRAM_DQ[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_TX_CLK
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_TX_DE
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_TX_D[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_TX_HS
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to HDMI_TX_VS
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_*
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to SDRAM_DQ[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to AUDIO_*
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to IO_S*
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDCD_SPDIF
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDIO_*
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_*
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SD_SPI*
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to USER_IO[*]
+set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to VGA_*
+set_hps_location_assignment HPSINTERFACEPERIPHERALI2C_X52_Y60_N111 -to hdmi_i2c
+set_hps_location_assignment HPSINTERFACEPERIPHERALSPIMASTER_X52_Y72_N111 -to spi
+set_hps_location_assignment HPSINTERFACEPERIPHERALUART_X52_Y67_N111 -to uart
+set_instance_assignment -name ALLOW_SYNCH_CTRL_USAGE OFF -to *|SDRAM_*
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_CONVST
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_SCK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_SDI
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_SDO
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to AUDIO_*
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to BTN_*
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK1_50
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK2_50
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK3_50
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HDMI_I2C_*
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HDMI_I2S
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HDMI_LRCLK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HDMI_MCLK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HDMI_SCLK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HDMI_TX_*
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to IO_S*
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to KEY[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to KEY[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED_*
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SDCD_SPDIF
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SDIO_*
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SDRAM_*
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_SPI*
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SW[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SW[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SW[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SW[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to USER_IO[*]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to VGA_*
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to BTN_*
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to IO_S*
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SDCD_SPDIF
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SDIO_CMD
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SDIO_DAT[*]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SD_SPI*
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to USER_IO[*]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to VGA_EN
+set_global_assignment -name VERILOG_MACRO DORADO_RX_MONITOR
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/dorado_receive_monitor.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_receive_monitor.sv
+set_global_assignment -name VERILOG_MACRO DORADO_PACK_FAULT_MONITOR
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/dorado_key_queue.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_key_queue.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/dorado_speed_monitor.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_speed_monitor.sv
+set_global_assignment -name VERILOG_MACRO "DORADO_HOST_CLOCK_HZ=50000000"
+
+set_global_assignment -name VERILOG_MACRO DORADO_F10415_M10K
+
+set_global_assignment -name VERILOG_MACRO DORADO_STORAGE_SDRAM
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_storage_sdram.sv
+set_global_assignment -name SDC_FILE sdram_timing.sdc
+
+set_global_assignment -name VERILOG_MACRO DORADO_F10145_LOGIC
+
+set_global_assignment -name VERILOG_MACRO DORADO_INSTRUCTION_MONITOR
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_instruction_monitor.sv
+
+set_global_assignment -name VERILOG_MACRO DORADO_ETHERNET_DDR
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/dorado_ethernet_ddr.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native/ContB_full_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native/f10415_enable_bank.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native/cell_MC10231_snapshot.v
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v
+
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native/ContB_full_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native/f10415_enable_bank.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native/cell_MC10231_snapshot.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_conta/cell_F10000_snapshot.v
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_conta/cell_F10016_snapshot.v
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_conta/cell_SE10231_snapshot.v
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_conta/cell_F10000_snapshot.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_conta/cell_F10016_snapshot.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_conta/cell_SE10231_snapshot.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_processor/cell_MC10175_snapshot.v
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_processor/cell_MC1668_snapshot.v
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_processor/cell_MB7071H_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_processor/cell_F10414_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_processor/cell_MC10175_snapshot.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_processor/cell_MC1668_snapshot.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_processor/cell_MB7071H_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_processor/cell_F10414_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_ifu/IFU_full_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_ifu/cell_MC10135_snapshot.v
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_ifu/f10415_word_bank.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_ifu/IFU_full_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_ifu/cell_MC10135_snapshot.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_ifu/f10415_word_bank.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_memc/MemC_full_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_memc/cell_F100181_snapshot.v
+
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_memc/MemC_full_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_memc/cell_F100181_snapshot.v
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_memd/MemD_full_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_memd/f10470_word_bank.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_memd/MemD_full_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_memd/f10470_word_bank.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_memx/MemX_full_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_memx/cell_MosRam_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_memx/MemX_full_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_memx/cell_MosRam_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_dispy/DispY_full_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_dispy/cell_K1115A_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_dispy/DispY_full_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_dispy/cell_K1115A_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_dsketh/DskEth_full_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_dsketh/cell_SN74LS169_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_dsketh/cell_SN74LS174_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_dsketh/cell_MC1650_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_dsketh/cell_MC10136_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_dsketh/cell_SN74123_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_dsketh/cell_F9401_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/fpga/mister/snapshot_native_dsketh/dorado_receive_monitor_snapshot.sv
+
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_dsketh/DskEth_full_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_dsketh/cell_SN74LS169_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_dsketh/cell_SN74LS174_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_dsketh/cell_MC1650_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_dsketh/cell_MC10136_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_dsketh/cell_SN74123_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_dsketh/cell_F9401_snapshot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../src/fpga/mister/snapshot_native_dsketh/dorado_receive_monitor_snapshot.sv
+# Qualified Ready/front component experimental native integration
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_r_front_ready_step.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_task_ready_step.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_r_front_step.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_r_memory_step.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_r_address_step.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_r_port_preview.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_processor_capture_step.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_r_file_ports.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_r_flags_step.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_r_operand_step.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_t_parity_step.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_t_file_step.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_task_capture_step.sv
+set_global_assignment -name SYSTEMVERILOG_FILE /home/alans/mister/Dorado_RFrontOperands_v6_20261021/src/verilog/rtl/dorado_r_front_cone.sv
+set_global_assignment -name SDC_FILE r-front-hold-margin.sdc
+
+# Read-only operands through existing command70; no Main/protocol change.
+set_global_assignment -name VERILOG_MACRO DORADO_OPERAND_MONITOR
