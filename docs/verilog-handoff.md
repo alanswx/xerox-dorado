@@ -59,6 +59,51 @@ or FPGA change resulted from this prototype.
 
 ### Operand diagnosis: corrected PC mapping and compiled observer (2026-10-21 UTC)
 
+**Raw BL8 candidate now timing-reviewed, assembled and loaded on MiSTer14.**
+This is the qualified MC1668 CPU/cache/map/ECC/clock parent with only the raw
+backend changed; it does not include the regressing Ready/front replacement.
+All31 device summaries,196 original timing categories and56 buffer categories
+pass over four conditions (minimum+0.107ns). All170 RAM rows retain geometry/
+behavior and165 parameter tables match the parent. BaseBoard ROMs repack into
+the same seven-block shared pool. Guest cache remains40 M10Ks; new raw cache
+uses384 data registers/80 tags/four valid bits, with no additional M10K. Its
+generic64B data declaration prunes to48B because MSA groups consume12 bits.
+Actual fit30,882ALMs/53,193regs/332M10Ks/35DSPs. Seven damaged-evidence controls
+reject; guarded assembly succeeds. Full terminal receipt (882 members/readback)
+is `fpga/mister/reports/2026-10-21-sdram-burst/native-fit/`.
+
+RBF SHA `f46eb4f5bc68c1060ad14e96cb127d5bb05d5af85ffa48a5b1f15fc4123062c6`
+is loaded at `/media/fat/_Computer/DoradoRTL_CedarSDRAMBurst1_20261021/Dorado.rbf`.
+Main9242/server9241 are confirmed live, TracerPid0, unchanged21e67a3f/c5996249
+binaries. Main remains sole SPI owner; disk cache/direct-DDR grant are ready.
+Fresh original pack is `/media/fat/games/DoradoRTL/CedarSDRAMBurst1_20261021/cedar-work.pack`.
+Logs `/tmp/dorado-sdram-burst1-{main.log,disk.jsonl}` and volume `server.log`.
+Normal Main barriers and temporary Main exit preserve the closed V6 volume
+and complete traces; preservation explicitly records a `trace_dropped` gap
+with the trace's `bytes` field5792
+from the transition. No loss-free preservation or clean guest shutdown claim.
+
+The C watcher and three normal OSD boot-bit3 pulses are terminal. Every real
+BaseBoard pin assertion/release was verified through Main. Original Initial
+requests BFN113 and C is released. Subsequent native capture is1024x4, a short
+raster rather than OS text; no Cedar entry/login/desktop or speed gain yet.
+Latest observed PCs include0xcd2/0xd44 with TXgood3; CRC/drop/RX/abort0 in the
+sampled Main lines. Do not call the request a completed microcode transfer.
+Do not restart/load solely because observation expires. Continue this same
+boot, inspect the actual receive/memory/firmware progress, then qualify desktop
+and pinned issue/hold rates against MC1668. Local field/input evidence:
+`build/rtl-executive/sdram-burst1-native-field-20261021`. The two original
+V38/V39 Mac simulations continue separately; their model bytes remain frozen.
+The first hardware boot prefix/input/preservation receipt is
+`fpga/mister/reports/2026-10-21-sdram-burst/first-boot-prefix/` (14 members,
+lossless readback passes). The daemon's actual working directory and original
+31888-byte Cedar boot file/header were rechecked while diagnosing receive
+progress; its direct-DDR mapping remains present. Neither a missing boot file
+nor a completed Cedar transfer is established by the current boot evidence.
+
+The paragraphs below describe the earlier component/live-fit observations;
+the terminal fit and new hardware identities above supersede those job IDs.
+
 **Parallel memory-speed work: isolated BL8 buffer passes; native fit is LIVE.**
 No new core is loaded. The original V38/V39 cold simulations continue unchanged.
 New `dorado_storage_sdram_burst.sv` is a separate raw-backend module with four

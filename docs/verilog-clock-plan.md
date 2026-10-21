@@ -38,7 +38,18 @@ processor correctness or a Cedar gate. The stale default local mbdis executable
 is rebuilt to match the committed inverse-placement source. No guest RTL,
 clock, firmware or hardware binary changed; continue the same cold runs to113.
 
-An isolated memory-speed component now passes while those runs continue:
+The raw BL8 native candidate is now full-device timing/memory reviewed and
+loaded on MiSTer14:31 summaries,196 original paths and56 new buffer categories
+pass (minimum+0.107ns). All170 RAM rows and165 parameter tables retain their
+contracts;332M10Ks total. Seven damaged-evidence cases reject. RBFf46eb4f5,
+Main9242/server9241, unchanged50MHz/SYSPER4. Original Initial requests113;
+the short native raster is not a Cedar desktop. Hardware throughput remains
+unmeasured. Continue this same original boot and diagnose receive/memory
+progress before choosing the backend or resuming clock acceleration.
+Terminal receipt `fpga/mister/reports/2026-10-21-sdram-burst/native-fit/`.
+
+Earlier component/live-fit observations, retained for history:
+an isolated memory-speed component now passes while those runs continue:
 the raw BL8 backend buffers four eight-halfword lines and preserves the guest
 CPU/cache/map/ECC. Complete native MSA/original-chip comparison matches12,012
 logical cycles,9,437,184 bits and the exact12,380-record request/final-memory

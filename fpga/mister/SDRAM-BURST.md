@@ -42,5 +42,11 @@ networking and inactive administrative state access. Full-device timing and
 memory review, original-firmware Viewers/input and pinned speed remain pending.
 The component results alone do not qualify assembly or deployment.
 
+The subsequent [full native review](reports/2026-10-21-sdram-burst/native-fit/README.md)
+passes device/memory/source review and guarded assembly. It is loaded on
+MiSTer14 for original-firmware testing. Initial requests Cedar113, but a desktop
+and pinned hardware speed remain unqualified. The fitted native data cache
+uses48 bytes: unused high bits of the generic16-bit raw port are pruned.
+
 Frozen component results, rejected attempts, raw traces and native source/live
 prefix are in [the evidence receipt](reports/2026-10-21-sdram-burst/README.md).
