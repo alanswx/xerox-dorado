@@ -12,6 +12,17 @@ module tb_storage_selftest #(
     wire [15:0] value,returned;
     wire [127:0] observation;
     wire [2:0] phase=observation[5:3];
+`ifdef DORADO_BURST_OBSERVER
+    wire [127:0] burst_observation;
+    task automatic check_first_burst;
+        if(burst_observation[127:96]!==32'hb1780001)
+            $fatal(1,"SELFTEST: first burst marker/valid");
+        for(int lane=0;lane<8;lane++)begin
+            if(burst_observation[12*lane+:12]!==12'(lane^'ha59^(fault==2 ? 128 : 0)))
+                $fatal(1,"SELFTEST: first burst lane=%d data=%h",lane,burst_observation);
+        end
+    endtask
+`endif
     int fault=0;
     initial if($value$plusargs("fault=%d",fault))begin end
     wire corrupt=(fault==1 && phase==1 && address==ADDR_BITS'('h1234)) ||
@@ -43,6 +54,9 @@ module tb_storage_selftest #(
         .req_ready(backend_ready),.req_write(writing),.req_addr(physical_address),
         .req_data(value),.rsp_valid(backend_response),.rsp_ready(backend_rsp_ready),
         .rsp_data(returned),.initialized(initialized),.cache_hit(cache_hit),
+`ifdef DORADO_BURST_OBSERVER
+        .burst_observation(burst_observation),
+`endif
         .sdram_a(a),.sdram_ba(ba),.sdram_ncs(ncs),.sdram_nras(nras),
         .sdram_ncas(ncas),.sdram_nwe(nwe),.sdram_dqml(dqml),.sdram_dqmh(dqmh),
         .sdram_cke(cke),.dq_out(dq_out),.dq_oe(dq_oe),.dq_in(dq));
@@ -77,6 +91,9 @@ module tb_storage_selftest #(
         end
         if(response && response_ready)begin
             if(outstanding!=1)$fatal(1,"SELFTEST: orphan completion");
+`ifdef DORADO_BURST_OBSERVER
+            if(phase==1 && address==0)check_first_burst();
+`endif
             completions++;outstanding--;
         end
         if(cache_hit)hits++;
@@ -105,6 +122,9 @@ module tb_storage_selftest #(
                observation[112:101]!==12'(ev))
                 $fatal(1,"SELFTEST: first failure mismatch %h phase=%d addr=%h exp=%h got=%h",observation,ep,ea,ee,ev);
         end
+`ifdef DORADO_BURST_OBSERVER
+        check_first_burst();
+`endif
         saved=observation;r0=refreshes[0];r1=refreshes[1];
         repeat(10000)begin
             @(negedge clk);

@@ -1,0 +1,11 @@
+# SDRAM read-capture correction: independently grounded components
+
+The physical trace returned words 1..7,7 instead of 0..7. A receiver-edge and launch-time test against a Micron-authored model confirms data launches at READ+(CL-1)*tCK+tAC: 26 ns for CL2 and 46 ns for CL3 at 50 MHz/tAC=6 ns. The old local model launches at 46/66 ns and is rejected. It had one extra countdown cycle because read advancement runs before command decode. The correction changes that countdown from CL-1 to CL-2 and the raw controller's wait from 3 to 2; the input register edge and all original board clocks are unchanged.
+
+Passing evidence: CAS2/3 vendor/local comparison plus legacy-model rejection; bounded first-burst/memory tests plus three runtime bad controls including the legacy late controller; full 23-bit memory sweep (50,331,648 requests/completions); seven positive raw-port cases over 20..50 MHz plus six runtime rejection controls; native MSA BL1/BL8 comparison at 12,012 logical cycles with all 9,437,184 stored bits identical. The legacy controller with the corrected model reproduces the physical first-seven-word displacement.
+
+The 501-source native stage changes only the backend wait and explanatory edge wording from the reviewed passive trace. A verified live build prefix and a reviewer rejection of nonterminal assembly qualification are included. No corrected FPGA image has yet passed hardware memory, original firmware, Cedar, input or speed qualification. Existing V38/V39 processes keep their frozen old models; they were not restarted or modified.
+
+The vendor model body is an external private test input and is not redistributed here. The manifest contains its pinned public mirror URL, commit and SHA256; all owned testbench/model/correction inputs and logs are preserved. Download that exact body to inputs/vendor/micron-reference.v to replay the CAS test. Mirror capacity changes are immaterial to this row0-only timing test, whose testbench bounds capacity to 1024 words per bank; vendor scheduling code is not modified locally. The v2 driver header-whitespace preflight failure is retained; v3 executes all six stages and passes.
+
+Verify: `python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-21-sdram-read-capture/component`

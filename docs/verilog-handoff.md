@@ -15,15 +15,42 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Latest hardware (2026-10-21 UTC): raw-memory diagnostic confirms a real data
-mismatch before guest release.** Main11889/server11888 run the reviewed
-StorageSelftest1 image on14. Its first read of raw address0 expects0xA59 and
-returns0xA58; phase1/failed1/ready0 is stable. The guest is intentionally held.
-The native build/assembly/timing pass; physical memory integrity and this image's
-Cedar boot do not. See the current hardware section below. Earlier live PIDs
-and pending-build statements are historical and superseded by that section.
+**Latest hardware (2026-10-21 23:33 UTC): corrected SDRAM capture passes on14.**
+StorageReadCapture1 RBF `0c578915110c59c546456a2821e26a0fcfdffe671668ffb27ad3e3caedd459b2`
+is loaded; Main14025/server14024 are live with unchanged binaries. The physical
+test passes all8,388,608 raw12-bit cells, both address patterns and verified
+zero-fill before release (phase6,ready1,failed0). First burst is exactly
+`A59 A58 A5B A5A A5D A5C A5F A5E`. Evidence:
+`build/rtl-executive/storage-readcapture1-native-field-20261021/startup/memory-pass.json`.
+The old chip model launched data one clock late and concealed the controller's
+matching late capture. Independently checked Micron-authored CAS scheduling
+and corrected local-model tests now agree; staged BL1/BL8 capture wait is2
+instead of3. Root legacy controllers remain preserved for prior receipts.
+Full corrected pin tests, fault controls, 8M-cell run, seven-profile raw-port
+matrix and original MSA BL1/BL8 board comparison pass. Native review passes
+31 device summaries, preserved RAM contracts and18 rejection controls;
+minimum margin+0.118ns. This is still50MHz/SYSPER4, not a clock speedup.
 
-The corrected MC1668 candidate now measures **1,947,686.01 instruction issues/s**
+Normal keyboard C was released after the actual new BFN113 request at23:31;
+the explicit boot-button script has NOT been executed. The23:34 internal
+screenshot shows the original Cedar6.1 login, `Please login ... Name:`. Thus
+microcode was delivered and the firmware/germ/disk chain reached login.
+`FTP_UNSERVED type=0o264` is misleading: ethernet.c serves microcode requests
+AFTER that diagnostic branch. Do not diagnose a missing response from that log.
+Main reports no CRC/drop/RX/abort faults. Three pre-Guest idle-login windows
+measure2,592,835.27 /2,593,033.74 /2,592,895.80 issued instructions/s, mean
+**2,592,921.60/s** (15.56% of the original60ns rate,33.1% above the prior
+qualified login). These are StartCycle issues excluding RepeatCur, not drained
+retirements. This is one login boot, not desktop/application performance.
+Normal Guest input has completed; the original loader is transferring files.
+Desktop/input remain unqualified for this image.
+Evidence: same field startup directory, `firmware-screen.png`. Next: follow the SAME loader to profile-No and desktop, qualify input and
+hold causes, finish field evidence and commit/push. Full corrected terminal
+build/memory/login receipt:
+[read-capture native evidence](../fpga/mister/reports/2026-10-21-sdram-read-capture/native-fit/README.md). The StorageSelftest1 hardware section
+below is historical and superseded here.
+
+The earlier qualified MC1668 candidate measured **1,947,686.01 instruction issues/s**
 at Cedar's idle login, effectively unchanged from Native59's 1,947,654.12.
 Original firmware, all34 base transfers/final guest ACK, Viewers, mouse/click,
 exact keyboard echoes and warm file create/readback now pass. Cold persistence
@@ -116,25 +143,48 @@ trace gaps (traceSHAc904f225). No clean guest shutdown/filesystem qualification
 claim. BootFault2's first parity stop was the ROM's deliberate MicrocodeBootFailed
 breakpoint; this separate pre-guest test now demonstrates a raw-memory mismatch.
 
-**Next:** expose/capture the first complete eight-word raw burst and compare its
-ordering with the written pattern and the pin model/physical-clock constraints.
-Distinguish a one-word capture shift from write corruption/data-bit failure;
-compare a BL1 control if needed. Preserve this failing image/evidence. Do not
-adjust wait counts, skip a firmware breakpoint or change the chip model merely
-to make a test pass. Then repair the demonstrated controller/protocol issue,
-repeat full-memory verification on14, and resume original-firmware Cedar/input
-and pinned issue/hold speed gates. Main and guest-state import stay unchanged.
-Clock acceleration, FPGA Checkpoint/Rollback, cold persistence, three fresh boots
-and two-hour sustained operation remain open. Last working Cedar login remains
-1,947,686.01 instruction issues/s against original16,666,667/s.
+**Passive first-burst trace is implemented and its two pin-model runs pass.**
+A separate97-bit capture block in the staged backend retains the first eight
+12-bit sampled words plus valid, from the exact cache-fill event. No original
+controller state/delay/data assignment changes. Output ports/wires and unused
+command70 pages24..27 (markerB178) are the only other changes. Bounded tests keep
+all original cases and reject reversed trace lanes at runtime. Full23-bit run
+passes50,331,648 requests/completions and verifies the initial trace is retained
+through the entire sweep. Both executed-input receipts are frozen.
 
-V38/V39 remain separate original processes; latest archived observations are
-candidate1440M/control1470M host ticks, CPUd0fff000. Both process statuses were
-RX at the archive observation. Their three normal button pulses are terminal;
-no Cedar113/first trap is claimed. Counter writes were only testbench input
-scheduling; capture callbacks remain read-only. Control's logger-bound source
-correction is prepared but NOT loaded after automatic review rejected interrupting
-its preserved debugger. Follow the actual sessions; do not restart on timeout.
+501-source stage `build/rtl-executive/native-storage-burst-observer-v1-20261021`
+reconstructs the reviewed failing image plus only that passive delta. Actual
+synthesis uses the backend, wrapper and core top. Native fit is LIVE at
+`misterubuntu:/home/alans/mister/Dorado_StorageBurstTrace1_20261021`:
+builder3616462, map3616472 terminal0, fitter3620332; placement passed, routing
+underway. Reporter/inventory waiter3623270 follows this same fit, without a
+restart. No assembly/load or physical first-burst trace is claimed yet.
+Portable545-member component/stage/live-prefix receipt passes lossless readback:
+`fpga/mister/reports/2026-10-21-storage-burst-observer/component/`.
+
+**Next:** finish the SAME trace build's full timing/memory/source review and
+rejection controls, assemble/load normally after preserving the failing image's
+closed pack/trace, and read all eight actual burst words. Distinguish a one-word
+capture shift from write corruption/data-bit failure; compare a BL1 control if
+needed. Do not adjust wait counts, skip a firmware breakpoint or change the chip
+model merely to make a test pass. Repair the demonstrated controller/protocol
+issue, repeat full-memory verification on14, then resume original-firmware
+Cedar/input and pinned issue/hold speed gates. Main and guest-state import stay
+unchanged. Clock acceleration, FPGA Checkpoint/Rollback, cold persistence, three
+fresh boots and two-hour sustained operation remain open. Last working Cedar
+login remains1,947,686.01 instruction issues/s against original16,666,667/s.
+
+V38/V39 remain separate original processes. **Correction to the earlier status:**
+the immutable control1470M-host-tick capture already shows CPUc0fc7000; only the
+candidate1440M capture showsd0fff000. Neither establishes Cedar113/first trap.
+Their normal button pulses are terminal; writes were only bench input scheduling.
+At1510M control's OLD loaded logger assertion stopped it naturally. The prepared
+read-only logger correction was then reloaded at that existing stop and the SAME
+PID83509 resumed normally; no interrupt or guest state write was sent. This
+resolves the earlier reload_pending condition after interrupting an active session
+had been rejected. Proof: `normal-input/logger-budget-extension.json` and
+`host-inspection/observation-logger_bound_reload-1510000000.json`, also in the
+new component receipt. Follow actual sessions; do not restart on timeout.
 
 The following sections retain preceding diagnosis/build stages and their old
 live identities. This current section supersedes those identities and states.

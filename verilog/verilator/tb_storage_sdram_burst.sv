@@ -150,7 +150,11 @@ module tb_storage_sdram_burst #(
         for(int beat=0;beat<8;beat++)begin
             @(negedge clk);reset=1;repeat(2)@(negedge clk);reset=0;
             send(0,a0+7,0);wait({nras,ncas,nwe}==3'b101);
+`ifdef DORADO_CORRECT_READ_CAPTURE
+            repeat(3+beat)@(negedge clk);reset=1;@(negedge clk);reset=0;
+`else
             repeat(4+beat)@(negedge clk);reset=1;@(negedge clk);reset=0;
+`endif
             repeat(24)begin @(negedge clk);if(rsp_valid)$fatal(1,"orphan burst response after reset");end
             before_reads=physical_reads;transfer(0,a0+7,0);
             if(physical_reads!=before_reads+1)$fatal(1,"orphan burst refilled cache after reset");

@@ -24,11 +24,18 @@ def run(project, quartus):
     assert has_observer == record.get('passive_boot_fault_observer', False)
     has_selftest = q.get('raw_storage_selftest', False)
     assert has_selftest == record.get('raw_storage_selftest', False)
-    assert len(c['cases']) == (13 if has_selftest else 10 if has_observer else 7) and all(row['rejected'] and row['returncode'] != 0 for row in c['cases'])
+    has_trace = q.get('raw_burst_observer', False)
+    assert has_trace == record.get('raw_burst_observer', False)
+    has_correct_capture=q.get('corrected_sdram_read_capture',False)
+    assert has_correct_capture==record.get('corrected_sdram_read_capture',False)
+    assert len(c['cases']) == (18 if has_correct_capture else 16 if has_trace else 13 if has_selftest else 10 if has_observer else 7) and all(row['rejected'] and row['returncode'] != 0 for row in c['cases'])
     if has_observer:
         assert len(q['observer_paths']) == 8 and q['observer_component']
     if has_selftest:
         assert q['selftest_component'] and q['selftest_full_component'] and len(q['selftest_paths']) == 24 and q['selftest_registers']
+    if has_trace:
+        assert len(q['burst_observer_paths']) == 8 and q['burst_observer_component'] and q['burst_observer_full_component']
+    if has_correct_capture:assert q['read_capture_qualification']
     assert len(q['timing_checks']) == 31 and len(q['detailed_paths']) == 196 and len(q['burst_paths']) == 56
     assert q['minimum_slack_ns'] > 0 and q['resources']['ram_blocks'] == 332
     assert q['frequency_mhz'] == 50 and q['sysper'] == 4 and q['state_admin'] == 'INACTIVE'

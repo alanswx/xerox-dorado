@@ -1191,7 +1191,11 @@ module as4c32m16sb_6tin_chip_model #(
             burst.start_col      = col & (COLS - 1);
             burst.index          = 0;
             burst.len            = burst_length;
-            burst.latency        = cas_latency - 1;
+            // CL is the receiver's sampling edge. Data must launch one
+            // clock earlier (Micron's CL2 Command[1] / CL3 Command[2]
+            // pipeline). advance_read_burst runs BEFORE command decode,
+            // so the next chip edge is already the first elapsed clock.
+            burst.latency        = cas_latency - 2;
             burst.auto_precharge = auto_precharge;
             burst.full_page      = burst_full_page;
             burst.interleaved    = burst_interleaved;

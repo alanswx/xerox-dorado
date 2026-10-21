@@ -9,7 +9,29 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-Current hardware: **pre-guest raw SDRAM test fails at address0**, expected0xA59,
+**Latest status (2026-10-21 23:33 UTC): physical SDRAM capture is corrected.**
+MiSTer14 runs StorageReadCapture1 RBF0c578915, Main14025/server14024. All8,388,608
+raw12-bit cells pass both address patterns and zero verification; first burst
+is exactlyA59/A58/A5B/A5A/A5D/A5C/A5F/A5E. The old local chip model launched
+one clock late, masking the corresponding late controller capture. Independent
+CAS reference, corrected pin/full-memory/matrix/board checks, native timing
+(minimum+0.118ns), RAM/source review and18 rejection controls pass.
+
+Original firmware has delivered Cedar BFN113 and reached its login prompt
+(actual23:34 screenshot); normal C is released. The FTP_UNSERVED line is
+misleading because the microcode handler runs later in the same function.
+Three pre-Guest idle-login windows now average **2,592,921.60 issues/s**,
+15.56% of the16.67M/s target (60ns),33.1% above the previous1,947,686.01/s.
+Clock cadence is unchanged. This is one login workload, not full desktop speed.
+Guest input has completed and loader transfers are active. Next: follow the
+SAME boot to profile-No/desktop, qualify input and hold causes, finish field
+evidence and commit/push. The full corrected native/memory/login archive is
+[here](../fpga/mister/reports/2026-10-21-sdram-read-capture/native-fit/README.md). Clock acceleration, authentic FPGA
+rollback, cold persistence, three fresh boots and two-hour stress remain open.
+Whole FPGA snapshots remain deferred. Earlier hardware/build statuses below
+are historical; see the latest top-of-handoff status for current identities.
+
+Historical StorageSelftest1 hardware: **pre-guest raw SDRAM test fails at address0**, expected0xA59,
 actual0xA58. MarkerB157 and two metadata samples confirm phase1/failed1/ready0;
 the guest stays held. Address1's pattern is0xA58, suggesting a shifted burst,
 but read alignment, write corruption and a data-bit fault remain distinguishable
@@ -24,12 +46,22 @@ contracts;332M10Ks/35DSPs. Thirteen damaged-evidence controls reject; assembly
 passes. The full pin-model test previously passed50,331,648 transactions across
 8,388,608 raw cells, so the physical/model discrepancy remains unresolved.
 
-Next: capture the first complete eight-word returned burst against the written
-pattern and actual physical clock constraints. Distinguish ordering from write
-corruption/data-bit failure; compare a BL1 control if needed. Repair the proved
-cause, repeat full raw-memory testing on14, then resume original-firmware Cedar/
-input/pinned issue+hold qualification. Preserve the failing image, original
-firmware and guest state; do not change wait counts/model just to pass tests.
+The passive first-burst trace is now implemented/tested:97 retained bits, same
+cache-fill data/event, no controller timing/state/data feedback; markerB178 at
+pages24..27. The bounded test rejects swapped trace lanes; the full23-bit run
+passes50,331,648 transactions and retains the original burst. Native501-source
+fit is LIVE on misterubuntu (builder3616462,fit3620332; placement passed/routing),
+with waiter3623270 queued for the SAME fit's reports/inventory. Source-cone review
+confirms the actual synthesized top/wrapper/backend. Component receipt:
+[trace evidence](../fpga/mister/reports/2026-10-21-storage-burst-observer/component/README.md).
+
+Next: complete that build's original/new timing and memory/source review plus
+rejection controls, assemble/load normally, then compare its first actual burst
+with the written pattern and physical clock constraints. Distinguish ordering
+from write corruption/data-bit failure; compare a BL1 control if needed. Repair
+the proved cause, repeat full raw-memory testing on14, then resume original-
+firmware Cedar/input/pinned issue+hold qualification. Preserve the failing image
+and original firmware. No wait-count/model changes just to pass tests.
 Last working Cedar login remains1,947,686.01 instruction issues/s (~11.7% of
 original16.67M/s); clock acceleration, rollback, persistence, repeated boots and
 sustained operation remain pending. Complete FPGA snapshots stay deferred.
@@ -37,6 +69,10 @@ sustained operation remain pending. Complete FPGA snapshots stay deferred.
 Normal Main barriers preserved BootFault2's closed seed and complete trace with
 two barriers/no gaps. Full952-member native/field/input-prefix archive:
 [terminal evidence](../fpga/mister/reports/2026-10-21-storage-selftest/native-fit/README.md).
+Control simulation83509 stopped naturally on its old logger bound at1510M;
+the prepared read-only correction was loaded at that stop and the same process
+resumed without interruption or guest-state writes. Control1470M already shows
+CPUc0fc7000; the earlier statement that both jobs still showd0fff000 was wrong.
 Current identities/results and next TODOs are in the
 [handoff](verilog-handoff.md#current-hardware-raw-sdram-mismatch-before-guest-release-2026-10-21-utc).
 The following paragraphs retain earlier live statuses for history.

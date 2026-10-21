@@ -28,7 +28,7 @@ def run(project, quartus, attempt='burst-review'):
         raise RuntimeError('Existing builder/stage present; observe it: ' + str(pid))
     path = project / (attempt + '-state.json')
     assert not path.exists(), 'Observe the existing report job'
-    tcl = project / ('audit_storage_selftest_native.tcl' if source.get('raw_storage_selftest') else 'audit_boot_fault_native.tcl' if source.get('passive_boot_fault_observer') else 'audit_sdram_burst_native.tcl')
+    tcl = project / ('audit_storage_burst_observer_native.tcl' if source.get('raw_burst_observer') else 'audit_storage_selftest_native.tcl' if source.get('raw_storage_selftest') else 'audit_boot_fault_native.tcl' if source.get('passive_boot_fault_observer') else 'audit_sdram_burst_native.tcl')
     state = dict(status='RUNNING', driver_pid=os.getpid(), started=time.time(),
                  tcl_sha256=hashlib.sha256(tcl.read_bytes()).hexdigest(), actions=[])
     def save():

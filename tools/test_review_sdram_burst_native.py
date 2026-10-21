@@ -52,6 +52,13 @@ def run(args):
             command += ['--selftest-component', str(args.selftest_component.resolve())]
         if args.selftest_full_component:
             command += ['--selftest-full-component', str(args.selftest_full_component.resolve())]
+        if args.burst_observer_component:
+            command += ['--burst-observer-component', str(args.burst_observer_component.resolve())]
+        if args.burst_observer_full_component:
+            command += ['--burst-observer-full-component', str(args.burst_observer_full_component.resolve())]
+        if args.cas_reference and label!='missing-cas-reference':command += ['--cas-reference',str(args.cas_reference.resolve())]
+        if args.read_capture_matrix:command += ['--read-capture-matrix',str(args.read_capture_matrix.resolve())]
+        if args.read_capture_board:command += ['--read-capture-board',str(args.read_capture_board.resolve())]
         with (out / (label + '.log')).open('x') as log:
             p = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT)
             row = dict(case=label, pid=p.pid, command=command, started=time.time())
@@ -138,6 +145,31 @@ def run(args):
         assert len(reports) == 4
         name_selftest = str(reports[0].relative_to(original))
         exercise('missing-selftest-timing-corner', lambda p: (p / name_selftest).unlink(), 'FileNotFoundError')
+    if args.burst_observer_component:
+        text = read(original / 'burst-review-v2.log.gz')
+        match = re.search(rb'BURST_TRACE_COUNT (\S+) (\d+)', text)
+        assert match
+        replacement = b'BURST_TRACE_COUNT '+match[1]+b' '+str(int(match[2])-1).encode()
+        exercise('burst-trace-register-count-wrong', lambda p: replace(p / 'burst-review-v2.log.gz', match[0], replacement))
+        def swapped_trace(directory):
+            name = 'core/Dorado.sv';path = directory / (name + '.gz')
+            replace(path, b'storage_burst_observation[32*status[12:11]+:32]', b'storage_burst_observation[32*(3-status[12:11])+:32]')
+            manifest = directory / 'sdram-burst-native.json.gz';record = json.loads(read(manifest))
+            record['source_hashes'][name] = hashlib.sha256(read(path)).hexdigest()
+            tmp = manifest.with_name('rehashed-trace.tmp');tmp.write_bytes(gzip.compress(json.dumps(record).encode(),mtime=0));os.replace(tmp,manifest)
+        exercise('burst-trace-wires-swapped-rehashed', swapped_trace)
+        reports = sorted((original / 'core').glob('burst-trace-capture-hold-*.rpt.gz'))
+        assert len(reports) == 4
+        trace_report = str(reports[0].relative_to(original))
+        exercise('missing-burst-trace-corner', lambda p: (p / trace_report).unlink(), 'FileNotFoundError')
+    if args.cas_reference:
+        def reverted_capture(directory):
+            name='src/fpga/mister/dorado_storage_sdram_burst.sv';path=directory/(name+'.gz')
+            replace(path,b'delay_count<=2;state<=READ_WAIT;',b'delay_count<=3;state<=READ_WAIT;')
+            manifest=directory/'sdram-burst-native.json.gz';record=json.loads(read(manifest));record['source_hashes'][name]=hashlib.sha256(read(path)).hexdigest()
+            tmp=manifest.with_name('rehashed-read-capture.tmp');tmp.write_bytes(gzip.compress(json.dumps(record).encode(),mtime=0));os.replace(tmp,manifest)
+        exercise('read-capture-reverted-rehashed',reverted_capture)
+        exercise('missing-cas-reference',lambda p:None)
     assert hashlib.sha256((original / 'archive-manifest.json.gz').read_bytes()).hexdigest() == manifest_hash
     for row in json.loads(gzip.decompress((original / 'archive-manifest.json.gz').read_bytes())):
         data = read(original / row['stored'])
@@ -154,4 +186,9 @@ if __name__ == '__main__':
     p.add_argument('--observer-component', type=Path)
     p.add_argument('--selftest-component', type=Path)
     p.add_argument('--selftest-full-component', type=Path)
+    p.add_argument('--burst-observer-component', type=Path)
+    p.add_argument('--burst-observer-full-component', type=Path)
+    p.add_argument('--cas-reference',type=Path)
+    p.add_argument('--read-capture-matrix',type=Path)
+    p.add_argument('--read-capture-board',type=Path)
     run(p.parse_args())

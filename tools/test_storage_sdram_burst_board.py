@@ -24,7 +24,7 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def run(native, out):
+def run(native, out,correct_read_capture=False):
     assert not out.exists(), 'Observe the recorded existing run'
     record = json.loads(gzip.decompress((native / 'provenance.json.gz').read_bytes()))
     out.mkdir(parents=True)
@@ -61,6 +61,11 @@ def run(native, out):
         Path(__file__).name: 'tools/' + Path(__file__).name,
     }.items():
         shutil.copy2(ROOT / source, inputs / name)
+    if correct_read_capture:
+        from stage_storage_read_capture import correct_capture
+        for n in ['dorado_storage_sdram.sv','dorado_storage_sdram_burst.sv']:
+            f=inputs/n;f.write_bytes(correct_capture(f.read_bytes()))
+        shutil.copy2(ROOT/'tools/stage_storage_read_capture.py',inputs/'stage_storage_read_capture.py')
     tb = (inputs / 'original-tb.sv').read_text()
     guard = ('    initial if(external_memory.u_storage_0.DEFER_READS!=DEFER_READS)\n'
              '        $fatal(1,"testbench/generator deferred-read options differ");\n')
@@ -74,7 +79,7 @@ def run(native, out):
                       inputs={str(p.relative_to(inputs)): sha(p) for p in inputs.rglob('*') if p.is_file()},
                       original_board_address_bits=16, raw_group_count=16,
                       oracle_power_on='Fixture explicitly defines unwritten physical cells as zero',
-                      native_qualified=False)
+                      native_qualified=False,read_capture_corrected=correct_read_capture)
     (out / 'provenance.json.gz').write_bytes(gzip.compress((json.dumps(provenance, indent=2) + '\n').encode(), mtime=0))
     state = dict(status='RUNNING', driver_pid=os.getpid(), started=time.time(), actions=[])
     def save():
@@ -117,5 +122,6 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--native', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--correct-read-capture',action='store_true')
     a = p.parse_args()
-    run(a.native.resolve(), a.output.resolve())
+    run(a.native.resolve(), a.output.resolve(),a.correct_read_capture)

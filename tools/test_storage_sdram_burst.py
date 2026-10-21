@@ -22,7 +22,7 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def run(out, controls):
+def run(out, controls,correct_read_capture=False):
     assert not out.exists(), 'Observe the existing recorded run'
     out.mkdir(parents=True)
     inputs = out / 'inputs'
@@ -35,8 +35,13 @@ def run(out, controls):
         p = inputs / name
         p.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / name, p)
+    if correct_read_capture:
+        from stage_storage_read_capture import correct_capture
+        for name in files[:2]:
+            path=inputs/name;path.write_bytes(correct_capture(path.read_bytes()))
+        helper=inputs/'tools/stage_storage_read_capture.py';helper.write_bytes((ROOT/'tools/stage_storage_read_capture.py').read_bytes());files.append('tools/stage_storage_read_capture.py')
     provenance = dict(scope=__doc__, inputs={n: sha(inputs / n) for n in files},
-                      native_qualified=False, hardware_qualified=False)
+                      native_qualified=False, hardware_qualified=False,read_capture_corrected=correct_read_capture)
     (out / 'provenance.json.gz').write_bytes(gzip.compress(
         (json.dumps(provenance, indent=2) + '\n').encode(), mtime=0))
     state = dict(status='RUNNING', driver_pid=os.getpid(), actions=[], started=time.time())
@@ -63,6 +68,7 @@ def run(out, controls):
                    '--Mdir', str(obj), '-o', 'test-burst',
                    str(inputs / files[0]), str(source or inputs / files[1]),
                    str(inputs / files[2]), str(model or inputs / files[3])]
+        if correct_read_capture:command.insert(1,'+define+DORADO_CORRECT_READ_CAPTURE')
         assert execute(command, label + '-compile') == 0, label
         code = execute([str(obj / 'test-burst')], label + '-test')
         log = (out / (label + '-test.log')).read_text()
@@ -85,8 +91,8 @@ def run(out, controls):
                 ('stale-write', "if(line_valid[i] && line_tag[i]==23'(26'(req_addr)>>3))line_valid[i]<=0;",
                  "if(1'b0)line_valid[i]<=0;", 'read ', 0),
                 ('orphan-fill', 'if(!aborted && !reset)begin', 'if(!reset)begin', 'orphan burst', 0),
-                ('early-capture', 'delay_count<=3;state<=READ_WAIT;',
-                 'delay_count<=2;state<=READ_WAIT;', 'read ', 6),
+                ('early-capture', 'delay_count<=2;state<=READ_WAIT;' if correct_read_capture else 'delay_count<=3;state<=READ_WAIT;',
+                 'delay_count<=1;state<=READ_WAIT;' if correct_read_capture else 'delay_count<=2;state<=READ_WAIT;', 'read ', 6),
                 ('single-beat-mode', "MODE_WORD=13'h223", "MODE_WORD=13'h220", 'read ', 0),
                 ('short-rcd', 'T_RCD=clocks(21)', 'T_RCD=1', 'tRCD', 0),
             ]:
@@ -115,5 +121,6 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--controls', action='store_true')
+    p.add_argument('--correct-read-capture',action='store_true')
     a = p.parse_args()
-    run(a.output.resolve(), a.controls)
+    run(a.output.resolve(), a.controls,a.correct_read_capture)

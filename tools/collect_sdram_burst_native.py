@@ -27,13 +27,20 @@ def collect(project):
             continue
         raise RuntimeError('Recorded process still exists; observe ' + str(pid))
     record = json.loads((project / 'sdram-burst-native.json').read_text())
+    if record.get('raw_burst_observer'):
+        inventory = json.loads((project / 'register-inventory-v1/state.json').read_text())
+        assert inventory['status'] == 'TERMINAL_FITTED_REGISTER_INVENTORY' and inventory['returncode'] == 0
+        for pid in [inventory['driver_pid'],inventory['child_pid']]:
+            try:os.kill(pid,0)
+            except ProcessLookupError:pids.append(pid)
+            else:raise RuntimeError('Inventory still live '+str(pid))
     actual = {n: sha((project / n).read_bytes()) for n in record['source_hashes']}
     assert actual == record['source_hashes'] and len(actual) == 499 + int(record.get('passive_boot_fault_observer', False)) + int(record.get('raw_storage_selftest', False))
     check = dict(status='TERMINAL_NATIVE_BURST_INPUT_READBACK', actual=actual,
                  absent_pids=pids, assembly_collected=False)
     (project / 'collected-input-check.json').write_text(json.dumps(check, indent=2) + '\n')
     files = set(actual)
-    for directory in [project, project / 'core', project / 'core/output_files', project / 'rejected-burst-review-v1']:
+    for directory in [project, project / 'core', project / 'core/output_files', project / 'rejected-burst-review-v1', project / 'register-inventory-v1']:
         if not directory.exists():
             continue
         files.update(str(p.relative_to(project)) for p in directory.iterdir()
