@@ -24,11 +24,16 @@ ROOT=Path(__file__).resolve().parents[1]
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def prepare(stage,mapping,out,medium):
+def prepare(stage,mapping,out,medium,qualification=None):
     assert not out.exists()
-    r=json.loads((stage/'r-front-ready-native.json').read_text())
-    q=json.loads((stage/'qualification.json').read_text())
-    assert q['status']=='PASS_NATIVE_R_FRONT_READY_PREASSEMBLY_REVIEW'
+    manifest=stage/'r-front-ready-native.json'
+    if not manifest.exists():manifest=stage/'mc1668-candidate.json'
+    r=json.loads(manifest.read_text())
+    qualification=qualification or stage/'qualification.json'
+    q=json.loads(qualification.read_text())
+    expected_status=('PASS_NATIVE_R_FRONT_READY_PREASSEMBLY_REVIEW'
+        if manifest.name=='r-front-ready-native.json'else 'PASS_NATIVE_MC1668_BUILD')
+    assert q['status']==expected_status
     assert q['source_hashes']==r['source_hashes']and r['frequency_mhz']==50 and r['sysper']==4
     assert r['state_admin']=='INACTIVE'
     out.mkdir(parents=True);inputs=out/'inputs';inputs.mkdir()
@@ -78,7 +83,7 @@ def prepare(stage,mapping,out,medium):
     for n,p in artifacts.items():assert p.exists(),(n,p)
     (out/'host-cycle-limit.txt').write_text('1500000000\n')
     record=dict(status='PREPARED_EXACT_NATIVE_MEMORY_DIAGNOSTIC',stage=str(stage),
-        stage_manifest_sha256=sha(stage/'r-front-ready-native.json'),qualification_sha256=sha(stage/'qualification.json'),
+        stage_manifest_name=manifest.name,stage_manifest_sha256=sha(manifest),qualification_sha256=sha(qualification),
         mapping_sha256=sha(mapping),inputs=hashes,used_hdl=used,defines=definitions,
         artifacts={n:dict(path=str(p),sha256=sha(p)if p.is_file()else None)for n,p in artifacts.items()},
         no_CPU_state_or_guest_IOCB_completion=True,complete_MiSTer_Main_video_qualified=False)
@@ -126,8 +131,10 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);mode=p.add_mutually_exclusive_group(required=True)
     mode.add_argument('--prepare',type=Path);mode.add_argument('--run',type=Path)
     p.add_argument('--stage',type=Path);p.add_argument('--mapping',type=Path);p.add_argument('--medium',type=Path)
+    p.add_argument('--qualification',type=Path,help='Completed review when stored outside the frozen stage')
     a=p.parse_args()
     if a.prepare:
         assert a.stage and a.mapping and a.medium
-        prepare(a.stage.resolve(),a.mapping.resolve(),a.prepare.resolve(),a.medium.resolve())
+        prepare(a.stage.resolve(),a.mapping.resolve(),a.prepare.resolve(),a.medium.resolve(),
+                a.qualification.resolve()if a.qualification else None)
     else:run(a.run.resolve())

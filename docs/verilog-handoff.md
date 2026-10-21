@@ -76,6 +76,24 @@ have been optimized out and are initialized placeholders: do not interpret
 those structure members as live pins. Logger summaries use assigned internal
 cache/miss/wait/write state; no memory-cause conclusion from sparse samples.
 
+**Matched MC1668 control V39 is also LIVE:** driver83197/test83509, runner
+exec48450 and LLDB exec66643 (`VL_FINISH_MT` breakpoint1 resolved/continued).
+Directory `build/rtl-executive/native-cedar-memory-control-v39-20261021`.
+All498 files match the qualified MC1668 source review exactly;158 used HDL
+files come from its completed map report. Host/compile stages return0, live
+PID verified, link-symbol check excludes C guest CPU/machine/memory execution.
+External packet service/seed/host timers/device timing match V38. The control
+has no operand monitor, so only its operand-ring fields are explicit zeros;
+do not interpret them as processor values. No source or state from this control
+is imported into V38 or the FPGA. Compare both original-firmware outcomes to
+separate harness behavior from the new processor/frontend timing regression.
+The shared runner now accepts the external completed MC1668 review; V38's
+already-frozen runner/testbench remain unchanged. Source comparison lists nine
+changed common files/fifteen candidate-only files, not behavioral equivalence.
+Both were confirmed live when the572-member/528-blob
+[paired-prefix receipt](../fpga/mister/reports/2026-10-21-r-front-operand-observer/production-native-control-prefix/README.md)
+was frozen and losslessly verified. No terminal boot or speed result.
+
 New runner `tools/run_native_cedar_memory.py` freezes all513 exact stage files,
 171 used source HDL files selected from V6's completed map report, QSF defines,
 original EPROMs and an external independent physical XSDS model. This is the
@@ -6273,6 +6291,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Preserve V34/V35 terminal bounded host-pause comparisons and their exact original map/RM/phase results; keep synthetic-pause scope explicit.
 - [x] Freeze/compile the exact production native machine with original EPROMs and full eight-board SDRAM; independently verify captured113 packet payloads and absence of C guest execution. Reject V36 syntax/V37 service-clock attempts explicitly and preserve the V38 running prefix.
 - [ ] Follow existing V38 driver79190/test79583 (LLDB11479) through its production boot window to actual113/first trap/queue data; inspect real memory completion and consumed operands. Enabled-edge progress is not MIPS or firmware qualification.
+- [x] Freeze/compile matched full-memory control V39 from the498-file qualified MC1668 stage; preserve source/link checks and running prefixes. No operand observer exists in this control; only its PC/device observations are meaningful.
+- [ ] Compare V38 against existing V39 driver83197/test83509 (LLDB66643) through original firmware; distinguish a common harness failure from the new front/processor regression before an RTL repair.
 - [x] Test live progressive1080p60 through normal Main controls; preserve black capture and restore previous1080p30. Shared capture service/other MiSTers remain untouched; capture recovery is still open.
 - [ ] Trace the earlier queue/memory fault with phase-correct consumed operands through native memory holds; recover original Cedar/login/Viewers/mouse/click/exact keyboard echo and HDMI capture before accelerating.
 - [ ] Complete original 60 ns ordinary-instruction clock/enable and timer migration, reducing avoidable memory waits while preserving cache/map/ECC and peripheral behavior. Report instruction issues and holds separately on pinned workloads.

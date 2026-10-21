@@ -10,6 +10,9 @@ The [production native memory prefix](production-native-memory-prefix/README.md)
 adds the full original-EPROM/eight-board SDRAM diagnostic, explicitly rejected
 earlier harness attempts, packet-adapter checks and a restored live video test.
 V38 was still running at collection; no terminal firmware result is claimed.
+The [paired control prefix](production-native-control-prefix/README.md) adds
+the qualified MC1668 source control, successful compile/link checks and actual
+live-process observations for both runs. Both firmware outcomes remain pending.
 
 The root manifest freezes V5 staged inputs and terminal V29/V31/V30 component
 tests:1,871 members/539 unique blobs. **V5 is rejected as an operand diagnostic**:

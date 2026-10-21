@@ -23,6 +23,12 @@ Progress `guest` counts enabled fabric edges, not instructions. The runner,
 scope limitations, debugger11479 and immutable prefix are in the handoff.
 No hardware load or measured speed gain. The live progressive1080p60 capture
 experiment remained black and the previous1080p30 mode was restored normally.
+Matched full-memory MC1668 control V39 now also runs (driver83197/test83509,
+LLDB66643), with all498 reviewed stage files exact and158 used HDL inputs.
+Compile/link checks pass; seed/service/host timing match V38. Compare both
+original-firmware outcomes before changing RTL. The control has no operand
+observer; its zero operand-ring fields are placeholders. Both jobs remain live,
+not terminal firmware qualifications; V38 was not restarted or modified.
 
 2026-10-21 continuation: the visible-R v4 FPGA boot still displays Pilot812.
 Inverse MicroD placement now resolves all sampled CIA239/23a/6c1/6c2 to

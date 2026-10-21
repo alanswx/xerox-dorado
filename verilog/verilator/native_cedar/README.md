@@ -27,6 +27,13 @@ the runner refuses to overwrite an existing run. Observe its existing PID/log
 instead of restarting on an observation timeout. `host-cycle-limit.txt` can be
 extended during a run; it is sampled every ten million host ticks.
 
+The qualified MC1668 control is also supported with its `mc1668-candidate.json`
+and `--qualification COMPLETED_REVIEW` when that review lives outside the stage.
+The complete source inventory must match the review exactly. This control lacks
+the newer operand observer; its operand-ring fields are explicitly zero and
+must not be interpreted as processor values. Its PC and device observations
+remain available. The candidate's frozen running harness is left untouched.
+
 The `guest` progress counter counts enabled **fabric edges**, not Dorado
 microinstructions and not MIPS. The diagnostic retains a 4,096-sample physical
 operand/PC ring, dumps the first observed task-0 trap at CIA221 after113, and

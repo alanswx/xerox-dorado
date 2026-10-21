@@ -62,6 +62,10 @@ module tb_native_cedar;
   wire [31:0] fault_debug,fault_extra,pack_reads,pack_writes;
   wire [2:0] pack_phase;wire [8:0] storage_events;
   wire [127:0] operands;wire [31:0] bb_debug,cpu_debug;wire [9:0] control_debug;
+`ifndef DORADO_OPERAND_MONITOR
+  // Qualified MC1668 reference has no operand observer; keep its RTL unchanged.
+  assign operands=128'd0;
+`endif
   wire [4:0] instruction_signals;
   wire rx_line,tx_n;
   dorado_native_machine #(.SYSPER(4)) dut(
@@ -77,7 +81,10 @@ module tb_native_cedar;
     .sdram_nwe(nwe),.sdram_dqml(dqml),.sdram_dqmh(dqmh),.sdram_cke(cke),.sdram_dq_out(dq_out),.sdram_dq_oe(dq_oe),.sdram_dq_in(dq),
     .ddram_busy(1'b0),.ddram_rvalid(1'b0),.ddram_rdata(64'd0),
     .storage_ready(storage_ready),.storage_initialized(storage_initialized),
-    .operand_debug(operands),.baseboard_debug(bb_debug),.processor_debug(cpu_debug),.control_debug(control_debug),
+`ifdef DORADO_OPERAND_MONITOR
+    .operand_debug(operands),
+`endif
+    .baseboard_debug(bb_debug),.processor_debug(cpu_debug),.control_debug(control_debug),
     .instruction_signals(instruction_signals),.video(video),.hsync(hsync),.vsync_n(vsync_n),.hblank(hblank),.vblank(vblank),
     .halfline(halfline),.pixel_clk(pixel_clk),.video_field(video_field));
   // Only HPS sectors are serviced here; no Pilot structures are decoded.
