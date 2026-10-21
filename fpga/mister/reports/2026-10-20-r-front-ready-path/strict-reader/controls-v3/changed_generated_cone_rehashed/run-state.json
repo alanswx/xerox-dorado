@@ -1,0 +1,34 @@
+{
+  "builder_pid": 110834,
+  "status": "TERMINAL_REVIEW_REQUIRED",
+  "stages": [
+    {
+      "stage": "map",
+      "pid": 110842,
+      "started": 1792545678.5302527,
+      "returncode": 0,
+      "finished": 1792545717.1335502
+    },
+    {
+      "stage": "fit",
+      "pid": 111318,
+      "started": 1792545717.135313,
+      "returncode": 0,
+      "finished": 1792545917.733469
+    },
+    {
+      "stage": "sta",
+      "pid": 114102,
+      "started": 1792545917.7353067,
+      "returncode": 0,
+      "finished": 1792545942.5790973
+    },
+    {
+      "stage": "corners",
+      "pid": 114597,
+      "started": 1792545942.5808775,
+      "returncode": 0,
+      "finished": 1792545949.85831
+    }
+  ]
+}

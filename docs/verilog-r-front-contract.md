@@ -179,3 +179,11 @@ inventory: those inputs reach only unused/unobserved gate halves of the selected
 component. They do not block this integration; original surrounding CP/MIR
 logic remains required. Live Notify/preemption/Hold/IFU/MIR arrivals remain open.
 [Raw proof, cases and replay](../fpga/mister/reports/2026-10-20-ready-arbiter-capture/README.md).
+
+The full Ready/R-front/RM/STK combination now passes at752 processor Qs and
+9216 RAM bits in both simulators/six profiles (13173 events), including all59
+clocks,15 Notify-only wakeups and original write-window/source-epoch checks.
+Its15ns four-condition fit passes (+0.622ns/+0.171ns), retaining four256x9 MLAB
+banks. Native integration is next at the unchanged baseline clock first; live
+producer arrivals, all-device timing and original firmware remain unqualified.
+[Full raw receipt and native inventory](../fpga/mister/reports/2026-10-20-r-front-ready-path/README.md).

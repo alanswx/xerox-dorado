@@ -36,9 +36,9 @@ RAM handoff now passes the original circuit comparison and isolated15ns timing
 (setup+3.241ns/hold+0.136ns). Directed startup/control checks also pass in both simulators across six profiles.
 The expanded RBase/stack/bypass front now passes simulation and functional15ns
 timing after explicit pre-event task/address data capture (setup+0.474ns,
-hold+0.099ns). Ready/arbiter coupling now also passes at104 Qs. Next couple
-that state to the full memory/front slice and close live Notify/preemption/
-Hold/IFU/MIR arrivals before native integration.
+hold+0.099ns). Ready/arbiter coupling passes at104 Qs and now with the full
+memory/front slice at752 Qs. Close live
+producer wiring/arrivals and perform same-clock native integration next.
 Full board timing, faster Cedar boot and rollback remain unqualified.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
 qualify it through original firmware and the germ/disk path. Rollback preserves
@@ -52,6 +52,60 @@ existing UIO bits. Component-only; native and actual Main coordination are
 absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
+
+### Full Ready/RBase/stack/RAM component:752-Q PASS (2026-10-20)
+
+`dorado_r_front_ready_step.sv` couples Ready/IsNext to the full original
+processor and functional RM/STK. One274-package/2884-pin circuit agrees on
+all752 processor and9216 RAM bits after13173 events/profile, BOTH simulators
+across six profiles. All59 clocks,100 front bits and16 Ready bits change.
+All15 nonzero tasks wake through Notify/Ready with direct wake wires zero.
+All16 RBase slots and256 expected pointer loads remain checked.266 RBase and
+155 RM/STK windows/half have zero address/select movement.620 writes/4322
+reads/810 old-new parity handoffs. PARC profiles enforce targeted g16 limits,
+observe702ns setup/2ns hold; delayed9.9ns SRAM also passes. Nine bad RTL variants
+reject, including both Ready faults and all seven inherited front faults.
+
+The combined15ns fit is TERMINAL/PASS across four conditions: setup+0.622ns,
+hold+0.171ns,mpw+6.117ns;2944ALMs/2809registers/9216MLABbits,0M10K/DSP/PLL.
+All1247 launch/1021 functional result interface bits remain constrained;
+only the prior210 post-state test observation bits are unregistered. No clock
+exception, added pipeline cycle or RAM copy. No inferred latch warnings.
+Twenty strict damaged/rehashed reader controls reject, including a fixture
+that replaces registered state with zero without changing its dimensions.
+The original passing review and strict review are byte-identical; earlier
+R-front and task/Ready reviews also remain byte-identical. Builder110834/
+map110842/fit111318/sta114102/corners114597 are absent. All24 inputs read back
+except the permitted QSF version annotation. All local jobs are terminal.
+An unrelated SharpMZ2500 fit used another project and was left untouched.
+
+Native inventory maps all752 Qs bijectively to91 selected storage packages
+(ContA64/ProcH280/ProcL408) and all9216 RAM bits to12 original data/parity
+packages/four banks. All498 preserved MC1668/native source identities verify;
+exact native pins, parameters, metadata and Q order are recorded.370 extra
+history/setup/window bits describe source metadata, not fitted savings.
+The dead-stub proof also passes on the actual752-Q selection.
+
+Smoke v1 stopped on a text-extractor indentation assumption. Smoke v2 exposed
+that its fixture omitted the new high Notify inputs. Corrected smoke v3 passes
+5043 events. The six-profile primary adds explicit all16 Ready-bit reset/change
+coverage. No failed development trial is promoted to final qualification.
+
+Receipt: [full Ready/RAM raw evidence](../fpga/mister/reports/2026-10-20-r-front-ready-path/README.md).
+Root2492 members/128608618bytes ->11197162bytes plus the strict-reader archive;
+lossless readback/extraction verifies every selected byte and all96 primary
+inputs. Extracted strict timing review, selected Q map and dead-stub proof
+replay. No second full simulation or full498-source native replay is claimed.
+
+Next is actual native integration at unchanged50MHz/SYSPER4, using the exact
+Q/RAM/pin inventory. Close live producer wiring/arrivals; preserve surrounding
+original CP/MIR/IFU/cache/map/ECC logic and SDRAM/disk/DDRing. Run all-device
+timing and original-ROM checks on the ACTUAL modified native wrappers; the old
+generic-board Initial fixture alone cannot qualify a native-only change.
+Then fresh original-firmware Cedar/input and pinned issue/hold comparisons,
+followed by accelerated clocks/timer calibration and authentic rollback/final
+gates. No native replacement, FPGA/Main/daemon/volume change or speed gain yet;
+last measured1,947,686.01issues/s remains the hardware figure. Goal ACTIVE.
 
 ### Ready connected to task arbitration:104-Q PASS (2026-10-20)
 

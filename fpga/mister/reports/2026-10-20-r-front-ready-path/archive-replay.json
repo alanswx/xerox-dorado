@@ -1,0 +1,14 @@
+{
+  "status": "PASS_PORTABLE_R_FRONT_READY_REPLAY",
+  "members": 2492,
+  "primary_frozen_inputs": 96,
+  "timing_review_byte_identical": true,
+  "native_inventory_frozen_inputs_verified": 11,
+  "selected_752_Q_map_reproduced": true,
+  "full498_native_source_replay": false,
+  "simulation_rerun_after_extraction": false,
+  "stub_proof_reproduced_from_extracted_inputs": true,
+  "strict_reader_members": 1446,
+  "strict_reader_review_byte_identical": true,
+  "strict_reader_damaged_controls": 20
+}

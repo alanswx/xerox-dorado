@@ -1,0 +1,1866 @@
+{
+  "status": "PASS_R_FRONT_READY_SMOKE",
+  "scope": "Qualify original Ready coupled to full RBase/stack/RM/STK storage.\n\nAll752 processor and9216 RAM bits after every event; all59 clocks; both\nsimulators/six profiles. Existing nonoverlap, old-parity source epochs and\nwrite-window monitors remain. This is not native integration or60ns proof.\n",
+  "inputs": {
+    "chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.lc": "c045956f96b8ca30dc1de1c79d86588384d5bd817bda73b5382769c92e0a5dca",
+    "chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.wl": "ca1a3acdc926f56f6da5ebceb46209bf45473b5ddcf102860358813dfdcd6152",
+    "chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.lc": "2cbfb904a6a6de0fde3afe2cd43c5162a3fe8cdc14dab87785acf2da773cc58d",
+    "chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.wl": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+    "chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.lc": "2a7ddbf9dc7a6d701ea2b1eac15d7dba60790faacd950d4844695896e17d2c15",
+    "chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+    "chm/sil/ProcL-Rev-Ci.dm!1_/ProcL-Rev-Ci.lc": "0770e808e0424e6468328ed2ec71220d7c1a22752eee55c8606695debf278fef",
+    "chm/sil/ProcL-Rev-Ci.dm!1_/ProcL-Rev-Ci.wl": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+    "chm/sil/msa-Rev-Bg.dm!1_/ecldict.analyze": "072e5866e9fe0ea4c90c297ca193202dd59b79f4364ddf15a4af3b7a6b1b2ba3",
+    "tools/generate_control_clock_reference.py": "c5255000f877c5e66940e94c9c74167a0d02e1947bd0e3be03b5fccc2b8e5b0f",
+    "tools/generate_processor_capture_reference.py": "f8a75e6ffc0ea66141685378d05da3acaa47b1b89fa29255c4cb804f241b9b6d",
+    "tools/generate_r_address_reference.py": "9ff9f653bf694fa51816eb9e7868d88dc82f9b67a3553b9355f656a51b1086ff",
+    "tools/generate_r_file_reference.py": "0062c60f7c3392e8e4113a7a7055a9d79ef95709a231f16d72c114c55294112d",
+    "tools/generate_r_flags_reference.py": "586065c7bc89dfaeb2d7fde2027030225b36b063bbd74f084d6c97a739cf7505",
+    "tools/generate_r_front_cone.py": "249b98a9737fbcf85cf8c7befb7d67f0149b9976c40bff3876f1cace46ed5c83",
+    "tools/generate_r_front_reference.py": "17b9a755bf69deca37b3e6f3f9ded57bc6fbc9892c790c93dd6c51e5a07b77ba",
+    "tools/generate_r_operand_reference.py": "5d08a51bbba48c2e848fee5793434dec7e9c15d691dd9bb6b30418106c1ca530",
+    "tools/generate_run_control_reference.py": "658d092df35b6f98b6c341b63911d50f96fbaf96829046acb230bdda038b22e6",
+    "tools/generate_t_file_reference.py": "cf92e231fad9e81e8698ae4e0643cd8f477a69cddedcc242c11ed129efd7d6c1",
+    "tools/generate_t_parity_reference.py": "8613e0ed6ee86f92744eedb66c7d904e2ed5e26f65a7275345879b63d831ece9",
+    "tools/generate_task_capture_reference.py": "7c5fc55bda2ede7d6802c06d970c40746d4f8b79120729af8297e738bdfa98c6",
+    "tools/sil_netlist.py": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1",
+    "tools/stage_r_operand_timing.py": "4b97483108076aa7b72de90906a9852f985b2b23c364ccde600d81f066bd5fc2",
+    "tools/stage_t_file_timing.py": "dc7817369daa1d8b2e6d6d6631993e43bb9becd5b765e0ef3203ad54852f6546",
+    "tools/stage_t_parity_timing.py": "aa4b36e998ddd6774f11bc46e212f34208387218f6c4037ace6e5b3ec6817b55",
+    "tools/stage_task_capture_timing.py": "587164bbdebdfebb4d33fdb16f369931faa0c69a123780051f6bd400342ab048",
+    "tools/test_r_front.py": "5f3f56303ae6348a44d0b0984671a772012e940b2ce0fc593607d54d914054b5",
+    "verilog/cells/cell_F10000.v": "ce17c47889977a87a28de0aa59ca917bd778984a4e5b08f21021a2ccd8801ee6",
+    "verilog/cells/cell_F10145A.v": "c92b2dff559f4c799b6b339b86e2e4d17c3fc0b089f2dacfb179c9c40a33cfab",
+    "verilog/cells/cell_F10414.v": "85a32a3fcf0e8026682e94881d85d356b6155f0a8fd6ae5b9503d20264333a3c",
+    "verilog/cells/cell_MB7071H.v": "710b890c91d451c6023ba0396d170402ef95355703175d15417a0ccf2112bc2b",
+    "verilog/cells/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+    "verilog/cells/cell_MC10101.v": "d7cce11dd4c6c75b83d1d40287144fffc35ac6df2b9f490a45aeb740dcab862f",
+    "verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "verilog/cells/cell_MC10105.v": "23d0483e1e245f852ff21cab074aa1796beec9a50cc7685da4c57096834d56fc",
+    "verilog/cells/cell_MC10106.v": "0fc4c044d62b0e7656ebc60d96c70bc463af34a8a29b0d4784392089829b49bc",
+    "verilog/cells/cell_MC10107.v": "dadd09a4dc0e4e6e126aa6f30c5b3fd92acbba8aaf25e94cb2f399b779011065",
+    "verilog/cells/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+    "verilog/cells/cell_MC10113.v": "3ad34b4dc8d3026412b4d300ce28f3a214fa42d3d6e1c1cc1afead9e601dec0b",
+    "verilog/cells/cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+    "verilog/cells/cell_MC10119.v": "852a85246f0f5d9a2d3b9f9cbf97e3b070a09e7643934f370e139c518f95abf8",
+    "verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+    "verilog/cells/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "verilog/cells/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+    "verilog/cells/cell_MC10159.v": "cdd04d5587a7427677bc5fe1f3ab694c52ad8d70b078919d265cd0036aa92f32",
+    "verilog/cells/cell_MC10161.v": "816c7d2eb044c210d256c32ce1f4215a988e312d02df81b527d6ba001795788b",
+    "verilog/cells/cell_MC10166.v": "06689bff01caf3912d44a430ea7f9b85b76225edba4e6f08672a65ab87e167f8",
+    "verilog/cells/cell_MC10170.v": "90dc10079db3d5611562f4454534221971d98606de64ac33a0e9cc335478d910",
+    "verilog/cells/cell_MC10173.v": "e5a5b884cc2aa3cc7dd3a547bb5722f1528f9a1e907a789545f85a3cf5eae530",
+    "verilog/cells/cell_MC10174.v": "ce9dfc7a6b414bb28d5785df740c0a07ef7e58e7c28f2c0e53561c496629df6b",
+    "verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "verilog/cells/cell_MC10182.v": "b7baae499314ac32586fbc94e86b8ffedae3f5eae61bdb45e266f5ae6d386b73",
+    "verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "verilog/cells/cell_MC10211.v": "5dff5af0f55a1f63dbfc7e98047f1f0fd18491ac1e06980c7991fc09a060272d",
+    "verilog/cells/cell_MC10212.v": "592b5a4ad9cf64bc846b3619f85d268cac4123e5893bdc2f93e520ff1e45b39f",
+    "verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "verilog/cells/cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+    "verilog/cells/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+    "verilog/cells/cell_MC1664.v": "ce9217e73068f27571aa032ddfb2a80393fb340a9648be1618c3af5d5e6be8a6",
+    "verilog/cells/cell_MC1668.v": "c6b96c5ce2307872c65b1a130948a5141d77bd062e2730fdda8dff618bf1cea3",
+    "verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "verilog/cells/cell_SE10211.v": "4f7c8607bdaad0f3fa7b0a49c679c004817b3032c3d37b20cb0a46f3ab1cb11d",
+    "verilog/cells/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+    "verilog/cells/cell_SE10231.v": "b22f08f8f6e79eafbac3d1446e6593d10482033b2b3b2edfc29f207e62e5872c",
+    "verilog/rtl/dorado_processor_capture_step.sv": "16eb9e14999f6383cb4ded023e34375e531dee15707cbf79628d28fb773e26e2",
+    "verilog/rtl/dorado_r_address_step.sv": "34e89a662aa602a9aafa6d8d9b37d10cbc8f986121f7cb036a83f2dac7224b39",
+    "verilog/rtl/dorado_r_file_ports.sv": "45e87cb0bed39bc39560293c0498ad03f774fd77481b4f143fb33aa29256fc6e",
+    "verilog/rtl/dorado_r_flags_step.sv": "1afb371b6bcc9e8234f4faeae5e0ce150dde65a8407752b01eddef54696c9e71",
+    "verilog/rtl/dorado_r_front_step.sv": "87f2c914e877c534618d3e24026d608ca82773d1f0697ef4085b19c253c681df",
+    "verilog/rtl/dorado_r_memory_step.sv": "51ce2a2aa05e41c4c0d9e20fff2c1115cb73e058ce96b5e48eac1198e5cb6ea5",
+    "verilog/rtl/dorado_r_operand_step.sv": "2e113c7dd0464def7603bc8c6cf6cebc165088bf655f27cd51185062909eb8d5",
+    "verilog/rtl/dorado_r_port_preview.sv": "a133630074281f1513948928b1f71dac9171430afc4ba7bd155726a21579625c",
+    "verilog/rtl/dorado_t_file_step.sv": "d54ba9ee3c5abfafd6f3bcd260883db381f855e0c5cbfef7db90b9dbcb34d7f8",
+    "verilog/rtl/dorado_t_parity_step.sv": "1f29c255ec4bcc6e838ba8a8b3110c3e97c2e7c6d7a5940f4ee6933c40281ca8",
+    "verilog/rtl/dorado_task_capture_step.sv": "fe2b60523d2fe46ad4fb99a841e97d5a5d83e9f45dda4a029a150c0a8562416d",
+    "verilog/verilator/processor_capture_original_ff.sv": "5de026c01b977b28c8098aac6613311280caf6f36c19f3699a83d2d44244dbc0",
+    "verilog/verilator/r_file_original_storage.sv": "956cd1bff7362ec90d50b5a0cfe842535318628097718945d921468c87f1febb",
+    "verilog/verilator/r_front_original_storage.sv": "1036bf934bce5043a8a40b5263c155afc8b94783e3ada9172ba9fa644436a791",
+    "verilog/verilator/r_operand_original_ff.sv": "e49980705c8859ac5c9dc181d30e579c356f13bb8fd474ca09b04915725bdd61",
+    "verilog/verilator/run_control_original_ff.sv": "7bcadd4fe8c5aa82781fa21ba3694fadba3f6c186870008506226d9e79ebb2a9",
+    "verilog/verilator/t_file_original_storage.sv": "711c8451ad6cad29bd498e8051a7e94ad0606ace0c6806824f642055c2f852aa",
+    "verilog/verilator/t_parity_original_ff.sv": "724e9ec33be52e63637abf6fb5597e0fd174a77c4d1716120a4ca274f90959fe",
+    "verilog/verilator/tb_r_front_cone.sv": "d4e707b1ffd9e6570a9bbfdb7e6d66537d9e1468a80e769c98796213712a27fd",
+    "verilog/verilator/tb_r_front_step.sv": "f368e36189a29368df279f69c7e95af346bdf0a109c809a46aed04ad3a0aeb76",
+    "verilog/rtl/dorado_r_front_ready_step.sv": "03ab66f1e7d0982eeb4a7c04a86196effaa196018a4edf955a3a4564a976edb9",
+    "verilog/rtl/dorado_task_ready_step.sv": "69397dd12af8d67a835cbe953eca5d1d59b63a0dbe18aa944a6ccf58437f3ea5",
+    "verilog/rtl/dorado_task_ready_capture_step.sv": "4f19cbfcaebe774337d0e9ac672c3f27f2252f5bdd418b464ab56748eda82c58",
+    "verilog/cells/cell_MC10162.v": "11618612f2ac5106613f9eae75db522f669d12090d2407ee8256c44e8a14dd73",
+    "tools/generate_task_ready_capture_reference.py": "cf6a1fdb51a7f7257c242f7135867845b80690779279ea76fcb7e7b4b463a9c3",
+    "tools/test_task_ready.py": "c82561555d12550ba61df7313d21de27742ec1193a3f23ff6061b7b3e42849f7",
+    "tools/generate_r_front_ready_reference.py": "dc5022728c2089f0e9bf724fbbecabeeeeddbb043531a508042cc2b4d2b688b7",
+    "tools/test_r_front_ready.py": "853ad3bd67ba18c22ecccfcc1f31191f2a2a0976abaf1b5b3439fefd2f8e6e06",
+    "tb_r_front_ready.sv": "4f65c9f22da67bc68212adbcef8b4623a51fa947a45197fbfaa275fb2ffd8841"
+  },
+  "reference": {
+    "boards": [
+      {
+        "board": "ContA-Rev-Cd",
+        "packages": {
+          "a02": "MC10210",
+          "a08": "MC10104",
+          "a09": "F10000",
+          "a10": "MC1664",
+          "a11": "MC10104",
+          "b06": "MC10162",
+          "b07": "MC10162",
+          "b08": "MC10104",
+          "b09": "F10000",
+          "b10": "MC1664",
+          "b11": "MC10104",
+          "c06": "MC10162",
+          "c07": "MC10162",
+          "c08": "MC10104",
+          "c09": "F10000",
+          "c10": "MC1664",
+          "c11": "MC10104",
+          "c12": "MC10109",
+          "d07": "SE10210",
+          "d08": "MC10104",
+          "d09": "F10000",
+          "d10": "MC1664",
+          "d11": "MC10104",
+          "d12": "MC10109",
+          "d13": "MC10102",
+          "d18": "SE10210",
+          "e12": "MC10101",
+          "e13": "MC10102",
+          "f08": "MC10161",
+          "f09": "MC10161",
+          "f10": "MC10121",
+          "f11": "MC10121",
+          "f12": "SE10210",
+          "f13": "SE10210",
+          "f14": "MC10231",
+          "f15": "MC10231",
+          "f16": "MC1660",
+          "f17": "MC1660",
+          "f19": "SE10211",
+          "f20": "MC1660",
+          "g04": "MC10104",
+          "g05": "MC10195",
+          "g10": "MC10121",
+          "g11": "MC10102",
+          "g12": "SE10212",
+          "g13": "SE10210",
+          "g15": "MC1662",
+          "h03": "MC10103",
+          "h08": "MC10141",
+          "h09": "MC10141",
+          "h10": "MC10166",
+          "h11": "MC10166",
+          "h13": "MC10159",
+          "h14": "MC10159",
+          "i03": "MC10176",
+          "i04": "MC10104",
+          "i05": "MC10210",
+          "i06": "SE10210",
+          "i07": "SE10210",
+          "i10": "MC10166",
+          "i11": "MC10101",
+          "j01": "MC10231",
+          "j04": "MC10231",
+          "j05": "MC10117",
+          "j06": "SE10210",
+          "j07": "SE10210",
+          "j08": "MC10231",
+          "j09": "MC10231",
+          "j10": "MC10109",
+          "j11": "MC10113",
+          "j18": "SE10210",
+          "k01": "MC10231",
+          "k02": "MC10231",
+          "k03": "MC10231",
+          "k04": "MC10231",
+          "k05": "MC10231",
+          "l01": "SE10210",
+          "l02": "MC10231",
+          "l03": "MC10231",
+          "l04": "MC10231",
+          "l05": "MC10231",
+          "l06": "SE10231",
+          "l07": "MC10231",
+          "l08": "MC10211"
+        },
+        "sequential": {
+          "i03": [
+            0,
+            6
+          ],
+          "j04": [
+            6,
+            2
+          ],
+          "k01": [
+            8,
+            2
+          ],
+          "k02": [
+            10,
+            2
+          ],
+          "l02": [
+            12,
+            2
+          ],
+          "l03": [
+            14,
+            2
+          ],
+          "l04": [
+            16,
+            2
+          ],
+          "l05": [
+            18,
+            2
+          ],
+          "l06": [
+            20,
+            2
+          ],
+          "k03": [
+            22,
+            2
+          ],
+          "k04": [
+            24,
+            2
+          ],
+          "k05": [
+            26,
+            2
+          ],
+          "l07": [
+            28,
+            2
+          ],
+          "j01": [
+            30,
+            2
+          ],
+          "h08": [
+            32,
+            4
+          ],
+          "h09": [
+            36,
+            4
+          ],
+          "f14": [
+            40,
+            2
+          ],
+          "f15": [
+            42,
+            2
+          ],
+          "j08": [
+            44,
+            2
+          ],
+          "j09": [
+            46,
+            2
+          ],
+          "a09": [
+            48,
+            4
+          ],
+          "b09": [
+            52,
+            4
+          ],
+          "c09": [
+            56,
+            4
+          ],
+          "d09": [
+            60,
+            4
+          ]
+        },
+        "physical_bits": 64,
+        "original_pins": 823,
+        "boundary_bindings": {
+          "CLK.ca'": "base",
+          "rStop": "pins[7]",
+          "SetRun": "pins[6]",
+          "SetSS'": "pins[5]",
+          "SetRunRfsh": "pins[4]",
+          "Error'": "pins[3]",
+          "StopAtT1": "pins[2]",
+          "RWTPCorRWIM": "pins[1]",
+          "NoDispatch": "pins[0]",
+          "WIM'": "pins[8]",
+          "Hold": "pins[69]",
+          "CPAddr.0'": "1'b1",
+          "CPStrb'": "1'b1",
+          "ContA28.sil+7": "1'b0",
+          "ContA30.sil+1": "1'b0",
+          "GetTLink": "1'b0",
+          "StopTasks": "pins[65]",
+          "dBlock'": "pins[66]",
+          "Block'": "pins[67]",
+          "rCT": "pins[70]",
+          "rMIRa": "1'b0",
+          "ContA28.sil+2": "1'b0",
+          "ContA28.sil+3": "1'b0",
+          "ContA28.sil+4": "1'b0",
+          "WTPC'": "1'b1",
+          "FF=TOffIsOK": "1'b0",
+          "FF=TaskingOff": "1'b0",
+          "TWReq.01": "pins[20]",
+          "TWReq.02": "pins[21]",
+          "TWReq.03": "pins[22]",
+          "TWReq.04": "pins[23]",
+          "TWReq.05": "pins[24]",
+          "TWReq.06": "pins[25]",
+          "TWReq.07": "pins[26]",
+          "TWReq.08": "pins[27]",
+          "TWReq.09": "pins[28]",
+          "TWReq.10": "pins[29]",
+          "TWReq.11": "pins[30]",
+          "TWReq.12": "pins[31]",
+          "TWReq.13": "pins[32]",
+          "TWReq.14": "pins[33]",
+          "TWReq.15": "pins[34]",
+          "sCTask.0": "pins[71]",
+          "sCTask.1": "pins[72]",
+          "sCTask.2": "pins[73]",
+          "sCTask.3": "pins[74]",
+          "bFF.4": "pins[236]",
+          "bFF.5": "pins[237]",
+          "bFF.6": "pins[238]",
+          "bFF.7": "pins[239]",
+          "bFF.4'": "~pins[236]",
+          "PreEmpting'": "pins[240]",
+          "FF=Notify'": "pins[241]",
+          "ClrReady": "pins[242]",
+          "ContA18.sil+3": "pins[243]",
+          "ContA18.sil+4": "pins[244]"
+        },
+        "clock_taps": [
+          "prepreclk'd",
+          "StopRunClock",
+          "preRunClk'Bc",
+          "RunClk'a",
+          "preclk2'Bb",
+          "clk2'Bc",
+          "@l06.ca",
+          "@k04.ca",
+          "preCRamClock",
+          "clk0'Ba",
+          "h*fclk0'Ba",
+          "h*fclk0'Da",
+          "@f14.ca",
+          "h*fclk0'Ab",
+          "h*fclk0'Ac"
+        ],
+        "flag_taps": [
+          "CAHold",
+          "RepeatCur",
+          "FreezeBD",
+          "CLKEnable'c",
+          "CLKEnable'b",
+          "StartCycle'a",
+          "Next.0",
+          "Next.1",
+          "Next.2",
+          "Next.3",
+          "BNTGtCT'a",
+          "Switcha",
+          "SwitchUp",
+          "Freeze",
+          "Ready.01",
+          "Ready.02",
+          "Ready.03",
+          "Ready.04",
+          "Ready.05",
+          "Ready.06",
+          "Ready.07",
+          "Ready.08",
+          "Ready.09",
+          "Ready.10",
+          "Ready.11",
+          "Ready.12",
+          "Ready.13",
+          "Ready.14",
+          "Ready.15",
+          "IsNext.01'",
+          "IsNext.02'",
+          "IsNext.03'",
+          "IsNext.04'",
+          "IsNext.05'",
+          "IsNext.06'",
+          "IsNext.07'",
+          "IsNext.08'",
+          "IsNext.09'",
+          "IsNext.10'",
+          "IsNext.11'",
+          "IsNext.12'",
+          "IsNext.13'",
+          "IsNext.14'",
+          "IsNext.15'"
+        ],
+        "source_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+        "combinational_sources": [
+          "verilog/cells/cell_MC10101.v",
+          "verilog/cells/cell_MC10102.v",
+          "verilog/cells/cell_MC10103.v",
+          "verilog/cells/cell_MC10104.v",
+          "verilog/cells/cell_MC10109.v",
+          "verilog/cells/cell_MC10113.v",
+          "verilog/cells/cell_MC10117.v",
+          "verilog/cells/cell_MC10121.v",
+          "verilog/cells/cell_MC10159.v",
+          "verilog/cells/cell_MC10161.v",
+          "verilog/cells/cell_MC10162.v",
+          "verilog/cells/cell_MC10166.v",
+          "verilog/cells/cell_MC10195.v",
+          "verilog/cells/cell_MC10210.v",
+          "verilog/cells/cell_MC10211.v",
+          "verilog/cells/cell_MC1660.v",
+          "verilog/cells/cell_MC1662.v",
+          "verilog/cells/cell_MC1664.v",
+          "verilog/cells/cell_SE10210.v",
+          "verilog/cells/cell_SE10211.v",
+          "verilog/cells/cell_SE10212.v"
+        ]
+      },
+      {
+        "board": "ProcH-Rev-Ce",
+        "packages": {
+          "a01": "MC10102",
+          "a18": "MC10158",
+          "a19": "MC10158",
+          "a20": "MC10141",
+          "a21": "MC10141",
+          "a22": "MC10113",
+          "a24": "MC10101",
+          "b23": "MC10101",
+          "b24": "MC10210",
+          "c06": "MC10170",
+          "c18": "SE10210",
+          "c23": "MC10210",
+          "d06": "MC10170",
+          "d20": "MC10100",
+          "d22": "MC10211",
+          "d23": "MC10101",
+          "d24": "MC10101",
+          "e23": "MC10101",
+          "e24": "MC10161",
+          "f12": "SE10212",
+          "f13": "SE10210",
+          "f18": "MC10102",
+          "f19": "MC1660",
+          "f20": "MC10100",
+          "f23": "MC10101",
+          "f24": "MC10161",
+          "g05": "MC10173",
+          "g06": "MC10173",
+          "g07": "MC10173",
+          "g12": "SE10211",
+          "g13": "SE10210",
+          "g16": "F10000",
+          "g18": "MC10176",
+          "g20": "MC10106",
+          "g21": "MC10106",
+          "h05": "MC10173",
+          "h17": "MC10158",
+          "h19": "MC10103",
+          "h22": "MC10176",
+          "h23": "MC10102",
+          "h24": "MC10101",
+          "i03": "MC10173",
+          "i04": "MC10173",
+          "i05": "SE10212",
+          "i11": "F10145A",
+          "i12": "MC10141",
+          "i18": "SE10210",
+          "j01": "MC10173",
+          "j02": "MC10173",
+          "j03": "MC10173",
+          "j04": "MC10173",
+          "j05": "SE10210",
+          "j18": "SE10210",
+          "k01": "MC10173",
+          "k02": "MC10173",
+          "k04": "MC10170",
+          "k05": "MC10158",
+          "k08": "MC1662",
+          "k09": "MC1662",
+          "k10": "SE10210",
+          "l01": "SE10210",
+          "l02": "SE10231",
+          "l03": "F10145A",
+          "l04": "F10145A",
+          "l05": "MC10176",
+          "l06": "MC1668",
+          "l07": "MC1668",
+          "l08": "SE10211",
+          "l09": "SE10211"
+        },
+        "sequential": {
+          "l02": [
+            0,
+            2
+          ],
+          "h22": [
+            2,
+            6
+          ],
+          "a21": [
+            8,
+            4
+          ],
+          "a20": [
+            12,
+            4
+          ],
+          "i12": [
+            16,
+            4
+          ],
+          "g18": [
+            20,
+            6
+          ],
+          "k01": [
+            26,
+            4
+          ],
+          "k02": [
+            30,
+            4
+          ],
+          "l03": [
+            34,
+            64
+          ],
+          "l04": [
+            98,
+            64
+          ],
+          "j03": [
+            162,
+            4
+          ],
+          "j04": [
+            166,
+            4
+          ],
+          "i03": [
+            170,
+            4
+          ],
+          "i04": [
+            174,
+            4
+          ],
+          "i11": [
+            178,
+            64
+          ],
+          "g16": [
+            242,
+            4
+          ],
+          "j01": [
+            246,
+            4
+          ],
+          "j02": [
+            250,
+            4
+          ],
+          "g05": [
+            254,
+            4
+          ],
+          "h05": [
+            258,
+            4
+          ],
+          "g06": [
+            262,
+            4
+          ],
+          "g07": [
+            266,
+            4
+          ],
+          "l07": [
+            270,
+            2
+          ],
+          "l06": [
+            272,
+            2
+          ],
+          "l05": [
+            274,
+            6
+          ]
+        },
+        "physical_bits": 280,
+        "original_pins": 735,
+        "boundary_bindings": {
+          "ALUCarry": "pins[110]",
+          "ASEL.0'": "pins[202]",
+          "ASEL.1'": "pins[203]",
+          "ASEL.2'": "pins[204]",
+          "BNTGtCT'a": "priority_n",
+          "BSEL.0'": "pins[205]",
+          "BSEL.1'": "pins[206]",
+          "BSEL.2'": "pins[207]",
+          "CLK.ph'": "base",
+          "CLKEnable'c": "en",
+          "DMuxData": "pins[208]",
+          "FF.0": "pins[19]",
+          "FF.1": "pins[18]",
+          "FF.2": "pins[17]",
+          "FF.3": "pins[16]",
+          "FF.4": "pins[15]",
+          "FF.5": "pins[14]",
+          "FF.6": "pins[13]",
+          "FF.7": "pins[12]",
+          "FFok'a": "pins[209]",
+          "Freeze": "freeze",
+          "Holda": "pins[68]",
+          "IOBout": "pins[210]",
+          "LC.0": "pins[11]",
+          "LC.1": "pins[10]",
+          "LC.2": "pins[9]",
+          "MBBypass": "pins[211]",
+          "Next.0": "next_raw[0]",
+          "Next.1": "next_raw[1]",
+          "Next.2": "next_raw[2]",
+          "Next.3": "next_raw[3]",
+          "NextMacro": "pins[212]",
+          "Overflow'": "pins[111]",
+          "PRhold": "pins[68]",
+          "Pdata.00": "pins[76]",
+          "Pdata.01": "pins[77]",
+          "Pdata.02": "pins[78]",
+          "Pdata.03": "pins[79]",
+          "Pdata.04": "pins[80]",
+          "Pdata.05": "pins[81]",
+          "Pdata.06": "pins[82]",
+          "Pdata.07": "pins[83]",
+          "ProcH03.sil+1": "pins[128]",
+          "ProcH04.sil+1": "pins[129]",
+          "ProcH05.sil+1": "pins[130]",
+          "ProcH06.sil+1": "pins[131]",
+          "ProcH07.sil+1": "pins[132]",
+          "ProcH08.sil+1": "pins[133]",
+          "ProcH09.sil+1": "pins[134]",
+          "ProcH11.sil+14": "pins[145]",
+          "ProcH17.sil+3": "pins[181]",
+          "ProcH25.sil+1": "pins[213]",
+          "ProcH25.sil+18": "pins[214]",
+          "ProcH26.sil+3": "pins[215]",
+          "ProcH27.sil+1": "pins[143]",
+          "ProcH27.sil+12": "pins[216]",
+          "PropCnt'": "pins[180]",
+          "RSTK.0": "pins[172]",
+          "RSTK.1": "pins[173]",
+          "RSTK.2": "pins[174]",
+          "RSTK.3": "pins[175]",
+          "RbBypass": "rb_forward",
+          "RbBypass'": "rb_forward_n",
+          "RisIFdata": "pins[149]",
+          "SignIfuData": "pins[118]",
+          "StartCycle'a": "start_a",
+          "TIOAWriteEn'": "pins[217]",
+          "TisIFdata": "pins[117]",
+          "dMD.00": "pins[92]",
+          "dMD.01": "pins[93]",
+          "dMD.02": "pins[94]",
+          "dMD.03": "pins[95]",
+          "dMD.04": "pins[96]",
+          "dMD.05": "pins[97]",
+          "dMD.06": "pins[98]",
+          "dMD.07": "pins[99]",
+          "ddR.00": "pins[127]"
+        },
+        "clock_taps": [
+          "@l02.ca",
+          "@l02.cb",
+          "SHCP'C",
+          "Clock0'Da",
+          "Clock1'Ca",
+          "DblClock'Da",
+          "Clock1'Ba",
+          "TbWrite'a",
+          "Clock0'Da",
+          "Clock1'Da",
+          "@l07.p7",
+          "@l07.p9",
+          "@l06.p7",
+          "@l06.p9",
+          "@l05.p9"
+        ],
+        "flag_taps": [
+          "RepeatCurrC",
+          "Hold",
+          "Curr=Next'",
+          "PreSHCP'B",
+          "TbBypass",
+          "T.Perr'",
+          "R.Perr'",
+          "ProcH27.sil+10",
+          "ProcH27.sil+9",
+          "Clock1'Bb",
+          "@l07.state_q[0]",
+          "RbBypassDly",
+          "RmLtZero'",
+          "RbAdr.4'",
+          "RbAdr.5'",
+          "RbAdr.6'",
+          "RbAdr.7'",
+          "FA=0'b",
+          "FA=1'a",
+          "FA=2'a",
+          "FA=3'",
+          "FF.2a",
+          "ProcH24.sil+4",
+          "ProcH22.sil+3",
+          "ProcH22.sil+4",
+          "ProcH22.sil+5",
+          "ProcH22.sil+6"
+        ],
+        "source_sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+        "combinational_sources": [
+          "verilog/cells/cell_MC10100.v",
+          "verilog/cells/cell_MC10101.v",
+          "verilog/cells/cell_MC10102.v",
+          "verilog/cells/cell_MC10103.v",
+          "verilog/cells/cell_MC10106.v",
+          "verilog/cells/cell_MC10113.v",
+          "verilog/cells/cell_MC10158.v",
+          "verilog/cells/cell_MC10161.v",
+          "verilog/cells/cell_MC10170.v",
+          "verilog/cells/cell_MC10210.v",
+          "verilog/cells/cell_MC10211.v",
+          "verilog/cells/cell_MC1660.v",
+          "verilog/cells/cell_MC1662.v",
+          "verilog/cells/cell_SE10210.v",
+          "verilog/cells/cell_SE10211.v",
+          "verilog/cells/cell_SE10212.v"
+        ]
+      },
+      {
+        "board": "ProcL-Rev-Ci",
+        "packages": {
+          "a01": "MC10102",
+          "a18": "MC10158",
+          "a19": "MC10158",
+          "a20": "MC10141",
+          "a21": "MC10141",
+          "a22": "MC10113",
+          "a24": "MC10101",
+          "b22": "MC10212",
+          "b23": "MC10101",
+          "b24": "MC10211",
+          "c06": "MC10170",
+          "c18": "SE10210",
+          "c23": "MC10210",
+          "d06": "MC10170",
+          "d17": "MC10176",
+          "d20": "MC10100",
+          "d23": "MC10101",
+          "d24": "MC10101",
+          "e19": "MC10195",
+          "e21": "MC10102",
+          "e23": "MC10101",
+          "e24": "MC10161",
+          "f12": "SE10212",
+          "f13": "SE10210",
+          "f19": "MC1660",
+          "f20": "MC10100",
+          "f22": "MC10100",
+          "f23": "MC10101",
+          "f24": "MC10161",
+          "g05": "MC10173",
+          "g06": "MC10173",
+          "g07": "MC10173",
+          "g08": "MC10176",
+          "g09": "MC10117",
+          "g10": "MC10231",
+          "g12": "SE10211",
+          "g13": "SE10210",
+          "g14": "MC10173",
+          "g15": "F10145A",
+          "g16": "F10000",
+          "g18": "MC10176",
+          "g19": "MC10117",
+          "g20": "MC10100",
+          "g21": "MC10109",
+          "g22": "MC10103",
+          "g23": "MC10102",
+          "h05": "MC10173",
+          "h10": "MC10231",
+          "h11": "MC10159",
+          "h12": "MC10159",
+          "h13": "MC10159",
+          "h14": "MC10176",
+          "h15": "MC10173",
+          "h16": "MC10159",
+          "h17": "MC10105",
+          "h18": "MC10103",
+          "h19": "MC10102",
+          "h20": "MC10106",
+          "h23": "MC10102",
+          "h24": "MC10101",
+          "i03": "MC10173",
+          "i04": "MC10173",
+          "i05": "SE10212",
+          "i10": "MC10102",
+          "i11": "MC10158",
+          "i13": "F10145A",
+          "i14": "MC10141",
+          "i15": "MC10176",
+          "i16": "MC10173",
+          "i17": "MC10173",
+          "i18": "SE10212",
+          "i19": "MC10106",
+          "j01": "MC10173",
+          "j02": "MC10173",
+          "j03": "MC10173",
+          "j04": "MC10173",
+          "j05": "SE10210",
+          "j11": "MC10176",
+          "j13": "MC10174",
+          "j14": "MC10174",
+          "j15": "MC10174",
+          "j16": "MC10174",
+          "j17": "MC10182",
+          "j18": "SE10210",
+          "j19": "MC10231",
+          "j20": "MC10117",
+          "k01": "MC10173",
+          "k02": "MC10173",
+          "k04": "MC10170",
+          "k08": "MC1662",
+          "k09": "MC1662",
+          "k10": "SE10210",
+          "k11": "MC10176",
+          "k12": "MC10113",
+          "k13": "MC10113",
+          "k14": "MC10101",
+          "k15": "MC10107",
+          "k16": "MC10101",
+          "k17": "MC10182",
+          "k18": "MC10195",
+          "k19": "MC10101",
+          "k20": "MC10119",
+          "l01": "SE10210",
+          "l02": "SE10231",
+          "l03": "F10145A",
+          "l04": "F10145A",
+          "l05": "MC10101",
+          "l06": "MC1668",
+          "l07": "MC1668",
+          "l08": "SE10211",
+          "l09": "SE10211",
+          "l10": "MC1660",
+          "l11": "MC10231",
+          "l12": "MC10113",
+          "l13": "MC10113",
+          "l14": "MC10176",
+          "l15": "MC10231",
+          "l16": "F10000",
+          "l17": "MC10182",
+          "l18": "F10000",
+          "l19": "MC10121"
+        },
+        "sequential": {
+          "l02": [
+            0,
+            2
+          ],
+          "d17": [
+            2,
+            6
+          ],
+          "a21": [
+            8,
+            4
+          ],
+          "a20": [
+            12,
+            4
+          ],
+          "i14": [
+            16,
+            4
+          ],
+          "g18": [
+            20,
+            6
+          ],
+          "k01": [
+            26,
+            4
+          ],
+          "k02": [
+            30,
+            4
+          ],
+          "l03": [
+            34,
+            64
+          ],
+          "l04": [
+            98,
+            64
+          ],
+          "j03": [
+            162,
+            4
+          ],
+          "j04": [
+            166,
+            4
+          ],
+          "i03": [
+            170,
+            4
+          ],
+          "i04": [
+            174,
+            4
+          ],
+          "i13": [
+            178,
+            64
+          ],
+          "g16": [
+            242,
+            4
+          ],
+          "j01": [
+            246,
+            4
+          ],
+          "j02": [
+            250,
+            4
+          ],
+          "g05": [
+            254,
+            4
+          ],
+          "h05": [
+            258,
+            4
+          ],
+          "g06": [
+            262,
+            4
+          ],
+          "g07": [
+            266,
+            4
+          ],
+          "l07": [
+            270,
+            2
+          ],
+          "l06": [
+            272,
+            2
+          ],
+          "g10": [
+            274,
+            2
+          ],
+          "h10": [
+            276,
+            2
+          ],
+          "i15": [
+            278,
+            6
+          ],
+          "k11": [
+            284,
+            6
+          ],
+          "g08": [
+            290,
+            6
+          ],
+          "j11": [
+            296,
+            6
+          ],
+          "l11": [
+            302,
+            2
+          ],
+          "h15": [
+            304,
+            4
+          ],
+          "g14": [
+            308,
+            4
+          ],
+          "g15": [
+            312,
+            64
+          ],
+          "h14": [
+            376,
+            6
+          ],
+          "l14": [
+            382,
+            6
+          ],
+          "l15": [
+            388,
+            2
+          ],
+          "i16": [
+            390,
+            4
+          ],
+          "i17": [
+            394,
+            4
+          ],
+          "l16": [
+            398,
+            4
+          ],
+          "l18": [
+            402,
+            4
+          ],
+          "j19": [
+            406,
+            2
+          ]
+        },
+        "physical_bits": 408,
+        "original_pins": 1326,
+        "boundary_bindings": {
+          "ASEL.0'": "pins[202]",
+          "ASEL.1'": "pins[203]",
+          "ASEL.2'": "pins[204]",
+          "BNTGtCT'a": "priority_n",
+          "BSEL.0'": "pins[205]",
+          "BSEL.1'": "pins[206]",
+          "BSEL.2'": "pins[207]",
+          "CLK.pl'": "base",
+          "CLKEnable'b": "en",
+          "FF.0": "pins[19]",
+          "FF.1": "pins[18]",
+          "FF.2": "pins[17]",
+          "FF.3": "pins[16]",
+          "FF.4": "pins[15]",
+          "FF.5": "pins[14]",
+          "FF.6": "pins[13]",
+          "FF.7": "pins[12]",
+          "FFdly.7": "pins[218]",
+          "FFok'b": "pins[209]",
+          "Freeze": "freeze",
+          "IOBin'": "pins[219]",
+          "IOBout": "pins[210]",
+          "IOBout'": "pins[220]",
+          "IfuData.0": "pins[119]",
+          "IfuData.1": "pins[120]",
+          "IfuData.2": "pins[121]",
+          "IfuData.3": "pins[122]",
+          "IfuData.4": "pins[123]",
+          "IfuData.5": "pins[124]",
+          "IfuData.6": "pins[125]",
+          "IfuData.7": "pins[126]",
+          "IfuRBaseSel'": "pins[187]",
+          "LC.0": "pins[11]",
+          "LC.1": "pins[10]",
+          "LC.2": "pins[9]",
+          "Md.Perr'": "pins[183]",
+          "Next.0": "next_raw[0]",
+          "Next.1": "next_raw[1]",
+          "Next.2": "next_raw[2]",
+          "Next.3": "next_raw[3]",
+          "NextMacro": "pins[212]",
+          "PRhold": "pins[68]",
+          "Pdata.08": "pins[84]",
+          "Pdata.09": "pins[85]",
+          "Pdata.10": "pins[86]",
+          "Pdata.11": "pins[87]",
+          "Pdata.12": "pins[88]",
+          "Pdata.13": "pins[89]",
+          "Pdata.14": "pins[90]",
+          "Pdata.15": "pins[91]",
+          "PrBlock'": "pins[176]",
+          "ProcL02.sil+1": "pins[135]",
+          "ProcL03.sil+1": "pins[136]",
+          "ProcL04.sil+1": "pins[137]",
+          "ProcL05.sil+1": "pins[138]",
+          "ProcL06.sil+1": "pins[139]",
+          "ProcL07.sil+1": "pins[140]",
+          "ProcL08.sil+1": "pins[141]",
+          "ProcL17.sil+10": "pins[221]",
+          "ProcL17.sil+9": "pins[222]",
+          "ProcL20.sil+7": "~pins[225]",
+          "ProcL26.sil+1": "pins[223]",
+          "ProcL27.sil+1": "pins[144]",
+          "Q.14": "pins[179]",
+          "RSTK.0": "pins[172]",
+          "RSTK.1": "pins[173]",
+          "RSTK.2": "pins[174]",
+          "RSTK.3": "pins[175]",
+          "RisIFdata": "pins[151]",
+          "SimHoldDis": "pins[224]",
+          "StartCycle'a": "start_a",
+          "SubTask.0": "pins[198]",
+          "SubTask.1": "pins[199]",
+          "TisIFdata": "pins[117]",
+          "_MD'Dly": "pins[225]",
+          "_MDI'": "pins[226]",
+          "alub.08": "pins[227]",
+          "alub.09": "pins[228]",
+          "alub.10": "pins[229]",
+          "alub.11": "pins[230]",
+          "alub.12": "pins[231]",
+          "alub.13": "pins[232]",
+          "alub.14": "pins[233]",
+          "alub.15": "pins[234]",
+          "dMD.08": "pins[100]",
+          "dMD.09": "pins[101]",
+          "dMD.10": "pins[102]",
+          "dMD.11": "pins[103]",
+          "dMD.12": "pins[104]",
+          "dMD.13": "pins[105]",
+          "dMD.14": "pins[106]",
+          "dMD.15": "pins[107]",
+          "ddR.15": "pins[142]",
+          "jcnt": "pins[235]"
+        },
+        "clock_taps": [
+          "@l02.ca",
+          "@l02.cb",
+          "SHCP'C",
+          "PreClock0'B",
+          "Clock1'Ca",
+          "DblClock'Bc",
+          "Clock1'Ba",
+          "TbWrite'a",
+          "Clock0'Db",
+          "Clock1'Da",
+          "@l07.p7",
+          "@l07.p9",
+          "@l06.p7",
+          "@l06.p9",
+          "@g10.ca",
+          "@g10.cb",
+          "@h10.ca",
+          "@h10.cb",
+          "@i15.p9",
+          "@k11.p9",
+          "@g08.p9",
+          "@j11.p9",
+          "@l11.ca",
+          "@l11.cb",
+          "@h15.p7",
+          "@g14.p7",
+          "@g15.p13",
+          "@h14.p9",
+          "@l14.p9",
+          "@l15.ca",
+          "@l15.cb",
+          "@i16.p7",
+          "@i17.p7",
+          "@l16.clk",
+          "@l18.clk",
+          "@j19.ca",
+          "@j19.cb"
+        ],
+        "flag_taps": [
+          "RepeatCurrC",
+          "Hold",
+          "Curr=Next'",
+          "PreSHCP'B",
+          "TbBypass",
+          "T.Perr'",
+          "R.Perr'",
+          "ProcL27.sil+9",
+          "ProcL27.sil+8",
+          "Clock1'Bb",
+          "@l07.state_q[0]",
+          "RbBypassDly",
+          "RmOdd'",
+          "RbAdr.0",
+          "RbAdr.1",
+          "RbAdr.2",
+          "RbAdr.3",
+          "RbAdr.0'",
+          "RbAdr.1'",
+          "RbAdr.2'",
+          "RbAdr.3'",
+          "RbAdr.4'",
+          "RbAdr.5'",
+          "RbAdr.6'",
+          "RbAdr.7'",
+          "StkAdr.0a",
+          "StkAdr.1a",
+          "StkAdr.2a",
+          "StkAdr.3a",
+          "StkAdr.4a",
+          "StkAdr.5a",
+          "StkAdr.6a",
+          "StkAdr.7a",
+          "StkAdr.0b",
+          "StkAdr.1b",
+          "StkAdr.2b",
+          "StkAdr.3b",
+          "StkAdr.4b",
+          "StkAdr.5b",
+          "StkAdr.6b",
+          "StkAdr.7b",
+          "SelectRm'a",
+          "SelectStk'a",
+          "SelectRm'b",
+          "SelectStk'b",
+          "RbBypass",
+          "RbBypass'",
+          "StkSela",
+          "StkSel'a",
+          "FA=0'b",
+          "FA=1'a",
+          "FA=2'a",
+          "FA=3'",
+          "Holda",
+          "ProcL24.sil+14",
+          "ProcL20.sil+7",
+          "StkPWriteEn'",
+          "ProcL26.sil+3",
+          "StkPSaveEn'",
+          "ProcL23.sil+3",
+          "ProcL23.sil+6",
+          "ProcL23.sil+7",
+          "ProcL23.sil+9",
+          "ProcL23.sil+11",
+          "ProcL23.sil+12",
+          "ProcL23.sil+13",
+          "ProcL23.sil+14",
+          "ProcL25.sil+5",
+          "ProcL25.sil+1",
+          "ProcL25.sil+2",
+          "ProcL25.sil+4",
+          "ProcL25.sil+3",
+          "ProcL25.sil+14",
+          "ProcL25.sil+12",
+          "ProcL25.sil+13",
+          "RmBypass'",
+          "StkBypass'",
+          "CkMdParity'",
+          "ProcL24.sil+3",
+          "RBaseWriteEn'",
+          "RBase.0'",
+          "RBase.1'",
+          "RBase.2'",
+          "RBase.3'",
+          "CntMux.12'",
+          "CntMux.13'",
+          "CntMux.14'",
+          "CntMux.15'",
+          "SelRBaseWadr'",
+          "RBaseBypass'",
+          "ProcL22.sil+4",
+          "BumpRBase"
+        ],
+        "source_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+        "combinational_sources": [
+          "verilog/cells/cell_MC10100.v",
+          "verilog/cells/cell_MC10101.v",
+          "verilog/cells/cell_MC10102.v",
+          "verilog/cells/cell_MC10103.v",
+          "verilog/cells/cell_MC10105.v",
+          "verilog/cells/cell_MC10106.v",
+          "verilog/cells/cell_MC10107.v",
+          "verilog/cells/cell_MC10109.v",
+          "verilog/cells/cell_MC10113.v",
+          "verilog/cells/cell_MC10117.v",
+          "verilog/cells/cell_MC10119.v",
+          "verilog/cells/cell_MC10121.v",
+          "verilog/cells/cell_MC10158.v",
+          "verilog/cells/cell_MC10159.v",
+          "verilog/cells/cell_MC10161.v",
+          "verilog/cells/cell_MC10170.v",
+          "verilog/cells/cell_MC10174.v",
+          "verilog/cells/cell_MC10182.v",
+          "verilog/cells/cell_MC10195.v",
+          "verilog/cells/cell_MC10210.v",
+          "verilog/cells/cell_MC10211.v",
+          "verilog/cells/cell_MC10212.v",
+          "verilog/cells/cell_MC1660.v",
+          "verilog/cells/cell_MC1662.v",
+          "verilog/cells/cell_SE10210.v",
+          "verilog/cells/cell_SE10211.v",
+          "verilog/cells/cell_SE10212.v"
+        ]
+      }
+    ],
+    "signals": {
+      "ASEL.0'": 202,
+      "ASEL.1'": 203,
+      "ASEL.2'": 204,
+      "BSEL.0'": 205,
+      "BSEL.1'": 206,
+      "BSEL.2'": 207,
+      "DMuxData": 208,
+      "FFok'common": 209,
+      "IOBout": 210,
+      "MBBypass": 211,
+      "NextMacro": 212,
+      "ProcH25.sil+1": 213,
+      "ProcH25.sil+18": 214,
+      "ProcH26.sil+3": 215,
+      "ProcH27.sil+12": 216,
+      "TIOAWriteEn'": 217,
+      "FFdly.7": 218,
+      "IOBin'": 219,
+      "IOBout'": 220,
+      "ProcL17.sil+10": 221,
+      "ProcL17.sil+9": 222,
+      "ProcL26.sil+1": 223,
+      "SimHoldDis": 224,
+      "_MD'Dly": 225,
+      "_MDI'": 226,
+      "alub.08": 227,
+      "alub.09": 228,
+      "alub.10": 229,
+      "alub.11": 230,
+      "alub.12": 231,
+      "alub.13": 232,
+      "alub.14": 233,
+      "alub.15": 234,
+      "jcnt": 235
+    },
+    "pin_count": 246,
+    "ffok_alias_audit": {
+      "package": "ContA.f24",
+      "type": "MC10211",
+      "drivers": {
+        "FFok'a": [
+          [
+            "f24",
+            4
+          ],
+          [
+            "f24",
+            13
+          ]
+        ],
+        "FFok'b": [
+          [
+            "f24",
+            2
+          ],
+          [
+            "f24",
+            12
+          ]
+        ],
+        "FFok'c": [
+          [
+            "f24",
+            3
+          ],
+          [
+            "f24",
+            14
+          ]
+        ]
+      },
+      "reason": "Each wired-OR net combines one replica from each identical NOR output group."
+    },
+    "bypass_drivers": {
+      "RmBypass'": [
+        [
+          "k12",
+          2
+        ],
+        [
+          "k12",
+          3
+        ],
+        [
+          "k12",
+          14
+        ],
+        [
+          "k12",
+          15
+        ],
+        [
+          "k13",
+          2
+        ],
+        [
+          "k13",
+          3
+        ],
+        [
+          "k13",
+          14
+        ],
+        [
+          "k13",
+          15
+        ],
+        [
+          "k15",
+          3
+        ]
+      ],
+      "StkBypass'": [
+        [
+          "l12",
+          2
+        ],
+        [
+          "l12",
+          3
+        ],
+        [
+          "l12",
+          14
+        ],
+        [
+          "l12",
+          15
+        ],
+        [
+          "l13",
+          2
+        ],
+        [
+          "l13",
+          3
+        ],
+        [
+          "l13",
+          14
+        ],
+        [
+          "l13",
+          15
+        ]
+      ]
+    },
+    "resolved": {
+      "ContA-Rev-Cd": [],
+      "ProcH-Rev-Ce": [
+        {
+          "pin": 17,
+          "net": "FF.2a",
+          "flag": 21
+        },
+        {
+          "pin": 109,
+          "net": "ProcH24.sil+4",
+          "flag": 22
+        },
+        {
+          "pin": 152,
+          "net": "ProcH22.sil+3",
+          "flag": 23
+        },
+        {
+          "pin": 153,
+          "net": "ProcH22.sil+4",
+          "flag": 24
+        },
+        {
+          "pin": 154,
+          "net": "ProcH22.sil+5",
+          "flag": 25
+        },
+        {
+          "pin": 155,
+          "net": "ProcH22.sil+6",
+          "flag": 26
+        }
+      ],
+      "ProcL-Rev-Ci": [
+        {
+          "pin": 68,
+          "net": "Holda",
+          "flag": 53
+        },
+        {
+          "pin": 115,
+          "net": "ProcL24.sil+14",
+          "flag": 54
+        },
+        {
+          "pin": 116,
+          "net": "ProcL20.sil+7",
+          "flag": 55
+        },
+        {
+          "pin": 146,
+          "net": "StkPWriteEn'",
+          "flag": 56
+        },
+        {
+          "pin": 147,
+          "net": "ProcL26.sil+3",
+          "flag": 57
+        },
+        {
+          "pin": 186,
+          "net": "StkPSaveEn'",
+          "flag": 58
+        },
+        {
+          "pin": 156,
+          "net": "ProcL23.sil+3",
+          "flag": 59
+        },
+        {
+          "pin": 157,
+          "net": "ProcL23.sil+6",
+          "flag": 60
+        },
+        {
+          "pin": 158,
+          "net": "ProcL23.sil+7",
+          "flag": 61
+        },
+        {
+          "pin": 159,
+          "net": "ProcL23.sil+9",
+          "flag": 62
+        },
+        {
+          "pin": 160,
+          "net": "ProcL23.sil+11",
+          "flag": 63
+        },
+        {
+          "pin": 161,
+          "net": "ProcL23.sil+12",
+          "flag": 64
+        },
+        {
+          "pin": 162,
+          "net": "ProcL23.sil+13",
+          "flag": 65
+        },
+        {
+          "pin": 163,
+          "net": "ProcL23.sil+14",
+          "flag": 66
+        },
+        {
+          "pin": 164,
+          "net": "ProcL25.sil+5",
+          "flag": 67
+        },
+        {
+          "pin": 165,
+          "net": "ProcL25.sil+1",
+          "flag": 68
+        },
+        {
+          "pin": 166,
+          "net": "ProcL25.sil+2",
+          "flag": 69
+        },
+        {
+          "pin": 167,
+          "net": "ProcL25.sil+4",
+          "flag": 70
+        },
+        {
+          "pin": 168,
+          "net": "ProcL25.sil+3",
+          "flag": 71
+        },
+        {
+          "pin": 169,
+          "net": "ProcL25.sil+14",
+          "flag": 72
+        },
+        {
+          "pin": 170,
+          "net": "ProcL25.sil+12",
+          "flag": 73
+        },
+        {
+          "pin": 171,
+          "net": "ProcL25.sil+13",
+          "flag": 74
+        },
+        {
+          "pin": 177,
+          "net": "RmBypass'",
+          "flag": 75
+        },
+        {
+          "pin": 178,
+          "net": "StkBypass'",
+          "flag": 76
+        },
+        {
+          "pin": 182,
+          "net": "CkMdParity'",
+          "flag": 77
+        },
+        {
+          "pin": 184,
+          "net": "ProcL24.sil+3",
+          "flag": 78
+        },
+        {
+          "pin": 185,
+          "net": "RBaseWriteEn'",
+          "flag": 79
+        },
+        {
+          "pin": 188,
+          "net": "RBase.0'",
+          "flag": 80
+        },
+        {
+          "pin": 189,
+          "net": "RBase.1'",
+          "flag": 81
+        },
+        {
+          "pin": 190,
+          "net": "RBase.2'",
+          "flag": 82
+        },
+        {
+          "pin": 191,
+          "net": "RBase.3'",
+          "flag": 83
+        },
+        {
+          "pin": 192,
+          "net": "CntMux.12'",
+          "flag": 84
+        },
+        {
+          "pin": 193,
+          "net": "CntMux.13'",
+          "flag": 85
+        },
+        {
+          "pin": 194,
+          "net": "CntMux.14'",
+          "flag": 86
+        },
+        {
+          "pin": 195,
+          "net": "CntMux.15'",
+          "flag": 87
+        },
+        {
+          "pin": 196,
+          "net": "SelRBaseWadr'",
+          "flag": 88
+        },
+        {
+          "pin": 197,
+          "net": "RBaseBypass'",
+          "flag": 89
+        },
+        {
+          "pin": 200,
+          "net": "ProcL22.sil+4",
+          "flag": 90
+        },
+        {
+          "pin": 201,
+          "net": "BumpRBase",
+          "flag": 91
+        }
+      ]
+    },
+    "physical_bits": 752,
+    "packages": 274,
+    "original_pins": 2884,
+    "scope": "Extract RBase, stack pointer/saved address and complete bypass comparison cones.\n\nThe original final R-address/processor graph is retained. MIR/IFU/ALU/counter\nand I/O producer boundaries remain explicit, with no non-rail constant stubs\nin the extended processor graphs. Every consumed mixed net keeps all drivers.\n",
+    "native_integrated": false,
+    "Ready_and_IsNext_internal": true,
+    "clock_channels": 59,
+    "generator_sha256": "dc5022728c2089f0e9bf724fbbecabeeeeddbb043531a508042cc2b4d2b688b7"
+  },
+  "physical_bits": 752,
+  "ram_bits": 9216,
+  "total_physical_bits": 9968,
+  "profiles": [
+    {
+      "profile": "balanced",
+      "cases": [
+        {
+          "case": "original",
+          "returncode": 0,
+          "expected_failure": false
+        }
+      ],
+      "timed_source_hashes": {
+        "cell_MC10105.v": "8a84716d09d87924eea2375ad1a6a3999c142aaec58538e1a784c7a7bf8849ac",
+        "cell_SE10211.v": "656e81b3371c43497e17d6028855d85f88af4c00098c1b27154c20da88cc5975",
+        "original_ready_ff.sv": "845525e24efdddee8e8faeb0e424bb05716723a441a90262aff24761c3799785",
+        "r_file_ports_reference.sv": "a61d02c74a057393aeb3c0d3a6b7e1b7fddc8aa722816e96098670e5cd2a3b3b",
+        "t_parity_original_ff.sv": "724e9ec33be52e63637abf6fb5597e0fd174a77c4d1716120a4ca274f90959fe",
+        "cell_MC10101.v": "b8b5ffd8035ed90fc39c54ef4edc470661aa8af1372634aba2d27ea645d38939",
+        "cell_MC1660.v": "cfad0a3f729ee8d480f9d191bb95b61bed490c7bce4aa760ae92337376163b9f",
+        "cell_MC10170.v": "fdcf9bb7ece787785bd8907f738b8a2e312e3f7cdea21468cd3de971d1aea6c0",
+        "r_front_original_storage.sv": "1036bf934bce5043a8a40b5263c155afc8b94783e3ada9172ba9fa644436a791",
+        "cell_MC10174.v": "fa943683e9892da4dc827a1292e25344f7094d6767b9bc0c02d6e595c77c6f77",
+        "t_file_original_storage.sv": "711c8451ad6cad29bd498e8051a7e94ad0606ace0c6806824f642055c2f852aa",
+        "cell_MC1664.v": "a817b79af7807b0f7e562616547e14c3ee89e5b408caf3b02fe1d6aa39eeaf24",
+        "cell_MC10211.v": "cffe7a32d6c6db6d37338c5f336f85e22b1fc9884e933f47a7227adb697f365f",
+        "r_file_ports_proch.sv": "a079bdc7658261b070ad460b4c6efa8e35dbac95243fc87305dc379317ad412e",
+        "cell_MC10106.v": "dade1ed95eec706b46b73ae163e30e6186bb8d048fdcf3d73ccfe1ec026729af",
+        "r_file_ports_procl.sv": "dc0d8e89495dac6539d9951de09c61953fc88dfca3e66fb00a46291aa1da56bc",
+        "cell_MC10102.v": "09a1d7c7c3ea0f541e0cb19450454fadfe63646f7b86feeb439a2a2eed80bf6d",
+        "cell_SE10212.v": "7dd0f05dfde9ebca9c2dd36b49690b232a60b154617a6fe3ead49c6b710117cb",
+        "cell_MC10158.v": "8744511d20179d88467f3df643cf7ab4ec02badb3d30c7e7ced6f93d8e1503cd",
+        "cell_MC10212.v": "151d0782803240b9c0e648b9ab2b8ea0fa85b59baa05ac5940563ab9c69560b7",
+        "cell_MC10166.v": "12334d7bbcf5642ee77b8200b30136a8712d4cd062699802010e7ab25c675d06",
+        "r_front_ready_proch.sv": "ebd6c8fcc7e3f1de2d5abee8cd9008fa54816745b47693888af0434a98f5cd1a",
+        "cell_MC10107.v": "0b7879b09171a63ac580b083a6ce44b1260c2861b66a64e231c8274b7020aa2b",
+        "cell_MC10103.v": "66936bb672be9df6a2864ab36039c2be4dd57b25e0eb11313598b84621ff5fb4",
+        "cell_MC10162.v": "93ee2303af0235b7575350dc66fe38ef2cbdd93d74ebc4ce094c091376d1f4b6",
+        "cell_MC10109.v": "6e083dfd115816a8fe443811e841bebf3da7ee04119ba57ddbf51c7e7910ed1b",
+        "r_front_ready_procl.sv": "b7bcfa5ca27943b7e17b7f92dc2542a5aba589617bc835a2a344320f54feb241",
+        "cell_MC10113.v": "8406772378c9457d0726bf61b62ed8e4a56e0b6fe6bbbe9e862be543e2302e3d",
+        "cell_MC10119.v": "f600a4821eeccecdf2ee439610b323aeeb8108aaea38d7b155e51bf82bbe33f5",
+        "cell_MC10195.v": "13e14933c94e8da401d2ad2eeda8dc60720e7cc728f207104c6c71f994c0d067",
+        "cell_MC1662.v": "deb6d5af10465593d023e01da9d63c1d1c95ff72ca9a20cbe59b4f218d2680d8",
+        "cell_MC10159.v": "481b6437e3970ec3001235bcbc2769bf591dbcac3e3b9112d783840f6bd85a92",
+        "cell_MC10117.v": "501d0c1979759d5c2854e858392be2abd363fe34991022091a4d5569ed2b6286",
+        "processor_capture_original_ff.sv": "1d1dc7999f11f750f3500c3adac6260749d2f3614e096a68c8f48935ea44fb46",
+        "cell_MC10182.v": "277a7aeffeb7b9324c29e3bd41c3ba23179ad7eb3758ab1a48e5864ed90b0cca",
+        "cell_MC10104.v": "ab73991d22147d7c72749c184fda8337a6a7ac2e2069a93c5dc8a62f9bcca96e",
+        "cell_MC10121.v": "803272ae9c4136e1c72abdcbe8d1bfeb57e2e65a31ebd73b7aadfeb1cc328072",
+        "cell_SE10210.v": "1da7dcb47429d5ead7ffad26c67f23ac70b6f0707d720724c5e5ea969f3c37aa",
+        "cell_MC10100.v": "228e5cf46bd6f28161c8e8c7238e44581a42ee8770643256921276695c4aa12f",
+        "cell_MC10161.v": "c3c04e0d6e1757a66afe2a58c77e945fb5c33446236d2c9ac58a2dead5c9da78",
+        "r_front_ready_reference.sv": "ab4c87429442ff7e9a8cb7898a39ba8bc82799ac9c91ed1ddf657fd2e461bdae",
+        "r_operand_original_ff.sv": "e49980705c8859ac5c9dc181d30e579c356f13bb8fd474ca09b04915725bdd61",
+        "r_file_original_storage.sv": "956cd1bff7362ec90d50b5a0cfe842535318628097718945d921468c87f1febb",
+        "run_control_original_ff.sv": "d00e06cd4ac75ed03de2f9a7ff888a875ab0b9d87eac9634b2f32a3aecd09f2f",
+        "r_front_ready_conta.sv": "4eefa9f261eb3f05940c40718756b28bc26a2ddbd386f756633d7a50ea4ddc39",
+        "cell_MC10210.v": "519e870c73b8e8eac97dca182739769d3c4f535a6b47f21e96d189495e0bc4df"
+      }
+    }
+  ],
+  "actions": [
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_r_front_ready",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/original/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/original/dorado_r_front_ready_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/original/dorado_r_front_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/dorado_r_front_cone.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/executed-inputs/tb_r_front_ready.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/executed-inputs/verilog/rtl/dorado_processor_capture_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/executed-inputs/verilog/rtl/dorado_r_address_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/executed-inputs/verilog/rtl/dorado_r_file_ports.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/executed-inputs/verilog/rtl/dorado_r_flags_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/executed-inputs/verilog/rtl/dorado_r_memory_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/executed-inputs/verilog/rtl/dorado_r_operand_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/executed-inputs/verilog/rtl/dorado_r_port_preview.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/executed-inputs/verilog/rtl/dorado_t_file_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/executed-inputs/verilog/rtl/dorado_t_parity_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/executed-inputs/verilog/rtl/dorado_task_capture_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/executed-inputs/verilog/rtl/dorado_task_ready_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/original_ready_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/processor_capture_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/r_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/r_file_ports_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/r_file_ports_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/r_file_ports_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/r_front_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/r_front_ready_conta.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/r_front_ready_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/r_front_ready_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/r_front_ready_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/r_operand_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/t_file_original_storage.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/t_parity_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10100.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10101.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10102.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10103.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10105.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10106.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10107.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10109.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10113.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10117.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10119.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10121.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10158.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10159.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10162.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10166.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10170.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10174.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10182.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10195.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC10212.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC1660.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC1662.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_MC1664.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_SE10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/timed-reference/cell_SE10212.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/original/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/original/test.vvp",
+        "+iterations=16"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-ready-smoke-v3-20261020/balanced/original/test.log"
+    }
+  ],
+  "summary": "checks=5043 writes=12 reads=2290 old_epoch_changes=323",
+  "inherited_cone_sha256": "60d63614c927570d9fbed383e837955510fe10242a3ef74574ff485e0e6647c5",
+  "Ready_and_IsNext_internal": true,
+  "Ready_only_wakeups": 15,
+  "all_R_memory_bits_compared": true,
+  "r_read_write_nonoverlap_checked": true,
+  "post_commit_source_epoch_checked": true,
+  "R_final_address_stage_qualified": true,
+  "ram_arrays_flattened": false,
+  "native_integrated": false,
+  "producer_timing_qualified": false,
+  "independent_gate_functions_qualified": false
+}

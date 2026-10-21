@@ -1,0 +1,32 @@
+{
+  "status": "PASS_R_FRONT_READY_FINAL_CROSSCHECK",
+  "current_and_frozen_inputs": 96,
+  "profiles_both_engines": 6,
+  "events_per_profile": 13173,
+  "physical_Q_bits": 752,
+  "RAM_bits": 9216,
+  "clock_channels": 59,
+  "Ready_only_wakeups": 15,
+  "all16_Ready_bits_changed": true,
+  "front_bits_changed": 100,
+  "inherited_raw_cone_byte_identical": true,
+  "previous_reviews": [
+    {
+      "fit": "task-epoch-fit-v2-terminal-20261020",
+      "review_byte_identical": true
+    },
+    {
+      "fit": "task-ready-capture-fit-v1-terminal-20261020",
+      "review_byte_identical": true
+    }
+  ],
+  "all_jobs_terminal": true,
+  "fit_pids_absent": [
+    110834,
+    110842,
+    111318,
+    114102,
+    114597
+  ],
+  "native_changed": false
+}

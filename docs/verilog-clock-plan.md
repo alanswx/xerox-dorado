@@ -80,6 +80,20 @@ component and close live Notify/preemption/Hold/IFU/MIR arrivals before native
 integration. [Raw proof and timing](../fpga/mister/reports/2026-10-20-ready-arbiter-capture/README.md).
 All jobs terminal; no hardware speed change yet.
 
+The full Ready/RBase/stack/RM/STK combination now passes:752 processor Qs plus
+9216 RAM bits,59 clocks,13173 events/profile in both simulators/six profiles,
+all15 Notify-only task wakeups,9 rejected bad RTL variants and stable original
+write windows. Four-condition15ns timing passes (+0.622ns setup/+0.171ns hold),
+2944ALMs/2809regs/9216MLABbits.20 strict damaged reader controls reject.
+[Portable raw proof](../fpga/mister/reports/2026-10-20-r-front-ready-path/README.md).
+The exact native inventory verifies498 source identities and maps91 Q-storage
+packages plus12 RM/STK packages. Next stage the actual native replacement at
+unchanged50MHz/SYSPER4, close live producer wiring/arrivals, run all-device
+timing and ROM checks on the modified native wrappers, then original-firmware
+Cedar/input. The older generic-board ROM fixture is insufficient for changes
+confined to native wrappers. Clock acceleration follows that integration.
+All jobs terminal; no FPGA/Main/daemon/disk or measured speed change yet.
+
 ### Milestones and acceptance
 
 | Milestone | Change | Evidence required to finish |

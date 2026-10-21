@@ -1,0 +1,1605 @@
+{
+  "boards": [
+    {
+      "board": "ContA-Rev-Cd",
+      "packages": {
+        "a02": "MC10210",
+        "a08": "MC10104",
+        "a09": "F10000",
+        "a10": "MC1664",
+        "a11": "MC10104",
+        "b06": "MC10162",
+        "b07": "MC10162",
+        "b08": "MC10104",
+        "b09": "F10000",
+        "b10": "MC1664",
+        "b11": "MC10104",
+        "c06": "MC10162",
+        "c07": "MC10162",
+        "c08": "MC10104",
+        "c09": "F10000",
+        "c10": "MC1664",
+        "c11": "MC10104",
+        "c12": "MC10109",
+        "d07": "SE10210",
+        "d08": "MC10104",
+        "d09": "F10000",
+        "d10": "MC1664",
+        "d11": "MC10104",
+        "d12": "MC10109",
+        "d13": "MC10102",
+        "d18": "SE10210",
+        "e12": "MC10101",
+        "e13": "MC10102",
+        "f08": "MC10161",
+        "f09": "MC10161",
+        "f10": "MC10121",
+        "f11": "MC10121",
+        "f12": "SE10210",
+        "f13": "SE10210",
+        "f14": "MC10231",
+        "f15": "MC10231",
+        "f16": "MC1660",
+        "f17": "MC1660",
+        "f19": "SE10211",
+        "f20": "MC1660",
+        "g04": "MC10104",
+        "g05": "MC10195",
+        "g10": "MC10121",
+        "g11": "MC10102",
+        "g12": "SE10212",
+        "g13": "SE10210",
+        "g15": "MC1662",
+        "h03": "MC10103",
+        "h08": "MC10141",
+        "h09": "MC10141",
+        "h10": "MC10166",
+        "h11": "MC10166",
+        "h13": "MC10159",
+        "h14": "MC10159",
+        "i03": "MC10176",
+        "i04": "MC10104",
+        "i05": "MC10210",
+        "i06": "SE10210",
+        "i07": "SE10210",
+        "i10": "MC10166",
+        "i11": "MC10101",
+        "j01": "MC10231",
+        "j04": "MC10231",
+        "j05": "MC10117",
+        "j06": "SE10210",
+        "j07": "SE10210",
+        "j08": "MC10231",
+        "j09": "MC10231",
+        "j10": "MC10109",
+        "j11": "MC10113",
+        "j18": "SE10210",
+        "k01": "MC10231",
+        "k02": "MC10231",
+        "k03": "MC10231",
+        "k04": "MC10231",
+        "k05": "MC10231",
+        "l01": "SE10210",
+        "l02": "MC10231",
+        "l03": "MC10231",
+        "l04": "MC10231",
+        "l05": "MC10231",
+        "l06": "SE10231",
+        "l07": "MC10231",
+        "l08": "MC10211"
+      },
+      "sequential": {
+        "i03": [
+          0,
+          6
+        ],
+        "j04": [
+          6,
+          2
+        ],
+        "k01": [
+          8,
+          2
+        ],
+        "k02": [
+          10,
+          2
+        ],
+        "l02": [
+          12,
+          2
+        ],
+        "l03": [
+          14,
+          2
+        ],
+        "l04": [
+          16,
+          2
+        ],
+        "l05": [
+          18,
+          2
+        ],
+        "l06": [
+          20,
+          2
+        ],
+        "k03": [
+          22,
+          2
+        ],
+        "k04": [
+          24,
+          2
+        ],
+        "k05": [
+          26,
+          2
+        ],
+        "l07": [
+          28,
+          2
+        ],
+        "j01": [
+          30,
+          2
+        ],
+        "h08": [
+          32,
+          4
+        ],
+        "h09": [
+          36,
+          4
+        ],
+        "f14": [
+          40,
+          2
+        ],
+        "f15": [
+          42,
+          2
+        ],
+        "j08": [
+          44,
+          2
+        ],
+        "j09": [
+          46,
+          2
+        ],
+        "a09": [
+          48,
+          4
+        ],
+        "b09": [
+          52,
+          4
+        ],
+        "c09": [
+          56,
+          4
+        ],
+        "d09": [
+          60,
+          4
+        ]
+      },
+      "physical_bits": 64,
+      "original_pins": 823,
+      "boundary_bindings": {
+        "CLK.ca'": "base",
+        "rStop": "pins[7]",
+        "SetRun": "pins[6]",
+        "SetSS'": "pins[5]",
+        "SetRunRfsh": "pins[4]",
+        "Error'": "pins[3]",
+        "StopAtT1": "pins[2]",
+        "RWTPCorRWIM": "pins[1]",
+        "NoDispatch": "pins[0]",
+        "WIM'": "pins[8]",
+        "Hold": "pins[69]",
+        "CPAddr.0'": "1'b1",
+        "CPStrb'": "1'b1",
+        "ContA28.sil+7": "1'b0",
+        "ContA30.sil+1": "1'b0",
+        "GetTLink": "1'b0",
+        "StopTasks": "pins[65]",
+        "dBlock'": "pins[66]",
+        "Block'": "pins[67]",
+        "rCT": "pins[70]",
+        "rMIRa": "1'b0",
+        "ContA28.sil+2": "1'b0",
+        "ContA28.sil+3": "1'b0",
+        "ContA28.sil+4": "1'b0",
+        "WTPC'": "1'b1",
+        "FF=TOffIsOK": "1'b0",
+        "FF=TaskingOff": "1'b0",
+        "TWReq.01": "pins[20]",
+        "TWReq.02": "pins[21]",
+        "TWReq.03": "pins[22]",
+        "TWReq.04": "pins[23]",
+        "TWReq.05": "pins[24]",
+        "TWReq.06": "pins[25]",
+        "TWReq.07": "pins[26]",
+        "TWReq.08": "pins[27]",
+        "TWReq.09": "pins[28]",
+        "TWReq.10": "pins[29]",
+        "TWReq.11": "pins[30]",
+        "TWReq.12": "pins[31]",
+        "TWReq.13": "pins[32]",
+        "TWReq.14": "pins[33]",
+        "TWReq.15": "pins[34]",
+        "sCTask.0": "pins[71]",
+        "sCTask.1": "pins[72]",
+        "sCTask.2": "pins[73]",
+        "sCTask.3": "pins[74]",
+        "bFF.4": "pins[236]",
+        "bFF.5": "pins[237]",
+        "bFF.6": "pins[238]",
+        "bFF.7": "pins[239]",
+        "bFF.4'": "~pins[236]",
+        "PreEmpting'": "pins[240]",
+        "FF=Notify'": "pins[241]",
+        "ClrReady": "pins[242]",
+        "ContA18.sil+3": "pins[243]",
+        "ContA18.sil+4": "pins[244]"
+      },
+      "clock_taps": [
+        "prepreclk'd",
+        "StopRunClock",
+        "preRunClk'Bc",
+        "RunClk'a",
+        "preclk2'Bb",
+        "clk2'Bc",
+        "@l06.ca",
+        "@k04.ca",
+        "preCRamClock",
+        "clk0'Ba",
+        "h*fclk0'Ba",
+        "h*fclk0'Da",
+        "@f14.ca",
+        "h*fclk0'Ab",
+        "h*fclk0'Ac"
+      ],
+      "flag_taps": [
+        "CAHold",
+        "RepeatCur",
+        "FreezeBD",
+        "CLKEnable'c",
+        "CLKEnable'b",
+        "StartCycle'a",
+        "Next.0",
+        "Next.1",
+        "Next.2",
+        "Next.3",
+        "BNTGtCT'a",
+        "Switcha",
+        "SwitchUp",
+        "Freeze",
+        "Ready.01",
+        "Ready.02",
+        "Ready.03",
+        "Ready.04",
+        "Ready.05",
+        "Ready.06",
+        "Ready.07",
+        "Ready.08",
+        "Ready.09",
+        "Ready.10",
+        "Ready.11",
+        "Ready.12",
+        "Ready.13",
+        "Ready.14",
+        "Ready.15",
+        "IsNext.01'",
+        "IsNext.02'",
+        "IsNext.03'",
+        "IsNext.04'",
+        "IsNext.05'",
+        "IsNext.06'",
+        "IsNext.07'",
+        "IsNext.08'",
+        "IsNext.09'",
+        "IsNext.10'",
+        "IsNext.11'",
+        "IsNext.12'",
+        "IsNext.13'",
+        "IsNext.14'",
+        "IsNext.15'"
+      ],
+      "source_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "combinational_sources": [
+        "verilog/cells/cell_MC10101.v",
+        "verilog/cells/cell_MC10102.v",
+        "verilog/cells/cell_MC10103.v",
+        "verilog/cells/cell_MC10104.v",
+        "verilog/cells/cell_MC10109.v",
+        "verilog/cells/cell_MC10113.v",
+        "verilog/cells/cell_MC10117.v",
+        "verilog/cells/cell_MC10121.v",
+        "verilog/cells/cell_MC10159.v",
+        "verilog/cells/cell_MC10161.v",
+        "verilog/cells/cell_MC10162.v",
+        "verilog/cells/cell_MC10166.v",
+        "verilog/cells/cell_MC10195.v",
+        "verilog/cells/cell_MC10210.v",
+        "verilog/cells/cell_MC10211.v",
+        "verilog/cells/cell_MC1660.v",
+        "verilog/cells/cell_MC1662.v",
+        "verilog/cells/cell_MC1664.v",
+        "verilog/cells/cell_SE10210.v",
+        "verilog/cells/cell_SE10211.v",
+        "verilog/cells/cell_SE10212.v"
+      ]
+    },
+    {
+      "board": "ProcH-Rev-Ce",
+      "packages": {
+        "a01": "MC10102",
+        "a18": "MC10158",
+        "a19": "MC10158",
+        "a20": "MC10141",
+        "a21": "MC10141",
+        "a22": "MC10113",
+        "a24": "MC10101",
+        "b23": "MC10101",
+        "b24": "MC10210",
+        "c06": "MC10170",
+        "c18": "SE10210",
+        "c23": "MC10210",
+        "d06": "MC10170",
+        "d20": "MC10100",
+        "d22": "MC10211",
+        "d23": "MC10101",
+        "d24": "MC10101",
+        "e23": "MC10101",
+        "e24": "MC10161",
+        "f12": "SE10212",
+        "f13": "SE10210",
+        "f18": "MC10102",
+        "f19": "MC1660",
+        "f20": "MC10100",
+        "f23": "MC10101",
+        "f24": "MC10161",
+        "g05": "MC10173",
+        "g06": "MC10173",
+        "g07": "MC10173",
+        "g12": "SE10211",
+        "g13": "SE10210",
+        "g16": "F10000",
+        "g18": "MC10176",
+        "g20": "MC10106",
+        "g21": "MC10106",
+        "h05": "MC10173",
+        "h17": "MC10158",
+        "h19": "MC10103",
+        "h22": "MC10176",
+        "h23": "MC10102",
+        "h24": "MC10101",
+        "i03": "MC10173",
+        "i04": "MC10173",
+        "i05": "SE10212",
+        "i11": "F10145A",
+        "i12": "MC10141",
+        "i18": "SE10210",
+        "j01": "MC10173",
+        "j02": "MC10173",
+        "j03": "MC10173",
+        "j04": "MC10173",
+        "j05": "SE10210",
+        "j18": "SE10210",
+        "k01": "MC10173",
+        "k02": "MC10173",
+        "k04": "MC10170",
+        "k05": "MC10158",
+        "k08": "MC1662",
+        "k09": "MC1662",
+        "k10": "SE10210",
+        "l01": "SE10210",
+        "l02": "SE10231",
+        "l03": "F10145A",
+        "l04": "F10145A",
+        "l05": "MC10176",
+        "l06": "MC1668",
+        "l07": "MC1668",
+        "l08": "SE10211",
+        "l09": "SE10211"
+      },
+      "sequential": {
+        "l02": [
+          0,
+          2
+        ],
+        "h22": [
+          2,
+          6
+        ],
+        "a21": [
+          8,
+          4
+        ],
+        "a20": [
+          12,
+          4
+        ],
+        "i12": [
+          16,
+          4
+        ],
+        "g18": [
+          20,
+          6
+        ],
+        "k01": [
+          26,
+          4
+        ],
+        "k02": [
+          30,
+          4
+        ],
+        "l03": [
+          34,
+          64
+        ],
+        "l04": [
+          98,
+          64
+        ],
+        "j03": [
+          162,
+          4
+        ],
+        "j04": [
+          166,
+          4
+        ],
+        "i03": [
+          170,
+          4
+        ],
+        "i04": [
+          174,
+          4
+        ],
+        "i11": [
+          178,
+          64
+        ],
+        "g16": [
+          242,
+          4
+        ],
+        "j01": [
+          246,
+          4
+        ],
+        "j02": [
+          250,
+          4
+        ],
+        "g05": [
+          254,
+          4
+        ],
+        "h05": [
+          258,
+          4
+        ],
+        "g06": [
+          262,
+          4
+        ],
+        "g07": [
+          266,
+          4
+        ],
+        "l07": [
+          270,
+          2
+        ],
+        "l06": [
+          272,
+          2
+        ],
+        "l05": [
+          274,
+          6
+        ]
+      },
+      "physical_bits": 280,
+      "original_pins": 735,
+      "boundary_bindings": {
+        "ALUCarry": "pins[110]",
+        "ASEL.0'": "pins[202]",
+        "ASEL.1'": "pins[203]",
+        "ASEL.2'": "pins[204]",
+        "BNTGtCT'a": "priority_n",
+        "BSEL.0'": "pins[205]",
+        "BSEL.1'": "pins[206]",
+        "BSEL.2'": "pins[207]",
+        "CLK.ph'": "base",
+        "CLKEnable'c": "en",
+        "DMuxData": "pins[208]",
+        "FF.0": "pins[19]",
+        "FF.1": "pins[18]",
+        "FF.2": "pins[17]",
+        "FF.3": "pins[16]",
+        "FF.4": "pins[15]",
+        "FF.5": "pins[14]",
+        "FF.6": "pins[13]",
+        "FF.7": "pins[12]",
+        "FFok'a": "pins[209]",
+        "Freeze": "freeze",
+        "Holda": "pins[68]",
+        "IOBout": "pins[210]",
+        "LC.0": "pins[11]",
+        "LC.1": "pins[10]",
+        "LC.2": "pins[9]",
+        "MBBypass": "pins[211]",
+        "Next.0": "next_raw[0]",
+        "Next.1": "next_raw[1]",
+        "Next.2": "next_raw[2]",
+        "Next.3": "next_raw[3]",
+        "NextMacro": "pins[212]",
+        "Overflow'": "pins[111]",
+        "PRhold": "pins[68]",
+        "Pdata.00": "pins[76]",
+        "Pdata.01": "pins[77]",
+        "Pdata.02": "pins[78]",
+        "Pdata.03": "pins[79]",
+        "Pdata.04": "pins[80]",
+        "Pdata.05": "pins[81]",
+        "Pdata.06": "pins[82]",
+        "Pdata.07": "pins[83]",
+        "ProcH03.sil+1": "pins[128]",
+        "ProcH04.sil+1": "pins[129]",
+        "ProcH05.sil+1": "pins[130]",
+        "ProcH06.sil+1": "pins[131]",
+        "ProcH07.sil+1": "pins[132]",
+        "ProcH08.sil+1": "pins[133]",
+        "ProcH09.sil+1": "pins[134]",
+        "ProcH11.sil+14": "pins[145]",
+        "ProcH17.sil+3": "pins[181]",
+        "ProcH25.sil+1": "pins[213]",
+        "ProcH25.sil+18": "pins[214]",
+        "ProcH26.sil+3": "pins[215]",
+        "ProcH27.sil+1": "pins[143]",
+        "ProcH27.sil+12": "pins[216]",
+        "PropCnt'": "pins[180]",
+        "RSTK.0": "pins[172]",
+        "RSTK.1": "pins[173]",
+        "RSTK.2": "pins[174]",
+        "RSTK.3": "pins[175]",
+        "RbBypass": "rb_forward",
+        "RbBypass'": "rb_forward_n",
+        "RisIFdata": "pins[149]",
+        "SignIfuData": "pins[118]",
+        "StartCycle'a": "start_a",
+        "TIOAWriteEn'": "pins[217]",
+        "TisIFdata": "pins[117]",
+        "dMD.00": "pins[92]",
+        "dMD.01": "pins[93]",
+        "dMD.02": "pins[94]",
+        "dMD.03": "pins[95]",
+        "dMD.04": "pins[96]",
+        "dMD.05": "pins[97]",
+        "dMD.06": "pins[98]",
+        "dMD.07": "pins[99]",
+        "ddR.00": "pins[127]"
+      },
+      "clock_taps": [
+        "@l02.ca",
+        "@l02.cb",
+        "SHCP'C",
+        "Clock0'Da",
+        "Clock1'Ca",
+        "DblClock'Da",
+        "Clock1'Ba",
+        "TbWrite'a",
+        "Clock0'Da",
+        "Clock1'Da",
+        "@l07.p7",
+        "@l07.p9",
+        "@l06.p7",
+        "@l06.p9",
+        "@l05.p9"
+      ],
+      "flag_taps": [
+        "RepeatCurrC",
+        "Hold",
+        "Curr=Next'",
+        "PreSHCP'B",
+        "TbBypass",
+        "T.Perr'",
+        "R.Perr'",
+        "ProcH27.sil+10",
+        "ProcH27.sil+9",
+        "Clock1'Bb",
+        "@l07.state_q[0]",
+        "RbBypassDly",
+        "RmLtZero'",
+        "RbAdr.4'",
+        "RbAdr.5'",
+        "RbAdr.6'",
+        "RbAdr.7'",
+        "FA=0'b",
+        "FA=1'a",
+        "FA=2'a",
+        "FA=3'",
+        "FF.2a",
+        "ProcH24.sil+4",
+        "ProcH22.sil+3",
+        "ProcH22.sil+4",
+        "ProcH22.sil+5",
+        "ProcH22.sil+6"
+      ],
+      "source_sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "combinational_sources": [
+        "verilog/cells/cell_MC10100.v",
+        "verilog/cells/cell_MC10101.v",
+        "verilog/cells/cell_MC10102.v",
+        "verilog/cells/cell_MC10103.v",
+        "verilog/cells/cell_MC10106.v",
+        "verilog/cells/cell_MC10113.v",
+        "verilog/cells/cell_MC10158.v",
+        "verilog/cells/cell_MC10161.v",
+        "verilog/cells/cell_MC10170.v",
+        "verilog/cells/cell_MC10210.v",
+        "verilog/cells/cell_MC10211.v",
+        "verilog/cells/cell_MC1660.v",
+        "verilog/cells/cell_MC1662.v",
+        "verilog/cells/cell_SE10210.v",
+        "verilog/cells/cell_SE10211.v",
+        "verilog/cells/cell_SE10212.v"
+      ]
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "packages": {
+        "a01": "MC10102",
+        "a18": "MC10158",
+        "a19": "MC10158",
+        "a20": "MC10141",
+        "a21": "MC10141",
+        "a22": "MC10113",
+        "a24": "MC10101",
+        "b22": "MC10212",
+        "b23": "MC10101",
+        "b24": "MC10211",
+        "c06": "MC10170",
+        "c18": "SE10210",
+        "c23": "MC10210",
+        "d06": "MC10170",
+        "d17": "MC10176",
+        "d20": "MC10100",
+        "d23": "MC10101",
+        "d24": "MC10101",
+        "e19": "MC10195",
+        "e21": "MC10102",
+        "e23": "MC10101",
+        "e24": "MC10161",
+        "f12": "SE10212",
+        "f13": "SE10210",
+        "f19": "MC1660",
+        "f20": "MC10100",
+        "f22": "MC10100",
+        "f23": "MC10101",
+        "f24": "MC10161",
+        "g05": "MC10173",
+        "g06": "MC10173",
+        "g07": "MC10173",
+        "g08": "MC10176",
+        "g09": "MC10117",
+        "g10": "MC10231",
+        "g12": "SE10211",
+        "g13": "SE10210",
+        "g14": "MC10173",
+        "g15": "F10145A",
+        "g16": "F10000",
+        "g18": "MC10176",
+        "g19": "MC10117",
+        "g20": "MC10100",
+        "g21": "MC10109",
+        "g22": "MC10103",
+        "g23": "MC10102",
+        "h05": "MC10173",
+        "h10": "MC10231",
+        "h11": "MC10159",
+        "h12": "MC10159",
+        "h13": "MC10159",
+        "h14": "MC10176",
+        "h15": "MC10173",
+        "h16": "MC10159",
+        "h17": "MC10105",
+        "h18": "MC10103",
+        "h19": "MC10102",
+        "h20": "MC10106",
+        "h23": "MC10102",
+        "h24": "MC10101",
+        "i03": "MC10173",
+        "i04": "MC10173",
+        "i05": "SE10212",
+        "i10": "MC10102",
+        "i11": "MC10158",
+        "i13": "F10145A",
+        "i14": "MC10141",
+        "i15": "MC10176",
+        "i16": "MC10173",
+        "i17": "MC10173",
+        "i18": "SE10212",
+        "i19": "MC10106",
+        "j01": "MC10173",
+        "j02": "MC10173",
+        "j03": "MC10173",
+        "j04": "MC10173",
+        "j05": "SE10210",
+        "j11": "MC10176",
+        "j13": "MC10174",
+        "j14": "MC10174",
+        "j15": "MC10174",
+        "j16": "MC10174",
+        "j17": "MC10182",
+        "j18": "SE10210",
+        "j19": "MC10231",
+        "j20": "MC10117",
+        "k01": "MC10173",
+        "k02": "MC10173",
+        "k04": "MC10170",
+        "k08": "MC1662",
+        "k09": "MC1662",
+        "k10": "SE10210",
+        "k11": "MC10176",
+        "k12": "MC10113",
+        "k13": "MC10113",
+        "k14": "MC10101",
+        "k15": "MC10107",
+        "k16": "MC10101",
+        "k17": "MC10182",
+        "k18": "MC10195",
+        "k19": "MC10101",
+        "k20": "MC10119",
+        "l01": "SE10210",
+        "l02": "SE10231",
+        "l03": "F10145A",
+        "l04": "F10145A",
+        "l05": "MC10101",
+        "l06": "MC1668",
+        "l07": "MC1668",
+        "l08": "SE10211",
+        "l09": "SE10211",
+        "l10": "MC1660",
+        "l11": "MC10231",
+        "l12": "MC10113",
+        "l13": "MC10113",
+        "l14": "MC10176",
+        "l15": "MC10231",
+        "l16": "F10000",
+        "l17": "MC10182",
+        "l18": "F10000",
+        "l19": "MC10121"
+      },
+      "sequential": {
+        "l02": [
+          0,
+          2
+        ],
+        "d17": [
+          2,
+          6
+        ],
+        "a21": [
+          8,
+          4
+        ],
+        "a20": [
+          12,
+          4
+        ],
+        "i14": [
+          16,
+          4
+        ],
+        "g18": [
+          20,
+          6
+        ],
+        "k01": [
+          26,
+          4
+        ],
+        "k02": [
+          30,
+          4
+        ],
+        "l03": [
+          34,
+          64
+        ],
+        "l04": [
+          98,
+          64
+        ],
+        "j03": [
+          162,
+          4
+        ],
+        "j04": [
+          166,
+          4
+        ],
+        "i03": [
+          170,
+          4
+        ],
+        "i04": [
+          174,
+          4
+        ],
+        "i13": [
+          178,
+          64
+        ],
+        "g16": [
+          242,
+          4
+        ],
+        "j01": [
+          246,
+          4
+        ],
+        "j02": [
+          250,
+          4
+        ],
+        "g05": [
+          254,
+          4
+        ],
+        "h05": [
+          258,
+          4
+        ],
+        "g06": [
+          262,
+          4
+        ],
+        "g07": [
+          266,
+          4
+        ],
+        "l07": [
+          270,
+          2
+        ],
+        "l06": [
+          272,
+          2
+        ],
+        "g10": [
+          274,
+          2
+        ],
+        "h10": [
+          276,
+          2
+        ],
+        "i15": [
+          278,
+          6
+        ],
+        "k11": [
+          284,
+          6
+        ],
+        "g08": [
+          290,
+          6
+        ],
+        "j11": [
+          296,
+          6
+        ],
+        "l11": [
+          302,
+          2
+        ],
+        "h15": [
+          304,
+          4
+        ],
+        "g14": [
+          308,
+          4
+        ],
+        "g15": [
+          312,
+          64
+        ],
+        "h14": [
+          376,
+          6
+        ],
+        "l14": [
+          382,
+          6
+        ],
+        "l15": [
+          388,
+          2
+        ],
+        "i16": [
+          390,
+          4
+        ],
+        "i17": [
+          394,
+          4
+        ],
+        "l16": [
+          398,
+          4
+        ],
+        "l18": [
+          402,
+          4
+        ],
+        "j19": [
+          406,
+          2
+        ]
+      },
+      "physical_bits": 408,
+      "original_pins": 1326,
+      "boundary_bindings": {
+        "ASEL.0'": "pins[202]",
+        "ASEL.1'": "pins[203]",
+        "ASEL.2'": "pins[204]",
+        "BNTGtCT'a": "priority_n",
+        "BSEL.0'": "pins[205]",
+        "BSEL.1'": "pins[206]",
+        "BSEL.2'": "pins[207]",
+        "CLK.pl'": "base",
+        "CLKEnable'b": "en",
+        "FF.0": "pins[19]",
+        "FF.1": "pins[18]",
+        "FF.2": "pins[17]",
+        "FF.3": "pins[16]",
+        "FF.4": "pins[15]",
+        "FF.5": "pins[14]",
+        "FF.6": "pins[13]",
+        "FF.7": "pins[12]",
+        "FFdly.7": "pins[218]",
+        "FFok'b": "pins[209]",
+        "Freeze": "freeze",
+        "IOBin'": "pins[219]",
+        "IOBout": "pins[210]",
+        "IOBout'": "pins[220]",
+        "IfuData.0": "pins[119]",
+        "IfuData.1": "pins[120]",
+        "IfuData.2": "pins[121]",
+        "IfuData.3": "pins[122]",
+        "IfuData.4": "pins[123]",
+        "IfuData.5": "pins[124]",
+        "IfuData.6": "pins[125]",
+        "IfuData.7": "pins[126]",
+        "IfuRBaseSel'": "pins[187]",
+        "LC.0": "pins[11]",
+        "LC.1": "pins[10]",
+        "LC.2": "pins[9]",
+        "Md.Perr'": "pins[183]",
+        "Next.0": "next_raw[0]",
+        "Next.1": "next_raw[1]",
+        "Next.2": "next_raw[2]",
+        "Next.3": "next_raw[3]",
+        "NextMacro": "pins[212]",
+        "PRhold": "pins[68]",
+        "Pdata.08": "pins[84]",
+        "Pdata.09": "pins[85]",
+        "Pdata.10": "pins[86]",
+        "Pdata.11": "pins[87]",
+        "Pdata.12": "pins[88]",
+        "Pdata.13": "pins[89]",
+        "Pdata.14": "pins[90]",
+        "Pdata.15": "pins[91]",
+        "PrBlock'": "pins[176]",
+        "ProcL02.sil+1": "pins[135]",
+        "ProcL03.sil+1": "pins[136]",
+        "ProcL04.sil+1": "pins[137]",
+        "ProcL05.sil+1": "pins[138]",
+        "ProcL06.sil+1": "pins[139]",
+        "ProcL07.sil+1": "pins[140]",
+        "ProcL08.sil+1": "pins[141]",
+        "ProcL17.sil+10": "pins[221]",
+        "ProcL17.sil+9": "pins[222]",
+        "ProcL20.sil+7": "~pins[225]",
+        "ProcL26.sil+1": "pins[223]",
+        "ProcL27.sil+1": "pins[144]",
+        "Q.14": "pins[179]",
+        "RSTK.0": "pins[172]",
+        "RSTK.1": "pins[173]",
+        "RSTK.2": "pins[174]",
+        "RSTK.3": "pins[175]",
+        "RisIFdata": "pins[151]",
+        "SimHoldDis": "pins[224]",
+        "StartCycle'a": "start_a",
+        "SubTask.0": "pins[198]",
+        "SubTask.1": "pins[199]",
+        "TisIFdata": "pins[117]",
+        "_MD'Dly": "pins[225]",
+        "_MDI'": "pins[226]",
+        "alub.08": "pins[227]",
+        "alub.09": "pins[228]",
+        "alub.10": "pins[229]",
+        "alub.11": "pins[230]",
+        "alub.12": "pins[231]",
+        "alub.13": "pins[232]",
+        "alub.14": "pins[233]",
+        "alub.15": "pins[234]",
+        "dMD.08": "pins[100]",
+        "dMD.09": "pins[101]",
+        "dMD.10": "pins[102]",
+        "dMD.11": "pins[103]",
+        "dMD.12": "pins[104]",
+        "dMD.13": "pins[105]",
+        "dMD.14": "pins[106]",
+        "dMD.15": "pins[107]",
+        "ddR.15": "pins[142]",
+        "jcnt": "pins[235]"
+      },
+      "clock_taps": [
+        "@l02.ca",
+        "@l02.cb",
+        "SHCP'C",
+        "PreClock0'B",
+        "Clock1'Ca",
+        "DblClock'Bc",
+        "Clock1'Ba",
+        "TbWrite'a",
+        "Clock0'Db",
+        "Clock1'Da",
+        "@l07.p7",
+        "@l07.p9",
+        "@l06.p7",
+        "@l06.p9",
+        "@g10.ca",
+        "@g10.cb",
+        "@h10.ca",
+        "@h10.cb",
+        "@i15.p9",
+        "@k11.p9",
+        "@g08.p9",
+        "@j11.p9",
+        "@l11.ca",
+        "@l11.cb",
+        "@h15.p7",
+        "@g14.p7",
+        "@g15.p13",
+        "@h14.p9",
+        "@l14.p9",
+        "@l15.ca",
+        "@l15.cb",
+        "@i16.p7",
+        "@i17.p7",
+        "@l16.clk",
+        "@l18.clk",
+        "@j19.ca",
+        "@j19.cb"
+      ],
+      "flag_taps": [
+        "RepeatCurrC",
+        "Hold",
+        "Curr=Next'",
+        "PreSHCP'B",
+        "TbBypass",
+        "T.Perr'",
+        "R.Perr'",
+        "ProcL27.sil+9",
+        "ProcL27.sil+8",
+        "Clock1'Bb",
+        "@l07.state_q[0]",
+        "RbBypassDly",
+        "RmOdd'",
+        "RbAdr.0",
+        "RbAdr.1",
+        "RbAdr.2",
+        "RbAdr.3",
+        "RbAdr.0'",
+        "RbAdr.1'",
+        "RbAdr.2'",
+        "RbAdr.3'",
+        "RbAdr.4'",
+        "RbAdr.5'",
+        "RbAdr.6'",
+        "RbAdr.7'",
+        "StkAdr.0a",
+        "StkAdr.1a",
+        "StkAdr.2a",
+        "StkAdr.3a",
+        "StkAdr.4a",
+        "StkAdr.5a",
+        "StkAdr.6a",
+        "StkAdr.7a",
+        "StkAdr.0b",
+        "StkAdr.1b",
+        "StkAdr.2b",
+        "StkAdr.3b",
+        "StkAdr.4b",
+        "StkAdr.5b",
+        "StkAdr.6b",
+        "StkAdr.7b",
+        "SelectRm'a",
+        "SelectStk'a",
+        "SelectRm'b",
+        "SelectStk'b",
+        "RbBypass",
+        "RbBypass'",
+        "StkSela",
+        "StkSel'a",
+        "FA=0'b",
+        "FA=1'a",
+        "FA=2'a",
+        "FA=3'",
+        "Holda",
+        "ProcL24.sil+14",
+        "ProcL20.sil+7",
+        "StkPWriteEn'",
+        "ProcL26.sil+3",
+        "StkPSaveEn'",
+        "ProcL23.sil+3",
+        "ProcL23.sil+6",
+        "ProcL23.sil+7",
+        "ProcL23.sil+9",
+        "ProcL23.sil+11",
+        "ProcL23.sil+12",
+        "ProcL23.sil+13",
+        "ProcL23.sil+14",
+        "ProcL25.sil+5",
+        "ProcL25.sil+1",
+        "ProcL25.sil+2",
+        "ProcL25.sil+4",
+        "ProcL25.sil+3",
+        "ProcL25.sil+14",
+        "ProcL25.sil+12",
+        "ProcL25.sil+13",
+        "RmBypass'",
+        "StkBypass'",
+        "CkMdParity'",
+        "ProcL24.sil+3",
+        "RBaseWriteEn'",
+        "RBase.0'",
+        "RBase.1'",
+        "RBase.2'",
+        "RBase.3'",
+        "CntMux.12'",
+        "CntMux.13'",
+        "CntMux.14'",
+        "CntMux.15'",
+        "SelRBaseWadr'",
+        "RBaseBypass'",
+        "ProcL22.sil+4",
+        "BumpRBase"
+      ],
+      "source_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "combinational_sources": [
+        "verilog/cells/cell_MC10100.v",
+        "verilog/cells/cell_MC10101.v",
+        "verilog/cells/cell_MC10102.v",
+        "verilog/cells/cell_MC10103.v",
+        "verilog/cells/cell_MC10105.v",
+        "verilog/cells/cell_MC10106.v",
+        "verilog/cells/cell_MC10107.v",
+        "verilog/cells/cell_MC10109.v",
+        "verilog/cells/cell_MC10113.v",
+        "verilog/cells/cell_MC10117.v",
+        "verilog/cells/cell_MC10119.v",
+        "verilog/cells/cell_MC10121.v",
+        "verilog/cells/cell_MC10158.v",
+        "verilog/cells/cell_MC10159.v",
+        "verilog/cells/cell_MC10161.v",
+        "verilog/cells/cell_MC10170.v",
+        "verilog/cells/cell_MC10174.v",
+        "verilog/cells/cell_MC10182.v",
+        "verilog/cells/cell_MC10195.v",
+        "verilog/cells/cell_MC10210.v",
+        "verilog/cells/cell_MC10211.v",
+        "verilog/cells/cell_MC10212.v",
+        "verilog/cells/cell_MC1660.v",
+        "verilog/cells/cell_MC1662.v",
+        "verilog/cells/cell_SE10210.v",
+        "verilog/cells/cell_SE10211.v",
+        "verilog/cells/cell_SE10212.v"
+      ]
+    }
+  ],
+  "signals": {
+    "ASEL.0'": 202,
+    "ASEL.1'": 203,
+    "ASEL.2'": 204,
+    "BSEL.0'": 205,
+    "BSEL.1'": 206,
+    "BSEL.2'": 207,
+    "DMuxData": 208,
+    "FFok'common": 209,
+    "IOBout": 210,
+    "MBBypass": 211,
+    "NextMacro": 212,
+    "ProcH25.sil+1": 213,
+    "ProcH25.sil+18": 214,
+    "ProcH26.sil+3": 215,
+    "ProcH27.sil+12": 216,
+    "TIOAWriteEn'": 217,
+    "FFdly.7": 218,
+    "IOBin'": 219,
+    "IOBout'": 220,
+    "ProcL17.sil+10": 221,
+    "ProcL17.sil+9": 222,
+    "ProcL26.sil+1": 223,
+    "SimHoldDis": 224,
+    "_MD'Dly": 225,
+    "_MDI'": 226,
+    "alub.08": 227,
+    "alub.09": 228,
+    "alub.10": 229,
+    "alub.11": 230,
+    "alub.12": 231,
+    "alub.13": 232,
+    "alub.14": 233,
+    "alub.15": 234,
+    "jcnt": 235
+  },
+  "pin_count": 246,
+  "ffok_alias_audit": {
+    "package": "ContA.f24",
+    "type": "MC10211",
+    "drivers": {
+      "FFok'a": [
+        [
+          "f24",
+          4
+        ],
+        [
+          "f24",
+          13
+        ]
+      ],
+      "FFok'b": [
+        [
+          "f24",
+          2
+        ],
+        [
+          "f24",
+          12
+        ]
+      ],
+      "FFok'c": [
+        [
+          "f24",
+          3
+        ],
+        [
+          "f24",
+          14
+        ]
+      ]
+    },
+    "reason": "Each wired-OR net combines one replica from each identical NOR output group."
+  },
+  "bypass_drivers": {
+    "RmBypass'": [
+      [
+        "k12",
+        2
+      ],
+      [
+        "k12",
+        3
+      ],
+      [
+        "k12",
+        14
+      ],
+      [
+        "k12",
+        15
+      ],
+      [
+        "k13",
+        2
+      ],
+      [
+        "k13",
+        3
+      ],
+      [
+        "k13",
+        14
+      ],
+      [
+        "k13",
+        15
+      ],
+      [
+        "k15",
+        3
+      ]
+    ],
+    "StkBypass'": [
+      [
+        "l12",
+        2
+      ],
+      [
+        "l12",
+        3
+      ],
+      [
+        "l12",
+        14
+      ],
+      [
+        "l12",
+        15
+      ],
+      [
+        "l13",
+        2
+      ],
+      [
+        "l13",
+        3
+      ],
+      [
+        "l13",
+        14
+      ],
+      [
+        "l13",
+        15
+      ]
+    ]
+  },
+  "resolved": {
+    "ContA-Rev-Cd": [],
+    "ProcH-Rev-Ce": [
+      {
+        "pin": 17,
+        "net": "FF.2a",
+        "flag": 21
+      },
+      {
+        "pin": 109,
+        "net": "ProcH24.sil+4",
+        "flag": 22
+      },
+      {
+        "pin": 152,
+        "net": "ProcH22.sil+3",
+        "flag": 23
+      },
+      {
+        "pin": 153,
+        "net": "ProcH22.sil+4",
+        "flag": 24
+      },
+      {
+        "pin": 154,
+        "net": "ProcH22.sil+5",
+        "flag": 25
+      },
+      {
+        "pin": 155,
+        "net": "ProcH22.sil+6",
+        "flag": 26
+      }
+    ],
+    "ProcL-Rev-Ci": [
+      {
+        "pin": 68,
+        "net": "Holda",
+        "flag": 53
+      },
+      {
+        "pin": 115,
+        "net": "ProcL24.sil+14",
+        "flag": 54
+      },
+      {
+        "pin": 116,
+        "net": "ProcL20.sil+7",
+        "flag": 55
+      },
+      {
+        "pin": 146,
+        "net": "StkPWriteEn'",
+        "flag": 56
+      },
+      {
+        "pin": 147,
+        "net": "ProcL26.sil+3",
+        "flag": 57
+      },
+      {
+        "pin": 186,
+        "net": "StkPSaveEn'",
+        "flag": 58
+      },
+      {
+        "pin": 156,
+        "net": "ProcL23.sil+3",
+        "flag": 59
+      },
+      {
+        "pin": 157,
+        "net": "ProcL23.sil+6",
+        "flag": 60
+      },
+      {
+        "pin": 158,
+        "net": "ProcL23.sil+7",
+        "flag": 61
+      },
+      {
+        "pin": 159,
+        "net": "ProcL23.sil+9",
+        "flag": 62
+      },
+      {
+        "pin": 160,
+        "net": "ProcL23.sil+11",
+        "flag": 63
+      },
+      {
+        "pin": 161,
+        "net": "ProcL23.sil+12",
+        "flag": 64
+      },
+      {
+        "pin": 162,
+        "net": "ProcL23.sil+13",
+        "flag": 65
+      },
+      {
+        "pin": 163,
+        "net": "ProcL23.sil+14",
+        "flag": 66
+      },
+      {
+        "pin": 164,
+        "net": "ProcL25.sil+5",
+        "flag": 67
+      },
+      {
+        "pin": 165,
+        "net": "ProcL25.sil+1",
+        "flag": 68
+      },
+      {
+        "pin": 166,
+        "net": "ProcL25.sil+2",
+        "flag": 69
+      },
+      {
+        "pin": 167,
+        "net": "ProcL25.sil+4",
+        "flag": 70
+      },
+      {
+        "pin": 168,
+        "net": "ProcL25.sil+3",
+        "flag": 71
+      },
+      {
+        "pin": 169,
+        "net": "ProcL25.sil+14",
+        "flag": 72
+      },
+      {
+        "pin": 170,
+        "net": "ProcL25.sil+12",
+        "flag": 73
+      },
+      {
+        "pin": 171,
+        "net": "ProcL25.sil+13",
+        "flag": 74
+      },
+      {
+        "pin": 177,
+        "net": "RmBypass'",
+        "flag": 75
+      },
+      {
+        "pin": 178,
+        "net": "StkBypass'",
+        "flag": 76
+      },
+      {
+        "pin": 182,
+        "net": "CkMdParity'",
+        "flag": 77
+      },
+      {
+        "pin": 184,
+        "net": "ProcL24.sil+3",
+        "flag": 78
+      },
+      {
+        "pin": 185,
+        "net": "RBaseWriteEn'",
+        "flag": 79
+      },
+      {
+        "pin": 188,
+        "net": "RBase.0'",
+        "flag": 80
+      },
+      {
+        "pin": 189,
+        "net": "RBase.1'",
+        "flag": 81
+      },
+      {
+        "pin": 190,
+        "net": "RBase.2'",
+        "flag": 82
+      },
+      {
+        "pin": 191,
+        "net": "RBase.3'",
+        "flag": 83
+      },
+      {
+        "pin": 192,
+        "net": "CntMux.12'",
+        "flag": 84
+      },
+      {
+        "pin": 193,
+        "net": "CntMux.13'",
+        "flag": 85
+      },
+      {
+        "pin": 194,
+        "net": "CntMux.14'",
+        "flag": 86
+      },
+      {
+        "pin": 195,
+        "net": "CntMux.15'",
+        "flag": 87
+      },
+      {
+        "pin": 196,
+        "net": "SelRBaseWadr'",
+        "flag": 88
+      },
+      {
+        "pin": 197,
+        "net": "RBaseBypass'",
+        "flag": 89
+      },
+      {
+        "pin": 200,
+        "net": "ProcL22.sil+4",
+        "flag": 90
+      },
+      {
+        "pin": 201,
+        "net": "BumpRBase",
+        "flag": 91
+      }
+    ]
+  },
+  "physical_bits": 752,
+  "packages": 274,
+  "original_pins": 2884,
+  "scope": "Extract RBase, stack pointer/saved address and complete bypass comparison cones.\n\nThe original final R-address/processor graph is retained. MIR/IFU/ALU/counter\nand I/O producer boundaries remain explicit, with no non-rail constant stubs\nin the extended processor graphs. Every consumed mixed net keeps all drivers.\n",
+  "native_integrated": false,
+  "Ready_and_IsNext_internal": true,
+  "clock_channels": 59,
+  "generator_sha256": "dc5022728c2089f0e9bf724fbbecabeeeeddbb043531a508042cc2b4d2b688b7"
+}

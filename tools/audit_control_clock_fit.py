@@ -32,7 +32,7 @@ def slack(path,model):
 
 
 def r_storage_memory(directory,qualified,processor_bits):
-    assert processor_bits in (596,636,736) and qualified['physical_bits']==processor_bits
+    assert processor_bits in (596,636,736,752) and qualified['physical_bits']==processor_bits
     assert qualified['ram_bits']==9216 and qualified['total_physical_bits']==9216+processor_bits
     if processor_bits>=636:
         assert qualified['R_final_address_stage_qualified'] and qualified['all_R_memory_bits_compared']
@@ -86,11 +86,17 @@ def audit(directory,qualified,allow_missing):
               'r_memory':(1043,847,'r_memory','PASS_R_MEMORY_ARRIVAL_CONTRACT','dorado_r_memory_step.sv'),
               'r_front':(1211,1181,'r_front','PASS_R_FRONT_ARRIVAL_CONTRACT','dorado_r_front_step.sv'),
               'r_front_functional':(1211,971,'r_front_functional','PASS_R_FRONT_ARRIVAL_CONTRACT','dorado_r_front_step.sv'),
+              'r_front_ready':(1247,1021,'r_front_ready','PASS_R_FRONT_READY_ARRIVAL_CONTRACT','dorado_r_front_ready_step.sv'),
               'r_storage':(939,709,'r_storage','PASS_R_STORAGE_ARRIVAL_CONTRACT','dorado_r_storage_step.sv')}
     assert provenance.get('component')in profiles,'Unknown fixture profile'
     expected_launch,expected_result,component,expected_status,evaluator=profiles[provenance.get('component')]
     assert provenance['clock_period_ns']==15 and provenance['launch_bits']==expected_launch and provenance['result_bits']==expected_result
-    if component=='r_front_functional':
+    if component=='r_front_ready':
+        # The fixed 752-Q shell captures every functional result/invariant.
+        # Hash identity also rejects a rehashed top that drops/permutates them
+        # while leaving plausible interface dimensions and old reports.
+        assert sha((directory/'top.sv').read_bytes())=='aedc73ed7ce97324d253e83dd5165bd3a7895da0f02dec46d67073829c55e897','Unexpected Ready/R-front fixture wiring'
+    if component in ('r_front_functional','r_front_ready'):
         assert provenance['observation_outputs_registered'] is False
         assert provenance['observation_only_outputs']==['source_pins','fa_n']
     assert not provenance['assembly_permitted']and not provenance['native_qualified']
@@ -107,7 +113,7 @@ def audit(directory,qualified,allow_missing):
     assert sha((directory/evaluator).read_bytes())==evaluator_digest
     for name in provenance['files']:
         if name.endswith('.sv')and name!='top.sv':
-            if component in ('r_front','r_front_functional')and name=='dorado_r_front_cone.sv':
+            if component in ('r_front','r_front_functional','r_front_ready')and name=='dorado_r_front_cone.sv':
                 from fit_r_front import quartus_cone
                 cone=json.loads((qualified/'dorado_r_front_cone.json').read_text())
                 assert (directory/name).read_text()==quartus_cone((qualified/name).read_text())
@@ -165,7 +171,7 @@ def audit(directory,qualified,allow_missing):
         match=re.search(re.escape(label)+r'\s*:\s*([\d,]+)',summary);assert match,label
         resources[key]=int(match[1].replace(',',''))
     assert resources['memory_bits']==resources['ram_blocks']==resources['dsp']==resources['plls']==0
-    memory_bits={'r_storage':596,'r_memory':636,'r_front':736,'r_front_functional':736}
+    memory_bits={'r_storage':596,'r_memory':636,'r_front':736,'r_front_functional':736,'r_front_ready':752}
     memory=r_storage_memory(directory,qualified_record,memory_bits[component])if component in memory_bits else None
     if memory:resources['mlab_memory_bits']=memory['bits']
     minimum={mode:min(r[mode]for r in records)for mode in ['setup','hold','mpw']}
@@ -178,7 +184,7 @@ def audit(directory,qualified,allow_missing):
         permitted_qsf_delta='Quartus17.0.2 LAST_QUARTUS_VERSION annotation only',
         native_qualified=False,hardware_speedup_claimed=False)
     if memory:result['memory_contract']=memory
-    if component=='r_front_functional':
+    if component in ('r_front_functional','r_front_ready'):
         result['observation_outputs']=dict(registered=False,names=['source_pins','fa_n'],
             scope='Post-state test observations are retained in simulation. Every state bit, clock event, functional port and unsettled check remains in the registered budget.')
     return result
