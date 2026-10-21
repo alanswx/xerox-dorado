@@ -59,6 +59,54 @@ or FPGA change resulted from this prototype.
 
 ### Operand diagnosis: corrected PC mapping and compiled observer (2026-10-21 UTC)
 
+**Parallel memory-speed work: isolated BL8 buffer passes; native fit is LIVE.**
+No new core is loaded. The original V38/V39 cold simulations continue unchanged.
+New `dorado_storage_sdram_burst.sv` is a separate raw-backend module with four
+eight-halfword lines (64B total),23-bit line tags plus3-bit lanes, write-through invalidation,
+reset/orphan drainage and6us refresh headroom for20..50MHz. It changes no guest
+CPU/cache/map/ECC/front-end timing or Main/daemon. See
+`fpga/mister/SDRAM-BURST.md` for commands and limits. No full-speed claim.
+
+Pin V3 is TERMINAL PASS: seven positive cases, six compiled/runtime-rejected
+bad controls. The native MSA comparison is also TERMINAL PASS: all12,012 logical
+cycles/serial+ECC outputs and9,437,184 stored bits match the original-chip board.
+Both produce the exact same12,380 raw request/final-oracle records. Physical
+reads3008->750, host cycles122779->113841 (7.28% fewer). Raw sequential32 reads
+take361->240 ticks; alternating16 reads take176->122. These are component-only
+measurements; unrelated cold reads are slower and actual Cedar speed is pending.
+Private runs `sdram-burst-{v1,v2,v3,board-v1,debug-v1a}-20261021` under
+`build/rtl-executive` are terminal. V1 exposed a third-party model bug: natural
+read completion called `stop_burst`, clearing OE before the preceding word's
+hold interval ended. The pin-only0.5ns hold check rejects the exact old model;
+the datasheet requires2.5ns. The local correction preserves timing/refresh
+checks and next-cycle tHZ retirement. Existing BL1 legacy regression also
+passes20/33/50MHz,+6ns and all three timing-error controls. This model bug does
+not explain the FPGA's812; models are absent from hardware. V2's20MHz refresh
+warning is a real prototype issue, fixed by reserving6us instead of7us in V3.
+
+Native fit project `/home/alans/mister/Dorado_SDRAMBurst1_20261021` on
+misterubuntu: builder3523028 confirmed live, one detached job. Map3523035 and
+fit3524389 completed successfully; all31 ordinary summary checks are positive
+(smallest hold+0.242ns). Detailed original-condition/crossing reports are still
+being generated; control-crossings3533079 is the latest observed child. This
+is not completed timing qualification or permission to assemble.
+Local stage `build/rtl-executive/native-sdram-burst-v1-20261021`. All499 files
+read back by hash before launch. Parent is the qualified MC1668 stage, whose
+498 inputs match its completed review exactly. Only wrapper backend type,
+QSF append and one new helper differ after project relocation; CPU/clock/
+services/SDCs remain exact. `sdram-burst-native.json` is the source manifest.
+The existing non-assembling builder now accepts `--manifest` for this type.
+Do not restart from a polling timeout. Follow its actual stage PIDs, then
+review full device timing, new buffer physical memory and original families,
+and bind the new helper/wrapper to used-in-netlist sources before assembly.
+Original-firmware Viewers/input, pinned instruction progress/holds, persistence,
+rollback and the final repeated/stress gates remain required. V38/V39 continue
+the separate front/processor regression diagnosis; do not import their states
+into this different model or treat the raw buffer as a 60ns clock solution.
+The component/source/live-prefix receipt is now preserved in
+`fpga/mister/reports/2026-10-21-sdram-burst/` (765 members); lossless readback
+passes. Synthesis confirms both new helper and actual wrapper used in netlist.
+
 **Full production memory diagnostic V38 is LIVE on the Mac.** Existing driver
 79190/test79583, exec4810; directory
 `build/rtl-executive/native-cedar-memory-v38-20261021`. Revalidated by actual
@@ -6334,6 +6382,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Extend both existing jobs with read-only actual RM/T/R/event capture and first-MTrap callbacks; recover the control logger's callback-ABI exception without a restart. Preserve exact layouts, rejected scripts and original fixture bit/address mappings.
 - [x] Check captured native event evaluations at440M/450M independently in Icarus and reject an intentionally corrupted capture. These are consistency diagnostics, not independent functional correctness or Cedar gates.
 - [x] Rebuild the stale default mbdis executable from committed inverse-placement source; verify all six relevant PCs match the reviewed resolver and preserve linker warnings.
+- [x] Implement an isolated raw BL8 backing buffer without changing the guest cache/map/ECC. Pass physical-pin/reset/refresh tests, six runtime rejection controls and exact native MSA/original-chip bit/sequence comparison. Preserve rejected V1/V2 attempts and the independently exposed model hold glitch.
+- [x] Re-run the existing BL1 timing/frequency/error-control suite after the narrowly scoped natural-read model correction. Both long native simulations retain their frozen original model bytes.
+- [x] Stage499 exact files from qualified MC1668 plus the isolated backend and start one detached full native fit on misterubuntu (builder3523028). No new hardware or speed claim.
+- [ ] Finish the existing SDRAMBurst1 fit, independent full-device/memory/source review and guarded assembly; qualify original-firmware Cedar/input and compare pinned instruction progress/holds before choosing it as a native baseline.
 - [x] Test live progressive1080p60 through normal Main controls; preserve black capture and restore previous1080p30. Shared capture service/other MiSTers remain untouched; capture recovery is still open.
 - [ ] Trace the earlier queue/memory fault with phase-correct consumed operands through native memory holds; recover original Cedar/login/Viewers/mouse/click/exact keyboard echo and HDMI capture before accelerating.
 - [ ] Complete original 60 ns ordinary-instruction clock/enable and timer migration, reducing avoidable memory waits while preserving cache/map/ECC and peripheral behavior. Report instruction issues and holds separately on pinned workloads.

@@ -15,8 +15,9 @@ import subprocess
 import time
 
 
-def run(project, quartus):
-    r=json.loads((project/'r-front-ready-native.json').read_text())
+def run(project, quartus, manifest='r-front-ready-native.json'):
+    assert manifest in ('r-front-ready-native.json','sdram-burst-native.json')
+    r=json.loads((project/manifest).read_text())
     assert r['project']==str(project) and r['state_admin']=='INACTIVE'
     assert r['frequency_mhz']==50 and r['sysper']==4
     for n,h in r['source_hashes'].items():
@@ -67,4 +68,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--project',type=Path,required=True)
     p.add_argument('--quartus',type=Path,default=Path('/home/alans/intelFPGA_lite/17.0/quartus/bin'))
-    a=p.parse_args();run(a.project.resolve(),a.quartus.resolve())
+    p.add_argument('--manifest',choices=['r-front-ready-native.json','sdram-burst-native.json'],default='r-front-ready-native.json')
+    a=p.parse_args();run(a.project.resolve(),a.quartus.resolve(),a.manifest)

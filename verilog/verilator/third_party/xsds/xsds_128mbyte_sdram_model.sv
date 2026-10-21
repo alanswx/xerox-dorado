@@ -756,7 +756,15 @@ module as4c32m16sb_6tin_chip_model #(
 
                 if (!burst.full_page && burst.index >= burst.len) begin
                     maybe_auto_precharge(burst.bank);
-                    stop_burst();
+                    // Natural read completion retires the sequencer only.
+                    // stop_burst() clears dq_oe immediately, which glitches
+                    // the PREVIOUS beat before this final beat's tAC launch
+                    // and violates tOH at a coincident receiver clock edge.
+                    // Keep OE through the final beat; the next inactive
+                    // clock schedules Hi-Z using tHZ_MAX as usual.
+                    burst.active   = 1'b0;
+                    burst.is_read  = 1'b0;
+                    burst.is_write = 1'b0;
                 end
             end
         end

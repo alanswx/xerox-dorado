@@ -38,6 +38,23 @@ processor correctness or a Cedar gate. The stale default local mbdis executable
 is rebuilt to match the committed inverse-placement source. No guest RTL,
 clock, firmware or hardware binary changed; continue the same cold runs to113.
 
+An isolated memory-speed component now passes while those runs continue:
+the raw BL8 backend buffers four eight-halfword lines and preserves the guest
+CPU/cache/map/ECC. Complete native MSA/original-chip comparison matches12,012
+logical cycles,9,437,184 bits and the exact12,380-record request/final-memory
+sequence, with122779->113841 host ticks. Seven pin cases/six rejection controls
+and the existing BL1 regression pass. V1/V2 failures are retained; the exposed
+natural-read model OE glitch is corrected against the primary hold-time spec,
+and V3 reserves earlier refresh for20MHz. None changes the frozen boot models.
+A499-file same-clock candidate from qualified MC1668 has completed fitting on
+misterubuntu (`Dorado_SDRAMBurst1_20261021`, builder3523028). No assembly/load
+or hardware throughput claim. All31 ordinary timing summaries are positive;
+detailed condition/crossing reports remain in progress. The component and
+live-prefix receipt is `fpga/mister/reports/2026-10-21-sdram-burst/`.
+Finish its actual timing/memory/source review
+and original-firmware/input/pinned issue+hold gates before choosing it. This
+does not replace the remaining 60ns clock work or the V38/V39 fault diagnosis.
+
 2026-10-21 continuation: the visible-R v4 FPGA boot still displays Pilot812.
 Inverse MicroD placement now resolves all sampled CIA239/23a/6c1/6c2 to
 `RequeueSearchSQ`; physical proximity to BootOrStart/MiniMixer was misleading.
