@@ -6036,9 +6036,25 @@ and has unreviewed hold violations; never deploy it.
 
 <a id="current-todos-2026-10-17-native23"></a>
 
-## Current TODOs (2026-10-17, FPGA boot)
+## Current TODOs (updated 2026-10-21)
 
-### Active continuation (2026-10-19, Native59)
+### Active speed and authentic rollback delivery
+
+- [x] Preserve qualified Native59 and original Executive artifacts; defer complete FPGA snapshots and snapshot-specific Main coordination.
+- [x] Isolate the Ready/front CPU regression to the early visible-R/retained B-selector capture; restore the original four R latch packages with single-owner state.
+- [x] Verify exact explicit-port RTL with original Initial, all map/RM contents, full original Cedar image/entry and native-control final state. These are component gates, not a desktop boot.
+- [x] Reject v3's -0.031 ns storage hold violation; preserve its closed evidence and the original supplemental report failure. Correct reporting to cover all original R bits and named fitter copies.
+- [x] Stage identical RTL/ROM with a strictly stronger 100 ps additive hold target; revalidate exact-source component evidence, loader guards and short launcher name. Commit/push the qualified evidence milestone.
+- [ ] Finish the existing v4 build and serialized reports; require full timing/physical-memory/source review and fifteen rejected evidence controls before assembly. See live handles at the top of this file; do not restart on a polling timeout.
+- [ ] Load the reviewed image through normal Main barriers on14, preserving Boot2's closed pack/trace; boot a fresh original seed to Cedar and verify mouse/click and exact keyboard echo.
+- [ ] Complete original 60 ns ordinary-instruction clock/enable and timer migration, reducing avoidable memory waits while preserving cache/map/ECC and peripheral behavior. Report instruction issues and holds separately on pinned workloads.
+- [ ] Qualify Cedar's authentic Checkpoint/Rollback through its own germ/disk path, including repeated restarts, working applications/input and preservation of later filesystem changes.
+- [ ] Finish disk close/remount persistence, independent physical network evidence, three fresh-seed original-firmware desktop boots and at least two hours sustained operation without pack/CRC/RX faults. Archive and commit/push qualified results.
+
+The lists below preserve earlier implementation history. Snapshot integration
+items are deferred follow-up under the revised delivery order above.
+
+### Earlier continuation (2026-10-19, Native59)
 
 - [x] Finish52 full Viewers/mouse/exact keyboard/warm marker; normal guest812 and actual Main barriers preserve its volume.
 - [x] Integrate ProcH/ProcL exact-advance adapters with admin inactive; qualify full53 timing31summary/100detailed/four conditions, min+0.115ns.
