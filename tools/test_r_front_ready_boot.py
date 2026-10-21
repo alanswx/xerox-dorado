@@ -20,6 +20,31 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 SEED = 'f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51'
 OBSERVER = r'''
+  bit boot_diag_handoff_trace=0;
+  longint boot_diag_handoff_from=-1;
+  longint boot_diag_task_samples[0:15];
+  initial begin
+    boot_diag_handoff_trace=$test$plusargs("handoff-trace");
+    for(integer t=0;t<16;t++)boot_diag_task_samples[t]=0;
+  end
+  always @(negedge sys_clk)if(boot_diag_handoff_trace && boot_diag_world)begin
+    if(boot_diag_handoff_from<0)boot_diag_handoff_from=n_cyc2;
+    boot_diag_task_samples[pct_ctask]++;
+    if(n_cyc2<boot_diag_handoff_from+12000)
+      $display("BOOT_DIAG_HANDOFF sample=%0d CIA=%h task=%h CTD=%h clocks=%b%b%b T=%h A=%h B=%h ALU=%h MD=%h VA=%h PEnc=%h BNT=%h StopTasks=%b TaskOffN=%b Hold=%b KReady=%b SayNotReady=%b IfuHold=%b Ref=%b Ack=%b",
+        n_cyc2,ring_cia,pct_ctask,ring_ctd,m.b_ContA.clk0_p_Ca,m.b_ContA.clk1_p_Ca,
+        m.b_ContA.clk2_p_Ca,brc_t,brc_alua,brc_alub,brc_alu,bootio_md,w_procva,
+        w_penc,w_bnt,m.b_ContA.StopTasks,m.b_ContA.TaskingIsOff_p_,m.Hold,
+        m.b_IFU.KReady,m.b_IFU.SayNotReady,m.IfuHold,m.b_IFU.IfuMemRef,m.b_IFU.IfuMemAck);
+  end
+  final if(boot_diag_handoff_trace)begin
+    for(integer t=0;t<16;t++)begin
+      $display("BOOT_DIAG_TASK_SAMPLES task=%h samples=%0d",t[3:0],boot_diag_task_samples[t]);
+      $display("BOOT_DIAG_TPC_RAW task=%h l=%h i=%h j=%h k=%h",t[3:0],
+        m.b_ContA.u_l13.mem[15-t],m.b_ContA.u_i13.mem[15-t],
+        m.b_ContA.u_j13.mem[15-t],m.b_ContA.u_k13.mem[15-t]);
+    end
+  end
   // Read-only phase-by-phase operands. PCT fires at a CIA change, before
   // the operand muxes have settled, and cannot prove a consumed MD value.
   longint boot_diag_settled_from=-1;
@@ -63,12 +88,44 @@ OBSERVER = r'''
   end
 '''
 
+MEMORY_LINE_OBSERVER = r'''
+  // Read-only cache/storage visibility around Initial's VM xxxxE10 line.
+  // Keep a short tail so a request remains visible after shared VA changes.
+  integer boot_diag_memory_tail=0,boot_diag_memory_rows=0;
+  wire [15:0] boot_diag_bp=bootio_rm(8'h11);
+  wire [167:0] boot_diag_cache_address={ADDRESS_BANKS};
+  wire [13:0] boot_diag_cache_we={WRITE_BANKS};
+  wire [13:0] boot_diag_cache_ce={SELECT_BANKS};
+  wire [17:0] boot_diag_d0={D0_BITS},boot_diag_d1={D1_BITS};
+  always @(negedge sys_clk)if(paritysources_arm && !boot_diag_world)begin
+    if(w_procva[11:4]==8'he1 || (pct_ctask==7 && boot_diag_bp[11:4]==8'he1))
+      boot_diag_memory_tail=32;
+    else if(boot_diag_memory_tail>0)boot_diag_memory_tail--;
+    if(boot_diag_memory_tail>0)begin
+      boot_diag_memory_rows++;
+      $display("BOOT_DIAG_MEMORY_LINE sample=%0d CIA=%h task=%h CTD=%h clocks=%b%b%b T=%h A=%h B=%h ALU=%h MD=%h VA=%h BP=%h RMar=%h Hold=%b MDHoldN=%b RefHoldN=%b NoRef=%b D0=%h D1=%h raw=%h delayed=%h cache_addr=%h cache_we=%b cache_ce=%b",
+        n_cyc2,ring_cia,pct_ctask,ring_ctd,m.b_ContA.clk0_p_Ca,m.b_ContA.clk1_p_Ca,
+        m.b_ContA.clk2_p_Ca,brc_t,brc_alua,brc_alub,brc_alu,bootio_md,w_procva,
+        boot_diag_bp,startup_rmar,m.Hold,m.b_MemC.MDhold_p_,m.b_MemC.RefHold_p_,m.b_MemC.NoRef,
+        boot_diag_d0,boot_diag_d1,m.b_MemD.storage_rx_raw,m.b_MemD.storage_rx_data,
+        boot_diag_cache_address,boot_diag_cache_we,boot_diag_cache_ce);
+    end
+  end
+  final $display("BOOT_DIAG_MEMORY_LINE_ROWS %0d",boot_diag_memory_rows);
+'''
+for field,port in [('ADDRESS_BANKS','address'),('WRITE_BANKS','we_n'),('SELECT_BANKS','ce_n')]:
+    MEMORY_LINE_OBSERVER=MEMORY_LINE_OBSERVER.replace(field,','.join(
+        f'm.b_MemD.snapshot_bank_{i}.{port}'for i in reversed(range(14))))
+for field,bank in [('D0_BITS',0),('D1_BITS',1)]:
+    MEMORY_LINE_OBSERVER=MEMORY_LINE_OBSERVER.replace(field,','.join(
+        f'm.b_MemD.D{bank}in_{i:02d}'for i in range(18)))
+
 
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_from=None, trace_cycles=20000, settled_from=None, native_memory=False, handoff_only=False):
+def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_from=None, trace_cycles=20000, settled_from=None, native_memory=False, handoff_only=False, native_ifu=False, handoff_trace=False, native_cpu_baseline=False, memory_line_trace=False):
     assert not(probe_only and handoff_only),'Choose probe or original-image handoff gate'
     provenance = json.loads((parent/'provenance.json').read_text())
     state = json.loads((parent/'run-state.json').read_text())
@@ -101,7 +158,9 @@ def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_
             runcycles=boot_diag_limit>j2 ? boot_diag_limit : j2+1;
         end
       end''')
-    tb.write_text(body.replace('module tb_exec;', 'module tb_exec;\n'+control+OBSERVER))
+    assert not memory_line_trace or native_memory
+    tb.write_text(body.replace('module tb_exec;', 'module tb_exec;\n'+control+OBSERVER+
+                              (MEMORY_LINE_OBSERVER if memory_line_trace else '')))
     # The generic DskEth fixture does not establish Cedar receive timing.
     # Bind the exact deployed normal-operation board/helpers for BOTH arms.
     # Its administration remains inactive, as in the actual native backplane.
@@ -174,6 +233,59 @@ def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_
         assert len(seed_map)==36,len(seed_map)
         tb.write_text(bench)
         (out/'native-cache-seed-map.json').write_text(json.dumps(seed_map,indent=2)+'\n')
+    ifu_sources={}
+    if native_ifu:
+        for source_name,digest in native['source_hashes'].items():
+            if source_name.startswith('src/fpga/mister/snapshot_native_ifu/') and Path(source_name).suffix in ('.sv','.v'):
+                assert sha(native_io/source_name)==digest
+                name=source_name[4:];target=inputs/name
+                target.parent.mkdir(parents=True,exist_ok=True)
+                target.write_bytes((native_io/source_name).read_bytes());ifu_sources[name]=digest
+        pattern=r'\bIFU_m_Rev_m_\w+ b_IFU \('
+        assert len(re.findall(pattern,body))==1
+        body=re.sub(pattern,'''IFU_full_snapshot_experiment b_IFU (
+    .state_host_clk(sys_clk),.state_guest_advance(1'b1),
+    .state_freeze(1'b0),.state_guest_held(1'b0),.state_request(1'b0),
+    .state_write(1'b0),.state_index(18'b0),.state_data(18'b0),
+    .state_frozen(),.state_done(),.state_error(),.state_result(),''',body)
+        generic=(inputs/'verilog/generated/IFU-Rev-Ch.v').read_text()
+        packed=(inputs/'fpga/mister/snapshot_native_ifu/IFU_full_snapshot.sv').read_text()
+        mapping={}
+        def ifum_reference(match):
+            package,address=match.groups()
+            instance=re.search(r'cell_F10415A '+package+r' \((.*?)\);',generic,re.S)
+            assert instance,package
+            output=re.search(r'\.p1\((\w+)\)',instance[1])[1]
+            alias=re.search(r'assign '+output+r'=state_bank_q_(\d+)\[(\d+)\];',packed)
+            assert alias,(package,output)
+            bank,lane=alias.groups();mapping[package]=dict(bank=int(bank),lane=int(lane),original_output=output)
+            return 'm.b_IFU.snapshot_bank_'+bank+'.mem['+address+']['+lane+']'
+        for target in [tb,inputs/'verilog/generated/im_preload.vh']:
+            updated=re.sub(r'm\.b_IFU\.(u_\w+)\.mem\[([^\]]+)\]',ifum_reference,target.read_text())
+            target.write_text(updated)
+        assert len(mapping)==27,len(mapping)
+        (out/'native-ifum-readback-map.json').write_text(json.dumps(mapping,indent=2)+'\n')
+    baseline_cpu_sources={}
+    if native_cpu_baseline:
+        assert state['status']=='PASS_MC1668_INITIAL_COMPONENT'
+        for cpu_board,folder in [('ContA','snapshot_native_conta'),('ProcH','snapshot_native_processor'),('ProcL','snapshot_native_processor')]:
+            name='fpga/mister/'+folder+'/'+cpu_board+'_full_snapshot.sv'
+            # These are the preserved qualified MC1668 wrappers from the
+            # immutable parent, rather than the new central replacement.
+            assert sha(inputs/name)==provenance['inputs'][name]
+            baseline_cpu_sources[name]=sha(inputs/name)
+            pattern=r'\b'+cpu_board+r'_m_Rev_m_\w+ b_'+cpu_board+r' \('
+            assert len(re.findall(pattern,body))==1,cpu_board
+            body=re.sub(pattern,cpu_board+'''_full_snapshot_experiment b_'''+cpu_board+''' (
+    .state_host_clk(sys_clk),.state_guest_advance(1'b1),
+    .state_freeze(1'b0),.state_guest_held(1'b0),.state_request(1'b0),
+    .state_write(1'b0),.state_index('0),.state_data(18'b0),
+    .state_frozen(),.state_done(),.state_error(),.state_result(),''',body)
+        # The native cell helpers copied above must be exactly the ones
+        # paired with these older wrappers; do not silently change the oracle.
+        for name in io_sources:
+            if '/cell_' in name and name in provenance['inputs']:
+                assert io_sources[name]==provenance['inputs'][name],name
     top.write_text(body)
     (inputs/Path(__file__).name).write_bytes(Path(__file__).read_bytes())
     pack = ROOT/'build/rtl-executive/cedar-work-native-hints.pack'
@@ -186,6 +298,8 @@ def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_
     compile_command.remove('verilog/generated/DskEth-Rev-Cf.v')
     compile_command += [name for name in sorted(io_sources) if name not in compile_command]
     compile_command += [name for name in sorted(memory_sources) if name not in compile_command]
+    compile_command += [name for name in sorted(ifu_sources) if name not in compile_command]
+    compile_command += [name for name in sorted(baseline_cpu_sources) if name not in compile_command]
     if native_memory:
         qsf=native_io/'core/Dorado.qsf'
         assert sha(qsf)==native['source_hashes']['core/Dorado.qsf']
@@ -219,6 +333,8 @@ def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_
               arg not in ('+check-cedar-mapwrites',)]
     if handoff_only:
         args=[arg for arg in args if arg!='+check-cedar-mapwrites']
+    if handoff_trace:
+        args+=['+handoff-trace']
     if settled_from is not None:
         args += ['+settled-from='+str(settled_from)]
     record = dict(scope=__doc__,parent=str(parent),
@@ -229,6 +345,9 @@ def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_
                   settled_from=settled_from,
                   native_io_source=str(native_io),native_io_inputs=io_sources,
                   native_memory_inputs=memory_sources,
+                  native_ifu_inputs=ifu_sources,handoff_trace=handoff_trace,
+                  native_cpu_baseline_inputs=baseline_cpu_sources,
+                  memory_line_trace=memory_line_trace,
                   native_io_manifest_sha256=sha(native_io/'r-front-ready-native.json'),
                   external_inputs={str(p.relative_to(ROOT)):sha(p)
                                    for p in (pack, eb, replies)},
@@ -296,10 +415,14 @@ if __name__=='__main__':
     parser.add_argument('--settled-from',type=int)
     parser.add_argument('--native-memory',action='store_true')
     parser.add_argument('--handoff-only',action='store_true',help='Require original IM/IFUM readback and entry; no Cedar map-write gate')
+    parser.add_argument('--native-ifu',action='store_true')
+    parser.add_argument('--handoff-trace',action='store_true')
+    parser.add_argument('--native-cpu-baseline',action='store_true')
+    parser.add_argument('--memory-line-trace',action='store_true')
     args=parser.parse_args()
     if args.prepare:
         assert args.parent and args.native_io
         prepare(args.parent.resolve(),args.native_io.resolve(),args.prepare.resolve(),args.cycles,args.inspect_at,
-                args.probe_only,args.trace_from,args.trace_cycles,args.settled_from,args.native_memory,args.handoff_only)
+                args.probe_only,args.trace_from,args.trace_cycles,args.settled_from,args.native_memory,args.handoff_only,args.native_ifu,args.handoff_trace,args.native_cpu_baseline,args.memory_line_trace)
     else:
         run(args.run.resolve())

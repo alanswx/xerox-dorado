@@ -1,0 +1,16 @@
+{
+  "scope": "Read-only MiSTer14 /proc executable observation; no FPGA, service or pack mutation",
+  "host": "mister14",
+  "observed_UTC": "2026-10-21 09:41:54",
+  "ssh_returncode": 0,
+  "Main": {
+    "pid": 16808,
+    "exe": "/media/fat/games/DoradoRTL/System_20261018_DDRNetwork/MiSTer-21e67a3f5588a875"
+  },
+  "server": {
+    "pid": 16807,
+    "exe": "/media/fat/games/DoradoRTL/System_20261018_DDRNetwork/dorado-server-c59962490772f12d"
+  },
+  "guest_desktop_qualified": false,
+  "new_speed_measurement": false
+}

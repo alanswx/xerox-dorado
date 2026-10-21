@@ -140,6 +140,20 @@ No physical speed gain claimed; last QUALIFIED login figure remains1.947686M
 issues/s. Current50MHz/SYSPER4 ceiling6.25M/s; target16.667M/s before waits.
 Authentic rollback, persistence, three fresh boots and2h stress remain open.
 
+Native V15 now isolates a CPU-integration regression: preserved MC1668 native
+CPU wrappers pass3,600 loaded IM words/256 IFUM entries and Cedar entry238;
+new Ready/front CPU wrappers fail3,856 items without entering Cedar. I/O, memory,
+IFU helpers and the original stream/pack are identical. Both pass Initial.
+RAM shadows with actual memory controllers pass50M stored-word/closed-write
+checks and settled asynchronous read-pin comparisons. A three-sample Q filter
+missed20 packages and is explicitly rejected as incomplete; a one-sample20M
+capture probe observes all91 packages but ends before the download. Full50M
+capture and paired cache/storage line traces are running. Diagnose the first
+data/capture divergence before changing production RTL. Baseline's later09c
+wait is task12 starvation after2,153 emulator samples, not established IFU
+failure or a desktop boot. Current process handles/receipt paths are in the
+handoff. No hardware speed gain, clock/Main/daemon change or rollback claim.
+
 ### Milestones and acceptance
 
 | Milestone | Change | Evidence required to finish |

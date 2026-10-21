@@ -46,9 +46,12 @@ def verify(out):
                           stored_bytes=sum(e['stored_bytes']for e in record['blobs'].values()))))
 
 
-def archive(out,running_prefixes=()):
+def archive(out,running_prefixes=(),run_names=None):
     paths={};runs={};observations=[]
-    for name in RUNS+list(running_prefixes):
+    selected=(RUNS if run_names is None else run_names)+list(running_prefixes)
+    assert len(selected)==len(set(selected))
+    assert all(Path(name).name==name and name not in('.','..')for name in selected)
+    for name in selected:
         directory=ROOT/'build/rtl-executive'/name
         state=json.loads((directory/'run-state.json').read_text())
         if state['status']=='RUNNING':
@@ -74,6 +77,8 @@ def archive(out,running_prefixes=()):
         for path in (directory/'executed-inputs').rglob('*'):
             if path.is_file():paths['simulation/'+name+'/inputs/'+str(path.relative_to(directory/'executed-inputs'))]=path
     for name in ['test_r_front_ready_boot.py','test_r_front_native_ports.py',
+                 'test_r_front_native_q.py','stage_r_front_ready_native.py',
+                 'inspect_r_front_native_handoff.py',
                  'check_microcode_reply_stream.py','inspect_r_front_checksum.py',
                  'decode_xmt.py','eb_replies.py',Path(__file__).name]:
         paths['tools/'+name]=ROOT/'tools'/name
@@ -107,6 +112,7 @@ if __name__=='__main__':
     mode=parser.add_mutually_exclusive_group(required=True)
     mode.add_argument('--archive',type=Path);mode.add_argument('--verify',type=Path)
     parser.add_argument('--running-prefix',action='append',default=[])
+    parser.add_argument('--run-name',action='append',help='Override the historical default terminal run list')
     args=parser.parse_args()
-    if args.archive:archive(args.archive.resolve(),args.running_prefix)
+    if args.archive:archive(args.archive.resolve(),args.running_prefix,args.run_name)
     else:verify(args.verify.resolve())

@@ -57,7 +57,73 @@ absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
 
-### Ready/front hardware diagnostic — two failures; simulation correction active (2026-10-21 UTC)
+### Native CPU handoff regression isolated (2026-10-21 UTC)
+
+The matched native V15 baseline PASSES original Cedar image readback:3,600 IM
+words/256 IFUM entries and entry238 executed. The new Ready/front candidate
+FAILS with3,856 mismatches and entry not reached. Both pass Initial's original
+payload/15 task initializations/all six error checks. Deployed I/O, memory and
+IFU source/helper bytes and original pack/stream are identical; first640 CPU
+receive records are byte-identical. The baseline uses preserved MC1668 native
+CPU wrappers, not the earlier generic CPU oracle. This establishes the changed
+CPU integration's handoff regression in the component fixture. The FPGA's later
+Mesa loop still requires a separate explanation/qualification.
+
+V13 gives the same pass/fail with the older generic IFU. V14's native IFU alone
+does not fix the baseline's later wait: task0 runs2,153 post-entry host samples,
+then task12 runs5,431,273 samples, with no IFU memory requests. Its TPC enters
+new Cedar code and eventually MesaIFUNotReady09c. That label is an IFUNext0 retry
+entry in PilotMesaProcess.mc, not proof of an IFU defect. These ROM-entry/raw-MSA
+fixtures omit BaseBoard/software-boot interaction; no baseline germ/desktop.
+
+The independent native RAM shadows now pass with the deployed memory controllers
+too. V3 passes50M closed-write comparisons; V4 also compares actual asynchronous
+read output pins after address/select/output settling and outside writes. All12
+packages pass, at least28,107,459 read comparisons/package. Stored-word checks
+retain155,922 RM windows/39,916,032 word comparisons per RM package,3 windows
+per STK package. This covers the failing download interval, not every transient
+or physical timing at the target clock.
+
+Q shadow V1 is terminal FAILED for insufficient coverage, despite no sampled
+mismatch: its three-sample filter observes71/91 packages;20 phase/address packages
+have zero checks. Never call that equivalence. V2's one-host-sample settling
+filter passes all91 packages at20M (minimum31,487 checks/package), before the
+download. The shadows observe candidate pins and drive no target net; they are
+an open-loop capture diagnostic, not a closed-loop original-CPU oracle or an
+all-device timing proof. V1's checksum PCT ends at5191 and indicates mismatches
+within VM0e10's16-word line (groups0e11..0e13 and0e15..0e1f). CIA-change operands
+are unsettled; consumed MD/data provenance is not yet established by that trace.
+
+**Current processes to observe, not restart:**
+
+- `r-front-ready-memory-line-control-v16-20261021`: test7072, prior native CPU.
+- `r-front-ready-memory-line-candidate-v16-20261021`: test7220, new CPU.
+- `r-front-native-q-shadows-v3-20261021`: test7608, full50M/one-sample capture probe.
+
+All directories are under `build/rtl-executive/`; use their exact run-state and
+actual process handles. The line probes compile and preserve full original
+IM/IFUM readback gates. Passive logging covers Initial's xxxxE10 accesses and
+the input task's matching BootDataPtr, plus32 trailing samples: CPU/MD/VA/phase/
+Hold, all14 cache-bank addresses/selects/writes, D0/D1 inputs and raw/delayed
+storage data. Some early setup records precede full error enable; align valid
+records to the original parity-enable event and instruction/task, rather than
+assuming every early sample number matches. Original RTL/firmware executes all
+memory work. Find the first changed data/capture epoch before changing RTL.
+
+Receipts: [V13/V14 and running native prefixes](../fpga/mister/reports/2026-10-21-r-front-native-handoff-diagnostic/README.md),
+[closed native comparison and RAM/capture checks](../fpga/mister/reports/2026-10-21-r-front-native-handoff-closed/README.md).
+The latter verifies3,982 logical members/481 blobs,48,273,578 raw/5,507,584 stored
+bytes. Its V16/Q3 logs are explicitly verified running prefixes. Exact helpers,
+frozen inputs and failed/insufficient checks remain preserved. Main16808 and
+server16807 were revalidated at09:41:54 UTC on MiSTer14; no hardware reload.
+
+Clock/core deployment remains RBF57a552af at50MHz/SYSPER4,6.25M/s nominal ceiling;
+last QUALIFIED Cedar login remains1,947,686.01 issues/s. No new speed/Cedar/
+rollback success. Fix this native CPU/memory boundary, qualify same-clock Cedar,
+then continue60ns migration and authentic rollback/final persistence/stress
+requirements. Goal ACTIVE; complete FPGA snapshots remain deferred.
+
+### Ready/front hardware diagnostic — two failures; simulation correction history (2026-10-21 UTC)
 
 **Current hardware is RBF57a552af at unchanged50MHz/SYSPER4, not a speedup.**
 The ordinary-instruction ceiling remains6.25M/s before waits; target16.667M/s.
@@ -241,18 +307,19 @@ bytes, all lossless. Its V12 prefix remains historical. A seven-member
 and verifies all frozen inputs against the original archived hashes. All listed
 jobs are now terminal. No FPGA images/executables/disk packs included.
 
-**Active follow-up V13:**
+**V13 follow-up is now terminal:**
 `r-front-ready-image-control-v13-20261021` and
 `r-front-ready-image-candidate-v13-20261021` under `build/rtl-executive/`.
-Both are prepared/running with identical deployed memory controllers and
+Both ran with identical deployed memory controllers and
 original stream/pack,55M limits, all original error checks. Candidate uses the
 actual changed native CPU wrappers; control retains the prior MC1668 component
 CPU. `--handoff-only` retains the full original IM/IFUM readback and Cedar entry
 gate while omitting the later Cedar map-write gate. This makes the required
 handoff concrete without calling the known IFU wait a desktop success.
-Their exact frozen provenance/run-state are local; these new jobs are NOT in
-the preceding receipt. Verify current handles, finish and archive the matched
-results, then continue the native IFU/CPU comparison. Goal remains ACTIVE.
+Control exits0 with the image verified; candidate exits1 with3,856 mismatches
+and entry not reached. Their exact frozen provenance/run-state are archived
+in the later native-handoff receipt above. V15 closes the native CPU oracle
+comparison; continue from the current V16/Q3 handles, not these closed jobs.
 
 Next: finish the corrected matched receive/germ diagnostics and compare the
 first changed storage/producer behavior against the preserved hardware loop. Find the first changed storage/producer behavior

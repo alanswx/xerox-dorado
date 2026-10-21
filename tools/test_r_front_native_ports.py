@@ -5,6 +5,9 @@ Simulation-only shadows observe the actual native address/data/write pins.
 They drive no target net. Compare all 9216 bits after both write windows have
 closed for two fabric samples, with original error enables active. This checks
 the native integration's write epochs, not a Cedar boot or full-speed timing.
+Also compare the actual asynchronous read pins after the addresses, selects
+and both outputs settle, outside writes. Equal stored words alone do not prove
+the read-address or chip-select epoch used by the surrounding native logic.
 """
 import argparse
 import gzip
@@ -68,6 +71,9 @@ def prepare(parent,native,inventory,out,cycles):
         files='m.r_front_evaluator.child.child.files'
         bit=row['component_word_bits'][0]
         actual=f'{files}.{array}[word_no][{bit}+:{width}]'
+        actual_out='{'+','.join(net(pins[p])for p in reversed(outputs))+'}'
+        selects=[7]if width==1 else[3,4,5,6]
+        read_pins='{'+','.join(net(pins[p])for p in adr+selects)+'}'
         lines += [f'  wire {name}_old_write=({old_write});',
                   f'  wire {name}_new_write=!{files}.write_n[{half}] && !{files}.select_n[{bank}];',
                   f'  reg {name}_sample=0,{name}_previous=0,{name}_dirty=1;',
@@ -96,6 +102,26 @@ def prepare(parent,native,inventory,out,cycles):
                   f'    if({name}_checks<256)$error("Native port coverage missing: {board}/{pkg}");',
                   f'    $display("NATIVE_R_PORT_CHECK {board}/{pkg} checks=%0d windows=%0d",{name}_checks,{name}_windows);',
                   '  end']
+        lines += [f'  wire [{width-1}:0] {name}_actual_out={actual_out};',
+                  f'  wire [{8+len(selects)-1}:0] {name}_read_pins={read_pins};',
+                  f'  reg [{8+len(selects)-1}:0] {name}_last_read_pins;',
+                  f'  reg [{width-1}:0] {name}_last_old_out,{name}_last_actual_out;',
+                  f'  integer {name}_read_checks=0;',
+                  '  always @(negedge sys_clk)begin',
+                  f'    if(paritysources_arm && parity_enables==6\'b111111 && !{name}_sample && !{name}_previous &&',
+                  f'       !{name}_old_write && !{name}_new_write && {name}_read_pins==={name}_last_read_pins &&',
+                  f'       {name}_out==={name}_last_old_out && {name}_actual_out==={name}_last_actual_out)begin',
+                  f'      {name}_read_checks++;',
+                  f'      if({name}_out!=={name}_actual_out)',
+                  f'        $fatal(1,"NATIVE_R_READ_MISMATCH {board}/{pkg} sample=%0d CIA=%h task=%h actual=%h original=%h address=%h selectpins=%b",',
+                  f'          n_cyc2,ring_cia,pct_ctask,{name}_actual_out,{name}_out,{address},{name}_read_pins);',
+                  '    end',
+                  f'    {name}_last_read_pins={name}_read_pins;{name}_last_old_out={name}_out;{name}_last_actual_out={name}_actual_out;',
+                  '  end',
+                  '  final begin',
+                  f'    if({name}_read_checks==0)$error("Native read port coverage missing: {board}/{pkg}");',
+                  f'    $display("NATIVE_R_READ_CHECK {board}/{pkg} checks=%0d",{name}_read_checks);',
+                  '  end']
     tb=inputs/'verilog/verilator/tb_exec.sv';body=tb.read_text()
     assert body.count('module tb_exec;')==1
     body=body.replace(str(parent/'cycle-limit.txt'),str(out/'cycle-limit.txt'))
@@ -111,7 +137,8 @@ def prepare(parent,native,inventory,out,cycles):
     (out/'cycle-limit.txt').write_text(str(cycles)+'\n')
     r=dict(scope=__doc__,parent_provenance_sha256=sha(parent/'provenance.json.gz'),
            inventory_sha256=sha(inventory/'results.json'),commands=[compile_command,args],
-           shadow_packages=names,physical_RAM_bits=9216,external_inputs=record['external_inputs'],
+           shadow_packages=names,physical_RAM_bits=9216,asynchronous_read_pins_compared=True,
+           external_inputs=record['external_inputs'],
            inputs={str(p.relative_to(inputs)):sha(p)for p in inputs.rglob('*')if p.is_file()})
     (out/'provenance.json.gz').write_bytes(gzip.compress((json.dumps(r,indent=2)+'\n').encode(),mtime=0))
     print('Prepared12 simulation-only physical RAM shadows',flush=True)
@@ -132,6 +159,7 @@ def run(out):
                 a.update(returncode=code,finished=time.time());assert code==0,(label,out/(label+'.log'))
         text=(out/'positive.log').read_text()
         assert text.count('NATIVE_R_PORT_CHECK ')==12
+        assert text.count('NATIVE_R_READ_CHECK ')==12
         state['status']='PASS_STABLE_NATIVE_R_PORT_EPOCHS_COMPONENT_ONLY'
     except BaseException:
         state['status']='TERMINAL_FAILED';raise
