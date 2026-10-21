@@ -22,14 +22,18 @@ def run(project, quartus):
     assert c['reviewer_sha256'] == sha(project / 'review_sdram_burst_native.py')
     has_observer = q.get('passive_boot_fault_observer', False)
     assert has_observer == record.get('passive_boot_fault_observer', False)
-    assert len(c['cases']) == (10 if has_observer else 7) and all(row['rejected'] and row['returncode'] != 0 for row in c['cases'])
+    has_selftest = q.get('raw_storage_selftest', False)
+    assert has_selftest == record.get('raw_storage_selftest', False)
+    assert len(c['cases']) == (13 if has_selftest else 10 if has_observer else 7) and all(row['rejected'] and row['returncode'] != 0 for row in c['cases'])
     if has_observer:
         assert len(q['observer_paths']) == 8 and q['observer_component']
+    if has_selftest:
+        assert q['selftest_component'] and q['selftest_full_component'] and len(q['selftest_paths']) == 24 and q['selftest_registers']
     assert len(q['timing_checks']) == 31 and len(q['detailed_paths']) == 196 and len(q['burst_paths']) == 56
     assert q['minimum_slack_ns'] > 0 and q['resources']['ram_blocks'] == 332
     assert q['frequency_mhz'] == 50 and q['sysper'] == 4 and q['state_admin'] == 'INACTIVE'
     assert not q['firmware_qualified'] and not q['hardware_speedup_qualified']
-    assert q['source_hashes'] == record['source_hashes'] and len(q['source_hashes']) == (500 if has_observer else 499)
+    assert q['source_hashes'] == record['source_hashes'] and len(q['source_hashes']) == 499 + int(has_observer) + int(has_selftest)
     for name, digest in {**q['source_hashes'], **q['reviewed_evidence_hashes']}.items():
         assert sha(project / name) == digest, ('Reviewed source/report changed', name)
     for name, pid_key, children in [('run-state.json', 'builder_pid', 'stages'),

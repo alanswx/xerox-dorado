@@ -24,6 +24,7 @@ RBF='57a552aff6fd0131f307a25ee75316c56b4c4da9118a437d2c9c17b0172dfd21'
 VISIBLE4_RBF='7a90adb9ae15e96a6c6121751460e343a1aa7683126bb641b6c9dc97af353de4'
 OPERANDS6_RBF='803cb43f5357f14bdef1097a9b3a3a660d5c5f4191462b6a9610663a88daf898'
 SDRAM_BURST1_RBF='f46eb4f5bc68c1060ad14e96cb127d5bb05d5af85ffa48a5b1f15fc4123062c6'
+BOOT_FAULT2_RBF='107c3874a59af2d33a6b817d515be8562778a94802633b19d0e2d373c4127b91'
 
 
 def reviewed_burst_image(staging):
@@ -40,8 +41,10 @@ def reviewed_burst_image(staging):
     assert sha(staging/'fit-review-controls.json')==a['controls_sha256']
     assert c['status']=='PASS_NATIVE_BURST_REVIEW_REJECTION_CONTROLS'
     observer=q.get('passive_boot_fault_observer',False)
-    assert len(c['cases'])==(10 if observer else 7) and all(r['rejected']and r['returncode']!=0 for r in c['cases'])
+    selftest=q.get('raw_storage_selftest',False)
+    assert len(c['cases'])==(13 if selftest else 10 if observer else 7) and all(r['rejected']and r['returncode']!=0 for r in c['cases'])
     if observer:assert len(q['observer_paths'])==8 and q['observer_component']
+    if selftest:assert len(q['selftest_paths'])==24 and q['selftest_component'] and q['selftest_full_component'] and q['selftest_registers']
     assert q['source_hashes']==json.loads((staging/'sdram-burst-native.json').read_text())['source_hashes']
     assert sha(staging/'Dorado.rbf')==a['rbf_sha256']
     return a['rbf_sha256']
@@ -117,23 +120,27 @@ def no_open(path):
         except(FileNotFoundError,PermissionError):continue
 
 
-def deploy(staging, repeat_boot2=False,canonical=False,operand=False,burst=False,boot_fault=False):
+def deploy(staging, repeat_boot2=False,canonical=False,operand=False,burst=False,boot_fault=False,selftest=False):
+    boot_fault=boot_fault or selftest
     assert not(boot_fault and(repeat_boot2 or canonical or operand or burst))
     burst=burst or boot_fault
     assert not(burst and(repeat_boot2 or canonical or operand))
     canonical=canonical or operand
     assert not(repeat_boot2 and canonical)
     base=Path('/media/fat/games/DoradoRTL')
-    old=base/('CedarSDRAMBurst1_20261021'if boot_fault else'CedarROperands6_20261021'if burst else'CedarRVisible4_20261021'if operand else'CedarRFrontReady_Boot2_20261021'if canonical else
+    old=base/('CedarSDRAMBootFault2_20261021'if selftest else'CedarSDRAMBurst1_20261021'if boot_fault else'CedarROperands6_20261021'if burst else'CedarRVisible4_20261021'if operand else'CedarRFrontReady_Boot2_20261021'if canonical else
               'CedarRFrontReady_20261021'if repeat_boot2 else'CedarMC1668_20261020')
-    new=base/('CedarSDRAMBootFault2_20261021'if boot_fault else'CedarSDRAMBurst1_20261021'if burst else'CedarROperands6_20261021'if operand else'CedarRVisible4_20261021'if canonical else
+    new=base/('CedarStorageSelftest1_20261021'if selftest else'CedarSDRAMBootFault2_20261021'if boot_fault else'CedarSDRAMBurst1_20261021'if burst else'CedarROperands6_20261021'if operand else'CedarRVisible4_20261021'if canonical else
               'CedarRFrontReady_Boot2_20261021'if repeat_boot2 else'CedarRFrontReady_20261021')
     oldcore=Path('/media/fat/_Computer')/('DoradoRTL_'+old.name)
     core=Path('/media/fat/_Computer')/('DoradoRTL_'+new.name)
     expected_rbf=reviewed_burst_image(staging)if burst else reviewed_image(staging,canonical)
-    if burst:assert json.loads((staging/'qualification.json').read_text()).get('passive_boot_fault_observer',False)==boot_fault
+    if burst:
+        qualification=json.loads((staging/'qualification.json').read_text())
+        assert qualification.get('passive_boot_fault_observer',False)==boot_fault
+        assert qualification.get('raw_storage_selftest',False)==selftest
     if operand:assert json.loads((staging/'qualification.json').read_text())['passive_operand_monitor']
-    old_rbf=SDRAM_BURST1_RBF if boot_fault else OPERANDS6_RBF if burst else VISIBLE4_RBF if operand else RBF if(repeat_boot2 or canonical)else OLD_RBF
+    old_rbf=BOOT_FAULT2_RBF if selftest else SDRAM_BURST1_RBF if boot_fault else OPERANDS6_RBF if burst else VISIBLE4_RBF if operand else RBF if(repeat_boot2 or canonical)else OLD_RBF
     c=json.loads((old/'reboot-resume.json').read_text())
     if canonical or burst:
         found_main=matches(c['main']['exe'],c['main']['argv']);found_server=matches(c['server']['exe'],c['server']['argv'])
@@ -144,16 +151,16 @@ def deploy(staging, repeat_boot2=False,canonical=False,operand=False,burst=False
     assert sha('/proc/%d/exe'%old_main)==MAIN and sha('/proc/%d/exe'%old_server)==SERVER
     assert '/dev/mem'in Path('/proc/%d/maps'%old_server).read_text()and sha(oldcore/'Dorado.rbf')==old_rbf
     assert not new.exists()and not core.exists(),'Inspect prior preparation/load; never blindly rerun'
-    stem='dorado-boot-fault2'if boot_fault else'dorado-sdram-burst1'if burst else'dorado-r-operands6'if operand else'dorado-r-visible4'if canonical else'dorado-rfront-ready-boot2'if repeat_boot2 else'dorado-rfront-ready'
+    stem='dorado-storage-selftest1'if selftest else'dorado-boot-fault2'if boot_fault else'dorado-sdram-burst1'if burst else'dorado-r-operands6'if operand else'dorado-r-visible4'if canonical else'dorado-rfront-ready-boot2'if repeat_boot2 else'dorado-rfront-ready'
     main_log=Path('/tmp')/(stem+'-main.log');disk_log=Path('/tmp')/(stem+'-disk.jsonl')
     assert not main_log.exists()and not disk_log.exists()
     oldtrace=Path(c['main']['env']['DORADO_DISK_TRACE']);oldlog=Path(c['main_stdout'])
     oldtrace_offset=oldtrace.stat().st_size
     seed=base/'System_20261017/cedar-work-native-hints-f3bce2a8.pack';assert sha(seed)==SEED
-    old_mgl=oldcore/('CedarSDRAMBurst1.mgl'if boot_fault else'CedarROperands6.mgl'if burst else'CedarRVisible4.mgl'if operand else'CedarRFrontReadyBoot2.mgl'if canonical else'CedarRFrontReady.mgl'if repeat_boot2 else'CedarMC1668.mgl')
-    launcher='DoradoBootFault2_20261021'if boot_fault else'DoradoSDRAMBurst1_20261021'if burst else'DoradoROps6_20261021'if operand else'DoradoRVis4_20261021'if canonical else'DoradoRFrontB2_20261021'if repeat_boot2 else'Dorado'+new.name
+    old_mgl=oldcore/('CedarSDRAMBootFault2.mgl'if selftest else'CedarSDRAMBurst1.mgl'if boot_fault else'CedarROperands6.mgl'if burst else'CedarRVisible4.mgl'if operand else'CedarRFrontReadyBoot2.mgl'if canonical else'CedarRFrontReady.mgl'if repeat_boot2 else'CedarMC1668.mgl')
+    launcher='DoradoMemTest1_20261021'if selftest else'DoradoBootFault2_20261021'if boot_fault else'DoradoSDRAMBurst1_20261021'if burst else'DoradoROps6_20261021'if operand else'DoradoRVis4_20261021'if canonical else'DoradoRFrontB2_20261021'if repeat_boot2 else'Dorado'+new.name
     mgl=rewrite_mgl(old_mgl.read_text(),old.name,new.name,launcher)
-    mgl_path=core/('CedarSDRAMBootFault2.mgl'if boot_fault else'CedarSDRAMBurst1.mgl'if burst else'CedarROperands6.mgl'if operand else'CedarRVisible4.mgl'if canonical else'CedarRFrontReadyBoot2.mgl'if repeat_boot2 else'CedarRFrontReady.mgl')
+    mgl_path=core/('CedarStorageSelftest1.mgl'if selftest else'CedarSDRAMBootFault2.mgl'if boot_fault else'CedarSDRAMBurst1.mgl'if burst else'CedarROperands6.mgl'if operand else'CedarRVisible4.mgl'if canonical else'CedarRFrontReadyBoot2.mgl'if repeat_boot2 else'CedarRFrontReady.mgl')
     section='['+launcher+']'
     ini=Path('/media/fat/MiSTer.ini');text=ini.read_text();assert section not in text
     new.mkdir();core.mkdir();shutil.copy2(seed,new/'cedar-work.pack');assert sha(new/'cedar-work.pack')==SEED
@@ -194,7 +201,7 @@ def deploy(staging, repeat_boot2=False,canonical=False,operand=False,burst=False
     assert sum(r['event']=='barrier_end'for r in window)>=2,window[-5:]
     recent_errors=[r for r in window if 'error'in r['event']or r.get('result',0)<0]
     assert not recent_errors,recent_errors
-    prefix='through-boot-fault2-load'if boot_fault else'through-sdram-burst1-load'if burst else'through-r-operands6-load'if operand else'through-r-visible4-load'if canonical else'through-rfront-ready-boot2-load'if repeat_boot2 else'through-rfront-ready-load'
+    prefix='through-storage-selftest1-load'if selftest else'through-boot-fault2-load'if boot_fault else'through-sdram-burst1-load'if burst else'through-r-operands6-load'if operand else'through-r-visible4-load'if canonical else'through-rfront-ready-boot2-load'if repeat_boot2 else'through-rfront-ready-load'
     trace_copy=old/('disk-'+prefix+'.jsonl');log_copy=old/('main-'+prefix+'.log')
     no_open(oldtrace);no_open(oldlog)
     shutil.copyfile(oldtrace,trace_copy);shutil.copyfile(oldlog,log_copy)
@@ -208,9 +215,9 @@ def deploy(staging, repeat_boot2=False,canonical=False,operand=False,burst=False
         disk_trace=str(trace_copy),disk_trace_sha256=sha(trace_copy),disk_records=records,historical_trace_gaps=gaps,
         transition_trace_gaps=[r for r in window if r['event']=='trace_dropped'],barriers=sum(r['event']=='barrier_end'for r in window),
         boundary='Normal Main loader and temporary Main exit; no pack descriptors open',
-        guest=('Raw BL8 boot stops at original Initial CD2 with Error low and no instruction progress; no Cedar desktop or clean guest shutdown'if boot_fault else'Operand-observer boot reached Pilot812/RequeueSearchSQ; no desktop or clean guest shutdown'if burst else'Canonical-R boot reached Pilot812/RequeueSearchSQ; no desktop or clean guest shutdown'if operand else
+        guest=('Passive observer captured original ROM MicrocodeBootFailed breakpoint D44 -> CD2, both IM halves; no Cedar desktop or clean guest shutdown'if selftest else'Raw BL8 boot stops at original Initial CD2 with Error low and no instruction progress; no Cedar desktop or clean guest shutdown'if boot_fault else'Operand-observer boot reached Pilot812/RequeueSearchSQ; no desktop or clean guest shutdown'if burst else'Canonical-R boot reached Pilot812/RequeueSearchSQ; no desktop or clean guest shutdown'if operand else
                'Ready/front boot reached Cedar microcode/Mesa trap loop without desktop; no clean shutdown or snapshot claim' if(repeat_boot2 or canonical)else'Earlier desktop/marker observed; no clean guest shutdown, filesystem-integrity or FPGA snapshot claim'))
-    (old/('preservation-before-boot-fault2.json'if boot_fault else'preservation-before-sdram-burst1.json'if burst else'preservation-before-r-operands6.json'if operand else'preservation-before-r-visible4.json'if canonical else'preservation-before-rfront-ready-boot2.json'if repeat_boot2 else'preservation-before-rfront-ready.json')).write_text(json.dumps(proof,indent=2)+'\n')
+    (old/('preservation-before-storage-selftest1.json'if selftest else'preservation-before-boot-fault2.json'if boot_fault else'preservation-before-sdram-burst1.json'if burst else'preservation-before-r-operands6.json'if operand else'preservation-before-r-visible4.json'if canonical else'preservation-before-rfront-ready-boot2.json'if repeat_boot2 else'preservation-before-rfront-ready.json')).write_text(json.dumps(proof,indent=2)+'\n')
     # Only verified CLOSED logs are removed from tmpfs. Their original bytes
     # remain in the old volume directory. Other temporary artifacts stay put.
     reclaimed=oldtrace.stat().st_size+oldlog.stat().st_size
@@ -247,4 +254,5 @@ if __name__=='__main__':
     p.add_argument('--operand-monitor',action='store_true',help='Preserve the diagnosed v4 volume and load its fully reviewed output-only operand diagnostic')
     p.add_argument('--sdram-burst',action='store_true',help='Preserve operand-v6 and load the reviewed raw BL8 backend on the qualified MC1668 CPU')
     p.add_argument('--boot-fault-observer',action='store_true',help='Preserve raw BL8 boot and load its reviewed passive first-error observer')
-    a=p.parse_args();deploy(a.staging.resolve(),a.repeat_boot2,a.canonical_r,a.operand_monitor,a.sdram_burst,a.boot_fault_observer)
+    p.add_argument('--storage-selftest',action='store_true',help='Preserve BootFault2 and load the reviewed pre-guest raw-memory diagnostic')
+    a=p.parse_args();deploy(a.staging.resolve(),a.repeat_boot2,a.canonical_r,a.operand_monitor,a.sdram_burst,a.boot_fault_observer,a.storage_selftest)

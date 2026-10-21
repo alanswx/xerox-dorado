@@ -106,13 +106,47 @@ fit, ten rejection controls, first-fault capture and original ROM/source proof.
 No new Cedar desktop or hardware speed gain is qualified. Last working Cedar
 login remains1,947,686.01 instruction issues/s; original target16,666,667/s.
 
-**Next diagnosis:** distinguish downloaded-data acceptance/checksum from actual
-raw-SDRAM data integrity. A pre-boot RTL address-pattern write/read test covering
-all eight raw memory boards is the proposed next hardware diagnostic, followed
-by the existing normal zero-fill. It is not implemented or qualified yet. Keep
-original firmware and guest state untouched; do not skip the breakpoint or import
-C-emulator state. Full-speed clocks, authentic FPGA Checkpoint/Rollback, cold
-persistence, repeated fresh boots and sustained operation remain open.
+**Raw-memory diagnostic is implemented; full-address pin simulation passes.**
+`dorado_storage_selftest.sv` replaces only the pre-guest zero-fill in a separate
+501-source stage. It writes low-address patterns/read-forward, writes the upper
+address slice/read-backward, then writes and verifies zeros. These two slices
+distinguish every23-bit address; only the12 consumed raw-cell bits are compared.
+The first mismatch retains phase/address/expected/actual and prevents storage
+release. It neither imports guest state nor completes guest instructions/IOCBs.
+Unused diagnostic pages20..23 carry markerB157/progress/first failure; the prior
+passive observer pages16..19 remain. Guest CPU/cache/map/ECC/backend/clocks stay
+unchanged. The normal storage-ready gate remains in place.
+
+Bounded independent-chip-pin test:98,304 transactions with request/response
+stalls pass; injected bad returns, low/high address aliasing and corrupt zero
+readback are detected. A compiled comparator-removal control rejects at runtime.
+Full23-bit independent-pin run passes **50,331,648 requests/completions across
+8,388,608 cells**,22,020,096 buffered hits; unchanged backend/selftest source.
+The first full attempt hit the smaller bench's deadline; it is terminal/failed
+and preserved. The succeeding run changes only the bench deadline, not the RTL.
+Local receipts `storage-selftest-pin-v1-20261021`,
+`storage-selftest-full-v2-20261021` (failed), `storage-selftest-full-v3-20261021`
+(pass), under `build/rtl-executive/`.
+Portable543-member component/stage/live-fit prefix (lossless readback passes):
+`fpga/mister/reports/2026-10-21-storage-selftest/component/`.
+
+Native diagnostic fit is still live at
+`misterubuntu:/home/alans/mister/Dorado_StorageSelftest1_20261021`:
+builder3585434, map3585435 terminal0, fitter3586935; placement passed and routing
+is underway. Reporter waiter3590070 follows this same builder, never restarts it.
+Local stage `build/rtl-executive/native-storage-selftest-v1-20261021/`.
+All501 staged hashes and reconstruction from qualified MC1668 match; actual
+synthesis uses the self-test, backend, wrapper and core top. Full timing/memory/
+source review, assembly and hardware test are pending. Do not load without those
+checks. MiSTer14 still runs BootFault2, Main10661/server10660.
+
+**Next:** finish this SAME diagnostic build's review, load normally after
+preserving the closed BootFault2 pack/trace, and read the hardware memory result.
+If full raw memory passes, diagnose download acceptance/checksum and the native
+board/arbiter response boundary; a pin-model pass alone does not clear hardware.
+Keep original firmware; do not skip the breakpoint or import C-emulator state.
+Full-speed clocks, authentic FPGA Checkpoint/Rollback, cold persistence, repeated
+fresh boots and sustained operation remain open.
 
 **V38/V39 normal external boot-button input is terminal; firmware runs are not.**
 The original processes received three verified press/release pulses via only the
@@ -126,6 +160,12 @@ capture callbacks. Follow actual process/LLDB and `normal-input/input-state.json
 do not restart on a polling timeout. Diagnostic host budgets extend1.5B->3B;
 this does not advance guest time. The input-phase receipts are private and have
 not yet been archived with this observer milestone.
+Control's read-only logger still enforces its old1.5B observation bound in the
+loaded module. The old source is saved and an adjustment to follow the3B budget
+is prepared in `normal-input/logger-budget-extension.json`, reload_pending=true.
+Automatic approval review rejected interrupting the existing LLDB session to
+reload it; the session was left running. No debugger reload or new state write
+resulted. Candidate's logger has no corresponding upper bound.
 
 **Raw BL8 candidate now timing-reviewed, assembled and loaded on MiSTer14.**
 This is the qualified MC1668 CPU/cache/map/ECC/clock parent with only the raw

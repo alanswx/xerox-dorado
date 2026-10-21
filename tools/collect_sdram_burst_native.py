@@ -28,7 +28,7 @@ def collect(project):
         raise RuntimeError('Recorded process still exists; observe ' + str(pid))
     record = json.loads((project / 'sdram-burst-native.json').read_text())
     actual = {n: sha((project / n).read_bytes()) for n in record['source_hashes']}
-    assert actual == record['source_hashes'] and len(actual) == (500 if record.get('passive_boot_fault_observer') else 499)
+    assert actual == record['source_hashes'] and len(actual) == 499 + int(record.get('passive_boot_fault_observer', False)) + int(record.get('raw_storage_selftest', False))
     check = dict(status='TERMINAL_NATIVE_BURST_INPUT_READBACK', actual=actual,
                  absent_pids=pids, assembly_collected=False)
     (project / 'collected-input-check.json').write_text(json.dumps(check, indent=2) + '\n')

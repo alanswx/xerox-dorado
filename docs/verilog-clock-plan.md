@@ -18,14 +18,22 @@ the observed stopped PC: Initial's failed-microcode-boot path. This is not proof
 of random IM corruption or SDRAM deadlock. Raw memory/fabric continue while
 instruction issues stop. Receive EOP totals do not prove downloaded data correct.
 
-Next: isolate download acceptance/checksum versus raw SDRAM data integrity.
-A pre-boot RTL full-address pattern test across all eight raw boards is proposed,
-not implemented. Preserve original firmware; no C-state import or guest-state
-patches. No new desktop or speedup is qualified. Last working Cedar login:
-1,947,686.01 instruction issues/s, about11.7% of the original16.67M/s target.
+Next: isolate download acceptance/checksum versus actual raw SDRAM integrity.
+The pre-guest RTL diagnostic now passes the FULL23-bit chip-pin sweep:
+50,331,648 requests/completions across8,388,608 raw cells, followed by verified
+zeros. The bounded test detects return corruption/address aliasing/bad zero
+readback and rejects a removed comparator. Its first full-run deadline failure
+is preserved; only that bench deadline changes in the passing full run.
+The501-source native diagnostic stage reconstructs MC1668 plus the exact BL8/
+observer/zero-fill-test deltas; synthesis uses the actual top/wrapper/self-test.
+Its same fit is routing on misterubuntu (builder3585434,fit3586935); queued
+reporter3590070 follows it. Full timing/memory review, assembly and actual FPGA
+test remain pending. No new desktop or speedup is qualified. Last working Cedar
+login:1,947,686.01 instruction issues/s, about11.7% of original16.67M/s.
+Preserve original firmware and native state; no imported C state or guest patches.
 Hardware rollback, cold persistence, repeated boots and sustained tests remain.
-Actual retained error/ROM proof and current build/field identities are in the
-[handoff](verilog-handoff.md#current-hardware-diagnosis-original-failed-boot-breakpoint-2026-10-21-utc).
+See the [handoff](verilog-handoff.md#current-hardware-diagnosis-original-failed-boot-breakpoint-2026-10-21-utc)
+and [component evidence](../fpga/mister/reports/2026-10-21-storage-selftest/component/README.md).
 
 V38/V39 completed three normal boot-button pulses via only their bench input
 counter; final input observations1170M/1040M host ticks still show startup.

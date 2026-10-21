@@ -17,6 +17,7 @@ import sys
 from audit_r_front_ready_native import ram_table, memory_parameters
 from stage_native_sdram_burst import WRAPPER, BACKEND
 import stage_boot_fault_observer as observer
+import stage_storage_selftest_native as selftest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'fpga/mister/snapshot'))
@@ -90,7 +91,7 @@ def memory_comparison(before, after, fitted=False, allow_host_video_auto_ids=Fal
                 host_video_auto_instance_ids=renamed)
 
 
-def review(root, parent, parent_qualification, parent_reports, observer_component=None):
+def review(root, parent, parent_qualification, parent_reports, observer_component=None, selftest_component=None, selftest_full_component=None):
     record = json_at(root / 'sdram-burst-native.json')
     prior = json_at(parent / 'mc1668-candidate.json')
     qualified = json_at(parent_qualification)
@@ -100,7 +101,9 @@ def review(root, parent, parent_qualification, parent_reports, observer_componen
     assert record['parent_qualification_sha256'] == sha(raw(parent_qualification))
     assert record['frequency_mhz'] == 50 and record['sysper'] == 4 and record['state_admin'] == 'INACTIVE'
     has_observer = record.get('passive_boot_fault_observer', False)
-    assert record['cache_lines'] == 4 and len(record['source_hashes']) == (500 if has_observer else 499)
+    has_selftest = record.get('raw_storage_selftest', False)
+    assert not has_selftest or has_observer
+    assert record['cache_lines'] == 4 and len(record['source_hashes']) == 499 + int(has_observer) + int(has_selftest)
     actual = {n: sha(raw(root / n)) for n in record['source_hashes']}
     assert actual == record['source_hashes'], 'Compiled input changed'
     assert actual[BACKEND] == sha((ROOT / 'fpga/mister/dorado_storage_sdram_burst.sv').read_bytes())
@@ -117,6 +120,31 @@ def review(root, parent, parent_qualification, parent_reports, observer_componen
             assert sha(raw(observer_component / 'inputs' / n)) == h
         assert actual[observer.OBSERVER] == p['inputs']['monitor.sv'] == sha((ROOT / 'fpga/mister/dorado_boot_fault_monitor.sv').read_bytes())
         observer_proof = p
+    selftest_proof = None
+    selftest_full_proof = None
+    if has_selftest:
+        assert selftest_component is not None, 'Missing tested raw-memory diagnostic'
+        state_test = json_at(selftest_component / 'run-state.json')
+        selftest_proof = json_at(selftest_component / 'provenance.json')
+        assert state_test['status'] == 'PASS_RAW_MEMORY_SELFTEST_PIN_COMPONENT'
+        assert len(state_test['actions']) == 8
+        assert all((r['returncode'] != 0) if r['stage'] == 'compare-removed-test' else r['returncode'] == 0 for r in state_test['actions'])
+        for n, h in selftest_proof['inputs'].items():
+            assert sha(raw(selftest_component / 'inputs' / n)) == h
+        assert actual[selftest.SELFTEST] == selftest_proof['inputs']['fpga/mister/dorado_storage_selftest.sv'] == sha((ROOT / 'fpga/mister/dorado_storage_selftest.sv').read_bytes())
+        assert record['selftest_component_provenance_sha256'] == sha(raw(selftest_component / 'provenance.json'))
+        assert selftest_full_component is not None, 'Missing complete 23-bit raw-memory sweep'
+        full_state = json_at(selftest_full_component / 'run-state.json')
+        selftest_full_proof = json_at(selftest_full_component / 'provenance.json')
+        assert full_state['status'] == 'PASS_RAW_MEMORY_SELFTEST_PIN_COMPONENT' and full_state['address_bits'] == 23
+        assert len(full_state['actions']) == 2 and all(a['returncode'] == 0 for a in full_state['actions'])
+        for n, h in selftest_full_proof['inputs'].items():
+            assert sha(raw(selftest_full_component / 'inputs' / n)) == h
+        assert actual[selftest.SELFTEST] == selftest_full_proof['inputs']['fpga/mister/dorado_storage_selftest.sv']
+        assert actual[BACKEND] == selftest_full_proof['inputs']['fpga/mister/dorado_storage_sdram_burst.sv']
+        full_log = raw(selftest_full_component / 'fault-0.log').decode()
+        assert 'STORAGE-SELFTEST PASS fault=0 bits=23 hz=50000000 requests=50331648 completions=50331648' in full_log
+
     old_type = 'dorado_storage_sdram #(.ADDR_BITS(RAW_BITS),.CLOCK_HZ(STORAGE_CLOCK_HZ)) u_sdram('
     new_type = 'dorado_storage_sdram_burst #(.ADDR_BITS(RAW_BITS),.CLOCK_HZ(STORAGE_CLOCK_HZ),.CACHE_LINES(4)) u_sdram('
     for name, digest in prior['source_hashes'].items():
@@ -136,8 +164,12 @@ def review(root, parent, parent_qualification, parent_reports, observer_componen
             if name == 'core/Dorado.qsf':
                 value += ('\n# Passive original boot first-error diagnostic.\n'
                           'set_global_assignment -name SYSTEMVERILOG_FILE ' + str(Path(record['project']) / observer.OBSERVER) + '\n').encode()
+        if has_selftest:
+            value = selftest.expose(name, value)
+            if name == 'core/Dorado.qsf':
+                value += ('\n# Pre-guest raw-memory diagnostic and verified zero-fill.\nset_global_assignment -name SYSTEMVERILOG_FILE ' + str(Path(record['project']) / selftest.SELFTEST) + '\n').encode()
         assert current == value, ('Unintended source/config delta', name)
-    assert set(actual) - set(prior['source_hashes']) == ({BACKEND, observer.OBSERVER} if has_observer else {BACKEND})
+    assert set(actual) - set(prior['source_hashes']) == {BACKEND} | ({observer.OBSERVER} if has_observer else set()) | ({selftest.SELFTEST} if has_selftest else set())
     state = json_at(root / 'run-state.json')
     assert state['status'] == 'TERMINAL_TIMING_OBSERVED_REVIEW_REQUIRED'
     assert [r['stage'] for r in state['stages']] == ['map', 'fit', 'sta', 'clocks', 'corners', 'control-crossings', 'contb-crossings', 'adapter-crossings']
@@ -145,7 +177,7 @@ def review(root, parent, parent_qualification, parent_reports, observer_componen
     extra = json_at(root / 'burst-review-v2-state.json')
     assert extra['status'] == 'TERMINAL_BURST_REPORTS_REVIEW_REQUIRED'
     assert len(extra['actions']) == 1 and extra['actions'][0]['returncode'] == 0
-    tcl_name = 'audit_boot_fault_native.tcl' if has_observer else 'audit_sdram_burst_native.tcl'
+    tcl_name = 'audit_storage_selftest_native.tcl' if has_selftest else 'audit_boot_fault_native.tcl' if has_observer else 'audit_sdram_burst_native.tcl'
     assert extra['tcl_sha256'] == sha(raw(root / tcl_name)) == sha((ROOT / 'tools' / tcl_name).read_bytes())
     collected = json_at(root / 'collected-input-check.json')
     assert collected['actual'] == actual
@@ -168,6 +200,8 @@ def review(root, parent, parent_qualification, parent_reports, observer_componen
     assert {WRAPPER, BACKEND} <= used, 'Backend/wrapper absent from synthesized netlist'
     if has_observer:
         assert {observer.OBSERVER, observer.CONTB, observer.BACKPLANE, observer.WRAPPER, observer.TOP} <= used, 'Passive diagnostic patched an unused source'
+    if has_selftest:
+        assert selftest.SELFTEST in used, 'Raw-memory diagnostic absent from synthesized netlist'
     paths = []
     for corner in sorted(readers.CORNERS):
         for mode in readers.MODES:
@@ -220,6 +254,23 @@ def review(root, parent, parent_qualification, parent_reports, observer_componen
                 name = f'burst-first-fault-{mode}-{corner}.rpt'
                 observer_paths.append(readers.timed(raw(core / name).decode(), name))
         assert len(observer_paths) == 8
+    selftest_paths = []
+    selftest_registers = []
+    if has_selftest:
+        inventory = re.findall(r'^STORAGE_SELFTEST_REGISTERS (\S+) (\d+)$', log, re.M)
+        assert len(inventory) == 4 and {c for c, _ in inventory} == readers.CORNERS
+        selftest_registers = re.findall(r'^STORAGE_SELFTEST_REGISTER (.+)$', log, re.M)
+        assert len(selftest_registers) == len(set(selftest_registers))
+        assert all(int(n) == len(selftest_registers) for _, n in inventory)
+        assert 65 <= len(selftest_registers) <= 90, 'Unexpected self-test register inventory'
+        for field in ['address', 'first_address', 'first_expected', 'first_actual', 'phase', 'pending', 'ready', 'failed']:
+            assert any(re.search(r'\|' + field + r'(?:\[|$)', n) for n in selftest_registers), field
+        for corner in sorted(readers.CORNERS):
+            for label in ['selftest-internal', 'selftest-input', 'selftest-output']:
+                for mode in ['setup', 'hold']:
+                    name = f'burst-{label}-{mode}-{corner}.rpt'
+                    selftest_paths.append(readers.timed(raw(core / name).decode(), name))
+        assert len(selftest_paths) == 24
     warnings = {}
     classified_truncation = None
     for phase in ['map', 'fit']:
@@ -267,9 +318,10 @@ def review(root, parent, parent_qualification, parent_reports, observer_componen
                 resources=resources, warnings=warnings,
                 classified_FIFO_index_truncation=classified_truncation,
                 reviewed_evidence_hashes=evidence,
-                minimum_slack_ns=min(x['slack_ns'] for x in paths + new_paths + observer_paths),
+                minimum_slack_ns=min(x['slack_ns'] for x in paths + new_paths + observer_paths + selftest_paths),
                 passive_boot_fault_observer=has_observer, observer_component=observer_proof,
-                observer_paths=observer_paths,
+                observer_paths=observer_paths, raw_storage_selftest=has_selftest,
+                selftest_component=selftest_proof, selftest_full_component=selftest_full_proof, selftest_paths=selftest_paths, selftest_registers=selftest_registers,
                 frequency_mhz=50, sysper=4, state_admin='INACTIVE',
                 firmware_qualified=False, hardware_speedup_qualified=False)
 
@@ -279,7 +331,9 @@ if __name__ == '__main__':
     for name in ['root', 'parent', 'parent-qualification', 'parent-reports', 'output']:
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--observer-component', type=Path)
+    p.add_argument('--selftest-component', type=Path)
+    p.add_argument('--selftest-full-component', type=Path)
     a = p.parse_args()
-    result = review(a.root.resolve(), a.parent.resolve(), a.parent_qualification.resolve(), a.parent_reports.resolve(), a.observer_component.resolve() if a.observer_component else None)
+    result = review(a.root.resolve(), a.parent.resolve(), a.parent_qualification.resolve(), a.parent_reports.resolve(), a.observer_component.resolve() if a.observer_component else None, a.selftest_component.resolve() if a.selftest_component else None, a.selftest_full_component.resolve() if a.selftest_full_component else None)
     a.output.write_text(json.dumps(result, indent=2) + '\n')
     print(result['status'], result['minimum_slack_ns'], result['resources'])

@@ -48,6 +48,10 @@ def run(args):
                    '--output', str(directory / 'must-not-qualify.json')]
         if args.observer_component:
             command += ['--observer-component', str(args.observer_component.resolve())]
+        if args.selftest_component:
+            command += ['--selftest-component', str(args.selftest_component.resolve())]
+        if args.selftest_full_component:
+            command += ['--selftest-full-component', str(args.selftest_full_component.resolve())]
         with (out / (label + '.log')).open('x') as log:
             p = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT)
             row = dict(case=label, pid=p.pid, command=command, started=time.time())
@@ -115,6 +119,25 @@ def run(args):
         assert len(faults) == 4
         fault_name = str(faults[0].relative_to(original))
         exercise('missing-observer-timing-corner', lambda p: (p / fault_name).unlink(), 'FileNotFoundError')
+    if args.selftest_component:
+        entry_selftest = [line for line in mapping[mapping.index(b'; Analysis & Synthesis Source Files Read'):].split(b'\n\n', 1)[0].splitlines() if b'dorado_storage_selftest.sv' in line]
+        assert len(entry_selftest) == 1 and b'; yes ' in entry_selftest[0]
+        exercise('selftest-not-used-in-netlist', lambda p: replace(p / map_path, entry_selftest[0], entry_selftest[0].replace(b'; yes ', b'; no  ', 1)))
+        def bypass_selftest(directory):
+            name = 'src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv'
+            path = directory / (name + '.gz')
+            replace(path, b'assign storage_ready=storage_initialized && board_ready;', b'assign storage_ready=board_ready;')
+            manifest = directory / 'sdram-burst-native.json.gz'
+            record = json.loads(read(manifest))
+            record['source_hashes'][name] = hashlib.sha256(read(path)).hexdigest()
+            tmp = manifest.with_name('rehashed-selftest.tmp')
+            tmp.write_bytes(gzip.compress(json.dumps(record).encode(), mtime=0))
+            os.replace(tmp, manifest)
+        exercise('selftest-release-bypassed-rehashed', bypass_selftest)
+        reports = sorted((original / 'core').glob('burst-selftest-input-hold-*.rpt.gz'))
+        assert len(reports) == 4
+        name_selftest = str(reports[0].relative_to(original))
+        exercise('missing-selftest-timing-corner', lambda p: (p / name_selftest).unlink(), 'FileNotFoundError')
     assert hashlib.sha256((original / 'archive-manifest.json.gz').read_bytes()).hexdigest() == manifest_hash
     for row in json.loads(gzip.decompress((original / 'archive-manifest.json.gz').read_bytes())):
         data = read(original / row['stored'])
@@ -129,4 +152,6 @@ if __name__ == '__main__':
     for name in ['root', 'parent', 'parent-qualification', 'parent-reports', 'output']:
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--observer-component', type=Path)
+    p.add_argument('--selftest-component', type=Path)
+    p.add_argument('--selftest-full-component', type=Path)
     run(p.parse_args())
