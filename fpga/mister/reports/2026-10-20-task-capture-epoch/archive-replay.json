@@ -1,0 +1,22 @@
+{
+  "status": "PASS_PORTABLE_ARCHIVE_REPLAY",
+  "extracted_members": 3001,
+  "frozen_input_counts": {
+    "task-epoch-qualified-v2-20261020": 45,
+    "task-epoch-control-v2-20261020": 47,
+    "r-front-task-epoch-v2-20261020": 87
+  },
+  "reviews": [
+    {
+      "version": "v1",
+      "byte_identical": true,
+      "status": "REJECTED_COMPONENT_TIMING"
+    },
+    {
+      "version": "v2",
+      "byte_identical": true,
+      "status": "PASS_COMPONENT_TIMING"
+    }
+  ],
+  "simulation_rerun_after_extraction": false
+}

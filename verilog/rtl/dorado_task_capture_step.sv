@@ -149,16 +149,19 @@ module dorado_task_capture_step #(parameter integer WAVES=16)(
             clocks=levels;
         end
     endfunction
-    function automatic [15:0] task_transfer(input [87:0] q,input [24:0] captures,input [75:0] pins);
+    function automatic [15:0] task_transfer(input [87:0] q,input [24:0] captures,input [75:0] pins,
+        input [15:0] source_task);
         reg [15:0] n;
+        reg [87:0] source_q;
         reg [3:0] penc,ct,nxt,chosen;
         reg repeat_cur,greater,less,d_switch,bnext_enable_n;
         begin
-            n=q[79:64];penc=priority_raw(pins);ct=current_raw(q);nxt=next_raw(q);
-            repeat_cur=pins[69] && q[75];chosen=repeat_cur ? ct : nxt;
+            source_q=q;source_q[79:64]=source_task;
+            n=q[79:64];penc=priority_raw(pins);ct=current_raw(source_q);nxt=next_raw(source_q);
+            repeat_cur=pins[69] && source_q[75];chosen=repeat_cur ? ct : nxt;
             greater=reverse_task(penc)>reverse_task(chosen);
             less=reverse_task(penc)<reverse_task(chosen);
-            bnext_enable_n=repeat_cur && (reverse_task(q[71:68])>reverse_task(penc));
+            bnext_enable_n=repeat_cur && (reverse_task(source_q[71:68])>reverse_task(penc));
             d_switch=(!pins[65] && greater) ||
                 (less && !repeat_cur && !pins[66] && (nxt!=0)) ||
                 (less && repeat_cur && !pins[67] && (ct!=0));
@@ -188,7 +191,8 @@ module dorado_task_capture_step #(parameter integer WAVES=16)(
     reg settled,repeat_curr;
     always @* begin
         q=state_q;n=q;source_p=capture_pins(state_q,pins_after);previous=clocks(q,clock_before,pins_before);
-        levels=previous;captures=0;clock_events=0;repeated_events=0;settled=0;p=0;repeat_curr=0;
+        levels=previous;captures=0;clock_events=0;repeated_events=0;settled=0;p=0;
+        repeat_curr=pins_after[68] && state_q[75];
         for(integer wave=0;wave<WAVES;wave=wave+1) begin
             p=capture_pins(q,pins_after);levels=clocks(q,clock_after,pins_after);captures=levels & ~previous;
             repeated_events=repeated_events | (captures & clock_events);clock_events=clock_events | captures;
@@ -196,10 +200,13 @@ module dorado_task_capture_step #(parameter integer WAVES=16)(
             // Task-source setup snapshot survives the phase-Q/SHCP cascade.
             n[47:32]=processor_transfer(q[47:32],captures[13:9],source_p,!q[23],1'b0);
             n[63:48]=processor_transfer(q[63:48],captures[18:14],source_p,!q[23],1'b1);
-            n[79:64]=task_transfer(q,captures,pins_after);
-            repeat_curr=pins_after[68] && q[75];
-            if(captures[23]) n[83:80]=repeat_curr ? q[43:40] : (!q[32] ? q[47:44] : ~p[23:20]);
-            if(captures[24]) n[87:84]=repeat_curr ? q[59:56] : (!q[48] ? q[63:60] : ~p[23:20]);
+            // Under the registered producer setup contract these clock
+            // families consume the pre-event task/address data. Keep live q
+            // for clock resolution, without feeding newly captured task Qs
+            // back into the same data epoch. No additional pipeline stage.
+            n[79:64]=task_transfer(q,captures,pins_after,state_q[79:64]);
+            if(captures[23]) n[83:80]=repeat_curr ? state_q[43:40] : (!state_q[32] ? state_q[47:44] : ~source_p[23:20]);
+            if(captures[24]) n[87:84]=repeat_curr ? state_q[59:56] : (!state_q[48] ? state_q[63:60] : ~source_p[23:20]);
             settled=(n==q && levels==previous);previous=levels;q=n;
         end
         state_next=q;unsettled=!settled;

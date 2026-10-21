@@ -1,0 +1,27 @@
+{
+  "status": "PASS_ALL_RECORDED_PROCESSES_ABSENT",
+  "jobs": [
+    {
+      "directory": "/home/alans/mister/task-epoch-fit-v1-20261020",
+      "status": "TERMINAL_REVIEW_REQUIRED",
+      "job_pids_absent": [
+        40338,
+        40342,
+        40956,
+        43502,
+        43779
+      ]
+    },
+    {
+      "directory": "/home/alans/mister/task-epoch-fit-v2-20261020",
+      "status": "TERMINAL_REVIEW_REQUIRED",
+      "job_pids_absent": [
+        56691,
+        56698,
+        57170,
+        59590,
+        59879
+      ]
+    }
+  ]
+}

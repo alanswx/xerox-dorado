@@ -34,9 +34,10 @@ both simulators plus isolated15ns timing with their actual MLAB banks. The final
 R address/select stages now also pass separately at636 bits. Their functional
 RAM handoff now passes the original circuit comparison and isolated15ns timing
 (setup+3.241ns/hold+0.136ns). Directed startup/control checks also pass in both simulators across six profiles.
-The expanded RBase/stack/bypass front passes simulation, but its functional15ns
-fit misses setup by2.617ns. Shorten the task-feedback consistency path, then
-finish IFU/Ready/MIR/Hold and native integration.
+The expanded RBase/stack/bypass front now passes simulation and functional15ns
+timing after explicit pre-event task/address data capture (setup+0.474ns,
+hold+0.099ns). Finish actual CP/MIR/Ready/IsNext/Hold/IFU producer closure and
+native integration next.
 Full board timing, faster Cedar boot and rollback remain unqualified.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
 qualify it through original firmware and the germ/disk path. Rollback preserves
@@ -50,6 +51,76 @@ existing UIO bits. Component-only; native and actual Main coordination are
 absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
+
+### Task/address capture epoch and isolated15ns timing PASS (2026-10-20)
+
+Baseline94b229ed misses15ns by2.617ns through task feedback/unsettled.
+Trial v1 retained data at its first task capture. Both task and full R-front
+functional gates pass, including reset/maintenance/Hold controls, but its fit
+is TERMINAL/REJECTED: setup-3.645ns, hold+0.105ns, mpw+6.112ns;
+3,039ALMs/2,772registers/9,216MLABbits. Its source-selection mux retains priority
+feedback into later task-address/T-parity logic (representative22 levels).
+Do not deploy v1. All five PIDs40338/40342/40956/43502/43779 are absent; the
+existing collector verifies all inputs except the allowed version annotation.
+Local evidence `task-epoch-fit-v1-terminal-20261020` and
+`task-epoch-timing-review-20261020.json` preserves this failed measurement.
+
+Current v2 uses the same PRE-EVENT task data epoch as the existing processor
+captures, including task-address latches' repeat/phase/Last/Next sources.
+Live Qs remain for clock resolution and current state retention. It retains the
+16-wave convergence/repeat checks, full interface, original15ns target and
+registered-producer setup contract. No extra architectural register, RAM copy
+or pipeline cycle. Mutation anchors were updated for the address expressions;
+all15 existing bad variants remain in the gate.
+
+`task-epoch-qualified-v2-20261020` is TERMINAL/PASS:73,761 events/profile,
+all88 Qs/25 clocks, BOTH simulators across three arrival profiles. All16 tasks,
+Hold/repeat, held/resumed fetch and coincident Next/address updates pass;
+all15 bad variants reject in balanced Icarus. Extra reset/Freeze, CurrentTask
+maintenance, StopTasks and separate Hold controls pass1,617 events/profile in
+BOTH simulators/three profiles (eight rounds), full Q/per-event clock comparison.
+Evidence `task-epoch-control-v2-20261020`; both jobs are terminal. The v1
+functional/control receipts remain separately preserved.
+
+The full736-Q/9,216-RAM v2 gate is TERMINAL/PASS at
+`build/rtl-executive/r-front-task-epoch-v2-20261020`: all six profiles pass BOTH
+simulators at11,236 events/profile; all seven front bad variants reject.
+All behavior, clock counts, arrivals, RAM and write-window summaries are
+identical to baseline. All87 primary executed inputs match current source.
+
+The v2 fit is TERMINAL/PASS at
+`misterubuntu:/home/alans/mister/task-epoch-fit-v2-20261020`, collected as
+`task-epoch-fit-v2-terminal-20261020`. Four-condition source/constraint/memory/
+timing review passes: setup+0.474ns, hold+0.099ns, mpw+6.112ns;
+2,845ALMs/2,784registers/9,216MLABbits (four256x9 banks),0M10K/DSP/PLL.
+The worst slow-40 path is now13 levels/13.828ns, versus the baseline18-level
+task feedback path. Every736 state bit,57 event/repeat bits, full functional
+ports and unsettled check remain in the971-result/1,211-launch budget at15ns.
+No clock exception or pipeline stage was added. All17 damaged/rehashed reader
+controls reject, including changed generated cone and wrong RAM parameters.
+
+`task-epoch-fit-input-comparison-v2-20261020.json` proves ONLY task RTL and
+qualification JSON change from baseline v6: top, constraints, normalized/original
+cone, other RTL, helpers and launch/result widths are identical. The previous
+cone representation/miter proof applies by byte identity. All21 inputs hash-match
+after transfer/readback, except the permitted Quartus version annotation.
+Builder56691/map56698/fit57170/sta59590/corners59879 are absent. All current
+simulation, control, reader and fit jobs are terminal. No restart is pending.
+No native integration, FPGA/Main/server change or speed increase yet. The new
+auxiliary tool is `tools/test_task_capture_control.py`.
+
+`task-epoch-remaining-constants-20261020.json` inventories the task-only reference
+stubs and cross-checks the full R-front. Twelve constant control/CP/MIR boundaries
+remain in the expanded Control-A graph; processor bindings are now explicit
+inputs or connected logic. Actual CP/MIR/TaskingOff/GetTLink/WTPC plus Ready/
+IsNext/Hold producer closure must precede native integration. This inventory is
+not arrival qualification. Keep these remaining limits explicit.
+
+Receipt: [task/address epoch raw evidence](../fpga/mister/reports/2026-10-20-task-capture-epoch/README.md).
+3,001 raw members/115,131,905bytes compress losslessly to11,077,499bytes.
+Readback/extraction verifies every member and45/47/87 accepted task/control/front
+inputs. Extracted tools reproduce both rejected v1 and accepted v2 reviews
+byte-identically. No simulation rerun after extraction is claimed.
 
 ### RBase/stack/bypass extension in qualification (2026-10-20)
 
@@ -121,9 +192,9 @@ Its four-condition review passes all source, constraint, coverage and memory
 checks, and correctly rejects setup. The real worst path now starts at a task
 request/Ready input, passes18 logic levels through priority/current-task
 feedback and ends at `unsettled` (result120),17.003ns data delay in the slow
--40C condition. Retain this check and the original15ns constraint during the next revision.
-Next: shorten that feedback calculation using original capture epochs, then
-repeat original-circuit qualification and fit. No host completion shortcuts.
+-40C condition. The task epoch v2 correction above now closes this isolated
+budget, retaining the check and original15ns constraint. Next qualify actual
+control/MIR, Ready/IsNext, Hold and IFU producers before native integration.
 
 Remote `/home/alans/mister/r-front-fit-v6-20261020` and local
 `r-front-fit-v6-terminal-20261020` are terminal. Builder14971/map14978/fit15519/
@@ -148,11 +219,11 @@ Receipt: [R-front raw sources/reports](../fpga/mister/reports/2026-10-20-r-front
 4,821 selected raw members/187,144,831bytes compress losslessly to15,868,097bytes;
 readback and extraction verify every byte and all87 primary inputs. Both rejected
 reviews reproduce byte-identically using extracted tools/data. No second full
-simulation after extraction is claimed. The critical core is
-`verilog/rtl/dorado_task_capture_step.sv`: inspect the original priority/Switch/
-CurrentTask capture epochs, reduce serialized feedback within the host period,
-then repeat its callers' full-state/arrival gates and fit. Preserve16-way priority,
-Hold/repeat behavior, error checks and full memory/source-epoch invariants.
+simulation after extraction is claimed. That historical receipt predates the
+task epoch v2 correction above. The corrected priority/Switch/CurrentTask data
+epochs now pass callers' full-state/arrival gates and the isolated fit. Preserve
+16-way priority, Hold/repeat behavior, error checks and full memory/source-epoch
+invariants while closing the remaining actual producers.
 
 ### MC1668 native Viewers/input/warm marker PASS (2026-10-20)
 
@@ -173,8 +244,8 @@ all collected raw bytes match their hashes after extraction. No active pack
 copy, guest Boot, host barrier, clean shutdown, cold persistence or full snapshot
 claim. Login issue rate remains1,947,686.01/s; no speed gain.
 
-**Next: shorten R-front task-feedback consistency timing, then remaining
-IFU/Ready/MIR/Hold producers and native clock integration.** The coupled RM/STK handoff now passes six primary profiles,
+**Next: actual CP/MIR/Ready/IsNext/Hold/IFU producers and native clock
+integration.** The coupled RM/STK handoff now passes six primary profiles,
 directed reset/stop/maintenance checks in both simulators and15ns component timing;
 the old g16 sample and stable write addresses are checked. The596-bit
 coupled sign/odd component already passes simulation and isolated15ns timing
@@ -183,8 +254,7 @@ through normal Main disk/network barriers. Authentic Cedar Checkpoint/Rollback,
 original60ns cadence/timer calibration, three fresh boots, cold persistence and
 two-hour combined stress remain open. Goal ACTIVE; full snapshots deferred.
 The earlier R-memory simulator/fit/loader/input/collector jobs are terminal.
-The R-front simulation and both reviewed fits above are terminal. Its15ns
-functional setup failure remains open.
+The R-front task/address v2 simulation and15ns fit pass; all jobs are terminal.
 MiSTer14 still runs Main3486/server3485 and Cedar's background work.
 
 ### Real R address/storage handoff and isolated timing PASS (2026-10-20)

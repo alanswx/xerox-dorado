@@ -1,0 +1,41 @@
+{
+  "scope": "Measure the qualified R-front/R-memory component in the isolated 15 ns shell.\n\nNo assembly or deployment. This checks an implementation budget, not native\nDorado timing or speed. Prepare only from a completed frozen simulation gate;\nrun Quartus only on misterubuntu.\n",
+  "component": "r_front_functional",
+  "clock_period_ns": 15,
+  "ram_bits": 9216,
+  "input_staging_bits": 1211,
+  "launch_bits": 1211,
+  "result_bits": 971,
+  "functional_gate_sha256": "0b62ff4799ab1720a8b39696200b420e2dc6e74e2e4f318ee088efa582f5d96c",
+  "observation_outputs_registered": false,
+  "observation_only_outputs": [
+    "source_pins",
+    "fa_n"
+  ],
+  "cone_syntax": "Ordinary ports for package observations; separate genvar and explicit generate; no wiring/function/storage change",
+  "files": {
+    "dorado_r_port_preview.sv": "a133630074281f1513948928b1f71dac9171430afc4ba7bd155726a21579625c",
+    "dorado_r_address_step.sv": "34e89a662aa602a9aafa6d8d9b37d10cbc8f986121f7cb036a83f2dac7224b39",
+    "dorado_t_parity_step.sv": "1f29c255ec4bcc6e838ba8a8b3110c3e97c2e7c6d7a5940f4ee6933c40281ca8",
+    "dorado_r_file_ports.sv": "45e87cb0bed39bc39560293c0498ad03f774fd77481b4f143fb33aa29256fc6e",
+    "fit_control_clock.py": "d3b04b7f9b8c745620001bf30be430b6fd0f46326f44e09179340ec010be6727",
+    "dorado_r_front_cone.sv": "ec341b927c16b60b5ea8f927ec2d8f412fa06a11ee338b6f556aaf2b6797f4e8",
+    "dorado_task_capture_step.sv": "fe2b60523d2fe46ad4fb99a841e97d5a5d83e9f45dda4a029a150c0a8562416d",
+    "clock.sdc": "3e8b710bb7dff68ceb760d9e1255f781d46ac9bb86badb4fb00476b561b87731",
+    "top.sv": "74225ffcb74e40ef156e002fe26c935cedd037aac89d9d67067db962bbec3039",
+    "dorado_r_front_step.sv": "87f2c914e877c534618d3e24026d608ca82773d1f0697ef4085b19c253c681df",
+    "dorado_r_flags_step.sv": "1afb371b6bcc9e8234f4faeae5e0ce150dde65a8407752b01eddef54696c9e71",
+    "dorado_r_memory_step.sv": "51ce2a2aa05e41c4c0d9e20fff2c1115cb73e058ce96b5e48eac1198e5cb6ea5",
+    "clock_fit.qpf": "4930956ed5ce00ee6a40fb691fea958b90ee2e28fec7ef03685661e6a7392484",
+    "audit.tcl": "64aea4243f893e5658768eacbbbf9a029c88ee27a0f35c7e83ae4419778208f7",
+    "qualified-cone.sv.txt": "60d63614c927570d9fbed383e837955510fe10242a3ef74574ff485e0e6647c5",
+    "clock_fit.qsf": "ab4d8a3254516faa1d9931738e22265715407fd577ee0c014dd5cf0dd3112d27",
+    "dorado_processor_capture_step.sv": "16eb9e14999f6383cb4ded023e34375e531dee15707cbf79628d28fb773e26e2",
+    "dorado_t_file_step.sv": "d54ba9ee3c5abfafd6f3bcd260883db381f855e0c5cbfef7db90b9dbcb34d7f8",
+    "fit_r_front.py": "113f189c99d633ca1ec8aba26fe893d5e606c7d36adb2fb0b7a8ff151146c805",
+    "dorado_r_operand_step.sv": "2e113c7dd0464def7603bc8c6cf6cebc165088bf655f27cd51185062909eb8d5",
+    "functional-gate.json": "0b62ff4799ab1720a8b39696200b420e2dc6e74e2e4f318ee088efa582f5d96c"
+  },
+  "assembly_permitted": false,
+  "native_qualified": false
+}

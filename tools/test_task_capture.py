@@ -40,8 +40,8 @@ MUTATIONS = {
     'merge_hold_nets': [('repeat_a=pins[26] & !pins[27]', 'repeat_a=pins[25] & !pins[27]')],
     'invert_switchup': [('p[27]=!q[75]', 'p[27]=q[75]')],
     'address_on_clock1': [('levels[23]=pp_h;', 'levels[23]=pp_h | q[32];')],
-    'address_phase_polarity': [('(!q[32] ? q[47:44] : ~p[23:20])', '(q[32] ? q[47:44] : ~p[23:20])')],
-    'lose_last_address': [('(!q[32] ? q[47:44] : ~p[23:20])', '~p[23:20]')],
+    'address_phase_polarity': [('(!state_q[32] ? state_q[47:44] : ~source_p[23:20])', '(state_q[32] ? state_q[47:44] : ~source_p[23:20])')],
+    'lose_last_address': [('(!state_q[32] ? state_q[47:44] : ~source_p[23:20])', '~source_p[23:20]')],
     'one_wave': [('parameter integer WAVES=16', 'parameter integer WAVES=1')],
 }
 

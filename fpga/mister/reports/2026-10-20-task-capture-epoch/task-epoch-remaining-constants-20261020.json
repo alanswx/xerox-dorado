@@ -1,0 +1,459 @@
+{
+  "scope": "Task-only reference constants cross-checked against the expanded R-front. Retained constants, explicit producer inputs and connected graph nodes are separate roles; inventory is not native-arrival qualification.",
+  "boundaries": [
+    {
+      "board": "ContA-Rev-Cd",
+      "net": "CPAddr.0'",
+      "binding": "1'b1",
+      "backplane": [
+        "C92"
+      ],
+      "drivers": [],
+      "wiring_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "full_front_binding": "1'b1",
+      "full_front_status": "constant boundary retained"
+    },
+    {
+      "board": "ContA-Rev-Cd",
+      "net": "CPStrb'",
+      "binding": "1'b1",
+      "backplane": [
+        "C89"
+      ],
+      "drivers": [],
+      "wiring_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "full_front_binding": "1'b1",
+      "full_front_status": "constant boundary retained"
+    },
+    {
+      "board": "ContA-Rev-Cd",
+      "net": "ContA28.sil+2",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "l17",
+          "pin": 4,
+          "kind": "MC10176"
+        }
+      ],
+      "wiring_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "full_front_binding": "1'b0",
+      "full_front_status": "constant boundary retained"
+    },
+    {
+      "board": "ContA-Rev-Cd",
+      "net": "ContA28.sil+3",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "d17",
+          "pin": 13,
+          "kind": "MC10176"
+        }
+      ],
+      "wiring_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "full_front_binding": "1'b0",
+      "full_front_status": "constant boundary retained"
+    },
+    {
+      "board": "ContA-Rev-Cd",
+      "net": "ContA28.sil+4",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "l17",
+          "pin": 13,
+          "kind": "MC10176"
+        }
+      ],
+      "wiring_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "full_front_binding": "1'b0",
+      "full_front_status": "constant boundary retained"
+    },
+    {
+      "board": "ContA-Rev-Cd",
+      "net": "ContA28.sil+7",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "l17",
+          "pin": 2,
+          "kind": "MC10176"
+        }
+      ],
+      "wiring_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "full_front_binding": "1'b0",
+      "full_front_status": "constant boundary retained"
+    },
+    {
+      "board": "ContA-Rev-Cd",
+      "net": "ContA30.sil+1",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "k06",
+          "pin": 15,
+          "kind": "MC10117"
+        }
+      ],
+      "wiring_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "full_front_binding": "1'b0",
+      "full_front_status": "constant boundary retained"
+    },
+    {
+      "board": "ContA-Rev-Cd",
+      "net": "FF=TOffIsOK",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "b18",
+          "pin": 2,
+          "kind": "MC10109"
+        }
+      ],
+      "wiring_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "full_front_binding": "1'b0",
+      "full_front_status": "constant boundary retained"
+    },
+    {
+      "board": "ContA-Rev-Cd",
+      "net": "FF=TaskingOff",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "a16",
+          "pin": 3,
+          "kind": "MC10100"
+        }
+      ],
+      "wiring_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "full_front_binding": "1'b0",
+      "full_front_status": "constant boundary retained"
+    },
+    {
+      "board": "ContA-Rev-Cd",
+      "net": "GetTLink",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "i02",
+          "pin": 2,
+          "kind": "MC10176"
+        }
+      ],
+      "wiring_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "full_front_binding": "1'b0",
+      "full_front_status": "constant boundary retained"
+    },
+    {
+      "board": "ContA-Rev-Cd",
+      "net": "WTPC'",
+      "binding": "1'b1",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "d20",
+          "pin": 4,
+          "kind": "MC10161"
+        }
+      ],
+      "wiring_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "full_front_binding": "1'b1",
+      "full_front_status": "constant boundary retained"
+    },
+    {
+      "board": "ContA-Rev-Cd",
+      "net": "rMIRa",
+      "binding": "1'b0",
+      "backplane": [
+        "C177"
+      ],
+      "drivers": [
+        {
+          "package": "j02",
+          "pin": 14,
+          "kind": "MC10176"
+        }
+      ],
+      "wiring_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+      "full_front_binding": "1'b0",
+      "full_front_status": "constant boundary retained"
+    },
+    {
+      "board": "ProcH-Rev-Ce",
+      "net": "BSEL.0'",
+      "binding": "1'b0",
+      "backplane": [
+        "E107"
+      ],
+      "drivers": [],
+      "wiring_sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "full_front_binding": "pins[205]",
+      "full_front_status": "explicit producer input"
+    },
+    {
+      "board": "ProcH-Rev-Ce",
+      "net": "BSEL.1'",
+      "binding": "1'b0",
+      "backplane": [
+        "E110"
+      ],
+      "drivers": [],
+      "wiring_sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "full_front_binding": "pins[206]",
+      "full_front_status": "explicit producer input"
+    },
+    {
+      "board": "ProcH-Rev-Ce",
+      "net": "BSEL.2'",
+      "binding": "1'b0",
+      "backplane": [
+        "E111"
+      ],
+      "drivers": [],
+      "wiring_sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "full_front_binding": "pins[207]",
+      "full_front_status": "explicit producer input"
+    },
+    {
+      "board": "ProcH-Rev-Ce",
+      "net": "IOBout",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "a11",
+          "pin": 15,
+          "kind": "MC10231"
+        }
+      ],
+      "wiring_sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "full_front_binding": "pins[210]",
+      "full_front_status": "explicit producer input"
+    },
+    {
+      "board": "ProcH-Rev-Ce",
+      "net": "ProcH26.sil+3",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "a03",
+          "pin": 3,
+          "kind": "F10016"
+        },
+        {
+          "package": "a03",
+          "pin": 2,
+          "kind": "F10016"
+        },
+        {
+          "package": "a03",
+          "pin": 15,
+          "kind": "F10016"
+        },
+        {
+          "package": "a04",
+          "pin": 2,
+          "kind": "F10016"
+        },
+        {
+          "package": "a04",
+          "pin": 3,
+          "kind": "F10016"
+        },
+        {
+          "package": "a04",
+          "pin": 14,
+          "kind": "F10016"
+        },
+        {
+          "package": "a04",
+          "pin": 15,
+          "kind": "F10016"
+        }
+      ],
+      "wiring_sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "full_front_binding": "pins[215]",
+      "full_front_status": "explicit producer input"
+    },
+    {
+      "board": "ProcH-Rev-Ce",
+      "net": "ProcH27.sil+12",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "h20",
+          "pin": 14,
+          "kind": "MC10100"
+        }
+      ],
+      "wiring_sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "full_front_binding": "pins[216]",
+      "full_front_status": "explicit producer input"
+    },
+    {
+      "board": "ProcH-Rev-Ce",
+      "net": "TIOAWriteEn'",
+      "binding": "1'b1",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "h18",
+          "pin": 13,
+          "kind": "MC10176"
+        }
+      ],
+      "wiring_sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "full_front_binding": "pins[217]",
+      "full_front_status": "explicit producer input"
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "net": "BSEL.0'",
+      "binding": "1'b0",
+      "backplane": [
+        "E107"
+      ],
+      "drivers": [],
+      "wiring_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "full_front_binding": "pins[205]",
+      "full_front_status": "explicit producer input"
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "net": "BSEL.1'",
+      "binding": "1'b0",
+      "backplane": [
+        "E110"
+      ],
+      "drivers": [],
+      "wiring_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "full_front_binding": "pins[206]",
+      "full_front_status": "explicit producer input"
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "net": "BSEL.2'",
+      "binding": "1'b0",
+      "backplane": [
+        "E111"
+      ],
+      "drivers": [],
+      "wiring_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "full_front_binding": "pins[207]",
+      "full_front_status": "explicit producer input"
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "net": "HoldDly",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "g18",
+          "pin": 15,
+          "kind": "MC10176"
+        }
+      ],
+      "wiring_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "full_front_binding": null,
+      "full_front_status": "included in connected graph"
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "net": "IOBin'",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "e17",
+          "pin": 4,
+          "kind": "MC10176"
+        }
+      ],
+      "wiring_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "full_front_binding": "pins[219]",
+      "full_front_status": "explicit producer input"
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "net": "IOBout",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "a11",
+          "pin": 15,
+          "kind": "MC10231"
+        }
+      ],
+      "wiring_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "full_front_binding": "pins[210]",
+      "full_front_status": "explicit producer input"
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "net": "ProcL26.sil+1",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "a04",
+          "pin": 3,
+          "kind": "F10000"
+        }
+      ],
+      "wiring_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "full_front_binding": "pins[223]",
+      "full_front_status": "explicit producer input"
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "net": "ProcL27.sil+11",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "h19",
+          "pin": 14,
+          "kind": "MC10102"
+        }
+      ],
+      "wiring_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "full_front_binding": null,
+      "full_front_status": "included in connected graph"
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "net": "TisIFdata",
+      "binding": "1'b0",
+      "backplane": [],
+      "drivers": [
+        {
+          "package": "b20",
+          "pin": 15,
+          "kind": "MC10100"
+        },
+        {
+          "package": "c22",
+          "pin": 3,
+          "kind": "MC10102"
+        }
+      ],
+      "wiring_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "full_front_binding": "pins[117]",
+      "full_front_status": "explicit producer input"
+    }
+  ],
+  "retained_constant_count": 12
+}

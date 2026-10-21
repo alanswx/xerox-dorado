@@ -40,6 +40,23 @@ work; full47/48 Viewers/input and active STOP/reload now pass. External IFS/Cont
 optional follow-up,
 not a prerequisite for the performance goal.
 
+Task/address epoch v2 now passes the coupled15ns budget: setup+0.474ns,
+hold+0.099ns, mpw+6.112ns, four conditions;2,845ALMs/2,784regs/9,216MLABbits.
+It uses pre-event task/address data under the existing producer setup contract,
+retaining all16 waves, checks, interfaces and15ns constraint. The88-Q gate passes
+73,761 events/profile in both simulators/three profiles and15 bad variants;
+reset/maintenance/Hold checks pass1,617 in both/three. The736-Q/9,216-RAM gate
+passes six profiles in both simulators. Only task RTL/qualification JSON differ
+from the failed baseline's prepared files. The worst path falls from18 to13
+levels;17 damaged reader controls reject. Trial v1's-3.645ns fit is preserved as
+rejected. All jobs are terminal. Next resolve actual CP/MIR/Ready/IsNext/Hold/IFU
+producers before native integration; no hardware speed gain yet. Goal ACTIVE.
+
+The [task/address epoch receipt](../fpga/mister/reports/2026-10-20-task-capture-epoch/README.md)
+preserves3,001 raw members with lossless readback/extraction and byte-identical
+replay of rejected v1 and passing v2 timing reviews. All45/47/87 accepted
+task/control/front frozen inputs were rechecked.
+
 ### Milestones and acceptance
 
 | Milestone | Change | Evidence required to finish |
@@ -82,9 +99,10 @@ bad variants reject. Its ordinary-port synthesis representation passes another
 observation-inclusive v5 misses15ns setup by3.041ns; full functional-interface v6
 still misses by2.617ns (hold+0.156ns). V6 keeps every state/event/port/invariant bit,
 leaving only210 post-state observation bits unregistered. Its actual18-level
-critical path is task priority/current-task feedback into `unsettled`. Shorten
-that computation with original capture epochs, retain the check and original
-15ns constraint, and requalify before expanding the cone or integrating natively.
+critical path is task priority/current-task feedback into `unsettled`. The task
+epoch v2 correction described above now closes this isolated budget while
+retaining the check and original15ns constraint. Next qualify the actual control,
+MIR, Ready/IsNext, Hold and IFU producers before native integration.
 See the handoff and [component contract](verilog-r-front-contract.md). All jobs
 are terminal; hardware remains unchanged. Speed,60ns whole-board timing and
 rollback remain open.

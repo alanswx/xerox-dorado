@@ -1,0 +1,202 @@
+{
+  "boards": [
+    {
+      "board": "ProcH-Rev-Ce",
+      "packages": {
+        "h06": "MB7071H",
+        "i06": "MB7071H",
+        "i08": "F10414",
+        "j06": "MB7071H",
+        "j08": "F10414",
+        "k03": "MC10170",
+        "k06": "MB7071H"
+      },
+      "sequential": {
+        "h06": [
+          0,
+          1024
+        ],
+        "j06": [
+          1024,
+          1024
+        ],
+        "i06": [
+          2048,
+          1024
+        ],
+        "k06": [
+          3072,
+          1024
+        ],
+        "j08": [
+          4096,
+          256
+        ],
+        "i08": [
+          4352,
+          256
+        ]
+      },
+      "physical_bits": 4608,
+      "original_pins": 122,
+      "boundary_bindings": {
+        "TrueA": "1'b1",
+        "RbAdr.0": "pins[7]",
+        "RbAdr.1": "pins[6]",
+        "RbAdr.2": "pins[5]",
+        "RbAdr.3": "pins[4]",
+        "RbAdr.4'": "pins[3]",
+        "RbAdr.5'": "pins[2]",
+        "RbAdr.6'": "pins[1]",
+        "RbAdr.7'": "pins[0]",
+        "SelectRm'a": "pins[16]",
+        "RbWrite'a": "pins[26]",
+        "VEE176": "1'b0",
+        "dRm.00": "pins[18]",
+        "dRm.01": "pins[19]",
+        "dRm.02": "pins[20]",
+        "dRm.03": "pins[21]",
+        "RbWrite'b": "pins[26]",
+        "VEE224": "1'b0",
+        "dRm.04": "pins[22]",
+        "dRm.05": "pins[23]",
+        "dRm.06": "pins[24]",
+        "dRm.07": "pins[25]",
+        "StkAdr.0a": "pins[15]",
+        "StkAdr.1a": "pins[14]",
+        "StkAdr.2a": "pins[13]",
+        "StkAdr.3a": "pins[12]",
+        "StkAdr.4a": "pins[11]",
+        "StkAdr.5a": "pins[10]",
+        "StkAdr.6a": "pins[9]",
+        "StkAdr.7a": "pins[8]",
+        "SelectStk'a": "pins[17]",
+        "VEE200": "1'b0",
+        "VEE248": "1'b0",
+        "RbWrite'c": "pins[26]"
+      },
+      "clock_taps": [
+        "@h06.p2",
+        "@i06.p2"
+      ],
+      "flag_taps": [
+        "ddR.00",
+        "ProcH03.sil+1",
+        "ProcH04.sil+1",
+        "ProcH05.sil+1",
+        "ProcH06.sil+1",
+        "ProcH07.sil+1",
+        "ProcH08.sil+1",
+        "ProcH09.sil+1",
+        "ProcH27.sil+1",
+        "ProcH27.sil+2"
+      ],
+      "source_sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "combinational_sources": [
+        "verilog/cells/cell_MC10170.v"
+      ]
+    },
+    {
+      "board": "ProcL-Rev-Ci",
+      "packages": {
+        "h06": "MB7071H",
+        "i06": "MB7071H",
+        "i08": "F10414",
+        "j06": "MB7071H",
+        "j08": "F10414",
+        "k03": "MC10170",
+        "k06": "MB7071H"
+      },
+      "sequential": {
+        "h06": [
+          0,
+          1024
+        ],
+        "j06": [
+          1024,
+          1024
+        ],
+        "i06": [
+          2048,
+          1024
+        ],
+        "k06": [
+          3072,
+          1024
+        ],
+        "j08": [
+          4096,
+          256
+        ],
+        "i08": [
+          4352,
+          256
+        ]
+      },
+      "physical_bits": 4608,
+      "original_pins": 122,
+      "boundary_bindings": {
+        "TrueA": "1'b1",
+        "RbAdr.0'": "pins[7]",
+        "RbAdr.1'": "pins[6]",
+        "RbAdr.2'": "pins[5]",
+        "RbAdr.3'": "pins[4]",
+        "RbAdr.4'": "pins[3]",
+        "RbAdr.5'": "pins[2]",
+        "RbAdr.6'": "pins[1]",
+        "RbAdr.7'": "pins[0]",
+        "SelectRm'b": "pins[16]",
+        "RbWrite'a": "pins[26]",
+        "VEE176": "1'b0",
+        "dRm.08": "pins[18]",
+        "dRm.09": "pins[19]",
+        "dRm.10": "pins[20]",
+        "dRm.11": "pins[21]",
+        "RbWrite'b": "pins[26]",
+        "VEE224": "1'b0",
+        "dRm.12": "pins[22]",
+        "dRm.13": "pins[23]",
+        "dRm.14": "pins[24]",
+        "dRm.15": "pins[25]",
+        "StkAdr.0b": "pins[15]",
+        "StkAdr.1b": "pins[14]",
+        "StkAdr.2b": "pins[13]",
+        "StkAdr.3b": "pins[12]",
+        "StkAdr.4b": "pins[11]",
+        "StkAdr.5b": "pins[10]",
+        "StkAdr.6b": "pins[9]",
+        "StkAdr.7b": "pins[8]",
+        "SelectStk'b": "pins[17]",
+        "VEE200": "1'b0",
+        "VEE248": "1'b0",
+        "RbWrite'c": "pins[26]"
+      },
+      "clock_taps": [
+        "@h06.p2",
+        "@i06.p2"
+      ],
+      "flag_taps": [
+        "ProcL02.sil+1",
+        "ProcL03.sil+1",
+        "ProcL04.sil+1",
+        "ProcL05.sil+1",
+        "ProcL06.sil+1",
+        "ProcL07.sil+1",
+        "ProcL08.sil+1",
+        "ddR.15",
+        "ProcL27.sil+1",
+        "ProcL27.sil+2"
+      ],
+      "source_sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "combinational_sources": [
+        "verilog/cells/cell_MC10170.v"
+      ]
+    }
+  ],
+  "physical_bits": 9216,
+  "packages": 14,
+  "original_pins": 244,
+  "scope": "Extract all twelve RM/STK SRAMs and both byte-parity generators from PARC wiring.\n\nRAM state exists only inside the reference fixture. Production ports use four\nphysical addresses and chip selects; no array state travels through the core.\n",
+  "native_integrated": false,
+  "boundary": "Physical SRAM address/select and RbWrite window/data are external; address pipeline and coupled control timing not qualified"
+}

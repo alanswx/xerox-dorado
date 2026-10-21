@@ -1,0 +1,781 @@
+{
+  "status": "PASS_TASK_CAPTURE_CONTROL_TRANSITIONS",
+  "scope": "Check reset/maintenance/stop/hold transitions of the task capture epoch slice.\n\nReuse the independent circuit and full 88-bit state comparator from the frozen\nprimary qualification. All producer changes settle with the common root HIGH;\nsimultaneous asynchronous CurrentTask set/reset remains excluded. This adds\ncontrol-state coverage, not native firmware or 60ns board qualification.\n",
+  "inputs": {
+    "chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.lc": "c045956f96b8ca30dc1de1c79d86588384d5bd817bda73b5382769c92e0a5dca",
+    "chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.wl": "ca1a3acdc926f56f6da5ebceb46209bf45473b5ddcf102860358813dfdcd6152",
+    "chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.lc": "2cbfb904a6a6de0fde3afe2cd43c5162a3fe8cdc14dab87785acf2da773cc58d",
+    "chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.wl": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+    "chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.lc": "2a7ddbf9dc7a6d701ea2b1eac15d7dba60790faacd950d4844695896e17d2c15",
+    "chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+    "chm/sil/ProcL-Rev-Ci.dm!1_/ProcL-Rev-Ci.lc": "0770e808e0424e6468328ed2ec71220d7c1a22752eee55c8606695debf278fef",
+    "chm/sil/ProcL-Rev-Ci.dm!1_/ProcL-Rev-Ci.wl": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+    "tools/generate_control_clock_reference.py": "c5255000f877c5e66940e94c9c74167a0d02e1947bd0e3be03b5fccc2b8e5b0f",
+    "tools/generate_processor_capture_reference.py": "f8a75e6ffc0ea66141685378d05da3acaa47b1b89fa29255c4cb804f241b9b6d",
+    "tools/generate_run_control_reference.py": "658d092df35b6f98b6c341b63911d50f96fbaf96829046acb230bdda038b22e6",
+    "tools/generate_task_capture_reference.py": "7c5fc55bda2ede7d6802c06d970c40746d4f8b79120729af8297e738bdfa98c6",
+    "tools/sil_netlist.py": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1",
+    "tools/stage_task_capture_timing.py": "587164bbdebdfebb4d33fdb16f369931faa0c69a123780051f6bd400342ab048",
+    "tools/test_task_capture.py": "a319d5837de0286b3ce9cc5bed0860b7a9a1b139fdd1b41bf37c13c13a8e2987",
+    "verilog/cells/cell_MC10100.v": "7756a9e149ed4884f00cd7872c60f8bfb3981b58a9bd99e75ddc2cac2aa8cefd",
+    "verilog/cells/cell_MC10101.v": "d7cce11dd4c6c75b83d1d40287144fffc35ac6df2b9f490a45aeb740dcab862f",
+    "verilog/cells/cell_MC10102.v": "e590061b5063ccb6a27cf6fd39b81beef917091c66113952baa17aabc0fbf000",
+    "verilog/cells/cell_MC10103.v": "a9c31fc2e66b966457d83833304a0f4476bb4c743c590aaa57d1cb45e62337a0",
+    "verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "verilog/cells/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+    "verilog/cells/cell_MC10113.v": "3ad34b4dc8d3026412b4d300ce28f3a214fa42d3d6e1c1cc1afead9e601dec0b",
+    "verilog/cells/cell_MC10117.v": "65140e4f1fd8109645dddf7f7047ae04b0296ee16d507a2b180b0292215deb1b",
+    "verilog/cells/cell_MC10121.v": "6a57540509810d10e6c531df759aac82f783ffe997af4e8b86cb8edf74f2d2fe",
+    "verilog/cells/cell_MC10141.v": "bc8e0b8a34e0656ea78782690f288c934b8d7f65e9352e6cd8951d583ae6cbfa",
+    "verilog/cells/cell_MC10158.v": "18740cc5dd06525f87a08960a419118b4e9e9d16579f006449aba5d3dade4090",
+    "verilog/cells/cell_MC10159.v": "cdd04d5587a7427677bc5fe1f3ab694c52ad8d70b078919d265cd0036aa92f32",
+    "verilog/cells/cell_MC10166.v": "06689bff01caf3912d44a430ea7f9b85b76225edba4e6f08672a65ab87e167f8",
+    "verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "verilog/cells/cell_MC10195.v": "8d849c0310a8c9ca5453b11186e54302a5e0df51594d3813079a0b261a7fbf24",
+    "verilog/cells/cell_MC10210.v": "81e121de16e9adb1d8e1527703683ac6156e1e68b2b7b40907691327ee8895ab",
+    "verilog/cells/cell_MC10211.v": "5dff5af0f55a1f63dbfc7e98047f1f0fd18491ac1e06980c7991fc09a060272d",
+    "verilog/cells/cell_MC10231.v": "926430d4c3abce0b573c83b8643f185ea21fb4c4a80a1740d5daa021e3ae46fe",
+    "verilog/cells/cell_MC1660.v": "333d4c2a724a404c1e5650635a23b4feb5bc617f577628b813c66dfa4e972724",
+    "verilog/cells/cell_MC1662.v": "ea944c7b899045eafbe23d9605037e26da3773ae381c96cab199b239060f2bcd",
+    "verilog/cells/cell_MC1664.v": "ce9217e73068f27571aa032ddfb2a80393fb340a9648be1618c3af5d5e6be8a6",
+    "verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "verilog/cells/cell_SE10211.v": "4f7c8607bdaad0f3fa7b0a49c679c004817b3032c3d37b20cb0a46f3ab1cb11d",
+    "verilog/cells/cell_SE10212.v": "571fe37d94239211b73075919fa6f1ee9f32cad013c14a9ba9189663694ebace",
+    "verilog/cells/cell_SE10231.v": "b22f08f8f6e79eafbac3d1446e6593d10482033b2b3b2edfc29f207e62e5872c",
+    "verilog/rtl/dorado_processor_capture_step.sv": "16eb9e14999f6383cb4ded023e34375e531dee15707cbf79628d28fb773e26e2",
+    "verilog/rtl/dorado_task_capture_step.sv": "b31631bd7415e3004ecdd4a03f8a072c0338eecc2cceab9274039569648ab76f",
+    "verilog/verilator/processor_capture_original_ff.sv": "5de026c01b977b28c8098aac6613311280caf6f36c19f3699a83d2d44244dbc0",
+    "verilog/verilator/run_control_original_ff.sv": "7bcadd4fe8c5aa82781fa21ba3694fadba3f6c186870008506226d9e79ebb2a9",
+    "verilog/verilator/tb_task_capture_step.sv": "d7cb018655ca4654c119020a5ff91ad10ad0ec5770d8ecdefb3c9c716ee5158c",
+    "tools/test_task_capture_control.py": "5a1a7e292a4558df34f9862014048e44bc82c80d265fd363cfb3a42b81c8caf8",
+    "verilog/verilator/tb_task_capture_control.sv": "3d78d2d5e96a256a731445b59afbe57e6a856b1a83f3f79f122d1da9082d305f"
+  },
+  "profiles": [
+    {
+      "profile": "balanced",
+      "summary": "checks=1617 held=93 yield=3 coincident_next=4 address_changes=100",
+      "clock_counts": [
+        [
+          "0",
+          "769"
+        ],
+        [
+          "1",
+          "385"
+        ],
+        [
+          "2",
+          "385"
+        ],
+        [
+          "3",
+          "385"
+        ],
+        [
+          "4",
+          "762"
+        ],
+        [
+          "5",
+          "762"
+        ],
+        [
+          "6",
+          "762"
+        ],
+        [
+          "7",
+          "640"
+        ],
+        [
+          "8",
+          "762"
+        ],
+        [
+          "9",
+          "762"
+        ],
+        [
+          "10",
+          "769"
+        ],
+        [
+          "11",
+          "381"
+        ],
+        [
+          "12",
+          "381"
+        ],
+        [
+          "13",
+          "381"
+        ],
+        [
+          "14",
+          "762"
+        ],
+        [
+          "15",
+          "769"
+        ],
+        [
+          "16",
+          "381"
+        ],
+        [
+          "17",
+          "381"
+        ],
+        [
+          "18",
+          "381"
+        ],
+        [
+          "19",
+          "381"
+        ],
+        [
+          "20",
+          "259"
+        ],
+        [
+          "21",
+          "259"
+        ],
+        [
+          "22",
+          "349"
+        ],
+        [
+          "23",
+          "762"
+        ],
+        [
+          "24",
+          "762"
+        ]
+      ],
+      "timed_sources": {
+        "cell_SE10211.v": "656e81b3371c43497e17d6028855d85f88af4c00098c1b27154c20da88cc5975",
+        "cell_MC10101.v": "b8b5ffd8035ed90fc39c54ef4edc470661aa8af1372634aba2d27ea645d38939",
+        "task_procl.sv": "993c4494aa0fec55dc20c8fd3e9ae64240029264814861e0c0761f2c399485fd",
+        "cell_MC1660.v": "cfad0a3f729ee8d480f9d191bb95b61bed490c7bce4aa760ae92337376163b9f",
+        "task_proch.sv": "dd6f8acb1b91574e1348676a43ecc70846b268dff8452cf6b85dccc6e2ecf41b",
+        "cell_MC1664.v": "a817b79af7807b0f7e562616547e14c3ee89e5b408caf3b02fe1d6aa39eeaf24",
+        "cell_MC10211.v": "cffe7a32d6c6db6d37338c5f336f85e22b1fc9884e933f47a7227adb697f365f",
+        "task_conta.sv": "d56cfca4ac0782fc8984fd2cf8c4e4290542d87faf3bc85fcae1e0fb73614600",
+        "cell_MC10102.v": "09a1d7c7c3ea0f541e0cb19450454fadfe63646f7b86feeb439a2a2eed80bf6d",
+        "cell_SE10212.v": "7dd0f05dfde9ebca9c2dd36b49690b232a60b154617a6fe3ead49c6b710117cb",
+        "cell_MC10158.v": "8744511d20179d88467f3df643cf7ab4ec02badb3d30c7e7ced6f93d8e1503cd",
+        "cell_MC10166.v": "12334d7bbcf5642ee77b8200b30136a8712d4cd062699802010e7ab25c675d06",
+        "cell_MC10103.v": "66936bb672be9df6a2864ab36039c2be4dd57b25e0eb11313598b84621ff5fb4",
+        "cell_MC10109.v": "6e083dfd115816a8fe443811e841bebf3da7ee04119ba57ddbf51c7e7910ed1b",
+        "cell_MC10113.v": "8406772378c9457d0726bf61b62ed8e4a56e0b6fe6bbbe9e862be543e2302e3d",
+        "cell_MC10195.v": "13e14933c94e8da401d2ad2eeda8dc60720e7cc728f207104c6c71f994c0d067",
+        "task_capture_reference.sv": "fcea081f3d857cbbfdefabf027643d9db6dba95980f4228c1aed8a69610e678e",
+        "cell_MC1662.v": "deb6d5af10465593d023e01da9d63c1d1c95ff72ca9a20cbe59b4f218d2680d8",
+        "cell_MC10159.v": "481b6437e3970ec3001235bcbc2769bf591dbcac3e3b9112d783840f6bd85a92",
+        "cell_MC10117.v": "501d0c1979759d5c2854e858392be2abd363fe34991022091a4d5569ed2b6286",
+        "processor_capture_original_ff.sv": "1d1dc7999f11f750f3500c3adac6260749d2f3614e096a68c8f48935ea44fb46",
+        "cell_MC10104.v": "ab73991d22147d7c72749c184fda8337a6a7ac2e2069a93c5dc8a62f9bcca96e",
+        "cell_MC10121.v": "803272ae9c4136e1c72abdcbe8d1bfeb57e2e65a31ebd73b7aadfeb1cc328072",
+        "cell_SE10210.v": "1da7dcb47429d5ead7ffad26c67f23ac70b6f0707d720724c5e5ea969f3c37aa",
+        "cell_MC10100.v": "228e5cf46bd6f28161c8e8c7238e44581a42ee8770643256921276695c4aa12f",
+        "run_control_original_ff.sv": "d00e06cd4ac75ed03de2f9a7ff888a875ab0b9d87eac9634b2f32a3aecd09f2f",
+        "cell_MC10210.v": "519e870c73b8e8eac97dca182739769d3c4f535a6b47f21e96d189495e0bc4df"
+      }
+    },
+    {
+      "profile": "fast_gates",
+      "summary": "checks=1617 held=93 yield=3 coincident_next=4 address_changes=100",
+      "clock_counts": [
+        [
+          "0",
+          "769"
+        ],
+        [
+          "1",
+          "385"
+        ],
+        [
+          "2",
+          "385"
+        ],
+        [
+          "3",
+          "385"
+        ],
+        [
+          "4",
+          "762"
+        ],
+        [
+          "5",
+          "762"
+        ],
+        [
+          "6",
+          "762"
+        ],
+        [
+          "7",
+          "640"
+        ],
+        [
+          "8",
+          "762"
+        ],
+        [
+          "9",
+          "762"
+        ],
+        [
+          "10",
+          "769"
+        ],
+        [
+          "11",
+          "381"
+        ],
+        [
+          "12",
+          "381"
+        ],
+        [
+          "13",
+          "381"
+        ],
+        [
+          "14",
+          "762"
+        ],
+        [
+          "15",
+          "769"
+        ],
+        [
+          "16",
+          "381"
+        ],
+        [
+          "17",
+          "381"
+        ],
+        [
+          "18",
+          "381"
+        ],
+        [
+          "19",
+          "381"
+        ],
+        [
+          "20",
+          "259"
+        ],
+        [
+          "21",
+          "259"
+        ],
+        [
+          "22",
+          "349"
+        ],
+        [
+          "23",
+          "762"
+        ],
+        [
+          "24",
+          "762"
+        ]
+      ],
+      "timed_sources": {
+        "cell_SE10211.v": "3edd0bc505d377a744a6d0f60940f0653392b5f7bf201a1efd699829762e2b17",
+        "cell_MC10101.v": "aebdd6b71ba8ab327107000c1ff9ab01533b101314298ae9a19289f68a48728f",
+        "task_procl.sv": "993c4494aa0fec55dc20c8fd3e9ae64240029264814861e0c0761f2c399485fd",
+        "cell_MC1660.v": "c8078269bacdc0b91aa39db360ac276e8be2f2c284a0eb1f993339feab44ba67",
+        "task_proch.sv": "dd6f8acb1b91574e1348676a43ecc70846b268dff8452cf6b85dccc6e2ecf41b",
+        "cell_MC1664.v": "eca7253bf62bd2d6c6453f9df0ab778b705896eddd568b9d96e7798108acf326",
+        "cell_MC10211.v": "e018479a3c7175d69658823505f105ffbd80facf209e480686cf3c2f4e506607",
+        "task_conta.sv": "d56cfca4ac0782fc8984fd2cf8c4e4290542d87faf3bc85fcae1e0fb73614600",
+        "cell_MC10102.v": "fd94bbfae6164e0fc8b5fd1d67adc930f961c32840a2ff6742405fea32534bca",
+        "cell_SE10212.v": "b5914e5e3929ccb331e1f24744e87a657a88d663da422f9c8674e3975d6e8907",
+        "cell_MC10158.v": "938063a3193c15247732737bb213ed783d7af1a4fc5048338352c24ddee63ad4",
+        "cell_MC10166.v": "c33f39cbfccb4bd598b94394f67d41b17953576f711ecea1210219f0de5e8864",
+        "cell_MC10103.v": "a180a048b79b795d721007f4b05c2ee487edf7e959ab2dd72003ed78dec31784",
+        "cell_MC10109.v": "793ac7d3cd1bc474d58f7fe9cd15cf32e252cdc1798653a02f5027fcf1e11b31",
+        "cell_MC10113.v": "9b0c2b90204017272780daf1ca9788dc7eb517efbae523ec05fd685bf25d6760",
+        "cell_MC10195.v": "7b7ef598259617c270948d8b67e124c525a481daa20a9b0feddddf2d30e6a685",
+        "task_capture_reference.sv": "fcea081f3d857cbbfdefabf027643d9db6dba95980f4228c1aed8a69610e678e",
+        "cell_MC1662.v": "b911e1ab0d5c54930a00863513790351fc79df57b0273a95b45a2bc1606729dc",
+        "cell_MC10159.v": "34242e7e454fd6f7137f91055cc85c482425689117a81d0964db696faf5c79ad",
+        "cell_MC10117.v": "995080d04e74f0cb55f764cfe63abf079807193990ec55191cd6fa670ed8459e",
+        "processor_capture_original_ff.sv": "1d1dc7999f11f750f3500c3adac6260749d2f3614e096a68c8f48935ea44fb46",
+        "cell_MC10104.v": "fc4ffb7d266ec70d3f3cad23de3337352e83f8aac0da03b36707682ba2e9d1c0",
+        "cell_MC10121.v": "285b5b90cb21588f5c560933eca2d3b8ad871a91ca8d0d285442666178e91add",
+        "cell_SE10210.v": "f616715ecbadd4e0fd96580a451cfafddc73258e31d2dc2add63aa574a9e38e9",
+        "cell_MC10100.v": "c0648d7e72225754a2ea3ddaac122cb2111fa3d864d3e8b932325e0fe7e753d1",
+        "run_control_original_ff.sv": "e06890301250305e40471788a4dac84dd8052d273f01fea1a52b69d65517874c",
+        "cell_MC10210.v": "36c326d3c025e24e05cd183357bb598cf56eff7ca000cdd5cf29e8e0f2c3cb01"
+      }
+    },
+    {
+      "profile": "later_control",
+      "summary": "checks=1617 held=93 yield=3 coincident_next=4 address_changes=100",
+      "clock_counts": [
+        [
+          "0",
+          "769"
+        ],
+        [
+          "1",
+          "385"
+        ],
+        [
+          "2",
+          "385"
+        ],
+        [
+          "3",
+          "385"
+        ],
+        [
+          "4",
+          "762"
+        ],
+        [
+          "5",
+          "762"
+        ],
+        [
+          "6",
+          "762"
+        ],
+        [
+          "7",
+          "640"
+        ],
+        [
+          "8",
+          "762"
+        ],
+        [
+          "9",
+          "762"
+        ],
+        [
+          "10",
+          "769"
+        ],
+        [
+          "11",
+          "381"
+        ],
+        [
+          "12",
+          "381"
+        ],
+        [
+          "13",
+          "381"
+        ],
+        [
+          "14",
+          "762"
+        ],
+        [
+          "15",
+          "769"
+        ],
+        [
+          "16",
+          "381"
+        ],
+        [
+          "17",
+          "381"
+        ],
+        [
+          "18",
+          "381"
+        ],
+        [
+          "19",
+          "381"
+        ],
+        [
+          "20",
+          "259"
+        ],
+        [
+          "21",
+          "259"
+        ],
+        [
+          "22",
+          "349"
+        ],
+        [
+          "23",
+          "762"
+        ],
+        [
+          "24",
+          "762"
+        ]
+      ],
+      "timed_sources": {
+        "cell_SE10211.v": "656e81b3371c43497e17d6028855d85f88af4c00098c1b27154c20da88cc5975",
+        "cell_MC10101.v": "b8b5ffd8035ed90fc39c54ef4edc470661aa8af1372634aba2d27ea645d38939",
+        "task_procl.sv": "993c4494aa0fec55dc20c8fd3e9ae64240029264814861e0c0761f2c399485fd",
+        "cell_MC1660.v": "cfad0a3f729ee8d480f9d191bb95b61bed490c7bce4aa760ae92337376163b9f",
+        "task_proch.sv": "dd6f8acb1b91574e1348676a43ecc70846b268dff8452cf6b85dccc6e2ecf41b",
+        "cell_MC1664.v": "a817b79af7807b0f7e562616547e14c3ee89e5b408caf3b02fe1d6aa39eeaf24",
+        "cell_MC10211.v": "cffe7a32d6c6db6d37338c5f336f85e22b1fc9884e933f47a7227adb697f365f",
+        "task_conta.sv": "d56cfca4ac0782fc8984fd2cf8c4e4290542d87faf3bc85fcae1e0fb73614600",
+        "cell_MC10102.v": "09a1d7c7c3ea0f541e0cb19450454fadfe63646f7b86feeb439a2a2eed80bf6d",
+        "cell_SE10212.v": "7dd0f05dfde9ebca9c2dd36b49690b232a60b154617a6fe3ead49c6b710117cb",
+        "cell_MC10158.v": "8744511d20179d88467f3df643cf7ab4ec02badb3d30c7e7ced6f93d8e1503cd",
+        "cell_MC10166.v": "12334d7bbcf5642ee77b8200b30136a8712d4cd062699802010e7ab25c675d06",
+        "cell_MC10103.v": "66936bb672be9df6a2864ab36039c2be4dd57b25e0eb11313598b84621ff5fb4",
+        "cell_MC10109.v": "6e083dfd115816a8fe443811e841bebf3da7ee04119ba57ddbf51c7e7910ed1b",
+        "cell_MC10113.v": "8406772378c9457d0726bf61b62ed8e4a56e0b6fe6bbbe9e862be543e2302e3d",
+        "cell_MC10195.v": "13e14933c94e8da401d2ad2eeda8dc60720e7cc728f207104c6c71f994c0d067",
+        "task_capture_reference.sv": "fcea081f3d857cbbfdefabf027643d9db6dba95980f4228c1aed8a69610e678e",
+        "cell_MC1662.v": "deb6d5af10465593d023e01da9d63c1d1c95ff72ca9a20cbe59b4f218d2680d8",
+        "cell_MC10159.v": "481b6437e3970ec3001235bcbc2769bf591dbcac3e3b9112d783840f6bd85a92",
+        "cell_MC10117.v": "501d0c1979759d5c2854e858392be2abd363fe34991022091a4d5569ed2b6286",
+        "processor_capture_original_ff.sv": "33d6fba057fa95b49c75f2021b09bf4e593108638807e26387f255aca09a647b",
+        "cell_MC10104.v": "ab73991d22147d7c72749c184fda8337a6a7ac2e2069a93c5dc8a62f9bcca96e",
+        "cell_MC10121.v": "803272ae9c4136e1c72abdcbe8d1bfeb57e2e65a31ebd73b7aadfeb1cc328072",
+        "cell_SE10210.v": "1da7dcb47429d5ead7ffad26c67f23ac70b6f0707d720724c5e5ea969f3c37aa",
+        "cell_MC10100.v": "228e5cf46bd6f28161c8e8c7238e44581a42ee8770643256921276695c4aa12f",
+        "run_control_original_ff.sv": "5f16df72eb27e896f70fa6c9de3270b90bf23935a84e72a4e2c372d69478863b",
+        "cell_MC10210.v": "519e870c73b8e8eac97dca182739769d3c4f535a6b47f21e96d189495e0bc4df"
+      }
+    }
+  ],
+  "actions": [
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_task_capture_control",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/executed-inputs/verilog/rtl/dorado_task_capture_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/executed-inputs/verilog/verilator/tb_task_capture_control.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/processor_capture_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/task_capture_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/task_conta.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/task_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/task_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10100.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10101.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10102.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10103.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10109.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10113.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10117.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10121.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10158.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10159.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10166.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10195.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC1660.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC1662.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC1664.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_SE10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_SE10212.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_task_capture_control",
+        "-Wno-fatal",
+        "-Wno-PINMISSING",
+        "-Wno-TIMESCALEMOD",
+        "-Wno-MULTIDRIVEN",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/verilator/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/executed-inputs/verilog/rtl/dorado_task_capture_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/executed-inputs/verilog/verilator/tb_task_capture_control.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/processor_capture_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/task_capture_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/task_conta.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/task_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/task_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10100.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10101.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10102.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10103.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10109.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10113.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10117.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10121.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10158.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10159.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10166.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10195.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC1660.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC1662.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_MC1664.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_SE10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/timed-reference/cell_SE10212.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/verilator/compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/verilator/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/balanced/verilator/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_task_capture_control",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/executed-inputs/verilog/rtl/dorado_task_capture_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/executed-inputs/verilog/verilator/tb_task_capture_control.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/processor_capture_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/task_capture_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/task_conta.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/task_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/task_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10100.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10101.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10102.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10103.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10109.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10113.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10117.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10121.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10158.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10159.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10166.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10195.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC1660.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC1662.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC1664.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_SE10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_SE10212.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_task_capture_control",
+        "-Wno-fatal",
+        "-Wno-PINMISSING",
+        "-Wno-TIMESCALEMOD",
+        "-Wno-MULTIDRIVEN",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/verilator/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/executed-inputs/verilog/rtl/dorado_task_capture_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/executed-inputs/verilog/verilator/tb_task_capture_control.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/processor_capture_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/task_capture_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/task_conta.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/task_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/task_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10100.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10101.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10102.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10103.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10109.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10113.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10117.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10121.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10158.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10159.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10166.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10195.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC1660.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC1662.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_MC1664.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_SE10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/timed-reference/cell_SE10212.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/verilator/compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/verilator/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/fast_gates/verilator/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_task_capture_control",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/executed-inputs/verilog/rtl/dorado_task_capture_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/executed-inputs/verilog/verilator/tb_task_capture_control.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/processor_capture_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/task_capture_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/task_conta.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/task_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/task_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10100.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10101.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10102.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10103.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10109.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10113.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10117.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10121.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10158.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10159.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10166.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10195.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC1660.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC1662.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC1664.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_SE10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_SE10212.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_task_capture_control",
+        "-Wno-fatal",
+        "-Wno-PINMISSING",
+        "-Wno-TIMESCALEMOD",
+        "-Wno-MULTIDRIVEN",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/verilator/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/executed-inputs/verilog/rtl/dorado_task_capture_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/executed-inputs/verilog/verilator/tb_task_capture_control.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/processor_capture_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/task_capture_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/task_conta.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/task_proch.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/task_procl.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10100.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10101.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10102.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10103.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10109.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10113.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10117.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10121.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10158.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10159.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10166.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10195.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC1660.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC1662.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_MC1664.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_SE10211.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/timed-reference/cell_SE10212.v"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/verilator/compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/verilator/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-epoch-control-v1-20261020/later_control/verilator/test.log"
+    }
+  ],
+  "summary": "checks=1617 held=93 yield=3 coincident_next=4 address_changes=100",
+  "rounds": 8,
+  "root_high_producer_setup": true,
+  "all_processor_bits": 88,
+  "clock_channels": 25,
+  "native_qualified": false,
+  "independent_skew_qualified": false
+}

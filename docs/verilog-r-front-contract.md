@@ -49,7 +49,7 @@ The generator checks the actual package type and every driver pin. Likewise,
 the positive and negative delayed-MD boundary signals represent complementary
 outputs of one original pipeline flip-flop, rather than independent inputs.
 
-Capture data comes from the pre-event Q epoch. During LOW transparent windows,
+RBase/stack capture data comes from the pre-event Q epoch. During LOW transparent windows,
 g14 and the stack write-address latches resolve before the level-sensitive
 RBase write. The saved-pointer F10000s use their actual ORed clock inputs:
 Clock1'Db and StkPSaveEn'. The separate original storage model retains that
@@ -60,15 +60,42 @@ Remaining producer boundaries include MIR, IFU, ALU writeback, counters, I/O,
 Ready and Hold. Generous settled intervals and correlated timing profiles do
 not establish independent skew tolerance or a 60 ns cycle.
 
+## Task/address capture epoch and timing
+
+Trial v1 retained task data at its first task-clock capture. All functional
+gates pass, but it worsens the implementation budget: setup -3.645 ns, hold
++0.105 ns, pulse width +6.112 ns, 3,039 ALMs/2,772 registers/9,216 MLAB bits.
+The selection mux retains priority feedback into task-address/T-parity logic.
+Its terminal source/report receipt is kept as a rejected trial.
+
+The accepted v2 uses the pre-event task and task-address data, matching the existing
+processor-capture setup contract. The repeat flag, phase selection and Last/
+Next address sources are sampled from that epoch. Live Qs still resolve clocks
+and retain actual state. No extra architectural register, memory copy or pipeline
+cycle is added. The 16-wave solver, repeat/unsettled checks, full interface and
+15 ns clock constraint are unchanged.
+
+The v2 88-Q/25-clock gate passes 73,761 events/profile in both simulators across
+three arrival profiles, all 16 tasks and 15 rejected bad variants. Additional
+reset/Freeze, maintenance, StopTasks and separate Hold checks pass 1,617 events/
+profile in both simulators/three profiles. The v2 full R-front gate passes all six profiles in both simulators, with
+identical behavior/clock/arrival/RAM/write-window summaries. The passing fit has
+only task RTL and its qualification record changed from baseline;
+all other prepared sources, constraints, helpers and widths are identical.
+Its four-condition15ns fit now passes: setup +0.474 ns, hold +0.099 ns, minimum
+pulse width +6.112 ns. Resources: 2,845 ALMs, 2,784 registers, four256x9 MLAB
+banks (9,216 bits), no M10K/DSP/PLL. All 17 damaged reader controls reject.
+Native integration/speed remain open.
+
 ## Verification and next action
 
 The qualification command is:
 
 ```
-python3 tools/test_r_front.py --mutations --output build/rtl-executive/r-front-qualified-v3-20261020
+python3 tools/test_r_front.py --mutations --output build/rtl-executive/r-front-task-epoch-v2-20261020
 ```
 
-The run is TERMINAL and passes all six profiles in both Icarus and Verilator:
+The current v2 run is TERMINAL and passes all six profiles in both Icarus and Verilator:
 11,236 resolved events per profile, comparing all 736 processor and 9,216
 RM/STK bits after every event. All 57 clock channels are exercised; all 100
 added storage bits change. Directed tests fill every RBase slot with both
@@ -79,7 +106,7 @@ RBase write windows across all 16 addresses with zero address changes, plus
 
 The raw decoder/adapters pass 4,352 checks in both simulators, including all
 4,096 ASEL/FF/disable cases. Seven damaged variants reject. All 87 frozen
-executed inputs match current source. PARC correlated min/max profiles enforce
+executed primary inputs match current v2 source. PARC correlated min/max profiles enforce
 g16 setup/hold limits of 1.7/1.1 ns and observe 702/2 ns, respectively. These
 generous fixture intervals do not prove the complete 60 ns timing contract.
 The other illustrative profiles can observe 1 ns hold and are not vendor
@@ -113,7 +140,7 @@ representation comparison. `--capture-observers` reproduces the older 1,181-bit
 experiment. The reader keeps the two fixture profiles distinct and reproduces
 the rejected v5 review byte-identically.
 
-The functional-interface v6 job is TERMINAL and REJECTED for 15 ns: setup
+The baseline functional-interface v6 job is TERMINAL and REJECTED for 15 ns: setup
 -2.617 ns, hold +0.156 ns, minimum pulse width +6.117 ns. Four operating conditions,
 source/constraint coverage and all four uninitialized, unregistered-read 256 by 9
 MLAB banks pass review. Resources are 2,979 ALMs, 2,785 registers, 9,216 MLAB bits
@@ -121,10 +148,16 @@ and zero M10K/DSP/PLL. Its real critical path has 18 logic levels from task
 request/Ready through the priority/current-task feedback to `unsettled`
 (result120), with 17.003 ns data delay at the slow -40C condition.
 
-The next implementation step is to shorten that task-feedback calculation using
-original capture epochs, while retaining the check, full state and original
-clock constraint. Re-run circuit qualification and fit after changing it. The
-five recorded v6 processes (14971,14978,15519,18117,18383) are absent; every
-simulation/representation/fit job is terminal. No restart is pending. Remaining
-producer closure, native integration, Cedar speed, original rollback and the
-final hardware gates remain open.
+The first-epoch v1 implementation remains TERMINAL/REJECTED as described above.
+V2 is TERMINAL/PASS at `misterubuntu:/home/alans/mister/task-epoch-fit-v2-20261020`.
+The worst slow-40 path now has 13 logic levels/13.828 ns data delay, replacing
+the baseline 18-level task-feedback path. Its five processes
+(56691,56698,57170,59590,59879) are absent. All simulation, fit and reader work is
+terminal. The original 15 ns constraint, complete state/functional ports and
+convergence/repeat checks are retained. Remaining CP/MIR/Ready/IsNext/Hold/IFU
+producer closure, native integration, Cedar speed, original rollback and final
+hardware gates remain open.
+
+The accepted task/address data epoch and rejected first-capture trial are
+preserved in the [portable raw receipt](../fpga/mister/reports/2026-10-20-task-capture-epoch/README.md).
+Both timing reviews replay byte-identically from extracted sources/reports.
