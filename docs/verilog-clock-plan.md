@@ -185,6 +185,20 @@ match. All23 sampled writes are correct. V23 runs the
 same diagnostic through the full original-image gate. Predicted central R is
 still an internal duplicate, so neither is a reviewed production candidate.
 Their current handles and the archived producer extension are in the handoff.
+The correction now has a single-owner representation:736 evaluator Qs plus16
+original visible-R latch Qs, exported through explicit board ports. V26 passes
+original Initial and exact16K map/256 RM comparisons; V27 passes the full
+original3,600-IM/256-IFUM image handoff,640 matched CPU receive records and the
+native oracle's final RM/map dump. Actual native startup/pause and synthesis
+memory reviews pass. The direct-ROM fixture still ends at the oracle's task12
+wait, so it is not a Cedar desktop gate. A v2 synthesis attempt rejected
+hierarchical R references; its inputs/logs are preserved. Corrected v3 is
+fitting on misterubuntu (builder2573751/fitter2597431/serial observer2573781),
+with explicit native-R feedback/MapBuf reports. No hardware reload or speed gain.
+The [functional correction receipt](../fpga/mister/reports/2026-10-21-r-visible-native-correction/README.md)
+preserves exact tested/staged sources. Next finish the same build, require all
+device/memory/timing checks and14 damaged-evidence controls, assemble, and
+qualify original-firmware Cedar/input on14 before accelerating.
 Baseline's later09c
 wait is task12 starvation after2,153 emulator samples, not established IFU
 failure or a desktop boot. Current process handles/receipt paths are in the

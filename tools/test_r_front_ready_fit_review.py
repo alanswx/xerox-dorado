@@ -40,8 +40,9 @@ def row_change(text,title,needle,column,value):
     raise AssertionError('Missing damaged-evidence anchor '+needle)
 
 
-def run(source,out,candidate,baseline,initial,component):
-    positive=reader.review(source,candidate,baseline,initial,component)
+def run(source,out,candidate,baseline,initial,component,initial_map_control=None):
+    def check(root):return reader.review(root,candidate,baseline,initial,component,initial_map_control)
+    positive=check(source)
     assert positive['status']=='PASS_NATIVE_R_FRONT_READY_PREASSEMBLY_REVIEW'
     out.mkdir(exist_ok=False)
     modifications={}
@@ -61,19 +62,27 @@ def run(source,out,candidate,baseline,initial,component):
     modifications['disk_state_count']=('core/output_files/Dorado.map.rpt',row_change(mapping,'Analysis & Synthesis Resource Utilization by Entity','cell_F10000_snapshot:u_f09','Dedicated Logic Registers',lambda v:str(int(re.match(r'\d+',v)[0])+1)+' ('+str(int(re.match(r'\d+',v)[0])+1)+')'))
     central=reader.raw(source/'central-crossings.log').decode()
     modifications['central_coverage']=('central-crossings.log',re.sub(r'^R_FRONT_READY_BOUNDARY [^\n]+\n','',central,count=1,flags=re.M))
+    canonical=positive.get('native_visible_R_registers',0)==16
+    if canonical:
+        name='core/r-front-ready-native-r-mapbuf-hold-MIN_fast_1100mv_-40c.rpt'
+        text=reader.raw(source/name).decode()
+        modifications['native_R_mapbuf_hold']=(name,re.sub(r'Worst case slack is [-+\d.]+','Worst case slack is -0.100',text,count=1))
+        modifications['native_R_register_coverage']=('central-crossings.log',re.sub(r'^R_FRONT_READY_NATIVE_R [^\n]+\n','',central,count=1,flags=re.M))
     results=[]
     for name,(member,text)in modifications.items():
         assert text!=reader.raw(source/member).decode('latin-1'if member.endswith('fit.rpt')else'utf-8'),name
         target=out/name;overlay(source,target);replace(target,member,text)
-        try:reader.review(target,candidate,baseline,initial,component)
+        try:check(target)
         except (AssertionError,FileNotFoundError)as error:results.append(dict(case=name,rejected=True,diagnostic=str(error)))
         else:raise AssertionError('Corrupt native evidence accepted '+name)
-    for name,member in [('missing_existing_hold',hold),('missing_central_hold','core/r-front-ready-internal-hold-MIN_fast_1100mv_-40c.rpt')]:
+    missing=[('missing_existing_hold',hold),('missing_central_hold','core/r-front-ready-internal-hold-MIN_fast_1100mv_-40c.rpt')]
+    if canonical:missing.append(('missing_native_R_mapbuf_hold','core/r-front-ready-native-r-mapbuf-hold-MIN_fast_1100mv_-40c.rpt'))
+    for name,member in missing:
         target=out/name;overlay(source,target)
         p=target/member
         if not p.exists():p=Path(str(p)+'.gz')
         assert p.is_symlink();p.unlink()
-        try:reader.review(target,candidate,baseline,initial,component)
+        try:check(target)
         except (AssertionError,FileNotFoundError)as error:results.append(dict(case=name,rejected=True,diagnostic=str(error)))
         else:raise AssertionError('Missing native evidence accepted '+name)
     target=out/'rehashed_constraint';overlay(source,target)
@@ -81,7 +90,7 @@ def run(source,out,candidate,baseline,initial,component):
     replace(target,member,text)
     record=json.loads(reader.raw(source/'r-front-ready-native.json'));record['source_hashes'][member]=reader.sha(text.encode())
     replace(target,'r-front-ready-native.json',json.dumps(record,indent=2)+'\n')
-    try:reader.review(target,candidate,baseline,initial,component)
+    try:check(target)
     except AssertionError as error:results.append(dict(case='rehashed_constraint',rejected=True,diagnostic=str(error)))
     else:raise AssertionError('Rehashed timing exception accepted')
     (out/'results.json').write_text(json.dumps(dict(status='PASS_NATIVE_READY_FIT_READER_CONTROLS',positive_status=positive['status'],cases=results),indent=2)+'\n')
@@ -91,4 +100,5 @@ def run(source,out,candidate,baseline,initial,component):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for name in ['source','output','candidate','baseline','initial','component']:p.add_argument('--'+name,type=Path,required=True)
-    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.candidate.resolve(),a.baseline.resolve(),a.initial.resolve(),a.component.resolve())
+    p.add_argument('--initial-map-control',type=Path)
+    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.candidate.resolve(),a.baseline.resolve(),a.initial.resolve(),a.component.resolve(),a.initial_map_control)

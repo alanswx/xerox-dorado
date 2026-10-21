@@ -3,6 +3,10 @@
 # Explicitly cover central storage/new evaluator paths that the historical
 # per-board crossing reports cannot identify by their former package names.
 project_open Dorado
+set manifest_file [open ../r-front-ready-native.json r]
+set manifest_text [read $manifest_file]
+close $manifest_file
+set canonical_r [regexp {"native_visible_R_bits": 16} $manifest_text]
 create_timing_netlist -model slow
 set corners {}
 foreach_in_collection op [get_available_operating_conditions] {
@@ -15,12 +19,15 @@ foreach corner $corners {
  set_operating_conditions $corner
  read_sdc
  update_timing_netlist
- set central [get_registers {*|dorado_native_backplane:m|r_front_q*}]
+ set central [get_registers [list {*|dorado_native_backplane:m|r_front_q*} \
+   {*|dorado_native_backplane:m|r_front_lower_q*} \
+   {*|dorado_native_backplane:m|r_front_upper_q*}]]
  set rest [remove_from_collection [get_registers *] $central]
  set count [get_collection_size $central]
  # Live synthesis may remove physical outputs with no consumers. Record the
  # actual count; the source inventory's 752 bits is not a fitted area claim.
- if {$count==0 || $count>752} {error "Missing/invalid central Q register coverage: $count"}
+ set maximum_central [expr {$canonical_r ? 736 : 752}]
+ if {$count==0 || $count>$maximum_central} {error "Missing/invalid central Q register coverage: $count"}
  puts "R_FRONT_READY_CORNER $corner central_Q=$count rest=[get_collection_size $rest]"
  foreach mode {setup hold} {
   report_timing -$mode -from $central -to $central -npaths 20 -detail full_path -file r-front-ready-internal-$mode-$corner.rpt
@@ -43,6 +50,24 @@ foreach corner $corners {
   foreach mode {setup hold} {
    report_timing -$mode -from $board -to $central -npaths 12 -detail full_path -file r-front-ready-$label-in-$mode-$corner.rpt
    report_timing -$mode -from $central -to $board -npaths 12 -detail full_path -file r-front-ready-$label-out-$mode-$corner.rpt
+  }
+ }
+ if {$canonical_r} {
+  # These16 bits belong to the retained native latches, not central storage.
+  # Cover both their feedback and the MapBuf receiver that exposed the bug.
+  set visible_r [get_registers [list \
+    {*|ProcH_full_snapshot_experiment:b_ProcH|cell_MC10173_snapshot:u_g06|*} \
+    {*|ProcH_full_snapshot_experiment:b_ProcH|cell_MC10173_snapshot:u_g07|*} \
+    {*|ProcL_full_snapshot_experiment:b_ProcL|cell_MC10173_snapshot:u_g06|*} \
+    {*|ProcL_full_snapshot_experiment:b_ProcL|cell_MC10173_snapshot:u_g07|*}]]
+  set r_count [get_collection_size $visible_r]
+  if {$r_count!=16} {error "Missing native visible-R storage: $r_count, expected16"}
+  puts "R_FRONT_READY_NATIVE_R $corner registers=$r_count"
+  set memx [get_registers {*|MemX_full_snapshot_experiment:b_MemX|*}]
+  foreach mode {setup hold} {
+   report_timing -$mode -from $visible_r -to $central -npaths 16 -detail full_path -file r-front-ready-native-r-in-$mode-$corner.rpt
+   report_timing -$mode -from $central -to $visible_r -npaths 16 -detail full_path -file r-front-ready-native-r-out-$mode-$corner.rpt
+   report_timing -$mode -from $visible_r -to $memx -npaths 16 -detail full_path -file r-front-ready-native-r-mapbuf-$mode-$corner.rpt
   }
  }
  delete_timing_netlist

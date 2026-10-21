@@ -1,0 +1,156 @@
+{
+  "status": "PASS_NATIVE_SYNTHESIS_MEMORY_REVIEW",
+  "unchanged_RAM_rows": 158,
+  "unchanged_inferred_parameter_tables": 153,
+  "removed_physical_banks": 12,
+  "new_banks": [
+    "rm_h",
+    "rm_l",
+    "stk_h",
+    "stk_l"
+  ],
+  "new_bits": 9216,
+  "new_parameters": {
+    "WIDTH": "9",
+    "WIDTHAD": "8",
+    "NUMWORDS": "256",
+    "INDATA_REG": "INCLOCK",
+    "WRADDRESS_REG": "INCLOCK",
+    "WRCONTROL_REG": "INCLOCK",
+    "RDADDRESS_REG": "UNREGISTERED",
+    "RDCONTROL_REG": "UNREGISTERED",
+    "OUTDATA_REG": "UNREGISTERED",
+    "RAM_BLOCK_TYPE": "LUTRAM",
+    "READ_DURING_WRITE_MODE_MIXED_PORTS": "DONT_CARE",
+    "FILE": "UNUSED"
+  },
+  "memory_totals": {
+    "Total MLAB memory bits": 38912,
+    "Total block memory bits": 2506566
+  },
+  "new_rows": {
+    "rm_h": {
+      "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_ready_step:r_front_evaluator|dorado_r_front_step:child|dorado_r_memory_step:child|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_v8o1:auto_generated|ALTDPRAM_INSTANCE",
+      "Type": "MLAB",
+      "Mode": "Simple Dual Port",
+      "Port A Depth": "256",
+      "Port A Width": "9",
+      "Port B Depth": "256",
+      "Port B Width": "9",
+      "Size": "2304",
+      "MIF": "None"
+    },
+    "rm_l": {
+      "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_ready_step:r_front_evaluator|dorado_r_front_step:child|dorado_r_memory_step:child|dorado_r_file_ports:files|altdpram:rm_l_rtl_0|dpram_v8o1:auto_generated|ALTDPRAM_INSTANCE",
+      "Type": "MLAB",
+      "Mode": "Simple Dual Port",
+      "Port A Depth": "256",
+      "Port A Width": "9",
+      "Port B Depth": "256",
+      "Port B Width": "9",
+      "Size": "2304",
+      "MIF": "None"
+    },
+    "stk_h": {
+      "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_ready_step:r_front_evaluator|dorado_r_front_step:child|dorado_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_v8o1:auto_generated|ALTDPRAM_INSTANCE",
+      "Type": "MLAB",
+      "Mode": "Simple Dual Port",
+      "Port A Depth": "256",
+      "Port A Width": "9",
+      "Port B Depth": "256",
+      "Port B Width": "9",
+      "Size": "2304",
+      "MIF": "None"
+    },
+    "stk_l": {
+      "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_ready_step:r_front_evaluator|dorado_r_front_step:child|dorado_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_v8o1:auto_generated|ALTDPRAM_INSTANCE",
+      "Type": "MLAB",
+      "Mode": "Simple Dual Port",
+      "Port A Depth": "256",
+      "Port A Width": "9",
+      "Port B Depth": "256",
+      "Port B Width": "9",
+      "Size": "2304",
+      "MIF": "None"
+    }
+  },
+  "fitted_memory_qualified": false,
+  "timing_qualified": false,
+  "hardware_speedup_claimed": false,
+  "scope": "Review native Ready/front synthesis memory without inferring fitted timing.\n\nCompare every unchanged RAM row and inferred memory parameter table against\nthe qualified MC1668 native build. Require exactly the intended 12-to-4 bank\nreplacement and the qualified asynchronous 256x9 MLAB contract. Full timing,\nphysical placement, firmware and speed qualification remain separate gates.\n",
+  "mapping_sha256": "bbd3bfac21b8bbce83185cd658eb4a8535fce5fa942ea000358aa9311ad7c657",
+  "baseline_mapping_sha256": "bdf613e0450ed29315df013a89be5100dd8dbc73ac8897bc66cb667be2209c83",
+  "negative_controls": [
+    {
+      "case": "wrong_type",
+      "rejected": true,
+      "diagnostic": "('new RAM geometry', 'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_ready_step:r_front_evaluator|dorado_r_front_step:child|dorado_r_memory_step:child|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_v8o1:auto_generated|ALTDPRAM_INSTANCE', {'Name': 'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_ready_step:r_front_evaluator|dorado_r_front_step:child|dorado_r_memory_step:child|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_v8o1:auto_generated|ALTDPRAM_INSTANCE', 'Type': 'M10K', 'Mode': 'Simple Dual Port', 'Port A Depth': '256', 'Port A Width': '9', 'Port B Depth': '256', 'Port B Width': '9', 'Size': '2304', 'MIF': 'None'})"
+    },
+    {
+      "case": "wrong_depth",
+      "rejected": true,
+      "diagnostic": "('new RAM geometry', 'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_ready_step:r_front_evaluator|dorado_r_front_step:child|dorado_r_memory_step:child|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_v8o1:auto_generated|ALTDPRAM_INSTANCE', {'Name': 'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_ready_step:r_front_evaluator|dorado_r_front_step:child|dorado_r_memory_step:child|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_v8o1:auto_generated|ALTDPRAM_INSTANCE', 'Type': 'MLAB', 'Mode': 'Simple Dual Port', 'Port A Depth': '128', 'Port A Width': '9', 'Port B Depth': '256', 'Port B Width': '9', 'Size': '2304', 'MIF': 'None'})"
+    },
+    {
+      "case": "extra_memory",
+      "rejected": true,
+      "diagnostic": "('new RAM geometry', 'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_ready_step:r_front_evaluator|dorado_r_front_step:child|dorado_r_memory_step:child|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_v8o1:auto_generated|ALTDPRAM_INSTANCE', {'Name': 'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_ready_step:r_front_evaluator|dorado_r_front_step:child|dorado_r_memory_step:child|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_v8o1:auto_generated|ALTDPRAM_INSTANCE', 'Type': 'MLAB', 'Mode': 'Simple Dual Port', 'Port A Depth': '256', 'Port A Width': '9', 'Port B Depth': '256', 'Port B Width': '9', 'Size': '2304', 'MIF': 'injected.mif'})"
+    },
+    {
+      "case": "registered_read",
+      "rejected": true,
+      "diagnostic": "('new RAM parameter', 'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_ready_step:r_front_evaluator|dorado_r_front_step:child|dorado_r_memory_step:child|dorado_r_file_ports:files|altdpram:rm_h_rtl_0', 'RDADDRESS_REG', ['OUTCLOCK', 'Untyped'], 'UNREGISTERED')"
+    },
+    {
+      "case": "new_rdw",
+      "rejected": true,
+      "diagnostic": "('new RAM parameter', 'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_ready_step:r_front_evaluator|dorado_r_front_step:child|dorado_r_memory_step:child|dorado_r_file_ports:files|altdpram:rm_h_rtl_0', 'READ_DURING_WRITE_MODE_MIXED_PORTS', ['OLD_DATA', 'Untyped'], 'DONT_CARE')"
+    },
+    {
+      "case": "instruction_old_data",
+      "rejected": true,
+      "diagnostic": "('unchanged native memory parameters differ', 'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|dorado_snapshot_f10415_enable_bank:snapshot_bank_0|altsyncram:bits[0].mem[0]__10')"
+    }
+  ],
+  "warnings": {
+    "increases": {
+      "10275": 1,
+      "10036": 314,
+      "10027": 1
+    },
+    "reviewed": {
+      "10275": {
+        "diagnostic": "Warning (10275): Verilog HDL Module Instantiation warning at dorado_r_front_ready_step.sv(54): ignored dangling comma in List of Port Connections File: /home/alans/mister/Dorado_RFrontRNative_v3_20261021/src/verilog/rtl/dorado_r_front_ready_step.sv Line: 54",
+        "source_sha256": "03ab66f1e7d0982eeb4a7c04a86196effaa196018a4edf955a3a4564a976edb9",
+        "reason": "Eight-port helper: first five ports connect state/data/event, final three observational outputs are unused. Dangling comma cannot drive capture data; exact source passed both simulators/six profiles and actual native Initial."
+      },
+      "10027": {
+        "diagnostic": "Warning (10027): Verilog HDL or VHDL warning at the dorado_t_parity_step.sv(46): index expression is not wide enough to address all of the elements in the array File: /home/alans/mister/Dorado_RFrontRNative_v3_20261021/src/verilog/rtl/dorado_t_parity_step.sv Line: 46",
+        "source_sha256": "1f29c255ec4bcc6e838ba8a8b3110c3e97c2e7c6d7a5940f4ee6933c40281ca8",
+        "selected_indices": [
+          404,
+          408,
+          412,
+          416,
+          420,
+          424,
+          428,
+          432,
+          436,
+          440,
+          444,
+          448,
+          452,
+          456,
+          460,
+          464
+        ],
+        "minimum_index_bits": 9,
+        "array_index_bits_for_all_elements": 10,
+        "reason": "Four-bit address selects only404..464 of540 bits. Nine bits cover every reachable index; bit512..539 cannot be selected by this expression. No truncation/out-of-bounds access."
+      }
+    },
+    "comparison_scope": "Existing categories cannot increase except unused-object10036; both new categories pin exact diagnostics/qualified sources. Existing per-message text changes with board line numbers/project paths."
+  },
+  "map_log_sha256": "50358ca2d8de9ba6e8a02c087e4ce38b2957d89aeb23fa94dfe69f985adf44f0"
+}

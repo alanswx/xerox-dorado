@@ -79,7 +79,55 @@ def physical_instruction(text):
     return result
 
 
-def review(root,candidate,baseline,initial,component):
+def initial_evidence(root,initial,record,additions,map_control=None):
+    """Require original Initial checks on the exact compiled CPU and wiring."""
+    assert record['physical_bits']==752 and record['ram_bits']==9216
+    for n,h in record['source_hashes'].items():assert sha(raw(root/n))==h,('Initial staged source changed',n)
+    ip=json.loads(raw(initial/'provenance.json'))
+    state=json.loads(raw(initial/'run-state.json'))
+    assert all(a['returncode']==0 for a in state['actions'])
+    for n,h in ip['inputs'].items():assert sha(raw(initial/'executed-inputs'/n))==h,('Initial input differs',n)
+    if state['status']=='PASS_ACTUAL_NATIVE_BOARDS_INITIAL_COMPONENT':
+        assert ip['candidate_sha256']==sha(raw(root/'r-front-ready-native.json'))
+        for n,h in ip['native_board_hashes'].items():assert record['source_hashes']['src/'+n]==h
+        data_proof=None
+    else:
+        # The extended original-ROM fixture additionally binds deployed memory
+        # and IFU boards, and reads the complete initialized map back. This is
+        # still component evidence, never native BaseBoard/Cedar qualification.
+        assert state['status']=='TERMINAL_RECEIVE_FILTER_PROBE'and ip['probe_only']
+        assert ip['canonical_native_r']and map_control is not None
+        assert record['native_visible_R_bits']==16 and record['evaluator_owned_Q_bits']==736
+        assert record['preserved_visible_R_packages']==4 and record['replaced_storage_packages']==87
+        assert record['internal_predicted_R_duplicate']is False
+        for board in ['ContA','ProcH','ProcL']:
+            n='fpga/mister/'+('snapshot_native_conta'if board=='ContA'else'snapshot_native_processor')+'/'+board+'_full_snapshot.sv'
+            assert record['source_hashes']['src/'+n]==ip['inputs'][n],('Original Initial CPU source differs',board)
+        for group in ['native_io_inputs','native_memory_inputs','native_ifu_inputs']:
+            assert ip[group],group
+            for n,h in ip[group].items():assert record['source_hashes']['src/'+n]==h,('Original Initial peripheral source differs',n)
+        bp=raw(root/'src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v').decode()
+        logic=bp.split('  // Physical state only;',1)[1].split('endmodule',1)[0]
+        fixture=raw(initial/'executed-inputs/verilog/generated/dorado_full.v').decode()
+        assert logic in fixture,'Original Initial evaluator/owner wiring differs'
+        from inspect_r_front_map_capture import inspect
+        data_proof=inspect(map_control,initial)
+        assert data_proof['RM_mismatches']==data_proof['map_row_mismatches']==0
+        assert data_proof['map_rows_compared']==16384 and data_proof['RM_words_compared']==256
+        for key in ['R','B','BMux','Mapbuf','written']:
+            assert data_proof['phase_trace']['differences'][key]==0,('Original Initial data epoch differs',key)
+    for n in additions:assert record['source_hashes'][n]==ip['inputs'][n[4:]]
+    bench=raw(initial/'executed-inputs/verilog/verilator/tb_exec.sv').decode()
+    assert 'Actual native Initial live producer aliases disagree'in bench
+    assert 'Actual native Initial slice has unsettled/repeated event'in bench
+    text=raw(initial/'test.log').decode()
+    match=re.search(r'INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for (\d+) samples without error',text)
+    assert match and int(match[1])>=100000
+    assert '960 microinstructions written, 960 read back, 0 wrong'in text
+    return dict(enabled_samples=int(match[1]),complete_map_comparison=data_proof)
+
+
+def review(root,candidate,baseline,initial,component,initial_map_control=None):
     record=json.loads(raw(root/'r-front-ready-native.json'))
     expected=json.loads(raw(candidate/'r-front-ready-native.json'))
     assert record==expected,'Fitted candidate identity differs from tested candidate'
@@ -106,19 +154,7 @@ def review(root,candidate,baseline,initial,component):
     assert staged_qsf.startswith(old_qsf)
     assignments=[l for l in tail.decode().splitlines()if l and not l.startswith('#')]
     assert assignments==['set_global_assignment -name SYSTEMVERILOG_FILE '+record['project']+'/src/verilog/rtl/'+n for n in [*RTL,'dorado_r_front_cone.sv']]
-    ip=json.loads(raw(initial/'provenance.json'));ist=json.loads(raw(initial/'run-state.json'))
-    assert ist['status']=='PASS_ACTUAL_NATIVE_BOARDS_INITIAL_COMPONENT'and all(a['returncode']==0 for a in ist['actions'])
-    assert ip['candidate_sha256']==sha(raw(root/'r-front-ready-native.json'))
-    for n,h in ip['inputs'].items():assert sha(raw(initial/'executed-inputs'/n))==h,('Initial input differs',n)
-    for n,h in ip['native_board_hashes'].items():assert record['source_hashes']['src/'+n]==h
-    for n in additions:assert record['source_hashes'][n]==ip['inputs'][n[4:]]
-    ib=raw(initial/'executed-inputs/verilog/verilator/tb_exec.sv').decode()
-    assert 'Actual native Initial live producer aliases disagree'in ib
-    assert 'Actual native Initial slice has unsettled/repeated event'in ib
-    itext=raw(initial/'test.log').decode()
-    m=re.search(r'INITIAL ROM PASS: original payload, CPU manifold ownership, 15 task initializations, all six error sources enabled for (\d+) samples without error',itext)
-    assert m and int(m[1])>=100000
-    assert '960 microinstructions written, 960 read back, 0 wrong'in itext
+    initial_proof=initial_evidence(root,initial,record,additions,initial_map_control)
     state=json.loads(raw(root/'run-state.json'));central=json.loads(raw(root/'central-review-state.json'))
     assert state['status']=='TERMINAL_TIMING_OBSERVED_REVIEW_REQUIRED'
     assert [s['stage']for s in state['stages']]==['map','fit','sta','clocks','corners','control-crossings','contb-crossings','adapter-crossings']
@@ -158,19 +194,26 @@ def review(root,candidate,baseline,initial,component):
     assert len(paths)==196
     modes=['internal-setup','internal-hold','in-setup','in-hold','out-setup','out-hold']
     modes += [b+'-'+d+'-'+m for b in ['conta','contb','proch','procl','ifu','memc','memx']for d in ['in','out']for m in ['setup','hold']]
+    canonical=record.get('native_visible_R_bits',0)==16
+    if canonical:
+        modes += ['native-r-'+direction+'-'+mode for direction in ['in','out','mapbuf']for mode in ['setup','hold']]
     extra=[]
     for c in sorted(readers.CORNERS):
         for mode in modes:
             n=f'r-front-ready-{mode}-{c}.rpt';extra.append(readers.timed(raw(core/n).decode(),n))
-    assert len(extra)==136
+    assert len(extra)==(160 if canonical else 136)
     log=raw(root/'central-crossings.log').decode()
     qrows=re.findall(r'R_FRONT_READY_CORNER (\S+) central_Q=(\d+) rest=(\d+)',log)
     assert len(qrows)==4 and {c for c,_,_ in qrows}==readers.CORNERS
-    assert all(0<int(q)<=752 and int(rest)>0 for _,q,rest in qrows)
+    assert all(0<int(q)<=(736 if canonical else 752)and int(rest)>0 for _,q,rest in qrows)
     assert len({int(q)for _,q,_ in qrows})==1
     b=re.findall(r'R_FRONT_READY_BOUNDARY (\S+) (\w+) registers=(\d+)',log)
     assert len(b)==28 and all(int(n)>0 for _,_,n in b)
     assert {(c,n)for c,n,_ in b}=={(c,n)for c in readers.CORNERS for n in ['conta','contb','proch','procl','ifu','memc','memx']}
+    if canonical:
+        rrows=re.findall(r'R_FRONT_READY_NATIVE_R (\S+) registers=(\d+)',log)
+        assert len(rrows)==4 and {c for c,_ in rrows}==readers.CORNERS
+        assert all(int(count)==16 for _,count in rrows),'Missing canonical native R latches'
     checks=re.findall(r'Type\s*:\s*([^\n]+)\nSlack\s*:\s*([-+\d.]+)',raw(core/'output_files/Dorado.sta.summary').decode())
     assert len(checks)==31 and all(float(v)>=0 for _,v in checks),('Negative/missing all-device timing',checks)
     warnings={'map':synthesis_warnings(raw(root/'map.log').decode(),raw(BASELINE/'map.log').decode(),candidate,component)}
@@ -189,7 +232,8 @@ def review(root,candidate,baseline,initial,component):
     return dict(status='PASS_NATIVE_R_FRONT_READY_PREASSEMBLY_REVIEW',scope=__doc__,
         source_hashes=record['source_hashes'],memory_evidence=memories,timing_checks=checks,
         detailed_paths=paths,central_paths=extra,unconstrained_coverage=coverage,warnings=warnings,
-        central_Q_registers=int(qrows[0][1]),resources=resources,initial_component_enabled_samples=int(m[1]),
+        central_Q_registers=int(qrows[0][1]),native_visible_R_registers=16 if canonical else 0,
+        resources=resources,initial_component_enabled_samples=initial_proof['enabled_samples'],initial_component_evidence=initial_proof,
         minimum_slack_ns=min(p['slack_ns']for p in paths+extra),frequency_mhz=50,sysper=4,
         state_admin='INACTIVE',assembly_review_only=True,firmware_qualified=False,hardware_speedup_claimed=False)
 
@@ -197,5 +241,6 @@ def review(root,candidate,baseline,initial,component):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('root',type=Path)
     for n in ['candidate','baseline','initial','component','output']:p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();r=review(a.root,a.candidate,a.baseline,a.initial,a.component)
+    p.add_argument('--initial-map-control',type=Path)
+    a=p.parse_args();r=review(a.root,a.candidate,a.baseline,a.initial,a.component,a.initial_map_control)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(r['status'],r['minimum_slack_ns'],r['resources'])

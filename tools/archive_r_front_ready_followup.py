@@ -46,7 +46,7 @@ def verify(out):
                           stored_bytes=sum(e['stored_bytes']for e in record['blobs'].values()))))
 
 
-def archive(out,running_prefixes=(),run_names=None):
+def archive(out,running_prefixes=(),run_names=None,native_stages=()):
     paths={};runs={};observations=[]
     selected=(RUNS if run_names is None else run_names)+list(running_prefixes)
     assert len(selected)==len(set(selected))
@@ -65,7 +65,9 @@ def archive(out,running_prefixes=(),run_names=None):
         else:
             assert all('returncode' in a for a in state['actions']),name
         runs[name]=state['status']
-        provenance=json.loads(gzip.decompress((directory/'provenance.json.gz').read_bytes()))
+        provenance_path=directory/'provenance.json'
+        provenance=json.loads(provenance_path.read_bytes()if provenance_path.exists()else
+                              gzip.decompress((directory/'provenance.json.gz').read_bytes()))
         for relative,digest in provenance['inputs'].items():
             assert sha((directory/'executed-inputs'/relative).read_bytes())==digest,(name,relative)
         for path in directory.iterdir():
@@ -80,15 +82,28 @@ def archive(out,running_prefixes=(),run_names=None):
                  'test_r_front_native_q.py','stage_r_front_ready_native.py',
                  'inspect_r_front_native_handoff.py',
                  'inspect_r_front_map_capture.py',
+                 'review_r_front_ready_fit.py','audit_r_front_ready_native.py',
+                 'audit_r_front_ready_native.tcl',
                  'check_microcode_reply_stream.py','inspect_r_front_checksum.py',
                  'decode_xmt.py','eb_replies.py',Path(__file__).name]:
         paths['tools/'+name]=ROOT/'tools'/name
+    stages={}
+    for stage in native_stages:
+        record=json.loads((stage/'r-front-ready-native.json').read_text())
+        assert stage.name not in stages,stage
+        stages[stage.name]=dict(manifest_sha256=sha((stage/'r-front-ready-native.json').read_bytes()),
+            scope='Immutable staged sources only; no live database, timing or FPGA qualification')
+        for name,digest in record['source_hashes'].items():
+            assert sha((stage/name).read_bytes())==digest,(stage,name)
+            paths['native-stages/'+stage.name+'/'+name]=stage/name
+        for name in ['r-front-ready-native.json','stage_r_front_ready_native.py','initial-component-source-review.json']:
+            if(stage/name).exists():paths['native-stages/'+stage.name+'/'+name]=stage/name
     for name in ['build/rtl-executive/cedar113-bol-replies.txt','chm/dorado/CedarDorado.eb!6',
                  'build/rtl-executive/r-front-ready-native-inventory-v2-20261020/results.json',
                  'build/rtl-executive/r-front-ready-native-v1-20261021/r-front-ready-native.json']:
         paths['external/'+name]=ROOT/name
     out.mkdir(parents=True,exist_ok=False)
-    record=dict(scope=__doc__,runs=runs,running_prefix_observations=observations,
+    record=dict(scope=__doc__,runs=runs,running_prefix_observations=observations,native_stages=stages,
                 members=[],blobs={},desktop_qualified=False,speedup_qualified=False)
     for name,path in sorted(paths.items()):
         with path.open('rb')as stream:raw=stream.read(path.stat().st_size)
@@ -114,6 +129,7 @@ if __name__=='__main__':
     mode.add_argument('--archive',type=Path);mode.add_argument('--verify',type=Path)
     parser.add_argument('--running-prefix',action='append',default=[])
     parser.add_argument('--run-name',action='append',help='Override the historical default terminal run list')
+    parser.add_argument('--native-stage',action='append',type=Path,default=[],help='Include hash-verified staged sources, excluding build databases and images')
     args=parser.parse_args()
-    if args.archive:archive(args.archive.resolve(),args.running_prefix,args.run_name)
+    if args.archive:archive(args.archive.resolve(),args.running_prefix,args.run_name,args.native_stage)
     else:verify(args.verify.resolve())

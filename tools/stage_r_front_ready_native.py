@@ -92,7 +92,46 @@ def native_net(text, net):
     return name if name in declarations else name + '__drv'
 
 
-def prepare(native, qualified, inventory, out, project):
+def expose_native_visible_r(text,board):
+    """Export original latch Qs through synthesizable board ports."""
+    assert board in('ProcH','ProcL')
+    needle='    input wire [751:0] r_front_q,'
+    assert text.count(needle)==1 and text.count('endmodule')==1
+    text=text.replace(needle,'    output wire [7:0] r_front_visible_r,\n'+needle)
+    first=0 if board=='ProcH'else 8
+    assignments='\n'.join(f'  assign r_front_visible_r[{i}]=R_{first+i:02d};'for i in range(8))
+    return text.replace('endmodule',assignments+'\nendmodule')
+
+
+def canonical_visible_r_state(body):
+    """Keep the original R-output latches as the sole owner of bits572..587.
+
+    Their LOW-transparent clock is sampled by the retained native cell model,
+    like the B-selector and MapBuf receivers. Exposing the evaluator's resolved
+    R output early mixes those epochs. The evaluator reads the physical Qs;
+    its predicted R result is combinational and is not stored a second time.
+    """
+    declaration='  reg [751:0] r_front_q;'
+    update='    r_front_q<=r_front_next;'
+    assert body.count(declaration)==body.count(update)==1
+    # The physical inventory's raw order is R00 at572 through R15 at587.
+    for board in ['ProcH','ProcL']:
+        needle=f'{board}_full_snapshot_experiment b_{board} ('
+        assert body.count(needle)==1
+        body=body.replace(needle,needle+f'\n    .r_front_visible_r(r_front_visible_r_{board}),')
+    body=body.replace(declaration,'''  wire [751:0] r_front_q;
+  reg [571:0] r_front_lower_q;
+  reg [163:0] r_front_upper_q;
+  // 736 evaluator-owned bits plus16 ORIGINAL visible-R latch bits.
+  // No duplicate architectural R storage or additional pipeline stage.
+  wire [7:0] r_front_visible_r_ProcH,r_front_visible_r_ProcL;
+  wire [15:0] r_front_physical_r={r_front_visible_r_ProcL,r_front_visible_r_ProcH};
+  assign r_front_q={r_front_upper_q,r_front_physical_r,r_front_lower_q};''')
+    return body.replace(update,'''    r_front_lower_q<=r_front_next[571:0];
+    r_front_upper_q<=r_front_next[751:588];''')
+
+
+def prepare(native, qualified, inventory, out, project, preserve_native_r=False):
     record = json.loads((native / 'mc1668-candidate.json').read_text())
     assert record['state_admin'] == 'INACTIVE' and record['frequency_mhz'] == 50 and record['sysper'] == 4
     for n, h in record['source_hashes'].items():
@@ -105,6 +144,13 @@ def prepare(native, qualified, inventory, out, project):
     assert inv['status'] == 'PASS_R_FRONT_READY_NATIVE_INVENTORY' and inv['physical_Q_bits'] == 752 and inv['RAM_bits'] == 9216
     for n, h in inv['inputs'].items():
         assert sha((inventory / 'executed-inputs' / n).read_bytes()) == h, n
+    retained_r=[row for row in inv['packages']if row['board']in('ProcH','ProcL')
+                and row['package']in('g06','g07')]
+    assert len(retained_r)==4 and all(row['kind']=='MC10173'for row in retained_r)
+    assert sorted(bit for row in retained_r for bit in row['global_Q_bits_lsb_first'])==list(range(572,588))
+    for row in retained_r:
+        for pin,bit in zip([1,2,15,14],row['global_Q_bits_lsb_first']):
+            assert row['physical_pin_connections'][str(pin)]==f'R_{bit-572:02d}'
     manifest = json.loads((qualified / 'reference/manifest.json').read_text())
     paths = {row['board']: row['native_source'] for row in inv['packages']}
     boards = {name: (native / path).read_text() for name, path in paths.items()}
@@ -130,6 +176,8 @@ def prepare(native, qualified, inventory, out, project):
 ''' + needle)
         for row in inv['packages'] + inv['RAM_packages']:
             if row['board'] == board:
+                if preserve_native_r and row in retained_r:
+                    continue
                 text = replace_package(text, row)
         extra = []
         aliases = []
@@ -141,6 +189,8 @@ def prepare(native, qualified, inventory, out, project):
         extra.append('  assign r_front_alias_ok=' + (' & '.join(aliases) if aliases else "1'b1") + ';')
         assert text.count('endmodule') == 1
         boards[board] = text.replace('endmodule', '\n'.join(extra) + '\nendmodule')
+        if preserve_native_r and board in('ProcH','ProcL'):
+            boards[board]=expose_native_visible_r(boards[board],board)
     bp = (native / BACKPLANE).read_text()
     # All three ordinary root clocks are supplied by the BaseBoard. Equality
     # is checked in the live harness, rather than inferred from signal names.
@@ -186,6 +236,8 @@ def prepare(native, qualified, inventory, out, project):
     .unsettled(r_front_unsettled),.file_read_data(r_front_data),.file_read_parity(r_front_parity));
 '''
     bp = bp.replace('endmodule', logic + '\nendmodule', 1)
+    if preserve_native_r:
+        bp=canonical_visible_r_state(bp)
     assert not out.exists()
     outputs = {}
     for n in record['source_hashes']:
@@ -210,20 +262,26 @@ def prepare(native, qualified, inventory, out, project):
         project=str(project), source_hashes={n: sha(raw) for n, raw in outputs.items()},
         baseline_source_hashes=record['source_hashes'], state_admin='INACTIVE',
         frequency_mhz=50, sysper=4, physical_bits=752, ram_bits=9216,
-        replaced_storage_packages=91, replaced_RAM_packages=12,
+        replaced_storage_packages=87 if preserve_native_r else 91, replaced_RAM_packages=12,
+        preserved_visible_R_packages=4 if preserve_native_r else 0,
+        evaluator_owned_Q_bits=736 if preserve_native_r else 752,
+        native_visible_R_bits=16 if preserve_native_r else 0,
+        internal_predicted_R_duplicate=False,
         live_producers=producers, unused_input_positions=[i for i in range(246) if i not in producers],
         qualification_input_hashes=gate['inputs'], native_inventory_sha256=sha((inventory/'results.json').read_bytes()),
         firmware_qualified=False, full_timing_qualified=False, hardware_changed=False,
         architectural_pipeline_stages_added=0, snapshot_abi_supported=False)
     (out / 'r-front-ready-native.json').write_text(json.dumps(result, indent=2) + '\n')
     (out / Path(__file__).name).write_bytes(Path(__file__).read_bytes())
-    print(result['status'], '91 Q/storage +12 RAM packages replaced; unchanged50MHz/SYSPER4')
+    print(result['status'],result['replaced_storage_packages'],
+          'Q/storage +12 RAM packages replaced; unchanged50MHz/SYSPER4')
 
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     for name in ['native', 'qualified', 'inventory', 'output', 'project']:
         p.add_argument('--' + name, type=Path, required=True)
+    p.add_argument('--preserve-native-r',action='store_true',help='Retain the four original visible-R latches as canonical state')
     a = p.parse_args()
     assert a.project.is_absolute()
-    prepare(a.native.resolve(), a.qualified.resolve(), a.inventory.resolve(), a.output.resolve(), a.project)
+    prepare(a.native.resolve(), a.qualified.resolve(), a.inventory.resolve(), a.output.resolve(), a.project,a.preserve_native_r)

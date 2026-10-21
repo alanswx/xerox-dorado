@@ -17,6 +17,8 @@ import shutil
 import subprocess
 import time
 
+from stage_r_front_ready_native import canonical_visible_r_state, expose_native_visible_r
+
 ROOT = Path(__file__).resolve().parents[1]
 SEED = 'f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51'
 OBSERVER = r'''
@@ -168,8 +170,9 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_from=None, trace_cycles=20000, settled_from=None, native_memory=False, handoff_only=False, native_ifu=False, handoff_trace=False, native_cpu_baseline=False, memory_line_trace=False, storage_from=None, storage_samples=4000, native_r_visible_from=None):
+def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_from=None, trace_cycles=20000, settled_from=None, native_memory=False, handoff_only=False, native_ifu=False, handoff_trace=False, native_cpu_baseline=False, memory_line_trace=False, storage_from=None, storage_samples=4000, native_r_visible_from=None, canonical_native_r=False):
     assert not(probe_only and handoff_only),'Choose probe or original-image handoff gate'
+    assert not canonical_native_r or native_r_visible_from is not None
     provenance = json.loads((parent/'provenance.json').read_text())
     state = json.loads((parent/'run-state.json').read_text())
     assert state['status'] in ('PASS_ACTUAL_NATIVE_BOARDS_INITIAL_COMPONENT',
@@ -358,15 +361,22 @@ def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_
                 assert len(re.findall(replacement,changed,re.M))==1,(board,package)
                 changed=re.sub(replacement,lambda _:matches[0][0],changed,flags=re.M)
                 packages.append(package)
+            if canonical_native_r:
+                changed=expose_native_visible_r(changed,board)
             target.write_text(changed)
             visible_r_sources[name]=dict(original_sha256=sha(original_path),packages=packages,
                                          resulting_sha256=sha(target))
         (out/'native-visible-r-diagnostic.json').write_text(json.dumps(dict(
             scope='Four original native R-output latch packages; hypothesis test only',
             reference=str(native_r_visible_from),sources=visible_r_sources,
-            internal_predicted_R_duplicate=True,production_qualified=False),indent=2)+'\n')
+            internal_predicted_R_duplicate=not canonical_native_r,
+            evaluator_owned_Q_bits=736 if canonical_native_r else 752,
+            production_qualified=False),indent=2)+'\n')
+    if canonical_native_r:
+        body=canonical_visible_r_state(body)
     top.write_text(body)
     (inputs/Path(__file__).name).write_bytes(Path(__file__).read_bytes())
+    (inputs/'stage_r_front_ready_native.py').write_bytes((ROOT/'tools/stage_r_front_ready_native.py').read_bytes())
     pack = ROOT/'build/rtl-executive/cedar-work-native-hints.pack'
     assert sha(pack) == SEED
     eb = ROOT/'chm/dorado/CedarDorado.eb!6'
@@ -427,6 +437,7 @@ def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_
                   native_ifu_inputs=ifu_sources,handoff_trace=handoff_trace,
                   native_cpu_baseline_inputs=baseline_cpu_sources,
                   native_visible_r_sources=visible_r_sources,
+                  canonical_native_r=canonical_native_r,
                   memory_line_trace=memory_line_trace,
                   storage_window_from=storage_from,storage_window_samples=storage_samples,
                   native_io_manifest_sha256=sha(native_io/'r-front-ready-native.json'),
@@ -509,11 +520,12 @@ if __name__=='__main__':
     parser.add_argument('--storage-from',type=int)
     parser.add_argument('--storage-samples',type=int,default=4000)
     parser.add_argument('--native-r-visible-from',type=Path,help='Diagnostic: preserve original visible-R latches from a qualified native parent')
+    parser.add_argument('--canonical-native-r',action='store_true',help='Use original visible-R latches as sole state owner, without a predicted duplicate')
     args=parser.parse_args()
     if args.prepare:
         assert args.parent and args.native_io
         prepare(args.parent.resolve(),args.native_io.resolve(),args.prepare.resolve(),args.cycles,args.inspect_at,
                 args.probe_only,args.trace_from,args.trace_cycles,args.settled_from,args.native_memory,args.handoff_only,args.native_ifu,args.handoff_trace,args.native_cpu_baseline,args.memory_line_trace,args.storage_from,args.storage_samples,
-                args.native_r_visible_from.resolve() if args.native_r_visible_from else None)
+                args.native_r_visible_from.resolve() if args.native_r_visible_from else None,args.canonical_native_r)
     else:
         run(args.run.resolve())

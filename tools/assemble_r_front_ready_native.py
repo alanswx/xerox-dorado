@@ -23,11 +23,22 @@ def run(project,quartus):
     assert q['status']=='PASS_NATIVE_R_FRONT_READY_PREASSEMBLY_REVIEW'
     assert q['minimum_slack_ns']>0 and q['state_admin']=='INACTIVE'
     assert q['frequency_mhz']==50 and q['sysper']==4
-    assert len(q['timing_checks'])==31 and len(q['detailed_paths'])==196 and len(q['central_paths'])==136
+    canonical=q.get('native_visible_R_registers',0)==16
+    assert len(q['timing_checks'])==31 and len(q['detailed_paths'])==196 and len(q['central_paths'])==(160 if canonical else 136)
     assert q['initial_component_enabled_samples']>=100000 and not q['firmware_qualified']
-    assert controls['status']=='PASS_NATIVE_READY_FIT_READER_CONTROLS' and len(controls['cases'])==11
+    assert controls['status']=='PASS_NATIVE_READY_FIT_READER_CONTROLS' and len(controls['cases'])==(14 if canonical else 11)
     assert all(r['rejected']for r in controls['cases'])
     record=json.loads((project/'r-front-ready-native.json').read_text())
+    if canonical:
+        assert record['native_visible_R_bits']==16 and record['evaluator_owned_Q_bits']==736
+        assert record['internal_predicted_R_duplicate']is False
+        proof=json.loads((project/'component-image-handoff.json').read_text())
+        assert proof['status']=='PASS_REPAIRED_NATIVE_COMPONENT_IMAGE_HANDOFF'
+        assert proof['exact_staged_native_sources_verified']and proof['canonical_native_R']
+        assert proof['original_IM_words_verified']==3600 and proof['original_IFUM_entries_verified']==256
+        assert proof['Cedar_entry_executed']and proof['final_RM_map_dump_identical']
+        identities={h for n,h in proof['inputs'].items()if Path(n).name=='r-front-ready-native.json'}
+        assert identities=={sha(project/'r-front-ready-native.json')},'Full-image test used different staged sources'
     assert q['source_hashes']==record['source_hashes']
     for n,h in q['source_hashes'].items():assert sha(project/n)==h,('Source changed after review',n)
     for name,pid_key,stages in [('run-state.json','builder_pid','stages'),('central-review-state.json','review_pid','actions')]:
