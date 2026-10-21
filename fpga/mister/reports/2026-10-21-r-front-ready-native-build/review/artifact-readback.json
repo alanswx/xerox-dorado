@@ -1,0 +1,9 @@
+{
+  "status": "PASS_NATIVE_ARTIFACT_READBACK",
+  "rbf_sha256": "57a552aff6fd0131f307a25ee75316c56b4c4da9118a437d2c9c17b0172dfd21",
+  "rbf_bytes": 3937608,
+  "qualification_sha256": "e296901cb9460ddf5556497fa6d39ed131237c34fc2cd539145a686cd8901df5",
+  "raw_receipt_members": 930,
+  "firmware_qualified": false,
+  "hardware_deployed": false
+}

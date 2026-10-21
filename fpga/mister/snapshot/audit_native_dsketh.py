@@ -132,7 +132,7 @@ def native_cache_physical(text,manifest,packing):
     those shared locations; summing them would overcount physical storage.
     No inferred/physical geometry or OLD_DATA requirement is relaxed.
     """
-    assert packing in ('paired38','independent40')
+    assert packing in ('paired38','independent40','paired3_5_39')
     start=text.find('; Fitter RAM Summary');assert start>=0,'missing cache RAM table'
     rows=[];header=None
     for line in text[start:].split('\n\n',1)[0].splitlines():
@@ -143,7 +143,7 @@ def native_cache_physical(text,manifest,packing):
             assert header and len(header)==len(fields),'malformed native cache row'
             rows.append(dict(zip(header,fields)))
     assert len(rows)==14 and len(manifest['banks'])==14,'native cache bank count differs'
-    shared={3,5,8,10}if packing=='paired38'else set()
+    shared={3,5,8,10}if packing=='paired38'else({3,5}if packing=='paired3_5_39'else set())
     groups={};seen=set()
     for row in rows:
         m=re.search(r'\bsnapshot_bank_(\d+)\|',row['Name']);assert m,'unknown native cache'
@@ -165,7 +165,7 @@ def native_cache_physical(text,manifest,packing):
         assert all(re.fullmatch(r'M10K_X\d+_Y\d+_N\d+',s)for s in sites),'invalid native cache location'
         groups.setdefault(sites,[]).append(bank)
     expected={frozenset([b])for b in range(14)if b not in shared}
-    if shared:expected|={frozenset([3,5]),frozenset([8,10])}
+    expected|={frozenset(pair)for pair in [(3,5),(8,10)]if set(pair)<=shared}
     assert {frozenset(b)for b in groups.values()}==expected,'unreviewed native cache sharing'
     occupied=set();physical=[]
     for sites,banks in groups.items():
@@ -176,9 +176,9 @@ def native_cache_physical(text,manifest,packing):
         physical.append(dict(banks=sorted(banks),locations=list(sites),logical_bits=4096*width,
                              depth_mode_capacity_bits=8192*len(sites)))
     assert sum(g['logical_bits']for g in physical)==294912,'native cache bits differ'
-    assert len(occupied)==(38 if packing=='paired38'else 40),'native cache physical count differs'
+    assert len(occupied)==40-len(shared)//2,'native cache physical count differs'
     return dict(rows=rows,groups=physical,unique_m10ks=len(occupied),logical_bits=294912,
-        packing=packing,scope='Inactive-admin full core: all14 logical cache banks retain geometry and OLD_DATA. Native58 banks3/5 and8/10 each share three M10Ks; groups are disjoint and capacity checked. Isolated enabled-state packing is qualified separately.')
+        packing=packing,scope=('Inactive-admin full core: all14 logical cache banks retain geometry and OLD_DATA. Native58 banks3/5 and8/10 each share three M10Ks; groups are disjoint and capacity checked. Isolated enabled-state packing is qualified separately.'if packing!='paired3_5_39'else'Inactive-admin native Ready/front: only the already reviewed3/5 pair shares three M10Ks;8/10 remain independent. All14 geometries/OLD_DATA, disjoint locations and group capacities checked. No arbitrary sharing allowed.'))
 
 
 def dispy_physical(text,manifest,variant):
@@ -262,7 +262,7 @@ def dsketh_evidence(mapping,fitted,manifest,variant):
     eight disconnected/pruned helpers must stay absent in both projects.
     Immutable PROM contents are checked separately against compiled assets.
     """
-    assert variant in ('baseline','snapshot')
+    assert variant in ('baseline','snapshot','snapshot_r_front')
     helpers={r['package']:r for r in manifest['ff']+manifest['memories']}
     assert len(helpers)==141 and manifest['logical_state_bits']==2656
     assert manifest['parameters']==dict(SYSPER=4)
@@ -283,7 +283,7 @@ def dsketh_evidence(mapping,fitted,manifest,variant):
         kind,pkg=match.groups()
         assert pkg not in rows,'duplicate disk/Ethernet entity'
         if pkg in helpers:
-            wanted=helpers[pkg]['kind']+('_snapshot'if variant=='snapshot'else'')
+            wanted=helpers[pkg]['kind']+('_snapshot'if variant!='baseline'else'')
             assert kind==wanted,('wrong disk/Ethernet helper',pkg,kind,wanted)
             assert row['Block Memory Bits']=='0','mutable disk/Ethernet file moved to block RAM'
             kind=helpers[pkg]['kind']
@@ -291,7 +291,9 @@ def dsketh_evidence(mapping,fitted,manifest,variant):
         assert count and count[1]==count[2],'unexpected nested disk/Ethernet state'
         rows[pkg]=dict(kind=kind,registers=int(count[1]),block_memory_bits=int(row['Block Memory Bits']))
     pruned={'u_c01','u_a02','u_a09','u_a03','u_a10','u_a11','u_a07','u_a06'}
-    assert len(rows)==210 and set(helpers)-set(rows)==pruned,'unexpected disk/Ethernet child/helper pruning'
+    assert len(rows)==(209 if variant=='snapshot_r_front'else 210) and set(helpers)-set(rows)==pruned,'unexpected disk/Ethernet child/helper pruning'
+    if variant=='snapshot_r_front':
+        assert 'u_l24'not in rows,'Native front profile expects exactly the observed zero-state l24 pruning'
     # Quartus selects j02 versus k02 as the surviving hierarchy label for pure
     # combinational mux logic. Neither owns state; all state-bearing names
     # remain exact. Source comparison pins both original mux connections.
@@ -320,7 +322,7 @@ def dsketh_evidence(mapping,fitted,manifest,variant):
         inferred[match[1]]=dict(words=256,width=4)
     assert set(inferred)=={re.search(r'cell_MCM10149:(u_\w+)\|',r['Name'])[1]for r in roms['rows']}
     return dict(state=rows,inferred_roms=inferred,immutable_rom_placement=roms,
-        scope='All133 surviving mutable helpers/all210 child entity register counts compared with frozen58; same eight pruned helpers explicitly checked. Admin inactive; original normal-state pruning retained. Nine inferred immutable ROMs in nine separate M10Ks; all14 PROM contents checked independently. Not enabled whole-core snapshot cost.')
+        scope=('All133 surviving mutable helpers/all210 child entity register counts compared with frozen58; same eight pruned helpers explicitly checked. Admin inactive; original normal-state pruning retained. Nine inferred immutable ROMs in nine separate M10Ks; all14 PROM contents checked independently. Not enabled whole-core snapshot cost.'if variant!='snapshot_r_front'else'Native Ready/front retains the same133 mutable helpers and eight absent helpers. Exactly the zero-register/zero-memory MC10102 l24 disappears; caller must compare every remaining child kind/register count with qualified baseline. Nine immutable ROM geometries/placements checked; admin inactive.'))
 
 
 def collect(root,baseline,archive):

@@ -1,0 +1,35 @@
+{
+  "status": "TERMINAL_CENTRAL_REPORTS_REVIEW_REQUIRED",
+  "review_pid": 165785,
+  "started": 1792549116.2428827,
+  "tcl_sha256": "263d5a9a0fb6677447aad953b7c31fb0b1e3a4c0cbaadef32b964771cdc5da89",
+  "actions": [
+    {
+      "command": [
+        "/home/alans/intelFPGA_lite/17.0/quartus/bin/quartus_sta",
+        "-t",
+        "/home/alans/mister/Dorado_RFrontReady_v1_20261021/audit-r-front-ready.tcl"
+      ],
+      "pid": 182575,
+      "started": 1792550126.3908825,
+      "returncode": 0,
+      "finished": 1792550216.0085719
+    }
+  ],
+  "assembly_permitted": false,
+  "builder_pid": 138712,
+  "observed_builder_status": "TERMINAL_TIMING_OBSERVED_REVIEW_REQUIRED",
+  "last_live_observation": 1792550116.387982,
+  "absent_builder_pids": [
+    138712,
+    138713,
+    146109,
+    174049,
+    174712,
+    175114,
+    179123,
+    180054,
+    180959
+  ],
+  "finished": 1792550216.009244
+}

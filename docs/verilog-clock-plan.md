@@ -100,11 +100,19 @@ power-up interval, so it does not qualify Initial/Cedar. The Initial-ROM gate
 now passes using the EXACT changed native wrappers:960 words read back,15
 task initializations and all six error sources enabled for2,611,683 samples.
 A second run with live alias/unsettled/repeated-event assertions also passes;
-434 frozen inputs/run verify. Synthesis passes; the full native fit is LIVE
-(builder138712/fit146109). Observe those handles and run the prepared central-Q
-crossing audit after the builder exits. Full timing, native firmware and
-hardware qualification remain open. No FPGA/Main/daemon/disk or measured
-speed change yet.
+434 frozen inputs/run verify. Full native timing/memory review now passes:
+31 summaries/196 legacy plus136 central-Q targeted reports/four conditions,
+minimum+0.118ns; summary setup+1.333ns/hold+0.249ns. All512 inputs unchanged;
+30,933ALMs/52,481regs/331M10Ks/35DSPs. Four256x9 banks and every other memory
+contract pass; cache3/5 alone shares a previously reviewed pair. All retained
+disk/Ethernet state matches, with only one zero-state combinational gate gone.
+Eight PHYSICAL instruction banks also enforce OLD_DATA after a negative test
+exposed a missing reader check. Eleven final damaged-evidence controls reject.
+Builder138712, fitter146109, serial reviewer165785/STA182575 and all stages are
+absent. Assembly201198/201199 succeeds; RBF57a552af is staged/hash-verified on14
+but NOT LOADED. Next normal Main-loader preservation/fresh firmware Cedar/input
+at unchanged clocks, then actual clock acceleration and rollback/final gates.
+No physical speed gain claimed; last hardware figure remains1.947686M issues/s.
 
 ### Milestones and acceptance
 

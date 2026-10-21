@@ -1,0 +1,17 @@
+[
+  {
+    "case": "extra_category",
+    "rejected": true,
+    "diagnostic": "('unreviewed warning increase', Counter({'10036': 330, '10275': 1, '10027': 1, '199999': 1}))"
+  },
+  {
+    "case": "other_index_warning",
+    "rejected": true,
+    "diagnostic": "Unreviewed diagnostic in the two new warning categories"
+  },
+  {
+    "case": "extra_known_code",
+    "rejected": true,
+    "diagnostic": ""
+  }
+]

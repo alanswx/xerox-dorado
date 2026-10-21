@@ -1,0 +1,17 @@
+{
+  "status": "PASS_REVIEWED_IMAGE_STAGED_NOT_LOADED",
+  "observed_utc": "2026-10-21T02:58:26.506116+00:00",
+  "directory": "/media/fat/games/DoradoRTL/RFrontReadyBuild_20261021",
+  "rbf_sha256": "57a552aff6fd0131f307a25ee75316c56b4c4da9118a437d2c9c17b0172dfd21",
+  "rbf_bytes": 3937608,
+  "main_pid": 3486,
+  "server_pid": 3485,
+  "main_argv": [
+    "/media/fat/games/DoradoRTL/System_20261018_DDRNetwork/MiSTer-21e67a3f5588a875",
+    "/media/fat/_Computer/DoradoRTL_CedarMC1668_20261020/Dorado.rbf",
+    "/media/fat/_Computer/DoradoRTL_CedarMC1668_20261020/CedarMC1668.mgl",
+    ""
+  ],
+  "core_name": "DoradoCedarMC1668_20261020",
+  "current_core_changed": false
+}

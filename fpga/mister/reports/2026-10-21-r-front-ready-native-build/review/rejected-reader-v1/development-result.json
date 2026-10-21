@@ -1,0 +1,6 @@
+{
+  "status": "REJECTED_REVIEWER_DEVELOPMENT",
+  "reason": "The first cache mutation selected ContB instruction bank3, revealing that the reviewer checked inferred OLD_DATA but omitted the physical instruction-bank OLD_DATA row. Fixed by explicit checks of all eight physical instruction banks; final v2 has a board-specific cache mutation and a separate instruction mutation.",
+  "accepted_bad_case": "cache_old_data",
+  "production_RTL_changed": false
+}

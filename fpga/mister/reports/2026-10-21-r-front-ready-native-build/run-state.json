@@ -1,0 +1,66 @@
+{
+  "status": "TERMINAL_TIMING_OBSERVED_REVIEW_REQUIRED",
+  "builder_pid": 138712,
+  "started": 1792547286.9124508,
+  "stages": [
+    {
+      "stage": "map",
+      "pid": 138713,
+      "started": 1792547286.9132524,
+      "returncode": 0,
+      "finished": 1792547631.4607759
+    },
+    {
+      "stage": "fit",
+      "pid": 146109,
+      "started": 1792547631.462396,
+      "returncode": 0,
+      "finished": 1792549564.179256
+    },
+    {
+      "stage": "sta",
+      "pid": 174049,
+      "started": 1792549564.1799474,
+      "returncode": 0,
+      "finished": 1792549618.9524271
+    },
+    {
+      "stage": "clocks",
+      "pid": 174712,
+      "started": 1792549618.9550443,
+      "returncode": 0,
+      "finished": 1792549632.7397244
+    },
+    {
+      "stage": "corners",
+      "pid": 175114,
+      "started": 1792549632.7416558,
+      "returncode": 0,
+      "finished": 1792549873.1316156
+    },
+    {
+      "stage": "control-crossings",
+      "pid": 179123,
+      "started": 1792549873.132333,
+      "returncode": 0,
+      "finished": 1792549945.145491
+    },
+    {
+      "stage": "contb-crossings",
+      "pid": 180054,
+      "started": 1792549945.1470635,
+      "returncode": 0,
+      "finished": 1792550012.0044637
+    },
+    {
+      "stage": "adapter-crossings",
+      "pid": 180959,
+      "started": 1792550012.0060303,
+      "returncode": 0,
+      "finished": 1792550125.779839
+    }
+  ],
+  "builder_sha256": "9847c08382299c903e717e15a0f5a9349e7b5a05b5da6ee2e632f383051f6bc9",
+  "assembly_permitted": false,
+  "finished": 1792550126.101458
+}

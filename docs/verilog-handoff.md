@@ -37,9 +37,10 @@ RAM handoff now passes the original circuit comparison and isolated15ns timing
 The expanded RBase/stack/bypass front now passes simulation and functional15ns
 timing after explicit pre-event task/address data capture (setup+0.474ns,
 hold+0.099ns). Ready/arbiter coupling passes at104 Qs and now with the full
-memory/front slice at752 Qs. Close live
-producer wiring/arrivals and perform same-clock native integration next.
-Full board timing, faster Cedar boot and rollback remain unqualified.
+memory/front slice at752 Qs. Actual native-wrapper Initial and full-device
+timing/memory now pass at unchanged50MHz/SYSPER4. The reviewed image is
+assembled and staged on MiSTer14, not loaded yet. Fresh native Cedar/input,
+clock acceleration and rollback remain unqualified.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
 qualify it through original firmware and the germ/disk path. Rollback preserves
 later filesystem changes; it is not a disk rewind or a raw FPGA snapshot.
@@ -53,7 +54,73 @@ absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
 
-### Native Ready/front integration in progress (2026-10-21 UTC)
+### Native Ready/front full build PASS, staged for hardware (2026-10-21 UTC)
+
+Full native review now PASSES:31 timing summaries,196 existing targeted reports
+plus136 central-Q reports across four conditions; minimum slack+0.118ns.
+Summary setup+1.333ns/hold+0.249ns. No new clock/hold exceptions. All512 inputs
+read back; all recorded builder/reviewer/stage PIDs are absent. Actual native
+Initial V5 and its live invariants still pass.726 matched fitted central-Q
+register nodes are reporting coverage, not an architectural bit-saving claim.
+Resources:30,933ALMs/52,481registers/331M10Ks/35DSPs;38,912MLAB bits total.
+
+Every158 unaffected inferred RAM row and153 unaffected parameter table is
+unchanged. The four256x9 RM/STK banks retain9216bits, async read addresses/
+outputs and no duplicated array. Actual instruction RAM now also has all eight
+1024x18 physical banks/16 disjoint M10Ks checked for OLD_DATA and geometry.
+All other device memory contracts pass. This placement shares ONLY the already
+reviewed MemD3/5 pair (39 cache M10Ks);8/10 remain separate. A specific profile
+checks this combination. Exactly one zero-state DskEth MC10102 l24 is pruned;
+all remaining child kinds/register counts equal the qualified MC1668 baseline.
+The old cache/DskEth reviews reproduce byte-identically with the reader changes.
+
+Six damaged synthesis-memory reports and three warning controls reject.
+The two added warnings are pinned to exact simulation-qualified source: unused
+Ready observational outputs/dangling comma; and a four-bit parity address
+selecting only404..464 of540 state bits (nine index bits suffice). Eleven final
+full-review controls reject missing/negative timing, physical RAM/OLD_DATA,
+retained disk state, missing central coverage and rehashed constraints. Initial
+reader v1 accidentally mutated a ContB bank instead of MemD, exposing a missing
+PHYSICAL instruction-RDW check. V2 fixes that gap and tests both boards. This
+was an evidence-reader defect; the actual RTL/report retains OLD_DATA.
+
+Assembly driver201198/assembler201199 exit0. Image:
+`build/rtl-executive/r-front-ready-native-terminal-20261021/Dorado.rbf`,
+3,937,608bytes, SHA256
+`57a552aff6fd0131f307a25ee75316c56b4c4da9118a437d2c9c17b0172dfd21`.
+At02:58:26UTC it is hash-verified on14 in
+`/media/fat/games/DoradoRTL/RFrontReadyBuild_20261021/` with qualification,
+assembly identity and eleven controls. NOT LOADED; Main3486/server3485 still
+run MC1668. No new hardware speed measurement or Cedar qualification yet.
+The preassembly qualification includes the RBF's source/timing identity;
+`assembly-state.json` binds its exact qualification SHA to the RBF SHA.
+
+Baseline14 was blanked; Escape alone did not wake it. Real USB space revealed
+the profile prompt. Clearing Yes/answering No returned to the SAME two
+CommandTools/history; no reboot inferred. Real `type ///rtlmc1668persist.txt`
+again prints exact `rtlmc1668persist` and returns to `%`. At02:25:04UTC
+RBF15730f44/Main21e67a3f/serverc5996249 identities remain; good3395/dropped33,
+CRC/RX/abort0. No reset, active pack copy or cold-persistence claim. All scripted
+keys are up. Keep the old mutated pack through Main's real loader barriers.
+
+Next: adapt the prior normal MC1668 loader for current3486/3485, preserve the
+closed old volume/trace, reclaim only verified closed old `/tmp` logs if needed
+(22MiB free before transition), and boot a fresh f3bce2a8 seed with the new image.
+Main/server binaries and policies stay unchanged. Startup helpers are in
+`build/rtl-executive/mc1668-native-field-20261020/startup/`: real USB C watcher
+until BFN113; three Ctrl/Alt/AltGr boot pulses. Retarget its log path and actual
+Main PID guards; do not replay3486 guards against a new process. Setup GDB uses
+Main's OWN functions/SPI, fingerprinted21e67a3f; no separate SPI owner or guest
+state import. Then login/idle issue+hold measurement, all34 loadees, Viewers,
+exact input/warm and cold marker gates. Speed/rollback/final qualification
+remain open; goal ACTIVE.
+
+Receipt: [terminal native build and review](../fpga/mister/reports/2026-10-21-r-front-ready-native-build/README.md).
+930 raw build members plus58 review members verify losslessly. Replaying the
+review directly against compressed raw archives and prior dependencies yields
+byte-identical qualification; no complete simulation rerun is claimed.
+
+#### Integration source and component history
 
 The qualified752-Q/9216-bit component is now staged into the ACTUAL native
 ContA/ProcH/ProcL wrappers, rather than only the isolated component fixture.
@@ -102,19 +169,18 @@ compiled native wrapper hashes exactly match the staged candidate. Both
 simulator sessions have returned exit0; do not restart them.
 
 Full native timing job: `misterubuntu:/home/alans/mister/Dorado_RFrontReady_v1_20261021`,
-builder138712/fit146109 LIVE, map138713 ABSENT/exit0 (shell138711);
+now TERMINAL. Historical builder138712/fit146109; map138713 exit0 (shell138711);
 `run-state.json`, `builder.log`. Source readback at01:57:08UTC verifies all512
 inputs unchanged and records the actual live process checks. Synthesis passes
-with zero errors; fit/full timing are not yet qualified.
+with zero errors; the terminal review/assembly above supersedes this observation.
 `tools/build_r_front_ready_native.py` sequences map/fit/STA/four-condition/
 crossing reports in this one database. It CANNOT assemble or deploy. Keep
 empty historical targeted-path reports visible for review when selected
 storage moves; do not treat a changed hierarchy as an applicable exception.
 `tools/audit_r_front_ready_native.tcl` adds explicit new central-Q producer/
-consumer reports; it is prepared, NOT RUN. Run it only AFTER this builder is
-terminal, in the same core directory, sequentially with other DB users.
-Next observe this fit, review full timing/memory and the added central-Q
-reports, then assemble and cold-boot original firmware to Cedar/input
+consumer reports; serial reviewer165785/STA182575 now both exited0. Never run
+another Quartus stage concurrently in this database.
+Next use the reviewed assembled image to cold-boot original firmware to Cedar/input
 at unchanged clocks before acceleration. Last hardware rate remains
 1,947,686.01 instruction issues/s. Goal ACTIVE; rollback/final gates pending.
 

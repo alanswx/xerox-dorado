@@ -1,0 +1,33 @@
+{
+  "status": "PASS_NATIVE_SYNTHESIS_MEMORY_AND_BASELINE_WARM_READ",
+  "synthesis_review": "synthesis-review.json",
+  "warning_controls": "warning-negative-controls.json",
+  "runtime_health": "mister14-health.json",
+  "hardware_source": "existing MC1668 core, not the experimental native replacement",
+  "input_path": "MiSTer14 virtual USB keyboard through WebSocket8182; Main remains SPI owner",
+  "observations": [
+    "Capture showed blanker; Escape did not dismiss it; virtual USB space exposed profile prompt",
+    "Cleared displayed Yes and answered No through real USB input",
+    "Desktop returned with earlier two CommandTools and saved marker/history intact; no reboot inferred",
+    "Typed type ///rtlmc1668persist.txt and observed exact rtlmc1668persist reply and new prompt"
+  ],
+  "guest_reset_requested": false,
+  "active_pack_copied": false,
+  "cold_persistence_qualified": false,
+  "FPGA_snapshot_or_C_state_imported": false,
+  "full_native_timing_qualified": false,
+  "speed_gain_claimed": false,
+  "files": {
+    "mister14-awake.png": "7b136cef5b67798fe0e4e9db91247b7bae1292ae99e4c7fb0a6404addb1ea9dc",
+    "mister14-marker-read.png": "61b7ba2ba76436df56b8c5901dcddf042bf31495ee3f86fc525e59b42c05b41c",
+    "mister14-usb-wake.png": "1b3f473cc986f5dac61344d8ddae1a3e666ac8ccc043659ef788f38eb3866c9f",
+    "Dorado.map.rpt": "0af2bf7c27d0caae29d7f089a6027ca5feef72705beb78cd840895fb6e7c1773",
+    "synthesis-review.json": "234c1316a9330a266fe84cd94ad6fa2c4b885f684ed134078e5c843ba4914858",
+    "mister14-current.png": "e795fa0b798793193bb14e81b29caed21febbb997d0a3c345810ce810ace74e3",
+    "map.log": "e39c40e2d0f9870632e041037326ab3d2ee2906761458b9f1eeddac4700c5d47",
+    "input-keyboard.py": "1a3828606ff5fe883318951dda7531ac7cc410a5d97b611b8926ff24841b14c0",
+    "warning-negative-controls.json": "21fb06901eeec85897f1b671d9f5b2fe5978cd0eb5d1ce1b9cdf23318b03aed4",
+    "mister14-health.json": "00562c914b08fac1b8a8b8156b1f5639f77e1b5abacd4b1a12dbea893f615895",
+    "mister14-profile-no.png": "e8799b9c5426dc22a380d7ff09b610ba5a0b6c7a03b956f22a5ab07dc1641f0a"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "status": "FROZEN_SYNTHESIS_REVIEW_INPUTS",
+  "inputs": {
+    "mister14-awake.png": "7b136cef5b67798fe0e4e9db91247b7bae1292ae99e4c7fb0a6404addb1ea9dc",
+    "milestone.json": "67df62b25e2859ff5582c7f978662d9b4de68bb44ae0dd4f9653ce59f3ef5ea5",
+    "mister14-marker-read.png": "61b7ba2ba76436df56b8c5901dcddf042bf31495ee3f86fc525e59b42c05b41c",
+    "mister14-usb-wake.png": "1b3f473cc986f5dac61344d8ddae1a3e666ac8ccc043659ef788f38eb3866c9f",
+    "Dorado.map.rpt": "0af2bf7c27d0caae29d7f089a6027ca5feef72705beb78cd840895fb6e7c1773",
+    "synthesis-review.json": "234c1316a9330a266fe84cd94ad6fa2c4b885f684ed134078e5c843ba4914858",
+    "mister14-current.png": "e795fa0b798793193bb14e81b29caed21febbb997d0a3c345810ce810ace74e3",
+    "map.log": "e39c40e2d0f9870632e041037326ab3d2ee2906761458b9f1eeddac4700c5d47",
+    "input-keyboard.py": "1a3828606ff5fe883318951dda7531ac7cc410a5d97b611b8926ff24841b14c0",
+    "warning-negative-controls.json": "21fb06901eeec85897f1b671d9f5b2fe5978cd0eb5d1ce1b9cdf23318b03aed4",
+    "mister14-health.json": "00562c914b08fac1b8a8b8156b1f5639f77e1b5abacd4b1a12dbea893f615895",
+    "mister14-profile-no.png": "e8799b9c5426dc22a380d7ff09b610ba5a0b6c7a03b956f22a5ab07dc1641f0a",
+    "candidate/r-front-ready-native.json": "0c9ab2b3fb4765e01ad8c78d77d2bb6190a861c2593738c3f10e503a59a9af6f",
+    "baseline/map.log": "aae2353348be30ab2ca7183c97642a4fa687c720bbc633ffd3bc6903fc563cf9",
+    "component/results.json": "7b63eedcb2d670d4e9f5fd9ad1dd153752f52f0d01b5418240bcbc19b6fb2b45",
+    "component/executed-inputs/verilog/rtl/dorado_t_parity_step.sv": "1f29c255ec4bcc6e838ba8a8b3110c3e97c2e7c6d7a5940f4ee6933c40281ca8",
+    "component/executed-inputs/verilog/rtl/dorado_task_ready_step.sv": "69397dd12af8d67a835cbe953eca5d1d59b63a0dbe18aa944a6ccf58437f3ea5",
+    "component/executed-inputs/verilog/rtl/dorado_r_front_ready_step.sv": "03ab66f1e7d0982eeb4a7c04a86196effaa196018a4edf955a3a4564a976edb9",
+    "baseline/core/output_files/Dorado.map.rpt": "bdf613e0450ed29315df013a89be5100dd8dbc73ac8897bc66cb667be2209c83",
+    "candidate/src/verilog/rtl/dorado_t_parity_step.sv": "1f29c255ec4bcc6e838ba8a8b3110c3e97c2e7c6d7a5940f4ee6933c40281ca8",
+    "candidate/src/verilog/rtl/dorado_task_ready_step.sv": "69397dd12af8d67a835cbe953eca5d1d59b63a0dbe18aa944a6ccf58437f3ea5",
+    "candidate/src/verilog/rtl/dorado_r_front_ready_step.sv": "03ab66f1e7d0982eeb4a7c04a86196effaa196018a4edf955a3a4564a976edb9"
+  },
+  "source_subset_scope": "Candidate/component subsets cover only the synthesis warning reviewer. The complete512-source candidate and96-source component receipts remain prior dependencies."
+}

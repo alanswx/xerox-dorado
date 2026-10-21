@@ -1,0 +1,1376 @@
+{
+  "status": "PASS_DISK_ETHERNET_RETAINED_STATE",
+  "removed": {
+    "kind": "cell_MC10102",
+    "registers": 0,
+    "block_memory_bits": 0
+  },
+  "package": "u_l24",
+  "all_remaining_state_identical": true,
+  "previous_reviews_byte_identical": true,
+  "evidence": {
+    "state": {
+      "u_f09": {
+        "kind": "cell_F10000",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_f10": {
+        "kind": "cell_F10000",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_f11": {
+        "kind": "cell_F10000",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_f12": {
+        "kind": "cell_F10000",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_f14": {
+        "kind": "cell_F10000",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_f15": {
+        "kind": "cell_F10000",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_a15": {
+        "kind": "cell_F10016",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_a16": {
+        "kind": "cell_F10016",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_a22": {
+        "kind": "cell_F10016",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_b10": {
+        "kind": "cell_F10016",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_b20": {
+        "kind": "cell_F10016",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_b21": {
+        "kind": "cell_F10016",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_d22": {
+        "kind": "cell_F10016",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_g21": {
+        "kind": "cell_F10016",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_l09": {
+        "kind": "cell_F10016",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_l12": {
+        "kind": "cell_F10016",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_l13": {
+        "kind": "cell_F10016",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_l16": {
+        "kind": "cell_F10016",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_d08": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_d09": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_d10": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_d11": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_d12": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_e16": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_f16": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_f17": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_j08": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_j09": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_j10": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_j11": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_j12": {
+        "kind": "cell_F10145A",
+        "registers": 57,
+        "block_memory_bits": 0
+      },
+      "u_j13": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_j14": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_j15": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_j16": {
+        "kind": "cell_F10145A",
+        "registers": 74,
+        "block_memory_bits": 0
+      },
+      "u_j17": {
+        "kind": "cell_F10145A",
+        "registers": 40,
+        "block_memory_bits": 0
+      },
+      "u_g17": {
+        "kind": "cell_F9401",
+        "registers": 17,
+        "block_memory_bits": 0
+      },
+      "u_j05": {
+        "kind": "cell_F9401",
+        "registers": 18,
+        "block_memory_bits": 0
+      },
+      "u_j20": {
+        "kind": "cell_K1115A",
+        "registers": 32,
+        "block_memory_bits": 0
+      },
+      "u_a19": {
+        "kind": "cell_MC10100",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_d07": {
+        "kind": "cell_MC10102",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_d13": {
+        "kind": "cell_MC10102",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_d16": {
+        "kind": "cell_MC10102",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_g15": {
+        "kind": "cell_MC10102",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_j22": {
+        "kind": "cell_MC10102",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_k05": {
+        "kind": "cell_MC10102",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_b11": {
+        "kind": "cell_MC10103",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_c11": {
+        "kind": "cell_MC10103",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_d24": {
+        "kind": "cell_MC10103",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_c10": {
+        "kind": "cell_MC10104",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_k18": {
+        "kind": "cell_MC10104",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_h23": {
+        "kind": "cell_MC10105",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_l08": {
+        "kind": "cell_MC10105",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_l17": {
+        "kind": "cell_MC10105",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_h21": {
+        "kind": "cell_MC10106",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_b23": {
+        "kind": "cell_MC10109",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_e03": {
+        "kind": "cell_MC10109",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_h05": {
+        "kind": "cell_MC10109",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_c04": {
+        "kind": "cell_MC10113",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_c05": {
+        "kind": "cell_MC10113",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_c16": {
+        "kind": "cell_MC10135",
+        "registers": 7,
+        "block_memory_bits": 0
+      },
+      "u_d20": {
+        "kind": "cell_MC10135",
+        "registers": 3,
+        "block_memory_bits": 0
+      },
+      "u_e13": {
+        "kind": "cell_MC10135",
+        "registers": 3,
+        "block_memory_bits": 0
+      },
+      "u_j19": {
+        "kind": "cell_MC10135",
+        "registers": 3,
+        "block_memory_bits": 0
+      },
+      "u_k04": {
+        "kind": "cell_MC10135",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_k07": {
+        "kind": "cell_MC10135",
+        "registers": 3,
+        "block_memory_bits": 0
+      },
+      "u_k19": {
+        "kind": "cell_MC10135",
+        "registers": 3,
+        "block_memory_bits": 0
+      },
+      "u_k22": {
+        "kind": "cell_MC10135",
+        "registers": 3,
+        "block_memory_bits": 0
+      },
+      "u_l06": {
+        "kind": "cell_MC10135",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_l19": {
+        "kind": "cell_MC10135",
+        "registers": 3,
+        "block_memory_bits": 0
+      },
+      "u_c19": {
+        "kind": "cell_MC10136",
+        "registers": 11,
+        "block_memory_bits": 0
+      },
+      "u_c20": {
+        "kind": "cell_MC10136",
+        "registers": 11,
+        "block_memory_bits": 0
+      },
+      "u_c21": {
+        "kind": "cell_MC10136",
+        "registers": 11,
+        "block_memory_bits": 0
+      },
+      "u_i12": {
+        "kind": "cell_MC10136",
+        "registers": 8,
+        "block_memory_bits": 0
+      },
+      "u_i13": {
+        "kind": "cell_MC10136",
+        "registers": 8,
+        "block_memory_bits": 0
+      },
+      "u_j21": {
+        "kind": "cell_MC10136",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_i08": {
+        "kind": "cell_MC10141",
+        "registers": 8,
+        "block_memory_bits": 0
+      },
+      "u_i09": {
+        "kind": "cell_MC10141",
+        "registers": 8,
+        "block_memory_bits": 0
+      },
+      "u_i10": {
+        "kind": "cell_MC10141",
+        "registers": 10,
+        "block_memory_bits": 0
+      },
+      "u_i11": {
+        "kind": "cell_MC10141",
+        "registers": 10,
+        "block_memory_bits": 0
+      },
+      "u_i14": {
+        "kind": "cell_MC10141",
+        "registers": 12,
+        "block_memory_bits": 0
+      },
+      "u_i15": {
+        "kind": "cell_MC10141",
+        "registers": 12,
+        "block_memory_bits": 0
+      },
+      "u_i16": {
+        "kind": "cell_MC10141",
+        "registers": 12,
+        "block_memory_bits": 0
+      },
+      "u_i17": {
+        "kind": "cell_MC10141",
+        "registers": 11,
+        "block_memory_bits": 0
+      },
+      "u_a14": {
+        "kind": "cell_MC10158",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_b07": {
+        "kind": "cell_MC10158",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_b08": {
+        "kind": "cell_MC10158",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_g07": {
+        "kind": "cell_MC10158",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_l11": {
+        "kind": "cell_MC10158",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_l14": {
+        "kind": "cell_MC10158",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_f07": {
+        "kind": "cell_MC10161",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_e09": {
+        "kind": "cell_MC10170",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_e11": {
+        "kind": "cell_MC10170",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_f04": {
+        "kind": "cell_MC10170",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_g04": {
+        "kind": "cell_MC10170",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_k08": {
+        "kind": "cell_MC10170",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_k12": {
+        "kind": "cell_MC10170",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_k13": {
+        "kind": "cell_MC10170",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_k17": {
+        "kind": "cell_MC10170",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_k21": {
+        "kind": "cell_MC10170",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_d14": {
+        "kind": "cell_MC10171",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_d18": {
+        "kind": "cell_MC10173",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_d19": {
+        "kind": "cell_MC10173",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_e18": {
+        "kind": "cell_MC10173",
+        "registers": 3,
+        "block_memory_bits": 0
+      },
+      "u_e20": {
+        "kind": "cell_MC10173",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_e21": {
+        "kind": "cell_MC10173",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_f18": {
+        "kind": "cell_MC10173",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_f20": {
+        "kind": "cell_MC10173",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_f21": {
+        "kind": "cell_MC10173",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_g08": {
+        "kind": "cell_MC10173",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_g09": {
+        "kind": "cell_MC10173",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_g10": {
+        "kind": "cell_MC10173",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_g11": {
+        "kind": "cell_MC10173",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_g12": {
+        "kind": "cell_MC10173",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_f05": {
+        "kind": "cell_MC10174",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_h01": {
+        "kind": "cell_MC10174",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_e02": {
+        "kind": "cell_MC10175",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_g06": {
+        "kind": "cell_MC10175",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_b03": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_b04": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_b05": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_b06": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_c07": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_c08": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_c14": {
+        "kind": "cell_MC10176",
+        "registers": 7,
+        "block_memory_bits": 0
+      },
+      "u_e08": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_e10": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_e12": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_f08": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_g20": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_h08": {
+        "kind": "cell_MC10176",
+        "registers": 7,
+        "block_memory_bits": 0
+      },
+      "u_h12": {
+        "kind": "cell_MC10176",
+        "registers": 7,
+        "block_memory_bits": 0
+      },
+      "u_h13": {
+        "kind": "cell_MC10176",
+        "registers": 7,
+        "block_memory_bits": 0
+      },
+      "u_h17": {
+        "kind": "cell_MC10176",
+        "registers": 9,
+        "block_memory_bits": 0
+      },
+      "u_h24": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_j24": {
+        "kind": "cell_MC10176",
+        "registers": 9,
+        "block_memory_bits": 0
+      },
+      "u_k09": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_k10": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_k11": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_k14": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_k15": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_k16": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_l18": {
+        "kind": "cell_MC10176",
+        "registers": 7,
+        "block_memory_bits": 0
+      },
+      "u_l22": {
+        "kind": "cell_MC10176",
+        "registers": 11,
+        "block_memory_bits": 0
+      },
+      "u_l23": {
+        "kind": "cell_MC10176",
+        "registers": 13,
+        "block_memory_bits": 0
+      },
+      "u_i21": {
+        "kind": "cell_MC10210",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_b09": {
+        "kind": "cell_MC10231",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_b12": {
+        "kind": "cell_MC10231",
+        "registers": 6,
+        "block_memory_bits": 0
+      },
+      "u_b15": {
+        "kind": "cell_MC10231",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_c09": {
+        "kind": "cell_MC10231",
+        "registers": 6,
+        "block_memory_bits": 0
+      },
+      "u_c15": {
+        "kind": "cell_MC10231",
+        "registers": 6,
+        "block_memory_bits": 0
+      },
+      "u_e04": {
+        "kind": "cell_MC10231",
+        "registers": 6,
+        "block_memory_bits": 0
+      },
+      "u_e05": {
+        "kind": "cell_MC10231",
+        "registers": 6,
+        "block_memory_bits": 0
+      },
+      "u_e06": {
+        "kind": "cell_MC10231",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_e14": {
+        "kind": "cell_MC10231",
+        "registers": 6,
+        "block_memory_bits": 0
+      },
+      "u_e15": {
+        "kind": "cell_MC10231",
+        "registers": 6,
+        "block_memory_bits": 0
+      },
+      "u_e17": {
+        "kind": "cell_MC10231",
+        "registers": 6,
+        "block_memory_bits": 0
+      },
+      "u_h04": {
+        "kind": "cell_MC10231",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_h06": {
+        "kind": "cell_MC10231",
+        "registers": 4,
+        "block_memory_bits": 0
+      },
+      "u_i22": {
+        "kind": "cell_MC10231",
+        "registers": 3,
+        "block_memory_bits": 0
+      },
+      "u_j04": {
+        "kind": "cell_MC10231",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_k20": {
+        "kind": "cell_MC10231",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_l04": {
+        "kind": "cell_MC10231",
+        "registers": 6,
+        "block_memory_bits": 0
+      },
+      "u_l07": {
+        "kind": "cell_MC10231",
+        "registers": 6,
+        "block_memory_bits": 0
+      },
+      "u_l20": {
+        "kind": "cell_MC10231",
+        "registers": 6,
+        "block_memory_bits": 0
+      },
+      "u_c02": {
+        "kind": "cell_MC1650",
+        "registers": 2,
+        "block_memory_bits": 0
+      },
+      "u_f01": {
+        "kind": "cell_MC1650",
+        "registers": 1,
+        "block_memory_bits": 0
+      },
+      "u_f02": {
+        "kind": "cell_MC1650",
+        "registers": 2,
+        "block_memory_bits": 0
+      },
+      "u_b14": {
+        "kind": "cell_MCM10149",
+        "registers": 0,
+        "block_memory_bits": 1024
+      },
+      "u_d21": {
+        "kind": "cell_MCM10149",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_h09": {
+        "kind": "cell_MCM10149",
+        "registers": 0,
+        "block_memory_bits": 1024
+      },
+      "u_h10": {
+        "kind": "cell_MCM10149",
+        "registers": 0,
+        "block_memory_bits": 1024
+      },
+      "u_h11": {
+        "kind": "cell_MCM10149",
+        "registers": 0,
+        "block_memory_bits": 1024
+      },
+      "u_h14": {
+        "kind": "cell_MCM10149",
+        "registers": 0,
+        "block_memory_bits": 1024
+      },
+      "u_h15": {
+        "kind": "cell_MCM10149",
+        "registers": 0,
+        "block_memory_bits": 1024
+      },
+      "u_h16": {
+        "kind": "cell_MCM10149",
+        "registers": 0,
+        "block_memory_bits": 512
+      },
+      "u_h22": {
+        "kind": "cell_MCM10149",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_l10": {
+        "kind": "cell_MCM10149",
+        "registers": 0,
+        "block_memory_bits": 768
+      },
+      "u_l15": {
+        "kind": "cell_MCM10149",
+        "registers": 0,
+        "block_memory_bits": 768
+      },
+      "u_k23": {
+        "kind": "cell_MU10164",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_b18": {
+        "kind": "cell_SE10210",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_c17": {
+        "kind": "cell_SE10210",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_d15": {
+        "kind": "cell_SE10210",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_f13": {
+        "kind": "cell_SE10210",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_g14": {
+        "kind": "cell_SE10210",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_i07": {
+        "kind": "cell_SE10210",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_i18": {
+        "kind": "cell_SE10210",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_j06": {
+        "kind": "cell_SE10210",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_b17": {
+        "kind": "cell_SE10211",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_b16": {
+        "kind": "cell_SE10212",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_c06": {
+        "kind": "cell_SE10212",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_c18": {
+        "kind": "cell_SE10212",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_i06": {
+        "kind": "cell_SE10212",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_l02": {
+        "kind": "cell_SE10231",
+        "registers": 3,
+        "block_memory_bits": 0
+      },
+      "u_a20": {
+        "kind": "cell_SG10139",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_a21": {
+        "kind": "cell_SG10139",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_a05": {
+        "kind": "cell_SN74123",
+        "registers": 35,
+        "block_memory_bits": 0
+      },
+      "u_g02": {
+        "kind": "cell_SN74125",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_d03": {
+        "kind": "cell_SN74LS153",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_d06": {
+        "kind": "cell_SN74LS155",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_a01": {
+        "kind": "cell_SN74LS169",
+        "registers": 7,
+        "block_memory_bits": 0
+      },
+      "u_a08": {
+        "kind": "cell_SN74LS174",
+        "registers": 5,
+        "block_memory_bits": 0
+      },
+      "u_d04": {
+        "kind": "cell_SN74LS174",
+        "registers": 6,
+        "block_memory_bits": 0
+      },
+      "u_d05": {
+        "kind": "cell_SN74S288",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_g22": {
+        "kind": "cell_p_8T98",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_g23": {
+        "kind": "cell_p_8T98",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_g24": {
+        "kind": "cell_p_8T98",
+        "registers": 0,
+        "block_memory_bits": 0
+      },
+      "u_receive_monitor": {
+        "kind": "dorado_receive_monitor",
+        "registers": 34,
+        "block_memory_bits": 0
+      },
+      "merged_pure_mux": {
+        "kind": "cell_MC10174",
+        "registers": 0,
+        "block_memory_bits": 0
+      }
+    },
+    "inferred_roms": {
+      "u_b14": {
+        "words": 256,
+        "width": 4
+      },
+      "u_h09": {
+        "words": 256,
+        "width": 4
+      },
+      "u_h10": {
+        "words": 256,
+        "width": 4
+      },
+      "u_h11": {
+        "words": 256,
+        "width": 4
+      },
+      "u_h14": {
+        "words": 256,
+        "width": 4
+      },
+      "u_h15": {
+        "words": 256,
+        "width": 4
+      },
+      "u_h16": {
+        "words": 256,
+        "width": 4
+      },
+      "u_l10": {
+        "words": 256,
+        "width": 4
+      },
+      "u_l15": {
+        "words": 256,
+        "width": 4
+      }
+    },
+    "immutable_rom_placement": {
+      "rows": [
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DskEth_full_snapshot_experiment:b_DskEth|cell_MCM10149:u_b14|altsyncram:mem_rtl_0|altsyncram_35e1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "yes",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "1024",
+          "M10K blocks": "1",
+          "MLAB cells": "0",
+          "MIF": "db/Dorado.ram0_cell_MCM10149_e20e625e.hdl.mif",
+          "Location": "M10K_X26_Y54_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Unsupported Depth"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DskEth_full_snapshot_experiment:b_DskEth|cell_MCM10149:u_h09|altsyncram:mem_rtl_0|altsyncram_v0e1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "yes",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "1024",
+          "M10K blocks": "1",
+          "MLAB cells": "0",
+          "MIF": "db/Dorado.ram0_cell_MCM10149_99157641.hdl.mif",
+          "Location": "M10K_X26_Y52_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Unsupported Depth"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DskEth_full_snapshot_experiment:b_DskEth|cell_MCM10149:u_h10|altsyncram:mem_rtl_0|altsyncram_c2e1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "1024",
+          "M10K blocks": "1",
+          "MLAB cells": "0",
+          "MIF": "db/Dorado.ram0_cell_MCM10149_759f74a.hdl.mif",
+          "Location": "M10K_X26_Y53_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Unsupported Depth"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DskEth_full_snapshot_experiment:b_DskEth|cell_MCM10149:u_h11|altsyncram:mem_rtl_0|altsyncram_83e1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "yes",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "1024",
+          "M10K blocks": "1",
+          "MLAB cells": "0",
+          "MIF": "db/Dorado.ram0_cell_MCM10149_cd2c043.hdl.mif",
+          "Location": "M10K_X26_Y55_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Unsupported Depth"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DskEth_full_snapshot_experiment:b_DskEth|cell_MCM10149:u_h14|altsyncram:mem_rtl_0|altsyncram_r3e1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "yes",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "1024",
+          "M10K blocks": "1",
+          "MLAB cells": "0",
+          "MIF": "db/Dorado.ram0_cell_MCM10149_b9707a84.hdl.mif",
+          "Location": "M10K_X26_Y58_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Unsupported Depth"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DskEth_full_snapshot_experiment:b_DskEth|cell_MCM10149:u_h15|altsyncram:mem_rtl_0|altsyncram_m6e1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "no",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "4",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "1024",
+          "M10K blocks": "1",
+          "MLAB cells": "0",
+          "MIF": "db/Dorado.ram0_cell_MCM10149_63be2dd7.hdl.mif",
+          "Location": "M10K_X26_Y56_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Unsupported Depth"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DskEth_full_snapshot_experiment:b_DskEth|cell_MCM10149:u_h16|altsyncram:mem_rtl_0|altsyncram_q6e1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "yes",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "2",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "512",
+          "M10K blocks": "1",
+          "MLAB cells": "0",
+          "MIF": "db/Dorado.ram0_cell_MCM10149_5fe9fbd.hdl.mif",
+          "Location": "M10K_X26_Y57_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Unsupported Depth"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DskEth_full_snapshot_experiment:b_DskEth|cell_MCM10149:u_l10|altsyncram:mem_rtl_0|altsyncram_m3e1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "yes",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "3",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "768",
+          "M10K blocks": "1",
+          "MLAB cells": "0",
+          "MIF": "db/Dorado.ram0_cell_MCM10149_ca585038.hdl.mif",
+          "Location": "M10K_X26_Y59_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Unsupported Depth"
+        },
+        {
+          "Name": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DskEth_full_snapshot_experiment:b_DskEth|cell_MCM10149:u_l15|altsyncram:mem_rtl_0|altsyncram_b3e1:auto_generated|ALTSYNCRAM",
+          "Type": "AUTO",
+          "Mode": "ROM",
+          "Clock Mode": "Single Clock",
+          "Port A Depth": "256",
+          "Port A Width": "4",
+          "Port B Depth": "--",
+          "Port B Width": "--",
+          "Port A Input Registers": "yes",
+          "Port A Output Registers": "yes",
+          "Port B Input Registers": "--",
+          "Port B Output Registers": "--",
+          "Size": "1024",
+          "Implementation Port A Depth": "256",
+          "Implementation Port A Width": "3",
+          "Implementation Port B Depth": "--",
+          "Implementation Port B Width": "--",
+          "Implementation Bits": "768",
+          "M10K blocks": "1",
+          "MLAB cells": "0",
+          "MIF": "db/Dorado.ram0_cell_MCM10149_3c3e6200.hdl.mif",
+          "Location": "M10K_X26_Y62_N0",
+          "Mixed Width RDW Mode": "Don't care",
+          "Port A RDW Mode": "New data",
+          "Port B RDW Mode": "New data",
+          "ECC Mode": "Off",
+          "ECC Pipeline Registers": "No",
+          "Fits in MLABs": "No - Unsupported Depth"
+        }
+      ],
+      "unique_m10ks": 9,
+      "implemented_bits": 8192,
+      "scope": "Actual inactive-admin Native58 packing: nine distinct M10Ks, immutable ROM geometry and fabric/block output-register selection checked. All14source assets hash checked separately."
+    },
+    "scope": "Native Ready/front retains the same133 mutable helpers and eight absent helpers. Exactly the zero-register/zero-memory MC10102 l24 disappears; caller must compare every remaining child kind/register count with qualified baseline. Nine immutable ROM geometries/placements checked; admin inactive."
+  }
+}
