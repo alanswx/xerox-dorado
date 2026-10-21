@@ -48,14 +48,28 @@ OBSERVER = r'''
   // Read-only phase-by-phase operands. PCT fires at a CIA change, before
   // the operand muxes have settled, and cannot prove a consumed MD value.
   longint boot_diag_settled_from=-1;
+  wire [15:0] boot_diag_r_value={R_VALUE_BITS};
+  wire [15:0] boot_diag_dr_value={DR_VALUE_BITS};
+  wire [15:0] boot_diag_drm_value={DRM_VALUE_BITS};
   initial void'($value$plusargs("settled-from=%d",boot_diag_settled_from));
   always @(negedge sys_clk)
     if(boot_diag_settled_from>=0 && n_cyc2>=boot_diag_settled_from &&
        n_cyc2<boot_diag_settled_from+6000)
-      $display("BOOT_DIAG_PHASE sample=%0d CIA=%h task=%h clocks=%b%b%b A=%h B=%h ALU=%h MD=%h VA=%h RM00=%h BP=%h Hold=%b",
+      $display("BOOT_DIAG_PHASE sample=%0d CIA=%h task=%h clocks=%b%b%b T=%h A=%h B=%h ALU=%h MD=%h VA=%h RM00=%h BP=%h Hold=%b BMux=%h Mapbuf=%h written=%h MapLd=%b Pair=%b PairClk=%b MapDec=%b MapClk=%b MapEn=%b MapGate=%b MapC07=%b FH=%b preC1=%b MapWE=%b MapRAS=%b MapCAS=%b pending=%b addr=%h R=%h dR=%h dRm=%h RBypass=%b%b RReadClk=%b%b RVisibleClk=%b%b BClk=%b%b BMuxH=%b%b%b BMuxL=%b%b%b Root=%b",
         n_cyc2,ring_cia,pct_ctask,m.b_ContA.clk0_p_Ca,m.b_ContA.clk1_p_Ca,
-        m.b_ContA.clk2_p_Ca,brc_alua,brc_alub,brc_alu,bootio_md,w_procva,
-        bootio_rm(8'h00),bootio_rm(8'h11),m.Hold);
+        m.b_ContA.clk2_p_Ca,brc_t,brc_alua,brc_alub,brc_alu,bootio_md,w_procva,
+        bootio_rm(8'h00),bootio_rm(8'h11),m.Hold,map_probe_b,map_probe_q,cedar_map_written,
+        m.b_MemX.MapbufLd_p_a,m.Map_u_InPair_p_,m.b_MemC.LdPair_p_,m.b_MemC.Map_u__p_,
+        m.b_MemX.Clk1_p_Aa,m.b_MemX.u_c02.ck_en,m.b_MemX.MapbufLd_p_c,m.b_MemX.u_c07.p3,
+        m.b_MemX.preFH_p_A,m.b_MemX.preClk1_p_A,m.b_MemX.RTMapWE_p_a,
+        m.b_MemX.RTMapRAS_p_a,m.b_MemX.RTMapCAS_p_a,m.b_MemX.u_a04.write_pending,
+        m.b_MemX.u_a04.addr,boot_diag_r_value,boot_diag_dr_value,boot_diag_drm_value,
+        m.b_ProcH.RbBypassDly,m.b_ProcL.RbBypassDly,
+        m.b_ProcH.Clock1_p_Bb,m.b_ProcL.Clock1_p_Bb,
+        m.b_ProcH.PreSHCP_p_B,m.b_ProcL.PreSHCP_p_B,
+        m.b_ProcH.Clock1_p_Ac,m.b_ProcL.Clock1_p_Ac,
+        m.b_ProcH.BmuxEn_p_,m.b_ProcH.Bmux1_p_,m.b_ProcH.Bmux0_p_,
+        m.b_ProcL.BmuxEn_p_,m.b_ProcL.Bmux1_p_,m.b_ProcL.Bmux0_p_,m.CLK_ca_p_);
   // Passive breadcrumbs for the germ -> Mesa boundary. Never drives state.
   reg boot_diag_clock=0,boot_diag_world=0,boot_diag_germ=0;
   reg boot_diag_input_n=1;
@@ -87,6 +101,9 @@ OBSERVER = r'''
     boot_diag_clock=m.b_ContA.clk0_p_Ca;
   end
 '''
+for field,net in [('DRM_VALUE_BITS','dRm'),('DR_VALUE_BITS','dR'),('R_VALUE_BITS','R')]:
+    OBSERVER=OBSERVER.replace(field,','.join(
+        f'm.b_Proc{"H" if i<8 else "L"}.{net}_{i:02d}' for i in range(16)))
 
 MEMORY_LINE_OBSERVER = r'''
   // Read-only visibility at the boot image's 0E10/1E10/2E10/3E10 lines.
@@ -124,11 +141,34 @@ for field,bank in [('D0_BITS',0),('D1_BITS',1)]:
         f'm.b_MemD.D{bank}in_{i:02d}'for i in range(18)))
 
 
+def storage_observer(start,length):
+    """Observe the actual generic DRAM address-latch pins and resolved words."""
+    declarations=[];names=[]
+    for board,tag in [('msa','even'),('msaOdd','odd')]:
+        for field,port,width in [('address',None,14),('pins','a',7),('ras','p4',1),('cas','p15',1)]:
+            name='boot_diag_'+tag+'_'+field;names.append(name)
+            values=[f'm.b_{board}.dram_addr_{i}'if port is None else
+                    f'm.b_{board}.u_dram_addr_{i}.{port}'for i in reversed(range(16))]
+            declarations.append(f'  wire [{16*width-1}:0] {name}={{'+','.join(values)+'};')
+    declarations += ['  integer boot_diag_storage_rows=0;',
+        '  always @(negedge sys_clk)begin',
+        f'    if(n_cyc2>={start} && n_cyc2<{start+length})begin',
+        '      boot_diag_storage_rows++;',
+        '      $display("BOOT_DIAG_STORAGE_ADDRESS sample=%0d CIA=%h task=%h clocks=%b%b%b T=%h ALU=%h VA=%h RMar=%h Hold=%b raw=%h delayed=%h e_addr=%h e_pins=%h e_ras=%h e_cas=%h o_addr=%h o_pins=%h o_ras=%h o_cas=%h MemWE=%b%b",',
+        '        n_cyc2,ring_cia,pct_ctask,m.b_ContA.clk0_p_Ca,m.b_ContA.clk1_p_Ca,m.b_ContA.clk2_p_Ca,',
+        '        brc_t,brc_alu,w_procva,startup_rmar,m.Hold,m.b_MemD.storage_rx_raw,m.b_MemD.storage_rx_data,',
+        '        '+','.join(names)+',m.MemWEa,m.MemWEb);',
+        '    end',
+        '  end',
+        '  final $display("BOOT_DIAG_STORAGE_ADDRESS_ROWS %0d",boot_diag_storage_rows);']
+    return '\n'.join(declarations)+'\n'
+
+
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_from=None, trace_cycles=20000, settled_from=None, native_memory=False, handoff_only=False, native_ifu=False, handoff_trace=False, native_cpu_baseline=False, memory_line_trace=False):
+def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_from=None, trace_cycles=20000, settled_from=None, native_memory=False, handoff_only=False, native_ifu=False, handoff_trace=False, native_cpu_baseline=False, memory_line_trace=False, storage_from=None, storage_samples=4000):
     assert not(probe_only and handoff_only),'Choose probe or original-image handoff gate'
     provenance = json.loads((parent/'provenance.json').read_text())
     state = json.loads((parent/'run-state.json').read_text())
@@ -162,8 +202,10 @@ def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_
         end
       end''')
     assert not memory_line_trace or native_memory
+    assert storage_from is None or(native_memory and probe_only and 0<storage_samples<=20000)
     tb.write_text(body.replace('module tb_exec;', 'module tb_exec;\n'+control+OBSERVER+
-                              (MEMORY_LINE_OBSERVER if memory_line_trace else '')))
+                              (MEMORY_LINE_OBSERVER if memory_line_trace else '')+
+                              (storage_observer(storage_from,storage_samples)if storage_from is not None else'')))
     # The generic DskEth fixture does not establish Cedar receive timing.
     # Bind the exact deployed normal-operation board/helpers for BOTH arms.
     # Its administration remains inactive, as in the actual native backplane.
@@ -351,6 +393,7 @@ def prepare(parent, native_io, out, cycles, inspect_at, probe_only=False, trace_
                   native_ifu_inputs=ifu_sources,handoff_trace=handoff_trace,
                   native_cpu_baseline_inputs=baseline_cpu_sources,
                   memory_line_trace=memory_line_trace,
+                  storage_window_from=storage_from,storage_window_samples=storage_samples,
                   native_io_manifest_sha256=sha(native_io/'r-front-ready-native.json'),
                   external_inputs={str(p.relative_to(ROOT)):sha(p)
                                    for p in (pack, eb, replies)},
@@ -387,7 +430,13 @@ def run(out):
         text=(out/'test.log').read_text()
         if record.get('probe_only'):
             assert (out/'register-map-inspection.txt').exists(),'Read-only inspection missing'
-            assert 'BOOT_DIAG_RX_CPU ' in text,'No CPU receive samples'
+            if record.get('storage_window_from')is not None:
+                assert 'BOOT_DIAG_STORAGE_ADDRESS 'in text,'No original storage samples'
+                assert 'BOOT_DIAG_STORAGE_ADDRESS_ROWS '+str(record['storage_window_samples'])in text
+            elif record.get('settled_from')is not None:
+                assert text.count('BOOT_DIAG_PHASE ')==6000,'Incomplete bounded phase probe'
+            else:
+                assert 'BOOT_DIAG_RX_CPU ' in text,'No CPU receive samples'
         else:
             assert 'LOADED EB PASS:' in text,'Original IM/IFUM readback did not pass'
         state.update(status='TERMINAL_RECEIVE_FILTER_PROBE' if record.get('probe_only') else
@@ -422,10 +471,12 @@ if __name__=='__main__':
     parser.add_argument('--handoff-trace',action='store_true')
     parser.add_argument('--native-cpu-baseline',action='store_true')
     parser.add_argument('--memory-line-trace',action='store_true')
+    parser.add_argument('--storage-from',type=int)
+    parser.add_argument('--storage-samples',type=int,default=4000)
     args=parser.parse_args()
     if args.prepare:
         assert args.parent and args.native_io
         prepare(args.parent.resolve(),args.native_io.resolve(),args.prepare.resolve(),args.cycles,args.inspect_at,
-                args.probe_only,args.trace_from,args.trace_cycles,args.settled_from,args.native_memory,args.handoff_only,args.native_ifu,args.handoff_trace,args.native_cpu_baseline,args.memory_line_trace)
+                args.probe_only,args.trace_from,args.trace_cycles,args.settled_from,args.native_memory,args.handoff_only,args.native_ifu,args.handoff_trace,args.native_cpu_baseline,args.memory_line_trace,args.storage_from,args.storage_samples)
     else:
         run(args.run.resolve())

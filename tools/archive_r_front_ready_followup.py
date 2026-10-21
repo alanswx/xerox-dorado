@@ -79,6 +79,7 @@ def archive(out,running_prefixes=(),run_names=None):
     for name in ['test_r_front_ready_boot.py','test_r_front_native_ports.py',
                  'test_r_front_native_q.py','stage_r_front_ready_native.py',
                  'inspect_r_front_native_handoff.py',
+                 'inspect_r_front_map_capture.py',
                  'check_microcode_reply_stream.py','inspect_r_front_checksum.py',
                  'decode_xmt.py','eb_replies.py',Path(__file__).name]:
         paths['tools/'+name]=ROOT/'tools'/name

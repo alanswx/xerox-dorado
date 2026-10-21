@@ -1,0 +1,20 @@
+{
+  "status": "PASS_FROZEN_MAP_ANALYSIS_REPLAY",
+  "extracted_members": 1757,
+  "comparisons": {
+    "storage-address": {
+      "RM_mismatches": 0,
+      "map_row_mismatches": 8191,
+      "analysis_identical": true,
+      "consumed_evidence_hashes_identical": true
+    },
+    "map-phase": {
+      "RM_mismatches": 0,
+      "map_row_mismatches": 8191,
+      "analysis_identical": true,
+      "consumed_evidence_hashes_identical": true
+    }
+  },
+  "hardware_qualified": false,
+  "speedup_qualified": false
+}

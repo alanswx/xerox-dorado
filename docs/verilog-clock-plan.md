@@ -148,13 +148,34 @@ RAM shadows with actual memory controllers pass50M stored-word/closed-write
 checks and settled asynchronous read-pin comparisons. A three-sample Q filter
 missed20 packages and is explicitly rejected as incomplete; a one-sample20M
 capture probe observes all91 packages but ends before the download. Full50M
-capture and paired cache/storage line traces are running.
+capture and paired cache/storage line traces are now terminal. Q3 passes all91
+packages through50M (minimum2,107,861 checks/package); it remains an open-loop
+settled-input check, not a closed-loop board-timing qualification. V17 retains
+the native baseline's full-image PASS and the candidate's3,856 mismatches.
 The first line observer matched an idle I/O address as well; its two V16 jobs
 were deliberately stopped and their full logs preserved with verified gzip
 readback. Corrected V17 narrows the predicate to the four boot-image lines and
 bounds emitted rows. Only observer bench/helper inputs change; the other419/
-434 inputs remain identical. The independent Q3 run continues. Diagnose the first
-data/capture divergence before changing production RTL. Baseline's later09c
+434 inputs remain identical. V18's matched native inspection at13.9M now finds
+all256 RM words identical but8,191 map entries different: the candidate's
+real-page fields are zero. In4,000 storage samples, VA/Hold/RAS/CAS/write strobes
+match while every sampled DRAM latched-address vector differs. These are raw
+row/column indices, not virtual page numbers.
+V19 catches a physical capture failure: at sample9,393,607 the candidate's B
+bus drops from page1 to0 for one host sample. MapBuf closes at9,393,608 and
+retains0, even though B has returned to1. The baseline remains stable and writes
+page1. The candidate's later pages in the same window also store0. This is
+component evidence of the failed map-data handoff, not yet the FPGA's complete
+failure diagnosis. Both V19 runs finish14M with original Initial checks and
+6,000 phase rows. All map control/clock/address records in the window match;
+22 of23 sampled map writes differ. V20's added operand observer fails compile
+because overlapping vector-name substitutions generate an invalid net. V21
+fixes only that observer and adds passive R/dR/dRm, bypass and R/B-mux
+clock/select visibility to identify the producer epoch before changing RTL.
+The [map capture receipt](../fpga/mister/reports/2026-10-21-r-front-map-capture-diagnostic/README.md)
+preserves terminal observations, the failed observer and verified live V21
+prefixes, with lossless readback and receipt-only analysis replay.
+Baseline's later09c
 wait is task12 starvation after2,153 emulator samples, not established IFU
 failure or a desktop boot. Current process handles/receipt paths are in the
 handoff. No hardware speed gain, clock/Main/daemon change or rollback claim.

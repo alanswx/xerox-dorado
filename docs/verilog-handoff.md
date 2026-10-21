@@ -88,17 +88,59 @@ Q shadow V1 is terminal FAILED for insufficient coverage, despite no sampled
 mismatch: its three-sample filter observes71/91 packages;20 phase/address packages
 have zero checks. Never call that equivalence. V2's one-host-sample settling
 filter passes all91 packages at20M (minimum31,487 checks/package), before the
-download. The shadows observe candidate pins and drive no target net; they are
+download. Full50M V3 now passes all91 packages, minimum2,107,861 checks/package,
+899,463,096 package comparisons total. The shadows observe candidate pins and drive no target net; they are
 an open-loop capture diagnostic, not a closed-loop original-CPU oracle or an
 all-device timing proof. V1's checksum PCT ends at5191 and indicates mismatches
 within VM0e10's16-word line (groups0e11..0e13 and0e15..0e1f). CIA-change operands
 are unsettled; consumed MD/data provenance is not yet established by that trace.
 
-**Current processes to observe, not restart:**
+V17 and Q3 are terminal. The V17 control passes original image readback; the
+candidate fails3,856 items, no Cedar entry. Q3 passes with the limits above.
+V18's paired14M storage probes are terminal, exit0, original Initial checks
+pass; these are bounded observations, not loaded-image or desktop gates.
 
-- `r-front-ready-memory-line-control-v17-20261021`: test9099, prior native CPU.
-- `r-front-ready-memory-line-candidate-v17-20261021`: test9203, new CPU.
-- `r-front-native-q-shadows-v3-20261021`: test7608, full50M/one-sample capture probe.
+**New evidence and immediate TODO:**
+
+1. V18's actual map/RM inspection at13.9M has256 identical RM words and8,191
+   differing map rows. All8,191 differing real-page fields are zero in the
+   candidate;256 other-plane fields also differ. Do not interpret raw DRAM
+   row/column addresses as linear virtual page numbers. The4,000-sample storage
+   window has identical VA/Hold/RAS/CAS/write strobes but differing even/odd
+   latched-address vectors throughout. `tools/inspect_r_front_map_capture.py`
+   verifies frozen source identities and produces the comparison.
+2. V19's paired6000-sample phase window catches the first nonzero map write:
+   sample9,393,607, CIA d30, baseline B/BMux=1/00006, candidate=0/00003. At
+   9,393,608 B returns to1 but MapBuf closes holding0; the baseline retains1.
+   At9,393,644 the actual map DRAM samples RP1 versus RP0. Later nonzero
+   pages in that window also store0 in the candidate. Clock/hold/map-control
+   records match across the boundary. This demonstrates a CPU-to-MapBuf data
+   capture failure in the matched component, not a qualified hardware fix.
+3. Follow V21's paired native producer probes before changing RTL. They add
+   R/dR/dRm, bypass, R read/visible clocks, B-mux clocks/selects and root clock.
+   Establish whether the R visibility epoch precedes the retained B selector;
+   do not repair this by forcing map contents or adding arbitrary delays.
+   V20's observer failed compile before any simulation because a shorter
+   generated-vector token was replaced inside a longer token. V21 replaces
+   longer tokens first; the prepared V20 inputs/logs are preserved unchanged.
+4. Correct the actual producer/consumer contract, then require Initial map
+   data as well as the full original loaded-image readback. Requalify component
+   arrival contracts/all-device timing and same-clock native Cedar/input before
+   accelerating. Hardware cause, speed gain and rollback remain unproven.
+
+**Current probe directories to observe, not restart:**
+
+- `r-front-ready-map-phase-control-v19-20261021`: terminal, exit0.
+- `r-front-ready-map-phase-candidate-v19-20261021`: terminal, exit0.
+- `r-front-ready-map-producer-control-v21-20261021`: test14928, paired producer observer.
+- `r-front-ready-map-producer-candidate-v21-20261021`: test15028, paired producer observer.
+
+Both V19 runs complete14M and the original Initial check; all6,000 phase rows
+align at the same sample numbers (zero map-write offset). All map control,
+clock, hold and address records match;22 of23 sampled map writes differ.
+The first write, page0, agrees. Do not carry the unrelated early8-sample setup
+offset into this map window. The V19 `map-capture-comparison.json` records the
+actual event alignment, first bad write and96 preceding host samples.
 
 All directories are under `build/rtl-executive/`; use their exact run-state and
 actual process handles. The line probes compile and preserve full original
@@ -112,11 +154,11 @@ Their full observed output remains losslessly in each local `test.log.gz`:
 1,471,393,267/528,458,759 raw bytes become32,244,785/11,354,955 bytes, verified
 by decompressed SHA/length before raw removal. This is an observer failure,
 not a new guest-failure result. V17 restricts VA/BP to0e10/1e10/2e10/3e10 and
-stops explicitly if the diagnostic exceeds200,000 rows. Both compile and are
-verified live. Only bench/helper inputs differ;419 control/434 candidate
+stops explicitly if the diagnostic exceeds200,000 rows. Both are now terminal.
+Only bench/helper inputs differ;419 control/434 candidate
 inputs remain identical to archived V16. The correction's sources, status,
 hashes and lineage are under the closed receipt's `trace-filter-correction/`.
-Q3 continues unchanged. Some early setup records precede full error enable; align valid
+Q3 is now terminal PASS. Some early setup records precede full error enable; align valid
 records to the original parity-enable event and instruction/task, rather than
 assuming every early sample number matches. Original RTL/firmware executes all
 memory work. Find the first changed data/capture epoch before changing RTL.
@@ -128,6 +170,14 @@ bytes. Its V16/Q3 logs remain historical running prefixes. The correction
 extension replaces only the stopped observer jobs with V17. Exact helpers,
 frozen inputs and failed/insufficient checks remain preserved. Main16808 and
 server16807 were revalidated at09:41:54 UTC on MiSTer14; no hardware reload.
+
+The [map capture receipt](../fpga/mister/reports/2026-10-21-r-front-map-capture-diagnostic/README.md)
+adds terminal Q3/V17/V18/V19, failed observer V20 and independently verified
+live V21 prefixes:4,831 members/494 blobs,58,331,547 raw/5,938,596 stored bytes.
+The frozen analyzer replays both map comparisons from receipt-only extraction.
+The exact Main16808/server16807 executable paths/hashes were revalidated again
+at11:20:13 UTC; no service, pack or FPGA mutation. Frozen inputs remain
+authoritative; the live producer jobs have not been restarted.
 
 Clock/core deployment remains RBF57a552af at50MHz/SYSPER4,6.25M/s nominal ceiling;
 last QUALIFIED Cedar login remains1,947,686.01 issues/s. No new speed/Cedar/
@@ -331,7 +381,8 @@ handoff concrete without calling the known IFU wait a desktop success.
 Control exits0 with the image verified; candidate exits1 with3,856 mismatches
 and entry not reached. Their exact frozen provenance/run-state are archived
 in the later native-handoff receipt above. V15 closes the native CPU oracle
-comparison; continue from the current V16/Q3 handles, not these closed jobs.
+comparison; current producer probes and their handles are listed at the top
+of this handoff. The former V16/Q3 runs are closed; do not restart them.
 
 Next: finish the corrected matched receive/germ diagnostics and compare the
 first changed storage/producer behavior against the preserved hardware loop. Find the first changed storage/producer behavior
