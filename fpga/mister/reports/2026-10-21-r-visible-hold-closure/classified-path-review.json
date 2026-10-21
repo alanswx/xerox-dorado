@@ -1,0 +1,6 @@
+{
+  "status": "PASS_CLASSIFIED_R_AND_CENTRAL_REPORTS_ONLY",
+  "reports": 160,
+  "minimum_slack_ns": 0.163,
+  "scope": "Additional central/native-R reports only; v3 remains rejected for negative global storage hold"
+}

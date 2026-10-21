@@ -68,6 +68,8 @@ def run(source,out,candidate,baseline,initial,component,initial_map_control=None
         text=reader.raw(source/name).decode()
         modifications['native_R_mapbuf_hold']=(name,re.sub(r'Worst case slack is [-+\d.]+','Worst case slack is -0.100',text,count=1))
         modifications['native_R_register_coverage']=('central-crossings.log',re.sub(r'^R_FRONT_READY_NATIVE_R [^\n]+\n','',central,count=1,flags=re.M))
+        modifications['native_R_bit_identity']=('central-crossings.log',re.sub(
+            r'(^R_FRONT_READY_R_REGISTER [^\n]+\|q\[)[0-3](\])',r'\g<1>4\2',central,count=1,flags=re.M))
     results=[]
     for name,(member,text)in modifications.items():
         assert text!=reader.raw(source/member).decode('latin-1'if member.endswith('fit.rpt')else'utf-8'),name

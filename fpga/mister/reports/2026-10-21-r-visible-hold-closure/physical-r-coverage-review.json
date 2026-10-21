@@ -1,0 +1,16 @@
+{
+  "status": "PASS_PHYSICAL_R_OWNER_AND_REPLICA_COVERAGE",
+  "coverage": {
+    "architectural_registers": 16,
+    "physical_registers": 27,
+    "replicas": 11
+  },
+  "damaged_cases_rejected": [
+    "missing_corner",
+    "invalid_bit",
+    "missing_register",
+    "duplicate_identity",
+    "unknown_replica"
+  ],
+  "scope": "Physical register coverage only; v3 remains rejected for negative storage hold"
+}

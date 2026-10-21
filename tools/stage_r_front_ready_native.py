@@ -17,6 +17,17 @@ from sil_to_verilog import vname
 
 ROOT = Path(__file__).resolve().parents[1]
 BACKPLANE = 'src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v'
+HOLD_MARGIN_SDC = '''# Additional hold-closure target; all original SDC files remain intact.
+# Quartus17 -add preserves the derived uncertainty. Same-edge transfers
+# include the host old_data -> gated machine read_pipe path.
+set r_front_hold_clock [get_clocks {emu|pll|pll_inst|altera_pll_i|general?0?.gpll~PLL_OUTPUT_COUNTER|divclk}]
+if {[get_collection_size $r_front_hold_clock]!=1} {error "Expected exactly one50MHz core clock"}
+foreach_in_collection r_front_clock $r_front_hold_clock {
+ if {[get_clock_info -period $r_front_clock]!=20.000} {error "Hold margin expects unchanged50MHz clock"}
+}
+set_clock_uncertainty -hold -enable_same_physical_edge -add 0.100 -from $r_front_hold_clock -to $r_front_hold_clock
+unset r_front_hold_clock
+'''
 
 
 def sha(raw):
@@ -131,7 +142,8 @@ def canonical_visible_r_state(body):
     r_front_upper_q<=r_front_next[751:588];''')
 
 
-def prepare(native, qualified, inventory, out, project, preserve_native_r=False):
+def prepare(native, qualified, inventory, out, project, preserve_native_r=False,hold_margin_ps=0):
+    assert hold_margin_ps in(0,100)and(not hold_margin_ps or preserve_native_r)
     record = json.loads((native / 'mc1668-candidate.json').read_text())
     assert record['state_admin'] == 'INACTIVE' and record['frequency_mhz'] == 50 and record['sysper'] == 4
     for n, h in record['source_hashes'].items():
@@ -254,6 +266,9 @@ def prepare(native, qualified, inventory, out, project, preserve_native_r=False)
     outputs[qsf] += b'\n# Qualified Ready/front component experimental native integration\n'
     for n in [*RTL, 'dorado_r_front_cone.sv']:
         outputs[qsf] += f'set_global_assignment -name SYSTEMVERILOG_FILE {project}/src/verilog/rtl/{n}\n'.encode()
+    if hold_margin_ps:
+        outputs['core/r-front-hold-margin.sdc']=HOLD_MARGIN_SDC.encode()
+        outputs[qsf]+=b'set_global_assignment -name SDC_FILE r-front-hold-margin.sdc\n'
     for n, raw in outputs.items():
         p = out / n
         p.parent.mkdir(parents=True, exist_ok=True)
@@ -267,6 +282,7 @@ def prepare(native, qualified, inventory, out, project, preserve_native_r=False)
         evaluator_owned_Q_bits=736 if preserve_native_r else 752,
         native_visible_R_bits=16 if preserve_native_r else 0,
         internal_predicted_R_duplicate=False,
+        additional_hold_uncertainty_ps=hold_margin_ps,
         live_producers=producers, unused_input_positions=[i for i in range(246) if i not in producers],
         qualification_input_hashes=gate['inputs'], native_inventory_sha256=sha((inventory/'results.json').read_bytes()),
         firmware_qualified=False, full_timing_qualified=False, hardware_changed=False,
@@ -282,6 +298,7 @@ if __name__ == '__main__':
     for name in ['native', 'qualified', 'inventory', 'output', 'project']:
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--preserve-native-r',action='store_true',help='Retain the four original visible-R latches as canonical state')
+    p.add_argument('--hold-margin-ps',type=int,choices=[0,100],default=0,help='Add100ps to the original50MHz hold target, preserving all original constraints')
     a = p.parse_args()
     assert a.project.is_absolute()
-    prepare(a.native.resolve(), a.qualified.resolve(), a.inventory.resolve(), a.output.resolve(), a.project,a.preserve_native_r)
+    prepare(a.native.resolve(), a.qualified.resolve(), a.inventory.resolve(), a.output.resolve(), a.project,a.preserve_native_r,a.hold_margin_ps)

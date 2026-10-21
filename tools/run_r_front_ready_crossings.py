@@ -20,9 +20,10 @@ def live(pid):
     except ProcessLookupError:return False
 
 
-def run(project,quartus):
-    path=project/'central-review-state.json';assert not path.exists(),'Observe existing review process'
-    script=project/'audit-r-front-ready.tcl';assert script.is_file()
+def run(project,quartus,state_name='central-review-state.json',script_name='audit-r-front-ready.tcl',log_name='central-crossings.log'):
+    assert all(Path(n).name==n for n in[state_name,script_name,log_name])
+    path=project/state_name;assert not path.exists(),'Observe existing review process'
+    script=project/script_name;assert script.is_file()
     state=dict(status='WAITING_FOR_RECORDED_BUILDER',review_pid=os.getpid(),started=time.time(),
         tcl_sha256=hashlib.sha256(script.read_bytes()).hexdigest(),actions=[],assembly_permitted=False)
     def write():path.write_text(json.dumps(state,indent=2)+'\n')
@@ -45,7 +46,7 @@ def run(project,quartus):
             state['last_live_observation']=time.time();write();time.sleep(10)
         state['status']='RUNNING_CENTRAL_Q_REPORTS';write()
         command=[str(quartus/'quartus_sta'),'-t',str(script)]
-        with(project/'central-crossings.log').open('x')as log:
+        with(project/log_name).open('x')as log:
             p=subprocess.Popen(command,cwd=project/'core',stdout=log,stderr=subprocess.STDOUT)
             action=dict(command=command,pid=p.pid,started=time.time());state['actions'].append(action);write()
             code=p.wait();action.update(returncode=code,finished=time.time());write()
@@ -59,4 +60,7 @@ def run(project,quartus):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--project',type=Path,required=True)
     p.add_argument('--quartus',type=Path,default=Path('/home/alans/intelFPGA_lite/17.0/quartus/bin'))
-    a=p.parse_args();run(a.project.resolve(),a.quartus.resolve())
+    p.add_argument('--state-name',default='central-review-state.json')
+    p.add_argument('--script-name',default='audit-r-front-ready.tcl')
+    p.add_argument('--log-name',default='central-crossings.log')
+    a=p.parse_args();run(a.project.resolve(),a.quartus.resolve(),a.state_name,a.script_name,a.log_name)

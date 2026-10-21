@@ -192,13 +192,28 @@ original3,600-IM/256-IFUM image handoff,640 matched CPU receive records and the
 native oracle's final RM/map dump. Actual native startup/pause and synthesis
 memory reviews pass. The direct-ROM fixture still ends at the oracle's task12
 wait, so it is not a Cedar desktop gate. A v2 synthesis attempt rejected
-hierarchical R references; its inputs/logs are preserved. Corrected v3 is
-fitting on misterubuntu (builder2573751/fitter2597431/serial observer2573781),
-with explicit native-R feedback/MapBuf reports. No hardware reload or speed gain.
-The [functional correction receipt](../fpga/mister/reports/2026-10-21-r-visible-native-correction/README.md)
-preserves exact tested/staged sources. Next finish the same build, require all
-device/memory/timing checks and14 damaged-evidence controls, assemble, and
-qualify original-firmware Cedar/input on14 before accelerating.
+hierarchical R references; its inputs/logs are preserved. V3 finishes all builder stages but is rejected for a real -0.031ns storage
+hold path at slow1100mV/100C (`u_storage_5|old_data[5]` to `read_pipe[5]`,
+ungated host to gated machine clock). It must not be assembled or deployed.
+The supplemental R reporter initially expected16 physical registers; corrected
+classification covers16 originals plus11 named fitter copies. All160 additional
+central/R reports pass (+0.163ns minimum), without overriding negative global hold.
+The rejected fit and separate corrected reports are closed and preserved.
+
+Current v4 retains identical RTL/ROM/all original SDCs and adds100ps hold
+uncertainty to the same20ns core clock. All511 other existing files match after
+project-path normalization. On the same placed v3 netlist this turns-0.031 into
+-0.131ns: a stricter fitter target, no waiver or changed cycle. Builder2852373,
+fitter2880461 and serialized observer2852399 are verified live with routing
+active; observe those jobs. The exact-source V26 Initial/map and V27 full-image
+proofs apply to the unchanged v4 RTL and have been revalidated. Next collect
+terminal full-device timing/physical-memory evidence, require all31 summaries/
+196 legacy/160 central-R paths and15 rejected damaged-evidence controls, then
+assemble and use the guarded normal Main loader on14. The loader preparation
+passes twelve invalid metadata/MGL controls; no real image or hardware boot is
+qualified by those tests. Preserve Boot2 volume/trace, use a fresh original
+seed, and recover original-firmware Cedar/input before acceleration.
+[Closed fit and staged-source evidence](../fpga/mister/reports/2026-10-21-r-visible-hold-closure/README.md).
 Baseline's later09c
 wait is task12 starvation after2,153 emulator samples, not established IFU
 failure or a desktop boot. Current process handles/receipt paths are in the

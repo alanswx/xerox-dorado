@@ -1,0 +1,20 @@
+{
+  "status": "PASS_CANONICAL_R_LOADER_GUARDS",
+  "rejected_cases": [
+    "missing_R_timing",
+    "zero_slack",
+    "duplicate_R_state",
+    "wrong_R_owner_width",
+    "wrong_image_source",
+    "entry_not_executed",
+    "missing_named_R_control",
+    "duplicate_control",
+    "stale_RBF",
+    "changed_controls",
+    "invalid_MGL",
+    "invalid_MGL"
+  ],
+  "launcher_paths_and_attributes_verified": true,
+  "synthetic_metadata_only": true,
+  "hardware_changed": false
+}

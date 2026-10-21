@@ -57,71 +57,80 @@ absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
 
-### Visible-R correction passes exact-source component gates; native fit running (2026-10-21 UTC)
+### Visible-R correction: v3 hold rejected; stricter v4 fit running (2026-10-21 UTC)
 
 The Ready/front regression is isolated to visible R changing before the retained
-B selector. Keeping ProcH/ProcL g06/g07 as the original MC10173 latches fixes the
-map. The current candidate has one canonical R value:736 evaluator-owned Q bits
-plus16 original visible-R bits, still752 total, with two explicit8-bit board-output
-buses. No additional pipeline stage or stored R
-prediction.87 storage packages/12 RAM packages are replaced; four original
-visible-R packages remain. Main/daemon, clocks, SDRAM and direct-DDR networking
-are unchanged.
+B selector. Keeping ProcH/ProcL g06/g07 as the original MC10173 latches fixes
+all map entries. The candidate has one canonical R value: 736 evaluator-owned
+Q bits plus 16 original visible-R Qs, still 752 total, exported through two
+explicit eight-bit board ports. No stored R prediction or extra pipeline stage.
+Main/daemon, clock periods, SDRAM and direct-DDR networking are unchanged.
 
-**Current source candidate:** `build/rtl-executive/r-front-ready-r-canonical-native-v3-20261021`,
-remote `/home/alans/mister/Dorado_RFrontRNative_v3_20261021`.
-All three CPU wrappers and the complete evaluator/owner wiring match the V26/V27
-compiled sources exactly. V26 passes original Initial (960 words/15 tasks/all six
-error checks;611,683 enabled samples), all16,384 map entries/all256 RM words, and
-all6,000 sampled R/B/BMux/MapBuf/write-data records against native control.
-V27 finishes55M and passes3,600 loaded original Cedar IM words,256 IFUM entries,
-entry238,640 identical CPU receive records and a byte-identical final RM/map dump
-against the native MC1668 control. The same later task12/09c wait remains: this
-is a direct-ROM/raw-storage component, not a native BaseBoard/germ/desktop boot.
-V23's diagnostic duplicate-R and V25's canonical-R variants also pass the full
-image gate. All of these simulations are terminal; do not restart them.
+V26 passes original Initial (960 words/15 tasks/all six error checks;
+611,683 enabled samples), all 16,384 map entries/all 256 RM words, and all
+6,000 sampled R/B/BMux/MapBuf/write-data records against native control.
+V27 finishes 55M with all 3,600 original Cedar IM words/256 IFUM entries,
+entry 238, 640 identical CPU receive records and a byte-identical final RM/map
+against the native MC1668 control. These exact CPU/evaluator sources are in
+both v3 and v4. Both startup/pause tests pass 2M samples/499,911 roots/359 pauses/
+1,998,976 alias checks, zero unsettled states; their nine CP strobes but zero
+instruction issues do not qualify Initial or Cedar. The long direct-ROM/raw-MSA
+fixture retains the passing oracle's later task12/09c wait. All simulations
+are terminal; none is a native BaseBoard/germ/desktop boot.
 
-Both actual-native startup/pause tests (v2 and explicit-port v3) pass2M host
-samples/499,911 roots/359 pauses/1,998,976 alias checks, zero unsettled states.
-They observe9 CP strobes but zero instruction issues at that early startup
-point, so they do not qualify Initial or Cedar. Synthesis review v3 passes158
-unchanged RAM rows, the intended12-to4 bank replacement and six rejected damaged
-reports. The exact native Initial/source/owner proof rejects five damaged
-ownership/control variants. Whole-device fitted timing and physical memory
-review remain pending.
+**V3 is terminal and REJECTED:** all eight builder stages return zero, but one
+of the 31 global timing checks is negative. Slow 1100 mV/100 C storage
+`u_storage_5|old_data[5]` to `read_pipe[5]` has **-0.031 ns hold**: 0.683 ns
+clock skew versus 0.652 ns data delay, from host clock to gated machine clock.
+Do not assemble or deploy it. Synthesis memory review passes 158 unchanged RAM
+rows/the intended 12-to-4 banks and rejects six damaged reports. Builder
+2573751/fitter2597431/observer2573781 and recorded stages are absent.
 
-**Only current build processes:** misterubuntu builder2573751, fitter2597431,
-serial crossing observer2573781. At12:25:32 UTC all three are verified live;
-placement has finished and routing is active. The observer opens the database
-only after all recorded builder/stage processes terminate. It additionally
-reports all16 native R registers and R feedback/R-to-MapBuf setup/hold at all
-four conditions. The strict reader requires160 new targeted reports (plus196
-legacy paths and31 summaries), and the assembly guard now requires the exact
-source original-image PASS and14 rejected evidence controls. No assembly or
-hardware load is ready until those reviews complete.
+The original supplemental reporter aborts because it expected sixteen physical
+R registers. Quartus has sixteen original bits plus eleven named fitter copies.
+A separately journaled corrected report covers every original and copy at all
+four corners; all 160 additional central/R paths pass (minimum +0.163 ns).
+This does not override the failed global hold check. Preserve the original
+failed report/state. Classified reporter2875125/STA2875134 are absent.
 
-The earlier isolated v2 Quartus build is terminal FAILED: hierarchical reads of
-R00..R15 are unsupported by Quartus. Its recorded processes are absent and its
-527-member failed receipt is preserved. V3 replaces only that wiring with
-explicit board ports; V26/V27 test those exact new sources. Do not restart v2.
+**Current candidate:** `build/rtl-executive/r-front-ready-r-canonical-native-v4-20261021`,
+remote `/home/alans/mister/Dorado_RFrontRNative_v4_20261021`.
+RTL/ROM and all original SDCs are unchanged from v3: 511 existing files match
+once the project path is normalized; only a QSF append and new SDC add 100 ps
+hold uncertainty to the same 20 ns clock. The same-placed v3 experiment changes
+-0.031 to -0.131 ns, proving this tightens the target rather than masking the
+failure. It records tool success, not a driver exit code. V4's exact-source
+Initial/map and complete V27 image proofs have been revalidated.
 
-Evidence: [visible-R native correction](../fpga/mister/reports/2026-10-21-r-visible-native-correction/README.md).
-The functional receipt preserves4,052 members/579 blobs with all frozen inputs,
-the independent native control and the full staged v3 source set. The failed
-build extension shares474 parent blobs and preserves all failed inputs/logs.
-The observation is a live-build record, not a fitted-timing result.
+**Only current build processes:** misterubuntu builder2852373, fitter2880461,
+serialized observer2852399, verified live with routing active. The observer
+opens the database only after recorded builder/stage processes terminate.
+The corrected report covers every physical R copy, R feedback and R-to-MapBuf
+setup/hold at all four conditions. Observe this existing build; never restart
+because a poll times out.
 
-**Immediate TODO:** finish/collect the same v3 build and serialized reports;
-run the full memory/timing/source reader with V26 plus native map control V21;
-run14 damaged-evidence controls; assemble only after those and exact-image V27
-PASS. Then use Main's normal loader/barriers on14, preserve the closed Boot2
-volume/trace, and boot a fresh original seed to Cedar/input. The old deployment
-helper has fixed hashes/PIDs and136/11 checks; adapt its guard to the reviewed
-new image/160/14 proof before use. Do not reuse it unchanged or issue repeated
-loads on observation timeouts. Current14 still runs unqualified RBF57a552af,
-Main16808/server16807. Last QUALIFIED login speed remains1,947,686.01 issues/s;
-50MHz/SYSPER4 ceiling6.25M/s, target16.667M/s before waits. No hardware speed,
-new desktop, rollback or final acceptance claim. Goal ACTIVE; snapshots deferred.
+[The hold-closure receipt](../fpga/mister/reports/2026-10-21-r-visible-hold-closure/README.md)
+preserves the complete rejected v3 fit (836 members), separate classified
+reports (164), and full v4 staged sources/exact V27 functional proof (982).
+All three lossless readbacks pass. The earlier
+[functional correction receipt](../fpga/mister/reports/2026-10-21-r-visible-native-correction/README.md)
+retains the full component investigation and failed hierarchical v2 synthesis.
+
+**Immediate TODO:** collect the same v4 build after all recorded jobs terminate;
+require all 31 global summaries, 196 legacy paths plus 160 central/R reports,
+physical memory/source contracts and fifteen damaged-evidence controls to pass.
+Assemble only after those checks and the exact V27 image proof. The updated
+`deploy_r_front_ready_native.py --canonical-r` guard is prepared; its pure
+metadata/MGL test rejects twelve invalid cases, but qualifies no real image.
+Use the normal Main loader/barriers on14, preserving Boot2's closed volume/trace
+and starting a fresh original seed in `CedarRVisible4_20261021` with short
+launcher `DoradoRVis4_20261021`. Keep Main sole SPI owner and existing binaries.
+Then qualify original-firmware Cedar/input before accelerating.
+
+Current14 still runs unqualified RBF57a552af, Main16808/server16807. Last
+QUALIFIED login speed remains1,947,686.01 issues/s; 50MHz/SYSPER4 ceiling6.25M/s,
+target16.667M/s before waits. No new hardware desktop, speed, rollback or final
+acceptance claim. Goal ACTIVE; complete FPGA snapshots deferred.
 
 ### Native CPU handoff regression isolated — diagnostic history (2026-10-21 UTC)
 

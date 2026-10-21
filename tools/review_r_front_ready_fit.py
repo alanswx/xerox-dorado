@@ -14,6 +14,7 @@ import sys
 
 from audit_r_front_ready_native import BASELINE,raw,ram_table,synthesis_memory,synthesis_warnings
 from fit_r_front_ready import RTL
+from stage_r_front_ready_native import HOLD_MARGIN_SDC
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'fpga/mister/snapshot'))
@@ -127,6 +128,29 @@ def initial_evidence(root,initial,record,additions,map_control=None):
     return dict(enabled_samples=int(match[1]),complete_map_comparison=data_proof)
 
 
+def native_r_register_coverage(log):
+    """Account for every original R bit and every named fitter copy."""
+    rrows=re.findall(r'R_FRONT_READY_NATIVE_R (\S+) registers=(\d+) primary=(\d+) replicas=(\d+)',log)
+    assert len(rrows)==4 and {c for c,_,_,_ in rrows}==readers.CORNERS
+    physical_counts=[]
+    for corner,count,primary,copies in rrows:
+        names=re.findall(r'^R_FRONT_READY_R_REGISTER '+re.escape(corner)+r' (\S+)$',log,re.M)
+        assert len(names)==len(set(names))==int(count)==int(primary)+int(copies)
+        originals=set();replicas=[]
+        for name in names:
+            hit=re.search(r'\|Proc([HL])_full_snapshot_experiment:b_Proc\1\|cell_MC10173_snapshot:u_(g0[67])\|q\[([0-3])\](~DUPLICATE\d*)?$',name)
+            assert hit,('Unclassified native R physical register',name)
+            key=(hit[1],hit[2],hit[3])
+            if hit[4]:replicas.append(key)
+            else:originals.add(key)
+        assert originals=={(b,p,str(i))for b in['H','L']for p in['g06','g07']for i in range(4)}
+        assert len(originals)==int(primary)==16 and len(replicas)==int(copies)
+        assert all(key in originals for key in replicas)
+        physical_counts.append(int(count))
+    assert len(set(physical_counts))==1
+    return dict(architectural_registers=16,physical_registers=physical_counts[0],replicas=physical_counts[0]-16)
+
+
 def review(root,candidate,baseline,initial,component,initial_map_control=None):
     record=json.loads(raw(root/'r-front-ready-native.json'))
     expected=json.loads(raw(candidate/'r-front-ready-native.json'))
@@ -146,14 +170,21 @@ def review(root,candidate,baseline,initial,component,initial_map_control=None):
         'src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v',
         *['src/fpga/mister/'+('snapshot_native_conta'if b=='ContA'else'snapshot_native_processor')+'/'+b+'_full_snapshot.sv'for b in ['ContA','ProcH','ProcL']]}
     additions={'src/verilog/rtl/'+n for n in [*RTL,'dorado_r_front_cone.sv']}
-    assert set(record['source_hashes'])-set(old['source_hashes'])==additions
+    hold_margin=record.get('additional_hold_uncertainty_ps',0)
+    assert hold_margin in(0,100)
+    extra_constraints={'core/r-front-hold-margin.sdc'}if hold_margin else set()
+    assert set(record['source_hashes'])-set(old['source_hashes'])==additions|extra_constraints
+    if hold_margin:
+        assert raw(root/'core/r-front-hold-margin.sdc')==HOLD_MARGIN_SDC.encode(),'Hold target changed or weakened'
     # Preserve every original QSF assignment; only append evaluator sources.
     staged_qsf=raw(candidate/'core/Dorado.qsf')
     old_qsf=raw(baseline/'core/Dorado.qsf').replace(old['project'].encode(),record['project'].encode())
     tail=staged_qsf[len(old_qsf):]
     assert staged_qsf.startswith(old_qsf)
     assignments=[l for l in tail.decode().splitlines()if l and not l.startswith('#')]
-    assert assignments==['set_global_assignment -name SYSTEMVERILOG_FILE '+record['project']+'/src/verilog/rtl/'+n for n in [*RTL,'dorado_r_front_cone.sv']]
+    expected_assignments=['set_global_assignment -name SYSTEMVERILOG_FILE '+record['project']+'/src/verilog/rtl/'+n for n in [*RTL,'dorado_r_front_cone.sv']]
+    if hold_margin:expected_assignments+=['set_global_assignment -name SDC_FILE r-front-hold-margin.sdc']
+    assert assignments==expected_assignments
     initial_proof=initial_evidence(root,initial,record,additions,initial_map_control)
     state=json.loads(raw(root/'run-state.json'));central=json.loads(raw(root/'central-review-state.json'))
     assert state['status']=='TERMINAL_TIMING_OBSERVED_REVIEW_REQUIRED'
@@ -211,9 +242,7 @@ def review(root,candidate,baseline,initial,component,initial_map_control=None):
     assert len(b)==28 and all(int(n)>0 for _,_,n in b)
     assert {(c,n)for c,n,_ in b}=={(c,n)for c in readers.CORNERS for n in ['conta','contb','proch','procl','ifu','memc','memx']}
     if canonical:
-        rrows=re.findall(r'R_FRONT_READY_NATIVE_R (\S+) registers=(\d+)',log)
-        assert len(rrows)==4 and {c for c,_ in rrows}==readers.CORNERS
-        assert all(int(count)==16 for _,count in rrows),'Missing canonical native R latches'
+        physical_r=native_r_register_coverage(log)
     checks=re.findall(r'Type\s*:\s*([^\n]+)\nSlack\s*:\s*([-+\d.]+)',raw(core/'output_files/Dorado.sta.summary').decode())
     assert len(checks)==31 and all(float(v)>=0 for _,v in checks),('Negative/missing all-device timing',checks)
     warnings={'map':synthesis_warnings(raw(root/'map.log').decode(),raw(BASELINE/'map.log').decode(),candidate,component)}
@@ -233,6 +262,8 @@ def review(root,candidate,baseline,initial,component,initial_map_control=None):
         source_hashes=record['source_hashes'],memory_evidence=memories,timing_checks=checks,
         detailed_paths=paths,central_paths=extra,unconstrained_coverage=coverage,warnings=warnings,
         central_Q_registers=int(qrows[0][1]),native_visible_R_registers=16 if canonical else 0,
+        native_visible_R_physical_registers=physical_r['physical_registers']if canonical else 0,
+        additional_hold_uncertainty_ps=hold_margin,
         resources=resources,initial_component_enabled_samples=initial_proof['enabled_samples'],initial_component_evidence=initial_proof,
         minimum_slack_ns=min(p['slack_ns']for p in paths+extra),frequency_mhz=50,sysper=4,
         state_admin='INACTIVE',assembly_review_only=True,firmware_qualified=False,hardware_speedup_claimed=False)

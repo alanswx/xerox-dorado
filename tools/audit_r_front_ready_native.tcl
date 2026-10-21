@@ -61,8 +61,28 @@ foreach corner $corners {
     {*|ProcL_full_snapshot_experiment:b_ProcL|cell_MC10173_snapshot:u_g06|*} \
     {*|ProcL_full_snapshot_experiment:b_ProcL|cell_MC10173_snapshot:u_g07|*}]]
   set r_count [get_collection_size $visible_r]
-  if {$r_count!=16} {error "Missing native visible-R storage: $r_count, expected16"}
-  puts "R_FRONT_READY_NATIVE_R $corner registers=$r_count"
+  set r_primary [dict create]
+  set r_copies [dict create]
+  set r_physical [dict create]
+  foreach_in_collection r_register $visible_r {
+   set r_name [get_register_info -name $r_register]
+   if {![regexp {\|Proc([HL])_full_snapshot_experiment:b_Proc([HL])\|cell_MC10173_snapshot:u_(g0[67])\|q\[([0-3])\](~DUPLICATE[0-9]*)?$} $r_name whole board alias package bit duplicate]} {
+    error "Unclassified native R register: $r_name"
+   }
+   if {$board!=$alias || [dict exists $r_physical $r_name]} {error "Ambiguous native R owner: $r_name"}
+   dict set r_physical $r_name 1
+   set r_key "$board/$package/$bit"
+   if {$duplicate==""} {dict set r_primary $r_key $r_name} else {dict set r_copies $r_name $r_key}
+   puts "R_FRONT_READY_R_REGISTER $corner $r_name"
+  }
+  foreach board {H L} {foreach package {g06 g07} {foreach bit {0 1 2 3} {
+   if {![dict exists $r_primary "$board/$package/$bit"]} {error "Missing canonical native R bit $board/$package/$bit"}
+  }}}
+  dict for {r_name r_key} $r_copies {
+   if {![dict exists $r_primary $r_key]} {error "Native R copy has no original owner: $r_name"}
+  }
+  if {[dict size $r_primary]!=16 || [dict size $r_physical]!=$r_count} {error "Native R coverage disagrees"}
+  puts "R_FRONT_READY_NATIVE_R $corner registers=$r_count primary=16 replicas=[dict size $r_copies]"
   set memx [get_registers {*|MemX_full_snapshot_experiment:b_MemX|*}]
   foreach mode {setup hold} {
    report_timing -$mode -from $visible_r -to $central -npaths 16 -detail full_path -file r-front-ready-native-r-in-$mode-$corner.rpt

@@ -1,0 +1,11 @@
+{
+  "status": "PASS_UNCHANGED_RTL_ROM_AND_ORIGINAL_CONSTRAINTS",
+  "unchanged_after_project_path_normalization": 511,
+  "changed_existing_files": [
+    "core/Dorado.qsf"
+  ],
+  "added_constraint": "core/r-front-hold-margin.sdc",
+  "additional_hold_ps": 100,
+  "RTL_changed": false,
+  "clock_periods_changed": false
+}
