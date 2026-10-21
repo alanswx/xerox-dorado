@@ -6,6 +6,11 @@ marker passes. Original Cedar113 reaches native812/RequeueSearchSQ;80 physical
 operand/PC observations are retained. See [qualified-v6](qualified-v6/README.md).
 No desktop, speedup, rollback or complete-goal qualification is claimed.
 
+The [production native memory prefix](production-native-memory-prefix/README.md)
+adds the full original-EPROM/eight-board SDRAM diagnostic, explicitly rejected
+earlier harness attempts, packet-adapter checks and a restored live video test.
+V38 was still running at collection; no terminal firmware result is claimed.
+
 The root manifest freezes V5 staged inputs and terminal V29/V31/V30 component
 tests:1,871 members/539 unique blobs. **V5 is rejected as an operand diagnostic**:
 it changed an unused top copy. Its CPU ports pass the component gates, but its

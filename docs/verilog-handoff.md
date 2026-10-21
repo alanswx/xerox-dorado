@@ -59,6 +59,70 @@ or FPGA change resulted from this prototype.
 
 ### Operand diagnosis: corrected PC mapping and compiled observer (2026-10-21 UTC)
 
+**Full production memory diagnostic V38 is LIVE on the Mac.** Existing driver
+79190/test79583, exec4810; directory
+`build/rtl-executive/native-cedar-memory-v38-20261021`. Revalidated by actual
+`ps` after recovering an orphaned debugger; the same simulator resumed without
+restart or guest writes. A new LLDB exec11479 attaches to79583, resolves one
+`VL_FINISH_MT` breakpoint and continues. It will retain the process at its
+diagnostic finish for read-only inspection. Poll that handle; do not start a
+duplicate. An intentional debugger stop is not a dead simulation. No complete
+FPGA snapshot feature or state import is involved.
+LLDB breakpoint2 at `native_limit` now records internal memory/cache state every
+10M host ticks and automatically continues. Private scripts/layouts/observations
+are in the run's `host-inspection/`. Only ReadMemory is used, no inferior calls
+or guest writes. Generated MSA module ports such as `storage_ready`/`MemRASa`
+have been optimized out and are initialized placeholders: do not interpret
+those structure members as live pins. Logger summaries use assigned internal
+cache/miss/wait/write state; no memory-cause conclusion from sparse samples.
+
+New runner `tools/run_native_cedar_memory.py` freezes all513 exact stage files,
+171 used source HDL files selected from V6's completed map report, QSF defines,
+original EPROMs and an external independent physical XSDS model. This is the
+actual production native machine, full8-board SDRAM, zero-fill/arbiter and
+BaseBoard6502, rather than the earlier2-MSA component fixture. There are no
+CPU/IM/map state plants or C instruction/IOCB completions. Normal queued PS/2 C
+and the production boot-button window select113. Physical HPS sector responses
+have150,000 host-tick service delay; writes are volatile in-memory only. The
+packet adapter uses isolated C packet functions and the real RTL wire port;
+Main/Linux/direct-DDR transport and full STP retry behavior are outside scope.
+Timers use free-running host time, not enabled CPU edges. Captured hardware113
+request tests pass63 frames/31,376 exact original payload bytes; link-symbol
+checks exclude the C CPU/machine/memory emulator. This does not prove firmware.
+
+At the latest logged observation,230M host ticks /68,274,024 enabled fabric
+edges, storage initialization reached7fffff and BaseBoard firmware continues;
+CPU is still pre-boot, no TX/faults. **`guest` is enabled fabric edges, not
+microinstructions or MIPS.** Boot-button window is200M..240M enabled edges;
+host limit1.5B, read every10M and extendable. First task0 CIA221 after113 dumps
+the preceding4096 pin samples;128 queue-loop visits or HOST_LIMIT stops with
+a retained ring. Neither is a desktop gate. Follow the existing process to the
+first actual firmware failure; inspect its state before continuing `$finish`.
+
+Rejected attempts are terminal and preserved: V36 compile syntax error only
+(`medium` reserved SV strength keyword); V37 completed SDRAM initialization but
+was explicitly rejected for guest-coupled host packet timers and terminated
+SIGTERM. This was a harness rejection, not a timeout or guest failure. V38 fixes
+that argument and flushes output automatically. No need to repeat either run.
+The immutable1,656-member/530-blob
+[running-prefix receipt](../fpga/mister/reports/2026-10-21-r-front-operand-observer/production-native-memory-prefix/README.md)
+passes lossless verification. Current harness usage/scope is in
+`verilog/verilator/native_cedar/README.md`.
+
+Capture investigation: CLI F12 open/capture/close succeeded but the stream stayed
+black; OSD visibility was not verified. Through Main's normal video_mode FIFO,
+1080p60 progressive also stayed black; prior1080p30 was restored and Main logs
+confirm both applications. No INI/core/binary change. Native screenshot remains
+white812. Shared capture service is live on misterubuntu, root-owned config;
+`sudo -n` requires a password. No service-wide restart or other MiSTer touched.
+Private video evidence: `build/rtl-executive/r-operands6-native-field-20261021/video-check`.
+
+**Immediate TODO:** finish this existing V38 cold run and inspect its first
+Cedar trap/queue data, compare actual read completion through holds, repair the
+demonstrated timing fault, then repeat component/full-device/hardware gates.
+Restore interactive desktop correctness before acceleration and authentic
+rollback. No new FPGA load or speed gain from this diagnostic milestone.
+
 MiSTer14 now runs timing-qualified operand V6, Main3401/server3400, from the
 original fresh seed; original Cedar now displays Pilot812 and loops in
 RequeueSearchSQ, without login/Viewers. V4 was normally
@@ -6206,6 +6270,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify passive processor operand ports with original image/map fixtures and a swapped-readout negative; reject V5's unused top copy before assembly. Bind corrected V6's five HDL files to the actual compiled top; preserve all terminal evidence.
 - [x] Finish V6 full timing/memory/19-control review and guarded assembly; normally preserve v4/load V6 from fresh seed on14; actual diagnostic marker, fresh DDR epoch and selector restoration pass. Preserve v4's explicit transition trace gap.
 - [x] Observe actual V6 Cedar113/C release, native812, marker/restoration and80 physical operand/PC pairs. Preserve the preceding default Alto110, verified OSD boot pulses, black HDMI/native-white discrepancy and live prefixes without copying the active pack.
+- [x] Preserve V34/V35 terminal bounded host-pause comparisons and their exact original map/RM/phase results; keep synthetic-pause scope explicit.
+- [x] Freeze/compile the exact production native machine with original EPROMs and full eight-board SDRAM; independently verify captured113 packet payloads and absence of C guest execution. Reject V36 syntax/V37 service-clock attempts explicitly and preserve the V38 running prefix.
+- [ ] Follow existing V38 driver79190/test79583 (LLDB11479) through its production boot window to actual113/first trap/queue data; inspect real memory completion and consumed operands. Enabled-edge progress is not MIPS or firmware qualification.
+- [x] Test live progressive1080p60 through normal Main controls; preserve black capture and restore previous1080p30. Shared capture service/other MiSTers remain untouched; capture recovery is still open.
 - [ ] Trace the earlier queue/memory fault with phase-correct consumed operands through native memory holds; recover original Cedar/login/Viewers/mouse/click/exact keyboard echo and HDMI capture before accelerating.
 - [ ] Complete original 60 ns ordinary-instruction clock/enable and timer migration, reducing avoidable memory waits while preserving cache/map/ECC and peripheral behavior. Report instruction issues and holds separately on pinned workloads.
 - [ ] Qualify Cedar's authentic Checkpoint/Rollback through its own germ/disk path, including repeated restarts, working applications/input and preservation of later filesystem changes.

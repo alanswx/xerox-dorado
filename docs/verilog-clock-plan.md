@@ -9,6 +9,21 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Production-memory continuation: V38 is running on the Mac (driver79190,
+simulator79583), using exact V6 native CPU/boards/helpers/original EPROMs,
+full eight-board SDRAM and the independent physical chip model. SDRAM zero-fill
+and original BaseBoard execution are observed; Cedar boot is not yet observed.
+No CPU/IM/IOCB plant or C guest execution. Packet timers now use free-running
+host time; V37's guest-coupled timer attempt was explicitly rejected/terminated.
+V36 was a compile-only syntax failure. Captured113 packet-adapter check passes
+63 frames/31,376 exact payload bytes; this is not firmware qualification.
+Current TODO is to follow the existing job to the first Cedar trap/queue loop
+and inspect its retained pins/state, then fix the demonstrated data/hold fault.
+Progress `guest` counts enabled fabric edges, not instructions. The runner,
+scope limitations, debugger11479 and immutable prefix are in the handoff.
+No hardware load or measured speed gain. The live progressive1080p60 capture
+experiment remained black and the previous1080p30 mode was restored normally.
+
 2026-10-21 continuation: the visible-R v4 FPGA boot still displays Pilot812.
 Inverse MicroD placement now resolves all sampled CIA239/23a/6c1/6c2 to
 `RequeueSearchSQ`; physical proximity to BootOrStart/MiniMixer was misleading.
