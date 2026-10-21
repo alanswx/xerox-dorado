@@ -36,8 +36,9 @@ RAM handoff now passes the original circuit comparison and isolated15ns timing
 (setup+3.241ns/hold+0.136ns). Directed startup/control checks also pass in both simulators across six profiles.
 The expanded RBase/stack/bypass front now passes simulation and functional15ns
 timing after explicit pre-event task/address data capture (setup+0.474ns,
-hold+0.099ns). Finish actual CP/MIR/Ready/IsNext/Hold/IFU producer closure and
-native integration next.
+hold+0.099ns). Ready/arbiter coupling now also passes at104 Qs. Next couple
+that state to the full memory/front slice and close live Notify/preemption/
+Hold/IFU/MIR arrivals before native integration.
 Full board timing, faster Cedar boot and rollback remain unqualified.
 Cedar's own checkpoint/rollback already passes in the C emulator; FPGA must
 qualify it through original firmware and the germ/disk path. Rollback preserves
@@ -51,6 +52,52 @@ existing UIO bits. Component-only; native and actual Main coordination are
 absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
+
+### Ready connected to task arbitration:104-Q PASS (2026-10-20)
+
+`dorado_task_ready_capture_step.sv` now connects actual Ready/IsNext to task
+selection and processor capture. One original130-package/1274-pin reference
+compares all104 Qs/27 clocks/30 Ready+IsNext outputs/Next/processor flags after
+every event. Final v4 passes77923 events/profile in BOTH simulators/three delay
+profiles. All15 nonzero tasks also wake through Notify/Ready with every direct
+wake wire zero; all256 independent initial BNT/BNT' pairs pass. Five bad wiring
+variants reject. Earlier v3 passes74787 events with identical RTL.
+
+The first two trials exposed a real interface limitation: BNT and BNT' are
+separate h09/h08 MC10141 packages, not complementary outputs of one register.
+`dorado_task_ready_step` now has INDEPENDENT_BNT=1 for the coupled circuit;
+default complementary-boundary operation remains compatible. Default Ready
+regression passes98516 events/both/three and8 bad variants; coupled CP/Ready
+passes99470/both/three and3 bad variants. V1/v2 failed stored-output comparisons
+are preserved. No state normalization hides independent BNT contents.
+
+The isolated104-Q fit is TERMINAL/PASS: four-condition15ns setup+4.942ns,
+hold+0.157ns,mpw+6.555ns;390ALMs/509registers,0RAM/DSP/PLL;278launch/189result
+interface bits, no exceptions/pipeline stage/check removal. Prepared from
+completed v3; all fitted RTL also matches stronger completed v4 and reviews
+against either are byte-identical. Nine damaged reader controls reject.
+Builder85780/map85783/fit86047/sta86750/corners86823 are absent. All local
+simulation/debug jobs are terminal. No native integration/speedup yet.
+
+The earlier twelve-constant Control-A inventory overstated this component's
+live producer gap. `tools/audit_task_control_stubs.py` proves, by expanding
+actual pin functions, all12 affect only unconsumed/unobserved gate halves in
+the old task, new Ready/task and full R-front selections.26 frozen inputs,
+portable replay and4 live-dependency/observer bad controls pass. This does not
+make those signals inactive in the full machine: keep original CP/MIR logic
+outside the replacement slice intact. Do not expand unrelated gates merely
+to eliminate these harmless component stubs. Initial proof v1 omitted two
+boards' extraction dependencies; v2 includes them and replays independently.
+
+Receipt: [Ready/arbiter raw evidence](../fpga/mister/reports/2026-10-20-ready-arbiter-capture/README.md).
+All accepted54/15/24/26 frozen input sets and raw members verify after extraction;
+portable timing review and dependency proof replay. No full simulation rerun
+after extraction is claimed. Next couple Ready to the full RBase/stack/RM/STK
+slice, then close live Notify/preemption/Hold/IFU/MIR timing against native
+wiring. Keep all three SetReady drivers and pre-event data epochs. The twelve
+unused package-half inputs are not blockers to that coupled proof.
+No FPGA/Main/daemon/volume operation occurred; last measured1,947,686.01issues/s
+remains the hardware speed. Goal ACTIVE; rollback/final hardware gates open.
 
 ### Actual CP/Ready producer component PASS (2026-10-20)
 

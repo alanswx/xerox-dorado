@@ -1,0 +1,836 @@
+{
+  "status": "PASS_UNCONSUMED_CONTROL_STUBS",
+  "scope": "Prove inactive Control-A fixture bindings enter only unconsumed gate outputs.\n\nPhysical packages include unrelated gates. A constant boundary is harmless to\nthis component only when every output affected by its exact pin function is\nunwired or has no selected consumer/observation. This does not prove the signal\ninactive in the complete machine: original logic outside the component remains\nrequired. Reject a boundary reaching any selected sequential or logic input.\n",
+  "profiles": [
+    {
+      "profile": "task_capture",
+      "boundaries": [
+        {
+          "boundary": "CPAddr.0'",
+          "binding": "1'b1",
+          "affected_outputs": [
+            {
+              "package": "h03",
+              "kind": "MC10103",
+              "input_pin": 10,
+              "output_pin": 14,
+              "output_net": "ContA02.sil+1",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "CPStrb'",
+          "binding": "1'b1",
+          "affected_outputs": [
+            {
+              "package": "h03",
+              "kind": "MC10103",
+              "input_pin": 11,
+              "output_pin": 14,
+              "output_net": "ContA02.sil+1",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA28.sil+2",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 10,
+              "output_pin": 14,
+              "output_net": "MidasData'",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 10,
+              "output_pin": 15,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA28.sil+3",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 11,
+              "output_pin": 14,
+              "output_net": "MidasData'",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 11,
+              "output_pin": 15,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA28.sil+4",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 12,
+              "output_pin": 14,
+              "output_net": "MidasData'",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 12,
+              "output_pin": 15,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA28.sil+7",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "i04",
+              "kind": "MC10104",
+              "input_pin": 12,
+              "output_pin": 15,
+              "output_net": "UseDMD",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "i04",
+              "kind": "MC10104",
+              "input_pin": 12,
+              "output_pin": 9,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA30.sil+1",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "j06",
+              "kind": "SE10210",
+              "input_pin": 11,
+              "output_pin": 12,
+              "output_net": "TPCIclk'b",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "j06",
+              "kind": "SE10210",
+              "input_pin": 11,
+              "output_pin": 13,
+              "output_net": "TPCIclk'a",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "j06",
+              "kind": "SE10210",
+              "input_pin": 11,
+              "output_pin": 14,
+              "output_net": "TPCIclk'c",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "FF=TOffIsOK",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "d11",
+              "kind": "MC10104",
+              "input_pin": 12,
+              "output_pin": 15,
+              "output_net": "ContA04.sil+1",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "d11",
+              "kind": "MC10104",
+              "input_pin": 12,
+              "output_pin": 9,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "FF=TaskingOff",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "d11",
+              "kind": "MC10104",
+              "input_pin": 13,
+              "output_pin": 15,
+              "output_net": "ContA04.sil+1",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "d11",
+              "kind": "MC10104",
+              "input_pin": 13,
+              "output_pin": 9,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "GetTLink",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "g05",
+              "kind": "MC10195",
+              "input_pin": 12,
+              "output_pin": 15,
+              "output_net": "GetTLink'",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "WTPC'",
+          "binding": "1'b1",
+          "affected_outputs": [
+            {
+              "package": "g11",
+              "kind": "MC10102",
+              "input_pin": 5,
+              "output_pin": 2,
+              "output_net": "ContA05.sil+4",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "rMIRa",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "a02",
+              "kind": "MC10210",
+              "input_pin": 5,
+              "output_pin": 2,
+              "output_net": "brMIRb",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "a02",
+              "kind": "MC10210",
+              "input_pin": 5,
+              "output_pin": 3,
+              "output_net": "brMIRa",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "a02",
+              "kind": "MC10210",
+              "input_pin": 5,
+              "output_pin": 4,
+              "output_net": "brMIRc",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        }
+      ],
+      "selected_packages": 69
+    },
+    {
+      "profile": "task_ready_capture",
+      "boundaries": [
+        {
+          "boundary": "CPAddr.0'",
+          "binding": "1'b1",
+          "affected_outputs": [
+            {
+              "package": "h03",
+              "kind": "MC10103",
+              "input_pin": 10,
+              "output_pin": 14,
+              "output_net": "ContA02.sil+1",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "CPStrb'",
+          "binding": "1'b1",
+          "affected_outputs": [
+            {
+              "package": "h03",
+              "kind": "MC10103",
+              "input_pin": 11,
+              "output_pin": 14,
+              "output_net": "ContA02.sil+1",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA28.sil+2",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 10,
+              "output_pin": 14,
+              "output_net": "MidasData'",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 10,
+              "output_pin": 15,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA28.sil+3",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 11,
+              "output_pin": 14,
+              "output_net": "MidasData'",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 11,
+              "output_pin": 15,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA28.sil+4",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 12,
+              "output_pin": 14,
+              "output_net": "MidasData'",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 12,
+              "output_pin": 15,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA28.sil+7",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "i04",
+              "kind": "MC10104",
+              "input_pin": 12,
+              "output_pin": 15,
+              "output_net": "UseDMD",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "i04",
+              "kind": "MC10104",
+              "input_pin": 12,
+              "output_pin": 9,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA30.sil+1",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "j06",
+              "kind": "SE10210",
+              "input_pin": 11,
+              "output_pin": 12,
+              "output_net": "TPCIclk'b",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "j06",
+              "kind": "SE10210",
+              "input_pin": 11,
+              "output_pin": 13,
+              "output_net": "TPCIclk'a",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "j06",
+              "kind": "SE10210",
+              "input_pin": 11,
+              "output_pin": 14,
+              "output_net": "TPCIclk'c",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "FF=TOffIsOK",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "d11",
+              "kind": "MC10104",
+              "input_pin": 12,
+              "output_pin": 15,
+              "output_net": "ContA04.sil+1",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "d11",
+              "kind": "MC10104",
+              "input_pin": 12,
+              "output_pin": 9,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "FF=TaskingOff",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "d11",
+              "kind": "MC10104",
+              "input_pin": 13,
+              "output_pin": 15,
+              "output_net": "ContA04.sil+1",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "d11",
+              "kind": "MC10104",
+              "input_pin": 13,
+              "output_pin": 9,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "GetTLink",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "g05",
+              "kind": "MC10195",
+              "input_pin": 12,
+              "output_pin": 15,
+              "output_net": "GetTLink'",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "WTPC'",
+          "binding": "1'b1",
+          "affected_outputs": [
+            {
+              "package": "g11",
+              "kind": "MC10102",
+              "input_pin": 5,
+              "output_pin": 2,
+              "output_net": "ContA05.sil+4",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "rMIRa",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "a02",
+              "kind": "MC10210",
+              "input_pin": 5,
+              "output_pin": 2,
+              "output_net": "brMIRb",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "a02",
+              "kind": "MC10210",
+              "input_pin": 5,
+              "output_pin": 3,
+              "output_net": "brMIRa",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "a02",
+              "kind": "MC10210",
+              "input_pin": 5,
+              "output_pin": 4,
+              "output_net": "brMIRc",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        }
+      ],
+      "selected_packages": 84
+    },
+    {
+      "profile": "R_front",
+      "boundaries": [
+        {
+          "boundary": "CPAddr.0'",
+          "binding": "1'b1",
+          "affected_outputs": [
+            {
+              "package": "h03",
+              "kind": "MC10103",
+              "input_pin": 10,
+              "output_pin": 14,
+              "output_net": "ContA02.sil+1",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "CPStrb'",
+          "binding": "1'b1",
+          "affected_outputs": [
+            {
+              "package": "h03",
+              "kind": "MC10103",
+              "input_pin": 11,
+              "output_pin": 14,
+              "output_net": "ContA02.sil+1",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA28.sil+2",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 10,
+              "output_pin": 14,
+              "output_net": "MidasData'",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 10,
+              "output_pin": 15,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA28.sil+3",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 11,
+              "output_pin": 14,
+              "output_net": "MidasData'",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 11,
+              "output_pin": 15,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA28.sil+4",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 12,
+              "output_pin": 14,
+              "output_net": "MidasData'",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "f16",
+              "kind": "MC1660",
+              "input_pin": 12,
+              "output_pin": 15,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA28.sil+7",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "i04",
+              "kind": "MC10104",
+              "input_pin": 12,
+              "output_pin": 15,
+              "output_net": "UseDMD",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "i04",
+              "kind": "MC10104",
+              "input_pin": 12,
+              "output_pin": 9,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "ContA30.sil+1",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "j06",
+              "kind": "SE10210",
+              "input_pin": 11,
+              "output_pin": 12,
+              "output_net": "TPCIclk'b",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "j06",
+              "kind": "SE10210",
+              "input_pin": 11,
+              "output_pin": 13,
+              "output_net": "TPCIclk'a",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "j06",
+              "kind": "SE10210",
+              "input_pin": 11,
+              "output_pin": 14,
+              "output_net": "TPCIclk'c",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "FF=TOffIsOK",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "d11",
+              "kind": "MC10104",
+              "input_pin": 12,
+              "output_pin": 15,
+              "output_net": "ContA04.sil+1",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "d11",
+              "kind": "MC10104",
+              "input_pin": 12,
+              "output_pin": 9,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "FF=TaskingOff",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "d11",
+              "kind": "MC10104",
+              "input_pin": 13,
+              "output_pin": 15,
+              "output_net": "ContA04.sil+1",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "d11",
+              "kind": "MC10104",
+              "input_pin": 13,
+              "output_pin": 9,
+              "output_net": null,
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "GetTLink",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "g05",
+              "kind": "MC10195",
+              "input_pin": 12,
+              "output_pin": 15,
+              "output_net": "GetTLink'",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "WTPC'",
+          "binding": "1'b1",
+          "affected_outputs": [
+            {
+              "package": "g11",
+              "kind": "MC10102",
+              "input_pin": 5,
+              "output_pin": 2,
+              "output_net": "ContA05.sil+4",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        },
+        {
+          "boundary": "rMIRa",
+          "binding": "1'b0",
+          "affected_outputs": [
+            {
+              "package": "a02",
+              "kind": "MC10210",
+              "input_pin": 5,
+              "output_pin": 2,
+              "output_net": "brMIRb",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "a02",
+              "kind": "MC10210",
+              "input_pin": 5,
+              "output_pin": 3,
+              "output_net": "brMIRa",
+              "selected_sinks": 0,
+              "observed": false
+            },
+            {
+              "package": "a02",
+              "kind": "MC10210",
+              "input_pin": 5,
+              "output_pin": 4,
+              "output_net": "brMIRc",
+              "selected_sinks": 0,
+              "observed": false
+            }
+          ]
+        }
+      ],
+      "selected_packages": 69
+    }
+  ],
+  "physical_pin_functions_expanded": true,
+  "complete_machine_signals_inactive": false
+}

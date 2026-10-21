@@ -1,0 +1,138 @@
+{
+  "board": "ContA-Rev-Cd",
+  "packages": {
+    "a01": "MC10161",
+    "a08": "MC10104",
+    "a09": "F10000",
+    "b06": "MC10162",
+    "b07": "MC10162",
+    "b08": "MC10104",
+    "b09": "F10000",
+    "c06": "MC10162",
+    "c07": "MC10162",
+    "c08": "MC10104",
+    "c09": "F10000",
+    "d07": "SE10210",
+    "d08": "MC10104",
+    "d09": "F10000",
+    "f08": "MC10161",
+    "f09": "MC10161",
+    "i02": "MC10176",
+    "j02": "MC10176"
+  },
+  "sequential": {
+    "a09": [
+      0,
+      4
+    ],
+    "b09": [
+      4,
+      4
+    ],
+    "c09": [
+      8,
+      4
+    ],
+    "d09": [
+      12,
+      4
+    ],
+    "j02": [
+      16,
+      6
+    ],
+    "i02": [
+      22,
+      6
+    ]
+  },
+  "physical_bits": 28,
+  "original_pins": 201,
+  "boundary_bindings": {
+    "ContA18.sil+3": "pins[22]",
+    "ContA18.sil+4": "pins[23]",
+    "BNT.0": "pins[0]",
+    "BNT.1": "pins[1]",
+    "BNT.2": "pins[2]",
+    "BNT.3": "pins[3]",
+    "BNT.0'": "~pins[0]",
+    "BNT.1'": "~pins[1]",
+    "BNT.2'": "~pins[2]",
+    "BNT.3'": "~pins[3]",
+    "CTask.0": "pins[4]",
+    "CTask.1": "pins[5]",
+    "CTask.2": "pins[6]",
+    "CTask.3": "pins[7]",
+    "CTask.0'": "~pins[4]",
+    "bFF.4": "pins[8]",
+    "bFF.5": "pins[9]",
+    "bFF.6": "pins[10]",
+    "bFF.7": "pins[11]",
+    "bFF.4'": "~pins[8]",
+    "Switch'b": "pins[12]",
+    "PreEmpting'": "pins[13]",
+    "FF=Notify'": "pins[14]",
+    "CAHold": "pins[16]",
+    "FreezeAC": "pins[17]",
+    "preclk0'Aa": "pins[18]",
+    "preclk2'Aa": "pins[19]",
+    "RepeatCur": "pins[20]",
+    "SCorFreezeb": "pins[21]",
+    "CPStrb'": "pins[34]",
+    "CPAddr.0'": "pins[33]",
+    "CPAddr.1'": "pins[32]",
+    "CPAddr.2'": "pins[31]",
+    "CPOut.1": "pins[24]",
+    "CPOut.2": "pins[25]",
+    "CPOut.3": "pins[26]",
+    "CPOut.4": "pins[27]",
+    "CPOut.5": "pins[28]",
+    "CPOut.6": "pins[29]",
+    "CPOut.7": "pins[30]"
+  },
+  "clock_taps": [
+    "h*fclk0'Ab",
+    "h*fclk0'Ac",
+    "CPStrb0'",
+    "CPStrb1'"
+  ],
+  "flag_taps": [
+    "IsNext.01'",
+    "IsNext.02'",
+    "IsNext.03'",
+    "IsNext.04'",
+    "IsNext.05'",
+    "IsNext.06'",
+    "IsNext.07'",
+    "IsNext.08'",
+    "IsNext.09'",
+    "IsNext.10'",
+    "IsNext.11'",
+    "IsNext.12'",
+    "IsNext.13'",
+    "IsNext.14'",
+    "IsNext.15'",
+    "Ready.01",
+    "Ready.02",
+    "Ready.03",
+    "Ready.04",
+    "Ready.05",
+    "Ready.06",
+    "Ready.07",
+    "Ready.08",
+    "Ready.09",
+    "Ready.10",
+    "Ready.11",
+    "Ready.12",
+    "Ready.13",
+    "Ready.14",
+    "Ready.15"
+  ],
+  "source_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+  "combinational_sources": [
+    "verilog/cells/cell_MC10104.v",
+    "verilog/cells/cell_MC10161.v",
+    "verilog/cells/cell_MC10162.v",
+    "verilog/cells/cell_SE10210.v"
+  ]
+}

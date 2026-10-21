@@ -169,3 +169,13 @@ passes four-condition15ns timing, setup+5.640ns/hold+0.155ns. See the
 They are not yet coupled to this736-Q front's arbiter/control graph. Its actual
 CP/MIR/phase/Hold/IFU producer timing remains unqualified; do not treat these
 separate fits as a complete native timing proof.
+
+Ready/IsNext now couples to the task/processor capture graph at104 Qs, passing
+both simulators/three profiles and isolated15ns timing (+4.942ns/+0.157ns).
+The original BNT and BNT' packages retain independent initial state. The next
+step is coupling this Ready storage to the full R-front/RAM component.
+The pin-function dependency proof corrects the earlier12-constant Control-A
+inventory: those inputs reach only unused/unobserved gate halves of the selected
+component. They do not block this integration; original surrounding CP/MIR
+logic remains required. Live Notify/preemption/Hold/IFU/MIR arrivals remain open.
+[Raw proof, cases and replay](../fpga/mister/reports/2026-10-20-ready-arbiter-capture/README.md).

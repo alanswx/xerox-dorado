@@ -1,0 +1,84 @@
+{
+  "status": "PASS_READY_CAPTURE_FINAL_CROSSCHECK",
+  "accepted": {
+    "task-ready-capture-v4-20261020": {
+      "status": "PASS_TASK_READY_CAPTURE",
+      "inputs": 54,
+      "profiles": 3
+    },
+    "task-ready-default-v4-20261020": {
+      "status": "PASS_TASK_READY_PRODUCERS",
+      "inputs": 15,
+      "profiles": 3
+    },
+    "task-producers-v2-20261020": {
+      "status": "PASS_COUPLED_TASK_PRODUCERS",
+      "inputs": 24,
+      "profiles": 3
+    }
+  },
+  "v3_v4_identical_RTL": {
+    "verilog/rtl/dorado_processor_capture_step.sv": "16eb9e14999f6383cb4ded023e34375e531dee15707cbf79628d28fb773e26e2",
+    "verilog/rtl/dorado_task_capture_step.sv": "fe2b60523d2fe46ad4fb99a841e97d5a5d83e9f45dda4a029a150c0a8562416d",
+    "verilog/rtl/dorado_task_ready_capture_step.sv": "4f19cbfcaebe774337d0e9ac672c3f27f2252f5bdd418b464ab56748eda82c58",
+    "verilog/rtl/dorado_task_ready_step.sv": "69397dd12af8d67a835cbe953eca5d1d59b63a0dbe18aa944a6ccf58437f3ea5"
+  },
+  "all_v4_coverage_logs": [
+    {
+      "profile": "balanced",
+      "engine": "Icarus",
+      "Ready_only_wakeups": 15,
+      "independent_BNT_pairs": 256
+    },
+    {
+      "profile": "balanced",
+      "engine": "Verilator",
+      "Ready_only_wakeups": 15,
+      "independent_BNT_pairs": 256
+    },
+    {
+      "profile": "fast_gates",
+      "engine": "Icarus",
+      "Ready_only_wakeups": 15,
+      "independent_BNT_pairs": 256
+    },
+    {
+      "profile": "fast_gates",
+      "engine": "Verilator",
+      "Ready_only_wakeups": 15,
+      "independent_BNT_pairs": 256
+    },
+    {
+      "profile": "later_control",
+      "engine": "Icarus",
+      "Ready_only_wakeups": 15,
+      "independent_BNT_pairs": 256
+    },
+    {
+      "profile": "later_control",
+      "engine": "Verilator",
+      "Ready_only_wakeups": 15,
+      "independent_BNT_pairs": 256
+    }
+  ],
+  "fit_review_identical_against_stronger_v4": true,
+  "earlier_reviews": [
+    {
+      "review": "task-epoch-timing-review-20261020.json",
+      "byte_identical": true
+    },
+    {
+      "review": "task-epoch-v2-timing-review-20261020.json",
+      "byte_identical": true
+    }
+  ],
+  "all_local_jobs_terminal": true,
+  "fit_pids_absent": [
+    85780,
+    85783,
+    86047,
+    86750,
+    86823
+  ],
+  "native_changed": false
+}

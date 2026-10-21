@@ -1,0 +1,505 @@
+{
+  "status": "PASS_COUPLED_TASK_PRODUCERS",
+  "scope": "Couple original CP maintenance storage and actual Ready asynchronous clear.\n\nReuse frozen passing CP/Ready inputs and workload. The independent reference is\none extracted original wiring graph: ClrReady is now internal, not a fixture\ninput. Phase/task/MIR sources and their arrivals remain explicit. This does\nnot qualify the full task arbiter, native integration or whole-board 60ns timing.\n",
+  "inputs": {
+    "verilog/rtl/dorado_task_ready_step.sv": "69397dd12af8d67a835cbe953eca5d1d59b63a0dbe18aa944a6ccf58437f3ea5",
+    "tools/test_task_ready.py": "c82561555d12550ba61df7313d21de27742ec1193a3f23ff6061b7b3e42849f7",
+    "tools/generate_processor_capture_reference.py": "f8a75e6ffc0ea66141685378d05da3acaa47b1b89fa29255c4cb804f241b9b6d",
+    "tools/generate_control_clock_reference.py": "c5255000f877c5e66940e94c9c74167a0d02e1947bd0e3be03b5fccc2b8e5b0f",
+    "tools/generate_run_control_reference.py": "658d092df35b6f98b6c341b63911d50f96fbaf96829046acb230bdda038b22e6",
+    "tools/sil_netlist.py": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1",
+    "chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.wl": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+    "chm/sil/ContA-Rev-Cd.dm!1_/ContA-Rev-Cd.lc": "2cbfb904a6a6de0fde3afe2cd43c5162a3fe8cdc14dab87785acf2da773cc58d",
+    "verilog/cells/cell_MC10161.v": "816c7d2eb044c210d256c32ce1f4215a988e312d02df81b527d6ba001795788b",
+    "verilog/cells/cell_MC10162.v": "11618612f2ac5106613f9eae75db522f669d12090d2407ee8256c44e8a14dd73",
+    "verilog/cells/cell_MC10104.v": "6a0524acd6835546de08c03c818c57bbf85bc5e286e6c80621bfe1ed5e03cbc3",
+    "verilog/cells/cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea",
+    "verilog/cells/cell_F10000.v": "ce17c47889977a87a28de0aa59ca917bd778984a4e5b08f21021a2ccd8801ee6",
+    "tb_task_ready.sv": "340f48d353ee9b82c28d10548cd4f047d50306674093e4fc33900c50d9b0d1ff",
+    "original_ready_ff.sv": "29d8718f87e17bf0c7af1fe98d98af36074197a1ebd6a3af2500371276da2b9a",
+    "verilog/rtl/dorado_cp_control_step.sv": "3ec58b7149731b90d69e6311729f19cc72c0199b5da9150f14ea649c74203dec",
+    "tools/test_cp_control.py": "e46b2b52fc82b3c194f8382936437daeb3692bfa7b38cb1656c7856da578a05d",
+    "verilog/cells/cell_MC10176.v": "14381e7cec8ba1c363c6a2358e5a754b5a50c3376674ba4211becabf5141639d",
+    "verilog/verilator/run_control_original_ff.sv": "7bcadd4fe8c5aa82781fa21ba3694fadba3f6c186870008506226d9e79ebb2a9",
+    "chm/sil/BaseBd-Rev-Am.dm!1_/BaseBd-Rev-Am.wl": "ca1a3acdc926f56f6da5ebceb46209bf45473b5ddcf102860358813dfdcd6152",
+    "tb_cp_control.sv": "626a90411cc07cb2f8110c6cec263a5f2444889e89f18ac42b9c501c7055f5b5",
+    "verilog/rtl/dorado_task_producers_step.sv": "7df9209657bfbefdd2cd0863fec6ef66fd706f7a80632848895eadd14d0630a0",
+    "tools/test_task_producers.py": "a01687fd508740a76f0ae68be52f077724df0b5383230b47365c80f56936ef93",
+    "tb_task_producers.sv": "5c977462c982a5e3ee9703908c75b5ab992dc3972a3e81d447b270a1a9e5eee8"
+  },
+  "reference": {
+    "board": "ContA-Rev-Cd",
+    "packages": {
+      "a01": "MC10161",
+      "a08": "MC10104",
+      "a09": "F10000",
+      "b06": "MC10162",
+      "b07": "MC10162",
+      "b08": "MC10104",
+      "b09": "F10000",
+      "c06": "MC10162",
+      "c07": "MC10162",
+      "c08": "MC10104",
+      "c09": "F10000",
+      "d07": "SE10210",
+      "d08": "MC10104",
+      "d09": "F10000",
+      "f08": "MC10161",
+      "f09": "MC10161",
+      "i02": "MC10176",
+      "j02": "MC10176"
+    },
+    "sequential": {
+      "a09": [
+        0,
+        4
+      ],
+      "b09": [
+        4,
+        4
+      ],
+      "c09": [
+        8,
+        4
+      ],
+      "d09": [
+        12,
+        4
+      ],
+      "j02": [
+        16,
+        6
+      ],
+      "i02": [
+        22,
+        6
+      ]
+    },
+    "physical_bits": 28,
+    "original_pins": 201,
+    "boundary_bindings": {
+      "ContA18.sil+3": "pins[22]",
+      "ContA18.sil+4": "pins[23]",
+      "BNT.0": "pins[0]",
+      "BNT.1": "pins[1]",
+      "BNT.2": "pins[2]",
+      "BNT.3": "pins[3]",
+      "BNT.0'": "~pins[0]",
+      "BNT.1'": "~pins[1]",
+      "BNT.2'": "~pins[2]",
+      "BNT.3'": "~pins[3]",
+      "CTask.0": "pins[4]",
+      "CTask.1": "pins[5]",
+      "CTask.2": "pins[6]",
+      "CTask.3": "pins[7]",
+      "CTask.0'": "~pins[4]",
+      "bFF.4": "pins[8]",
+      "bFF.5": "pins[9]",
+      "bFF.6": "pins[10]",
+      "bFF.7": "pins[11]",
+      "bFF.4'": "~pins[8]",
+      "Switch'b": "pins[12]",
+      "PreEmpting'": "pins[13]",
+      "FF=Notify'": "pins[14]",
+      "CAHold": "pins[16]",
+      "FreezeAC": "pins[17]",
+      "preclk0'Aa": "pins[18]",
+      "preclk2'Aa": "pins[19]",
+      "RepeatCur": "pins[20]",
+      "SCorFreezeb": "pins[21]",
+      "CPStrb'": "pins[34]",
+      "CPAddr.0'": "pins[33]",
+      "CPAddr.1'": "pins[32]",
+      "CPAddr.2'": "pins[31]",
+      "CPOut.1": "pins[24]",
+      "CPOut.2": "pins[25]",
+      "CPOut.3": "pins[26]",
+      "CPOut.4": "pins[27]",
+      "CPOut.5": "pins[28]",
+      "CPOut.6": "pins[29]",
+      "CPOut.7": "pins[30]"
+    },
+    "clock_taps": [
+      "h*fclk0'Ab",
+      "h*fclk0'Ac",
+      "CPStrb0'",
+      "CPStrb1'"
+    ],
+    "flag_taps": [
+      "IsNext.01'",
+      "IsNext.02'",
+      "IsNext.03'",
+      "IsNext.04'",
+      "IsNext.05'",
+      "IsNext.06'",
+      "IsNext.07'",
+      "IsNext.08'",
+      "IsNext.09'",
+      "IsNext.10'",
+      "IsNext.11'",
+      "IsNext.12'",
+      "IsNext.13'",
+      "IsNext.14'",
+      "IsNext.15'",
+      "Ready.01",
+      "Ready.02",
+      "Ready.03",
+      "Ready.04",
+      "Ready.05",
+      "Ready.06",
+      "Ready.07",
+      "Ready.08",
+      "Ready.09",
+      "Ready.10",
+      "Ready.11",
+      "Ready.12",
+      "Ready.13",
+      "Ready.14",
+      "Ready.15"
+    ],
+    "source_sha256": "8732679f040d3f002922a36ddb2e35c08d5f83358f00b9f58d235a6c45265db8",
+    "combinational_sources": [
+      "verilog/cells/cell_MC10104.v",
+      "verilog/cells/cell_MC10161.v",
+      "verilog/cells/cell_MC10162.v",
+      "verilog/cells/cell_SE10210.v"
+    ]
+  },
+  "profiles": [
+    {
+      "profile": "balanced",
+      "summary": "checks=99470 cp0=128 cp1=190 captures=32798 clear_checks=314 held=300 changed=fffffff ready=7fff selected=7fff",
+      "timed_source_hashes": {
+        "original_ready_ff.sv": "29d8718f87e17bf0c7af1fe98d98af36074197a1ebd6a3af2500371276da2b9a",
+        "cell_MC10162.v": "93ee2303af0235b7575350dc66fe38ef2cbdd93d74ebc4ce094c091376d1f4b6",
+        "cell_MC10104.v": "ab73991d22147d7c72749c184fda8337a6a7ac2e2069a93c5dc8a62f9bcca96e",
+        "cell_SE10210.v": "1da7dcb47429d5ead7ffad26c67f23ac70b6f0707d720724c5e5ea969f3c37aa",
+        "cell_MC10161.v": "c3c04e0d6e1757a66afe2a58c77e945fb5c33446236d2c9ac58a2dead5c9da78",
+        "run_control_original_ff.sv": "d00e06cd4ac75ed03de2f9a7ff888a875ab0b9d87eac9634b2f32a3aecd09f2f"
+      }
+    },
+    {
+      "profile": "fast_decode",
+      "summary": "checks=99470 cp0=128 cp1=190 captures=32798 clear_checks=314 held=300 changed=fffffff ready=7fff selected=7fff",
+      "timed_source_hashes": {
+        "original_ready_ff.sv": "29d8718f87e17bf0c7af1fe98d98af36074197a1ebd6a3af2500371276da2b9a",
+        "cell_MC10162.v": "8fa35ae5eb88aa30c1ac29ef53d0ded8bdf22ddf0e0ea93b3b1f77cd2e38a1bb",
+        "cell_MC10104.v": "fc4ffb7d266ec70d3f3cad23de3337352e83f8aac0da03b36707682ba2e9d1c0",
+        "cell_SE10210.v": "f616715ecbadd4e0fd96580a451cfafddc73258e31d2dc2add63aa574a9e38e9",
+        "cell_MC10161.v": "a20b096e90ebc67b380023fd07fb389f70819b742fd3d3b50a01baab67bfa85a",
+        "run_control_original_ff.sv": "d00e06cd4ac75ed03de2f9a7ff888a875ab0b9d87eac9634b2f32a3aecd09f2f"
+      }
+    },
+    {
+      "profile": "late_capture",
+      "summary": "checks=99470 cp0=128 cp1=190 captures=32798 clear_checks=314 held=300 changed=fffffff ready=7fff selected=7fff",
+      "timed_source_hashes": {
+        "original_ready_ff.sv": "f96ccebccd4fcd9827754a07124b5ba5133de53175ca01793d767ebfd4c6c41a",
+        "cell_MC10162.v": "93ee2303af0235b7575350dc66fe38ef2cbdd93d74ebc4ce094c091376d1f4b6",
+        "cell_MC10104.v": "ab73991d22147d7c72749c184fda8337a6a7ac2e2069a93c5dc8a62f9bcca96e",
+        "cell_SE10210.v": "1da7dcb47429d5ead7ffad26c67f23ac70b6f0707d720724c5e5ea969f3c37aa",
+        "cell_MC10161.v": "c3c04e0d6e1757a66afe2a58c77e945fb5c33446236d2c9ac58a2dead5c9da78",
+        "run_control_original_ff.sv": "5dfd5e1608e0330d5897d662a30b298ab3da5fa4d88d98588fcdd7d863e567cd"
+      }
+    }
+  ],
+  "summary": "checks=99470 cp0=128 cp1=190 captures=32798 clear_checks=314 held=300 changed=fffffff ready=7fff selected=7fff",
+  "actions": [
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_task_producers",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_producers_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/reference/task_producers_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10162.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/original_ready_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/tb_task_producers.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_ready_step.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_task_producers",
+        "-Wno-fatal",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_producers_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/reference/task_producers_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10162.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/original_ready_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/tb_task_producers.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_ready_step.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/verilator-compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/verilator-test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_task_producers",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/external_clear_stub/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/external_clear_stub/candidate.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/reference/task_producers_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10162.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/original_ready_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/tb_task_producers.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_ready_step.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/external_clear_stub/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/external_clear_stub/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/external_clear_stub/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_task_producers",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/old_clear_epoch/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/old_clear_epoch/candidate.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/reference/task_producers_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10162.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/original_ready_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/tb_task_producers.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_ready_step.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/old_clear_epoch/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/old_clear_epoch/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/old_clear_epoch/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_task_producers",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/wrong_cp_bit/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/wrong_cp_bit/candidate.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/reference/task_producers_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10162.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/original_ready_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/tb_task_producers.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_ready_step.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/wrong_cp_bit/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/wrong_cp_bit/test.vvp"
+      ],
+      "returncode": 1,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/balanced/wrong_cp_bit/test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_task_producers",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_producers_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/reference/task_producers_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/reference/cell_MC10162.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/reference/original_ready_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/tb_task_producers.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_ready_step.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_task_producers",
+        "-Wno-fatal",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_producers_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/reference/task_producers_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/reference/cell_MC10162.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/reference/original_ready_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/tb_task_producers.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_ready_step.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/verilator-compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/fast_decode/verilator-test.log"
+    },
+    {
+      "command": [
+        "iverilog",
+        "-g2012",
+        "-s",
+        "tb_task_producers",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/test.vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_producers_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/reference/task_producers_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/reference/cell_MC10162.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/reference/original_ready_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/tb_task_producers.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_ready_step.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/compile.log"
+    },
+    {
+      "command": [
+        "vvp",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/test.vvp"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/test.log"
+    },
+    {
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--top-module",
+        "tb_task_producers",
+        "-Wno-fatal",
+        "--Mdir",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/obj",
+        "-o",
+        "test",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_producers_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/reference/task_producers_reference.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/reference/cell_MC10162.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/reference/cell_MC10104.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/reference/cell_SE10210.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/reference/cell_MC10161.v",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/reference/original_ready_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/reference/run_control_original_ff.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/tb_task_producers.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_cp_control_step.sv",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/executed-inputs/verilog/rtl/dorado_task_ready_step.sv"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/verilator-compile.log"
+    },
+    {
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/obj/test"
+      ],
+      "returncode": 0,
+      "log": "/Users/alans/dev2/Dorado/build/rtl-executive/task-producers-v2-20261020/late_capture/verilator-test.log"
+    }
+  ],
+  "rejected_mutations": [
+    "external_clear_stub",
+    "old_clear_epoch",
+    "wrong_cp_bit"
+  ],
+  "native_integrated": false,
+  "task_arbiter_coupled": false,
+  "ClrReady_internally_connected": true
+}

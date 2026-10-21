@@ -1,0 +1,16 @@
+{
+  "status": "PASS_PORTABLE_READY_ARBITER_REPLAY",
+  "members": 1523,
+  "frozen_input_counts": {
+    "task-ready-capture-v4-20261020": 54,
+    "task-ready-default-v4-20261020": 15,
+    "task-producers-v2-20261020": 24,
+    "task-control-stubs-v2-20261020": 26
+  },
+  "timing_replays_byte_identical": [
+    "v3",
+    "v4"
+  ],
+  "stub_proof_reproduced": true,
+  "simulation_rerun_after_extraction": false
+}

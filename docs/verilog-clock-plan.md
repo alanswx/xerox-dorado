@@ -49,8 +49,9 @@ reset/maintenance/Hold checks pass1,617 in both/three. The736-Q/9,216-RAM gate
 passes six profiles in both simulators. Only task RTL/qualification JSON differ
 from the failed baseline's prepared files. The worst path falls from18 to13
 levels;17 damaged reader controls reject. Trial v1's-3.645ns fit is preserved as
-rejected. All jobs are terminal. Next resolve actual CP/MIR/Ready/IsNext/Hold/IFU
-producers before native integration; no hardware speed gain yet. Goal ACTIVE.
+rejected. All jobs are terminal. Subsequent Ready/arbiter proof below closes
+that boundary and classifies the unused package-half constants. Live producer
+arrivals and native integration remain open; no hardware speed gain yet. Goal ACTIVE.
 
 The [task/address epoch receipt](../fpga/mister/reports/2026-10-20-task-capture-epoch/README.md)
 preserves3,001 raw members with lossless readback/extraction and byte-identical
@@ -65,6 +66,19 @@ no RAM/DSP/PLL. Actual ClrReady is internal; all three SetReady drivers remain.
 [Portable raw evidence](../fpga/mister/reports/2026-10-20-task-producer-logic/README.md)
 includes extracted replay. Next couple actual arbiter/control/MIR/phase/Hold/IFU
 sources before native integration. All jobs terminal; live speed unchanged.
+
+Ready now connects to the task arbiter/processor captures in a104-Q component.
+Both simulators/three profiles pass77923 events, including15 Ready-only task
+wakeups and256 independent initial BNT/BNT' pairs;5 bad variants reject.
+The original BNT/BNT' packages are independent storage. Four-condition15ns
+fit passes (+4.942ns setup/+0.157ns hold),390ALMs/509regs. Default Ready and
+CP/Ready regressions pass. The pin-level dependency proof also establishes
+that all12 earlier Control-A constant stubs affect only unused gate halves
+in the selected components; keep their surrounding original full-machine
+logic intact. Next couple actual Ready with the full RBase/stack/RM/STK
+component and close live Notify/preemption/Hold/IFU/MIR arrivals before native
+integration. [Raw proof and timing](../fpga/mister/reports/2026-10-20-ready-arbiter-capture/README.md).
+All jobs terminal; no hardware speed change yet.
 
 ### Milestones and acceptance
 

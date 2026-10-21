@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "wrong_dimensions",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "relaxed_period_rehashed",
+      "rejected": true,
+      "diagnostic": "Unexpected timing constraints"
+    },
+    {
+      "case": "changed_evaluator_rehashed",
+      "rejected": true,
+      "diagnostic": ""
+    },
+    {
+      "case": "changed_dependency_rehashed",
+      "rejected": true,
+      "diagnostic": "('unqualified RTL dependency', 'dorado_task_capture_step.sv')"
+    },
+    {
+      "case": "missing_corner",
+      "rejected": true,
+      "diagnostic": "[Errno 2] No such file or directory: '/Users/alans/dev2/Dorado/build/rtl-executive/task-ready-capture-reader-controls-20261020/missing_corner/clock-hold-MIN_fast_1100mv_-40c.rpt'"
+    },
+    {
+      "case": "missing_evaluator",
+      "rejected": true,
+      "diagnostic": "Missing launch/result path report"
+    },
+    {
+      "case": "negative_setup",
+      "rejected": true,
+      "diagnostic": "REJECTED_COMPONENT_TIMING"
+    },
+    {
+      "case": "negative_evaluator",
+      "rejected": true,
+      "diagnostic": "REJECTED_COMPONENT_TIMING"
+    },
+    {
+      "case": "changed_ready_dependency_rehashed",
+      "rejected": true,
+      "diagnostic": "('unqualified RTL dependency', 'dorado_task_ready_step.sv')"
+    }
+  ]
+}

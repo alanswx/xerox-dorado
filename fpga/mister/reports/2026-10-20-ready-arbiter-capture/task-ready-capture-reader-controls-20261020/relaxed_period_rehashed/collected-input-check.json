@@ -1,0 +1,26 @@
+{
+  "status": "TERMINAL_INPUT_READBACK",
+  "job_pids_absent": [
+    85780,
+    85783,
+    86047,
+    86750,
+    86823
+  ],
+  "changed_inputs": [
+    "clock_fit.qsf"
+  ],
+  "actual": {
+    "dorado_task_ready_step.sv": "69397dd12af8d67a835cbe953eca5d1d59b63a0dbe18aa944a6ccf58437f3ea5",
+    "fit_control_clock.py": "d3b04b7f9b8c745620001bf30be430b6fd0f46326f44e09179340ec010be6727",
+    "fit_task_ready_capture.py": "8e78e129b0f4337bb00a8397cccb3146eaa0245012a4b9ff35df568333e8c254",
+    "dorado_task_capture_step.sv": "fe2b60523d2fe46ad4fb99a841e97d5a5d83e9f45dda4a029a150c0a8562416d",
+    "dorado_task_ready_capture_step.sv": "4f19cbfcaebe774337d0e9ac672c3f27f2252f5bdd418b464ab56748eda82c58",
+    "clock.sdc": "3e8b710bb7dff68ceb760d9e1255f781d46ac9bb86badb4fb00476b561b87731",
+    "top.sv": "4aa3f3559707f1f3f60de0f8edfcfb952447601ff954f7469c9271e2850b84b8",
+    "clock_fit.qpf": "4930956ed5ce00ee6a40fb691fea958b90ee2e28fec7ef03685661e6a7392484",
+    "audit.tcl": "64aea4243f893e5658768eacbbbf9a029c88ee27a0f35c7e83ae4419778208f7",
+    "clock_fit.qsf": "1060b35459280c1c3949f27f8c972b58a08e848179bb7263ce6621e07b05c466",
+    "functional-gate.json": "b78de0331f25e8bc409ddc993e32e7d8884ce5a472183f034ee85ddd0eea905e"
+  }
+}
