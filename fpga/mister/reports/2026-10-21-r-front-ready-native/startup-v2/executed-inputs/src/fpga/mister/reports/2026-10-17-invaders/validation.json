@@ -1,0 +1,68 @@
+{
+  "status": "Invaders startup verified in RTL simulation and on MiSTer14; display compatibility and gameplay controls remain incomplete",
+  "fix": "MC10170 B-output polarity on DskEth k13/k17, regenerated from Sil",
+  "previous_rbf_sha256": "3b86d7136d576c7c7a2b9c0b83082e2ed1646aa30b4e95d69ebdc5632dcc32cf",
+  "rtl_checkpoint_sha256": "fad0afaf422a17b4222546fb1d1213a2b17a74811a332e7aeddde8ea35794a22",
+  "disk_seed_sha256": "c703e9df999a074d3c14abf941e706e9fa35a3520594075065a104bc48535332",
+  "pre_fix": {
+    "ethernet_post_octal": "0776",
+    "output_task_status_octal": "0101",
+    "loader_ink_pixels": 204
+  },
+  "post_fix": {
+    "output_task_status_octal": "0100",
+    "last_transmit_time_updates": true,
+    "hps_media_fault": false,
+    "game_screen_verified": true,
+    "game_screen_samples": 190000000,
+    "game_screen_ink_pixels": 132932,
+    "rendering_limit": "Xerox AEmu DisplayMain.mc GetScan explicitly ignores the Alto resolution bit; Invaders requests low resolution. Narrow playfield and lower-screen noise occur in RTL, C reference and on FPGA."
+  },
+  "quartus_project": "misterubuntu:/home/alans/mister/Dorado_Invaders_20261017/core",
+  "hardware_launcher": "/media/fat/Scripts/DoradoInvadersParity.sh",
+  "timing_before_review": {
+    "core_setup_slack_ns": 7.996,
+    "core_hold_slack_ns": -0.041
+  },
+  "rbf_sha256": "a851720c3754911fa886fba4f030b32e01a5963281dc7db9b8d7ba1517884f1d",
+  "installed_rbf": "/media/fat/_Computer/DoradoRTL_Invaders_20261017/Dorado.rbf",
+  "hardware_tests": [
+    {
+      "test": "Executive foo plus Return",
+      "result": "expected error and new prompt",
+      "screenshot": "docs/images/rtl-mister14-executive-parity-2026-10-17.png",
+      "comparison": {
+        "rows": [
+          100,
+          319
+        ],
+        "ink_pixels": 2569,
+        "differing_pixels_from_previous_working_core": 0
+      }
+    },
+    {
+      "test": "Invaders after ready prompt",
+      "result": "game screen, shields changing and tank count visible"
+    },
+    {
+      "test": "Invaders after independent clean restart",
+      "result": "game screen, score and tank count visible",
+      "screenshot": "docs/images/rtl-mister14-invaders-2026-10-17.png"
+    }
+  ],
+  "startup_input_note": "Wait for the Executive prompt after launching. The launcher returns before Main finishes reloading/mounting; an early attempt lost the first characters and ran ers.",
+  "fit": {
+    "alms": 23713,
+    "registers": 21960,
+    "ram_blocks": 445,
+    "block_memory_bits": 2336070,
+    "dsp_blocks": 35,
+    "core_clock_mhz": 33.333333,
+    "core_fmax_mhz": 45.45,
+    "core_setup_slack_ns": 7.996,
+    "core_hold_slack_ns": 0.095,
+    "hold_exceptions": "Hold only: a_lat to own RAM write-address pins in F10145A instances ContA a04, MemC d06 and MemX e20. Capture requires !p13, write requires p13. Setup/read paths checked.",
+    "framework_io_fully_constrained": false
+  },
+  "controls_qualified": false
+}

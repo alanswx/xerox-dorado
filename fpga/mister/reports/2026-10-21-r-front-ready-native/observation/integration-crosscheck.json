@@ -1,0 +1,65 @@
+{
+  "status": "PASS_NATIVE_WRAPPER_INITIAL_INTEGRATION_COMPONENT_ONLY",
+  "source_inputs": 512,
+  "same_clock": true,
+  "frequency_mhz": 50,
+  "sysper": 4,
+  "intended_changed_baseline_sources": [
+    "core/Dorado.qsf",
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v",
+    "src/fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv",
+    "src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv",
+    "src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv"
+  ],
+  "added_RTL_sources": [
+    "src/verilog/rtl/dorado_processor_capture_step.sv",
+    "src/verilog/rtl/dorado_r_address_step.sv",
+    "src/verilog/rtl/dorado_r_file_ports.sv",
+    "src/verilog/rtl/dorado_r_flags_step.sv",
+    "src/verilog/rtl/dorado_r_front_cone.sv",
+    "src/verilog/rtl/dorado_r_front_ready_step.sv",
+    "src/verilog/rtl/dorado_r_front_step.sv",
+    "src/verilog/rtl/dorado_r_memory_step.sv",
+    "src/verilog/rtl/dorado_r_operand_step.sv",
+    "src/verilog/rtl/dorado_r_port_preview.sv",
+    "src/verilog/rtl/dorado_t_file_step.sv",
+    "src/verilog/rtl/dorado_t_parity_step.sv",
+    "src/verilog/rtl/dorado_task_capture_step.sv",
+    "src/verilog/rtl/dorado_task_ready_step.sv"
+  ],
+  "initial": {
+    "4": {
+      "status": "PASS_ACTUAL_NATIVE_BOARDS_INITIAL_COMPONENT",
+      "enabled_error_samples": 2611683,
+      "frozen_inputs": 434,
+      "native_boards": {
+        "fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv": "4ddf5e13859b2fba74cce5b548ff849f7b9bbe2b4f492233f64f62be1846c66d",
+        "fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "7ff6485db3663f20e880668dd86b5b4f9ea474177a53a636763f00ae93c0f17f",
+        "fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "411fdbfc99f44cbeec85546e2ef18e2857f72d9c491effd188c03a9a096b0400"
+      }
+    },
+    "5": {
+      "status": "PASS_ACTUAL_NATIVE_BOARDS_INITIAL_COMPONENT",
+      "enabled_error_samples": 2611683,
+      "frozen_inputs": 434,
+      "native_boards": {
+        "fpga/mister/snapshot_native_conta/ContA_full_snapshot.sv": "4ddf5e13859b2fba74cce5b548ff849f7b9bbe2b4f492233f64f62be1846c66d",
+        "fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "7ff6485db3663f20e880668dd86b5b4f9ea474177a53a636763f00ae93c0f17f",
+        "fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "411fdbfc99f44cbeec85546e2ef18e2857f72d9c491effd188c03a9a096b0400"
+      }
+    }
+  },
+  "startup": "PASS_NATIVE_STARTUP_BOUNDARY_DIAGNOSTIC_ONLY",
+  "stronger_initial_monitors": "V5 asserts aliases/unsettled/repeated on every sample after1024",
+  "remote_build_observation": "2026-10-21T01:57:08.313583+00:00",
+  "remote_build_status": "RUNNING",
+  "remote_processes": {
+    "138712": "LIVE",
+    "138713": "ABSENT",
+    "146109": "LIVE"
+  },
+  "full_timing_qualified": false,
+  "full_firmware_Cedar_qualified": false,
+  "hardware_changed": false,
+  "speed_gain_claimed": false
+}

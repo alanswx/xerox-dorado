@@ -53,6 +53,76 @@ absent. Provenance verifier matches all10 executed inputs. A portable archived
 replay receipt has not been packaged; do not claim one. No production binary
 or FPGA change resulted from this prototype.
 
+### Native Ready/front integration in progress (2026-10-21 UTC)
+
+The qualified752-Q/9216-bit component is now staged into the ACTUAL native
+ContA/ProcH/ProcL wrappers, rather than only the isolated component fixture.
+`tools/stage_r_front_ready_native.py` verifies the preserved498-source MC1668
+candidate and all component/inventory inputs, then replaces91 small storage
+packages plus12 physical RM/STK packages. Four256x9 banks retain data/parity;
+there is no duplicate RAM or architectural pipeline stage. Surrounding
+original gates and all other board/device sources remain.165 live input
+positions are exported by their named native board nets;81 positions are
+internally resolved/unused. Shared aliases (including Holda/PRhold and FFok)
+and the three ordinary root clocks have explicit equality observers.
+
+Experimental source: `build/rtl-executive/r-front-ready-native-v1-20261021`.
+All512 staged inputs verify; only five baseline sources change (three board
+wrappers, backplane and QSF) after path relocation, plus14 added evaluator
+RTL files. All other device/constraint/service inputs remain byte-identical.
+Same50MHz/SYSPER4 and state administration INACTIVE; selected obsolete scan/
+clock-history slots are unavailable, not an advertised snapshot ABI. Main,
+daemon, disk volumes and the live MiSTer have not changed. Prior qualified
+milestone4b802a5f is pushed; this integration is not yet qualified for hardware.
+
+Actual native full-backplane startup diagnostic v2 passes2,000,000 host cycles:
+499,911 root rising edges,359 paused samples,1,998,976 alias checks and zero
+unsettled samples. Original BaseBoard firmware makes9 CP strobes, but there
+are zero Dorado instruction issues in this short power-up interval. Do NOT
+call this an Initial/Cedar boot. Its independent raw physical storage-array
+backend honors the board-ready gate and handles no guest instructions/IOCBs.
+Startup v1 correctly failed the existing storage assertion because its harness
+advanced before backing storage was ready; the assertion was retained and
+the harness corrected. `tools/test_r_front_ready_native.py` freezes executed
+inputs and records actual simulator processes.
+
+The original-ROM Initial fixture now binds the exact modified native wrappers
+and native central wiring (`tools/test_r_front_ready_initial.py`), keeping the
+original960-word payload/F43 debug entry and all six error-source checks. It
+is still a component fixture, not a complete BaseBoard firmware boot. Existing
+diagnostic/register-file accesses are mapped to the same physical storage;
+three removed oversampling histories are explicitly unavailable in optional
+diagnostic displays. Preparation v1/v2 and compile v3 are failed development
+trials. V4 and stronger V5 are now TERMINAL/PASS:960 microinstructions written/
+read back with zero wrong,325 distinct IM addresses,15 task initializations,
+all six error sources enabled for2,611,683 samples without error. V5 also
+asserts live aliases and unsettled/repeated events after the first1024
+samples; none fail. All434 frozen inputs in EACH run verify, and all three
+compiled native wrapper hashes exactly match the staged candidate. Both
+simulator sessions have returned exit0; do not restart them.
+
+Full native timing job: `misterubuntu:/home/alans/mister/Dorado_RFrontReady_v1_20261021`,
+builder138712/fit146109 LIVE, map138713 ABSENT/exit0 (shell138711);
+`run-state.json`, `builder.log`. Source readback at01:57:08UTC verifies all512
+inputs unchanged and records the actual live process checks. Synthesis passes
+with zero errors; fit/full timing are not yet qualified.
+`tools/build_r_front_ready_native.py` sequences map/fit/STA/four-condition/
+crossing reports in this one database. It CANNOT assemble or deploy. Keep
+empty historical targeted-path reports visible for review when selected
+storage moves; do not treat a changed hierarchy as an applicable exception.
+`tools/audit_r_front_ready_native.tcl` adds explicit new central-Q producer/
+consumer reports; it is prepared, NOT RUN. Run it only AFTER this builder is
+terminal, in the same core directory, sequentially with other DB users.
+Next observe this fit, review full timing/memory and the added central-Q
+reports, then assemble and cold-boot original firmware to Cedar/input
+at unchanged clocks before acceleration. Last hardware rate remains
+1,947,686.01 instruction issues/s. Goal ACTIVE; rollback/final gates pending.
+
+Receipt: [native integration and executed Initial tests](../fpga/mister/reports/2026-10-21-r-front-ready-native/README.md).
+2684 raw members verify losslessly; archived identities check512 candidate,
+421 startup and434 inputs in each Initial run. No new full extracted simulation
+or terminal native timing review is claimed.
+
 ### Full Ready/RBase/stack/RAM component:752-Q PASS (2026-10-20)
 
 `dorado_r_front_ready_step.sv` couples Ready/IsNext to the full original

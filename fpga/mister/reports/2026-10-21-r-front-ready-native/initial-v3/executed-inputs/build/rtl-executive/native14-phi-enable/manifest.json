@@ -1,0 +1,11 @@
+{
+  "native": true,
+  "storage_modules": 4,
+  "pilot_disk": true,
+  "control_error_monitor": true,
+  "display_field": true,
+  "control_clock_monitor": true,
+  "hps_pack": true,
+  "ethernet_wire": true,
+  "ethernet_host_port": true
+}

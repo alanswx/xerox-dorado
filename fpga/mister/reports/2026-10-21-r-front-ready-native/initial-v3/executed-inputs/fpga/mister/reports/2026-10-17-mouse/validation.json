@@ -1,0 +1,71 @@
+{
+  "status": "Executive cursor, keyboard and calculator left-button interaction verified on MiSTer14",
+  "rbf_sha256": "7d85f5e881f164dd4f180f70853e0f7dcf69998ce4f4c08069cb9fa88ed167b3",
+  "hardware_launcher": "/media/fat/Scripts/DoradoMouse.sh",
+  "quartus_project": "misterubuntu:/home/alans/mister/Dorado_Mouse_20261017/core",
+  "installed_rbf": "/media/fat/_Computer/DoradoRTL_Mouse_20261017/Dorado.rbf",
+  "disk_seed_sha256": "c703e9df999a074d3c14abf941e706e9fa35a3520594075065a104bc48535332",
+  "checkpoint_sha256": "fad0afaf422a17b4222546fb1d1213a2b17a74811a332e7aeddde8ea35794a22",
+  "core_clock_mhz": 33.333333,
+  "core_setup_slack_ns": 8.17,
+  "core_hold_slack_ns": 0.064,
+  "timing_note": "Same three scoped hold-only RAM-write address exceptions as previous fit; framework I/O not fully constrained",
+  "alms": 23981,
+  "registers": 22026,
+  "ram_blocks": 445,
+  "dsp_blocks": 35,
+  "cursor_test": {
+    "host_events": [
+      [
+        120,
+        100
+      ],
+      [
+        -60,
+        40
+      ],
+      [
+        120,
+        100
+      ]
+    ],
+    "last_event_translation": [
+      120,
+      100
+    ],
+    "old_cursor_bbox": [
+      58,
+      164,
+      65,
+      179
+    ],
+    "new_cursor_bbox": [
+      178,
+      264,
+      185,
+      279
+    ],
+    "cursor_ink_pixels": 51,
+    "differing_pixels": 102,
+    "all_differences_exact_cursor_translation": true
+  },
+  "keyboard_test": "foo plus Return prints There is no subsystem named foo. and another prompt",
+  "simulation_tests": [
+    "mouse-test",
+    "mouse-terminal-test",
+    "keyboard-terminal-test",
+    "14M complete-machine/HPS run: guest mouse (40,24), then (30,12); UTILIN FFFB then FFFF"
+  ],
+  "exclusions": [
+    "This mouse bitstream retains the previous HPS medium. Disk persistence changes are being built separately.",
+    "Checkpoint continuation, not unassisted BaseBoard cold boot.",
+    "Invaders perfect rendering/gameplay not claimed."
+  ],
+  "hardware_application": {
+    "command": "calculator",
+    "input": "mouse clicks: 7 + 3 =",
+    "result": "10. in the calculator display",
+    "screenshot": "docs/images/rtl-mister14-calculator-mouse-2026-10-17.png",
+    "power_switch": "clicking its ON/OFF switch exits to Executive; relaunched before arithmetic test"
+  }
+}

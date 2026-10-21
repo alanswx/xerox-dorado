@@ -92,7 +92,19 @@ unchanged50MHz/SYSPER4, close live producer wiring/arrivals, run all-device
 timing and ROM checks on the modified native wrappers, then original-firmware
 Cedar/input. The older generic-board ROM fixture is insufficient for changes
 confined to native wrappers. Clock acceleration follows that integration.
-All jobs terminal; no FPGA/Main/daemon/disk or measured speed change yet.
+The component jobs are terminal. Actual native replacement source is now
+staged at unchanged50MHz/SYSPER4. Its full-backplane startup diagnostic passes
+2M host cycles/499,911 root edges/359 paused samples/1,998,976 alias checks,
+zero unsettled states;9 CP strobes but no instruction issues in that short
+power-up interval, so it does not qualify Initial/Cedar. The Initial-ROM gate
+now passes using the EXACT changed native wrappers:960 words read back,15
+task initializations and all six error sources enabled for2,611,683 samples.
+A second run with live alias/unsettled/repeated-event assertions also passes;
+434 frozen inputs/run verify. Synthesis passes; the full native fit is LIVE
+(builder138712/fit146109). Observe those handles and run the prepared central-Q
+crossing audit after the builder exits. Full timing, native firmware and
+hardware qualification remain open. No FPGA/Main/daemon/disk or measured
+speed change yet.
 
 ### Milestones and acceptance
 
