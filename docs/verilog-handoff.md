@@ -141,13 +141,14 @@ setting its limit file was ineffective. That control gap is now fixed in the
 actual prepared bench. V2 then correctly fails compilation because shared
 native cell definitions were missing; its errors/source are retained.
 
-**Corrected V3 simulations are RUNNING:** control85741, candidate86221,
-`r-front-ready-pilot[-control]-v3-20261021/run-state.json`. Both compile and
-source readback pass. Both now use the SAME exact deployed DskEth board and
+**Corrected V3 simulations are terminal FAILED:** control85741, candidate86221,
+`r-front-ready-pilot[-control]-v3-20261021/run-state.json`, both exit1 at the
+explicit runtime-limit boundary after the V5 inspection. Their stop receipts
+preserve a subsequently corrected interpretation of that inspection (below).
+Both compile and source readback pass. Both use the SAME exact deployed DskEth board and
 all shared native cell helpers, state administration inactive,10-word Pilot
 labels, original f3bce2a8 pack/response stream, passive RX/germ/trap observers,
-and an explicit prepared-bench runtime-limit control. Inspect actual handles
-before calling them terminal; do not restart on an observation timeout.
+and an explicit prepared-bench runtime-limit control.
 RX traces show the initial broadcast's status0020 followed by good0000
 microcode-frame statuses. Do not infer globally broken wire CRC from that
 first frame. Inspect original receive sequence/filter/RAM behavior next.
@@ -161,7 +162,7 @@ V3 logs in that receipt are bounded RUNNING prefixes; actual current process
 state must be rechecked. Their complete frozen inputs are included; executables,
 FPGA images and active disk packs are excluded.
 
-Additional live control V5: PID90671 in
+Additional control V5 is terminal1: PID90671 in
 `build/rtl-executive/r-front-ready-pilot-control-v5-20261021`, compile PASS,
 65M-sample limit, read-only register/map inspection at60M and first640 CPU
 Ethernet-read breadcrumbs. Existing inspector capability is verified in the
@@ -169,9 +170,89 @@ prepared bench. Only bench/observer-helper inputs differ from archived V3;
 all remaining inputs compare identical. V4 stopped during PREPARATION because
 a capability assertion checked top-module text instead of bench text; no
 compile/run occurred. Both the failed helper and corrected compiled extension
-are preserved under the field receipt's `inspection/`, with actual live PID/
-command/binary SHA. Finish V5 and inspect sequence/filter/packet-buffer state
-before taking another diagnostic branch.
+are preserved under the field receipt's `inspection/`, with the then-live PID/
+command/binary SHA. Those archived log prefixes remain historical prefixes.
+
+**The late V5 register dump did not prove rejection of packet zero.** V6's
+early instruction trace shows all BootFilter checks passing, RHost established
+as1, and the correct first payload copied to BootDataPtr0200. At29M samples,
+SeqNo is2 and BootDataPtr03fe. The unset RHost/SeqNo0 at60M instead follows a
+receiver restart. V6 is a terminal30M receive probe, not a loaded-world gate.
+
+V7 is terminal50M: the empty EOF reaches EIDone at48,508,299, then task0 enters
+CheckChecksumAndLoad at48,508,355. The checksum loop executes15,688 additions
+and returns to another EtherMicrocodeBoot at48,895,827 instead of LoadRam.
+The original InitialMain.mc permits that return only for a nonzero checksum.
+Wire readback independently decodes all64 frames:63 consecutive microcode
+replies, every CRC valid,15,688 words byte-identical to CedarDorado.eb!6 and
+image sum16 zero. The initial non-microcode broadcast is separate. This narrows
+the CONTROL fixture's failure beyond packet acceptance; it does not establish
+the cause of the FPGA's later Mesa trap loop. The one-shot replay answers only
+the first request, so a second request has no further response in this fixture.
+
+PCT samples at a CIA change before operand muxes settle. Its ALU deltas must
+not be treated as consumed MD words. Terminal V8's read-only phase trace proves
+the first240 checksum MD/A/ALU values match the original image/running sum.
+PCT localizes four16-word ranges at VM0e10/1e10/2e10/3e10; their sum differences
+1841/b67e/b624/fd4c total822f, the final observed checksum.38 other differing
+PCT groups each sum to zero (task-switch operand transients). Terminal V9
+confirms all16 MD mismatches in the FIRST range among234 complete iterations;
+the surrounding reads match. Other three ranges remain PCT indications. The
+shared VA bus does not always retain the fetch address at completion: locate
+the consumed image word through the original loop's BootDataPtr-1. No host
+state drives these probes. V8's old label ETemp0 actually reads logical RM00;
+the helper now labels it RM00. It is not used to check the running sum.
+Preparation now omits inherited +fastwait. No
+evidence shows that shortcut fired in V5, so its removal is not a claimed fix.
+
+Native RAM port shadows V1 pass the original16M Initial test: all12 physical
+packages/9,216 bits match after both write windows close, with all six original
+error enables active. RM halves each cover2,831 closed windows; STK packages
+each cover one initialized window. A shadow-only ProcH/h06 data-pin fault is
+rejected at sample13,392,081, CIAc9e; it never drives the target. V2 PASSES50M
+through the replay/checksum interval: RM packages each155,922 closed windows/
+39,916,032 word comparisons, STK packages each3 windows/768 comparisons.
+These are pin/write-epoch
+diagnostics with exact preserved cell models, not physical timing or Cedar
+qualification. The current MiSTer14 Main16808/server16807 were revalidated
+through their exact /proc executables; no FPGA reload, disk or service change.
+
+**Native memory control V12 is terminal0**, directory
+`build/rtl-executive/r-front-ready-memory-control-v12-20261021`. It binds the
+deployed MemC/MemD/MemX source and helper bytes with administration inactive;
+generic raw MSA storage remains, so it is still not an FPGA boot.36 existing
+cache-seed bit assignments are translated through original output-pin wiring
+to actual packed native RAM lanes, with the mapping preserved. V10 failed
+compile because the generic bench named removed cache packages. V11 translated
+those names and compiled, then failed at time0 because MemD correctly requires
+STORAGE_INPUT_DELAY=2. V12 verifies/copies the actual candidate QSF and its
+required macro before compiling. It reaches original Cedar BootOrStart238 at
+sample49,570,338, then waits in MesaIFUNotReady09c through55M. Initial passes
+with15 task initializations and all6 errors enabled for41,611,683 samples.
+This closes the generic-memory checksum obstacle enough to enter Cedar;
+full loaded IM/IFUM readback was disabled in this probe and remains unverified.
+No germ entry or desktop. Next require the original image readback in both
+matched arms and close native IFU/CPU coupling before extrapolating to FPGA.
+
+[Receive/port follow-up receipt](../fpga/mister/reports/2026-10-21-r-front-receive-followup/README.md):
+5,185 logical members/507 deduplicated blobs,52,656,840 raw bytes/5,987,641 stored
+bytes, all lossless. Its V12 prefix remains historical. A seven-member
+`terminal-memory-v12/` extension preserves the terminal0 log/state/inspection
+and verifies all frozen inputs against the original archived hashes. All listed
+jobs are now terminal. No FPGA images/executables/disk packs included.
+
+**Active follow-up V13:**
+`r-front-ready-image-control-v13-20261021` and
+`r-front-ready-image-candidate-v13-20261021` under `build/rtl-executive/`.
+Both are prepared/running with identical deployed memory controllers and
+original stream/pack,55M limits, all original error checks. Candidate uses the
+actual changed native CPU wrappers; control retains the prior MC1668 component
+CPU. `--handoff-only` retains the full original IM/IFUM readback and Cedar entry
+gate while omitting the later Cedar map-write gate. This makes the required
+handoff concrete without calling the known IFU wait a desktop success.
+Their exact frozen provenance/run-state are local; these new jobs are NOT in
+the preceding receipt. Verify current handles, finish and archive the matched
+results, then continue the native IFU/CPU comparison. Goal remains ACTIVE.
 
 Next: finish the corrected matched receive/germ diagnostics and compare the
 first changed storage/producer behavior against the preserved hardware loop. Find the first changed storage/producer behavior

@@ -1,0 +1,61 @@
+{
+  "scope": "Close the archived V12 prefix without replacing its historical evidence.",
+  "parent_manifest_sha256": "97d140b375eb4e40f7a789b74df69f9e5b917a08769e2172ab48a8828bfb90c3",
+  "status": "TERMINAL_RECEIVE_FILTER_PROBE",
+  "original_Cedar_entry_observed": true,
+  "full_IM_IFUM_readback_qualified": false,
+  "desktop_qualified": false,
+  "speedup_qualified": false,
+  "collector_sha256": "fc51ee122e1ee4d4ada0ea73e00e9d16a57e3f13bbeb12c235b9a4507c5cc2da",
+  "members": [
+    {
+      "name": "compile.log",
+      "stored": "compile.log.gz",
+      "raw_sha256": "0e0f4fc055f5dc3a758a69b84ae1b37674f9b8b4f7efff613760beccb63fa40b",
+      "raw_bytes": 77138,
+      "stored_sha256": "f6cb9306dd6874a41e3cd1a72242f24a8e7719e489a76014d5427418450c0ea6"
+    },
+    {
+      "name": "cycle-limit.txt",
+      "stored": "cycle-limit.txt.gz",
+      "raw_sha256": "3b092d839230398a8ad069ba5978f40d9d3817a56411fb7051b9641f5cdcd71f",
+      "raw_bytes": 9,
+      "stored_sha256": "8339b6cf5ad18755139c1acfb0172c82b1ea52fe255e5e2bd7374effdb7f09f1"
+    },
+    {
+      "name": "native-cache-seed-map.json",
+      "stored": "native-cache-seed-map.json.gz",
+      "raw_sha256": "78a5d0af22a112cadf24b57800682a0423c61b68c7629a20b86234088af71572",
+      "raw_bytes": 2953,
+      "stored_sha256": "7cc7c304d02e44da3ca93e8add4377f9ac47093f71d62f0a12f1c053a5e5cb06"
+    },
+    {
+      "name": "provenance.json.gz",
+      "stored": "provenance.json.gz.gz",
+      "raw_sha256": "2dcfbbfc439d682acc5d15baf693087ae77a566025daba9cecf8e6ae1d4943d3",
+      "raw_bytes": 20538,
+      "stored_sha256": "e2476a66ce42e52c55b9242b95d21ce3f6f3c9c65051cfb90ec4cd0ee1668f1e"
+    },
+    {
+      "name": "register-map-inspection.txt",
+      "stored": "register-map-inspection.txt.gz",
+      "raw_sha256": "4f40d99042cc81c7bc0df19e42f295e34036823924e183754617e49f89e5ad86",
+      "raw_bytes": 510846,
+      "stored_sha256": "6c0f43d61781553dbf563092637373287869ee195234e0f2fc90ad993341851b"
+    },
+    {
+      "name": "run-state.json",
+      "stored": "run-state.json.gz",
+      "raw_sha256": "bebe7b549355830d549f83db77011a0c6164d405ff66448cb6d60e44ea6bb147",
+      "raw_bytes": 4929,
+      "stored_sha256": "024274f8b4bcedf1cd7f6d1c42d86a4baadb34d9bdca7a191ac87e194b265e68"
+    },
+    {
+      "name": "test.log",
+      "stored": "test.log.gz",
+      "raw_sha256": "9e6436e988d5c2a7013e4ad7f7f5551115845fa18bbc21653bdb966adbd7813a",
+      "raw_bytes": 1491258,
+      "stored_sha256": "f64e26a8116eff803f24273d58f500782f5b6aa14b759ff9e37f26830eb723d9"
+    }
+  ]
+}

@@ -119,10 +119,23 @@ the original seed;3862 complete trace records/no gaps/two loader barrier_ends.
 A repeat from another original seed on Main16808/server16807 reproduces the
 same Mesa trap loop and three completed reads, with unchanged binaries/RBF. An overlong launcher initially caused a stock-Main
 re-exec; exact stopped-boundary resume fixes its name without another FPGA
-load. Keep that setup interruption in the receipt. Four matched Mac component
-runs now cover the Ethernet handoff and the original Pilot cable/germ path;
-results pending. See current paths/handles in the handoff. Debug the first
-storage/producer divergence, qualify same-clock Cedar/input, then accelerate.
+load. Keep that setup interruption in the receipt. Both corrected matched Mac
+fixtures fail before the Cedar handoff. Follow-up CONTROL traces show packet0
+accepted and copied, then EOF followed by a checksum return/retry. Wire readback
+matches all15,688 original EB words with valid CRCs and a zero image checksum.
+The late SeqNo0 dump follows a restart, not initial packet rejection. These
+generic-memory/direct-ROM-entry fixtures cannot establish the cause of the
+FPGA's later Mesa trap loop. PCT operands at a CIA change are unsettled; use
+the new passive phase trace to inspect consumed data. It confirms the first240
+checksum words and16 mismatching MD words in a later isolated range. Native RAM
+package shadows pass both16M Initial and50M through receive/checksum, with a
+rejected shadow-only data fault. The control binding the exact deployed memory
+controllers now reaches Cedar BootOrStart, then waits in MesaIFUNotReady through
+55M. Original Initial passes; full loaded IM/IFUM readback remains unverified.
+Its raw MSA/ROM-entry fixture is still not a hardware boot. See terminal results
+in the handoff. Establish
+a passing control, then debug the first storage/producer divergence and qualify
+same-clock Cedar/input before accelerating.
 No physical speed gain claimed; last QUALIFIED login figure remains1.947686M
 issues/s. Current50MHz/SYSPER4 ceiling6.25M/s; target16.667M/s before waits.
 Authentic rollback, persistence, three fresh boots and2h stress remain open.
