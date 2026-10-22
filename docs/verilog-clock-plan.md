@@ -9,6 +9,70 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**Latest: reviewed690f running; verified quiet-login issues+22.1373%; desktop qualification underway.**
+MiSTer14 Main28147/server28146/supervisor28112 run RBF
+690fd4bda65b8cdc40e6aaecc0e7aef51200fead8c248d0d49e17049c3fc98a4,
+unchanged Main21e6/receiver0845, at57.142857MHz/SYSPER4/140ns nominal.
+Volume/core entry `CedarTimingSplit57_20261022`, fresh immutable236b seed.
+One normal load, fresh Main/cache/SDRAM initialization, actual113/C release
+and original Guest.pa login pass. Both monitors visibly Off; two ordinary
+Returns accepted Guest and the original Cedar boot continues. No C-state import
+or host completion. Bounded desktop observer is `hardware/watch-desktop-v1.py`
+under local `timing-paths-native57-v2-20261022`; inspect its actual process and
+new captures before input/retry. Loader normally waits for Main, not a hung load.
+
+Full V2 fit/report/collector/assembly are TERMINAL. All1076 native members,
+503 sources/exact six RTL changes,31 summaries/444 categories/four conditions,
+170 RAM rows/modes, cache independent40/294912bits, original captures/clocks,
+165-bit lookahead state and compiled BaseBoard d08 SYSPER8/FREQ10000 pass.
+Setup+0.483ns/hold+0.104ns.29 actual-evidence corruptions and10 assembly guards
+reject. Shared old2278 review remains byte-identical and its17 controls pass.
+One guarded assembly, no refit. [Reviewed source/timing/assembly](../fpga/mister/reports/2026-10-22-timing-paths/native57-qualified-assembly/README.md).
+The corrected BaseBoard ratio is not a physical wall-time1MHz claim.
+
+Visibly verified OSD instruction mode gives three adjacent10s idle-login
+windows averaging4,025,325.42 issues/s, +22.1373% versus matched2278
+3,295,738.51/s,24.1520% of original nominal. Separate held cycles0.151076%,
+enabled clocks56.439977%, storage-only pauses43.558256%, ARM/both0%, hits75%.
+Legacy DDR pause label refers to storage_ready for SDRAM-backed main storage.
+These are separate intervals, not an atomic decomposition; issues are not
+pipeline-drained retirements, and one boot is not three independent seeds.
+First counter attempt's holds/mode labels were wrong; sanity failure and actual
+selector mismatch are preserved. Only inspected field-v2 supports these values.
+[117-member original-boot/counter/closure proof](../fpga/mister/reports/2026-10-22-timing-paths/native57-prelogin-speed/README.md).
+
+Old2278 cold-apps volume is closed/hash-verified9400d3fae7dc770f186007ffa5dcb5d5f9b3f09a579516da2f0bd404af99c042,
+63578624bytes; bounded-memory local copy verified.13386 trace records,
+684read/1680write ACK pairs,103pwrite/17fsync pairs/two close barriers,
+no errors/loss, no old pack/trace FD or daemon mapping. Not guest clean shutdown.
+Its response57persist/response57after files are on that preserved volume;
+fresh236b has the earlier window57persist file. Do not expect the newer files
+on the new literal old seed.
+
+V1 original fit/report collection also TERMINAL: all1096 members preserved,
+31 summaries/444 categories inspected,98 negative categories,
+setup-15.454ns/hold-0.061ns. Actual combinational LOOP retained; no assembly.
+Expired local observers never triggered a refit. [Full rejection](../fpga/mister/reports/2026-10-22-timing-paths/native57-rejected-terminal/README.md).
+
+Separate DEFAULT-OFF requested-read-beat capture passes finite old/new miter
+in both simulators with six bad-variant rejections, independent physical-pin
+model at57/66MHz and original144-chip MSA byte-identical control/candidate
+traces including104113 host ticks. First fixture compile failure is retained;
+corrected pins-v2 passed. It is NOT in690f and has no native fit/firmware claim.
+[Component proof](../fpga/mister/reports/2026-10-22-storage-read-word-capture/component/README.md).
+Current worst setup paths: half-cycle dq_capture->rsp_data and20-level
+processor i04 output->ProcL k22 capture. Address both before a clock step.
+
+Next/TODO: finish690f original desktop/input/exact keyboard echo/mouse-click,
+old/new files/apps and authentic Checkpoint/Rollback/close-remount. Then stage
+and fully time/review the requested-beat change with CPU/data-path work; no
+blind PLL/SYSPER change. Original60ns nominal, all-device rates, minimal Main337
+isolation, canonical production-source promotion, three final fresh-seed desktop
+boots and2h sustained pack/CRC/RX-clean operation remain OPEN. Native59 retained,
+complete FPGA snapshots deferred, goal ACTIVE.
+
+**Earlier entries below are retained history and superseded where they describe the live core or fit.**
+
 **Latest: original checkpoint COLD persistence/apps PASS; corrected timing candidate fitting.**
 Current MiSTer14 is Main24825/server24824, qualified22781f30 at57.142857MHz/
 SYSPER4/140ns nominal, new `CedarResponseCold57_20261022` volume/core entry.

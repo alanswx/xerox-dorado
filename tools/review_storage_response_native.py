@@ -29,7 +29,7 @@ def sha(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def review(root, config):
+def review(root, config, timing_paths=False):
     evidence = {}
 
     def data(name):
@@ -48,40 +48,66 @@ def review(root, config):
     summary = re.findall(r'Type\s*:\s*([^\n]+)\nSlack\s*:\s*([-+\d.]+)',
                          text('core/output_files/Dorado.sta.summary'))
     assert len(summary) == 31 and all(float(v) > 0 for _, v in summary), 'Native timing summary failed'
-    r = js('storage-response-native.json')
+    manifest = 'timing-paths-native.json' if timing_paths else 'storage-response-native.json'
+    r = js(manifest)
     assert r['frequency_hz'] == 57142857 and r['sysper'] == 4 and r['state_admin'] == 'INACTIVE'
     assert r['response_overlap'] == 1 and r['raw_buffer_lines'] == 4
-    assert not r['assembly_permitted'] and not r['native_timing_firmware_speed_qualified']
+    assert not r['assembly_permitted']
+    if timing_paths:
+        assert r['split_selection'] and r['request_lookahead'] == 1
+        assert r['parallel_lookup'] and r['parallel_ready_compare'] and r['ALU_carry_select']
+        assert not r['firmware_qualified'] and not r['hardware_speedup_qualified']
+    else:
+        assert not r['native_timing_firmware_speed_qualified']
     actual = {n: sha(data(n)) for n in r['source_hashes']}
     assert len(actual) == 503 and actual == r['source_hashes']
     supplied = json.loads(config.read_text())
-    assert set(supplied) == {'parent', 'qualification', 'generated', 'pins', 'board', 'parallel_lookup'}
-    assert type(supplied['parallel_lookup']) is bool
-    args = {k: Path(v).resolve() for k, v in supplied.items() if k != 'parallel_lookup'}
-    args['parallel_lookup'] = supplied['parallel_lookup']
-    assert r.get('parallel_lookup', False) == args['parallel_lookup']
+    if timing_paths:
+        from stage_timing_paths_native import stage as timing_stage, ARB, GROUP, CELL
+        assert set(supplied) == {'parent','qualification','crystal','generated','arb','board','ready','alu'}
+        args = {k: Path(v).resolve() for k, v in supplied.items()}
+    else:
+        assert set(supplied) == {'parent', 'qualification', 'generated', 'pins', 'board', 'parallel_lookup'}
+        assert type(supplied['parallel_lookup']) is bool
+        args = {k: Path(v).resolve() for k, v in supplied.items() if k != 'parallel_lookup'}
+        args['parallel_lookup'] = supplied['parallel_lookup']
+        assert r.get('parallel_lookup', False) == args['parallel_lookup']
     with tempfile.TemporaryDirectory(prefix='dorado-response-review-') as temporary:
         out = Path(temporary) / 'stage'
         with contextlib.redirect_stdout(io.StringIO()):
-            stage(**args, out=out, project=Path(r['project']))
-        assert json.loads((out / 'storage-response-native.json').read_text()) == r, 'Native recipe differs'
+            if timing_paths:
+                timing_stage(**args, output=out, project=Path(r['project']))
+            else:
+                stage(**args, out=out, project=Path(r['project']))
+        assert json.loads((out / manifest).read_text()) == r, 'Native recipe differs'
         assert {n: sha((out / n).read_bytes()) for n in actual} == actual
-    assert set(r['modified_RTL_sources']) == {WRAPPER, 'src/fpga/mister/dorado_storage_arb.sv',
-                                             'src/fpga/mister/dorado_storage_sdram_burst.sv'}
+    if timing_paths:
+        assert set(r['modified_RTL_sources']) == {WRAPPER, ARB, GROUP, CELL,
+            'src/verilog/cells/cell_MC12061.v',
+            'src/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v'}
+    else:
+        assert set(r['modified_RTL_sources']) == {WRAPPER, 'src/fpga/mister/dorado_storage_arb.sv',
+                                                 'src/fpga/mister/dorado_storage_sdram_burst.sv'}
     parent = args['parent']
     q = json.loads(args['qualification'].read_text())
     build, reports, collection = js('run-state.json'), js('storage-ready-reports-v1/run-state.json'), js('collected-ready-input-check.json')
     assert build['status'] == 'TERMINAL_TIMING_OBSERVED_REVIEW_REQUIRED'
     assert [a['stage'] for a in build['stages']] == ['map', 'fit', 'sta', 'clocks', 'corners', 'control-crossings', 'contb-crossings', 'adapter-crossings', 'storage-ready']
     assert reports['status'] == 'TERMINAL_STORAGE_READY_REPORTS_REVIEW_REQUIRED'
-    assert [a['stage'] for a in reports['actions']] == ['ready', 'backend', 'inventory', 'cache-counter', 'response-overlap']
+    expected_reports = ['ready', 'backend', 'inventory', 'cache-counter', 'response-overlap']
+    if timing_paths:
+        expected_reports += ['baseboard-crystal', 'request-lookahead']
+    assert [a['stage'] for a in reports['actions']] == expected_reports
     assert all(a['returncode'] == 0 for a in build['stages'] + reports['actions'])
     pids = {build['builder_pid'], reports['driver_pid']} | {a['pid'] for a in build['stages'] + reports['actions']}
     assert set(collection['absent_pids']) == pids and collection['actual'] == actual
     assert sha(data('build_r_front_ready_native.py')) == build['builder_sha256']
     for n, h in reports['report_inputs'].items():
         assert sha(data('storage-ready-reports-v1/' + n)) == h
-    for name in ['audit_storage_cache_native.tcl', 'audit_storage_response_native.tcl']:
+    bound_scripts = ['audit_storage_cache_native.tcl', 'audit_storage_response_native.tcl']
+    if timing_paths:
+        bound_scripts += ['audit_baseboard_crystal_native.tcl','audit_storage_request_lookahead_native.tcl']
+    for name in bound_scripts:
         assert data('storage-ready-reports-v1/' + name) == (ROOT / 'tools' / name).read_bytes()
 
     mapping, fitting = text('core/output_files/Dorado.map.rpt'), text('core/output_files/Dorado.fit.rpt')
@@ -92,8 +118,9 @@ def review(root, config):
     memory['cache'] = readers.native_cache_physical(fitting,
         js('src/fpga/mister/snapshot_native_memd/assets.json')['manifests']['MemD'], 'independent40')
     paths, coverage = [], {}
-    inherited = [p['report'].removesuffix('.gz') for p in q['detailed_paths'][:332]]
-    assert len(inherited) == len(set(inherited)) == 332
+    inherited_count = 380 if timing_paths else 332
+    inherited = [p['report'].removesuffix('.gz') for p in q['detailed_paths'][:inherited_count]]
+    assert len(inherited) == len(set(inherited)) == inherited_count
     for name in inherited:
         body = text(name)
         paths.append(readers.timed(body, name))
@@ -104,20 +131,27 @@ def review(root, config):
         name = 'core/native59-ucp-' + corner + '.rpt'
         coverage[corner] = ucp(text(name))
         assert coverage[corner] == ucp((parent / name).read_text())
-        for prefix, labels in [('cache-hit', ['counter', 'event', 'initialized']),
-                              ('response', ['backend', 'groups', 'arbiter'])]:
+        added_categories = ([('crystal',['oscillator','downstream','baseboard']),
+                             ('look',['selection','cached-response','admission','group-ready','outgoing'])]
+                            if timing_paths else
+                            [('cache-hit', ['counter', 'event', 'initialized']),
+                             ('response', ['backend', 'groups', 'arbiter'])])
+        for prefix, labels in added_categories:
             for label in labels:
                 for mode in ['setup', 'hold']:
                     name = f'storage-ready-reports-v1/{prefix}-{label}-{mode}-{corner}.rpt'
                     paths.append(readers.timed(text(name), name))
-    assert len(paths) == 380 and all(p['slack_ns'] > 0 for p in paths)
+    assert len(paths) == (444 if timing_paths else 380) and all(p['slack_ns'] > 0 for p in paths)
     clocks = text('core/native-clocks.rpt')
     for name in [HOST_CLOCK, 'dorado_sdram_clk']:
         rows = [s for s in clocks.splitlines() if s.startswith('; ' + name + ' ')]
         assert len(rows) == 1 and re.search(r'; Generated\s*; 17\.500\s*;', rows[0])
-    for key, value, count in [('HOST_CLOCK_HZ', 57142857, 1), ('HOST_TIMEOUT_CLOCKS', 228571428, 1),
+    parameters = [('HOST_CLOCK_HZ', 57142857, 1), ('HOST_TIMEOUT_CLOCKS', 228571428, 1),
                               ('HOST_ADDR_SAMPLE', 1, 128), ('DIRTY_BLOCK_WINDOW', 1, 1),
-                              ('SNAPSHOT_PAUSE', 0, 1), ('CACHE_LINES', 4, 1), ('RESPONSE_OVERLAP', 1, 2)]:
+                              ('SNAPSHOT_PAUSE', 0, 1), ('CACHE_LINES', 4, 1), ('RESPONSE_OVERLAP', 1, 2)]
+    if timing_paths:
+        parameters.append(('REQUEST_LOOKAHEAD',1,1))
+    for key, value, count in parameters:
         values = re.findall(r';\s*' + key + r'\s*;\s*(\d+)\s*;', mapping)
         assert len(values) == count and all(int(v) == value for v in values), key
     command = {n: a+b+c for n, a, b, c in re.findall(r'; command\.(\w+)\s*; ([01])\s*; ([01])\s*; ([01])\s*;', mapping)}
@@ -165,6 +199,49 @@ def review(root, config):
                 prefix = 'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|'
                 assert groups == {prefix + f'msa_ddram:b_{b}|dorado_storage_group:u_storage_{g}' for b in ['msa', 'msaOdd', 'msa1', 'msa1Odd', 'msa2', 'msa2Odd', 'msa3', 'msa3Odd'] for g in range(16)}
 
+    timing_families = {}
+    if timing_paths:
+        headers = list(re.finditer(r'(?m)^;\s*Parameter Settings for (?:User|Inferred) Entity Instance:\s*([^\n;]+)', mapping))
+        sections = [mapping[h.start():headers[i+1].start() if i+1 < len(headers) else len(mapping)]
+                    for i,h in enumerate(headers) if 'cell_MC12061:u_d08' in h[1]]
+        assert len(sections) == 1
+        assert re.search(r'; SYSPER\s*; 8\s*;',sections[0]) and re.search(r'; FREQ_KHZ\s*; 10000\s*;',sections[0])
+        # Physical inventories cannot be inferred from source parameters or
+        # counters alone. Require every added state bit in all four conditions.
+        arb_scope = 'emu:emu|dorado_native_machine:u_native|dorado_storage_arb:u_arb|'
+        expected_look = {arb_scope+f'look_mask[{i}]' for i in range(128)} | {arb_scope+'look_valid'}
+        # Payload is {owner[6:0],address[15:0],data[15:0],write}.
+        # Actual WIDTH=12 producers drive data[15:12] to zero, as in the
+        # independently qualified four-line physical buffer above.
+        expected_look |= {arb_scope+f'look_payload[{i}]' for i in range(40) if i not in range(13,17)}
+        assert len(expected_look) == 165
+        previous_sets = {}
+        for stem, labels, logfile in [
+                ('LOOK',['lookahead','arbiter','backend','groups'],'request-lookahead'),
+                ('CRYSTAL',['oscillator','baseboard','divide5','divide2'],'baseboard-crystal')]:
+            log = text('storage-ready-reports-v1/'+logfile+'.log')
+            timing_families[stem] = {}
+            for corner in sorted(readers.CORNERS):
+                timing_families[stem][corner] = {}
+                for label in labels:
+                    pattern = re.escape(corner)+' '+label+' '
+                    names = re.findall(r'^'+stem+r'_FAMILY_REGISTER '+pattern+r'(.+)$',log,re.M)
+                    counts = re.findall(r'^'+stem+r'_FAMILY_COUNT '+pattern+r'(\d+)$',log,re.M)
+                    assert len(counts)==1 and int(counts[0])==len(names)==len(set(names))>0
+                    physical = canonical(names)
+                    key = stem,label
+                    if key in previous_sets:
+                        assert previous_sets[key] == physical, ('Corner-dependent physical inventory',key)
+                    previous_sets[key] = physical
+                    if stem=='LOOK' and label=='lookahead':
+                        assert physical == expected_look, 'Registered lookahead state missing or changed'
+                    if stem=='LOOK' and label=='groups':
+                        prefix='emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|'
+                        assert {n.rsplit('|',1)[0] for n in physical} == {
+                            prefix+f'msa_ddram:b_{b}|dorado_storage_group:u_storage_{g}'
+                            for b in ['msa','msaOdd','msa1','msa1Odd','msa2','msa2Odd','msa3','msa3Odd'] for g in range(16)}
+                    timing_families[stem][corner][label] = dict(physical=len(names),canonical=len(physical))
+
     def normalized(row):
         code, message = row
         message = re.sub(r'/home/alans/mister/Dorado_\w+_202610\d+', 'PROJECT', message)
@@ -180,14 +257,25 @@ def review(root, config):
         if name == 'map.log':
             def truncation(source, width):
                 return ('10230', f'Verilog HDL assignment warning at {source}.sv(LINE): truncated value with size 32 to match size of target ({width}) File: PROJECT/src/fpga/mister/{source}.sv Line: LINE')
-            assert removed == Counter({truncation('dorado_storage_sdram_burst', 4): 1})
-            assert added == Counter({truncation('dorado_storage_sdram_burst', 2): 1, truncation('dorado_storage_arb', 7): 1})
-            assert "next_line<=fill_line==CACHE_LINES-1 ? 0 : fill_line+1'b1;" in text('src/fpga/mister/dorado_storage_sdram_burst.sv')
-            assert "next_group<=chosen_owner==GROUPS-1 ? 0 : chosen_owner+1'b1;" in text('src/fpga/mister/dorado_storage_arb.sv')
+            if timing_paths:
+                # The actual scaled crystal drives p10. Its default-only
+                # legacy divide-eight output is intentionally not consumed.
+                expected = ('10036', 'Verilog HDL or VHDL warning at cell_MC12061.v(LINE): object "osc" assigned a value but never read File: PROJECT/src/verilog/cells/cell_MC12061.v Line: LINE')
+                assert not removed and added == Counter({expected:1})
+                crystal = text('src/verilog/cells/cell_MC12061.v')
+                assert 'if (SYSPER > 0)' in crystal and 'assign p10 = crystal;' in crystal
+            else:
+                assert removed == Counter({truncation('dorado_storage_sdram_burst', 4): 1})
+                assert added == Counter({truncation('dorado_storage_sdram_burst', 2): 1, truncation('dorado_storage_arb', 7): 1})
+                assert "next_line<=fill_line==CACHE_LINES-1 ? 0 : fill_line+1'b1;" in text('src/fpga/mister/dorado_storage_sdram_burst.sv')
+                assert "next_group<=chosen_owner==GROUPS-1 ? 0 : chosen_owner+1'b1;" in text('src/fpga/mister/dorado_storage_arb.sv')
         else:
             assert not removed and not added, name
         warnings[name] = dict(removed=list(removed.items()), added=list(added.items()))
-    for name in ['clocks', 'corners', 'control-crossings', 'contb-crossings', 'adapter-crossings', 'storage-ready', 'storage-ready-reports-v1/ready', 'storage-ready-reports-v1/cache-counter', 'storage-ready-reports-v1/response-overlap']:
+    clean_logs = ['clocks', 'corners', 'control-crossings', 'contb-crossings', 'adapter-crossings', 'storage-ready', 'storage-ready-reports-v1/ready', 'storage-ready-reports-v1/cache-counter', 'storage-ready-reports-v1/response-overlap']
+    if timing_paths:
+        clean_logs += ['storage-ready-reports-v1/baseboard-crystal','storage-ready-reports-v1/request-lookahead']
+    for name in clean_logs:
         assert not re.search(r'^(?:Critical )?Warning|^Error', text(name + '.log'), re.M), name
     for name, count in [('backend', 4), ('inventory', 1)]:
         found = re.findall(r'^Warning \((\d+)\): (.+)$', text('storage-ready-reports-v1/' + name + '.log'), re.M)
@@ -196,7 +284,7 @@ def review(root, config):
     assert 'Device : 5CSEBA6U23I7' in fit and 'Timing Models : Final' in fit
     resources = {key: int(re.search(re.escape(label) + r'\s*:\s*([\d,]+)', fit)[1].replace(',', '')) for label, key in [('Logic utilization (in ALMs)', 'alms'), ('Total registers', 'registers'), ('Total RAM Blocks', 'ram_blocks'), ('Total DSP Blocks', 'dsp_blocks')]}
     assert resources['ram_blocks'] == 332 and resources['dsp_blocks'] == 35
-    return dict(status='PASS_NATIVE_STORAGE_RESPONSE_PREASSEMBLY_REVIEW', scope=__doc__, source_hashes=actual,
+    result = dict(status=('PASS_NATIVE_TIMING_PATHS_PREASSEMBLY_REVIEW' if timing_paths else 'PASS_NATIVE_STORAGE_RESPONSE_PREASSEMBLY_REVIEW'), scope=__doc__, source_hashes=actual,
                 reviewed_evidence_hashes=evidence, recipe_config_sha256=sha(config.read_bytes()),
                 frequency_hz=57142857, sysper=4, state_admin='INACTIVE', raw_buffer_lines=4,
                 response_overlap=1, parallel_lookup=r.get('parallel_lookup', False),
@@ -206,6 +294,12 @@ def review(root, config):
                 minimum_setup_ns=min(p['slack_ns'] for p in paths if '-setup-' in p['report']),
                 minimum_hold_ns=min(p['slack_ns'] for p in paths if '-hold-' in p['report']),
                 assembly_permitted=False, firmware_qualified=False, hardware_speedup_qualified=False)
+    if timing_paths:
+        result.update(scope='Combined native timing-path preassembly review: exact source regeneration,444 detailed categories, physical capture/clock/RAM/register coverage and classified warnings. No assembly, firmware or speed authorization.',
+                      split_selection=True,request_lookahead=1,parallel_ready_compare=True,ALU_carry_select=True,
+                      crystal_SYSPER=8,crystal_FREQ_KHZ=10000,lookahead_state_bits=165,
+                      added_timing_families=timing_families)
+    return result
 
 
 if __name__ == '__main__':
