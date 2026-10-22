@@ -15,15 +15,59 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
+**Fresh kernel/Viewers/exact keyboard/mouse/live files PASS (13:52UTC).**
+One correct original `Boot -f CedarWork`, same7626/7625/9e/copied ColdCP1 disk,
+shows Basic boot/Boot switches:F, installer and fresh Viewers. Real Cmd mouse
+click creates initialized second CommandTool; EOF caret selection then exact
+Echo succeeds. files-v1.png prints exact old rtl57link1persist/rtl57quietafter
+and a newly written/read fresh57persist.txt. New-file cold persistence remains
+unqualified. Current Schematic click is OUR normal UI test, distinct from the
+user's earlier unlogged action; fresh application result pending. Old trailing-f
+checkpoint return and earlier wrong-caret text edits remain preserved, not passes.
+No extra load/Boot/restart/debugger. Not final fresh-seed firmware, timing,
+three-boot/stress or new CPU speed. Observer terminal45 frames; manual capture
+only now. Goal active: closed236b cold persistence, Main337 isolation, native
+speed/cache/60ns phases and all-device timing before final acceptance.
+
+Fresh-kernel proof is frozen in the verified
+[55-member receipt](../fpga/mister/reports/2026-10-22-pack-write-window/native57-fresh-kernel/README.md).
+Our later Schematic menu click has not yet produced a fresh AIS viewer in
+schematic-v1/v2.png; not an application-launch pass. Preserve current live
+desktop and investigate ordinary menu/selection/script behavior before retrying.
+
+**User-requested build cleanup (2026-10-22).** Removed2610 regenerable local
+Verilator precompiled headers,57002902288 bytes, only below build/rtl-executive.
+No tracked/source/report/disk/binary or protected Executive file removed.
+Mac build allocation114G->61G; df still14GiB free with local Time Machine
+snapshots present, so do not claim physical Mac free-space gain. No backups
+removed. Ubuntu removed133 old db/incremental_db directories from67 superseded
+Native/Serial experiments,16817173243 bytes;950 source/project/report/bitstream
+hashes unchanged. Native26/34/49/59 and all Oct21/22 projects retained, including
+current9e and60ns/rejected timing references. Ubuntu df666G->682G free. No
+active compiler in the affected project; other projects/SD backups untouched.
+Manifests at local build/rtl-executive/cleanup-20261022 and Ubuntu
+/home/alans/mister/dorado-cleanup-20261022.json. Deleted caches must regenerate
+if replaying an old compile/fit; frozen sources/reports/receipts remain intact.
+[Verified cleanup receipt](../fpga/mister/reports/2026-10-22-build-cleanup/README.md)
+preserves the exact plans, deleted paths, completed checks and scripts.
+
 **Fresh kernel reaches Viewers and completes library loading (13:40UTC).**
 Correctly ordered `Boot -f CedarWork` on SAME Main7626/server7625/RBF9e shows
 Basic boot/Boot switches:F (frame05), full fresh installer/closure progress,
-then Viewers/Clock/Watch/Edit and "All Library Files loading A-OK" (frame32).
+then Viewers/Clock/Watch/Edit and "Sil Library Files loading A-OK" (frame32).
 Frame33 shows final DoradoWelcome/Sil DFs and a fresh CommandTool prompt/menu.
 Ordinary Echo input was sent; exact echo/click/file checks remain pending,
 including explicit focus in this newly created tool. This is fresh-kernel
 entry on a copied checkpoint disk, not a final fresh-seed/cold-firmware pass.
 User reports pressing Schematic; timing unlogged, so account for that input.
+
+Fresh exact command execution now PASS (13:50UTC): clicking the blank area
+BELOW all lower CommandTool text selects EOF; normal keyboard Echo fresh57
+exact prints EXACT "fresh57 exact" and a new percent prompt/caret in
+echo-v3.png. Cmd click created/initialized this second tool in frame43.
+Earlier click-at-prompt attempts edited preceding text; preserved, not passes.
+File tests in progress, no concurrent mouse actions. Same7626/7625/9e, no
+repeat Boot, hardware/Main/daemon restart or guest-state injection.
 
 Fresh-input follow-up13:46UTC: bounded observer normally terminal45 frames.
 Frame43 shows a real Cmd-menu mouse click creating a new initialized lower

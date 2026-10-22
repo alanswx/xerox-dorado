@@ -9,11 +9,33 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**Fresh kernel interactive/live-file check PASS (13:52UTC).** Correct original
+Boot -f CedarWork on same7626/7625/9e enters Basic/F, installs fresh Viewers.
+Normal Cmd mouse click creates initialized second tool; EOF selection then
+exact fresh57 exact Echo/prompt. files-v1.png shows exact old two test files
+and new guest-written/read fresh57persist.txt. No cold persistence claim for
+new file, final fresh-seed firmware, three-seed/stress/timing or new speed.
+Fresh Schematic click test pending; prior misplaced-caret edits preserved.
+No extra FPGA/Main/daemon restart, repeat Boot or debugger. Goal remains active.
+
+[55-member fresh-kernel proof](../fpga/mister/reports/2026-10-22-pack-write-window/native57-fresh-kernel/README.md)
+is frozen/verified. Later normal Schematic menu click remains unproven in two
+captures; do not claim fresh AIS application launch. User-requested cache cleanup
+removed local precompiled headers and old Ubuntu Quartus working DBs only.
+Qualified baseline/recent/timing-reference builds, all source/report/bitstream
+and disk images remain. See handoff/cleanup manifests before replaying old fits:
+their deleted working DBs need regeneration. Current live hardware unchanged.
+
 **Fresh kernel reaches Viewers/library A-OK (13:40UTC).** Correct `Boot -f
 CedarWork` on same7626/7625/9e: frame05 Basic/F, then full installer and
-frame32 All Library Files loading A-OK;33 final DF completion/tool prompt.
+frame32 Sil Library Files loading A-OK;33 final DF completion/tool prompt.
 Exact fresh keyboard/focus/click/file checks pending. Not final fresh-seed
 firmware or new speed qualification. User pressed Schematic, timing unlogged.
+
+13:50UTC: exact fresh command output PASS in echo-v3.png after clicking blank
+area below all lower CommandTool text (EOF). Echo fresh57 exact prints exact
+fresh57 exact and a new prompt/caret. Earlier click-at-prompt edits are retained,
+not counted as execution. File tests pending; same7626/7625/9e, no restart.
 
 Fresh observer is normally terminal45frames; Cmd mouse click creates initialized
 second tool in43. Earlier typed Echo edited old typescript at misplaced caret,
