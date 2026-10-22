@@ -15,6 +15,39 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
+**Latest: matched cache4 login MEASURED; clean-input cache16 repeat LIVE.**
+Known-good9e/Main15052/server15051, SAME236b seed as cache16, reaches displayed
+Guest.pa login with ONLY required C before login. Three adjacent10s windows:
+2,968,747.44 /2,968,835.83 /2,968,864.79 StartCycle issues/s, mean2,968,816.02/s
+(17.8129% original nominal16.67M/s). Run/Jam-qualified/excludingRepeatCur,
+not drained retirements or desktop speed. Nominal140ns/7.143M/s before waits.
+Separate idle windows: held cycles0.180632%; enabled host edges41.637317%,
+storage-only pause58.361471%, disk-only0%, both0%. These are separate intervals,
+not atomic decomposition. Issue/hold/enabled/storage precede repeat preparation;
+copy preparation overlaps later disk/both windows. Earlier7c used a different
+seed/server, so its numerically matching rate is NOT a controlled speedup.
+
+Normal OSD (after actual login ONLY) sets passive views; no debugger/ptrace/
+injected calls or other SPI owner. Views restored Off; observer33424/tool41432
+normally terminal13. Normal close preserves unchanged236b,2818 complete records,
+46 read/ACK pairs, one write/ACK pair, zero recorded I/O errors/trace loss, two
+barriers/no open FDs/old mapping revoked. No Guest or new desktop/input/files pass.
+[47-member matched-login proof](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-cache4-matched-login/README.md)
+verifies. HDMI remains black while native login is clear; no video changes.
+
+ONE distinct93ad cache16 repeat (SAME binaries/clocks/COPY236b) now runs
+Main15534/server15531/loader15512, volume CedarStorageCache16NoOSD57_20261022.
+Normal load tool64771 is supervising; C watcher52259 waits original113 and
+read-only native observer41234/Mac34057 watches the SAME boot. Local files:
+storage-cache-native57-v1-20261022/hardware/cache16-noosd. Inspect actual
+cold-load-state.json and current live handles; DO NOT repeat load on timeout.
+NO early OSD or extra keys before actual Guest login: normal C hold/release only.
+If actual login appears, measure same idle issues/holds/causes and cache-hit
+ratio BEFORE Guest input, then qualify full Cedar/input/files. If original815
+recurs, preserve it and diagnose the source/data timing; do not claim capacity
+fix or firmware pass. First815 run/cause/input confound remains preserved below.
+Main337, original60ns family/capture/data work, final3 fresh seeds/2h stress OPEN.
+
 **Cache16 first hardware run UNQUALIFIED.** RBF93ad loaded once,
 Main14314/server14313/loader14281, same21e6/0845 binaries and COPY236b.
 Original113/C release occurs; native frame02 shows845, then03..21 are BYTE-

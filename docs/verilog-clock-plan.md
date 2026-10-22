@@ -9,6 +9,24 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**Latest: matched cache4 actual login baseline2.968816M issues/s; clean-input
+cache16 repeat now LIVE.** Known-good9e/SAME236b/Main21e6/receiver0845,
+no early OSD/extra input, displayed Guest.pa login. Three10s issue windows:
+2.96874744/2.96883583/2.96886479M/s,17.8129% original nominal16.67M/s.
+Separate idle held-cycle fraction0.180632%; enabled host41.637317%, storage-only
+pause58.361471%, disk/both0%. Separate non-atomic intervals; preparation overlaps
+only later disk/both windows, not issue/hold/enabled/storage samples. No new-core
+speedup, retirements or desktop claim. [47-member proof](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-cache4-matched-login/README.md)
+verifies full normal close2818 records/two barriers/no faults/loss/unchanged236b.
+
+ONE distinct93ad repeat now Main15534/server15531/loader15512, volume
+CedarStorageCache16NoOSD57_20261022; load64771, original-C watcher52259,
+read-only observer41234/Mac34057. SAME binaries/clocks/seed, NO early OSD or
+extra keys until actual Guest login. Inspect journal/current handles, never
+repeat load on observation timeout. If actual login appears measure matched
+speed/holds/causes/hits, then full desktop/input/files; if815 recurs preserve and
+diagnose. Original60ns/Main337/final three fresh seeds/2h stress remain OPEN.
+
 **Latest: cache16 hardware enters original teledebug815; UNQUALIFIED.**
 Same Main21e6/receiver0845/COPY236b, one93ad load, original113/C release and845
 runtime raster; then03..21 byte-identical815 (original germTeledebugServer).
