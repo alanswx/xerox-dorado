@@ -9,6 +9,17 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**Native window desktop follow-up (12:11UTC).** Same RBF9e/Main5080/server4619:
+Viewers, new tool/mouse/focus, exact short/lowercase/uppercase/digit typing and
+live file write/Type readback PASS.22768 actual write request/ACK pairs use
+23.43MB versus366.90MB for the same loaded full-track spans,93.61% fewer SPI
+WRITE bytes; reads unchanged. Seven damaged-trace controls reject. This is byte
+reduction only, not new instruction speed or pinned latency. Native file cold
+persistence/old closed checkpoint1670 restore and fresh-kernel Boot-f remain
+open; Main337 still undeployed. HDMI remains black despite acknowledged720p60,
+restored1080p30; Linux framebuffer is confirmed off without debugger attachment.
+watch-r3 completed its90 samples normally. Continue the SAME V42 existing limit.
+
 **Latest execution (2026-10-22,11:57UTC).** Reviewed optional disk-window/
 address-sample RBF9e0d4163 assembled and loaded ONCE on MiSTer14. All503 recipe
 sources,332 detailed categories/four corners,2048 sample bits, RAM modes and

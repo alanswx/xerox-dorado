@@ -15,6 +15,33 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
+**Native window follow-up (2026-10-22,12:11UTC).** SAME Main5080/server4619/
+RBF9e, no reprogram. Viewers, mouse Cmd/new initialized tool/focus, exact short
+text, lowercase+uppercase alphabets and digits PASS. Normal `Echo window57persist
+> ///window57persist.txt` and `Type ///window57persist.txt` read back exact
+`window57persist` with a fresh prompt. Actual screenshots and command scope:
+`pack-window57-field-20261022/interactive-checks-v1.json`. This proves LIVE file
+I/O, not closed-media/cold persistence. watch-r3 is normally TERMINAL after90
+samples; a concurrent manual screenshot request timed out because Main was
+already capturing its frame80. Subsequent exclusive captures succeed. No reset.
+
+Actual trace prefix70741 complete records:22768 write request/ACK pairs, all
+inside their previously loaded full track. Core transfers44x512,22453x1024,
+271x1536B =23430656B, versus366900224B using those same requests' actual full
+track spans:93.6139% fewer SPI WRITE bytes.3612 full-track reads remain.
+Separate ARM pwrite/fsync results match, no overflow/fault event in this prefix;
+936 poll_gap scheduling observations are retained. Seven damaged-trace controls
+reject. `inspect_pack_window_trace.py` and its controls reproduce the result.
+This is not a pinned workload, elapsed speedup, final close or stress result.
+
+Read-only five-global Main inspection from byte-matched ELF proves fb_enabled0,
+menustate1/no OSD; no debugger attach/injected calls/writes. Temporary normal
+720p60 command was acknowledged but external capture remained black; finally
+restored1080p30, no persistent INI change. Missing-filter errors fall back to
+built-in nearest-neighbor coefficients, so those messages do NOT prove cause.
+Internal screenshots remain clear. Cold checkpoint/fresh kernel, actual closed-
+media persistence, Main337 A/B and real60ns/final fresh/stress gates stay OPEN.
+
 **Current hardware (2026-10-22,11:57UTC): reviewed write-window candidate LIVE; Viewers up.**
 MiSTer14 has RBF`9e0d41638f2e2b7e87668a486d83ce103f72ff6001ee87a339a3a48bc58450ab`,
 57.142857MHz/SYSPER4, same Main21e67a3f/server08452a86. Actual normal loader

@@ -1,4 +1,4 @@
-# Optional disk-write windows: component pass, native timing pending
+# Optional disk-write windows: native desktop and transfer proof
 
 The existing core pauses for whole-track host transfers. DIRTY_BLOCK_WINDOW (default0) accumulates the covering512-byte block range only when the original complete Fire-code check accepts a block. It retains the full-track read/cache and translates the synchronous HPS RAM port only during host write phases. A completed host ACK still retires the original dirty generation. No controller, disk CRC, CPU/cache/map/ECC, board clocks or Main change is included.
 
@@ -10,10 +10,10 @@ Native staging starts from the reviewed57.142857MHz/SYSPER4 source and binds all
 
 The unchanged native-control V41 ends normally at its existing1.5B host limit,592,791,536 enabled source edges. Physical8M startup passes, but no113 is issued and CPU remainsc0fc7000. It cannot qualify a CPU-front experiment. Separate V42 changes only normal BaseBoard input to3 presses, matching original DoradoContinuous.masm CoolBoot/LoadDoradoCode. The same503 native sources remain frozen and unchanged; no IM/manifold/CPU-state writes or C CPU/IOCB execution. V42 driver83938/simulator84276/tool47383 is a RUNNING startup prefix, not firmware success. Preserve it rather than restarting on observation timeout.
 
-The explicit hold-optimization V3 also failed: [complete terminal evidence](native57-hold-all-paths-rejected/README.md). All Paths was already the fitter default. The separate [opposite-edge address component](address-sample/README.md) passes exact original values/request epochs and its public-interface failure controls. Its V4 full fit has a positive device summary (+0.269ns setup/+0.242ns hold); detailed timing, memory and firmware qualification are still pending. No candidate RBF is assembled or loaded.
+The explicit hold-optimization V3 also failed: [complete terminal evidence](native57-hold-all-paths-rejected/README.md). All Paths was already the fitter default. The separate [opposite-edge address component](address-sample/README.md) passes exact original values/request epochs and its public-interface failure controls. At that stage its V4 full fit had a positive device summary (+0.269ns setup/+0.242ns hold); the subsequent review/assembly and actual hardware evidence are linked below.
 
 Run component gate: `python3 tools/test_pack_write_window.py --run build/rtl-executive/NEW-UNIQUE-WINDOW-RUN`
 
 Verify: `python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-22-pack-write-window`
 
-The same V4 fit subsequently passes its [full review and guarded assembly](native57-qualified-assembly/README.md). Its [first hardware prefix](native57-first-firmware-prefix/README.md) passes physical memory, original113, Guest login and all34 transfers/final ACK, with host/observer failures explicitly retained. Native desktop, persistence and speed qualification are still separate pending gates.
+The same V4 fit subsequently passes its [full review and guarded assembly](native57-qualified-assembly/README.md). Its [first hardware prefix](native57-first-firmware-prefix/README.md) passes physical memory, original113, Guest login and all34 transfers/final ACK, with host/observer failures explicitly retained. The [desktop and live-input follow-up](native57-window-desktop/README.md) now proves Viewers, mouse/new tool, exact alphabets/digits, live file readback and 93.61% fewer SPI WRITE bytes across22,768 actual matched requests. Seven damaged-trace controls reject. This is a byte comparison, not a new CPU/elapsed speed claim. Cold persistence, checkpoint remount and final fresh/stress qualification remain open.
