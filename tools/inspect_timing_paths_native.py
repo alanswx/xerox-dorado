@@ -20,7 +20,7 @@ from review_storage_response_native import HOST_CLOCK
 from review_storage_cache_native import canonical
 
 
-def inspect(root, parent, qualification):
+def inspect(root, parent, qualification, read_word=False):
     hashes = {}
 
     def read(name):
@@ -36,7 +36,14 @@ def inspect(root, parent, qualification):
     assert recipe['state_admin'] == 'INACTIVE' and not recipe['assembly_permitted']
     assert recipe['request_lookahead'] == recipe['response_overlap'] == 1
     assert recipe['parallel_lookup'] and recipe['parallel_ready_compare'] and recipe['ALU_carry_select']
-    assert recipe['raw_buffer_lines'] == 4 and len(recipe['modified_RTL_sources']) == 6
+    assert recipe['raw_buffer_lines'] == 4
+    assert len(recipe['modified_RTL_sources']) == (2 if read_word else 6)
+    if read_word:
+        from stage_storage_read_word_native import PARENT_QUALIFICATION, BACKEND, WRAPPER
+        from prepare_storage_read_word_capture import transform
+        assert recipe['capture_read_word'] and recipe['response_valid_cycles_unchanged']
+        assert hashlib.sha256(qualification.read_bytes()).hexdigest() == PARENT_QUALIFICATION
+        assert set(recipe['modified_RTL_sources']) == {BACKEND, WRAPPER}
     actual = {}
     for n, h in recipe['source_hashes'].items():
         read(n); actual[n] = hashes[n]
@@ -56,11 +63,25 @@ def inspect(root, parent, qualification):
         read('storage-ready-reports-v1/'+n); assert hashes['storage-ready-reports-v1/'+n] == digest
 
     previous = json.loads(qualification.read_text())
-    assert previous['status'] == 'PASS_NATIVE_STORAGE_RESPONSE_PREASSEMBLY_REVIEW'
+    assert previous['status'] == ('PASS_NATIVE_TIMING_PATHS_PREASSEMBLY_REVIEW' if read_word
+                                  else 'PASS_NATIVE_STORAGE_RESPONSE_PREASSEMBLY_REVIEW')
     assert previous['source_hashes'] == recipe['parent_source_hashes']
-    assert len(previous['detailed_paths']) == 380
+    assert len(previous['detailed_paths']) == (444 if read_word else 380)
     names = [p['report'].removesuffix('.gz') for p in previous['detailed_paths']]
-    for corner in sorted(readers.CORNERS):
+    if read_word:
+        original = json.loads((parent/'timing-paths-native.json').read_text())
+        for name, digest in previous['source_hashes'].items():
+            raw = (parent/name).read_bytes()
+            assert hashlib.sha256(raw).hexdigest() == digest, name
+            expected = raw.replace(original['project'].encode(), recipe['project'].encode())
+            if name == BACKEND:
+                expected = transform(raw)
+            if name == WRAPPER:
+                old = b'.CACHE_LINES(4),.RESPONSE_OVERLAP(1)) u_sdram('
+                assert expected.count(old) == 1
+                expected = expected.replace(old, b'.CACHE_LINES(4),.RESPONSE_OVERLAP(1),.CAPTURE_READ_WORD(1)) u_sdram(')
+            assert (root/name).read_bytes() == expected, name
+    for corner in ([] if read_word else sorted(readers.CORNERS)):
         for prefix, labels in [('crystal',['oscillator','downstream','baseboard']),
                                ('look',['selection','cached-response','admission','group-ready','outgoing'])]:
             for label in labels:
@@ -102,6 +123,9 @@ def inspect(root, parent, qualification):
     for key, value, count in [('HOST_CLOCK_HZ',57142857,1),('CACHE_LINES',4,1),('RESPONSE_OVERLAP',1,2),('REQUEST_LOOKAHEAD',1,1),('HOST_ADDR_SAMPLE',1,128),('DIRTY_BLOCK_WINDOW',1,1),('SNAPSHOT_PAUSE',0,1)]:
         values = re.findall(r';\s*'+key+r'\s*;\s*(\d+)\s*;',mapping)
         assert len(values) == count and all(int(v) == value for v in values), key
+    if read_word:
+        values = re.findall(r';\s*CAPTURE_READ_WORD\s*;\s*(\d+)\s*;', mapping)
+        assert values == ['1'], 'Requested-beat mode must be selected in the actual compiled backend'
     headers = list(re.finditer(r'(?m)^;\s*Parameter Settings for (?:User|Inferred) Entity Instance:\s*([^\n;]+)',mapping))
     sections = [mapping[h.start():headers[i+1].start() if i+1 < len(headers) else len(mapping)] for i,h in enumerate(headers) if 'cell_MC12061:u_d08' in h[1]]
     assert len(sections) == 1 and re.search(r'; SYSPER\s*; 8\s*;',sections[0]) and re.search(r'; FREQ_KHZ\s*; 10000\s*;',sections[0])

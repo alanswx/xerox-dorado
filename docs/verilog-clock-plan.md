@@ -9,22 +9,39 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Latest: reviewed690f running; verified quiet-login issues+22.1373%; desktop qualification underway.**
+**Latest:690f original Viewers/exact input/files/fresh schematic PASS; original Checkpoint running.**
 MiSTer14 Main28147/server28146/supervisor28112 run RBF
 690fd4bda65b8cdc40e6aaecc0e7aef51200fead8c248d0d49e17049c3fc98a4,
-unchanged Main21e6/receiver0845, at57.142857MHz/SYSPER4/140ns nominal.
-Volume/core entry `CedarTimingSplit57_20261022`, fresh immutable236b seed.
-One normal load, fresh Main/cache/SDRAM initialization, actual113/C release
-and original Guest.pa login pass. Both monitors visibly Off; two ordinary
-Returns accepted Guest, original profile/font default-No flow and BootEssentials
-finish, Viewers/Clock/Watch/Edit appear. Normal mouse creates a fresh CommandTool;
-short Echo split57 exact returns exactly after final-prompt selection. Full
-alphabet/file commands are running. First typing attempt inserted inside the
-automatic ///Commands/NotePerCommandTool line; sender8362 was interrupted with
-finally-key-release. Preserve input-v1 diagnosis/screens; no first-attempt pass.
-No C-state import or host completion. Bounded desktop observer is `hardware/watch-desktop-v1.py`
-under local `timing-paths-native57-v2-20261022`; inspect its actual process and
-new captures before input/retry. Loader normally waits for Main, not a hung load.
+unchanged Main21e6/receiver0845,57.142857MHz/SYSPER4/140ns nominal,
+volume/core `CedarTimingSplit57_20261022`, literal fresh236b seed.
+One normal load/full SDRAM init/original113-C release/Guest/profile-font-No/
+BootEssentials reaches Viewers. All34 base lookup names/sizes in original order
+(cached payloads, not34 remote transfers). Mouse creates and focuses fresh tool;
+exact short/alphabet/digit Echo and old window57persist file Type PASS.
+New ///split57persist.txt is written/read back warm. Native/HDMI agree.
+First keyboard attempt was inserted inside automatic NotePerCommandTool text;
+sender8362 stopped/finally released keys. Actual final-prompt click fixes input.
+Root-WD relative Schematic.cm misses; normal Schematic menu in Guest WD then
+fetches8 files, both Eval calls return, entire ProcH-BitSlice07 paints beside
+both tools and changing Clock. Both mistakes remain visible in the proof.
+[61-member original desktop/input/file/application proof](../fpga/mister/reports/2026-10-22-timing-paths/native57-desktop-input-apps/README.md).
+
+Desktop/input observers terminal60/32 and absent. One ordinary `Checkpoint`
+command is now running through original Cedar/germ/disk; command05 shows
+Creating checkpoint, then native captures6..9 temporarily unavailable while
+Main28147 continues disk writes. Do not repeat/reset for capture timeout.
+First observer9367/tool98254 is terminal48 and absent; actual original germ812
+(inload per MPCodes.mesa) and saved desktop repaint are observed. Original
+missing-profile/full-default-name/defaultNo flow reaches No; one Return accepts
+it. A distinct `watch-checkpoint-v2.py`/32-sample observer follows SAME Main;
+no repeated Checkpoint or reload. Wait for the actual final prompt before new input.
+During save, three trace_dropped records appear and recorded write requests/ACKs
+are15126/15127: history is incomplete. Disk errors/CRC/RX/abort/drop remain0;
+preserve diagnostic gaps, do not claim complete I/O history.
+Checkpoint/Rollback and new-file cold persistence are NOT yet qualified on690f.
+Live desktop prefix624 read/1702 write requests/ACKs,134 pwrite/27fsync
+completions, no recorded errors/loss; good335/CRC-RX-abort-drop0, fault clear.
+Not current-volume closure or final stress. No C-state import/host completion.
 
 Full V2 fit/report/collector/assembly are TERMINAL. All1076 native members,
 503 sources/exact six RTL changes,31 summaries/444 categories/four conditions,
@@ -68,7 +85,7 @@ corrected pins-v2 passed. It is NOT in690f and has no native fit/firmware claim.
 Current worst setup paths: half-cycle dq_capture->rsp_data and20-level
 processor i04 output->ProcL k22 capture. Address both before a clock step.
 
-**Next capture-path fit LIVE; existing690f remains the hardware under test.**
+**Next capture-path fit REJECTED by summary; detailed collection continues. Existing690f remains on hardware.**
 Read-beat component is staged onto all503 exact reviewed690f sources; only the
 backend and its wrapper parameter change after literal project relocation.
 Eleven actual damaged-source/proof/negative-control/loop-warning/pin-cycle/
@@ -76,18 +93,28 @@ MSA-timestamp controls reject, original inputs unchanged. First stage attempt
 rejected the literal fatal-warning flag in JSON, before output/build; corrected
 log-diagnostic check passes. Both attempts retained.
 Remote `/home/alans/mister/Dorado_ReadWordCapture57_1_20261022`, builder1408808/
-map1408815 terminal0, fitter1420977 verified LIVE.503 uploaded hashes and
-old690f503 hashes reverified.
-Read-only seven-script followers1413663/1413664 and local PID8111/tool84348
-follow this SAME fit. Local `storage-read-word-native57-v1-20261022` preserves
+map1408815/fit1420977 terminal0; original builder1408808 continues read-only
+STA stages. Summary setup-0.460ns/hold-0.027ns REJECTS, so no assembly/load.
+Setup worst is ProcL g06 output -> ContB l22 diagnostic input capture.
+All1075 native members now copied/hash-checked; all31 summaries/444 categories
+inspected,28 negative categories, setup-0.460ns/hold-0.027ns. All503 sources,
+170 RAM rows/modes, cache independent40, compiled capture mode, BaseBoard ratio
+and original coverage checked. Storage input+0.939ns and internal+0.719ns
+improve, but CPU diagnostics fail; slow100C group-ready hold is negative.
+No assembly/load. Legacy444-category V1 diagnostic remains BYTE-IDENTICAL.
+[1086-member full rejection](../fpga/mister/reports/2026-10-22-storage-read-word-capture/native57-rejected-terminal/README.md).
+503 uploaded hashes and old690f503 hashes reverified.
+Builder1408808, seven-script followers1413663/1413664 and local8111 are all
+terminal/absent; tool84348 completed after96 polls, no refit.
+Local `storage-read-word-native57-v1-20261022` preserves
 stage/recipe/eleven guards/launches; bounded collector300 polls must never
 cause a refit/restart. Full timing/RAM/captures/register inventory/reviewer/
 assembly guards remain required; no assembly/load or new speed qualification.
 [570-member stage and observed-live proof](../fpga/mister/reports/2026-10-22-storage-read-word-capture/native57-stage/README.md).
 
-Next/TODO: finish690f original desktop/input/exact keyboard echo/mouse-click,
-old/new files/apps and authentic Checkpoint/Rollback/close-remount. Then stage
-and fully time/review the requested-beat change with CPU/data-path work; no
+Next/TODO: finish690f authentic Checkpoint/Rollback and new-file close/remount.
+Retain completed desktop/exact input/mouse/files/apps. Collect the rejected
+requested-beat fit and address CPU/diagnostic/data paths before another clock step; no
 blind PLL/SYSPER change. Original60ns nominal, all-device rates, minimal Main337
 isolation, canonical production-source promotion, three final fresh-seed desktop
 boots and2h sustained pack/CRC/RX-clean operation remain OPEN. Native59 retained,
