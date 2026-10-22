@@ -15,6 +15,73 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
+**Latest:2278 cold original-checkpoint restore/input/both files PASS; new timing candidate fitting.**
+MiSTer14 now runs Main24825/server24824, SAME qualified22781f30 RBF,
+Main21e6/receiver0845, at57.142857MHz/SYSPER4/140ns nominal. Volume/core entry:
+`CedarResponseCold57_20261022`. Old19164/19163 are gone. One normal core load,
+fresh Main/daemon/disk cache and full storage initialization, original113/C
+release, Guest login, germ812 and profile defaultNo restore both saved tools,
+Clock and icons. Normal mouse/EOF click, exact fresh `response57 cold`, BOTH
+`///response57persist.txt` and `///response57after.txt`, and full alphabet/digits
+Echo pass. The second file was written AFTER Checkpoint; it survives this cold
+restore too. Clock hands change. Native and actual HDMI captures show results.
+[65-member cold checkpoint/persistence proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-cold-checkpoint-persistence/README.md).
+Local `build/rtl-executive/response57-cold-checkpoint-v1-20261022` preserves all
+scripts/logs; capture observers terminal40/32/17, input released. Loader13261
+waits normally for Main; do not repeat preparation/load. Current mouse700,518
+in the1072x862 native capture, lower tool ends528; inspect fresh EOF before input.
+
+Old checkpoint volume is CLOSED/hash-verified6e7315cc2e3e3f406097f2bd9e2ec3516f03b5f4c87327345297a28955cf37f4,
+63578624B, two host/fsync barriers, no old pack/trace FD and revoked mapping.
+Its literal copy is the new cold seed; immutable236b template is also unchanged.
+Old trace retains19388 lost diagnostic records: observed paired2475 reads/
+13033 writes do NOT prove complete request history. New bounded prefix has
+476read/42write ACK pairs,8pwrite/3fsync pairs, no recorded errors/loss, but
+is not a new-volume close barrier. CRC/RX/abort/drop0 and pack-fault clear.
+HDMI is readable after normal cold reload at the same1080p/30Hz timing;
+no capture-service/resolution change. Root cause/permanent fix unproved.
+Original display interlace remains intentional; do not force VGA_F1 low.
+
+**Combined timing-path component candidate: tests PASS; full native fit unqualified.**
+Local `timing-paths-native57-v1-20261022/staged-v2`, remote
+`misterubuntu:/home/alans/mister/Dorado_TimingPaths57_1_20261022`.
+Builder818951/fitter830410 and read-only reporter830574/collector830575 were
+rechecked live; placement/routing completed, fitter final analysis still active.
+Observe these SAME processes and terminal receipt, never refit on observer timeout.
+Exact503-source2278 parent; six RTL sources change: default-off registered
+request lookahead plus wrapper enable, parallel ready comparisons, MC10181
+carry selection and the already proved MC12061/BaseBoard crystal-ratio correction.
+CPU registers/captures, cache/Map/ECC, PLL/SYSPER/SDC, other peripherals, Main/
+daemon unchanged. Keep qualified2278 running until full qualification permits load.
+
+Static128-group and dynamic5/128-group arbitration pass both simulators,
+including late higher-priority arrivals, held reservation/response, reset and
+backpressure; three bad variants reject. Both actual144-chip MSA comparisons
+retain12012 board cycles/9437184bits and raw data/order. Default-off and
+qualified-overlap controls are byte-identical. Lookahead costs103525->104113
+host cycles (+0.568%): timing trade, NOT speedup. Ready tags pass full binary
+SMT and163840 actual four-state comparisons. ALU carry selection matches all
+16384 binary combinations/all7 pins in both simulators, but is NOT four-state
+or native-firmware qualification. All503 sources/6 changes/9 staging guards pass.
+[952-member component/source/stage proof](../fpga/mister/reports/2026-10-22-timing-paths/native57-stage/README.md).
+Full fit must review all444 detailed categories,31 summaries,170 RAM rows,
+actual register families/clock/capture coverage and warnings; no assembly yet.
+New recipe needs its own reviewer/assembly guards; old2278 qualification cannot
+authorize the changed candidate. Cached-mask/accept feedback into selection
+is a possible new late-control path; confirm actual reports before choosing a fix.
+
+Next: finish that fit/report review; fix any real paths, then normal guarded
+deployment, original startup/Cedar/input/files/apps and pinned issues/holds.
+Current last pinned mean remains3,295,738.51 issues/s (+11.0119% vs cache4),
+not a new cold-session benchmark or retirement rate. Original60ns, all-device
+timing, minimal Main337 isolation, repeated final restarts, three fresh original
+seeds and2h sustained operation remain OPEN. Promote the selected exact RTL
+recipe into the normal reproducible production build before final qualification;
+frozen experiments alone are not the deliverable. Native59 stays preserved,
+whole FPGA snapshots deferred, goal ACTIVE.
+
+**Earlier historical status below is superseded by the current identities/results above.**
+
 **Clock candidate TERMINAL/REJECTED; current2278 original Checkpoint AND explicit Rollback PASS.**
 Remote `/home/alans/mister/Dorado_BaseBoardCrystal57_1_20261022`, builder530332/
 map530341/fit542437 terminal0; all9 build/6 read-only stages terminal0. Ordinary summary setup-0.399ns,

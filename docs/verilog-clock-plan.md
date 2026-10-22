@@ -9,6 +9,51 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**Latest: original checkpoint COLD persistence PASS; combined timing candidate fitting.**
+Current MiSTer14 is Main24825/server24824, qualified22781f30 at57.142857MHz/
+SYSPER4/140ns nominal, new `CedarResponseCold57_20261022` volume/core entry.
+One actual normal core load, old-volume close/two fsync barriers, fresh Main/
+daemon/disk cache/storage initialization and original113/germ boot restore
+the saved two tools/Clock/icons. Mouse/EOF click, exact fresh Echo, full alphabet/
+digits and BOTH pre-Checkpoint response57persist and post-Checkpoint
+response57after files PASS. Clock redraw and actual HDMI clear. Closed source
+6e7315cc was copied literally; immutable236b remains unchanged. No C-state import
+or host guest-instruction/IOCB completion. [65-member cold proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-cold-checkpoint-persistence/README.md).
+Old trace's19388 lost records remain explicit; bounded new trace has no recorded
+errors/loss, CRC/RX/abort/drop0 and no pack fault. Not a new-volume close or final
+stress qualification. HDMI recovery after normal reload is observed; permanent
+cause/fix unproved. No shared capture-service/resolution change; keep original
+internal display interlace. All native observers terminal40/32/17, controls released.
+
+One combined full fit, remote `/home/alans/mister/Dorado_TimingPaths57_1_20261022`,
+builder818951/fitter830410 and read-only830574/830575, follows the exact503-source
+2278 baseline. Placement/routing completed; fitter final analysis still active
+at the latest process check. Six RTL changes shorten registered request,
+ready-tag and ALU carry paths and retain the original BaseBoard ratio correction.
+CPU capture registers/cache/Map/ECC, PLL/SYSPER/SDC and other devices/Main/daemon
+unchanged. This image has NOT been assembled or loaded. [952-member stage](../fpga/mister/reports/2026-10-22-timing-paths/native57-stage/README.md).
+Both-simulator static/dynamic arbitration and full144-chip MSA data/order pass,
+including late arrivals, held requests/responses/reset/backpressure and bad-variant
+checks. Ready comparison passes binary SMT/163840 four-state checks; carry
+selection passes16384 binary cases/all7 pins in both engines (four-state limit
+explicit). Nine staging guards reject. The actual MSA host count grows0.568%
+versus current overlap, so this is a timing trade, not a demonstrated speedup.
+
+Next: follow SAME fit and seven read-only reports, review all31 summaries/
+444 detailed categories,170 RAM rows/modes, physical clock/register/capture
+coverage and warnings. Inspect cached-mask/accept feedback if timing exposes it;
+do not change the running fit or retry a seed on observation timeout. New recipe
+requires its own preassembly reviewer/guards before any assembly/load. Then
+qualify original firmware/input/files/apps and pinned issues/holds on hardware.
+Last measured rate remains3,295,738.51 issues/s (+11.0119% vs cache4),19.7744%
+of original nominal; no new cold-run speed claim. Original60ns and all timers,
+minimal Main337 isolation, repeated final restarts, three fresh original-seed
+desktop boots and2h stress remain OPEN. Promote the chosen exact sources into
+the normal production build before final qualification. Preserve Native59;
+complete FPGA snapshots stay deferred. Goal ACTIVE.
+
+**Earlier historical entries below are superseded by the current result above.**
+
 **Clock follow-up TERMINAL/REJECTED; current2278 save/rollback PASS.** One fit at
 `misterubuntu:/home/alans/mister/Dorado_BaseBoardCrystal57_1_20261022`,
 builder530332; map530341/fit542437 terminal0. Summary setup-0.399ns, already

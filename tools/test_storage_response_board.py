@@ -72,9 +72,11 @@ def run(board, generated, out, controls):
             save()
             return code
 
-    def case(label, enabled, source=None, rejected=False):
+    def case(label, enabled, source=None, rejected=False, lookahead=None):
         body = tb.replace('.INTERLEAVE_GROUPS(INTERLEAVE_GROUPS)) arb(',
-                          '.INTERLEAVE_GROUPS(INTERLEAVE_GROUPS),.RESPONSE_OVERLAP(' + str(enabled) + ')) arb(')
+                          '.INTERLEAVE_GROUPS(INTERLEAVE_GROUPS),.RESPONSE_OVERLAP(' + str(enabled) + ')' +
+                          (',.REQUEST_LOOKAHEAD(' + str(enabled if lookahead is None else int(lookahead)) + ')'
+                           if record.get('request_lookahead', False) else '') + ') arb(')
         assert body != tb
         test = inputs / (label + '-tb.sv')
         test.write_text(body)
@@ -112,24 +114,33 @@ def run(board, generated, out, controls):
     try:
         case('default-off', 0)
         assert (out / 'default-off-raw.csv').read_bytes() == (board / 'lines4-raw.csv').read_bytes(), 'Default-off changed frozen trace'
+        if record.get('request_lookahead', False):
+            case('overlap-control', 1, lookahead=False)
         case('overlap-on', 1)
         def operations(path):
             with path.open() as f:
                 return [tuple(row[1:]) for row in list(csv.reader(f))[1:]]
         assert operations(out / 'default-off-raw.csv') == operations(out / 'overlap-on-raw.csv'), 'Canonical raw data/order changed'
+        if record.get('request_lookahead', False):
+            assert operations(out / 'overlap-control-raw.csv') == operations(out / 'overlap-on-raw.csv'), 'Lookahead changed canonical raw data/order'
         if controls:
             text = (inputs / 'dorado_storage_arb.sv').read_text()
-            old = 'owner<=chosen_owner;address_latched<=chosen_address;'
+            selected = 'successor' if record.get('request_lookahead', False) else 'chosen'
+            old = f'owner<={selected}_owner;address_latched<={selected}_address;'
             assert text.count(old) == 1
             bad = out / 'old-response-owner.sv'
-            bad.write_text(text.replace(old, 'owner<=owner;address_latched<=chosen_address;'))
+            bad.write_text(text.replace(old, f'owner<=owner;address_latched<={selected}_address;'))
             case('old-response-owner', 1, source=bad, rejected=True)
         assert all(sha(inputs / n) == h for n, h in frozen.items())
         off, on = (state['results'][n]['host_cycles'] for n in ['default-off', 'overlap-on'])
         assert on < off
-        state.update(status='PASS_RESPONSE_OVERLAP_ORIGINAL_MSA', finished=time.time(),
+        state.update(status=('PASS_REQUEST_LOOKAHEAD_ORIGINAL_MSA' if record.get('request_lookahead', False)
+                             else 'PASS_RESPONSE_OVERLAP_ORIGINAL_MSA'), finished=time.time(),
                      default_off_trace_byte_identical=True, canonical_operation_data_order_identical=True,
                      host_cycle_reduction=1-on/off, native_fit_or_firmware_qualified=False)
+        if record.get('request_lookahead', False):
+            control = state['results']['overlap-control']['host_cycles']
+            state['lookahead_vs_qualified_overlap_host_cycle_change'] = on/control-1
         save()
     except BaseException:
         state.update(status='TERMINAL_FAILED', finished=time.time())
