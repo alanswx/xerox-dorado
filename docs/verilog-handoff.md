@@ -15,23 +15,44 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Current: response-overlap native timing/assembly PASS; hardware PREPARED, not loaded.**
-The SAME93ad/Main15534/server15531 session completes the installer. Normal Cmd
-and EOF clicks create/select a clean second CommandTool; exact cache16 Echo,
-alphabet/digits and new guest file write/read pass. Type window57persist.txt
-returns exact old content across the prior actual cold FPGA/Main/daemon/cache
-transition from236b. New cache16persist.txt has warm readback only. Original
-Clock opens/redraws by normal middle click; native and HDMI show the desktop.
-[31-member desktop receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-cache16-desktop/README.md).
-Both observers TERMINAL; no key/mouse sender remains. Pointer875,805; Clock
-resized the lower tool upward, so select EOF in its new blank area before input.
-First >/// file command lacked a space and echoed text. Digit5 IS present in
-BOTH alphabet runs: the initial key-loss report was a visual misreading, not a
-keyboard defect. Startup ImagerPress/Interpress diagnostics remain; not all-apps.
-Latest CRC/RX/abort0, TXdrop3 retained, pack fault clear. Live disk prefix is not
-close evidence. New-file cold remount/current-image Checkpoint still pending.
+**Current:2278 original Viewers/input/files/Clock PASS; matched issues +11.0%.**
+MiSTer14 Main19164/server19163/loader19134, RBF22781f30, unchanged Main21e6/
+receiver0845, SAME236b copy,57.142857MHz/SYSPER4. Original whole8M-cell selftest
+gates release; only required C until actual113, then release. Visible Guest.pa
+before counters/extra input. Mean3,295,738.51 StartCycle issues/s vs matched
+cache4 2,968,816.02 (+11.0119%);19.7744% original16.67M/s nominal. Three adjacent
+10s windows in ONE boot, not drained retirements or three fresh boots. Nominal
+ordinary period remains140ns, not60ns. Separate holds0.185804%,enabled46.231986%,
+storage-only53.768315%,disk/both0%,raw hit/read75.0000%. All selectors restored
+Off. [116-member hardware speed/desktop receipt](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-desktop-speed/README.md).
 
-**Next speed candidate: same-edge raw response/request handoff.** Optional,
+Two normal Returns accept Guest/empty password. All34 base-file lookups/sizes
+(manifest+33BCDs) and every Loading...ok pass. Files cached on236b: not34 network
+payloads or pinned total-loader timing. Original default profile/font No flow,
+full Viewers and both tools initialize. Normal Cmd/EOF clicks; exact response57
+Echo/alphabet/digits, cold old window57persist file, warm new response57persist
+write/read, and Clock middle-click/open/later redraw PASS. Input magnified:
+all digits present. Startup ImagerPress/Interpress diagnostics retained; not
+all-apps. Both observers TERMINAL9/52; no key/mouse sender remains. Pointer
+875,805. Clock resized the lower tool upward; select blank EOF below its text
+(around700,470), not the old600-y position, before typing another command.
+
+Native clear; HDMI BLACK even after shortcut pairs/late Viewers/immediate OSD
+capture. A12s stream receives121frames; LAST image still black. Neither cause,
+host-shortcut handling nor permanent Main fix proved. No resolution/shared
+capture-service/debugger/ptrace/SPI-owner changes. Latest prefix CRC/RX/abort0,
+TXdrop3 retained, pack fault clear. Live current trace is buffered, not closure.
+Current2278 Checkpoint/Rollback and response57persist cold remount pending.
+
+Previous93ad desktop/file volume now CLOSED f9c92416 (63578624B),10288 records,
+447read/65write ACK pairs,two barriers,no recorded errors/loss,no open FDs,
+mapping revoked. Local hardware/closed-cache16-v1 pack hash matches. Normal
+Main/host closure, not clean guest shutdown. Its cache16persist file cold
+remount remains pending; it is NOT on current separate236b. Earlier93ad typing
+misread digit5 and missing-space >/// error are corrected/retained in its
+[desktop receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-cache16-desktop/README.md).
+
+**Implemented speed change: same-edge raw response/request handoff.** Optional,
 default-off arbiter/backend change preserves old response routing and occupancy1.
 Independent pin tests retain reset/refresh/coherence/held responses:64 hot reads
 128->65 host ticks;96 mixed/stalled operations566->444. Original144-chip MSA
@@ -50,7 +71,7 @@ a timing pass. Builder4103958/reporter4125729/collector4125730 are absent.
 Full1008-member archive independently read back; [1012-member rejected-fit receipt](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-rejected/README.md).
 Local storage-response-native57-v1-20261022/terminal-v1. No assembly/hardware change.
 
-**Current fit: parallel per-line word lookup, identical response cycle.**
+**Qualified parallel per-line word lookup, identical response cycle.**
 Each constant-index line selects its word alongside tags, preserving original
 last-match priority without assuming unique tags. Same pin/fullMSA suites and
 all negative controls pass, with IDENTICAL baseline/overlap host-cycle figures.
@@ -71,19 +92,22 @@ download and MiSTer14 staging hashes match. [1090-member qualified receipt](../f
 Local storage-response-parallel-native57-v1-20261022. Only arbiter/backend/
 wrapper change (overlap opt-ins,16->4 buffer, parallel lookup). CPU/cache/Map/
 ECC/peripheral timing/Main/daemon/clocks/SDC unchanged; no timing waiver.
-Hardware entry/volume CedarResponseParallel57_20261022 PREPARED_NO_LOAD19041,
-same immutable236b/Main21e6/receiver0845. Old15534/15531/93ad still live; new
-Clock capture shows redraw, CRC/RX/abort0, TXdrop3, pack fault clear. Not stress.
-Guarded /tmp/dorado-response-parallel57-20261022.py prepare has completed;
-its load action has NOT run. Do not repeat preparation. Local hardware scripts
-include required-C-until-actual113 watcher and passive matched pre-Guest sampler.
+Hardware entry/volume CedarResponseParallel57_20261022 has completed ONE guarded
+normal load and now runs19164/19163/2278 above. Do NOT repeat preparation/load.
+Local hardware/field-v1 has all input/counter/capture scripts and final evidence;
+loader tool52674 remains the normal Main-wait supervisor. C watcher55897 and
+native observers94233/85505 are terminal; don't reuse their old handles as live.
 
-Next TODOs: one normal guarded load of the PREPARED2278 entry, preserving and
-closing old cache16 desktop/file volume through barriers/mapping revocation.
-Only required C until actual113; no OSD/extra input before real Guest.pa login.
-Then same-seed pinned issue/hold/pause/cache windows, normal login, full original
-Viewers/mouse/exact input/files/apps/Checkpoint/Rollback. No repeat load for
-observer timeout. New-file cache16 cold remount and new hardware speed are pending.
+Next TODOs: preserve current working native desktop; diagnose HDMI/capture with
+Main sole SPI owner and qualify original Checkpoint/Rollback on2278. New guest
+file close/remount and oldf9 cache16 file cold readback remain. Then continue
+real phase/enable/data work toward60ns: current setup paths include storage
+address->backend rsp_data(+0.036ns) and MemC->BaseBoard RIOT d_out(+0.042ns).
+Don't simply raise PLL or reduce SYSPER: N2 startup/phase correctness remains
+unresolved. A synthetic group-local1/2/4/8-word LRU replay eliminates0of3008
+raw reads (final oracle checked); not native evidence, no new cache implemented.
+No repeat hardware load for capture timeout. Do not use guest clock as speed:
+prepared MC12061/peripheral calibration still needs original-firmware validation.
 Original60ns/all peripheral timing, minimal Main337 isolation, final3 fresh seeds
 and2h sustained stress remain OPEN. Qualified Native59 and prior rollback evidence
 retained; complete FPGA snapshots deferred. Goal ACTIVE, not achieved.

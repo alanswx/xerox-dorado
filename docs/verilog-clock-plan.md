@@ -9,6 +9,37 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**Current2278 hardware: original Viewers/input/files/Clock PASS,+11.0% issues.**
+MiSTer14 Main19164/server19163/loader19134, SAME236b/Main21e6/receiver0845 and
+57.142857MHz/SYSPER4. Whole8M-cell selftest and actual113/C release; visible
+Guest before passive counters. Mean3,295,738.51 issues/s vs matched cache4
+2,968,816.02 (+11.0119%),19.7744% original nominal. Separate held0.185804%,
+enabled46.231986%,storage-only53.768315%,disk/both0%,raw-hit/read75.0000%.
+One new boot/three adjacent10s windows, not drained retirement/final3boots or
+atomic all-counter decomposition. Nominal remains140ns;60ns still OPEN.
+[116-member hardware receipt](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-desktop-speed/README.md).
+
+All34 ordered base-file lookups/sizes and33 Loading...ok; cached236b means no
+34-payload/whole-loader speed claim. Original profile/font defaults, Viewers,
+mouse-created/focused tool, exact short/alphabet/digits, old cold file, new
+warm file and Clock open/redraw pass. All monitors Off, observers terminal9/52,
+controls released. Old93ad volume closed/hash-verifiedf9c92416,10288records/
+447reads/65writes ACKed/two barriers/no recorded errors or loss. Its new file
+and current response57persist still need cold readback. Not guest clean shutdown.
+
+Native clear; HDMI stillBLACK before/after shortcut keys,late desktop/immediate
+OSD and saved last frame of121-frame/12s stream. No causal/permanent fix proved;
+don't change resolution/restart shared capture or add a second SPI owner.
+CRC/RX/abort0,TXdrop3,pack fault clear. Current2278 rollback,original60ns/all
+timers,Main337 isolation,final3fresh seeds and2h sustained qualification open.
+Next qualify Checkpoint/Rollback/close-remount and diagnose HDMI, then original
+phase/enable/data changes; storage->response and MemC->BaseBoard RIOT paths
+leave little57MHz setup margin. No blind PLL/SYSPER change. A synthetic-only
+per-group LRU replay finds0redundant reads at1/2/4/8words; no added cache.
+Qualified Native59 remains preserved; complete FPGA snapshots deferred.
+
+**Earlier milestones below precede the current2278 result above.**
+
 **Current: cache16 original Viewers/input/files/Clock PASS.** SAME93ad/Main15534/
 server15531 completes Installer; normal Cmd/EOF clicks, exact short+alphabet/
 digits Echo, cold old window57persist file and warm new cache16persist file
