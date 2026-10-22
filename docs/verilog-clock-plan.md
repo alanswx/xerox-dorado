@@ -89,6 +89,14 @@ keeps existing dirty bits and leaves the SPI whole-track transfer unchanged.
 Live Main21e6 is unchanged; no native speed gain claimed. Freeze component
 evidence before later closed-volume deployment, then measure a pinned workload.
 
+The minimal Main candidate is now built against exact deployed f5608227 APIs,
+without deferred snapshot code. Its baseline rebuild reproduces Main21e6 byte
+for byte with original261018 VDATE; only cache.cpp changes before candidate
+3370865d builds. Full Linux/actual-adapter and compact ARM tests pass again,
+including original-code failure control. [Build/test receipt](../fpga/mister/reports/2026-10-22-main21-cache-changed-sectors/README.md).
+Candidate is not deployed; next deployment still requires normal closed-volume
+barriers and a pinned comparison. Whole-track SPI is unchanged.
+
 Pending AIS CreateAISViewer Eval has no observed result after STOP/paced Return;
 independent CommandTool echoes exact`alive57` and returns to `%`. No new quiet
 Checkpoint has started. All test input is released. The read-only120-frame

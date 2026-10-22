@@ -113,11 +113,20 @@ on the build machine. Evidence: [Linux/ARM component receipt](../fpga/mister/rep
 Live Main21e6 remains unchanged throughout rollback. SPI still transfers the
 whole track; no hardware pause or instruction-rate improvement is claimed.
 Deploy only later at a normal guest/loader boundary with the volume closed.
-Before a full Main build, review the exact base: live21e6 build-tree cache.cpp
-SHA236cb4ac/header9ffbf530 differ from the repository snapshot-aware baseline
-f76e7821/header63f8d027 used in the isolated tests. Do not blindly overwrite an
-older Main tree or claim a deployment binary has been built. Keep the intended
-change limited to changed-sector comparison and qualify the actual candidate.
+The exact deployed base is now reviewed: f5608227 cache236cb4ac/header9ffbf530.
+A separate candidate applies ONLY the changed-sector comparison, retaining that
+old header/API. Its full isolated baseline rebuild with original261018 version
+date reproduces Main21e6 byte for byte. Only cache.cpp and dependent main.cpp
+are then recompiled; candidate3370865d (1,186,892 bytes) is retrieved/hash-verified,
+not deployed. Full Linux cache/actual adapter/lifecycle/error/mutation suites
+and compact ARM tests PASS against the minimal old API too; original control
+fails expected exit23. [Minimal Main receipt](../fpga/mister/reports/2026-10-22-main21-cache-changed-sectors/README.md)
+retains the full build recipe, copied-input hash inventory, test sources/logs
+and exact minimal patch. Do not copy deferred snapshot-aware files into this
+base. Use `fpga/mister/main/main-cache-changed-sectors.patch` with its base hash.
+Local/remote staging: `main21-cache-changed-v2-20261022` /
+`Dorado_Main21CacheChanged2_20261022`. Both builds/tests are terminal PASS;
+no native performance/boot claim or live deployment yet.
 
 **Native Cedar Checkpoint roundtrip1 PASSES desktop/input/app; explicit Rollback1 FILE SURVIVAL PASS / AIS REPLAY FAULT (details above).**
 **Update05:28UTC: saved desktop and actual Rollback message RETURNED.**

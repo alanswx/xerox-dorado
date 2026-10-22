@@ -243,6 +243,15 @@ includes unchanged/sparse track writes, partial end sectors, close/remount and
 write/update/reversion races. This candidate is not yet deployed in live Main;
 whole-track SPI transfer and original-clock timing work remain separate.
 
+A separate minimal build now targets the exact deployed Main21e6 base. Apply
+[`main-cache-changed-sectors.patch`](main-cache-changed-sectors.patch) only to
+its cache.cpp SHA236cb4ac; retain header9ffbf530 unchanged. The frozen build
+first reproduces Main21e6 byte for byte with its original261018 version date,
+then recompiles the changed cache and dependent main.cpp. Candidate3370865d
+is built and retrieved, not deployed. Full Linux cache/adapter suites and compact
+ARM tests pass against that old API too. Do not copy snapshot-aware files over
+this minimal base. [Evidence/build recipe](../reports/2026-10-22-main21-cache-changed-sectors/README.md).
+
 The patch drains before image replacement, user_io initialization, FPGA
 programming, Main fork/reexec and reboot. SIGTERM requests a drain in Main's
 poll loop; the exact existing input.cpp SIGINT handler now defers likewise.

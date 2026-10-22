@@ -1,0 +1,28 @@
+--- a/dorado_disk_cache.cpp
++++ b/dorado_disk_cache.cpp
+@@ -117,12 +117,21 @@
+     Result r = check(generation, offset, bytes);
+     if (r != Result::Done) return r;
+     if (!writable_ || !capture || bytes > Run) return Result::Invalid;
+-    // Full-sector snapshots preserve unchanged neighboring bytes even when
+-    // the caller's write is unaligned. Dirty RAM itself reserves all capacity.
+-    capture(image_.data() + offset);
++    // The FPGA returns a whole track even when only one guest sector changed.
++    // Capture into bounded owned RAM before ACK, then dirty only changed host
++    // sectors. Keep existing dirty bits: a worker may own an older snapshot.
++    std::array<uint8_t, Run> incoming;
++    capture(incoming.data());
+     const size_t first = offset / Sector, last = (offset + bytes - 1) / Sector;
+-    for (size_t i = first; i <= last; ++i)
++    for (size_t i = first; i <= last; ++i) {
++        const size_t begin = std::max<size_t>(offset, i * Sector);
++        const size_t end = std::min<size_t>(offset + bytes, (i + 1) * Sector);
++        const size_t n = end - begin;
++        const uint8_t *src = incoming.data() + begin - offset;
++        if (!std::memcmp(image_.data() + begin, src, n)) continue;
++        std::memcpy(image_.data() + begin, src, n);
+         if (!dirty_[i]) { dirty_[i] = 1; ++dirty_count_; }
++    }
+     accepted_ += bytes;
+     return Result::Done;
+ }
