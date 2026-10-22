@@ -9,7 +9,35 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Latest qualification (2026-10-22):57.1MHz original-firmware interactive Cedar pass.**
+**Current test (2026-10-22): cold marked-volume boot, fixed ARM receiver deployed.**
+Main23119/server23118 run the same timing-qualified57.1MHz RBF7c4d39e4;
+Main21e6 remains unchanged, daemon08452 replacesc599 at a normal loader boundary.
+Preceding normal keyboard Boot visibly reached812. Actual Main load/exit closes
+the old pack/logs and completes two barriers; all102,251 complete disk records
+have no errors/gaps. The preserved63,578,624-byte marked volume SHA7a86c519 is
+copied only after closure. This is NOT a fresh original-seed performance boot.
+All8M raw cells/both patterns/zero and exact first burst pass again. Original
+BFN113/C release, storageInitialized855 and Guest.pa login are observed; two
+Returns are accepted and base-file lookups advance. The new read-only loader
+observer is live; cached files can change the transfer sequence.
+
+Two offline byte-search diagnostics were OOM-killed on ARM; actual Main/server/
+observer stayed live and CRC/RX/abort0. Record this interference, exclude clean
+latency claims, and use bounded reads. A64KiB whole-pack byte-swap search now
+finds the marker/name in the closed source; guest cold readback is still pending.
+Exact restart helper: `tools/restart_storage_board_native.py`; current paths and
+retired process IDs are in the handoff. Do not repeat the existing load. The
+[63-member restart/startup receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-cold-restart-prefix/README.md)
+verifies losslessly. Later screenshot shows all base loadees loaded and profile
+No accepted after a filename detour; BootEssentials advances. Cold guest marker
+readback and desktop/input still need their own observation.
+
+TODO: finish this cold boot and guest file/input checks; authentic Checkpoint/
+Rollback; fresh-seed receiver/three-boot qualification;60ns capture/data timing;
+final disk/network/input stress. Current pinned speed is still2.968685M issues/s
+(+14.49% vs50MHz), nominal140ns before waits. Full FPGA snapshots stay deferred.
+
+**Previous qualification (2026-10-22):57.1MHz original-firmware interactive Cedar pass.**
 SAME Main20809/server20808/RBF7c4d39e4 reaches Viewers, two CommandTools, Clock,
 WatchTool/EditTool; bounded normal mouse/Cmd/focus and exact short/alphabet/digit
 keyboard echo pass. Echo closes`///rtlboard57persist.txt`; type reads exact

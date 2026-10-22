@@ -15,7 +15,59 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Latest qualification (2026-10-22):57.1MHz interactive Cedar passes on14.**
+**Current hardware (2026-10-22): cold marked-volume restart with fixed receiver.**
+MiSTer14 now runs Main23119/server23118, unchanged Main21e67a3f/RBF7c4d39e4
+and the tested ARM receiver08452a86. Main20809/server20808, temporary23094 and
+restart driver23079 are absent. Normal keyboard `Boot` on the preceding desktop
+visibly reached812; actual Main load/exit barriers then closed the old pack and
+logs before copying. The preserved63,578,624-byte source SHA is
+`7a86c5195deab585d8b18fc6236e7737134d727afc476e266356c05939a78707`.
+Its102,251 complete disk records contain no recorded errors/gaps; both transition
+barriers finish. This is a cold copy of the marked volume, NOT a freshf3 seed.
+No live pack, CPU state or daemon context was copied.
+
+The new load passes all8,388,608 raw12-bit cells/both patterns/zero and the exact
+first burst. Actual original BFN113 was observed and normal USB C released;
+do not send the prepared extra boot pulse. HDMI shows855, then the actual Cedar
+login with rememberedGuest.pa. Two normal Returns are accepted and base-file
+lookups advance.855 means `storageInitialized` in the period MPCodes source,
+not an error or a germ code. The bounded read-only loader observer23301 is live;
+cached files can change this boot's transfer sequence, so do not force the
+fresh34-transfer benchmark onto it. Cold guest marker readback remains pending.
+
+Two diagnostic whole-pack byte-search attempts exceeded available ARM memory;
+the kernel killed only those Python processes. Main/server/observer stayed live,
+CRC/RX/abort remained0. Preserve these kernel logs and exclude this boot from
+clean latency comparisons. The replacement64KiB bounded search verifies the
+closed pack's SHA and finds the marker/name after swapping the WHOLE pack's
+word bytes (offsets14751134,19355674,19356190); the earlier token-only search
+missed odd token alignment. Raw bytes alone do not qualify a guest FS readback.
+
+Live volume `CedarStorageBoard57_Rx1_20261022`, core
+`_Computer/DoradoRTL_CedarStorageBoard57_Rx1_20261022/Dorado.rbf`, Main log
+`/tmp/dorado-board57-rx1-main.log`, disk `/tmp/dorado-board57-rx1-disk.jsonl`.
+New persistent daemon `System_20261022_RxOrder/dorado-server-08452a86d9708d70`.
+Local evidence/helpers: `build/rtl-executive/storage-board57-rx1-field-20261022`;
+25 remote prefix members independently hash-verified. The
+[63-member startup receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-cold-restart-prefix/README.md)
+verifies losslessly, including both diagnostic OOMs and the exact executed helper.
+Generic restart helper
+`tools/restart_storage_board_native.py` is the exact executed version; inspect
+the existing preparation journal rather than repeat its completed load.
+
+Next TODOs: finish this boot, actual cold marker `type` and mouse/exact keys;
+qualify native Cedar Checkpoint/Rollback; then fresh-seed boots with08452,
+remaining60ns timing/capture work and final stress. Full FPGA snapshots remain
+deferred. Previous pinned login2.968685M issues/s remains the latest speed result.
+V38/V39 drivers79190/83197 and simulators79583/83509 were revalidated live;
+their logs already contain HOST_LIMIT3B, so inspect retained process state before
+any continuation. Both old LLDB sessions are absent; do not restart the runs.
+Subsequent actual installer screenshot shows every base loadee loaded. Lowercase
+`n`+Return entered a profile-filename detour; a single uppercase`N` at the later
+visible Yes question is accepted as No and BootEssentials advances. No extra
+Return was sent after that accepted choice. Keep the failed input evidence.
+
+**Previous desktop qualification (2026-10-22):57.1MHz interactive Cedar passes on14.**
 The SAME Main20809/server20808/RBF7c4d39e4 boot now reaches clear Viewers,
 two CommandTools, live Clock and WatchTool/EditTool. Bounded normal USB mouse
 motion/click opens Cmd and focuses native737,608. Exact `rtlboard57 keyboard ok`
