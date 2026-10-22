@@ -9,119 +9,83 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Current test (2026-10-22): cold marked-volume persistence PASSES.**
-Main23119/server23118 run the same timing-qualified57.1MHz RBF7c4d39e4;
-Main21e6 remains unchanged, daemon08452 replacesc599 at a normal loader boundary.
-Preceding normal keyboard Boot visibly reached812. Actual Main load/exit closes
-the old pack/logs and completes two barriers; all102,251 complete disk records
-have no errors/gaps. The preserved63,578,624-byte marked volume SHA7a86c519 is
-copied only after closure. This is NOT a fresh original-seed performance boot.
-All8M raw cells/both patterns/zero and exact first burst pass again. Original
-BFN113/C release, storageInitialized855 and Guest.pa login are observed; two
-Returns are accepted and base-file lookups advance. The new read-only loader
-observer is live; cached files can change the transfer sequence.
+**Current evidence and remaining work (2026-10-22,07:18UTC).**
+MiSTer14 still runs Main23119/server23118: Main21e67a3f, receiver08452a86,
+RBF7c4d39e4 at57.142857MHz/SYSPER4. Volume `CedarStorageBoard57_Rx1_20261022`
+is live. No new Main, FPGA load, daemon restart or live-pack copy has occurred.
 
-Two offline byte-search diagnostics were OOM-killed on ARM; actual Main/server/
-observer stayed live and CRC/RX/abort0. Record this interference, exclude clean
-latency claims, and use bounded reads. A64KiB whole-pack byte-swap search now
-finds the marker/name in the closed source; guest cold readback is still pending.
-Exact restart helper: `tools/restart_storage_board_native.py`; current paths and
-retired process IDs are in the handoff. Do not repeat the existing load. The
-[63-member restart/startup receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-cold-restart-prefix/README.md)
-verifies losslessly. Later screenshot shows all base loadees loaded and profile
-No accepted after a filename detour; BootEssentials advances. Cold guest marker
-readback and desktop/input were still pending in that immutable prefix. They now
-have actual HDMI proof: Viewers, normal bounded mouse/Cmd/new tool/focus and
-`type ///rtlboard57persist.txt` -> exact`rtlboard57persist` -> `%`. No guest state
-or live pack was imported. This is cold disk persistence across FPGA/Main/cache/
-daemon restart, not power-loss integrity or authentic rollback. Background startup
-continues. Both exact short and alphabet/digit keyboard echoes now pass, captured
-natively with the marker and new prompts. [46-member cold desktop receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-cold-desktop/README.md)
-verifies4051 complete current disk records/no errors/gaps, CRC/RX/abort0,
-TX dropped1. The first tool is loading Sil Library Files; settle startup before
-the normal quiescent Checkpoint.
+- Original firmware reaches the interactive Viewers desktop. Mouse/Cmd and
+  exact short/alphabet/digit echoes pass. The closed marked volume cold-remount
+  reads exact`rtlboard57persist`; [cold desktop proof](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-cold-desktop/README.md).
+  This is a marked-volume restart, not a fresh-seed qualification. Two earlier
+  diagnostic OOMs exclude this boot from clean latency/stress comparisons.
+- One native Checkpoint roundtrip returns the saved desktop, actual Rollback
+  message, input and rendered schematic. It overlapped the user's Schematic
+  action, so it is not a quiet baseline. [Roundtrip1](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-checkpoint-roundtrip1/README.md).
+- The subsequent explicit Rollback preserves a file created/closed AFTER that
+  checkpoint: a fresh CommandTool prints exact`aftercheckpoint0528` from
+  `///rtl57afterck0528.txt` and returns to `%`. But Schematic replay reports
+  generic UnknownError1B/177777B, followed by an absent-viewer AddressFault27B.
+  [File/fault proof](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-rollback1-file-and-fault/README.md).
+  Application recovery/repeated/quiet/cold checkpoint restart remain unqualified.
+- Additional original-Cedar debugger calls isolate the selected Schematic Eval
+  caller frame, but Proceed then raises a separate NIL fault in its caller;
+  Abort also faults. These are preserved diagnostic failures, not a root AIS
+  diagnosis. The selected evaluator-only list's Thaw call returns a prompt.
+  The probe omitted checking GetState.topFrame before caller-frame Proceed;
+  its generated faults are not an independent debugger/core regression proof.
+  Temporary generic-signal rejection is RESTORED FALSE and independently reads
+  FALSE. No further event controls are attempted. Normal `Boot` from the first
+  independent CommandTool now executes: actual812 germInLoad is observed with
+  SAME Main/FPGA/daemon/volume. Warm OS restart is RUNNING; no new Checkpoint.
+  Observer72367/tool82559 has90 bounded read-only samples; follow it rather
+  than restarting. Ordinary desktop and quiet initialized-app tests are pending.
+  [Guest diagnostic receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-rollback1-guest-debug/README.md),
+  [ordinary Boot running prefix](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-quiet-boot1-prefix/README.md).
+  Current evidence/helpers: `storage-board57-rx1-field-20261022/rollback1` and
+  `quiet-boot1`. Before-Boot prefix115,587 complete disk records/no errors/gaps,
+  CRC/RX/abort0, TX dropped3. This diagnostic run is not clean performance/stress.
+- The minimal host-cache candidate is BUILT, TESTED, NOT DEPLOYED. Its full
+  baseline rebuild reproduces Main21e6 byte for byte with original261018 VDATE.
+  Only cache.cpp changes; the old header/API are untouched. Candidate3370865d
+  passes full Linux cache/actual adapter/lifecycle/error/mutation suites plus
+  compact ARM tests and original-code failure control. [Build/test receipt](../fpga/mister/reports/2026-10-22-main21-cache-changed-sectors/README.md).
+  `main-cache-changed-sectors.patch` avoids importing deferred snapshot APIs.
+  Whole-track SPI is unchanged; no native performance gain is claimed.
+- Same full native-memory control V41 remains live: driver56227/simulator56631,
+  tool35657, `native-cedar-board57-control-v41-20261022`. Full physical startup
+  passed, beyond780M host/266M enabled ticks without device/model fault. Its
+  counter has crossed4s boot-down;4.8s release is still ahead in that prefix.
+  Do not restart it. No113 or
+  firmware pass yet. V38/V39 are terminal; V40 is a short preflight only.
+  [Harness/control receipt](../fpga/mister/reports/2026-10-22-native-memory-clock-control/README.md).
 
-Native Checkpoint attempt1 is now accepted through normal USB input and actual
-frames show811 germOutLoad. Native disk writes continue, no recorded error/loss
-in86,713 since-command prefix records; CRC/RX/abort0, TX dropped1. It is not yet
-a successful outload/inload or interactive rollback. The user confirmed clicking
-Schematic during this attempt; repeat an idle baseline after it returns. Preserve
-the SAME running Main23119/server23118/volume, no reset/restart/second Checkpoint.
-By05:12UTC actual terminal shows the original RollbackImpl's `Checkpoint.
-Counting swapped-out VM pages ...` first pass after germ outload. The
-[22-member checkpoint prefix](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-checkpoint-prefix/README.md)
-preserves95,597 complete current disk records/no errors/gaps and actual screens.
-A new bounded read-only screenshot observer follows the same live attempt.
-Actual05:16 frame shows812 germInLoad, then05:17 the personal-profile terminal.
-Saved-world return remains unverified. The existing C checkpoint regression
-documents this misleading intermediate terminal before final repaint: wait,
-do not type a profile answer or reset merely from the early display. Current
-read-only observer PID51451/tool session85543; Main23119/server23118 unchanged.
-By05:28 actual saved desktop/CommandTools and rendered schematic return; lower
-tool prints Rollback/user/version, confirmed native and real HDMI. Initial
-post-return input check edited old Tioga history because focus was placed in
-the full transcript; it did NOT execute and created no qualified new file.
-A fresh third CommandTool is opened normally for real prompt/input/file checks.
-Preserve failed-input evidence and require execution before a second Rollback.
-Update05:38UTC: that fresh prompt executes exact short/full alphabet/digit echoes,
-creates/closes`///rtl57afterck0528.txt` and type reads exact`aftercheckpoint0528`.
-[50-member first roundtrip receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-checkpoint-roundtrip1/README.md)
-verifies107,022 current disk records/no errors/gaps, CRC/RX/abort0/TX dropped2 and
-actual saved-world/app/native+HDMI/input proofs, including the failed history edit.
-Native Checkpoint roundtrip1 therefore works. It is not a quiet/final qualification.
-Normal `Rollback` now uses that ORIGINAL checkpoint, before the new file existed;
-actual start812 observed. Keep Main23119/server23118 running, no new checkpoint
-or reset. Require exact file readback and input AFTER this explicit rollback.
+Latest pinned pre-Guest login rate remains **2.968685M StartCycle issues/s**,
+**+14.49% vs50MHz**, **17.812% of original16.67M/s**. This excludes RepeatCur;
+it is not drained retirement or desktop speed. Nominal ordinary cadence is
+**140ns before waits**, not60ns. Both66.7MHz full fits were rejected; no timing
+waiver, assembly or load. The experimental CPU front remains unqualified.
 
-Update06:04UTC: explicit Rollback returns the desktop and a fresh CommandTool
-reads exact`aftercheckpoint0528` from the file created AFTER the checkpoint.
-File preservation PASSES. Replayed Schematic fails with UnknownError1B/177777B,
-then OpenIcon on an absent viewer produces VMOpsImpl.AddressFault27B;
-WalkStack shows ViewerOpsImplA.inner. The first checkpoint overlapped Schematic,
-so cause is unproven; quiet/repeated application recovery is not qualified.
-Preserve the native/HDMI/stack proof, abort only the faulting command normally,
-and test an idle checkpoint from initialized applications.
-
-Isolated changed-sector Main cache candidate passes full Linux cache/actual
-adapter/lifecycle/error suites and compact ARM file/race tests; original-code
-control fails as expected. It reduces host file writes for unchanged sectors,
-keeps existing dirty bits and leaves the SPI whole-track transfer unchanged.
-Live Main21e6 is unchanged; no native speed gain claimed. Freeze component
-evidence before later closed-volume deployment, then measure a pinned workload.
-
-The minimal Main candidate is now built against exact deployed f5608227 APIs,
-without deferred snapshot code. Its baseline rebuild reproduces Main21e6 byte
-for byte with original261018 VDATE; only cache.cpp changes before candidate
-3370865d builds. Full Linux/actual-adapter and compact ARM tests pass again,
-including original-code failure control. [Build/test receipt](../fpga/mister/reports/2026-10-22-main21-cache-changed-sectors/README.md).
-Candidate is not deployed; next deployment still requires normal closed-volume
-barriers and a pinned comparison. Whole-track SPI is unchanged.
-
-Pending AIS CreateAISViewer Eval has no observed result after STOP/paced Return;
-independent CommandTool echoes exact`alive57` and returns to `%`. No new quiet
-Checkpoint has started. All test input is released. The read-only120-frame
-observer is terminal. V41 is still the same live corrected-memory control,
-beyond350M host ticks/71M source ticks; enabled-clock boot pulse is still ahead.
-
-TODO: diagnose AIS replay and repeat a quiet checkpoint with initialized apps;
-verify repeated and cold checkpoint restart; complete authentic Checkpoint/
-Rollback; fresh-seed receiver/three-boot qualification;60ns capture/data timing;
-final disk/network/input stress. Current pinned speed is still2.968685M issues/s
-(+14.49% vs50MHz), nominal140ns before waits. Full FPGA snapshots stay deferred.
-
-The old V38/V39 native-memory simulations are TERMINAL at HOST_LIMIT3B, before
-any113. Final read-only captures saved and pending natural $finish released;
-both exit0/all processes absent. All537/522 frozen inputs still match. Original
-runner states preserve a post-exit whitespace-parser failure; current regex is
-corrected against both real logs. [1086-member terminal receipt](../fpga/mister/reports/2026-10-22-native-memory-diagnostic-terminal/README.md).
-Both share pre-boot behavior, so the experimental CPU front is still unqualified;
-fix the common harness before further expensive full-boot comparisons.
-The new current57.1MHz control uses the actual reviewed503-source/160-used-HDL
-recipe, corrected physical model and frequency-derived stimulus/host timing.
-V40's2M-tick/35ms preflight exits0; wrong map, rehashed clock and wrong status
-controls reject. [1087-member control receipt](../fpga/mister/reports/2026-10-22-native-memory-clock-control/README.md).
-Separate full V41 driver56227/simulator56631/tool35657 is RUNNING; follow it.
-No new FPGA clock, Main change, firmware pass or performance gain is claimed.
+Next actions, in order: follow the SAME ordinary guest Boot to an interactive
+desktop (diagnostic catcher FALSE already verified); repeat a quiet Checkpoint with initialized
+apps and exact post-checkpoint file/input checks; preserve/close the volume
+through normal guest Boot and real Main loader barriers; adapt the restart
+helper explicitly for the reviewed3370865d candidate (it currently asserts21e6),
+then cold checkpoint/persistence and pinned host-write/pause comparisons.
+The next isolated disk-side speed experiment should reduce SPI write size in
+`dorado_pack_hps`: retain the full track read/cache, accumulate the first/last
+word ONLY for complete CRC-checked guest blocks, flush just the covering512-byte
+host blocks and offset the host RAM port by that aligned range. Preserve partial
+end-block neighbors, invalid-CRC/remount/readonly/timeout behavior and dual-port
+RAM inference. Test changed bytes and full-image oracles, both nonzero track
+alignment and range/base-address fault controls, before any timing fit or load.
+This is not implemented/qualified yet and does not replace60ns clock work.
+Follow the SAME V41 control before a matched CPU-front experiment. Complete
+real60ns phase/capture/data timing, three fresh-seed receiver/desktop boots and
+two-hour combined disk/network/input stress. Full FPGA snapshots stay deferred.
+If the quiet repeat also fails, preserve a CLOSED native volume and compare
+its original Cedar checkpoint file with the C reference; never import C runtime
+state into hardware. The milestone table below remains the full acceptance scope.
 
 **Previous qualification (2026-10-22):57.1MHz original-firmware interactive Cedar pass.**
 SAME Main20809/server20808/RBF7c4d39e4 reaches Viewers, two CommandTools, Clock,

@@ -85,19 +85,56 @@ checkpoint nor repeated application survival is qualified. Preserve the fault,
 abort only that process normally and repeat an idle baseline. No transport or
 pack error has been established as the cause. Do not call this a full repeat pass.
 
-The first faulting command's normal debugger Abort returns its parent tool to
-`%`. A separate fresh-tool `Eval AISViewer.CreateAISViewer[]` currently has no
-result/prompt; normal STOP and a paced extra Return do not change that observation.
-This bare Eval may include result formatting, so do not assert the exact blocked
-routine. An independent original CommandTool executes exact`echo alive57` and
-returns to a prompt ([isolation receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-rollback1-ais-isolation/README.md)). Cedar is not globally
-stalled. All injected keys/buttons are released. A new quiet Checkpoint has NOT
-been started with this diagnostic pending. BackStopImpl's UnknownError is its
-generic ANY-signal fallback, not an identified FS/AIS cause. Read-only observer
-51451 completed120 samples normally; do not restart it. Full native V41 remains
-running on the same simulator56631, beyond350M host ticks/71M source ticks,
-initialized1/no transport or memory fault, still before its enabled-clock boot
-pulse. No original-firmware pass yet.
+**Current07:18UTC: ordinary original Cedar Boot is RUNNING, actual812 observed.**
+Same Main23119/server23118/RBF7c4d39e4/volume. No FPGA/Main/daemon restart,
+new Checkpoint or live-pack copy. From the independent first CommandTool,
+normal USB `Boot` executes and actual native capture `quiet-boot1/start-native.png`
+shows812 germInLoad ([running Boot prefix](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-quiet-boot1-prefix/README.md)). All injected input is released. Follow the SAME operation;
+ordinary desktop/login and a quiet initialized-app baseline remain pending.
+This is warm OS restart of the marked/checkpoint volume, not a fresh seed or
+cold-core checkpoint test. New bounded read-only observer PID72367/tool82559,
+90 samples at25s plus capture overhead, local `quiet-boot1/watch-state.json`,
+`watch.log` and `screens-v1`. Do not restart it or issue another Boot merely from
+an early white812 frame. Earlier observer51451 is terminal120 samples.
+
+The [additional diagnostic failures](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-rollback1-guest-debug/README.md)
+are PRESERVED, not a root AIS diagnosis.
+Original `Run AISViewerImpl` says loaded AND run; independent echo works.
+Cedar Interpreter reads module globals. Temporary BackStopImpl.alwaysRejectAny
+was enabled for generic signals, then RESTORED FALSE with a separate actual
+readback (`rollback1/backstop-false-final-native.png`). Print depth was1. Use
+original arrow key (Linux KEY_GRAVE41/PS2 0E, helper backtick) for assignments;
+Shift-minus entered a dash here. No RTL keyboard or host guest-memory patch.
+
+Typed-frame process filtering first caused TypeFault. Proper non-NIL context
+lookup in`&9` followed by AISViewerImpl-filtered GetProcesses returns NIL.
+The InterpreterCommandsImpl context in`&11` returns an evaluator-only list`&12`.
+Normal AMProcess.CallDebugger on its first thread nests an event for PROCESS370B,
+Schematic's EvalCommand (lf77554B/pc546B). Reading `line` confirms DisplayAIS.
+Proceed from this caller-frame event raises a SEPARATE NIL AddressFault in the
+debugger caller PROCESS367B; two normal Abort attempts raise further30B faults.
+Do not repeat these event controls or claim they identify the original AIS cause.
+The probe did NOT check GetState.topFrame before Proceed on that filtered
+caller frame. This omission limits interpretation: the added faults may be
+unsupported probe use, not an independent normal-debugger/core regression.
+Future single-thread inspection must respect the current-frame flag; do not
+modify RTL to explain these generated failures without stronger evidence.
+`AMProcess.Thaw[&12]` executes and returns a prompt before the Abort failures;
+no stronger per-thread recovery claim. The subsequent ordinary Boot begins from
+another compiled command path and is the current recovery operation. No quiet
+checkpoint includes the diagnostic settings or these nested debugger states.
+
+Bounded streaming log prefix validates115,587 complete disk records/no errors
+or trace loss; latest CRC/RX/abort0, TX dropped3. Diagnostic interference means
+this is not a clean stress/speed run. Input/helper variants and all original
+failed frames are retained under `rollback1`; initial v1 helper is reconstructed
+and labeled as such, rather than claimed frozen before those early commands.
+
+V41 remains the SAME driver56227/simulator56631/tool35657. Full physical startup
+passes; beyond780M host/266M source ticks, initialized1/no model/device fault.
+Its source tick counter has crossed the4s boot-down threshold, with4.8s release
+still ahead in that observed prefix. CPU remainsd0fff000/no113; no original-
+firmware pass yet. Follow the exact job; never restart from an observation timeout.
 
 **Isolated host disk-cache candidate: component tests PASS, NOT DEPLOYED.**
 `capture_write` now compares each512-byte host-sector portion of a captured
@@ -128,7 +165,12 @@ Local/remote staging: `main21-cache-changed-v2-20261022` /
 `Dorado_Main21CacheChanged2_20261022`. Both builds/tests are terminal PASS;
 no native performance/boot claim or live deployment yet.
 
-**Native Cedar Checkpoint roundtrip1 PASSES desktop/input/app; explicit Rollback1 FILE SURVIVAL PASS / AIS REPLAY FAULT (details above).**
+### Historical checkpoint chronology (completed operations)
+
+These entries preserve earlier observations; their pending/wait instructions and
+observer states describe that time. Current controls and TODOs are above.
+
+**Roundtrip1 desktop/input/app PASS; explicit Rollback1 file PASS/AIS fault.**
 **Update05:28UTC: saved desktop and actual Rollback message RETURNED.**
 The same original operation reaches the saved two CommandTools plus the user's
 rendered ProcH-BitSlice07 schematic in an AIS Viewer. The lower tool prints
@@ -199,11 +241,18 @@ and input qualification; preserve evidence if it remains there. Current observer
 is real PID51451/tool session85543, revalidated live. Main23119/server23118 remain
 live, CRC/RX/abort0, TX dropped2; no new hardware/daemon load occurred.
 
-Next TODOs: follow explicit Rollback1 to the saved desktop, verify the actual
-post-checkpoint file survives and repeat fresh-tool exact input; then quiet
-checkpoint/repeated rollback/cold restart; fresh-seed boots with08452,
-remaining60ns timing/capture work and final stress. Full FPGA snapshots remain
-deferred. Previous pinned login2.968685M issues/s remains the latest speed result.
+### Current next steps and simulation control
+
+Current next TODOs: follow the SAME ordinary guest Boot from actual812 to
+responsive desktop; diagnostic catcher FALSE is already separately verified.
+Initialize/render apps before repeating quiet checkpoint,
+repeated/cold rollback and exact new-file/input checks. Then normal guest Boot
+and actual Main close/load barriers preserve this marked/checkpoint volume.
+For candidate3370865d, adapt the restart helper explicitly: it currently assumes
+Main21e6 and must not be reused blindly. Compare pinned host writes/pauses,
+finish60ns phase/capture/data paths, three fresh-seed08452 boots and final stress.
+Full FPGA snapshots stay deferred; pinned speed remains2.968685M issues/s.
+
 V38/V39 are now TERMINAL, not long-running work. Tool handles11479/66643 were
 live LLDB sessions (actual debugger PIDs82257/83535), incorrectly checked as PIDs
 in the earlier note. Each intentionally stopped at VL_FINISH_MT after HOST_LIMIT3B.
