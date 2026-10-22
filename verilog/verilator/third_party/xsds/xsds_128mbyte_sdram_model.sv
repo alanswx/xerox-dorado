@@ -719,7 +719,7 @@ module as4c32m16sb_6tin_chip_model #(
             end else begin
                 col       = next_col(burst.start_col, burst.index, burst.len, burst.interleaved);
                 data_read = mem_read(burst.bank, burst.row, col);
-                read_dqm  = dqm_pipe[1];
+                read_dqm  = dqm_pipe[0];
 
                 outgoing = data_read;
                 if (read_dqm[0]) outgoing[7:0]  = 8'hzz;

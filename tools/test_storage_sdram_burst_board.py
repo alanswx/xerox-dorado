@@ -24,7 +24,8 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def run(native, out,correct_read_capture=False):
+def run(native, out,correct_read_capture=True):
+    assert correct_read_capture, 'Use frozen receipts for historical legacy-model replay'
     assert not out.exists(), 'Observe the recorded existing run'
     record = json.loads(gzip.decompress((native / 'provenance.json.gz').read_bytes()))
     out.mkdir(parents=True)
@@ -62,10 +63,12 @@ def run(native, out,correct_read_capture=False):
     }.items():
         shutil.copy2(ROOT / source, inputs / name)
     if correct_read_capture:
-        from stage_storage_read_capture import correct_capture
-        for n in ['dorado_storage_sdram.sv','dorado_storage_sdram_burst.sv']:
-            f=inputs/n;f.write_bytes(correct_capture(f.read_bytes()))
-        shutil.copy2(ROOT/'tools/stage_storage_read_capture.py',inputs/'stage_storage_read_capture.py')
+        from storage_capture_source import correct_capture,require_correct_capture
+        # The frozen MC1668 parent retains its original BL1 bytes. Correct
+        # that explicit legacy input; the canonical BL8 input must already match.
+        f=inputs/'dorado_storage_sdram.sv';f.write_bytes(correct_capture(f.read_bytes()))
+        require_correct_capture((inputs/'dorado_storage_sdram_burst.sv').read_bytes())
+        shutil.copy2(ROOT/'tools/storage_capture_source.py',inputs/'storage_capture_source.py')
     tb = (inputs / 'original-tb.sv').read_text()
     guard = ('    initial if(external_memory.u_storage_0.DEFER_READS!=DEFER_READS)\n'
              '        $fatal(1,"testbench/generator deferred-read options differ");\n')
@@ -122,6 +125,6 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--native', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
-    p.add_argument('--correct-read-capture',action='store_true')
+    p.add_argument('--correct-read-capture',action='store_true',default=True,help='Compatibility flag; qualified capture is now the default')
     a = p.parse_args()
     run(a.native.resolve(), a.output.resolve(),a.correct_read_capture)

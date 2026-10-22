@@ -22,7 +22,8 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def run(out, controls,correct_read_capture=False):
+def run(out, controls,correct_read_capture=True):
+    assert correct_read_capture, 'Use frozen receipts for historical legacy-model replay'
     assert not out.exists(), 'Observe the existing recorded run'
     out.mkdir(parents=True)
     inputs = out / 'inputs'
@@ -36,10 +37,10 @@ def run(out, controls,correct_read_capture=False):
         p.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / name, p)
     if correct_read_capture:
-        from stage_storage_read_capture import correct_capture
+        from storage_capture_source import require_correct_capture
         for name in files[:2]:
-            path=inputs/name;path.write_bytes(correct_capture(path.read_bytes()))
-        helper=inputs/'tools/stage_storage_read_capture.py';helper.write_bytes((ROOT/'tools/stage_storage_read_capture.py').read_bytes());files.append('tools/stage_storage_read_capture.py')
+            path=inputs/name;require_correct_capture(path.read_bytes())
+        helper=inputs/'tools/storage_capture_source.py';helper.write_bytes((ROOT/'tools/storage_capture_source.py').read_bytes());files.append('tools/storage_capture_source.py')
     provenance = dict(scope=__doc__, inputs={n: sha(inputs / n) for n in files},
                       native_qualified=False, hardware_qualified=False,read_capture_corrected=correct_read_capture)
     (out / 'provenance.json.gz').write_bytes(gzip.compress(
@@ -121,6 +122,6 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--controls', action='store_true')
-    p.add_argument('--correct-read-capture',action='store_true')
+    p.add_argument('--correct-read-capture',action='store_true',default=True,help='Compatibility flag; qualified capture is now the default')
     a = p.parse_args()
     run(a.output.resolve(), a.controls,a.correct_read_capture)

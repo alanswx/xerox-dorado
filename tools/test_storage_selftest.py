@@ -10,7 +10,8 @@ ROOT=Path(__file__).resolve().parents[1]
 FILES=['fpga/mister/dorado_storage_selftest.sv','fpga/mister/dorado_storage_sdram_burst.sv',
  'verilog/verilator/tb_storage_selftest.sv','verilog/verilator/third_party/xsds/xsds_128mbyte_sdram_model.sv',
  'tools/test_storage_selftest.py']
-def run(out,full_address=False,burst_observer=False,correct_read_capture=False):
+def run(out,full_address=False,burst_observer=False,correct_read_capture=True):
+ assert correct_read_capture, 'Use frozen receipts for historical legacy-model replay'
  assert not out.exists(), 'Inspect the existing run'
  inputs=out/'inputs';inputs.mkdir(parents=True)
  for name in FILES:
@@ -20,9 +21,9 @@ def run(out,full_address=False,burst_observer=False,correct_read_capture=False):
   backend=inputs/FILES[1];backend.write_bytes(expose(BACKEND,backend.read_bytes()))
   (inputs/'tools/stage_storage_burst_observer.py').write_bytes((ROOT/'tools/stage_storage_burst_observer.py').read_bytes())
  if correct_read_capture:
-  from stage_storage_read_capture import correct_capture
-  backend=inputs/FILES[1];backend.write_bytes(correct_capture(backend.read_bytes()))
-  (inputs/'tools/stage_storage_read_capture.py').write_bytes((ROOT/'tools/stage_storage_read_capture.py').read_bytes())
+  from storage_capture_source import require_correct_capture
+  backend=inputs/FILES[1];require_correct_capture(backend.read_bytes())
+  (inputs/'tools/storage_capture_source.py').write_bytes((ROOT/'tools/storage_capture_source.py').read_bytes())
  state=dict(status='RUNNING',driver_pid=os.getpid(),started=time.time(),actions=[],hardware_qualified=False,address_bits=23 if full_address else 14,burst_observer=burst_observer,read_capture_corrected=correct_read_capture)
  def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
  def execute(command,label,negative=False):
@@ -67,5 +68,5 @@ def run(out,full_address=False,burst_observer=False,correct_read_capture=False):
  (out/'provenance.json').write_text(json.dumps(dict(scope=__doc__,inputs={str(p.relative_to(inputs)):hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs.rglob('*') if p.is_file()}),indent=2)+'\n')
  print(state['status'],flush=True)
 if __name__=='__main__':
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);p.add_argument('--full-address',action='store_true');p.add_argument('--burst-observer',action='store_true');p.add_argument('--correct-read-capture',action='store_true')
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);p.add_argument('--full-address',action='store_true');p.add_argument('--burst-observer',action='store_true');p.add_argument('--correct-read-capture',action='store_true',default=True,help='Compatibility flag; qualified capture is now the default')
  a=p.parse_args();run(a.output.resolve(),a.full_address,a.burst_observer,a.correct_read_capture)

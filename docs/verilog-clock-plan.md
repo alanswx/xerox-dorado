@@ -1,7 +1,7 @@
 # Dorado RTL clock implementation plan
 
-Started 2026-10-18 UTC. Native59 is the last qualified 50 MHz SDRAM/direct-DDR
-Cedar desktop/input baseline. Native49/fresh49b and Native34 preserve earlier
+Started 2026-10-18 UTC. Native59 is preserved as a qualified 50 MHz SDRAM/direct-DDR
+Cedar desktop/input baseline; StorageReadCapture1 now qualifies the corrected BL8 path. Native49/fresh49b and Native34 preserve earlier
 50 MHz references; Native26 preserves the earlier 33.333 MHz reference.
 The user has released MiSTer14 for reloads/faster builds; keeping
 that session alive is no longer a constraint. See the [clock audit](verilog-from-sil.md#clock-architecture-audit-2026-10-18)
@@ -35,8 +35,8 @@ readback (`///rtlreadcap1persist.txt` returns `rtlreadcap1persist`). Latest
 CRC/RX/abort0, TX dropped27. Clear settled internal raster; HDMI capture-card
 verification remains separate. The114-member/111-blob desktop/pause receipt
 passes lossless verification;88,659 disk-prefix records show no errors/gaps.
-Next: make the corrected controller/model the canonical pair with old receipts preserved,
-then test the proposed memory-ready prediction component below.
+Canonical controller/model defaults and exact historical replay now pass (details below).
+Next: test the proposed memory-ready prediction component below.
 Qualify the experimental CPU front separately before merging the faster phase path. Correction
 and native/memory/login receipts committed/pushed as7d5b78b7. The full corrected native/memory/login archive is
 [here](../fpga/mister/reports/2026-10-21-sdram-read-capture/native-fit/README.md). Clock acceleration, authentic FPGA
@@ -58,6 +58,16 @@ registering a stale ready-high value can advance the machine incorrectly.
 Retain this measured50MHz/SYSPER4 control; validate phase, peripheral rates and
 physical SDRAM I/O for a faster candidate. Isolated15ns CPU slices do not prove
 a faster whole-device clock. Local field: `storage-readcapture1-native-field-20261021/installer/`.
+
+Canonical sources now use the physically qualified wait2 by default. The broader
+BL1 suite also exposed a local DQM launch-stage error at20MHz/high addresses;
+independent dynamic-mask CAS2/3 comparison passes16 checks in both vendor and
+corrected local models and rejects the previous local model at runtime. Default
+BL1 full geometry/four positive profiles/three negatives, BL8 matrix26 actions,
+selftest/trace12, original144-chip MSA4/every9,437,184 bits, fresh CAS6/DQM6 and18
+reader rejections pass. The prior native review is byte-identical; current
+assembly binds the source-helper dependency. No hardware, clocks or measured
+speed changed. See the [348-member receipt](../fpga/mister/reports/2026-10-22-canonical-sdram/README.md).
 
 Concrete next component (not implemented): expose a preview of each original
 row/column latch's post-edge address without changing its stored state. Use

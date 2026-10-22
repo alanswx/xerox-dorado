@@ -20,6 +20,7 @@ import stage_boot_fault_observer as observer
 import stage_storage_selftest_native as selftest
 import stage_storage_burst_observer as burst_observer
 import stage_storage_read_capture as read_capture
+from storage_capture_source import legacy_capture, legacy_read_dqm_model
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'fpga/mister/snapshot'))
@@ -112,7 +113,7 @@ def review(root, parent, parent_qualification, parent_reports, observer_componen
     assert record['cache_lines'] == 4 and len(record['source_hashes']) == 499 + int(has_observer) + int(has_selftest)
     actual = {n: sha(raw(root / n)) for n in record['source_hashes']}
     assert actual == record['source_hashes'], 'Compiled input changed'
-    plain_backend = (ROOT / 'fpga/mister/dorado_storage_sdram_burst.sv').read_bytes()
+    plain_backend = legacy_capture((ROOT / 'fpga/mister/dorado_storage_sdram_burst.sv').read_bytes())
     expected_backend = burst_observer.expose(BACKEND, plain_backend) if has_burst_observer else plain_backend
     if has_correct_capture:expected_backend=read_capture.correct_capture(expected_backend)
     assert actual[BACKEND] == sha(expected_backend)
@@ -191,7 +192,11 @@ def review(root, parent, parent_qualification, parent_reports, observer_componen
         text = raw(cas_reference / 'legacy-local-test.log').decode()
         assert 'CAS_LAUNCH_MISMATCH cas=2 delta=46.000' in text and 'CAS_LAUNCH_MISMATCH cas=3 delta=66.000' in text
         model_key='verilog/verilator/third_party/xsds/xsds_128mbyte_sdram_model.sv'
-        assert cp['inputs']['corrected-xsds-model.sv'] == sha((ROOT/model_key).read_bytes())
+        current_model = (ROOT/model_key).read_bytes()
+        # Old receipts retain their exact CAS-qualified model. The only
+        # permitted alternative is its known extra DQM launch stage; that
+        # difference was independently exposed by the later full-range test.
+        assert cp['inputs']['corrected-xsds-model.sv'] in {sha(current_model), sha(legacy_read_dqm_model(current_model))}
         assert cp['inputs']['corrected-xsds-model.sv'] == burst_observer_proof['inputs'][model_key] == burst_observer_full_proof['inputs'][model_key]
         ms,mp = component(read_capture_matrix,'PASS_ISOLATED_SDRAM_BURST_PIN_MODEL')
         assert mp['read_capture_corrected'] and len(ms['actions']) == 26

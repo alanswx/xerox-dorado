@@ -175,7 +175,8 @@ def run(args):
         data = read(original / row['stored'])
         assert hashlib.sha256(data).hexdigest() == row['raw_sha256'] and len(data) == row['raw_bytes']
     result = dict(status='PASS_NATIVE_BURST_REVIEW_REJECTION_CONTROLS', cases=cases,
-                  source_archive_manifest_sha256=manifest_hash, reviewer_sha256=hashlib.sha256((ROOT / 'tools/review_sdram_burst_native.py').read_bytes()).hexdigest())
+                  source_archive_manifest_sha256=manifest_hash, reviewer_sha256=hashlib.sha256((ROOT / 'tools/review_sdram_burst_native.py').read_bytes()).hexdigest(),
+                  reviewer_dependencies={'storage_capture_source.py': hashlib.sha256((ROOT / 'tools/storage_capture_source.py').read_bytes()).hexdigest()})
     (out / 'controls.json').write_text(json.dumps(result, indent=2) + '\n')
 
 

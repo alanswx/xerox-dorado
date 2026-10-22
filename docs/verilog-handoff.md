@@ -69,9 +69,8 @@ the actual output, not just sent input. CRC/RX/abort remain0; TX dropped27 at
 the last reviewed sample. Background welcome applications continue. No guest
 Boot/clean shutdown, cold remount persistence, rollback, repeated-boot or stress
 gate is claimed. The114-member field receipt is archived and verified losslessly (111 blobs);
-88,659 complete disk-trace prefix records contain no errors/gaps. Next: make the
-corrected controller/model the canonical production pair while preserving old receipts,
-then implement/test the memory-ready prediction component described in the
+88,659 complete disk-trace prefix records contain no errors/gaps. The canonical source/model work below is now complete. Next:
+implement/test the memory-ready prediction component described in the
 clock plan. Re-integrate/qualify the experimental CPU front separately before
 claiming the complete faster clock path. Main14025/server14024 remain live; do not reset merely because
 an observation window expires. Previous correction/native evidence pushed
@@ -88,6 +87,39 @@ cycles. Enabled edges36.04% is another interval, not a combined partition.
 Main-owned selector calls, scope and actual fitted half-cycle paths. The next
 speed target is the address/ready/gate cone, not an assumed ARM disk stall.
 This does not clear disk waits in all workloads or qualify a higher clock.
+
+### Canonical SDRAM sources qualified (2026-10-22)
+
+The canonical BL1/BL8 controller files now contain the exact tested wait2
+bytes; default tests require those bytes and cannot silently repair a reverted
+controller. Historical stage/review uses explicit inverse transforms, retaining
+old receipts. Its native qualification replay is byte-identical SHA c83b7f56;
+all18 evidence controls reject. The assembler binds the new helper hash and
+rejects changes before assembly. No new fit/load/clock/speed result is claimed;
+MiSTer14 still runs the same qualified StorageReadCapture1 image.
+
+The broader default BL1 test exposed a second simulation-model error: at20MHz,
+address0x0121110e expected0xb82f but returned0xb800. Dynamic byte-mask comparison
+against the unmodified Micron-authored model (CAS2/3,16 checks) proves the local
+launch used one mask stage too old. Vendor and corrected local pass; previous
+local compiles and fails15 checks. Root model now uses pipe0 for launch, giving
+the specified two receiver-clock mask latency. The first bench attempt's
+reserved-comment compile failure is retained and is not a runtime negative.
+
+Defaults now pass full26-bit BL1 geometry/both ranks/all banks/20,33,50MHz and
+6ns delayed clock, three runtime negatives; BL8 matrix26 actions; selftest/trace12;
+original144-chip MSA BL1/BL8 comparison4 actions/every9,437,184 bits plus identical
+12,380 raw address/data records; fresh CAS6 and DQM6 actions. Existing V38/V39
+jobs keep frozen old models. Current reader recognizes only the exact old DQM
+byte variant for historical receipts, not arbitrary model changes. Old model
+inputs are not retroactively qualified for full-range masking.
+
+[Canonical source/test/replay receipt](../fpga/mister/reports/2026-10-22-canonical-sdram/README.md)
+contains348 losslessly verified members. Vendor body, binaries and active pack
+are excluded; pinned vendor origin/hash is recorded. Next: implement and test
+the proposed post-edge address/readiness prediction, then original-chip MSA,
+full128-group/global-gate, original-ROM and actual15ns timing gates. The
+separate experimental CPU front remains an independent open integration gate.
 
 ### Historical MC1668 and front-component qualification
 
@@ -6715,7 +6747,7 @@ and has unreviewed hold violations; never deploy it.
 - [x] Ground the one-clock model/controller correction independently in CAS2/3 vendor scheduling, legacy-model rejection, corrected pin/full8M/matrix/MSA board tests and18 native rejection controls. Corrected fit/timing/memory/assembly pass and full physical8M-cell test passes on14.
 - [x] Commit/push7d5b78b7 with verified component/native/memory/login receipts. Original corrected boot reaches Cedar login and all34 base transfers/final guest ACK. Mean idle2,592,921.60 issues/s; loader305.897..306.043s/37replays. Keep those distinct workloads explicit.
 - [x] Finish the SAME corrected StorageReadCapture1 original boot: clear Viewers, normal mouse/Cmd click and focus, exact short/alphabet/digit echoes and warm file create/type readback. Separate installer windows show58.42% storage-only pause,0% disk-only/both and3.92% instruction holds; preserve non-atomic scope and nonzero TX drops.
-- [ ] Make the corrected controller a canonical production input after current hardware qualification; keep old qualified receipts reconstructible and ensure defaults use a correctly paired physical model/controller. Legacy uncorrected controller with corrected chip model is intentionally a failing control, not an alternative passing configuration.
+- [x] Make the physically qualified BL1/BL8 capture canonical and default; preserve exact historical replay and18 rejection controls. Independently expose/correct the model DQM launch stage; pass dynamic vendor/local CAS2/3, default full-range geometry/pin/fault tests and original MSA comparison. Archive348 members; no FPGA reload or new speed claim.
 - [x] Test live progressive1080p60 through normal Main controls; preserve black capture and restore previous1080p30. Shared capture service/other MiSTers remain untouched; capture recovery is still open.
 - [ ] Trace the earlier queue/memory fault with phase-correct consumed operands through native memory holds; recover original Cedar/login/Viewers/mouse/click/exact keyboard echo and HDMI capture before accelerating.
 - [ ] Complete original 60 ns ordinary-instruction clock/enable and timer migration, reducing avoidable memory waits while preserving cache/map/ECC and peripheral behavior. Report instruction issues and holds separately on pinned workloads.

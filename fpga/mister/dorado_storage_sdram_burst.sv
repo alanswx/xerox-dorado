@@ -126,9 +126,9 @@ module dorado_storage_sdram_burst #(
                 command<=READ;
                 // Command reaches chip on the intervening falling edge.
                 // CAS2 data reaches the falling-edge input register on the
-                // fourth following falling edge, then the response register
-                // on the fourth rising edge. Includes clock-output latency.
-                delay_count<=3;state<=READ_WAIT;
+                // third following falling edge, then the response register
+                // on the third rising edge. Includes clock-output latency.
+                delay_count<=2;state<=READ_WAIT;
             end
         end
     endtask

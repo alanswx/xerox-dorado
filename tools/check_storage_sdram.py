@@ -17,15 +17,16 @@ def main():
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     out = args.output.resolve()
-    out.mkdir(parents=True, exist_ok=True)
+    assert not out.exists(), 'Observe the recorded existing qualification'
+    out.mkdir(parents=True)
     source = (root / 'fpga/mister/dorado_storage_sdram.sv').read_text()
     controls = []
     for name, changes, diagnostic, clock_delay in [
         ('short-rcd', [('T_RCD=clocks(21)', 'T_RCD=1')], 'tRCD', 0),
         ('blocked-refresh', [('IDLE:if(refresh_due)begin',
          'IDLE:if(refresh_due && !response_pending)begin')], 'refresh', 0),
-        ('rising-capture', [('delay_count<=3;state<=READ_WAIT;',
-                            'delay_count<=2;state<=READ_WAIT;'),
+        ('rising-capture', [('delay_count<=2;state<=READ_WAIT;',
+                            'delay_count<=1;state<=READ_WAIT;'),
                            ('rsp_data<=dq_capture;', 'rsp_data<=dq_in;')],
          'read 00000000 got', 6),
     ]:

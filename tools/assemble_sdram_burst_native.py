@@ -13,13 +13,20 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def reviewer_sources(project, controls):
+    reviewer = project / 'review_sdram_burst_native.py'
+    assert controls['reviewer_sha256'] == sha(reviewer)
+    if 'from storage_capture_source import' in reviewer.read_text():
+        assert controls.get('reviewer_dependencies') == {'storage_capture_source.py': sha(project / 'storage_capture_source.py')}, 'Reviewed capture-source helper changed'
+
+
 def run(project, quartus):
     q = json.loads((project / 'preassembly-qualification.json').read_text())
     c = json.loads((project / 'burst-fit-review-controls.json').read_text())
     record = json.loads((project / 'sdram-burst-native.json').read_text())
     assert q['status'] == 'PASS_NATIVE_SDRAM_BURST_PREASSEMBLY_REVIEW'
     assert c['status'] == 'PASS_NATIVE_BURST_REVIEW_REJECTION_CONTROLS'
-    assert c['reviewer_sha256'] == sha(project / 'review_sdram_burst_native.py')
+    reviewer_sources(project, c)
     has_observer = q.get('passive_boot_fault_observer', False)
     assert has_observer == record.get('passive_boot_fault_observer', False)
     has_selftest = q.get('raw_storage_selftest', False)

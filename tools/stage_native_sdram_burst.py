@@ -10,6 +10,7 @@ import gzip
 import hashlib
 import json
 from pathlib import Path
+from storage_capture_source import legacy_capture
 
 ROOT = Path(__file__).resolve().parents[1]
 WRAPPER = 'src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv'
@@ -28,6 +29,9 @@ def stage(parent, qualification, pins, board, out, project):
     assert review['source_hashes'] == baseline['source_hashes']
     assert baseline['frequency_mhz'] == 50 and baseline['sysper'] == 4
     assert baseline['state_admin'] == 'INACTIVE'
+    # Historical intermediate stage; the subsequent capture-correction stage
+    # reconstructs the physically qualified variant from these exact bytes.
+    legacy_backend = legacy_capture((ROOT / 'fpga/mister/dorado_storage_sdram_burst.sv').read_bytes())
     for directory, status in [(pins, 'PASS_ISOLATED_SDRAM_BURST_PIN_MODEL'),
                               (board, 'PASS_NATIVE_MSA_BL1_BL8_PHYSICAL_MODEL')]:
         state = json.loads((directory / 'run-state.json').read_text())
@@ -37,7 +41,7 @@ def stage(parent, qualification, pins, board, out, project):
             assert sha((directory / 'inputs' / name).read_bytes()) == h, (directory, name)
         tested = directory / 'inputs' / ('fpga/mister/dorado_storage_sdram_burst.sv' if directory == pins
                                          else 'dorado_storage_sdram_burst.sv')
-        assert tested.read_bytes() == (ROOT / 'fpga/mister/dorado_storage_sdram_burst.sv').read_bytes()
+        assert tested.read_bytes() == legacy_backend
     comparison = json.loads((board / 'comparison.json').read_text())
     assert comparison['same_raw_request_and_final_oracle_sequence']
     assert comparison['all_guest_storage_bits_compared'] == 9437184
@@ -53,7 +57,7 @@ def stage(parent, qualification, pins, board, out, project):
     new = 'dorado_storage_sdram_burst #(.ADDR_BITS(RAW_BITS),.CLOCK_HZ(STORAGE_CLOCK_HZ),.CACHE_LINES(4)) u_sdram('
     assert outputs[WRAPPER].decode().count(old) == 1
     outputs[WRAPPER] = outputs[WRAPPER].decode().replace(old, new).encode()
-    outputs[BACKEND] = (ROOT / 'fpga/mister/dorado_storage_sdram_burst.sv').read_bytes()
+    outputs[BACKEND] = legacy_backend
     tail = ('\n# Raw BL8 buffer only; unchanged CPU/cache/map/ECC and clocks.\n'
             'set_global_assignment -name SYSTEMVERILOG_FILE ' + str(project / BACKEND) + '\n').encode()
     outputs['core/Dorado.qsf'] += tail
@@ -76,7 +80,7 @@ def stage(parent, qualification, pins, board, out, project):
                   board_run_state_sha256=sha((board / 'run-state.json').read_bytes()),
                   assembly_permitted=False, firmware_qualified=False, speedup_qualified=False)
     (out / 'sdram-burst-native.json').write_text(json.dumps(record, indent=2) + '\n')
-    for name in [Path(__file__).name, 'build_r_front_ready_native.py']:
+    for name in [Path(__file__).name, 'build_r_front_ready_native.py', 'storage_capture_source.py']:
         (out / name).write_bytes((ROOT / 'tools' / name).read_bytes())
     print(record['status'], len(outputs), 'frozen source/config files')
 
