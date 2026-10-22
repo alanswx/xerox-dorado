@@ -9,9 +9,23 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Clock follow-up LIVE: isolated BaseBoard crystal correction.** One fit at
+**Clock follow-up TERMINAL/REJECTED; current2278 save/rollback PASS.** One fit at
 `misterubuntu:/home/alans/mister/Dorado_BaseBoardCrystal57_1_20261022`,
-builder530332/fitter542437 (map530341 terminal0). It starts from all503 exact
+builder530332; map530341/fit542437 terminal0. Summary setup-0.399ns, already
+produced detailed slow/-40C setup-0.423ns from msaOdd address-preview col3 to
+backing-buffer rsp_data8/duplicate. Hold summary+0.003ns is not the final
+all-report minimum. No assembly/load. [Negative prefix](../fpga/mister/reports/2026-10-22-baseboard-clock/native57-rejected-prefix/README.md).
+All9 build/6 read-only stages return0; all1052 terminal members are read back
+and verified,503 source hashes unchanged. All404 categories reviewed:14 setup
+failures, including MemC->ContA/ContB/IFU/DispY and processor/ready crossings;
+detailed hold+0.003ns. All24 added crystal/BaseBoard categories pass at
+setup+0.021ns/hold+0.166ns; compiled d08 SYSPER8/FREQ10000 and170 RAM rows/modes
+verified. [1059-member terminal receipt](../fpga/mister/reports/2026-10-22-baseboard-clock/native57-rejected-terminal/README.md).
+No fit/report/collector remains active. Shorten real memory/ready AND CPU/control
+capture paths before another candidate;
+registered pending-request lookahead is an investigation requiring full
+per-group/pin/MSA/backpressure/refresh/fairness and original-firmware checks.
+It starts from all503 exact
 qualified2278 sources; only MC12061 and the actual native16 BaseBoard d08
 binding change. Use2*SYSPER for the original10MHz -> /5 -> /2 chain, correcting
 the legacy5/3 MCPreClk ratio error. CPU/PLL/divider/memory/other devices/Main
@@ -26,12 +40,16 @@ Checkpoint traverses VM count/germ813/original profile callbacks and returns
 both saved tools/Clock/icons. Fresh exact Echo, pre-save response57persist Type,
 new post-save response57after write/Type and changed Clock hands PASS.
 [49-member verified proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-checkpoint-return/README.md).
-Observers terminal32/36. Explicit `Rollback` then sent ONCE; current bounded
-watch-rollback/tool81100 is LIVE in hardware/checkpoint-v1. Verify both files,
-fresh input/app after return; never replay on missing captures. Latest pointer
-700,512, but use fresh view after restore. Disk trace loses19388 records in two
+Observers terminal32/36. Explicit `Rollback` then sent ONCE also PASSES:
+original germ/profile callbacks, both tools/Clock, fresh exact response57
+rollback Echo and BOTH pre/post-save files Type. Observer70776/tool81100 is
+TERMINAL48; source/input/collectors terminal. [37-member explicit proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-explicit-rollback/README.md).
+Current pointer700,512; inspect fresh EOF before new commands. One-shot native
+capture timeout retained; existing observer45 proves result, no command replay.
+Cold remount/repeated/final fresh/stress gates remain OPEN. Trace loses19388 records in two
 overflows: no complete request/ACK trace, closed persistence or final stress
-claim. No observed I/O/CRC/RX/abort error; TXdrop3 retained. A12s held-OSD stream
+claim. Checkpoint prefix has no observed I/O/CRC/RX/abort error and TXdrop3;
+later explicit Rollback has TXdrop4, CRC/RX/abort0. A12s held-OSD stream
 and delayed screenshot remain black; OSD closed, no output/core/service change.
 
 **Current2278 hardware: original Viewers/input/files/Clock PASS,+11.0% issues.**

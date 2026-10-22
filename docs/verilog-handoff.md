@@ -15,9 +15,24 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**New clock candidate LIVE; current2278 original Checkpoint return PASS.**
+**Clock candidate TERMINAL/REJECTED; current2278 original Checkpoint AND explicit Rollback PASS.**
 Remote `/home/alans/mister/Dorado_BaseBoardCrystal57_1_20261022`, builder530332/
-fitter542437 live; map530341 terminal0. Exact503-source2278 parent. Only scaled
+map530341/fit542437 terminal0; all9 build/6 read-only stages terminal0. Ordinary summary setup-0.399ns,
+already produced slow1100mV/-40C detail-0.423ns: actual msaOdd address-preview
+u_dram_addr_1 col3 -> backing-buffer rsp_data8/duplicate. Summary hold+0.003ns
+is now confirmed final detailed minimum across404 categories. Fourteen setup
+categories fail; also MemC k02 q3 -> ContA l11 d_pre5(-0.327), ContB/IFU/DispY,
+processor outputs and ready predictor. All24 added clock/BaseBoard categories
+positive: setup+0.021/hold+0.166ns. Actual compiled d08 SYSPER8/FREQ10000 and
+both changed sources confirmed; all170 RAM rows/modes unchanged.
+[1059-member terminal rejection](../fpga/mister/reports/2026-10-22-baseboard-clock/native57-rejected-terminal/README.md).
+Local terminal-v1 has1052 independently decompressed/hash-verified members;
+collect-local72840/tool49389 TERMINAL. Builder530332/reporter551460/collector551461
+and all children absent; no assembly/load. Do not retry fitter/seed.
+Next shorten real arbitration/address-to-response AND CPU/control/ready paths. Registered
+pending-request lookahead is only an investigation: prove per-group/data/
+ordering/fairness/reset/refresh/held-response/pin/MSA and native firmware before
+claiming qualification or speed. Exact503-source2278 parent. Only scaled
 MC12061 and the actual native16 BaseBoard d08 binding change;2*SYSPER restores
 the original10MHz -> divide5 -> divide2 ratio. Legacy MCPreClk was5/3 too fast
 relative to the CPU at SYSPER4. This does not make the current slow core run
@@ -25,7 +40,7 @@ in physical real time. CPU/PLL/divider/memory/other devices/Main unchanged.
 Independent inverse/all-source comparison and5 staging guards pass. No fit,
 timing, native firmware or assembly/load qualification yet.
 [522-member stage](../fpga/mister/reports/2026-10-22-baseboard-clock/native57-stage/README.md).
-Read-only reporter551460/collector551461 follow the SAME job; preserve all
+Read-only reporter551460/collector551461 followed the SAME job; preserved all
 original/response categories plus new crystal/downstream/incoming-BaseBoard
 paths. [12-member follower receipt](../fpga/mister/reports/2026-10-22-baseboard-clock/native57-followups/README.md).
 Local `build/rtl-executive/baseboard-crystal-native57-v1-20261022`; observe
@@ -37,14 +52,18 @@ return both saved tools/Clock/icons. Fresh exact `response57 checkpoint`, Type
 of pre-save response57persist, new response57after write/Type and changed Clock
 hands PASS. [49-member verified return/input/files proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-checkpoint-return/README.md).
 Local hardware/checkpoint-v1: initial observer67991/tool30101 TERMINAL32 and
-return69330/tool44198 TERMINAL36. All input senders terminal. Then explicit
-Rollback sent ONCE (send-rollback-v1.log/action JSON); bounded watcher tool81100
-is live. Inspect its exact PID/state/frames; no reset or repeated command.
-Latest pointer700,512; after restore inspect fresh EOF before typing. Verify
-both pre/post-save files, fresh Echo and app activity. New file remains warm
+return69330/tool44198 TERMINAL36. Then explicit Rollback sent ONCE and PASSES:
+original germ/profile callbacks, restored tools/Clock, normal EOF mouse click,
+exact response57 rollback Echo and BOTH pre/post-save files Type, changing
+Clock hands. [37-member explicit rollback proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-explicit-rollback/README.md).
+Watcher70776/tool81100 TERMINAL48, all input/collector jobs terminal. A one-shot
+native screenshot times out/absent on follow-up; observer45 proves exact result,
+no replay/reset. Latest pointer700,512; inspect fresh EOF before typing. New file remains warm
 only; cold remount still pending. Journal/prefix show two trace overflows/
 19388 lost records, partial counts; no complete request/ACK or final stress
-claim. No observed disk I/O or CRC/RX/abort fault; TXdrop3 retained. Twelve-second
+claim. Completed Checkpoint prefix: no observed disk I/O or CRC/RX/abort fault,
+TXdrop3 retained. Later explicit Rollback has TXdrop4, CRC/RX/abort0; do not
+overwrite the earlier immutable prefix. Twelve-second
 held-OSD capture's final frame and delayed screenshot black; OSD closed. No
 resolution/core/Main/shared-service change or proved root cause.
 
@@ -76,7 +95,8 @@ capture. A12s stream receives121frames; LAST image still black. Neither cause,
 host-shortcut handling nor permanent Main fix proved. No resolution/shared
 capture-service/debugger/ptrace/SPI-owner changes. Latest prefix CRC/RX/abort0,
 TXdrop3 retained, pack fault clear. Live current trace is buffered, not closure.
-Current2278 Checkpoint/Rollback and response57persist cold remount pending.
+Current2278 Checkpoint/explicit Rollback pass above; response57persist and
+response57after still need cold remount. All current observers terminal.
 
 Previous93ad desktop/file volume now CLOSED f9c92416 (63578624B),10288 records,
 447read/65write ACK pairs,two barriers,no recorded errors/loss,no open FDs,
