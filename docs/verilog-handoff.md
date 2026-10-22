@@ -70,7 +70,7 @@ Generic restart helper
 `tools/restart_storage_board_native.py` is the exact executed version; inspect
 the existing preparation journal rather than repeat its completed load.
 
-**Native Cedar Checkpoint attempt1 is now IN PROGRESS on the SAME core.**
+**Native Cedar Checkpoint roundtrip1 PASSES desktop/input/app; explicit Rollback1 IN PROGRESS.**
 **Update05:28UTC: saved desktop and actual Rollback message RETURNED.**
 The same original operation reaches the saved two CommandTools plus the user's
 rendered ProcH-BitSlice07 schematic in an AIS Viewer. The lower tool prints
@@ -89,6 +89,24 @@ The short echo in that new tool now EXECUTES: exact`ck57 input ok` and a new
 prompt in `checkpoint/fresh-short-native.png`. Full alphabet/digits and actual
 post-checkpoint marker creation/readback are the next separate check. The old
 failed history edit must not be counted as a file creation or keyboard pass.
+Update05:38UTC: the fresh third tool also executes exact full alphabet/digit
+echo, then normal echo redirection creates/closes`///rtl57afterck0528.txt` and
+type returns exact`aftercheckpoint0528` plus a prompt. This file is actually
+created AFTER the checkpoint return; old edited-history text is not its creation.
+The [50-member roundtrip1 receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-checkpoint-roundtrip1/README.md)
+verifies107,022 complete current disk records/no errors/gaps, CRC/RX/abort0,
+TX dropped2, actual saved-world/Rollback/native+HDMI/schematic/input/file proofs
+and failed-history artifacts. One authentic native checkpoint roundtrip works;
+this is still not a quiet/repeated/cold restart or full-goal qualification.
+
+At05:39UTC normal USB `Rollback` is invoked at the verified fresh tool prompt
+without making another checkpoint. Actual `rollback1/start-native.png` shows812.
+The saved world predates the new file, so require exact `type
+///rtl57afterck0528.txt` AFTER this explicit rollback returns. Preserve SAME
+Main23119/server23118/RBF7c4d39e4 and volume. Do not type into intermediate
+profile dialogs, reset, restart the daemon or issue another rollback/checkpoint.
+`rollback1/before.json` records offset11,212,559 and observation time; input log
+is terminal with keys released. The existing watcher51451/tool85543 continues.
 
 Normal USB `Checkpoint` is accepted: actual guest prints Creating checkpoint
 at October18,1998 12:05:51pm+0100, made byGuest.pa. By05:09–05:10UTC actual
@@ -113,19 +131,19 @@ verifies95,597 complete current disk records/no errors/gaps plus actual screens,
 normal input and primary sources. New `checkpoint/watch.py` is a bounded120-shot
 read-only observer; `watch-state.json` holds its actual PID, `watch.stop` ends
 only this observer, and frames/logs remain under `checkpoint/`.
-Latest observation: actual `checkpoint/screens-v1/01.png` at05:16UTC shows812
+Earlier observation: actual `checkpoint/screens-v1/01.png` at05:16UTC shows812
 germInLoad, then frame04 at05:17 shows Cedar's personal-profile question.
 DO NOT infer rollback failure/success from that early terminal: the C regression
 documented this same misleading intermediate display before final saved-world
 repaint (`docs/cedar-checkpoint.md`, sections5–6). No response or other input
-has been sent to this new prompt. Wait for actual saved desktop/Rollback message
+was sent by the agent to that intermediate prompt. Wait for actual saved desktop/Rollback message
 and input qualification; preserve evidence if it remains there. Current observer
 is real PID51451/tool session85543, revalidated live. Main23119/server23118 remain
 live, CRC/RX/abort0, TX dropped2; no new hardware/daemon load occurred.
 
-Next TODOs: follow this original outload/inload to a real interactive return;
-then post-checkpoint file creation, normal Rollback and exact persistent readback,
-repeat a quiet checkpoint and cold restart; fresh-seed boots with08452,
+Next TODOs: follow explicit Rollback1 to the saved desktop, verify the actual
+post-checkpoint file survives and repeat fresh-tool exact input; then quiet
+checkpoint/repeated rollback/cold restart; fresh-seed boots with08452,
 remaining60ns timing/capture work and final stress. Full FPGA snapshots remain
 deferred. Previous pinned login2.968685M issues/s remains the latest speed result.
 V38/V39 are now TERMINAL, not long-running work. Tool handles11479/66643 were

@@ -63,9 +63,18 @@ post-return input check edited old Tioga history because focus was placed in
 the full transcript; it did NOT execute and created no qualified new file.
 A fresh third CommandTool is opened normally for real prompt/input/file checks.
 Preserve failed-input evidence and require execution before a second Rollback.
+Update05:38UTC: that fresh prompt executes exact short/full alphabet/digit echoes,
+creates/closes`///rtl57afterck0528.txt` and type reads exact`aftercheckpoint0528`.
+[50-member first roundtrip receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-checkpoint-roundtrip1/README.md)
+verifies107,022 current disk records/no errors/gaps, CRC/RX/abort0/TX dropped2 and
+actual saved-world/app/native+HDMI/input proofs, including the failed history edit.
+Native Checkpoint roundtrip1 therefore works. It is not a quiet/final qualification.
+Normal `Rollback` now uses that ORIGINAL checkpoint, before the new file existed;
+actual start812 observed. Keep Main23119/server23118 running, no new checkpoint
+or reset. Require exact file readback and input AFTER this explicit rollback.
 
-TODO: follow original outload/inload and prove responsive return; post-checkpoint
-file creation/normal Rollback/persistent readback, repeat a quiet checkpoint and
+TODO: follow explicit Rollback1 to responsive return and exact post-checkpoint
+file preservation; repeat a quiet checkpoint and
 cold restart; complete authentic Checkpoint/
 Rollback; fresh-seed receiver/three-boot qualification;60ns capture/data timing;
 final disk/network/input stress. Current pinned speed is still2.968685M issues/s
