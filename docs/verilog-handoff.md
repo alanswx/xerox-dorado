@@ -15,7 +15,7 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Latest:690f original Viewers/exact input/files/fresh schematic PASS; original Checkpoint running.**
+**Latest:690f original Checkpoint return/exact pre-post files PASS; explicit Rollback running.**
 MiSTer14 Main28147/server28146/supervisor28112 run RBF
 690fd4bda65b8cdc40e6aaecc0e7aef51200fead8c248d0d49e17049c3fc98a4,
 unchanged Main21e6/receiver0845,57.142857MHz/SYSPER4/140ns nominal,
@@ -32,22 +32,27 @@ fetches8 files, both Eval calls return, entire ProcH-BitSlice07 paints beside
 both tools and changing Clock. Both mistakes remain visible in the proof.
 [61-member original desktop/input/file/application proof](../fpga/mister/reports/2026-10-22-timing-paths/native57-desktop-input-apps/README.md).
 
-Desktop/input observers terminal60/32 and absent. One ordinary `Checkpoint`
-command is now running through original Cedar/germ/disk; command05 shows
-Creating checkpoint, then native captures6..9 temporarily unavailable while
-Main28147 continues disk writes. Do not repeat/reset for capture timeout.
-First observer9367/tool98254 is terminal48 and absent; actual original germ812
-(inload per MPCodes.mesa) and saved desktop repaint are observed. Original
-missing-profile/full-default-name/defaultNo flow reaches No; one Return accepts
-it. A distinct `watch-checkpoint-v2.py`/32-sample observer follows SAME Main;
-no repeated Checkpoint or reload. Wait for the actual final prompt before new input.
-During save, three trace_dropped records appear and recorded write requests/ACKs
-are15126/15127: history is incomplete. Disk errors/CRC/RX/abort/drop remain0;
-preserve diagnostic gaps, do not claim complete I/O history.
-Checkpoint/Rollback and new-file cold persistence are NOT yet qualified on690f.
-Live desktop prefix624 read/1702 write requests/ACKs,134 pwrite/27fsync
-completions, no recorded errors/loss; good335/CRC-RX-abort-drop0, fault clear.
-Not current-volume closure or final stress. No C-state import/host completion.
+Desktop/input observers terminal60/32 and absent. One original Checkpoint
+traverses actual germ812/inload (MPCodes811=outload,813=map preservation),
+saved schematic/Clock/tools and original profile full-default-name/defaultNo
+callback. One Return for displayed No, NotePerLogin completion, fresh exact
+split57 checkpoint Echo, pre-save split57persist Type, new AFTER-save
+split57after write/Type all PASS. Native/HDMI agree. Observers terminal48/32
+and absent, controls released. [43-member Checkpoint proof](../fpga/mister/reports/2026-10-22-timing-paths/native57-checkpoint-return/README.md).
+Three trace_dropped events total21460 lost records; recorded write requests/
+ACKs15191/15192 are explicitly incomplete. Prefix2243 reads/ACKs,616pwrite/
+58fsync completions, no errors; good390/CRC-RX-abort-drop0, fault clear.
+No current-volume close/cold-new-file/final stress claim.
+
+One ordinary `Rollback` is now running on SAME Main28147/daemon28146/RBF690f.
+Observer PID12027/tool80372 (`watch-rollback-v1.py`,48 bounded samples) follows
+this SAME attempt. Original812 then profile Yes/full default filename are
+visible; no extra profile keys yet, wait for displayed No before Return.
+Observed idle disk interval225s has all2320 recorded reads ACKed and no pending
+new operation in the captured tail, followed by original profile progress;
+not evidence of a new disk hang or permission to repeat/reset. Explicit Rollback
+and cold close/remount of both split57 files remain unqualified until readback.
+Source closed9400 and immutable236b retained. Native phase/goal unchanged.
 
 Full V2 fit/report/collector/assembly are TERMINAL. All1076 native members,
 503 sources/exact six RTL changes,31 summaries/444 categories/four conditions,
@@ -118,7 +123,28 @@ cause a refit/restart. Full timing/RAM/captures/register inventory/reviewer/
 assembly guards remain required; no assembly/load or new speed qualification.
 [570-member stage and observed-live proof](../fpga/mister/reports/2026-10-22-storage-read-word-capture/native57-stage/README.md).
 
-Next/TODO: finish690f authentic Checkpoint/Rollback and new-file close/remount.
+**New direct-carry component and ONE distinct corrected-source fit LIVE.**
+Exact690f MC10181 retains original function table, FPGA result adder and result
+carry selection. Bit-generate/propagate are factored directly from original
+S/operand table; only three carry outputs change implementation. All16384
+binary inputs/all7 pins match BOTH simulators; six actual bad variants reject,
+no circular warnings. NOT four-state/temporal/native proof or speed claim.
+[26-member component proof](../fpga/mister/reports/2026-10-22-mc10181-direct-carry/component/README.md).
+
+All503 qualified690f source bytes are rechecked; precisely cell/backend/wrapper
+change, combining proven direct carry with proven read capture. Ten damaged
+carry-evidence controls reject before writing output, including rebound wrong
+reference/candidate and false four-state claim; underlying eleven read-capture
+guards remain. CPU registers/captures/cache/Map/ECC, clocks/SDC/other devices/
+Main/daemon unchanged. Still57MHz/SYSPER4/140ns; not a clock step.
+Remote `/home/alans/mister/Dorado_DirectCarryCapture57_1_20261022`, builder1623732/
+map1623741 terminal0/fitter1635211 verified LIVE. Read-only followers1641398/
+1641399, local PID12658/tool99796 follow SAME job;300-poll observer timeout
+must never restart a fit. Exact503 uploaded and old690f503 hashes reverified.
+Local `direct-carry-capture-native57-v1-20261022`; no assembly/load before full
+source/timing/RAM/capture/warning/rejection review. [592-member stage/live proof](../fpga/mister/reports/2026-10-22-mc10181-direct-carry/native57-stage/README.md).
+
+Next/TODO: finish690f explicit Rollback and both-file cold close/remount.
 Retain completed desktop/exact input/mouse/files/apps. Collect the rejected
 requested-beat fit and address CPU/diagnostic/data paths before another clock step; no
 blind PLL/SYSPER change. Original60ns nominal, all-device rates, minimal Main337
