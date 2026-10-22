@@ -69,9 +69,10 @@ the actual output, not just sent input. CRC/RX/abort remain0; TX dropped27 at
 the last reviewed sample. Background welcome applications continue. No guest
 Boot/clean shutdown, cold remount persistence, rollback, repeated-boot or stress
 gate is claimed. The114-member field receipt is archived and verified losslessly (111 blobs);
-88,659 complete disk-trace prefix records contain no errors/gaps. The canonical source/model work below is now complete. Next:
-implement/test the memory-ready prediction component described in the
-clock plan. Re-integrate/qualify the experimental CPU front separately before
+88,659 complete disk-trace prefix records contain no errors/gaps. The canonical source/model work below is now complete. The memory-ready prediction
+component now passes functional comparison and one-board15ns timing (below).
+Next: integrate/test all128 native groups and their actual global gate.
+Re-integrate/qualify the experimental CPU front separately before
 claiming the complete faster clock path. Main14025/server14024 remain live; do not reset merely because
 an observation window expires. Previous correction/native evidence pushed
 as7d5b78b7. Full corrected terminal
@@ -116,10 +117,54 @@ inputs are not retroactively qualified for full-range masking.
 
 [Canonical source/test/replay receipt](../fpga/mister/reports/2026-10-22-canonical-sdram/README.md)
 contains348 losslessly verified members. Vendor body, binaries and active pack
-are excluded; pinned vendor origin/hash is recorded. Next: implement and test
-the proposed post-edge address/readiness prediction, then original-chip MSA,
-full128-group/global-gate, original-ROM and actual15ns timing gates. The
+are excluded; pinned vendor origin/hash is recorded. Committed/pushed as
+c8c04aae. Post-edge address/readiness prediction now passes the original-chip
+MSA and one-board15ns component gates below. Full128-group/global-gate,
+original-ROM and full native timing gates remain open. The
 separate experimental CPU front remains an independent open integration gate.
+
+### Memory-ready prediction component qualified (2026-10-22)
+
+The candidate previews the original RAS/CAS address capture and predicts the
+existing cache-valid/waiting/write-done state. Hold and advance comparisons
+precede the late machine-step selection. Original stored address/data, output
+logic and request/response acceptance epochs are unchanged. Simply registering
+the old ready value is rejected by actual compiled runtime controls.
+
+The original144-chip MSA comparison passes12,012 board cycles and all9,437,184
+stored bits. The complete positive raw trace, INCLUDING host timestamps, is
+byte-identical to canonical BL8:750 reads/7,872 writes/1,111 output transitions,
+112,849 host cycles. Three runtime mutants (stale ready/old address/ignore write)
+fail. Native-width8/12 groups each pass in Icarus and Verilator:40,000 host-edge
+checks,3,531 steps,1,591 reads,359 writes,1,948 paused responses,14 reset cycles;
+both engines reject the compiled stale-ready control. Initial row/column zeros
+are an explicit shared unit fixture, not imported guest state.
+
+One full MSA with16 groups/original board logic and native altclkctrl gate now
+passes15ns timing at all four operating conditions: minimum setup+0.121ns,
+hold+0.067ns, pulse+6.547ns; all unconstrained setup/hold categories zero, no new
+timing exceptions. Review covers16 logical ready bits plus group14's physical
+duplicate and the prediction/ready-to-gate/late-step paths. Resources1520ALMs,
+2635registers, noRAM/DSP. Services use registered virtual ports; the other seven
+boards, CPU and physical SDRAM/backend/I/O are NOT part of this fit.
+
+All four builder stages are terminal/rc0, PIDs absent. Quartus added only its
+exact LAST_QUARTUS_VERSION metadata line; prepared/fitted hashes and append are
+preserved. Two missing-source warnings are original MC10125 VBB/reference nets
+verified against the primary MSA wire list. All112 constant outputs are exact
+bus padding; connectivity warnings stay within unchanged original cells. No
+critical warnings/errors. All eight altered-evidence controls reject, including
+weakened clocks, bypassed gate and wrong prediction with updated source hashes.
+
+[429-member losslessly verified component/fit receipt](../fpga/mister/reports/2026-10-22-storage-ready-prediction/README.md)
+freezes sources, reports, traces and controls. Local roots:
+`storage-ready-prediction-{board,group,fit,review-controls}-v1-20261022` under
+`build/rtl-executive/`. No new RBF was built/loaded; measured hardware speed
+remains2.59M issued instructions/s at idle login. Next: stage all128 groups with
+the actual native network_step, test startup and pause/response coupling at the
+qualified clock, then full native timing including SDRAM I/O and faster firmware
+boots. CPU-front integration, authentic rollback, cold persistence, three fresh
+boots and two-hour stress remain open; complete FPGA snapshots remain deferred.
 
 ### Historical MC1668 and front-component qualification
 

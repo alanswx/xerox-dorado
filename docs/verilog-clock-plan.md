@@ -36,7 +36,8 @@ CRC/RX/abort0, TX dropped27. Clear settled internal raster; HDMI capture-card
 verification remains separate. The114-member/111-blob desktop/pause receipt
 passes lossless verification;88,659 disk-prefix records show no errors/gaps.
 Canonical controller/model defaults and exact historical replay now pass (details below).
-Next: test the proposed memory-ready prediction component below.
+The memory-ready prediction now passes functional checks and one-board15ns
+timing below. Next: all128 native groups and the actual global-gate coupling.
 Qualify the experimental CPU front separately before merging the faster phase path. Correction
 and native/memory/login receipts committed/pushed as7d5b78b7. The full corrected native/memory/login archive is
 [here](../fpga/mister/reports/2026-10-21-sdram-read-capture/native-fit/README.md). Clock acceleration, authentic FPGA
@@ -69,19 +70,38 @@ reader rejections pass. The prior native review is byte-identical; current
 assembly binds the source-helper dependency. No hardware, clocks or measured
 speed changed. See the [348-member receipt](../fpga/mister/reports/2026-10-22-canonical-sdram/README.md).
 
-Concrete next component (not implemented): expose a preview of each original
-row/column latch's post-edge address without changing its stored state. Use
-that preview and the actual machine-step decision to evaluate post-edge
-cache-valid/waiting/write-pending/write-done readiness on the preceding full
-host-cycle path. Preserve the same host request/response acceptance epoch,
-including simultaneous response and logical write events. A new ready register
-must match the original combinational ready after every legal host/machine
-edge, including forced pauses, reset, response arrival and address changes;
-compare against the original144-chip MSA oracle and every stored bit. First
-qualify the exact native group, then all128 groups/global gate and original-ROM
-startup, then fit the actual cone at15ns with every half-cycle and hold path
-reported. It is a proposed route to remove the measured half-cycle bottleneck,
-not evidence that timing or original60ns operation is already achieved.
+Implemented component: expose a preview of each original row/column latch's
+post-edge address without changing stored state. Predict the existing host
+cache-valid/waiting/write-completion updates, comparing hold and advance paths
+BEFORE the late machine-step selection. This preserves request/response epochs,
+including simultaneous response and logical write events. Registered readiness
+matches the original combinational equation after each tested host/machine edge.
+
+The original144-chip MSA oracle passes12,012 cycles and all9,437,184 stored bits;
+its complete positive raw trace, including host timestamps, matches canonical
+BL8 byte-for-byte (112,849 host cycles). Three compiled runtime controls reject
+stale ready, old address and omitted write readiness. Width8/12 groups each pass
+40,000 checks in BOTH Icarus and Verilator, with reset, arbitrary stalls and1,948
+responses while paused; both engines reject stale-ready runtime controls.
+
+The full ONE-board component with all16 groups and native altclkctrl gate fits
+at15ns across all four operating conditions: setup minimum+0.121ns,
+hold+0.067ns, pulse+6.547ns. All setup/hold unconstrained categories zero; no new
+timing exceptions. All16 logical ready registers plus group14's physical copy
+and prediction/ready-to-gate/late-step paths are reviewed. Resources1520ALMs,
+2635registers, noRAM/DSP. All four stages are terminal/rc0. Exact source review
+accounts for Quartus's version-only QSF append and all warnings; eight damaged
+receipts reject, including rehashed clock/gate/prediction changes.
+[429-member receipt](../fpga/mister/reports/2026-10-22-storage-ready-prediction/README.md)
+preserves the executed sources and results. Services here are registered virtual
+ports: this does not qualify full128-group fanout, CPU, physical SDRAM I/O,
+original-firmware operation or a hardware speedup. No new RBF/load occurred.
+
+Next: stage all128 native groups with actual network_step, test original-ROM
+startup and full pause/response coupling at the existing clock, then fit the
+complete native design including SDRAM/backend/I/O before acceleration. Preserve
+the separate experimental CPU-front integration gate. Hardware remains50MHz/
+SYSPER4 and2.59M idle-login issues/s; original60ns operation is still the target.
 
 Historical StorageSelftest1 hardware: **pre-guest raw SDRAM test fails at address0**, expected0xA59,
 actual0xA58. MarkerB157 and two metadata samples confirm phase1/failed1/ready0;
