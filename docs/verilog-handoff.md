@@ -15,6 +15,102 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
+**Preserved reviewable milestones (13:00UTC).**
+[46-member cold initialized-app recovery](../fpga/mister/reports/2026-10-22-pack-write-window/native57-cold-checkpoint-recovery/README.md),
+[537-member V42 terminal/no113 control](../fpga/mister/reports/2026-10-22-pack-write-window/native57-cool-control-v42-terminal/README.md), and
+[28-member opt-in BaseBoard clock component](../fpga/mister/reports/2026-10-22-baseboard-crystal/README.md)
+verify by lossless hash/readback. Clock component now also activates its sole
+parameter in a separate original generated BaseBoard copy and passes original
+6502 vector/eight startup bytes. First nested-defparam compile was unsupported,
+before simulation; failure retained, corrected staging changes only d08's
+parameter and leaves generated production boards unchanged. Not full native
+113/Cedar/timing qualification and not deployed. Target60ns remains open.
+
+Next: explicit original `Boot CedarWork -f` fresh-kernel check on the current
+copied checkpoint volume (not the immutable source); preserve closed236b for
+its separate native write-persistence remount. Main337 isolated comparison,
+real CPU phase/data fixes and final3 fresh seeds/2h stress still required.
+Current live core remains7626/7625/9e; normal cold restore is complete, no
+capture watcher left running. No blind reload/extra boot button/GDB calls.
+
+**Cold checkpoint full recovery PASS (12:55UTC).** Same Main7626/server7625/
+RBF9e, ONE cold FPGA load from copied old checkpoint1670. Original113/login/
+profile-default callbacks restore full AIS/both saved tools/icons. Fresh Echo
+and exact pre/post-checkpoint file contents pass. Original public CloseViewer
+iconifies AIS (blank desktop + icon), then actual normal USB movement and a
+2-second middle click on that icon reopen and fully REDRAW it. Native
+`iconify-v1.png` -> `redraw-v1.png` and fresh prompt prove live application/click
+recovery. Actual HDMI `hdmi-cold-desktop-v1.png` is CLEAR too after this cold
+load; no output-mode/capture-service change during this test, root cause of
+previous black output remains unproved. Source1670 rehashed UNCHANGED; current
+CRC/drop/RX/abort0 and pack-fault flag0. This is one cold checkpoint recovery,
+not final three fresh seeds/stress/new speed or cold writeback proof for the
+separately closed236b native-window volume. Main337 remains undeployed.
+
+**Cold checkpoint advances (12:50UTC).** SAME7626/7625/RBF9e cold attempt
+returns the full original AIS schematic, both saved tools and icons. Fresh
+`Echo cold57 exact` works; `Type ///rtl57link1persist.txt` and
+`Type ///rtl57quietafter.txt` print exact pre-save AND post-save contents with
+fresh prompts (`echo-v1.png`, `files-v1.png`). This establishes cold kernel/
+checkpoint return plus fresh input and data beyond the saved memory image.
+No third CommandTool yet observed from Cmd left/middle clicks; cursor moves
+and may have an initial hardware-counter discontinuity after a cold reset.
+Do not claim click pass from this. Original public ViewerOps iconify + physical
+icon redraw check is being attempted; final application/click recovery pending.
+No new Checkpoint, FPGA load, debugger or volume patch during this follow-up.
+watch45 is normally terminal; current captures are exclusive/manual.
+
+Profile response correction: both typed No strings arrived in the later name
+callback and are preserved as such. Normal Returns accept the default missing
+profile, which original InstallerImpl changes to default No; a final Return
+on the actual visible No advances. GetChoice completes on a unique first
+character; do not type trailing o/Return when deliberately answering N.
+
+Separate actual Rev Am Basebd01.sil/page01 drawing (PDF page3) labels10MHz
+crystal/1MHz MCPreClk. e07 reloads1011, divides5, g08 divides2. Legacy fabric/8
+therefore yields fabric/80, not/256; at SYSPER4 this is5/3 too fast relative
+to CPU. New OPT-IN cell_MC12061 SYSPER parameter (default0 retains original
+waveform) accepts samples per60ns instruction, hence future board binding
+must be2*boardSYSPER. Isolated pin-chain tests at2/4/8/16 sample ratios pass
+both simulators, four real faulty-clock/preload controls reject, original
+BaseBoard6502 ROM/reset-vector8-byte test still passes. No new native stage,
+full firmware or timing pass; not deployed. Evidence baseboard-crystal-ratio-v1-
+20261022 and original-clock-audit.json; this is fidelity work, not CPU speed.
+
+**V42 terminal evidence preserved.** The [537-member terminal control receipt](../fpga/mister/reports/2026-10-22-pack-write-window/native57-cool-control-v42-terminal/README.md)
+verifies528 frozen inputs/160 used HDL, unchanged original1.5B limit, all4 stages
+rc0 and explicit HOST_LIMIT/no113 outcome. No CPU-front firmware pass. Cold
+checkpoint attempt below remains the current hardware; profile prompt was
+visibly observed at frame21/12:28:35 and normal No+Return sent at12:28:49.
+Do not reuse an old screenshot to answer subsequent callbacks.
+
+**LIVE cold checkpoint attempt (2026-10-22,12:23UTC).** One normal cold FPGA
+load from a COPY of preserved Link1 checkpoint16706b74, same RBF9e/Main21e6/
+receiver0845. Current Main7626/server7625, small supervisor7599/tool17108; volume
+`/media/fat/games/DoradoRTL/CedarPackWindow57_ColdCP1_20261022`, logs main.log/
+disk.jsonl/server.log. C watcher/tool35202 is normally terminal after ACTUAL113
+and key release. Native bounded45-frame watcher/tool32841 follows same Main,
+local `build/rtl-executive/pack-window57-cold-checkpoint1-20261022`. Frame08 shows
+original Cedar login with Name: Guest.pa; two normal Returns sent to accept
+default/empty password. Restore of initialized application/files is still OPEN.
+No extra boot-button pulse or debugger calls were issued.
+
+Preceding native-window volume is CLOSED at SHA236bb6ffb8ca1182d67eeb7b7233dff8e
+(detailed full hash in previous-window-close.json),71563 complete records,
+22792 request/ACK writes, two real close barriers, no disk errors/trace loss,
+no open descriptors and old receiver DDR mapping revoked. It contains live file
+`///window57persist.txt`; cold readback remains pending. Original Link1 source
+1670 is unchanged. Actual loader temporaryMain7607 exited normally before
+unchanged final binaries started. Initial premature load command failed before
+preparation journal existed, hence before ANY load/signal; after prep terminal0
+there was ONE actual load. Keep preparation-order-correction.json.
+
+V42 is now TERMINAL_NATIVE_MEMORY_DIAGNOSTIC at its ORIGINAL1.5B host limit,
+592791510 enabled source edges, rc0, CPUc0fc7000/no113. Full physical memory pass
+is not original-firmware control success. Do not extend/restart or promote a
+CPU-front experiment on that evidence. Source/clock/progress comparison with
+the working FPGA is needed before selecting the next bounded control.
+
 **Native window follow-up (2026-10-22,12:11UTC).** SAME Main5080/server4619/
 RBF9e, no reprogram. Viewers, mouse Cmd/new initialized tool/focus, exact short
 text, lowercase+uppercase alphabets and digits PASS. Normal `Echo window57persist

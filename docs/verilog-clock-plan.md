@@ -9,6 +9,49 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**Reviewable follow-ups (13:00UTC).**
+[Cold recovery](../fpga/mister/reports/2026-10-22-pack-write-window/native57-cold-checkpoint-recovery/README.md),
+[V42 terminal failure to reach113](../fpga/mister/reports/2026-10-22-pack-write-window/native57-cool-control-v42-terminal/README.md), and
+[opt-in BaseBoard crystal/TTL-chain + original6502 ROM tests](../fpga/mister/reports/2026-10-22-baseboard-crystal/README.md)
+are losslessly preserved. No production board binding or FPGA activation of
+clock correction. Next original Boot CedarWork -f, separate closed236b cold
+write persistence, isolated Main337, real CPU phase/data/60ns qualification,
+then final3 fresh boots and2h stress. Same current7626/7625/9e remains alive.
+
+**Cold initialized-app recovery PASS (12:55UTC).** Original113/login/profile
+callbacks on cold RBF9e/Main7626/server7625 restore old checkpoint1670. Fresh
+Echo, pre/post-checkpoint file Type and public iconify -> physical middle-click
+-> complete AIS redraw PASS. Native and HDMI now clear, current packet/error
+counters0; immutable source1670 unchanged. No new CPU speed/final fresh/stress
+claim. Keep full cold native-window write persistence and fresh-kernel Boot-f
+as distinct pending gates. Current clock correction remains opt-in/component.
+
+**Cold recovery and clock fidelity follow-up (12:50UTC).** Cold FPGA/original
+firmware from checkpoint1670 now returns saved AIS/both tools/icons. Fresh Echo
+and BOTH pre/post-checkpoint file Type readbacks PASS on same7626/7625/RBF9e.
+App physical-click/redraw still pending; normal profile timing corrections
+are preserved. Old9e live-write volume236bb6ff is closed/streamed/hash-verified
+and its roots remain label-correct/idempotent; its cold file readback is pending.
+
+Actual Rev Am page01 confirms10MHz crystal -> e07 reload1011/divide5 -> g08/
+2 =1MHz BaseBoard. Existing fixed fabric/8 creates fabric/80,5/3 too fast
+relative to CPU at SYSPER4. Opt-in MC12061 samples-per60ns parameter passes
+original TTL-chain counts at2/4/8/16 in Icarus/Verilator, unchanged default
+waveform,4 faulty controls and old6502 original reset bytes. Future binding
+is2*boardSYSPER; current generated boards/FPGA remain legacy. Full native
+firmware/timing needed before activation. This is clock fidelity, not a new
+CPU speed or60ns pass. Keep the real60ns/fresh/stress and minimal-Main goal.
+
+**Cold checkpoint attempt now LIVE (12:23UTC).** Same reviewed9e RBF, unchanged
+Main7626/server7625, copied old checkpoint1670; original113 and Cedar Guest.pa
+login observed, two normal Returns. Initialized-app restore still pending.
+Previous window volume actually closed236bb6ff with71563 records/no errors or
+trace loss/two barriers; native test file preserved for later cold readback.
+No additional boot pulse/debugger call. Watch45 samples/tool32841, supervisor
+7599/tool17108; inspect existing journal, never reload for capture timeouts.
+V42 now TERMINAL at original1.5B host ticks/592791510 source, physical pass but
+no113/firmware gate; preserve failure, audit before another CPU-front control.
+
 **Native window desktop follow-up (12:11UTC).** Same RBF9e/Main5080/server4619:
 Viewers, new tool/mouse/focus, exact short/lowercase/uppercase/digit typing and
 live file write/Type readback PASS.22768 actual write request/ACK pairs use

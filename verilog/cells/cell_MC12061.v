@@ -20,7 +20,14 @@
 
 `default_nettype none
 
-module cell_MC12061 (
+module cell_MC12061 #(
+    // Opt-in until full board/firmware/timing qualification. Zero preserves
+    // the existing divide-eight waveform exactly. A positive value counts
+    // fabric samples per 60 ns instruction, as in cell_K1115A; a generated
+    // BaseBoard therefore supplies 2*SYSPER, not SYSPER.
+    parameter integer SYSPER = 0,
+    parameter integer FREQ_KHZ = 10000
+) (
     input  wire sys_clk,
     input  wire p1,  // VCC1
     output wire p2,  // SINo
@@ -42,7 +49,26 @@ module cell_MC12061 (
   always @(posedge sys_clk) osc_div <= osc_div + 3'd1;
   wire osc = osc_div[2];
 
-  assign p10 =  osc;      // TTtlQ, to the LS163
+  // BaseBd-Rev-Am, Basebd01.sil (27 July 1979), explicitly labels the
+  // crystal10MHz and MCPreClk1MHz. e07 reloads1011, counts FIVE clocks,
+  // and g08 divides by two. It is not a free-running divide16 counter.
+  // A fixed fabric divider changes that clock's ratio to the microengine
+  // whenever its oversampling ratio changes.
+  generate if (SYSPER > 0) begin : scaled_crystal
+    localparam integer SYS_KHZ = (SYSPER * 266667) / 16;
+    localparam integer STEP = 2 * FREQ_KHZ;
+    integer acc = 0;
+    reg crystal = 1'b0;
+    always @(posedge sys_clk) begin
+      if (acc + STEP >= SYS_KHZ) begin
+        acc <= acc + STEP - SYS_KHZ;
+        crystal <= ~crystal;
+      end else acc <= acc + STEP;
+    end
+    assign p10 = crystal;
+  end else begin : legacy_crystal
+    assign p10 = osc;
+  end endgenerate
   assign p2  = 1'b0;      // SINo  -- the sustaining loop, not modelled
   assign p3  = 1'b0;      // SINo'
 
