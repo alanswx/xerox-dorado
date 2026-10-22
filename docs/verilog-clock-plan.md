@@ -25,12 +25,21 @@ Full128-group scoreboard passes Icarus+Verilator1131 requests/954 overlaps;
 held responses/fairness/data/occupancy and mutation/staging controls pass.
 These are COMPONENT figures, not native speed. [750-member source/result proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/component-native-stage/README.md).
 
-One native57 fit LIVE on Ubuntu Dorado_StorageResponseNative57_1_20261022,
-builder4103958/fit4115679, reporter4125729/collector4125730 following. Map passed,
-routing active; no refit/assembly/load. Four-line backing buffer, two opt-ins,
+First serial-overlap fit COMPLETED/REJECTED: setup-0.363ns on next_group/address
+->buffer rsp_data; hold-0.041ns on group old_data->read_pipe. All9 build stages/
+5 supplementary reports complete; full1008-member archive independently verified,
+three drivers absent. [Terminal rejection evidence](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-rejected/README.md).
+No assembly/load. Current candidate selects each constant-line
+word alongside tag comparison, preserving last-match priority/response cycle.
+Full pin/MSA suites retain identical data/order/cycle results; six staging
+controls pass, original serial mode's five still pass. [Parallel-stage evidence](../fpga/mister/reports/2026-10-22-storage-response-overlap/parallel-lookup-stage/README.md).
+
+ONE new fit LIVE at Dorado_StorageResponseParallel57_1_20261022 on Ubuntu:
+builder4184174/fit2946 (normal PID wrap), reporter4186252/collector4186253.
+Map passed; fit active. Four-line buffer, overlap opts and parallel lookup,
 only arbiter/backend/wrapper changed. CPU/cache/Map/ECC/peripherals/Main/daemon/
-clocks/SDC unchanged. Follow actual job, review full native timing/memory/warnings
-and new live payload->backend path before guarded assembly/hardware comparison.
+clocks/SDC unchanged. Follow SAME new job; require actual setup AND hold closure
+and full memory/warning/source review before guarded assembly/hardware comparison.
 No loosened constraints. Original60ns/all timers, Main337 comparison, final3
 fresh seeds and2h stress remain OPEN; Native59 retained and snapshots deferred.
 

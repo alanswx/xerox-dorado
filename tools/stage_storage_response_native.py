@@ -27,7 +27,7 @@ def load(path):
     return json.loads(path.read_text())
 
 
-def stage(parent, qualification, generated, pins, board, out, project):
+def stage(parent, qualification, generated, pins, board, out, project, parallel_lookup=False):
     assert not out.exists() and project.is_absolute()
     assert sha(qualification) == QUALIFICATION, 'Require exact reviewed cache16 qualification'
     q = load(qualification)
@@ -38,6 +38,11 @@ def stage(parent, qualification, generated, pins, board, out, project):
     assert recipe['source_hashes'] == q['source_hashes']
     preparation = load(generated / 'provenance.json')
     assert preparation['parent_hashes'] == EXPECTED and preparation['defaults_off']
+    assert preparation.get('parallel_lookup', False) == parallel_lookup
+    backend_transform = transform_backend
+    if parallel_lookup:
+        from prepare_storage_response_parallel import transform_parallel
+        backend_transform = transform_parallel
     assert load(pins / 'run-state.json')['status'] == 'PASS_RESPONSE_OVERLAP_PHYSICAL_COMPONENT'
     assert load(board / 'run-state.json')['status'] == 'PASS_RESPONSE_OVERLAP_ORIGINAL_MSA'
     for folder in [pins, board]:
@@ -66,7 +71,7 @@ def stage(parent, qualification, generated, pins, board, out, project):
         files[name] = raw
     original = dict(files)
     for name, transform in [('dorado_storage_arb.sv', transform_arb),
-                            ('dorado_storage_sdram_burst.sv', transform_backend)]:
+                            ('dorado_storage_sdram_burst.sv', backend_transform)]:
         key = 'src/fpga/mister/' + name
         assert q['source_hashes'][key] == EXPECTED[name]
         assert sha(generated / name) == preparation['generated_hashes'][name]
@@ -102,9 +107,14 @@ def stage(parent, qualification, generated, pins, board, out, project):
                   nominal_ordinary_ns=140, assembly_permitted=False,
                   CPU_clocks_cache_Map_ECC_peripheral_timing_unchanged=True,
                   native_timing_firmware_speed_qualified=False)
+    if parallel_lookup:
+        record['parallel_lookup'] = True
     (out / 'storage-response-native.json').write_text(json.dumps(record, indent=2) + '\n')
-    for name in ['build_r_front_ready_native.py', 'stage_storage_response_native.py',
-                 'prepare_storage_response_pipeline.py']:
+    scripts = ['build_r_front_ready_native.py', 'stage_storage_response_native.py',
+               'prepare_storage_response_pipeline.py']
+    if parallel_lookup:
+        scripts.append('prepare_storage_response_parallel.py')
+    for name in scripts:
         (out / name).write_bytes((ROOT / 'tools' / name).read_bytes())
     return record
 
@@ -113,7 +123,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ['parent', 'qualification', 'generated', 'pins', 'board', 'output', 'project']:
         parser.add_argument('--' + name, type=Path, required=True)
+    parser.add_argument('--parallel-lookup', action='store_true')
     args = parser.parse_args()
     result = stage(args.parent.resolve(), args.qualification.resolve(), args.generated.resolve(),
-                   args.pins.resolve(), args.board.resolve(), args.output.resolve(), args.project)
+                   args.pins.resolve(), args.board.resolve(), args.output.resolve(), args.project,
+                   args.parallel_lookup)
     print(result['status'], len(result['source_hashes']), 'frozen sources', flush=True)

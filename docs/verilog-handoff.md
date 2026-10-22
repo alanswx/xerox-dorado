@@ -42,15 +42,30 @@ payload/fairness/response/stall/occupancy checks. Five staging rejection control
 pass; component negative controls reject. Failed fixture/diagnostic helpers kept.
 [750-member component/source receipt](../fpga/mister/reports/2026-10-22-storage-response-overlap/component-native-stage/README.md).
 
-ONE native57 fit at /home/alans/mister/Dorado_StorageResponseNative57_1_20261022:
-builder4103958/fit4115679 VERIFIED LIVE, map passed/routing active. Read-only
-reporter4125729/collector4125730 follow SAME job. Local storage-response-native57-
-v1-20261022; storage-response-native.json hashes503 sources. Only3 RTL files
-change: generated arbiter/backend and wrapper (overlap opt-ins,16->4 buffer).
-CPU/cache/Map/ECC/peripheral timing/Main/daemon/clocks/SDC unchanged. New bypass
-requires real all-device setup/hold; no false/multicycle waiver or assembly yet.
+First serial-overlap native fit COMPLETED and is REJECTED: setup-0.363ns,
+hold-0.041ns. Setup is next_group/address -> backend rsp_data, the new live
+selection/lookup path; hold is independent group old_data[7]->read_pipe[7].
+All9 builder stages and5 supplementary reports terminal0; negative STA is NOT
+a timing pass. Builder4103958/reporter4125729/collector4125730 are absent.
+Full1008-member archive independently read back; [1012-member rejected-fit receipt](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-rejected/README.md).
+Local storage-response-native57-v1-20261022/terminal-v1. No assembly/hardware change.
 
-Next TODOs: follow SAME fit/collect terminal reports; regenerate exact sources,
+**Current fit: parallel per-line word lookup, identical response cycle.**
+Each constant-index line selects its word alongside tags, preserving original
+last-match priority without assuming unique tags. Same pin/fullMSA suites and
+all negative controls pass, with IDENTICAL baseline/overlap host-cycle figures.
+Exact unchanged arbiter reuses128-group dual-simulator proof. Six staging
+controls pass; original serial mode's five controls still pass. [734-member proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/parallel-lookup-stage/README.md).
+
+ONE new fit /home/alans/mister/Dorado_StorageResponseParallel57_1_20261022:
+builder4184174/fit2946 VERIFIED LIVE; map passed. Read-only reporter4186252/
+collector4186253 follow SAME new job. Host PIDs wrapped normally. Local
+storage-response-parallel-native57-v1-20261022; manifest hashes503 sources.
+Only arbiter/backend/wrapper change (overlap opt-ins,16->4 buffer, parallel
+lookup). CPU/cache/Map/ECC/peripheral timing/Main/daemon/clocks/SDC unchanged.
+Actual setup AND hold closure pending; no waiver, assembly or hardware speedup.
+
+Next TODOs: follow SAME PARALLEL fit/collect terminal reports; regenerate exact sources,
 review all clocks/RAM/warnings/path families including live payload to backend;
 only then guarded assembly and matched hardware boot/speed/input/files/rollback.
 Do not reuse the cache16 reviewer unchanged (different buffer and modified files).

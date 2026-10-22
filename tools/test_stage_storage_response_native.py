@@ -15,7 +15,7 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def run(parent, qualification, generated, pins, board, output):
+def run(parent, qualification, generated, pins, board, output, parallel_lookup=False):
     assert not output.exists()
     q = json.loads(qualification.read_text())
     cases = []
@@ -28,13 +28,15 @@ def run(parent, qualification, generated, pins, board, output):
             shutil.copyfile(parent / name, target)
         shutil.copyfile(parent / 'storage-cache-native.json', baseline / 'storage-cache-native.json')
         project = Path('/home/alans/mister/Dorado_ResponseStageControl_20261022')
-        result = stage(baseline, qualification, generated, pins, board, root / 'positive', project)
+        result = stage(baseline, qualification, generated, pins, board, root / 'positive', project,
+                       parallel_lookup)
         assert len(result['source_hashes']) == 503 and len(result['modified_RTL_sources']) == 3
 
         def reject(label, **replacements):
             out = root / label
             arguments = dict(parent=baseline, qualification=qualification, generated=generated,
-                             pins=pins, board=board, out=out, project=project)
+                             pins=pins, board=board, out=out, project=project,
+                             parallel_lookup=parallel_lookup)
             arguments.update(replacements)
             try:
                 stage(**arguments)
@@ -87,8 +89,10 @@ def run(parent, qualification, generated, pins, board, output):
         active = dict(q, state_admin='ACTIVE')
         bad_q.write_text(json.dumps(active))
         reject('changed-qualified-parent', qualification=bad_q)
+        if parallel_lookup:
+            reject('parallel-recipe-with-serial-transform', parallel_lookup=False)
 
-    assert len(cases) == 5
+    assert len(cases) == (6 if parallel_lookup else 5)
     assert all(sha(parent / name) == digest for name, digest in q['source_hashes'].items())
     result = dict(status='PASS_RESPONSE_NATIVE_STAGING_CONTROLS', cases=cases,
                   original_sources_unchanged=True, positive_source_count=503,
@@ -102,6 +106,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ['parent', 'qualification', 'generated', 'pins', 'board', 'output']:
         parser.add_argument('--' + name, type=Path, required=True)
+    parser.add_argument('--parallel-lookup', action='store_true')
     args = parser.parse_args()
     run(args.parent.resolve(), args.qualification.resolve(), args.generated.resolve(),
-        args.pins.resolve(), args.board.resolve(), args.output.resolve())
+        args.pins.resolve(), args.board.resolve(), args.output.resolve(), args.parallel_lookup)
