@@ -15,6 +15,33 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
+**New clock candidate LIVE; current2278 original Checkpoint in progress.**
+Remote `/home/alans/mister/Dorado_BaseBoardCrystal57_1_20261022`, builder530332/
+fitter542437 live; map530341 terminal0. Exact503-source2278 parent. Only scaled
+MC12061 and the actual native16 BaseBoard d08 binding change;2*SYSPER restores
+the original10MHz -> divide5 -> divide2 ratio. Legacy MCPreClk was5/3 too fast
+relative to the CPU at SYSPER4. This does not make the current slow core run
+in physical real time. CPU/PLL/divider/memory/other devices/Main unchanged.
+Independent inverse/all-source comparison and5 staging guards pass. No fit,
+timing, native firmware or assembly/load qualification yet.
+[522-member stage](../fpga/mister/reports/2026-10-22-baseboard-clock/native57-stage/README.md).
+Read-only reporter551460/collector551461 follow the SAME job; preserve all
+original/response categories plus new crystal/downstream/incoming-BaseBoard
+paths. [12-member follower receipt](../fpga/mister/reports/2026-10-22-baseboard-clock/native57-followups/README.md).
+Local `build/rtl-executive/baseboard-crystal-native57-v1-20261022`; observe
+actual existing processes and terminal receipt, never restart on timeout.
+
+Current hardware remains2278/Main19164/server19163/loader19134. Focused old
+tool700,470; original `Checkpoint` sent ONCE, native Creating checkpoint then
+counting VM pages, germ813 and original profile callbacks observed. One Return
+accepted displayed No. Desktop return/exact input/app and explicit Rollback
+remain pending. Local hardware/checkpoint-v1: initial observer67991/tool30101
+TERMINAL32; continuation69330/tool44198 bounded36 remains live. No reset or
+second Checkpoint. Journal records disk trace loss: at least2 overflow reports/
+19388 lost records during the write burst; counts are partial and cannot prove
+complete request/ACK pairing. No observed disk I/O or CRC/RX/abort fault;
+existing TXdrop3 retained. Preserve the operation and all missing-frame samples.
+
 **Current:2278 original Viewers/input/files/Clock PASS; matched issues +11.0%.**
 MiSTer14 Main19164/server19163/loader19134, RBF22781f30, unchanged Main21e6/
 receiver0845, SAME236b copy,57.142857MHz/SYSPER4. Original whole8M-cell selftest

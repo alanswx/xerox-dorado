@@ -9,6 +9,27 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**Clock follow-up LIVE: isolated BaseBoard crystal correction.** One fit at
+`misterubuntu:/home/alans/mister/Dorado_BaseBoardCrystal57_1_20261022`,
+builder530332/fitter542437 (map530341 terminal0). It starts from all503 exact
+qualified2278 sources; only MC12061 and the actual native16 BaseBoard d08
+binding change. Use2*SYSPER for the original10MHz -> /5 -> /2 chain, correcting
+the legacy5/3 MCPreClk ratio error. CPU/PLL/divider/memory/other devices/Main
+unchanged; this restores a ratio, not physical real-time1MHz on the slow core.
+Independent inverse/source comparison and5 rejection guards pass. Full timing,
+firmware and all other peripheral rates remain OPEN; no assembly/load.
+[Stage](../fpga/mister/reports/2026-10-22-baseboard-clock/native57-stage/README.md),
+[read-only followers551460/551461](../fpga/mister/reports/2026-10-22-baseboard-clock/native57-followups/README.md).
+
+On SAME live2278/Main19164/server19163, original `Checkpoint` was issued ONCE
+after focusing700,470. Creating checkpoint, VM counting, germ813 and original
+Yes/missing-name/No profile callbacks observed; one Return accepted visible No.
+Desktop return/input/app and explicit Rollback still pending. Initial observer
+terminal32; continuation69330/tool44198 bounded36 in hardware/checkpoint-v1.
+Disk trace now reports dropped records during the save burst: do not claim
+a complete request/ACK trace or clean final stress. No observed I/O/CRC/RX error;
+TXdrop3 retained. Never reload/reissue Checkpoint for missing capture frames.
+
 **Current2278 hardware: original Viewers/input/files/Clock PASS,+11.0% issues.**
 MiSTer14 Main19164/server19163/loader19134, SAME236b/Main21e6/receiver0845 and
 57.142857MHz/SYSPER4. Whole8M-cell selftest and actual113/C release; visible
