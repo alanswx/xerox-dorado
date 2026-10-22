@@ -10,6 +10,8 @@ Native staging starts from the reviewed57.142857MHz/SYSPER4 source and binds all
 
 The unchanged native-control V41 ends normally at its existing1.5B host limit,592,791,536 enabled source edges. Physical8M startup passes, but no113 is issued and CPU remainsc0fc7000. It cannot qualify a CPU-front experiment. Separate V42 changes only normal BaseBoard input to3 presses, matching original DoradoContinuous.masm CoolBoot/LoadDoradoCode. The same503 native sources remain frozen and unchanged; no IM/manifold/CPU-state writes or C CPU/IOCB execution. V42 driver83938/simulator84276/tool47383 is a RUNNING startup prefix, not firmware success. Preserve it rather than restarting on observation timeout.
 
+The explicit hold-optimization V3 also failed: [complete terminal evidence](native57-hold-all-paths-rejected/README.md). All Paths was already the fitter default. The separate [opposite-edge address component](address-sample/README.md) passes exact original values/request epochs and its public-interface failure controls. Its V4 full fit has a positive device summary (+0.269ns setup/+0.242ns hold); detailed timing, memory and firmware qualification are still pending. No candidate RBF is assembled or loaded.
+
 Run component gate: `python3 tools/test_pack_write_window.py --run build/rtl-executive/NEW-UNIQUE-WINDOW-RUN`
 
 Verify: `python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-22-pack-write-window`

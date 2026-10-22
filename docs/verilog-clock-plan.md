@@ -9,7 +9,7 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Current evidence and remaining work (2026-10-22,09:32UTC).**
+**Current evidence and remaining work (2026-10-22,10:29UTC).**
 MiSTer14 Main31285/server31284 stays Main21e67a3f/receiver08452a86/RBF7c4d39e4,
 57.142857MHz/SYSPER4, repaired fresh seedf4203ce8 on Link1 volume.
 Physical8M/firstBL8/original113 and all34 base transfers/final guest ACK PASS
@@ -22,12 +22,19 @@ External HDMI remains BLACK; native clear,1080p60 test unsuccessful, original
 1080p30 restored/OSD closed/INI unchanged. External display remains an open gate.
 Startup viewport was stale after focus moved; margin-scroll proves final prompt.
 Actual direct Schematic.cm now completes full ProcH drawing and returns `%`.
-Normal quiet `Checkpoint` accepted after that completed app baseline; actual
-Creating checkpoint/Guest.pa message observed, save RUNNING. Follow
-SAME guest. Observer86244 exited1 at capture timeout; Main alive/disk trace
-growing. New bounded read-only continuation87062/tool98062 records capture
-absence and I/O progress under Link1/quiet-app1. No repeat guest command or
-roundtrip claim. CRC/RX/abort0, TX dropped24 retained.
+Normal Checkpoint has returned the original initialized schematic/two tools.
+Post-return exact pre-file read and keyboard echo pass. New closed post-file
+`///rtl57quietafter.txt` reads exact`rtl57quietafter`; iconify by original public
+ViewerOps, then normal middle-click icon, fully redraws the schematic. No fresh
+AIS error. User confirmed a Schematic-button click; exact timing unlogged, do
+not treat that action as spontaneous core behavior. Save/return/app checks pass;
+explicit warm Rollback also PASSES: original Rollback/User message, exact
+pre/post files, fresh echo/prompt, second iconify/middle-click/full AIS redraw.
+[183-member evidence](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-checkpoint-initialized-app/README.md).
+Observer87062 is terminal90 samples/exited; original capture timeout and stale
+profile N retained/corrected. Installer's own timeouts and one displayed-default
+No Return complete callbacks. Same Main/server, running127868-record disk prefix
+has no reported I/O errors. Cold/fresh-kernel/closed-disk/stress gates remain OPEN.
 
 Optional RTL host write-window component PASS:10 scenarios/both modes and5
 meaningful failure controls, full-image/independent serial oracles. Default0
@@ -36,14 +43,25 @@ end-block, generation/coalescing, CRC/readonly/remount/timeout covered.
 [Component/control receipt](../fpga/mister/reports/2026-10-22-pack-write-window/README.md).
 First57MHz native fit REJECTED: setup+0.686ns, hold-0.044ns/-0.008ns at address
 preview col[3] -> storage saved_addr[3], no assembly/load. [Complete rejection](../fpga/mister/reports/2026-10-22-pack-write-window/native57-rejected-hold/README.md).
-Separate Ubuntu `/home/alans/mister/Dorado_PackWindow57Hold_20261022`,2166275,
-RUNNING with actual ALL_PATHS hold repair; all original SDC/clocks retained.
-Full review/RAM inference/guarded assembly/native tests still required.
+Explicit ALL_PATHS V3 is also TERMINAL REJECTED, same-0.044/-0.008 hold;
+All Paths was already the fitter default. [Terminal readback](../fpga/mister/reports/2026-10-22-pack-write-window/native57-hold-all-paths-rejected/README.md).
+Opposite-edge address sample V2 passes all9437184 original bits/exact host
+request epochs and immediate-accept public oracle;3 failure controls reject.
+V1 masked-control coverage failure retained. [Component/staged-source receipt](../fpga/mister/reports/2026-10-22-pack-write-window/address-sample/README.md).
+V4 `/home/alans/mister/Dorado_PackWindow57Sample_20261022` is TERMINAL all9
+build stages0, all3 read-only reports0, collector974-member hash readback.
+All503 compiled hashes exact;31 summary and332 detailed categories positive
+across four corners, detailed minimum setup+0.210/hold+0.115ns; sample half-cycle
+setup>=4.151/hold>=8.346ns. Strict physical reader classifies paired38->existing
+independent40 cache packing; all geometry/OLD_DATA/170 rows/165 parameters remain,
+332 M10Ks vs330, DSP35. [981-member reports/initial review](../fpga/mister/reports/2026-10-22-pack-write-window/native57-sample-terminal/README.md).
+Full exact-recipe/warning/sample-clock-inventory review and guarded assembly
+still pending. No assembly/load/native speed claim; Main21e6 remains live.
 
 V41 terminal at1.5B host/592,791,536 source, CPUc0fc7000/no113, physical8M pass
 only. V42 driver83938/sim84276/tool47383 changes ONLY normal boot input to3
 presses (original CoolBoot). Same503 sources/160 used HDL, full-memory physical
-model. Initialized by~210M host, last280M/39.5M source, boot sequence still ahead.
+model. Initialized by~210M host, last710M/234.5M source, first button window active; next two ahead.
 Follow exact V42; no blind extension/restart or matched CPU-front claim.
 
 The explicit logical boot on the preceding CLOSED Rx1 volume hit827. Labels
@@ -110,16 +128,16 @@ waiver, assembly or load. The experimental CPU front remains unqualified.
 Plain Boot uses self/bootedFrom; an explicit volume still automatically selects
 an existing checkpoint unless `-f` is supplied. Do not infer a fresh kernel from812.
 
-Next actions, in order: follow SAME quiet Checkpoint to completion; verify
-input, apps, pre-file then create post-file and Rollback/repeat. Test corrected
-logical boot (`-f` for fresh kernel) and cold restart of preserved repaired
-checkpoint volumes. Recover/verify actual HDMI. Keep Main21e6 for isolation;
-only after an actual closed boundary adapt for3370865d/pinned write comparisons.
-Follow current physical hold-repair fit, review all actual timing/RAM contracts,
-then qualify optional SPI write window separately on hardware. Follow SAME V42
-control before the matched CPU-front work. Complete real60ns phase/capture/data
-timing, three final fresh-seed boots and2h disk/network/input stress. Full FPGA
-snapshots deferred; do not narrow acceptance to current component/desktop gates.
+Next actions, in order: finish V4 exact-recipe/warnings/sample-clock inventory
+and guarded preassembly review. Preserve current live checkpoint volume at a
+real closed boundary; qualify corrected logical fresh-kernel Boot CedarWork -f
+and cold checkpoint restart, then separately qualify optional SPI window and
+Main3370865d cache candidate with pinned write comparisons. Recover/verify HDMI.
+Follow SAME V42 original-firmware control before matched CPU-front work.
+Complete real60ns phase/capture/data timing, three final fresh-seed boots and2h
+disk/network/input stress. Full FPGA snapshots deferred; retain the milestone
+table's complete acceptance scope.
+
 If the quiet repeat also fails, preserve a CLOSED native volume and compare
 its original Cedar checkpoint file with the C reference; never import C runtime
 state into hardware. The milestone table below remains the full acceptance scope.
