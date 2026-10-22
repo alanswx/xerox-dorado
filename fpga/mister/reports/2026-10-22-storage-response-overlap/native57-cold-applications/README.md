@@ -1,0 +1,9 @@
+# Fresh schematic viewer and live Clock after cold checkpoint restore
+
+On the SAME cold-restored qualified2278/Main24825/daemon24824 session, normal USB keyboard input runs Schematic.cm once. Cedar's own Bringover completes with8 files acted upon; AISViewer.DisplayAIS and ViewerOps.OpenIcon return to the prompt. The complete ProcH-BitSlice07 schematic paints in AIS Viewer beside both saved CommandTools and the running Clock. Native29.png and independent HDMI agree; Clock hands continue to change. This exercises fresh application/file-server/disk/graphics work after the separately qualified cold restore and exact input/both-file readback.
+
+Latest good packets172, CRC/RX/abort0, dropped1 retained, pack-fault clear. The bounded disk prefix has684 read/1680 write ACK pairs,103 pwrite/17 fsync pairs, no recorded errors or trace loss. This is a live prefix, not a new-volume close or proof of final sustained operation. Three native screenshots were unavailable during application work; the same observer continued and captured the final image, with no command replay, reset or reload. Observer is terminal30; all input released. Main/core/daemon and storage policy stay unchanged.
+
+Cold source6e7315cc and immutable template236b were streaming-rehashed; original hardware cadence remains57.142857MHz/SYSPER4/140ns nominal. No new speed, timing-candidate firmware, final fresh-seed or two-hour qualification. No capture-service/resolution change. The exact command, observer/collector, log prefixes and boot/load identity are included; disk image, executable and RBF are excluded. An unrelated file transfer was observed on the shared machine during final collection and was left alone; this run is not a pinned benchmark.
+
+Verify with `python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-22-storage-response-overlap/native57-cold-applications`.

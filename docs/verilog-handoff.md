@@ -15,7 +15,7 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Latest:2278 cold original-checkpoint restore/input/both files PASS; new timing candidate fitting.**
+**Latest:2278 cold original-checkpoint/files/apps PASS; corrected split-selection candidate fitting.**
 MiSTer14 now runs Main24825/server24824, SAME qualified22781f30 RBF,
 Main21e6/receiver0845, at57.142857MHz/SYSPER4/140ns nominal. Volume/core entry:
 `CedarResponseCold57_20261022`. Old19164/19163 are gone. One normal core load,
@@ -42,11 +42,50 @@ HDMI is readable after normal cold reload at the same1080p/30Hz timing;
 no capture-service/resolution change. Root cause/permanent fix unproved.
 Original display interlace remains intentional; do not force VGA_F1 low.
 
-**Combined timing-path component candidate: tests PASS; full native fit unqualified.**
+Fresh `Schematic.cm` then runs ONCE through normal keyboard input. Original
+Bringover reports8 files acted upon; both Eval commands return to the prompt,
+and the complete ProcH-BitSlice07 drawing paints beside live Clock and both
+tools. Native/HDMI agree. [23-member cold application proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-cold-applications/README.md).
+Observer92466/tool52580 TERMINAL30; captures5/6/7 unavailable during app work,
+same observer subsequently captures full image29. No replay/reset. Latest good172,
+CRC/RX/abort0, dropped1 retained, pack-fault clear. Live prefix684read/1680write
+ACK pairs,103pwrite/17fsync pairs, no recorded errors/loss; not volume closure.
+Unrelated file transfer on shared14 left alone; not a pinned benchmark.
+
+**Current timing candidate V2: split selection component PASS, distinct fit LIVE.**
+Local `timing-paths-native57-v2-20261022/staged-v1`; remote
+`/home/alans/mister/Dorado_TimingPaths57_2_20261022`, builder1081359, map1081368
+terminal0, fitter1094737 verified live. Read-only reporter1083053/collector1083054
+follow this SAME job. Local collector tool5957/PID96209 is bounded300 polls;
+observe actual remote processes/receipt after timeout, never refit/reissue.
+Only arbiter RTL differs from V1 after literal project-root relocation; all503
+uploaded hashes verified. Live and post-accept priority trees are independent;
+registered state/owner/look-owner sets the post-accept origin/exclusion, and
+late acceptance selects the finished result at the register. Overlapping raw
+requests use only registered payload; late-mask fallback/held reservation unchanged.
+
+Both simulators' static128 and dynamic5/128-group tests PASS with ZERO circular
+warnings; actual old source rejects under the new fatal UNOPTFLAT gate. All
+three actual144-chip MSA traces, including host timestamps, are byte-identical
+to V1. Still103525->104113 host ticks (+0.568%), not speedup. Twelve staging
+guards now also reject an old circular positive proof, a circular warning with
+positive status and a missing fatal-warning flag. [743-member corrected stage
+and measured V1 rejection prefix](../fpga/mister/reports/2026-10-22-timing-paths/split-selection-stage/README.md).
+No corrected timing/assembly/firmware/speed qualification yet. Seven read-only
+reports retain444 categories; diagnostic `tools/inspect_timing_paths_native.py`
+never grants assembly. Full reviewer/guards remain required after positive timing.
+
+**Rejected V1 combined candidate: functional tests passed but allowed a real circular warning.**
 Local `timing-paths-native57-v1-20261022/staged-v2`, remote
 `misterubuntu:/home/alans/mister/Dorado_TimingPaths57_1_20261022`.
-Builder818951/fitter830410 and read-only reporter830574/collector830575 were
-rechecked live; placement/routing completed, fitter final analysis still active.
+Fitter830410 is terminal0; actual summary setup-15.454ns/hold-0.061ns REJECTS.
+Twenty-level address-preview/cache-tag -> backend response path includes
+cached_choice/raw_accepted/selection_origin feedback and explicit5.864ns LOOP.
+Slow/-40C also retains LOOP/setup-14.720ns into backend WRITE_WAIT. Earlier
+Verilator UNOPTFLAT warnings were incorrectly allowed by the component runner;
+settling functional tests did not prove acyclic hardware. V2 fixes the RTL and
+the gate. Builder818951 and read-only830574/830575 still collect remaining
+reports; last builder stage storage-ready1108424 was verified live. No assembly.
 Observe these SAME processes and terminal receipt, never refit on observer timeout.
 Exact503-source2278 parent; six RTL sources change: default-off registered
 request lookahead plus wrapper enable, parallel ready comparisons, MC10181
@@ -67,8 +106,8 @@ or native-firmware qualification. All503 sources/6 changes/9 staging guards pass
 Full fit must review all444 detailed categories,31 summaries,170 RAM rows,
 actual register families/clock/capture coverage and warnings; no assembly yet.
 New recipe needs its own reviewer/assembly guards; old2278 qualification cannot
-authorize the changed candidate. Cached-mask/accept feedback into selection
-is a possible new late-control path; confirm actual reports before choosing a fix.
+authorize either changed candidate. Cached-mask/accept feedback is confirmed
+in actual V1 reports; complete terminal collection remains required.
 
 Next: finish that fit/report review; fix any real paths, then normal guarded
 deployment, original startup/Cedar/input/files/apps and pinned issues/holds.

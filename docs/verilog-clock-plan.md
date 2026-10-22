@@ -9,7 +9,7 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Latest: original checkpoint COLD persistence PASS; combined timing candidate fitting.**
+**Latest: original checkpoint COLD persistence/apps PASS; corrected timing candidate fitting.**
 Current MiSTer14 is Main24825/server24824, qualified22781f30 at57.142857MHz/
 SYSPER4/140ns nominal, new `CedarResponseCold57_20261022` volume/core entry.
 One actual normal core load, old-volume close/two fsync barriers, fresh Main/
@@ -25,10 +25,20 @@ stress qualification. HDMI recovery after normal reload is observed; permanent
 cause/fix unproved. No shared capture-service/resolution change; keep original
 internal display interlace. All native observers terminal40/32/17, controls released.
 
-One combined full fit, remote `/home/alans/mister/Dorado_TimingPaths57_1_20261022`,
-builder818951/fitter830410 and read-only830574/830575, follows the exact503-source
-2278 baseline. Placement/routing completed; fitter final analysis still active
-at the latest process check. Six RTL changes shorten registered request,
+Fresh Schematic.cm/Bringover then opens the complete ProcH-BitSlice07 drawing
+in AIS Viewer beside live Clock and both tools; original commands return to
+prompt, native/HDMI agree. [23-member apps proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-cold-applications/README.md).
+Observer terminal30; three transient unavailable native captures retained,
+no replay/reset. Latest good172/CRC-RX-abort0/dropped1/pack-fault clear; live
+prefix684read/1680write ACK pairs has no recorded errors/loss, not a close.
+
+V1 full fit, remote `/home/alans/mister/Dorado_TimingPaths57_1_20261022`,
+fitter830410 terminal0, REJECTED setup-15.454ns/hold-0.061ns. Actual20-level
+address/cache-tag -> backend response path retains a5.864ns combinational LOOP
+through cached-choice/raw-accept/selection-origin. Slow/-40C is also negative.
+Earlier Verilator circular warnings had been allowed; functional settling tests
+were insufficient. Builder818951/readonly830574/830575 still collect original
+reports; last storage-ready1108424 verified live. No assembly/load. Six RTL changes addressed registered request,
 ready-tag and ALU carry paths and retain the original BaseBoard ratio correction.
 CPU capture registers/cache/Map/ECC, PLL/SYSPER/SDC and other devices/Main/daemon
 unchanged. This image has NOT been assembled or loaded. [952-member stage](../fpga/mister/reports/2026-10-22-timing-paths/native57-stage/README.md).
@@ -39,10 +49,28 @@ selection passes16384 binary cases/all7 pins in both engines (four-state limit
 explicit). Nine staging guards reject. The actual MSA host count grows0.568%
 versus current overlap, so this is a timing trade, not a demonstrated speedup.
 
-Next: follow SAME fit and seven read-only reports, review all31 summaries/
+**V2 repair staged/tested and one DISTINCT source-corrected fit is running.**
+Live fallback and post-accept trees are independent; registered owner/state/
+look-owner sets post-accept origin/exclusion, late acceptance chooses the
+finished result at the register, and overlapping raw payload is registered.
+No current ready/acceptance feedback into the live selection. The new fatal
+UNOPTFLAT gate rejects the actual V1 source; both static128/dynamic5/128
+fixtures pass in both simulators with zero circular warnings. All three actual
+144-chip MSA raw traces, including host timestamps, remain byte-identical.
+All503 sources/exact six RTL changes/twelve staging rejection controls pass.
+Only arbiter RTL differs from V1 besides literal project-root relocation.
+[743-member repair/source/rejection-prefix proof](../fpga/mister/reports/2026-10-22-timing-paths/split-selection-stage/README.md).
+Remote `/home/alans/mister/Dorado_TimingPaths57_2_20261022`, builder1081359/
+map1081368 terminal0/fitter1094737 live; followers1083053/1083054. Old project's
+503 hashes rechecked before launch; only its verified read-only STA may overlap,
+with ample RAM and separate project/database. No old restart or source change.
+New full timing/assembly/firmware/speed remain unqualified. Local300-poll
+observer96209/tool5957 follows SAME collector, never restarts a fit on timeout.
+
+Next: follow V2 fit and both existing seven-script report collections, review all31 summaries/
 444 detailed categories,170 RAM rows/modes, physical clock/register/capture
-coverage and warnings. Inspect cached-mask/accept feedback if timing exposes it;
-do not change the running fit or retry a seed on observation timeout. New recipe
+coverage and warnings. V1 feedback is already confirmed/rejected; preserve its
+terminal evidence. Do not change a running fit or retry a seed on observation timeout. New recipe
 requires its own preassembly reviewer/guards before any assembly/load. Then
 qualify original firmware/input/files/apps and pinned issues/holds on hardware.
 Last measured rate remains3,295,738.51 issues/s (+11.0119% vs cache4),19.7744%

@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 
 from stage_baseboard_crystal_native import stage as crystal_stage, PARENT_QUALIFICATION
-from prepare_storage_request_lookahead import transform as request_transform, BASELINE_ARB
+from prepare_storage_request_lookahead import transform as request_transform, split_selection, BASELINE_ARB
 from prepare_storage_ready_compare import transform as ready_transform, GROUP_SHA
 from test_mc10181_carry_select import carry_select, CELL
 
@@ -48,6 +48,11 @@ def stage(parent, qualification, crystal, generated, arb, board, ready, alu, out
         assert a['results'][label]['passed']
     for label in ['old-response-owner', 'disabled-overlap', 'ignore-late-arrival']:
         assert a['results'][label]['rejected']
+    for label in ['verilator-compile', 'verilator-arrivals-compile']:
+        action = [x for x in a['actions'] if x['label'] == label]
+        assert len(action) == 1 and action[0]['returncode'] == 0
+        assert '-Werror-UNOPTFLAT' in action[0]['command'], 'Circular feedback must be a fatal compile error'
+        assert 'UNOPTFLAT' not in (arb / (label + '.log')).read_text(), 'Reject circular component logic before fitting'
     ap = load(arb / 'provenance.json')
     for n, h in ap['inputs'].items():
         assert sha((arb / 'inputs' / n).read_bytes()) == h
@@ -78,7 +83,10 @@ def stage(parent, qualification, crystal, generated, arb, board, ready, alu, out
     assert up['original_cell_sha256'] == q['source_hashes'][CELL]
     assert carry_select((parent / CELL).read_bytes()) == (alu / 'inputs/candidate.v').read_bytes()
     assert q['source_hashes'][ARB] == BASELINE_ARB and q['source_hashes'][GROUP] == GROUP_SHA
-    assert request_transform((parent / ARB).read_text()).encode() == (generated / 'dorado_storage_arb.sv').read_bytes()
+    expected_arb = request_transform((parent / ARB).read_text())
+    if g.get('split_selection', False):
+        expected_arb = split_selection(expected_arb)
+    assert expected_arb.encode() == (generated / 'dorado_storage_arb.sv').read_bytes()
     assert ready_transform((parent / GROUP).read_bytes()) == (generated / 'dorado_storage_group.sv').read_bytes()
     assert (parent / BACKEND).read_bytes() == (generated / 'dorado_storage_sdram_burst.sv').read_bytes()
     # This also independently rechecks the unchanged clock component proof,
@@ -105,11 +113,13 @@ def stage(parent, qualification, crystal, generated, arb, board, ready, alu, out
              source_hashes=sources, modified_RTL_sources=changed,
              component_proofs={str(p): sha(p.read_bytes()) for p in [
                  generated / 'provenance.json', arb / 'provenance.json', arb / 'run-state.json',
+                 arb / 'verilator-compile.log', arb / 'verilator-arrivals-compile.log',
                  board / 'provenance.json.gz', board / 'run-state.json', ready / 'proof.json',
                  alu / 'provenance.json', alu / 'run-state.json']},
              frequency_hz=57142857, frequency_mhz=57.142857, sysper=4, nominal_ordinary_ns=140,
              state_admin='INACTIVE', request_lookahead=1, raw_buffer_lines=4, response_overlap=1,
              parallel_lookup=True, parallel_ready_compare=True, ALU_carry_select=True,
+             split_selection=g.get('split_selection', False),
              baseboard_crystal_samples_per_instruction=8, assembly_permitted=False,
              firmware_qualified=False, hardware_speedup_qualified=False,
              CPU_registers_captures_cache_Map_ECC_PLL_constraints_other_peripherals_unchanged=True,

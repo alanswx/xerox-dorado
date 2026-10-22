@@ -78,6 +78,10 @@ def run(generated, out):
             compile_command = ['verilator', '--binary', '--timing', '-j', '4', '-Wno-fatal',
                                '--top-module', top, '--Mdir', str(obj),
                                '-o', 'test-arb', str(source_path), str(tb)]
+            if lookahead:
+                # A settling simulation is not proof of acyclic hardware.
+                # The rejected native-v1 fit retained the warned feedback.
+                compile_command.insert(2, '-Werror-UNOPTFLAT')
             command = [str(obj / 'test-arb')]
         assert execute(compile_command, label + '-compile') == 0, label
         code = execute(command, label + '-test')
