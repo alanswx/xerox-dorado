@@ -15,6 +15,60 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
+**15:00UTC: native16-line candidate REVIEWED/ASSEMBLED, not deployed.**
+Full956-member terminal archive SHA87e8d0b1ccfdc2983e9d632e020882da82cd96883b44d1783977de7f2782f433
+is downloaded/read back at storage-cache-native57-v1-20261022/terminal-v1/raw.
+Strict recipe regeneration verifies503 inputs; one wrapper/two expressions only.
+All31 summary and356 detailed categories/four conditions pass, detailed minimum
+setup+0.211ns/hold+0.114ns.170 logical RAM rows/modes unchanged, independent40
+architectural cache, seven-block ROM pool,332 M10Ks/35 DSPs,57107 registers.
+Backing buffer1536 real data bits (12-bit cells; padding optimized),320 tag bits,
+16 canonical valid bits; real32-bit hit counter/crossings verified. One named
+unchanged FIFO-wrap truncation warning changes target width2->4; all other
+warnings match. No clock/SDC/CPU/Main/server changes or native speed claim.
+
+15 reviewer corruptions and9 assembly-guard corruptions reject; positives and
+original evidence unchanged. First review-control attempt exposed nondeterministic
+supplemental path order, fixed by sorted corners; qv1/v2 timing data agree after
+sorting. Failed counter queriesv1 (unsupported-regexp) andv2 (escaped bus filter)
+are retained; exact-name-checked v3 passes. These are reporting fixes, no refit.
+Remote input guard passes before ONE assembler3600312/3600339, now terminal0.
+RBF93ad59c3613dc60fc07d56872fff81e5d35e1d3208ea29f554c4b68373991265,
+4100208 bytes, local Dorado.rbf. Firmware/pinned performance and deployment stay
+pending. [72-member full qualification/assembly receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-qualified-assembly/README.md)
+verifies, including the complete956-member terminal tar and counter-query archive.
+
+Current FPGA is STILL9e, Main12331/server12330 on ColdWrite2. Recovery follows
+verified empty-name Installer.Die input mistake, preserving failed ColdWrite1
+at unchanged236b with3587 records/no errors/gaps/two barriers/no FDs/revoked DDR.
+New source236b copy boot113/C release/login accepted, all34 Basic files load;
+NO profile keys sent. Original default missing-name then No advances correctly;
+current older-font-DF prompts also show No and continue by original timeout.
+Observer36627/MacPID23394 is bounded60, loader12297 (journal records the remote
+supervisor identity), C watcher3854 completed. Follow SAME boot; no repeated load.
+Read ///window57persist.txt after Viewers to finish native cold-write persistence.
+Keep immutable236b and closed freshCP1/4874 copies; new core waits for this read.
+Original60ns, Main337 isolation, final three fresh seeds/2h stress remain open.
+
+15:03UTC: original observer23394 is normally terminal60 samples;59 shows first
+Viewers raster/Edit icon while remaining tools initialize. A distinct read-only
+follow-up watch-r2.py uses screens-v2/watch-r2-state.json,30 bounded samples,
+same Main12331/core9e. No concurrent screenshot requester, reboot or profile
+keys. Wait for initialized CommandTool before the exact cold-file Type check.
+
+**14:30UTC correction: ColdWrite1 installer attempt TERMINAL_INPUT_ERROR.**
+N missed the confirmation and became the profile filename. Agent then wrongly
+sent Backspace+Return, creating an empty filename. Original FS.ExpandName rejects
+it; outer FS.Error prints Fatal FS Error and Installer.Die spins forever (line589).
+This is a known injected INPUT mistake, not a CPU/RTL/disk failure. Preserve
+terminal-installer-input-error-v1.json and actual screenshots; no persistence pass.
+Stop only the read-only observer, then close normally and boot a DISTINCT copy
+of unchanged236b. Do not reset/retry because of an observation timeout. On the
+new attempt send NO profile keys: original30-second timeouts accept default
+profile; its absence sets installIfTimeout FALSE; subsequent defaultNo advances.
+Never clear a profile filename to empty. Current Main11516/server11515 still
+alive until that explicit normal close; cache fit independently progresses.
+
 **Current work (2026-10-22,14:19UTC).** Actual live Main11516/server11515/RBF9e,
 volume CedarPackWindow57_ColdWrite1_20261022, one cold load from COPY of closed
 236bb6ff native-write disk. Original BFN113 observed/C released; germ progressing,

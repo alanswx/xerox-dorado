@@ -9,6 +9,37 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**15:00UTC:16-line native buffer fit reviewed/assembled, hardware pending.**
+956 terminal members read back; exact503-source regeneration, one wrapper/two
+edits. All31 summaries/356 detailed categories/four conditions positive,
+minimum+0.211ns setup/+0.114ns hold.170 RAM rows/modes/independent40 cache unchanged,
+332 M10Ks/35 DSPs.16-line data/tag/valid state and real32-bit hit counter verified.
+15 bad reviewer cases and9 assembler guards reject. Queryv1/v2 and first
+nondeterministic-order control failure retained; fixes do not refit/change clocks.
+ONE guarded assembly terminal0: RBF93ad59c3,4100208 bytes. [72-member verified receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-qualified-assembly/README.md).
+Not deployed, no new
+speed/firmware claim; nominal140ns remains. Original60ns goal is unchanged.
+
+Current baseline9e/Main12331/server12330 recovery on ColdWrite2 reaches Basic
+and original profile/defaultNo progression WITHOUT profile typing. Older font
+prompts advance by their own No defaults. Prior failed-input disk closes at
+unchanged236b with3587 records/no errors/gaps/two barriers; no RTL fault or
+persistence pass claimed. Observer36627/23394 bounded60 and loader12297 follow
+same boot. Cold Type ///window57persist.txt still required before loading new
+buffer candidate. Keep full clock/Main337/final acceptance work open.
+
+15:03UTC observer60 normally terminal; first Viewers/Edit raster seen in59,
+remaining tools initialize. Distinct30-sample read-only screens-v2 follow-up
+watches SAME12331/12330/9e; no profile keys/reboot/concurrent screenshot requester.
+
+**ColdWrite1 installer INPUT failure preserved (14:30UTC).** N arrived after
+confirmation and changed filename; agent Backspace+Return submitted empty name,
+which original FS.ExpandName rejects -> outer fatal handler/Die infinite loop.
+Not an RTL/pack fault, not cold persistence. Preserve logs/copy and normal-close
+this explicit failed attempt before a distinct source236b copy. Next boot uses
+NO profile typing: original30-second default-name/missing-default/defaultNo
+path advances. Do not clear names to empty; no restart for observer timeouts.
+
 **14:19UTC: cache-capacity fit + cold native-write persistence in progress.**
 Exact reviewed9e503-source staging changes one wrapper only: permitted16-line
 physical backing buffer and initialized-only passive hit event. Four bad input
