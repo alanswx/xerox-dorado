@@ -15,7 +15,7 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**New clock candidate LIVE; current2278 original Checkpoint in progress.**
+**New clock candidate LIVE; current2278 original Checkpoint return PASS.**
 Remote `/home/alans/mister/Dorado_BaseBoardCrystal57_1_20261022`, builder530332/
 fitter542437 live; map530341 terminal0. Exact503-source2278 parent. Only scaled
 MC12061 and the actual native16 BaseBoard d08 binding change;2*SYSPER restores
@@ -31,16 +31,22 @@ paths. [12-member follower receipt](../fpga/mister/reports/2026-10-22-baseboard-
 Local `build/rtl-executive/baseboard-crystal-native57-v1-20261022`; observe
 actual existing processes and terminal receipt, never restart on timeout.
 
-Current hardware remains2278/Main19164/server19163/loader19134. Focused old
-tool700,470; original `Checkpoint` sent ONCE, native Creating checkpoint then
-counting VM pages, germ813 and original profile callbacks observed. One Return
-accepted displayed No. Desktop return/exact input/app and explicit Rollback
-remain pending. Local hardware/checkpoint-v1: initial observer67991/tool30101
-TERMINAL32; continuation69330/tool44198 bounded36 remains live. No reset or
-second Checkpoint. Journal records disk trace loss: at least2 overflow reports/
-19388 lost records during the write burst; counts are partial and cannot prove
-complete request/ACK pairing. No observed disk I/O or CRC/RX/abort fault;
-existing TXdrop3 retained. Preserve the operation and all missing-frame samples.
+Current hardware remains2278/Main19164/server19163/loader19134. Original
+Checkpoint sent ONCE; VM count/germ813/profile callbacks and one Return for No
+return both saved tools/Clock/icons. Fresh exact `response57 checkpoint`, Type
+of pre-save response57persist, new response57after write/Type and changed Clock
+hands PASS. [49-member verified return/input/files proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-checkpoint-return/README.md).
+Local hardware/checkpoint-v1: initial observer67991/tool30101 TERMINAL32 and
+return69330/tool44198 TERMINAL36. All input senders terminal. Then explicit
+Rollback sent ONCE (send-rollback-v1.log/action JSON); bounded watcher tool81100
+is live. Inspect its exact PID/state/frames; no reset or repeated command.
+Latest pointer700,512; after restore inspect fresh EOF before typing. Verify
+both pre/post-save files, fresh Echo and app activity. New file remains warm
+only; cold remount still pending. Journal/prefix show two trace overflows/
+19388 lost records, partial counts; no complete request/ACK or final stress
+claim. No observed disk I/O or CRC/RX/abort fault; TXdrop3 retained. Twelve-second
+held-OSD capture's final frame and delayed screenshot black; OSD closed. No
+resolution/core/Main/shared-service change or proved root cause.
 
 **Current:2278 original Viewers/input/files/Clock PASS; matched issues +11.0%.**
 MiSTer14 Main19164/server19163/loader19134, RBF22781f30, unchanged Main21e6/
@@ -60,9 +66,10 @@ full Viewers and both tools initialize. Normal Cmd/EOF clicks; exact response57
 Echo/alphabet/digits, cold old window57persist file, warm new response57persist
 write/read, and Clock middle-click/open/later redraw PASS. Input magnified:
 all digits present. Startup ImagerPress/Interpress diagnostics retained; not
-all-apps. Both observers TERMINAL9/52; no key/mouse sender remains. Pointer
-875,805. Clock resized the lower tool upward; select blank EOF below its text
-(around700,470), not the old600-y position, before typing another command.
+all-apps. The earlier desktop observers are TERMINAL9/52. Its pointer was
+875,805 before the Checkpoint follow-up above. Clock resized the lower tool
+upward; after any restore inspect its current EOF instead of using old
+coordinates. The completed Checkpoint follow-up last focused700,512.
 
 Native clear; HDMI BLACK even after shortcut pairs/late Viewers/immediate OSD
 capture. A12s stream receives121frames; LAST image still black. Neither cause,

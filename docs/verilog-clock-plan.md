@@ -21,14 +21,18 @@ firmware and all other peripheral rates remain OPEN; no assembly/load.
 [Stage](../fpga/mister/reports/2026-10-22-baseboard-clock/native57-stage/README.md),
 [read-only followers551460/551461](../fpga/mister/reports/2026-10-22-baseboard-clock/native57-followups/README.md).
 
-On SAME live2278/Main19164/server19163, original `Checkpoint` was issued ONCE
-after focusing700,470. Creating checkpoint, VM counting, germ813 and original
-Yes/missing-name/No profile callbacks observed; one Return accepted visible No.
-Desktop return/input/app and explicit Rollback still pending. Initial observer
-terminal32; continuation69330/tool44198 bounded36 in hardware/checkpoint-v1.
-Disk trace now reports dropped records during the save burst: do not claim
-a complete request/ACK trace or clean final stress. No observed I/O/CRC/RX error;
-TXdrop3 retained. Never reload/reissue Checkpoint for missing capture frames.
+**Original Checkpoint return on2278 PASS.** SAME Main19164/server19163, one
+Checkpoint traverses VM count/germ813/original profile callbacks and returns
+both saved tools/Clock/icons. Fresh exact Echo, pre-save response57persist Type,
+new post-save response57after write/Type and changed Clock hands PASS.
+[49-member verified proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-checkpoint-return/README.md).
+Observers terminal32/36. Explicit `Rollback` then sent ONCE; current bounded
+watch-rollback/tool81100 is LIVE in hardware/checkpoint-v1. Verify both files,
+fresh input/app after return; never replay on missing captures. Latest pointer
+700,512, but use fresh view after restore. Disk trace loses19388 records in two
+overflows: no complete request/ACK trace, closed persistence or final stress
+claim. No observed I/O/CRC/RX/abort error; TXdrop3 retained. A12s held-OSD stream
+and delayed screenshot remain black; OSD closed, no output/core/service change.
 
 **Current2278 hardware: original Viewers/input/files/Clock PASS,+11.0% issues.**
 MiSTer14 Main19164/server19163/loader19134, SAME236b/Main21e6/receiver0845 and
