@@ -89,6 +89,12 @@ keeps existing dirty bits and leaves the SPI whole-track transfer unchanged.
 Live Main21e6 is unchanged; no native speed gain claimed. Freeze component
 evidence before later closed-volume deployment, then measure a pinned workload.
 
+Pending AIS CreateAISViewer Eval has no observed result after STOP/paced Return;
+independent CommandTool echoes exact`alive57` and returns to `%`. No new quiet
+Checkpoint has started. All test input is released. The read-only120-frame
+observer is terminal. V41 is still the same live corrected-memory control,
+beyond350M host ticks/71M source ticks; enabled-clock boot pulse is still ahead.
+
 TODO: diagnose AIS replay and repeat a quiet checkpoint with initialized apps;
 verify repeated and cold checkpoint restart; complete authentic Checkpoint/
 Rollback; fresh-seed receiver/three-boot qualification;60ns capture/data timing;

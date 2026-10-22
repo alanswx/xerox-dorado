@@ -85,6 +85,20 @@ checkpoint nor repeated application survival is qualified. Preserve the fault,
 abort only that process normally and repeat an idle baseline. No transport or
 pack error has been established as the cause. Do not call this a full repeat pass.
 
+The first faulting command's normal debugger Abort returns its parent tool to
+`%`. A separate fresh-tool `Eval AISViewer.CreateAISViewer[]` currently has no
+result/prompt; normal STOP and a paced extra Return do not change that observation.
+This bare Eval may include result formatting, so do not assert the exact blocked
+routine. An independent original CommandTool executes exact`echo alive57` and
+returns to a prompt ([isolation receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-rollback1-ais-isolation/README.md)). Cedar is not globally
+stalled. All injected keys/buttons are released. A new quiet Checkpoint has NOT
+been started with this diagnostic pending. BackStopImpl's UnknownError is its
+generic ANY-signal fallback, not an identified FS/AIS cause. Read-only observer
+51451 completed120 samples normally; do not restart it. Full native V41 remains
+running on the same simulator56631, beyond350M host ticks/71M source ticks,
+initialized1/no transport or memory fault, still before its enabled-clock boot
+pulse. No original-firmware pass yet.
+
 **Isolated host disk-cache candidate: component tests PASS, NOT DEPLOYED.**
 `capture_write` now compares each512-byte host-sector portion of a captured
 track with the RAM shadow, marking only changed sectors while preserving any
@@ -99,6 +113,11 @@ on the build machine. Evidence: [Linux/ARM component receipt](../fpga/mister/rep
 Live Main21e6 remains unchanged throughout rollback. SPI still transfers the
 whole track; no hardware pause or instruction-rate improvement is claimed.
 Deploy only later at a normal guest/loader boundary with the volume closed.
+Before a full Main build, review the exact base: live21e6 build-tree cache.cpp
+SHA236cb4ac/header9ffbf530 differ from the repository snapshot-aware baseline
+f76e7821/header63f8d027 used in the isolated tests. Do not blindly overwrite an
+older Main tree or claim a deployment binary has been built. Keep the intended
+change limited to changed-sector comparison and qualify the actual candidate.
 
 **Native Cedar Checkpoint roundtrip1 PASSES desktop/input/app; explicit Rollback1 FILE SURVIVAL PASS / AIS REPLAY FAULT (details above).**
 **Update05:28UTC: saved desktop and actual Rollback message RETURNED.**
