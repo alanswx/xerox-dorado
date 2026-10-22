@@ -1,0 +1,72 @@
+[
+  {
+    "source": "local-plan.json",
+    "stored": "local-plan.json.gz",
+    "bytes": 4588146,
+    "sha256": "e8373a41d668c89dc7c2507b1c658e6a1e8b12e1487fab54a5f9d19aca485f0a",
+    "compressed_sha256": "133e09bccc4d3fdc43882d2628b560b7b3a054b115bc5a98fe96c331b42d3619"
+  },
+  {
+    "source": "local-result.json",
+    "stored": "local-result.json.gz",
+    "bytes": 4601280,
+    "sha256": "032bc99979f05593bb3ac069d2909999d9efda67720ce3386779d9a7bcb55d5b",
+    "compressed_sha256": "1bf1d76f0696341ed6c05b4d04ff80186ad913dc1c92afd578aea1ee2b512545"
+  },
+  {
+    "source": "protected-before.json",
+    "stored": "protected-before.json.gz",
+    "bytes": 13680,
+    "sha256": "1dd73737a2321355633effeef12d13d5941d0f73fefb8cb342646931505ca82b",
+    "compressed_sha256": "0a19a08692e659d45ebf0118af51b229d0577f6a7e29857254a6694d08665000"
+  },
+  {
+    "source": "clean-local.py",
+    "stored": "clean-local.py.gz",
+    "bytes": 3113,
+    "sha256": "12eed406d797c20c079c7934a76d9fc4bf3e1486ec5aa681ff7064862cc354be",
+    "compressed_sha256": "996b3f6aedd460f320ae152f0f222b88c9ee1d86237012f7d0c133156a7cefd8"
+  },
+  {
+    "source": "clean-ubuntu.py",
+    "stored": "clean-ubuntu.py.gz",
+    "bytes": 2406,
+    "sha256": "b60ee20efeb23de3db91b70fb82236876d9930432477cdb9f24ff71974fbdb81",
+    "compressed_sha256": "20e484ac4840831a91bf25ba40b10103a6c469614f171e09bdbbf84061c72190"
+  },
+  {
+    "source": "local-cleanup.log",
+    "stored": "local-cleanup.log.gz",
+    "bytes": 482,
+    "sha256": "6777abbd7e06865e71d5df12a6ffdbddf762153787d9c6d23eb7774907ca5b83",
+    "compressed_sha256": "9c808863da800709e9458f1332d4efebdab44d8c065ccc8fdbbd06f2af396326"
+  },
+  {
+    "source": "ubuntu-cleanup.log",
+    "stored": "ubuntu-cleanup.log.gz",
+    "bytes": 2575,
+    "sha256": "a9b469fc67a09b57d56f8c6cacba4351cf5a01834d67e8ba1ff587c4284175f2",
+    "compressed_sha256": "b5c7099106998bd3df33afb4094d6bd23ff6c3720603098adf8c879e02d81b33"
+  },
+  {
+    "source": "ubuntu/plan.json",
+    "stored": "ubuntu--plan.json.gz",
+    "bytes": 3197,
+    "sha256": "354819b146da5002940d03cfd95f748deaa3a01e825d47172c9bb9da4f11e03e",
+    "compressed_sha256": "b51d4815510d1c22ae01edd7f6663144229ca076c9f231bfa26b6d642aeaf847"
+  },
+  {
+    "source": "ubuntu/result.json",
+    "stored": "ubuntu--result.json.gz",
+    "bytes": 4234,
+    "sha256": "8ac9f2006aa848657791b70d81f690afab85b64d87554303a1e3197ec1b33441",
+    "compressed_sha256": "53378352a113b2edc90ec46a0a935864d50698da84a5032ec40ad61a9ccd14ab"
+  },
+  {
+    "source": "ubuntu/protected-before.json",
+    "stored": "ubuntu--protected-before.json.gz",
+    "bytes": 5492463,
+    "sha256": "a77a88f7dbcfa1cceb153820142cdc110b5141750362549e957b4daf06fbad28",
+    "compressed_sha256": "3c1550fec0babb401221c58ee8671fb258ac035e7b17e773bbcd2c468d4e7fb7"
+  }
+]
