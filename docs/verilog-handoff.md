@@ -15,7 +15,7 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Current: cache16 original Viewers/input/files/Clock PASS; response-overlap fit LIVE.**
+**Current: response-overlap native timing/assembly PASS; hardware PREPARED, not loaded.**
 The SAME93ad/Main15534/server15531 session completes the installer. Normal Cmd
 and EOF clicks create/select a clean second CommandTool; exact cache16 Echo,
 alphabet/digits and new guest file write/read pass. Type window57persist.txt
@@ -57,18 +57,33 @@ all negative controls pass, with IDENTICAL baseline/overlap host-cycle figures.
 Exact unchanged arbiter reuses128-group dual-simulator proof. Six staging
 controls pass; original serial mode's five controls still pass. [734-member proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/parallel-lookup-stage/README.md).
 
-ONE new fit /home/alans/mister/Dorado_StorageResponseParallel57_1_20261022:
-builder4184174/fit2946 VERIFIED LIVE; map passed. Read-only reporter4186252/
-collector4186253 follow SAME new job. Host PIDs wrapped normally. Local
-storage-response-parallel-native57-v1-20261022; manifest hashes503 sources.
-Only arbiter/backend/wrapper change (overlap opt-ins,16->4 buffer, parallel
-lookup). CPU/cache/Map/ECC/peripheral timing/Main/daemon/clocks/SDC unchanged.
-Actual setup AND hold closure pending; no waiver, assembly or hardware speedup.
+The SAME fit at /home/alans/mister/Dorado_StorageResponseParallel57_1_20261022
+is now fully TERMINAL. Its internal routing retry was not an agent restart.
+Independent1009-member/503-source readback, exact regeneration, all31 summaries
+and380 detailed categories/four conditions PASS: minsetup+0.036ns/minhold+0.117ns.
+All170RAM rows/modes, independent40 architectural cache, original half-cycle
+captures/clock coverage, actual4-line buffer and32-bit hit counter checked.
+Resources33646ALMs/55732regs/332M10Ks/35DSPs. Seventeen real damaged-evidence
+controls and8 assembly guards reject. ONE guarded assembly128601 terminal0,
+post-assembly source/report bindings unchanged. RBF22781f30,4039808bytes, local
+download and MiSTer14 staging hashes match. [1090-member qualified receipt](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-qualified-assembly/README.md).
 
-Next TODOs: follow SAME PARALLEL fit/collect terminal reports; regenerate exact sources,
-review all clocks/RAM/warnings/path families including live payload to backend;
-only then guarded assembly and matched hardware boot/speed/input/files/rollback.
-Do not reuse the cache16 reviewer unchanged (different buffer and modified files).
+Local storage-response-parallel-native57-v1-20261022. Only arbiter/backend/
+wrapper change (overlap opt-ins,16->4 buffer, parallel lookup). CPU/cache/Map/
+ECC/peripheral timing/Main/daemon/clocks/SDC unchanged; no timing waiver.
+Hardware entry/volume CedarResponseParallel57_20261022 PREPARED_NO_LOAD19041,
+same immutable236b/Main21e6/receiver0845. Old15534/15531/93ad still live; new
+Clock capture shows redraw, CRC/RX/abort0, TXdrop3, pack fault clear. Not stress.
+Guarded /tmp/dorado-response-parallel57-20261022.py prepare has completed;
+its load action has NOT run. Do not repeat preparation. Local hardware scripts
+include required-C-until-actual113 watcher and passive matched pre-Guest sampler.
+
+Next TODOs: one normal guarded load of the PREPARED2278 entry, preserving and
+closing old cache16 desktop/file volume through barriers/mapping revocation.
+Only required C until actual113; no OSD/extra input before real Guest.pa login.
+Then same-seed pinned issue/hold/pause/cache windows, normal login, full original
+Viewers/mouse/exact input/files/apps/Checkpoint/Rollback. No repeat load for
+observer timeout. New-file cache16 cold remount and new hardware speed are pending.
 Original60ns/all peripheral timing, minimal Main337 isolation, final3 fresh seeds
 and2h sustained stress remain OPEN. Qualified Native59 and prior rollback evidence
 retained; complete FPGA snapshots deferred. Goal ACTIVE, not achieved.

@@ -34,13 +34,20 @@ word alongside tag comparison, preserving last-match priority/response cycle.
 Full pin/MSA suites retain identical data/order/cycle results; six staging
 controls pass, original serial mode's five still pass. [Parallel-stage evidence](../fpga/mister/reports/2026-10-22-storage-response-overlap/parallel-lookup-stage/README.md).
 
-ONE new fit LIVE at Dorado_StorageResponseParallel57_1_20261022 on Ubuntu:
-builder4184174/fit2946 (normal PID wrap), reporter4186252/collector4186253.
-Map passed; fit active. Four-line buffer, overlap opts and parallel lookup,
-only arbiter/backend/wrapper changed. CPU/cache/Map/ECC/peripherals/Main/daemon/
-clocks/SDC unchanged. Follow SAME new job; require actual setup AND hold closure
-and full memory/warning/source review before guarded assembly/hardware comparison.
-No loosened constraints. Original60ns/all timers, Main337 comparison, final3
+The SAME parallel fit is now TERMINAL/PASS:1009members/503sources independently
+read back; exact regeneration/all170RAM rows and modes, original timing/captures,
+32-bit hit counter and4-line state checked. All31summary/380detailed categories
+across four conditions positive: setup+0.036ns/hold+0.117ns. All17 reviewer
+rejection cases and8 assembly guards pass. ONE guarded assembly terminal0,
+RBF22781f30/4039808bytes matches local and MiSTer14 staging. [Qualified assembly proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/native57-qualified-assembly/README.md).
+No refit, clock/SDC/CPU/cache/Map/ECC/peripheral/Main/daemon change or waiver.
+
+CedarResponseParallel57_20261022 entry and same236b volume PREPARED_NO_LOAD;
+old93ad/Main15534/server15531 still live, fresh Clock redraw/no CRC/RX/pack fault,
+TXdrop3 retained. Next one normal guarded load, preserving/closing old volume;
+actual113/C release, quiet login pinned counters before Guest, then original
+Viewers/input/files/apps/rollback. No new hardware speed/firmware claim yet.
+Original60ns/all timers, Main337 comparison, final3
 fresh seeds and2h stress remain OPEN; Native59 retained and snapshots deferred.
 
 **Earlier cache16 prefix (superseded by desktop result above):** reviewed93ad/SAME236b/Main21e6/receiver0845 reaches
