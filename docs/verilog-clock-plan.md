@@ -24,7 +24,10 @@ Startup viewport was stale after focus moved; margin-scroll proves final prompt.
 Actual direct Schematic.cm now completes full ProcH drawing and returns `%`.
 Normal quiet `Checkpoint` accepted after that completed app baseline; actual
 Creating checkpoint/Guest.pa message observed, save RUNNING. Follow
-SAME observer86244/tool13107 in Link1/quiet-app1. No new roundtrip claim yet.
+SAME guest. Observer86244 exited1 at capture timeout; Main alive/disk trace
+growing. New bounded read-only continuation87062/tool98062 records capture
+absence and I/O progress under Link1/quiet-app1. No repeat guest command or
+roundtrip claim. CRC/RX/abort0, TX dropped24 retained.
 
 Optional RTL host write-window component PASS:10 scenarios/both modes and5
 meaningful failure controls, full-image/independent serial oracles. Default0

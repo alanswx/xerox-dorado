@@ -46,8 +46,13 @@ renders in AIS Viewer and `%` returns. No fresh AIS fault observed.
 completed idle app baseline. Normal `Checkpoint` accepted: actual `Creating checkpoint ... made by Guest.pa`
 message in `quiet-app1/screens-v1/15.png`; input/tool79528 completed. Save is RUNNING.
 Do NOT issue another Checkpoint/Boot or launch an app while this one runs.
-Follow same read-only observer86244/tool13107,90 samples at25s plus capture
-cost, `storage-board57-link1-field-20261022/quiet-app1/{watch.log,watch-state.json}`.
+Observer86244/tool13107 terminated exit1 at frame16 on8s capture timeout;
+its last status is corrected/labeled after actual process exit, not treated as
+a guest failure. SAME Main31285/server31284 remain live; disk trace grows
+11,242,558->11,679,047 bytes across34s, CRC/RX/abort0, droppedTX24.
+Follow NEW read-only continuation87062/tool98062, `quiet-app1/watch-resume.log`,
+`watch-resume-state.json`, `screens-v2`. It records unavailable capture and
+Main/disk progress, never resets or types.90 bounded samples at25s+capture cost.
 The preceding boot observer80662/tool97666 is terminal90 frames. No quiet
 roundtrip, repeated/cold checkpoint or repaired explicit logical boot pass yet.
 After return test input/file/app survival and a post-checkpoint file, then
@@ -354,7 +359,8 @@ live, CRC/RX/abort0, TX dropped2; no new hardware/daemon load occurred.
 ### Current next steps and simulation control
 
 Current next TODOs: follow SAME quiet Checkpoint requested after full rendered
-AIS/prompt; observer86244/tool13107. No repeat command on a white frame/timeout.
+AIS/prompt; continuation87062/tool98062 after the original capture observer actually exited.
+No repeat command on unavailable capture/white frame/timeout.
 Then input/pre-file/app check, post-file + Rollback, repeat/cold checkpoint,
 corrected explicit logical boot (`-f` for fresh kernel), external HDMI recovery.
 Keep old c8f8 volume and repaired230d copy. No live copy/C-state import.
