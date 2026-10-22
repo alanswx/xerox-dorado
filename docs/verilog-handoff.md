@@ -70,7 +70,37 @@ Generic restart helper
 `tools/restart_storage_board_native.py` is the exact executed version; inspect
 the existing preparation journal rather than repeat its completed load.
 
-**Native Cedar Checkpoint roundtrip1 PASSES desktop/input/app; explicit Rollback1 IN PROGRESS.**
+**Update06:04UTC: explicit Rollback1 preserves the new file, but AIS replay faults.**
+Same Main23119/server23118/RBF and original checkpoint, no new Checkpoint or reset.
+A fresh fourth CommandTool executes `type ///rtl57afterck0528.txt` and prints
+exact`aftercheckpoint0528` followed by a prompt. The file was created/closed
+AFTER the original checkpoint. Thus disk file preservation through explicit
+Rollback PASSES independently of application replay. Actual native/HDMI proof
+and normal debugger WalkStack are retained in the [file/fault receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-rollback1-file-and-fault/README.md).
+The replayed Schematic `AISViewer.DisplayAIS` reports `UnknownError[sig:1B,
+msg:177777B]`; its subsequent OpenIcon on an absent viewer faults at address27B.
+WalkStack names `ViewerOpsImplA.inner` (lf77750B/pc5427B). Cause is UNPROVEN:
+the first checkpoint overlapped the user's Schematic action; neither a quiet
+checkpoint nor repeated application survival is qualified. Preserve the fault,
+abort only that process normally and repeat an idle baseline. No transport or
+pack error has been established as the cause. Do not call this a full repeat pass.
+
+**Isolated host disk-cache candidate: component tests PASS, NOT DEPLOYED.**
+`capture_write` now compares each512-byte host-sector portion of a captured
+track with the RAM shadow, marking only changed sectors while preserving any
+existing dirty bits. It uses a bounded64KiB temporary, no object/API change.
+Unchanged track transfers cause no host writes; a sparse31-block transfer
+writes only four changed sectors in the unaligned test. An immutable worker
+snapshot/repeated updates/reversion race retains all required dirty bytes.
+Full Linux cache and actual adapter/SPI/lifecycle/error suites pass; compact
+256KiB/64KiB ARM tests pass on14. The original implementation fails the same
+compact unchanged-track control with expected exit23. Full64MiB tests run only
+on the build machine. Evidence: [Linux/ARM component receipt](../fpga/mister/reports/2026-10-22-disk-cache-changed-sectors/README.md).
+Live Main21e6 remains unchanged throughout rollback. SPI still transfers the
+whole track; no hardware pause or instruction-rate improvement is claimed.
+Deploy only later at a normal guest/loader boundary with the volume closed.
+
+**Native Cedar Checkpoint roundtrip1 PASSES desktop/input/app; explicit Rollback1 FILE SURVIVAL PASS / AIS REPLAY FAULT (details above).**
 **Update05:28UTC: saved desktop and actual Rollback message RETURNED.**
 The same original operation reaches the saved two CommandTools plus the user's
 rendered ProcH-BitSlice07 schematic in an AIS Viewer. The lower tool prints

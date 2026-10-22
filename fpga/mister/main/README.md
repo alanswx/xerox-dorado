@@ -235,6 +235,14 @@ worker job at a time; full Main queues defer preload/file work without
 waiting in polling. No block eviction is needed within the bounded image.
 ACK is RAM acceptance; durability requires the explicit drain and fsync.
 
+The2026-10-22 source compares captured track bytes against the shadow and dirties
+only changed512-byte host-sector portions, preserving pre-existing dirty bits
+while an older worker snapshot is in flight. The extra capture buffer is bounded
+at64KiB. [Linux/ARM component evidence](../reports/2026-10-22-disk-cache-changed-sectors/README.md)
+includes unchanged/sparse track writes, partial end sectors, close/remount and
+write/update/reversion races. This candidate is not yet deployed in live Main;
+whole-track SPI transfer and original-clock timing work remain separate.
+
 The patch drains before image replacement, user_io initialization, FPGA
 programming, Main fork/reexec and reboot. SIGTERM requests a drain in Main's
 poll loop; the exact existing input.cpp SIGINT handler now defers likewise.

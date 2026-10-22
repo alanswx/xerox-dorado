@@ -73,9 +73,24 @@ Normal `Rollback` now uses that ORIGINAL checkpoint, before the new file existed
 actual start812 observed. Keep Main23119/server23118 running, no new checkpoint
 or reset. Require exact file readback and input AFTER this explicit rollback.
 
-TODO: follow explicit Rollback1 to responsive return and exact post-checkpoint
-file preservation; repeat a quiet checkpoint and
-cold restart; complete authentic Checkpoint/
+Update06:04UTC: explicit Rollback returns the desktop and a fresh CommandTool
+reads exact`aftercheckpoint0528` from the file created AFTER the checkpoint.
+File preservation PASSES. Replayed Schematic fails with UnknownError1B/177777B,
+then OpenIcon on an absent viewer produces VMOpsImpl.AddressFault27B;
+WalkStack shows ViewerOpsImplA.inner. The first checkpoint overlapped Schematic,
+so cause is unproven; quiet/repeated application recovery is not qualified.
+Preserve the native/HDMI/stack proof, abort only the faulting command normally,
+and test an idle checkpoint from initialized applications.
+
+Isolated changed-sector Main cache candidate passes full Linux cache/actual
+adapter/lifecycle/error suites and compact ARM file/race tests; original-code
+control fails as expected. It reduces host file writes for unchanged sectors,
+keeps existing dirty bits and leaves the SPI whole-track transfer unchanged.
+Live Main21e6 is unchanged; no native speed gain claimed. Freeze component
+evidence before later closed-volume deployment, then measure a pinned workload.
+
+TODO: diagnose AIS replay and repeat a quiet checkpoint with initialized apps;
+verify repeated and cold checkpoint restart; complete authentic Checkpoint/
 Rollback; fresh-seed receiver/three-boot qualification;60ns capture/data timing;
 final disk/network/input stress. Current pinned speed is still2.968685M issues/s
 (+14.49% vs50MHz), nominal140ns before waits. Full FPGA snapshots stay deferred.

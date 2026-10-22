@@ -9,7 +9,7 @@
 #include <vector>
 
 // ARM image cache only. Main owns SPI; callbacks here must never touch SPI.
-// One fixed-size image, one worker job, and one bounded write snapshot.
+// One fixed-size image, one worker job, and bounded64KiB capture/write buffers.
 class DoradoDiskCache {
 public:
     static constexpr size_t MaxImage = 64u * 1024 * 1024;

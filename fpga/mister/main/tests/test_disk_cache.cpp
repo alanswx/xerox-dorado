@@ -82,6 +82,7 @@ static void slow_write_test() {
     check(c.start(file.owned(), oracle.size(), true), "start");
     auto g = ready(c);
     auto data = pattern(1024);
+    data[0] ^= 0x80; // Must actually differ from the image to start file IO.
     check(c.write(g, 0, data.data(), data.size()) == Result::Done, "initial write");
     std::copy(data.begin(), data.end(), oracle.begin());
     until(c, [&] { return entered.load(); }, "write did not start");
@@ -240,10 +241,80 @@ static void capacity_test() {
     printf("DISK-CACHE CAPACITY PASS: 64MiB image, all 131072 sectors dirty, bounded one-job/64KiB snapshot, complete physical oracle\n");
 }
 
-int main() {
+static void changed_sectors_test() {
+    auto oracle = pattern(256 * 1024);
+    File file(oracle);
+    auto io = Cache::posix_io();
+    std::atomic<unsigned> writes{0};
+    io.write = [&](int fd, const void *p, size_t n, off_t o) -> ssize_t {
+        ++writes;
+        return pwrite(fd, p, n, o);
+    };
+    Cache c(submit, io);
+    check(c.start(file.owned(), oracle.size(), true), "changed-sector start");
+    auto g = ready(c);
+    const size_t offset = 37, bytes = 31 * 512;
+    auto track = std::vector<uint8_t>(oracle.begin()+offset, oracle.begin()+offset+bytes);
+    unsigned captures = 0;
+    for (int i = 0; i < 3; ++i)
+        check(c.capture_write(g, offset, bytes, [&](uint8_t *dst) {
+            ++captures; memcpy(dst, track.data(), bytes);
+        }) == Result::Done, "unchanged track rejected");
+    check(captures == 3 && c.status().dirty_sectors == 0, "unchanged track dirtied sectors");
+    check(c.drain() && !writes && !c.status().written_bytes, "unchanged track reached file IO");
+    // Cover both partial end sectors and interior changes; sectors0/1 coalesce.
+    for (size_t i : {size_t(0), size_t(1023-offset), size_t(8*512), bytes-1}) track[i] ^= 0x5a;
+    check(c.write(g, offset, track.data(), bytes) == Result::Done, "sparse track write");
+    std::copy(track.begin(), track.end(), oracle.begin()+offset);
+    check(c.status().dirty_sectors == 4, "changed-sector dirty coverage");
+    check(c.close(), "changed-sector close");
+    check(c.status().written_bytes == 4*512, "unchanged neighboring sectors written");
+    file.verify(oracle);
+    check(c.start(file.owned(), oracle.size(), true), "changed-sector remount");
+    auto g2 = ready(c); check(g != g2, "changed-sector generation reused");
+    verify_ram(c, g2, oracle); check(c.close(), "changed-sector remount close");
+    puts("DISK-CACHE CHANGED PASS: unchanged track no IO; unaligned sparse track only four sectors; full physical close/remount oracle");
+
+    // A worker owns A while RAM changes to B, repeats B, then returns to the
+    // original bytes. Dropping existing dirty bits would leave A on disk.
+    auto original = pattern(64 * 1024);
+    File racing(original);
+    std::atomic<bool> entered{false}, release{false};
+    auto race_io = Cache::posix_io();
+    race_io.write = [&](int fd, const void *p, size_t n, off_t o) -> ssize_t {
+        if (!entered.exchange(true)) while (!release) std::this_thread::yield();
+        return pwrite(fd, p, n, o);
+    };
+    Cache r(submit, race_io);
+    check(r.start(racing.owned(), original.size(), true), "changed-race start");
+    auto rg = ready(r);
+    track.assign(original.begin(), original.begin()+bytes);
+    track[700] ^= 1;
+    check(r.write(rg, 0, track.data(), bytes) == Result::Done, "changed-race A");
+    until(r, [&] { return entered.load(); }, "changed-race worker not started");
+    check(r.write(rg, 0, track.data(), bytes) == Result::Done && !r.status().dirty_sectors,
+          "identical in-flight track created more dirty data");
+    track[700] ^= 3; track[8*512+7] ^= 4;
+    check(r.write(rg, 0, track.data(), bytes) == Result::Done, "changed-race B");
+    check(r.write(rg, 0, track.data(), bytes) == Result::Done && r.status().dirty_sectors == 2,
+          "identical track lost pending changed sectors");
+    check(r.write(rg, 0, original.data(), bytes) == Result::Done && r.status().dirty_sectors == 2,
+          "return to original bytes lost pending dirty data");
+    release = true;
+    check(r.close(), "changed-race close"); racing.verify(original);
+    check(r.status().written_bytes == 3*512, "changed-race physical write coverage");
+    puts("DISK-CACHE CHANGED RACE PASS: immutable in-flight A, repeated B and return to original retain dirty data and physical oracle");
+}
+
+int main(int argc, char **argv) {
     offload_start();
+    if (argc == 2 && !strcmp(argv[1], "--changed-only")) {
+        changed_sectors_test(); offload_stop(); return 0;
+    }
+    check(argc == 1, "unknown test argument");
     slow_write_test(); queue_and_coalescing_test(); short_io_and_sync_test();
     error_test(false); error_test(true); bounds_and_readonly_test(); capacity_test();
+    changed_sectors_test();
     offload_stop();
     puts("DISK-CACHE PASS: cache/actual worker qualified; Main/SPI/lifecycle integration and FPGA Cedar stress remain pending");
 }
