@@ -25,6 +25,22 @@ including explicit focus in this newly created tool. This is fresh-kernel
 entry on a copied checkpoint disk, not a final fresh-seed/cold-firmware pass.
 User reports pressing Schematic; timing unlogged, so account for that input.
 
+Fresh-input follow-up13:46UTC: bounded observer normally terminal45 frames.
+Frame43 shows a real Cmd-menu mouse click creating a new initialized lower
+CommandTool. Earlier Echo strings actually edited old upper typescript after
+an incorrectly placed caret, not executed commands; preserve echo-v1.png and
+input-focus-attempts-v1.json. Ordinary USB typing/mouse reach guest, but exact
+command/file qualification remains pending explicit new-tool caret placement.
+Do not repeat Boot/reset or confuse editable-output text with command execution.
+
+Complete original144-chip MSA follow-up now PASS for4 and16 backing lines at
+57.142857MHz using exact qualified9e group/address-sample/ready/arbiter/backend
+and cells.12012 board cycles,1111 output transitions and all9437184 stored bits
+match; both750 physical reads/7872 writes/113899 host cycles and byte-identical
+raw traces. No gain on THIS workload. New tools/probe_native_storage_cache_board.py,
+[156-member board receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/original-msa-board/README.md).
+Not full128-group native firmware, fit/timing or measured instruction speed.
+
 **Storage buffer component and rejection controls preserved.**
 [41-member source-bound receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/README.md)
 contains positive4/16-line comparison and an unmutated focused harness plus

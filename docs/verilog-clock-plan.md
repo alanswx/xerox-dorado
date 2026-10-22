@@ -15,6 +15,18 @@ frame32 All Library Files loading A-OK;33 final DF completion/tool prompt.
 Exact fresh keyboard/focus/click/file checks pending. Not final fresh-seed
 firmware or new speed qualification. User pressed Schematic, timing unlogged.
 
+Fresh observer is normally terminal45frames; Cmd mouse click creates initialized
+second tool in43. Earlier typed Echo edited old typescript at misplaced caret,
+not executed commands; exact new-tool echo/file qualification remains pending.
+Same7626/7625/9e, no repeat Boot/reset.
+
+Complete original144-chip MSA capacity comparison PASS at57.142857MHz:
+4/16 lines both12012 board cycles,9437184 identical stored bits,1111 output
+transitions,750 physical reads/7872 writes/113899 host cycles. Raw traces
+byte-identical. No gain on this workload. [156-member evidence](../fpga/mister/reports/2026-10-22-storage-cache-capacity/original-msa-board/README.md).
+Full native128-group firmware, all-device fit/timing and actual pinned hardware
+performance remain required before activating16 lines.
+
 [Storage capacity component receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/README.md)
 preserves41 members: exact frozen9e4/16 lines, same synthetic requests,
 unmutated focused harness and4 rejected real corruptions. First control's
