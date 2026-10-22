@@ -9,14 +9,39 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Current evidence and remaining work (2026-10-22,08:30UTC).**
-MiSTer14 now runs Main31285/server31284: same Main21e67a3f, receiver08452a86,
-RBF7c4d39e4 at57.142857MHz/SYSPER4. New volume
-`CedarStorageBoard57_Link1_20261022` uses repaired fresh seed f4203ce8.
-Physical8M-cell selftest/firstBL8 pass; original113 and real Cedar login observed.
-Loader/desktop/explicit logical boot remain pending. Startup required correcting
-an inherited old FPGA and journal error, then an unexplained Main31032 exit;
-preserve these and exclude this run from clean latency/stress comparisons.
+**Current evidence and remaining work (2026-10-22,09:32UTC).**
+MiSTer14 Main31285/server31284 stays Main21e67a3f/receiver08452a86/RBF7c4d39e4,
+57.142857MHz/SYSPER4, repaired fresh seedf4203ce8 on Link1 volume.
+Physical8M/firstBL8/original113 and all34 base transfers/final guest ACK PASS
+(337.017747545..337.251999356s protocol visibility; no manual retry).
+Native Viewers/mouse/short+full keyboard and warm file readback PASS:
+`///rtl57link1persist.txt` = exact`rtl57link1persist`.63,293 disk records/no errors/
+gaps; CRC/RX/abort0, nonzero droppedTX preserved. [Fresh desktop receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-fixed-receiver-fresh-desktop/README.md).
+Startup corrections/temporary Main exit exclude clean stress/latency claims.
+External HDMI remains BLACK; native clear,1080p60 test unsuccessful, original
+1080p30 restored/OSD closed/INI unchanged. External display remains an open gate.
+Startup viewport was stale after focus moved; margin-scroll proves final prompt.
+Actual direct Schematic.cm now completes full ProcH drawing and returns `%`.
+Normal quiet `Checkpoint` accepted after that completed app baseline; actual
+Creating checkpoint/Guest.pa message observed, save RUNNING. Follow
+SAME observer86244/tool13107 in Link1/quiet-app1. No new roundtrip claim yet.
+
+Optional RTL host write-window component PASS:10 scenarios/both modes and5
+meaningful failure controls, full-image/independent serial oracles. Default0
+keeps deployed behavior. Tested unaligned31-block transfer becomes2; partial
+end-block, generation/coalescing, CRC/readonly/remount/timeout covered.
+[Component/control receipt](../fpga/mister/reports/2026-10-22-pack-write-window/README.md).
+First57MHz native fit REJECTED: setup+0.686ns, hold-0.044ns/-0.008ns at address
+preview col[3] -> storage saved_addr[3], no assembly/load. [Complete rejection](../fpga/mister/reports/2026-10-22-pack-write-window/native57-rejected-hold/README.md).
+Separate Ubuntu `/home/alans/mister/Dorado_PackWindow57Hold_20261022`,2166275,
+RUNNING with actual ALL_PATHS hold repair; all original SDC/clocks retained.
+Full review/RAM inference/guarded assembly/native tests still required.
+
+V41 terminal at1.5B host/592,791,536 source, CPUc0fc7000/no113, physical8M pass
+only. V42 driver83938/sim84276/tool47383 changes ONLY normal boot input to3
+presses (original CoolBoot). Same503 sources/160 used HDL, full-memory physical
+model. Initialized by~210M host, last280M/39.5M source, boot sequence still ahead.
+Follow exact V42; no blind extension/restart or matched CPU-front claim.
 
 The explicit logical boot on the preceding CLOSED Rx1 volume hit827. Labels
 prove LV germ/boot links were flat while PV links were already CHS. The separate
@@ -69,13 +94,9 @@ Historical Rx1 results below remain valid in their stated scope:
   compact ARM tests and original-code failure control. [Build/test receipt](../fpga/mister/reports/2026-10-22-main21-cache-changed-sectors/README.md).
   `main-cache-changed-sectors.patch` avoids importing deferred snapshot APIs.
   Whole-track SPI is unchanged; no native performance gain is claimed.
-- Same full native-memory control V41 remains live: driver56227/simulator56631,
-  tool35657, `native-cedar-board57-control-v41-20261022`. Full physical startup
-  passed, beyond1.26B host/483M enabled ticks without device/model fault. BOTH
-  boot-down and release thresholds are past; no113 is established.
-  Do not restart it. No113 or
-  firmware pass yet. V38/V39 are terminal; V40 is a short preflight only.
-  [Harness/control receipt](../fpga/mister/reports/2026-10-22-native-memory-clock-control/README.md).
+- Historical V41 RUNNING prefixes are superseded by its terminal result above.
+  V38/V39 are terminal; V40 a short preflight. New input-only V42 must establish
+  real113/firmware control before any matched CPU-front experiment.
 
 Latest pinned pre-Guest login rate remains **2.968685M StartCycle issues/s**,
 **+14.49% vs50MHz**, **17.812% of original16.67M/s**. This excludes RepeatCur;
@@ -86,24 +107,16 @@ waiver, assembly or load. The experimental CPU front remains unqualified.
 Plain Boot uses self/bootedFrom; an explicit volume still automatically selects
 an existing checkpoint unless `-f` is supplied. Do not infer a fresh kernel from812.
 
-Next actions, in order: follow the SAME Link1 fresh-seed login/loader operation
-to desktop; validate all34 receiver transfers and input; use corrected logical
-links with `Boot CedarWork -f` for a quiet initialized-app kernel if needed;
-repeat Checkpoint/Rollback with exact post-checkpoint file/input/app checks;
-then test a cold restart of the preserved/repaired marked checkpoint copy.
-Keep Main21e6 for this isolation. Only after an actual closed boundary adapt
-the helper explicitly for candidate3370865d and compare pinned host writes/pauses.
-The next isolated disk-side speed experiment should reduce SPI write size in
-`dorado_pack_hps`: retain the full track read/cache, accumulate the first/last
-word ONLY for complete CRC-checked guest blocks, flush just the covering512-byte
-host blocks and offset the host RAM port by that aligned range. Preserve partial
-end-block neighbors, invalid-CRC/remount/readonly/timeout behavior and dual-port
-RAM inference. Test changed bytes and full-image oracles, both nonzero track
-alignment and range/base-address fault controls, before any timing fit or load.
-This is not implemented/qualified yet and does not replace60ns clock work.
-Follow the SAME V41 control before a matched CPU-front experiment. Complete
-real60ns phase/capture/data timing, three fresh-seed receiver/desktop boots and
-two-hour combined disk/network/input stress. Full FPGA snapshots stay deferred.
+Next actions, in order: follow SAME quiet Checkpoint to completion; verify
+input, apps, pre-file then create post-file and Rollback/repeat. Test corrected
+logical boot (`-f` for fresh kernel) and cold restart of preserved repaired
+checkpoint volumes. Recover/verify actual HDMI. Keep Main21e6 for isolation;
+only after an actual closed boundary adapt for3370865d/pinned write comparisons.
+Follow current physical hold-repair fit, review all actual timing/RAM contracts,
+then qualify optional SPI write window separately on hardware. Follow SAME V42
+control before the matched CPU-front work. Complete real60ns phase/capture/data
+timing, three final fresh-seed boots and2h disk/network/input stress. Full FPGA
+snapshots deferred; do not narrow acceptance to current component/desktop gates.
 If the quiet repeat also fails, preserve a CLOSED native volume and compare
 its original Cedar checkpoint file with the C reference; never import C runtime
 state into hardware. The milestone table below remains the full acceptance scope.

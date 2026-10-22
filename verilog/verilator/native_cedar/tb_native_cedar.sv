@@ -19,6 +19,7 @@ module tb_native_cedar;
   localparam realtime HALF_PERIOD_NS=500000000.0/HOST_CLOCK_HZ;
   localparam integer BOOT_DOWN_SAMPLES=4*HOST_CLOCK_HZ;
   localparam integer BOOT_UP_SAMPLES=24*HOST_CLOCK_HZ/5;
+  localparam integer COOL_BOOT_UP_SAMPLES=6*HOST_CLOCK_HZ;
   localparam integer DISK_DELAY_CLOCKS=HOST_CLOCK_HZ*3/1000;
   reg host_clk=0;always #(HALF_PERIOD_NS) host_clk=~host_clk;
   reg reset=1;initial begin repeat(5)@(negedge host_clk);reset=0;end
@@ -28,9 +29,18 @@ module tb_native_cedar;
   wire machine_clk=host_clk && step;
   longint unsigned host_ticks=0,guest_ticks=0,limit;
   string limit_path,medium_path,aemu,cedar,alto,stp;
+  integer boot_presses=1;
   reg [28:0] boot_samples=0;
-  always @(posedge machine_clk)if(boot_samples<BOOT_UP_SAMPLES)boot_samples<=boot_samples+1;
-  wire boot_n=!(boot_samples>=BOOT_DOWN_SAMPLES && boot_samples<BOOT_UP_SAMPLES);
+  wire [28:0] boot_end_samples=29'(boot_presses==3 ? COOL_BOOT_UP_SAMPLES : BOOT_UP_SAMPLES);
+  always @(posedge machine_clk)if(boot_samples<boot_end_samples)boot_samples<=boot_samples+1;
+  // Original DoradoContinuous.masm: one press is a software HotBoot;
+  // three presses select CoolBoot/LoadDoradoCode. Exercise only this normal
+  // physical input, never a direct run/manifold/IM or processor-state plant.
+  wire cool_boot_down=(boot_samples>=BOOT_DOWN_SAMPLES && boot_samples<22*HOST_CLOCK_HZ/5) ||
+      (boot_samples>=24*HOST_CLOCK_HZ/5 && boot_samples<26*HOST_CLOCK_HZ/5) ||
+      (boot_samples>=28*HOST_CLOCK_HZ/5 && boot_samples<COOL_BOOT_UP_SAMPLES);
+  wire boot_n=!(boot_presses==3 ? cool_boot_down :
+      (boot_samples>=BOOT_DOWN_SAMPLES && boot_samples<BOOT_UP_SAMPLES));
   reg [10:0] ps2_key=0;
   wire [10:0] machine_key;
   wire key_overflow;wire [8:0] key_queued;
@@ -38,6 +48,10 @@ module tb_native_cedar;
   dorado_key_queue keys(.clk_host(host_clk),.reset(reset),.ps2_key(ps2_key),
     .vsync_n(vsync_n),.machine_key(machine_key),.overflow(key_overflow),.queued(key_queued));
   initial begin
+    if($value$plusargs("boot-presses=%d",boot_presses))begin
+      if(boot_presses!=1 && boot_presses!=3)$fatal(1,"boot-presses must be 1 or 3");
+    end
+    $display("NATIVE_BOOT_INPUT presses=%0d clock_hz=%0d; original BaseBoard button only",boot_presses,HOST_CLOCK_HZ);
     if(!$value$plusargs("medium=%s",medium_path) || !$value$plusargs("aemu=%s",aemu) ||
        !$value$plusargs("cedar=%s",cedar) || !$value$plusargs("alto=%s",alto) ||
        !$value$plusargs("stp=%s",stp) || !$value$plusargs("limit-file=%s",limit_path))$fatal(1,"missing host artifact argument");

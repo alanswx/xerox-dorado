@@ -1,0 +1,15 @@
+# Optional disk-write windows: component pass, native timing pending
+
+The existing core pauses for whole-track host transfers. DIRTY_BLOCK_WINDOW (default0) accumulates the covering512-byte block range only when the original complete Fire-code check accepts a block. It retains the full-track read/cache and translates the synchronous HPS RAM port only during host write phases. A completed host ACK still retires the original dirty generation. No controller, disk CRC, CPU/cache/map/ECC, board clocks or Main change is included.
+
+The frozen component suite passes both whole-track and window modes across10 scenarios. Actual changed extra labels and both ends of the data block reach the RAM-backed image; every neighboring byte is checked. This unaligned fixture uses LBA457/31 host blocks in the baseline and LBA473/2 blocks in window mode (other alignments require32 full-track blocks). Later generations reset the range, two separated sectors coalesce, and sector28/pulse0 validates the partial last host block and following-track neighbors. A subsequent new-track read checks independent serial payload words and all Fire codes. Early/late read-only, dirty remount, bad Fire code and absent-host timeout preserve the correct dirty/fault/no-host-write behavior.
+
+Five failure controls reject the old whole-track claim, wrong LBA, wrong buffer base, lost coalescing and a write offset applied to the next read. The medium fixture is read only and its full SHA is checked again after testing. Three staging guards reject failing parent timing, unfinished tests and a modified parent source before writing output.
+
+Native staging starts from the reviewed57.142857MHz/SYSPER4 source and binds all503 source hashes. Only the medium adapter and its explicit parameter instantiation change, apart from remote path relocation. The first path preflight failed before Quartus because the Mac resolved /home through /System/Volumes/Data; it is preserved. The archived corrected Ubuntu builder2058745 RUNNING prefix was followed by a terminal hold rejection: see [complete rejected timing and separate physical repair](native57-rejected-hold/README.md). No assembly, RBF, FPGA load, native performance gain or all-device timing pass is claimed.
+
+The unchanged native-control V41 ends normally at its existing1.5B host limit,592,791,536 enabled source edges. Physical8M startup passes, but no113 is issued and CPU remainsc0fc7000. It cannot qualify a CPU-front experiment. Separate V42 changes only normal BaseBoard input to3 presses, matching original DoradoContinuous.masm CoolBoot/LoadDoradoCode. The same503 native sources remain frozen and unchanged; no IM/manifold/CPU-state writes or C CPU/IOCB execution. V42 driver83938/simulator84276/tool47383 is a RUNNING startup prefix, not firmware success. Preserve it rather than restarting on observation timeout.
+
+Run component gate: `python3 tools/test_pack_write_window.py --run build/rtl-executive/NEW-UNIQUE-WINDOW-RUN`
+
+Verify: `python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-22-pack-write-window`

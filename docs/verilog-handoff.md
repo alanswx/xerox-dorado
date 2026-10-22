@@ -15,25 +15,83 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Current hardware (2026-10-22,08:30UTC): repaired fresh seed reaches Cedar login.**
+**Current hardware (2026-10-22,09:32UTC): fresh Cedar/input/file/AIS PASS; quiet Checkpoint requested.**
 MiSTer14 SAME reviewed57.142857MHz/SYSPER4 RBF7c4d39e4/Main21e67a3f/
-receiver08452a86 now uses `CedarStorageBoard57_Link1_20261022`.
-Current Main31285/server31284, supervised by31283 (Mac tool96717).
-Runtime logs are on SD: `runtime2-main.log`, `runtime2-disk.jsonl`, `server.log`.
-Old Main23119/server23118 are absent and old Rx1 pack/logs are CLOSED/preserved.
-The derived fresh seed is f4203ce8, original f3bce2a8 preserved; no C-state import.
-All8,388,608 raw12-bit cells/both patterns/zero and exact first BL8 PASS.
-A first real load selected110 because keyboard state reset; documented original
-ROM three-press CoolBoot then produces actual113, C released, real Cedar6.1
-login shown in `storage-board57-link1-field-20261022/cedar-native.png`.
-The preceding direct Main attachment inherited old FPGA827; only the subsequent
-normal load_core actually programmed FPGA. An initial journal exception is
-preserved/corrected without a retry. Main31032 later disappeared unexpectedly;
-no new kernel OOM, cause unknown, so this run is EXCLUDED from clean stress/speed.
-Current supervised Main31285 stays live. Never rerun the startup helper or reload
-because a capture times out; observer IDs must match current deployment.json.
-Login/full34-loadee loading, desktop and explicit logical boot are next; no
-new desktop or repaired logical-boot success is claimed yet.
+receiver08452a86, volume `CedarStorageBoard57_Link1_20261022`.
+Main31285/server31284, supervisor31283/tool96717; no subsequent core load.
+SD logs: `runtime2-main.log`, `runtime2-disk.jsonl`, `server.log` in that volume.
+Original repaired fresh seedf4203ce8 and untouchedf3bce2a8 are hash-bound in the
+prior receipt. All8M raw12-bit cells/firstBL8 and originalBFN113 pass.
+All34 pinned base transfers/final guest ACK now PASS,337.017747545..337.251999356s
+regular-file visibility bounds, no manual loader retry; three failure controls
+reject. Native Viewers/Clock/WatchTool/EditTool, mouse/Cmd, exact short and full
+alphabet/digit echo PASS. Cedar writes/closes `///rtl57link1persist.txt`, then
+Type prints exact`rtl57link1persist` and a fresh prompt. Frozen running disk
+prefix63,293 complete records/no errors/gaps. Earlier health has CRC/RX/abort0,
+TX dropped15 (retained, not claimed zero). This run remains excluded from clean
+latency/stress because initial direct Main attachment inherited old FPGA827,
+journal error and later Main31032 disappearance (no new kernel OOM, cause unknown).
+All those startup corrections remain preserved. Old Rx1 volume is CLOSED.
+[212-member fresh loader/desktop receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-fixed-receiver-fresh-desktop/README.md).
+
+The unfocused startup tool stopped following its new output. Normal middle-click
+in its left margin near bottom reveals completed startup and final `%`;
+`STOP!` is a STATIC menu item, not proof the tool is busy. Do not keep waiting
+on an old viewport. Initial Schematic-menu aim opened the viewer-title menu;
+all buttons released. SecondSource is internal/not registered; its rejection is
+preserved. Direct `///Users/Guest.pa/Schematic.cm` in the second tool works:
+Bringover finishes, both original AIS Eval calls finish, full ProcH drawing
+renders in AIS Viewer and `%` returns. No fresh AIS fault observed.
+`quiet-app1/screens-v1/10.png` and `before-checkpoint-native.png` prove this
+completed idle app baseline. Normal `Checkpoint` accepted: actual `Creating checkpoint ... made by Guest.pa`
+message in `quiet-app1/screens-v1/15.png`; input/tool79528 completed. Save is RUNNING.
+Do NOT issue another Checkpoint/Boot or launch an app while this one runs.
+Follow same read-only observer86244/tool13107,90 samples at25s plus capture
+cost, `storage-board57-link1-field-20261022/quiet-app1/{watch.log,watch-state.json}`.
+The preceding boot observer80662/tool97666 is terminal90 frames. No quiet
+roundtrip, repeated/cold checkpoint or repaired explicit logical boot pass yet.
+After return test input/file/app survival and a post-checkpoint file, then
+Rollback/repeat. Keep `Boot CedarWork -f` for a later fresh-kernel test.
+
+**External HDMI gate is OPEN: capture is black; native framebuffer is clear.**
+Real capture produced90 fresh frames/~29.88fps including an OSD diagnostic, still
+black. Main's normal custom1080p60 command applied successfully but did not
+recover it. Original1080p30 runtime restored; persistent INI unchanged, OSD
+closed, no guest reset/state edit. Do not claim external display qualification
+or blame a particular native/capture component without more evidence. Preserve
+`desktop-hdmi.png`, `desktop-1080p60-hdmi.png`, `osd-hdmi.png`.
+
+**Optional core disk-write window component PASSES; first native fit REJECTED.**
+`DIRTY_BLOCK_WINDOW=0` remains production default. Frozen10 scenarios pass both
+modes: full-image changed labels/data, later ACK range reset/coalescing, sector28
+partial end-block neighbors, independent next-track serial read/Fire codes,
+read-only before/after valid write, remount, CRC and absent-host timeout.
+Five old/range/LBA/buffer/read-offset controls reject. This fixture reduces31
+host blocks atLBA457 to2 atLBA473 (other full-track alignments need32).
+[65-member component/control receipt](../fpga/mister/reports/2026-10-22-pack-write-window/README.md).
+Ubuntu first path preflight failed before Quartus (Mac resolved remote /home);
+corrected V2 terminal all9 stages, but setup+0.686ns/hold-0.044ns and-0.008ns FAIL.
+Worst: msaOdd/u_dram_addr_14/col[3] -> u_storage_14/saved_addr[3],0.634ns skew
+versus0.590ns minimum data. NO assembly/load. [304-member complete rejected fit](../fpga/mister/reports/2026-10-22-pack-write-window/native57-rejected-hold/README.md).
+Separate real hold-repair build RUNNING: Ubuntu
+`/home/alans/mister/Dorado_PackWindow57Hold_20261022`, builder2166275. Same503
+sources, only adapter/parameter changes plus QSF OPTIMIZE_HOLD_TIMING ALL_PATHS.
+No SDC/clock relaxation, seed search or logic retiming. Follow run-state/PIDs;
+all-device review, RAM inference and guarded assembly are still required.
+Main3370865d cache candidate remains tested/NOT deployed; do not combine it with
+native window tests before separately qualifying each at closed boundaries.
+
+**Native simulation control V41 terminal; V42 cool-boot input experiment live.**
+V41 driver56227/simulator56631/tool35657 ended0 at original HOST_LIMIT1.5B,
+592,791,536 enabled source edges, CPUc0fc7000/no113. Physical8M passes but no
+firmware gate; do not extend/restart it. New V42 driver83938/simulator84276,
+tool47383, `native-cedar-board57-cool-control-v42-20261022`, same503 native
+sources/160 used HDL/57MHz/full raw memory model. Only normal BaseBoard input
+changes: +boot-presses=3, documented original CoolBoot/LoadDoradoCode.
+Header verifies3; full memory initialization passed by~210M host. Last observed
+280M host/39.5M enabled ticks, so its4..6s enabled-edge button sequence is still
+AHEAD. No113 or firmware success. Preserve the SAME job/1.5B limit; no CPU/IM/
+manifold state plant. Matched CPU-front experiment still waits for valid control.
 
 **Concrete original827 cause: flat logical boot links in generated medium.**
 Explicit `Boot CedarWork` on Rx1 stopped at germLabelCheck827. Normal Main exit
@@ -295,18 +353,17 @@ live, CRC/RX/abort0, TX dropped2; no new hardware/daemon load occurred.
 
 ### Current next steps and simulation control
 
-Current next TODOs: follow SAME Link1 login/loader operation on Main31285/
-server31284 (observer31509/tool32681,20min bounded file-only timestamps).
-Verify all34 loadees, responsive desktop and exact input; then corrected explicit
-logical Boot (use `-f` when checkpoint exists), quiet initialized-app Checkpoint,
-repeated/cold rollback and exact new-file/input checks. Preserve old c8f8 volume
-and its separately repaired230d copy; no live copy or C-state import.
-For candidate3370865d adapt the restart helper explicitly: it currently assumes
-Main21e6. Current helper's revised first-load flow is guarded but not a completed
-clean deployment qualification; retain actual field helper variants/failures.
-Compare pinned host writes/pauses, finish60ns timing, three fresh-seed08452
-boots and final stress. Full FPGA snapshots deferred; last pinned rate remains
-2.968685M StartCycle issues/s, not a new measurement or retirement figure.
+Current next TODOs: follow SAME quiet Checkpoint requested after full rendered
+AIS/prompt; observer86244/tool13107. No repeat command on a white frame/timeout.
+Then input/pre-file/app check, post-file + Rollback, repeat/cold checkpoint,
+corrected explicit logical boot (`-f` for fresh kernel), external HDMI recovery.
+Keep old c8f8 volume and repaired230d copy. No live copy/C-state import.
+Follow separate2166275 hold-repair fit and V42 input-only control; do not load
+negative timing or treat component gates as firmware proof. Keep Main21e6 for
+isolation before closed-boundary3370865d comparisons. Finish60ns phase/capture/
+data work, three final fresh-seed boots and2h stress. FPGA snapshots deferred;
+last pinned speed remains2.968685M StartCycle issues/s,17.812% original, not a
+new desktop measurement. Handoff top supersedes old running-prefix chronology.
 
 V38/V39 are now TERMINAL, not long-running work. Tool handles11479/66643 were
 live LLDB sessions (actual debugger PIDs82257/83535), incorrectly checked as PIDs

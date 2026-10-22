@@ -1,0 +1,13 @@
+# Fixed receiver: original fresh-seed loader and interactive native desktop
+
+MiSTer14 Main31285/server31284 keeps reviewed RBF7c4d39e4, Main21e67a3f and receiver08452a86 at57.142857MHz/SYSPER4. Repaired fresh seed f4203ce8 derives from untouched f3bce2a8 with just the two label-validated LV links/checksum changed. Earlier startup corrections/temporary Main exit are preserved in the preceding link-repair receipt, so this run is excluded from clean latency/stress comparisons. This is not three final fresh boots or a60ns core.
+
+Original BFN113, physical8M-cell selftest and firstBL8 precede the actual Cedar login. Normal Guest/Returns, Grapevine-down fallback and No profile response succeed. All34 pinned transfers (1,345,843 bytes,33 BCDs) finish in order with exact final-file data ranges and actual guest ACK header/peer. File-observer bounds337.017747545..337.251999356s; no manual loader retry. Missing-ACK/data-gap/wrong-peer controls all reject. This is protocol visibility evidence, not a byte hash of guest-loaded payloads or a fair boot-speed comparison to the older operator-delayed loader.
+
+Viewers and Clock/WatchTool/EditTool paint. Normal mouse opens/focuses a second CommandTool. Exact rtl57link1 keyboard ok and full alphabet/digits echo return fresh prompts. Cedar creates/closes ///rtl57link1persist.txt, then Type reads exact rtl57link1persist. No host guest-memory/IOCB completion or live-pack copy. Complete-line SD log prefix has63,293 disk records/no errors/gaps. Earlier health prefix58,516 records/no errors/gaps has CRC/RX/abort0, TX dropped15; dropped TX is retained, not silently zeroed. These are running prefixes, not two-hour stress or cold file persistence.
+
+The unfocused first CommandTool stopped following its new output; margin scrolling reveals completed startup and a real final prompt, with Schematic/other buttons installed. STOP! is a static menu item and must not be treated as proof the tool is busy. No new quiet Checkpoint is claimed here. Schematic initialization/render, explicit logical boot, repeated/cold rollback remain next gates.
+
+External HDMI remains BLACK in the capture, despite a clear native framebuffer. A live3-second stream produced90 fresh frames at~29.88fps, including the normal OSD diagnostic, still black. Standard1080p60 custom mode was applied through Main's normal video_mode command and did not recover it; original1080p30 runtime mode restored and persistent INI unchanged. OSD was closed. These black captures are retained; this receipt does NOT qualify external display or identify a root video/capture cause.
+
+Verify: `python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-22-storage-board-ready/native57-fixed-receiver-fresh-desktop`

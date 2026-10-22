@@ -24,7 +24,8 @@ ROOT=Path(__file__).resolve().parents[1]
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def prepare(stage,mapping,out,medium,qualification=None):
+def prepare(stage,mapping,out,medium,qualification=None,boot_presses=1):
+    assert boot_presses in (1,3)
     assert not out.exists()
     manifests=[stage/name for name in ('storage-board-native.json',
         'r-front-ready-native.json','mc1668-candidate.json') if (stage/name).exists()]
@@ -76,6 +77,7 @@ def prepare(stage,mapping,out,medium,qualification=None):
         'harness/xsds_model.sv':ROOT/'verilog/verilator/third_party/xsds/xsds_128mbyte_sdram_model.sv',
         'host/ethernet.c':ROOT/'dorado/src/ethernet.c','host/io.c':ROOT/'dorado/src/io.c',
         'run_native_cedar_memory.py':Path(__file__),
+        'harness/original-boot-button.masm':ROOT/'chm/dorado/expanded/doradobaserom.dm!12_/doradocontinuous.masm',
     }
     for p in (ROOT/'dorado/include').glob('*.h'):extra['host/include/'+p.name]=p
     for name,p in extra.items():
@@ -96,6 +98,7 @@ def prepare(stage,mapping,out,medium,qualification=None):
         stage_manifest_name=manifest.name,stage_manifest_sha256=sha(manifest),qualification_sha256=sha(qualification),
         mapping_sha256=sha(mapping),inputs=hashes,used_hdl=used,defines=definitions,
         host_clock_hz=host_hz,
+        normal_baseboard_boot_presses=boot_presses,
         artifacts={n:dict(path=str(p),sha256=sha(p)if p.is_file()else None)for n,p in artifacts.items()},
         no_CPU_state_or_guest_IOCB_completion=True,complete_MiSTer_Main_video_qualified=False)
     (out/'provenance.json.gz').write_bytes(gzip.compress((json.dumps(record,indent=2)+'\n').encode(),mtime=0))
@@ -128,6 +131,8 @@ def run(out):
                  *[str(inputs/n)for n in r['used_hdl']],str(inputs/'harness/xsds_model.sv'),str(inputs/'harness/tb_native_cedar.sv'),str(inputs/'harness/host.cpp')]
         execute(command,'compile',inputs/'src')
         command=[str(out/'obj/native-cedar'),'+limit-file='+str(out/'host-cycle-limit.txt')]
+        if r.get('normal_baseboard_boot_presses',1)!=1:
+            command+=['+boot-presses='+str(r['normal_baseboard_boot_presses'])]
         command+=['+'+n+'='+item['path']for n,item in r['artifacts'].items()]
         execute(command,'test',inputs/'src')
         log=(out/'test.log').read_text();stop=re.findall(r'NATIVE_DIAGNOSTIC_STOP reason=\s*(\w+)[^\n]+',log)
@@ -143,9 +148,11 @@ if __name__=='__main__':
     mode.add_argument('--prepare',type=Path);mode.add_argument('--run',type=Path)
     p.add_argument('--stage',type=Path);p.add_argument('--mapping',type=Path);p.add_argument('--medium',type=Path)
     p.add_argument('--qualification',type=Path,help='Completed review when stored outside the frozen stage')
+    p.add_argument('--boot-presses',type=int,choices=[1,3],default=1,
+                   help='Normal original BaseBoard input: one HotBoot or three CoolBoot presses')
     a=p.parse_args()
     if a.prepare:
         assert a.stage and a.mapping and a.medium
         prepare(a.stage.resolve(),a.mapping.resolve(),a.prepare.resolve(),a.medium.resolve(),
-                a.qualification.resolve()if a.qualification else None)
+                a.qualification.resolve()if a.qualification else None,a.boot_presses)
     else:run(a.run.resolve())

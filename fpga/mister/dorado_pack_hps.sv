@@ -4,6 +4,9 @@
 // The machine pauses during host transfers; HPS and HDMI clocks keep running.
 module dorado_pack_hps #(
     parameter integer SNAPSHOT_PAUSE = 0,
+    // Experimental host write reduction. Keep the deployed whole-track
+    // contract until the windowed build has passed native timing/boot gates.
+    parameter integer DIRTY_BLOCK_WINDOW = 0,
     parameter integer SECTORS_PER_TRACK = 29,
     parameter integer LABEL_WORDS = 8,
     parameter [11:0] INITIAL_CYL = 0,
@@ -89,10 +92,14 @@ module dorado_pack_hps #(
   wire [12:0] read_addr;
   wire [12:0] disk_addr = store ? store_addr : read_addr;
   wire snapshot_block;
+  reg [4:0] dirty_first_block = 0, dirty_last_block = 0;
+  reg [12:0] host_write_base = 0;
+  wire [12:0] host_buffer_addr = sd_buff_addr +
+      (((DIRTY_BLOCK_WINDOW!=0) && (host_state==1 || host_state==2)) ? host_write_base : 13'd0);
   always @(posedge clk_sys) begin
     if (!snapshot_block) begin
-    sd_buff_din <= buffer[sd_buff_addr];
-    if (sd_buff_wr) buffer[sd_buff_addr] <= sd_buff_dout;
+    sd_buff_din <= buffer[host_buffer_addr];
+    if (sd_buff_wr) buffer[host_buffer_addr] <= sd_buff_dout;
     end
   end
   always @(posedge machine_clk) begin
@@ -166,7 +173,9 @@ module dorado_pack_hps #(
             host_fault <= 1;
             if (!host_fault) begin host_debug<=host_fault_status(7);host_extra<=cached_lba;end
           end else begin
-            sd_lba <= cached_lba; sd_blk_cnt <= cached_count;
+            sd_lba <= cached_lba + ((DIRTY_BLOCK_WINDOW!=0) ? {27'd0,dirty_first_block} : 32'd0);
+            sd_blk_cnt <= (DIRTY_BLOCK_WINDOW!=0) ? {1'b0,dirty_last_block}-{1'b0,dirty_first_block} : cached_count;
+            host_write_base <= {dirty_first_block,8'd0};
             sd_wr <= 1; host_state <= 1;
           end
         end else if (need_track && head < 5) begin
@@ -280,6 +289,7 @@ module dorado_pack_hps #(
   reg [15:0] shift_next;
   reg [31:0] ecc_next;
   reg wr_gate_d = 0;
+  wire [13:0] completed_last_word = {1'b0,wr_base} + {5'd0,block_words(wr_block)} - 14'd1;
   always @(posedge machine_clk) begin
     store <= 0; wr_gate_d <= write_gate;
     if (!write_gate) begin
@@ -328,7 +338,19 @@ module dorado_pack_hps #(
                 serial_fault <= 1;
                 if (!serial_fault) begin serial_debug<=fault_status(4);serial_extra<=ecc_next;end
               end
-              else generation <= generation+1'b1;
+              else begin
+                // The range becomes eligible at the SAME boundary as the
+                // existing dirty generation: a complete, valid Fire code.
+                // Machine execution pauses throughout HPS work, so these
+                // machine-clock registers remain stable until ACK finishes.
+                if (DIRTY_BLOCK_WINDOW!=0) begin
+                  if (generation == flushed_generation || wr_base[12:8] < dirty_first_block)
+                    dirty_first_block <= wr_base[12:8];
+                  if (generation == flushed_generation || completed_last_word[12:8] > dirty_last_block)
+                    dirty_last_block <= completed_last_word[12:8];
+                end
+                generation <= generation+1'b1;
+              end
               wr_state <= 0; wr_bits <= 0; wr_shift <= 0;
             end
           end
