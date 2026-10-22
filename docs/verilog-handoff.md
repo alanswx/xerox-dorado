@@ -15,6 +15,31 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
+**Cold native-window persistence PASS (15:10UTC).** SAME cache4 RBF9e,
+Main12331/server12330, distinct ColdWrite2 copy of closed236b. Normal Cmd click
+creates initialized second tool; blank-area EOF click then exact Echo
+coldwindow57 exact/prompt and Type ///window57persist.txt -> EXACT window57persist/
+new prompt. This file was created in preceding native-window session before its
+actual Main/core/daemon/cache close/reload. Source236b rehashed UNCHANGED, live
+binary identities bound. [46-member cold write-persistence receipt](../fpga/mister/reports/2026-10-22-pack-write-window/native57-cold-write-persistence/README.md)
+verifies; failed empty-profile attempt and correct no-profile-typing recovery
+remain explicit. Original60-frame observer and follow-up15-frame observer are
+both normally terminal. Current desktop stays alive; no capture watcher now.
+This is cache4 native persistence, not new93ad firmware or final stress/speed.
+
+Assembly/tooling72-member milestone PUSHED dcd91371. Reviewed93ad image staged
+at /media/fat/games/DoradoRTL/StorageCacheNative57Stage_20261022; all six file
+hashes match. Tar returned2 only because VFAT cannot apply archived Mac501/50
+ownership; data is complete, failure log retained, no second extraction.
+Local hardware/run-cache16.py and remote /tmp/dorado-cache16-native57-20261022.py
+use the original normal Main load/barrier protocol, exact12331/12330/old9e,
+new93ad image guards and immutable236b copy. Preparation completed normally:
+CedarStorageCache57_20261022/cold-load-state.json is PREPARED_NO_LOAD, preparer
+14133 terminal. Baseline Main12331/server12330 confirmed live. Core93ad has not run
+yet; next actual work is physical8M/startup/113/pre-Guest pinned speed, then
+Cedar/input/files. Keep unchanged Main21e6/receiver0845 for isolation; Main337,
+real60ns clock migration and final three fresh seeds/2h stress remain open.
+
 **15:00UTC: native16-line candidate REVIEWED/ASSEMBLED, not deployed.**
 Full956-member terminal archive SHA87e8d0b1ccfdc2983e9d632e020882da82cd96883b44d1783977de7f2782f433
 is downloaded/read back at storage-cache-native57-v1-20261022/terminal-v1/raw.

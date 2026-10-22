@@ -9,6 +9,21 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**15:10UTC: native cache4/window cold persistence PASS.** New core/Main/daemon/
+host caches from copy236b, original Basic/Viewers, mouse-created clean tool,
+exact fresh Echo and Type ///window57persist.txt -> exact window57persist/prompt.
+Source236b unchanged. [46-member proof](../fpga/mister/reports/2026-10-22-pack-write-window/native57-cold-write-persistence/README.md)
+retains initial input failure and default-only successful recovery. Both capture
+observers terminal; SAME12331/12330/9e remains live. Not final93ad/stress/speed.
+
+New16-line93ad RBF/qualification stage on14 hashes exactly; tar ownership-only
+VFAT warnings retained, no re-extraction. hardware/run-cache16.py prepares a
+distinct CedarStorageCache57_20261022 volume/core entry; preparation is now
+PREPARED_NO_LOAD (14133 terminal), baseline12331/12330 confirmed live.
+Use ONE subsequent normal load. Keep Main/server
+unchanged for physical startup/original113/pinned pre-Guest comparison, then
+full Cedar/input/files. Main337, actual60ns phases and final acceptance remain.
+
 **15:00UTC:16-line native buffer fit reviewed/assembled, hardware pending.**
 956 terminal members read back; exact503-source regeneration, one wrapper/two
 edits. All31 summaries/356 detailed categories/four conditions positive,
