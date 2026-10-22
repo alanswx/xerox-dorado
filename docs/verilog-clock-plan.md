@@ -9,7 +9,51 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Latest status (2026-10-22 00:12 UTC): corrected SDRAM core boots interactive Cedar.**
+**Latest status (2026-10-22 03:14 UTC): working Cedar stays on MiSTer14;
+memory timing improves, CPU cone limits66.7MHz.** Main14025/server14024 remain
+alive, actual03:00 internal screenshot shows the desktop, CommandTools, keyboard
+echo and warm file marker. CRC/RX/abort0, TX dropped30. Actual hardware remains
+50MHz/SYSPER4; the last measured idle-login rate remains2.592922M issues/s
+(15.56% of16.67M/s), not a new desktop speed measurement.
+
+The same-epoch per-MSA ready reduction and fixed-lane SDRAM/trace capture pass
+original144-chip/all-bit/exact-host-trace, dual-simulator temporal groups, pin/
+fault suites and full8M-cell simulation at57.1/66.7MHz. One-MSA15ns timing passes
+all corners (setup+0.123ns,hold+0.072ns), with one ready register and no extra
+host cycle. Full128-group startup prefixes pass at both clocks but have zero
+CPU issues/writes and an array backend: no original-firmware qualification.
+
+Full native66.7MHz is terminal and rejected. Memory-ready-to-step+1.093ns and
+SDRAM output setup+3.369ns pass, but CPU setup is-1.877ns in the summary/-1.943ns
+in the detailed MemC/MemD->BMux/ALU->ProcH diagnostic->DMuxData->ProcL k22 path.
+No false/multicycle waiver was added. The953-member terminal receipt preserves
+all503 sources and failed/repaired read-only report helpers; original fit was
+not restarted. [Component/rejected-native evidence](../fpga/mister/reports/2026-10-22-storage-board-ready/README.md)
+verifies5815 members/1283 blobs losslessly. No image assembled or loaded.
+
+Intermediate57.142857MHz builder536779 and repaired reporter591029/collector591030
+are now terminal, all stages rc0 and every recorded PID absent. All503 source
+hashes remain unchanged; the [951-member terminal receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-terminal/README.md)
+verifies. CPU setup+0.721ns/hold+0.093ns and all31 summary/observed detailed
+slacks are positive; strict recipe/RAM/warning/category/guard review remains
+pending. The original fit was never restarted. Its
+SYSPER4 ordinary ceiling is7.143M/s before waits;66.7MHz would be8.333M/s, still
+below the original60ns/16.67M target. Neither is measured FPGA speed yet.
+
+An MC10181 Boolean carry rewrite passes all16,384 binary input combinations and
+seven outputs in both simulators, independent HM3.7 arithmetic and real bad
+controls. A fresh full-native66.7MHz fit with only this combinational cell changed
+is running: builder607315/reporter607316/collector607317 at
+`Dorado_StorageBoardALUNative66_1_20261022`. Registers/capture epochs and all
+cache/Map/ECC/peripheral logic/constraints are unchanged; manifest explicitly
+records changed CPU combinational logic. The [source/live-prefix receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/alu-native66-source/README.md)
+does not grant assembly permission. Finish the57MHz terminal review and the
+existing ALU job's full terminal/all-corner/source/RAM/guard review, then actual physical-memory/
+original-firmware Cedar/input qualification. Authentic rollback and final cold
+persistence/repeated boots/stress remain open; whole FPGA snapshots deferred.
+Earlier progress below remains historical context.
+
+**Earlier hardware qualification (2026-10-22 00:12 UTC): corrected SDRAM core boots interactive Cedar.**
 MiSTer14 runs StorageReadCapture1 RBF0c578915, Main14025/server14024. All8,388,608
 raw12-bit cells pass both address patterns and zero verification; first burst
 is exactlyA59/A58/A5B/A5A/A5D/A5C/A5F/A5E. The old local chip model launched

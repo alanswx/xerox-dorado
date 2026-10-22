@@ -15,7 +15,59 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Latest hardware (2026-10-22 00:12 UTC): corrected SDRAM core boots interactive Cedar.**
+**Latest status (2026-10-22 03:14 UTC): MiSTer14 remains on working Cedar;
+faster builds are still under qualification.** Main14025/server14024 are alive.
+The03:00 internal screenshot shows the Viewers desktop/two CommandTools, exact
+keyboard output and the warm file marker. CRC/RX/abort counters remain0;
+TX dropped30. No new RBF was loaded. The last measured pre-Guest idle rate is
+2,592,921.60 StartCycle issues/s (15.56% of16.67M target), not a new desktop
+measurement. Physical50MHz/SYSPER4 remains unchanged.
+
+Same-edge memory readiness now reduces/registers once per MSA, with no additional
+host latency. Original144-chip/all9,437,184-bit/exact-host-trace and dual-simulator
+group checks pass, including bad variants. The one-MSA15ns/four-condition fit
+passes (setup+0.123ns/hold+0.072ns) with one ready register; eight evidence controls
+reject. Fixed-lane SDRAM/trace capture and preserved command-bit encoding pass
+the pin/fault suites and full8M-cell sweeps at57.142857/66.666667MHz. Full native
+startup prefixes pass8M comparisons at both frequencies; zero CPU issues/writes
+and an array backend mean these are NOT firmware or physical-SDRAM gates.
+
+The full66.7MHz native build is terminal and REJECTED: summary CPU setup-1.877ns,
+detailed worst-1.943ns. MemC/MemD data travels through BMux/MC10181/ProcH diagnostic
+selection/DMuxData to ProcL k22's input snapshot. Do not waive it as halted-only:
+HM4.10 permits programmatic MidasStrobe while running. Memory-ready gate+1.093ns
+and physical SDRAM output setup+3.369ns now pass; whole-core CPU timing does not.
+All503 source hashes and953 downloaded terminal members verify. Read-only
+report/collector race failures are preserved and repaired without restarting fit.
+The [5815-member component/rejected-fit receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/README.md)
+verifies losslessly. It includes the unchanged hardware screenshot.
+
+The57.1MHz original builder536779 at
+`/home/alans/mister/Dorado_StorageBoardNative57_1_20261022` is now TERMINAL: all
+nine stages and three read-only report jobs return0; every recorded PID including
+reporter591029/collector591030 is absent and503 source hashes remain unchanged.
+CPU setup+0.721ns/hold+0.093ns and all31 summary/observed detailed slacks are
+positive. The [951-member terminal archive](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-terminal/README.md)
+verifies, but strict recipe/RAM/warning/required-category and guard review remains
+pending. Recovery explicitly stopped only failed reporter-v1's waiting
+collector536783; the original fit was never restarted. Do not assemble before review.
+SYSPER4's nominal ceiling is7.143M/s before waits, not the60ns target.
+
+An MC10181 combinational carry factorization passes all16,384 binary inputs/all
+seven output pins in Icarus and Verilator, independent HM3.7 arithmetic and two
+compiled bad variants. No canonical cell, register or capture epoch changed.
+A fresh66.7MHz503-source ALU experiment is now running at
+`/home/alans/mister/Dorado_StorageBoardALUNative66_1_20261022`:
+builder607315/map607320, reporter607316, collector607317. The
+[frozen source/live-prefix receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/alu-native66-source/README.md)
+is not a timing pass. Follow this original job; do not restart on a timeout.
+Next: finish57MHz terminal/source/RAM/all-corner review and damaged-evidence
+guards; inspect the ALU experiment's actual timing; then qualify physical memory
+and original-firmware Cedar/input before a faster-core claim. Authentic rollback,
+cold persistence, three fresh boots and sustained stress remain open. Complete
+FPGA snapshots remain deferred. Earlier statuses below are historical.
+
+**Earlier hardware qualification (2026-10-22 00:12 UTC): corrected SDRAM core boots interactive Cedar.**
 StorageReadCapture1 RBF `0c578915110c59c546456a2821e26a0fcfdffe671668ffb27ad3e3caedd459b2`
 is loaded; Main14025/server14024 are live with unchanged binaries. The physical
 test passes all8,388,608 raw12-bit cells, both address patterns and verified
@@ -6876,7 +6928,13 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify post-edge address/readiness prediction against the original144-chip MSA/all9,437,184 bits and exact host/raw trace; width8/12 temporal comparisons in both simulators; actual bad variants. Finish one-board15ns/four-condition timing review and eight evidence controls; archive429 members, commit/push a4f24ecc.
 - [x] Integrate identical prediction into all128 native groups using actual network_step; preserve qualified CPU/cache/map/ECC/services/clocks. Compare all175 outputs/group state for8M host edges and1.56M delayed reads; reject a compiled disconnected-step control. Keep zero CPU/write and array-backend scope explicit; archive1776 members.
 - [x] Finish the SAME native builder120341/fit133372, read-only reporter153502 and collector185040; all processes terminal/absent. All503 recipe/source hashes,170 memory entries/165 parameter tables,128 ready bits and316 required timing categories inspect successfully. Both ready filters pass; preserve+0.006ns unexcluded hold and+1.060ns diagnostic setup limits. Archive963 members; no assembly or faster-clock qualification.
-- [ ] Finish native damaged-evidence/final assembly guards; qualify physical8M-cell/original-firmware Cedar/input if promoting this same-clock candidate. Next clock component: reduce128-ready half-cycle fan-in through same-epoch per-board prediction/reduction; shorten SDRAM capture/diagnostic paths and fit actual faster clock/I/O. No stale-ready sampling or new timing waiver.
+- [x] Reduce128-ready fan-in through same-epoch per-MSA prediction/reduction; preserve original144-chip/all-bit/host-trace behavior and dual-simulator checks, one-board15ns timing and eight rejection controls.
+- [x] Shorten fixed-lane SDRAM/trace data paths and retain actual command output bits; pass final pin/trace/fault suites and full8M-cell simulation at57.1/66.7MHz. Full startup prefixes pass at both clocks; keep zero CPU/write/array-backend scope explicit.
+- [x] Finish original66.7MHz native build/repaired read-only reports, verify953 terminal members and reject actual CPU setup-1.943ns. Preserve failed helper races; no refit, assembly, timing waiver or load. Archive5815 members/1283 blobs.
+- [x] Prove equivalent MC10181 carry factorization over all16,384 binary inputs/seven pins in both simulators with real bad variants; stage/start separate503-source66.7MHz native experiment607315 and preserve live prefix.
+- [x] Finish SAME57.1MHz builder536779/reporter591029/collector591030: all stages terminal/rc0, recorded PIDs absent,503 unchanged source hashes and951-member terminal archive verified. All31 summary/observed detailed slacks positive; strict coverage/source/RAM/guard review remains pending.
+- [ ] Follow existing ALU66.7MHz builder607315/reporter607316/collector607317 to terminal evidence; compare actual CPU paths against the rejected candidate. Do not restart on polling timeout.
+- [ ] Finish faster-native source/RAM/all-corner/warning/damaged-evidence/final assembly guards; then qualify physical8M-cell/original-firmware Cedar/input before claiming a faster core. Keep the independent experimental CPU-front regression separate.
 - [x] Test live progressive1080p60 through normal Main controls; preserve black capture and restore previous1080p30. Shared capture service/other MiSTers remain untouched; capture recovery is still open.
 - [ ] Trace the earlier queue/memory fault with phase-correct consumed operands through native memory holds; recover original Cedar/login/Viewers/mouse/click/exact keyboard echo and HDMI capture before accelerating.
 - [ ] Complete original 60 ns ordinary-instruction clock/enable and timer migration, reducing avoidable memory waits while preserving cache/map/ECC and peripheral behavior. Report instruction issues and holds separately on pinned workloads.

@@ -9,17 +9,26 @@ import argparse,hashlib,json,os,subprocess,time
 from pathlib import Path
 def sha(b):return hashlib.sha256(b).hexdigest()
 
-def run(project,quartus):
- out=project/'storage-ready-reports-v1';assert not(out/'run-state.json').exists()
+def run(project,quartus,attempt=1):
+ out=project/('storage-ready-reports-v'+str(attempt));assert not(out/'run-state.json').exists()
  proof=json.loads((out/'inputs.json').read_text())
  for n,h in proof.items():assert sha((out/n).read_bytes())==h,n
- manifest=json.loads((project/'storage-ready-native.json').read_text())
+ name='storage-board-native.json'if(project/'storage-board-native.json').exists()else'storage-ready-native.json'
+ manifest=json.loads((project/name).read_text())
  state=dict(status='WAITING_EXISTING_NATIVE_BUILD',driver_pid=os.getpid(),started=time.time(),actions=[],report_inputs=proof,assembly_permitted=False)
- def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
+ def save():
+  path=out/'run-state.json';temp=out/'run-state.json.tmp'
+  temp.write_text(json.dumps(state,indent=2)+'\n');os.replace(temp,path)
  save()
  try:
   while True:
-   build=json.loads((project/'run-state.json').read_text())
+   try:build=json.loads((project/'run-state.json').read_text())
+   except (FileNotFoundError,json.JSONDecodeError):
+    # Older builders rewrote state in place. Retry only while that exact
+    # recorded builder is alive; this never starts another compilation.
+    launch=json.loads((project/'launch.json').read_text());d=Path('/proc')/str(launch['pid'])
+    assert d.exists()and str(project)in(d/'cmdline').read_bytes().replace(b'\0',b' ').decode()
+    time.sleep(1);continue
    alive=(Path('/proc')/str(build['builder_pid'])).exists()
    if build['status']!='RUNNING'and not alive:break
    assert alive,'Builder disappeared without terminal state; inspect, do not restart'
@@ -48,4 +57,4 @@ def run(project,quartus):
  print(state['status'],flush=True)
 
 if __name__=='__main__':
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--project',type=Path,required=True);p.add_argument('--quartus',type=Path,default=Path('/home/alans/intelFPGA_lite/17.0/quartus/bin'));a=p.parse_args();run(a.project.resolve(),a.quartus.resolve())
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--project',type=Path,required=True);p.add_argument('--quartus',type=Path,default=Path('/home/alans/intelFPGA_lite/17.0/quartus/bin'));p.add_argument('--attempt',type=int,choices=[1,2],default=1);a=p.parse_args();run(a.project.resolve(),a.quartus.resolve(),a.attempt)

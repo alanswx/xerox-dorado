@@ -22,7 +22,7 @@ def ports(raw):
  assert len(result)==len({r[2]for r in result})and len(result)>300
  return result
 
-def bench(parent):
+def bench(parent,clock_hz=50000000):
  raw=(parent/BACKPLANE).read_bytes();pp=ports(raw)
  wrapper=(parent/(BASE+'dorado_native_machine.sv')).read_text()
  body=wrapper.split('dorado_native_backplane #',1)[1].split(');',1)[0]
@@ -129,12 +129,16 @@ module tb_storage_ready_native;
 endmodule
 `default_nettype wire
 '''
+ if clock_hz!=50000000:
+  assert clock_hz in [57142857,66666667]
+  text=text.replace('always #10 host_clk=~host_clk;','always #(500000000.0/'+str(clock_hz)+') host_clk=~host_clk;')
  for name,value in [('DECLARATIONS','\n'.join(declarations)),('INSTANCES','\n'.join(instances)),('COMPARES','\n'.join(compares)),('GROUPCHECKS','\n'.join(groupchecks))]:text=text.replace(name,value)
  return text.encode(),constants,len(compares)
 
 def prepare(candidate,parent,out,bad_step=False):
  assert not out.exists()
- c=json.loads((candidate/'storage-ready-native.json').read_text());p=json.loads((parent/'sdram-burst-native.json').read_text())
+ manifest='storage-board-native.json'if(candidate/'storage-board-native.json').exists()else'storage-ready-native.json'
+ c=json.loads((candidate/manifest).read_text());p=json.loads((parent/'sdram-burst-native.json').read_text())
  assert c['parent_manifest_sha256']==sha((parent/'sdram-burst-native.json').read_bytes())
  for root,r in [(candidate,c),(parent,p)]:
   for n,h in r['source_hashes'].items():assert sha((root/n).read_bytes())==h,(root,n)
@@ -158,11 +162,12 @@ def prepare(candidate,parent,out,bad_step=False):
   if name=='reference_backplane.v':b=b.replace(b'msa_ddram #',b'reference_msa_ddram #')
   if name=='reference_msa.v':b=b.replace(b'dorado_storage_group #',b'reference_storage_group #')
   (frozen/name).write_bytes(b)
- tb,constants,outputs=bench(parent);(frozen/'tb.sv').write_bytes(tb)
+ clock_hz=c.get('frequency_hz',50000000)
+ tb,constants,outputs=bench(parent,clock_hz);(frozen/'tb.sv').write_bytes(tb)
  (frozen/Path(__file__).name).write_bytes(Path(__file__).read_bytes())
- result=dict(scope=__doc__,candidate_manifest_sha256=sha((candidate/'storage-ready-native.json').read_bytes()),
+ result=dict(scope=__doc__,candidate_manifest=manifest,candidate_manifest_sha256=sha((candidate/manifest).read_bytes()),
   parent_manifest_sha256=sha((parent/'sdram-burst-native.json').read_bytes()),sources=sorted(sources),macros=macros,
-  host_period_ns=20,sysper=4,compared_backplane_outputs=outputs,input_fixture=constants,
+  host_period_ns=1000000000/clock_hz,sysper=4,compared_backplane_outputs=outputs,input_fixture=constants,
   negative_control='omit actual clock-gate step at all8 boards'if bad_step else None,
   inputs={str(f.relative_to(frozen)):sha(f.read_bytes())for f in frozen.rglob('*')if f.is_file()},
   firmware_qualified=False,physical_SDRAM_qualified=False)
@@ -179,7 +184,7 @@ def run(out,cycles):
    proc=subprocess.Popen(list(map(str,command)),cwd=inputs/'src',stdout=log,stderr=subprocess.STDOUT)
    row=dict(stage=label,pid=proc.pid,command=list(map(str,command)),started=time.time());state['actions'].append(row);save();rc=proc.wait();row.update(returncode=rc,finished=time.time());save()
   t=(out/(label+'.log')).read_text()
-  assert (rc!=0 and ('STORAGE_READY_PREDICTION'in t or 'NATIVE_STORAGE_READY output'in t or 'NATIVE_STORAGE_READY group'in t))if negative else rc==0,(label,t[-3000:])
+  assert (rc!=0 and any(d in t for d in ['STORAGE_READY_PREDICTION','STORAGE_BOARD_READY_REDUCTION','NATIVE_STORAGE_READY output','NATIVE_STORAGE_READY group']))if negative else rc==0,(label,t[-3000:])
  save()
  try:
   command=['verilator','--binary','--timing','--autoflush','--top-module','tb_storage_ready_native','-j','4','-Wno-fatal','-Wno-PINMISSING','-Wno-UNOPTFLAT','-Wno-MULTIDRIVEN','-Wno-LATCH','--Mdir',out/'obj','-o','test',*['+define+'+m for m in p['macros']],'-I'+str(inputs/'src'),'-I'+str(inputs/'src/verilog/cells'),'-I'+str(inputs/'src/verilog/generated'),inputs/'tb.sv',*[inputs/n for n in p['sources']],*[inputs/n for n in ['reference_backplane.v','reference_msa.v','reference_group.sv']]]
