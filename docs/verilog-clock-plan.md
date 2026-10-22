@@ -9,10 +9,27 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Current evidence and remaining work (2026-10-22,07:18UTC).**
-MiSTer14 still runs Main23119/server23118: Main21e67a3f, receiver08452a86,
-RBF7c4d39e4 at57.142857MHz/SYSPER4. Volume `CedarStorageBoard57_Rx1_20261022`
-is live. No new Main, FPGA load, daemon restart or live-pack copy has occurred.
+**Current evidence and remaining work (2026-10-22,08:30UTC).**
+MiSTer14 now runs Main31285/server31284: same Main21e67a3f, receiver08452a86,
+RBF7c4d39e4 at57.142857MHz/SYSPER4. New volume
+`CedarStorageBoard57_Link1_20261022` uses repaired fresh seed f4203ce8.
+Physical8M-cell selftest/firstBL8 pass; original113 and real Cedar login observed.
+Loader/desktop/explicit logical boot remain pending. Startup required correcting
+an inherited old FPGA and journal error, then an unexplained Main31032 exit;
+preserve these and exclude this run from clean latency/stress comparisons.
+
+The explicit logical boot on the preceding CLOSED Rx1 volume hit827. Labels
+prove LV germ/boot links were flat while PV links were already CHS. The separate
+repair changes only those two LV links/checksum (six bytes); all labels/payloads/
+FPs/checkpoint entry remain byte-exact. Full-byte positive/negative tests pass.
+See `tools/repair_pilot_boot_links.py`, current handoff and the
+[96-member repair receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-logical-boot-links/README.md). No RTL label waiver.
+Original FileInit automatically chooses an existing checkpoint even after an
+explicit-volume boot; use `Boot CedarWork -f` for a fresh kernel. New f420 seed
+has no checkpoint. Root checksum staleness after normal Cedar writes is period
+software behavior, not by itself a corruption diagnosis.
+
+Historical Rx1 results below remain valid in their stated scope:
 
 - Original firmware reaches the interactive Viewers desktop. Mouse/Cmd and
   exact short/alphabet/digit echoes pass. The closed marked volume cold-remount
@@ -36,10 +53,10 @@ is live. No new Main, FPGA load, daemon restart or live-pack copy has occurred.
   its generated faults are not an independent debugger/core regression proof.
   Temporary generic-signal rejection is RESTORED FALSE and independently reads
   FALSE. No further event controls are attempted. Normal `Boot` from the first
-  independent CommandTool now executes: actual812 germInLoad is observed with
-  SAME Main/FPGA/daemon/volume. Warm OS restart is RUNNING; no new Checkpoint.
-  Observer72367/tool82559 has90 bounded read-only samples; follow it rather
-  than restarting. Ordinary desktop and quiet initialized-app tests are pending.
+  independent CommandTool later returned the saved checkpoint/AIS error; its
+  post-checkpoint file still reads exactly. Observer72367 is terminal32 frames.
+  Explicit-volume Boot then hit827, leading to closed-volume audit/repair above.
+  Ordinary fresh desktop and quiet initialized-app tests are still pending.
   [Guest diagnostic receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-rollback1-guest-debug/README.md),
   [ordinary Boot running prefix](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-quiet-boot1-prefix/README.md).
   Current evidence/helpers: `storage-board57-rx1-field-20261022/rollback1` and
@@ -54,8 +71,8 @@ is live. No new Main, FPGA load, daemon restart or live-pack copy has occurred.
   Whole-track SPI is unchanged; no native performance gain is claimed.
 - Same full native-memory control V41 remains live: driver56227/simulator56631,
   tool35657, `native-cedar-board57-control-v41-20261022`. Full physical startup
-  passed, beyond780M host/266M enabled ticks without device/model fault. Its
-  counter has crossed4s boot-down;4.8s release is still ahead in that prefix.
+  passed, beyond1.26B host/483M enabled ticks without device/model fault. BOTH
+  boot-down and release thresholds are past; no113 is established.
   Do not restart it. No113 or
   firmware pass yet. V38/V39 are terminal; V40 is a short preflight only.
   [Harness/control receipt](../fpga/mister/reports/2026-10-22-native-memory-clock-control/README.md).
@@ -66,12 +83,16 @@ it is not drained retirement or desktop speed. Nominal ordinary cadence is
 **140ns before waits**, not60ns. Both66.7MHz full fits were rejected; no timing
 waiver, assembly or load. The experimental CPU front remains unqualified.
 
-Next actions, in order: follow the SAME ordinary guest Boot to an interactive
-desktop (diagnostic catcher FALSE already verified); repeat a quiet Checkpoint with initialized
-apps and exact post-checkpoint file/input checks; preserve/close the volume
-through normal guest Boot and real Main loader barriers; adapt the restart
-helper explicitly for the reviewed3370865d candidate (it currently asserts21e6),
-then cold checkpoint/persistence and pinned host-write/pause comparisons.
+Plain Boot uses self/bootedFrom; an explicit volume still automatically selects
+an existing checkpoint unless `-f` is supplied. Do not infer a fresh kernel from812.
+
+Next actions, in order: follow the SAME Link1 fresh-seed login/loader operation
+to desktop; validate all34 receiver transfers and input; use corrected logical
+links with `Boot CedarWork -f` for a quiet initialized-app kernel if needed;
+repeat Checkpoint/Rollback with exact post-checkpoint file/input/app checks;
+then test a cold restart of the preserved/repaired marked checkpoint copy.
+Keep Main21e6 for this isolation. Only after an actual closed boundary adapt
+the helper explicitly for candidate3370865d and compare pinned host writes/pauses.
 The next isolated disk-side speed experiment should reduce SPI write size in
 `dorado_pack_hps`: retain the full track read/cache, accumulate the first/last
 word ONLY for complete CRC-checked guest blocks, flush just the covering512-byte

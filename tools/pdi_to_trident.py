@@ -4,7 +4,9 @@
 PilotDiskDefs.mc!1 specifies drive 0's virtual geometry and PilotDisk.mc!1
 specifies its sector stagger. Preserve labels/data byte-exact; manufacture
 only the omitted disk-address headers and container dummy word. Boot links
-must already be real DiskAddress values (pdi_boot_links_to_chs.py).
+must already be real DiskAddress values in BOTH root types. Use
+repair_pilot_boot_links.py on a separate offline copy; the older
+pdi_boot_links_to_chs.py normalizes physical roots only.
 """
 import argparse
 import gzip

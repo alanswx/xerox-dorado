@@ -15,7 +15,54 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Current hardware (2026-10-22):57.1MHz cold marker persistence PASSES.**
+**Current hardware (2026-10-22,08:30UTC): repaired fresh seed reaches Cedar login.**
+MiSTer14 SAME reviewed57.142857MHz/SYSPER4 RBF7c4d39e4/Main21e67a3f/
+receiver08452a86 now uses `CedarStorageBoard57_Link1_20261022`.
+Current Main31285/server31284, supervised by31283 (Mac tool96717).
+Runtime logs are on SD: `runtime2-main.log`, `runtime2-disk.jsonl`, `server.log`.
+Old Main23119/server23118 are absent and old Rx1 pack/logs are CLOSED/preserved.
+The derived fresh seed is f4203ce8, original f3bce2a8 preserved; no C-state import.
+All8,388,608 raw12-bit cells/both patterns/zero and exact first BL8 PASS.
+A first real load selected110 because keyboard state reset; documented original
+ROM three-press CoolBoot then produces actual113, C released, real Cedar6.1
+login shown in `storage-board57-link1-field-20261022/cedar-native.png`.
+The preceding direct Main attachment inherited old FPGA827; only the subsequent
+normal load_core actually programmed FPGA. An initial journal exception is
+preserved/corrected without a retry. Main31032 later disappeared unexpectedly;
+no new kernel OOM, cause unknown, so this run is EXCLUDED from clean stress/speed.
+Current supervised Main31285 stays live. Never rerun the startup helper or reload
+because a capture times out; observer IDs must match current deployment.json.
+Login/full34-loadee loading, desktop and explicit logical boot are next; no
+new desktop or repaired logical-boot success is claimed yet.
+
+**Concrete original827 cause: flat logical boot links in generated medium.**
+Explicit `Boot CedarWork` on Rx1 stopped at germLabelCheck827. Normal Main exit
+and DDR revoke closed it:63,578,624 bytes/c8f8bdf0,119,859 disk records/no errors,
+no gaps/final barrier_end. Offline labels prove PV links already CHS(3,20)/(4,27),
+LV84 germ/boot still flat(104,0)/(139,0); those CHS targets have WRONG file labels.
+Native checkpoint link(317,26) itself is valid. New label-validated
+`tools/repair_pilot_boot_links.py` repairs BOTH roots in separate PDI/native copies,
+preserving all headers/labels/payloads/FPs and unchanged roots; no label-check RTL
+waiver. Synthetic/full-native byte oracles, original physical-only failure,
+sector0 idempotence, ambiguity/missing-target/seal/output rejection all PASS.
+Actual closed repaired copy230db058 and fresh repaired f4203ce8 each differ in
+ONLY six bytes:247080,247082,247098,247100,247478,247479 (two LV links/checksum).
+Retain the original c8f8 marked/checkpoint volume for a later cold rollback test.
+Cedar's PhysicalVolumeImpl/LogicalVolumeImpl do NOT maintain root checksum fields
+on normal writes; stale original fields alone do not prove disk corruption.
+
+[Closed-label repair and fresh-login receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-logical-boot-links/README.md)
+retains96 members,72 unique blobs with verified lossless readback.
+
+**Fresh-kernel boot requires `Boot CedarWork -f` once a checkpoint exists.**
+Original FileInit.CheckpointThings automatically sets r on either PV/LV bootFile
+when a checkpoint exists, then f clears r. Plain Boot uses self/bootedFrom and
+can reopen the checkpoint. An explicit volume alone does NOT suppress rollback.
+The new fresh seed has no checkpoint; no switch/state planting is used.
+
+### Historical Rx1 cold desktop and checkpoint session (closed)
+
+**Historical hardware (2026-10-22):57.1MHz cold marker persistence PASSES.**
 MiSTer14 now runs Main23119/server23118, unchanged Main21e67a3f/RBF7c4d39e4
 and the tested ARM receiver08452a86. Main20809/server20808, temporary23094 and
 restart driver23079 are absent. Normal keyboard `Boot` on the preceding desktop
@@ -85,12 +132,18 @@ checkpoint nor repeated application survival is qualified. Preserve the fault,
 abort only that process normally and repeat an idle baseline. No transport or
 pack error has been established as the cause. Do not call this a full repeat pass.
 
-**Current07:18UTC: ordinary original Cedar Boot is RUNNING, actual812 observed.**
+**Historical07:18UTC running prefix (now completed): ordinary Boot observed812.**
 Same Main23119/server23118/RBF7c4d39e4/volume. No FPGA/Main/daemon restart,
 new Checkpoint or live-pack copy. From the independent first CommandTool,
 normal USB `Boot` executes and actual native capture `quiet-boot1/start-native.png`
 shows812 germInLoad ([running Boot prefix](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-quiet-boot1-prefix/README.md)). All injected input is released. Follow the SAME operation;
 ordinary desktop/login and a quiet initialized-app baseline remain pending.
+Source clarification: BootTool/BootTool.mesa's argument-free Boot uses self;
+File/BootingImpl.mesa resolves that to GermSwap.bootedFrom.location. It may
+therefore reload the checkpoint. Do not call it a guaranteed fresh-kernel start.
+This operation later returned the same checkpoint and original AIS error.
+The subsequent explicit `Boot CedarWork` stopped at827; see the current repair
+above. Use `Boot CedarWork -f` for a fresh kernel when a checkpoint exists.
 This is warm OS restart of the marked/checkpoint volume, not a fresh seed or
 cold-core checkpoint test. New bounded read-only observer PID72367/tool82559,
 90 samples at25s plus capture overhead, local `quiet-boot1/watch-state.json`,
@@ -121,7 +174,7 @@ Future single-thread inspection must respect the current-frame flag; do not
 modify RTL to explain these generated failures without stronger evidence.
 `AMProcess.Thaw[&12]` executes and returns a prompt before the Abort failures;
 no stronger per-thread recovery claim. The subsequent ordinary Boot begins from
-another compiled command path and is the current recovery operation. No quiet
+another compiled command path (subsequently completed/replayed). No quiet
 checkpoint includes the diagnostic settings or these nested debugger states.
 
 Bounded streaming log prefix validates115,587 complete disk records/no errors
@@ -131,10 +184,9 @@ failed frames are retained under `rollback1`; initial v1 helper is reconstructed
 and labeled as such, rather than claimed frozen before those early commands.
 
 V41 remains the SAME driver56227/simulator56631/tool35657. Full physical startup
-passes; beyond780M host/266M source ticks, initialized1/no model/device fault.
-Its source tick counter has crossed the4s boot-down threshold, with4.8s release
-still ahead in that observed prefix. CPU remainsd0fff000/no113; no original-
-firmware pass yet. Follow the exact job; never restart from an observation timeout.
+passes; beyond1.26B host/483M source ticks, initialized1/no model/device fault.
+BOTH4s boot-down and4.8s release thresholds are past. CPUc0fc7000/no113; no
+original-firmware pass yet. Do not describe release as still ahead. Follow the exact job; never restart from an observation timeout.
 
 **Isolated host disk-cache candidate: component tests PASS, NOT DEPLOYED.**
 `capture_write` now compares each512-byte host-sector portion of a captured
@@ -243,15 +295,18 @@ live, CRC/RX/abort0, TX dropped2; no new hardware/daemon load occurred.
 
 ### Current next steps and simulation control
 
-Current next TODOs: follow the SAME ordinary guest Boot from actual812 to
-responsive desktop; diagnostic catcher FALSE is already separately verified.
-Initialize/render apps before repeating quiet checkpoint,
-repeated/cold rollback and exact new-file/input checks. Then normal guest Boot
-and actual Main close/load barriers preserve this marked/checkpoint volume.
-For candidate3370865d, adapt the restart helper explicitly: it currently assumes
-Main21e6 and must not be reused blindly. Compare pinned host writes/pauses,
-finish60ns phase/capture/data paths, three fresh-seed08452 boots and final stress.
-Full FPGA snapshots stay deferred; pinned speed remains2.968685M issues/s.
+Current next TODOs: follow SAME Link1 login/loader operation on Main31285/
+server31284 (observer31509/tool32681,20min bounded file-only timestamps).
+Verify all34 loadees, responsive desktop and exact input; then corrected explicit
+logical Boot (use `-f` when checkpoint exists), quiet initialized-app Checkpoint,
+repeated/cold rollback and exact new-file/input checks. Preserve old c8f8 volume
+and its separately repaired230d copy; no live copy or C-state import.
+For candidate3370865d adapt the restart helper explicitly: it currently assumes
+Main21e6. Current helper's revised first-load flow is guarded but not a completed
+clean deployment qualification; retain actual field helper variants/failures.
+Compare pinned host writes/pauses, finish60ns timing, three fresh-seed08452
+boots and final stress. Full FPGA snapshots deferred; last pinned rate remains
+2.968685M StartCycle issues/s, not a new measurement or retirement figure.
 
 V38/V39 are now TERMINAL, not long-running work. Tool handles11479/66643 were
 live LLDB sessions (actual debugger PIDs82257/83535), incorrectly checked as PIDs
