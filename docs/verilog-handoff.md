@@ -15,7 +15,103 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Current hardware (2026-10-22,10:29UTC): initialized-app Checkpoint AND explicit Rollback PASS.**
+**Current hardware (2026-10-22,11:57UTC): reviewed write-window candidate LIVE; Viewers up.**
+MiSTer14 has RBF`9e0d41638f2e2b7e87668a486d83ce103f72ff6001ee87a339a3a48bc58450ab`,
+57.142857MHz/SYSPER4, same Main21e67a3f/server08452a86. Actual normal loader
+programmed this RBF ONCE. Current Main5080/server4619, Main parent1 after
+releasing an oversized task helper; no subsequent FPGA load. Volume:
+`/media/fat/games/DoradoRTL/CedarPackWindow57_20261022`; current logs
+`runtime2-main.log`, `runtime2-disk.jsonl`, `server.log`, observer
+`loader-observer-terminal.jsonl` (5187/tool43547 normally terminal). Local evidence
+`build/rtl-executive/pack-window57-field-20261022`. Guest login/empty password accepted. All34 base transfers/33 BCDs/1345843
+bytes and actual final guest ACK now PASS,466.185333352..470.857304257s regular-
+file visibility bounds; all3 failure controls reject. This is NOT a valid pinned
+speed comparison (host crash/OOM/memory pressure). Installer profile Yes/name-
+missing/No-default callbacks followed by normal Return; Viewers/input/files/
+native write-byte comparison still pending. Frame71 at11:57UTC shows Ready/
+Viewers, CommandTool and Clock/Watch/Edit, with CedarChest packages still loading.
+Original C released on actual113. CRC/RX/abort0, TX dropped16 retained. Loader5187
+has terminated normally after PASS; terminal transcript/timing/control receipt saved.
+No new speed measurement:140ns nominal before waits; historical2.968685M
+StartCycle/s is not a measurement of this candidate or retired/desktop MIPS.
+
+Full V4 review now PASSES: regenerated503 compiled sources; original316+new16
+half-cycle categories/four corners;2048 address sample bits; unchanged geometry/
+OLD_DATA with explicit independent40 physical cache classification; precise
+warning differences. The one added connectivity hierarchy is exactly four
+unused snapshot ports, actual SNAPSHOT_PAUSE0; DIRTY_BLOCK_WINDOW1 and128 actual
+HOST_ADDR_SAMPLE1 instances.16 damaged-evidence/rehashed-source controls and7
+final assembly guard controls reject. Initial fixture/import/docstring failures
+are preserved. Guarded Ubuntu assembly2506540/2506560 terminal0,4,018,092 bytes,
+RBF hash above. No new Main patch: cache3370865d remains NOT deployed.
+[82-member full review/assembly receipt](../fpga/mister/reports/2026-10-22-pack-write-window/native57-qualified-assembly/README.md)
+and [102-member scoped hardware prefix](../fpga/mister/reports/2026-10-22-pack-write-window/native57-first-firmware-prefix/README.md)
+are verified by lossless readback. No bitstream/disk/ELF is committed.
+Tools: `review_pack_window_native.py`, `test_review_pack_window_native.py`,
+`assemble_pack_window_native.py`, `test_assemble_pack_window_native.py`,
+`deploy_pack_window_native.py`. Frozen recipe/review/controls/assembly under
+`pack-window-native57-sample-v4-20261022`.
+
+First native candidate Main4620/server4619 passed actual8,388,608 raw12-bit
+cells/both patterns/verified zero and exact first BL8, then original113 and
+Cedar germ. Its Main later exitedSIGTRAP(-5) after a debugger-based diagnostic.
+The first unresolved-symbol observer was normally quit/detached with Main
+alive; the second used an ELF whose text/rodata/data/unwind sections exactly
+match Main and restored selectors/detached before the later trap. Root cause
+is not proved; DO NOT use further injected debugger function calls. Preserve
+`read-memory*.log`, symbol binding/cleanup and supervisor exit evidence. Host-only
+restart Main5080 uses SAME existing FPGA/memory and receiver, not another RBF
+load or guest state import. Initial crash image67eb9b54 is separately frozen.
+This run cannot qualify clean latency/final stability. Capture watcher95496
+terminated on absent Main4620; watcher95895 terminated on SSH banner timeout,
+while Main5080 remained alive. Current watch-r3/tool13326 retries bounded SSH255
+failures, otherwise verifies the same Main; no automatic reset/reload.
+
+Resource correction: archive helper5248 was OOM-killed (kernel evidence), after
+reading a whole64MB image, while resume parent5066 retained another64MB. Main
+and receiver survived. Parent5066 alone was normally terminated; separately
+sessioned Main5080 continues under init. Do not read full disk images into
+MiSTer Python heaps or retain large parsed traces while waiting on Main.
+Canonical deploy helper now releases trace rows before its final wait. Stream
+copies to the Mac. Failed partial tar is not a receipt. No clean stress claim.
+
+Preceding initialized-app checkpoint volume is now actually CLOSED, pack SHA
+`16706b7425f0005c3aca0f7c825d171800cdd8d754f49e2feccc22e3e515d2c2`,
+63,578,624 bytes,129859 records/no reported I/O errors, final barrier_end and
+no open pack/trace descriptors; old daemon mapping revoked. Three historical
+trace overflows1329/3968/4493 records are retained; the1991-record actual close
+window has no gaps/errors and both barriers. Original overly broad no-historical-
+gaps assertion stopped the deploy AFTER programming/tempMain4487's actual exit.
+Explicit --resume-closed revalidated dead PIDs/revoked mapping/unchanged fresh
+seed before continuing; no second load. Previous volume and all close logs
+remain on SD under Link1. Streaming Mac copy at
+`pack-window57-field-20261022/closed-checkpoint/cedar-work.pack` matches1670;
+label-adjudicated root/boot/checkpoint links are idempotent,0 bytes changed.
+Cold checkpoint remount and explicit fresh-kernel Boot CedarWork -f remain OPEN.
+
+Latest V42 prefix:1230..1260M host/470.35..483.96M enabled source ticks,
+CPU changes d0fff000 -> c0fc7000, control100 ->10c after the normal3-press
+sequence/firmware delay. This is BaseBoard/processor progress, STILL no113;
+not a boot/control gate. Follow same83938/84276/1.5B limit. Original
+`chm/dorado/expanded/doradobaserom.dm!12_/doradocontinuous.masm` waits15 ticks
+(1.5s) after release before counting:1 HotBoot,2 WarmBoot/Initmap,3..6 reload.
+Check actual clock/time/pin sequence before inventing more input or extending.
+
+Current native frame51 at11:46 shows FontMetrics DF enumeration progressing,
+not a frozen loader prompt. HDMI CLI at11:50 is still black. Source confirms
+F12-up disables Linux framebuffer and video_cmd only changes active framebuffer
+format; do not invent a nonexistent framebuffer-off command. CPU/sys clock and
+running core remain unchanged during these read-only checks.
+
+Next: follow SAME Main5080/server4619 and bounded watch-r3; base34/finalACK and
+Viewers are observed. Allow installation, then native keyboard/mouse/files and window transfer/
+persistence checks. Preserve all host/observer failures; no new clean speed/
+stress claim. Finish/collect V42 original-firmware control at its existing1.5B
+limit before a matched CPU-front run. Continue real60ns phase/capture/data work,
+closed checkpoint/fresh kernel restarts, isolated Main337 cache comparison,
+HDMI recovery, three FINAL fresh boots and2h stress. Full FPGA snapshots deferred.
+
+**Preceding hardware (now CLOSED; 2026-10-22,10:29UTC): initialized-app Checkpoint AND explicit Rollback PASS.**
 MiSTer14 SAME reviewed57.142857MHz/SYSPER4 RBF7c4d39e4/Main21e67a3f/
 receiver08452a86, volume `CedarStorageBoard57_Link1_20261022`.
 Main31285/server31284, supervisor31283/tool96717; no subsequent core load.

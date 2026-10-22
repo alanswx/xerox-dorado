@@ -15,3 +15,5 @@ The explicit hold-optimization V3 also failed: [complete terminal evidence](nati
 Run component gate: `python3 tools/test_pack_write_window.py --run build/rtl-executive/NEW-UNIQUE-WINDOW-RUN`
 
 Verify: `python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-22-pack-write-window`
+
+The same V4 fit subsequently passes its [full review and guarded assembly](native57-qualified-assembly/README.md). Its [first hardware prefix](native57-first-firmware-prefix/README.md) passes physical memory, original113, Guest login and all34 transfers/final ACK, with host/observer failures explicitly retained. Native desktop, persistence and speed qualification are still separate pending gates.

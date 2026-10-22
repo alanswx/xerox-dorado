@@ -9,7 +9,36 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Current evidence and remaining work (2026-10-22,10:29UTC).**
+**Latest execution (2026-10-22,11:57UTC).** Reviewed optional disk-window/
+address-sample RBF9e0d4163 assembled and loaded ONCE on MiSTer14. All503 recipe
+sources,332 detailed categories/four corners,2048 sample bits, RAM modes and
+precise warnings pass;16 reviewer and7 assembly controls reject. Main21e6 and
+receiver0845 are unchanged; Main337 cache candidate remains undeployed.
+[82-member full review/assembly receipt](../fpga/mister/reports/2026-10-22-pack-write-window/native57-qualified-assembly/README.md)
+and [102-member scoped hardware prefix](../fpga/mister/reports/2026-10-22-pack-write-window/native57-first-firmware-prefix/README.md)
+are verified by lossless readback. No bitstream/disk/ELF is committed.
+Physical8M/zero/exact BL8 and original113 PASS. Current Main5080/server4619,
+CedarPackWindow57_20261022/runtime2 logs; Guest/Basic loader all34 transfers/final ACK now PASS,3 controls reject
+(466.185..470.857s visibility bounds; not a pinned speed comparison).
+Loader5187/tool43547 is terminal with final34/ACK PASS. Frame71 at11:57UTC
+shows Ready/Viewers, CommandTool and Clock/Watch/Edit; remaining CedarChest
+packages are still loading. Follow watch-r3/tool13326; exact input/file/window-
+persistence gates remain open. No new pinned speed measurement;
+nominal140ns and historical17.812% StartCycle rate remain as scoped below.
+
+Main4620 exitedSIGTRAP after injected debugger readout (cause unproved), so no
+more such calls. Existing core resumed via unchanged Main5080, no reload or
+state import. Archive helper OOM and oversized Python parent are preserved;
+parent buffer freed without stopping Main. Use streaming copies. This run is
+excluded from clean latency/stress. Link1 checkpoint pack is CLOSED/16706b74,
+129859 records/no I/O errors;3 historical trace overflows retained,1991-record
+close window gap/error-free with normal barriers. Mac streaming copy/root-label
+idempotence PASS. Cold checkpoint/fresh-kernel remount still pending.
+See current handoff for exact artifacts/PIDs/failures. V42 SAME original control
+now reaches CPUc0fc7000/control10c after the3-press/delay sequence, still no113; do not extend/
+restart on polling timeout. Keep the full final60ns/fresh-boot/stress goal.
+
+**Preceding evidence and remaining work (2026-10-22,10:29UTC).**
 MiSTer14 Main31285/server31284 stays Main21e67a3f/receiver08452a86/RBF7c4d39e4,
 57.142857MHz/SYSPER4, repaired fresh seedf4203ce8 on Link1 volume.
 Physical8M/firstBL8/original113 and all34 base transfers/final guest ACK PASS
