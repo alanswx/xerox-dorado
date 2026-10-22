@@ -9,7 +9,7 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Current test (2026-10-22): cold marked-volume boot, fixed ARM receiver deployed.**
+**Current test (2026-10-22): cold marked-volume persistence PASSES.**
 Main23119/server23118 run the same timing-qualified57.1MHz RBF7c4d39e4;
 Main21e6 remains unchanged, daemon08452 replacesc599 at a normal loader boundary.
 Preceding normal keyboard Boot visibly reached812. Actual Main load/exit closes
@@ -30,12 +30,29 @@ retired process IDs are in the handoff. Do not repeat the existing load. The
 [63-member restart/startup receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-cold-restart-prefix/README.md)
 verifies losslessly. Later screenshot shows all base loadees loaded and profile
 No accepted after a filename detour; BootEssentials advances. Cold guest marker
-readback and desktop/input still need their own observation.
+readback and desktop/input were still pending in that immutable prefix. They now
+have actual HDMI proof: Viewers, normal bounded mouse/Cmd/new tool/focus and
+`type ///rtlboard57persist.txt` -> exact`rtlboard57persist` -> `%`. No guest state
+or live pack was imported. This is cold disk persistence across FPGA/Main/cache/
+daemon restart, not power-loss integrity or authentic rollback. Background startup
+continues. Both exact short and alphabet/digit keyboard echoes now pass, captured
+natively with the marker and new prompts. [46-member cold desktop receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-cold-desktop/README.md)
+verifies4051 complete current disk records/no errors/gaps, CRC/RX/abort0,
+TX dropped1. The first tool is loading Sil Library Files; settle startup before
+the normal quiescent Checkpoint.
 
-TODO: finish this cold boot and guest file/input checks; authentic Checkpoint/
+TODO: finish cold-boot application startup; authentic Checkpoint/
 Rollback; fresh-seed receiver/three-boot qualification;60ns capture/data timing;
 final disk/network/input stress. Current pinned speed is still2.968685M issues/s
 (+14.49% vs50MHz), nominal140ns before waits. Full FPGA snapshots stay deferred.
+
+The old V38/V39 native-memory simulations are TERMINAL at HOST_LIMIT3B, before
+any113. Final read-only captures saved and pending natural $finish released;
+both exit0/all processes absent. All537/522 frozen inputs still match. Original
+runner states preserve a post-exit whitespace-parser failure; current regex is
+corrected against both real logs. [1086-member terminal receipt](../fpga/mister/reports/2026-10-22-native-memory-diagnostic-terminal/README.md).
+Both share pre-boot behavior, so the experimental CPU front is still unqualified;
+fix the common harness before further expensive full-boot comparisons.
 
 **Previous qualification (2026-10-22):57.1MHz original-firmware interactive Cedar pass.**
 SAME Main20809/server20808/RBF7c4d39e4 reaches Viewers, two CommandTools, Clock,

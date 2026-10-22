@@ -15,7 +15,7 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Current hardware (2026-10-22): cold marked-volume restart with fixed receiver.**
+**Current hardware (2026-10-22):57.1MHz cold marker persistence PASSES.**
 MiSTer14 now runs Main23119/server23118, unchanged Main21e67a3f/RBF7c4d39e4
 and the tested ARM receiver08452a86. Main20809/server20808, temporary23094 and
 restart driver23079 are absent. Normal keyboard `Boot` on the preceding desktop
@@ -31,9 +31,24 @@ first burst. Actual original BFN113 was observed and normal USB C released;
 do not send the prepared extra boot pulse. HDMI shows855, then the actual Cedar
 login with rememberedGuest.pa. Two normal Returns are accepted and base-file
 lookups advance.855 means `storageInitialized` in the period MPCodes source,
-not an error or a germ code. The bounded read-only loader observer23301 is live;
+not an error or a germ code. The bounded read-only loader observer23301 completed;
 cached files can change this boot's transfer sequence, so do not force the
-fresh34-transfer benchmark onto it. Cold guest marker readback remains pending.
+fresh34-transfer benchmark onto it. The actual subsequent Viewers desktop opens
+a second CommandTool via bounded normal USB mouse/Cmd/focus. `type
+///rtlboard57persist.txt` prints exact`rtlboard57persist` and returns to `%`.
+This qualifies cold guest filesystem readback after FPGA/Main/cache/daemon restart,
+not a full machine snapshot or power-loss integrity. Actual HDMI proof is
+`desktop/cold-marker-hdmi.png` in the local field directory.
+Subsequent short`rtlboard57rx1 keyboard ok` and full alphabet/digit echoes print
+exactly and return to prompts; all keys/buttons released. Native capture
+`desktop/keyboard-native.png` retains both and the cold marker. The
+[46-member cold desktop receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-cold-desktop/README.md)
+verifies4051 complete current disk records/no errors/gaps, CRC/RX/abort0,
+TX dropped1. Both early diagnostic OOMs remain recorded; no clean speed/stress
+claim. Cached base files exercised lookups rather than34 bulk retrieves, so
+fresh-seed receiver qualification is still required. Startup runs actual
+Geom2D/Cursor/PopUpButtons/BiScrollers/ViewRec/Abutters and now loads Sil Library
+Files; wait for this first tool to finish before the quiescent checkpoint test.
 
 Two diagnostic whole-pack byte-search attempts exceeded available ARM memory;
 the kernel killed only those Python processes. Main/server/observer stayed live,
@@ -55,17 +70,29 @@ Generic restart helper
 `tools/restart_storage_board_native.py` is the exact executed version; inspect
 the existing preparation journal rather than repeat its completed load.
 
-Next TODOs: finish this boot, actual cold marker `type` and mouse/exact keys;
-qualify native Cedar Checkpoint/Rollback; then fresh-seed boots with08452,
+Next TODOs: let background startup settle, then normal native
+Cedar Checkpoint/Rollback; fresh-seed boots with08452,
 remaining60ns timing/capture work and final stress. Full FPGA snapshots remain
 deferred. Previous pinned login2.968685M issues/s remains the latest speed result.
-V38/V39 drivers79190/83197 and simulators79583/83509 were revalidated live;
-their logs already contain HOST_LIMIT3B, so inspect retained process state before
-any continuation. Both old LLDB sessions are absent; do not restart the runs.
+V38/V39 are now TERMINAL, not long-running work. Tool handles11479/66643 were
+live LLDB sessions (actual debugger PIDs82257/83535), incorrectly checked as PIDs
+in the earlier note. Each intentionally stopped at VL_FINISH_MT after HOST_LIMIT3B.
+Final read-only captures saved, each pending natural $finish continued, both
+simulators exited0 and debuggers quit. Drivers79190/83197, simulators79583/83509
+and debugger PIDs are independently absent. All537/522 frozen inputs still match.
+Both have CPUc0fc7000/control0x10c, one disk read/no write/no113; they do NOT clear
+the experimental CPU front. Shared harness/pre-boot behavior needs diagnosis,
+not another blind limit extension. Historical runner states stay TERMINAL_FAILED:
+their post-exit regex rejected spaces in `reason=  HOST_LIMIT`. Current runner
+accepts whitespace, verified against BOTH real logs; classification sidecars
+preserve the actual diagnostic and hashes. [1086-member terminal receipt](../fpga/mister/reports/2026-10-22-native-memory-diagnostic-terminal/README.md)
+verifies losslessly. These old DQ models do not qualify physical SDRAM.
 Subsequent actual installer screenshot shows every base loadee loaded. Lowercase
 `n`+Return entered a profile-filename detour; a single uppercase`N` at the later
 visible Yes question is accepted as No and BootEssentials advances. No extra
 Return was sent after that accepted choice. Keep the failed input evidence.
+Three later font-overwrite confirmations retain the newer installed metadata
+with No; actual Viewers/Clock/Watch/Edit and startup app commands then advance.
 
 **Previous desktop qualification (2026-10-22):57.1MHz interactive Cedar passes on14.**
 The SAME Main20809/server20808/RBF7c4d39e4 boot now reaches clear Viewers,

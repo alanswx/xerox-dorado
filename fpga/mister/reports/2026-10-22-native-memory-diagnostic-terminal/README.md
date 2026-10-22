@@ -1,0 +1,9 @@
+# Original native-memory diagnostics: terminal HOST_LIMIT, no firmware qualification
+
+The existing V38 candidate and V39 matched MC1668 control each reached3,000,000,000 host ticks before any original BFN113 or packet. Their exact final CPU is c0fc7000, one disk read/no write, control0x10c; enabled-edge totals1,037,855,472/1,037,855,468. Thus these runs do not clear or blame the experimental CPU front; both share a pre-boot/harness failure. Their old frozen SDRAM model also predates the physical BL8 capture correction.
+
+Actual LLDB process IDs were82257/83535; tool session handles11479/66643 were still live, despite earlier notes incorrectly testing those handle numbers as PIDs. Both debuggers had stopped at the intentional VL_FINISH_MT breakpoint. Final read-only register/memory captures were saved, then each pending natural $finish was continued: both simulator exits0, no restart or guest-state repair. Debuggers quit normally. All537 candidate/522 control frozen inputs still hash-match provenance. Final captures/normal button-input histories/layouts and full frozen inputs are preserved here.
+
+The original runners end TERMINAL_FAILED after test exit0 because their regular expression expected reason=HOST_LIMIT without the leading spaces produced by SystemVerilog %s. Preserve these historical states. A separate terminal-classification.json records the real HOST_LIMIT result and exact log hash; no firmware pass is inferred. The current runner now accepts whitespace before the reason; both real completed logs exercise the correction and fail its original form. Future hardware/firmware regression work needs a corrected common harness, not another blind extension of these stopped runs.
+
+Verify: `python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-22-native-memory-diagnostic-terminal`

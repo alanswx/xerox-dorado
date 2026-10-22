@@ -119,7 +119,7 @@ def run(out):
         command=[str(out/'obj/native-cedar'),'+limit-file='+str(out/'host-cycle-limit.txt')]
         command+=['+'+n+'='+item['path']for n,item in r['artifacts'].items()]
         execute(command,'test',inputs/'src')
-        log=(out/'test.log').read_text();stop=re.findall(r'NATIVE_DIAGNOSTIC_STOP reason=(\w+)[^\n]+',log)
+        log=(out/'test.log').read_text();stop=re.findall(r'NATIVE_DIAGNOSTIC_STOP reason=\s*(\w+)[^\n]+',log)
         assert len(stop)==1,'No terminal diagnostic reason'
         state.update(status='TERMINAL_NATIVE_MEMORY_DIAGNOSTIC',reason=stop[0],finished=time.time(),firmware_qualified=False,desktop_qualified=False);save()
         print(state['status'],stop[0],flush=True)
