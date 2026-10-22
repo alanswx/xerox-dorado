@@ -1,0 +1,13 @@
+# Requested-read capture: exact native stage, eleven guards, one live fit
+
+The exact reviewed690f503-source parent is SHA-bound to its positive31-summary/444-category review. Only the backend and native wrapper parameter change after literal project-root relocation. The default-off requested-beat mode captures the selected physical word into rsp_data earlier while keeping response validity, completion cycles, reset/abort/refresh/backpressure and every pin command unchanged. CPU/cache/Map/ECC, captures, BaseBoard ratio, PLL/SYSPER/SDC, other peripherals, Main and daemon remain unchanged.
+
+The stage rechecks the component finite relational tests in both engines/six real bad variants, both physical-pin-model frequencies and original144-chip MSA. Control/candidate raw data/order AND host timestamps are byte-identical. Eleven actual corrupted-evidence controls reject, including changed original/candidate/qualification, failed/missing negative test, absent fatal circular gate, actual circular warning, changed pin completion cycles, missing66MHz test, changed board timestamps and changed bound stimulus. Original inputs are unchanged.
+
+First staging attempt mistakenly matched the literal fatal-warning flag in JSON as if it were a warning; it rejected before writing output or starting a build. The corrected check looks for actual Verilator warning/error diagnostics in logs. Both attempts are retained. Corrected positive staging and all eleven guards pass.
+
+ONE new fit was launched at /home/alans/mister/Dorado_ReadWordCapture57_1_20261022: builder1408808/map1408815, observed live from /proc with all503 uploaded hashes reverified. Existing690f parent503 hashes rechecked before launch. Verified seven-script read-only followers1413663/1413664 wait for this SAME build; bounded local collector PID8111/tool84348 follows the latter. Never refit/restart on observation timeout. No assembly or device load is permitted. This is57.142857MHz/SYSPER4/140ns before waits, not60ns or a new speed claim.
+
+MiSTer14 continues running690f independently; its original-firmware desktop/input/persistence qualification is separate. The component has no native timing or firmware pass until the full terminal evidence, physical/RAM/capture inventory and guards are reviewed. The existing twenty-level processor diagnostic path still limits the next clock step. Qualified Native59 and the full60ns/final-boot/stress goal remain preserved; FPGA snapshots deferred.
+
+All503 source files, exact tools, component observations and controls, launch/verified-live records are retained without disk images, executables or bitstreams. Verify using `python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-22-storage-read-word-capture/native57-stage`.

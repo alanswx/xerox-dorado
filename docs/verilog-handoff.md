@@ -22,8 +22,13 @@ unchanged Main21e6/receiver0845, at57.142857MHz/SYSPER4/140ns nominal.
 Volume/core entry `CedarTimingSplit57_20261022`, fresh immutable236b seed.
 One normal load, fresh Main/cache/SDRAM initialization, actual113/C release
 and original Guest.pa login pass. Both monitors visibly Off; two ordinary
-Returns accepted Guest and the original Cedar boot continues. No C-state import
-or host completion. Bounded desktop observer is `hardware/watch-desktop-v1.py`
+Returns accepted Guest, original profile/font default-No flow and BootEssentials
+finish, Viewers/Clock/Watch/Edit appear. Normal mouse creates a fresh CommandTool;
+short Echo split57 exact returns exactly after final-prompt selection. Full
+alphabet/file commands are running. First typing attempt inserted inside the
+automatic ///Commands/NotePerCommandTool line; sender8362 was interrupted with
+finally-key-release. Preserve input-v1 diagnosis/screens; no first-attempt pass.
+No C-state import or host completion. Bounded desktop observer is `hardware/watch-desktop-v1.py`
 under local `timing-paths-native57-v2-20261022`; inspect its actual process and
 new captures before input/retry. Loader normally waits for Main, not a hung load.
 
@@ -68,6 +73,23 @@ corrected pins-v2 passed. It is NOT in690f and has no native fit/firmware claim.
 [Component proof](../fpga/mister/reports/2026-10-22-storage-read-word-capture/component/README.md).
 Current worst setup paths: half-cycle dq_capture->rsp_data and20-level
 processor i04 output->ProcL k22 capture. Address both before a clock step.
+
+**Next capture-path fit LIVE; existing690f remains the hardware under test.**
+Read-beat component is staged onto all503 exact reviewed690f sources; only the
+backend and its wrapper parameter change after literal project relocation.
+Eleven actual damaged-source/proof/negative-control/loop-warning/pin-cycle/
+MSA-timestamp controls reject, original inputs unchanged. First stage attempt
+rejected the literal fatal-warning flag in JSON, before output/build; corrected
+log-diagnostic check passes. Both attempts retained.
+Remote `/home/alans/mister/Dorado_ReadWordCapture57_1_20261022`, builder1408808/
+map1408815 terminal0, fitter1420977 verified LIVE.503 uploaded hashes and
+old690f503 hashes reverified.
+Read-only seven-script followers1413663/1413664 and local PID8111/tool84348
+follow this SAME fit. Local `storage-read-word-native57-v1-20261022` preserves
+stage/recipe/eleven guards/launches; bounded collector300 polls must never
+cause a refit/restart. Full timing/RAM/captures/register inventory/reviewer/
+assembly guards remain required; no assembly/load or new speed qualification.
+[570-member stage and observed-live proof](../fpga/mister/reports/2026-10-22-storage-read-word-capture/native57-stage/README.md).
 
 Next/TODO: finish690f original desktop/input/exact keyboard echo/mouse-click,
 old/new files/apps and authentic Checkpoint/Rollback/close-remount. Then stage
