@@ -13,7 +13,7 @@ def run(project,quartus,attempt=1):
  out=project/('storage-ready-reports-v'+str(attempt));assert not(out/'run-state.json').exists()
  proof=json.loads((out/'inputs.json').read_text())
  for n,h in proof.items():assert sha((out/n).read_bytes())==h,n
- name=next(n for n in ['storage-cache-native.json','pack-window-native.json','storage-board-native.json','storage-ready-native.json']if(project/n).exists())
+ name=next(n for n in ['storage-response-native.json','storage-cache-native.json','pack-window-native.json','storage-board-native.json','storage-ready-native.json']if(project/n).exists())
  manifest=json.loads((project/name).read_text())
  state=dict(status='WAITING_EXISTING_NATIVE_BUILD',driver_pid=os.getpid(),started=time.time(),actions=[],report_inputs=proof,assembly_permitted=False)
  def save():
@@ -45,7 +45,10 @@ def run(project,quartus,attempt=1):
    state['original_report_failure_retained']=True
   else:assert build['status']=='TERMINAL_TIMING_OBSERVED_REVIEW_REQUIRED'and build['stages'][-1]['returncode']==0
   for n,h in manifest['source_hashes'].items():assert sha((project/n).read_bytes())==h,n
-  for script,label in [('audit-storage-ready2.tcl','ready'),('audit_storage_burst_observer_native.tcl','backend'),('inspect_storage_burst_observer_fit.tcl','inventory')]:
+  scripts=[('audit-storage-ready2.tcl','ready'),('audit_storage_burst_observer_native.tcl','backend'),('inspect_storage_burst_observer_fit.tcl','inventory')]
+  if name=='storage-response-native.json':
+   scripts.extend([('audit_storage_cache_native.tcl','cache-counter'),('audit_storage_response_native.tcl','response-overlap')])
+  for script,label in scripts:
    command=[str(quartus/'quartus_sta'),'-t',str(out/script)]
    with(out/(label+'.log')).open('x')as log:
     p=subprocess.Popen(command,cwd=project/'core',stdout=log,stderr=subprocess.STDOUT)

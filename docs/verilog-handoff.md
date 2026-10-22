@@ -15,7 +15,50 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Current: cache16 original firmware/login/base files PASS; Installer still LIVE.**
+**Current: cache16 original Viewers/input/files/Clock PASS; response-overlap fit LIVE.**
+The SAME93ad/Main15534/server15531 session completes the installer. Normal Cmd
+and EOF clicks create/select a clean second CommandTool; exact cache16 Echo,
+alphabet/digits and new guest file write/read pass. Type window57persist.txt
+returns exact old content across the prior actual cold FPGA/Main/daemon/cache
+transition from236b. New cache16persist.txt has warm readback only. Original
+Clock opens/redraws by normal middle click; native and HDMI show the desktop.
+[31-member desktop receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-cache16-desktop/README.md).
+Both observers TERMINAL; no key/mouse sender remains. Pointer875,805; Clock
+resized the lower tool upward, so select EOF in its new blank area before input.
+First >/// file command lacked a space and echoed text. Digit5 IS present in
+BOTH alphabet runs: the initial key-loss report was a visual misreading, not a
+keyboard defect. Startup ImagerPress/Interpress diagnostics remain; not all-apps.
+Latest CRC/RX/abort0, TXdrop3 retained, pack fault clear. Live disk prefix is not
+close evidence. New-file cold remount/current-image Checkpoint still pending.
+
+**Next speed candidate: same-edge raw response/request handoff.** Optional,
+default-off arbiter/backend change preserves old response routing and occupancy1.
+Independent pin tests retain reset/refresh/coherence/held responses:64 hot reads
+128->65 host ticks;96 mixed/stalled operations566->444. Original144-chip MSA
+retains all12,012 board cycles/9,437,184 bits and canonical raw operations:
+113899->103525 host cycles (-9.108069% component only). Full128-group independent
+scoreboard passes BOTH Icarus/Verilator,1131 requests each/954 overlaps with
+payload/fairness/response/stall/occupancy checks. Five staging rejection controls
+pass; component negative controls reject. Failed fixture/diagnostic helpers kept.
+[750-member component/source receipt](../fpga/mister/reports/2026-10-22-storage-response-overlap/component-native-stage/README.md).
+
+ONE native57 fit at /home/alans/mister/Dorado_StorageResponseNative57_1_20261022:
+builder4103958/fit4115679 VERIFIED LIVE, map passed/routing active. Read-only
+reporter4125729/collector4125730 follow SAME job. Local storage-response-native57-
+v1-20261022; storage-response-native.json hashes503 sources. Only3 RTL files
+change: generated arbiter/backend and wrapper (overlap opt-ins,16->4 buffer).
+CPU/cache/Map/ECC/peripheral timing/Main/daemon/clocks/SDC unchanged. New bypass
+requires real all-device setup/hold; no false/multicycle waiver or assembly yet.
+
+Next TODOs: follow SAME fit/collect terminal reports; regenerate exact sources,
+review all clocks/RAM/warnings/path families including live payload to backend;
+only then guarded assembly and matched hardware boot/speed/input/files/rollback.
+Do not reuse the cache16 reviewer unchanged (different buffer and modified files).
+Original60ns/all peripheral timing, minimal Main337 isolation, final3 fresh seeds
+and2h sustained stress remain OPEN. Qualified Native59 and prior rollback evidence
+retained; complete FPGA snapshots deferred. Goal ACTIVE, not achieved.
+
+**Earlier cache16 login/base prefix (superseded by desktop result above):**
 SAME Main15534/server15531/loader15512, reviewed93ad RBF,57.142857MHz/SYSPER4,
 unchanged Main21e6/receiver0845 and COPY236b. Required normal C until actual113,
 then release; NO early OSD/extra keys. Native07 shows Guest.pa login. All passive
@@ -23,7 +66,7 @@ measurements finish before two normal Returns accept Guest; selectors restored
 Off. No profile text typed: original default Yes/full missing-name/default No
 advances. BootEssentials closure completes and older-font-DF prompts show No.
 Native and later actual HDMI captures show original software progress; full
-Viewers/new-core mouse/echo/file/app/rollback qualification remains PENDING.
+Viewers/new-core mouse/echo/file/Clock now pass above; rollback on93ad is pending.
 
 | Separate quiet-login metric | matched cache4/9e | cache16/93ad |
 |---|---:|---:|

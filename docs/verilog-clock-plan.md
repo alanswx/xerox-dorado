@@ -9,7 +9,32 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Current cache16 prefix:** reviewed93ad/SAME236b/Main21e6/receiver0845 reaches
+**Current: cache16 original Viewers/input/files/Clock PASS.** SAME93ad/Main15534/
+server15531 completes Installer; normal Cmd/EOF clicks, exact short+alphabet/
+digits Echo, cold old window57persist file and warm new cache16persist file
+readback pass. Middle click opens/redraws Clock. Native/HDMI clear, observers
+terminal60/13. CRC/RX/abort0, TXdrop3, pack fault clear. First missing-space >///
+command and mistaken visual missing5 report retained/corrected;5 is in BOTH
+runs, no keyboard loss demonstrated. New-file cold remount/current93ad rollback
+remain pending. [Desktop receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-cache16-desktop/README.md).
+
+**Speed work now: overlap raw-memory response/next-request handshakes.**
+Pin component64 reads128->65ticks; mixed96 operations566->444. Original144-chip
+MSA all12,012 cycles/9,437,184bits/raw order unchanged,9.108069% fewer host cycles.
+Full128-group scoreboard passes Icarus+Verilator1131 requests/954 overlaps;
+held responses/fairness/data/occupancy and mutation/staging controls pass.
+These are COMPONENT figures, not native speed. [750-member source/result proof](../fpga/mister/reports/2026-10-22-storage-response-overlap/component-native-stage/README.md).
+
+One native57 fit LIVE on Ubuntu Dorado_StorageResponseNative57_1_20261022,
+builder4103958/fit4115679, reporter4125729/collector4125730 following. Map passed,
+routing active; no refit/assembly/load. Four-line backing buffer, two opt-ins,
+only arbiter/backend/wrapper changed. CPU/cache/Map/ECC/peripherals/Main/daemon/
+clocks/SDC unchanged. Follow actual job, review full native timing/memory/warnings
+and new live payload->backend path before guarded assembly/hardware comparison.
+No loosened constraints. Original60ns/all timers, Main337 comparison, final3
+fresh seeds and2h stress remain OPEN; Native59 retained and snapshots deferred.
+
+**Earlier cache16 prefix (superseded by desktop result above):** reviewed93ad/SAME236b/Main21e6/receiver0845 reaches
 actual original Guest.pa login with ONLY required C before login, then loads the
 whole Basic system (34 base files: manifest+33BCDs). Original Yes/missing-name/
 No-default profile flow advances; current BootEssentials/font-DF No prompts.

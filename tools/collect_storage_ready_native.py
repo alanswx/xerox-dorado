@@ -38,7 +38,7 @@ def collect(project,wait,attempt=1):
  assert extra['status']in ['TERMINAL_STORAGE_READY_REPORTS_REVIEW_REQUIRED','TERMINAL_FAILED']
  pids={build['builder_pid'],extra['driver_pid']}|{a['pid']for a in build['stages']+extra['actions']}
  assert all(not(Path('/proc')/str(pid)).exists()for pid in pids),'Recorded work still live'
- name=next(n for n in ['storage-cache-native.json','pack-window-native.json','storage-board-native.json','storage-ready-native.json']if(project/n).exists())
+ name=next(n for n in ['storage-response-native.json','storage-cache-native.json','pack-window-native.json','storage-board-native.json','storage-ready-native.json']if(project/n).exists())
  r=json.loads((project/name).read_text())
  actual={n:sha((project/n).read_bytes())for n in r['source_hashes']};assert actual==r['source_hashes']and len(actual)==503
  check=dict(status='TERMINAL_NATIVE_READY_INPUT_READBACK',actual=actual,absent_pids=sorted(pids),original_build_status=build['status'],report_status=extra['status'],timing_qualified=False,firmware_qualified=False,assembly_collected=False)
