@@ -13,7 +13,7 @@ def run(project,quartus,attempt=1):
  out=project/('storage-ready-reports-v'+str(attempt));assert not(out/'run-state.json').exists()
  proof=json.loads((out/'inputs.json').read_text())
  for n,h in proof.items():assert sha((out/n).read_bytes())==h,n
- name=next(n for n in ['pack-window-native.json','storage-board-native.json','storage-ready-native.json']if(project/n).exists())
+ name=next(n for n in ['storage-cache-native.json','pack-window-native.json','storage-board-native.json','storage-ready-native.json']if(project/n).exists())
  manifest=json.loads((project/name).read_text())
  state=dict(status='WAITING_EXISTING_NATIVE_BUILD',driver_pid=os.getpid(),started=time.time(),actions=[],report_inputs=proof,assembly_permitted=False)
  def save():

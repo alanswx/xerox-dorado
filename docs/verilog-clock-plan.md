@@ -9,6 +9,35 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**14:19UTC: cache-capacity fit + cold native-write persistence in progress.**
+Exact reviewed9e503-source staging changes one wrapper only: permitted16-line
+physical backing buffer and initialized-only passive hit event. Four bad input
+cases reject. Existing component/144-chip tests pass; no actual speed/timing
+claim. Quartus builder3388976/fit3403684 live at
+/home/alans/mister/Dorado_StorageCacheNative57_1_20261022. No CPU/clock/Main change
+or new RBF assembly/load. Follow this job, independently review full timing and
+mapping/warnings before hardware qualification. Original60ns target remains.
+[Staging/control receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-staged/README.md)
+verifies8 members. Read-only reporter3443955/collector3443956 follow that same
+fit with unchanged parent filters; full terminal evidence/review still pending.
+
+MiSTer14 SAME new Main11516/server11515/9e: one cold load from COPY236bb6ff,
+original113/C release complete, germ progressing. Read window57persist.txt after
+desktop to finish cold native-write persistence. Prior freshCP1 disk closes
+4874d985 with12895 records/no errors/gaps/two barriers/no open FDs/mapping revoke.
+Observer19155 and loader95306; never repeat load on observation timeout.
+14:22UTC: Guest.pa login accepted via two normal Returns; Basic.Loadees transfer
+visible in15. Closed CP1 pack4874 streamed/hash-verified on Mac. Native-window
+file cold readback still pending, source236b unchanged.
+[Cold-write prefix receipt](../fpga/mister/reports/2026-10-22-pack-write-window/native57-cold-write-prefix/README.md)
+preserves16 members; it is not a desktop/file-persistence pass.
+
+Hardware cold-start audit shows successful prior noTX/CPUc0fc7000 until~170s,
+TX observed223.97s; current113 watcher releases~190.46s. V42 only covered26.25
+host seconds and different three-button stimulus. Keep terminal/no113 outcome,
+but do not infer CPU failure or extrapolate a later pass. Audit matched events
+before another native control. Current source-bound evidence remains preserved.
+
 **Fresh kernel interactive/live-file check PASS (13:52UTC).** Correct original
 Boot -f CedarWork on same7626/7625/9e enters Basic/F, installs fresh Viewers.
 Normal Cmd mouse click creates initialized second tool; EOF selection then

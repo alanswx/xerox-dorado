@@ -15,6 +15,54 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
+**Current work (2026-10-22,14:19UTC).** Actual live Main11516/server11515/RBF9e,
+volume CedarPackWindow57_ColdWrite1_20261022, one cold load from COPY of closed
+236bb6ff native-write disk. Original BFN113 observed/C released; germ progressing,
+CRC/drop/RX/abort0, no reported pack fault. Follow SAME loader tool95306/
+supervisor11491, C watcher81421 (completed request/release), observer19155 at
+pack-window57-cold-write1-20261022. Read ///window57persist.txt after desktop;
+that exact cold readback is still pending. No repeated load on capture timeout.
+Previous fresh CP1 volume CLOSED4874d985f83f4a85899b08c49b6b052ede794a3ce1fe429e022af1fd9ff040cf,
+12895 complete records, zero errors/gaps, two normal close barriers, no open
+pack/trace FDs and old receiver mapping revoked. It retains fresh57persist.txt;
+do not overwrite either closed source. Main/server binaries remain unchanged.
+
+Native16-line backing-buffer candidate is independently STAGED, not qualified:
+tools/stage_storage_cache_native.py copies exact503 reviewed9e inputs, relocates
+project paths only and changes precisely two wrapper expressions: CACHE_LINES4
+to16 and passive storage_events[8] to storage_initialized&&backing_cache_hit.
+Controller, architectural cache/Map/ECC, CPU/clocks, disk/Main/network untouched.
+Four isolated corrupt-source/clock/control/board-trace cases reject before any
+candidate output; original source inputs unchanged. Source-derived capacity and
+original144-chip tests already pass; no actual speed claim. Quartus builder
+3388976 and fit3403684 are LIVE at
+/home/alans/mister/Dorado_StorageCacheNative57_1_20261022; local staged source
+storage-cache-native57-v1-20261022. Follow existing run-state, never restart for
+poll timeout. Native fit/all-device timing, memory/inventory/warning/guard review
+and firmware/pinned hardware comparison required before assembly/deployment.
+The [8-member staging receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-staged/README.md)
+verifies exact changed source/manifests/stager/controls. Read-only reporter3443955
+and collector3443956 follow the original live fit, using unchanged parent report
+filters. Their generic tools now recognize storage-cache-native.json. Neither
+follower refits, assembles or changes constraints. Collect same terminal archive.
+
+14:22UTC cold write-volume boot reaches displayed Guest.pa login; two normal
+Returns accepted, frame15 shows Basic boot/Basic.Loadees transfer. Full desktop
+and window57persist cold readback still pending. Source236b untouched. Closed
+fresh CP1 pack4874 is also streamed to local closed-fresh-cp1/cedar-work.pack
+and hashes exactly; no whole-pack ARM heap. No repeated load/boot-button input.
+[16-member cold-write prefix](../fpga/mister/reports/2026-10-22-pack-write-window/native57-cold-write-prefix/README.md)
+preserves normal load/closed CP1 barriers,113/C/login/Basic, and startup-duration
+scope. This prefix explicitly does NOT qualify cold file readback or desktop.
+
+Startup-scope audit: successful previous hardware stayed CPUc0fc7000/noTX through
+~170s after cold load; first TX sampled at223.97s. Current normal113 watcher
+releases at~190.46s. V42's1.5B host ticks cover only26.25 host seconds, with
+three normal button presses. This proves neither a CPU fault nor that V42 would
+later boot: different stimulus and host/device timing need matched event audit.
+Preserve V42 terminal/no113 result; no blind extension/restart. Current original
+hardware firmware is progressing. Full60ns phases/timing and final gates stay open.
+
 **Fresh kernel/Viewers/exact keyboard/mouse/live files PASS (13:52UTC).**
 One correct original `Boot -f CedarWork`, same7626/7625/9e/copied ColdCP1 disk,
 shows Basic boot/Boot switches:F, installer and fresh Viewers. Real Cmd mouse
