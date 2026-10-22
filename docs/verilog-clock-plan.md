@@ -9,45 +9,38 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Latest: matched cache4 actual login baseline2.968816M issues/s; clean-input
-cache16 repeat now LIVE.** Known-good9e/SAME236b/Main21e6/receiver0845,
-no early OSD/extra input, displayed Guest.pa login. Three10s issue windows:
-2.96874744/2.96883583/2.96886479M/s,17.8129% original nominal16.67M/s.
-Separate idle held-cycle fraction0.180632%; enabled host41.637317%, storage-only
-pause58.361471%, disk/both0%. Separate non-atomic intervals; preparation overlaps
-only later disk/both windows, not issue/hold/enabled/storage samples. No new-core
-speedup, retirements or desktop claim. [47-member proof](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-cache4-matched-login/README.md)
-verifies full normal close2818 records/two barriers/no faults/loss/unchanged236b.
+**Current cache16 prefix:** reviewed93ad/SAME236b/Main21e6/receiver0845 reaches
+actual original Guest.pa login with ONLY required C before login, then loads the
+whole Basic system (34 base files: manifest+33BCDs). Original Yes/missing-name/
+No-default profile flow advances; current BootEssentials/font-DF No prompts.
+Main15534/server15531/loader15512 stay live. Full Viewers/input/files/apps on this
+candidate are PENDING. [64-member verified prefix](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-cache16-login-base-prefix/README.md).
 
-ONE distinct93ad repeat now Main15534/server15531/loader15512, volume
-CedarStorageCache16NoOSD57_20261022; load64771, original-C watcher52259,
-read-only observer41234/Mac34057. SAME binaries/clocks/seed, NO early OSD or
-extra keys until actual Guest login. Inspect journal/current handles, never
-repeat load on observation timeout. If actual login appears measure matched
-speed/holds/causes/hits, then full desktop/input/files; if815 recurs preserve and
-diagnose. Original60ns/Main337/final three fresh seeds/2h stress remain OPEN.
+Matched cache4 ->cache16 idle issue means2,968,816.02 ->2,969,001.19/s (+0.00624%,
+effectively unchanged), about17.8% original16.67M/s nominal. Separate held-cycle
+fractions0.180632% ->0.183106%, storage-only pause58.361471% ->58.359463%, disk/both
+0% in both. Actual16-line initialized raw-hit/read delta75.003542%; old4-line hit
+counter unwired. Separate windows are not atomic decomposition or retirements;
+one pair is not final three fresh boots. Nominal period remains140ns, not60ns.
+No larger-buffer idle speedup. [47-member matched4 proof](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-cache4-matched-login/README.md).
+First815 run cause remains unproven; clean-input SAME image reaches login. All
+failure/source/closed-volume evidence stays in the [42-member receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-field-teledebug/README.md).
 
-**Latest: cache16 hardware enters original teledebug815; UNQUALIFIED.**
-Same Main21e6/receiver0845/COPY236b, one93ad load, original113/C release and845
-runtime raster; then03..21 byte-identical815 (original germTeledebugServer).
-No displayed login/desktop or pinned speed pass. Cause UNPROVEN; early F12/OSD
-input is a confound alongside cache capacity/fit placement. Diagnostic3.171527M
-issues/s is TELEDEBUG workload, never compare with prior login2.968685M.
-1956-record live prefix is buffered/undrained, not proof of absent guest I/O.
-Complete closed trace3130 records/46 read-ACK pairs/no writes/errors/loss, two
-barriers and unchanged236b; net CRC/RX/drop/abort0. Native captures work, HDMI black;
-no live resolution changes. Observer22 terminal. [42-member receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-field-teledebug/README.md)
-verifies. Normal OSD confirm enables passive counters without GDB; view restored
-Off. Prior passed cache4 disk closes1bbb with6479 records/two barriers/no faults.
+HDMI now clear after public host-framebuffer keys, with later live software
+progress; no immediate before capture in this repeat, no permanent Main fix or
+causal mechanism proved. No debugger/ptrace/other SPI owner/reload/resolution or
+capture-service changes. CRC/RX/abort0, TXdrop1 retained, pack fault clear.
+Live disk prefixes are buffered, not complete close evidence. Initial wrong-log
+hold sampler preserved; corrected live-log/journal guard passes without reset.
 
-Known-good9e/cache4 matched control from SAME236b prepared14952; one normal
-load tool69611 completes: Main15052/server15051/loader15029. Original-C watcher
-33316 COMPLETED113/C release, read-only observer41432 follows SAME boot.
-Control frame02 shows855; observe actual login before any extra input.
-Inspect CedarStorageCache4Control57_20261022/cold-load-state.json for actual PIDs.
-NO early OSD/extra typing until displayed login; then pinned measurements. Preserve
-unqualified93ad run and consider a cache16 no-OSD repeat to isolate input confound.
-Do not reload on observation timeout. Actual60ns, Main337, final acceptance OPEN.
+Follow SAME installer: load64771, C watcher52259 COMPLETED; initial native
+observer41234 terminal13, follow-up24085/Mac36838 VERIFIED LIVE/bounded60 at
+storage-cache-native57-v1-20261022/hardware/cache16-noosd. No profile typing or
+repeated load on capture timeout. After initialized Viewers use normal mouse/
+exact Echo and cold window57persist readback, then fresh files/apps. Capacity
+alone does not fix idle speed; prioritize measured transfer/phase/data work.
+Original60ns/all peripheral timing, Main337 isolation, final3 fresh seeds and
+2h stress remain OPEN. Qualified Native59 retained, complete FPGA snapshots deferred.
 
 **15:10UTC: native cache4/window cold persistence PASS.** New core/Main/daemon/
 host caches from copy236b, original Basic/Viewers, mouse-created clean tool,

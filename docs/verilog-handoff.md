@@ -15,74 +15,69 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Latest: matched cache4 login MEASURED; clean-input cache16 repeat LIVE.**
-Known-good9e/Main15052/server15051, SAME236b seed as cache16, reaches displayed
-Guest.pa login with ONLY required C before login. Three adjacent10s windows:
-2,968,747.44 /2,968,835.83 /2,968,864.79 StartCycle issues/s, mean2,968,816.02/s
-(17.8129% original nominal16.67M/s). Run/Jam-qualified/excludingRepeatCur,
-not drained retirements or desktop speed. Nominal140ns/7.143M/s before waits.
-Separate idle windows: held cycles0.180632%; enabled host edges41.637317%,
-storage-only pause58.361471%, disk-only0%, both0%. These are separate intervals,
-not atomic decomposition. Issue/hold/enabled/storage precede repeat preparation;
-copy preparation overlaps later disk/both windows. Earlier7c used a different
-seed/server, so its numerically matching rate is NOT a controlled speedup.
+**Current: cache16 original firmware/login/base files PASS; Installer still LIVE.**
+SAME Main15534/server15531/loader15512, reviewed93ad RBF,57.142857MHz/SYSPER4,
+unchanged Main21e6/receiver0845 and COPY236b. Required normal C until actual113,
+then release; NO early OSD/extra keys. Native07 shows Guest.pa login. All passive
+measurements finish before two normal Returns accept Guest; selectors restored
+Off. No profile text typed: original default Yes/full missing-name/default No
+advances. BootEssentials closure completes and older-font-DF prompts show No.
+Native and later actual HDMI captures show original software progress; full
+Viewers/new-core mouse/echo/file/app/rollback qualification remains PENDING.
 
-Normal OSD (after actual login ONLY) sets passive views; no debugger/ptrace/
-injected calls or other SPI owner. Views restored Off; observer33424/tool41432
-normally terminal13. Normal close preserves unchanged236b,2818 complete records,
-46 read/ACK pairs, one write/ACK pair, zero recorded I/O errors/trace loss, two
-barriers/no open FDs/old mapping revoked. No Guest or new desktop/input/files pass.
-[47-member matched-login proof](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-cache4-matched-login/README.md)
-verifies. HDMI remains black while native login is clear; no video changes.
+| Separate quiet-login metric | matched cache4/9e | cache16/93ad |
+|---|---:|---:|
+| StartCycle issues/s (three adjacent10s windows) | 2,968,816.02 | 2,969,001.19 |
+| Held instruction cycles | 0.180632% | 0.183106% |
+| Storage-only host-edge pause | 58.361471% | 58.359463% |
+| Disk-only / both pause | 0% /0% | 0% /0% |
+| Raw-buffer hit/read delta | counter unwired | 75.003542% |
 
-ONE distinct93ad cache16 repeat (SAME binaries/clocks/COPY236b) now runs
-Main15534/server15531/loader15512, volume CedarStorageCache16NoOSD57_20261022.
-Normal load tool64771 is supervising; C watcher52259 waits original113 and
-read-only native observer41234/Mac34057 watches the SAME boot. Local files:
-storage-cache-native57-v1-20261022/hardware/cache16-noosd. Inspect actual
-cold-load-state.json and current live handles; DO NOT repeat load on timeout.
-NO early OSD or extra keys before actual Guest login: normal C hold/release only.
-If actual login appears, measure same idle issues/holds/causes and cache-hit
-ratio BEFORE Guest input, then qualify full Cedar/input/files. If original815
-recurs, preserve it and diagnose the source/data timing; do not claim capacity
-fix or firmware pass. First815 run/cause/input confound remains preserved below.
-Main337, original60ns family/capture/data work, final3 fresh seeds/2h stress OPEN.
+Only+0.00624% idle issue difference: effectively UNCHANGED, no speedup claim.
+Issues exclude RepeatCur/maintenance and are not drained retirements. Separate
+cause windows are not one atomic decomposition; one A/B pair is not three fresh
+boots. Both nominal ordinary periods remain140ns (7.143M/s before waits), still
+far from original60ns/16.67M/s. The matched34-file workload uses identical236b,
+Main/server/clocks; do not compare earlier7c/f3/c599 as a controlled speedup.
+[64-member candidate login/base prefix](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-cache16-login-base-prefix/README.md)
+verifies exact measurements, ordered34 base-file lookups/sizes (manifest+33BCDs),
+all33 Loading...ok raster, original source and bounded live-prefix identities.
+Files cached on236b mean this is not34 network payload transfers or a pinned
+whole-loader benchmark. Failed first hold sampler read the closed control log;
+code/failure kept, corrected actual-log/journal guard passes without restart.
+[47-member matched cache4 proof](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-cache4-matched-login/README.md)
+preserves source236b/2818 complete closed records/two barriers/no faults/loss.
 
-**Cache16 first hardware run UNQUALIFIED.** RBF93ad loaded once,
-Main14314/server14313/loader14281, same21e6/0845 binaries and COPY236b.
-Original113/C release occurs; native frame02 shows845, then03..21 are BYTE-
-IDENTICAL815. Original MPCodes defines815 as germTeledebugServer. No Guest
-login/desktop or pinned login speed pass. Cause UNPROVEN: early F12/OSD is an
-input confound; capacity/fit placement remain candidates. HDMI is black while
-native captures work; no resolution/capture-service change. Observer32009 ends
-normally22 samples. Diagnostic issued counter is3.171527M/s IN TELEDEBUG ONLY,
-not comparable with pinned login2.968685M. Normal web OSD uses kbd:confirm (not
-unsupported kbd:select), selects issued view and then three confirms restore Off.
-No debugger/ptrace/injected calls/SPI ownership change. The1956-record live
-disk prefix is BUFFERED/UNDRAINED; absent request rows
-do not show absent guest I/O. Full normal-close trace has3130 records/46 read
-request-ACK pairs/no writes/no errors or trace loss/two barriers; disk stays236b. Selftest/keyboard frozen
-sources match exact503 input hashes.
-[42-member field evidence](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-field-teledebug/README.md)
-verifies; cache16 is NOT firmware qualified. Prior cache4 desktop volume normal
-close1bbb04ffd15c4941ebbe73ad9a20417887b504cd191132a3897cb3ed06187dfd,
-6479 records/no errors/gaps/two barriers/no FDs/old mapping revoked, is preserved.
+First93ad run stayed at815 (original teledebug), cause UNPROVEN; early F12/OSD
+was a confound. Clean-input SAME image reaches login, so not an unavoidable
+image boot failure. [42-member original815 evidence](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-field-teledebug/README.md)
+retains full close3130 records/46 read-ACK pairs/no writes/faults/loss/two barriers,
+unchanged236b. Live trace prefixes are buffered/undrained: missing rows do NOT
+mean missing guest I/O. No debugger/ptrace/injected calls or other SPI owner.
 
-Distinct known-good9e/cache4 control from SAME236b was PREPARED by14952,
-then ONE normal load completes through /tmp/dorado-cache4-control57-20261022.py:
-Main15052/server15051/loader15029, readiness verified. Follow tool69611 and
-CedarStorageCache4Control57_20261022/cold-load-state.json;
-C watcher tool33316 COMPLETED original113/C release at local
-storage-cache-native57-v1-20261022/hardware/cache4-control/c-until-request.log.
-Control frame02 shows855, beyond candidate815; login still to be observed.
-Do not repeat load on observer timeout. NO early OSD or other keys until actual
-Guest login; only required C hold/release. Take actual new PIDs from journal.
-A subsequent cache16 no-OSD run can separate the input confound. Candidate
-volume is normally CLOSED unchanged236b; complete trace and
-closure supplement are in the42-member field receipt. Read-only control observer
-tool41432 follows15052, local cache4-control/watch-state.json; no other
-capture requester. Original60ns/Main337/
-final three fresh seeds/2h stress and pinned matched speed remain OPEN.
+HDMI is now CLEAR after public Ctrl+Alt+F9 then F9 keys; later HDMI shows live
+BootEssentials/font prompt progress. Exact Main menu source matches21e6 rebuild.
+No immediately-before HDMI capture in THIS repeat, so causal mechanism/permanent
+initialization fix remain unproven. No core/Main/binary/resolution/capture-service
+restart. Latest net CRC/RX/abort0, TX dropped1 retained, pack fault clear.
+Some native screenshots complete after8s observer deadline; never reset for it.
+
+**Follow SAME live session:** volume CedarStorageCache16NoOSD57_20261022,
+load supervisor tool64771; C watcher52259 COMPLETED. Initial observer41234/
+Mac34057 terminal13; follow-up observer tool24085/Mac36838 VERIFIED LIVE via
+actual handle, bounded60, local hardware/cache16-noosd/watch-r2-state.json.
+Local base: build/rtl-executive/storage-cache-native57-v1-20261022. Observer
+screens-v2 tracks the SAME installer. No repeated load or profile typing.
+When initialized Viewers/CommandTool arrives, use normal Cmd/EOF mouse clicks,
+exact Echo cache16 exact and Type ///window57persist.txt; then fresh file write/
+read and applications. Preserve current live volume, not a cold-remount proof.
+
+Next speed work needs actual transfer/service and phase/data evidence; larger
+capacity alone does not help this idle workload. Do not blindly extend the
+controller beyond its qualified16-line limit. Original60ns clock/enable/capture
+and all peripheral timing, isolated Main337 comparison, final three fresh-seed
+original-firmware desktops and2h stress remain OPEN. Complete FPGA snapshots
+remain deferred; Native59 and all qualified older evidence stay preserved.
 
 **Cold native-window persistence PASS (15:10UTC).** SAME cache4 RBF9e,
 Main12331/server12330, distinct ColdWrite2 copy of closed236b. Normal Cmd click
