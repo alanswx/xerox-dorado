@@ -9,6 +9,43 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**Fresh kernel reaches Viewers/library A-OK (13:40UTC).** Correct `Boot -f
+CedarWork` on same7626/7625/9e: frame05 Basic/F, then full installer and
+frame32 All Library Files loading A-OK;33 final DF completion/tool prompt.
+Exact fresh keyboard/focus/click/file checks pending. Not final fresh-seed
+firmware or new speed qualification. User pressed Schematic, timing unlogged.
+
+[Storage capacity component receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/README.md)
+preserves41 members: exact frozen9e4/16 lines, same synthetic requests,
+unmutated focused harness and4 rejected real corruptions. First control's
+earlier-than-required diagnostic failure is retained; corrected harness
+passes unchanged RTL before all mutations. No running-core or production
+RTL change. Board/native/timing/hardware comparison remain prerequisites.
+
+**Correct Boot-f now reaches Basic kernel (13:26UTC).** Actual `Boot -f
+CedarWork` once; frame05 Basic boot/Basic.Loadees/Boot switches:F, then accepted
+profile N and BootEssentials. Follow SAME7626/7625/9e, observer48746, directory
+pack-window57-fresh-kernel2-20261022. Viewers/input pending; preserve newer font
+DF via actual defaultNo. No reset/reload. First trailing-f attempt was a
+checkpoint return, not fresh kernel, and its observer has ended.
+
+Separate exact frozen-controller capacity probe passes4 and16 existing lines,
+including physical-chip data/coherence/reset/refresh checks. Synthetic128-group
+workload uses64 vs16 physical reads,3888 vs3331 host ticks (14.326% fewer
+component ticks). Not FPGA CPU speed, no native change or activation. Need
+real workload/board/timing gates. Current cache-hit monitor's event is tied0;
+do not quote it as a measured hit ratio. Preserve source-bound probe artifacts.
+
+**Boot command correction (13:19UTC).** Original BootTool.BootCommand parses
+arguments in order and calls Booting.Boot as soon as it resolves the volume.
+A trailing -f is NEVER read. `Boot CedarWork -f` actually returned the old
+checkpoint/AIS/tools; it is NOT a fresh-kernel pass. The correct invocation is
+`Boot -f CedarWork`, with switches BEFORE the volume. Earlier recommendations
+using a trailing switch are superseded; historical attempts remain preserved.
+Current Main7626/server7625/9e stays live. Fresh-kernel observer1 is stopping
+normally after completed return; the corrected invocation is a new distinct
+attempt, not a retry of a pending boot. Cold checkpoint recovery remains PASS.
+
 **Reviewable follow-ups (13:00UTC).**
 [Cold recovery](../fpga/mister/reports/2026-10-22-pack-write-window/native57-cold-checkpoint-recovery/README.md),
 [V42 terminal failure to reach113](../fpga/mister/reports/2026-10-22-pack-write-window/native57-cool-control-v42-terminal/README.md), and

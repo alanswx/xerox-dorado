@@ -15,6 +15,62 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
+**Fresh kernel reaches Viewers and completes library loading (13:40UTC).**
+Correctly ordered `Boot -f CedarWork` on SAME Main7626/server7625/RBF9e shows
+Basic boot/Boot switches:F (frame05), full fresh installer/closure progress,
+then Viewers/Clock/Watch/Edit and "All Library Files loading A-OK" (frame32).
+Frame33 shows final DoradoWelcome/Sil DFs and a fresh CommandTool prompt/menu.
+Ordinary Echo input was sent; exact echo/click/file checks remain pending,
+including explicit focus in this newly created tool. This is fresh-kernel
+entry on a copied checkpoint disk, not a final fresh-seed/cold-firmware pass.
+User reports pressing Schematic; timing unlogged, so account for that input.
+
+**Storage buffer component and rejection controls preserved.**
+[41-member source-bound receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/README.md)
+contains positive4/16-line comparison and an unmutated focused harness plus
+four corruptions rejected: stale write, orphan fill, group-bit alias and early
+capture. First control stopped at a correct earlier read-count assertion,
+missing its required later diagnostic; its terminal failure is retained.
+V2 adds explicit stale-data oracle first and passes the unmutated harness.
+No production RTL/FPGA/Main/daemon changes. Original144-chip board, full native
+firmware, all-device timing and pinned hardware speed remain required.
+
+**Correct fresh-kernel entry observed (13:26UTC).** SAME Main7626/server7625/
+RBF9e, original keyboard `Boot -f CedarWork` (flag BEFORE volume) issued ONCE.
+Local `pack-window57-fresh-kernel2-20261022`, watcher/tool48746,45 bounded samples.
+Frame05 explicitly says This is the Basic boot file, lists Basic.Loadees loads/
+starts and Boot switches: F. This distinguishes it from the preceding returned
+checkpoint; Viewers/input are not yet claimed. Single N at actual profile
+choice was accepted as No. BootEssentials closure progressed; current question
+asks to overwrite newer local Xerox/TiogaFonts.df with older remote data,
+default No; single Return accepts No. No reset, FPGA/Main/daemon restart or new
+Checkpoint. Old first observer1 is terminal19 frames; its trailing-f mistake
+remains preserved, not a fresh-kernel pass.
+
+Storage audit: actual frozen9e interleaves128 groups in low7 raw address bits,
+BL8 covers8 adjacent groups, but the backend has only4x16B=64B transparent
+storage buffer (separate from original Dorado4K-word cache). Existing permitted
+16-line setting passes exact same frozen native controller/independent-chip
+coherence/reset/refresh/backpressure tests. Synthetic128-group/four-sweep
+workload:4lines64 physical reads/3888 host ticks;16lines16 reads/3331 ticks,
+75% fewer physical reads/14.326% fewer component ticks. NOT native CPU speed.
+Probe at `native-storage-cache-capacity-v1-20261022`, exact source hashes bound
+by tools/probe_native_storage_cache.py. Further failure controls/board/native
+and timing review required before activation. The deployed Read cache monitor
+is NOT a valid hit-rate measurement: backing_cache_hit is produced but its
+storage_events[8] is tied0. Correct passive wiring only in a separately reviewed
+candidate; never infer0% hit rate from current zero. No storage RTL/core change.
+
+**Boot command correction (13:19UTC).** Original BootTool.BootCommand parses
+arguments in order and calls Booting.Boot as soon as it resolves the volume.
+A trailing -f is NEVER read. `Boot CedarWork -f` actually returned the old
+checkpoint/AIS/tools; it is NOT a fresh-kernel pass. The correct invocation is
+`Boot -f CedarWork`, with switches BEFORE the volume. Earlier recommendations
+using a trailing switch are superseded; historical attempts remain preserved.
+Current Main7626/server7625/9e stays live. Fresh-kernel observer1 is stopping
+normally after completed return; the corrected invocation is a new distinct
+attempt, not a retry of a pending boot. Cold checkpoint recovery remains PASS.
+
 **Preserved reviewable milestones (13:00UTC).**
 [46-member cold initialized-app recovery](../fpga/mister/reports/2026-10-22-pack-write-window/native57-cold-checkpoint-recovery/README.md),
 [537-member V42 terminal/no113 control](../fpga/mister/reports/2026-10-22-pack-write-window/native57-cool-control-v42-terminal/README.md), and
@@ -26,7 +82,7 @@ before simulation; failure retained, corrected staging changes only d08's
 parameter and leaves generated production boards unchanged. Not full native
 113/Cedar/timing qualification and not deployed. Target60ns remains open.
 
-Next: explicit original `Boot CedarWork -f` fresh-kernel check on the current
+Next: explicit original `Boot -f CedarWork` fresh-kernel check on the current
 copied checkpoint volume (not the immutable source); preserve closed236b for
 its separate native write-persistence remount. Main337 isolated comparison,
 real CPU phase/data fixes and final3 fresh seeds/2h stress still required.
