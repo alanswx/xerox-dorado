@@ -37,7 +37,9 @@ verification remains separate. The114-member/111-blob desktop/pause receipt
 passes lossless verification;88,659 disk-prefix records show no errors/gaps.
 Canonical controller/model defaults and exact historical replay now pass (details below).
 The memory-ready prediction now passes functional checks and one-board15ns
-timing below. Next: all128 native groups and the actual global-gate coupling.
+timing below. All128 native groups pass startup-prefix coupling checks; the
+full native same-clock fit is live. Next: terminal full-device review and actual
+physical-memory/original-firmware tests, then acceleration.
 Qualify the experimental CPU front separately before merging the faster phase path. Correction
 and native/memory/login receipts committed/pushed as7d5b78b7. The full corrected native/memory/login archive is
 [here](../fpga/mister/reports/2026-10-21-sdram-read-capture/native-fit/README.md). Clock acceleration, authentic FPGA
@@ -97,11 +99,31 @@ preserves the executed sources and results. Services here are registered virtual
 ports: this does not qualify full128-group fanout, CPU, physical SDRAM I/O,
 original-firmware operation or a hardware speedup. No new RBF/load occurred.
 
-Next: stage all128 native groups with actual network_step, test original-ROM
-startup and full pause/response coupling at the existing clock, then fit the
-complete native design including SDRAM/backend/I/O before acceleration. Preserve
-the separate experimental CPU-front integration gate. Hardware remains50MHz/
-SYSPER4 and2.59M idle-login issues/s; original60ns operation is still the target.
+All128 native groups now use existing contb_advance=network_step in a503-file
+stage from the corrected BL8/MC1668 parent, at unchanged50MHz/SYSPER4/admin inactive.
+CPU/cache/map/ECC, top/machine wrappers, physical SDRAM backend and timing constraints
+are unchanged. Two full backplanes compare all175 outputs and each group's
+address/cache/write/read state after every host edge. V2 passes8M checks and
+1,562,032 delayed raw reads/paused responses, with native BaseBoard clock feedback,
+a normal20ms boot pulse and forced pauses. A compiled eight-board disconnected-step
+control fails at1,080ns with the explicit readiness assertion. These are startup
+PREFIX checks: zero CPU issues/writes and an independent raw array backend. They
+do not qualify original-ROM completion, Cedar or physical SDRAM. Separate original
+MSA/all-bit/write tests remain in the component receipt.
+
+Full native build at `/home/alans/mister/Dorado_StorageReadyNative1_20261022` is
+LIVE (builder120341, fit133372; map rc0, placement), all503 source hashes verified.
+Read-only follower153502 waits for that SAME build and then gathers typed ready,
+backend/diagnostic timing and register inventory. Preserve any original short-filter
+report failure; the frozen typed-filter follow-up changes reporting only. No
+constraints/fitted sources are repaired and no refit/assembly/load is scheduled.
+[1776-member integration/prefix receipt](../fpga/mister/reports/2026-10-22-storage-ready-native/integration/README.md)
+passes lossless verification. Next: terminal full timing/memory/source and
+SDRAM-I/O review, guarded assembly and physical8M-cell/original-ROM/Cedar/input
+qualification before acceleration. Preserve the separate experimental CPU-front
+integration gate. Hardware remains50MHz/SYSPER4 and2.59M idle-login issues/s;
+original60ns operation is still the target. Authentic rollback and final cold
+persistence/repeated-boot/stress tests remain open.
 
 Historical StorageSelftest1 hardware: **pre-guest raw SDRAM test fails at address0**, expected0xA59,
 actual0xA58. MarkerB157 and two metadata samples confirm phase1/failed1/ready0;
