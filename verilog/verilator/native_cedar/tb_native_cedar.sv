@@ -13,7 +13,14 @@ module tb_native_cedar;
   import "DPI-C" function int unsigned native_net_rx_word(input int unsigned index);
   import "DPI-C" function int unsigned native_boot_request();
   import "DPI-C" function longint unsigned native_limit(input string path);
-  reg host_clk=0;always #10 host_clk=~host_clk;
+  // Match the qualified native build's actual fabric clock. The old50MHz
+  // recipes retain exactly10ns half-periods and their original stimulus.
+  localparam integer HOST_CLOCK_HZ=`DORADO_HOST_CLOCK_HZ;
+  localparam realtime HALF_PERIOD_NS=500000000.0/HOST_CLOCK_HZ;
+  localparam integer BOOT_DOWN_SAMPLES=4*HOST_CLOCK_HZ;
+  localparam integer BOOT_UP_SAMPLES=24*HOST_CLOCK_HZ/5;
+  localparam integer DISK_DELAY_CLOCKS=HOST_CLOCK_HZ*3/1000;
+  reg host_clk=0;always #(HALF_PERIOD_NS) host_clk=~host_clk;
   reg reset=1;initial begin repeat(5)@(negedge host_clk);reset=0;end
   wire storage_ready,storage_initialized,pack_ready,pack_fault;
   wire source_enable=!reset && storage_ready && pack_ready;
@@ -22,8 +29,8 @@ module tb_native_cedar;
   longint unsigned host_ticks=0,guest_ticks=0,limit;
   string limit_path,medium_path,aemu,cedar,alto,stp;
   reg [28:0] boot_samples=0;
-  always @(posedge machine_clk)if(boot_samples<240000000)boot_samples<=boot_samples+1;
-  wire boot_n=!(boot_samples>=200000000 && boot_samples<240000000);
+  always @(posedge machine_clk)if(boot_samples<BOOT_UP_SAMPLES)boot_samples<=boot_samples+1;
+  wire boot_n=!(boot_samples>=BOOT_DOWN_SAMPLES && boot_samples<BOOT_UP_SAMPLES);
   reg [10:0] ps2_key=0;
   wire [10:0] machine_key;
   wire key_overflow;wire [8:0] key_queued;
@@ -94,7 +101,7 @@ module tb_native_cedar;
     buff_wr<=0;
     case(disk_state)
     0:if(rd || wr)begin
-      first_word<=lba*256;total<=(int'(blocks)+1)*256;index<=0;disk_delay<=150000;disk_write<=wr;disk_state<=1;
+      first_word<=lba*256;total<=(int'(blocks)+1)*256;index<=0;disk_delay<=DISK_DELAY_CLOCKS;disk_write<=wr;disk_state<=1;
       $display("NATIVE_HPS_REQUEST host=%0d lba=%0d blocks=%0d write=%b",host_ticks,lba,int'(blocks)+1,wr);
     end
     1:if(disk_delay>0)disk_delay<=disk_delay-1;
@@ -129,7 +136,7 @@ module tb_native_cedar;
     end
     2:if(!tx_valid)ts<=0;
     endcase
-    if((host_ticks%1024)==0)native_net_tick(host_ticks*20);
+    if((host_ticks%1024)==0)native_net_tick(host_ticks*64'd1000000000/HOST_CLOCK_HZ);
     case(rs)
     0:if(rx_ready)begin n=native_net_rx();if(n>0)begin rx_words<=11'(n);ri<=0;rs<=1;end end
     1:begin rx_addr<=10'(ri);rx_data<=16'(native_net_rx_word(ri));rx_wr<=1;

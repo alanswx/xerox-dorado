@@ -26,16 +26,25 @@ def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 
 def prepare(stage,mapping,out,medium,qualification=None):
     assert not out.exists()
-    manifest=stage/'r-front-ready-native.json'
-    if not manifest.exists():manifest=stage/'mc1668-candidate.json'
+    manifests=[stage/name for name in ('storage-board-native.json',
+        'r-front-ready-native.json','mc1668-candidate.json') if (stage/name).exists()]
+    assert len(manifests)==1, 'Select one exact staged native recipe'
+    manifest=manifests[0]
     r=json.loads(manifest.read_text())
     qualification=qualification or stage/'qualification.json'
     q=json.loads(qualification.read_text())
-    expected_status=('PASS_NATIVE_R_FRONT_READY_PREASSEMBLY_REVIEW'
-        if manifest.name=='r-front-ready-native.json'else 'PASS_NATIVE_MC1668_BUILD')
+    expected_status={'r-front-ready-native.json':'PASS_NATIVE_R_FRONT_READY_PREASSEMBLY_REVIEW',
+        'mc1668-candidate.json':'PASS_NATIVE_MC1668_BUILD',
+        'storage-board-native.json':'PASS_NATIVE_STORAGE_BOARD_PREASSEMBLY_REVIEW'}[manifest.name]
     assert q['status']==expected_status
-    assert q['source_hashes']==r['source_hashes']and r['frequency_mhz']==50 and r['sysper']==4
+    assert q['source_hashes']==r['source_hashes']and r['sysper']==4
     assert r['state_admin']=='INACTIVE'
+    host_hz=r.get('frequency_hz',int(round(r['frequency_mhz']*1000000)))
+    if manifest.name=='storage-board-native.json':
+        assert host_hz==q['frequency_hz']==57142857 and q['sysper']==4
+        assert sha(mapping)==q['reviewed_evidence_hashes']['core/output_files/Dorado.map.rpt']
+    else:
+        assert host_hz==50000000 and r['frequency_mhz']==50
     out.mkdir(parents=True);inputs=out/'inputs';inputs.mkdir()
     hashes={}
     for name,h in r['source_hashes'].items():
@@ -59,7 +68,8 @@ def prepare(stage,mapping,out,medium,qualification=None):
     for line in (stage/'core/Dorado.qsf').read_text().splitlines():
         m=re.fullmatch(r'set_global_assignment -name VERILOG_MACRO (.+)',line)
         if m:definitions.append(m[1].strip('"'))
-    assert 'DORADO_HOST_CLOCK_HZ=50000000'in definitions
+    assert [d for d in definitions if d.startswith('DORADO_HOST_CLOCK_HZ=')]==[
+        'DORADO_HOST_CLOCK_HZ='+str(host_hz)]
     extra={
         'harness/tb_native_cedar.sv':ROOT/'verilog/verilator/native_cedar/tb_native_cedar.sv',
         'harness/host.cpp':ROOT/'verilog/verilator/native_cedar/host.cpp',
@@ -85,6 +95,7 @@ def prepare(stage,mapping,out,medium,qualification=None):
     record=dict(status='PREPARED_EXACT_NATIVE_MEMORY_DIAGNOSTIC',stage=str(stage),
         stage_manifest_name=manifest.name,stage_manifest_sha256=sha(manifest),qualification_sha256=sha(qualification),
         mapping_sha256=sha(mapping),inputs=hashes,used_hdl=used,defines=definitions,
+        host_clock_hz=host_hz,
         artifacts={n:dict(path=str(p),sha256=sha(p)if p.is_file()else None)for n,p in artifacts.items()},
         no_CPU_state_or_guest_IOCB_completion=True,complete_MiSTer_Main_video_qualified=False)
     (out/'provenance.json.gz').write_bytes(gzip.compress((json.dumps(record,indent=2)+'\n').encode(),mtime=0))

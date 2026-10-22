@@ -71,6 +71,25 @@ Generic restart helper
 the existing preparation journal rather than repeat its completed load.
 
 **Native Cedar Checkpoint attempt1 is now IN PROGRESS on the SAME core.**
+**Update05:28UTC: saved desktop and actual Rollback message RETURNED.**
+The same original operation reaches the saved two CommandTools plus the user's
+rendered ProcH-BitSlice07 schematic in an AIS Viewer. The lower tool prints
+`Rollback at October18,1998 12:02:36pm+0100`, Guest.pa and Cedar6.1 version.
+Actual `checkpoint/return-{native,hdmi}.png` and `screens-v1/26.png` preserve it.
+The earlier profile dialogue really was intermediate, as in the C regression.
+First post-return input attempt is INVALID: clicking737,608 in the now-full
+Tioga typescript placed the caret in old `CreateButton Moon` text. Typed test
+lines edited history, without command execution or a new file. The earlier
+callback-interleaving explanation is superseded by the actual editable-history
+evidence. Preserve those artifacts; no post-checkpoint file/input pass yet.
+A fresh third CommandTool is now opened through actual normal Cmd click;
+its blank region permits focus at the new prompt. Require executed echoes and
+new file readback before normal Rollback again. Do not type into old history.
+The short echo in that new tool now EXECUTES: exact`ck57 input ok` and a new
+prompt in `checkpoint/fresh-short-native.png`. Full alphabet/digits and actual
+post-checkpoint marker creation/readback are the next separate check. The old
+failed history edit must not be counted as a file creation or keyboard pass.
+
 Normal USB `Checkpoint` is accepted: actual guest prints Creating checkpoint
 at October18,1998 12:05:51pm+0100, made byGuest.pa. By05:09–05:10UTC actual
 native frames show811 (`MPCodes.germOutLoad`), with ongoing native disk writes.
@@ -122,6 +141,22 @@ their post-exit regex rejected spaces in `reason=  HOST_LIMIT`. Current runner
 accepts whitespace, verified against BOTH real logs; classification sidecars
 preserve the actual diagnostic and hashes. [1086-member terminal receipt](../fpga/mister/reports/2026-10-22-native-memory-diagnostic-terminal/README.md)
 verifies losslessly. These old DQ models do not qualify physical SDRAM.
+The replacement57.1MHz control harness now freezes the exact working503-source
+storage-board recipe and160 actually used HDL files, binding map digest to the
+completed review. The fabric clock,3ms external disk delay,4..4.8s enabled-edge
+boot stimulus and network elapsed time use the actual qualified host frequency;
+50MHz formulas retain their old values. Wrong map, rehashed wrong clock macro
+and wrong qualification controls reject. V40 terminal2M-host-tick preflight
+exits0 at35ms; defined link symbols exclude C CPU/machine/memory execution.
+This is harness startup, NOT complete8M/firmware or speed qualification.
+The [1087-member control receipt](../fpga/mister/reports/2026-10-22-native-memory-clock-control/README.md)
+preserves frozen sources/controls and the distinct V41 RUNNING prefix.
+V41 driver56227/simulator56631, tool session35657, directory
+`build/rtl-executive/native-cedar-board57-control-v41-20261022`, is the existing
+full original-ROM control to follow. Default limit1.5B host ticks. No debugger,
+state import or FPGA/Main/daemon change; source/capture model supersedes V38/V39.
+Do not restart from an observation timeout. Experimental CPU front remains
+unqualified until a valid current control and matched candidate run.
 Subsequent actual installer screenshot shows every base loadee loaded. Lowercase
 `n`+Return entered a profile-filename detour; a single uppercase`N` at the later
 visible Yes question is accepted as No and BootEssentials advances. No extra

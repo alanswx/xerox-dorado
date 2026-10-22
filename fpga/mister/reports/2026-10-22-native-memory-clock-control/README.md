@@ -1,0 +1,9 @@
+# Native-memory control with the working57.1MHz sources and clock
+
+The runner now accepts exactly the reviewed storage-board-native recipe, matches all503 source hashes and binds its actually used HDL selection to the map report digest in the completed review. Wrong map, rehashed wrong clock macro and wrong qualification status all reject. All160 HDL inputs used by the physical production fit are compiled unchanged. The independent SDRAM model is the current corrected model; old V38/V39 frozen capture/model behavior is not silently reused.
+
+The testbench derives the actual fabric clock from DORADO_HOST_CLOCK_HZ, including the external3ms block-transfer delay,4..4.8s enabled-source-edge boot stimulus and network elapsed-nanosecond callback. At50MHz these expressions retain10ns half-periods,150000 disk-delay clocks,200M..240M boot sample thresholds and20ns per host tick. The57.1MHz preflight exits0 at2M host ticks/35ms, with no physical model error; this only qualifies harness startup/compilation/clock plumbing, not complete8M memory, original firmware or Cedar. Its defined link symbols exclude C CPU/machine/memory execution; the only host adapters are raw packets and opaque disk sectors.
+
+V40 is terminal HOST_LIMIT; all actions exit0 and the corrected whitespace parser classifies it correctly. The separate V41 full control is RUNNING when archived; its real simulator56631 and driver56227 must be followed, not restarted because an observation expires. Both frozen input sets hash-match. This running prefix is not a full memory or boot result, a new native speed measurement, or clearance of the experimental CPU front. MiSTer14 stays on the same running checkpoint core; no Main/daemon/FPGA change or state import occurs.
+
+Verify: `python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-22-native-memory-clock-control`

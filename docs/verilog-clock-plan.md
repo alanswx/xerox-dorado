@@ -57,6 +57,12 @@ Saved-world return remains unverified. The existing C checkpoint regression
 documents this misleading intermediate terminal before final repaint: wait,
 do not type a profile answer or reset merely from the early display. Current
 read-only observer PID51451/tool session85543; Main23119/server23118 unchanged.
+By05:28 actual saved desktop/CommandTools and rendered schematic return; lower
+tool prints Rollback/user/version, confirmed native and real HDMI. Initial
+post-return input check edited old Tioga history because focus was placed in
+the full transcript; it did NOT execute and created no qualified new file.
+A fresh third CommandTool is opened normally for real prompt/input/file checks.
+Preserve failed-input evidence and require execution before a second Rollback.
 
 TODO: follow original outload/inload and prove responsive return; post-checkpoint
 file creation/normal Rollback/persistent readback, repeat a quiet checkpoint and
@@ -72,6 +78,12 @@ runner states preserve a post-exit whitespace-parser failure; current regex is
 corrected against both real logs. [1086-member terminal receipt](../fpga/mister/reports/2026-10-22-native-memory-diagnostic-terminal/README.md).
 Both share pre-boot behavior, so the experimental CPU front is still unqualified;
 fix the common harness before further expensive full-boot comparisons.
+The new current57.1MHz control uses the actual reviewed503-source/160-used-HDL
+recipe, corrected physical model and frequency-derived stimulus/host timing.
+V40's2M-tick/35ms preflight exits0; wrong map, rehashed clock and wrong status
+controls reject. [1087-member control receipt](../fpga/mister/reports/2026-10-22-native-memory-clock-control/README.md).
+Separate full V41 driver56227/simulator56631/tool35657 is RUNNING; follow it.
+No new FPGA clock, Main change, firmware pass or performance gain is claimed.
 
 **Previous qualification (2026-10-22):57.1MHz original-firmware interactive Cedar pass.**
 SAME Main20809/server20808/RBF7c4d39e4 reaches Viewers, two CommandTools, Clock,
