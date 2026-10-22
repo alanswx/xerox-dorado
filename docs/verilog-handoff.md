@@ -72,8 +72,10 @@ gate is claimed. The114-member field receipt is archived and verified losslessly
 88,659 complete disk-trace prefix records contain no errors/gaps. The canonical source/model work below is now complete. The memory-ready prediction
 component now passes functional comparison and one-board15ns timing (below).
 All128 native groups now pass the startup-prefix comparison below; the full
-same-clock Quartus fit is live. Next: finish full timing/memory/source review,
-then physical memory and original-firmware Cedar qualification.
+same-clock Quartus fit is terminal and316 timing categories/source/memory
+inspection passes. Next: damaged-evidence/final assembly guards and physical
+memory/original-firmware Cedar qualification; shorten the measured remaining
+half-cycle paths before claiming a faster clock.
 Re-integrate/qualify the experimental CPU front separately before
 claiming the complete faster clock path. Main14025/server14024 remain live; do not reset merely because
 an observation window expires. Previous correction/native evidence pushed
@@ -168,7 +170,7 @@ including SDRAM I/O and faster firmware boots remain required. CPU-front
 integration, authentic rollback, cold persistence, three fresh
 boots and two-hour stress remain open; complete FPGA snapshots remain deferred.
 
-### All128 groups integrated; full native fit LIVE (2026-10-22)
+### All128 groups integrated; native fit terminal/inspected (2026-10-22)
 
 `storage-ready-native-v1-20261022` stages503 files from the qualified corrected
 BL8/MC1668 parent, unchanged50MHz/SYSPER4/admin inactive. The active MSA/group,
@@ -191,26 +193,57 @@ comparison. A compiled native control disconnecting the step at all eight MSA
 bindings fails at1,080ns in msa/group4 with STORAGE_READY_PREDICTION; compile rc0,
 runtime rc1. Executed V1/V2/control fixtures are frozen individually.
 
-The SAME native full-device build is live at
+The SAME native full-device build is now terminal at
 `/home/alans/mister/Dorado_StorageReadyNative1_20261022` on misterubuntu:
-builder120341, fit133372. Map is terminal/rc0; placement is in progress. All503
-remote source hashes were read back unchanged. Read-only follower153502 waits
-for this builder to exit and then runs typed ready paths, existing BL8/diagnostic
-timing and fitted-register inventory. The original ready audit's short instance
-filter may miss typed nodes; preserve any failure and use the separately frozen
-typed-filter report to correct collection only. Do not restart/refit because a
-report filter or observation interval fails. No assembly/deployment is enabled.
+builder120341, fit133372, reporter153502 and collector185040 are ALL absent.
+All nine original builder stages and all three read-only follow-ups return0.
+Both the original short and explicit typed ready filters work and return the
+same128 registers; no original report failure/repair occurred. The939-member
+terminal archive SHA0dcefe6ba3213f2db43372a5fd0932cc250aa1e3ea6bc3c1d2338098ea566c16
+and every decompressed member pass size/hash checks. All503 remote source hashes
+still match after collection. The local terminal tree is
+`storage-ready-native-v1-20261022/terminal-v1/{receipt,raw}`. No fit/report job
+remains running; do not relaunch any recorded process.
+
+Inspection regenerates the full staged recipe from qualified parent/component
+and checks actual synthesized use of each changed HDL source. All170 memory
+entries/165 parameter tables match; independent guest cache40M10Ks and shared
+BaseBoard ROM pool7M10Ks are preserved. All128 ready bits (no copies) and
+network_step are present at all four conditions. All31 device summaries and316
+required timing categories pass:196 original,24 prediction/gate/step,56 backend,
+8 first-fault,24 selftest and8 first-burst. Unconstrained coverage is unchanged.
+Resources33,332ALMs/53,206registers/332M10Ks/35DSPs. All parent map/fit/STA warnings
+remain unchanged except two added unused ready_reference warnings. No critical
+warnings/errors. Clock/crossing/ready reports have zero warnings; known unmatched
+burst_observation alias warnings remain explicit while all97 real trace bits
+are present. Observer82/selftest88/response12 physical bits/copies are recorded.
+
+Minimum hold+0.006ns is msa2Odd/group10 preview row[6] to saved_addr[14]. The
+renamed preview does not match the old typed address hold exclusion, so this
+path is fully timed; NO new exception was added. Do not confuse this with the
+separate CPU-front candidate's100ps target. Worst setup+1.060ns is the passive
+first_burst_words[79] capture from dq_capture[11] on a10ns half-cycle. Ready to
+network_step minimum+1.820ns, step to prediction+2.567ns, also on10ns half-cycle
+relationships. These measurements do NOT prove66.7MHz. Next speed work should
+reduce the128-ready fan-in (consider computing/selecting the16-group post-edge
+reduction once per MSA without an added readiness epoch) and shorten SDRAM
+capture/diagnostic half-cycle paths; verify physical I/O in the actual faster fit.
+
+[963-member terminal fit/inspection receipt](../fpga/mister/reports/2026-10-22-storage-ready-native/native-fit/README.md)
+passes lossless verification. `native-inspection-v1.json` and its executed script
+are frozen. This is terminal inspection with formal damaged-evidence controls
+and guarded preassembly still PENDING; assembly remains disabled. No RBF/load
+or speedup is claimed.
 
 [1776-member verified integration/prefix receipt](../fpga/mister/reports/2026-10-22-storage-ready-native/integration/README.md)
 preserves all sources, three terminal simulations and the verified live build
 observation. Local simulation roots are `storage-ready-native-startup-v{1,2}-20261022`
 and `storage-ready-native-wrong-step-v1-20261022`. Their sessions46719/46932/88606
 are terminal and consumed. The local stage's `storage-ready-reports-v1/` holds
-the frozen follower inputs; remote state/logs there must be observed, not relaunched.
+the frozen follower inputs and terminal states; do not relaunch them.
 MiSTer14 stays on the qualified interactive Cedar image; no new speed is claimed.
-Next: collect terminal full-native timing/memory/source evidence and reject any
-actual violations; guarded assembly and physical8M-cell/original-ROM/Cedar/input
-gates follow before acceleration. The separate CPU-front native regression is
+Next: finish damaged-evidence/final assembly guards, with physical8M-cell/
+original-ROM/Cedar/input gates required before promotion. The separate CPU-front native regression is
 still open, as are authentic rollback and the final persistence/repeated/stress gates.
 
 ### Historical MC1668 and front-component qualification
@@ -6842,7 +6875,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Make the physically qualified BL1/BL8 capture canonical and default; preserve exact historical replay and18 rejection controls. Independently expose/correct the model DQM launch stage; pass dynamic vendor/local CAS2/3, default full-range geometry/pin/fault tests and original MSA comparison. Archive348 members; no FPGA reload or new speed claim.
 - [x] Qualify post-edge address/readiness prediction against the original144-chip MSA/all9,437,184 bits and exact host/raw trace; width8/12 temporal comparisons in both simulators; actual bad variants. Finish one-board15ns/four-condition timing review and eight evidence controls; archive429 members, commit/push a4f24ecc.
 - [x] Integrate identical prediction into all128 native groups using actual network_step; preserve qualified CPU/cache/map/ECC/services/clocks. Compare all175 outputs/group state for8M host edges and1.56M delayed reads; reject a compiled disconnected-step control. Keep zero CPU/write and array-backend scope explicit; archive1776 members.
-- [ ] Follow existing native builder120341/fit133372 and read-only report follower153502 on misterubuntu through terminal full-device timing, all physical memories, source/readiness/gate/SDRAM-I/O review and rejection controls. Preserve any report-filter failure; do not refit/restart on an observation timeout. Assemble only after review, then physical8M-cell and original-firmware Cedar/input/warm-file tests at the control clock before acceleration.
+- [x] Finish the SAME native builder120341/fit133372, read-only reporter153502 and collector185040; all processes terminal/absent. All503 recipe/source hashes,170 memory entries/165 parameter tables,128 ready bits and316 required timing categories inspect successfully. Both ready filters pass; preserve+0.006ns unexcluded hold and+1.060ns diagnostic setup limits. Archive963 members; no assembly or faster-clock qualification.
+- [ ] Finish native damaged-evidence/final assembly guards; qualify physical8M-cell/original-firmware Cedar/input if promoting this same-clock candidate. Next clock component: reduce128-ready half-cycle fan-in through same-epoch per-board prediction/reduction; shorten SDRAM capture/diagnostic paths and fit actual faster clock/I/O. No stale-ready sampling or new timing waiver.
 - [x] Test live progressive1080p60 through normal Main controls; preserve black capture and restore previous1080p30. Shared capture service/other MiSTers remain untouched; capture recovery is still open.
 - [ ] Trace the earlier queue/memory fault with phase-correct consumed operands through native memory holds; recover original Cedar/login/Viewers/mouse/click/exact keyboard echo and HDMI capture before accelerating.
 - [ ] Complete original 60 ns ordinary-instruction clock/enable and timer migration, reducing avoidable memory waits while preserving cache/map/ECC and peripheral behavior. Report instruction issues and holds separately on pinned workloads.

@@ -38,8 +38,10 @@ passes lossless verification;88,659 disk-prefix records show no errors/gaps.
 Canonical controller/model defaults and exact historical replay now pass (details below).
 The memory-ready prediction now passes functional checks and one-board15ns
 timing below. All128 native groups pass startup-prefix coupling checks; the
-full native same-clock fit is live. Next: terminal full-device review and actual
-physical-memory/original-firmware tests, then acceleration.
+full native same-clock fit is terminal and316 categories/source/memory inspection
+passes. Damaged-evidence/assembly guards and physical-memory/original-firmware
+qualification remain pending. Shorten the measured remaining half-cycle paths
+before claiming a faster clock.
 Qualify the experimental CPU front separately before merging the faster phase path. Correction
 and native/memory/login receipts committed/pushed as7d5b78b7. The full corrected native/memory/login archive is
 [here](../fpga/mister/reports/2026-10-21-sdram-read-capture/native-fit/README.md). Clock acceleration, authentic FPGA
@@ -112,15 +114,32 @@ do not qualify original-ROM completion, Cedar or physical SDRAM. Separate origin
 MSA/all-bit/write tests remain in the component receipt.
 
 Full native build at `/home/alans/mister/Dorado_StorageReadyNative1_20261022` is
-LIVE (builder120341, fit133372; map rc0, placement), all503 source hashes verified.
-Read-only follower153502 waits for that SAME build and then gathers typed ready,
-backend/diagnostic timing and register inventory. Preserve any original short-filter
-report failure; the frozen typed-filter follow-up changes reporting only. No
-constraints/fitted sources are repaired and no refit/assembly/load is scheduled.
+TERMINAL: all nine stages and all three read-only follow-ups return0; builder120341,
+fit133372, reporter153502 and collector185040 are absent. Both ready filters work
+and find the same128 registers. All503 source hashes are unchanged and the
+939-member terminal archive passes size/hash readback. No reporting failure,
+constraint/fitted-source repair, refit, assembly or load occurred.
 [1776-member integration/prefix receipt](../fpga/mister/reports/2026-10-22-storage-ready-native/integration/README.md)
-passes lossless verification. Next: terminal full timing/memory/source and
-SDRAM-I/O review, guarded assembly and physical8M-cell/original-ROM/Cedar/input
-qualification before acceleration. Preserve the separate experimental CPU-front
+passes lossless verification. The new
+[963-member terminal-fit inspection receipt](../fpga/mister/reports/2026-10-22-storage-ready-native/native-fit/README.md)
+also verifies losslessly:170 memory entries/165 parameter tables unchanged,
+40 independent cache M10Ks/seven-block ROM pool preserved,128 ready registers
+without copies,31 nonnegative summaries and316 required nonempty timing categories
+with identical unconstrained coverage. Parent map/fit/STA warnings are unchanged
+except two added unused assertion-reference warnings. Known trace alias warnings
+are recorded with all97 actual trace bits present. No critical warnings/errors.
+
+Minimum hold+0.006ns is preview row[6] to its own saved_addr[14], fully timed
+because the old typed address exclusion does not match the renamed cell. No new
+exception was added. Worst setup+1.060ns is dq_capture[11] to the passive first-burst
+capture on a10ns half-cycle. The128-ready reduction to network_step has minimum
+setup+1.820ns; late step to prediction+2.567ns. None proves a66.7MHz full core.
+Next speed component: compute the same two post-edge readiness cases/reduction
+once per MSA and select/register at the SAME host epoch, reducing the late
+128-ready fan-in. Recheck original144-chip/all-bit/host-trace and full native
+coupling; shorten SDRAM capture/diagnostic paths and validate actual faster I/O
+timing separately. Formal damaged-evidence/assembly guards and physical8M-cell/
+original-ROM/Cedar/input qualification remain required. Preserve the separate experimental CPU-front
 integration gate. Hardware remains50MHz/SYSPER4 and2.59M idle-login issues/s;
 original60ns operation is still the target. Authentic rollback and final cold
 persistence/repeated-boot/stress tests remain open.
