@@ -15,6 +15,42 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
+**Cache16 first hardware run UNQUALIFIED.** RBF93ad loaded once,
+Main14314/server14313/loader14281, same21e6/0845 binaries and COPY236b.
+Original113/C release occurs; native frame02 shows845, then03..21 are BYTE-
+IDENTICAL815. Original MPCodes defines815 as germTeledebugServer. No Guest
+login/desktop or pinned login speed pass. Cause UNPROVEN: early F12/OSD is an
+input confound; capacity/fit placement remain candidates. HDMI is black while
+native captures work; no resolution/capture-service change. Observer32009 ends
+normally22 samples. Diagnostic issued counter is3.171527M/s IN TELEDEBUG ONLY,
+not comparable with pinned login2.968685M. Normal web OSD uses kbd:confirm (not
+unsupported kbd:select), selects issued view and then three confirms restore Off.
+No debugger/ptrace/injected calls/SPI ownership change. The1956-record live
+disk prefix is BUFFERED/UNDRAINED; absent request rows
+do not show absent guest I/O. Full normal-close trace has3130 records/46 read
+request-ACK pairs/no writes/no errors or trace loss/two barriers; disk stays236b. Selftest/keyboard frozen
+sources match exact503 input hashes.
+[42-member field evidence](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-field-teledebug/README.md)
+verifies; cache16 is NOT firmware qualified. Prior cache4 desktop volume normal
+close1bbb04ffd15c4941ebbe73ad9a20417887b504cd191132a3897cb3ed06187dfd,
+6479 records/no errors/gaps/two barriers/no FDs/old mapping revoked, is preserved.
+
+Distinct known-good9e/cache4 control from SAME236b was PREPARED by14952,
+then ONE normal load completes through /tmp/dorado-cache4-control57-20261022.py:
+Main15052/server15051/loader15029, readiness verified. Follow tool69611 and
+CedarStorageCache4Control57_20261022/cold-load-state.json;
+C watcher tool33316 COMPLETED original113/C release at local
+storage-cache-native57-v1-20261022/hardware/cache4-control/c-until-request.log.
+Control frame02 shows855, beyond candidate815; login still to be observed.
+Do not repeat load on observer timeout. NO early OSD or other keys until actual
+Guest login; only required C hold/release. Take actual new PIDs from journal.
+A subsequent cache16 no-OSD run can separate the input confound. Candidate
+volume is normally CLOSED unchanged236b; complete trace and
+closure supplement are in the42-member field receipt. Read-only control observer
+tool41432 follows15052, local cache4-control/watch-state.json; no other
+capture requester. Original60ns/Main337/
+final three fresh seeds/2h stress and pinned matched speed remain OPEN.
+
 **Cold native-window persistence PASS (15:10UTC).** SAME cache4 RBF9e,
 Main12331/server12330, distinct ColdWrite2 copy of closed236b. Normal Cmd click
 creates initialized second tool; blank-area EOF click then exact Echo

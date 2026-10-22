@@ -9,6 +9,28 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**Latest: cache16 hardware enters original teledebug815; UNQUALIFIED.**
+Same Main21e6/receiver0845/COPY236b, one93ad load, original113/C release and845
+runtime raster; then03..21 byte-identical815 (original germTeledebugServer).
+No displayed login/desktop or pinned speed pass. Cause UNPROVEN; early F12/OSD
+input is a confound alongside cache capacity/fit placement. Diagnostic3.171527M
+issues/s is TELEDEBUG workload, never compare with prior login2.968685M.
+1956-record live prefix is buffered/undrained, not proof of absent guest I/O.
+Complete closed trace3130 records/46 read-ACK pairs/no writes/errors/loss, two
+barriers and unchanged236b; net CRC/RX/drop/abort0. Native captures work, HDMI black;
+no live resolution changes. Observer22 terminal. [42-member receipt](../fpga/mister/reports/2026-10-22-storage-cache-capacity/native57-field-teledebug/README.md)
+verifies. Normal OSD confirm enables passive counters without GDB; view restored
+Off. Prior passed cache4 disk closes1bbb with6479 records/two barriers/no faults.
+
+Known-good9e/cache4 matched control from SAME236b prepared14952; one normal
+load tool69611 completes: Main15052/server15051/loader15029. Original-C watcher
+33316 COMPLETED113/C release, read-only observer41432 follows SAME boot.
+Control frame02 shows855; observe actual login before any extra input.
+Inspect CedarStorageCache4Control57_20261022/cold-load-state.json for actual PIDs.
+NO early OSD/extra typing until displayed login; then pinned measurements. Preserve
+unqualified93ad run and consider a cache16 no-OSD repeat to isolate input confound.
+Do not reload on observation timeout. Actual60ns, Main337, final acceptance OPEN.
+
 **15:10UTC: native cache4/window cold persistence PASS.** New core/Main/daemon/
 host caches from copy236b, original Basic/Viewers, mouse-created clean tool,
 exact fresh Echo and Type ///window57persist.txt -> exact window57persist/prompt.
