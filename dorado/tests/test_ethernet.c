@@ -749,7 +749,8 @@ static void stp_send_mark(stp_client *c, uint8_t mark, const char *text)
     if (nbytes & 1) bytes[nbytes] = 0;
     pkt[0] = (uint16_t)((01 << 8) | 042);
     pkt[1] = 01000;
-    pkt[2] = (uint16_t)(026 + 2 * nwords);
+    /* Pup length excludes the odd-byte link padding, as does the BSP ID. */
+    pkt[2] = (uint16_t)(026 + nbytes);
     pkt[3] = 023;                                   /* BSP Mark */
     pkt[4] = (uint16_t)(c->tx_cursor >> 16);
     pkt[5] = (uint16_t)c->tx_cursor;

@@ -83,6 +83,20 @@ transfer across history-ring wrap, and closed-context reuse:
 make -C fpga/mister/server bsp-retry-test bsp-ack-race-test
 ```
 
+The receive side admits command bytes only at the connection's next byte ID;
+duplicate fingers never reach the STP parser. AData/AMark still request an ACK
+when discarded, including across 32-bit sequence wrap. Without a receive
+reorder queue, future fingers are discarded for the sender to retransmit.
+This follows `PupBSPProt.bcpl`'s duplicate filter and contiguous `rcvByteID`
+advancement. StorageBoard57 exposed the missing check: an old Retrieve AMark
+arrived after its command data and cleared it, causing a false empty-path
+`fileNotFound` for CommandToolPackage.bcd. The socket regression reproduces
+that original failure and verifies duplicate marks/data and a future EOC:
+
+```sh
+make -C fpga/mister/server bsp-receive-order-test
+```
+
 History is host-side state outside the legacy C snapshot ABI. Legacy restore
 discards later live history; full mid-transfer restore requires serializing
 it in the planned complete-machine snapshot bundle (milestone 4a). A daemon

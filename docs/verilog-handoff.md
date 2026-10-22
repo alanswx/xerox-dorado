@@ -15,7 +15,85 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Latest build milestone (2026-10-22):57.1MHz passed guarded assembly; hardware next.**
+**Latest qualification (2026-10-22):57.1MHz interactive Cedar passes on14.**
+The SAME Main20809/server20808/RBF7c4d39e4 boot now reaches clear Viewers,
+two CommandTools, live Clock and WatchTool/EditTool. Bounded normal USB mouse
+motion/click opens Cmd and focuses native737,608. Exact `rtlboard57 keyboard ok`
+and alphabet/digit echoes pass. Normal echo redirection closes
+`///rtlboard57persist.txt`; `type` returns exact`rtlboard57persist` and a prompt.
+The initial oversized mouse test wrapped/missed; its artifacts remain, and only
+the repeated bounded movement/observed window and output qualify. All inputs
+released. Both native and real HDMI captures are clear.
+
+The [23-member desktop receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-desktop/README.md)
+verifies88,529 complete current disk records/no recorded errors or trace loss;
+CRC/RX/abort0, TX dropped20. No live pack was copied. This is warm file readback,
+not cold persistence or authentic rollback. Background welcome scripts continue
+with some missing-local-BCD diagnostics; not every bundled app is qualified.
+The pre-Guest speed remains2.968685M issues/s (+14.49%,17.812% original), not a new
+desktop benchmark; nominal140ns before waits,60ns still open. Active daemon
+remainsc599; the separately tested08452 receive fix must be switched only at a
+normal loader boundary, preserving BSP context until then. Next: normal guest
+flush/Boot and Main barriers, preserve this marked closed volume, verify cold
+readback and a clean boot with the new daemon. Authentic Checkpoint/Rollback,
+remaining clock/capture work, three fresh boots and sustained stress remain.
+The independent experimental CPU-front regression is not integrated/cleared.
+
+**Earlier hardware prefix (2026-10-22):57.1MHz on14 passes physical memory, Cedar login
+and all34 transfers; desktop/input still pending.** Main20809/server20808 run
+RBF`7c4d39e414e5de8bafae5d3ff0fd0dfddae310c79ff17d87e5a1e8b97ee24b8a`,
+unchanged Main21e67a3f/serverc5996249, fresh original seedf3bce2a8. Actual nominal
+ordinary period140ns (SYSPER4), not60ns. All8,388,608 raw12-bit cells pass both
+patterns/zero-fill and the first burst matches every word. One normal OSD boot
+pulse is verified at the BaseBoard pin; C is released on an actual new BFN113.
+Cedar6.1 paints its login. Both internal and actual MiSTerKVMS HDMI captures
+are readable. No C-state import or host completion of guest instructions/IOCBs.
+
+Three adjacent pre-Guest windows measure2,968,842.34/2,968,514.91/2,968,699.11
+StartCycle issues/s: mean**2,968,685.45/s**,17.812% of original16.67M/s and14.492%
+above the previous qualified50MHz login mean. This is one pinned idle-login
+workload, not drained retirements, desktop speed or a boot-time improvement.
+Separate installer windows show2.585M issues/s,3.824% instruction holds,
+54.86% storage-only/11.09% disk-only/~0% both pause; do not sum these intervals.
+
+Original Guest input, all34 pinned base transfers and actual final ACK pass,
+but with one operator-delayed normal retry. The old daemon mishandled a duplicate
+Retrieve AMark after receiving its data, clearing cmd_len and returning a false
+empty-path fileNotFound for CommandToolPackage.bcd. Normal `y`+Return recovered;
+whole-loader598.234..598.464s includes that delay and is NOT a clean loader or
+overall speedup. Profile default-Yes/filename detour is preserved; Return accepts
+the actual later No, BootEssentials finishes and FontMetrics names are attaching.
+The [154-member hardware prefix](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-field-prefix/README.md)
+verifies losslessly. Its67,648 complete current disk records show no errors/gaps;
+CRC/RX/abort0, TX dropped14. The OLD closed ReadCapture1 volume is preserved
+(SHA28c828d5);113,544 records include a trace_dropped event (bytes=3560) at the normal loader
+transition plus two completed barriers. No gap-free or clean Cedar shutdown claim.
+
+The receiver repair is tested but NOT the live service: bytes reach STP only at
+ftp_rx_next; duplicate/future fingers are discarded while AData/AMark ACK requests
+remain. PrimaryPupBSPProt.bcpl confirms contiguous advancement/duplicate filtering.
+The original binary reproduces empty-path/fileNotFound; all six duplicate-mark,
+duplicate-data/future-EOC/32-bit-wrap cases pass fixed, along with the existing
+standalone/Cedar/loss/replay/ACK-race/history/context-reuse and C ethernet suites.
+The C Mark fixture's Pup length now correctly excludes odd-byte link padding.
+Pinned static ARM binary`08452a86d9708d70cca47c82d6bc5f42294393a086c5d95a1faede533bbdfc2c`
+is3,371,068 bytes; all six cases pass on14's ARM in isolated private sockets,
+with no Main grant/FPGA mapping. It is staged at`/tmp/dorado-server-rx-order-08452a86`.
+[73-member service receipt](../fpga/mister/reports/2026-10-22-bsp-receive-order/README.md).
+Do NOT restart the active daemon in the middle of this installer's BSP streams.
+Finish the SAME boot's desktop/mouse/exact keyboard/warm-file evidence, then
+switch at normal Main barriers and qualify a clean fresh seed with the fix.
+
+Both66.7MHz candidates remain rejected. The ALU experiment's940-member terminal
+archive verifies; [942-member rejected-fit receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/alu-native66-rejected/README.md)
+retains setup-1.994ns/hold-0.010ns and actual failing paths. Worst setup moved to
+MemC k02->BaseBoard RIOT d_out; ProcL k22 still fails. No new waiver, fit restart,
+assembly or load followed. Further real clock/capture/data-path work remains
+necessary for60ns; the separate experimental CPU front is not integrated.
+Authentic rollback, cold persistence, repeated boots and sustained stress remain
+open. Complete FPGA snapshots stay deferred. All earlier statuses below are history.
+
+**Earlier build milestone (2026-10-22):57.1MHz passed guarded assembly.**
 Full503-source recipe regeneration, actual synthesized clock/watchdog/command
 encoding, all316 required timing categories and31 summaries pass. Setup minimum
 +0.721ns and detailed hold+0.082ns; unconstrained coverage unchanged. RAM comparison
@@ -6963,8 +7041,12 @@ and has unreviewed hold violations; never deploy it.
 - [x] Finish SAME57.1MHz builder536779/reporter591029/collector591030: all stages terminal/rc0, recorded PIDs absent,503 unchanged source hashes and951-member terminal archive verified. All31 summary/observed detailed slacks positive; strict coverage/source/RAM/guard review remains pending.
 - [x] Finish57.1MHz strict recipe/clock/source/RAM/warning/316-category review,18 reader rejections and six final assembly guard controls. Classify exact Native58 paired38 cache mapping; no logical RAM/OLD_DATA change. Successful guarded assembly7c4d39e4,4019520 bytes; archive81 members.
 - [x] Follow existing ALU66.7MHz job to terminal report collection; reject real setup-1.994ns/hold-0.010ns and retain downloaded940-member evidence. It is not a timing speedup.
-- [ ] Preserve closed StorageReadCapture1 volume through normal Main barriers, deploy reviewed57.1MHz on14 from original seed, then qualify physical8M-cell/original-firmware Cedar/input and measure pinned issue/hold rates. Keep independent experimental CPU-front regression separate.
-- [ ] Inspect/archive the rejected ALU66.7MHz terminal CPU/hold paths before choosing a further cone/clock repair. No timing waiver or nominal60ns claim.
+- [x] Preserve closed ReadCapture1 pack/logs through normal Main barriers, deploy reviewed57.1MHz from exact seed, pass full physical8M-cell test/first burst/original113/login and measure2.968685M idle issues/s (+14.49%). Retain the old transition's explicit trace gap.
+- [x] Observe all34 original base transfers/final ACK, actual normal retry after the receiver's empty-path error, profile detour/No acceptance and BootEssentials/font attachment. Archive154-member prefix; no clean-loader/desktop claim yet.
+- [x] Reproduce/fix duplicate command ingestion at BSP receive boundary; pass local protocols/C ethernet and six isolated ARM cases, build static08452a86 daemon. Archive73-member receipt; active c599 unchanged.
+- [x] Inspect/archive rejected ALU66.7MHz terminal CPU/hold paths,942-member receipt; worst MemC->BaseBoard RIOT and still-failing ProcL k22. No timing waiver or nominal60ns claim.
+- [x] Finish SAME57.1MHz Main20809/server20808 Viewers/mouse/exact short+alphabet/digit keyboard/warm marker and settled native/HDMI captures. Bounded mouse path passes; initial oversized reports retained as automation failure. Archive23-member receipt and88,529 error/gap-free current disk-prefix records.
+- [ ] Normally flush/Boot this guest, preserve the marked closed volume through Main barriers, verify cold marker readback and qualify a clean boot with receiver-fix daemon08452a86. Then repeat fresh-seed boots; do not restart the current daemon's active BSP streams.
 - [x] Test live progressive1080p60 through normal Main controls; preserve black capture and restore previous1080p30. Shared capture service/other MiSTers remain untouched; capture recovery is still open.
 - [ ] Trace the earlier queue/memory fault with phase-correct consumed operands through native memory holds; recover original Cedar/login/Viewers/mouse/click/exact keyboard echo and HDMI capture before accelerating.
 - [ ] Complete original 60 ns ordinary-instruction clock/enable and timer migration, reducing avoidable memory waits while preserving cache/map/ECC and peripheral behavior. Report instruction issues and holds separately on pinned workloads.

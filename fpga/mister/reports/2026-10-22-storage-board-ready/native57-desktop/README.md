@@ -1,0 +1,11 @@
+# 57.1MHz original-firmware interactive Cedar desktop pass
+
+The SAME original fresh-seed boot of RBF7c4d39e4 reaches Viewers, two CommandTools, live Clock, WatchTool/EditTool. Main20809/server20808 remain21e6/c599. Bounded real virtual-USB motion homes the pointer, reaches native912,8, clicks Cmd, then reaches737,608 and focuses the new tool. Exact normal echoes rtlboard57 keyboard ok and abcdefghijklmnopqrstuvwxyz0123456789 are visible. Echo redirection creates/closes ///rtlboard57persist.txt; type returns exact rtlboard57persist and a new prompt. Both native-resolution and actual HDMI captures are preserved. All keys/buttons released.
+
+The initial automation used oversized mouse deltas which wrapped/missed the target; those logs/screens are preserved but do not qualify input. The repeated bounded200-step path and observed new viewer/focus/typed output are the pass. Background welcome scripts continue and report some missing local BCD names, so this does not qualify every welcome app. Clock/menu/input are live. The known old-daemon CommandTool retry is retained in the earlier field receipt; this is not a clean unassisted loader pass.
+
+Streaming read-only Main/server/disk prefixes verify88529 complete disk records with no recorded errors/loss; final observed CRC/RX/abort0, TX dropped20. No live pack was copied and no guest Boot/Main-close boundary was requested. The marker is warm filesystem/cache readback, not cold persistence. Current daemon is stillc599; receive-fix08452 is separately local/isolated-ARM tested and staged but not live.
+
+The measured speed remains the pinned pre-Guest2.968685M StartCycle issues/s (+14.49% vs50MHz),17.812% of original16.67M. This is not a desktop throughput or drained-retirement measurement.57.142857MHz/SYSPER4 nominal140ns before stalls still falls short of60ns. Next: normal guest flush/reboot and Main barriers to preserve this marked volume, qualify cold readback and the new daemon on a clean boot; then authentic Cedar Checkpoint/Rollback and remaining phase/timing/three-boot/stress gates. Whole FPGA snapshots remain deferred.
+
+Verify: `python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-22-storage-board-ready/native57-desktop`

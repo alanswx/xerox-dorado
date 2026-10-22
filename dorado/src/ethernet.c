@@ -2378,16 +2378,32 @@ static void eth_ftp_ingest_payload(dorado_ethernet *eth)
     uint16_t type = eth->tx_words[3];
     uint32_t id = pup_id32(eth->tx_words[4], eth->tx_words[5]);
     size_t nbytes = eth->tx_words[2] > 026 ? (size_t)(eth->tx_words[2] - 026) : 0;
-    int duplicate = id + nbytes <= eth->ftp_rx_next;
-
-    if (id + nbytes > eth->ftp_rx_next)
-        eth->ftp_rx_next = id + (uint32_t)nbytes;
     /* PupBSPProt.BSPPupProc schedules an immediate acknowledgement only for
      * AData/AMark.  Ordinary Data/Mark packets advance rcvByteID but are
      * acknowledged by the normal BSP timer/allocation path.  In particular,
      * do not inject an ACK between Cedar's Retrieve EOC and our HereIsPList. */
     eth->ftp_pending_ack = type == PUP_TYPE_BSP_ADATA ||
                            type == PUP_TYPE_BSP_AMARK;
+
+    /* PupBSPProt.bcpl (Taft,21-Nov-1981), BSPPupProc: discard duplicate
+     * fingers, and expose bytes only while their ID equals rcvByteID.
+     * This server has no receive reorder queue: leave a hole unconsumed so
+     * the sender can retransmit it. AData/AMark still request the current
+     * ACK even when discarded. Compare IDs directly and advance modulo2^32.
+     *
+     * StorageBoard57 exposed the missing transport check: a retransmitted
+     * Retrieve mark arrived after its plist data in FTP_PHASE_DONE. The
+     * former phase-specific guard did not cover it, so it erased cmd_len;
+     * the real EOC then executed an empty path and returned fileNotFound.
+     * Duplicate data and future EOCs must likewise never reach the parser.
+     */
+    if (id != eth->ftp_rx_next) {
+        if (ftp_trace())
+            fprintf(stderr, "FTP_RX_OUT_OF_SEQUENCE id=%08x expected=%08x bytes=%zu\n",
+                    id, eth->ftp_rx_next, nbytes);
+        return;
+    }
+    eth->ftp_rx_next += (uint32_t)nbytes;
 
     if (type == PUP_TYPE_BSP_MARK || type == PUP_TYPE_BSP_AMARK) {
         if (nbytes > 0) {
@@ -2398,38 +2414,9 @@ static void eth_ftp_ingest_payload(dorado_ethernet *eth)
                         id, mark, eth->ftp_phase, eth->ftp_rx_next);
             }
             if (mark == FTP_MARK_EOC) {
-                /* The client retransmits an acknowledged Retrieve EOC while
-                 * it waits for our first plist segment.  It belongs to the
-                 * preceding command stream (and can have a lower byte ID
-                 * than the current receive cursor), so acknowledge it but
-                 * do not restart the pending plist transfer. */
-                if (eth->ftp_phase == FTP_PHASE_WAIT_RETRIEVE_YES &&
-                    eth->ftp_cmd_mark != FTP_MARK_YES && duplicate) {
-                    return;
-                }
                 eth->ftp_cmd_data[eth->ftp_cmd_len] = '\0';
                 eth_ftp_handle_command(eth);
             } else {
-                /* The Loader checkpoint can retransmit an older Retrieve
-                 * after the current one has advanced the receive cursor.
-                 * Ignore that duplicate command. */
-                if (mark == FTP_MARK_RETRIEVE &&
-                    eth->ftp_phase == FTP_PHASE_WAIT_RETRIEVE_YES &&
-                    duplicate) {
-                    return;
-                }
-                /* Cedar can retransmit a prior STP Yes while it begins the
-                 * next Retrieve; its old byte ID must not replace the new
-                 * Retrieve mark in any server phase.  In particular, after
-                 * a completed file the older Yes otherwise changes the
-                 * command mark just before the new Retrieve's EOC arrives.
-                 * It is still essential to ACK a duplicate AMARK: the
-                 * sender retransmits until it sees the receiver's current
-                 * pullId, and suppressing that ACK turns a harmless lost
-                 * packet into a retransmission-timeout stall. */
-                if (mark == FTP_MARK_YES && duplicate) {
-                    return;
-                }
                 eth->ftp_cmd_mark = mark;
                 /* STPImpl.PutCommand sends a complete command, not a bare
                  * mark: Yes, its zero reply-code plus text, then EOC.  The

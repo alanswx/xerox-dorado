@@ -9,7 +9,51 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Latest build milestone (2026-10-22):57.1MHz review/guards/assembly pass.**
+**Latest qualification (2026-10-22):57.1MHz original-firmware interactive Cedar pass.**
+SAME Main20809/server20808/RBF7c4d39e4 reaches Viewers, two CommandTools, Clock,
+WatchTool/EditTool; bounded normal mouse/Cmd/focus and exact short/alphabet/digit
+keyboard echo pass. Echo closes`///rtlboard57persist.txt`; type reads exact
+`rtlboard57persist`. Native/HDMI captures clear. The [desktop receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-desktop/README.md)
+verifies88,529 complete disk records/no recorded errors/gaps; CRC/RX/abort0,
+TX dropped20. Warm only, no cold persistence/rollback/stress claim. Background
+welcome-script diagnostics remain outside the qualified app scope.
+
+Pinned idle2.968685M issues/s (+14.49% vs50MHz,17.812% original) and nominal140ns
+remain the honest figures;60ns still needs real phase/capture/data-path work.
+Keep activec599 until normal guest flush/Boot/Main barriers preserve this marked
+volume. Then switch to tested08452 receiver daemon, verify cold readback and
+clean boot; repeat fresh-seed boots and pursue authentic Cedar rollback. Full
+FPGA snapshots stay deferred. Separate experimental CPU front remains unmerged.
+
+**Earlier hardware prefix (2026-10-22):57.1MHz physical memory and original Cedar login pass.**
+MiSTer14 runs RBF7c4d39e4, Main20809/server20808 (unchanged21e6/c599), exactf3bce2a8
+seed. Full8M raw-cell patterns/zero/first burst pass; normal verified boot pin/C
+selection delivers original113 and clear internal/HDMI login. Mean pre-Guest
+StartCycle rate**2.968685M/s**,17.812% of16.67M target and14.492% over the previous
+qualified50MHz login. Three adjacent windows in one pinned idle workload; no
+desktop/application or overall boot-speed claim. SYSPER4 nominal140ns, not60ns.
+
+All34 original base transfers/final ACK pass after a real manual retry: an old
+daemon receive bug erased CommandTool's request after a duplicate AMark. Whole
+loader598.234..598.464s includes operator delay and is not a clean comparison.
+Normal profile No ultimately accepted; BootEssentials completes and font names
+are attaching. [Hardware prefix](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-field-prefix/README.md)
+retains all facts, including prior closed-volume trace gap/current67,648 gap-free
+disk-prefix records and CRC/RX/abort0/TX dropped14. Separate installer windows:
+3.824% instruction holds,54.86% storage-only/11.09% disk-only pause; not atomic.
+
+BSP ordered-receive repair now passes original-failure control, local protocol/
+C tests and six isolated ARM cases; static08452a86 is staged, not live. No Main
+change. [Service evidence](../fpga/mister/reports/2026-10-22-bsp-receive-order/README.md).
+Finish SAME Main20809/server20808 desktop/input/warm-file qualification, then
+switch daemon at normal loader barriers and qualify a clean fresh-seed boot.
+Do not discard this active installer's BSP context by restarting the daemon.
+The [ALU66.7MHz rejected terminal receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/alu-native66-rejected/README.md)
+preserves-1.994ns setup/-0.010ns hold; worst path moves to BaseBoard RIOT and
+ProcL k22 still fails. Real capture/phase/data work remains for60ns. Rollback,
+cold persistence/repeated boots/stress remain open; full FPGA snapshots deferred.
+
+**Earlier build milestone (2026-10-22):57.1MHz review/guards/assembly pass.**
 Exact503-source recipe, actual PLL/SDRAM17.500ns clocks,4-second watchdog, preserved
 three-bit SDRAM command encoding, all316 required timing categories and31 device
 summaries pass. Minimum setup+0.721ns/detailed hold+0.082ns; no new exception or
