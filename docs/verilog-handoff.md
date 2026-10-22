@@ -70,8 +70,34 @@ Generic restart helper
 `tools/restart_storage_board_native.py` is the exact executed version; inspect
 the existing preparation journal rather than repeat its completed load.
 
-Next TODOs: let background startup settle, then normal native
-Cedar Checkpoint/Rollback; fresh-seed boots with08452,
+**Native Cedar Checkpoint attempt1 is now IN PROGRESS on the SAME core.**
+Normal USB `Checkpoint` is accepted: actual guest prints Creating checkpoint
+at October18,1998 12:05:51pm+0100, made byGuest.pa. By05:09–05:10UTC actual
+native frames show811 (`MPCodes.germOutLoad`), with ongoing native disk writes.
+Read-only trace since pre-command offset485168 contains86,713 complete records,
+21,180 write requests/21,179 ACKs and19,465 completed host writes, no recorded
+error/trace loss; this live prefix is not a drained checkpoint. CRC/RX/abort0,
+TX dropped1. Keep the same Main23119/server23118 and volume running; no reset,
+service restart, file copy or second Checkpoint while this attempt is active.
+The user confirmed clicking Schematic during the attempt: actual AISImages
+Bringover/render progressed concurrently in the first tool. This attempt is
+NOT a proven quiescent baseline; repeat idle after a successful return.
+Local `checkpoint/{before,attempt,disk-progress2}.json` and actual
+`start-native.png`/`progress2-native.png` preserve the initial evidence.
+Read-only watcher tool session16709 (`watch-screen-v2.py`,24 bounded shots)
+completed normally; its OCR misses small MP digits, so inspect images. The earlier
+loader observer23301 and first screenshot loop completed normally. By05:12UTC
+actual native frame19 shows `Checkpoint. Counting swapped-out VM pages ...`:
+the original RollbackImpl first pass after germ outload. This is continued progress,
+not a resumed desktop. The [22-member checkpoint prefix](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-checkpoint-prefix/README.md)
+verifies95,597 complete current disk records/no errors/gaps plus actual screens,
+normal input and primary sources. New `checkpoint/watch.py` is a bounded120-shot
+read-only observer; `watch-state.json` holds its actual PID, `watch.stop` ends
+only this observer, and frames/logs remain under `checkpoint/`.
+
+Next TODOs: follow this original outload/inload to a real interactive return;
+then post-checkpoint file creation, normal Rollback and exact persistent readback,
+repeat a quiet checkpoint and cold restart; fresh-seed boots with08452,
 remaining60ns timing/capture work and final stress. Full FPGA snapshots remain
 deferred. Previous pinned login2.968685M issues/s remains the latest speed result.
 V38/V39 are now TERMINAL, not long-running work. Tool handles11479/66643 were

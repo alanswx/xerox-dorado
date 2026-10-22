@@ -41,7 +41,21 @@ verifies4051 complete current disk records/no errors/gaps, CRC/RX/abort0,
 TX dropped1. The first tool is loading Sil Library Files; settle startup before
 the normal quiescent Checkpoint.
 
-TODO: finish cold-boot application startup; authentic Checkpoint/
+Native Checkpoint attempt1 is now accepted through normal USB input and actual
+frames show811 germOutLoad. Native disk writes continue, no recorded error/loss
+in86,713 since-command prefix records; CRC/RX/abort0, TX dropped1. It is not yet
+a successful outload/inload or interactive rollback. The user confirmed clicking
+Schematic during this attempt; repeat an idle baseline after it returns. Preserve
+the SAME running Main23119/server23118/volume, no reset/restart/second Checkpoint.
+By05:12UTC actual terminal shows the original RollbackImpl's `Checkpoint.
+Counting swapped-out VM pages ...` first pass after germ outload. The
+[22-member checkpoint prefix](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-checkpoint-prefix/README.md)
+preserves95,597 complete current disk records/no errors/gaps and actual screens.
+A new bounded read-only screenshot observer follows the same live attempt.
+
+TODO: follow original outload/inload and prove responsive return; post-checkpoint
+file creation/normal Rollback/persistent readback, repeat a quiet checkpoint and
+cold restart; complete authentic Checkpoint/
 Rollback; fresh-seed receiver/three-boot qualification;60ns capture/data timing;
 final disk/network/input stress. Current pinned speed is still2.968685M issues/s
 (+14.49% vs50MHz), nominal140ns before waits. Full FPGA snapshots stay deferred.
