@@ -9,7 +9,7 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Latest status (2026-10-21 23:33 UTC): physical SDRAM capture is corrected.**
+**Latest status (2026-10-22 00:12 UTC): corrected SDRAM core boots interactive Cedar.**
 MiSTer14 runs StorageReadCapture1 RBF0c578915, Main14025/server14024. All8,388,608
 raw12-bit cells pass both address patterns and zero verification; first burst
 is exactlyA59/A58/A5B/A5A/A5D/A5C/A5F/A5E. The old local chip model launched
@@ -23,13 +23,55 @@ misleading because the microcode handler runs later in the same function.
 Three pre-Guest idle-login windows now average **2,592,921.60 issues/s**,
 15.56% of the16.67M/s target (60ns),33.1% above the previous1,947,686.01/s.
 Clock cadence is unchanged. This is one login workload, not full desktop speed.
-Guest input has completed and loader transfers are active. Next: follow the
-SAME boot to profile-No/desktop, qualify input and hold causes, finish field
-evidence and commit/push. The full corrected native/memory/login archive is
+The CPU/cache/map/ECC are unchanged MC1668-parent bytes. The separate
+experimental Ready/front replacement is not integrated here; its native812
+regression remains an independent gate and does not inherit this Cedar pass.
+All34 base transfers and final guest ACK pass (305.897..306.043s,37replays);
+normal profile-No was accepted at the actual prompt. The loader is slower than the
+earlier286s observation, so do not claim an overall boot speedup from idle
+issues/s. The SAME original boot now passes Viewers, mouse/Cmd click and
+focus, exact short/alphabet/digit echoes, and normal warm file create/type
+readback (`///rtlreadcap1persist.txt` returns `rtlreadcap1persist`). Latest
+CRC/RX/abort0, TX dropped27. Clear settled internal raster; HDMI capture-card
+verification remains separate. The114-member/111-blob desktop/pause receipt
+passes lossless verification;88,659 disk-prefix records show no errors/gaps.
+Next: make the corrected controller/model the canonical pair with old receipts preserved,
+then test the proposed memory-ready prediction component below.
+Qualify the experimental CPU front separately before merging the faster phase path. Correction
+and native/memory/login receipts committed/pushed as7d5b78b7. The full corrected native/memory/login archive is
 [here](../fpga/mister/reports/2026-10-21-sdram-read-capture/native-fit/README.md). Clock acceleration, authentic FPGA
 rollback, cold persistence, three fresh boots and two-hour stress remain open.
 Whole FPGA snapshots remain deferred. Earlier hardware/build statuses below
 are historical; see the latest top-of-handoff status for current identities.
+
+The completed installer cause sample selects counters through Main, then detaches
+before each timed interval and restores all selectors. Separate five-second
+windows show storage-only pause58.42%, disk-only0%, simultaneous0%, and held
+instruction cycles3.92%. Enabled edges were36.04% in their separate interval;
+do not sum these into an atomic partition. This implicates the SDRAM path for
+this workload, not ARM-disk blocking across every workload. Current fit's worst
+original setup path is MSA3 row[5] to the falling-edge storage observer (+0.785ns)
+and functional network_step gate (+0.790ns), both a10ns half-cycle relationship.
+The next speed component must shorten that actual address/ready/gate cone while
+preserving original read-before-write and pause/response epochs. Simply
+registering a stale ready-high value can advance the machine incorrectly.
+Retain this measured50MHz/SYSPER4 control; validate phase, peripheral rates and
+physical SDRAM I/O for a faster candidate. Isolated15ns CPU slices do not prove
+a faster whole-device clock. Local field: `storage-readcapture1-native-field-20261021/installer/`.
+
+Concrete next component (not implemented): expose a preview of each original
+row/column latch's post-edge address without changing its stored state. Use
+that preview and the actual machine-step decision to evaluate post-edge
+cache-valid/waiting/write-pending/write-done readiness on the preceding full
+host-cycle path. Preserve the same host request/response acceptance epoch,
+including simultaneous response and logical write events. A new ready register
+must match the original combinational ready after every legal host/machine
+edge, including forced pauses, reset, response arrival and address changes;
+compare against the original144-chip MSA oracle and every stored bit. First
+qualify the exact native group, then all128 groups/global gate and original-ROM
+startup, then fit the actual cone at15ns with every half-cycle and hold path
+reported. It is a proposed route to remove the measured half-cycle bottleneck,
+not evidence that timing or original60ns operation is already achieved.
 
 Historical StorageSelftest1 hardware: **pre-guest raw SDRAM test fails at address0**, expected0xA59,
 actual0xA58. MarkerB157 and two metadata samples confirm phase1/failed1/ready0;

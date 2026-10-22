@@ -15,7 +15,7 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Latest hardware (2026-10-21 23:33 UTC): corrected SDRAM capture passes on14.**
+**Latest hardware (2026-10-22 00:12 UTC): corrected SDRAM core boots interactive Cedar.**
 StorageReadCapture1 RBF `0c578915110c59c546456a2821e26a0fcfdffe671668ffb27ad3e3caedd459b2`
 is loaded; Main14025/server14024 are live with unchanged binaries. The physical
 test passes all8,388,608 raw12-bit cells, both address patterns and verified
@@ -30,6 +30,11 @@ Full corrected pin tests, fault controls, 8M-cell run, seven-profile raw-port
 matrix and original MSA BL1/BL8 board comparison pass. Native review passes
 31 device summaries, preserved RAM contracts and18 rejection controls;
 minimum margin+0.118ns. This is still50MHz/SYSPER4, not a clock speedup.
+The CPU is the qualified MC1668 parent's unchanged CPU/cache/map/ECC;
+this BL8 stage does NOT integrate the separate experimental Ready/front CPU
+replacement. Its earlier812/queue-loop failure remains a distinct open gate
+and cannot inherit this image's successful Cedar result. Isolated15ns front
+component passes remain useful evidence, not native high-speed qualification.
 
 Normal keyboard C was released after the actual new BFN113 request at23:31;
 the explicit boot-button script has NOT been executed. The23:34 internal
@@ -37,18 +42,54 @@ screenshot shows the original Cedar6.1 login, `Please login ... Name:`. Thus
 microcode was delivered and the firmware/germ/disk chain reached login.
 `FTP_UNSERVED type=0o264` is misleading: ethernet.c serves microcode requests
 AFTER that diagnostic branch. Do not diagnose a missing response from that log.
-Main reports no CRC/drop/RX/abort faults. Three pre-Guest idle-login windows
+Pre-Guest Main reported no CRC/drop/RX/abort faults. During loading TX drops
+are nonzero; CRC/RX/abort remain zero. Three pre-Guest idle-login windows
 measure2,592,835.27 /2,593,033.74 /2,592,895.80 issued instructions/s, mean
 **2,592,921.60/s** (15.56% of the original60ns rate,33.1% above the prior
 qualified login). These are StartCycle issues excluding RepeatCur, not drained
 retirements. This is one login boot, not desktop/application performance.
-Normal Guest input has completed; the original loader is transferring files.
-Desktop/input remain unqualified for this image.
-Evidence: same field startup directory, `firmware-screen.png`. Next: follow the SAME loader to profile-No and desktop, qualify input and
-hold causes, finish field evidence and commit/push. Full corrected terminal
+Normal Guest input has completed. All34 pinned base transfers plus final
+actual guest ACK now pass (305.897..306.043 seconds,37 replay events). This
+is slower than the earlier286-second MC1668 loader observation, despite the
+higher idle issue rate; manual pre-login dwell differed, so do not attribute
+the loader difference to one RTL change or claim an overall boot speedup.
+Normal `n`+Return answered the actual profile question. The SAME original
+boot reaches a clear Viewers desktop (Ready, CommandTool, Clock, WatchTool and
+EditTool). Mouse to native912,8/Cmd opens a second CommandTool; focus737,608
+and normal paced keyboard produce exact `rtlreadcap1 keyboard ok` and
+`abcdefghijklmnopqrstuvwxyz0123456789` echoes. Normal echo redirection creates
+`///rtlreadcap1persist.txt`; `type` reads back exact `rtlreadcap1persist` and
+returns to a prompt. These are warm file semantics, not cold persistence.
+Settled internal captures are clear; no HDMI capture-card gate was performed.
+Evidence: field startup `firmware-screen.png`; login `loader-timing.json`,
+`loader-counters.json`, `profile-screen.png`. The read-only observer14311 is
+terminal after its explicit stop file; session83904 has completed.
+`desktop/marker-settled.png` and `desktop/desktop-qualification.json` preserve
+the actual output, not just sent input. CRC/RX/abort remain0; TX dropped27 at
+the last reviewed sample. Background welcome applications continue. No guest
+Boot/clean shutdown, cold remount persistence, rollback, repeated-boot or stress
+gate is claimed. The114-member field receipt is archived and verified losslessly (111 blobs);
+88,659 complete disk-trace prefix records contain no errors/gaps. Next: make the
+corrected controller/model the canonical production pair while preserving old receipts,
+then implement/test the memory-ready prediction component described in the
+clock plan. Re-integrate/qualify the experimental CPU front separately before
+claiming the complete faster clock path. Main14025/server14024 remain live; do not reset merely because
+an observation window expires. Previous correction/native evidence pushed
+as7d5b78b7. Full corrected terminal
 build/memory/login receipt:
-[read-capture native evidence](../fpga/mister/reports/2026-10-21-sdram-read-capture/native-fit/README.md). The StorageSelftest1 hardware section
+[read-capture native evidence](../fpga/mister/reports/2026-10-21-sdram-read-capture/native-fit/README.md).
+[Desktop/input and pause evidence](../fpga/mister/reports/2026-10-21-sdram-read-capture/desktop-field/README.md). The StorageSelftest1 hardware section
 below is historical and superseded here.
+
+Installer cause capture is terminal/restored: separate5s windows show58.42%
+storage-only pause,0% disk-only and simultaneous pause,3.92% held instruction
+cycles. Enabled edges36.04% is another interval, not a combined partition.
+`installer/{cause-windows,pause-analysis}.json` preserves raw samples, exact
+Main-owned selector calls, scope and actual fitted half-cycle paths. The next
+speed target is the address/ready/gate cone, not an assumed ARM disk stall.
+This does not clear disk waits in all workloads or qualify a higher clock.
+
+### Historical MC1668 and front-component qualification
 
 The earlier qualified MC1668 candidate measured **1,947,686.01 instruction issues/s**
 at Cedar's idle login, effectively unchanged from Native59's 1,947,654.12.
@@ -6670,7 +6711,11 @@ and has unreviewed hold violations; never deploy it.
 - [x] Implement an isolated raw BL8 backing buffer without changing the guest cache/map/ECC. Pass physical-pin/reset/refresh tests, six runtime rejection controls and exact native MSA/original-chip bit/sequence comparison. Preserve rejected V1/V2 attempts and the independently exposed model hold glitch.
 - [x] Re-run the existing BL1 timing/frequency/error-control suite after the narrowly scoped natural-read model correction. Both long native simulations retain their frozen original model bytes.
 - [x] Stage499 exact files from qualified MC1668 plus the isolated backend and start one detached full native fit on misterubuntu (builder3523028). No new hardware or speed claim.
-- [ ] Finish the existing SDRAMBurst1 fit, independent full-device/memory/source review and guarded assembly; qualify original-firmware Cedar/input and compare pinned instruction progress/holds before choosing it as a native baseline.
+- [x] Finish SDRAMBurst1 native build/review/assembly; preserve its original-ROM MicrocodeBootFailed result. Subsequent full-memory selftest exposed raw0 A59->A58; the passive first-burst trace proved words1..7,7 instead of0..7.
+- [x] Ground the one-clock model/controller correction independently in CAS2/3 vendor scheduling, legacy-model rejection, corrected pin/full8M/matrix/MSA board tests and18 native rejection controls. Corrected fit/timing/memory/assembly pass and full physical8M-cell test passes on14.
+- [x] Commit/push7d5b78b7 with verified component/native/memory/login receipts. Original corrected boot reaches Cedar login and all34 base transfers/final guest ACK. Mean idle2,592,921.60 issues/s; loader305.897..306.043s/37replays. Keep those distinct workloads explicit.
+- [x] Finish the SAME corrected StorageReadCapture1 original boot: clear Viewers, normal mouse/Cmd click and focus, exact short/alphabet/digit echoes and warm file create/type readback. Separate installer windows show58.42% storage-only pause,0% disk-only/both and3.92% instruction holds; preserve non-atomic scope and nonzero TX drops.
+- [ ] Make the corrected controller a canonical production input after current hardware qualification; keep old qualified receipts reconstructible and ensure defaults use a correctly paired physical model/controller. Legacy uncorrected controller with corrected chip model is intentionally a failing control, not an alternative passing configuration.
 - [x] Test live progressive1080p60 through normal Main controls; preserve black capture and restore previous1080p30. Shared capture service/other MiSTers remain untouched; capture recovery is still open.
 - [ ] Trace the earlier queue/memory fault with phase-correct consumed operands through native memory holds; recover original Cedar/login/Viewers/mouse/click/exact keyboard echo and HDMI capture before accelerating.
 - [ ] Complete original 60 ns ordinary-instruction clock/enable and timer migration, reducing avoidable memory waits while preserving cache/map/ECC and peripheral behavior. Report instruction issues and holds separately on pinned workloads.
