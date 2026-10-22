@@ -52,6 +52,11 @@ Counting swapped-out VM pages ...` first pass after germ outload. The
 [22-member checkpoint prefix](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-checkpoint-prefix/README.md)
 preserves95,597 complete current disk records/no errors/gaps and actual screens.
 A new bounded read-only screenshot observer follows the same live attempt.
+Actual05:16 frame shows812 germInLoad, then05:17 the personal-profile terminal.
+Saved-world return remains unverified. The existing C checkpoint regression
+documents this misleading intermediate terminal before final repaint: wait,
+do not type a profile answer or reset merely from the early display. Current
+read-only observer PID51451/tool session85543; Main23119/server23118 unchanged.
 
 TODO: follow original outload/inload and prove responsive return; post-checkpoint
 file creation/normal Rollback/persistent readback, repeat a quiet checkpoint and

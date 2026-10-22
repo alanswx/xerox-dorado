@@ -94,6 +94,15 @@ verifies95,597 complete current disk records/no errors/gaps plus actual screens,
 normal input and primary sources. New `checkpoint/watch.py` is a bounded120-shot
 read-only observer; `watch-state.json` holds its actual PID, `watch.stop` ends
 only this observer, and frames/logs remain under `checkpoint/`.
+Latest observation: actual `checkpoint/screens-v1/01.png` at05:16UTC shows812
+germInLoad, then frame04 at05:17 shows Cedar's personal-profile question.
+DO NOT infer rollback failure/success from that early terminal: the C regression
+documented this same misleading intermediate display before final saved-world
+repaint (`docs/cedar-checkpoint.md`, sections5–6). No response or other input
+has been sent to this new prompt. Wait for actual saved desktop/Rollback message
+and input qualification; preserve evidence if it remains there. Current observer
+is real PID51451/tool session85543, revalidated live. Main23119/server23118 remain
+live, CRC/RX/abort0, TX dropped2; no new hardware/daemon load occurred.
 
 Next TODOs: follow this original outload/inload to a real interactive return;
 then post-checkpoint file creation, normal Rollback and exact persistent readback,
