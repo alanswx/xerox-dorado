@@ -9,7 +9,26 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Latest status (2026-10-22 03:14 UTC): working Cedar stays on MiSTer14;
+**Latest build milestone (2026-10-22):57.1MHz review/guards/assembly pass.**
+Exact503-source recipe, actual PLL/SDRAM17.500ns clocks,4-second watchdog, preserved
+three-bit SDRAM command encoding, all316 required timing categories and31 device
+summaries pass. Minimum setup+0.721ns/detailed hold+0.082ns; no new exception or
+unconstrained category. Strict RAM review recognizes the previously reviewed
+Native58 paired38 cache mapping; all14 logical banks/294912 bits/OLD_DATA/ports
+and disjoint physical groups remain correct. Total330 M10Ks/seven-block ROM pool.
+All18 evidence/source rejections and six final assembly guards pass; remote
+assembler completed and all sources remain unchanged. RBF7c4d39e4,4019520 bytes;
+[81-member qualification receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-qualification/README.md).
+Physical-memory/original-firmware Cedar/input and actual speed remain pending.
+Next load uses normal Main barriers, preserves the old closed pack/logs and
+starts an original fresh seed; no new Main/server/SPI ownership changes.
+
+ALU66.7MHz Boolean-equivalent experiment is terminal and rejected:
+setup-1.994ns/hold-0.010ns. Preserve940-member archive SHA77d8e3f0 and inspect actual
+paths; it did not close timing. Do not assemble/load it. Original60ns target,
+authentic rollback and final persistence/repeated/stress gates remain open.
+
+**Earlier status (2026-10-22 03:14 UTC): working Cedar stays on MiSTer14;
 memory timing improves, CPU cone limits66.7MHz.** Main14025/server14024 remain
 alive, actual03:00 internal screenshot shows the desktop, CommandTools, keyboard
 echo and warm file marker. CRC/RX/abort0, TX dropped30. Actual hardware remains

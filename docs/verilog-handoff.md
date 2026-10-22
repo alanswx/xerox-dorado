@@ -15,7 +15,35 @@ Main snapshot coordinator or ARM heap serialization prerequisites. Main remains
 sole SPI owner; minimize and isolate its required changes. Preserve qualified
 components/evidence and reuse clock work only after checking Native59 contracts.
 
-**Latest status (2026-10-22 03:14 UTC): MiSTer14 remains on working Cedar;
+**Latest build milestone (2026-10-22):57.1MHz passed guarded assembly; hardware next.**
+Full503-source recipe regeneration, actual synthesized clock/watchdog/command
+encoding, all316 required timing categories and31 summaries pass. Setup minimum
++0.721ns and detailed hold+0.082ns; unconstrained coverage unchanged. RAM comparison
+classifies the previously reviewed Native58 paired38 cache mapping: banks3/5 and8/10
+each share three blocks. All14 logical geometries/OLD_DATA/ports/capacities and
+disjoint physical sites pass; total330 M10Ks, seven-block BaseBoard ROM pool.
+Named diagnostic fitter copies match canonical logical bits. Warnings remain the
+parent's plus the two known unused ready_reference warnings/output aliases.
+
+All18 actual damaged-evidence/rehashed-source variants and six final assembly
+guard cases reject; original evidence remains unchanged. Remote positive guard
+and assembler704435/driver704416 completed with source hashes unchanged. RBF
+`7c4d39e414e5de8bafae5d3ff0fd0dfddae310c79ff17d87e5a1e8b97ee24b8a`
+is4019520 bytes. The [review/controls/assembly receipt](../fpga/mister/reports/2026-10-22-storage-board-ready/native57-qualification/README.md)
+preserves81 members. It qualifies assembly, not physical-memory/Cedar/input/speed.
+The deployment helper is prepared to preserve the old closed volume/logs using
+normal Main loader barriers and start an original fresh seed on14; Main/server
+remain unchanged and sole SPI ownership stays with Main. Follow its journal
+after any interruption; do not repeat a load because observation expired.
+
+The ALU66.7MHz experiment is also REJECTED: summary CPU setup-1.994ns and host
+hold-0.010ns. All jobs/report collection are terminal;940-member archive downloaded
+at`storage-board-alu-native66-v1-20261022/storage-ready-terminal-v1.tar.gz`, SHA
+`77d8e3f0b09dbc820dc0c79769e0f1d60858d38b75eb1cf48a34652a25b2f85e`.
+Its binary-pin equivalence remains useful, but it did not improve native timing;
+do not assemble/load it. Archive/inspect its full CPU path evidence next.
+
+**Earlier status (2026-10-22 03:14 UTC): MiSTer14 remains on working Cedar;
 faster builds are still under qualification.** Main14025/server14024 are alive.
 The03:00 internal screenshot shows the Viewers desktop/two CommandTools, exact
 keyboard output and the warm file marker. CRC/RX/abort counters remain0;
@@ -6933,8 +6961,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Finish original66.7MHz native build/repaired read-only reports, verify953 terminal members and reject actual CPU setup-1.943ns. Preserve failed helper races; no refit, assembly, timing waiver or load. Archive5815 members/1283 blobs.
 - [x] Prove equivalent MC10181 carry factorization over all16,384 binary inputs/seven pins in both simulators with real bad variants; stage/start separate503-source66.7MHz native experiment607315 and preserve live prefix.
 - [x] Finish SAME57.1MHz builder536779/reporter591029/collector591030: all stages terminal/rc0, recorded PIDs absent,503 unchanged source hashes and951-member terminal archive verified. All31 summary/observed detailed slacks positive; strict coverage/source/RAM/guard review remains pending.
-- [ ] Follow existing ALU66.7MHz builder607315/reporter607316/collector607317 to terminal evidence; compare actual CPU paths against the rejected candidate. Do not restart on polling timeout.
-- [ ] Finish faster-native source/RAM/all-corner/warning/damaged-evidence/final assembly guards; then qualify physical8M-cell/original-firmware Cedar/input before claiming a faster core. Keep the independent experimental CPU-front regression separate.
+- [x] Finish57.1MHz strict recipe/clock/source/RAM/warning/316-category review,18 reader rejections and six final assembly guard controls. Classify exact Native58 paired38 cache mapping; no logical RAM/OLD_DATA change. Successful guarded assembly7c4d39e4,4019520 bytes; archive81 members.
+- [x] Follow existing ALU66.7MHz job to terminal report collection; reject real setup-1.994ns/hold-0.010ns and retain downloaded940-member evidence. It is not a timing speedup.
+- [ ] Preserve closed StorageReadCapture1 volume through normal Main barriers, deploy reviewed57.1MHz on14 from original seed, then qualify physical8M-cell/original-firmware Cedar/input and measure pinned issue/hold rates. Keep independent experimental CPU-front regression separate.
+- [ ] Inspect/archive the rejected ALU66.7MHz terminal CPU/hold paths before choosing a further cone/clock repair. No timing waiver or nominal60ns claim.
 - [x] Test live progressive1080p60 through normal Main controls; preserve black capture and restore previous1080p30. Shared capture service/other MiSTers remain untouched; capture recovery is still open.
 - [ ] Trace the earlier queue/memory fault with phase-correct consumed operands through native memory holds; recover original Cedar/login/Viewers/mouse/click/exact keyboard echo and HDMI capture before accelerating.
 - [ ] Complete original 60 ns ordinary-instruction clock/enable and timer migration, reducing avoidable memory waits while preserving cache/map/ECC and peripheral behavior. Report instruction issues and holds separately on pinned workloads.
