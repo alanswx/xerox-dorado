@@ -89,10 +89,12 @@ speedup comes from supplying the existing barrier faster.
 | E. Restore original CPU phases | Integrate the audited phase/run/refresh and processor/control capture work with actual MIR/IFU/Ready/Hold/cache/Map producers. Make capture epochs explicit and shorten the real failing data paths. Retain original architectural holds and original read-before-write behavior. | Full native phase/producer closure and original-ROM startup at each integration step. Demonstrate 60 ns nominal ordinary instructions. Do not set SYSPER=2 blindly: known ECP/SCP coincidences and the original subphase offsets must be resolved by the audited contract. A 15 ns isolated component pass is not a complete 60 ns CPU proof. |
 | F. Qualify the combined machine | Deploy only reviewed timing-passing candidates, one architectural change at a time, with unchanged Main/daemon for speed comparisons. Then run original Cedar Checkpoint/Rollback, pre/post-save files, close/remount and cold restore. | Pinned old/new instruction-progress and hold measurements; all-device timer rates; three independent fresh-seed boots; exact keyboard/mouse and application checks; at least two hours sustained disk/network/input operation without pack/CRC/RX faults. Archive, commit and push the resulting qualified implementation. |
 
-The immediate implementation task is **B's protocol qualification**, with A's
-trace analysis alongside it. No new Quartus fit is warranted by the exploratory
-0.7023% small-fixture result alone. Select a native experiment once the measured
-128-group traffic shows which B/C change removes substantial waiting. Promote
+The adjacent-beat protocol qualification is now complete (evidence below).
+The immediate implementation task is **B's broader per-beat fill validity and
+completed-line service during drain**, with A's actual native firmware traffic
+capture alongside it. Neither the exploratory 0.7023% MSA result nor the 9.5248%
+synthetic 128-group result alone warrants a native fit. Select that experiment
+after measuring the remaining waits and qualifying the complete B/C design. Promote
 the exact reviewed generated source into the maintained RTL only after its
 source/timing/firmware gates; preserve fallback bitstreams and disk volumes.
 
@@ -112,6 +114,44 @@ fsync pairs, with no recorded disk errors. Two diagnostic loss markers total
 21,700 records, so the historical write trace is incomplete. This is neither a
 closed-volume result nor an explicit Rollback/new-file cold-persistence pass.
 [Checkpoint return evidence](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-checkpoint-return/README.md).
+
+**Adjacent-beat component qualified; native hardware unchanged.**
+The exact default-off candidate passes six protocol positives in Icarus and
+Verilator (off/on 57.1 MHz, on 66.7 MHz), with identical per-case summary counters.
+All requested beats/ranks/banks, same/cross-line/wrong-row/rank/beat admission,
+held replies, writes, reset at every beat and natural refresh are covered.
+Accepted requests equal completions plus explicit reset aborts. Eight actual
+broken variants reject in BOTH engines: forwarded data, response hold, early
+write, line/beat matching, refresh admission, reset reply and duplicate tail.
+The small protocol memory is a functional test double, not a vendor timing model.
+
+Separately, the independent XSDS physical-pin model passes control/candidate at
+57.1/66.7 MHz: 64 cold chains per case span both ranks/all banks/every first beat
+and response stalls; forwarded 129/128 requests cover beats 1..7. Existing physical
+coherence/reset/held-refresh checks remain; corrupted forwarded data rejects.
+The earlier original 144-chip MSA/all 9,437,184-bit comparison is source/hash-bound
+to the same candidate. That fixture's 0.7023% result remains separately scoped.
+
+A new pinned synthetic fanout uses the exact qualified 5c65 arbiter and native
+128-group/16-bit local/23-bit raw configuration, lookahead and interleaving with
+the independent physical-pin model. 24 coherent/scattered rounds complete 1,920
+requests and 640 writes. Request/completion channel order, owner, address, valid
+read data and every programmed physical location agree. A wrong-owner mutation
+rejects. Positive traces reproduce byte-identically in two terminal runs.
+Control 9,386 host ticks -> candidate 8,492 (894 / 9.52482% fewer). Exclusive burst
+drain blocks 2,017->1,122, raw-response wait 4,920->4,930, admissions 1,920 each.
+This is **not a Cedar/hardware speedup or complete native CPU wait attribution**.
+The remaining large raw-response interval supports broader fill/queue work;
+no new fit/load, PLL, Main or daemon change was made. Actual native firmware
+traffic capture remains open. [249-member component/failed-attempt/transport evidence](../fpga/mister/reports/2026-10-22-storage-burst-successor/component/README.md).
+
+Final protocol v4 / pins v1 / fanout v4 are terminal. Failed test development is retained:
+one late test-memory launch, first-diagnostic matcher mismatches, a synthetic
+cold-address alias, and the wrong-owner control firing response stability first.
+The DUT needed no repair. All final source hashes and simulator outcomes agree.
+Next implement received-beat validity/future-beat waiting/completed-line reads
+while draining, retaining original write/old-word/commit and global-edge barrier
+contracts. Then bounded owner-tagged admission and measured native selection.
 
 **Latest:5c65 interactive Viewers/files/fresh schematic PASS; no speed gain.**
 One guarded normal load now runs Main4355/daemon4354/supervisor4305 with
@@ -158,7 +198,7 @@ Desktop43586/input45171 observers terminal48/32, all senders terminal and contro
 released. Do not repeat preparation/load. The newer Checkpoint-return proof
 is above; explicit Rollback and new-file cold persistence remain pending on5c65.
 
-**Next memory experiment is component-only, not deployed.**
+**Earlier memory exploration (now followed by component qualification above).**
 Exact5c65 backend keeps req_ready false throughout READ_WAIT, even after early
 reply. Original16-group MSA trace has adjacent physical words0..7 completing
 at11464/11472/11473..11478: the next owner waits for burst drain. Native has128
@@ -177,11 +217,11 @@ terminal review checks actual assertion/source hashes/absent driver+children.
 Nothing is running there; do not restart it because of the old state string.
 [495-member exploratory proof](../fpga/mister/reports/2026-10-22-storage-burst-successor/exploratory-msa/README.md).
 Workdir `storage-burst-successor-component-v1-20261022`, tool
-`prepare_storage_burst_successor.py`. NOT complete component qualification.
-Next/TODO: qualify5c65 explicit Rollback and new-file cold readback. Before
-any burst-successor native fit, add both-simulator/all-beat/same-and-cross-line/
-wrong-row/write-exclusion/backpressure/reset/refresh57/66MHz tests and actual
-bad variants; keep complete original MSA outputs/arrays. Early read alone did
+`prepare_storage_burst_successor.py`. That initial receipt alone is not complete
+component qualification; the newer component receipt above supplies those gates.
+Next/TODO: qualify5c65 explicit Rollback and new-file cold readback. Complete
+broader fill/queue implementation and actual native traffic attribution before
+selecting a native fit; keep complete original MSA outputs/arrays. Early read alone did
 not improve this workload. Original60ns phase/producer closure/all-device rates,
 minimal Main337 isolation, canonical production promotion, final3 fresh seeds
 and2h stress remain OPEN. Native59 retained, FPGA snapshots deferred. Current

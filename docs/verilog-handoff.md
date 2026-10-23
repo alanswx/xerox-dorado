@@ -1,5 +1,32 @@
 # Verilog from Sil: handoff
 
+**New milestone: adjacent-beat SDRAM successor component qualified.**
+[249-member proof](../fpga/mister/reports/2026-10-22-storage-burst-successor/component/README.md)
+freezes protocol v4 (six positives and eight rejected bad variants in BOTH
+Icarus/Verilator), physical pins v1 (control/candidate 57.1/66.7 MHz, 64 cold chains
+per case, all ranks/banks/first beats, existing coherence/reset/refresh gates,
+one real data corruption rejection) and synthetic native 128 fanout v4.
+The exact candidate remains source-bound to the earlier original 144-chip MSA /
+all 9,437,184 stored bits. All jobs are terminal; no DUT repair/native fit/load.
+
+Synthetic fanout binds the exact 5c65 arbiter and 128-group/16-bit local/23-bit raw
+parameters with independent physical SDRAM pins. 24 rounds/1,920 requests/640
+writes preserve per-channel order/owner/address/valid read data and every written
+physical location; a wrong owner rejects. Two positive runs reproduce traces
+byte-identically. 9,386->8,492 host ticks (9.52482% fewer); burst-drain admission
+blocks 2,017->1,122, raw-response wait 4,920->4,930. This is not Cedar/hardware
+speed or complete actual-native CPU wait attribution. First-word latency and
+completion throughput are different quantities; do not quote this as 9.5% faster
+Cedar. Current 5c65 remains the separately measured 4.02547345M prelogin baseline.
+
+Next implement broader per-beat fill validity, future-beat waits and completed
+raw-line read service during physical drain, then bounded owner-tagged admission.
+Capture actual native 128-group firmware traffic alongside that work. Retain
+the global-edge barrier, original writes/old words and committed response owners.
+The small protocol memory is a functional test double; independent physical pins
+are a separate gate. All test-development failures and corrected final executed
+sources are retained. Goal ACTIVE; no FPGA clock/Main/daemon change this turn.
+
 **Current direction (2026-10-22): repair the memory transport, then qualify the
 faster memory domain and original 60 ns CPU phases independently.** The user's
 requested revision is the [structural speed plan](verilog-clock-plan.md#structural-speed-plan-revised-2026-10-22).
@@ -9,8 +36,8 @@ CPU floor and serialized 128-group SDRAM path are separate limits. Early data
 alone did not help this workload. Preserve Main/daemon identity during the next
 memory comparison; no new Main API is required for the memory scheduler.
 
-Next: attribute native 128-group waits, finish adjacent-beat protocol tests,
-then qualify per-beat fill validity/completed-line service during drain and a
+Next: attribute actual native 128-group firmware waits, then qualify broader
+per-beat fill validity/completed-line service during drain and a
 bounded owner-tagged request queue. Preserve original write/old-word/commit
 semantics and the next-machine-edge storage barrier. Only then select a native
 fit and a separately constrained faster memory domain. Original60ns phase and
@@ -74,7 +101,7 @@ Desktop43586/input45171 observers terminal48/32, all senders terminal and contro
 released. Do not repeat preparation/load. The newer Checkpoint-return proof
 is above; explicit Rollback and new-file cold persistence remain pending on5c65.
 
-**Next memory experiment is component-only, not deployed.**
+**Earlier memory exploration (now followed by component qualification above).**
 Exact5c65 backend keeps req_ready false throughout READ_WAIT, even after early
 reply. Original16-group MSA trace has adjacent physical words0..7 completing
 at11464/11472/11473..11478: the next owner waits for burst drain. Native has128
@@ -93,11 +120,11 @@ terminal review checks actual assertion/source hashes/absent driver+children.
 Nothing is running there; do not restart it because of the old state string.
 [495-member exploratory proof](../fpga/mister/reports/2026-10-22-storage-burst-successor/exploratory-msa/README.md).
 Workdir `storage-burst-successor-component-v1-20261022`, tool
-`prepare_storage_burst_successor.py`. NOT complete component qualification.
-Next/TODO: qualify5c65 explicit Rollback and new-file cold readback. Before
-any burst-successor native fit, add both-simulator/all-beat/same-and-cross-line/
-wrong-row/write-exclusion/backpressure/reset/refresh57/66MHz tests and actual
-bad variants; keep complete original MSA outputs/arrays. Early read alone did
+`prepare_storage_burst_successor.py`. That initial receipt alone is not complete
+component qualification; the newer component receipt above supplies those gates.
+Next/TODO: qualify5c65 explicit Rollback and new-file cold readback. Complete
+broader fill/queue implementation and actual native traffic attribution before
+selecting a native fit; keep complete original MSA outputs/arrays. Early read alone did
 not improve this workload. Original60ns phase/producer closure/all-device rates,
 minimal Main337 isolation, canonical production promotion, final3 fresh seeds
 and2h stress remain OPEN. Native59 retained, FPGA snapshots deferred. Current
@@ -8590,7 +8617,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Update the plan from actual5c65 CPU cadence, storage pauses and unchanged early-read performance; preserve Native59/5c65 and all volumes.
 - [x] Qualify5c65 original Checkpoint return, fresh keyboard echo and pre-save file readback; retain the incomplete diagnostic write history.
 - [ ] Attribute128-group request admission, word-return, drain and handoff waits on pinned traffic; distinguish original Hold, transport barriers and ARM disk waits.
-- [ ] Finish the existing default-off adjacent-beat successor protocol/physical-pin qualification in both simulators where supported; include actual failing controls before any native fit.
+- [x] Finish the default-off adjacent-beat successor protocol in both simulators and independent physical-pin qualification at57.1/66.7MHz; eight dual-engine bad variants and independent wrong-data/wrong-owner controls reject. Preserve original MSA/all-bit comparison.
+- [x] Measure the exact native128 arbiter on pinned synthetic coherent/scattered traffic:1,920 requests/640 writes,9,386->8,492 ticks and reproducible per-channel traces. Keep actual native CPU/Cedar wait attribution open.
 - [ ] Add per-beat fill validity and stable fill identity; allow received/future-beat reuse and completed-line read service during drain with held-response/reset/refresh/write-coherence gates.
 - [ ] Add a small bounded owner-tagged request queue, in-order completion and next-command preparation; preserve original per-group commit/old-word semantics and fairness. Measure occupancy and native128-group wait reduction before expanding it.
 - [ ] Qualify a separately clocked SDRAM request/response path and physical IO constraints; evaluate66.7MHz first. Faster memory and faster CPU are separate experiments.
