@@ -78,6 +78,7 @@ def audit(directory,qualified,allow_missing):
               'task_capture':(242,139,'task_capture','PASS_TASK_CAPTURE_ARRIVAL_CONTRACT','dorado_task_capture_step.sv'),
               'task_producers':(98,66,'task_producers','PASS_COUPLED_TASK_PRODUCERS','dorado_task_producers_step.sv'),
               'mir_ready':(232,109,'mir_ready','PASS_MIR_CP_READY_COUPLED','dorado_mir_ready_step.sv'),
+              'conta_mir':(356,186,'conta_mir','PASS_CONTA_MIR_COUPLING','dorado_conta_mir_step.sv'),
               'task_ready_capture':(278,189,'task_ready_capture','PASS_TASK_READY_CAPTURE','dorado_task_ready_capture_step.sv'),
               't_file':(660,463,'t_file','PASS_T_FILE_ARRIVAL_CONTRACT','dorado_t_file_step.sv'),
               't_parity':(846,607,'t_parity','PASS_T_PARITY_ARRIVAL_CONTRACT','dorado_t_parity_step.sv'),
@@ -92,6 +93,9 @@ def audit(directory,qualified,allow_missing):
     assert provenance.get('component')in profiles,'Unknown fixture profile'
     expected_launch,expected_result,component,expected_status,evaluator=profiles[provenance.get('component')]
     assert provenance['clock_period_ns']==15 and provenance['launch_bits']==expected_launch and provenance['result_bits']==expected_result
+    if component=='conta_mir':
+        assert sha((directory/'top.sv').read_bytes())=='4af1a8411de7b9ea5c49ec4e70788d974579beed92abc4772a6c5fa40dd9b488','Unexpected Control-A/MIR fixture wiring'
+        assert len(json.loads((directory/'functional-gate.json').read_text())['rejected_mutations'])==7
     if component=='mir_ready':
         assert sha((directory/'top.sv').read_bytes())=='21c4aaedf8cba23facc358fb5c3ca9c3d83bae99db0a8a99f439bb2bc1591777','Unexpected MIR/Ready fixture wiring'
         assert len(json.loads((directory/'functional-gate.json').read_text())['rejected_mutations'])==6

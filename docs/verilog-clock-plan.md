@@ -61,6 +61,16 @@ gain. Next couple actual controller/task/phase feedback and close IM/IFU/memory
 Hold arrivals before full native integration. Preserve the stable-setup contract;
 this is not full60ns qualification.
 [Coupled producer/timing evidence](../fpga/mister/reports/2026-10-23-mir-ready/component/README.md).
+The subsequent98-Q Control-A clock/task/MIR/CP/Ready evaluator now passes both
+engines/three profiles, including LOW-root CP transactions, real Notify/task
+yield and independent BNT state. Additive tests retain199 ordinary two-clock/
+65 extended six-clock intervals and WriteIM phases. Seven damaged candidates
+reject in both. Its isolated15ns budget passes all corners (+4.649ns setup/
++0.178ns hold), with458ALMs/561registers including shell; eight damaged timing
+reader controls reject. Actual processor/memory/IFU/StopTasks/RWTPC arrival and
+native ROM/timing integration remain open. No native change or speed gain.
+[Coupled controller/producer evidence](../fpga/mister/reports/2026-10-23-conta-mir/component/README.md).
+
 
 Read-only watcher7144 preserves the existing paired113 windows when available;
 its own bound cannot stop the simulations.

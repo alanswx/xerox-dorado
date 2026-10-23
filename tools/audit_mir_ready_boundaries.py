@@ -14,8 +14,8 @@ from inventory_mir_clock_boundaries import BOARD
 from sil_netlist import load_board
 
 
-def audit(root):
- spec,extras=plan(root);b=load_board(str(root/BOARD));chosen=set(spec['comb'])|set(spec['seq'])
+def audit_selected(root,spec,extras,expected):
+ b=load_board(str(root/BOARD));chosen=set(spec['comb'])|set(spec['seq'])
  observed=set(spec['flag_taps'])|set(spec['clock_taps']);rows=[];cells=set()
  pin_net={(p['pkg'],p['pin']):n for n,row in b.nets.items()for p in row['pins']}
  for net,index in extras.items():
@@ -31,8 +31,12 @@ def audit(root):
     assert n not in observed,('OBSERVED OUTPUT',net,n)
     effects.append(dict(package=p['pkg'],input_pin=p['pin'],output_pin=out,output_net=n))
   rows.append(dict(net=net,pin=index,effects=effects))
- assert len(rows)==8
+ assert len(rows)==expected
  return dict(status='PASS_UNUSED_MIR_READY_GATE_BOUNDARIES',scope=__doc__,boundaries=rows,full_machine_signals_inactive=False),sorted(cells)
+
+
+def audit(root):
+ spec,extras=plan(root);return audit_selected(root,spec,extras,8)
 
 
 def run(out):

@@ -1,5 +1,32 @@
 # Verilog from Sil: handoff
 
+**Latest clock work: Control-A clock/task/MIR/CP/Ready coupling PASS as a component.**
+[98-Q component, extensions and raw timing proof](../fpga/mister/reports/2026-10-23-conta-mir/component/README.md)
+now closes actual clock/task feedback with the producer slice. Primary v2
+passes15,729 events in both engines/three profiles, all16 tasks, actual Notify
+and higher-task preemption during Hold; seven bad variants reject in BOTH.
+LOW-clock CP v3 passes17,010 events; v4 adds19,044 events,199 ordinary two-clock/
+65 extended six-clock intervals and26 WriteIM phase observations. Controller
+functions are byte-identical to the prior qualified evaluator. No native change.
+Fifteen unused package-half inputs are dependency-audited; two live-path controls
+reject and the old eight-boundary audit reproduces exactly.
+
+One isolated15ns fit is terminal at all four conditions: setup+4.649ns,
+hold+0.178ns,mpw+6.550ns,evaluator>=+4.759ns;458ALMs/561registers including
+shell, no RAM/DSP/PLL. All build PIDs absent; eight damaged reader controls
+reject, previous producer timing review unchanged. No assembly/load or speed
+gain. Next compose with processor/RBase/stack/RM/STK and close actual IM/IFU/
+StopTasks/RWTPC/memory-Hold arrivals before native ROM and timing qualification.
+Original60ns/timers/66.7MHz physical IO and final boots/stress remain required.
+
+Native tests2284/2331 and watcher7144 remain live and initialized, with no CPU/
+113 window yet at this prefix. The actual three-button sequence has ended in
+the queue arm. DoradoContinuous.masm190-216 imposes15 nominal100ms quiet ticks
+after the last release; that source fact is not proof of the current routine
+or a whole-boot delay attribution. Keep observing the same jobs/limits/controls.
+Hardware Main13244/server13243/5c65 and all preserved volumes remain unchanged.
+
+
 **Latest clock work (2026-10-23): MIR/CP-to-Ready ordering and isolated15ns budget PASS.**
 [Coupled producer/component and raw timing proof](../fpga/mister/reports/2026-10-23-mir-ready/component/README.md)
 retains50 original Qs:16 Ready,12 CP,22 MIR. Actual ClrReady/rMIR, Notify,
