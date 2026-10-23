@@ -11,6 +11,20 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest R flag-output factorization (2026-10-23): source-bound binary proof
+UNSAT, two bad-source controls SAT; both full original graphs pass13515
+events/792Qs/9216RAM/68clocks including late LOW-NoDispatch. All physical latch
+updates retained. Only local flag-output source differs, but timing worsens
+-0.382 -> -0.908ns. Reject; retain the visible-R candidate as the better timing
+reference. Hold+0.173/mpw+6.115,3369ALM/3028regs/9216MLAB. Twenty damaged timing
+and six damaged proof receipts reject. [Lossless rejected experiment](../fpga/mister/reports/2026-10-23-r-front-flags/experiment/README.md).
+The remaining worst path still crosses MIR/front/address into the real RM
+read. Next close actual ContA l17/d17 clock/data producers, then ContB and
+MemC producer families and original capture-stage/native integration. Preserve
+late LOW-CP and old/new epochs. Full A-F/60ns/timers/physical66.7MHz and final
+Cedar/persistence/boot/stress acceptance remain open. Hardware unchanged.
+
+
 Latest stored-read-latch rewrite (2026-10-23): original complementary read/
 visible windows permit visible R to use existing closed read-latch Qs. Two
 mux expressions change; no architectural state, cycle, clock or RAM change.

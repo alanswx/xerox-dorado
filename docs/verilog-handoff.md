@@ -1,5 +1,30 @@
 # Verilog from Sil: handoff
 
+**Latest flag experiment (2026-10-23): binary equivalent; timing worse, REJECTED.**
+[Source proof, new graph comparisons and terminal fit](../fpga/mister/reports/2026-10-23-r-front-flags/experiment/README.md).
+The flag output's three-latch combination can factor into one source mux in
+open read windows, preserving all physical latch updates/closed state. Proof
+UNSAT; stale-RAM and swapped Md/Pd controls SAT. Both complete new original
+comparisons pass13515 events,328 writes/5608 reads/797 epochs,792Qs/9216RAM/
+68clocks and LOW-NoDispatch. Prior visible-R/twelve arrival runs inherited.
+
+Only local R flag output source changes from the visible-R candidate; other
+RTL/cone/top/project/constraints identical. Worst setup worsens-0.382 ->
+-0.908ns; hold+0.173/mpw+6.115;3369ALM/3028regs/9216MLAB. Do not promote;
+retain the preceding visible-R candidate as the better timing reference.
+All five PIDs1142953/1142962/1145693/1159867/1161536 absent, all four stages
+rc0, source readback passes;20 damaged timing/six damaged proof receipts reject.
+Worst16-level/15.291ns path is Q75 -> repeat/MIR -> front/address -> rm_h ->
+file_read_data[6]. At100C Q7 -> rm_flags_n[1] is17levels/15.511ns. No waiver.
+
+Next/TODO: close actual ContA l17 feeding d17.D3 (clock1/UseDMD/B_Dbuf/
+feedback/RBMux.04), preserving distinct old/new capture epochs. Continue ContB
+IM/ASEL/BSEL/StopMIRClk and MemC Hold/PRhold, then native original-ROM/60ns
+integration. Full A-F/timers/physical66.7MHz/Cedar/persistence/fresh boots/stress
+remain. Hardware5c65/Main/daemon/volumes untouched; native2284/2331 remain live,
+5B limits unchanged, no113/Cedar measurement window yet.
+
+
 **Latest clock work (2026-10-23): explicit stored R-read boundary improves setup.**
 [Original wiring, source-bound binary proof, new full graphs and rejected fit](../fpga/mister/reports/2026-10-23-r-front-visible/experiment/README.md).
 Original read Clock1'Bb=ppClk|pClock1En and visible PreSHCP'B=~pClock1En
