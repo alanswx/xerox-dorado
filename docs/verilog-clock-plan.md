@@ -11,6 +11,18 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest clock composition (2026-10-23): the original98-Q Control-A producer
+slice is now coupled experimentally to the processor/RBase/stack/RM/STK path.
+Both engines/three illustrative profiles compare786 Qs/9216 RAM bits/67 clocks
+over4417 events; directed RBase/StkP and HIGH-/LOW-root CP extensions also pass
+both engines. Captures need old MIR while settled observations need new MIR;
+both uniform alternatives fail in both simulators. This is a bounded ordering
+probe, with no native use, combined fit, full producer-arrival contract or
+speed gain. Next close broader skew/late-read and actual IM/IFU/Hold/StopTasks/
+RWTPC arrivals, then combined timing/native ROM integration. Preserve all A-F
+requirements below.
+[Composition evidence and retained failures](../fpga/mister/reports/2026-10-23-r-front-mir/ordering/README.md).
+
 Latest progress (2026-10-23): original5c65 cold Checkpoint restore now passes
 saved apps, normal input and exact pre-/post-checkpoint file readback on a
 literal copy of the normally closed288af3e9 volume. Main13244/daemon13243 run

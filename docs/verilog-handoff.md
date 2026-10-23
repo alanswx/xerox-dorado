@@ -1,5 +1,31 @@
 # Verilog from Sil: handoff
 
+**Latest clock work (2026-10-23): bounded processor/MIR composition PASS.**
+[Original R-front/MIR ordering evidence](../fpga/mister/reports/2026-10-23-r-front-mir/ordering/README.md)
+compares786 physical Qs,9216 RAM bits and67 clocks per event. Both engines/
+three illustrative profiles pass4417 events,182 writes/822 reads/267 old-parity
+port changes. Uniform new-MIR captures fail address Qs597/607 at check91;
+uniform old-MIR observations fail check67, in BOTH engines. The original trace
+puts address capture before MIR clock-to-Q. Closing HIGH captures now use old
+MIR; LOW windows and a separate settled observation cone use new MIR. No new
+architectural state, pipeline cycle or RAM copy. No native instantiation/fit.
+
+Both engines also pass6066 events of actual MIR-directed RBase/StkP commands
+(all16 entries at both extremes/all256 StkP values),1537-event CP sweeps and
+2818-event LOW-root CP extensions. Primary clock totals were printed before
+CP traffic; the extensions require128/256 captures per bank explicitly.
+Initial elaboration errors, rejected epochs and a corrected directed-bench CP
+bit-mapping failure are retained. Reference package/hash metadata is corrected;
+all executed reference SV remains byte-identical. See receipt for exact scope.
+
+Next/TODO: close broader producer/skew and late-memory ordering, actual IM/IFU/
+StopTasks/RWTPC/memory-Hold arrivals, then qualify the combined timing/native
+ROM path. Do not treat this bounded probe as a full arrival contract or60ns
+proof. The paired native simulations2284/2331 and watcher7144 remain running;
+no CPU/113 window yet. Hardware5c65/Main13244/daemon13243 is unchanged, including
+the open cold persistence volume and unresolved black HDMI. Full structural
+goal A-F,66.7MHz physical IO, timers, fresh boots and2h stress remain active.
+
 **Latest clock work: Control-A clock/task/MIR/CP/Ready coupling PASS as a component.**
 [98-Q component, extensions and raw timing proof](../fpga/mister/reports/2026-10-23-conta-mir/component/README.md)
 now closes actual clock/task feedback with the producer slice. Primary v2
