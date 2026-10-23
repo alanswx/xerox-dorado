@@ -19,9 +19,10 @@ import time
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def run(generated,board,output,controls,queue_reference=None):
+def run(generated,board,output,controls,queue_reference=None,row_writes=False):
     assert not output.exists(),'Inspect recorded work'
     proof=json.loads((generated/'provenance.json').read_text());assert proof['burst_read_reuse']
+    if row_writes:assert proof['pipelined_row_writes']and queue_reference is not None
     for name,digest in proof['generated_hashes'].items():assert sha(generated/name)==digest
     review=json.loads((board/'review-terminal-v1.json').read_text())
     assert review['source_hashes_rechecked'] and review['control']['returncode']==0
@@ -33,13 +34,15 @@ def run(generated,board,output,controls,queue_reference=None):
     output.mkdir(parents=True)
     queue=queue_reference is not None
     if queue:
-        assert sha(queue_reference)=='ce867fe732bd4d2bfb0133ab3f2678e98ee2680f8e8f57dcf41e83ff95be5a61'
+        expected='63e01304affb3e9220bd7e9a979bbb3be1dca7dff27f8a2efe5e484e81427fb9'if row_writes else'ce867fe732bd4d2bfb0133ab3f2678e98ee2680f8e8f57dcf41e83ff95be5a61'
+        assert sha(queue_reference)==expected
         shutil.copyfile(queue_reference,output/'queue-control-reference.csv')
     (output/'parent-review.json').write_text(json.dumps(review,indent=2)+'\n')
     (output/'parent-provenance.json').write_text(json.dumps(dict(
         scope=__doc__,generated_proof=proof,original_sources=hashes,
         original_control_trace_sha256=sha(board/'control-raw.csv'),queued_admission=queue,
-        queue_source_sha256=sha(Path(__file__).resolve().parents[1]/'fpga/mister/dorado_storage_queue.sv')if queue else None),indent=2)+'\n')
+        queue_source_sha256=sha(Path(__file__).resolve().parents[1]/'fpga/mister/dorado_storage_queue.sv')if queue else None,
+        pipelined_row_writes=row_writes),indent=2)+'\n')
     state=dict(status='RUNNING',pid=os.getpid(),started=time.time(),actions=[],results={})
     def save():
         temp=output/'state.tmp';temp.write_text(json.dumps(state,indent=2)+'\n');os.replace(temp,output/'run-state.json')
@@ -57,8 +60,10 @@ def run(generated,board,output,controls,queue_reference=None):
             for name in proof['generated_hashes']:shutil.copyfile(generated/name,inputs/name)
             fixture=inputs/'early-on-fixture.sv';text=fixture.read_text()
             old='.BURST_READ_SUCCESSOR(0)) dut(';assert text.count(old)==1
-            fixture.write_text(text.replace(old,f'.BURST_READ_SUCCESSOR(0),.BURST_READ_REUSE({1 if queue else enabled})) dut('))
-            if queue and enabled:
+            selected=f'.BURST_READ_SUCCESSOR(0),.BURST_READ_REUSE({1 if queue else enabled})'
+            if row_writes:selected+=f',.PIPELINED_ROW_WRITES({enabled})'
+            fixture.write_text(text.replace(old,selected+') dut('))
+            if queue and(enabled or row_writes):
                 root=Path(__file__).resolve().parents[1]
                 shutil.copyfile(root/'fpga/mister/dorado_storage_queue.sv',inputs/'queue.sv')
                 tb=inputs/'early-on-tb.sv';text=tb.read_text()
@@ -73,7 +78,10 @@ def run(generated,board,output,controls,queue_reference=None):
         .clk(clk),.reset(reset),''';assert text.count(old)==1
                 text=text.replace(old,old.replace('.reset(reset)','.reset(backing_reset)'))
                 tb.write_text(text)
-            if bad and queue:
+            if bad and row_writes:
+                path=inputs/'dorado_storage_sdram_burst.sv';text=path.read_text();old='command<=WRITE;dq_out<=req_data;dq_oe<=1;';assert text.count(old)==1
+                path.write_text(text.replace(old,"command<=WRITE;dq_out<=req_data ^ 16'h0001;dq_oe<=1;"))
+            elif bad and queue:
                 path=inputs/'queue.sv';text=path.read_text();old='owner<=head_owner;active<=1;';assert text.count(old)==1
                 path.write_text(text.replace(old,"owner<=head_owner ^ 1'b1;active<=1;"))
             elif bad:
@@ -84,7 +92,7 @@ def run(generated,board,output,controls,queue_reference=None):
             (output/(label+'-sources.json')).write_text(json.dumps(dict(inputs=frozen),indent=2)+'\n')
             obj=output/('obj-'+label)
             compile_command=[v.replace(str(original),str(inputs)).replace(old_obj,str(obj))for v in command]
-            if queue and enabled:compile_command.append(str(inputs/'queue.sv'))
+            if queue and(enabled or row_writes):compile_command.append(str(inputs/'queue.sv'))
             assert execute(label+'-compile',compile_command,inputs)==0,label
             assert 'UNOPTFLAT'not in(output/(label+'-compile.log')).read_text(),label
             trace=output/(label+'-raw.csv')
@@ -129,6 +137,7 @@ if __name__=='__main__':
     for name in ['generated','board','output']:parser.add_argument('--'+name,type=Path,required=True)
     parser.add_argument('--controls',action='store_true')
     parser.add_argument('--queue-reference',type=Path)
+    parser.add_argument('--row-writes',action='store_true')
     args=parser.parse_args()
     run(args.generated.resolve(),args.board.resolve(),args.output.resolve(),args.controls,
-        args.queue_reference.resolve()if args.queue_reference else None)
+        args.queue_reference.resolve()if args.queue_reference else None,args.row_writes)

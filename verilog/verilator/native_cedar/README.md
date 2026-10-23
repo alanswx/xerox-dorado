@@ -34,6 +34,22 @@ the newer operand observer; its operand-ring fields are explicitly zero and
 must not be interpreted as processor values. Its PC and device observations
 remain available. The candidate's frozen running harness is left untouched.
 
+The qualified5c65 old-word/early-response recipe is supported through
+`timing-paths-native.json` and its completed preassembly qualification. Optional
+`--storage-traffic` adds only a passive observer to the harness: actual gate
+categories,128-group pending fanout and admission waits, raw request/first-reply/
+consumption latency, block reasons and a bounded8,192-request prefix. It changes
+no staged machine HDL. The trace cap can leave the last request without its
+reply; cumulative counters continue after the cap. It is a diagnostic, not an
+assurance that Cedar boots or that a new controller improves native speed.
+
+`tools/prepare_storage_queue_diagnostic.py` creates the paired transport
+candidate from that frozen control and the archived component-tested native
+preparation. Only the wrapper, SDRAM backend and added queue differ. Its source
+list comes from the qualified control's Used in Netlist table plus the queue;
+it has not been fitted. Full native128/16-bit-local/23-bit-raw simulation must
+still pass startup and firmware before any hardware conclusion.
+
 The `guest` progress counter counts enabled **fabric edges**, not Dorado
 microinstructions and not MIPS. The diagnostic retains a 4,096-sample physical
 operand/PC ring, dumps the first observed task-0 trap at CIA221 after113, and

@@ -1,6 +1,57 @@
 # Verilog from Sil: handoff
 
-**Current milestone: bounded admission/reset-drain queue qualified as a component.**
+**Current milestone: WRITE streaming and native reset/init coordination qualified
+as components; actual native traffic diagnostic running.**
+[956-member proof](../fpga/mister/reports/2026-10-22-storage-row-writes/component/README.md)
+retains protocolv5, physical pinsv4, queued pins, original MSA, native128
+synthetic fanout, pinned repeats and all failed test development. Six protocol
+positives agree across Icarus/Verilator; eight broken variants reject in both.
+Every write ACK follows actual chip capture. No DUT repair. Long1,024-write
+stream:3,204 ->1,079 host ticks at57.1MHz. Original144-chip MSA/all9,437,184 bits
+and exact global raw order agree:101,328 ->92,813 ticks (8.4034% fewer).
+Native128 synthetic:8,491 ->7,370 (13.2022% fewer); raw-response wait4,930 ->3,763.
+Same-binary repeats reproduce both workloads' control/candidate CSVs exactly.
+These are component measurements, not a hardware/Cedar speed increase.
+
+`prepare_storage_queue_native.py` transforms the exact5c65 wrapper. Queue reset
+is global; initialization enables NEW admissions; draining owns the raw mux;
+selftest is held reset while draining; backend reset waits until empty. The
+actual extracted storage fragment passes independent pins with all128 owners,
+bounded3-bit local/10-bit raw geometry, three complete selftest epochs/1,024
+zero words,648 accepted/issued/retired and640 frontend completions. Eight old
+replies are discarded while their accepted writes are retained. Disconnected
+drain, early backend reset and unheld selftest controls fail. Full16/23-bit
+native startup and all-corner timing still open. Full-width candidate compile
+has since passed in the paired diagnostic below; this is not a fitted result.
+
+**Running job, do not restart:**
+`build/rtl-executive/native-cedar-5c65-traffic-v1-20261022` freezes exact5c65
+and160 used HDL sources, original EPROMs, normal three-button boot, PS/2 C,
+independent SDRAM pins and HPS/packet external models. Passive128-group counters
+record host-gate categories, pending fanout, per-owner admission wait, raw
+blocks/latencies and a bounded8,192-request prefix. No CPU/cache/Map/IOCB plants.
+Control compile passed; test PID85205/session10485 is running. The paired
+`native-cedar-queue-traffic-v1-20261022` also compiles successfully (161 HDL
+sources, actual128/16/23-bit geometry); test PID85896/session46590 is running.
+`prepare_storage_queue_diagnostic.py` binds the frozen component receipt and
+changes only wrapper/backend/added queue, retaining the same devices and input
+stimulus. Both jobs are in physical memory initialization; no firmware wait
+conclusion yet. Observe the actual handles or PIDs and logs; state-file RUNNING
+alone is insufficient. Prior controls took
+about3.3hours/1.5B host ticks. Local read-only seedf3bc is distinct from hardware
+236b; guest disk writes are volatile. There is no terminal traffic/boot result.
+[1,077-member compiled/running prefix](../fpga/mister/reports/2026-10-22-storage-row-writes/native-diagnostic-prefix/README.md)
+preserves exact full inputs and live PID observations; it does not claim startup.
+
+Next use this real traffic to select the native experiment, compile the full
+candidate and review physical timing before load. Preserve hardware5c65,
+Native59, protected Executive artifacts and volumes. Hardware baseline remains
+4.02547M prelogin StartCycle issues/s,57.142857MHz host/SYSPER4/140ns nominal.
+Original60ns phase/producer/timer closure, explicit5c65 Rollback/cold persistence,
+three fresh seeds and two-hour stress remain open. Goal ACTIVE. No new Quartus
+fit/load/Main/daemon change; complete FPGA snapshots deferred.
+
+**Earlier milestone: bounded admission/reset-drain queue qualified as a component.**
 [1,209-member evidence](../fpga/mister/reports/2026-10-22-storage-queue/component/README.md)
 retains standalone `dorado_storage_queue.sv`, protocol v3, physical pins v1,
 native 128-group fanout v2, original MSA v1, legacy board regression and failed attempts.

@@ -89,13 +89,14 @@ speedup comes from supplying the existing barrier faster.
 | E. Restore original CPU phases | Integrate the audited phase/run/refresh and processor/control capture work with actual MIR/IFU/Ready/Hold/cache/Map producers. Make capture epochs explicit and shorten the real failing data paths. Retain original architectural holds and original read-before-write behavior. | Full native phase/producer closure and original-ROM startup at each integration step. Demonstrate 60 ns nominal ordinary instructions. Do not set SYSPER=2 blindly: known ECP/SCP coincidences and the original subphase offsets must be resolved by the audited contract. A 15 ns isolated component pass is not a complete 60 ns CPU proof. |
 | F. Qualify the combined machine | Deploy only reviewed timing-passing candidates, one architectural change at a time, with unchanged Main/daemon for speed comparisons. Then run original Cedar Checkpoint/Rollback, pre/post-save files, close/remount and cold restore. | Pinned old/new instruction-progress and hold measurements; all-device timer rates; three independent fresh-seed boots; exact keyboard/mouse and application checks; at least two hours sustained disk/network/input operation without pack/CRC/RX faults. Archive, commit and push the resulting qualified implementation. |
 
-The burst-reuse and bounded-queue components are now qualified (evidence below),
-but the queue adds almost no throughput on the measured synthetic traffic.
-The immediate task is **C's physical WRITE command/ACK pipeline**, alongside A's
-actual native firmware traffic capture and the queue's native reset/init wiring.
-Its new same-row experiment is only prepared/syntax-checked, not qualified.
-Select a native experiment after a repeatable meaningful gain and complete
-physical/old-word/reset qualification. Promote
+The burst-reuse, bounded-queue and same-row WRITE components are now qualified
+(evidence below). The queue alone adds almost no throughput; streaming the
+physical WRITE command/ACK path removes measurable raw-response delay.
+The immediate task is **A's actual native firmware traffic capture**, followed
+by full native integration/fit qualification. The native reset/init storage
+fragment now passes bounded-address physical-pin tests with all128 owners.
+Select a native experiment after repeatable meaningful gains on real traffic
+and complete physical/old-word/reset qualification. Promote
 the exact reviewed generated source into the maintained RTL only after its
 source/timing/firmware gates; preserve fallback bitstreams and disk volumes.
 
@@ -116,7 +117,51 @@ fsync pairs, with no recorded disk errors. Two diagnostic loss markers total
 closed-volume result nor an explicit Rollback/new-file cold-persistence pass.
 [Checkpoint return evidence](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-checkpoint-return/README.md).
 
-**Bounded queue component qualified; throughput bottleneck remains in raw work.**
+**Same-row WRITE pipeline and native reset/init fragment qualified as components.**
+[956-member evidence, including failed attempts](../fpga/mister/reports/2026-10-22-storage-row-writes/component/README.md)
+freezes protocolv5 (six positives/16 real negative cases across two simulators),
+independent physical pinsv4 at57.1/66.7MHz, queued pins, original144-chip MSA,
+native128 synthetic fanout and byte-identical repeats of both pinned workloads.
+Every consumed write ACK is checked AFTER actual chip capture. Row/rank/bank
+changes, mixed reads/writes, recovery, coherence, refresh, backpressure and
+single-clock reset at the command-emitting edge pass. No DUT repair was needed.
+Long1,024-write stream:3,204 ->1,079 host ticks at57.1MHz. Combined original MSA
+and all9,437,184 bits:101,328 ->92,813 ticks (8.4034% fewer); exact global raw
+operation order agrees. Native128 synthetic:8,491 ->7,370 (13.2022% fewer),
+with raw-response waits4,930 ->3,763. These are component gains, not Cedar speed.
+
+`prepare_storage_queue_native.py` changes only transport wiring on exact5c65:
+global queue reset; initialization gates new admission; queue drain owns the
+raw mux; selftest stays reset through drain; backend resets only when empty.
+The extracted REAL storage fragment/queue/selftest/backend passes independent
+SDRAM pins with all128 owners and bounded3-bit local/10-bit raw geometry.
+Three complete selftests leave1,024 words zero;648 accepted/issued/retired,
+640 frontend completions/eight discarded old replies and all accepted writes
+preserved. Three broken-wiring controls reject. Full16/23-bit native startup
+and fitted timing remain open; full candidate diagnostic compilation now passes
+as described below. No fit/load yet.
+
+Real firmware attribution is running separately in
+`build/rtl-executive/native-cedar-5c65-traffic-v1-20261022` using exact5c65,
+original BaseBoard EPROMs/normal three-button boot and passive128-group counters.
+Driver `run_native_cedar_memory.py` now accepts the qualified old-word recipe.
+Its160 used HDL sources compiled successfully; process85205 started the
+simulation (session10485). A matched full-width queue/write candidate also
+compiled successfully (161 HDL sources, actual128/16/23-bit geometry), through
+`prepare_storage_queue_diagnostic.py`; process85896/session46590 is running in
+`native-cedar-queue-traffic-v1-20261022`. Only wrapper/backend/added queue differ;
+stimulus/device models/clocks match. Observe the existing handles/PIDs/logs and
+`run-state.json`; both are still initializing physical RAM, with no terminal
+firmware or traffic conclusion yet. The read-only simulation seed
+isf3bc, deliberately distinct from hardware236b; HPS writes are volatile.
+No CPU/cache/Map/IOCB state import. Prior board57 controls spent about3.3hours
+per1.5B host ticks, so this is a long diagnostic. Keep Main/daemon/hardware5c65
+unchanged while it runs. Original60ns/all-device/final persistence/stress gates
+remain open; goal ACTIVE.
+[Full compiled inputs and verified running prefix](../fpga/mister/reports/2026-10-22-storage-row-writes/native-diagnostic-prefix/README.md)
+retain1,077 members, without a terminal boot or speed claim.
+
+**Earlier: bounded queue component qualified; throughput bottleneck remains in raw work.**
 `fpga/mister/dorado_storage_queue.sv` owns at most four descriptors total across
 queued requests, issued work and a held response. Payload/owner are saved at
 admission, one request per original group, FIFO issue/completion and stable
@@ -148,7 +193,7 @@ reproduces the prior 103,659/101,546 traces byte-identically. Failed mutation/
 diagnostic expectations are retained; the queue needed no DUT repair.
 [1,209-member component and preparation evidence](../fpga/mister/reports/2026-10-22-storage-queue/component/README.md).
 
-**Native queue reset integration remains open.** Use global reset for the queue,
+**Native queue reset integration contract.** Use global reset for the queue,
 `storage_initialized` for new-admission enable, `backend_reset` for the physical
 controller and queue-drain priority in the raw init/normal mux. Hold selftest
 reset until the old queue drains. Do not reuse the old arbiter's
@@ -157,7 +202,7 @@ while accepted queue work remains. Retain the global machine-edge barrier and
 the existing group old-word/commit capture. No native source selection, fit/load,
 clock, Main or daemon change has been made.
 
-**Next write experiment is prepared only.** The manufacturer describes single
+**Earlier preparation, now component-qualified below.** The manufacturer describes single
 writes (MRS A9=1), writes on consecutive chip clocks, recovery before precharge
 and write/read turnaround in [AS4C32M16SB Rev1.4 section 6/Figures 10-13 and section 8/Table 11](https://www.alliancememory.com/wp-content/uploads/AllianceMemory_512M_SDRAM_Bdie_AS4C32M16SB-7TXN-6TIN-7BIN__Rev1.4_June2024NK.pdf).
 `prepare_storage_row_writes.py` creates default-off `PIPELINED_ROW_WRITES` from

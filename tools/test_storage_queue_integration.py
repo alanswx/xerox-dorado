@@ -105,9 +105,10 @@ def pins_bench(text):
     return text
 
 
-def run(mode,generated,fixture,output,controls):
+def run(mode,generated,fixture,output,controls,row_writes=False):
     assert not output.exists(),'Inspect existing recorded work'
     proof=json.loads((generated/'provenance.json').read_text());assert proof['burst_read_reuse']
+    if row_writes:assert proof['pipelined_row_writes']
     for name,digest in proof['generated_hashes'].items():assert sha(generated/name)==digest
     output.mkdir(parents=True);inputs=output/'inputs';inputs.mkdir()
     for name in proof['generated_hashes']:shutil.copyfile(generated/name,inputs/name)
@@ -119,12 +120,25 @@ def run(mode,generated,fixture,output,controls):
     text=(inputs/'original-fixture.sv').read_text()
     text=replace_once(text,'.BURST_READ_SUCCESSOR(0)) dut(',
         '.BURST_READ_SUCCESSOR(0),.BURST_READ_REUSE(1)) dut(')
+    if row_writes:
+        text=replace_once(text,'parameter integer ADDR_BITS=20)(',
+            'parameter integer ADDR_BITS=20,parameter integer ROW_WRITES=0)(')
+        text=replace_once(text,'.BURST_READ_REUSE(1)) dut(',
+            '.BURST_READ_REUSE(1),.PIPELINED_ROW_WRITES(ROW_WRITES)) dut(')
     (inputs/'memory.sv').write_text(text)
     original=(inputs/('fanout.sv'if mode=='fanout'else'queue-protocol.sv')).read_text()
-    (inputs/'tb.sv').write_text(fanout_bench(original)if mode=='fanout'else pins_bench(original))
+    tb=fanout_bench(original)if mode=='fanout'else pins_bench(original)
+    if row_writes:
+        if mode=='fanout':
+            tb=replace_once(tb,'parameter integer QUEUED=0);','parameter integer QUEUED=0,ROW_WRITES=0);')
+            tb=replace_once(tb,'.ADDR_BITS(23)) memory(','.ADDR_BITS(23),.ROW_WRITES(ROW_WRITES)) memory(')
+        else:
+            tb=replace_once(tb,'DEPTH=4,GROUP_ADDR_BITS=4);','DEPTH=4,GROUP_ADDR_BITS=4,ROW_WRITES=0);')
+            tb=replace_once(tb,'.ADDR_BITS(RA)) memory(','.ADDR_BITS(RA),.ROW_WRITES(ROW_WRITES)) memory(')
+    (inputs/'tb.sv').write_text(tb)
     frozen={p.name:sha(p)for p in inputs.iterdir()}
     (output/'provenance.json').write_text(json.dumps(dict(scope=__doc__,mode=mode,inputs=frozen,
-        generated_proof=proof),indent=2)+'\n')
+        generated_proof=proof,pipelined_row_writes=row_writes),indent=2)+'\n')
     state=dict(status='RUNNING',pid=os.getpid(),started=time.time(),actions=[],results={})
     def save():
         temp=output/'state.tmp';temp.write_text(json.dumps(state,indent=2)+'\n');os.replace(temp,output/'run-state.json')
@@ -164,14 +178,20 @@ def run(mode,generated,fixture,output,controls):
     try:
         if mode=='fanout':
             case('control',['-GQUEUED=0']);case('queue',['-GQUEUED=1'])
+            if row_writes:
+                case('stream-unqueued',['-GQUEUED=0','-GROW_WRITES=1'])
+                case('stream-queued',['-GQUEUED=1','-GROW_WRITES=1'])
             traces=[]
-            for label in ['control','queue']:
+            for label in ['control','queue']+(['stream-unqueued','stream-queued']if row_writes else[]):
                 with(output/(label+'.csv')).open()as stream:rows=list(csv.DictReader(stream))
                 traces.append({kind:[{k:v for k,v in r.items()if k!='tick'and not(kind=='R'and r['write']=='1'and k=='data')}
                     for r in rows if r['kind']==kind]for kind in ['A','R']})
-            assert traces[0]==traces[1],'Admission/completion order or data changed'
+            assert all(t==traces[0]for t in traces[1:]),'Admission/completion order or data changed'
         else:
             case('depth4',['-GDEPTH=4']);case('depth3',['-GDEPTH=3'])
+            if row_writes:
+                case('stream-depth4',['-GDEPTH=4','-GROW_WRITES=1'])
+                case('stream-depth3',['-GDEPTH=3','-GROW_WRITES=1'])
         if controls:
             body=(inputs/'queue.sv').read_text()
             if mode=='fanout':
@@ -194,5 +214,6 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--mode',choices=['fanout','pins'],required=True)
     for name in ['generated','fixture','output']:parser.add_argument('--'+name,type=Path,required=True)
-    parser.add_argument('--controls',action='store_true');args=parser.parse_args()
-    run(args.mode,args.generated.resolve(),args.fixture.resolve(),args.output.resolve(),args.controls)
+    parser.add_argument('--controls',action='store_true');parser.add_argument('--row-writes',action='store_true')
+    args=parser.parse_args()
+    run(args.mode,args.generated.resolve(),args.fixture.resolve(),args.output.resolve(),args.controls,args.row_writes)

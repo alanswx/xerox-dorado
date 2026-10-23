@@ -24,11 +24,11 @@ ROOT=Path(__file__).resolve().parents[1]
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def prepare(stage,mapping,out,medium,qualification=None,boot_presses=1):
+def prepare(stage,mapping,out,medium,qualification=None,boot_presses=1,storage_traffic=False):
     assert boot_presses in (1,3)
     assert not out.exists()
     manifests=[stage/name for name in ('storage-board-native.json',
-        'r-front-ready-native.json','mc1668-candidate.json') if (stage/name).exists()]
+        'r-front-ready-native.json','mc1668-candidate.json','timing-paths-native.json') if (stage/name).exists()]
     assert len(manifests)==1, 'Select one exact staged native recipe'
     manifest=manifests[0]
     r=json.loads(manifest.read_text())
@@ -36,12 +36,13 @@ def prepare(stage,mapping,out,medium,qualification=None,boot_presses=1):
     q=json.loads(qualification.read_text())
     expected_status={'r-front-ready-native.json':'PASS_NATIVE_R_FRONT_READY_PREASSEMBLY_REVIEW',
         'mc1668-candidate.json':'PASS_NATIVE_MC1668_BUILD',
-        'storage-board-native.json':'PASS_NATIVE_STORAGE_BOARD_PREASSEMBLY_REVIEW'}[manifest.name]
+        'storage-board-native.json':'PASS_NATIVE_STORAGE_BOARD_PREASSEMBLY_REVIEW',
+        'timing-paths-native.json':'PASS_NATIVE_OLD_WORD_EARLY_PREASSEMBLY_REVIEW'}[manifest.name]
     assert q['status']==expected_status
     assert q['source_hashes']==r['source_hashes']and r['sysper']==4
     assert r['state_admin']=='INACTIVE'
     host_hz=r.get('frequency_hz',int(round(r['frequency_mhz']*1000000)))
-    if manifest.name=='storage-board-native.json':
+    if manifest.name in ['storage-board-native.json','timing-paths-native.json']:
         assert host_hz==q['frequency_hz']==57142857 and q['sysper']==4
         assert sha(mapping)==q['reviewed_evidence_hashes']['core/output_files/Dorado.map.rpt']
     else:
@@ -82,6 +83,13 @@ def prepare(stage,mapping,out,medium,qualification=None,boot_presses=1):
     for p in (ROOT/'dorado/include').glob('*.h'):extra['host/include/'+p.name]=p
     for name,p in extra.items():
         dest=inputs/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(p,dest);hashes[name]=sha(dest)
+    if storage_traffic:
+        assert manifest.name=='timing-paths-native.json','Bind passive observer to exact5c65 hierarchy'
+        source=ROOT/'verilog/verilator/native_cedar/storage_traffic.sv.inc'
+        dest=inputs/'harness/storage_traffic.sv.inc';shutil.copy2(source,dest);hashes['harness/storage_traffic.sv.inc']=sha(dest)
+        tb=inputs/'harness/tb_native_cedar.sv';body=tb.read_text();assert body.count('endmodule')==1
+        tb.write_text(body.replace('endmodule',source.read_text()+'\nendmodule'))
+        hashes['harness/tb_native_cedar.sv']=sha(tb)
     # Literal readmem paths in the compiled original boards resolve from src/.
     for p in (inputs/'src').rglob('*'):
         if p.is_file()and p.suffix in ['.v','.sv']:
@@ -99,6 +107,7 @@ def prepare(stage,mapping,out,medium,qualification=None,boot_presses=1):
         mapping_sha256=sha(mapping),inputs=hashes,used_hdl=used,defines=definitions,
         host_clock_hz=host_hz,
         normal_baseboard_boot_presses=boot_presses,
+        passive_storage_traffic_observer=storage_traffic,
         artifacts={n:dict(path=str(p),sha256=sha(p)if p.is_file()else None)for n,p in artifacts.items()},
         no_CPU_state_or_guest_IOCB_completion=True,complete_MiSTer_Main_video_qualified=False)
     (out/'provenance.json.gz').write_bytes(gzip.compress((json.dumps(record,indent=2)+'\n').encode(),mtime=0))
@@ -148,11 +157,12 @@ if __name__=='__main__':
     mode.add_argument('--prepare',type=Path);mode.add_argument('--run',type=Path)
     p.add_argument('--stage',type=Path);p.add_argument('--mapping',type=Path);p.add_argument('--medium',type=Path)
     p.add_argument('--qualification',type=Path,help='Completed review when stored outside the frozen stage')
+    p.add_argument('--storage-traffic',action='store_true',help='Passive128-group wait attribution on qualified5c65')
     p.add_argument('--boot-presses',type=int,choices=[1,3],default=1,
                    help='Normal original BaseBoard input: one HotBoot or three CoolBoot presses')
     a=p.parse_args()
     if a.prepare:
         assert a.stage and a.mapping and a.medium
         prepare(a.stage.resolve(),a.mapping.resolve(),a.prepare.resolve(),a.medium.resolve(),
-                a.qualification.resolve()if a.qualification else None,a.boot_presses)
+                a.qualification.resolve()if a.qualification else None,a.boot_presses,a.storage_traffic)
     else:run(a.run.resolve())
