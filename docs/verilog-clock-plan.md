@@ -9,6 +9,44 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+**Latest:5c65 is live on MiSTer14; original login/HDMI PASS, no speed gain.**
+One guarded normal load now runs Main4355/daemon4354/supervisor4305 with
+RBF5c6540e58993b0a56f3836abafe1235e41dd9a4e1b93f4188dddfe293dc47305.
+Unchanged Main21e6/receiver0845, matched literal236b seed,57.142857MHz/SYSPER4/
+140ns nominal. Full SDRAM init, actual original113/C release, germ812 and visible
+Guest.pa PASS. Independent HDMI is visible again after normal load; no service
+restart or new video timing. Early181 capture frames were black; cause of prior
+690f cold black output remains unproven. Native and HDMI now agree.
+Three adjacent10s ONE-boot idle-login windows:4025210.04/4025658.61/4025551.69
+StartCycle issues/s, mean4,025,473.4492 versus690f4,025,325.4218 (+0.003677%).
+Effectively unchanged, NOT a speedup;24.15284% of original nominal, not retired
+instructions or whole-desktop performance. Separately held0.192500%, enabled
+56.442995%, storage-only43.552682%, ARM-only/combined0%, raw read hits75%.
+Non-atomic intervals, each actual OSD mode visually verified. Instruction Off/
+Debug CPU restored before Guest input. A mistaken reopened-menu confirm opened
+an empty file selector; canceled/no mount/no invalid hold sample. Preserve it.
+[134-member original-startup/measurement/closure proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-prelogin-speed/README.md).
+Prior690f cold volume CLOSED:SHAa19a59a12dd99464202bc69d8d728f01b0862d4b6eeea48ae4a789d5314d85f9,
+63578624bytes, local streaming copy matches;525read/42write ACK pairs,8pwrite/
+3fsync pairs, two normal barriers, no recorded gaps/errors/no old descriptors
+or daemon DDR map. Not clean guest shutdown. Its SAVED schematic/Clock restored;
+loader's inherited "fresh AISViewer" scope is explicitly corrected in proof.
+New prelogin46read/onewrite ACK pairs/onepwrite/fsync, good4/CRC-RX-abort-drop0,
+pack fault clear; not current-volume closure or final stress. Initial upload
+failed on full MiSTer /tmp before any load. Seven exact SD-duplicate bitstreams
+and confirmed partial upload removed,29,319,168B recovered; no logs/disks removed.
+Boot observer41003 terminal40/absent, C watcher terminal/released. Do not repeat
+preparation/load. Working `storage-old-word-native57-v1-20261022/hardware`.
+Two ordinary Returns accept visible Guest.pa; bounded desktop observer follows
+same Main4355 now. Full interactive5c65 Viewers/apps/files/original Rollback and
+cold persistence still pending; do not inherit690f firmware qualification.
+Next/TODO: finish that original startup/input/app gate; use real memory-transaction
+and phase/capture analysis for the remaining speed gap. Early read replies did
+not reduce this workload's storage pauses. Do not repeat another fit expecting
+a speedup from this unchanged component. Original60ns/all-device rates, minimal
+Main337 isolation, canonical production promotion, final3 fresh seeds and2h
+stress remain OPEN. Native59 retained, FPGA snapshots deferred, goal ACTIVE.
+
 **Latest:690f original Checkpoint/Rollback and cold file/input readback PASS; HDMI unresolved.**
 The now-closed warm test used Main28147/server28146/supervisor28112 and RBF
 690fd4bda65b8cdc40e6aaecc0e7aef51200fead8c248d0d49e17049c3fc98a4,
