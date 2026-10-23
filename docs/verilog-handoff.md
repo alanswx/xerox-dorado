@@ -1,5 +1,27 @@
 # Verilog from Sil: handoff
 
+**Next producer probe (2026-10-23): actual MIR-driven NextMacro passes BOTH.**
+[Original e22/d21 decode, two full sequences and external-source counterexample](../fpga/mister/reports/2026-10-23-r-front-local/next-macro-probe/README.md).
+`dorado_r_front_next_macro_step.sv` differs from the qualified792-Q wrapper
+only by module name and NextMacro's actual six-input MIR decode. The original
+reference adds e22 with BOTH wired-OR drivers of IFUNext'a; d21 still inverts
+it. Inputslot313 becomes obsolete. The JCN.2'a input is d24.B's complement,
+distinct from d23.B's copy used by RWTPCorRWIM. No added state/cycle/RAM.
+
+Balanced profile passes11854 events in BOTH engines,318 write-active/5012
+read-active events/801 old-parity epochs. The old external-driven candidate
+fails resolved-source comparison at6221 in BOTH after successful compilation.
+All792 Qs/9216RAM bits/68 clocks and functional outputs still compare. This
+is a producer probe; extended arrival/skew and physical/native timing remain.
+Source delta and all four terminal runs are losslessly archived. The preceding
+792-Q six-profile milestone is committed/pushed as `ebf470bf2`.
+
+Next/TODO: close actual count-branch decode (ContA a14/b15/d19, a21/f22/f23 and
+their original FF/JCN fan-in), then other d17 sources, ContB IM/ASEL/BSEL/
+StopMIRClk and MemC Hold/PRhold. Include the new producer family in the broader
+arrival gate before fitting or native replacement. The prior15ns failure and
+full A-F/60ns/timers/66.7MHz IO/firmware/fresh boots/stress requirements remain.
+
 **Current integration (2026-10-23): 792-Q Control-A/processor ordering PASS.**
 [Original graph, full matrix, counterexamples and source frontier](../fpga/mister/reports/2026-10-23-r-front-local/ordering/README.md).
 `dorado_r_front_local_step.sv` composes the104-Q local producer with the
@@ -28,7 +50,7 @@ direct board-crossing comparisons are required in addition to state comparisons.
 The new dependency audit proves eleven other package-half inputs unused and
 rejects five incorrect live/unused classifications or cell connections.
 
-Next/TODO: add ContA e22's actual IFUNext'a
+The subsequent probe above adds ContA e22's actual IFUNext'a
 decode (its inputs are existing, distinct MIR Qs). Follow with branch-count
 decode/other d17 producers, ContB IM/ASEL/BSEL/StopMIRClk and MemC Hold/PRhold
 integration. Preserve separate capture-data, clock and settled-output epochs.

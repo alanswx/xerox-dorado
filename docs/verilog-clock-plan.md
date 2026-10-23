@@ -11,6 +11,15 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Next local producer (2026-10-23): the original ContA e22/d21 NextMacro decode
+now passes the full11854-event sequence in BOTH engines (balanced profile).
+The candidate uses existing distinct MIR Qs; slot313 is obsolete. The old
+external-source version rejects at6221 in BOTH. No additional state/cycle/RAM,
+fit/native load or speed gain. Next close actual count-branch decode and other
+d17 sources, then ContB IM/control and MemC Hold/PRhold; include these producer
+families in the broader arrival gate before the next fit/native replacement.
+[MIR-driven NextMacro probe](../fpga/mister/reports/2026-10-23-r-front-local/next-macro-probe/README.md).
+
 Current integration (2026-10-23):792-Q Control-A/processor composition passes
 bounded ordering (`r-front-local-full-v8-20261023`). Six profiles/BOTH engines
 pass11854 events with real MIR/CP RBase/StkP commands and stored TaskingOff/On.
@@ -19,7 +28,7 @@ inverse-check against their unchanged parents. Both d21 processor crossings
 are retained, including explicit jcnt wire comparison where its downstream
 gate result is unconsumed. All68 clocks fire; PARC parity-min/max and9.9ns
 RAM reads pass. Five damaged variants reject in BOTH; all44 actions terminal.
-Next close ContA e22's actual
+The subsequent probe above closes ContA e22's actual
 NextMacro decode, remaining branch/d17 sources, ContB IM/control arrivals and
 MemC Hold/PRhold. No new timing fit/native load or speed claim. The prior15ns
 failure and all A-F requirements remain open. This supersedes the next
