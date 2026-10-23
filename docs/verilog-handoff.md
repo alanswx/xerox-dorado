@@ -1,5 +1,44 @@
 # Verilog from Sil: handoff
 
+**Current joint-control experiment (2026-10-23): RunRefresh arrival failure isolated; not promoted.**
+[Exact wiring, passing comparisons, required failures and causal probes](../fpga/mister/reports/2026-10-23-control-hold/experiment/README.md).
+Generated b79903a9 combines156 original Qs/56 clocks/94 flags. It closes actual
+CA enable/MemSH/StartCycle/BNT/UseDMD, CB ASEL/BSEL/StopMIRClk, shared rMIRa
+and CP bus with the original MemC Hold path. Old MemSH and gated UseDMD are
+explicit.24 inherited functions remain byte-identical;34 source pins audit.
+
+Six bounded comparisons pass (both engines: balanced, fast gates, established
+CA later-FF profile),5678 events each/all clocks>=8/counts agree. Actual UseDMD,
+maintenance selectors/CP/reset, parity stop and LOW NoDispatch with real Hold
+and a pending higher task compare. Seven wrong crossings/epochs reject BOTH.
+Required later_control(gate1750/FF400/phase1250ps) FAILS at403 in BOTH: CA
+l03 Q14/Q15 release to0; candidate retains1 and misses MC clock51. All other
+Qs agree there. The original matrix remains FAILED, not relabeled as a pass.
+
+Minimal source-only replay reproduces. Keeping WantRunRfsh asserted or changing
+only phase FF delay1250->2000ps removes it. A1.75ns gate/2ns ordinaryFF/1.5ns
+phaseFF example also fails; clock-part values lie inside the1978 Motorola
+tables, but Set recovery/Signetics/other devices/skew remain uncharacterized.
+CA l06.B RunRefresh drives l03 asynchronous Set; l03 clock adds f13 after the
+parallel l01 fanout. Establish this release/capture contract before promotion.
+
+Raw parity clear plus root rise also fails4070 in BOTH (26 extra MIR clocks).
+Ordinary comparisons separate that upstream raw arrival; actual IM/parity is
+still open. Fixture setup-time and NoDispatch-probe preconditions were fixed;
+all failed predecessors retained. Independent review: INCOMPLETE,6 passes/
+2 required failures/14 wrong variants/2 parity gaps/5 causal probes;58 terminal
+actions. Receipt7851 members/460 blobs/1954783 bytes. No maintained RTL change,
+native instantiation, fit, load, timing waiver or hardware speed claim.
+
+Next/TODO: resolve the shared controller's RunRefresh Set-release/capture
+epoch against original clock paths; then full processor composition and actual
+MCR/hold-data/IM/parity/DMD/B-bus closure. Preserve separate clock copies and
+old-data epochs. Full A-F/original-ROM60ns/timers/physical66.7MHz and final
+acceptance remain active. Maintained798-Q/46-Q and hardware5c65/Main/daemon/
+volumes unchanged. Native2284/2331 remain live; observer66423 ended ONLY its
+four-hour bound. Replacement read-only observer94312 verified live on the same
+tests, no restart/limit/input changes and no113/Cedar measurement window yet.
+
 **Latest producer closure (2026-10-23): MemC-produced Hold + ContB MIR passes.**
 [Original phase/hold circuit, complete comparisons and remaining limits](../fpga/mister/reports/2026-10-23-contb-hold/ordering/README.md).
 Maintained `dorado_contb_hold_step.sv` SHA bd23230a and ContB helper a793d9bb

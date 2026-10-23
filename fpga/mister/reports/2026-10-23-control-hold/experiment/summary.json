@@ -1,0 +1,35 @@
+{
+  "status": "INCOMPLETE_JOINT_CONTROL_HOLD",
+  "candidate_sha256": "b79903a970ad7e4bd4ec79020f3d43f542dc9a71b412b21a2f4f39365528323e",
+  "bounded_passes": 6,
+  "required_profile_failures": 2,
+  "wrong_variants_rejected": 14,
+  "raw_parity_handoff_failures": 2,
+  "causal_probes": 5,
+  "physical_bits": 156,
+  "clock_channels": 56,
+  "selected_flags": 94,
+  "events_per_full_pass": 5678,
+  "inherited_functions_unchanged": 24,
+  "physical_pin_checks": 34,
+  "source_recipe_byte_identity": true,
+  "required_failure": {
+    "profile": "later_control",
+    "gate_ps": 1750,
+    "FF_ps": 400,
+    "phase_FF_ps": 1250,
+    "check": 403,
+    "bits": [
+      14,
+      15
+    ],
+    "extra_clock": 51
+  },
+  "causal_result": "Source-only replay fails; holding WantRunRfsh or delaying only its phase FF removes the mismatch. Additional Motorola clock-part-range example also fails.",
+  "original_failed_matrix_preserved": true,
+  "promoted_to_maintained_RTL": false,
+  "native_integrated": false,
+  "physical_timing_qualified": false,
+  "full_producer_arrival_contract_qualified": false,
+  "hardware_speedup_claimed": false
+}

@@ -11,6 +11,24 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Current joint control integration (2026-10-23) is **INCOMPLETE, not promoted**.
+Generated156-Q/56-clock/94-flag graph closes actual CA clock/MemSH/StartCycle/
+BNT/UseDMD, CB fields, shared reset/CP and MC Hold. Six bounded comparisons
+pass5678 events each;14 wrong variants reject. Required early-phase stress
+fails403 in BOTH: l06.B RunRefresh releases l03's asynchronous Set before its
+f13-delayed clock; actual l03 Q14/Q15 become0 while candidate holds1 and misses
+MC clock51. Source-only replay isolates it; held WantRunRfsh or later phase FF
+removes it. The failed matrix remains failed. [Complete evidence and limits](../fpga/mister/reports/2026-10-23-control-hold/experiment/README.md).
+
+Next establish the original RunRefresh release/capture epoch and correct the
+shared controller before promoting this composition. Original clock-part
+delay tables overlap; uniform digital profiles do not settle Set recovery,
+Signetics timing or board skew. Raw parity clear/root rise also remains an
+open arrival (26 extra MIR clocks). Actual IM/parity sources must close it.
+Then full processor, MCR/hold-data/DMD/B-bus producers and native original-ROM/
+60ns/timers/physical66.7MHz. Full A-F acceptance remains; no timing waiver,
+native fit/load or hardware gain. Prior maintained798-Q/46-Q components stay.
+
 Latest memory producer closure (2026-10-23): original MemC l02/e22/e23 and
 phase-1 fanout now supply CBHold to ContB. Maintained bd23230a/a793d9bb are
 46 original Qs/31 clocks/34 flags, with all three Hold drivers and separate
