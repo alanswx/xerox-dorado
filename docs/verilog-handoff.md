@@ -1,6 +1,45 @@
 # Verilog from Sil: handoff
 
-**Current milestone: broader per-beat/other-line burst reuse qualified.**
+**Current milestone: bounded admission/reset-drain queue qualified as a component.**
+[1,209-member evidence](../fpga/mister/reports/2026-10-22-storage-queue/component/README.md)
+retains standalone `dorado_storage_queue.sv`, protocol v3, physical pins v1,
+native 128-group fanout v2, original MSA v1, legacy board regression and failed attempts.
+Ten protocol positives match in Icarus/Verilator, including 128 groups/16-bit
+local addresses/23-bit raw addresses, every owner and address bit, depths 1/3/4
+and non-power-of-two geometry. Reference memory matches after all reset drains;
+this is not exhaustive physical SDRAM exercise. Eight bad variants reject in
+both engines. The queue's four slots include queued, issued and held work.
+Reset drains every accepted descriptor, including unissued writes, discards
+old replies, then resets the empty backend before the next epoch. No DUT repair.
+
+Independent physical pins pass depths 4/3 (139/137 accepted/issued/completed,
+85/72 writes, five resets, correct post-drain memory); early reset rejects.
+Original 144-chip MSA/all 9,437,184 bits and actual global raw operation order agree:
+101,546 control -> 101,328 queue ticks (0.21468% fewer). Native128 synthetic is
+8,492 -> 8,491, with unchanged 4,930 raw-response waits/1,122 burst-drain blocks.
+That one-tick difference is response-backpressure phase, not a substantive gain.
+Wrong owner rejects; legacy board driver reproduces 103,659/101,546 traces exactly.
+No actual native CPU/Cedar speed claim, fit/load, clock/Main/daemon change.
+
+**Next:** qualify default-off same-row WRITE streaming from
+`storage-row-writes-component-v1-20261022/generated`; tool
+`prepare_storage_row_writes.py`. It has ONLY syntax/elaboration in both engines;
+width diagnostics retained. Behavioral/physical ACK-after-capture, same/different
+row/bank/rank, read turnaround/recovery, held replies, reset, refresh, coherence,
+old-word/original MSA and native timing remain open. It adds no new state and
+no wrapper selects it. Datasheet sections/figures and exact parent hash are in
+the clock plan and source. This targets the remaining raw-write response delay.
+
+**Native queue wiring still open:** queue global reset, new-admission enable
+from storage_initialized, backend_reset to the physical controller, old-queue
+drain priority over the raw init mux, and selftest reset held until drain ends.
+Do not connect the old arbiter reset-or-not-initialized directly or disconnect
+accepted work. Preserve original old-word/commit/global machine-edge barrier.
+Capture actual native firmware traffic before selecting a native speed candidate.
+Goal ACTIVE; original 60 ns CPU/timers and final firmware/persistence/stress gates
+remain required. All recorded jobs terminal; no existing job needs restarting.
+
+**Earlier milestone: broader per-beat/other-line burst reuse qualified.**
 [749-member proof](../fpga/mister/reports/2026-10-22-storage-burst-reuse/component/README.md)
 freezes the default-off generated controller (12 new state bits), protocol v3,
 physical pins v3, original MSA v1, native 128 synthetic fanout v1, both legacy
@@ -24,10 +63,9 @@ The exact native 128 synthetic fixture is UNCHANGED versus the adjacent successo
 9,386 control/8,492 candidate ticks, byte-identical per-channel traces. Its shared
 driver's old mode reproduces both earlier traces too. No additional gain there,
 and no actual native CPU/Cedar wait attribution or new hardware speed claim.
-All these jobs are terminal; goal ACTIVE. Next bounded owner-tagged admission,
-separate read/write response/recovery measurements and actual native firmware
-traffic capture. Define reset handling for queued unissued writes, retain original
-old-word/commit and global machine-edge barrier, then qualify native selection.
+All these jobs are terminal; goal ACTIVE. Bounded admission/reset drain is now
+qualified above. Next the prepared write-response path, native reset/init wiring
+and actual firmware traffic. Preserve old-word/commit and the global barrier.
 
 **New milestone: adjacent-beat SDRAM successor component qualified.**
 [249-member proof](../fpga/mister/reports/2026-10-22-storage-burst-successor/component/README.md)
@@ -49,7 +87,8 @@ completion throughput are different quantities; do not quote this as 9.5% faster
 Cedar. Current 5c65 remains the separately measured 4.02547345M prelogin baseline.
 
 Broader fill validity/future waits/completed-line service are now qualified above.
-Next bounded owner-tagged admission and actual native 128-group firmware capture. Retain
+Next the write-response experiment, native queue reset/init wiring and actual
+native 128-group firmware capture. Retain
 the global-edge barrier, original writes/old words and committed response owners.
 The small protocol memory is a functional test double; independent physical pins
 are a separate gate. All test-development failures and corrected final executed
@@ -64,8 +103,8 @@ CPU floor and serialized 128-group SDRAM path are separate limits. Early data
 alone did not help this workload. Preserve Main/daemon identity during the next
 memory comparison; no new Main API is required for the memory scheduler.
 
-Next: attribute actual native 128-group firmware waits and qualify a bounded
-owner-tagged request queue, building on the now-qualified broader fill reuse.
+Next: attribute actual native 128-group firmware waits, qualify the WRITE
+response experiment and integrate the qualified queue with native reset/init.
 Preserve original write/old-word/commit
 semantics and the next-machine-edge storage barrier. Only then select a native
 fit and a separately constrained faster memory domain. Original60ns phase and
@@ -8649,7 +8688,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Measure the exact native128 arbiter on pinned synthetic coherent/scattered traffic:1,920 requests/640 writes,9,386->8,492 ticks and reproducible per-channel traces. Keep actual native CPU/Cedar wait attribution open.
 - [x] Qualify default-off per-beat fill validity/stable physical identity and received/current/future/other-line service during drain: dual-simulator protocol/nine real bad variants, independent physical pins57.1/66.7MHz and original MSA/all-bit gates. Native integration remains open.
 - [x] Preserve 2.0384% MSA host-tick reduction and unchanged native 128-group synthetic result versus the adjacent successor; both final shared-driver legacy regressions reproduce previous evidence.
-- [ ] Add a small bounded owner-tagged request queue, in-order completion and next-command preparation; preserve original per-group commit/old-word semantics and fairness. Measure occupancy and native128-group wait reduction before expanding it.
+- [x] Qualify a four-slot owner-tagged queue across queued/issued/held work, per-group exclusion, in-order issue/completion, saved payload, fairness and all-accepted-work reset drain. Pass dual-simulator/full native-width protocol, independent physical pins and original MSA/all-bit gates. Native reset/init integration remains open.
+- [x] Measure queue occupancy and response waits: native128 synthetic8,492->8,491 with unchanged raw/drain waits; original MSA101,546->101,328. Preserve the lack of a substantive speed gain; do not expand capacity or fit it alone.
+- [ ] Qualify the prepared default-off same-row WRITE command/ACK pipeline against actual chip capture and recovery/turnaround, all rank/bank/row transitions, reset/held-response/refresh/coherence, original old-word/MSA and pinned native128 traffic. Syntax-only preparation is not qualification.
+- [ ] Wire native queue global reset/admission-enable/backend-reset and drain-priority initialization mux; hold selftest reset through drain and retain global machine-edge barrier. Verify startup, accepted writes on reset and original firmware before promotion.
 - [ ] Qualify a separately clocked SDRAM request/response path and physical IO constraints; evaluate66.7MHz first. Faster memory and faster CPU are separate experiments.
 - [ ] Integrate audited CPU phases and actual MIR/IFU/Ready/Hold/cache/Map producers to the original60ns ordinary cadence; calibrate every peripheral timer.
 - [ ] Qualify5c65 or its accepted successor's explicit Rollback, post-save filesystem changes and close/remount/cold persistence.

@@ -89,12 +89,13 @@ speedup comes from supplying the existing barrier faster.
 | E. Restore original CPU phases | Integrate the audited phase/run/refresh and processor/control capture work with actual MIR/IFU/Ready/Hold/cache/Map producers. Make capture epochs explicit and shorten the real failing data paths. Retain original architectural holds and original read-before-write behavior. | Full native phase/producer closure and original-ROM startup at each integration step. Demonstrate 60 ns nominal ordinary instructions. Do not set SYSPER=2 blindly: known ECP/SCP coincidences and the original subphase offsets must be resolved by the audited contract. A 15 ns isolated component pass is not a complete 60 ns CPU proof. |
 | F. Qualify the combined machine | Deploy only reviewed timing-passing candidates, one architectural change at a time, with unchanged Main/daemon for speed comparisons. Then run original Cedar Checkpoint/Rollback, pre/post-save files, close/remount and cold restore. | Pinned old/new instruction-progress and hold measurements; all-device timer rates; three independent fresh-seed boots; exact keyboard/mouse and application checks; at least two hours sustained disk/network/input operation without pack/CRC/RX faults. Archive, commit and push the resulting qualified implementation. |
 
-Both the adjacent-beat and broader per-beat/other-line reuse components are now
-qualified (evidence below). The immediate task is **C's bounded owner-tagged
-request admission and raw-response budget**, with A's actual native firmware
-traffic capture alongside it. Neither component's small-fixture result alone
-warrants a native fit. Select that experiment after measuring the remaining
-waits and qualifying the complete B/C design. Promote
+The burst-reuse and bounded-queue components are now qualified (evidence below),
+but the queue adds almost no throughput on the measured synthetic traffic.
+The immediate task is **C's physical WRITE command/ACK pipeline**, alongside A's
+actual native firmware traffic capture and the queue's native reset/init wiring.
+Its new same-row experiment is only prepared/syntax-checked, not qualified.
+Select a native experiment after a repeatable meaningful gain and complete
+physical/old-word/reset qualification. Promote
 the exact reviewed generated source into the maintained RTL only after its
 source/timing/firmware gates; preserve fallback bitstreams and disk volumes.
 
@@ -114,6 +115,60 @@ fsync pairs, with no recorded disk errors. Two diagnostic loss markers total
 21,700 records, so the historical write trace is incomplete. This is neither a
 closed-volume result nor an explicit Rollback/new-file cold-persistence pass.
 [Checkpoint return evidence](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-checkpoint-return/README.md).
+
+**Bounded queue component qualified; throughput bottleneck remains in raw work.**
+`fpga/mister/dorado_storage_queue.sv` owns at most four descriptors total across
+queued requests, issued work and a held response. Payload/owner are saved at
+admission, one request per original group, FIFO issue/completion and stable
+held replies. Reset suppresses new admissions/frontend replies, drains ALL
+accepted descriptors including unissued writes, then resets the empty backend
+for a clock before a new epoch. Admission-enable does not disconnect old work.
+
+Protocol v3 passes ten positives in Icarus/Verilator with matching summaries:
+depths 1/3/4, non-power-of-two group count, and native 128 groups with 16-bit local /
+23-bit raw addresses. Every owner and both values of every local-address bit
+occur. The full 8,388,608-word reference store is compared after drain; this is
+not exhaustive physical SDRAM address exercise. The native-width case has 262
+admissions/issues/retirements, 148 writes, 13 discarded old-epoch replies, 249
+frontend completions, 221 raw handoffs and five reset epochs. Eight actual bad
+variants reject in BOTH engines: early reset, lost queue, wrong owner, unsaved
+payload, overfill, duplicate group, stuck reservation and blocked reset drain.
+
+Independent physical pins pass depths 4/3 with 139/137 accepted/issued/completed
+requests, 85/72 physical writes and correct post-drain memory; early backend
+reset rejects. Original 144-chip MSA outputs/all 9,437,184 bits agree, retaining
+both each group's ordered history and, in this actual run, exact global raw
+operation order. Queue-control 101,546 -> queue 101,328 ticks (0.21468% fewer).
+The 128-group synthetic fixture gives 8,492 -> 8,491 ticks: only one tick of
+response-backpressure phase difference. Raw-response wait 4,930 and burst-drain
+block 1,122 are unchanged. This is not a substantive speed gain or a native CPU/
+Cedar measurement, and does not justify a native fit alone. Wrong-owner controls
+reject in both integration fixtures. The shared MSA driver's legacy mode again
+reproduces the prior 103,659/101,546 traces byte-identically. Failed mutation/
+diagnostic expectations are retained; the queue needed no DUT repair.
+[1,209-member component and preparation evidence](../fpga/mister/reports/2026-10-22-storage-queue/component/README.md).
+
+**Native queue reset integration remains open.** Use global reset for the queue,
+`storage_initialized` for new-admission enable, `backend_reset` for the physical
+controller and queue-drain priority in the raw init/normal mux. Hold selftest
+reset until the old queue drains. Do not reuse the old arbiter's
+`reset || !storage_initialized` wiring or switch the raw port to initialization
+while accepted queue work remains. Retain the global machine-edge barrier and
+the existing group old-word/commit capture. No native source selection, fit/load,
+clock, Main or daemon change has been made.
+
+**Next write experiment is prepared only.** The manufacturer describes single
+writes (MRS A9=1), writes on consecutive chip clocks, recovery before precharge
+and write/read turnaround in [AS4C32M16SB Rev1.4 section 6/Figures 10-13 and section 8/Table 11](https://www.alliancememory.com/wp-content/uploads/AllianceMemory_512M_SDRAM_Bdie_AS4C32M16SB-7TXN-6TIN-7BIN__Rev1.4_June2024NK.pdf).
+`prepare_storage_row_writes.py` creates default-off `PIPELINED_ROW_WRITES` from
+the exact broader-reuse parent with no new state. It proposes another same-row
+WRITE on the preceding ACK-consumption edge; the intended ACK is sampled only
+after the intervening chip capture. Preserve normal recovery/row changes/read
+turnaround/refresh and invalidate every affected raw line. Both simulators pass
+syntax/elaboration; width diagnostics are preserved. Actual behavioral and
+ACK-after-chip-capture proofs, row/bank/rank changes, response holds, reset,
+refresh, coherence, original MSA/old-word and native timing are UNQUALIFIED.
+Workdir `storage-row-writes-component-v1-20261022`; no wrapper selects it.
 
 **Broader burst reuse component qualified; no new native fit or load.**
 Default-off `BURST_READ_REUSE` adds 12 bits: eight received-word valid bits, a
@@ -155,15 +210,11 @@ fanout driver's legacy mode reproduces both old traces too. Wrong owner rejects.
 These are component/transport results, not native CPU or Cedar speed claims.
 [749-member qualification and failed-attempt evidence](../fpga/mister/reports/2026-10-22-storage-burst-reuse/component/README.md).
 
-Next qualify a small queue separating admission from raw scheduling/completion.
-Bound total ownership across queued work, issued work and held replies; keep
-one outstanding request per original group and in-order completions. Define
-reset handling for accepted but unissued writes before implementation, and
-never treat queue admission as physical write completion. Profile read and write
-command-to-ACK/recovery separately: the synthetic fixture's remaining raw-response
-interval did not improve. Any write scheduling change requires the independent
-pin timing and original old-word/commit gates. Actual native firmware request
-capture, original 60 ns phases/timers and final hardware qualification stay open.
+The newer queue receipt above now qualifies bounded admission/reset drain as a
+component. Next qualify the prepared write command/ACK experiment and native
+reset/init coordination. Never treat queue admission as physical completion.
+Actual native firmware request capture, original 60 ns phases/timers and final
+hardware qualification stay open.
 
 **Adjacent-beat component qualified; native hardware unchanged.**
 The exact default-off candidate passes six protocol positives in Icarus and
