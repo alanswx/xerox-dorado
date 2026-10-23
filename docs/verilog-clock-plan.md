@@ -11,6 +11,26 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Current combined prototype (2026-10-23): actual CA/CB/MC clocks/fields/Hold now
+join the processor slice:844Qs/9216RAM/100clocks/94control flags. ProcH e19's
+local Holda path is included alongside ProcL's original path. Balanced passes
+4168 events/242 writes/1542 reads in BOTH; new-field-at-capture controls reject
+131 in BOTH. Required early-phase stress fails1456 on RBase word1 only.
+[Source-bound evidence and remaining limits](../fpga/mister/reports/2026-10-23-r-front-control/experiment/README.md).
+
+The original LastNext address changes0.5ns before RBase Write Enable closes;
+the zero-delay SRAM oracle writes the new address during overlap. Changing
+only phase FF1250->2000ps reverses this order and the digital pilot passes.
+This is not physical RAM qualification: the1979 Fairchild data sheet specifies
+address setup/hold and minimum write width. Preserve both failure and causal
+trace. Next derive write-close/address-switch subphases with margin and room
+for RBase/RM reads, grounded in HM2.3/Table4, within the original60ns cadence.
+Do not add a guest cycle, delay all phase FFs or filter the oracle to pass.
+Five clock channels and converted original directed cases remain open, as do
+actual phase-descriptor generation, remaining sources and full native timing.
+The full A-F/physical66.7MHz/final acceptance goal stays active; no native fit,
+load or hardware speed claim. Older blocks below retain their original scope.
+
 Conditional control transfer (2026-10-23) now passes BOTH engines/all four
 existing illustrative profiles,5678 events each/156Qs/56clocks/94flags. New
 23f60f6d accepts the independently specified RunRefresh direct-Set arrival

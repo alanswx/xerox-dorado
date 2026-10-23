@@ -1,5 +1,46 @@
 # Verilog from Sil: handoff
 
+**Current integration (2026-10-23):844-Q processor/control/Hold pilot; RBase write-close order open.**
+[Original circuits, full state/RAM comparisons and preserved arrival failure](../fpga/mister/reports/2026-10-23-r-front-control/experiment/README.md).
+Generated a20b9e52 joins the existing798-Q processor slice with40 actual ContB
+and six MemC Qs:844Qs/9216RAM/100 clocks/94control flags. One original BaseBd
+j02/l01/k01 fanout drives all five boards. Actual ContB ASEL/BSEL/LC, memory
+Hold/CBHold/PRhold and shared CA/CB controls replace raw boundaries. ProcH
+e19 now supplies Holda after f19; ProcL's matching original path stays.
+Three unused H package-half inputs append at398..400. Architectural state/RAM
+is unchanged apart from adding the46 original producer Qs to the slice.
+
+Both engines pass balanced4168 events,242 writes/1542 reads/74 port epochs.
+Actual LC instructions provide156 writes/282 reads before random instruction/
+Hold/CP traffic. New-field-at-closing-capture variants reject131 in BOTH on
+Q38/Q54. Initial zero-write pilots retained as insufficient coverage. Five
+clock channels43/91/92/93/95 and converted old RBase/StkP/tasking directed
+cases remain open; no full clock or former directed-case qualification.
+
+Required early-phase(1750gate/400FF/1250phase ps) fails1456 in BOTH ONLY on
+RBase word1/Q644..647. Trace: LastNext0->1 at1020108.250ns, Write Enable closes
+at1020108.750ns. The zero-delay level-written F10145A model writes new word1
+in that0.5ns overlap. Changing ONLY phase FF1250->2000ps closes the gate before
+the address changes and the digital pilot passes. No oracle change/waiver.
+1979 Fairchild F10145A AC table/diagram (PDF89/90, printed7-22/23) specify
+address stability and minimum write width. Neither the early overlap nor late
+0.25ns margin proves physical correctness; do not claim real hardware writes
+the extra entry. Source URL/hash/pages and frozen traces are in the receipt.
+
+Next/TODO: derive native write-close/address-switch subphases with setup/hold
+margin, tied to HM2.3/Table4's RBase t2 controls/t3 file write and ordinary60ns
+starts. Check the RBase/RM read budget before assigning15ns fabric phases;
+do not delay every phase FF or add a guest cycle. Then actual-source directed
+and missing-clock coverage, remaining IM/parity/MCR/hold-data/DMD/B-bus, full
+native ROM/timing/timers/physical66.7MHz and A-F final acceptance. Arrival
+descriptor generation is still open. This is an unpromoted processor slice,
+not complete ALU/IFU/cache/Map/native integration. Lossless receipt2885members/
+358blobs/1642282bytes. Maintained798/46-Q components and hardware unchanged.
+Native2284/2331 and watcher94312 verified live at10h24m, no113/Cedar measurement
+window; keep5B host limits and pending C-release protocol, never restart on a
+watcher bound. Last observed control3.32Bhost/1.9546Bguest,queue3.63B/2.2993B,
+no fault/CRC/RX. No firmware storage-speed result or hardware speed change.
+
 **Latest control progress (2026-10-23): conditional arrival transfer passes all four profiles.**
 [Original routes, eight complete comparisons and six negative controls](../fpga/mister/reports/2026-10-23-control-hold/ordered/README.md).
 Generated23f60f6d retains156Qs/56clocks/94flags and all baseline functions.
