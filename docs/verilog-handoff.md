@@ -1,5 +1,32 @@
 # Verilog from Sil: handoff
 
+**Latest arithmetic experiment (2026-10-23): equivalent, timing REJECTED.**
+[Exact source comparison, binary proof, new graph runs and terminal fit](../fpga/mister/reports/2026-10-23-r-front-stack-adder/experiment/README.md).
+The generated ProcL j17/k17/l17 rewrite preserves all wired sum/carry nets;
+4096 generic pairs plus all512 actual wired inputs pass BOTH engines. Four
+broken carry controls reject. Two new full graphs pass13515 events,328 write/
+5608 read/797 epochs, all792 Qs/9216 RAM/68 clocks, including LOW-NoDispatch.
+The twelve prior arrival runs are inherited by binary equivalence, not rerun.
+
+Same shell/constraints/24 RTL dependencies; only arithmetic differs. Terminal
+15ns fit REJECTED: setup-2.783ns,hold+0.138ns,mpw+6.117ns;3432ALMs/3000regs,
+four256x9 MLABs. Previous mask fit was-1.996ns; do not promote this candidate.
+All five PIDs1011033/1011045/1012870/1019949/1021081 absent; all stages rc0.
+Twenty malformed timing controls and six damaged proof controls reject; old
+mask/Ready readers reproduce. No assembly, native load or new speed figure.
+
+Worst18-level/17.466ns path starts at launch636=`before_clock`, through WIM/
+MIR/low-front mux, actual rm_l read and parity_ok[3]. At100C CPbus8 reaches
+faults[3]. The source path is no longer the earlier stack-carry path. Next/TODO:
+derive actual MIR t0 -> RM/STK read capture t1 (HM2.3, one30ns clock), including
+transparent windows, old data and late CP/NoDispatch. Establish a faithful
+FPGA partition before changing budgets. Then close remaining l17/d17, ContB
+IM/ASEL/BSEL/StopMIRClk and MemC Hold/PRhold; integrate/test original ROM.
+Full A-F/60ns/timers/physical66.7MHz/Cedar/persistence/fresh boots/stress remain.
+The prepared-v1 source-ledger omission is retained; only corrected v2 fitted.
+Hardware5c65/volumes and long native2284/2331 jobs remain unchanged.
+
+
 **Latest speed experiment (2026-10-23): MIR mask ordering PASS;15ns fit REJECTED.**
 [Full ordering/source properties/prepared budget](../fpga/mister/reports/2026-10-23-r-front-mir-mask/ordering-budget/README.md),
 [terminal rejected fit and exact remaining path](../fpga/mister/reports/2026-10-23-r-front-mir-mask/timing-rejected/README.md).

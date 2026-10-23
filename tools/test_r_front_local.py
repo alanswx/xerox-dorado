@@ -159,7 +159,7 @@ def bench(path,iterations,random,cp,low_cp,late_tasking=False,front_directed=Fal
  return raw
 
 
-def run(base,out,iterations,engine,profile,random,cp,low_cp,late_tasking,mutation,front_directed):
+def run(base,out,iterations,engine,profile,random,cp,low_cp,late_tasking,mutation,front_directed,cone_rewrite=None):
  assert not out.exists();out.mkdir(parents=True);inputs=out/'inputs'
  parent=json.loads((base/'results.json').read_text());assert parent['status']=='PASS_R_FRONT_READY_ARRIVAL_CONTRACT'
  names=set(parent['inputs'])-{'tb_r_front_ready.sv'}
@@ -184,6 +184,10 @@ def run(base,out,iterations,engine,profile,random,cp,low_cp,late_tasking,mutatio
  save();ref=out/'reference';manifest=generate(inputs,ref)
  adapters=out/'adapters';adapted=adapters_generate(inputs,adapters)
  cone=out/'dorado_r_front_cone.sv';cone.write_bytes((base/cone.name).read_bytes());assert sha(cone)==parent['inherited_cone_sha256']
+ inherited_cone=sha(cone);cone_change=None
+ if cone_rewrite is not None:
+  (out/'parent-cone.sv.txt').write_bytes(cone.read_bytes());cone_change=cone_rewrite(cone)
+  assert sha(cone)==cone_change['output_sha256']
  gates,ffs,phases,parc,read_ps=PROFILES[profile];timed=out/'timed';stage(inputs,ref,timed,gates,ffs,phases,parc)
  for p in (base/'ram-reference').glob('*.sv'):(timed/p.name).write_bytes(p.read_bytes())
  for n in ['r_file_original_storage.sv','r_front_original_storage.sv']:
@@ -214,7 +218,8 @@ def run(base,out,iterations,engine,profile,random,cp,low_cp,late_tasking,mutatio
   timed_sources={p.name:sha(p)for p in timed.iterdir()if p.suffix in ['.v','.sv']},
   full_arrival_contract_qualified=False,physical_timing_qualified=False,executed_candidate_sha256=sha(candidate))
  state.update(random_external_producers=random,CP_bus_sweep=cp,LOW_root_CP=low_cp,
-  inherited_cone_sha256=sha(cone),delay_profile=dict(gates_ps=gates,ffs_ps=ffs,phases_ps=phases,
+  inherited_cone_sha256=inherited_cone,executed_cone_sha256=sha(cone),cone_rewrite=cone_change,
+  delay_profile=dict(gates_ps=gates,ffs_ps=ffs,phases_ps=phases,
    parc_parity_control=parc,R_read_ps=read_ps))
  save();print(state['status'],out,flush=True);return 0 if passed else(rc or 1)
 

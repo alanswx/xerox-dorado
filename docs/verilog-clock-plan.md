@@ -11,6 +11,23 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest stack-arithmetic experiment (2026-10-23): all4096 generic pairs and
+512 actual physical-input combinations compare in BOTH engines; four bad
+carry cases reject. Two new full processor runs pass13515 events and the
+LOW-NoDispatch case. Twelve older arrival runs are explicitly inherited via
+binary equivalence. No architecture/capture/RAM change. Same shell and all24
+RTL dependencies, but arithmetic-only fit worsens setup from-1.996 to-2.783ns
+(hold+0.138/mpw+6.117;3432ALM/3000regs/9216MLAB). Reject; no native load.
+Worst path now previous root -> WIM/MIR -> actual rm_l read -> parity,18
+levels/17.466ns. All source/RAM constraints pass;20 malformed timing and six
+proof controls reject. [Lossless experiment receipt](../fpga/mister/reports/2026-10-23-r-front-stack-adder/experiment/README.md).
+Next derive the original t0 MIR -> t1 RM/STK data-capture boundary from HM2.3
+and physical gates. One original30ns clock is available architecturally; a
+safe FPGA partition still needs explicit window/epoch and late-control proof.
+Then remaining real producers and native original-ROM qualification. No
+invented pipeline delay or timing waiver. The full A-F goal remains active.
+
+
 Latest masked-clock experiment (2026-10-23): BOTH engines/ALL six profiles
 pass13515 events plus real LOW-NoDispatch MIR capture; frozen asynchronous
 view rejects6279 in BOTH. Four source-bound clock-mask properties prove; three
