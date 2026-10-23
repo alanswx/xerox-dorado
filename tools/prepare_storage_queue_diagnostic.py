@@ -58,6 +58,9 @@ def prepare(control,generated,output):
     name='prepare_storage_queue_diagnostic.py';shutil.copyfile(Path(__file__),output/'inputs'/name)
     r['inputs'][name]=sha(output/'inputs'/name)
     shutil.copyfile(control/'host-cycle-limit.txt',output/'host-cycle-limit.txt')
+    if r.get('passive_storage_window_observer'):
+        shutil.copyfile(control/'window-control.txt',output/'window-control.txt')
+        r['window_control_path']=str(output/'window-control.txt')
     r.update(status='PREPARED_FULL_NATIVE_QUEUE_TRANSPORT_DIAGNOSTIC',scope=__doc__,
         control=str(control),control_provenance_sha256=sha(control/'provenance.json.gz'),
         transport_provenance_sha256=sha(generated/'provenance.json'),

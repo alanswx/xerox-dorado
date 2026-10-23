@@ -11,25 +11,38 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
-Latest progress: actual128/16/23-bit original/candidate native wrappers both
-complete full physical-model selftest. Matching8,191-request pre-CPU read
-prefix takes109,062 ->102,908 host ticks (5.6427% fewer), with nearly unchanged
-raw-service time and fewer unowned gaps. This is actual native POWER-UP traffic,
-not Cedar speed. Its trace cap filled atCIAfff before instructions/113; a later
-firmware window is still required. Both existing simulations/drivers are live;
-expired tool handles did not stop them.
-[Exact power-up comparison and reader controls](../fpga/mister/reports/2026-10-22-storage-row-writes/native-powerup-transport/README.md).
+Latest progress (2026-10-23): original5c65 cold Checkpoint restore now passes
+saved apps, normal input and exact pre-/post-checkpoint file readback on a
+literal copy of the normally closed288af3e9 volume. Main13244/daemon13243 run
+`CedarOldWordEarlyCold57_20261022`; the active cold volume remains open.
+Native screenshots are clear, including after closing the OSD; HDMI remains
+black and UNRESOLVED. This is one cold persistence test, not final combined-core
+qualification. Preserve source236b, predecessora19a and closed288a.
+[Cold persistence evidence](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-cold-checkpoint-persistence/README.md).
 
-Original5c65 explicit Rollback now passes saved apps, exact keyboard, pre-save
-and post-save file readback and agreeing native/HDMI. The volume closed through
-two normal barriers and DDR revocation as288af3e9. A literal copy cold-boots
-the SAME core under Main13244/daemon13243 inCedarOldWordEarlyCold57_20261022;
-actual113/C-release and visible Guest.pa/default login pass; actual germ812
-is visible, cold desktop/file readback pending. Preserve source
-236b, predecessora19a and closed288a; do not repeat the existing load.
-[Rollback evidence](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-explicit-rollback/README.md).
-The handoff's latest entry has the current PIDs/paths and supersedes historical
-running-session identifiers below. Original60ns/timer/final qualification remain.
+The native simulation harness incorrectly compared BFN with SV `0113`
+(decimal113) instead of original113B (decimal75). Both comparisons now use
+`32'o113`; the actual release slice passes both simulators and rejects the old
+comparison. Passive runtime-selected windows record complete capped request/
+reply pairs and coherent wait partitions after actual113 or instruction issue.
+The corrected v2 pair is compiled and live: control driver1628/test2284,
+candidate driver1652/test2331. Candidate has completed physical initialization;
+no CPU instructions or firmware window yet. Observe the existing jobs; do not
+restart on a polling timeout. Their separate `window-control.txt` files hold
+`1 2` (epoch1 after actual113).
+[Observer, handshake and lifecycle qualification](../fpga/mister/reports/2026-10-23-native-firmware-windows/qualification/README.md).
+
+The old v1 pair deliberately stopped at400M ticks before CPU/113 after finding
+the bad BFN wait. Actual native tests exit0 with HOST_LIMIT; raw driver states
+say FAILED after saving terminal fields. The exact reporting exception was not
+retained. The runner now tolerates a closed output pipe and records real errors;
+the already-loaded v2 drivers predate this reporting fix. Inspect actual stage
+codes/logs if terminal reporting disagrees. The matching8,191-request pre-CPU
+prefix remains109,062 ->102,908 ticks (5.6427% fewer), with nearly unchanged
+service time. This is POWER-UP traffic, not Cedar speed or a hardware gain.
+[Power-up comparison](../fpga/mister/reports/2026-10-22-storage-row-writes/native-powerup-transport/README.md).
+Original60ns/timers, native firmware/fit qualification and final stress remain.
+The handoff's latest entry supersedes historical PIDs and pending results below.
 
 This section is the current delivery order; older entries below retain their
 original evidence and process history. The user requested a plan update and

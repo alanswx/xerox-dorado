@@ -24,8 +24,9 @@ ROOT=Path(__file__).resolve().parents[1]
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def prepare(stage,mapping,out,medium,qualification=None,boot_presses=1,storage_traffic=False):
+def prepare(stage,mapping,out,medium,qualification=None,boot_presses=1,storage_traffic=False,storage_windows=False):
     assert boot_presses in (1,3)
+    assert not storage_windows or storage_traffic
     assert not out.exists()
     manifests=[stage/name for name in ('storage-board-native.json',
         'r-front-ready-native.json','mc1668-candidate.json','timing-paths-native.json') if (stage/name).exists()]
@@ -90,6 +91,13 @@ def prepare(stage,mapping,out,medium,qualification=None,boot_presses=1,storage_t
         tb=inputs/'harness/tb_native_cedar.sv';body=tb.read_text();assert body.count('endmodule')==1
         tb.write_text(body.replace('endmodule',source.read_text()+'\nendmodule'))
         hashes['harness/tb_native_cedar.sv']=sha(tb)
+    if storage_windows:
+        source=ROOT/'verilog/verilator/native_cedar/storage_windows.sv.inc'
+        dest=inputs/'harness/storage_windows.sv.inc';shutil.copy2(source,dest);hashes['harness/storage_windows.sv.inc']=sha(dest)
+        tb=inputs/'harness/tb_native_cedar.sv';body=tb.read_text();assert body.count('endmodule')==1
+        tb.write_text(body.replace('endmodule',source.read_text()+'\nendmodule'))
+        hashes['harness/tb_native_cedar.sv']=sha(tb)
+        (out/'window-control.txt').write_text('1 2\n')
     # Literal readmem paths in the compiled original boards resolve from src/.
     for p in (inputs/'src').rglob('*'):
         if p.is_file()and p.suffix in ['.v','.sv']:
@@ -108,6 +116,9 @@ def prepare(stage,mapping,out,medium,qualification=None,boot_presses=1,storage_t
         host_clock_hz=host_hz,
         normal_baseboard_boot_presses=boot_presses,
         passive_storage_traffic_observer=storage_traffic,
+        passive_storage_window_observer=storage_windows,
+        window_control_path=str(out/'window-control.txt')if storage_windows else None,
+        window_initial_control='1 2\n'if storage_windows else None,
         artifacts={n:dict(path=str(p),sha256=sha(p)if p.is_file()else None)for n,p in artifacts.items()},
         no_CPU_state_or_guest_IOCB_completion=True,complete_MiSTer_Main_video_qualified=False)
     (out/'provenance.json.gz').write_bytes(gzip.compress((json.dumps(record,indent=2)+'\n').encode(),mtime=0))
@@ -140,6 +151,8 @@ def run(out):
                  *[str(inputs/n)for n in r['used_hdl']],str(inputs/'harness/xsds_model.sv'),str(inputs/'harness/tb_native_cedar.sv'),str(inputs/'harness/host.cpp')]
         execute(command,'compile',inputs/'src')
         command=[str(out/'obj/native-cedar'),'+limit-file='+str(out/'host-cycle-limit.txt')]
+        if r.get('passive_storage_window_observer'):
+            command+=['+window-control='+r['window_control_path']]
         if r.get('normal_baseboard_boot_presses',1)!=1:
             command+=['+boot-presses='+str(r['normal_baseboard_boot_presses'])]
         command+=['+'+n+'='+item['path']for n,item in r['artifacts'].items()]
@@ -147,9 +160,12 @@ def run(out):
         log=(out/'test.log').read_text();stop=re.findall(r'NATIVE_DIAGNOSTIC_STOP reason=\s*(\w+)[^\n]+',log)
         assert len(stop)==1,'No terminal diagnostic reason'
         state.update(status='TERMINAL_NATIVE_MEMORY_DIAGNOSTIC',reason=stop[0],finished=time.time(),firmware_qualified=False,desktop_qualified=False);save()
-        print(state['status'],stop[0],flush=True)
-    except BaseException:
-        state.update(status='TERMINAL_FAILED',finished=time.time());save();raise
+        # Tool handles may expire while a deliberately long diagnostic runs.
+        # A closed progress-output pipe must not overwrite the saved result.
+        try:print(state['status'],stop[0],flush=True)
+        except BrokenPipeError:pass
+    except BaseException as error:
+        state.update(status='TERMINAL_FAILED',error=repr(error),finished=time.time());save();raise
 
 
 if __name__=='__main__':
@@ -158,11 +174,13 @@ if __name__=='__main__':
     p.add_argument('--stage',type=Path);p.add_argument('--mapping',type=Path);p.add_argument('--medium',type=Path)
     p.add_argument('--qualification',type=Path,help='Completed review when stored outside the frozen stage')
     p.add_argument('--storage-traffic',action='store_true',help='Passive128-group wait attribution on qualified5c65')
+    p.add_argument('--storage-windows',action='store_true',help='Passive runtime-selected firmware windows; implies storage-traffic')
     p.add_argument('--boot-presses',type=int,choices=[1,3],default=1,
                    help='Normal original BaseBoard input: one HotBoot or three CoolBoot presses')
     a=p.parse_args()
     if a.prepare:
         assert a.stage and a.mapping and a.medium
         prepare(a.stage.resolve(),a.mapping.resolve(),a.prepare.resolve(),a.medium.resolve(),
-                a.qualification.resolve()if a.qualification else None,a.boot_presses,a.storage_traffic)
+                a.qualification.resolve()if a.qualification else None,a.boot_presses,
+                a.storage_traffic or a.storage_windows,a.storage_windows)
     else:run(a.run.resolve())

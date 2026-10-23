@@ -1,6 +1,77 @@
 # Verilog from Sil: handoff
 
-**Latest: authentic5c65 Rollback PASS; literal closed-volume cold test running.**
+**Latest (2026-10-23): 5c65 cold files/input PASS; HDMI OPEN; corrected native simulations live.**
+[Cold persistence proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-cold-checkpoint-persistence/README.md)
+retains the two-barrier close, literal288af3e9 copy, fresh FPGA/Main/cache boot,
+actual113/C release, prefilled Guest.pa/default login and germ812/profile-No.
+The saved schematic, CommandTool, Clock and icons restore. Fresh normal mouse/
+keyboard execute `Echo early57 cold`, read pre-save `///early57persist.txt` and
+POST-save `///early57after.txt`, then echo the full alphabet/digits exactly.
+Fresh trace has509read/42write request-ACK pairs,10pwrite/3fsync, no recorded
+error/gap; packet CRC/RX/abort/drop0 and pack fault clear. Historical three gaps/
+25,201 lost records remain explicit; this is not a complete historical trace.
+
+Current Main13244/daemon13243 serve `CedarOldWordEarlyCold57_20261022` on
+MiSTer14. The active cold pack is OPEN. Closed source288a remains preserved
+locally at `hardware/cold-v1/closed-source/old-early57-checkpoint.pack` under
+`build/rtl-executive/storage-old-word-native57-v1-20261022`, and remotely beside
+its volume-close record; exclude pack bytes from git. Preserve236b/a19a too.
+Use normal close barriers before a future load/copy. Old Main4355/daemon4354
+and their hardcoded capture helpers are obsolete. Cold observer94154 finished
+60 samples; all input senders finished and released controls. Loader13213 waits
+on its running Main, not a second load.
+
+Native cold screenshots58/59 are clear. A post-OSD native capture completed
+AFTER its helper's8s bound; retrieve the same request rather than repeat it.
+The clear image and timeout record are in the observer proof's field appendix.
+External HDMI remains BLACK, including six settled seconds and an F12/ESC OSD
+probe. Original2:1 interlace is intentional (HM printedp115/PDF122); do not
+force VGA_F1 low. Requested1080p30/74.25MHz is unchanged. Capture services/video
+settings have not been changed; the exact black-output cause is unproven.
+
+No hardware speed gain: same5c65,57.142857MHz/SYSPER4,140ns ordinary floor;
+last measured prelogin StartCycle issues4.02547345M/s (about24.15% of original
+nominal), not retirements or a desktop benchmark. Main remains sole SPI owner,
+with existing ARM disk buffering/direct-DDR network services.
+
+[Corrected handshake and passive firmware-window proof](../fpga/mister/reports/2026-10-23-native-firmware-windows/qualification/README.md)
+retains the real simulation harness bug: SV `0113` means decimal113, while
+C/C++ and the original packet mean octal113/decimal75. Both comparisons now
+use `32'o113`. The ACTUAL extracted release slice passes Icarus/Verilator;
+old comparisons reject in both. New passive windows start on actual113,
+instruction issue or an immediate request, retain FINAL capped replies, and
+partition clocks/groups/read classes without DUT/stimulus assignments.
+Three complete plus one aborted fixture windows agree across both engines.
+These are observer/component tests, not original firmware qualification.
+
+Corrected v2 pair is LIVE and compiled (160/161 HDL sources):
+`build/rtl-executive/native-cedar-5c65-windows-v2-20261022` driver1628/test2284;
+`build/rtl-executive/native-cedar-queue-windows-v2-20261022` driver1652/test2331.
+At the latest process check both test PIDs are running; candidate has completed
+physical initialization. Neither has CPU issues/113 yet. Both own separate
+`window-control.txt` containing `1 2`; raise epoch only to select later
+observation. Same original firmware/seed/clocks/stimulus; only three qualified
+transport sources differ. No CPU/cache/Map/IOCB state import. Continue these
+jobs/logs; never restart on an expired tool handle.
+
+Old v1 tests85205/85896 and drivers84869/85545 are ABSENT. Deliberate400M
+HOST_LIMIT after finding the wrong BFN wait produced test exit0 and no recorded
+model/device fault, but raw driver states say TERMINAL_FAILED after saving the
+terminal reason. The exact exception was not retained; preserve the discrepancy.
+The new runner guards BrokenPipeError and records exception details, with
+lifecycle controls, but the already-loaded v2 drivers predate that fix. Inspect
+actual test return codes if final reporting disagrees. V1 instruction issues/
+BFNs remainZERO; its earlier5.6427% pre-CPU prefix reduction is not Cedar speed.
+
+Next: collect original-firmware windows, compare exact ordered requests/data
+and storage waits before selecting a native fit. Then qualify66.7MHz/CDC and
+actual MIR/Ready/Hold/capture producers for60ns, all timers/corners, three fresh
+boots and two hours active disk/network/input stress including working HDMI.
+The goal remains ACTIVE; full FPGA snapshots are deferred. The original A-F
+scope is unchanged. Earlier entries below retain historical pending states.
+
+
+**Earlier: authentic5c65 Rollback PASS; cold persistence test then pending.**
 [88-member Rollback proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-explicit-rollback/README.md)
 retains ONE original Rollback, germ845/812, normal profile-No callback, restored
 schematic/CommandTool/Clock, fresh exact Echo, pre-saveearly57persist and newly

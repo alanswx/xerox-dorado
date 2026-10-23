@@ -59,7 +59,8 @@ module tb_native_cedar;
     limit=native_limit(limit_path);
     wait(!reset);repeat(3)@(negedge host_clk);
     ps2_key=11'h621; // normal Set2 C make, held before Initial chooses BFN
-    while(native_boot_request()!=0113)repeat(1024)@(negedge host_clk);
+    //113B is decimal75 on the wire. Leading-zero literals are NOT octal in SV.
+    while(native_boot_request()!=32'o113)repeat(1024)@(negedge host_clk);
     @(negedge host_clk);ps2_key=11'h021;
     $display("NATIVE_C_RELEASED host=%0d guest=%0d",host_ticks,guest_ticks);
   end
@@ -182,7 +183,7 @@ module tb_native_cedar;
     end
     if(!reset && (pack_fault || key_overflow || tx_bad || tx_dropped || rx_bad))$fatal(1,"native device fault");
     if(chip0.error_count || chip1.error_count || chip0.warning_count || chip1.warning_count)$fatal(1,"independent SDRAM model diagnostic");
-    if(!first_trap_dumped && native_boot_request()==0113 && task_id==0 && cia==12'h221)begin
+    if(!first_trap_dumped && native_boot_request()==32'o113 && task_id==0 && cia==12'h221)begin
       first_trap_dumped<=1;
       for(integer j=0;j<4096;j++)$display("NATIVE_FIRST_TRAP_RING %040h",ring[(ring_pos+j)%4096]);
       $display("NATIVE_FIRST_TRAP host=%0d machine_edges=%0d cpu=%h control=%h",host_ticks,guest_ticks,cpu_debug,control_debug);

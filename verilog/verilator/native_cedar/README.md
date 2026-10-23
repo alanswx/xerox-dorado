@@ -61,3 +61,23 @@ HDMI capture. Complete FPGA snapshots remain deferred.
 `test_host.cpp` sends a captured physical Cedar113 request and independently
 compares the returned payload against the original EB after its 512-byte header.
 Its recorded result is packet-adapter evidence, not a native firmware boot.
+
+The SystemVerilog C-release/trap comparisons now use `32'o113` explicitly.
+Leading-zero `0113` is decimal in SV and octal in C/C++; the former harness
+would have waited for the wrong boot-file number. The actual extracted release
+slice is regression-tested against both decimal113 (keep held) and the captured
+packet value75 (release), in both simulators, including a rejected old comparison.
+
+For future memory comparisons use `--storage-windows`. It adds passive
+`storage_windows.sv.inc` and `window-control.txt` (initially `1 2`): epoch1,
+trigger2 = actual Cedar113. Trigger0 is immediate,1 after an issue. Raising the
+epoch opens a later window; no stale request repeats. The observer records all
+8,192 admitted requests AND their last replies, coherent clock categories,
+first/consumed latency, fanout, per-group waits, read classes and row availability.
+It reports reset aborts/terminal partial captures explicitly. Changing this file
+selects observation only. No new guest/device-state import or stimulus bridge.
+
+`tools/test_native_storage_windows.py` validates the exact observer and actual
+C-release slice in both simulators. `tools/report_native_storage_windows.py`
+checks the raw trace/ledger and retains incomplete windows. These tests qualify
+observation, not original firmware, fitted timing or a hardware speedup.
