@@ -11,6 +11,18 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Conditional control transfer (2026-10-23) now passes BOTH engines/all four
+existing illustrative profiles,5678 events each/156Qs/56clocks/94flags. New
+23f60f6d accepts the independently specified RunRefresh direct-Set arrival
+order; g04 data and h03 Clear retain old operands. Opposite arrival descriptors
+reject403 in BOTH; wrong new-WantRunRfsh data rejects331 in BOTH. All baseline
+functions remain byte-identical. [Evidence and limits](../fpga/mister/reports/2026-10-23-control-hold/ordered/README.md).
+The root-only failed matrix below remains failed. Actual FPGA phase generation
+must supply the arrival contract; no native integration/timing/speed gain is
+claimed. Next integrate the full processor with that actual phase producer and
+close IM/parity/MCR/hold-data/DMD/B-bus before original-ROM60ns qualification.
+Full A-F, physical66.7MHz and final acceptance remain active.
+
 Current joint control integration (2026-10-23) is **INCOMPLETE, not promoted**.
 Generated156-Q/56-clock/94-flag graph closes actual CA clock/MemSH/StartCycle/
 BNT/UseDMD, CB fields, shared reset/CP and MC Hold. Six bounded comparisons

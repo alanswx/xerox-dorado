@@ -1,5 +1,31 @@
 # Verilog from Sil: handoff
 
+**Latest control progress (2026-10-23): conditional arrival transfer passes all four profiles.**
+[Original routes, eight complete comparisons and six negative controls](../fpga/mister/reports/2026-10-23-control-hold/ordered/README.md).
+Generated23f60f6d retains156Qs/56clocks/94flags and all baseline functions.
+One explicit non-architectural input describes whether l06.B RunRefresh reaches
+l03 Set before the f13 capture clock. It comes from independently declared
+delay ordering, never reference outputs. g04 dMemRun and h03 ClearMemStop retain
+old operands: their extra gate prevents forwarding new source Qs at capture.
+
+Both engines/all four existing profiles pass5678 events/all clocks>=8, with
+matching counts within each profile. Opposite early/late descriptors reject403
+in BOTH; forwarding new WantRunRfsh onto D too soon rejects331 in BOTH.
+Existing24 inherited functions/source audit plus16 route pin checks pass.
+Lossless receipt3033 members/321 blobs/1269036 compressed bytes includes the
+failed first two-descriptor prototype. Original root-only failed matrix remains
+failed and unchanged. This is conditional transfer evidence, not a native phase
+producer or physical timing qualification. No maintained RTL change/fit/load.
+
+Next/TODO: supply the arrival order from the actual FPGA clock partition and
+integrate the full processor, then close real IM/parity/MCR/hold-data/DMD/B-bus.
+Do not hardwire a test delay selection into a claim of native equivalence.
+Full A-F/60ns/timers/physical66.7MHz/Cedar/rollback/persistence/fresh boots/stress
+remain active. Hardware5c65 and volumes unchanged; last pinned rate4.025473M
+StartCycle issues/s (24.15% nominal), not a desktop/retirement benchmark.
+Native2284/2331 and observer94312 verified live at9h57m; no113/Cedar measurement
+window yet. Preserve both5B-host limits and pending C release; no restart.
+
 **Current joint-control experiment (2026-10-23): RunRefresh arrival failure isolated; not promoted.**
 [Exact wiring, passing comparisons, required failures and causal probes](../fpga/mister/reports/2026-10-23-control-hold/experiment/README.md).
 Generated b79903a9 combines156 original Qs/56 clocks/94 flags. It closes actual
