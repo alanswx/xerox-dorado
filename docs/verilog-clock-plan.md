@@ -11,6 +11,26 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest progress: actual128/16/23-bit original/candidate native wrappers both
+complete full physical-model selftest. Matching8,191-request pre-CPU read
+prefix takes109,062 ->102,908 host ticks (5.6427% fewer), with nearly unchanged
+raw-service time and fewer unowned gaps. This is actual native POWER-UP traffic,
+not Cedar speed. Its trace cap filled atCIAfff before instructions/113; a later
+firmware window is still required. Both existing simulations/drivers are live;
+expired tool handles did not stop them.
+[Exact power-up comparison and reader controls](../fpga/mister/reports/2026-10-22-storage-row-writes/native-powerup-transport/README.md).
+
+Original5c65 explicit Rollback now passes saved apps, exact keyboard, pre-save
+and post-save file readback and agreeing native/HDMI. The volume closed through
+two normal barriers and DDR revocation as288af3e9. A literal copy cold-boots
+the SAME core under Main13244/daemon13243 inCedarOldWordEarlyCold57_20261022;
+actual113/C-release and visible Guest.pa/default login pass; actual germ812
+is visible, cold desktop/file readback pending. Preserve source
+236b, predecessora19a and closed288a; do not repeat the existing load.
+[Rollback evidence](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-explicit-rollback/README.md).
+The handoff's latest entry has the current PIDs/paths and supersedes historical
+running-session identifiers below. Original60ns/timer/final qualification remain.
+
 This section is the current delivery order; older entries below retain their
 original evidence and process history. The user requested a plan update and
 goal restart. Work resumes from qualified **5c65**, retaining Native59 as a

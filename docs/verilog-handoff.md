@@ -1,5 +1,61 @@
 # Verilog from Sil: handoff
 
+**Latest: authentic5c65 Rollback PASS; literal closed-volume cold test running.**
+[88-member Rollback proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-explicit-rollback/README.md)
+retains ONE original Rollback, germ845/812, normal profile-No callback, restored
+schematic/CommandTool/Clock, fresh exact Echo, pre-saveearly57persist and newly
+created POST-saveearly57after file reads, full alphabet/digits and agreeing
+native/HDMI. Initial black Type Key was original idle behavior; normal space
+woke it. No new core/Main was loaded for Rollback. Three diagnostic gaps/25,201
+lost records remain explicit; no recorded disk error, packetCRC/RX/drop/abort0.
+The first observer PID vanished after29 records; its stale RUNNING/partial
+history is preserved. A distinct SAME-attempt followup ended normally at26.
+
+That old volume then closed through TWO normal Main/fsync barriers, no open
+pack/trace and daemon DDR mapping revoked:63,578,624 bytes, SHA
+`288af3e962945ca6bbe72333074cef56826d65b9b5b5decd29179629af5370ca`.
+No clean-guest-shutdown or complete historical trace claim. Old source236b,
+predecessora19a and changed288a remain preserved. A literal288a copy now runs
+the SAME5c65 RBF in `CedarOldWordEarlyCold57_20261022`, fresh Main13244/
+daemon13243, fresh cache and full FPGA initialization. `[DoradoOldEarlyCold57]`
+retains57.142857MHz/SYSPER4/requested1080p30. One load only. Actual original113
+request observed and C released. Visible original NameGuest.pa reached; two
+Returns accepted the already-filled name and empty password (do not append
+Guest). Cold screen22 now shows actual germ812. Profile/desktop/file readback
+is pending, not yet qualified. No new load or repeated login is needed.
+
+Local cold workdir:
+`build/rtl-executive/storage-old-word-native57-v1-20261022/hardware/cold-v1`.
+Remote loader13213/session26110 normally waits on its running Main; it is NOT
+a second pending load. Capture observer94154/session8576 is running; C sender
+session97496 and default-login sender64411 completed normally. OldMain4355/daemon4354 are CLOSED, so old
+hardcoded screenshot helpers are no longer valid; cold observer probes13244.
+Observe the existing jobs/journal; never repeat the load on a polling timeout.
+
+**Native full geometry now passes physical-model initialization; firmware still pending.**
+[19-member source-checked power-up comparison](../fpga/mister/reports/2026-10-22-storage-row-writes/native-powerup-transport/README.md)
+shows both actual128/16/23-bit wrappers complete all six full selftest passes.
+First8,191 completed raw requests agree across128 owners:109,062 control ->
+102,908 candidate host ticks (5.6427% fewer). Service26,995 ->27,039 ticks is
+essentially unchanged; unowned gaps82,066 ->75,868, same-edge handoffs5,999 ->
+7,050. Unowned time includes fabric/demand gaps, not exclusively arbitration.
+All captured reads are CIAfff BEFORE instructions/113: NOT Cedar speed and
+not a write-stream benchmark. Cap leaves one explicit unpaired request.
+`report_native_storage_traffic.py` plus rejection controls qualify the reader.
+
+Both ORIGINAL simulation jobs and drivers remain live (85205/84869 control,
+85896/85545 candidate). Previous tool sessions10485/46590 are now MISSING;
+`ps` confirms live OS jobs and unchanged inputs. Continue those PIDs/logs,
+not new copies. Their first8,192-record cap filled before firmware, so add a
+later original113/CPU capture window before fitting for a Cedar gain. Current
+runs continue toward original-ROM boot; no state injection. Memory init is
+qualified in simulation, not fitted IO/hardware. Goal ACTIVE.
+
+Local closed288a source copy is verified at
+`hardware/cold-v1/closed-source/old-early57-checkpoint.pack` within the old-word
+native workdir. Its63,578,624 bytes/hash match the two-barrier receipt; exclude
+pack bytes from git/receipt archives. The active cold pack is a different file.
+
 **Current milestone: WRITE streaming and native reset/init coordination qualified
 as components; actual native traffic diagnostic running.**
 [956-member proof](../fpga/mister/reports/2026-10-22-storage-row-writes/component/README.md)
