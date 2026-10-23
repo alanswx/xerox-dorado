@@ -1,5 +1,45 @@
 # Verilog from Sil: handoff
 
+**Current command integration (2026-10-23): actual count/IM/TPC producers PASS.**
+[Original source graph, full matrix, epoch counterexamples and frontier](../fpga/mister/reports/2026-10-23-r-front-commands/ordering/README.md).
+`dorado_r_front_commands_step.sv` retains792 Qs/9216RAM bits/68 clocks while
+closing ContA a14/a21/b15/d19/f22/f23 count decode and d20/k11 WIM/WTPC/
+RIM-or-RTPC. WIM now drives the actual control qualifier; d17's RIM/RTPC
+data uses the old MIR epoch. Distinct JCN copies are preserved. Slot8 and
+309/310/311/313 cease to be producers; unused Call12/15 package halves get
+distinct explicit315/316 slots. No added architectural state/cycle/RAM.
+
+Final `r-front-commands-full-v4-20261023`: BOTH engines/ALL six profiles pass
+13449 events,318 write-active/5604 read-active events/801 old-parity epochs.
+All792 Qs/9216 RAM bits/68 clocks and functional outputs compare; all clocks
+fire. Directed8 commands/12 FF count cases/4 JCN neighbors assert120 original
+two-/six-clock intervals and16 WriteIM phase samples. RBase/StkP, HIGH-/LOW-CP,
+late task/branch data, host hold and RAM/write-window invariants remain.
+Four damaged producers reject in BOTH after compilation: external RIM/RTPC
+check234; new d17 MIR epoch222; external WIM7146/shared mismatch; external
+count source7375/crossing mismatch. All40 actions terminal.
+
+Twelve unused package-half boundaries are traced through all selected gates;
+Call's k11 path is multi-stage. Five live/exported dependency controls reject.
+Vector decoder declarations are expanded, with agreement against the older
+scalar reader where supported. The Run-omitted cadence fixture/audit-reader
+attempts remain archived; neither required an RTL correction.
+
+Next/TODO: test the separate MIR-clock masking simplification, which aims to
+remove the measured task-priority -> MIR mux -> RAM/parity dependency without
+new state. Initial Verilator probe passes the same13449-event sequence; this
+is not timing proof or a promoted implementation. Continue broader ordering
+and LOW-CP checks before any fit. Remaining real producers include ContA l17
+feeding d17.D3 (clock1, FF UseDMD/B_Dbuf and RBMux.04), ContB IM/ASEL/BSEL/
+StopMIRClk and MemC Hold/PRhold. Preserve the previous rejected15ns fit.
+Full A-F/native60ns/timers/66.7MHz IO/ROM/Cedar/fresh boots/stress remain open.
+
+Native processes2284/2331 are unchanged and live;5B limits and `1 2` window
+controls remain. Watcher7144 ended ONLY its observation bound, with no113
+window. New read-only watcher66423 observes those same jobs in
+`native-firmware-window-watch-v2-20261023`; do not restart native simulations
+on observer expiry. Hardware5c65/Main13244/daemon13243/volumes are untouched.
+
 **Next producer probe (2026-10-23): actual MIR-driven NextMacro passes BOTH.**
 [Original e22/d21 decode, two full sequences and external-source counterexample](../fpga/mister/reports/2026-10-23-r-front-local/next-macro-probe/README.md).
 `dorado_r_front_next_macro_step.sv` differs from the qualified792-Q wrapper

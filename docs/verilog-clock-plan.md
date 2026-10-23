@@ -11,6 +11,21 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Current command family (2026-10-23): actual count-branch, WIM/WTPC and d17's
+RIM/RTPC producer now pass BOTH engines/ALL six profiles in the792-Q graph.
+13449 events/profile, all9216 RAM bits/68 clocks, real8-command/12-FF/4-JCN
+checks,120 ordinary2/extended6-clock intervals and16 WriteIM phase samples.
+Four bad sources reject in BOTH; all40 actions terminal. d17 must use old
+MIR data (new data fails222); WIM's resolved qualifier is separately retained.
+Twelve unused boundaries/five live dependency controls pass a transitive audit.
+[Command-family evidence](../fpga/mister/reports/2026-10-23-r-front-commands/ordering/README.md).
+Next test the separate MIR-clock masking simplification against the full
+graph: it targets the measured task-priority/MIR/RAM path. Initial Verilator
+probe passes, but broader ordering/LOW-CP and timing are open. Then remaining
+l17/d17, actual ContB IM/control and MemC Hold/PRhold producers. No new fit,
+native change or speed gain; full A-F remains. The old watcher ended its own
+bound; new read-only watcher66423 follows the unchanged2284/2331 simulations.
+
 Next local producer (2026-10-23): the original ContA e22/d21 NextMacro decode
 now passes the full11854-event sequence in BOTH engines (balanced profile).
 The candidate uses existing distinct MIR Qs; slot313 is obsolete. The old
