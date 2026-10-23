@@ -1,5 +1,38 @@
 # Verilog from Sil: handoff
 
+**Latest producer work (2026-10-23): local Control-A tasking/branch component PASS.**
+[104-Q source, full tests and late-clock counterexample](../fpga/mister/reports/2026-10-23-conta-local/component/README.md).
+New `dorado_conta_local_step.sv` closes StopTasks/RWTPCorRWIM with original FF
+decode, d17's six physical Qs and e21/d21/MIR branch logic. Final v12 compares
+104 Qs/23 clocks/51 flags over23512 events in BOTH engines/three profiles;
+518CP/2724MIR captures, all16tasks, all6d17 bits, real TaskingOff/On/Midas,
+199 ordinary2-clock/66 extended6-clock intervals from actual JCN encoding.
+Eleven bad candidates reject in BOTH;56 actions terminal. Twelve inherited
+functions source-compare (controller pair byte-identical; others type widening).
+
+LOW-root CP v13/v14/v15 adds1496 events/profile/engine,257CP/165MIR/173d17
+captures. Clearing a just-loaded TaskingOn creates StopTasks' clock edge, but
+task data is OLD: Switch becomes1 with stored-tasking-off/StopTasks1/root0.
+Using the new StopTasks as data fails check215 in BOTH engines/ALL profiles.
+Thirteen unused package-half boundaries are dependency-audited; three new live
+cell connections reject. Corrected spare-pin alias and bench-clock-counter
+attempts retained; final143-pin fixture asserts distinct external producer pins.
+
+Next/TODO: integrate this104-Q source into the792-Q processor/R-front cone with
+separate pre-event data and resolved-clock views. The old child's shared pin
+view must not feed final StopTasks indiscriminately to clock and data. Then
+close actual MIR/IM/Hold arrivals and shorten the functional RAM/parity path.
+Previous3330ALM/15ns combined fit remains REJECTED (-2.961ns); no refit/load or
+FPGA speed gain here. Full A-F/60ns/timers/66.7MHz IO/final boots/stress active.
+
+Existing native tests2284/2331 remain live; BOTH runtime limits extended from
+1.5B to5B host ticks without restart. Original DoradoReset allows20s+20s disk
+waits;26.25s host budget could expire earlier, particularly with storage holds.
+No assertion about the executing routine/SkipDiskWait setting. C/three-button
+input and `1 2` post113 window controls unchanged. Watcher7144 remains read-only.
+The receipt preserves the runtime amendment and source. Do not restore the old
+limit or restart these runs on an observation timeout. Hardware/volumes untouched.
+
 **Latest clock budget (2026-10-23): extended arrivals PASS; combined15ns fit REJECTED.**
 [Raw extended tests, rejected timing and path attribution](../fpga/mister/reports/2026-10-23-r-front-mir/arrival-budget/README.md).
 Both engines agree on11507 events for each PARC parity-min/parity-max and9.9ns

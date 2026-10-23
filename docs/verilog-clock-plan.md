@@ -11,6 +11,27 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest local producers (2026-10-23): StopTasks and RWTPCorRWIM are now internal
+to a104-Q Control-A component, with actual FF decode/d17/branch wiring. Both
+engines/three profiles pass23512 events; all16 tasks, all6d17 Qs, real tasking
+transitions and actual-JCN ordinary2/extended6-clock cadence. Eleven damaged
+variants reject in BOTH. The1496-event LOW-CP extension passes BOTH/ALL profiles
+and rejects a wrong new-data epoch at check215: the new StopTasks creates the
+clock edge while the task flip-flops capture old data. Thirteen spare-gate
+boundaries/three live dependency controls are audited; fixture corrections and
+all raw attempts retained.
+[Local producer evidence](../fpga/mister/reports/2026-10-23-conta-local/component/README.md).
+Next integrate104-Q producers into792-Q R-front with separate data/clock views,
+then close actual MIR/IM/Hold and shorten the measured RAM/parity path. The
+previous combined15ns fit is still REJECTED; no refit/native/speed claim.
+
+The original native pair remains running. Both runtime limits are now5B host
+ticks, extended together from1.5B without source/input/epoch changes or restart.
+Original reset code permits two20s disk waits; the previous26.25s HOST budget
+could stop before those elapsed. This is observation-budget adequacy, not proof
+of the current routine or skip setting. Actual113/epoch1 remains the observer
+trigger; retain the same jobs, seeds and controls.
+
 Latest clock composition (2026-10-23): the98-Q Control-A producer slice is
 coupled experimentally to processor/RBase/stack/RM/STK. Both engines/three
 initial profiles pass4417 events; extended PARC parity-min/parity-max and9.9ns
