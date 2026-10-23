@@ -32,11 +32,11 @@ def slack(path,model):
 
 
 def r_storage_memory(directory,qualified,processor_bits):
-    assert processor_bits in (596,636,736,752,786) and qualified['physical_bits']==processor_bits
+    assert processor_bits in (596,636,736,752,786,792) and qualified['physical_bits']==processor_bits
     assert qualified['ram_bits']==9216 and qualified['total_physical_bits']==9216+processor_bits
     if processor_bits>=636:
         assert qualified['all_R_memory_bits_compared']
-        if processor_bits==786:
+        if processor_bits in (786,792):
             assert qualified['bounded_original_graph_checks']
             assert qualified['full_producer_arrival_contract_qualified'] is False
         else:
@@ -95,6 +95,7 @@ def audit(directory,qualified,allow_missing):
               'r_front_functional':(1211,971,'r_front_functional','PASS_R_FRONT_ARRIVAL_CONTRACT','dorado_r_front_step.sv'),
               'r_front_ready':(1247,1021,'r_front_ready','PASS_R_FRONT_READY_ARRIVAL_CONTRACT','dorado_r_front_ready_step.sv'),
               'r_front_mir':(1409,1170,'r_front_mir','PASS_BOUNDED_R_FRONT_MIR_BUDGET_GATE','dorado_r_front_mir_step.sv'),
+              'r_front_mir_mask':(1429,1184,'r_front_mir_mask','PASS_BOUNDED_R_FRONT_MIR_MASK_BUDGET_GATE','dorado_r_front_commands_step.sv'),
               'r_storage':(939,709,'r_storage','PASS_R_STORAGE_ARRIVAL_CONTRACT','dorado_r_storage_step.sv')}
     assert provenance.get('component')in profiles,'Unknown fixture profile'
     expected_launch,expected_result,component,expected_status,evaluator=profiles[provenance.get('component')]
@@ -113,7 +114,10 @@ def audit(directory,qualified,allow_missing):
     if component=='r_front_mir':
         assert sha((directory/'top.sv').read_bytes())=='0ee3ad83d661d041c387324bd13c33b01fbf62f7db8cdbcd198f64c4f27799b6','Unexpected R-front/MIR fixture wiring'
         assert provenance['full_producer_arrival_contract_qualified'] is False
-    if component in ('r_front_functional','r_front_ready','r_front_mir'):
+    if component=='r_front_mir_mask':
+        assert sha((directory/'top.sv').read_bytes())=='70dfecbde9d5cd3cad02b9d7670bebd5305c645600f66a06aa470bbdcf4b774b','Unexpected masked-MIR fixture wiring'
+        assert provenance['full_producer_arrival_contract_qualified'] is False
+    if component in ('r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask'):
         assert provenance['observation_outputs_registered'] is False
         assert provenance['observation_only_outputs']==['source_pins','fa_n']
     assert not provenance['assembly_permitted']and not provenance['native_qualified']
@@ -131,11 +135,22 @@ def audit(directory,qualified,allow_missing):
         assert qualified_record['bounded_original_graph_checks']
         assert qualified_record['full_producer_arrival_contract_qualified'] is False
         assert len(qualified_record['arrivals'])==6
+    if component=='r_front_mir_mask':
+        assert (directory/'functional-gate.json').read_bytes()==(qualified/'results.json').read_bytes()
+        assert qualified_record['bounded_original_graph_checks']
+        assert qualified_record['full_producer_arrival_contract_qualified'] is False
+        assert len(qualified_record['arrivals'])==12 and len(qualified_record['negative_cases'])==2
+        assert qualified_record['candidate_sha256']=='e695318064d80a9e308ff5e76e3fd57d86bb55412a448b163da135856883dd0e'
+        properties=qualified/'mask-properties/proof.json'
+        assert sha(properties.read_bytes())==qualified_record['source_bound_properties_sha256']
+        property_record=json.loads(properties.read_text())
+        assert property_record['status']=='PASS_SOURCE_BOUND_MIR_CLOCK_MASK_PROPERTIES'
+        assert property_record['full_next_state_equivalence_proven'] is False
     evaluator_digest=qualified_record['inputs']['verilog/rtl/'+evaluator]
     assert sha((directory/evaluator).read_bytes())==evaluator_digest
     for name in provenance['files']:
         if name.endswith('.sv')and name!='top.sv':
-            if component in ('r_front','r_front_functional','r_front_ready','r_front_mir')and name=='dorado_r_front_cone.sv':
+            if component in ('r_front','r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask')and name=='dorado_r_front_cone.sv':
                 from fit_r_front import quartus_cone
                 cone=json.loads((qualified/'dorado_r_front_cone.json').read_text())
                 assert (directory/name).read_text()==quartus_cone((qualified/name).read_text())
@@ -146,6 +161,12 @@ def audit(directory,qualified,allow_missing):
             else:
                 assert sha((directory/name).read_bytes())==qualified_record['inputs']['verilog/rtl/'+name],('unqualified RTL dependency',name)
     sdc=(directory/'clock.sdc').read_text();qsf=(directory/'clock_fit.qsf').read_text()
+    if component=='r_front_mir_mask':
+        # Bind the complete project source list to the executed functional
+        # gate; a rehashed QSF cannot silently substitute another module.
+        sources=re.findall(r'^set_global_assignment -name SYSTEMVERILOG_FILE (\S+)$',qsf,re.M)
+        assert sources==['top.sv',*qualified_record['compiled_rtl_files'],'dorado_r_front_cone.sv'],'Unexpected masked-MIR source list'
+        assert not re.search(r'-name (?:VERILOG_FILE|VHDL_FILE)',qsf)
     assert sdc.splitlines()==[
         'create_clock -name host_clock -period 15.000 [get_ports host_clk]',
         'derive_clock_uncertainty',
@@ -193,7 +214,7 @@ def audit(directory,qualified,allow_missing):
         match=re.search(re.escape(label)+r'\s*:\s*([\d,]+)',summary);assert match,label
         resources[key]=int(match[1].replace(',',''))
     assert resources['memory_bits']==resources['ram_blocks']==resources['dsp']==resources['plls']==0
-    memory_bits={'r_storage':596,'r_memory':636,'r_front':736,'r_front_functional':736,'r_front_ready':752,'r_front_mir':786}
+    memory_bits={'r_storage':596,'r_memory':636,'r_front':736,'r_front_functional':736,'r_front_ready':752,'r_front_mir':786,'r_front_mir_mask':792}
     memory=r_storage_memory(directory,qualified_record,memory_bits[component])if component in memory_bits else None
     if memory:resources['mlab_memory_bits']=memory['bits']
     minimum={mode:min(r[mode]for r in records)for mode in ['setup','hold','mpw']}
@@ -206,10 +227,10 @@ def audit(directory,qualified,allow_missing):
         permitted_qsf_delta='Quartus17.0.2 LAST_QUARTUS_VERSION annotation only',
         native_qualified=False,hardware_speedup_claimed=False)
     if memory:result['memory_contract']=memory
-    if component in ('r_front_functional','r_front_ready','r_front_mir'):
+    if component in ('r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask'):
         result['observation_outputs']=dict(registered=False,names=['source_pins','fa_n'],
             scope='Post-state test observations are retained in simulation. Every state bit, clock event, functional port and unsettled check remains in the registered budget.')
-    if component=='r_front_mir':
+    if component in ('r_front_mir','r_front_mir_mask'):
         result['full_producer_arrival_contract_qualified']=False
         result['scope']='Bounded R-front/MIR implementation budget only; complete producers, native IO/ROM/timing and60ns remain open.'
     return result

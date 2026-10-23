@@ -11,6 +11,24 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest masked-clock experiment (2026-10-23): BOTH engines/ALL six profiles
+pass13515 events plus real LOW-NoDispatch MIR capture; frozen asynchronous
+view rejects6279 in BOTH. Four source-bound clock-mask properties prove; three
+invalid variants admit counterexamples. This removes task-priority capture
+data from the MIR clock cone without architectural state or extra cycles.
+[Ordering/properties](../fpga/mister/reports/2026-10-23-r-front-mir-mask/ordering-budget/README.md).
+The new15ns fit is terminal and **REJECTED**: setup-1.996ns,hold+0.137ns,
+mpw+6.116ns,3391ALMs/3001registers/9216MLAB bits. The remaining19-level/
+16.683ns path starts at old CP StopAtT1 (globalQ753), through normal0/MIR
+selection, stack address, actual stk_l read and faults[3]. All functional
+endpoints remain budgeted.20 malformed-reader controls reject; old timing
+baselines reproduce. This is not an isolated A/B with the previous786-Q fit.
+[Terminal reports/path attribution](../fpga/mister/reports/2026-10-23-r-front-mir-mask/timing-rejected/README.md).
+Next derive original control/MIR/data capture-stage boundaries and shorten
+this path, preserving late CP and old/new source epochs; then remaining
+l17/ContB IM/control/MemC Hold producers and native validation. No assembly,
+FPGA change or speed gain. The full A-F goal remains active.
+
 Current command family (2026-10-23): actual count-branch, WIM/WTPC and d17's
 RIM/RTPC producer now pass BOTH engines/ALL six profiles in the792-Q graph.
 13449 events/profile, all9216 RAM bits/68 clocks, real8-command/12-FF/4-JCN

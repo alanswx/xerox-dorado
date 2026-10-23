@@ -1,5 +1,44 @@
 # Verilog from Sil: handoff
 
+**Latest speed experiment (2026-10-23): MIR mask ordering PASS;15ns fit REJECTED.**
+[Full ordering/source properties/prepared budget](../fpga/mister/reports/2026-10-23-r-front-mir-mask/ordering-budget/README.md),
+[terminal rejected fit and exact remaining path](../fpga/mister/reports/2026-10-23-r-front-mir-mask/timing-rejected/README.md).
+The generated experiment removes task-priority data from MIR's clock view,
+retaining the real task flop and a per-wave combinational view of its
+NoDispatch asynchronous update. No architectural Q, pipeline cycle or RAM
+copy is added. The maintained command component remains3110f49e; generated
+candidatee6953180 is frozen in the tests/fit. No native instantiation/load.
+
+Final mask v4 passes BOTH engines/ALL six profiles:13515 events,328
+write-active/5608 read-active events/797 old-parity epochs per run; all792
+Qs/9216 RAM bits/68 clocks and functional ports compare. The new real LOW-root
+NoDispatch probe causes exactly one MIR capture. Freezing its asynchronous
+view fails actual MIR bits at6279 in BOTH; all28 actions terminal. Z3 proves
+four source-bound clock-mask properties and admits three bad-mask controls.
+These are controller-subset properties, not full-machine/analog equivalence.
+
+The isolated fit is terminal at `/home/alans/mister/Dorado_RFrontMask_1_20261023`;
+all five PIDs839339/839351/841068/848403/849369 are absent. Exact input readback
+permits only Quartus's version annotation. Result **REJECTED**: setup-1.996ns,
+hold+0.137ns,mpw+6.116ns;3391ALMs/3001registers/four256x9 MLABs. All source/
+RAM/constraints checks pass;20 malformed-evidence controls reject. Old Ready
+PASS/20 controls and old786-Q REJECTED/19 controls reproduce unchanged.
+
+The remaining19-level/16.683ns path is launch1390=globalQ753=ContA j02.Q1
+StopAtT1 -> d_stop/normal0 -> MIR FF mux -> stack address/carry -> actual
+stk_l read -> parity/faults[3] at result242. This differs from the previous
+786-Q circuit, so the timing numbers are not an isolated A/B speedup. Preserve
+both rejected fits. No timing exception, dropped parity/fault endpoint or load.
+
+Next/TODO: derive the actual original control/MIR and data-phase capture
+boundaries and shorten this remaining path. Keep the LOW-NoDispatch capture
+and old/new data epochs correct. Then close remaining l17/d17, ContB IM/
+ASEL/BSEL/StopMIRClk and MemC Hold/PRhold producers before native integration.
+Full A-F/native60ns/timers/66.7MHz IO/Cedar/persistence/fresh boots/stress remain.
+Hardware speed is unchanged; current57.14MHz/SYSPER4 core's last pinned prelogin
+measurement is4.025M StartCycle issues/s, not retirements or a desktop benchmark.
+The original native2284/2331 jobs and read-only watcher66423 continue unchanged.
+
 **Current command integration (2026-10-23): actual count/IM/TPC producers PASS.**
 [Original source graph, full matrix, epoch counterexamples and frontier](../fpga/mister/reports/2026-10-23-r-front-commands/ordering/README.md).
 `dorado_r_front_commands_step.sv` retains792 Qs/9216RAM bits/68 clocks while
