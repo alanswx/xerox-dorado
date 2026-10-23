@@ -1,0 +1,129 @@
+{
+  "status": "PASS_BOUNDED_MEMORY_PRODUCED_HOLD",
+  "candidate_sha256": "bd23230a24789c1544e119aaa828bf8c39d12113c8517c2faeede686fb418c90",
+  "ContB_helper_sha256": "a793d9bb15bb12bdab9b0048b94ef69462ac668498b020b890a952ebed102fea",
+  "summary": "7260 events per pass;46 original Qs;31 clocks;34 flags;96 held-data releases through three real Hold sources",
+  "primary": [
+    {
+      "profile": "fast_gates",
+      "engine": "icarus",
+      "summary": "checks=7260 physical=46 clocks=31 releases=96"
+    },
+    {
+      "profile": "fast_gates",
+      "engine": "verilator",
+      "summary": "checks=7260 physical=46 clocks=31 releases=96"
+    },
+    {
+      "profile": "later_control",
+      "engine": "icarus",
+      "summary": "checks=7260 physical=46 clocks=31 releases=96"
+    },
+    {
+      "profile": "later_control",
+      "engine": "verilator",
+      "summary": "checks=7260 physical=46 clocks=31 releases=96"
+    },
+    {
+      "profile": "balanced",
+      "engine": "icarus",
+      "summary": "checks=7260 physical=46 clocks=31 releases=96"
+    },
+    {
+      "profile": "balanced",
+      "engine": "verilator",
+      "summary": "checks=7260 physical=46 clocks=31 releases=96"
+    }
+  ],
+  "negative_cases": [
+    {
+      "mutation": "external_hold",
+      "engine": "icarus",
+      "check": 4
+    },
+    {
+      "mutation": "external_hold",
+      "engine": "verilator",
+      "check": 4
+    },
+    {
+      "mutation": "early_hold",
+      "engine": "icarus",
+      "check": 3
+    },
+    {
+      "mutation": "early_hold",
+      "engine": "verilator",
+      "check": 3
+    },
+    {
+      "mutation": "old_hold",
+      "engine": "icarus",
+      "check": 4
+    },
+    {
+      "mutation": "old_hold",
+      "engine": "verilator",
+      "check": 4
+    },
+    {
+      "mutation": "drop_reference_hold",
+      "engine": "icarus",
+      "check": 4
+    },
+    {
+      "mutation": "drop_reference_hold",
+      "engine": "verilator",
+      "check": 4
+    },
+    {
+      "mutation": "phase_polarity",
+      "engine": "icarus",
+      "check": 4
+    },
+    {
+      "mutation": "phase_polarity",
+      "engine": "verilator",
+      "check": 4
+    },
+    {
+      "mutation": "ignore_ignoreproc",
+      "engine": "icarus",
+      "check": 949
+    },
+    {
+      "mutation": "ignore_ignoreproc",
+      "engine": "verilator",
+      "check": 949
+    },
+    {
+      "mutation": "retry_clock",
+      "engine": "icarus",
+      "check": 949
+    },
+    {
+      "mutation": "retry_clock",
+      "engine": "verilator",
+      "check": 949
+    }
+  ],
+  "boundary_audit": {
+    "unused": 8,
+    "rejected_controls": 5,
+    "pin_checks": 42
+  },
+  "original_baseboard_fanout_pin_checks": 9,
+  "recipe_byte_identity": true,
+  "observation_contract": "CA enables and MemSH change at a HIGH root; isolated LOW IgnoreProc and DisHold transitions are also tested. Upstream producer arrival closure remains open.",
+  "unchanged_standalone_counterexamples": "65affeb0a original raw-CBHold handoff failures remain valid; the coupled comparisons use real memory-produced Hold.",
+  "remaining_producers": [
+    "CA MemSH/clock enables/BNT/UseDMD/reset",
+    "DisHold from original MCR k08.Q5",
+    "reference/Md/miscellaneous hold data",
+    "IM/parity/DMD"
+  ],
+  "native_integrated": false,
+  "physical_timing_qualified": false,
+  "full_producer_arrival_contract_qualified": false,
+  "hardware_speedup_claimed": false
+}

@@ -1,5 +1,38 @@
 # Verilog from Sil: handoff
 
+**Latest producer closure (2026-10-23): MemC-produced Hold + ContB MIR passes.**
+[Original phase/hold circuit, complete comparisons and remaining limits](../fpga/mister/reports/2026-10-23-contb-hold/ordering/README.md).
+Maintained `dorado_contb_hold_step.sv` SHA bd23230a and ContB helper a793d9bb
+preserve46 original Qs/31 clocks/34 flags. MemC l02/e22/e23 are actual state;
+l01/l06/h12/i18/j18 supply their original phase-1 clocks. All three wired-OR
+Hold drivers and distinct d23 fanouts replace raw CBHold input3. Original
+BaseBd j02/k01/l01 distribution is retained; l02's Hia self-reset is physical.
+
+BOTH engines/three illustrative profiles pass7260 events each. All clocks
+agree;96 held-data releases per run cover all three real Hold sources. New IM
+waits through release and captures at the following eligible edge; no early
+edge on20 MIR clocks. Seven wrong sources/epochs/clocks reject in BOTH. All
+40 actions terminal; two exact terminal pilots reused.42 pins/eight unwired
+inputs/eight unused boundaries/five live controls and nine BaseBd pins pass.
+Lossless receipt:1389 members/176 blobs/543856 compressed bytes.
+
+The old raw-input handoff counterexamples remain valid. This composition
+passes with memory-produced Hold under the tested external contract: CA
+enable/MemSH changes at HIGH root, plus isolated LOW IgnoreProc/DisHold.
+Do not claim arbitrary upstream arrivals, analog pulse width/skew, native
+operation or15ns timing. No native instantiation/fit/load or speed change.
+
+Next/TODO: couple actual ContA !Q9|Q11 clock enable, !Q23 StartCycle'a (keep
+!Q25 internal copy distinct), MemSH, BNTGtCT'a, UseDMD, ASEL/BSEL and shared
+rMIRa with this original memory Hold path. Then integrate the whole processor
+graph and close MCR k08.Q5 DisHold, actual reference/Md/miscellaneous hold
+data, IM/parity/DMD and B-bus producers. Preserve capture epochs; proceed to
+native original-ROM/60ns/timers and physical66.7MHz only with the required
+ordering/timing evidence. Full A-F and final acceptance remain active.
+Hardware5c65/Main/daemon/volumes unchanged. Native2284/2331 and watcher66423
+verified live at8h29m; no113/Cedar measurement window, host2.70B/2.95B. No
+firmware storage-speed result yet. Do not restart on an observer timeout.
+
 **Current ContB work (2026-10-23): bounded captures pass; simultaneous clock handoff remains open.**
 [Exact original wiring, comparisons and preserved counterexamples](../fpga/mister/reports/2026-10-23-contb-mir/ordering/README.md).
 Generated candidate a793d9bb preserves40 physical Qs/25 clocks/26 flags. Both

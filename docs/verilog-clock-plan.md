@@ -11,6 +11,27 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest memory producer closure (2026-10-23): original MemC l02/e22/e23 and
+phase-1 fanout now supply CBHold to ContB. Maintained bd23230a/a793d9bb are
+46 original Qs/31 clocks/34 flags, with all three Hold drivers and separate
+d23 outputs. BOTH engines/three illustrative profiles pass7260 events and96
+real held-data releases each; no early MIR edge and correct next capture.
+Seven wrong source/epoch/clock variants reject in BOTH. All40 actions terminal;
+42 pins/eight unwired/eight unused/five live controls/nine BaseBd pins pass.
+[Exact evidence and limits](../fpga/mister/reports/2026-10-23-contb-hold/ordering/README.md).
+
+The raw-CBHold handoff failure is retained. The new comparison uses original
+memory registers/clocks, with external CA enables/MemSH changing at HIGH root
+and isolated LOW IgnoreProc/DisHold probes. It is bounded producer evidence,
+not a full upstream arrival or physical pulse-width/skew proof. No native
+instantiation/fit/load, clock change or hardware speed claim.
+
+Next couple actual ContA clock enables/MemSH/BNT/UseDMD, distinct !Q23/!Q25
+stages, ContB ASEL/BSEL and shared reset to the memory Hold path. Integrate
+the complete processor graph, then remaining MCR DisHold/hold-data/IM/parity/
+DMD/B-bus producers and native original-ROM capture-stage/60ns qualification.
+Full A-F/timers/physical66.7MHz and final Cedar/persistence/boot/stress remain.
+
 Current ContB experiment (2026-10-23): the40-Q/25-clock/26-flag candidate passes
 4961 events in BOTH engines/three illustrative arrival profiles; six wrong
 variants reject in BOTH. Separate ASEL storage, real CP set/clear, active-low
