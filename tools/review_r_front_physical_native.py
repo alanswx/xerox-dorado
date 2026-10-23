@@ -65,10 +65,11 @@ def proof(d, kind):
                 run_state_sha256=sha(d / 'run-state.json'))
 
 
-def review(native, out):
+def review(native, out, collection_path=None):
     assert not out.exists()
-    collection = read(BUILD / 'r-front-physical-native-v2-terminal-20261023.tgz.json')
-    assert sha(BUILD / 'r-front-physical-native-v2-terminal-20261023.tgz') == collection['archive_sha256']
+    collection_path = collection_path or BUILD / 'r-front-physical-native-v2-terminal-20261023.tgz.json'
+    collection = read(collection_path)
+    assert sha(Path(str(collection_path)[:-5])) == collection['archive_sha256']
     for row in collection['members']:
         p = native / row['path']
         assert sha(p) == row['sha256'] and p.stat().st_size == row['bytes']
@@ -161,8 +162,9 @@ if __name__ == '__main__':
     p.add_argument('--native', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--archive', type=Path)
+    p.add_argument('--collection', type=Path)
     a = p.parse_args()
-    result, dirs = review(a.native.resolve(), a.output.resolve())
+    result, dirs = review(a.native.resolve(), a.output.resolve(), a.collection.resolve() if a.collection else None)
     print(result['status'], result['setup_min_ns'])
     if a.archive:
         archive(a.archive.resolve(), a.output.resolve(), dirs, additional_tools=[

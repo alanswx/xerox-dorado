@@ -1,5 +1,60 @@
 # Verilog from Sil: handoff
 
+Latest physical flag-window work (2026-10-23;
+[reviewed fit and complete component evidence](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md)):
+v5 is terminal and REJECTED: setup -6.235/-5.868/+3.960/+4.663 ns,
+minimum hold +0.109 ns/pulse +1.122 ns. Actual MemC a15.qa is **Aad.4a**;
+the path crosses cache tag RAM/compare -> pin386 -> control/MIR -> pointer
+next state -> RbBypass -> original l07A flag, 25 levels/23.085 ns data.
+All nine build/report stages, central/RAM/16-visible-R queries, exact compiled
+source readback and recorded process exits are retained. No image/selection.
+
+The STK OUTCLOCK question is resolved for v2/v5: all16 address bits have the
+same physical data/clock/enable drivers as the eight existing owner FFs.
+These are parallel captures, not an extra pipeline stage. The v5 reader's
+initial d/asdata packing rejection and repair without query restart are kept.
+Power-up, collisions, physical timing and native boot still require review.
+
+Physical HIGH-transparent l06/l07 flag windows now pass BOTH: 327,680 unit
+comparisons per simulator, four bad variants each; full844-Q/9,216-RAM/100-clock
+comparison with added actual C/D/Set checks; six timing profiles BOTH,12/12.
+The parent address matrix is also terminal12/12. Initial compile and event14
+integration failures remain: closed Set must be stored in the same owner
+commit; the corrected helper preserves the original settled-state check.
+Closing-capture/output controls reject15/14 in BOTH. No added state or cycle.
+
+Private native v6 is now TERMINAL and REJECTED at unchanged57.142857MHz/
+SYSPER4. All nine stages plus central/RAM/visible-R query finished; compiled
+source readback matches950 collected members and all recorded PIDs exited.
+Four-corner setup -3.878/-3.817/+3.675/+4.477ns; minimum hold+0.114ns,
+pulse+1.122ns.35,593ALMs/54,668registers. This improves v5 by2.357ns but
+still fails. Actual worst: MemC b15.qa/Aad.6a -> b12 cache tags/compare ->
+pin386 -> control Hold/MIR -> after_child212 -> RBase RAM -> low RM address
+capture, ProcL h10B/global605/upper_q17.20levels/20.717nsdata. All796central
+keepers(688primary/108copies),61history,16originalRowners/fourSRAMgroups remain.
+Native host UCP remains3input/50outputports; no image, waiver or selection.
+
+Separate v7 tests data-only stored-control/current-external inputs at ProcL
+h14(RBase/task/NextMacroDly) and l14(StkP[0:5]). BOTH balanced comparisons and
+actual D-at-clock checks pass(2181/2180 edges); four wrong-data controls reject
+at15. Crucially, the two proposed data epochs differ at ZERO tested captures.
+This is a coverage limit, not an exhaustive epoch proof. Broader pointer matrix
+PID14070 is live; freeze its probe/matrix/helper/task-event sources. A separate
+Verilator LOW-root CP stress passes12,840checks, including512transactions;
+it adds NO package captures or distinct epoch samples. Preserve that limit.
+v7 structural elaboration passes with all3 UNOPTFLAT and inherited MULTIDRIVEN
+warnings visible. Remote private builder3731193, fitter3752099, reporter3731219, project
+`/home/alans/mister/r-front-control844-physical-windows-native-v7-20261023`.
+No assembly, native promotion, firmware/phase or speed qualification.
+
+Next/TODO: finish pointer matrix; cover/prove the missing distinct capture
+epoch cases and review the remaining RBase/address crossing; inspect v7 timing
+and producer epochs without waivers. Then original-ROM/Cedar/input,
+60ns phases/all peripheral timers, separate66.7MHz SDRAM and full A-F
+Rollback/persistence/fresh boots/stress acceptance. Hardware unchanged:
+4.025473M measured StartCycle issues/s (24.15% nominal), not retirements.
+Full goal ACTIVE. The receipts below are historical observations.
+
 **Latest COMPLETE CORE result (2026-10-23): v2 fails setup by 4.630 ns;
 targeted stack-address experiment passes BOTH and v5 is building.**
 [Raw native fit, actual path, bounded proofs and pending handles](../fpga/mister/reports/2026-10-23-native-physical-fit/README.md).

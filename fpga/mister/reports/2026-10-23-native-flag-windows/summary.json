@@ -1,0 +1,697 @@
+{
+  "status": "REVIEWED_NATIVE_V5_REJECTION_AND_R_FLAG_WINDOWS",
+  "scope": "Review the rejected v5 fit, SRAM folding and bounded flag-window gates.\n\nKeep initial compile/integration/reader failures alongside corrected results.\nNo FPGA image, native selection, faster cadence or boot qualification follows.\n",
+  "native_v5_fit": {
+    "status": "REVIEWED_NATIVE_PHYSICAL_FIT_REJECTED",
+    "scope": "Review a rejected full native fit and bounded address-epoch experiments.\n\nPreserve raw source/readback, every operating condition, actual memory keeper\ncoverage, original-reference failures and remaining warnings. No native boot,\nFPGA image, 60 ns cadence, faster SDRAM or speed qualification is implied.\n",
+    "raw_members": 949,
+    "source_readback_exact": true,
+    "all_build_and_report_processes_absent": [
+      3412626,
+      3413068,
+      3412629,
+      3427287,
+      3493693,
+      3495078,
+      3495650,
+      3504684,
+      3507516,
+      3510159,
+      3513823,
+      3516809
+    ],
+    "corners": [
+      {
+        "corner": "7_slow_1100mv_100c",
+        "keepers": 84061,
+        "central": 775,
+        "primary": 688,
+        "duplicates": 87,
+        "history": 61,
+        "original_visible_R": 16,
+        "SRAM_keeper_counts": {
+          "rm_h": "576",
+          "stk_h": "584",
+          "rm_l": "576",
+          "stk_l": "584"
+        },
+        "setup_ns": -6.235,
+        "hold_ns": 0.247,
+        "mpw_ns": 1.122,
+        "worst": {
+          "slack_ns": -6.235,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a15|qa",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[2]~DUPLICATE"
+        },
+        "internal_setup": {
+          "slack_ns": -4.337,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[184]",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[0]"
+        },
+        "input_setup": {
+          "slack_ns": -6.235,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a15|qa",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[2]~DUPLICATE"
+        },
+        "output_setup": {
+          "slack_ns": -3.288,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[184]",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|rdaddr_reg[6]"
+        },
+        "unconstrained_summary": {
+          "Illegal Clocks": [
+            0,
+            0
+          ],
+          "Unconstrained Clocks": [
+            0,
+            0
+          ],
+          "Unconstrained Input Ports": [
+            3,
+            3
+          ],
+          "Unconstrained Input Port Paths": [
+            13,
+            13
+          ],
+          "Unconstrained Output Ports": [
+            50,
+            50
+          ],
+          "Unconstrained Output Port Paths": [
+            154,
+            154
+          ]
+        }
+      },
+      {
+        "corner": "7_slow_1100mv_-40c",
+        "keepers": 84061,
+        "central": 775,
+        "primary": 688,
+        "duplicates": 87,
+        "history": 61,
+        "original_visible_R": 16,
+        "SRAM_keeper_counts": {
+          "rm_h": "576",
+          "stk_h": "584",
+          "rm_l": "576",
+          "stk_l": "584"
+        },
+        "setup_ns": -5.868,
+        "hold_ns": 0.207,
+        "mpw_ns": 1.122,
+        "worst": {
+          "slack_ns": -5.868,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_d15|qb",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[0]"
+        },
+        "internal_setup": {
+          "slack_ns": -4.039,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[184]",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[0]"
+        },
+        "input_setup": {
+          "slack_ns": -5.868,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_d15|qb",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[0]"
+        },
+        "output_setup": {
+          "slack_ns": -2.789,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[184]",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|rdaddr_reg[0]"
+        },
+        "unconstrained_summary": {
+          "Illegal Clocks": [
+            0,
+            0
+          ],
+          "Unconstrained Clocks": [
+            0,
+            0
+          ],
+          "Unconstrained Input Ports": [
+            3,
+            3
+          ],
+          "Unconstrained Input Port Paths": [
+            13,
+            13
+          ],
+          "Unconstrained Output Ports": [
+            50,
+            50
+          ],
+          "Unconstrained Output Port Paths": [
+            154,
+            154
+          ]
+        }
+      },
+      {
+        "corner": "MIN_fast_1100mv_100c",
+        "keepers": 84061,
+        "central": 775,
+        "primary": 688,
+        "duplicates": 87,
+        "history": 61,
+        "original_visible_R": 16,
+        "SRAM_keeper_counts": {
+          "rm_h": "576",
+          "stk_h": "584",
+          "rm_l": "576",
+          "stk_l": "584"
+        },
+        "setup_ns": 3.96,
+        "hold_ns": 0.131,
+        "mpw_ns": 1.122,
+        "worst": {
+          "slack_ns": 3.96,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_msa3|ready_q",
+          "end": "emu:emu|network_step"
+        },
+        "internal_setup": {
+          "slack_ns": 5.646,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[194]",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[0]"
+        },
+        "input_setup": {
+          "slack_ns": 4.347,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a15|qa",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[0]"
+        },
+        "output_setup": {
+          "slack_ns": 6.387,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[194]",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|rdaddr_reg[6]"
+        },
+        "unconstrained_summary": {
+          "Illegal Clocks": [
+            0,
+            0
+          ],
+          "Unconstrained Clocks": [
+            0,
+            0
+          ],
+          "Unconstrained Input Ports": [
+            3,
+            3
+          ],
+          "Unconstrained Input Port Paths": [
+            13,
+            13
+          ],
+          "Unconstrained Output Ports": [
+            50,
+            50
+          ],
+          "Unconstrained Output Port Paths": [
+            154,
+            154
+          ]
+        }
+      },
+      {
+        "corner": "MIN_fast_1100mv_-40c",
+        "keepers": 84061,
+        "central": 775,
+        "primary": 688,
+        "duplicates": 87,
+        "history": 61,
+        "original_visible_R": 16,
+        "SRAM_keeper_counts": {
+          "rm_h": "576",
+          "stk_h": "584",
+          "rm_l": "576",
+          "stk_l": "584"
+        },
+        "setup_ns": 4.663,
+        "hold_ns": 0.109,
+        "mpw_ns": 1.122,
+        "worst": {
+          "slack_ns": 4.663,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_msa3|ready_q",
+          "end": "emu:emu|network_step"
+        },
+        "internal_setup": {
+          "slack_ns": 7.487,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[194]",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[0]"
+        },
+        "input_setup": {
+          "slack_ns": 5.459,
+          "start": "emu:emu|network_step",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[6]"
+        },
+        "output_setup": {
+          "slack_ns": 8.059,
+          "start": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[194]",
+          "end": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|rdaddr_reg[6]"
+        },
+        "unconstrained_summary": {
+          "Illegal Clocks": [
+            0,
+            0
+          ],
+          "Unconstrained Clocks": [
+            0,
+            0
+          ],
+          "Unconstrained Input Ports": [
+            3,
+            3
+          ],
+          "Unconstrained Input Port Paths": [
+            13,
+            13
+          ],
+          "Unconstrained Output Ports": [
+            50,
+            50
+          ],
+          "Unconstrained Output Port Paths": [
+            154,
+            154
+          ]
+        }
+      }
+    ],
+    "setup_min_ns": -6.235,
+    "hold_min_ns": 0.109,
+    "mpw_min_ns": 1.122,
+    "memory_parameters": {
+      "stk_h": {
+        "WIDTH_BYTEENA_A": "1",
+        "WIDTH_BYTEENA_B": "1",
+        "WIDTH_ECCSTATUS": "3",
+        "WIDTH": "9",
+        "WIDTHAD": "8",
+        "NUMWORDS": "256",
+        "FILE": "UNUSED",
+        "LPM_FILE": "UNUSED",
+        "INDATA_REG": "INCLOCK",
+        "INDATA_ACLR": "OFF",
+        "WRADDRESS_REG": "INCLOCK",
+        "WRADDRESS_ACLR": "OFF",
+        "WRCONTROL_REG": "INCLOCK",
+        "WRCONTROL_ACLR": "OFF",
+        "RDADDRESS_REG": "OUTCLOCK",
+        "RDADDRESS_ACLR": "OFF",
+        "RDCONTROL_REG": "UNREGISTERED",
+        "RDCONTROL_ACLR": "OFF",
+        "OUTDATA_REG": "UNREGISTERED",
+        "OUTDATA_ACLR": "OFF",
+        "OUTDATA_SCLR": "ON",
+        "USE_EAB": "ON",
+        "MAXIMUM_DEPTH": "2048",
+        "DEVICE_FAMILY": "Cyclone V",
+        "SUPPRESS_MEMORY_CONVERSION_WARNINGS": "OFF",
+        "INTENDED_DEVICE_FAMILY": "Stratix",
+        "ENABLE_RAM_BENCHMARKING_MODE": "OFF",
+        "RAM_BLOCK_TYPE": "LUTRAM",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "DONT_CARE",
+        "BYTE_SIZE": "8",
+        "WIDTH_BYTEENA": "1",
+        "DISABLE_LE_RAM_LIMIT_CHECK": "OFF",
+        "CBXI_PARAMETER": "dpram_dqp1",
+        "AUTO_CARRY_CHAINS": "ON",
+        "IGNORE_CARRY_BUFFERS": "OFF",
+        "AUTO_CASCADE_CHAINS": "ON",
+        "IGNORE_CASCADE_BUFFERS": "OFF"
+      },
+      "stk_l": {
+        "WIDTH_BYTEENA_A": "1",
+        "WIDTH_BYTEENA_B": "1",
+        "WIDTH_ECCSTATUS": "3",
+        "WIDTH": "9",
+        "WIDTHAD": "8",
+        "NUMWORDS": "256",
+        "FILE": "UNUSED",
+        "LPM_FILE": "UNUSED",
+        "INDATA_REG": "INCLOCK",
+        "INDATA_ACLR": "OFF",
+        "WRADDRESS_REG": "INCLOCK",
+        "WRADDRESS_ACLR": "OFF",
+        "WRCONTROL_REG": "INCLOCK",
+        "WRCONTROL_ACLR": "OFF",
+        "RDADDRESS_REG": "OUTCLOCK",
+        "RDADDRESS_ACLR": "OFF",
+        "RDCONTROL_REG": "UNREGISTERED",
+        "RDCONTROL_ACLR": "OFF",
+        "OUTDATA_REG": "UNREGISTERED",
+        "OUTDATA_ACLR": "OFF",
+        "OUTDATA_SCLR": "ON",
+        "USE_EAB": "ON",
+        "MAXIMUM_DEPTH": "2048",
+        "DEVICE_FAMILY": "Cyclone V",
+        "SUPPRESS_MEMORY_CONVERSION_WARNINGS": "OFF",
+        "INTENDED_DEVICE_FAMILY": "Stratix",
+        "ENABLE_RAM_BENCHMARKING_MODE": "OFF",
+        "RAM_BLOCK_TYPE": "LUTRAM",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "DONT_CARE",
+        "BYTE_SIZE": "8",
+        "WIDTH_BYTEENA": "1",
+        "DISABLE_LE_RAM_LIMIT_CHECK": "OFF",
+        "CBXI_PARAMETER": "dpram_dqp1",
+        "AUTO_CARRY_CHAINS": "ON",
+        "IGNORE_CARRY_BUFFERS": "OFF",
+        "AUTO_CASCADE_CHAINS": "ON",
+        "IGNORE_CASCADE_BUFFERS": "OFF"
+      },
+      "rm_h": {
+        "WIDTH_BYTEENA_A": "1",
+        "WIDTH_BYTEENA_B": "1",
+        "WIDTH_ECCSTATUS": "3",
+        "WIDTH": "9",
+        "WIDTHAD": "8",
+        "NUMWORDS": "256",
+        "FILE": "UNUSED",
+        "LPM_FILE": "UNUSED",
+        "INDATA_REG": "INCLOCK",
+        "INDATA_ACLR": "OFF",
+        "WRADDRESS_REG": "INCLOCK",
+        "WRADDRESS_ACLR": "OFF",
+        "WRCONTROL_REG": "INCLOCK",
+        "WRCONTROL_ACLR": "OFF",
+        "RDADDRESS_REG": "UNREGISTERED",
+        "RDADDRESS_ACLR": "OFF",
+        "RDCONTROL_REG": "UNREGISTERED",
+        "RDCONTROL_ACLR": "OFF",
+        "OUTDATA_REG": "UNREGISTERED",
+        "OUTDATA_ACLR": "OFF",
+        "OUTDATA_SCLR": "ON",
+        "USE_EAB": "ON",
+        "MAXIMUM_DEPTH": "2048",
+        "DEVICE_FAMILY": "Cyclone V",
+        "SUPPRESS_MEMORY_CONVERSION_WARNINGS": "OFF",
+        "INTENDED_DEVICE_FAMILY": "Stratix",
+        "ENABLE_RAM_BENCHMARKING_MODE": "OFF",
+        "RAM_BLOCK_TYPE": "LUTRAM",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "DONT_CARE",
+        "BYTE_SIZE": "8",
+        "WIDTH_BYTEENA": "1",
+        "DISABLE_LE_RAM_LIMIT_CHECK": "OFF",
+        "CBXI_PARAMETER": "dpram_v8o1",
+        "AUTO_CARRY_CHAINS": "ON",
+        "IGNORE_CARRY_BUFFERS": "OFF",
+        "AUTO_CASCADE_CHAINS": "ON",
+        "IGNORE_CASCADE_BUFFERS": "OFF"
+      },
+      "rm_l": {
+        "WIDTH_BYTEENA_A": "1",
+        "WIDTH_BYTEENA_B": "1",
+        "WIDTH_ECCSTATUS": "3",
+        "WIDTH": "9",
+        "WIDTHAD": "8",
+        "NUMWORDS": "256",
+        "FILE": "UNUSED",
+        "LPM_FILE": "UNUSED",
+        "INDATA_REG": "INCLOCK",
+        "INDATA_ACLR": "OFF",
+        "WRADDRESS_REG": "INCLOCK",
+        "WRADDRESS_ACLR": "OFF",
+        "WRCONTROL_REG": "INCLOCK",
+        "WRCONTROL_ACLR": "OFF",
+        "RDADDRESS_REG": "UNREGISTERED",
+        "RDADDRESS_ACLR": "OFF",
+        "RDCONTROL_REG": "UNREGISTERED",
+        "RDCONTROL_ACLR": "OFF",
+        "OUTDATA_REG": "UNREGISTERED",
+        "OUTDATA_ACLR": "OFF",
+        "OUTDATA_SCLR": "ON",
+        "USE_EAB": "ON",
+        "MAXIMUM_DEPTH": "2048",
+        "DEVICE_FAMILY": "Cyclone V",
+        "SUPPRESS_MEMORY_CONVERSION_WARNINGS": "OFF",
+        "INTENDED_DEVICE_FAMILY": "Stratix",
+        "ENABLE_RAM_BENCHMARKING_MODE": "OFF",
+        "RAM_BLOCK_TYPE": "LUTRAM",
+        "READ_DURING_WRITE_MODE_MIXED_PORTS": "DONT_CARE",
+        "BYTE_SIZE": "8",
+        "WIDTH_BYTEENA": "1",
+        "DISABLE_LE_RAM_LIMIT_CHECK": "OFF",
+        "CBXI_PARAMETER": "dpram_v8o1",
+        "AUTO_CARRY_CHAINS": "ON",
+        "IGNORE_CARRY_BUFFERS": "OFF",
+        "AUTO_CASCADE_CHAINS": "ON",
+        "IGNORE_CASCADE_BUFFERS": "OFF"
+      }
+    },
+    "STK_read_address_mapping_requires_review": {
+      "stk_h": "OUTCLOCK",
+      "stk_l": "OUTCLOCK",
+      "rm_h": "UNREGISTERED",
+      "rm_l": "UNREGISTERED"
+    },
+    "bounded_proofs": [
+      {
+        "directory": "r-front-control-inputs-icarus-v1-20261023",
+        "status": "PASS_R_FRONT_CONTROL_INPUT_PROJECTION",
+        "mutation": null,
+        "exact_source_transform": true,
+        "run_state_sha256": "6de6f0376e0cb12f3b80028c2304db2ac43116a2e6d3354dc87ac8bd20c95d3e"
+      },
+      {
+        "directory": "r-front-control-inputs-icarus-v2-20261023",
+        "status": "PASS_R_FRONT_CONTROL_INPUT_PROJECTION",
+        "mutation": null,
+        "exact_source_transform": true,
+        "run_state_sha256": "2009a6f88eeffb428d1d085e57ff97549dd1fe5b75a676d7001218b44531a05a"
+      },
+      {
+        "directory": "r-front-address-epoch-icarus-v1-20261023",
+        "status": "PASS_R_FRONT_ADDRESS_EPOCH_PROBE",
+        "mutation": null,
+        "exact_source_transform": true,
+        "run_state_sha256": "8fce022746e3c4f7b23eb3349679dae7de41d88271be0390fb80d0d7e8414fbe"
+      },
+      {
+        "directory": "r-front-address-zero-icarus-v1-20261023",
+        "status": "R_FRONT_ADDRESS_EPOCH_PROBE_FAILED",
+        "mutation": "zero_address",
+        "exact_source_transform": true,
+        "run_state_sha256": "4a5d8160397cbe7811a52e4efd0b71bd2ed5f27f3d9591b3da79520fcb967fe6"
+      },
+      {
+        "directory": "r-front-control-inputs-verilator-v1-20261023",
+        "status": "PASS_R_FRONT_CONTROL_INPUT_PROJECTION",
+        "mutation": null,
+        "exact_source_transform": true,
+        "run_state_sha256": "4f4ac7324eb760b3671ec03df7911381c7db68d74798e67508014b017a99f22b"
+      },
+      {
+        "directory": "r-front-control-inputs-verilator-v2-20261023",
+        "status": "PASS_R_FRONT_CONTROL_INPUT_PROJECTION",
+        "mutation": null,
+        "exact_source_transform": true,
+        "run_state_sha256": "ff9fce2b102f9cab29a90222989e1417716fb346cdc8d53633867e4183ceabf0"
+      },
+      {
+        "directory": "r-front-address-epoch-verilator-v1-20261023",
+        "status": "PASS_R_FRONT_ADDRESS_EPOCH_PROBE",
+        "mutation": null,
+        "exact_source_transform": true,
+        "run_state_sha256": "013d8c29e9e776efd3143606349f7353691f7e12d0bff711b57e8496188bd683"
+      },
+      {
+        "directory": "r-front-address-zero-verilator-v1-20261023",
+        "status": "R_FRONT_ADDRESS_EPOCH_PROBE_FAILED",
+        "mutation": "zero_address",
+        "exact_source_transform": true,
+        "run_state_sha256": "a476b8c798f726871894a1c6902e262153b89e94dadde518b93042f32ab5c4d7"
+      }
+    ],
+    "native_stages": [
+      {
+        "stage": "r-front-physical-native-stage-v4-20261023",
+        "manifest_sha256": "3c15b1be8f1bc0be57a3fc24566a403c4eea84f9c549a716a178c92cd15f5d1f",
+        "warnings": {
+          "WIDTHTRUNC": 55,
+          "WIDTHEXPAND": 50,
+          "UNSIGNED": 1,
+          "MULTIDRIVEN": 1,
+          "UNOPTFLAT": 2
+        }
+      },
+      {
+        "stage": "r-front-physical-native-stage-v5-20261023",
+        "manifest_sha256": "3d590b2773a895f1c9968749e967a4e336657d98485875bbb6fc723f62e35c78",
+        "warnings": {
+          "WIDTHTRUNC": 55,
+          "WIDTHEXPAND": 50,
+          "UNSIGNED": 1,
+          "MULTIDRIVEN": 1,
+          "UNOPTFLAT": 2
+        }
+      }
+    ],
+    "native_timing_qualified": false,
+    "firmware_qualified": false,
+    "ordinary60ns_qualified": false,
+    "speedup_qualified": false,
+    "next": "Finish broader address-epoch matrix and separate v5 full-core fit; audit actual capture epochs and STK register absorption before promotion. Preserve full A-F goal."
+  },
+  "collection_sha256": "50ff0174e07f3bc6c419ca7f04c53c04f8ad7396783f4204fbf03c9cb934c3bf",
+  "STK_parallel_capture": [
+    {
+      "directory": "stk-address-registers-v1",
+      "result_sha256": "86caea139e215e910d53a41ad23dd20e0f76c1314fad8c1d0c7f5494aaf31fc9",
+      "physical_copies": 17
+    },
+    {
+      "directory": "stk-address-registers-v5-query1",
+      "result_sha256": "a0bebb53edfb1498411f3393eb35da15df275f6357f9782a86666bcc8e1dbdf0",
+      "physical_copies": 16
+    }
+  ],
+  "unit_gates": [
+    {
+      "directory": "r-flag-window-icarus-v2-20261023",
+      "status": "PASS_R_FLAG_WINDOW",
+      "run_state_sha256": "a7ad3dab465a7b84eeb1edbb654ff06a9467e5c2723f3d399ed190c3628731e9"
+    },
+    {
+      "directory": "r-flag-window-omit_close-icarus-v2-20261023",
+      "status": "R_FLAG_WINDOW_FAILED",
+      "mutation": "omit_close",
+      "run_state_sha256": "aed1eb6fb1e74cfbddb4c9bda1e3a02d80fa7558c6854d752ba46a3b57639ef1"
+    },
+    {
+      "directory": "r-flag-window-ignore_set-icarus-v2-20261023",
+      "status": "R_FLAG_WINDOW_FAILED",
+      "mutation": "ignore_set",
+      "run_state_sha256": "08c6885ad3f83ffa955465d86e8a915416dda06dfd0f92a9787330ee81ca0ce4"
+    },
+    {
+      "directory": "r-flag-window-set_over_clock-icarus-v2-20261023",
+      "status": "R_FLAG_WINDOW_FAILED",
+      "mutation": "set_over_clock",
+      "run_state_sha256": "4e5681b23e35316c74bff15f57305557a9b5f83b6fa2c049dd0d7ec9adc8c717"
+    },
+    {
+      "directory": "r-flag-window-omit_new_set-icarus-v2-20261023",
+      "status": "R_FLAG_WINDOW_FAILED",
+      "mutation": "omit_new_set",
+      "run_state_sha256": "19bed2a13e2bdbf077f226baf145ca55d874552e77443f0dcde7bc2292e35edd"
+    },
+    {
+      "directory": "r-flag-window-verilator-v2-20261023",
+      "status": "PASS_R_FLAG_WINDOW",
+      "run_state_sha256": "2e2477ecefde8ca7e05c366bb9da7276f443525b3c1ea538e74dadb6a2c8caf9"
+    },
+    {
+      "directory": "r-flag-window-omit_close-verilator-v2-20261023",
+      "status": "R_FLAG_WINDOW_FAILED",
+      "mutation": "omit_close",
+      "run_state_sha256": "96d2a035f32aec25b6a3a1652ffdbc40111b17f1626175c33318bf35f380db63"
+    },
+    {
+      "directory": "r-flag-window-ignore_set-verilator-v2-20261023",
+      "status": "R_FLAG_WINDOW_FAILED",
+      "mutation": "ignore_set",
+      "run_state_sha256": "c497f43fd9e19cb61ebba49778931f7d655449dea9a6a2cc0cc5f188765c3d3c"
+    },
+    {
+      "directory": "r-flag-window-set_over_clock-verilator-v2-20261023",
+      "status": "R_FLAG_WINDOW_FAILED",
+      "mutation": "set_over_clock",
+      "run_state_sha256": "f6bad4916699afbd8311274659b8c83854c645313c720556132edb5a4f7d4428"
+    },
+    {
+      "directory": "r-flag-window-omit_new_set-verilator-v2-20261023",
+      "status": "R_FLAG_WINDOW_FAILED",
+      "mutation": "omit_new_set",
+      "run_state_sha256": "6615efb34caa42591b17fdb2d58201f8e075de89bf4936e999da6141af1ec164"
+    }
+  ],
+  "integration_gates": [
+    {
+      "directory": "r-front-flag-windows-icarus-v3-20261023",
+      "status": "PASS_R_FRONT_FLAG_WINDOWS",
+      "mutation": null,
+      "run_state_sha256": "65b8bceeb60efb9f34405b55a183abd0c745356a9c664c80b5a8640b7b9894e0"
+    },
+    {
+      "directory": "r-front-flag-windows-omit_flag_close-icarus-v3-20261023",
+      "status": "R_FRONT_FLAG_WINDOWS_FAILED",
+      "mutation": "omit_flag_close",
+      "run_state_sha256": "ea1612c2e8eb4cfd70a9d3f75f058bb3c492e1a6da895dc74dc7c1efe647fba2"
+    },
+    {
+      "directory": "r-front-flag-windows-hide_open_flag-icarus-v3-20261023",
+      "status": "R_FRONT_FLAG_WINDOWS_FAILED",
+      "mutation": "hide_open_flag",
+      "run_state_sha256": "de047384a8a8ecc79dfa8c7ce336b90cfdb4d0342ed5c2a8bae4e5925ce7e199"
+    },
+    {
+      "directory": "r-front-flag-windows-verilator-v3-20261023",
+      "status": "PASS_R_FRONT_FLAG_WINDOWS",
+      "mutation": null,
+      "run_state_sha256": "306d50e3c8aef7e5ea338c79beaed757ac6388bdc3327ea6b428b46f31f21b87"
+    },
+    {
+      "directory": "r-front-flag-windows-omit_flag_close-verilator-v3-20261023",
+      "status": "R_FRONT_FLAG_WINDOWS_FAILED",
+      "mutation": "omit_flag_close",
+      "run_state_sha256": "90672ddcb7d8dc0f1588a01e10c844cf6b19b596d112aa7a41f33c350146d979"
+    },
+    {
+      "directory": "r-front-flag-windows-hide_open_flag-verilator-v3-20261023",
+      "status": "R_FRONT_FLAG_WINDOWS_FAILED",
+      "mutation": "hide_open_flag",
+      "run_state_sha256": "ef9be4f1c3debe0c8c7cd39d4df01284b4dc9139ffc9d68210a17ef885161dc9"
+    }
+  ],
+  "retained_failures": [
+    {
+      "directory": "r-front-flag-windows-icarus-v1-20261023",
+      "status": "R_FRONT_FLAG_WINDOWS_FAILED",
+      "run_state_sha256": "81d68bbf922e91d8ca79243c5948877f1d124b13d1745df7bdefa85eeb9c04b4"
+    },
+    {
+      "directory": "r-front-flag-windows-icarus-v2-20261023",
+      "status": "R_FRONT_FLAG_WINDOWS_FAILED",
+      "run_state_sha256": "2b9f41862b8a58c3ca6432ec0c50ea81667e64d41e0c9d638e6c12c94c7e0645"
+    },
+    {
+      "directory": "r-front-flag-windows-verilator-v1-20261023",
+      "status": "R_FRONT_FLAG_WINDOWS_FAILED",
+      "run_state_sha256": "e1e872fbb271f2b551b3dfe1803085166dae3c41cbb8100a783d97fdf30e466c"
+    },
+    {
+      "directory": "r-front-flag-windows-verilator-v2-20261023",
+      "status": "R_FRONT_FLAG_WINDOWS_FAILED",
+      "run_state_sha256": "28f0436345c83363d85f11f5af51fb354c3d32af95a9c2d901944b8bab64c735"
+    }
+  ],
+  "profile_matrices": [
+    {
+      "directory": "r-front-address-epoch-matrix-v1-20261023",
+      "status": "PASS_R_FRONT_ADDRESS_EPOCH_PROFILE_MATRIX",
+      "cases": 12,
+      "run_state_sha256": "8b3475fccdd7b46519277e56d8382e1355ecb494ca81924d1fea797f502730a7"
+    },
+    {
+      "directory": "r-front-flag-windows-matrix-v1-20261023",
+      "status": "PASS_R_FRONT_FLAG_WINDOW_PROFILE_MATRIX",
+      "cases": 12,
+      "run_state_sha256": "9e3390e754a6316e2dbcebbf6bb2168cf45373b36170c97010d23071f44ab79a"
+    }
+  ],
+  "native_v6_stage_sha256": "00b7d60a9194bf020db35c51436a8c7e2d7d23575c16cae5ded3ba9de79052c7",
+  "native_v6_structural_warnings": {
+    "WIDTHTRUNC": 55,
+    "WIDTHEXPAND": 50,
+    "UNSIGNED": 1,
+    "MULTIDRIVEN": 1,
+    "UNOPTFLAT": 3
+  },
+  "native_timing_qualified": false,
+  "firmware_qualified": false,
+  "cadence_changed": false,
+  "speedup_qualified": false,
+  "assembly_permitted": false,
+  "next": "Review v6 actual full-core timing; audit pointer capture epochs; retain full 60ns/SDRAM and Cedar/Rollback/persistence/boot/stress goals."
+}
