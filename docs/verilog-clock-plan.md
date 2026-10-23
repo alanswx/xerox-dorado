@@ -14,10 +14,10 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 This section is the current delivery order; older entries below retain their
 original evidence and process history. The user requested a plan update and
 goal restart. Work resumes from qualified **5c65**, retaining Native59 as a
-fallback. The goal service currently reports the previous goal as **blocked**;
-creating its replacement was rejected because that goal is unfinished. The
-available goal tools cannot resume it. Use Resume or Clear in the goal UI;
-this control limitation does not prevent the engineering work below.
+fallback. The user cleared the previous blocked goal, and the replacement goal
+was successfully created **ACTIVE** on 2026-10-22. Its objective follows steps A-F
+below, starting with native 128-group wait attribution and burst protocol
+qualification. The earlier replacement rejection is resolved.
 
 **Problem: the transport serializes original parallel memory hardware, and the
 CPU has an independent phase-resolution limit.** Returning the first word early

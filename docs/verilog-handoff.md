@@ -24,10 +24,10 @@ incomplete write request/ACK history and no recorded disk errors. Explicit
 Rollback and new-file cold persistence on 5c65 remain open; the pack is not closed.
 Input senders and both Checkpoint observers are terminal; controls released.
 
-The goal service reports **blocked** on the unfinished previous goal and rejected
-a replacement. The user has explicitly requested resumption; engineering work
-is authorized and continues. Resume or Clear in the goal UI is needed to restart
-automatic goal turns because the available tools expose no resume operation.
+The user cleared the previous blocked goal, and the replacement goal is now
+**ACTIVE**. It follows the structural speed plan, beginning with native 128-group
+wait attribution and burst protocol qualification. The earlier goal-controller
+replacement rejection is resolved.
 
 **Latest:5c65 interactive Viewers/files/fresh schematic PASS; no speed gain.**
 One guarded normal load now runs Main4355/daemon4354/supervisor4305 with
@@ -8597,7 +8597,7 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Integrate audited CPU phases and actual MIR/IFU/Ready/Hold/cache/Map producers to the original60ns ordinary cadence; calibrate every peripheral timer.
 - [ ] Qualify5c65 or its accepted successor's explicit Rollback, post-save filesystem changes and close/remount/cold persistence.
 - [ ] Finish pinned speed comparisons, three independent fresh-seed boots and two hours sustained disk/network/input stress; promote maintained RTL and commit/push qualified milestones.
-- [ ] Resume or clear the unfinished blocked goal through the goal UI; the attempted replacement was rejected and tools cannot resume it. This does not block the engineering work.
+- [x] User cleared the previous blocked goal; create the replacement structural-speed goal and verify ACTIVE status.
 
 ### Active speed and authentic rollback delivery
 
