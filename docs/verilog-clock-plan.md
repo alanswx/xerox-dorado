@@ -9,7 +9,7 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Latest:5c65 is live on MiSTer14; original login/HDMI PASS, no speed gain.**
+**Latest:5c65 interactive Viewers/files/fresh schematic PASS; no speed gain.**
 One guarded normal load now runs Main4355/daemon4354/supervisor4305 with
 RBF5c6540e58993b0a56f3836abafe1235e41dd9a4e1b93f4188dddfe293dc47305.
 Unchanged Main21e6/receiver0845, matched literal236b seed,57.142857MHz/SYSPER4/
@@ -37,15 +37,50 @@ failed on full MiSTer /tmp before any load. Seven exact SD-duplicate bitstreams
 and confirmed partial upload removed,29,319,168B recovered; no logs/disks removed.
 Boot observer41003 terminal40/absent, C watcher terminal/released. Do not repeat
 preparation/load. Working `storage-old-word-native57-v1-20261022/hardware`.
-Two ordinary Returns accept visible Guest.pa; bounded desktop observer follows
-same Main4355 now. Full interactive5c65 Viewers/apps/files/original Rollback and
-cold persistence still pending; do not inherit690f firmware qualification.
-Next/TODO: finish that original startup/input/app gate; use real memory-transaction
-and phase/capture analysis for the remaining speed gap. Early read replies did
-not reduce this workload's storage pauses. Do not repeat another fit expecting
-a speedup from this unchanged component. Original60ns/all-device rates, minimal
-Main337 isolation, canonical production promotion, final3 fresh seeds and2h
-stress remain OPEN. Native59 retained, FPGA snapshots deferred, goal ACTIVE.
+Same Main4355 now runs interactive Viewers. Original34 Basic lookup names/sizes
+in order (cached payloads, not34 new transfers), profile No/BootEssentials/fonts,
+normal mouse/final-prompt focus, exact short/alphabet/digit Echo, old seed
+window57persist Type and new ///early57persist.txt write/Type PASS. New file is
+WARM-only. Final Type was visibly complete but lacked Return because shell
+substitution stripped trailing newline; one normal Return completes it. Future
+senders should pass file content directly as Python subprocess arguments.
+Original Schematic menu fetches8 files and both Eval calls return; entire fresh
+ProcH-BitSlice07 drawing, Clock/Watch/Edit icons visible on native and HDMI.
+Optional Sil unbound ImagerPress imports/loading banner remain, as on baseline;
+do not claim all optional Sil modules loaded. [121-member desktop/input/apps proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-desktop-input-apps/README.md).
+Latest bounded632read/1702write ACK pairs,111pwrite/18fsync, no recorded errors/
+gaps, good298/CRC-RX-abort-drop0, pack fault clear. Current pack NOT closed.
+Desktop43586/input45171 observers terminal48/32, all senders terminal and controls
+released. Do not repeat preparation/load. Current5c65 original Checkpoint/
+Rollback and new-file cold persistence are still pending.
+
+**Next memory experiment is component-only, not deployed.**
+Exact5c65 backend keeps req_ready false throughout READ_WAIT, even after early
+reply. Original16-group MSA trace has adjacent physical words0..7 completing
+at11464/11472/11473..11478: the next owner waits for burst drain. Native has128
+groups; this trace alone is not whole-Cedar bottleneck proof. New default-off
+BURST_READ_SUCCESSOR accepts only while consuming an early response, same burst,
+exact currently arriving beat, no early write. Physical command address/full
+burst/cache/refresh/reset rules retained, no new state/native wrapper change.
+Exploratory original144-chip MSA/control+candidate pass12012 cycles/750physical
+reads/7872writes/1111transitions/all9437184bits and canonical op/data order.
+Default-off trace exactly reproduces103659ticks; enabled102931ticks (-0.702303%)
+with747 actual successor accepts. THIS fixture only, no FPGA speed claim.
+Actual corrupted forwarded data rejects at original MSA cycle3251. Driver's
+negative log matcher expected "output differs" but got "outputs differ", so
+exited1 after all six children; original RUNNING state preserved, separate
+terminal review checks actual assertion/source hashes/absent driver+children.
+Nothing is running there; do not restart it because of the old state string.
+[495-member exploratory proof](../fpga/mister/reports/2026-10-22-storage-burst-successor/exploratory-msa/README.md).
+Workdir `storage-burst-successor-component-v1-20261022`, tool
+`prepare_storage_burst_successor.py`. NOT complete component qualification.
+Next/TODO: qualify5c65 original Checkpoint/Rollback/new-file cold readback. Before
+any burst-successor native fit, add both-simulator/all-beat/same-and-cross-line/
+wrong-row/write-exclusion/backpressure/reset/refresh57/66MHz tests and actual
+bad variants; keep complete original MSA outputs/arrays. Early read alone did
+not improve this workload. Original60ns phase/producer closure/all-device rates,
+minimal Main337 isolation, canonical production promotion, final3 fresh seeds
+and2h stress remain OPEN. Native59 retained, FPGA snapshots deferred, goal ACTIVE.
 
 **Latest:690f original Checkpoint/Rollback and cold file/input readback PASS; HDMI unresolved.**
 The now-closed warm test used Main28147/server28146/supervisor28112 and RBF
@@ -258,7 +293,7 @@ host epochs BYTE-IDENTICAL at104113/103659ticks. First fixture precheck expected
 CAPTURE1 but found0; stopped before output, corrected explicit CAPTURE1 adapter
 reproduces old trace. Failure preserved. [381-member component proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/component/README.md).
 
-**Combined corrected-source native fit/review/assembly PASS; hardware pending.**
+**Combined corrected-source native fit/review/assembly PASS (subsequently deployed above).**
 Remote `/home/alans/mister/Dorado_OldWordEarly57_1_20261022` is terminal:
 builder1968443, all nine original stages, seven supplemental reporters and
 old-word audit2077025/2102820 returned0 and their recorded processes are absent.
@@ -289,11 +324,11 @@ an instruction speedup. Initial unrelated-build scheduling guard and premature
 reporter attachment failures remain in the immutable stage receipt; neither
 changed timing constraints nor caused a second fit.
 
-Next/TODO: prepare ONE normal load of reviewed5c65 with matched236b seed,
-unchanged Main21e6/receiver0845, preserving current690f volume through normal
-close/fsync/DDR-revocation barriers. Original113/C release, pre-Guest pinned
-issues/holds measurement, then interactive Viewers/apps/files/original Rollback.
-Current690f/Main521/daemon520 on MiSTer14 remains unchanged before that load;
+At this assembly checkpoint the next action was ONE normal load of reviewed5c65
+with matched236b seed/Main21e6/receiver0845 and normal predecessor closure.
+That load, pre-Guest pinned issues/holds and interactive Viewers/apps/files
+have since passed under Main4355/daemon4354 above; original5c65 Rollback remains.
+The following690f followup describes the now-closed predecessor:
 followup native screenshot still shows schematic/tools/Clock and both exact
 file reads/alphabet echo. [Same-core followup](../fpga/mister/reports/2026-10-22-timing-paths/native57-cold-followup/README.md)
 checks identities/no recorded faults; not final stress. Last HDMI captures black, service continuously active;

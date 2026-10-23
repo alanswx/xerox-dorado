@@ -1,0 +1,13 @@
+# Exploratory SDRAM burst successor: original-MSA replay
+
+The live5c65 core's early read response showed no meaningful quiet-login speed gain. Its backend only accepts requests in IDLE, so the physical burst still excludes successor requests until all eight words drain. The frozen original-MSA trace demonstrates adjacent physical halfwords0..7: first completion11464, next11472, then one per host clock. This is component evidence, not proof of the entire Cedar bottleneck.
+
+A default-off, unqualified BURST_READ_SUCCESSOR option accepts a read only while consuming the preceding early response, only for the same physical burst and exactly the currently arriving beat. Physical address, commands, burst/cache/refresh drain and write handling remain unchanged. No extra state or native wrapper change. Prepare verifies exact qualified5c65 backend SHA22f617b61f7153dfcb879c1b287bff65276e076ecadc9a4c7f83aa220f16227d and all generated parent hashes.
+
+First original144-chip MSA/independent XSDS-pin-model replay: both control and successor pass12012 complete-board cycles,750 physical reads,7872 writes,1111 output transitions and every9437184 stored bit. All canonical operation/data records match. Default-off control raw trace is byte-identical to the prior103659-host-tick trace. Enabled version takes102931 ticks,728/0.702303% fewer in THIS write-heavy fixture,747 in-burst successor acceptances. This is not a hardware instruction-rate gain or a complete protocol proof; native remains unchanged5c65.
+
+An actual corrupted-forward-data variant is rejected by the original MSA output comparison at cycle3251 (60004 versus00004). The driver expected the substring output differs, but the original assertion says outputs differ; it therefore exited1 AFTER all six children completed. The failed driver/log/state are preserved without replay. A separate terminal review checks the exact expected assertion, all executed source hashes, positive complete-array/trace results and absent driver/child PIDs. It does not relabel this a complete passing component gate.
+
+Next: a directed, independently checked stream/backpressure/reset/all-beat/cross-line/wrong-row/write-exclusion/refresh suite in both simulators and clocks, plus actual bad variants and combined MSA replay, before any native fit. Original60ns clock/producer closure remains a separate required part of the active goal. No new Main, daemon, FPGA fit or deployment from this experiment.
+
+Lossless sources, exact fixtures, logs, raw traces, original failed driver state and terminal review are retained; binaries/compiler objects are excluded. Verify with `python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-22-storage-burst-successor/exploratory-msa`.
