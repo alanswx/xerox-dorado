@@ -44,6 +44,18 @@ service time. This is POWER-UP traffic, not Cedar speed or a hardware gain.
 Original60ns/timers, native firmware/fit qualification and final stress remain.
 The handoff's latest entry supersedes historical PIDs and pending results below.
 
+In parallel, the original Control-A MIR storage now has a source-bound explicit
+capture component:22 physical Qs across11 packages, six separate capture clocks.
+Both engines agree on12,396 events; four damaged variants reject in both.
+The native inventory checks all503 qualified source identities and three bad
+physical bindings. This closes only that register transfer slice: actual
+IM/CP arrivals, MIR clock-fanout/Ready/arbiter/phase coupling, memory/Hold/IFU,
+native timing and60ns remain open. No hardware change or new speed claim.
+[MIR component evidence](../fpga/mister/reports/2026-10-23-mir-capture/component/README.md).
+Read-only watcher7144 preserves the existing paired113 windows when available;
+its own bound cannot stop the simulations.
+
+
 This section is the current delivery order; older entries below retain their
 original evidence and process history. The user requested a plan update and
 goal restart. Work resumes from qualified **5c65**, retaining Native59 as a

@@ -1,5 +1,24 @@
 # Verilog from Sil: handoff
 
+**Clock migration follow-up: original MIR capture slice now qualified as a component.**
+[Source-bound pin inventory and both-simulator proof](../fpga/mister/reports/2026-10-23-mir-capture/component/README.md)
+checks all 503 qualified 5c65 source identities and the actual eleven Control-A MIR package
+bindings:22 physical Qs/21 wired halves, six distinct clocks. The explicit
+MIR capture slice passes12,396 events in each engine,6,112 transfers and4,102
+late-data/held-clock checks; four broken variants reject in BOTH. Preserve
+separate e23 Block/g16 PrBlock clocks and both physical d23 JCN.2or3 drivers.
+No native replacement, arrival/timing or60ns qualification yet. Next couple
+actual MIR/CP data and clock fanout to Ready/arbiter/phase, retaining the
+pre-event data epoch; memory/Hold/IFU producers remain required.
+
+Read-only watcher7144/tool90999 observes the EXISTING corrected simulation
+pair2284/2331 every30s and will preserve both113 windows and ordered-data
+comparison for review. Directory:
+`build/rtl-executive/native-firmware-window-watch-v1-20261023`.
+Its four-hour observation bound never stops either simulation. Both runs have
+completed physical initialization and remain live; CPU/113 still pending.
+Do not restart either run or the watcher on an observation timeout.
+
 **Latest (2026-10-23): 5c65 cold files/input PASS; HDMI OPEN; corrected native simulations live.**
 [Cold persistence proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-cold-checkpoint-persistence/README.md)
 retains the two-barrier close, literal288af3e9 copy, fresh FPGA/Main/cache boot,
