@@ -1,5 +1,41 @@
 # Verilog from Sil: handoff
 
+**Current integration (2026-10-23): 792-Q Control-A/processor ordering PASS.**
+[Original graph, full matrix, counterexamples and source frontier](../fpga/mister/reports/2026-10-23-r-front-local/ordering/README.md).
+`dorado_r_front_local_step.sv` composes the104-Q local producer with the
+processor/RBase/stack/RM/STK graph. Existing786 Q positions remain unchanged;
+d17 appends at791:786. It retains one9216-bit functional RAM,68 clock channels
+and shared-state/clock agreement checks. Ten generated adapters separate old
+StopTasks capture data from the resolved clock signal; inverse transformations
+must reproduce their qualified parent sources byte-for-byte. No added cycle,
+RAM copy, native instantiation or fit.
+
+Final matrix is `build/rtl-executive/r-front-local-full-v8-20261023`.
+All six profiles pass BOTH engines:11854 events,318 write-active events,
+5012 read-active events and807 old-parity capture epochs. All16 RBase entries
+at both extremes and256 StkP values are driven through real MIR/CP transactions,
+with stored TaskingOff/On rather than forcing the obsolete raw StopTasks pin.
+All100 front Qs/16 Ready Qs change; all68 clocks fire. This includes PARC
+parity-min/max and9.9ns RAM reads. Five damaged variants reject in BOTH:
+new StopTasks data/check201, old StopTasks clock/check207, new branch data/
+check262, missing NextMacro/check65 and missing jcnt crossing/check65.
+All44 compile/test actions are terminal; no failed compilation counts as a
+rejected behavior. All792 Qs/9216 RAM bits still compare after every event.
+
+Both d21 board outputs now cross from actual reference drivers: NextMacro and
+jcnt. jcnt's DecCnt gate result is unconsumed in this selected processor slice;
+direct board-crossing comparisons are required in addition to state comparisons.
+The new dependency audit proves eleven other package-half inputs unused and
+rejects five incorrect live/unused classifications or cell connections.
+
+Next/TODO: add ContA e22's actual IFUNext'a
+decode (its inputs are existing, distinct MIR Qs). Follow with branch-count
+decode/other d17 producers, ContB IM/ASEL/BSEL/StopMIRClk and MemC Hold/PRhold
+integration. Preserve separate capture-data, clock and settled-output epochs.
+Then shorten the measured functional RAM/parity path; the previous15ns fit is
+still REJECTED. All A-F/native60ns/66.7MHz IO/timers/fresh boots/stress remain.
+This entry supersedes the integration TODO immediately below.
+
 **Latest producer work (2026-10-23): local Control-A tasking/branch component PASS.**
 [104-Q source, full tests and late-clock counterexample](../fpga/mister/reports/2026-10-23-conta-local/component/README.md).
 New `dorado_conta_local_step.sv` closes StopTasks/RWTPCorRWIM with original FF

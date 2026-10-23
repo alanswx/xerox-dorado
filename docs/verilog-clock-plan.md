@@ -11,6 +11,21 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Current integration (2026-10-23):792-Q Control-A/processor composition passes
+bounded ordering (`r-front-local-full-v8-20261023`). Six profiles/BOTH engines
+pass11854 events with real MIR/CP RBase/StkP commands and stored TaskingOff/On.
+Old StopTasks data and resolved StopTasks clocks are separate; ten adapters
+inverse-check against their unchanged parents. Both d21 processor crossings
+are retained, including explicit jcnt wire comparison where its downstream
+gate result is unconsumed. All68 clocks fire; PARC parity-min/max and9.9ns
+RAM reads pass. Five damaged variants reject in BOTH; all44 actions terminal.
+Next close ContA e22's actual
+NextMacro decode, remaining branch/d17 sources, ContB IM/control arrivals and
+MemC Hold/PRhold. No new timing fit/native load or speed claim. The prior15ns
+failure and all A-F requirements remain open. This supersedes the next
+integration instruction in the preceding104-Q component's history below.
+[Combined ordering evidence](../fpga/mister/reports/2026-10-23-r-front-local/ordering/README.md).
+
 Latest local producers (2026-10-23): StopTasks and RWTPCorRWIM are now internal
 to a104-Q Control-A component, with actual FF decode/d17/branch wiring. Both
 engines/three profiles pass23512 events; all16 tasks, all6d17 Qs, real tasking
