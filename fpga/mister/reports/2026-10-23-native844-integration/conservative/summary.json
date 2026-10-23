@@ -1,0 +1,247 @@
+{
+  "status": "PASS_CONSERVATIVE_NATIVE844_STAGING_AND_ELABORATION",
+  "scope": "Review conservative native844 integration, preserving rejected diagnostics.\n\nThis receipt proves inventory, bounded component comparisons and native\nelaboration only. Live original-ROM prefixes are observations, never passes.\nNo full boot, future60ns phase contract, FPGA timing or speed qualification.\n",
+  "inventory_sha256": "1bc8b8951768e7c6afb03f458d25440fb1b30bdb62a12efc5a00eff6d7a7b932",
+  "refresh_contract": [
+    {
+      "run": "native-refresh-order-late-v2-20261023",
+      "status": "PASS_FROZEN_NATIVE_REFRESH_ORDER",
+      "result_sha256": "a012ceaaaa3af542f3b9467cf5cadea3a54f54824b3c1c4f2fe3f9761ef6927e"
+    },
+    {
+      "run": "native-refresh-order-wrong-v2-20261023",
+      "status": "NATIVE_REFRESH_ORDER_FAILED",
+      "result_sha256": "5c8e214d0d14bdc9ffd899596127f1a49ae6e931e5e45e71902a343082ff1d76"
+    }
+  ],
+  "comparisons": [
+    {
+      "run": "r-front-control-owned-inputs-icarus-v1-20261023",
+      "engine": "icarus",
+      "summary": "checks=10121 writes=242 reads=4166 epochs=391",
+      "run_state_sha256": "1eeb18a2e5117bae0b96f652be7c2719dc2d0bc3c185259d914a2adb3b7a58bd"
+    },
+    {
+      "run": "r-front-control-owned-inputs-verilator-v1-20261023",
+      "engine": "verilator",
+      "summary": "checks=10121 writes=242 reads=4166 epochs=391",
+      "run_state_sha256": "06c6d3763e9d1aefb2ba623752879f38aaf941734c590125d49a171cf7827b9a"
+    },
+    {
+      "run": "r-front-control-input-cones-icarus-v1-20261023",
+      "engine": "icarus",
+      "summary": "checks=10121 writes=242 reads=4166 epochs=391",
+      "run_state_sha256": "a1d155257eb105bb54ae9853353ee6dee1b5f15442c1578fd75b6ff994f9d59f"
+    },
+    {
+      "run": "r-front-control-input-cones-verilator-v1-20261023",
+      "engine": "verilator",
+      "summary": "checks=10121 writes=242 reads=4166 epochs=391",
+      "run_state_sha256": "8083e43be5780668e27d931ba85d671af86c1f006d70070e151c2d69cd7264cc"
+    }
+  ],
+  "stages": [
+    {
+      "directory": "r-front-control-native-stage-v1-20261023",
+      "manifest_sha256": "6a5a74b27eb53eaff0f4d5b09159181d9257990ad0b00f0f0779a4974a7611aa",
+      "source_files": 531
+    },
+    {
+      "directory": "r-front-control-native-stage-v2-20261023",
+      "manifest_sha256": "4f71bf9b8b849ebeeb1416ceeae0dd96a8f46752c5fcf65f53a1fca96a5393a4",
+      "source_files": 531
+    },
+    {
+      "directory": "r-front-control-native-stage-v3-20261023",
+      "manifest_sha256": "607320fa9b9caf165f738b1613d781d3045c78bae002d8625f1c070c32e9e0f2",
+      "source_files": 531
+    },
+    {
+      "directory": "r-front-control-native-stage-v4-20261023",
+      "manifest_sha256": "0728703015ff52dd12ecec1ccc880310c4cb487f25fef8d6d07b4a23161342f7",
+      "source_files": 531
+    },
+    {
+      "directory": "r-front-control-native-stage-v5-20261023",
+      "manifest_sha256": "eae991b1a4212af9f4d65718b815bcdc06e47ed71aa1a1dd7225f8e4d9605c2a",
+      "source_files": 531
+    },
+    {
+      "directory": "r-front-control-native-stage-v6-20261023",
+      "manifest_sha256": "bd1ced262b2a1ea7e575406db5c81cd3c62483c9a4b2828c5bd2d656fe051b34",
+      "source_files": 531
+    },
+    {
+      "directory": "r-front-control-native-stage-v7-20261023",
+      "manifest_sha256": "e0bb793bc8e1bb0b86d40dc216282f50b139b1c4c3eabd94bede7dd20bace389",
+      "source_files": 531
+    }
+  ],
+  "structural_elaborations": [
+    {
+      "directory": "r-front-control-native-structural-baseline-v1-20261023",
+      "run_state_sha256": "2388e5c6b701532f84f483e02ba370613922411fe398fa81b6d8d1997c72030a",
+      "warnings": {
+        "WIDTHTRUNC": 49,
+        "WIDTHEXPAND": 50,
+        "UNSIGNED": 1,
+        "MULTIDRIVEN": 1,
+        "UNOPTFLAT": 1
+      }
+    },
+    {
+      "directory": "r-front-control-native-structural-candidate-v1-20261023",
+      "run_state_sha256": "3b2fba76f9c3d0f505b28c521167b0bb492db469eea5b0a3cf7d307fdeb9a6dd",
+      "warnings": {
+        "WIDTHTRUNC": 55,
+        "WIDTHEXPAND": 50,
+        "UNSIGNED": 1,
+        "MULTIDRIVEN": 1,
+        "UNOPTFLAT": 3
+      }
+    },
+    {
+      "directory": "r-front-control-native-structural-candidate-v2-20261023",
+      "run_state_sha256": "033bc718fe8e222e2027b9421d20bbb7b06eb584d21dfa42790fc728ee0ef577",
+      "warnings": {
+        "WIDTHTRUNC": 55,
+        "WIDTHEXPAND": 50,
+        "UNSIGNED": 1,
+        "MULTIDRIVEN": 1,
+        "UNOPTFLAT": 3
+      }
+    },
+    {
+      "directory": "r-front-control-native-structural-candidate-v3-20261023",
+      "run_state_sha256": "e5de8f90d3325628c1cea7e8f68605bf3a81bdbf2b5e860230d984b142623ff5",
+      "warnings": {
+        "WIDTHTRUNC": 55,
+        "WIDTHEXPAND": 50,
+        "UNSIGNED": 1,
+        "MULTIDRIVEN": 1,
+        "UNOPTFLAT": 3
+      }
+    },
+    {
+      "directory": "r-front-control-native-structural-candidate-v4-20261023",
+      "run_state_sha256": "e7cf68988cc999ec33867fdb4e459dbcb0bba0d11671c46f4140abe51baeb057",
+      "warnings": {
+        "WIDTHTRUNC": 55,
+        "WIDTHEXPAND": 50,
+        "UNSIGNED": 1,
+        "MULTIDRIVEN": 1,
+        "UNOPTFLAT": 3
+      }
+    },
+    {
+      "directory": "r-front-control-native-structural-candidate-v5-20261023",
+      "run_state_sha256": "38e99c34ffb931f5ebe923c428967d47883a44ad25da20a8471fa0eb1c14739e",
+      "warnings": {
+        "WIDTHTRUNC": 55,
+        "WIDTHEXPAND": 50,
+        "UNSIGNED": 1,
+        "MULTIDRIVEN": 1,
+        "UNOPTFLAT": 3
+      }
+    },
+    {
+      "directory": "r-front-control-native-structural-candidate-v6-20261023",
+      "run_state_sha256": "efa653c0933b75865a9e183a0b54e2e7a516dd737bb1488e54eb47a47e915f05",
+      "warnings": {
+        "WIDTHTRUNC": 55,
+        "WIDTHEXPAND": 50,
+        "UNSIGNED": 1,
+        "MULTIDRIVEN": 1,
+        "UNOPTFLAT": 3
+      }
+    },
+    {
+      "directory": "r-front-control-native-structural-candidate-v7-20261023",
+      "run_state_sha256": "1bdde3cb2d9c1dbd6316d38a2f650451d6788b6d2f923ca49e76d610bcf4490e",
+      "warnings": {
+        "WIDTHTRUNC": 55,
+        "WIDTHEXPAND": 50,
+        "UNSIGNED": 1,
+        "MULTIDRIVEN": 1,
+        "UNOPTFLAT": 1
+      }
+    },
+    {
+      "directory": "r-front-control-native-unoptflat-v1-20261023",
+      "run_state_sha256": "8298360306f251219a3125981278e345f0ca543d9465e3426dd382f466f6e54b",
+      "warnings": {
+        "WIDTHTRUNC": 55,
+        "WIDTHEXPAND": 50,
+        "UNSIGNED": 1,
+        "MULTIDRIVEN": 1,
+        "UNOPTFLAT": 3
+      }
+    },
+    {
+      "directory": "r-front-control-native-unoptimized-v1-20261023",
+      "run_state_sha256": "ce8caa3803402fc34965638beb16c1cc72344f0950ae5600041ffeb06ce35288",
+      "warnings": {
+        "WIDTHTRUNC": 55,
+        "WIDTHEXPAND": 50,
+        "UNSIGNED": 1,
+        "MULTIDRIVEN": 1,
+        "UNOPTFLAT": 45
+      }
+    }
+  ],
+  "native_prefixes": [
+    {
+      "directory": "r-front-control-native-cold-v1-20261023",
+      "status": "TERMINAL_NATIVE_MEMORY_DIAGNOSTIC",
+      "host_limit": 12000000,
+      "qualification": "INSUFFICIENT_BEFORE_PHYSICAL_INITIALIZATION",
+      "run_state_sha256": "41bb62f56a443fd4e5945e184f356f0b164ced28094478a0a4d2e4cb36f50040",
+      "provenance_sha256": "988a8942aaa5aef4e631c7c3ab35d1dbddcb213a3221337fa7c290d091ad2d8c",
+      "firmware_qualified": false
+    },
+    {
+      "directory": "r-front-control-native-cold-v2-20261023",
+      "status": "VERIFIED_LIVE_PREFIX_ONLY",
+      "pid": 33395,
+      "ps": "33395 26:16 /Users/alans/dev2/Dorado/build/rtl-executive/r-front-control-native-cold-v2-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/r-front-control-native-cold-v2-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/r-front-control-native-cold-v2-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792781457.929499,
+      "run_state_sha256": "cdcaa88af4b6d72eb9d768053511f794ae5d16a11087132ac60ca7e8c3275346",
+      "provenance_sha256": "ac321b2cb790460c6d645315ab062145ef5e04b8098818e998d8ef0c16164f2f",
+      "firmware_qualified": false
+    },
+    {
+      "directory": "r-front-control-native-cold-v3-20261023",
+      "status": "VERIFIED_LIVE_PREFIX_ONLY",
+      "pid": 37871,
+      "ps": "37871 02:11 /Users/alans/dev2/Dorado/build/rtl-executive/r-front-control-native-cold-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/r-front-control-native-cold-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/r-front-control-native-cold-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792781457.951134,
+      "run_state_sha256": "a2816aabc6de7c5a9c56f54c44cfee847070e8a53904bfca121358ca2b59acf7",
+      "provenance_sha256": "1abeaafcb6d0c6527fc7ad1eb6109b8689d07694d59df2ce282a27f5626f19f8",
+      "firmware_qualified": false
+    }
+  ],
+  "export_change_only": [
+    "ProcH/ProcL unused evaluator slots127..144"
+  ],
+  "physical_RAM_consumers_changed_by_export_fix": false,
+  "canonical_R_owners": 16,
+  "evaluator_owned_Qs": 828,
+  "physical_Qs": 844,
+  "RAM_bits": 9216,
+  "ordinary_cadence_changed": false,
+  "frequency_hz": 57142857,
+  "sysper": 4,
+  "full_boot_qualified": false,
+  "future60ns_qualified": false,
+  "FPGA_timing_qualified": false,
+  "speedup_qualified": false,
+  "unexercised_clocks": [
+    43,
+    91,
+    92,
+    93,
+    95
+  ],
+  "preserved_early_RBase_overlap_failure": true,
+  "next": "Original-ROM native startup/producer correctness, accurate60ns capture phases/full15ns timing, remaining clock/tasking/timer/SDRAM and full A-F acceptance."
+}

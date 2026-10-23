@@ -16,13 +16,14 @@ import test_r_front_l17 as legacy
 from generate_r_front_control_reference import generate as reference_generate
 from generate_r_front_control_candidate import generate as candidate_generate
 from rewrite_rbase_window import rewrite as rbase_rewrite
+from rewrite_r_front_input_cones import rewrite_control,rewrite_memory
 
 PROFILES={**legacy.visible.masked.commands.parent.PROFILES,
           'early_refresh':(1750,400,1250,None,1000),
           'late_phase_only':(1750,400,2000,None,1000)}
 
 
-def bench_transform(raw,arrival,trace_check=None,actual_directed=False):
+def bench_transform(raw,arrival,trace_check=None,actual_directed=False,zero_owned=False):
     for old,new in [('[797:0]','[843:0]'),('[325:0]','[400:0]'),('rp[325:145]','rp[400:145]'),
                     ('[68:0]','[99:0]'),('0:68','0:99'),('i<69','i<100'),('i<798','i<844'),
                     ('dorado_r_front_l17_step dut','dorado_r_front_control_step dut'),
@@ -50,6 +51,11 @@ def bench_transform(raw,arrival,trace_check=None,actual_directed=False):
     raw=raw.replace(old,"   fixture[843:798]=0;fixture[843:838]=6'b001101;\n"+old)
     old='   load=1;#100;load=0;#100;load=1;#100;load=0;#100;';assert raw.count(old)==1
     raw=raw.replace(old,'   #100;'+old.strip())
+    if zero_owned:
+        old='ca=next_root;pa=pins;';assert raw.count(old)==1
+        raw=raw.replace(old,old+'pa[144:127]=0;')
+        old='pb=pins;#100;';assert raw.count(old)==1
+        raw=raw.replace(old,'pb=pins;pb[144:127]=0;#100;')
     if trace_check is not None:
         marker=' integer late_mir_before;';assert raw.count(marker)==1
         trace=f''' always @(original.l.g15.p13 or original.l.g15.p12 or original.l.g15.p11 or
@@ -125,6 +131,7 @@ def run(a):
     parent=legacy.visible.masked.commands.parent;original_run=parent.run
     mutation=a.mutation
     candidate=a.output.resolve().parent/(a.output.name+'-control-candidate.sv');metadata=candidate_generate(candidate,mutation)
+    input_cones=rewrite_control(candidate)if a.partition_input_cones else None
     reference=json.loads((a.reference/'manifest.json').read_text())
     sources=set()
     for b in reference['boards']:
@@ -143,10 +150,18 @@ def run(a):
                     row.update(parent_adapter_sha256=row['output_sha256'],output_sha256=change['output_sha256'],rbase_window_rewrite=change)
             record['rbase_window_rewrite']=change
             (out/'manifest.json').write_text(json.dumps(record,indent=2)+'\n')
+        if a.partition_input_cones:
+            change=rewrite_memory(out/'dorado_local_r_memory_step.sv',out/'dorado_local_r_port_preview.sv')
+            for row in record['files']:
+                if row['output']=='dorado_local_r_memory_step.sv':
+                    assert row['output_sha256']==change['parent_sha256']
+                    row.update(parent_adapter_sha256=row['output_sha256'],output_sha256=change['output_sha256'],input_cone_rewrite=change)
+            record['input_cone_rewrite']=change
+            (out/'manifest.json').write_text(json.dumps(record,indent=2)+'\n')
         return record
     def integrated(*args,**kwargs):
         original_bench=parent.bench
-        def bench(*bargs,**bkwargs):return bench_transform(original_bench(*bargs,**bkwargs),arrival,a.trace_check,a.actual_directed)
+        def bench(*bargs,**bkwargs):return bench_transform(original_bench(*bargs,**bkwargs),arrival,a.trace_check,a.actual_directed,a.zero_owned_r_inputs)
         kwargs['extra_sources']=sorted(set(kwargs.get('extra_sources',()))|sources)
         if a.rbase_close:kwargs['extra_sources'].append('verilog/rtl/dorado_rbase_window_step.sv')
         with patch.object(parent,'generate',reference_generate),patch.object(parent,'CANDIDATE',str(candidate.relative_to(parent.ROOT))),patch.object(parent,'bench',bench):
@@ -155,8 +170,9 @@ def run(a):
     with patch.object(parent,'run',integrated),patch.object(parent,'adapters_generate',adapters),patch.dict(parent.PROFILES,PROFILES):rc=legacy.run(a)
     p=a.output.resolve()/'run-state.json';r=json.loads(p.read_text())
     r.update(experiment='joint_processor_control_hold_pilot',physical_bits=844,ram_bits=9216,clock_channels=100,
-             joint_candidate=metadata,joint_mutation=mutation,rbase_close=a.rbase_close,actual_RBase_StkP_directed=a.actual_directed,refresh_arrival=arrival,trace_check=a.trace_check,old_raw_boundary_directed_cases_qualified=False,
+             joint_candidate=metadata,joint_mutation=mutation,rbase_close=a.rbase_close,actual_RBase_StkP_directed=a.actual_directed,owned_r_inputs_zeroed=a.zero_owned_r_inputs,refresh_arrival=arrival,trace_check=a.trace_check,old_raw_boundary_directed_cases_qualified=False,
              native_integrated=False,physical_timing_qualified=False)
+    r['partitioned_input_cones']=input_cones
     p.write_text(json.dumps(r,indent=2)+'\n');return rc
 
 
@@ -168,5 +184,7 @@ if __name__=='__main__':
     p.add_argument('--trace-check',type=int)
     p.add_argument('--rbase-close',action='store_true')
     p.add_argument('--actual-directed',action='store_true')
+    p.add_argument('--zero-owned-r-inputs',action='store_true')
+    p.add_argument('--partition-input-cones',action='store_true')
     p.add_argument('--iterations',type=int,default=256)
     sys.exit(run(p.parse_args()))

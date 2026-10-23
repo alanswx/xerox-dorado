@@ -11,6 +11,31 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest native844 integration (2026-10-23): private full-source replacement now
+elaborates at unchanged57.142857MHz/SYSPER4, preserving16 canonical native
+visible-R Qs plus828 evaluator Qs and9216 RAM bits. Exact native cell/wiring
+test binds descriptor0 to current old-RunRefresh Set capture (16 passes,
+opposite arrival rejects release case4); this is not future60ns/analog proof.
+Both engines pass10121 full comparisons with internally supplied RAM read
+input slots127..144 zeroed. Moving that cut to the BOARD exports as well
+removes the two new qh/ql UNOPTFLAT reports: v7 retains baseline loop1 and
+dual-clock buffer warning1, with warnings visible and no masks/splitting hints.
+Reviewer proves only18 export assignments change; physical RAM consumers remain
+byte-identical. [Frozen evidence and live-run limits](../fpga/mister/reports/2026-10-23-native844-integration/conservative/README.md).
+
+Freshly compiled original-ROM coldv3(stagev7) PID37871/tool38920 runs to its own
+1B host limit; coldv2(stagev1) PID33395 retains250M. First12M result was before
+physical initialization and is insufficient. Full native memory initialization
+needs about193M host ticks. Original native storage runs2284/2331/watcher94312,
+their5B bounds and C protocol stay unchanged; no113/Cedar measurement window
+yet. Live prefix is not boot qualification. No assembly/load or speed change.
+
+Next: native original-ROM/actual-source correctness; accurate60ns phase
+partition/full15ns timing; missing clock/tasking/LOW-NoDispatch and remaining
+IM/parity/MCR/hold-data/DMD/B-bus sources, timers/physical66.7MHz and full A-F
+acceptance. Early RBase overlap remains an unqualified arrival failure. Keep
+the full goal active; last pinned4.025MStartCycle issues/s remains unchanged.
+
 Latest g15 capture work (2026-10-23): explicit pre-transition write close now
 has a maintained64-bit helper, preserving state count/no reset/no extra cycle.
 Both engines pass768 legal waveform comparisons; four wrong-address/omitted-

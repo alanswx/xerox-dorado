@@ -1,5 +1,46 @@
 # Verilog from Sil: handoff
 
+**Latest native integration (2026-10-23):844-Q replacement staged; new RAM loop reports resolved.**
+[Frozen sources, ownership, refresh contract, structural diagnostics and live-run receipts](../fpga/mister/reports/2026-10-23-native844-integration/conservative/README.md).
+Inventory checks530 native inputs and123 selected storage packages/844Qs, plus
+12 RM/STK packages/9216bits. Replace119 Q packages/12 RAM packages; retain four
+native visible-R latch packages as sole owners of Q572..587 (828 central+16
+native Qs). No extra architectural state/reset or predicted R copy.
+
+Exact frozen l01/f13/l06/l03 cells/wiring establish old RunRefresh Set at
+same-host-edge native capture:16 cases pass; opposite arrival assumption rejects
+release case4. Descriptor0 applies only to existing native oversampling, not
+original analog or future60ns phase timing. Both engines pass10121 full events/
+242 writes/4166 reads/391 epochs when18 internally supplied RAM read input slots
+127..144 are zeroed; the original reference still uses its independent real RAM.
+
+Stagev7 removes those unused slots at BOARD exports as well as evaluator input.
+Reviewer verifies only18 export assignments differ fromv2; actual physical RAM
+data/parity consumers are byte-identical. Complete native elaboration now has
+only baseline UNOPTFLAT1/MULTIDRIVEN1; the two new qh/ql loops are absent without
+warning suppression, consumer masks or split_var annotations. Earlier ineffective
+central-only cuts, mask/splitting diagnostics and their passing comparisons stay
+preserved. No timing/full-boot/60ns/speed qualification or FPGA fit/load yet.
+
+Original-ROM coldv3 freshly compiles stagev7:PID37871/tool38920, own1B host limit.
+Cold v2(stagev1) PID33395/tool19990 retains250M limit. First12M prefix terminated
+before physical initialization and is insufficient; do not call it a pass.
+Native initialization takes about193M host ticks, including multiple sweeps.
+All media opensrb, simulated writes stay in host vector; monitors are passive.
+At receipt time both processes verified live, not completed. Re-poll exact jobs.
+Original native2284/2331 and watcher94312 remain live/unmodified with original5B
+limits and C protocol; last observation3.71Bhost/2.198Bguest(control),4.06B/
+2.583B(queue), no113/Cedar measurement window or fault/CRC/RX errors observed.
+
+Next/TODO: inspect native startup and actual producer/capture behavior; accurate
+60ns phase partition/full15ns timing, missing clocks/tasking/LOW-NoDispatch,
+IM/parity/MCR/hold-data/DMD/B-bus, timers/physical66.7MHz and complete A-F gates.
+Keep original early RBase overlap failure visible. Clocks remain57.142857MHz/
+SYSPER4, ordinary140ns floor; last pinned4,025,473.4492StartCycle issues/s
+(24.15% nominal), no new speed gain. Lossless receipt6718members/888blobs/
+6256859compressedbytes. Qualified5c65/Native59/Main/daemon/volumes preserved;
+full FPGA snapshots deferred. Full goal remains active.
+
 **Latest capture work (2026-10-23): explicit g15 close + actual-source RBase/StkP cases pass.**
 [Native capture rule, waveform checks, twelve full comparisons and limits](../fpga/mister/reports/2026-10-23-rbase-window/ordering/README.md).
 `dorado_rbase_window_step.sv` follows an open write window and commits the
