@@ -21,8 +21,12 @@ all executed reference SV remains byte-identical. See receipt for exact scope.
 Next/TODO: close broader producer/skew and late-memory ordering, actual IM/IFU/
 StopTasks/RWTPC/memory-Hold arrivals, then qualify the combined timing/native
 ROM path. Do not treat this bounded probe as a full arrival contract or60ns
-proof. The paired native simulations2284/2331 and watcher7144 remain running;
-no CPU/113 window yet. Hardware5c65/Main13244/daemon13243 is unchanged, including
+proof. The paired native simulations2284/2331 and watcher7144 remain running.
+Candidate first samples one StartCycle issue at990M host (zero at980M), still
+one at1040M; control remains zero at950M. This is not a retirement/Cedar boot
+or speed measurement. No113 window yet; existing limits/epoch controls unchanged.
+[Running prefix](../fpga/mister/reports/2026-10-23-r-front-mir/ordering/native-first-issue-prefix.json).
+Hardware5c65/Main13244/daemon13243 is unchanged, including
 the open cold persistence volume and unresolved black HDMI. Full structural
 goal A-F,66.7MHz physical IO, timers, fresh boots and2h stress remain active.
 

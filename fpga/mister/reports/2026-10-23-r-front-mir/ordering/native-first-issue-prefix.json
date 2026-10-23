@@ -1,0 +1,43 @@
+{
+  "scope": "Read-only running prefix; one StartCycle observation is not Cedar boot, retirement or speed qualification. Existing jobs, 1.5B host limits and epoch1-after113 controls unchanged.",
+  "observed_unix": 1792749195.003184,
+  "runs": {
+    "control": {
+      "directory": "native-cedar-5c65-windows-v2-20261022",
+      "source_log_complete_prefix_bytes": 1834225,
+      "source_log_complete_prefix_sha256": "ac40a5f2e583669ab9ad5b16834a8fea771c815f5adab101cb726bc979f570f1",
+      "first_nonzero_issue_sample_context": [],
+      "latest_sample": [
+        "NATIVE_TRAFFIC_PROGRESS host=950000000 issues=0 admitted=56913072 completed=56913072 reads=56913072 writes=0 BFN=00000000000",
+        "NATIVE_PROGRESS host=950000000 guest=474273559 initialized=1 init_addr=7fffff cpu=d0fff000 bb=1e48f7e4 control=100 keys=1 disk=         1/         0 fault=00000000:00000000 tx=0 crc=0 rx=0"
+      ],
+      "harness_sha256": "e418250138d416f985bc6496ca3819241ef86d18304ea6858c3fbb09f7e39173",
+      "issue_counter_source": [
+        "if(step && instruction_signals[4] && !traffic_issue_previous)traffic_issues++;"
+      ],
+      "window_control": "1 2\n",
+      "host_cycle_limit": "1500000000\n"
+    },
+    "candidate": {
+      "directory": "native-cedar-queue-windows-v2-20261022",
+      "source_log_complete_prefix_bytes": 1836785,
+      "source_log_complete_prefix_sha256": "cd1acbb08d3baeb7ce95891f865c5eb538fc20597bde2b246dc3fd5462b057bd",
+      "first_nonzero_issue_sample_context": [
+        "NATIVE_TRAFFIC_PROGRESS host=980000000 issues=0 admitted=65751088 completed=65751088 reads=65751088 writes=0 BFN=00000000000",
+        "NATIVE_PROGRESS host=980000000 guest=547924030 initialized=1 init_addr=7fffff cpu=d0fff000 bb=1e4801ef control=100 keys=1 disk=         1/         0 fault=00000000:00000000 tx=0 crc=0 rx=0",
+        "NATIVE_TRAFFIC_PROGRESS host=990000000 issues=1 admitted=66544880 completed=66544880 reads=66544880 writes=0 BFN=00000000000",
+        "NATIVE_PROGRESS host=990000000 guest=554537855 initialized=1 init_addr=7fffff cpu=c0fc7000 bb=1f4c01fd control=10c keys=1 disk=         1/         0 fault=00000000:00000000 tx=0 crc=0 rx=0"
+      ],
+      "latest_sample": [
+        "NATIVE_TRAFFIC_PROGRESS host=1040000000 issues=1 admitted=70510299 completed=70510298 reads=70510299 writes=0 BFN=00000000000",
+        "NATIVE_PROGRESS host=1040000000 guest=587581572 initialized=1 init_addr=7fffff cpu=c0fc7000 bb=1f48f4e0 control=10c keys=1 disk=         1/         0 fault=00000000:00000000 tx=0 crc=0 rx=0"
+      ],
+      "harness_sha256": "e418250138d416f985bc6496ca3819241ef86d18304ea6858c3fbb09f7e39173",
+      "issue_counter_source": [
+        "if(step && instruction_signals[4] && !traffic_issue_previous)traffic_issues++;"
+      ],
+      "window_control": "1 2\n",
+      "host_cycle_limit": "1500000000\n"
+    }
+  }
+}

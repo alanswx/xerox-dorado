@@ -38,8 +38,10 @@ The native simulation harness incorrectly compared BFN with SV `0113`
 comparison. Passive runtime-selected windows record complete capped request/
 reply pairs and coherent wait partitions after actual113 or instruction issue.
 The corrected v2 pair is compiled and live: control driver1628/test2284,
-candidate driver1652/test2331. Candidate has completed physical initialization;
-no CPU instructions or firmware window yet. Observe the existing jobs; do not
+candidate driver1652/test2331. Both have completed physical initialization.
+Candidate first samples one StartCycle issue at990M host, still one at1040M;
+control remains zero at950M. No113 firmware window yet; one issue is not a
+retirement/Cedar boot or speed result. Observe the existing jobs; do not
 restart on a polling timeout. Their separate `window-control.txt` files hold
 `1 2` (epoch1 after actual113).
 [Observer, handshake and lifecycle qualification](../fpga/mister/reports/2026-10-23-native-firmware-windows/qualification/README.md).
