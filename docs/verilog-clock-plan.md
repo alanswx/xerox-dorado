@@ -11,6 +11,24 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest actual producer closure (2026-10-23): original ContA l17 is now coupled
+through j19/f13 clk1 fanout, g03/e01 data and d17 feedback. Six original Qs
+append to798; all9216RAM/69clocks/functional ports compare. ALL six profiles/
+BOTH engines pass13932 events,328 writes/5800 reads/797 epochs. Wrong external
+feedback and wrong Clock0 reject at17 in BOTH. Two extra full LOW-B probes
+pass14071 events, including hold/capture/actual d17 feedback. All36 actions
+terminal. Sixteen unused-input paths/five live/export controls and exact
+clock/TrueAC wiring pass. [Lossless ordering evidence](../fpga/mister/reports/2026-10-23-r-front-l17/ordering/README.md).
+Maintained665188a2 generates from maintained3110f49e via the byte-identical
+MIR-mask transform. The original failed aggregation is preserved; an exact-
+source read-only review corrects the mutation-metadata classification only.
+Next close actual ContB IM/ASEL/BSEL/StopMIRClk, MemC Hold/PRhold and B-bus
+producers before native integration. No new798-Q timing/native/speed result;
+the older792-Q0.382ns shortfall does not qualify the larger circuit. Full
+A-F/original60ns/timers/physical66.7MHz and final Cedar/persistence/boot/stress
+acceptance remain open. Hardware unchanged.
+
+
 Latest R flag-output factorization (2026-10-23): source-bound binary proof
 UNSAT, two bad-source controls SAT; both full original graphs pass13515
 events/792Qs/9216RAM/68clocks including late LOW-NoDispatch. All physical latch

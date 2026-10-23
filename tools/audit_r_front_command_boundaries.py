@@ -50,7 +50,7 @@ def cell_dependencies(root, kind):
     return result
 
 
-def audit(root, manifest, exported_call=False):
+def audit(root, manifest, exported_call=False, boundaries=None):
     board = load_board(str(root/BOARD))
     selected = manifest['boards'][0]
     seq = set(selected['sequential'])
@@ -60,9 +60,12 @@ def audit(root, manifest, exported_call=False):
         observed.add('Call')
     _, old = plan(root)
     bindings = selected['boundary_bindings']
-    extras = {n: bindings[n] for n in old if n in bindings}
-    extras.update({n: bindings[n] for n in ['Call12', 'Call15']})
-    assert len(extras) == 12
+    if boundaries is None:
+        extras = {n: bindings[n] for n in old if n in bindings}
+        extras.update({n: bindings[n] for n in ['Call12', 'Call15']})
+        assert len(extras) == 12
+    else:
+        extras = {n: bindings[n] for n in boundaries}
     pin_net = {(p['pkg'], p['pin']): n for n, r in board.nets.items() for p in r['pins']}
     cells = set()
     dependencies = {}

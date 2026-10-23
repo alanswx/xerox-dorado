@@ -1,5 +1,38 @@
 # Verilog from Sil: handoff
 
+**Latest producer closure (2026-10-23): actual ContA l17 -> d17 passes.**
+[Original pins, full matrix, LOW-B probes and preserved failed aggregation](../fpga/mister/reports/2026-10-23-r-front-l17/ordering/README.md).
+Maintained `dorado_r_front_l17_step.sv` SHA665188a2 retains all792 old Qs and
+appends six original l17 Qs at797:792;9216RAM bits and69 clocks. Actual clk1'Da
+uses preFH'/Control-AQ20, distinct from Clock0/Q25. Original UseDMD/B_Dbuf,
+d17 feedback and e01/g03 RBMux data replace old297/299/300/308/312 producers.
+BMux.04 remains a live B-bus boundary at317; other new gate-half inputs remain
+explicit. Twenty physical clock/feedback pin checks and real TrueAC derivation.
+
+ALL six profiles/BOTH engines pass13932 events,328 writes/5800 reads/797 epochs,
+all798Qs/9216RAM/69clocks and original functional ports. All six l17 bits change;
+all clocks fire. Existing LOW-NoDispatch, old-MIR, RBase/StkP and IM/TPC cadence
+checks remain. Old external feedback and wrong Clock0 variants reject at17
+in BOTH. Two additional complete LOW-B probes pass14071 events, exercising
+both directions of old hold, clk1 capture and actual d17 feedback. All36 actions
+terminal. Sixteen unused boundaries/five live/exported controls pass; old
+command audit12/five reproduces.
+
+The first aggregation failed only its reused mutation-name metadata check;
+its exact mutant bytes/test failures are retained. Independent read-only
+review validates12 passes/four rejects without overwriting or restarting.
+Driver metadata and future pilot hash classification corrected. Pure MIR-mask
+extraction reproduces both good/bad SV byte-identically; l17 now generates
+from maintained sources alone. No new15ns fit/native load or speed claim.
+
+Next/TODO: actual ContB IM/ASEL/BSEL/StopMIRClk, MemC Hold/PRhold and B-bus
+source closure, then capture-stage/native original-ROM integration. Previous
+792-Q0.382ns timing shortfall does not qualify this798-Q circuit. Full A-F/
+60ns/timers/physical66.7MHz/Cedar/rollback/persistence/fresh boots/stress remain.
+Hardware5c65/Main/daemon/volumes and native2284/2331 jobs untouched; still no113
+measurement window in the long native comparisons.
+
+
 **Latest flag experiment (2026-10-23): binary equivalent; timing worse, REJECTED.**
 [Source proof, new graph comparisons and terminal fit](../fpga/mister/reports/2026-10-23-r-front-flags/experiment/README.md).
 The flag output's three-latch combination can factor into one source mux in

@@ -159,11 +159,12 @@ def bench(path,iterations,random,cp,low_cp,late_tasking=False,front_directed=Fal
  return raw
 
 
-def run(base,out,iterations,engine,profile,random,cp,low_cp,late_tasking,mutation,front_directed,cone_rewrite=None):
+def run(base,out,iterations,engine,profile,random,cp,low_cp,late_tasking,mutation,front_directed,cone_rewrite=None,extra_sources=()):
  assert not out.exists();out.mkdir(parents=True);inputs=out/'inputs'
  parent=json.loads((base/'results.json').read_text());assert parent['status']=='PASS_R_FRONT_READY_ARRIVAL_CONTRACT'
  names=set(parent['inputs'])-{'tb_r_front_ready.sv'}
  names.update([CANDIDATE,'verilog/rtl/dorado_conta_local_step.sv'])
+ names.update(extra_sources)
  for m in list(sys.modules.values()):
   n=getattr(m,'__file__',None)
   if n and Path(n).resolve().parent==ROOT/'tools':names.add(str(Path(n).resolve().relative_to(ROOT)))
