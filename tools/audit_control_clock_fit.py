@@ -129,6 +129,47 @@ def stack_adder_bridge(qualified, record):
             assert r['result']=='REJECTED_CARRY_ERROR' and test_action['returncode']==1
 
 
+def visible_bridge(qualified,record):
+    """Check the source-bound complementary-window proof and exact RTL delta."""
+    assert record['arrival_qualification_method']=='binary_visible_nonoverlap_equivalence_bridge'
+    assert record['parent_operand_sha256']=='d4d39beb23d07dd54d978b56bb7fded9703b667291fff22707f5f438d73f9f30'
+    assert record['visible_operand_sha256']=='2e760e63e1a4332b4f0af567b22044fff5f12e8e6ee04e672030a15a2733724b'
+    assert sha((qualified/'visible-proof/results.json').read_bytes())==record['visible_proof_sha256']
+    assert sha((qualified/'inherited-mask-gate.json').read_bytes())==record['inherited_mask_gate_sha256']
+    inherited=json.loads((qualified/'inherited-mask-gate.json').read_text())
+    assert inherited['status']=='PASS_BOUNDED_R_FRONT_MIR_MASK_BUDGET_GATE'
+    assert record['inherited_arrivals']==inherited['arrivals'] and len(record['inherited_arrivals'])==12
+    assert record['inherited_negative_cases']==inherited['negative_cases'] and len(record['inherited_negative_cases'])==2
+    assert record['negative_cases']==[]
+    assert len(record['arrivals'])==2 and {r['engine']for r in record['arrivals']}=={'icarus','verilator'}
+    assert all(r['summary']=='checks=13515 writes=328 reads=5608 epochs=797'for r in record['arrivals'])
+    assert inherited['candidate_sha256']==record['candidate_sha256']
+    assert inherited['source_bound_properties_sha256']==record['source_bound_properties_sha256']
+    proof=json.loads((qualified/'visible-proof/results.json').read_text())
+    assert proof['status']=='PASS_BINARY_R_VISIBLE_NONOVERLAP'
+    assert [r['result']for r in proof['cases']]==['unsat','sat','sat']
+    assert all(r['returncode']==0 for r in proof['cases'])
+    assert proof['full_next_state_equivalence_proven'] is False and proof['analog_skew_qualified'] is False
+    assert proof['native_integrated'] is False
+    assert {r['board']for r in proof['original_clock_wiring']}=={'ProcH-Rev-Ce','ProcL-Rev-Ci'}
+    transform=proof['transform']
+    assert transform['parent_sha256']==record['parent_operand_sha256']
+    assert transform['output_sha256']==record['visible_operand_sha256']
+    assert transform['extra_architectural_state'] is False and transform['native_integrated'] is False
+    before=(qualified/'original-operand.sv.txt').read_text()
+    assert sha(before.encode())==record['parent_operand_sha256']
+    assert len(transform['changes'])==2
+    for old,new in transform['changes']:
+        assert before.count(old)==1;before=before.replace(old,new)
+    after=(qualified/'executed-inputs/verilog/rtl/dorado_local_r_operand_step.sv').read_text()
+    assert before==after and sha(after.encode())==record['visible_operand_sha256']
+    assert (qualified/'visible-proof/candidate.sv').read_text()==after
+    changed=[n for n in record['compiled_rtl_files']
+             if record['inputs']['verilog/rtl/'+n]!=inherited['inputs']['verilog/rtl/'+n]]
+    assert changed==['dorado_local_r_operand_step.sv'],changed
+    assert sha((qualified/'dorado_r_front_cone.sv').read_bytes())=='60d63614c927570d9fbed383e837955510fe10242a3ef74574ff485e0e6647c5'
+
+
 def audit(directory,qualified,allow_missing):
     provenance=json.loads((directory/'provenance.json').read_text())
     profiles={None:(52,51,'control_clock','PASS_COUPLED_ORIGINAL_CONTROL_CLOCK_COMPONENT','dorado_control_clock_step.sv'),
@@ -150,6 +191,7 @@ def audit(directory,qualified,allow_missing):
               'r_front_mir':(1409,1170,'r_front_mir','PASS_BOUNDED_R_FRONT_MIR_BUDGET_GATE','dorado_r_front_mir_step.sv'),
               'r_front_mir_mask':(1429,1184,'r_front_mir_mask','PASS_BOUNDED_R_FRONT_MIR_MASK_BUDGET_GATE','dorado_r_front_commands_step.sv'),
               'r_front_stack_adder':(1429,1184,'r_front_stack_adder','PASS_BOUNDED_STACK_ADDER_BUDGET_GATE','dorado_r_front_commands_step.sv'),
+              'r_front_visible':(1429,1184,'r_front_visible','PASS_BOUNDED_R_FRONT_VISIBLE_BUDGET_GATE','dorado_r_front_commands_step.sv'),
               'r_storage':(939,709,'r_storage','PASS_R_STORAGE_ARRIVAL_CONTRACT','dorado_r_storage_step.sv')}
     assert provenance.get('component')in profiles,'Unknown fixture profile'
     expected_launch,expected_result,component,expected_status,evaluator=profiles[provenance.get('component')]
@@ -168,10 +210,10 @@ def audit(directory,qualified,allow_missing):
     if component=='r_front_mir':
         assert sha((directory/'top.sv').read_bytes())=='0ee3ad83d661d041c387324bd13c33b01fbf62f7db8cdbcd198f64c4f27799b6','Unexpected R-front/MIR fixture wiring'
         assert provenance['full_producer_arrival_contract_qualified'] is False
-    if component in ('r_front_mir_mask','r_front_stack_adder'):
+    if component in ('r_front_mir_mask','r_front_stack_adder','r_front_visible'):
         assert sha((directory/'top.sv').read_bytes())=='70dfecbde9d5cd3cad02b9d7670bebd5305c645600f66a06aa470bbdcf4b774b','Unexpected masked-MIR fixture wiring'
         assert provenance['full_producer_arrival_contract_qualified'] is False
-    if component in ('r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder'):
+    if component in ('r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder','r_front_visible'):
         assert provenance['observation_outputs_registered'] is False
         assert provenance['observation_only_outputs']==['source_pins','fa_n']
     assert not provenance['assembly_permitted']and not provenance['native_qualified']
@@ -189,12 +231,14 @@ def audit(directory,qualified,allow_missing):
         assert qualified_record['bounded_original_graph_checks']
         assert qualified_record['full_producer_arrival_contract_qualified'] is False
         assert len(qualified_record['arrivals'])==6
-    if component in ('r_front_mir_mask','r_front_stack_adder'):
+    if component in ('r_front_mir_mask','r_front_stack_adder','r_front_visible'):
         assert (directory/'functional-gate.json').read_bytes()==(qualified/'results.json').read_bytes()
         assert qualified_record['bounded_original_graph_checks']
         assert qualified_record['full_producer_arrival_contract_qualified'] is False
         if component=='r_front_stack_adder':
             stack_adder_bridge(qualified,qualified_record)
+        elif component=='r_front_visible':
+            visible_bridge(qualified,qualified_record)
         else:
             assert len(qualified_record['arrivals'])==12 and len(qualified_record['negative_cases'])==2
         assert qualified_record['candidate_sha256']=='e695318064d80a9e308ff5e76e3fd57d86bb55412a448b163da135856883dd0e'
@@ -207,7 +251,7 @@ def audit(directory,qualified,allow_missing):
     assert sha((directory/evaluator).read_bytes())==evaluator_digest
     for name in provenance['files']:
         if name.endswith('.sv')and name!='top.sv':
-            if component in ('r_front','r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder')and name=='dorado_r_front_cone.sv':
+            if component in ('r_front','r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder','r_front_visible')and name=='dorado_r_front_cone.sv':
                 from fit_r_front import quartus_cone
                 cone=json.loads((qualified/'dorado_r_front_cone.json').read_text())
                 assert (directory/name).read_text()==quartus_cone((qualified/name).read_text())
@@ -218,7 +262,7 @@ def audit(directory,qualified,allow_missing):
             else:
                 assert sha((directory/name).read_bytes())==qualified_record['inputs']['verilog/rtl/'+name],('unqualified RTL dependency',name)
     sdc=(directory/'clock.sdc').read_text();qsf=(directory/'clock_fit.qsf').read_text()
-    if component in ('r_front_mir_mask','r_front_stack_adder'):
+    if component in ('r_front_mir_mask','r_front_stack_adder','r_front_visible'):
         # Bind the complete project source list to the executed functional
         # gate; a rehashed QSF cannot silently substitute another module.
         sources=re.findall(r'^set_global_assignment -name SYSTEMVERILOG_FILE (\S+)$',qsf,re.M)
@@ -271,7 +315,7 @@ def audit(directory,qualified,allow_missing):
         match=re.search(re.escape(label)+r'\s*:\s*([\d,]+)',summary);assert match,label
         resources[key]=int(match[1].replace(',',''))
     assert resources['memory_bits']==resources['ram_blocks']==resources['dsp']==resources['plls']==0
-    memory_bits={'r_storage':596,'r_memory':636,'r_front':736,'r_front_functional':736,'r_front_ready':752,'r_front_mir':786,'r_front_mir_mask':792,'r_front_stack_adder':792}
+    memory_bits={'r_storage':596,'r_memory':636,'r_front':736,'r_front_functional':736,'r_front_ready':752,'r_front_mir':786,'r_front_mir_mask':792,'r_front_stack_adder':792,'r_front_visible':792}
     memory=r_storage_memory(directory,qualified_record,memory_bits[component])if component in memory_bits else None
     if memory:resources['mlab_memory_bits']=memory['bits']
     minimum={mode:min(r[mode]for r in records)for mode in ['setup','hold','mpw']}
@@ -284,10 +328,10 @@ def audit(directory,qualified,allow_missing):
         permitted_qsf_delta='Quartus17.0.2 LAST_QUARTUS_VERSION annotation only',
         native_qualified=False,hardware_speedup_claimed=False)
     if memory:result['memory_contract']=memory
-    if component in ('r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder'):
+    if component in ('r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder','r_front_visible'):
         result['observation_outputs']=dict(registered=False,names=['source_pins','fa_n'],
             scope='Post-state test observations are retained in simulation. Every state bit, clock event, functional port and unsettled check remains in the registered budget.')
-    if component in ('r_front_mir','r_front_mir_mask','r_front_stack_adder'):
+    if component in ('r_front_mir','r_front_mir_mask','r_front_stack_adder','r_front_visible'):
         result['full_producer_arrival_contract_qualified']=False
         result['scope']='Bounded R-front/MIR implementation budget only; complete producers, native IO/ROM/timing and60ns remain open.'
     return result

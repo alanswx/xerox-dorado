@@ -27,16 +27,16 @@ def run(source, qualified, output, allow_rejected_baseline=False):
     if component=='mir_ready':names+=['changed_cp_dependency_rehashed','changed_mir_dependency_rehashed','changed_fixture_wiring_rehashed']
     if component=='conta_mir':
         names.remove('changed_dependency_rehashed');names+=['changed_fixture_wiring_rehashed']
-    if component in ('task_ready_capture','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder'):names+=['changed_ready_dependency_rehashed']
-    if component in ('r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder'):names+=['changed_front_dependency_rehashed','changed_fixture_wiring_rehashed']
+    if component in ('task_ready_capture','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder','r_front_visible'):names+=['changed_ready_dependency_rehashed']
+    if component in ('r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder','r_front_visible'):names+=['changed_front_dependency_rehashed','changed_fixture_wiring_rehashed']
     if component=='r_front_mir':names+=['changed_conta_dependency_rehashed']
-    if component in ('r_front_mir_mask','r_front_stack_adder'):names+=['changed_clock_adapter_rehashed','changed_project_sources_rehashed']
-    if component in ('r_storage','r_memory','r_front','r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder'):
+    if component in ('r_front_mir_mask','r_front_stack_adder','r_front_visible'):names+=['changed_clock_adapter_rehashed','changed_project_sources_rehashed']
+    if component in ('r_storage','r_memory','r_front','r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder','r_front_visible'):
         names+=['missing_ram_bank','wrong_ram_width','wrong_ram_type','wrong_ram_init',
                 'wrong_ram_bits','wrong_ram_output_register','wrong_ram_collision_mode']
-    if component in ('r_memory','r_front','r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder'):
+    if component in ('r_memory','r_front','r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder','r_front_visible'):
         names+=['wrong_ram_address_register']
-    if component in ('r_front','r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder'):
+    if component in ('r_front','r_front_functional','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder','r_front_visible'):
         names+=['changed_generated_cone_rehashed']
     if allow_rejected_baseline:
         # A negative timing number cannot demonstrate a new rejection when
@@ -53,7 +53,7 @@ def run(source, qualified, output, allow_rejected_baseline=False):
             evaluator=json.loads((d/'provenance.json').read_text())['component']
             target='dorado_'+evaluator+'_step.sv' if name.startswith('changed_evaluator') else 'dorado_task_capture_step.sv'
             if evaluator in ('r_front','r_front_functional')and name.startswith('changed_evaluator'):target='dorado_r_front_step.sv'
-            if evaluator in ('r_front_mir_mask','r_front_stack_adder'):
+            if evaluator in ('r_front_mir_mask','r_front_stack_adder','r_front_visible'):
                 if name.startswith('changed_evaluator'):target='dorado_r_front_commands_step.sv'
                 if name=='changed_dependency_rehashed':target='dorado_local_task_capture_step.sv'
                 if name=='changed_clock_adapter_rehashed':target='dorado_local_r_port_preview.sv'
@@ -65,15 +65,15 @@ def run(source, qualified, output, allow_rejected_baseline=False):
                 if name=='changed_cp_dependency_rehashed':target='dorado_cp_control_step.sv'
                 if name=='changed_mir_dependency_rehashed':target='dorado_mir_capture_step.sv'
                 if name=='changed_fixture_wiring_rehashed':target='top.sv'
-            if evaluator in ('task_ready_capture','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder')and name=='changed_ready_dependency_rehashed':target='dorado_task_ready_step.sv'
+            if evaluator in ('task_ready_capture','r_front_ready','r_front_mir','r_front_mir_mask','r_front_stack_adder','r_front_visible')and name=='changed_ready_dependency_rehashed':target='dorado_task_ready_step.sv'
             if evaluator in ('r_front_ready','r_front_mir')and name=='changed_front_dependency_rehashed':target='dorado_r_front_step.sv'
             if evaluator in ('r_front_ready','r_front_mir')and name=='changed_fixture_wiring_rehashed':target='top.sv'
-            if evaluator in ('r_front_mir_mask','r_front_stack_adder')and name=='changed_front_dependency_rehashed':target='dorado_local_r_front_step.sv'
-            if evaluator in ('r_front_mir_mask','r_front_stack_adder')and name=='changed_fixture_wiring_rehashed':target='top.sv'
+            if evaluator in ('r_front_mir_mask','r_front_stack_adder','r_front_visible')and name=='changed_front_dependency_rehashed':target='dorado_local_r_front_step.sv'
+            if evaluator in ('r_front_mir_mask','r_front_stack_adder','r_front_visible')and name=='changed_fixture_wiring_rehashed':target='top.sv'
             if evaluator=='r_front_mir'and name=='changed_conta_dependency_rehashed':target='dorado_conta_mir_step.sv'
             if name=='changed_generated_cone_rehashed':target='dorado_r_front_cone.sv'
             if name=='changed_fixture_wiring_rehashed':
-                zero="792'b0"if evaluator in ('r_front_mir_mask','r_front_stack_adder')else"786'b0"if evaluator=='r_front_mir'else"98'b0"if evaluator=='conta_mir'else"50'b0"if evaluator=='mir_ready'else"752'b0"
+                zero="792'b0"if evaluator in ('r_front_mir_mask','r_front_stack_adder','r_front_visible')else"786'b0"if evaluator=='r_front_mir'else"98'b0"if evaluator=='conta_mir'else"50'b0"if evaluator=='mir_ready'else"752'b0"
                 changed_input(d,target,lambda s:s.replace('result<={next_q,',"result<={"+zero+",",1))
             elif name=='changed_project_sources_rehashed':
                 changed_input(d,'clock_fit.qsf',lambda s:s+'\nset_global_assignment -name SYSTEMVERILOG_FILE unqualified_source.sv\n')

@@ -11,6 +11,23 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest stored-read-latch rewrite (2026-10-23): original complementary read/
+visible windows permit visible R to use existing closed read-latch Qs. Two
+mux expressions change; no architectural state, cycle, clock or RAM change.
+Source-bound binary proof UNSAT, two overlapping-window controls SAT, both
+boards' physical clock wiring checked. Two complete new graphs pass13515
+checks/BOTH engines/all792Qs/9216RAM/68clocks/LOW-NoDispatch. Twelve earlier
+profile runs explicitly inherited. Same constraints/top/cone/23 other RTL
+files; setup improves-1.996 -> -0.382ns, still REJECTED. Hold+0.155,mpw+6.117,
+3345ALM/3020regs/9216MLAB;20 damaged timing/six damaged proof controls reject.
+[Lossless source/proof/terminal receipt](../fpga/mister/reports/2026-10-23-r-front-visible/experiment/README.md).
+Next shorten CPbus7 -> CP/normal0/WIM/MIR -> address -> rm_h -> sign flag,
+and Q6 -> MIR -> original stack carry -> stk_h -> stored R read. Preserve
+late LOW-CP/NoDispatch/old data and all endpoints; no timing waiver. Then
+remaining real producers, native original ROM/60ns/timers and full A-F.
+No native load or hardware speed change.
+
+
 Latest stack-arithmetic experiment (2026-10-23): all4096 generic pairs and
 512 actual physical-input combinations compare in BOTH engines; four bad
 carry cases reject. Two new full processor runs pass13515 events and the

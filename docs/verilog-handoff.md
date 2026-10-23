@@ -1,5 +1,31 @@
 # Verilog from Sil: handoff
 
+**Latest clock work (2026-10-23): explicit stored R-read boundary improves setup.**
+[Original wiring, source-bound binary proof, new full graphs and rejected fit](../fpga/mister/reports/2026-10-23-r-front-visible/experiment/README.md).
+Original read Clock1'Bb=ppClk|pClock1En and visible PreSHCP'B=~pClock1En
+make the MC10173 windows complementary. Two visible-R muxes now explicitly
+source existing stored read-latch Qs. No state/cycle/clock/RAM change; original
+stack arithmetic retained. Proof UNSAT/two overlap controls SAT; original
+clock pins/parts/drivers/unwired inputs checked on BOTH boards.
+
+BOTH new full graphs pass13515 events,328 writes/5608 reads/797 epochs; all
+792Qs/9216RAM/68clocks and real LOW-NoDispatch compare. Twelve earlier profile
+runs inherited by binary proof, not rerun. Same top/constraints/cone/23 other
+RTL files; only local R operand mux differs. Terminal15ns setup improves
+-1.996 -> -0.382ns; hold+0.155/mpw+6.117,3345ALM/3020regs/9216MLAB.
+Timing still REJECTED; no assembly/native use or hardware speed claim.
+All five PIDs1077474/1077486/1079859/1091677/1093399 absent, all stages rc0.
+Twenty damaged timing and six damaged proof controls reject.
+
+Next/TODO: before_controls289=CPbus7 -> CP/normal0/WIM/MIR -> address ->
+actual rm_h -> rm_flags_n[0] is worst (16levels/15.066ns). At100C Q6 -> MIR/
+original stack carry -> stk_h -> stored R read Q563 is17levels/14.821ns.
+Shorten those real paths while retaining late LOW-CP and old/new data epochs;
+do not relax the15ns budget. Remaining l17/d17, ContB IM/ASEL/BSEL/StopMIRClk,
+MemC Hold/PRhold, original-ROM/native60ns/timers/physical66.7MHz and full A-F
+acceptance remain. Hardware5c65/volumes and native2284/2331 jobs untouched.
+
+
 **Latest arithmetic experiment (2026-10-23): equivalent, timing REJECTED.**
 [Exact source comparison, binary proof, new graph runs and terminal fit](../fpga/mister/reports/2026-10-23-r-front-stack-adder/experiment/README.md).
 The generated ProcL j17/k17/l17 rewrite preserves all wired sum/carry nets;
