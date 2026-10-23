@@ -11,6 +11,34 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest control-capture/physical budget (2026-10-23): old MIR + old ContB
+selectors now feed task capture coherently. Old a20b9e52 rejects6680 in both
+engines on LOW CP rMIR reset; joint result matches original but child Switch
+copies disagree. d8c8f744 fixes that single capture expression, preserving all
+clocks/state/flags and rejection checks.14 comparisons pass: legacy baseline
+10121events twice; expanded11300events/238writes/4368reads/392epochs in BOTH/
+all six established profiles. All100 clocks now exercised through actual
+instructions/maintenance/controller inputs. No constant-clock waiver for unused
+MemC l02.B: common clock pin9 is live. [Sources and complete evidence](../fpga/mister/reports/2026-10-23-control-capture-epochs/README.md).
+
+Combined15ns timing is terminal/rejected: d8 setup-8.512ns,34levels/23.170ns
+from Switcha to faults0. Optional task-clock mask ef0abf3e passes BOTH balanced
+expanded tests and reduces deficit to-4.184ns,20levels/18.863ns; new worst is
+CPAddr.0'(after-pin291)->dR state563. Same constraints/9216MLABbits/zero UCP;
+neither fit qualifies native speed or60ns cadence. No assembly/load. Next
+prove the mask's additional actual-Hold/TaskingOff/NoDispatch reset cases and
+full profiles, then derive CP predecode/capture from its real BaseBoard source
+with setup/hold and the same15ns budget. No maintenance tie-off, extra guest
+cycle or timing exception. Broader native ROM/producer/phase/timer/SDRAM and
+full A-F acceptance remain; early RBase arrival gap is unqualified.
+
+Cold v4(stagev9,d8) PID43350/tool92956 remains original-ROM with passive actual
+6502 PC/phase observation, own1B host limit. Coldv3(stagev7)37871 is separate.
+Old coldv2(stagev1) is terminal at250Mhost:37,059,195 enabled samples/211CP
+transitions without alias/unsettled/repeated failure; only a startup prefix,
+not Initial/Cedar or new corrected core qualification. Original5B storage
+comparisons and C protocol remain untouched. Hardware speed remains unchanged.
+
 Latest native844 integration (2026-10-23): private full-source replacement now
 elaborates at unchanged57.142857MHz/SYSPER4, preserving16 canonical native
 visible-R Qs plus828 evaluator Qs and9216 RAM bits. Exact native cell/wiring

@@ -41,7 +41,12 @@ def prepare(native_run,reference,qualified,inventory,refresh_proof,out,project,c
     for n,h in proof['inputs'].items():assert sha(native/n)==h and sha(refresh_proof/'inputs'/n)==h
     gate,log=read_run(qualified)
     assert gate['status']=='PASS_R_FRONT_LOCAL_PROBE'and gate['rbase_close']and gate['actual_RBase_StkP_directed']
-    assert gate['summary']=='checks=10121 writes=242 reads=4166 epochs=391'
+    assert not gate.get('solver_rejection_deferred_for_diagnostic')
+    if gate.get('extended_actual_directed'):
+        assert gate['pre_event_control_capture']and gate['summary']=='checks=11300 writes=238 reads=4368 epochs=392'
+        clocks=re.findall(r'^R_FRONT_CONTROL_CLOCK channel=(\d+) edges=(\d+)$',log,re.M)
+        assert len(clocks)==100 and all(int(n)>0 for c,n in clocks)
+    else:assert gate['summary']=='checks=10121 writes=242 reads=4166 epochs=391'
     manifest=json.loads((reference/'manifest.json').read_text());assert manifest==gate['reference']
     if cut_owned_r_inputs:
         memory=(qualified/'adapters/dorado_local_r_memory_step.sv').read_text()
@@ -171,6 +176,7 @@ def prepare(native_run,reference,qualified,inventory,refresh_proof,out,project,c
         unused_input_positions=[p for p in range(401)if p not in producers],state_admin='INACTIVE',
         owned_read_input_placeholders=list(range(127,145))if cut_owned_r_inputs else[],physical_RAM_read_signals_tied_off=False,
         partitioned_component_input_cones=gate.get('partitioned_input_cones'),verilator_split_live_pins=split_live_pins,
+        pre_event_control_capture=gate.get('pre_event_control_capture',False),extended_component_directed=gate.get('extended_actual_directed',False),
         verilator_component_split_annotations=split_annotations,
         initialization_or_guest_state_added=False,snapshot_abi_supported=False,physical_timing_qualified=False,
         original_analog_order_qualified=False,future60ns_partition_qualified=False,firmware_qualified=False,

@@ -132,7 +132,7 @@ def review(out):
     return result,dirs
 
 
-def archive(out,review_dir,dirs):
+def archive(out,review_dir,dirs,additional_tools=()):
     assert not out.exists();paths={}
     for d in dirs:
         for p in d.rglob('*'):
@@ -144,7 +144,11 @@ def archive(out,review_dir,dirs):
     for p in review_dir.iterdir():
         if p.is_file():paths['review/'+p.name]=p
     for n in ['inventory_r_front_control_native.py','test_native_refresh_order.py','stage_r_front_control_native.py','lint_r_front_control_native.py','run_r_front_control_native.py','test_r_front_control.py','rewrite_r_front_input_cones.py',Path(__file__).name]:paths['tools/'+n]=ROOT/'tools'/n
-    out.mkdir(parents=True);r=dict(scope=__doc__,members=[],blobs={})
+    for n in additional_tools:
+        assert Path(n).name==n
+        paths['tools/'+n]=ROOT/'tools'/n
+    scope=json.loads((review_dir/'results.json').read_text()).get('scope',__doc__)
+    out.mkdir(parents=True);r=dict(scope=scope,members=[],blobs={})
     for name,p in sorted(paths.items()):
         with p.open('rb')as f:raw=f.read(p.stat().st_size)
         if p.suffix=='.log'and raw and not raw.endswith(b'\n'):raw=raw[:raw.rfind(b'\n')+1]

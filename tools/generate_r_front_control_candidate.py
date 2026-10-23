@@ -16,7 +16,7 @@ ROOT=Path(__file__).resolve().parents[1]
 PARENT='665188a29d07ba22981061233a825f496a479d577f5a6794a6b81cfac8c418d2'
 
 
-def generate(out,mutation=None):
+def generate(out,mutation=None,old_control_capture=False,mask_tasking_switch=False):
     assert not out.exists()
     original=(ROOT/'verilog/rtl/dorado_r_front_l17_step.sv').read_text()
     assert hashlib.sha256(original.encode()).hexdigest()==PARENT
@@ -74,6 +74,34 @@ def generate(out,mutation=None):
     body=body.replace(old,'after_child[65]=STOP_CLOCK_NEW ? local_flags[0] : capture_local[0];')
     control=out.with_name(out.stem+'-control.sv');metadata=control_generate(control)
     raw=header+body+unused_ca+'\n'+control.read_text()
+    if mask_tasking_switch:
+        # Switchb only changes on its StopTasks-qualified clock or the
+        # asynchronous NoDispatch reset. A normal capture masks a new clock
+        # rise; NoDispatch remains an explicit live reset/clock producer.
+        start=raw.index('module dorado_control_hold_ordered_step');prefix,ctrl=raw[:start],raw[start:]
+        edits=[
+            ('input switch_view);','input switch_view,input tasking_view);'),
+            ('reg [23:0] ac;reg [24:0] actual_ac;','reg [23:0] ac;reg [24:0] actual_ac;reg [109:0] clock_s;'),
+            ('ac=clock_levels(s[109:0],base,ca_pins(s,p),switch_view);',
+             'clock_s=s[109:0];clock_s[41]=tasking_view;ac=clock_levels(clock_s,base,ca_pins(s,p),switch_view);'),
+            ('reg mir_switch_view,old_view,done;','reg mir_switch_view,old_view,tasking_view,old_tasking_view,done;'),
+            ('q=state_q;n=q;mir_switch_view=q[43];previous=', 'q=state_q;n=q;tasking_view=q[41];old_tasking_view=tasking_view;mir_switch_view=q[43];previous='),
+            ('old_view=mir_switch_view;if(q[69])mir_switch_view=1;',
+             'old_view=mir_switch_view;old_tasking_view=tasking_view;if(q[69])begin mir_switch_view=1;tasking_view=0;end'),
+            ('old_view==mir_switch_view);','old_view==mir_switch_view && old_tasking_view==tasking_view);')]
+        for old,new in edits:
+            assert ctrl.count(old)==1,(old,ctrl.count(old));ctrl=ctrl.replace(old,new,1)
+        for old,new in [('joint_clocks(q,clock_before,pins_before,mir_switch_view)','joint_clocks(q,clock_before,pins_before,mir_switch_view,tasking_view)'),
+                        ('joint_clocks(q,clock_after,pins_after,mir_switch_view)','joint_clocks(q,clock_after,pins_after,mir_switch_view,tasking_view)')]:
+            assert ctrl.count(old)==1;ctrl=ctrl.replace(old,new,1)
+        raw=prefix+ctrl
+    if old_control_capture:
+        old='wire [7:0] capture_local=local_decode(cq,conta_pins(capture_after));'
+        new='''// Capture data keeps the pre-event MIR AND ContB selector epoch.
+ // LOW CP rMIR clears both boards; new ASEL/BSEL can close the task clock,
+ // but must not overwrite its old TaskingOn/Off data during that capture.
+ wire [7:0] capture_local=local_decode(cq,conta_pins(producer_pins(joint_q,pins_after)));'''
+        assert raw.count(old)==1;raw=raw.replace(old,new,1)
     if mutation:
         assert mutation=='new_fields'
         old='wire [325:0] capture_after=clock_after ? producer_pins(joint_q,pins_after) : effective_after;'
@@ -81,7 +109,7 @@ def generate(out,mutation=None):
         raw=raw.replace(old,'wire [325:0] capture_after=effective_after;')
     out.write_text(raw)
     return dict(scope=__doc__,output_sha256=hashlib.sha256(raw.encode()).hexdigest(),processor_parent_sha256=PARENT,
-                control=metadata,mutation=mutation,physical_bits=844,ram_bits=9216,clock_channels=100,native_integrated=False,physical_timing_qualified=False)
+                control=metadata,mutation=mutation,pre_event_control_capture=old_control_capture,masked_tasking_switch_clock=mask_tasking_switch,physical_bits=844,ram_bits=9216,clock_channels=100,native_integrated=False,physical_timing_qualified=False)
 
 
 if __name__=='__main__':

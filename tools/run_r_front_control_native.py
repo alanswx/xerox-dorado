@@ -22,7 +22,7 @@ from run_native_cedar_memory import run as native_run_test
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
-def prepare(stage,baseline,out,limit):
+def prepare(stage,baseline,out,limit,monitor_baseboard=False):
     assert not out.exists()and 200000000<=limit<=1000000000
     r=json.loads((stage/'r-front-control-native.json').read_text())
     assert r['status']=='STAGED_PROCESSOR_CONTROL_NATIVE_EXPERIMENT'and not r['assembly_permitted']
@@ -55,6 +55,23 @@ def prepare(stage,baseline,out,limit):
     end
   end
 '''
+    if monitor_baseboard:
+        monitor+='''
+  // Passive actual CPU PC/phase observation; bb_debug's bus address cannot
+  // identify a 6502 instruction. Counter units are enabled machine samples.
+  longint unsigned bb_phi_rises=0,bb_sync_rises=0;
+  reg bb_last_phi=0,bb_last_sync=0;
+  always @(negedge host_clk)if(!reset)begin
+    if(step)begin
+      if(dut.m.b_BaseBd.MCPreClk && !bb_last_phi)bb_phi_rises++;
+      if(dut.m.b_BaseBd.u_f61.sync && !bb_last_sync)bb_sync_rises++;
+      bb_last_phi=dut.m.b_BaseBd.MCPreClk;bb_last_sync=dut.m.b_BaseBd.u_f61.sync;
+    end
+    if(host_ticks%10000000==0)
+      $display("NATIVE844_BASEBOARD host=%0d guest=%0d phi_rises=%0d sync_rises=%0d PC=%04h bus=%04h reset=%b phi=%b sync=%b",host_ticks,guest_ticks,bb_phi_rises,bb_sync_rises,
+        dut.m.b_BaseBd.u_f61.u_cpu.logic_00.pc,dut.m.b_BaseBd.u_f61.ab,dut.m.b_BaseBd.MCReset_p_,dut.m.b_BaseBd.MCPreClk,dut.m.b_BaseBd.u_f61.sync);
+  end
+'''
     tb=inputs/'harness/tb_native_cedar.sv';s=tb.read_text();assert s.count('endmodule')==1
     tb.write_text(s.replace('endmodule',monitor+'\nendmodule'))
     used=list(original['used_hdl'])
@@ -67,6 +84,7 @@ def prepare(stage,baseline,out,limit):
             'inputs':{str(p.relative_to(inputs)):sha(p)for p in inputs.rglob('*')if p.is_file()},'used_hdl':used,
             'window_control_path':str(out/'window-control.txt'),'window_initial_control':'0 2\n',
             'scope':__doc__,'host_limit':limit,'firmware_qualified':False,'hardware_changed':False,
+            'passive_actual_BaseBoard_PC_monitor':monitor_baseboard,
             'baseline_run':str(baseline),'baseline_inputs_or_limits_changed':False}
     (out/'provenance.json.gz').write_bytes(gzip.compress((json.dumps(record,indent=2)+'\n').encode(),mtime=0))
     print(record['status'],len(used),'HDL sources;limit',limit,flush=True)
@@ -105,8 +123,9 @@ if __name__=='__main__':
     mode.add_argument('--prepare',type=Path);mode.add_argument('--run',type=Path)
     p.add_argument('--stage',type=Path);p.add_argument('--baseline',type=Path);p.add_argument('--limit',type=int,default=250000000)
     p.add_argument('--reuse-from',type=Path)
+    p.add_argument('--monitor-baseboard',action='store_true')
     a=p.parse_args()
     if a.prepare:
-        assert a.stage and a.baseline;prepare(a.stage.resolve(),a.baseline.resolve(),a.prepare.resolve(),a.limit)
+        assert a.stage and a.baseline;prepare(a.stage.resolve(),a.baseline.resolve(),a.prepare.resolve(),a.limit,a.monitor_baseboard)
     elif a.reuse_from:reuse_run(a.run.resolve(),a.reuse_from.resolve())
     else:native_run_test(a.run.resolve())

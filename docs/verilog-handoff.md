@@ -1,5 +1,56 @@
 # Verilog from Sil: handoff
 
+**Latest capture/timing work (2026-10-23): coherent MIR/selectors; all100 clocks covered; combined15ns still rejected.**
+[Failures, original source audit,14 full comparisons and both timing results](../fpga/mister/reports/2026-10-23-control-capture-epochs/README.md).
+Restored actual-source late TaskingOn/LOW-NoDispatch tests. Old a20b9e52 rejects
+6680 in BOTH: LOW CP rMIR reset mixes old MIR with new ContB ASEL/BSEL in
+capture_local. Diagnostic keeps rejection and runs the independent reference:
+joint844-Q result matches; redundant child Switcha/b disagree at CA40/41.
+New d8c8f744 uses old joint_q selector epoch for capture data; clock/settled
+views stay live. Inverse-checked one expression/comment change; no extra Q,
+reset, RAM copy or architectural cycle.14 full comparisons pass: two legacy
+baseline10121/242writes/4166reads/391epochs; six profiles/BOTH engines expanded
+11300/238/4368/392. ALL100 clocks have positive edges in expanded tests.
+
+Actual multiply Q.14 clock43 now has32 edges; maintenance91/92/93 have65 each;
+unused MemC l02.B clock95 has1. It is NOT constant: common pin9 is live even
+though pin11 is unwired. Original SetRunRfsh/SetRun release drives it; B Q
+stays zero under Hia reset. First corrected fixture left rMIR asserted and
+missed I/O clocks53/54; preserve it as insufficient. Final fixture restores
+all three maintenance registers through real decoder transactions.
+
+Matched isolated15ns fits are terminal/rejected with unchanged constraints/
+zero UCP. d8c8f744: setup-8.512ns, hold+.105/mpw+6.116,3923ALMs/3261regs/
+9216MLABbits. Worst Switcha(state72)->faults0,34 levels/23.170ns. Optional
+ef0abf3e holds Switchb's task-clock view across normal capture, retaining live
+NoDispatch reset and actual settled flags; BOTH balanced full comparisons
+pass11300. Its fit reduces setup deficit to-4.184ns, hold+.154/mpw+6.115,
+4041ALMs/3260regs/sameRAM. New worst CPAddr.0'(after-pin291)->dR state563,
+20 levels/18.863ns. No new clocks/state/cycles, timing waiver, assembly/load
+or hardware speed gain. Mask-specific Hold/TaskingOff/NoDispatch proof and
+full-profile gate remain open; do not promote ef0 from balanced passes alone.
+
+Next/TODO: close those mask/reset cases and trace CP decode/capture from its
+actual BaseBoard producer; derive predecode/capture partition with original
+setup/hold and unchanged15ns budget. Do not tie off maintenance or add a guest
+cycle. Then accurate60ns scheduling, native IM/parity/IFU/cache/Map/hold/DMD/
+B-bus, timers/physical66.7MHz and full A-F gates. Early RBase overlap remains
+unqualified. Native stagev9 includes d8 correction and elaborates with baseline
+warnings only. Original-ROM coldv4(stagev9) PID43350/tool92956, own1B limit,
+adds passive actual6502 PC/phase counters. Coldv3(stagev7)37871/tool38920 stays
+independent. Re-poll current jobs; no native boot claim.
+
+Old coldv2(stagev1)33395 is TERMINAL at250Mhost,37,059,195 enabled samples/
+9,264,799 root edges/211CP edges; no alias/unsettled/repeated monitor failure.
+This is only a startup prefix, not Initial/Cedar or corrected stagev9 evidence.
+Original2284/2331 storage runs/limits/C protocol remain untouched. All14 profile
+jobs are terminal; both misterubuntu fit builders2609365/2680959 are terminal.
+Live matrix tool hashes were preserved exactly while the optional mask CLI was
+tested from a separate frozen snapshot; current tools restored only after the
+matrix became terminal. Receipt11080members/989blobs/4805584compressedbytes
+read back losslessly. Hardware5c65/Native59/Main/daemon/volumes and last pinned
+4.025MStartCycle issues/s remain unchanged. Full goal stays active.
+
 **Latest native integration (2026-10-23):844-Q replacement staged; new RAM loop reports resolved.**
 [Frozen sources, ownership, refresh contract, structural diagnostics and live-run receipts](../fpga/mister/reports/2026-10-23-native844-integration/conservative/README.md).
 Inventory checks530 native inputs and123 selected storage packages/844Qs, plus
