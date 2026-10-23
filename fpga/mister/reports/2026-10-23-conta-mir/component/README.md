@@ -66,9 +66,11 @@ The native watcher appendix records the SAME tests2284/2331 and watcher7144.
 Both are live and initialized but have no CPU/113 window yet. Original
 DoradoContinuous.masm lines190-216 waits15 nominal100ms ticks after the
 last release before dispatching a multi-button boot. This is a source-derived
-minimum quiet interval, not proof that a sampled live PC is in that routine or
+minimum quiet interval, not proof that a sampled live bus address identifies that routine or
 an attribution of the entire elapsed boot time. Continue the existing runs;
-never restart them on an observation timeout. Hardware stays5c65/Main13244/
+never restart them on an observation timeout. The progress bb low16 bits are
+the MCA address bus, including operand/I/O cycles, not the6502 instruction PC.
+Hardware stays5c65/Main13244/
 daemon13243; cold native files/input PASS, HDMI OPEN, speed unchanged. Goal active.
 
 Verify: `python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-23-conta-mir/component`.

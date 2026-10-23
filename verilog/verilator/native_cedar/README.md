@@ -54,7 +54,11 @@ The `guest` progress counter counts enabled **fabric edges**, not Dorado
 microinstructions and not MIPS. The diagnostic retains a 4,096-sample physical
 operand/PC ring, dumps the first observed task-0 trap at CIA221 after113, and
 stops after a persistent RequeueSearchSQ sequence or the configured host limit.
-Neither stop reason establishes firmware failure or desktop success by itself.
+Neither stop reason establishes firmware failure or desktop success by itself. The progress `bb` field's low16 bits
+are the BaseBoard MCA address bus, not the6502 instruction PC: operand and I/O
+cycles can report RAM/port addresses. Use actual instruction-fetch evidence to
+attribute a firmware routine. The staged BaseBd source constructs this field
+from MCA.15..00.
 This diagnostic excludes MiSTer sys_top, Main, Linux, direct-DDR transport and
 HDMI capture. Complete FPGA snapshots remain deferred.
 

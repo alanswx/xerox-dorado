@@ -24,7 +24,9 @@ Native tests2284/2331 and watcher7144 remain live and initialized, with no CPU/
 the queue arm. DoradoContinuous.masm190-216 imposes15 nominal100ms quiet ticks
 after the last release; that source fact is not proof of the current routine
 or a whole-boot delay attribution. Keep observing the same jobs/limits/controls.
-Hardware Main13244/server13243/5c65 and all preserved volumes remain unchanged.
+Hardware Main13244/server13243/5c65 and all preserved volumes remain unchanged. The progress
+`bb` low16 bits are MCA bus address, not6502 PC (staged BaseBd_nominal.v1333);
+RAM/port values on that bus do not prove a bad instruction fetch.
 
 
 **Latest clock work (2026-10-23): MIR/CP-to-Ready ordering and isolated15ns budget PASS.**
