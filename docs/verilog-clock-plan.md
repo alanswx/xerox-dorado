@@ -9,6 +9,110 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+### Structural speed plan (revised 2026-10-22)
+
+This section is the current delivery order; older entries below retain their
+original evidence and process history. The user requested a plan update and
+goal restart. Work resumes from qualified **5c65**, retaining Native59 as a
+fallback. The goal service currently reports the previous goal as **blocked**;
+creating its replacement was rejected because that goal is unfinished. The
+available goal tools cannot resume it. Use Resume or Clear in the goal UI;
+this control limitation does not prevent the engineering work below.
+
+**Problem: the transport serializes original parallel memory hardware, and the
+CPU has an independent phase-resolution limit.** Returning the first word early
+does not remove the one-outstanding request ownership or the full-burst drain
+barrier. Changing the PLL alone cannot repair those structures.
+
+| Quantity | Qualified 5c65 | Target / interpretation |
+| --- | --- | --- |
+| Host and physical SDRAM clock | 57.142857 MHz, 17.5 ns | Distinguish the FPGA implementation clock from a Dorado instruction. |
+| Ordinary instruction before waits | Eight enabled host ticks, 140 ns | Original ordinary cadence is 60 ns, 16.6667 M instructions/s before architectural holds. |
+| Measured prelogin StartCycle issues | 4.02547345 M/s, about 24.15% of original nominal | One boot, three adjacent windows; not retirements or a general Cedar benchmark. |
+| Storage-only pause fraction | 43.552682% in a separate window | Enabled 56.442995%; ARM-only/combined zero in that window. This is not an atomic decomposition or a disk-workload result. |
+| Raw read hit fraction | 75% in that window | Hits still pass through serialized request/response handling. |
+| SDRAM clocks per ordinary unstalled instruction | Eight | Even now there are enough memory ticks for some reads; waiting and handoff structure matter. |
+
+Eliminating every external storage pause at the current CPU phase scheme would
+still cap ordinary issue at **7.142857 M/s**, about 42.86% of original nominal.
+Both problems must be fixed. Do not quote a memory-clock increase as a CPU gain.
+
+At the original 60 ns instruction cadence, a 4x memory clock is 66.6667 MHz
+(15 ns). CAS2 contributes two memory clocks from READ, about 30 ns, before
+output and FPGA capture. Activation, precharge, refresh, arbitration and response
+transfer add latency. One or two CPU cycles is a useful first-word target for
+common accesses, not a bound on every row conflict or eight-word fill. The
+[Alliance timing tables](https://www.alliancememory.com/wp-content/uploads/AllianceMemory_512M_SDRAM_Bdie_AS4C32M16SB-7TXN-6TIN-7BIN__Rev1.4_June2024NK.pdf)
+and fitted board IO constraints govern any actual clock choice.
+
+#### Intended structure
+
+```text
+Original DRAM chip-group ports and architectural read/write capture edges
+    -> per-group accepted-request state and saved old word
+    -> bounded request scheduler (owner, address, operation, data, generation)
+    -> read-line lookup / in-progress fill with per-beat validity
+    -> SDRAM bank/command scheduler and physical DQ capture
+    -> owner-tagged stable completions -> original chip-group output pipelines
+```
+
+The physical burst may keep running after its requested word is delivered.
+A later read may use an already captured beat, wait for a future beat, or use
+another completed line without waiting for that burst's tail. A line tag alone
+never makes unreceived words valid. Separate command progress from response
+ownership; neither may overwrite the other under backpressure.
+
+Initially keep one accepted request per original group and in-order completion.
+A small queue may hold several groups' requests; start with four entries and
+measure occupancy before increasing it. Queue acceptance is not architectural
+completion. Writes retain the old word, ordering and actual SDRAM write/recovery
+completion; a queue entry is never an early write acknowledgement. Matching
+in-progress and completed raw lines must be invalidated or updated coherently.
+Reset drains accepted physical work, discards stale replies and advances a
+generation before admitting new work. Refresh must remain bounded even under
+continuous traffic, a blocked response or a stopped guest.
+
+Keep the global storage barrier until all original chip-group values required
+by the next machine edge are available. Do not simply let the CPU run while
+memory is unresolved. Removing that barrier selectively would require a
+separate proof of each original consumer/Ready/Hold contract. The immediate
+speedup comes from supplying the existing barrier faster.
+
+#### Ordered work and acceptance
+
+| Step | Structural change | Acceptance / decision |
+| --- | --- | --- |
+| A. Establish the traffic budget | Reuse the existing exact 5c65 sources and traces. Count request-to-accept, accept-to-first-word, response consumption, burst drain, arbitration gaps, completed/filling-line hits, row hits/conflicts and outstanding-group fanout. Count transport holds separately from original CPU Hold and ARM disk waits. | Replay identical ordered traffic at the same clock; measure the full native 128-group path as well as the original 16-group fixture. Attribute the observed storage pause before adding buffers. Keep OSD measurements scoped to their separate intervals; use a common sampling boundary for new counters. |
+| B. Reuse a burst while it fills | First finish qualification of the existing default-off adjacent-beat successor probe. Then add an explicit eight-bit valid mask and stable fill tag so requests can use any received beat or wait for their beat. Serve completed raw-line hits during a physical drain when response capacity permits. | Both simulators cover all requested/arriving beats, same/cross-line and wrong-row requests, reset/abort, held responses, write exclusion/coherence and refresh at 57.1/66.7 MHz; independent physical-pin model and original chip-array comparison pass. No duplicate/lost/stale completion. Adjacent-beat probe alone is not the final design or a claimed native gain. |
+| C. Remove serialized handoff gaps | Separate request admission from completion routing. Add the bounded owner-tagged queue and retain payload/owner until completion. Prepare the next eligible request while current physical work drains. Merge only compatible read-line fills; never reorder writes or expose speculative memory state. | Queue-full/backpressure, fairness, owner routing, same-address read/write/read and reset-generation checks pass; original board outputs and every backing bit agree. Fewer wait ticks on identical native 128-group traffic. If traces show several independent groups dominate an edge, evaluate gathering compatible requests into the same burst; do not assume every group shares an address. |
+| D. Increase physical memory speed | Once B/C are measured, separate the memory clock from the guest phase sequencer. Use explicit related-clock transfer enables or proven request/response FIFOs; retain a conservative control build. Evaluate 66.7 MHz first, then a higher rate only if command/DQ timing and latency measurements justify it. | Constrain actual PLL phase, command/address output, DQ input/output setup/hold and transfer paths at every corner. Retest initialization, full physical RAM, all ranks/banks, sustained refresh and reset during a crossing. No blanket clock-group or IO timing waiver. Chip maximum frequency alone is not interface qualification. |
+| E. Restore original CPU phases | Integrate the audited phase/run/refresh and processor/control capture work with actual MIR/IFU/Ready/Hold/cache/Map producers. Make capture epochs explicit and shorten the real failing data paths. Retain original architectural holds and original read-before-write behavior. | Full native phase/producer closure and original-ROM startup at each integration step. Demonstrate 60 ns nominal ordinary instructions. Do not set SYSPER=2 blindly: known ECP/SCP coincidences and the original subphase offsets must be resolved by the audited contract. A 15 ns isolated component pass is not a complete 60 ns CPU proof. |
+| F. Qualify the combined machine | Deploy only reviewed timing-passing candidates, one architectural change at a time, with unchanged Main/daemon for speed comparisons. Then run original Cedar Checkpoint/Rollback, pre/post-save files, close/remount and cold restore. | Pinned old/new instruction-progress and hold measurements; all-device timer rates; three independent fresh-seed boots; exact keyboard/mouse and application checks; at least two hours sustained disk/network/input operation without pack/CRC/RX faults. Archive, commit and push the resulting qualified implementation. |
+
+The immediate implementation task is **B's protocol qualification**, with A's
+trace analysis alongside it. No new Quartus fit is warranted by the exploratory
+0.7023% small-fixture result alone. Select a native experiment once the measured
+128-group traffic shows which B/C change removes substantial waiting. Promote
+the exact reviewed generated source into the maintained RTL only after its
+source/timing/firmware gates; preserve fallback bitstreams and disk volumes.
+
+CPU/cache/Map/ECC and original controller behavior stay in RTL. SDRAM scheduling,
+fill buffers and completion ownership are FPGA work. Main remains the sole SPI
+owner and retains bounded ARM disk work; historical network services remain in
+the separate ARM daemon using direct DDR. No new Main API or daemon involvement
+is required to repair the SDRAM request path. Isolate the optional changed-sector
+disk-cache patch for its own workload comparison. Complete FPGA snapshots remain
+deferred; Cedar's own Checkpoint/Rollback is the current save/restore mechanism.
+
+**5c65 Checkpoint update:** one original Checkpoint traversed actual germ812 and
+returned to the saved schematic/tools/Clock desktop. Fresh exact Echo and
+`Type ///early57persist.txt` pass at the final prompt. The bounded disk prefix
+has 2,216 read pairs, 14,894 write requests/14,895 ACKs, 834 pwrite pairs and 288
+fsync pairs, with no recorded disk errors. Two diagnostic loss markers total
+21,700 records, so the historical write trace is incomplete. This is neither a
+closed-volume result nor an explicit Rollback/new-file cold-persistence pass.
+[Checkpoint return evidence](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-checkpoint-return/README.md).
+
 **Latest:5c65 interactive Viewers/files/fresh schematic PASS; no speed gain.**
 One guarded normal load now runs Main4355/daemon4354/supervisor4305 with
 RBF5c6540e58993b0a56f3836abafe1235e41dd9a4e1b93f4188dddfe293dc47305.
@@ -51,8 +155,8 @@ do not claim all optional Sil modules loaded. [121-member desktop/input/apps pro
 Latest bounded632read/1702write ACK pairs,111pwrite/18fsync, no recorded errors/
 gaps, good298/CRC-RX-abort-drop0, pack fault clear. Current pack NOT closed.
 Desktop43586/input45171 observers terminal48/32, all senders terminal and controls
-released. Do not repeat preparation/load. Current5c65 original Checkpoint/
-Rollback and new-file cold persistence are still pending.
+released. Do not repeat preparation/load. The newer Checkpoint-return proof
+is above; explicit Rollback and new-file cold persistence remain pending on5c65.
 
 **Next memory experiment is component-only, not deployed.**
 Exact5c65 backend keeps req_ready false throughout READ_WAIT, even after early
@@ -74,13 +178,14 @@ Nothing is running there; do not restart it because of the old state string.
 [495-member exploratory proof](../fpga/mister/reports/2026-10-22-storage-burst-successor/exploratory-msa/README.md).
 Workdir `storage-burst-successor-component-v1-20261022`, tool
 `prepare_storage_burst_successor.py`. NOT complete component qualification.
-Next/TODO: qualify5c65 original Checkpoint/Rollback/new-file cold readback. Before
+Next/TODO: qualify5c65 explicit Rollback and new-file cold readback. Before
 any burst-successor native fit, add both-simulator/all-beat/same-and-cross-line/
 wrong-row/write-exclusion/backpressure/reset/refresh57/66MHz tests and actual
 bad variants; keep complete original MSA outputs/arrays. Early read alone did
 not improve this workload. Original60ns phase/producer closure/all-device rates,
 minimal Main337 isolation, canonical production promotion, final3 fresh seeds
-and2h stress remain OPEN. Native59 retained, FPGA snapshots deferred, goal ACTIVE.
+and2h stress remain OPEN. Native59 retained, FPGA snapshots deferred. Current
+goal-controller state and revised structural work order are recorded above.
 
 **Latest:690f original Checkpoint/Rollback and cold file/input readback PASS; HDMI unresolved.**
 The now-closed warm test used Main28147/server28146/supervisor28112 and RBF

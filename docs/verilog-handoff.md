@@ -1,5 +1,34 @@
 # Verilog from Sil: handoff
 
+**Current direction (2026-10-22): repair the memory transport, then qualify the
+faster memory domain and original 60 ns CPU phases independently.** The user's
+requested revision is the [structural speed plan](verilog-clock-plan.md#structural-speed-plan-revised-2026-10-22).
+It supersedes the historical work order below. Work continues from 5c65; it is
+still 4.02547M prelogin StartCycle issues/s, not a new speedup. Its 140 ns nominal
+CPU floor and serialized 128-group SDRAM path are separate limits. Early data
+alone did not help this workload. Preserve Main/daemon identity during the next
+memory comparison; no new Main API is required for the memory scheduler.
+
+Next: attribute native 128-group waits, finish adjacent-beat protocol tests,
+then qualify per-beat fill validity/completed-line service during drain and a
+bounded owner-tagged request queue. Preserve original write/old-word/commit
+semantics and the next-machine-edge storage barrier. Only then select a native
+fit and a separately constrained faster memory domain. Original60ns phase and
+producer closure remains required; blindly reducing SYSPER is not the fix.
+
+One 5c65 original Checkpoint has now returned through germ812 to the saved full
+schematic/tools/Clock. Fresh exact Echo and pre-save early57persist Type pass.
+[Frozen proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-checkpoint-return/README.md)
+retains two trace-loss markers/21,700 lost diagnostic records, 14,894/14,895
+incomplete write request/ACK history and no recorded disk errors. Explicit
+Rollback and new-file cold persistence on 5c65 remain open; the pack is not closed.
+Input senders and both Checkpoint observers are terminal; controls released.
+
+The goal service reports **blocked** on the unfinished previous goal and rejected
+a replacement. The user has explicitly requested resumption; engineering work
+is authorized and continues. Resume or Clear in the goal UI is needed to restart
+automatic goal turns because the available tools expose no resume operation.
+
 **Latest:5c65 interactive Viewers/files/fresh schematic PASS; no speed gain.**
 One guarded normal load now runs Main4355/daemon4354/supervisor4305 with
 RBF5c6540e58993b0a56f3836abafe1235e41dd9a4e1b93f4188dddfe293dc47305.
@@ -42,8 +71,8 @@ do not claim all optional Sil modules loaded. [121-member desktop/input/apps pro
 Latest bounded632read/1702write ACK pairs,111pwrite/18fsync, no recorded errors/
 gaps, good298/CRC-RX-abort-drop0, pack fault clear. Current pack NOT closed.
 Desktop43586/input45171 observers terminal48/32, all senders terminal and controls
-released. Do not repeat preparation/load. Current5c65 original Checkpoint/
-Rollback and new-file cold persistence are still pending.
+released. Do not repeat preparation/load. The newer Checkpoint-return proof
+is above; explicit Rollback and new-file cold persistence remain pending on5c65.
 
 **Next memory experiment is component-only, not deployed.**
 Exact5c65 backend keeps req_ready false throughout READ_WAIT, even after early
@@ -65,13 +94,14 @@ Nothing is running there; do not restart it because of the old state string.
 [495-member exploratory proof](../fpga/mister/reports/2026-10-22-storage-burst-successor/exploratory-msa/README.md).
 Workdir `storage-burst-successor-component-v1-20261022`, tool
 `prepare_storage_burst_successor.py`. NOT complete component qualification.
-Next/TODO: qualify5c65 original Checkpoint/Rollback/new-file cold readback. Before
+Next/TODO: qualify5c65 explicit Rollback and new-file cold readback. Before
 any burst-successor native fit, add both-simulator/all-beat/same-and-cross-line/
 wrong-row/write-exclusion/backpressure/reset/refresh57/66MHz tests and actual
 bad variants; keep complete original MSA outputs/arrays. Early read alone did
 not improve this workload. Original60ns phase/producer closure/all-device rates,
 minimal Main337 isolation, canonical production promotion, final3 fresh seeds
-and2h stress remain OPEN. Native59 retained, FPGA snapshots deferred, goal ACTIVE.
+and2h stress remain OPEN. Native59 retained, FPGA snapshots deferred. Current
+goal-controller state and revised structural work order are recorded above.
 
 ## Current objective (revised 2026-10-20)
 
@@ -8554,6 +8584,20 @@ and has unreviewed hold violations; never deploy it.
 <a id="current-todos-2026-10-17-native23"></a>
 
 ## Current TODOs (updated 2026-10-22)
+
+### Structural speed work: current order
+
+- [x] Update the plan from actual5c65 CPU cadence, storage pauses and unchanged early-read performance; preserve Native59/5c65 and all volumes.
+- [x] Qualify5c65 original Checkpoint return, fresh keyboard echo and pre-save file readback; retain the incomplete diagnostic write history.
+- [ ] Attribute128-group request admission, word-return, drain and handoff waits on pinned traffic; distinguish original Hold, transport barriers and ARM disk waits.
+- [ ] Finish the existing default-off adjacent-beat successor protocol/physical-pin qualification in both simulators where supported; include actual failing controls before any native fit.
+- [ ] Add per-beat fill validity and stable fill identity; allow received/future-beat reuse and completed-line read service during drain with held-response/reset/refresh/write-coherence gates.
+- [ ] Add a small bounded owner-tagged request queue, in-order completion and next-command preparation; preserve original per-group commit/old-word semantics and fairness. Measure occupancy and native128-group wait reduction before expanding it.
+- [ ] Qualify a separately clocked SDRAM request/response path and physical IO constraints; evaluate66.7MHz first. Faster memory and faster CPU are separate experiments.
+- [ ] Integrate audited CPU phases and actual MIR/IFU/Ready/Hold/cache/Map producers to the original60ns ordinary cadence; calibrate every peripheral timer.
+- [ ] Qualify5c65 or its accepted successor's explicit Rollback, post-save filesystem changes and close/remount/cold persistence.
+- [ ] Finish pinned speed comparisons, three independent fresh-seed boots and two hours sustained disk/network/input stress; promote maintained RTL and commit/push qualified milestones.
+- [ ] Resume or clear the unfinished blocked goal through the goal UI; the attempted replacement was rejected and tools cannot resume it. This does not block the engineering work.
 
 ### Active speed and authentic rollback delivery
 
