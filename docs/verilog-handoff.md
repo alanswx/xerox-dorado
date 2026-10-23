@@ -1,5 +1,35 @@
 # Verilog from Sil: handoff
 
+**Current ContB work (2026-10-23): bounded captures pass; simultaneous clock handoff remains open.**
+[Exact original wiring, comparisons and preserved counterexamples](../fpga/mister/reports/2026-10-23-contb-mir/ordering/README.md).
+Generated candidate a793d9bb preserves40 physical Qs/25 clocks/26 flags. Both
+engines/all three illustrative profiles pass4961 events with independent ASEL
+copies, active-low maintenance release edges, shared reset, parity masks and
+real CP set/clear coverage. Six wrong variants reject in BOTH (12 cases).
+No maintained/native RTL replacement or speed claim.
+
+An unrestricted simultaneous root rise/RepeatCur release fails at34 in BOTH;
+two additional stable-instruction-data probes fail at35 on20 MIR clock channels.
+Passing tests explicitly separate those arrivals. Do not waive the gap or call
+the full producer-arrival contract qualified. The original gate model's pulse
+is not itself proof of a physical pulse meeting original minimum width.
+
+The first review missed a CP-selector mutation because all MIR bits were set;
+resetting through real rMIRa before each CP transaction exposed wrong BSEL.2
+and ALUF.2 CP selections. Both corrected; all earlier failures retained. The
+lossless receipt has3390 members/307 blobs/885140 compressed bytes. Ten unused
+selected inputs/five live controls and34 ContB/22 MemC pin checks pass.
+
+Next/TODO: couple actual ContA clock-enable (!Q9|Q11), StartCycle'a (!Q23,
+NOT the internal !Q25 copy), BNTGtCT'a, UseDMD, MIR ASEL/BSEL and shared reset.
+Close MemC e22/e23's three-driver Hold and distinct d23 CBHold/PRhold fanouts,
+including PrClk1'Da/clk1'Dc arrivals from j18/i18/h12. Named connector paths
+differ across boards. Resolve the handoff with those actual producer phases
+before integrating into the maintained798-Q processor graph; then remaining
+IM/parity/DMD/B-bus and native capture stages. Full A-F/60ns/timers/physical
+66.7MHz and final acceptance remain open. Hardware5c65/Main/daemon/volumes
+unchanged. Native2284/2331 and watcher66423 verified live; no113/Cedar window.
+
 **Latest producer closure (2026-10-23): actual ContA l17 -> d17 passes.**
 [Original pins, full matrix, LOW-B probes and preserved failed aggregation](../fpga/mister/reports/2026-10-23-r-front-l17/ordering/README.md).
 Maintained `dorado_r_front_l17_step.sv` SHA665188a2 retains all792 old Qs and

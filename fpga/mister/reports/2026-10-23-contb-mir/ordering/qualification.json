@@ -1,0 +1,91 @@
+{
+  "status": "BOUNDED_CONTB_COMPARISON_WITH_KNOWN_HANDOFF_GAP",
+  "candidate_sha256": "a793d9bb15bb12bdab9b0048b94ef69462ac668498b020b890a952ebed102fea",
+  "summary": "4961 events per positive case;40 original Qs;25 clocks;26 flags;all CP-wired MIR bits set/cleared",
+  "positive_cases": 6,
+  "rejected_logic_cases": 12,
+  "combined_handoff_failures": 2,
+  "stable_data_handoff_failures": [
+    {
+      "engine": "icarus",
+      "run": "contb-mir-handoff-stable-icarus-v1-20261023",
+      "run_state_sha256": "357c8dff952805399fb1adff83bef94cd75ab92cdcf729afc555d92211a4cd50",
+      "failure_check": 35,
+      "raw_instruction_stable": true,
+      "only_changed_inputs": [
+        "base LOW -> HIGH",
+        "CBHold HIGH -> LOW"
+      ],
+      "unexpected_clock_channels": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        18,
+        19,
+        20,
+        21
+      ]
+    },
+    {
+      "engine": "verilator",
+      "run": "contb-mir-handoff-stable-verilator-v1-20261023",
+      "run_state_sha256": "da8f508f0bac0feeff90c5224032e35788fc697121f3b9418598d6b03e39cbb0",
+      "failure_check": 35,
+      "raw_instruction_stable": true,
+      "only_changed_inputs": [
+        "base LOW -> HIGH",
+        "CBHold HIGH -> LOW"
+      ],
+      "unexpected_clock_channels": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        18,
+        19,
+        20,
+        21
+      ]
+    }
+  ],
+  "selected_boundary_audit": {
+    "unused": 10,
+    "rejected_live_controls": 5,
+    "ContB_pin_checks": 34,
+    "MemC_pin_checks": 22
+  },
+  "failed_predecessors": [
+    "v1 review missed CP-selector mutation; MIR already set",
+    "v2 review exposed wrong BSEL.2 CP selection",
+    "v4 Icarus pilot exposed wrong ALUF.2 CP selection"
+  ],
+  "full_producer_arrival_contract_qualified": false,
+  "native_integrated": false,
+  "physical_timing_qualified": false,
+  "hardware_speedup_claimed": false
+}

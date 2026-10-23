@@ -11,6 +11,30 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Current ContB experiment (2026-10-23): the40-Q/25-clock/26-flag candidate passes
+4961 events in BOTH engines/three illustrative arrival profiles; six wrong
+variants reject in BOTH. Separate ASEL storage, real CP set/clear, active-low
+maintenance release, parity enables and shared reset are preserved. Two CP
+selector errors were exposed and fixed by strengthening the test's initial
+state through real reset. [Evidence and retained failed predecessors](../fpga/mister/reports/2026-10-23-contb-mir/ordering/README.md).
+
+**Open: simultaneous root rise / RepeatCur release.** The original delayed
+graph has an extra MIR clock edge absent from the settled-level candidate.
+Both engines reject at34, and separate stable-data diagnostics reject at35
+on20 clocks. The passing contract separates those transitions. Resolve this
+with actual producer phases before native use; do not hide it with a timing
+waiver or an added architectural cycle. Illustrative delays do not establish
+whether the physical board pulse would satisfy minimum-width requirements.
+
+Next couple actual ContA !Q9|Q11 CLKEnable'a, !Q23 StartCycle'a (distinct from
+internal !Q25), BNTGtCT'a, UseDMD, shared rMIRa and ContB ASEL/BSEL. MemC Hold
+is e23.Q0 OR !e22.Q0 OR !e22.Q1; separate d23 outputs drive CBHold/PRhold.
+Close their real PrClk1'Da/clk1'Dc/h12 phase and hold-data producers, then
+remaining IM/parity/DMD/B-bus and full798-Q/native capture-stage integration.
+Thirty-four ContB/22 MemC pin checks and10 unused/five live boundary controls
+pass. Generated component only; no new fit/native load/speed result. Full
+A-F/60ns/timers/physical66.7MHz/Cedar/persistence/fresh boots/stress remain.
+
 Latest actual producer closure (2026-10-23): original ContA l17 is now coupled
 through j19/f13 clk1 fanout, g03/e01 data and d17 feedback. Six original Qs
 append to798; all9216RAM/69clocks/functional ports compare. ALL six profiles/
