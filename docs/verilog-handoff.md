@@ -226,31 +226,45 @@ host epochs BYTE-IDENTICAL at104113/103659ticks. First fixture precheck expected
 CAPTURE1 but found0; stopped before output, corrected explicit CAPTURE1 adapter
 reproduces old trace. Failure preserved. [381-member component proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/component/README.md).
 
-**ONE combined corrected-source native fit LIVE, same57MHz clock.**
-All503 qualified690f sources verified; precisely six RTL files change combining
+**Combined corrected-source native fit/review/assembly PASS; hardware pending.**
+Remote `/home/alans/mister/Dorado_OldWordEarly57_1_20261022` is terminal:
+builder1968443, all nine original stages, seven supplemental reporters and
+old-word audit2077025/2102820 returned0 and their recorded processes are absent.
+Local collector34147/tool55999 completed108 polls and copied1082 base members;
+30 supplemental audit files and their collection binding are retained separately.
+All503 sources exactly regenerate from qualified690f with six RTL changes:
 carry/two muxes/backend/wrapper/group. Early replies enabled, falling old-word
-capture/new128 transport controls expected. Clocks/SDC/CPU/cache/Map/ECC/other
-devices/Main/daemon unchanged. Two new component receipts hash-pinned; eight
-actual damaged-evidence guards reject before output, including wrong rebound
-edge/reference/consumer check/host trace. All FOUR previous444-category diagnostics
-reproduce byte-identically under extended inspector. Full physical mode/control
-inventory still required. [628-member source/observed-live proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-stage/README.md).
-Remote `/home/alans/mister/Dorado_OldWordEarly57_1_20261022`: builder1968443,
-map terminal0/fitter1982706 directly observed LIVE. Read-only reporters1970492/
-collector1970493 follow SAME job. Local PID34147/tool55999 follows collector PID
-from actual launch receipt, bounded300 polls; timeout never permits restart.
-Initial guard stopped before project creation on unrelated MacQuadra map1950286;
-premature reporter attachment also failed before output/child launch. Resource
-inspection64GiB RAM/about42GiB available/16CPUs then allowed isolated concurrent
-fit only with24GiB headroom/no same-project job. Unrelated fit1967273 untouched;
-no compiled setting/constraint changed for scheduling. No new timing/assembly/
-load/FPGA speed result yet. Still57.142857MHz/SYSPER4/140ns nominal.
+capture and all128 transport qualifiers verified. Clocks/SDC/CPU/cache/Map/ECC/
+other devices/Main/daemon unchanged. Both component receipts remain hash-pinned.
+All31 summaries/468 categories/four conditions pass: minimum setup+0.530ns,
+hold+0.115ns. Original half-cycle old-word paths and full-cycle qualifiers,
+1152 old-word/read-pipe registers,128 qualifiers,170 RAM rows/modes, independent40
+cache/294912bits, raw buffer/hit counter/lookahead/BaseBoard ratio are verified.
+35205 ALMs/55210 registers/332 M10Ks/35DSPs. New pruning warnings are only the
+proven mux selected[0..7] combinational LCELL nodes; no new fit/STA warning.
+41 actual review corruptions and14 assembly guards reject; original evidence
+unchanged. Both legacy380/444 reviews remain byte-identical with final shared
+reviewer,17/29 rejection controls and legacy10 assembly guards pass. First new
+assembly-guard fixture stopped on a legacy dependency requirement; corrected
+and all cases re-run. Preserve that failure, not a native fit failure.
+One guarded assembly2187243/2187275 terminal0, no refit,0 errors/warnings.
+RBF5c6540e58993b0a56f3836abafe1235e41dd9a4e1b93f4188dddfe293dc47305,
+4164256bytes, local readback and all503 post-assembly sources verified.
+[Full source/timing/review/assembly proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-qualified-assembly/README.md).
+Still57.142857MHz/SYSPER4/140ns nominal. No new hardware speed/firmware result;
+earlier component mixed96 at57MHz was slower with early replies, so do not infer
+an instruction speedup. Initial unrelated-build scheduling guard and premature
+reporter attachment failures remain in the immutable stage receipt; neither
+changed timing constraints nor caused a second fit.
 
-Next/TODO: follow SAME combined fit through full source/all-device/four-condition
-review, explicitly inspect falling old-word paths and128 qualifier inventory.
-Keep original690f/Main521/daemon520 on MiSTer14 until qualified replacement;
+Next/TODO: prepare ONE normal load of reviewed5c65 with matched236b seed,
+unchanged Main21e6/receiver0845, preserving current690f volume through normal
+close/fsync/DDR-revocation barriers. Original113/C release, pre-Guest pinned
+issues/holds measurement, then interactive Viewers/apps/files/original Rollback.
+Current690f/Main521/daemon520 on MiSTer14 remains unchanged before that load;
 followup native screenshot still shows schematic/tools/Clock and both exact
-file reads/alphabet echo. [Same-core followup](../fpga/mister/reports/2026-10-22-timing-paths/native57-cold-followup/README.md)\nchecks identities/no recorded faults; not final stress. Last HDMI captures black, service continuously active;
+file reads/alphabet echo. [Same-core followup](../fpga/mister/reports/2026-10-22-timing-paths/native57-cold-followup/README.md)
+checks identities/no recorded faults; not final stress. Last HDMI captures black, service continuously active;
 protected stream configuration requires admin access, no service/settings change.
 Investigate that output path. Original60ns/all-device rates, minimal Main337
 isolation, canonical production-source promotion, three final fresh-seed boots

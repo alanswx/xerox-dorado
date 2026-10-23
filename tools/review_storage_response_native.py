@@ -29,7 +29,8 @@ def sha(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def review(root, config, timing_paths=False):
+def review(root, config, timing_paths=False, old_word=False):
+    assert not old_word or timing_paths
     evidence = {}
 
     def data(name):
@@ -57,6 +58,10 @@ def review(root, config, timing_paths=False):
         assert r['split_selection'] and r['request_lookahead'] == 1
         assert r['parallel_lookup'] and r['parallel_ready_compare'] and r['ALU_carry_select']
         assert not r['firmware_qualified'] and not r['hardware_speedup_qualified']
+        if old_word:
+            assert r['old_word_falling'] and r['early_read_response'] and r['decoded_mux']
+            assert r['capture_read_word'] and not r['response_valid_cycles_unchanged']
+            assert not r['architectural_capture_cycles_changed'] and r['new_transport_control_bits_expected'] == 128
     else:
         assert not r['native_timing_firmware_speed_qualified']
     actual = {n: sha(data(n)) for n in r['source_hashes']}
@@ -64,7 +69,11 @@ def review(root, config, timing_paths=False):
     supplied = json.loads(config.read_text())
     if timing_paths:
         from stage_timing_paths_native import stage as timing_stage, ARB, GROUP, CELL
-        assert set(supplied) == {'parent','qualification','crystal','generated','arb','board','ready','alu'}
+        if old_word:
+            from stage_storage_old_word_native import stage as timing_stage
+            assert set(supplied) == {'parent','qualification','generated','miter','pins','board','direct_alu','mux','early','old_word'}
+        else:
+            assert set(supplied) == {'parent','qualification','crystal','generated','arb','board','ready','alu'}
         args = {k: Path(v).resolve() for k, v in supplied.items()}
     else:
         assert set(supplied) == {'parent', 'qualification', 'generated', 'pins', 'board', 'parallel_lookup'}
@@ -81,7 +90,11 @@ def review(root, config, timing_paths=False):
                 stage(**args, out=out, project=Path(r['project']))
         assert json.loads((out / manifest).read_text()) == r, 'Native recipe differs'
         assert {n: sha((out / n).read_bytes()) for n in actual} == actual
-    if timing_paths:
+    if old_word:
+        assert set(r['modified_RTL_sources']) == {WRAPPER, GROUP, CELL,
+            'src/fpga/mister/dorado_storage_sdram_burst.sv',
+            'src/verilog/cells/cell_MC10164.v','src/verilog/cells/cell_MU10164.v'}
+    elif timing_paths:
         assert set(r['modified_RTL_sources']) == {WRAPPER, ARB, GROUP, CELL,
             'src/verilog/cells/cell_MC12061.v',
             'src/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v'}
@@ -118,7 +131,7 @@ def review(root, config, timing_paths=False):
     memory['cache'] = readers.native_cache_physical(fitting,
         js('src/fpga/mister/snapshot_native_memd/assets.json')['manifests']['MemD'], 'independent40')
     paths, coverage = [], {}
-    inherited_count = 380 if timing_paths else 332
+    inherited_count = 444 if old_word else 380 if timing_paths else 332
     inherited = [p['report'].removesuffix('.gz') for p in q['detailed_paths'][:inherited_count]]
     assert len(inherited) == len(set(inherited)) == inherited_count
     for name in inherited:
@@ -131,7 +144,7 @@ def review(root, config, timing_paths=False):
         name = 'core/native59-ucp-' + corner + '.rpt'
         coverage[corner] = ucp(text(name))
         assert coverage[corner] == ucp((parent / name).read_text())
-        added_categories = ([('crystal',['oscillator','downstream','baseboard']),
+        added_categories = ([] if old_word else [('crystal',['oscillator','downstream','baseboard']),
                              ('look',['selection','cached-response','admission','group-ready','outgoing'])]
                             if timing_paths else
                             [('cache-hit', ['counter', 'event', 'initialized']),
@@ -142,6 +155,64 @@ def review(root, config, timing_paths=False):
                     name = f'storage-ready-reports-v1/{prefix}-{label}-{mode}-{corner}.rpt'
                     paths.append(readers.timed(text(name), name))
     assert len(paths) == (444 if timing_paths else 380) and all(p['slack_ns'] > 0 for p in paths)
+    old_word_families = {}
+    if old_word:
+        extra = js('extra-old-word-v1/run-state.json')
+        assert extra['status'] == 'TERMINAL_OLD_WORD_REPORTS_REVIEW_REQUIRED' and extra['returncode'] == 0
+        extra_collection=js('extra-old-word-v1/collection.json')
+        assert extra_collection['status']=='TERMINAL_EXTRA_OLD_WORD_AUDIT_SOURCE_READBACK'
+        assert extra_collection['source_hashes']==actual
+        assert set(extra_collection['absent_pids'])=={extra['pid'],extra['child_pid']}
+        for n,h in extra_collection['members'].items():assert sha(data('extra-old-word-v1/'+n))==h,n
+        assert sha(data('extra-old-word-v1/audit_storage_old_word_native.tcl')) == extra['audit_source_sha256']
+        assert data('extra-old-word-v1/audit_storage_old_word_native.tcl') == (ROOT/'tools/audit_storage_old_word_native.tcl').read_bytes()
+        old_word_log = text('extra-old-word-v1/audit.log')
+        assert not re.search(r'^(?:Critical )?Warning|^Error',old_word_log,re.M)
+        wanted_groups = {f'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_{b}|dorado_storage_group:u_storage_{i}'
+                         for b in ['msa','msaOdd','msa1','msa1Odd','msa2','msa2Odd','msa3','msa3Odd']for i in range(16)}
+        previous_old_sets = {}
+        def old_word_paths(body,label,mode):
+            found=[]
+            for line in body.splitlines():
+                f=[s.strip()for s in line.split(';')[1:-1]]
+                if len(f)!=8 or not re.fullmatch(r'[-+\d.]+',f[0]):continue
+                slack,source,sink,launch,latch,relationship,skew,delay=f
+                assert float(slack)>0 and launch==latch==HOST_CLOCK
+                if label=='qualifier':
+                    assert float(relationship)==(17.5 if mode=='setup'else 0)
+                    assert sink.rsplit('|',1)[0]in wanted_groups and sink.rsplit('|',1)[1].split('~',1)[0]=='preserve_old_word'
+                else:
+                    assert float(relationship)==(8.75 if mode=='setup'else -8.75)
+                    a=re.fullmatch(r'(.+)\|(cache_data\[(\d+)\]|preserve_old_word|old_data\[(\d+)\])(?:~DUPLICATE(?:_\d+)?)?',source)
+                    b=re.fullmatch(r'(.+)\|(old_data|read_pipe)\[(\d+)\](?:~DUPLICATE(?:_\d+)?)?',sink)
+                    assert a and b and a[1]==b[1]and a[1]in wanted_groups
+                    if label=='input':
+                        assert b[2]=='old_data'and(a[2]=='preserve_old_word'or a[3]==b[3])
+                    else:
+                        assert b[2]=='read_pipe'and a[4]==b[3]
+                found.append((source,sink))
+            assert len(found)==(128 if label=='qualifier'else 256),(label,mode,len(found))
+        for corner in sorted(readers.CORNERS):
+            old_word_families[corner] = {}
+            for label in ['word','pipe','qualifier']:
+                pattern = re.escape(corner)+' '+label+' '
+                names = re.findall(r'^OLD_WORD_FAMILY_REGISTER '+pattern+r'(.+)$',old_word_log,re.M)
+                counts = re.findall(r'^OLD_WORD_FAMILY_COUNT '+pattern+r'(\d+)$',old_word_log,re.M)
+                assert len(counts)==1 and int(counts[0])==len(names)==len(set(names))>0
+                physical = canonical(names)
+                assert {n.rsplit('|',1)[0]for n in physical} == wanted_groups
+                if label=='qualifier':
+                    assert physical == {n+'|preserve_old_word'for n in wanted_groups}
+                if label in previous_old_sets:assert previous_old_sets[label]==physical
+                previous_old_sets[label]=physical
+                old_word_families[corner][label]=dict(physical=len(names),canonical=len(physical))
+            for label in ['input','output','qualifier']:
+                for mode in ['setup','hold']:
+                    name=f'extra-old-word-v1/old-word-{label}-{mode}-{corner}.rpt'
+                    body=text(name)
+                    paths.append(readers.timed(body,name))
+                    old_word_paths(body,label,mode)
+        assert len(paths)==468 and all(p['slack_ns']>0 for p in paths)
     clocks = text('core/native-clocks.rpt')
     for name in [HOST_CLOCK, 'dorado_sdram_clk']:
         rows = [s for s in clocks.splitlines() if s.startswith('; ' + name + ' ')]
@@ -151,6 +222,8 @@ def review(root, config, timing_paths=False):
                               ('SNAPSHOT_PAUSE', 0, 1), ('CACHE_LINES', 4, 1), ('RESPONSE_OVERLAP', 1, 2)]
     if timing_paths:
         parameters.append(('REQUEST_LOOKAHEAD',1,1))
+    if old_word:
+        parameters += [('CAPTURE_READ_WORD',1,1),('EARLY_READ_RESPONSE',1,1)]
     for key, value, count in parameters:
         values = re.findall(r';\s*' + key + r'\s*;\s*(\d+)\s*;', mapping)
         assert len(values) == count and all(int(v) == value for v in values), key
@@ -257,7 +330,22 @@ def review(root, config, timing_paths=False):
         if name == 'map.log':
             def truncation(source, width):
                 return ('10230', f'Verilog HDL assignment warning at {source}.sv(LINE): truncated value with size 32 to match size of target ({width}) File: PROJECT/src/fpga/mister/{source}.sv Line: LINE')
-            if timing_paths:
+            if old_word:
+                assert not removed and added == Counter({('14284','Synthesized away the following node(s):'):1})
+                def all_warnings(body):
+                    return Counter(map(normalized,re.findall(r'^\s*Warning \((\d+)\): (.+)$',body,re.M)))
+                previous_warnings=all_warnings((parent/name).read_text())
+                current_warnings=all_warnings(body)
+                assert not previous_warnings-current_warnings
+                added_all=current_warnings-previous_warnings
+                assert added_all.pop(('14284','Synthesized away the following node(s):'))==1
+                assert added_all.pop(('14285','Synthesized away the following LCELL buffer node(s):'))==1
+                assert added_all
+                for (code,message),count in added_all.items():
+                    assert code=='14320' and count==1
+                    match=re.fullmatch(r'Synthesized away node "emu:emu\|dorado_native_machine:u_native\|dorado_native_backplane:m\|[^|]+\|cell_(MC|MU)10164:u_[a-z]\d+\|selected\[[0-7]\]" File: PROJECT/src/verilog/cells/cell_(MC|MU)10164.v Line: LINE',message)
+                    assert match and match[1]==match[2],message
+            elif timing_paths:
                 # The actual scaled crystal drives p10. Its default-only
                 # legacy divide-eight output is intentionally not consumed.
                 expected = ('10036', 'Verilog HDL or VHDL warning at cell_MC12061.v(LINE): object "osc" assigned a value but never read File: PROJECT/src/verilog/cells/cell_MC12061.v Line: LINE')
@@ -299,6 +387,11 @@ def review(root, config, timing_paths=False):
                       split_selection=True,request_lookahead=1,parallel_ready_compare=True,ALU_carry_select=True,
                       crystal_SYSPER=8,crystal_FREQ_KHZ=10000,lookahead_state_bits=165,
                       added_timing_families=timing_families)
+    if old_word:
+        result.update(status='PASS_NATIVE_OLD_WORD_EARLY_PREASSEMBLY_REVIEW',
+            scope='Combined falling-old-word/early-read preassembly review: exact six-source regeneration,468 timing categories and physical inventories. No assembly/firmware/speed authorization.',
+            old_word_falling=True,early_read_response=True,capture_read_word=True,decoded_mux=True,ALU_direct_carry=True,
+            old_word_register_families=old_word_families,transport_control_bits=128)
     return result
 
 
