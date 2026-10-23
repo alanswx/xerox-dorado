@@ -20,6 +20,14 @@ producer or physical timing qualification. No maintained RTL change/fit/load.
 Next/TODO: supply the arrival order from the actual FPGA clock partition and
 integrate the full processor, then close real IM/parity/MCR/hold-data/DMD/B-bus.
 Do not hardwire a test delay selection into a claim of native equivalence.
+First trace processor PRhold -> f19.13 -> f19.14 Hold' -> e19.10 -> e19.13
+Holda on BOTH ProcH-Rev-Ce and ProcL-Rev-Ci. MC1660 f19 inverts PRhold;
+MC10195 e19 (unwired mode pin9=0) inverts Hold' again. The settled level equals
+PRhold but the two gate arrivals matter. Current798-Q ProcH extraction leaves
+Holda and PRhold bound to the same raw pins[68]; its e19 package is absent.
+ProcL already includes e19. Include the actual H producer/other package-half
+boundaries before treating raw pin68 as a closed memory-produced Hold path.
+The existing bounded raw-input comparisons do not prove this new arrival seam.
 Full A-F/60ns/timers/physical66.7MHz/Cedar/rollback/persistence/fresh boots/stress
 remain active. Hardware5c65 and volumes unchanged; last pinned rate4.025473M
 StartCycle issues/s (24.15% nominal), not a desktop/retirement benchmark.

@@ -21,6 +21,10 @@ The root-only failed matrix below remains failed. Actual FPGA phase generation
 must supply the arrival contract; no native integration/timing/speed gain is
 claimed. Next integrate the full processor with that actual phase producer and
 close IM/parity/MCR/hold-data/DMD/B-bus before original-ROM60ns qualification.
+For processor Hold closure, include ProcH e19: current raw pins[68] aliases
+PRhold and local Holda, while the original path is PRhold -> f19 inverter ->
+e19 inverter -> Holda. ProcL includes its e19 already. Preserve those gate
+arrivals; equal settled levels do not prove interchangeable capture epochs.
 Full A-F, physical66.7MHz and final acceptance remain active.
 
 Current joint control integration (2026-10-23) is **INCOMPLETE, not promoted**.
