@@ -23,6 +23,7 @@ def run(source, qualified, output):
            'changed_dependency_rehashed','missing_corner','missing_evaluator','negative_setup','negative_evaluator']
     component=json.loads((source/'provenance.json').read_text()).get('component')
     if component=='task_producers':names+=['changed_cp_dependency_rehashed']
+    if component=='mir_ready':names+=['changed_cp_dependency_rehashed','changed_mir_dependency_rehashed','changed_fixture_wiring_rehashed']
     if component in ('task_ready_capture','r_front_ready'):names+=['changed_ready_dependency_rehashed']
     if component=='r_front_ready':names+=['changed_front_dependency_rehashed','changed_fixture_wiring_rehashed']
     if component in ('r_storage','r_memory','r_front','r_front_functional','r_front_ready'):
@@ -44,12 +45,18 @@ def run(source, qualified, output):
             if evaluator in ('r_front','r_front_functional')and name.startswith('changed_evaluator'):target='dorado_r_front_step.sv'
             if evaluator=='task_producers'and name=='changed_dependency_rehashed':target='dorado_task_ready_step.sv'
             if evaluator=='task_producers'and name=='changed_cp_dependency_rehashed':target='dorado_cp_control_step.sv'
+            if evaluator=='mir_ready':
+                if name=='changed_dependency_rehashed':target='dorado_task_ready_step.sv'
+                if name=='changed_cp_dependency_rehashed':target='dorado_cp_control_step.sv'
+                if name=='changed_mir_dependency_rehashed':target='dorado_mir_capture_step.sv'
+                if name=='changed_fixture_wiring_rehashed':target='top.sv'
             if evaluator in ('task_ready_capture','r_front_ready')and name=='changed_ready_dependency_rehashed':target='dorado_task_ready_step.sv'
             if evaluator=='r_front_ready'and name=='changed_front_dependency_rehashed':target='dorado_r_front_step.sv'
             if evaluator=='r_front_ready'and name=='changed_fixture_wiring_rehashed':target='top.sv'
             if name=='changed_generated_cone_rehashed':target='dorado_r_front_cone.sv'
             if name=='changed_fixture_wiring_rehashed':
-                changed_input(d,target,lambda s:s.replace('result<={next_q,',"result<={752'b0,",1))
+                zero="50'b0"if evaluator=='mir_ready'else"752'b0"
+                changed_input(d,target,lambda s:s.replace('result<={next_q,',"result<={"+zero+",",1))
             else:
                 changed_input(d,target,lambda s:s+'\n// changed qualified source\n')
         elif name=='missing_corner':

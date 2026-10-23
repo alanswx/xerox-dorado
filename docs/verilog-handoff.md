@@ -1,5 +1,25 @@
 # Verilog from Sil: handoff
 
+**Latest clock work (2026-10-23): MIR/CP-to-Ready ordering and isolated15ns budget PASS.**
+[Coupled producer/component and raw timing proof](../fpga/mister/reports/2026-10-23-mir-ready/component/README.md)
+retains50 original Qs:16 Ready,12 CP,22 MIR. Actual ClrReady/rMIR, Notify,
+preemption and MIR clock fanout are internal; positive/negative BNT remain
+independent. Both engines/three illustrative delay profiles agree on22,397
+events, all15 Notify wakeups and4,111 shared-clock OLD-MIR checks. Six damaged
+candidates reject in BOTH. Initial matching-reference/failed bench assertion
+was corrected by checking flags before state advance; candidate RTL unchanged.
+Eight unused gate-boundary inputs are exact-dependency audited; two live-path
+cell mutations reject. Original full-machine producers remain required.
+
+One isolated15ns fit is terminal and source-checked at all four conditions:
+setup+5.521ns,hold+0.149ns,mpw+6.548ns; evaluator setup>=+9.083ns;
+247ALMs/395registers including shell, no RAM/DSP/PLL. All build PIDs absent;
+11 damaged reader controls reject, old CP/Ready review unchanged. No timing
+waiver, assembly or load. Next couple actual controller/task/phase feedback
+with the producer slice; IM/IFU/memory-Hold arrivals, native timing and60ns
+remain open. This is no hardware speed gain. Hardware/session below unchanged.
+
+
 **Clock migration follow-up: original MIR capture slice now qualified as a component.**
 [Source-bound pin inventory and both-simulator proof](../fpga/mister/reports/2026-10-23-mir-capture/component/README.md)
 checks all 503 qualified 5c65 source identities and the actual eleven Control-A MIR package

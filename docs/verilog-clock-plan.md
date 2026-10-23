@@ -52,6 +52,16 @@ physical bindings. This closes only that register transfer slice: actual
 IM/CP arrivals, MIR clock-fanout/Ready/arbiter/phase coupling, memory/Hold/IFU,
 native timing and60ns remain open. No hardware change or new speed claim.
 [MIR component evidence](../fpga/mister/reports/2026-10-23-mir-capture/component/README.md).
+The subsequent MIR/CP/Ready coupling now passes50-Q digital ordering in both
+engines/three profiles, including4,111 shared-clock old-MIR checks. Its isolated
+15ns fit passes all four conditions (+5.521ns setup/+0.149ns hold),247ALMs/
+395registers, with11 rejected reader controls. Eight unused package-gate inputs
+are dependency-audited; two live-path controls reject. No native change or speed
+gain. Next couple actual controller/task/phase feedback and close IM/IFU/memory
+Hold arrivals before full native integration. Preserve the stable-setup contract;
+this is not full60ns qualification.
+[Coupled producer/timing evidence](../fpga/mister/reports/2026-10-23-mir-ready/component/README.md).
+
 Read-only watcher7144 preserves the existing paired113 windows when available;
 its own bound cannot stop the simulations.
 
