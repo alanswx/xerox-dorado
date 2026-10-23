@@ -11,6 +11,50 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest operand-window/current-port work (2026-10-23;
+[reviewed sources and fits](../fpga/mister/reports/2026-10-23-physical-operand-windows/README.md)):
+read-window, shared-f14 and T-window matrices now each pass all12 cases in
+BOTH/six profiles. Actual f14 event/repeat(channel12) feeds the child's same
+physical clock22 with old capture data; omitting it rejects17 in BOTH. Its
+standalone fit regresses to-4.116ns, so it is not a faster native selection.
+
+T's32 input+16 visible MC10173 Qs now use closed storage/live open views.
+The existing T RAM/parity writers use physical current k01/k02 data. T status
+exports are CURRENT physical parity/faults; the full functional assertion runs
+after owner commit, with capture/window checks also before commit. No extra
+state/reset/guest cycle and no excluded Q/RAM/clock/functional observation.
+All844 physical Qs/9216RAM/100clocks compare; balanced BOTH11300events/
+238writes/4368reads/392epochs. Omit-close/hide-open controls reject7733 on
+actual T bits in BOTH. Total closed encoding80bits(T48+R32), not extra state.
+
+The SRAM owner now uses current address/selection/dRm for both read and write,
+without the next-address preview. Delete only the removed replica's internal
+comparisons; actual controller and independent full checks remain. BOTH pass
+the same11300 summary; wrong write address rejects203 via RAM in BOTH.
+Current-memory profile matrix is RUNNING at
+`r-front-current-memory-matrix-v1-20261023`, PID74505/tool76089, nine of12
+passes at receipt. Keep its runner/matrix and imported task tools frozen.
+
+Unchanged15ns physical fits: T-window setup-2.414ns (global RM MLAB write path),
+then current-port setup-1.122ns, hold+.136/pulse+6.118,4022ALMs/3341 shell regs/
+9216MLABbits/zeroM10K/zeroUCP, all four conditions. The current worst is
+after-clock launch804->result291(forwarded_bypass0),18levels/15.785ns through
+control/MIR/NextMacro/RBase/address comparison. All1400 result fields remain;
+T status semantics are physical current Q, not a future-state forecast.
+All builders/stages are terminal with exact input readback except the Quartus
+version annotation. No assembly/load, native timing,60ns or speed claim.
+
+Next/TODO: finish the current-port profile gate; separate physical source/
+forwarded-bypass observations from next-capture lookahead with full original
+functional checks and real consumer timing. Do not remove the observer or
+relax15ns. Native current-live versus historical capture seams, single visible-R
+ownership, packed-view dependency partition, early RBase arrival failure,
+actual producer/ROM correctness,60ns phases/timers, physical66.7MHz SDRAM and
+full A-F remain. Hardware and last4.025473MStartCycle/s are unchanged.
+Original native2284/2331 remain live at4.49B/4.92Bhost; cold37871/43350 at
+560M/470Mhost, no113/Cedar window yet or fault/CRC/RX observed. Preserve5B/1B
+bounds and C protocol. Enabled ticks are not retirements. Full goal active.
+
 Latest read-window work (2026-10-23, after the control-capture report;
 [reviewed evidence](../fpga/mister/reports/2026-10-23-r-read-windows/README.md)): the
 task-clock mask now passes the complete14-case matrix in BOTH engines/six

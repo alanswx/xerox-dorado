@@ -1,5 +1,42 @@
 # Verilog from Sil: handoff
 
+**Latest operand-window work (2026-10-23): current SRAM port passes BOTH;15ns deficit now1.122ns.**
+[Complete changes, original-reference checks, regressions and physical reports](../fpga/mister/reports/2026-10-23-physical-operand-windows/README.md).
+Read-window/shared-f14/T-window matrices are all terminal PASS12cases each,
+six profiles/BOTH engines. Actual ContA f14 event+repeat feeds its shared child
+clock22, retaining old task data; omitted event rejects17. That change alone
+regressed timing to-4.116ns and was not selected as a faster native build.
+
+T's32 input+16 visible bits now retain closed values and expose open Q. T RAM/
+parity writes use physical k01/k02; current T parity/fault observations compare
+after owner commit, capture/window controls also before. All844Qs/9216RAM/
+100clocks/functional fields remain checked. BOTH11300events/238writes/4368reads/
+392epochs. Wrong T closure/open-view controls reject7733 in BOTH. No new state,
+reset or guest cycle; closed encoding is80 existing bits(T48+R32).
+
+Current SRAM address/selection/dRm serve read AND write. No next-address
+preview or its replica checks; actual controller/full independent checks stay.
+BOTH pass11300; wrong address rejects203 via RAM. Broader current-port matrix
+remains live: `r-front-current-memory-matrix-v1-20261023`, PID74505/tool76089,
+nine of12 passes at receipt. Keep runner/matrix/imported task code frozen.
+
+T-window fit setup-2.414ns globally at RM write-enable (different from restricted
+evaluator worst). Current-port fit setup-1.122ns, hold+.136/pulse+6.118,
+4022ALMs/3341 shell regs/9216MLABbits/zeroM10K/zeroUCP, all four conditions.
+Worst after-clock804->forwarded_bypass0(result291),18levels/15.785ns. Exact
+input readback, only Quartus version annotation differs, all build PIDs exited.
+All1400 result fields retained; physical-current T status is explicitly not a
+forecast of next-state outputs. No assembly/load/native60ns or speed claim.
+
+Next/TODO: finish the profile matrix, then distinguish current physical source/
+bypass observations from next-capture lookahead with original functional and
+actual consumer timing checks. Keep15ns and every actual observer. Native live
+versus historical source seams, single visible-R owner, dependency warning,
+early RBase overlap, actual native producers/ROM,60ns phases/timers/SDRAM and
+full A-F remain. Native2284/2331/37871/43350 were revalidated live; preserve
+original5B/1B limits and C protocol, never restart on observer timeout. Hardware
+and last pinned4.025473MStartCycle issues/s remain unchanged; full goal active.
+
 **Latest read-window work (2026-10-23): full balanced comparison passes;15ns still rejected by3.557ns.**
 [Reviewed proofs, parser/fixture failures, source audit and physical result](../fpga/mister/reports/2026-10-23-r-read-windows/README.md).
 The task-clock mask's14-case BOTH/six-profile matrix is now terminal PASS.
