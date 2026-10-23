@@ -21,6 +21,15 @@ from test_task_ready import ORACLE
 
 ROOT = Path(__file__).resolve().parents[1]
 CANDIDATE = 'verilog/rtl/dorado_r_front_mir_step.sv'
+PROFILES = {
+    'balanced': (1000, 1000, 1000, None, 1000),
+    'fast_gates': (500, 1000, 500, None, 1000),
+    'later_control': (1000, 2000, 1000, None, 1000),
+    # The PARC values apply only to the inherited parity arcs, not all gates.
+    'parc_parity_min': (1000, 1000, 1000, 'min', 1000),
+    'parc_parity_max': (1000, 1000, 1000, 'max', 1000),
+    'later_r_memory': (1000, 1000, 1000, None, 9900),
+}
 
 
 def sha(p):
@@ -224,24 +233,26 @@ def run(base, out, iterations, post_mir, engine, profile, producer_random, cp, f
     cone.write_bytes((base/cone.name).read_bytes())
     assert sha(cone) == parent['inherited_cone_sha256']
     timed = out/'timed'
-    delays={'balanced':(1000,1000,1000),'fast_gates':(500,1000,500),'later_control':(1000,2000,1000)}[profile]
-    stage(inputs, ref, timed, *delays)
+    gates,ffs,phases,parc,read_ps=PROFILES[profile]
+    stage(inputs, ref, timed, gates,ffs,phases,parc)
     for p in (base/'ram-reference').glob('*.sv'):
         (timed/p.name).write_bytes(p.read_bytes())
     for name in ['r_file_original_storage.sv', 'r_front_original_storage.sv']:
         raw=(inputs/'verilog/verilator'/name).read_text()
-        if name=='r_front_original_storage.sv':raw=raw.replace('DELAY_PS=1000',f'DELAY_PS={delays[1]}')
+        if name=='r_front_original_storage.sv':raw=raw.replace('DELAY_PS=1000',f'DELAY_PS={ffs}')
+        else:raw=raw.replace('READ_PS=1000',f'READ_PS={read_ps}')
         (timed/name).write_text(raw)
-    (timed/'ready_ff.sv').write_text(ORACLE.replace('module original_F10000', 'module original_F10000_ready').replace('DELAY_PS=1000',f'DELAY_PS={delays[1]}'))
+    (timed/'ready_ff.sv').write_text(ORACLE.replace('module original_F10000', 'module original_F10000_ready').replace('DELAY_PS=1000',f'DELAY_PS={ffs}'))
     candidate = out/'candidate.sv'
     candidate.write_text((inputs/CANDIDATE).read_text().replace('POST_MIR_PINS=2', f'POST_MIR_PINS={post_mir}'))
     rtl = [inputs/n for n in hashes if n.startswith('verilog/rtl/') and n != CANDIDATE]
     support = [candidate, tb, cone, *rtl, *sorted(timed.glob('*.sv')), *sorted(timed.glob('*.v'))]
+    defines=['-DPARC_PARITY_TIMING']if parc else[]
     if engine == 'icarus':
-        command = ['iverilog', '-g2012', '-s', 'tb_r_front_mir', '-o', out/'test.vvp', *support]
+        command = ['iverilog', '-g2012', '-s', 'tb_r_front_mir', *defines, '-o', out/'test.vvp', *support]
     else:
         command = ['verilator', '--binary', '--timing', '--top-module', 'tb_r_front_mir', '-Wno-fatal',
-                   '--Mdir', out/'obj', '-o', 'test', *support]
+                   *defines, '--Mdir', out/'obj', '-o', 'test', *support]
     rc = execute(command, out/'compile.log')
     if rc == 0:
         rc = execute(['vvp', '-i', out/'test.vvp'] if engine == 'icarus' else [out/'obj/test'], out/'test.log')
@@ -255,6 +266,8 @@ def run(base, out, iterations, post_mir, engine, profile, producer_random, cp, f
                  summary=summary[1] if summary else None,
                  timed_sources={p.name:sha(p)for p in timed.iterdir()if p.suffix in ['.v','.sv']},
                  inherited_cone_sha256=sha(cone),executed_candidate_sha256=sha(candidate),
+                 delay_profile=dict(gates_ps=gates,ffs_ps=ffs,phases_ps=phases,
+                                    parc_parity_control=parc,R_read_ps=read_ps),
                  physical_timing_qualified=False, full_arrival_contract_qualified=False)
     save()
     print(state['status'], out, flush=True)
@@ -268,7 +281,7 @@ if __name__ == '__main__':
     p.add_argument('--iterations', type=int, default=64)
     p.add_argument('--post-mir', type=int, choices=[0, 1, 2], default=2)
     p.add_argument('--engine', choices=['icarus', 'verilator'], default='icarus')
-    p.add_argument('--profile', choices=['balanced','fast_gates','later_control'], default='balanced')
+    p.add_argument('--profile', choices=PROFILES, default='balanced')
     p.add_argument('--producer-random', action='store_true')
     p.add_argument('--cp', action='store_true')
     p.add_argument('--front-directed', action='store_true')

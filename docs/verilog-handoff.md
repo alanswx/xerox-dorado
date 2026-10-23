@@ -1,5 +1,31 @@
 # Verilog from Sil: handoff
 
+**Latest clock budget (2026-10-23): extended arrivals PASS; combined15ns fit REJECTED.**
+[Raw extended tests, rejected timing and path attribution](../fpga/mister/reports/2026-10-23-r-front-mir/arrival-budget/README.md).
+Both engines agree on11507 events for each PARC parity-min/parity-max and9.9ns
+R-memory profile, including MIR-directed RBase/StkP and HIGH-/LOW-root CP.
+786 Qs/9216RAM bits/67 clocks and functional ports compare per event; all67
+clocks exercised. Candidate RTL unchanged. This is bounded ordering, not full
+native producer or physical board timing qualification.
+
+One combined budget build is terminal:3330ALMs/2980registers/four256x9MLABs,
+setup-2.961ns,hold+0.157ns,mpw+6.117ns. All five job PIDs absent; input readback
+permits only Quartus version annotation. No assembly/load or timing exception.
+The22-level/17.633ns path is oldBNT.2/q70 -> task/clock resolution -> MIR mux ->
+stack address -> actual stk_h read -> parity_ok[1]. Keep that functional parity
+endpoint in the budget. Nineteen malformed reader controls reject; old Ready
+timing and its20 controls reproduce unchanged.
+
+Next/TODO: close actual MIR/IM/Hold arrivals and LOCAL Control-A producers:
+StopTasks=a13.9 with d17/tasking/FF-decode fan-in, RWTPCorRWIM=d21.2 from
+JCN.2'b/Return'a. They remain pins65/1 of the bounded component, not outputs
+whose IFU provenance may be assumed. Preserve distinct MIR copies and derive
+the original capture-stage boundary before shortening the real path/refitting.
+Full A-F/60ns/timers/66.7MHz IO/native boot and final stress goals remain active.
+Original native jobs2284/2331/watcher7144 are still live; latest sampled control
+1050M/0 issues, candidate1140M/1 issue, no113 window. Continue those exact jobs,
+limits and epoch controls. No hardware/core/Main/daemon/volume change by this work.
+
 **Latest clock work (2026-10-23): bounded processor/MIR composition PASS.**
 [Original R-front/MIR ordering evidence](../fpga/mister/reports/2026-10-23-r-front-mir/ordering/README.md)
 compares786 physical Qs,9216 RAM bits and67 clocks per event. Both engines/

@@ -32,10 +32,15 @@ def slack(path,model):
 
 
 def r_storage_memory(directory,qualified,processor_bits):
-    assert processor_bits in (596,636,736,752) and qualified['physical_bits']==processor_bits
+    assert processor_bits in (596,636,736,752,786) and qualified['physical_bits']==processor_bits
     assert qualified['ram_bits']==9216 and qualified['total_physical_bits']==9216+processor_bits
     if processor_bits>=636:
-        assert qualified['R_final_address_stage_qualified'] and qualified['all_R_memory_bits_compared']
+        assert qualified['all_R_memory_bits_compared']
+        if processor_bits==786:
+            assert qualified['bounded_original_graph_checks']
+            assert qualified['full_producer_arrival_contract_qualified'] is False
+        else:
+            assert qualified['R_final_address_stage_qualified']
     assert qualified['r_read_write_nonoverlap_checked'] and qualified['post_commit_source_epoch_checked']
     assert qualified['ram_arrays_flattened'] is False
     text=(directory/'clock_fit.map.rpt').read_text()
@@ -89,6 +94,7 @@ def audit(directory,qualified,allow_missing):
               'r_front':(1211,1181,'r_front','PASS_R_FRONT_ARRIVAL_CONTRACT','dorado_r_front_step.sv'),
               'r_front_functional':(1211,971,'r_front_functional','PASS_R_FRONT_ARRIVAL_CONTRACT','dorado_r_front_step.sv'),
               'r_front_ready':(1247,1021,'r_front_ready','PASS_R_FRONT_READY_ARRIVAL_CONTRACT','dorado_r_front_ready_step.sv'),
+              'r_front_mir':(1409,1170,'r_front_mir','PASS_BOUNDED_R_FRONT_MIR_BUDGET_GATE','dorado_r_front_mir_step.sv'),
               'r_storage':(939,709,'r_storage','PASS_R_STORAGE_ARRIVAL_CONTRACT','dorado_r_storage_step.sv')}
     assert provenance.get('component')in profiles,'Unknown fixture profile'
     expected_launch,expected_result,component,expected_status,evaluator=profiles[provenance.get('component')]
@@ -104,7 +110,10 @@ def audit(directory,qualified,allow_missing):
         # Hash identity also rejects a rehashed top that drops/permutates them
         # while leaving plausible interface dimensions and old reports.
         assert sha((directory/'top.sv').read_bytes())=='aedc73ed7ce97324d253e83dd5165bd3a7895da0f02dec46d67073829c55e897','Unexpected Ready/R-front fixture wiring'
-    if component in ('r_front_functional','r_front_ready'):
+    if component=='r_front_mir':
+        assert sha((directory/'top.sv').read_bytes())=='0ee3ad83d661d041c387324bd13c33b01fbf62f7db8cdbcd198f64c4f27799b6','Unexpected R-front/MIR fixture wiring'
+        assert provenance['full_producer_arrival_contract_qualified'] is False
+    if component in ('r_front_functional','r_front_ready','r_front_mir'):
         assert provenance['observation_outputs_registered'] is False
         assert provenance['observation_only_outputs']==['source_pins','fa_n']
     assert not provenance['assembly_permitted']and not provenance['native_qualified']
@@ -117,11 +126,16 @@ def audit(directory,qualified,allow_missing):
         assert sha(raw)==digest,('changed input',name)
     qualified_record=json.loads((qualified/'results.json').read_text())
     assert qualified_record['status']==expected_status
+    if component=='r_front_mir':
+        assert (directory/'functional-gate.json').read_bytes()==(qualified/'results.json').read_bytes()
+        assert qualified_record['bounded_original_graph_checks']
+        assert qualified_record['full_producer_arrival_contract_qualified'] is False
+        assert len(qualified_record['arrivals'])==6
     evaluator_digest=qualified_record['inputs']['verilog/rtl/'+evaluator]
     assert sha((directory/evaluator).read_bytes())==evaluator_digest
     for name in provenance['files']:
         if name.endswith('.sv')and name!='top.sv':
-            if component in ('r_front','r_front_functional','r_front_ready')and name=='dorado_r_front_cone.sv':
+            if component in ('r_front','r_front_functional','r_front_ready','r_front_mir')and name=='dorado_r_front_cone.sv':
                 from fit_r_front import quartus_cone
                 cone=json.loads((qualified/'dorado_r_front_cone.json').read_text())
                 assert (directory/name).read_text()==quartus_cone((qualified/name).read_text())
@@ -179,7 +193,7 @@ def audit(directory,qualified,allow_missing):
         match=re.search(re.escape(label)+r'\s*:\s*([\d,]+)',summary);assert match,label
         resources[key]=int(match[1].replace(',',''))
     assert resources['memory_bits']==resources['ram_blocks']==resources['dsp']==resources['plls']==0
-    memory_bits={'r_storage':596,'r_memory':636,'r_front':736,'r_front_functional':736,'r_front_ready':752}
+    memory_bits={'r_storage':596,'r_memory':636,'r_front':736,'r_front_functional':736,'r_front_ready':752,'r_front_mir':786}
     memory=r_storage_memory(directory,qualified_record,memory_bits[component])if component in memory_bits else None
     if memory:resources['mlab_memory_bits']=memory['bits']
     minimum={mode:min(r[mode]for r in records)for mode in ['setup','hold','mpw']}
@@ -192,9 +206,12 @@ def audit(directory,qualified,allow_missing):
         permitted_qsf_delta='Quartus17.0.2 LAST_QUARTUS_VERSION annotation only',
         native_qualified=False,hardware_speedup_claimed=False)
     if memory:result['memory_contract']=memory
-    if component in ('r_front_functional','r_front_ready'):
+    if component in ('r_front_functional','r_front_ready','r_front_mir'):
         result['observation_outputs']=dict(registered=False,names=['source_pins','fa_n'],
             scope='Post-state test observations are retained in simulation. Every state bit, clock event, functional port and unsettled check remains in the registered budget.')
+    if component=='r_front_mir':
+        result['full_producer_arrival_contract_qualified']=False
+        result['scope']='Bounded R-front/MIR implementation budget only; complete producers, native IO/ROM/timing and60ns remain open.'
     return result
 
 

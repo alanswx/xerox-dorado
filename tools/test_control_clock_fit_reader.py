@@ -9,8 +9,9 @@ import shutil
 from audit_control_clock_fit import audit
 
 
-def run(source, qualified, output):
-    assert audit(source,qualified,False)['status']=='PASS_COMPONENT_TIMING'
+def run(source, qualified, output, allow_rejected_baseline=False):
+    baseline=audit(source,qualified,False)
+    assert baseline['status']==('REJECTED_COMPONENT_TIMING'if allow_rejected_baseline else'PASS_COMPONENT_TIMING')
     output.mkdir(parents=True,exist_ok=False)
     cases=[]
     def changed_input(directory,name,edit):
@@ -26,15 +27,21 @@ def run(source, qualified, output):
     if component=='mir_ready':names+=['changed_cp_dependency_rehashed','changed_mir_dependency_rehashed','changed_fixture_wiring_rehashed']
     if component=='conta_mir':
         names.remove('changed_dependency_rehashed');names+=['changed_fixture_wiring_rehashed']
-    if component in ('task_ready_capture','r_front_ready'):names+=['changed_ready_dependency_rehashed']
-    if component=='r_front_ready':names+=['changed_front_dependency_rehashed','changed_fixture_wiring_rehashed']
-    if component in ('r_storage','r_memory','r_front','r_front_functional','r_front_ready'):
+    if component in ('task_ready_capture','r_front_ready','r_front_mir'):names+=['changed_ready_dependency_rehashed']
+    if component in ('r_front_ready','r_front_mir'):names+=['changed_front_dependency_rehashed','changed_fixture_wiring_rehashed']
+    if component=='r_front_mir':names+=['changed_conta_dependency_rehashed']
+    if component in ('r_storage','r_memory','r_front','r_front_functional','r_front_ready','r_front_mir'):
         names+=['missing_ram_bank','wrong_ram_width','wrong_ram_type','wrong_ram_init',
                 'wrong_ram_bits','wrong_ram_output_register','wrong_ram_collision_mode']
-    if component in ('r_memory','r_front','r_front_functional','r_front_ready'):
+    if component in ('r_memory','r_front','r_front_functional','r_front_ready','r_front_mir'):
         names+=['wrong_ram_address_register']
-    if component in ('r_front','r_front_functional','r_front_ready'):
+    if component in ('r_front','r_front_functional','r_front_ready','r_front_mir'):
         names+=['changed_generated_cone_rehashed']
+    if allow_rejected_baseline:
+        # A negative timing number cannot demonstrate a new rejection when
+        # the source is already timing-rejected. Only malformed-evidence
+        # controls remain, and each must raise rather than return REJECTED.
+        names.remove('negative_setup');names.remove('negative_evaluator')
     for name in names:
         d=output/name;shutil.copytree(source,d)
         if name=='wrong_dimensions':
@@ -53,12 +60,13 @@ def run(source, qualified, output):
                 if name=='changed_cp_dependency_rehashed':target='dorado_cp_control_step.sv'
                 if name=='changed_mir_dependency_rehashed':target='dorado_mir_capture_step.sv'
                 if name=='changed_fixture_wiring_rehashed':target='top.sv'
-            if evaluator in ('task_ready_capture','r_front_ready')and name=='changed_ready_dependency_rehashed':target='dorado_task_ready_step.sv'
-            if evaluator=='r_front_ready'and name=='changed_front_dependency_rehashed':target='dorado_r_front_step.sv'
-            if evaluator=='r_front_ready'and name=='changed_fixture_wiring_rehashed':target='top.sv'
+            if evaluator in ('task_ready_capture','r_front_ready','r_front_mir')and name=='changed_ready_dependency_rehashed':target='dorado_task_ready_step.sv'
+            if evaluator in ('r_front_ready','r_front_mir')and name=='changed_front_dependency_rehashed':target='dorado_r_front_step.sv'
+            if evaluator in ('r_front_ready','r_front_mir')and name=='changed_fixture_wiring_rehashed':target='top.sv'
+            if evaluator=='r_front_mir'and name=='changed_conta_dependency_rehashed':target='dorado_conta_mir_step.sv'
             if name=='changed_generated_cone_rehashed':target='dorado_r_front_cone.sv'
             if name=='changed_fixture_wiring_rehashed':
-                zero="98'b0"if evaluator=='conta_mir'else"50'b0"if evaluator=='mir_ready'else"752'b0"
+                zero="786'b0"if evaluator=='r_front_mir'else"98'b0"if evaluator=='conta_mir'else"50'b0"if evaluator=='mir_ready'else"752'b0"
                 changed_input(d,target,lambda s:s.replace('result<={next_q,',"result<={"+zero+",",1))
             else:
                 changed_input(d,target,lambda s:s+'\n// changed qualified source\n')
@@ -97,13 +105,17 @@ def run(source, qualified, output):
         except (AssertionError,FileNotFoundError) as error:
             cases.append(dict(case=name,rejected=True,diagnostic=str(error)))
         else:
+            assert not allow_rejected_baseline,(name,'malformed rejected-fit evidence was accepted structurally')
             assert result['status']=='REJECTED_COMPONENT_TIMING',(name,'damaged evidence accepted')
             cases.append(dict(case=name,rejected=True,diagnostic=result['status']))
-    (output/'results.json').write_text(json.dumps(dict(status='PASS',cases=cases),indent=2)+'\n')
+    record=dict(status='PASS',cases=cases)
+    if allow_rejected_baseline:record.update(status='PASS_REJECTED_FIT_READER_CONTROLS',baseline=baseline['status'],timing_negative_controls_omitted=True)
+    (output/'results.json').write_text(json.dumps(record,indent=2)+'\n')
     print('FIT_READER_CONTROLS PASS',len(cases),'damaged/rehashed cases rejected')
 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('directory',type=Path)
     p.add_argument('--qualified',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
-    a=p.parse_args();run(a.directory.resolve(),a.qualified.resolve(),a.output.resolve())
+    p.add_argument('--allow-rejected-baseline',action='store_true')
+    a=p.parse_args();run(a.directory.resolve(),a.qualified.resolve(),a.output.resolve(),a.allow_rejected_baseline)

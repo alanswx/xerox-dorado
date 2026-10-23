@@ -11,17 +11,24 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
-Latest clock composition (2026-10-23): the original98-Q Control-A producer
-slice is now coupled experimentally to the processor/RBase/stack/RM/STK path.
-Both engines/three illustrative profiles compare786 Qs/9216 RAM bits/67 clocks
-over4417 events; directed RBase/StkP and HIGH-/LOW-root CP extensions also pass
-both engines. Captures need old MIR while settled observations need new MIR;
-both uniform alternatives fail in both simulators. This is a bounded ordering
-probe, with no native use, combined fit, full producer-arrival contract or
-speed gain. Next close broader skew/late-read and actual IM/IFU/Hold/StopTasks/
-RWTPC arrivals, then combined timing/native ROM integration. Preserve all A-F
-requirements below.
-[Composition evidence and retained failures](../fpga/mister/reports/2026-10-23-r-front-mir/ordering/README.md).
+Latest clock composition (2026-10-23): the98-Q Control-A producer slice is
+coupled experimentally to processor/RBase/stack/RM/STK. Both engines/three
+initial profiles pass4417 events; extended PARC parity-min/parity-max and9.9ns
+R-memory profiles now pass11507 events each in BOTH engines, including actual
+MIR RBase/StkP commands and HIGH-/LOW-root CP. 786 Qs/9216RAM bits/67 clocks and
+functional ports compare per event. Old-MIR capture/new-MIR settled observations
+are required; both uniform alternatives reject.
+
+The first combined15ns budget is **REJECTED**, setup-2.961ns with3330ALMs/
+2980registers/9216MLAB bits. Hold+0.157ns and mpw+6.117ns pass. The22-level/
+17.633ns path crosses oldBNT/task priority -> MIR mux -> stack address -> actual
+RAM -> parity. Retain all functional results; no timing waiver or load.
+Next close actual MIR/IM/Hold and the local ContA StopTasks (a13/d17/tasking
+decode) and RWTPCorRWIM (d21/e21/JCN) producers, derive the original capture-stage
+boundary, then shorten the measured path/refit. Full native producers,60ns and
+all A-F requirements stay open.
+[Ordering evidence](../fpga/mister/reports/2026-10-23-r-front-mir/ordering/README.md),
+[extended arrivals and rejected budget](../fpga/mister/reports/2026-10-23-r-front-mir/arrival-budget/README.md).
 
 Latest progress (2026-10-23): original5c65 cold Checkpoint restore now passes
 saved apps, normal input and exact pre-/post-checkpoint file readback on a
