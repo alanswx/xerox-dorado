@@ -1,5 +1,34 @@
 # Verilog from Sil: handoff
 
+**Current milestone: broader per-beat/other-line burst reuse qualified.**
+[749-member proof](../fpga/mister/reports/2026-10-22-storage-burst-reuse/component/README.md)
+freezes the default-off generated controller (12 new state bits), protocol v3,
+physical pins v3, original MSA v1, native 128 synthetic fanout v1, both legacy
+driver regressions and failed development attempts. No native fit/load or DUT
+repair was required. The physical address stays the fill tag; received/current/
+future words and another completed line can serve reads during drain, with
+stable held replies, write exclusion, reset abort and refresh preserved.
+
+Six protocol positives match in Icarus/Verilator; nine real bad variants reject
+in both engines. Independent physical pins pass at 57.1/66.7 MHz, including another
+rank's completed line and future-wait reset; 211/218 in-burst admissions cover
+all eight offsets. The protocol memory is only a functional test double.
+The physical reuse fixture's sender now waits for actual posedge acceptance,
+fixing its stale-ready assumption for address-dependent readiness. Legacy mode
+still regenerates its old fixture byte-identically and reproduces all results.
+Original 144-chip MSA/all 9,437,184 bits agree: 103,659 control -> 101,546 reuse host
+ticks (2.0384% fewer), versus previous adjacent successor 102,931. Canonical raw
+operations/data/final arrays match; real reply corruption rejects at cycle 3251.
+
+The exact native 128 synthetic fixture is UNCHANGED versus the adjacent successor:
+9,386 control/8,492 candidate ticks, byte-identical per-channel traces. Its shared
+driver's old mode reproduces both earlier traces too. No additional gain there,
+and no actual native CPU/Cedar wait attribution or new hardware speed claim.
+All these jobs are terminal; goal ACTIVE. Next bounded owner-tagged admission,
+separate read/write response/recovery measurements and actual native firmware
+traffic capture. Define reset handling for queued unissued writes, retain original
+old-word/commit and global machine-edge barrier, then qualify native selection.
+
 **New milestone: adjacent-beat SDRAM successor component qualified.**
 [249-member proof](../fpga/mister/reports/2026-10-22-storage-burst-successor/component/README.md)
 freezes protocol v4 (six positives and eight rejected bad variants in BOTH
@@ -19,9 +48,8 @@ speed or complete actual-native CPU wait attribution. First-word latency and
 completion throughput are different quantities; do not quote this as 9.5% faster
 Cedar. Current 5c65 remains the separately measured 4.02547345M prelogin baseline.
 
-Next implement broader per-beat fill validity, future-beat waits and completed
-raw-line read service during physical drain, then bounded owner-tagged admission.
-Capture actual native 128-group firmware traffic alongside that work. Retain
+Broader fill validity/future waits/completed-line service are now qualified above.
+Next bounded owner-tagged admission and actual native 128-group firmware capture. Retain
 the global-edge barrier, original writes/old words and committed response owners.
 The small protocol memory is a functional test double; independent physical pins
 are a separate gate. All test-development failures and corrected final executed
@@ -36,9 +64,9 @@ CPU floor and serialized 128-group SDRAM path are separate limits. Early data
 alone did not help this workload. Preserve Main/daemon identity during the next
 memory comparison; no new Main API is required for the memory scheduler.
 
-Next: attribute actual native 128-group firmware waits, then qualify broader
-per-beat fill validity/completed-line service during drain and a
-bounded owner-tagged request queue. Preserve original write/old-word/commit
+Next: attribute actual native 128-group firmware waits and qualify a bounded
+owner-tagged request queue, building on the now-qualified broader fill reuse.
+Preserve original write/old-word/commit
 semantics and the next-machine-edge storage barrier. Only then select a native
 fit and a separately constrained faster memory domain. Original60ns phase and
 producer closure remains required; blindly reducing SYSPER is not the fix.
@@ -8619,7 +8647,8 @@ and has unreviewed hold violations; never deploy it.
 - [ ] Attribute128-group request admission, word-return, drain and handoff waits on pinned traffic; distinguish original Hold, transport barriers and ARM disk waits.
 - [x] Finish the default-off adjacent-beat successor protocol in both simulators and independent physical-pin qualification at57.1/66.7MHz; eight dual-engine bad variants and independent wrong-data/wrong-owner controls reject. Preserve original MSA/all-bit comparison.
 - [x] Measure the exact native128 arbiter on pinned synthetic coherent/scattered traffic:1,920 requests/640 writes,9,386->8,492 ticks and reproducible per-channel traces. Keep actual native CPU/Cedar wait attribution open.
-- [ ] Add per-beat fill validity and stable fill identity; allow received/future-beat reuse and completed-line read service during drain with held-response/reset/refresh/write-coherence gates.
+- [x] Qualify default-off per-beat fill validity/stable physical identity and received/current/future/other-line service during drain: dual-simulator protocol/nine real bad variants, independent physical pins57.1/66.7MHz and original MSA/all-bit gates. Native integration remains open.
+- [x] Preserve 2.0384% MSA host-tick reduction and unchanged native 128-group synthetic result versus the adjacent successor; both final shared-driver legacy regressions reproduce previous evidence.
 - [ ] Add a small bounded owner-tagged request queue, in-order completion and next-command preparation; preserve original per-group commit/old-word semantics and fairness. Measure occupancy and native128-group wait reduction before expanding it.
 - [ ] Qualify a separately clocked SDRAM request/response path and physical IO constraints; evaluate66.7MHz first. Faster memory and faster CPU are separate experiments.
 - [ ] Integrate audited CPU phases and actual MIR/IFU/Ready/Hold/cache/Map producers to the original60ns ordinary cadence; calibrate every peripheral timer.

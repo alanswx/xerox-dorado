@@ -23,9 +23,11 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def run(generated, fixture, output, controls):
+def run(generated, fixture, output, controls, reuse=False):
     assert not output.exists(), 'Inspect existing work rather than restarting it'
     proof = json.loads((generated / 'provenance.json').read_text())
+    if reuse:
+        assert proof['burst_read_reuse']
     for name, digest in proof['generated_hashes'].items():
         assert sha(generated / name) == digest
     arb = generated / 'dorado_storage_arb.sv'
@@ -51,11 +53,12 @@ def run(generated, fixture, output, controls):
     old = '.BURST_READ_SUCCESSOR(0)) dut('
     assert fixture_text.count(old) == 1
     for enabled in [0, 1]:
-        (inputs / f'fixture-{enabled}.sv').write_text(fixture_text.replace(old, f'.BURST_READ_SUCCESSOR({enabled})) dut('))
+        selected = f'.BURST_READ_SUCCESSOR(0),.BURST_READ_REUSE({enabled})) dut(' if reuse else f'.BURST_READ_SUCCESSOR({enabled})) dut('
+        (inputs / f'fixture-{enabled}.sv').write_text(fixture_text.replace(old, selected))
     frozen = {path.name: sha(path) for path in inputs.iterdir()}
     (output / 'provenance.json').write_text(json.dumps(dict(scope=__doc__,
         inputs=frozen, generated_proof=proof,
-        native_qualification_sha256=sha(qualification)), indent=2) + '\n')
+        native_qualification_sha256=sha(qualification), burst_read_reuse=reuse), indent=2) + '\n')
     state = dict(status='RUNNING', pid=os.getpid(), started=time.time(), actions=[], results={})
 
     def save():
@@ -124,7 +127,7 @@ def run(generated, fixture, output, controls):
                     for row in rows if row['kind'] == kind] for kind in ['A', 'R']})
         assert traces[0] == traces[1], 'Ordered group requests/completions or valid read data changed'
         assert all(sha(inputs / name) == digest for name, digest in frozen.items())
-        state.update(status='PASS_SYNTHETIC_NATIVE128_BURST_FANOUT', finished=time.time(),
+        state.update(status='PASS_SYNTHETIC_NATIVE128_BURST_REUSE' if reuse else 'PASS_SYNTHETIC_NATIVE128_BURST_FANOUT', finished=time.time(),
                      exact_ordered_operations_and_data=True, inputs_unchanged=True,
                      request_and_completion_channels_compared_separately=True,
                      invalid_write_ack_data_compared=False,
@@ -141,5 +144,6 @@ if __name__ == '__main__':
     for name in ['generated', 'fixture', 'output']:
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--controls', action='store_true')
+    parser.add_argument('--reuse', action='store_true')
     args = parser.parse_args()
-    run(args.generated.resolve(), args.fixture.resolve(), args.output.resolve(), args.controls)
+    run(args.generated.resolve(), args.fixture.resolve(), args.output.resolve(), args.controls, args.reuse)

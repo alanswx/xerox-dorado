@@ -89,12 +89,12 @@ speedup comes from supplying the existing barrier faster.
 | E. Restore original CPU phases | Integrate the audited phase/run/refresh and processor/control capture work with actual MIR/IFU/Ready/Hold/cache/Map producers. Make capture epochs explicit and shorten the real failing data paths. Retain original architectural holds and original read-before-write behavior. | Full native phase/producer closure and original-ROM startup at each integration step. Demonstrate 60 ns nominal ordinary instructions. Do not set SYSPER=2 blindly: known ECP/SCP coincidences and the original subphase offsets must be resolved by the audited contract. A 15 ns isolated component pass is not a complete 60 ns CPU proof. |
 | F. Qualify the combined machine | Deploy only reviewed timing-passing candidates, one architectural change at a time, with unchanged Main/daemon for speed comparisons. Then run original Cedar Checkpoint/Rollback, pre/post-save files, close/remount and cold restore. | Pinned old/new instruction-progress and hold measurements; all-device timer rates; three independent fresh-seed boots; exact keyboard/mouse and application checks; at least two hours sustained disk/network/input operation without pack/CRC/RX faults. Archive, commit and push the resulting qualified implementation. |
 
-The adjacent-beat protocol qualification is now complete (evidence below).
-The immediate implementation task is **B's broader per-beat fill validity and
-completed-line service during drain**, with A's actual native firmware traffic
-capture alongside it. Neither the exploratory 0.7023% MSA result nor the 9.5248%
-synthetic 128-group result alone warrants a native fit. Select that experiment
-after measuring the remaining waits and qualifying the complete B/C design. Promote
+Both the adjacent-beat and broader per-beat/other-line reuse components are now
+qualified (evidence below). The immediate task is **C's bounded owner-tagged
+request admission and raw-response budget**, with A's actual native firmware
+traffic capture alongside it. Neither component's small-fixture result alone
+warrants a native fit. Select that experiment after measuring the remaining
+waits and qualifying the complete B/C design. Promote
 the exact reviewed generated source into the maintained RTL only after its
 source/timing/firmware gates; preserve fallback bitstreams and disk volumes.
 
@@ -114,6 +114,56 @@ fsync pairs, with no recorded disk errors. Two diagnostic loss markers total
 21,700 records, so the historical write trace is incomplete. This is neither a
 closed-volume result nor an explicit Rollback/new-file cold-persistence pass.
 [Checkpoint return evidence](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-checkpoint-return/README.md).
+
+**Broader burst reuse component qualified; no new native fit or load.**
+Default-off `BURST_READ_REUSE` adds 12 bits: eight received-word valid bits, a
+waiting-for-data bit and a three-bit reply selector. The unchanged physical
+address remains the stable fill tag. A read may use a received/current word,
+wait for a future word, or use another completed raw line while the physical
+burst drains. Original physical command ownership, writes/old words, global
+machine-edge barrier, reset drain and refresh rules are retained.
+
+Protocol v3 passes six positives in both simulators (off/on 57.1 MHz, on 66.7 MHz),
+with matching counters and all received/current/future/other-line/empty-response
+admission categories plus reset while waiting for a future word. Every accepted
+request completes or is explicitly reset-aborted. A 128-clock bound checks
+response assertion without bounding how long the receiver holds a valid reply.
+Nine real bad variants reject in BOTH engines: stale mask/tag, wrong received/
+future/completed-line data, primary-owner overwrite, early write, ignored reply
+hold and changed physical owner. The protocol memory remains a functional test
+double; independent physical pins are checked separately.
+
+Independent pins v3 passes control/candidate at 57.1/66.7 MHz, all old rank/bank/
+first-beat/coherence/reset/refresh checks, plus received/future words and a
+completed line in the other physical rank during the original fill. Candidate
+211/218 in-burst admissions cover all eight offsets; future-wait reset and an
+actual corrupt-word rejection pass. The reuse fixture now holds valid until an
+actual posedge handshake: its inherited sender had assumed ready could not
+change with the offered address. That first timeout and the corrected test are
+retained. Legacy successor mode regenerates its old fixture byte-identically
+and reproduces all four positive results with the final shared driver.
+
+The original 144-chip MSA still agrees through 12,012 cycles/750 backing reads/
+7,872 writes/1,111 output changes and all 9,437,184 stored bits. Default-off raw
+trace exactly reproduces 103,659 host ticks. Reuse takes 101,546 (2.0384% fewer),
+versus adjacent successor 102,931; canonical operations/data/final arrays agree.
+Corrupting the new reply path fails the original output oracle at cycle 3251.
+The exact native 128-group synthetic fixture remains 9,386 -> 8,492 ticks:
+**no additional gain over the adjacent successor on that traffic**. Its request/
+completion traces match the prior experiment byte-identically; the final shared
+fanout driver's legacy mode reproduces both old traces too. Wrong owner rejects.
+These are component/transport results, not native CPU or Cedar speed claims.
+[749-member qualification and failed-attempt evidence](../fpga/mister/reports/2026-10-22-storage-burst-reuse/component/README.md).
+
+Next qualify a small queue separating admission from raw scheduling/completion.
+Bound total ownership across queued work, issued work and held replies; keep
+one outstanding request per original group and in-order completions. Define
+reset handling for accepted but unissued writes before implementation, and
+never treat queue admission as physical write completion. Profile read and write
+command-to-ACK/recovery separately: the synthetic fixture's remaining raw-response
+interval did not improve. Any write scheduling change requires the independent
+pin timing and original old-word/commit gates. Actual native firmware request
+capture, original 60 ns phases/timers and final hardware qualification stay open.
 
 **Adjacent-beat component qualified; native hardware unchanged.**
 The exact default-off candidate passes six protocol positives in Icarus and
@@ -149,9 +199,9 @@ Final protocol v4 / pins v1 / fanout v4 are terminal. Failed test development is
 one late test-memory launch, first-diagnostic matcher mismatches, a synthetic
 cold-address alias, and the wrong-owner control firing response stability first.
 The DUT needed no repair. All final source hashes and simulator outcomes agree.
-Next implement received-beat validity/future-beat waiting/completed-line reads
-while draining, retaining original write/old-word/commit and global-edge barrier
-contracts. Then bounded owner-tagged admission and measured native selection.
+The newer broader-reuse receipt above now qualifies received/future/other-line
+reads while draining. Next bounded owner-tagged admission and measured native
+selection, retaining original write/old-word/commit and global-edge contracts.
 
 **Latest:5c65 interactive Viewers/files/fresh schematic PASS; no speed gain.**
 One guarded normal load now runs Main4355/daemon4354/supervisor4305 with
