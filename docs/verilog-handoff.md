@@ -1,5 +1,42 @@
 # Verilog from Sil: handoff
 
+**Latest read-window work (2026-10-23): full balanced comparison passes;15ns still rejected by3.557ns.**
+[Reviewed proofs, parser/fixture failures, source audit and physical result](../fpga/mister/reports/2026-10-23-r-read-windows/README.md).
+The task-clock mask's14-case BOTH/six-profile matrix is now terminal PASS.
+Additional actual LOW NoDispatch+MemC Hold0/1 tests pass266 events in BOTH/all
+four existing control profiles; frozen-reset controls reject261/clock12.
+
+New32-bit CLOSED input storage with live open-Q views removes oversampling of
+MC10173 dRm/dR. Existing SRAM banks use one current asynchronous read address
+and a separate write address; no duplicated RAM/read port/reset/guest cycle.
+Full balanced844 physical Qs/9216 RAM/100 clocks/functional ports pass11300
+events in BOTH,238 writes/4368 reads/392 epochs. Physical Q comparison moves
+to AFTER owner commit; no state bit is excluded. Omitted closing capture fails
+15 on dR bits in BOTH. Independent48-Q ownership test passes6145 comparisons,
+including1024 same-edge handoffs/late updates/held edges;32-bit helper2304.
+Preserve initial assertion width, initial/task NBA-race and Quartus17 parser
+failures. Current-source full balanced checks pass BOTH. Quartus's separate
+genvar lowering is inverse-checked and itself passes BOTH independent units.
+Terminal15ns fit: setup-3.557, hold+.145/pulse+6.110,3999ALMs/3363 shell regs/
+9216MLABbits/zero UCP. Worst state29->faults0 via joint Switchb Q41, child task
+Q72 and T input/visible/parity logic,21 levels/17.941ns. All4 conditions checked;
+all build PIDs exited and only Quartus version annotation differs in readback.
+The broader matrix is still running: `r-front-read-windows-matrix-v2-20261023`,
+PID63204/tool67889; six Verilator and three Icarus profiles passed at receipt.
+Keep its helper/two driver hashes frozen and revalidate exact PIDs before acting.
+
+Next/TODO: finish those comparisons, then shorten the measured serial
+control/task/T-parity path with the same15ns budget/real capture epochs.
+New packed physical-view dependency warning still needs a source-correct
+partition before native elaboration. No assembly/load/speed/60ns claim. Native
+integration MUST expose live physical Q, not closed encoding, and distinguish
+current RAM/mux D/gates from historical r_front_before and upcoming capture
+controls. Keep the16 canonical native visible-R owners until separately proved.
+Original early RBase overlap, actual native producers/ROM,60ns phases/timers,
+physical66.7MHz SDRAM and full A-F goals remain. Hardware and the measured
+4.025473MStartCycle issues/s are unchanged. See the latest block in
+[clock plan](verilog-clock-plan.md) for the active order and limits.
+
 **Latest capture/timing work (2026-10-23): coherent MIR/selectors; all100 clocks covered; combined15ns still rejected.**
 [Failures, original source audit,14 full comparisons and both timing results](../fpga/mister/reports/2026-10-23-control-capture-epochs/README.md).
 Restored actual-source late TaskingOn/LOW-NoDispatch tests. Old a20b9e52 rejects

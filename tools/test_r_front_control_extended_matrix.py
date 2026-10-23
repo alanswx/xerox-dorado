@@ -23,17 +23,19 @@ ROOT=Path(__file__).resolve().parents[1]
 BUILD=ROOT/'build/rtl-executive'
 PROFILES=['balanced','fast_gates','later_control','parc_parity_min','parc_parity_max','later_r_memory']
 CANDIDATE='d8c8f7443887d57739e9abc0896ba283ac07b3d86bfea9bf5d849de35024d7d5'
+MASKED_CANDIDATE='ef0abf3eed4497350a1ada19ab8a00c0ddc5732ed81390722844eac1ddb0efea'
 
 
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
-def check(d,extended):
+def check(d,extended,masked=False):
     r,log=read_run(d)
     assert r['status']=='PASS_R_FRONT_LOCAL_PROBE'and r['actions'][-1]['returncode']==0
     assert r['pre_event_control_capture']and r['rbase_close']and r['actual_RBase_StkP_directed']and r['owned_r_inputs_zeroed']
     assert bool(r['extended_actual_directed'])==extended and not r['solver_rejection_deferred_for_diagnostic']
-    assert r['executed_candidate_sha256']==CANDIDATE
+    assert bool(r.get('masked_tasking_switch_clock'))==masked
+    assert r['executed_candidate_sha256']==(MASKED_CANDIDATE if masked else CANDIDATE)
     if extended:
         assert r['summary']=='checks=11300 writes=238 reads=4368 epochs=392'
         for text in ['R_FRONT_LOCAL_LATE_TASKING old_data=1 root=0 switch=1 tasking_n=0',
@@ -49,13 +51,13 @@ def check(d,extended):
                 summary=r['summary'],clocks=clocks,run_state_sha256=sha(d/'run-state.json'))
 
 
-def run(out):
+def run(out,masked=False):
     assert not out.exists()
-    baseline=[check(BUILD/f'r-front-control-extended-{engine}-v4-20261023',True)for engine in ['icarus','verilator']]
+    baseline=[check(BUILD/(f'r-front-control-tasking-mask-{engine}-v1-20261023'if masked else f'r-front-control-extended-{engine}-v4-20261023'),True,masked)for engine in ['icarus','verilator']]
     out.mkdir(parents=True)
     sources=['test_r_front_control.py','generate_r_front_control_candidate.py','generate_r_front_local_adapters.py','rewrite_rbase_window.py',Path(__file__).name]
     hashes={n:sha(ROOT/'tools'/n)for n in sources}
-    lock=threading.Lock();state=dict(status='RUNNING',pid=os.getpid(),started=time.time(),scope=__doc__,tool_hashes=hashes,cases=[],actions=[],errors=[])
+    lock=threading.Lock();state=dict(status='RUNNING',pid=os.getpid(),started=time.time(),scope=__doc__,tool_hashes=hashes,cases=[],actions=[],errors=[],masked_tasking_switch_clock=masked)
     def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
     # Reuse the exact completed balanced extended tests, never restart them.
     for row in baseline:
@@ -70,6 +72,7 @@ def run(out):
                  '--reference',str(BUILD/'r-front-control-reference-v2-20261023'),'--output',str(d),
                  '--engine',engine,'--profile',profile,'--rbase-close','--actual-directed','--zero-owned-r-inputs','--old-control-capture']
             if extended:cmd+=['--extended-directed']
+            if masked:cmd+=['--mask-tasking-switch']
             with(out/(d.name+'.driver.log')).open('w')as log:
                 p=subprocess.Popen(cmd,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT)
                 row=dict(directory=d.name,engine=engine,profile=profile,extended=extended,command=cmd,pid=p.pid,started=time.time())
@@ -77,7 +80,7 @@ def run(out):
                 rc=p.wait()
             with lock:row.update(returncode=rc,finished=time.time());save()
             if rc:return False
-            checked=check(d,extended)
+            checked=check(d,extended,masked)
             with lock:state['cases'].append(checked);save()
         return True
     def guarded(engine):
@@ -86,7 +89,8 @@ def run(out):
             with lock:state['errors'].append(dict(engine=engine,error=repr(e)));save()
             return False
     with ThreadPoolExecutor(max_workers=2)as pool:passed=list(pool.map(guarded,['icarus','verilator']))
-    state.update(status='PASS_OLD_CONTROL_CAPTURE_PROFILE_MATRIX'if all(passed)else'OLD_CONTROL_CAPTURE_PROFILE_MATRIX_FAILED',finished=time.time(),
+    status=('PASS_TASKING_CLOCK_MASK_PROFILE_MATRIX'if masked else'PASS_OLD_CONTROL_CAPTURE_PROFILE_MATRIX')if all(passed)else'CONTROL_CAPTURE_PROFILE_MATRIX_FAILED'
+    state.update(status=status,finished=time.time(),
                  physical_bits=844,RAM_bits=9216,clock_channels=100,full_arrival_contract_qualified=False,physical_timing_qualified=False,native_firmware_qualified=False)
     if all(passed):
         assert len(state['cases'])==14
@@ -96,4 +100,5 @@ def run(out):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);a=p.parse_args();sys.exit(run(a.output.resolve()))
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);p.add_argument('--mask-tasking-switch',action='store_true')
+    a=p.parse_args();sys.exit(run(a.output.resolve(),a.mask_tasking_switch))

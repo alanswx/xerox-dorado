@@ -11,6 +11,59 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest read-window work (2026-10-23, after the control-capture report;
+[reviewed evidence](../fpga/mister/reports/2026-10-23-r-read-windows/README.md)): the
+task-clock mask now passes the complete14-case matrix in BOTH engines/six
+established profiles. Additional156-Q/56-clock/94-flag tests pass266events in
+BOTH/four control profiles with actual MemC Hold0/1 and LOW-root CP NoDispatch.
+Freezing the reset view rejects261 on missing real clock12 in BOTH. These
+close the digital mask/reset TODO below; they do not close the15ns deficit.
+
+The new structural experiment represents dRm/dR's32 MC10173 bits as CLOSED
+storage plus combinational open Q, capturing actual pre-close D only at gate
+closure. The SRAM has one current asynchronous read address per existing bank
+and a separate synchronous write address, without another read port/RAM copy.
+Both engines pass the full balanced844-Q/9216-RAM/100-clock/functional-port
+comparison:11300events/238writes/4368reads/392epochs. All physical Qs are compared
+after owner commit, because an open Q differs from its closed storage encoding.
+Omitting close capture rejects15 in BOTH on actual dR bits, not a filtered
+oracle. The additional48-Q independent-latch test passes6145 comparisons with
+1024 same-edge read-close/visible-open handoffs, late input changes and held
+edges.32-bit helper passes2304; all ten wrong-latch unit controls reject.
+
+Quartus17 requires explicit generate/endgenerate and a separate genvar
+declaration for these new loops. The synthesis syntax bridge is inverse-checked
+and tested independently in BOTH engines. Preserve
+the first map syntax failure and the first testbench assertion/raced-NBA
+failures; corrected clocked fixture passes BOTH. Current-source full balanced
+comparisons also pass11300 in BOTH. The six-profile matrix remains running:
+`r-front-read-windows-matrix-v2-20261023`, PID63204/tool67889; all six Verilator
+and three Icarus profiles passed at receipt. Keep its three source hashes frozen.
+The new15ns fit is TERMINAL/rejected: setup-3.557ns, hold+.145, pulse+6.110;
+3999ALMs/3363 shell registers/9216MLABbits/zero UCP, all four conditions checked.
+Worst launch835(state29)->result339(faults0),21 levels/17.941ns, through joint
+Switchb Q41 and redundant child task Q72 into T latches/parity fault. No
+clock/speed/assembly/load qualification. Do not copy closed dR to board Qs.
+
+Next/TODO: finish full-profile comparisons and shorten the now measured serial
+control/task/T-parity path at unchanged15ns; qualify actual capture epochs.
+For native integration, distinguish CURRENT live RAM/mux D and latch-gate
+levels from historical capture pins/next-phase pins. Do not naively feed the
+new physical view from r_front_before's delayed snapshot or duplicate native
+visible-R owners. Retain16 native R Qs until their owner handoff is separately
+qualified. Then original-ROM/actual IM, IFU, Ready/Hold, cache/Map, DMD/B-bus,
+60ns phases/timers, physical66.7MHz SDRAM and full A-F acceptance. The original
+early RBase overlap still fails and remains unqualified. Hardware5c65/Native59,
+ARM Main/daemon and volumes are unchanged; last pinned4.025473MStartCycle/s
+(24.15% nominal, not retirements) remains the last hardware measurement.
+
+Native jobs revalidated live at this receipt: original2284/2331 at4.26B/
+4.67Bhost,2.542B/2.987B enabled ticks; coldv3 PID37871 at390Mhost/124.5M
+enabled ticks; coldv4 PID43350 at310M/74.53M, actual6502 PCf3b1. No113/Cedar
+window yet, no fault/CRC/RX observed. Keep original5B/1B limits and C protocol;
+do not restart/extend because an observation bound expires. Enabled ticks are
+not microinstruction retirements. The full goal remains active.
+
 Latest control-capture/physical budget (2026-10-23): old MIR + old ContB
 selectors now feed task capture coherently. Old a20b9e52 rejects6680 in both
 engines on LOW CP rMIR reset; joint result matches original but child Switch
