@@ -11,6 +11,23 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest g15 capture work (2026-10-23): explicit pre-transition write close now
+has a maintained64-bit helper, preserving state count/no reset/no extra cycle.
+Both engines pass768 legal waveform comparisons; four wrong-address/omitted-
+close controls reject. Original oracle and early overlap failure are retained.
+Actual ContB/CP stimulus now drives32 RBase fills and256 StkP values. ALL six
+established profiles/BOTH engines pass10121 events each over844Qs/9216RAM/
+100clocks/94control flags,242 writes/4166 reads/391 port epochs. [Exact evidence](../fpga/mister/reports/2026-10-23-rbase-window/ordering/README.md).
+
+Next wire the explicit close into native scheduling within60ns cadence/full
+15ns timing. Retain canonical native R latch ownership (572..587):828 evaluator
+bits plus16 original visible-R bits, never a duplicate predicted R register.
+Five clock channels and other converted tasking/LOW-NoDispatch tests remain
+open, together with actual phase-descriptor/IM/parity/MCR/hold-data/DMD/B-bus
+sources and complete native timing/ROM/timer/SDRAM acceptance. The early-phase
+SRAM overlap still fails and is not a passing physical arrival contract. No
+native fit/load or hardware speed change; full A-F goal remains active.
+
 Current combined prototype (2026-10-23): actual CA/CB/MC clocks/fields/Hold now
 join the processor slice:844Qs/9216RAM/100clocks/94control flags. ProcH e19's
 local Holda path is included alongside ProcL's original path. Balanced passes

@@ -15,13 +15,14 @@ from unittest.mock import patch
 import test_r_front_l17 as legacy
 from generate_r_front_control_reference import generate as reference_generate
 from generate_r_front_control_candidate import generate as candidate_generate
+from rewrite_rbase_window import rewrite as rbase_rewrite
 
 PROFILES={**legacy.visible.masked.commands.parent.PROFILES,
           'early_refresh':(1750,400,1250,None,1000),
           'late_phase_only':(1750,400,2000,None,1000)}
 
 
-def bench_transform(raw,arrival,trace_check=None):
+def bench_transform(raw,arrival,trace_check=None,actual_directed=False):
     for old,new in [('[797:0]','[843:0]'),('[325:0]','[400:0]'),('rp[325:145]','rp[400:145]'),
                     ('[68:0]','[99:0]'),('0:68','0:99'),('i<69','i<100'),('i<798','i<844'),
                     ('dorado_r_front_l17_step dut','dorado_r_front_control_step dut'),
@@ -61,6 +62,17 @@ def bench_transform(raw,arrival,trace_check=None):
     reference[785:764],reference[837:798],reference[647:644],n[647:644],dut.child.child.pre_data,dut.child.child.after_clocks[46]);
 '''
         raw=raw.replace(marker,trace+marker)
+    directed=''
+    if actual_directed:
+        start=raw.index('   // Store TaskingOff through actual MIR before maintenance task selection.')
+        last=raw.index('   $display("R_FRONT_LOCAL_DIRECTED RBase=32 StkP=256',start)
+        end=raw.index('   p=SEED;event_step(1,p);',last)+len('   p=SEED;event_step(1,p);')
+        directed=raw[start:end]
+        # These fields used to be driven directly at processor package pins.
+        # Supply the corresponding real ContB dASEL/dBSEL/dLC inputs instead;
+        # actual MIR clocks and CP maintenance still determine when they land.
+        directed=directed.replace('p=SEED;',"p=SEED;p[326+33:326+28]=6'b110001;p[326+36:326+34]=0;")
+        directed=directed.replace('   // Store TaskingOff', '   // Actual-source directed: store TaskingOff',1)
     # Preserve the complete checker, storage initialization, physical fixture
     # and startup. Replace only raw-boundary-dependent stimulus/expectations.
     start=raw.index('   // Clear Ready and select emulator task through real CP transactions.')
@@ -77,6 +89,7 @@ def bench_transform(raw,arrival,trace_check=None):
    end
    $display("R_FRONT_CONTROL_LC actual_instruction_inputs=8 writes=%0d reads=%0d",writes,reads);
    if(writes<10||reads<100)$fatal(1,"Joint processor actual LC instruction coverage incomplete");
+ACTUAL_DIRECTED_INSERT
    for(integer trial=0;trial<iterations;trial++)begin
      if(!cb)event_step(1,p);
      for(integer word_no=0;word_no<8;word_no++)begin
@@ -104,6 +117,7 @@ def bench_transform(raw,arrival,trace_check=None):
 endmodule
 `default_nettype wire
 '''
+    raw=raw.replace('ACTUAL_DIRECTED_INSERT',directed)
     return raw
 
 
@@ -118,17 +132,30 @@ def run(a):
         for ext in ['wl','lc']:sources.add('chm/sil/'+bn+'.dm!1_/'+bn+'.'+ext)
         sources.update(b['combinational_sources'])
     gate,ff,phase,parc,read=PROFILES[a.profile];arrival=int(phase<gate)
+    original_adapters=parent.adapters_generate
+    def adapters(root,out):
+        record=original_adapters(root,out)
+        if a.rbase_close:
+            change=rbase_rewrite(out/'dorado_local_r_front_step.sv')
+            for row in record['files']:
+                if row['output']=='dorado_local_r_front_step.sv':
+                    assert row['output_sha256']==change['parent_sha256']
+                    row.update(parent_adapter_sha256=row['output_sha256'],output_sha256=change['output_sha256'],rbase_window_rewrite=change)
+            record['rbase_window_rewrite']=change
+            (out/'manifest.json').write_text(json.dumps(record,indent=2)+'\n')
+        return record
     def integrated(*args,**kwargs):
         original_bench=parent.bench
-        def bench(*bargs,**bkwargs):return bench_transform(original_bench(*bargs,**bkwargs),arrival,a.trace_check)
+        def bench(*bargs,**bkwargs):return bench_transform(original_bench(*bargs,**bkwargs),arrival,a.trace_check,a.actual_directed)
         kwargs['extra_sources']=sorted(set(kwargs.get('extra_sources',()))|sources)
+        if a.rbase_close:kwargs['extra_sources'].append('verilog/rtl/dorado_rbase_window_step.sv')
         with patch.object(parent,'generate',reference_generate),patch.object(parent,'CANDIDATE',str(candidate.relative_to(parent.ROOT))),patch.object(parent,'bench',bench):
             return original_run(*args,**kwargs)
     a.mutation=None
-    with patch.object(parent,'run',integrated),patch.dict(parent.PROFILES,PROFILES):rc=legacy.run(a)
+    with patch.object(parent,'run',integrated),patch.object(parent,'adapters_generate',adapters),patch.dict(parent.PROFILES,PROFILES):rc=legacy.run(a)
     p=a.output.resolve()/'run-state.json';r=json.loads(p.read_text())
     r.update(experiment='joint_processor_control_hold_pilot',physical_bits=844,ram_bits=9216,clock_channels=100,
-             joint_candidate=metadata,joint_mutation=mutation,refresh_arrival=arrival,trace_check=a.trace_check,old_raw_boundary_directed_cases_qualified=False,
+             joint_candidate=metadata,joint_mutation=mutation,rbase_close=a.rbase_close,actual_RBase_StkP_directed=a.actual_directed,refresh_arrival=arrival,trace_check=a.trace_check,old_raw_boundary_directed_cases_qualified=False,
              native_integrated=False,physical_timing_qualified=False)
     p.write_text(json.dumps(r,indent=2)+'\n');return rc
 
@@ -139,5 +166,7 @@ if __name__=='__main__':
     p.add_argument('--engine',choices=['icarus','verilator'],default='icarus')
     p.add_argument('--profile',choices=PROFILES,default='balanced');p.add_argument('--mutation',choices=['new_fields'])
     p.add_argument('--trace-check',type=int)
+    p.add_argument('--rbase-close',action='store_true')
+    p.add_argument('--actual-directed',action='store_true')
     p.add_argument('--iterations',type=int,default=256)
     sys.exit(run(p.parse_args()))

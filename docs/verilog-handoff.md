@@ -1,5 +1,40 @@
 # Verilog from Sil: handoff
 
+**Latest capture work (2026-10-23): explicit g15 close + actual-source RBase/StkP cases pass.**
+[Native capture rule, waveform checks, twelve full comparisons and limits](../fpga/mister/reports/2026-10-23-rbase-window/ordering/README.md).
+`dorado_rbase_window_step.sv` follows an open write window and commits the
+pre-transition address/g14 data at close, before LastNext switches. Original64
+g15 bits remain externally owned; no reset, extra RAM/state or guest cycle.
+The local R-front adapter rewrite reverses all other logic byte-for-byte.
+
+Both engines pass768 standalone comparisons/256 closes with different Next
+addresses. Final data may settle after the last sampled open write. Independent
+checks enforce legal F10145A address setup/hold, pulse width and data setup;
+the original oracle is unchanged. Wrong-next-address and omitted-close variants
+reject at2 in BOTH. Initial weaker tests remain preserved.
+
+Converted actual ContB instruction inputs/shared CP drive32 RBase fills over
+all16 slots and256 StkP loads; real TaskingOff/On instructions select tasks.
+ALL six established profiles/BOTH engines pass10121 events each,242 writes/
+4166 reads/391 port epochs, all844Qs/9216RAM/100 clocks/94control flags and
+functional ports. Counts agree within profiles. Five clocks43/91/92/93/95
+remain unexercised; other tasking/LOW-NoDispatch cases still need conversion.
+The required early-phase zero-delay SRAM overlap still fails1456 on Q644..647
+in BOTH with the helper enabled. It is preserved, not filtered or waived.
+
+Next/TODO: connect this pre-transition write capture to native phase scheduling
+within60ns ordinary cadence and the full15ns timing budget. Reuse canonical
+visible-R ownership: q572..587 stay in original native g06/g07 latches, so an
+844-Q slice has828 evaluator-owned +16 physical visible-R bits. Do not add
+a predicted R copy or rewrite startup state. Then missing clock/tasking tests,
+actual IM/parity/MCR/hold-data/DMD/B-bus, native ROM/timers/physical66.7MHz and
+full A-F acceptance. No native staging/fit/load or speed claim yet. Lossless
+receipt4775 members/475 blobs/1975730bytes includes the initial review retained
+after its archive selector was corrected; simulations were not restarted.
+Hardware5c65/Main/daemon/volumes unchanged. Native2284/2331/watcher94312 remain
+live; no113/Cedar measurement window yet, preserve5B limits and C protocol.
+Last control3.45Bhost/2.0358Bguest;queue3.77B/2.3918B; no fault/CRC/RX errors observed.
+
 **Current integration (2026-10-23):844-Q processor/control/Hold pilot; RBase write-close order open.**
 [Original circuits, full state/RAM comparisons and preserved arrival failure](../fpga/mister/reports/2026-10-23-r-front-control/experiment/README.md).
 Generated a20b9e52 joins the existing798-Q processor slice with40 actual ContB
