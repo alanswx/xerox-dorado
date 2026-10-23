@@ -24,7 +24,7 @@ def sha(p):
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
-def prepare(parent, fit, matrix, out, project, memory_inputs=(), split_physical_view=False):
+def prepare(parent, fit, matrix, out, project, memory_inputs=(), split_physical_view=False, control_inputs=(), address_epochs=()):
     assert not out.exists() and project.is_absolute()
     original = json.loads((parent / 'r-front-control-native.json').read_text())
     assert original['status'] == 'STAGED_PROCESSOR_CONTROL_NATIVE_EXPERIMENT'
@@ -88,6 +88,39 @@ def prepare(parent, fit, matrix, out, project, memory_inputs=(), split_physical_
             assert proof['literal_function_dependencies'] == used
             projection.append(dict(engine=engine, directory=str(run), run_state_sha256=sha(run / 'run-state.json')))
         data[target] = expected.encode()
+    address_projection = []
+    if address_epochs:
+        from probe_r_front_address_epoch import front
+        assert len(address_epochs) == 2 and control_inputs
+        target = 'src/verilog/rtl/dorado_local_r_front_step.sv'
+        expected = front(data[target].decode())
+        for engine, run in zip(['icarus', 'verilator'], address_epochs):
+            proof = json.loads((run / 'run-state.json').read_text())
+            assert proof['status'] == 'PASS_R_FRONT_ADDRESS_EPOCH_PROBE' and proof['engine'] == engine
+            assert proof['summary'] == 'checks=11300 writes=238 reads=4368 epochs=392'
+            assert proof['actions'][-1]['returncode'] == 0 and proof['original_reference_unchanged']
+            for row in proof['source_files']:
+                assert sha(run / row['path']) == row['output_sha256']
+            assert (run / 'adapters/dorado_local_r_front_step.sv').read_text() == expected
+            address_projection.append(dict(engine=engine, directory=str(run), run_state_sha256=sha(run / 'run-state.json')))
+        data[target] = expected.encode()
+    control_projection = []
+    if control_inputs:
+        from test_r_front_control_inputs import candidate
+        assert len(control_inputs) == 2 and projection
+        target = 'src/verilog/rtl/dorado_r_front_control_step.sv'
+        expected, bits = candidate(data[target].decode())
+        for engine, run in zip(['icarus', 'verilator'], control_inputs):
+            proof = json.loads((run / 'run-state.json').read_text())
+            assert proof['status'] == 'PASS_R_FRONT_CONTROL_INPUT_PROJECTION' and proof['engine'] == engine
+            assert proof['summary'] == 'checks=11300 writes=238 reads=4368 epochs=392'
+            assert proof['actions'][-1]['returncode'] == 0 and proof['complete_control_projection']
+            for row in proof['source_files']:
+                assert sha(run / row['path']) == row['output_sha256']
+            assert (run / 'candidate.sv').read_text() == expected
+            assert proof['equivalent_held_control_bits'] == bits
+            control_projection.append(dict(engine=engine, directory=str(run), run_state_sha256=sha(run / 'run-state.json')))
+        data[target] = expected.encode()
     qsf = data['core/Dorado.qsf'].decode()
     # Existing 28 declarations retain the same paths. Add only the helper.
     extra = ['src/verilog/rtl/' + n for n in rtl]
@@ -132,6 +165,8 @@ def prepare(parent, fit, matrix, out, project, memory_inputs=(), split_physical_
                   source_and_phase_contract_qualified=False, packed_view_dependency_partition_qualified=False,
                   native_consumer_setup_hold_qualified=False, firmware_qualified=False,
                   current_memory_input_projection=projection,
+                  current_control_input_projection=control_projection,
+                  stack_address_pre_edge_experiment=address_projection,
                   physical_view_split_annotations=split_annotations,
                   physical_timing_qualified=False, assembly_permitted=False,
                   future60ns_partition_qualified=False, speedup_qualified=False)
@@ -146,7 +181,15 @@ if __name__ == '__main__':
     p.add_argument('--memory-inputs-icarus', type=Path)
     p.add_argument('--memory-inputs-verilator', type=Path)
     p.add_argument('--split-physical-view', action='store_true')
+    p.add_argument('--control-inputs-icarus', type=Path)
+    p.add_argument('--control-inputs-verilator', type=Path)
+    p.add_argument('--address-epoch-icarus', type=Path)
+    p.add_argument('--address-epoch-verilator', type=Path)
     a = p.parse_args()
     assert bool(a.memory_inputs_icarus) == bool(a.memory_inputs_verilator)
     runs = [a.memory_inputs_icarus.resolve(), a.memory_inputs_verilator.resolve()] if a.memory_inputs_icarus else []
-    prepare(a.parent.resolve(), a.fit.resolve(), a.matrix.resolve(), a.output.resolve(), a.project, runs, a.split_physical_view)
+    assert bool(a.control_inputs_icarus) == bool(a.control_inputs_verilator)
+    controls = [a.control_inputs_icarus.resolve(), a.control_inputs_verilator.resolve()] if a.control_inputs_icarus else []
+    assert bool(a.address_epoch_icarus) == bool(a.address_epoch_verilator)
+    epochs = [a.address_epoch_icarus.resolve(), a.address_epoch_verilator.resolve()] if a.address_epoch_icarus else []
+    prepare(a.parent.resolve(), a.fit.resolve(), a.matrix.resolve(), a.output.resolve(), a.project, runs, a.split_physical_view, controls, epochs)

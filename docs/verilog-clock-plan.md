@@ -11,6 +11,44 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest COMPLETE CORE result (2026-10-23;
+[native rejection and targeted experiment](../fpga/mister/reports/2026-10-23-native-physical-fit/README.md)):
+v2 completed all nine build/report stages and its central/RAM/visible-R audit,
+with exact compiled source readback and all PIDs exited. Setup at the unchanged
+57.142857 MHz/SYSPER=4 fails by 4.630 ns (slow100), 4.408 ns (slow-40).
+Minimum hold +0.117 ns/pulse +1.122 ns; 35,371 ALMs/54,657 registers.
+The real path is Aad.4b -> MemC d12/cache compare -> pin386 wired-OR ->
+control/MIR -> operand predecode/pointer/stack sum -> ProcL g08/global618 and
+STK-H address register, 24 levels/21.433 ns data. Central crossings also fail;
+this is not a harmless diagnostic endpoint. No image or native selection.
+
+Native coverage: 84,126 keepers, 779 central registers (688 primary/91 copies),
+61 history registers, all16 original visible-R owners and all four SRAM banks.
+Native host UCP remains 3 input/50 output ports (13/154 paths), although all
+clocks are constrained. Do not apply the isolated fixture's zero-UCP claim.
+STK's inferred read-address registers are OUTCLOCK, RM's UNREGISTERED; audit
+register absorption and enables before any promotion instead of assuming
+equivalence or extra latency. Full memory/producer/phase qualification remains.
+
+Owner-only control projection passes complete original comparisons in BOTH,
+but native v4 still shows the packed-view dependency warning. A targeted six-pin
+address experiment now passes BOTH: pre_view data166..171 during LOW and HIGH,
+other LOW consumers stay resolved. All844 Qs/9,216RAM/100 clocks/11,300 events
+remain checked; zero-data controls reject2169 in BOTH. No new state/cycle,
+fault mask, relaxed constraint or oracle change. This is a balanced gate;
+native arrival/setup/hold and broader profiles remain open.
+
+v5 now fits separately: `/home/alans/mister/r-front-control844-physical-windows-native-v5-20261023`,
+builder3412626/tool93495; map3412629 completed, fitter3427287 is live;
+follower3413068/tool36299 waits for that exact builder.
+Only control-owner aliases/six address data pins change from v2, all SDC bytes
+identical. Broader matrix `r-front-address-epoch-matrix-v1-20261023` is live,
+PID88027/tool55945, 7/12 at receipt. Freeze its probe/matrix/control-input/
+memory-input tools. Observe original handles without restarting or changing
+sources. Next: complete those two gates and inspect actual path/epoch/memory
+mapping, then native firmware/Cedar,60ns phases/timers, faster SDRAM and full
+A-F acceptance. Hardware and measured4.025473M issues/s are unchanged.
+
 Latest current-forwarding/native work (2026-10-23;
 [reviewed proof and full-core experiment](../fpga/mister/reports/2026-10-23-physical-forwarding/README.md)):
 current-memory and physical-forwarding matrices are now terminal 12/12 each.

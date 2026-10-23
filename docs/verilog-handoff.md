@@ -1,5 +1,62 @@
 # Verilog from Sil: handoff
 
+**Latest COMPLETE CORE result (2026-10-23): v2 fails setup by 4.630 ns;
+targeted stack-address experiment passes BOTH and v5 is building.**
+[Raw native fit, actual path, bounded proofs and pending handles](../fpga/mister/reports/2026-10-23-native-physical-fit/README.md).
+The v2 builder and separate central/RAM/visible-R query are terminal. All
+compiled inputs read back exactly; all recorded processes exited; no images.
+All four conditions: setup -4.630/-4.408/+3.047/+3.974 ns, minimum hold
++0.117 ns, pulse +1.122 ns. 35,371 ALMs/54,657 registers/2,506,566 block
+memory bits. This is a rejected native fit at 57.142857 MHz/SYSPER=4.
+
+The actual worst path is MemC c15.qa/Aad.4b through d12 memory/compare,
+MemC15.sil+2 (pin386), control/MIR, operand predecode and pointer/stack sum
+to ProcL g08 (global618, upper_q30) and STK-H read-address register.
+24 logic levels/21.433 ns data/17.500 ns period. Central internal/input/output
+paths fail too. Keep the full failures; the isolated diagnostic explanation
+does not apply to this actual machine path.
+
+Native query covers 84,126 keepers, 779 central registers (688 primary/91
+duplicates), 61 history registers, all 16 original visible-R owners and four
+SRAM keeper groups. No illegal/unconstrained clocks, but host external UCP
+remains 3 input ports/13 paths and 50 output ports/154 paths; do not claim
+zero UCP or complete all-device timing. RM/STK are four 256x9 LUTRAM banks;
+STK read-address inference is OUTCLOCK while RM is UNREGISTERED. Audit actual
+address-register absorption/enable correspondence before promotion; do not
+assume either harmless mapping or an added guest cycle.
+
+Control-only aliases now use their existing owner bits, which are identical
+in held and physical views. Initial and complete156-bit projections pass BOTH
+full comparisons. Native v4 still has the packed-view warning, with a shorter
+reported dependency path; it is not dependency closure.
+
+Targeted six-pin experiment uses the existing pre_view for stack-address
+data166..171 during LOW as well as HIGH root. All other LOW-window consumers
+stay resolved. BOTH pass 11,300 events/238 writes/4,368 reads/392 epochs with
+all844 Qs/9,216 RAM bits/100 clocks/functional fields. Zero-data controls reject
+2169 in BOTH. Original reference/rejection checks unchanged. Source/phase/
+setup/hold are not yet qualified by this balanced result.
+
+Native v5 is building separately at
+`/home/alans/mister/r-front-control844-physical-windows-native-v5-20261023`:
+builder3412626; map3412629 completed; fitter3427287 is live (tool93495).
+Read-only follower3413068/tool36299 waits for that exact builder.
+v5 only changes the control-owner aliases and six address-data pins from v2;
+all SDC bytes are unchanged. Native structural elaboration passes, but retains
+the new packed-view warning and the two inherited warning classes. No assembly.
+
+Broader address matrix is RUNNING at
+`build/rtl-executive/r-front-address-epoch-matrix-v1-20261023`, PID88027/tool55945,
+7/12 passes at receipt. Keep its four runner/import files FROZEN: address probe,
+address matrix, control-input and memory-input tools. Revalidate exact jobs
+before polling; never restart on observation timeout. Preserve v2 failed fit.
+
+Next/TODO: finish that matrix and v5 full-core timing; trace changed real
+paths/capture epochs and STK folding, then original-ROM native/Cedar/input,
+accurate60ns phases/all timers, physical faster SDRAM and full A-F gates.
+No hardware or speed change; last pinned 4.025473M StartCycle issues/s remains.
+Full goal ACTIVE. Older blocks below are historical receipts.
+
 **Latest forwarding/native work (2026-10-23): full profile checks pass;
 complete-core timing experiment is running.**
 [Proofs, failures, exact native sources and build handle](../fpga/mister/reports/2026-10-23-physical-forwarding/README.md).
