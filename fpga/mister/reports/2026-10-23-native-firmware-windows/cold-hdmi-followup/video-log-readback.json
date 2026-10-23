@@ -1,0 +1,33 @@
+{
+  "time": 1792741036.9970987,
+  "main_pid": 13244,
+  "main_sha256": "21e67a3f5588a875320437133df316b7e8f87061eb06b6dcaf63ecb139e29b60",
+  "selected_video_lines": [
+    "Calculate PLL for 74.2500 MHz:",
+    "Calculate PLL for 74.2500 MHz:",
+    "Calculate PLL for 74.2500 MHz:",
+    "video: 1920(1920), 88(88), 44(44), 148(148), 1080(1080), 4(4), 5(5), 36(36), +hsync, +vsync",
+    "\u001b[1;33mINFO: Video resolution: 1072 x 862i, fHorz = 9.0KHz, fVert = 20.9Hz, fPix = 12.94MHz, fVid = 64.74MHz\u001b[0m",
+    "\u001b[1;33mINFO: Frame time (100MHz counter): VGA = 4787273, HDMI = 3333333\u001b[0m",
+    "\u001b[1;33mINFO: Video resolution: 1072 x 862i, fHorz = 11.2KHz, fVert = 20.9Hz, fPix = 14.88MHz, fVid = 56.96MHz\u001b[0m",
+    "\u001b[1;33mINFO: Frame time (100MHz counter): VGA = 4785137, HDMI = 3333333\u001b[0m",
+    "Switch to core frame buffer",
+    "Switch to core frame buffer",
+    "MiSTer_cmd: video_mode 1280,110,40,220,720,5,5,20,74250,1,1",
+    "Calculate PLL for 74.2500 MHz:",
+    "Calculate PLL for 74.2500 MHz:",
+    "video: 1280(1280), 110(110), 40(40), 220(220), 720(720), 5(5), 5(5), 20(20), +hsync, +vsync",
+    "video_mode_cmd: applied mode \"1280,110,40,220,720,5,5,20,74250,1,1\"",
+    "MiSTer_cmd: video_mode 1920,88,44,148,1080,4,5,36,74250,1,1",
+    "Calculate PLL for 74.2500 MHz:",
+    "Calculate PLL for 74.2500 MHz:",
+    "video: 1920(1920), 88(88), 44(44), 148(148), 1080(1080), 4(4), 5(5), 36(36), +hsync, +vsync",
+    "video_mode_cmd: applied mode \"1920,88,44,148,1080,4,5,36,74250,1,1\""
+  ],
+  "latest_status_lines": [
+    "Dorado net: flags=c tx_words=13 good=55 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=7a720000 state=47ea cpu=300b80b8",
+    "Dorado net: flags=c tx_words=13 good=55 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=7a720000 state=47ea cpu=303ff3ff",
+    "Dorado net: flags=c tx_words=13 good=55 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=7a720000 state=472f cpu=3014a07c",
+    "Dorado net: flags=c tx_words=13 good=55 crc_bad=0 dropped=0 rx_bad=0 aborted=0 machine=7a720000 state=472a cpu=300dcc02"
+  ]
+}

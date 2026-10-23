@@ -70,6 +70,13 @@ boots and two hours active disk/network/input stress including working HDMI.
 The goal remains ACTIVE; full FPGA snapshots are deferred. The original A-F
 scope is unchanged. Earlier entries below retain historical pending states.
 
+[Same-session HDMI follow-up](../fpga/mister/reports/2026-10-23-native-firmware-windows/cold-hdmi-followup/README.md):
+normal framebuffer-toggle probe and acknowledged temporary720p60 do not recover
+external capture. Original1080p30 restored normally; INI/core/guest unchanged.
+ADV7513 read-only41=10/42=f8/af=04/a1=00 passes Main's attached-display test,
+not decoded-picture qualification. The native screenshot AFTER the probes
+still shows the full schematic/tools and exact cold files/input. HDMI OPEN.
+
 
 **Earlier: authentic5c65 Rollback PASS; cold persistence test then pending.**
 [88-member Rollback proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-explicit-rollback/README.md)

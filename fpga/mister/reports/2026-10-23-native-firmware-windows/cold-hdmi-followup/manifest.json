@@ -1,0 +1,50 @@
+{
+  "README.md": {
+    "bytes": 1898,
+    "sha256": "0b015037b4d2cf93ae36c6fc6b6bb185a8ebf719c1fb18f1c995decc905bec10"
+  },
+  "adv7513-readonly.json": {
+    "bytes": 482,
+    "sha256": "a318526197449e88ff9cf3f2af1a8087a5bf9e7e5a0dee364c3f5085cc6f0eb7"
+  },
+  "after-framebuffer.png": {
+    "bytes": 8470,
+    "sha256": "c431ff780d23ad2e7e29059afe6323bab4bcbfd9d71a4398250959b1eb497417"
+  },
+  "hdmi.png": {
+    "bytes": 8470,
+    "sha256": "c431ff780d23ad2e7e29059afe6323bab4bcbfd9d71a4398250959b1eb497417"
+  },
+  "host-framebuffer.png": {
+    "bytes": 8470,
+    "sha256": "c431ff780d23ad2e7e29059afe6323bab4bcbfd9d71a4398250959b1eb497417"
+  },
+  "mode-actions.json": {
+    "bytes": 3222,
+    "sha256": "e317bacde2c0d9aff78a33b9c6ea9de79245f98907519660bfb68317a84215a9"
+  },
+  "native-after-probes.png": {
+    "bytes": 76766,
+    "sha256": "9e021f40f81ad53d0abc3eab817387e2573474f2b57e7250c76a209b3abaea16"
+  },
+  "native-after-probes.png.json": {
+    "bytes": 294,
+    "sha256": "7867b898fe1e803467ce14ce4af19229a6714897ef77d45e5317b5905c811fae"
+  },
+  "probe-mode.py": {
+    "bytes": 1256,
+    "sha256": "1ce16a57c77eb3d2ae519f708d84ae03330518c7aefe0c80e8ff458f2d820e70"
+  },
+  "restored-1080p30.png": {
+    "bytes": 8470,
+    "sha256": "c431ff780d23ad2e7e29059afe6323bab4bcbfd9d71a4398250959b1eb497417"
+  },
+  "temporary-720p60.png": {
+    "bytes": 8470,
+    "sha256": "c431ff780d23ad2e7e29059afe6323bab4bcbfd9d71a4398250959b1eb497417"
+  },
+  "video-log-readback.json": {
+    "bytes": 2078,
+    "sha256": "8a7620b9ca1f7d73600028e9b7e328150ecead57e1e96feeb758d0b0ff2b1ce0"
+  }
+}

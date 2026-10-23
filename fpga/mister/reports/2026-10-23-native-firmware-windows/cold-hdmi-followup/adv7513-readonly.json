@@ -1,0 +1,28 @@
+{
+  "scope": "Read-only ADV7513 status/config; no video or core writes",
+  "bus": 1,
+  "address": "0x39",
+  "time": 1792740901.3359253,
+  "registers": {
+    "0x41": {
+      "code": 0,
+      "stdout": "0x10",
+      "stderr": ""
+    },
+    "0x42": {
+      "code": 0,
+      "stdout": "0xf8",
+      "stderr": ""
+    },
+    "0xaf": {
+      "code": 0,
+      "stdout": "0x04",
+      "stderr": ""
+    },
+    "0xa1": {
+      "code": 0,
+      "stdout": "0x00",
+      "stderr": ""
+    }
+  }
+}
