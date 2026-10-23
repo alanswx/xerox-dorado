@@ -11,6 +11,46 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Latest current-forwarding/native work (2026-10-23;
+[reviewed proof and full-core experiment](../fpga/mister/reports/2026-10-23-physical-forwarding/README.md)):
+current-memory and physical-forwarding matrices are now terminal 12/12 each.
+The original BEFORE cone exports current RbBypass; independent forecast and
+both operand-adapter input checks remain, before and after owner commit.
+BOTH pass all 844 Qs/9,216 RAM bits/100 clocks and 11,300-event functional
+comparisons. Wrong exports and wrong ProcH capture inputs reject at check 0.
+
+The full 15 ns component fit still FAILS: -1.372 ns setup, +0.134 ns hold,
++6.113 ns pulse, 4,028 ALMs/3,324 registers/9,216 MLAB bits/zero UCP.
+Unused native diagnostic exports are the global worst, but separating exactly
+their four register/port keepers in a read-only query does not produce a pass:
+all 8,675 remaining keepers (including 2,322 memory keepers) still fail by
+1.167 ns at an address forecast. Keep every full-fixture report and the SDC;
+no exception or speed qualification follows from this partition.
+
+New private native integration supplies physical Q to existing board ports,
+with the 80-bit closed encoding confined to the central owner. Keep all 16
+original visible-R owners, native pin history, advance/storage barrier,
+57.142857 MHz and SYSPER=4. SRAM address/select inputs are projected from
+their complete literal-reference inventory; the full comparison passes BOTH.
+Complete-core structural elaboration passes, but the new packed-view warning
+remains, including after inverse-checked compiler split comments. Resolve it
+and actual source/phase seams; do not suppress it or claim dependency closure.
+
+Native v2 is now in a COMPLETE CORE Quartus experiment:
+`/home/alans/mister/r-front-control844-physical-windows-native-v2-20261023`,
+builder3276353/tool12095; map3276356 completed successfully and fitter3290995
+was revalidated live. Warnings and timing still need review.
+The existing native builder now accepts its manifest and retains sequential
+four-condition, SDRAM and crossing reports, without assembly. Observe the same
+job; preserve frozen sources and do not restart after a polling timeout.
+Next: review actual full-core paths and warnings, qualify native producers/
+firmware, then integrate 60 ns phases/timers and separately faster SDRAM.
+All cold boot, Cedar input, Checkpoint/Rollback, persistence and sustained A-F
+gates remain. Hardware and pinned 4.025473M StartCycle issues/s are unchanged.
+Queued simulation2331 ended normally at the original 5B bound without Cedar113;
+that is not a boot pass or authorization to extend/restart it. Control2284 and
+cold37871/43350 remain separate, with their original limits. Full goal ACTIVE.
+
 Latest operand-window/current-port work (2026-10-23;
 [reviewed sources and fits](../fpga/mister/reports/2026-10-23-physical-operand-windows/README.md)):
 read-window, shared-f14 and T-window matrices now each pass all12 cases in

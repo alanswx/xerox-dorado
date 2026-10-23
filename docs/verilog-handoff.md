@@ -1,5 +1,53 @@
 # Verilog from Sil: handoff
 
+**Latest forwarding/native work (2026-10-23): full profile checks pass;
+complete-core timing experiment is running.**
+[Proofs, failures, exact native sources and build handle](../fpga/mister/reports/2026-10-23-physical-forwarding/README.md).
+Current-SRAM and current-forwarding matrices are now terminal 12/12 passes
+each, across six profiles and both simulators. Current RbBypass is exported
+from the existing original BEFORE cone; the next-capture forecast remains
+independently checked. Both operand-adapter inputs also compare before/after
+commit in BOTH; inverted-current and inverted-ProcH-input controls reject at 0.
+All 844 physical Qs, 9,216 RAM bits, 100 clocks and functional checks remain.
+
+The new full 15 ns fit is a regression: setup -1.372 ns, hold +0.134 ns,
+pulse +6.113 ns, 4,028 ALMs/3,324 registers/9,216 MLAB bits/zero UCP.
+Worst is unsettled, with shared-state mismatch also failing. A separate
+read-only query covers all 8,679 keepers, separates exactly four unused
+diagnostic register/port keepers, and retains all 2,322 RM/STK memory keepers.
+It STILL fails setup by 1.167 ns at address forecast bit 310. Keep the full
+failure; there is no exception, constraint change or functional timing pass.
+
+Private native stages v1/v2 now connect physical Q to board consumers and
+closed encoding only to the central owner. All 16 original visible-R owners,
+pin history/advance/storage barrier and 57.142857 MHz/SYSPER=4 remain.
+v2 projects the current SRAM address/select functions onto their actually
+consumed inputs; the complete original-reference comparison passes in BOTH.
+Three structural native elaborations pass. The new packed-view dependency
+warning remains in v1/v2 AND the comment-only split-hint v3; no warning is
+suppressed and v3 is not selected. Source/phase/dependency closure remains open.
+
+The frozen v2 COMPLETE CORE is now building on misterubuntu at
+`/home/alans/mister/r-front-control844-physical-windows-native-v2-20261023`.
+Builder PID3276353, mapper3276356 finished successfully; fitter3290995 is
+live (tool12095). Mapping had zero errors; warnings and timing still need review.
+Use `build_r_front_ready_native.py --manifest r-front-control-native.json`;
+its sequential flow retains native timing/crossing/SDRAM reports and has no
+assembly stage. Revalidate exact process/state before polling; never restart
+or alter these sources because observation times out. Local frozen source:
+`build/rtl-executive/r-front-physical-native-stage-v2-20261023`.
+
+Next/TODO: review complete-core map/fit/all conditions and actual consumer
+paths; resolve the packed physical-view dependency and native arrival/phase
+seams before firmware/FPGA promotion. Then correct 60 ns phases and peripheral
+timers, qualify faster SDRAM, cold Cedar/input/Checkpoint/Rollback/persistence
+and the complete A-F acceptance gates. No assembly/load/speed claim.
+Original queued PID2331 reached its unchanged 5B bound normally (HOST_LIMIT),
+without Cedar113; do not restart/extend it. Control2284 and cold37871/43350
+were revalidated live at receipt; keep original bounds and C protocol.
+Hardware 5c65 and last pinned 4.025473M StartCycle issues/s are unchanged.
+Full goal ACTIVE. The older blocks below record earlier receipts.
+
 **Latest operand-window work (2026-10-23): current SRAM port passes BOTH;15ns deficit now1.122ns.**
 [Complete changes, original-reference checks, regressions and physical reports](../fpga/mister/reports/2026-10-23-physical-operand-windows/README.md).
 Read-window/shared-f14/T-window matrices are all terminal PASS12cases each,

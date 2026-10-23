@@ -1,0 +1,574 @@
+{
+  "status": "PASS_CURRENT_FORWARDING_REVIEW_TIMING_STILL_FAILS",
+  "scope": "Review current forwarding, actual capture inputs, and full timing failures.\n\nRetain the complete failed 15 ns fixture and the separate all-keeper query.\nNo full native boot, setup/hold, cadence or speed qualification is implied.\n",
+  "current_memory_matrix_cases": 12,
+  "current_forward_matrix_cases": 12,
+  "comparisons": [
+    {
+      "directory": "r-front-forward-view-icarus-v1-20261023",
+      "status": "PASS_R_FRONT_PHYSICAL_FORWARD",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "262ad4b3ce4c7207072bee37897f1e4ea60c5fa3eb75cff35b901de18d0597ab"
+    },
+    {
+      "directory": "r-front-forward-view-verilator-v1-20261023",
+      "status": "PASS_R_FRONT_PHYSICAL_FORWARD",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "e82011ea442c0d4e6bbe8c79009af0b8625c0d56dc1744d91567731e84464054"
+    },
+    {
+      "directory": "fast_gates-verilator",
+      "status": "PASS_R_FRONT_PHYSICAL_FORWARD",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "7527d9ad33087bd51a8a23f278362f546002d4191f0f77b7696eaa89810495a3"
+    },
+    {
+      "directory": "later_control-verilator",
+      "status": "PASS_R_FRONT_PHYSICAL_FORWARD",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "c6b026254364d7bc238d937f723caafbe088256e597a875f6de9478fe10b5acd"
+    },
+    {
+      "directory": "parc_parity_min-verilator",
+      "status": "PASS_R_FRONT_PHYSICAL_FORWARD",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "c4a25725a114280d6211781be7ad817563d44cfda08a34895fbee890bd48ebaa"
+    },
+    {
+      "directory": "parc_parity_max-verilator",
+      "status": "PASS_R_FRONT_PHYSICAL_FORWARD",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "ba2bdab423e919af01c50f07aa5b4e0a05b38955d196282ad0176798ca06686a"
+    },
+    {
+      "directory": "fast_gates-icarus",
+      "status": "PASS_R_FRONT_PHYSICAL_FORWARD",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "2c5f56df9f3a452b3bbab25290da68f9c962b558616b1d96289daeb52f817004"
+    },
+    {
+      "directory": "later_r_memory-verilator",
+      "status": "PASS_R_FRONT_PHYSICAL_FORWARD",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "73039c2cb7767bc6cfe90ffd622a91e6ff6c207deeb60ffe977daa4f4863ede9"
+    },
+    {
+      "directory": "later_control-icarus",
+      "status": "PASS_R_FRONT_PHYSICAL_FORWARD",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "3d394e49acd3429cc233fc82dcc174ecd93a7e48a5b98496f8e8cd5ef5924b35"
+    },
+    {
+      "directory": "parc_parity_min-icarus",
+      "status": "PASS_R_FRONT_PHYSICAL_FORWARD",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "eb3f765d8bd96017c67295a01cd935e664a50e644e920ab99726b01f4fca1929"
+    },
+    {
+      "directory": "parc_parity_max-icarus",
+      "status": "PASS_R_FRONT_PHYSICAL_FORWARD",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "1fa28f3a8251a99a4f65d2ab43d83e632243ebf97e5032fae7bbef04fc392f9a"
+    },
+    {
+      "directory": "later_r_memory-icarus",
+      "status": "PASS_R_FRONT_PHYSICAL_FORWARD",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "ee0438f9479f678fa953290a1fd050a561cbce242475004739405bdd5689ca7c"
+    },
+    {
+      "directory": "r-front-forward-view-invert-icarus-v1-20261023",
+      "status": "R_FRONT_PHYSICAL_FORWARD_FAILED",
+      "mutation": "invert_current",
+      "source_transform_exact": true,
+      "run_state_sha256": "87126a0c1c888c8acc6060592956a0a1985ede16aafb1e877a3e2dcaf38d982d"
+    },
+    {
+      "directory": "r-forward-consumer-icarus-v1-20261023",
+      "status": "PASS_R_FORWARD_CONSUMER",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "6fb5b7edb2c7f53b281c842cbbd8298df3778b526242ea713844e65312173510"
+    },
+    {
+      "directory": "r-forward-consumer-invert-icarus-v1-20261023",
+      "status": "R_FORWARD_CONSUMER_FAILED",
+      "mutation": "invert_H_capture",
+      "source_transform_exact": true,
+      "run_state_sha256": "4cd9dc9c49e07df75e173a46941b589fb04e034cf65aff5bc390425e03ecd414"
+    },
+    {
+      "directory": "r-front-forward-view-invert-verilator-v1-20261023",
+      "status": "R_FRONT_PHYSICAL_FORWARD_FAILED",
+      "mutation": "invert_current",
+      "source_transform_exact": true,
+      "run_state_sha256": "56b5e80f26620d2301fb7cb4ce1ece8025c070a1aad281161f7c9eb81c50bf52"
+    },
+    {
+      "directory": "r-forward-consumer-verilator-v1-20261023",
+      "status": "PASS_R_FORWARD_CONSUMER",
+      "mutation": null,
+      "source_transform_exact": true,
+      "run_state_sha256": "944bc91f1bc937bb852166d7c923e84991db2205ffdc99fc2df4edf3ba4368b1"
+    },
+    {
+      "directory": "r-forward-consumer-invert-verilator-v1-20261023",
+      "status": "R_FORWARD_CONSUMER_FAILED",
+      "mutation": "invert_H_capture",
+      "source_transform_exact": true,
+      "run_state_sha256": "af30431aa8b4a95db76936fc442b0f0488ba874c67095b7c0566389eecd8bc6f"
+    }
+  ],
+  "original_source_audit": "PASS_ORIGINAL_RBYPASS_PRODUCER_CONSUMER_AUDIT",
+  "full_fit": {
+    "directory": "r-front-forward-view-fit-terminal-v1-20261023",
+    "corners": [
+      {
+        "corner": "7_slow_1100mv_100c",
+        "setup": -1.321,
+        "hold": 0.301,
+        "mpw": 6.461,
+        "evaluator": -1.321
+      },
+      {
+        "corner": "7_slow_1100mv_-40c",
+        "setup": -1.372,
+        "hold": 0.267,
+        "mpw": 6.463,
+        "evaluator": -1.372
+      },
+      {
+        "corner": "MIN_fast_1100mv_100c",
+        "setup": 4.095,
+        "hold": 0.193,
+        "mpw": 6.174,
+        "evaluator": 6.215
+      },
+      {
+        "corner": "MIN_fast_1100mv_-40c",
+        "setup": 4.524,
+        "hold": 0.134,
+        "mpw": 6.113,
+        "evaluator": 7.549
+      }
+    ],
+    "setup_min": -1.372,
+    "hold_min": 0.134,
+    "mpw_min": 6.113,
+    "worst": {
+      "corner": "7_slow_1100mv_-40c",
+      "from_node": "launch[811]",
+      "to_node": "result[355]~reg0",
+      "launch_bit": 811,
+      "state_bit": 5,
+      "result_bit": 355,
+      "endpoint": {
+        "field": "unsettled",
+        "bit": 0
+      },
+      "data_delay_ns": 16.126,
+      "logic_levels": 17
+    },
+    "evaluator_worst": {
+      "corner": "7_slow_1100mv_-40c",
+      "from_node": "launch[811]",
+      "to_node": "result[355]~reg0",
+      "launch_bit": 811,
+      "state_bit": 5,
+      "result_bit": 355,
+      "endpoint": {
+        "field": "unsettled",
+        "bit": 0
+      },
+      "data_delay_ns": 16.126,
+      "logic_levels": 17
+    },
+    "ALMs": 4028,
+    "registers": 3324,
+    "MLAB_bits": 9216,
+    "M10K_bits": 0,
+    "unconstrained_paths": 0,
+    "constraints_unchanged": true,
+    "isolated_budget_pass": false,
+    "native_timing_qualified": false,
+    "ordinary60ns_qualified": false,
+    "speedup_qualified": false
+  },
+  "endpoint_audit": {
+    "scope": "Separate native consumers from unused consistency exports in an existing fit.\n\nKeep the complete registered fixture and its failing timing reports. This is\nan additional read-only TimeQuest query, with the original 15 ns SDC, over ALL\nkeeper endpoints except the two explicitly audited unused diagnostic exports.\nIt does not waive a path, refit the design, or qualify native timing/cadence.\n",
+    "status": "PASS_READ_ONLY_ENDPOINT_AUDIT",
+    "fit": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-forward-view-fit-terminal-v1-20261023",
+    "full_fit": {
+      "directory": "r-front-forward-view-fit-terminal-v1-20261023",
+      "corners": [
+        {
+          "corner": "7_slow_1100mv_100c",
+          "setup": -1.321,
+          "hold": 0.301,
+          "mpw": 6.461,
+          "evaluator": -1.321
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "setup": -1.372,
+          "hold": 0.267,
+          "mpw": 6.463,
+          "evaluator": -1.372
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "setup": 4.095,
+          "hold": 0.193,
+          "mpw": 6.174,
+          "evaluator": 6.215
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "setup": 4.524,
+          "hold": 0.134,
+          "mpw": 6.113,
+          "evaluator": 7.549
+        }
+      ],
+      "setup_min": -1.372,
+      "hold_min": 0.134,
+      "mpw_min": 6.113,
+      "worst": {
+        "corner": "7_slow_1100mv_-40c",
+        "from_node": "launch[811]",
+        "to_node": "result[355]~reg0",
+        "launch_bit": 811,
+        "state_bit": 5,
+        "result_bit": 355,
+        "endpoint": {
+          "field": "unsettled",
+          "bit": 0
+        },
+        "data_delay_ns": 16.126,
+        "logic_levels": 17
+      },
+      "evaluator_worst": {
+        "corner": "7_slow_1100mv_-40c",
+        "from_node": "launch[811]",
+        "to_node": "result[355]~reg0",
+        "launch_bit": 811,
+        "state_bit": 5,
+        "result_bit": 355,
+        "endpoint": {
+          "field": "unsettled",
+          "bit": 0
+        },
+        "data_delay_ns": 16.126,
+        "logic_levels": 17
+      },
+      "ALMs": 4028,
+      "registers": 3324,
+      "MLAB_bits": 9216,
+      "M10K_bits": 0,
+      "unconstrained_paths": 0,
+      "constraints_unchanged": true,
+      "isolated_budget_pass": false,
+      "native_timing_qualified": false,
+      "ordinary60ns_qualified": false,
+      "speedup_qualified": false
+    },
+    "native_stage": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-control-native-stage-v9-20261023",
+    "native_manifest_sha256": "a2a4676650b8c243f9c191240f71850d948af1e7465bf6499301eb8d6d2bc77f",
+    "native_backplane_sha256": "c1a038fd26233b8c45fba89ffa428023a316f299816190b8689fa42b1048c140",
+    "fields": [
+      {
+        "name": "control_flags",
+        "first": 0,
+        "last": 93
+      },
+      {
+        "name": "shared_state_mismatch",
+        "first": 94,
+        "last": 94
+      },
+      {
+        "name": "conta_next",
+        "first": 95,
+        "last": 204
+      },
+      {
+        "name": "ready_flags",
+        "first": 205,
+        "last": 234
+      },
+      {
+        "name": "file_read_parity",
+        "first": 235,
+        "last": 236
+      },
+      {
+        "name": "file_read_data",
+        "first": 237,
+        "last": 252
+      },
+      {
+        "name": "port_select_n",
+        "first": 253,
+        "last": 256
+      },
+      {
+        "name": "port_address",
+        "first": 257,
+        "last": 288
+      },
+      {
+        "name": "r_write_n",
+        "first": 289,
+        "last": 290
+      },
+      {
+        "name": "forwarded_bypass",
+        "first": 291,
+        "last": 292
+      },
+      {
+        "name": "select_n",
+        "first": 293,
+        "last": 296
+      },
+      {
+        "name": "address",
+        "first": 297,
+        "last": 328
+      },
+      {
+        "name": "rm_flags_n",
+        "first": 329,
+        "last": 330
+      },
+      {
+        "name": "r_flags",
+        "first": 331,
+        "last": 334
+      },
+      {
+        "name": "r_visible_n",
+        "first": 335,
+        "last": 336
+      },
+      {
+        "name": "r_read_n",
+        "first": 337,
+        "last": 338
+      },
+      {
+        "name": "faults",
+        "first": 339,
+        "last": 342
+      },
+      {
+        "name": "parity_ok",
+        "first": 343,
+        "last": 346
+      },
+      {
+        "name": "bypass",
+        "first": 347,
+        "last": 348
+      },
+      {
+        "name": "t_latch_n",
+        "first": 349,
+        "last": 350
+      },
+      {
+        "name": "latch_n",
+        "first": 351,
+        "last": 352
+      },
+      {
+        "name": "write_n",
+        "first": 353,
+        "last": 354
+      },
+      {
+        "name": "unsettled",
+        "first": 355,
+        "last": 355
+      },
+      {
+        "name": "repeated",
+        "first": 356,
+        "last": 455
+      },
+      {
+        "name": "events",
+        "first": 456,
+        "last": 555
+      },
+      {
+        "name": "next_q",
+        "first": 556,
+        "last": 1399
+      }
+    ],
+    "excluded_diagnostic_result_bits": {
+      "94": "shared_state_mismatch",
+      "355": "unsettled"
+    },
+    "native_diagnostic_consumers": 0,
+    "audit_tcl_sha256": "82fb1c6ebf6328208f5891e739bd884b12fd8a018538c9030aa71f62a9ef5321",
+    "all_keeper_endpoints_retained_except_explicit_diagnostics": true,
+    "SDC_sha256": "b46e34c5a34d0f5d5fbf199d3c0060292979aa69628b03599cc55019fdbffc52",
+    "constraints_changed": false,
+    "native_timing_qualified": false,
+    "ordinary60ns_qualified": false,
+    "corners": [
+      {
+        "corner": "7_slow_1100mv_100c",
+        "all_keepers": 8679,
+        "functional_keepers": 8675,
+        "diagnostic_keepers": [
+          "result[94]~reg0",
+          "result[355]~reg0",
+          "result[94]",
+          "result[355]"
+        ],
+        "retained_memory_keepers": 2322,
+        "all_setup_ns": -1.321,
+        "all_setup_worst_to": "result[355]~reg0",
+        "all_hold_ns": 0.301,
+        "all_hold_worst_to": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_mno1:auto_generated|lutrama8~OBSERVABLEPORTAADDRESSREGOUT1",
+        "functional_setup_ns": -1.167,
+        "functional_setup_worst_to": "result[310]~reg0",
+        "functional_hold_ns": 0.301,
+        "functional_hold_worst_to": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_mno1:auto_generated|lutrama8~OBSERVABLEPORTAADDRESSREGOUT1"
+      },
+      {
+        "corner": "7_slow_1100mv_-40c",
+        "all_keepers": 8679,
+        "functional_keepers": 8675,
+        "diagnostic_keepers": [
+          "result[94]~reg0",
+          "result[355]~reg0",
+          "result[94]",
+          "result[355]"
+        ],
+        "retained_memory_keepers": 2322,
+        "all_setup_ns": -1.372,
+        "all_setup_worst_to": "result[355]~reg0",
+        "all_hold_ns": 0.267,
+        "all_hold_worst_to": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_mno1:auto_generated|lutrama8~OBSERVABLEPORTAADDRESSREGOUT1",
+        "functional_setup_ns": -0.707,
+        "functional_setup_worst_to": "result[310]~reg0",
+        "functional_hold_ns": 0.267,
+        "functional_hold_worst_to": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_mno1:auto_generated|lutrama8~OBSERVABLEPORTAADDRESSREGOUT1"
+      },
+      {
+        "corner": "MIN_fast_1100mv_100c",
+        "all_keepers": 8679,
+        "functional_keepers": 8675,
+        "diagnostic_keepers": [
+          "result[94]~reg0",
+          "result[355]~reg0",
+          "result[94]",
+          "result[355]"
+        ],
+        "retained_memory_keepers": 2322,
+        "all_setup_ns": 4.095,
+        "all_setup_worst_to": "launch[1576]",
+        "all_hold_ns": 0.193,
+        "all_hold_worst_to": "result[807]~reg0",
+        "functional_setup_ns": 4.095,
+        "functional_setup_worst_to": "launch[1576]",
+        "functional_hold_ns": 0.193,
+        "functional_hold_worst_to": "result[807]~reg0"
+      },
+      {
+        "corner": "MIN_fast_1100mv_-40c",
+        "all_keepers": 8679,
+        "functional_keepers": 8675,
+        "diagnostic_keepers": [
+          "result[94]~reg0",
+          "result[355]~reg0",
+          "result[94]",
+          "result[355]"
+        ],
+        "retained_memory_keepers": 2322,
+        "all_setup_ns": 4.524,
+        "all_setup_worst_to": "launch[1576]",
+        "all_hold_ns": 0.134,
+        "all_hold_worst_to": "result[1227]~reg0",
+        "functional_setup_ns": 4.524,
+        "functional_setup_worst_to": "launch[1576]",
+        "functional_hold_ns": 0.134,
+        "functional_hold_worst_to": "result[1227]~reg0"
+      }
+    ],
+    "functional_setup_min_ns": -1.167,
+    "functional_hold_min_ns": 0.134,
+    "full_fixture_still_fails": true,
+    "functional_isolated_budget_pass": false
+  },
+  "memory_input_projection": [
+    {
+      "directory": "r-front-memory-inputs-icarus-v1-20261023",
+      "status": "PASS_R_FRONT_MEMORY_INPUT_PROJECTION",
+      "run_state_sha256": "51824e30e1e2e5cdbcd39c5b6a43cbdb591dcd85f2a5b07aaa30b8171b2a82c8"
+    },
+    {
+      "directory": "r-front-memory-inputs-verilator-v1-20261023",
+      "status": "PASS_R_FRONT_MEMORY_INPUT_PROJECTION",
+      "run_state_sha256": "5d52f1b74eba8a67bd5d9f2bfcbf4624b20a9bc5f18074072d090c614d05eee2"
+    }
+  ],
+  "native_stages": [
+    {
+      "stage": "r-front-physical-native-stage-v1-20261023",
+      "lint": "r-front-physical-native-lint-v1-20261023",
+      "warnings": {
+        "WIDTHTRUNC": 55,
+        "WIDTHEXPAND": 50,
+        "UNSIGNED": 1,
+        "MULTIDRIVEN": 1,
+        "UNOPTFLAT": 2
+      },
+      "manifest_sha256": "7184c36ce1abda1e0a34e79c711480570f461a88f41992103b8f4fd24114a5ea"
+    },
+    {
+      "stage": "r-front-physical-native-stage-v2-20261023",
+      "lint": "r-front-physical-native-lint-v2-20261023",
+      "warnings": {
+        "WIDTHTRUNC": 55,
+        "WIDTHEXPAND": 50,
+        "UNSIGNED": 1,
+        "MULTIDRIVEN": 1,
+        "UNOPTFLAT": 2
+      },
+      "manifest_sha256": "be0d3b4a45610a9a4afdc38cb46c905f6cdc8d6a0dcad4173bff78cd2b879583"
+    },
+    {
+      "stage": "r-front-physical-native-stage-v3-20261023",
+      "lint": "r-front-physical-native-lint-v3-20261023",
+      "warnings": {
+        "WIDTHTRUNC": 55,
+        "WIDTHEXPAND": 50,
+        "UNSIGNED": 1,
+        "MULTIDRIVEN": 1,
+        "UNOPTFLAT": 2
+      },
+      "manifest_sha256": "b88cbe85a96fcfafb8dbcb9bce8713981fd681f0c2cf7ba8efe51df0affb85cc"
+    }
+  ],
+  "native_timing_qualified": false,
+  "ordinary60ns_qualified": false,
+  "speedup_qualified": false,
+  "next": "Resolve real source/phase/dependency seams and measure complete native core; retain full A-F goal."
+}

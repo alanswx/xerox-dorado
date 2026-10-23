@@ -16,10 +16,10 @@ import time
 
 
 def run(project, quartus, manifest='r-front-ready-native.json'):
-    assert manifest in ('r-front-ready-native.json','sdram-burst-native.json','storage-ready-native.json','storage-board-native.json','pack-window-native.json','storage-cache-native.json','storage-response-native.json','baseboard-crystal-native.json','timing-paths-native.json')
+    assert manifest in ('r-front-ready-native.json','sdram-burst-native.json','storage-ready-native.json','storage-board-native.json','pack-window-native.json','storage-cache-native.json','storage-response-native.json','baseboard-crystal-native.json','timing-paths-native.json','r-front-control-native.json')
     r=json.loads((project/manifest).read_text())
     assert r['project']==str(project) and r['state_admin']=='INACTIVE'
-    if manifest in ('storage-board-native.json','pack-window-native.json','storage-cache-native.json','storage-response-native.json','baseboard-crystal-native.json','timing-paths-native.json'):
+    if manifest in ('storage-board-native.json','pack-window-native.json','storage-cache-native.json','storage-response-native.json','baseboard-crystal-native.json','timing-paths-native.json','r-front-control-native.json'):
         assert r['frequency_mhz']=={57142857:57.142857,66666667:66.666667}[r['frequency_hz']]
     else:
         assert r['frequency_mhz']==50
@@ -44,7 +44,7 @@ def run(project, quartus, manifest='r-front-ready-native.json'):
                 ('quartus_sta',['-t','audit-control-crossings.tcl'],'control-crossings'),
                 ('quartus_sta',['-t','audit-contb-crossings.tcl'],'contb-crossings'),
                 ('quartus_sta',['-t','audit-adapter-crossings.tcl'],'adapter-crossings')]
-        if manifest in ('storage-ready-native.json','storage-board-native.json','pack-window-native.json','storage-cache-native.json','storage-response-native.json','baseboard-crystal-native.json','timing-paths-native.json'):
+        if manifest in ('storage-ready-native.json','storage-board-native.json','pack-window-native.json','storage-cache-native.json','storage-response-native.json','baseboard-crystal-native.json','timing-paths-native.json','r-front-control-native.json'):
             stages.append(('quartus_sta',['-t','audit-storage-ready.tcl'],'storage-ready'))
         for tool,args,label in stages:
             print('R_FRONT_READY_NATIVE',label,flush=True)
@@ -77,5 +77,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--project',type=Path,required=True)
     p.add_argument('--quartus',type=Path,default=Path('/home/alans/intelFPGA_lite/17.0/quartus/bin'))
-    p.add_argument('--manifest',choices=['r-front-ready-native.json','sdram-burst-native.json','storage-ready-native.json','storage-board-native.json','pack-window-native.json','storage-cache-native.json','storage-response-native.json','baseboard-crystal-native.json','timing-paths-native.json'],default='r-front-ready-native.json')
+    p.add_argument('--manifest',choices=['r-front-ready-native.json','sdram-burst-native.json','storage-ready-native.json','storage-board-native.json','pack-window-native.json','storage-cache-native.json','storage-response-native.json','baseboard-crystal-native.json','timing-paths-native.json','r-front-control-native.json'],default='r-front-ready-native.json')
     a=p.parse_args();run(a.project.resolve(),a.quartus.resolve(),a.manifest)
