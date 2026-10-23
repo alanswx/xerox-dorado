@@ -1,0 +1,11 @@
+# One corrected-source native fit: falling old word plus early read
+
+Reconstructed from all503 exact qualified690f inputs; precisely six RTL sources change after literal project relocation: previous direct-carry and two decoded mux cells, early-read backend and wrapper, and falling old-word storage group. Extra transport qualifier:128 group bits expected. Original CPU/cache/Map/ECC and machine capture epochs, clocks/SDC/Main/daemon stay unchanged. Still57.142857MHz/SYSPER4/140ns nominal. No new timing exception, frequency/seed retry or assembly.
+
+Both new component receipts are hash-pinned; all actual inputs/results/traces must match. Both early-response and falling-word proofs, including their combined exact original-MSA host trace, are required alongside older carry/mux/read-capture proofs. Eight actual evidence corruptions reject before output, including rebound wrong edge/reference, removed old-word consumer check, changed MSA host trace and false native claim. All four earlier444-category diagnostics remain byte-identical under the extended inspector.
+
+First launch guard found unrelated MacQuadra synthesis1950286 and stopped before project creation. The report follower was attempted prematurely and also failed before creating its report directory or launching a process. Both failures remain. Actual inspection found64GiB RAM/about42GiB available and16CPUs. A separate guarded launcher then allowed an unrelated project only with24GiB available headroom and no same-project build. One Dorado build started; the unrelated fit1967273 remained untouched. No compiled settings/constraints changed for scheduling.
+
+Remote /home/alans/mister/Dorado_OldWordEarly57_1_20261022: builder1968443, map terminal0, fitter1982706 directly observed live. Read-only reporters1970492/collector1970493 follow SAME job. Local PID34147/tool55999 reads the collector PID from its launch receipt;300-poll bound must not restart a fit. Follow this exact run to terminal. No native timing result or hardware speed claim yet.
+
+The immutable running prefix includes exact staged sources, provenance, all attempts, actual process/source observation, corrected scheduling and inspector replay checks. Verify: python3 tools/archive_r_front_ready_followup.py --verify fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-stage

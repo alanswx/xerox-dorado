@@ -39,11 +39,13 @@ def inspect(root, parent, qualification, read_word=False):
     assert recipe['raw_buffer_lines'] == 4
     direct_alu = read_word and recipe.get('ALU_direct_carry', False)
     decoded_mux = direct_alu and recipe.get('decoded_mux', False)
-    assert len(recipe['modified_RTL_sources']) == (5 if decoded_mux else 3 if direct_alu else 2 if read_word else 6)
+    old_word = decoded_mux and recipe.get('old_word_falling', False)
+    early_read = old_word and recipe.get('early_read_response', False)
+    assert len(recipe['modified_RTL_sources']) == (6 if old_word else 5 if decoded_mux else 3 if direct_alu else 2 if read_word else 6)
     if read_word:
         from stage_storage_read_word_native import PARENT_QUALIFICATION, BACKEND, WRAPPER
         from prepare_storage_read_word_capture import transform
-        assert recipe['capture_read_word'] and recipe['response_valid_cycles_unchanged']
+        assert recipe['capture_read_word'] and recipe['response_valid_cycles_unchanged'] == (not early_read)
         assert hashlib.sha256(qualification.read_bytes()).hexdigest() == PARENT_QUALIFICATION
         changed = {BACKEND, WRAPPER}
         if direct_alu:
@@ -55,6 +57,12 @@ def inspect(root, parent, qualification, read_word=False):
             from test_mc10164_decoded import decoded
             assert recipe['mux_four_state_cases'] == 16777216
             changed.update('src/verilog/cells/cell_' + n + '.v' for n in ['MC10164', 'MU10164'])
+        if old_word:
+            from test_storage_old_word_falling import GROUP, transform as old_word_transform
+            from prepare_storage_early_read import transform as early_read_transform
+            assert early_read and not recipe['architectural_capture_cycles_changed']
+            assert recipe['new_transport_control_bits_expected'] == 128
+            changed.add(GROUP)
         assert set(recipe['modified_RTL_sources']) == changed
     actual = {}
     for n, h in recipe['source_hashes'].items():
@@ -88,14 +96,20 @@ def inspect(root, parent, qualification, read_word=False):
             expected = raw.replace(original['project'].encode(), recipe['project'].encode())
             if name == BACKEND:
                 expected = transform(raw)
+                if early_read:
+                    expected = early_read_transform(expected)
             if direct_alu and name == CELL:
                 expected = direct_carry(raw)
             if decoded_mux and name in ['src/verilog/cells/cell_MC10164.v', 'src/verilog/cells/cell_MU10164.v']:
                 expected = decoded(raw)
+            if old_word and name == GROUP:
+                expected = old_word_transform(raw)
             if name == WRAPPER:
                 old = b'.CACHE_LINES(4),.RESPONSE_OVERLAP(1)) u_sdram('
                 assert expected.count(old) == 1
                 expected = expected.replace(old, b'.CACHE_LINES(4),.RESPONSE_OVERLAP(1),.CAPTURE_READ_WORD(1)) u_sdram(')
+                if early_read:
+                    expected = expected.replace(b'.CAPTURE_READ_WORD(1)) u_sdram(', b'.CAPTURE_READ_WORD(1),.EARLY_READ_RESPONSE(1)) u_sdram(')
             assert (root/name).read_bytes() == expected, name
     for corner in ([] if read_word else sorted(readers.CORNERS)):
         for prefix, labels in [('crystal',['oscillator','downstream','baseboard']),
@@ -142,6 +156,8 @@ def inspect(root, parent, qualification, read_word=False):
     if read_word:
         values = re.findall(r';\s*CAPTURE_READ_WORD\s*;\s*(\d+)\s*;', mapping)
         assert values == ['1'], 'Requested-beat mode must be selected in the actual compiled backend'
+    if early_read:
+        assert re.findall(r';\s*EARLY_READ_RESPONSE\s*;\s*(\d+)\s*;', mapping) == ['1']
     headers = list(re.finditer(r'(?m)^;\s*Parameter Settings for (?:User|Inferred) Entity Instance:\s*([^\n;]+)',mapping))
     sections = [mapping[h.start():headers[i+1].start() if i+1 < len(headers) else len(mapping)] for i,h in enumerate(headers) if 'cell_MC12061:u_d08' in h[1]]
     assert len(sections) == 1 and re.search(r'; SYSPER\s*; 8\s*;',sections[0]) and re.search(r'; FREQ_KHZ\s*; 10000\s*;',sections[0])
@@ -159,6 +175,9 @@ def inspect(root, parent, qualification, read_word=False):
             if label == 'groups':
                 prefix = 'emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|'
                 assert {n.rsplit('|',1)[0] for n in rows} == {prefix+f'msa_ddram:b_{board}|dorado_storage_group:u_storage_{i}' for board in ['msa','msaOdd','msa1','msa1Odd','msa2','msa2Odd','msa3','msa3Odd'] for i in range(16)}
+                if old_word:
+                    qualifiers = [n for n in rows if n.rsplit('|',1)[1].split('~',1)[0] == 'preserve_old_word']
+                    assert len(qualifiers) == 128 and {n.rsplit('|',1)[0] for n in qualifiers} == {n.rsplit('|',1)[0] for n in rows}
     warning_counts = {}
     for n in ['map.log','fit.log','sta.log']:
         body = read(n)

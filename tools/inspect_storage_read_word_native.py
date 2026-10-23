@@ -26,6 +26,10 @@ if __name__ == '__main__':
         result.update(decoded_mux=True,
             status='REJECT_NATIVE_DECODED_MUX' if result['status'] == 'REJECT_NATIVE_DIRECT_CARRY_CAPTURE'
                    else 'DECODED_MUX_TIMING_POSITIVE_FULL_PREASSEMBLY_REVIEW_STILL_REQUIRED')
+    if recipe.get('old_word_falling', False):
+        result.update(old_word_falling=True,early_read_response=True,
+            status='REJECT_NATIVE_OLD_WORD_EARLY' if result['status'] == 'REJECT_NATIVE_DECODED_MUX'
+                   else 'OLD_WORD_EARLY_TIMING_POSITIVE_FULL_PREASSEMBLY_REVIEW_STILL_REQUIRED')
     args.output.write_text(json.dumps(result, indent=2) + '\n')
     print(result['status'], len(result['detailed_paths']), 'categories; setup',
           result['minimum_setup_ns'], 'hold', result['minimum_hold_ns'])

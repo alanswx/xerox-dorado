@@ -183,35 +183,80 @@ ratio/original clocks/coverage verified. Both older444 diagnostics remain
 byte-identical. No assembly/refit/load. [Full terminal rejection](../fpga/mister/reports/2026-10-22-mc10181-direct-carry/native57-rejected-terminal/README.md).
 Local `direct-carry-capture-native57-v1-20261022`; [592-member stage/live proof](../fpga/mister/reports/2026-10-22-mc10181-direct-carry/native57-stage/README.md).
 
-**Decoded diagnostic mux experiment: component PASS; one native fit LIVE.**
-Actual failing path crosses processor/result/diagnostic MC/MU10164 muxes.
-Control predecode/late-data reduction keeps pins/registers/connections intact.
-Both aliases exhaust4096 binary combinations in both simulators; Icarus also
-exhausts all16777216 four-state combinations. Unknown-index behavior is retained.
-Five real wrong-select/lost-enable/unknown-index variants reject; fatal circular
-warning checks pass. [26-member component proof](../fpga/mister/reports/2026-10-22-mc10164-decoded/component/README.md).
-All503 qualified690f sources verified, precisely five RTL changes combining
-previous carry/read-capture with two mux cells. Nine damaged-proof guards reject
-before output. [608-member guarded stage](../fpga/mister/reports/2026-10-22-mc10164-decoded/native57-stage/README.md).
-First launch stopped before project creation because unrelated Geneve fitter
-1740428 was active. It later completed successfully and disappeared; one Dorado
-build then started. Remote `/home/alans/mister/Dorado_DecodedMux57_1_20261022`,
-builder1767051, map1767063 terminal0, fitter1779349 verified LIVE. Read-only
-reporters1770683/collector1770684 follow SAME job. First local follower retained
-old1641399 binding and stopped; corrected local-v2 follows actual1770684 without
-remote restart/refit. Correct local observer PID19021/tool6554 is bounded300 polls.
-[23-member observed-live proof](../fpga/mister/reports/2026-10-22-mc10164-decoded/native57-fit-start/README.md).
-All three previous444-category diagnostics still reproduce
-byte-identically after mux-inspector extension. No native mux result/assembly/
-load or speedup claim yet. Same57MHz/SYSPER4/140ns; not a clock step.
+**Decoded mux full fit TERMINAL/REJECTED: setup closed, group hold remains.**
+All1079 native members copied/hash-verified after97 local-v2 polls; original
+nine builder and seven report stages terminal0. All31 summaries/444 categories/
+four conditions inspected: summary setup+0.579ns/detailed minimum+0.375ns;
+four hold-negative categories, slow100C-0.055ns and fast-40C-0.009ns, global and
+look-group-ready. Other corners+0.009/+0.003 do not waive the failures. Actual
+paths are own-group old_data(host rising)->read_pipe(machine rising).
+All503 sources/five RTL changes,170 RAM rows/modes/cache40/294912bits, original
+capture/clock/coverage checks retained. No refit/assembly/load. [1089-member
+terminal rejection](../fpga/mister/reports/2026-10-22-mc10164-decoded/native57-rejected-terminal/README.md).
+The two mux aliases passed4096 binary combinations in both engines and all
+16777216 four-state combinations in Icarus; five real bad variants reject.
+[Component](../fpga/mister/reports/2026-10-22-mc10164-decoded/component/README.md),
+[guarded stage](../fpga/mister/reports/2026-10-22-mc10164-decoded/native57-stage/README.md).
 
-Next/TODO: follow SAME mux fit through all-device/four-condition detailed
-review; address real paths rather than seed/constraint retries. Investigate black
-HDMI/capture while preserving native Cedar/file proof. Original60ns nominal,
-all-device rates, minimal Main337 isolation, canonical production-source
-promotion, three final fresh-seed desktop boots and2h sustained pack/CRC/RX-clean
-operation remain OPEN. Native59 retained, complete FPGA snapshots deferred,
-goal ACTIVE. The eight-slot oracle is not a deployable full-speed solution.
+**Earlier SDRAM response component PASS; workload-dependent improvement.**
+Default-off EARLY_READ_RESPONSE exposes the captured requested beat while the
+whole physical BL8 continues draining. New requests/cache validity/read_return
+still await full drain; no tail rearm, no new state. Both-engine off/on miter
+passes every beat/backpressure/refresh/reset-before-and-after-early-ACK; first8
+cold reads save28ticks. Eight actual miter bad variants reject. Three independent
+physical-pin bad variants reject, full XSDS57/66MHz/coherence/reset/refresh pass.
+Hot64 reads65ticks unchanged. Mixed96 at57MHz444control/455early (slower), at66
+455/444 (faster); keep both unfavorable/favorable results. Original144-chip MSA
+12012cycles/750reads/7872writes/1111transitions/all9437184bits pass; canonical
+operation/data order unchanged. Capture control104113 host ticks vs early103659,
+454/0.4361% fewer in THIS fixture; qualified overlap/no-lookahead103525 remains
+slightly faster. Not FPGA instruction speed. [249-member component proof](../fpga/mister/reports/2026-10-22-storage-early-read/component/README.md).
+
+**Structural group hold correction component PASS.**
+Accepted-write qualifier on host rising edge, then old_data captures cache_data
+on following FALLING edge. Acceptance requires waiting=false, so no same-edge
+response can change cache_data. First original old-word consumer follows later
+write ACK. Original machine/DRAM and request/response epochs unchanged; one
+transport flag per group, no SDC exception. Exact690f reference, both engines,
+widths2/8/12/16, variable/minimum response:16 positives/640000 comparisons;
+old_data invalid half-cycle excluded, actual original consumer explicitly checked.
+New-word-instead-of-old rejects in both engines. Original144-chip MSA replay
+with EARLY OFF and ON passes every output/all9437184bits; raw traces INCLUDING
+host epochs BYTE-IDENTICAL at104113/103659ticks. First fixture precheck expected
+CAPTURE1 but found0; stopped before output, corrected explicit CAPTURE1 adapter
+reproduces old trace. Failure preserved. [381-member component proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/component/README.md).
+
+**ONE combined corrected-source native fit LIVE, same57MHz clock.**
+All503 qualified690f sources verified; precisely six RTL files change combining
+carry/two muxes/backend/wrapper/group. Early replies enabled, falling old-word
+capture/new128 transport controls expected. Clocks/SDC/CPU/cache/Map/ECC/other
+devices/Main/daemon unchanged. Two new component receipts hash-pinned; eight
+actual damaged-evidence guards reject before output, including wrong rebound
+edge/reference/consumer check/host trace. All FOUR previous444-category diagnostics
+reproduce byte-identically under extended inspector. Full physical mode/control
+inventory still required. [628-member source/observed-live proof](../fpga/mister/reports/2026-10-22-storage-old-word-falling/native57-stage/README.md).
+Remote `/home/alans/mister/Dorado_OldWordEarly57_1_20261022`: builder1968443,
+map terminal0/fitter1982706 directly observed LIVE. Read-only reporters1970492/
+collector1970493 follow SAME job. Local PID34147/tool55999 follows collector PID
+from actual launch receipt, bounded300 polls; timeout never permits restart.
+Initial guard stopped before project creation on unrelated MacQuadra map1950286;
+premature reporter attachment also failed before output/child launch. Resource
+inspection64GiB RAM/about42GiB available/16CPUs then allowed isolated concurrent
+fit only with24GiB headroom/no same-project job. Unrelated fit1967273 untouched;
+no compiled setting/constraint changed for scheduling. No new timing/assembly/
+load/FPGA speed result yet. Still57.142857MHz/SYSPER4/140ns nominal.
+
+Next/TODO: follow SAME combined fit through full source/all-device/four-condition
+review, explicitly inspect falling old-word paths and128 qualifier inventory.
+Keep original690f/Main521/daemon520 on MiSTer14 until qualified replacement;
+followup native screenshot still shows schematic/tools/Clock and both exact
+file reads/alphabet echo. [Same-core followup](../fpga/mister/reports/2026-10-22-timing-paths/native57-cold-followup/README.md)\nchecks identities/no recorded faults; not final stress. Last HDMI captures black, service continuously active;
+protected stream configuration requires admin access, no service/settings change.
+Investigate that output path. Original60ns/all-device rates, minimal Main337
+isolation, canonical production-source promotion, three final fresh-seed boots
+and2h sustained pack/CRC/RX-clean operation remain OPEN. Native59 retained,
+complete FPGA snapshots deferred, goal ACTIVE. Eight-slot oracle is not a
+deployable full-speed solution.
 
 **Earlier entries below are retained history and superseded where they describe the live core or fit.**
 
