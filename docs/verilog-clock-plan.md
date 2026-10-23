@@ -9,8 +9,8 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-**Latest:690f original Checkpoint return/exact pre-post files PASS; explicit Rollback running.**
-MiSTer14 Main28147/server28146/supervisor28112 run RBF
+**Latest:690f original Checkpoint/Rollback and cold file/input readback PASS; HDMI unresolved.**
+The now-closed warm test used Main28147/server28146/supervisor28112 and RBF
 690fd4bda65b8cdc40e6aaecc0e7aef51200fead8c248d0d49e17049c3fc98a4,
 unchanged Main21e6/receiver0845,57.142857MHz/SYSPER4/140ns nominal,
 volume/core `CedarTimingSplit57_20261022`, literal fresh236b seed.
@@ -36,17 +36,49 @@ and absent, controls released. [43-member Checkpoint proof](../fpga/mister/repor
 Three trace_dropped events total21460 lost records; recorded write requests/
 ACKs15191/15192 are explicitly incomplete. Prefix2243 reads/ACKs,616pwrite/
 58fsync completions, no errors; good390/CRC-RX-abort-drop0, fault clear.
-No current-volume close/cold-new-file/final stress claim.
+That warm prefix did not establish volume closure/cold-new-file/final stress;
+closure has since passed below.
 
-One ordinary `Rollback` is now running on SAME Main28147/daemon28146/RBF690f.
-Observer PID12027/tool80372 (`watch-rollback-v1.py`,48 bounded samples) follows
-this SAME attempt. Original812 then profile Yes/full default filename are
-visible; no extra profile keys yet, wait for displayed No before Return.
-Observed idle disk interval225s has all2320 recorded reads ACKed and no pending
-new operation in the captured tail, followed by original profile progress;
-not evidence of a new disk hang or permission to repeat/reset. Explicit Rollback
-and cold close/remount of both split57 files remain unqualified until readback.
-Source closed9400 and immutable236b retained. Native phase/goal unchanged.
+One ordinary `Rollback` completed on the SAME Main28147/daemon28146/RBF690f.
+Saved schematic/tools/Clock, fresh exact Echo, BOTH pre-save split57persist and
+post-save split57after Type PASS; native and independent HDMI agree.
+[44-member explicit Rollback proof](../fpga/mister/reports/2026-10-22-timing-paths/native57-explicit-rollback/README.md).
+The225s quiet disk interval later progressed through original profile callbacks;
+no repeat/reset was issued. Calendar resets follow the deliberately pinned
+DORADO_FAKE_TIME server; not a guest-clock measurement.
+
+That volume is now CLOSED:63578624bytes, SHA256
+3e24f33bb7d7c1044b92f05e3f5fcb3985576f58b62bcd9d3140dc359a2f98c0.
+Two normal close barriers, no old pack/trace FD, daemon mapping revoked.
+46046 records include2774 read pairs,624pwrite/60fsync pairs;15233 requests/
+15234 write ACKs are explicitly incomplete history. Three diagnostic gaps
+retain21460 lost records. No recorded disk errors. Not guest clean shutdown.
+
+A literal copy of that closed pack cold-boots under fresh Main521/daemon520,
+supervisor480, SAME690f/Main21e6/receiver0845,57MHz/SYSPER4/140ns nominal,
+volume/core `CedarTimingSplitCold57_20261022`, same requested1080p30 timing.
+One normal load/full SDRAM init, actual113-C release, visible Guest.pa/two
+Returns, actual germ812/map813 and original profile full-default-name/defaultNo
+callback. One Return accepts visible No. Saved full schematic/two tools/Clock
+return; ordinary mouse/EOF focus and fresh exact `split57 cold` Echo, BOTH
+///split57persist.txt and ///split57after.txt Type, full alphabet/digits Echo
+PASS. Clock's fixed native region changes42 pixels; not timer calibration.
+Native screens-input-v1/07 proves file/input results. Guest confirmation to
+first captured desktop was about497s in this manual/profile-timeout workflow;
+not a pinned boot-speed benchmark. No C-state import or host guest completion.
+
+New live prefix:523 read/42write ACK pairs,8pwrite/3fsync completions, no recorded
+errors/gaps; good70/CRC-RX-abort-drop0, pack-fault clear. It is not a current-pack
+close barrier or complete historical trace. Old3e24 closure retained all21460
+lost diagnostic records. Source236b/9400/3e24 preserved and reverified.
+HDMI capture is BLACK on this cold run despite responsive native output:
+8s/242frames and reversible F12/6s/182frames/ESC remain black. No video setting,
+resolution or capture service was changed. This is an unresolved HDMI/capture
+qualification issue; do not infer all display paths passed. [Cold persistence,
+input and limitations](../fpga/mister/reports/2026-10-22-timing-paths/native57-cold-checkpoint-persistence/README.md).
+Local `split57-cold-checkpoint-v1-20261022`: original observer terminal60/absent,
+separate input observer terminal21, controls released. Main521/server520 stay
+live; load tool9076 waits normally. Do not repeat preparation/load.
 
 Full V2 fit/report/collector/assembly are TERMINAL. All1076 native members,
 503 sources/exact six RTL changes,31 summaries/444 categories/four conditions,
@@ -87,10 +119,10 @@ model at57/66MHz and original144-chip MSA byte-identical control/candidate
 traces including104113 host ticks. First fixture compile failure is retained;
 corrected pins-v2 passed. It is NOT in690f and has no native fit/firmware claim.
 [Component proof](../fpga/mister/reports/2026-10-22-storage-read-word-capture/component/README.md).
-Current worst setup paths: half-cycle dq_capture->rsp_data and20-level
+Qualified690f worst setup paths: half-cycle dq_capture->rsp_data and20-level
 processor i04 output->ProcL k22 capture. Address both before a clock step.
 
-**Next capture-path fit REJECTED by summary; detailed collection continues. Existing690f remains on hardware.**
+**Requested-read-word fit fully collected and REJECTED; existing690f remains on hardware.**
 Read-beat component is staged onto all503 exact reviewed690f sources; only the
 backend and its wrapper parameter change after literal project relocation.
 Eleven actual damaged-source/proof/negative-control/loop-warning/pin-cycle/
@@ -98,8 +130,8 @@ MSA-timestamp controls reject, original inputs unchanged. First stage attempt
 rejected the literal fatal-warning flag in JSON, before output/build; corrected
 log-diagnostic check passes. Both attempts retained.
 Remote `/home/alans/mister/Dorado_ReadWordCapture57_1_20261022`, builder1408808/
-map1408815/fit1420977 terminal0; original builder1408808 continues read-only
-STA stages. Summary setup-0.460ns/hold-0.027ns REJECTS, so no assembly/load.
+map1408815/fit1420977 and all original read-only STA stages terminal0.
+Summary setup-0.460ns/hold-0.027ns REJECTS, so no assembly/load.
 Setup worst is ProcL g06 output -> ContB l22 diagnostic input capture.
 All1075 native members now copied/hash-checked; all31 summaries/444 categories
 inspected,28 negative categories, setup-0.460ns/hold-0.027ns. All503 sources,
@@ -117,7 +149,7 @@ cause a refit/restart. Full timing/RAM/captures/register inventory/reviewer/
 assembly guards remain required; no assembly/load or new speed qualification.
 [570-member stage and observed-live proof](../fpga/mister/reports/2026-10-22-storage-read-word-capture/native57-stage/README.md).
 
-**New direct-carry component and ONE distinct corrected-source fit LIVE.**
+**Direct-carry component passes; ONE distinct corrected-source fit fully REJECTED.**
 Exact690f MC10181 retains original function table, FPGA result adder and result
 carry selection. Bit-generate/propagate are factored directly from original
 S/operand table; only three carry outputs change implementation. All16384
@@ -132,19 +164,48 @@ reference/candidate and false four-state claim; underlying eleven read-capture
 guards remain. CPU registers/captures/cache/Map/ECC, clocks/SDC/other devices/
 Main/daemon unchanged. Still57MHz/SYSPER4/140ns; not a clock step.
 Remote `/home/alans/mister/Dorado_DirectCarryCapture57_1_20261022`, builder1623732/
-map1623741 terminal0/fitter1635211 verified LIVE. Read-only followers1641398/
-1641399, local PID12658/tool99796 follow SAME job;300-poll observer timeout
-must never restart a fit. Exact503 uploaded and old690f503 hashes reverified.
-Local `direct-carry-capture-native57-v1-20261022`; no assembly/load before full
-source/timing/RAM/capture/warning/rejection review. [592-member stage/live proof](../fpga/mister/reports/2026-10-22-mc10181-direct-carry/native57-stage/README.md).
+map1623741/fitter1635211 and all nine original builder stages terminal0.
+Read-only follower1641399 and local12658 completed SAME job after84 polls;
+all1077 native members copied/hash-verified. All31 summaries/444 categories/
+four conditions inspected:12 setup-negative categories, minimum-0.298ns;
+all holds positive, minimum+0.029ns (summary+0.046ns). Every negative ends at
+BaseBoard f62 RIOT d_out; worst ContA b24.qb traverses memory/processor result
+and diagnostic mux chain. Both slow corners fail. No diagnostic timing waiver.
+Storage capture input/internal+0.877ns slow100C; not whole-core qualification.
+503 sources/three changed RTL files,170 RAM rows/cache40/compiled capture/BB
+ratio/original clocks/coverage verified. Both older444 diagnostics remain
+byte-identical. No assembly/refit/load. [Full terminal rejection](../fpga/mister/reports/2026-10-22-mc10181-direct-carry/native57-rejected-terminal/README.md).
+Local `direct-carry-capture-native57-v1-20261022`; [592-member stage/live proof](../fpga/mister/reports/2026-10-22-mc10181-direct-carry/native57-stage/README.md).
 
-Next/TODO: finish690f explicit Rollback and both-file cold close/remount.
-Retain completed desktop/exact input/mouse/files/apps. Collect the rejected
-requested-beat fit and address CPU/diagnostic/data paths before another clock step; no
-blind PLL/SYSPER change. Original60ns nominal, all-device rates, minimal Main337
-isolation, canonical production-source promotion, three final fresh-seed desktop
-boots and2h sustained pack/CRC/RX-clean operation remain OPEN. Native59 retained,
-complete FPGA snapshots deferred, goal ACTIVE.
+**Decoded diagnostic mux experiment: component PASS; one native fit LIVE.**
+Actual failing path crosses processor/result/diagnostic MC/MU10164 muxes.
+Control predecode/late-data reduction keeps pins/registers/connections intact.
+Both aliases exhaust4096 binary combinations in both simulators; Icarus also
+exhausts all16777216 four-state combinations. Unknown-index behavior is retained.
+Five real wrong-select/lost-enable/unknown-index variants reject; fatal circular
+warning checks pass. [26-member component proof](../fpga/mister/reports/2026-10-22-mc10164-decoded/component/README.md).
+All503 qualified690f sources verified, precisely five RTL changes combining
+previous carry/read-capture with two mux cells. Nine damaged-proof guards reject
+before output. [608-member guarded stage](../fpga/mister/reports/2026-10-22-mc10164-decoded/native57-stage/README.md).
+First launch stopped before project creation because unrelated Geneve fitter
+1740428 was active. It later completed successfully and disappeared; one Dorado
+build then started. Remote `/home/alans/mister/Dorado_DecodedMux57_1_20261022`,
+builder1767051, map1767063 terminal0, fitter1779349 verified LIVE. Read-only
+reporters1770683/collector1770684 follow SAME job. First local follower retained
+old1641399 binding and stopped; corrected local-v2 follows actual1770684 without
+remote restart/refit. Correct local observer PID19021/tool6554 is bounded300 polls.
+[23-member observed-live proof](../fpga/mister/reports/2026-10-22-mc10164-decoded/native57-fit-start/README.md).
+All three previous444-category diagnostics still reproduce
+byte-identically after mux-inspector extension. No native mux result/assembly/
+load or speedup claim yet. Same57MHz/SYSPER4/140ns; not a clock step.
+
+Next/TODO: follow SAME mux fit through all-device/four-condition detailed
+review; address real paths rather than seed/constraint retries. Investigate black
+HDMI/capture while preserving native Cedar/file proof. Original60ns nominal,
+all-device rates, minimal Main337 isolation, canonical production-source
+promotion, three final fresh-seed desktop boots and2h sustained pack/CRC/RX-clean
+operation remain OPEN. Native59 retained, complete FPGA snapshots deferred,
+goal ACTIVE. The eight-slot oracle is not a deployable full-speed solution.
 
 **Earlier entries below are retained history and superseded where they describe the live core or fit.**
 

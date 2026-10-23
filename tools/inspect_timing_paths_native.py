@@ -37,13 +37,25 @@ def inspect(root, parent, qualification, read_word=False):
     assert recipe['request_lookahead'] == recipe['response_overlap'] == 1
     assert recipe['parallel_lookup'] and recipe['parallel_ready_compare'] and recipe['ALU_carry_select']
     assert recipe['raw_buffer_lines'] == 4
-    assert len(recipe['modified_RTL_sources']) == (2 if read_word else 6)
+    direct_alu = read_word and recipe.get('ALU_direct_carry', False)
+    decoded_mux = direct_alu and recipe.get('decoded_mux', False)
+    assert len(recipe['modified_RTL_sources']) == (5 if decoded_mux else 3 if direct_alu else 2 if read_word else 6)
     if read_word:
         from stage_storage_read_word_native import PARENT_QUALIFICATION, BACKEND, WRAPPER
         from prepare_storage_read_word_capture import transform
         assert recipe['capture_read_word'] and recipe['response_valid_cycles_unchanged']
         assert hashlib.sha256(qualification.read_bytes()).hexdigest() == PARENT_QUALIFICATION
-        assert set(recipe['modified_RTL_sources']) == {BACKEND, WRAPPER}
+        changed = {BACKEND, WRAPPER}
+        if direct_alu:
+            from test_mc10181_direct_carry import direct_carry, CELL
+            assert recipe['ALU_function_table_result_adder_unchanged']
+            assert not recipe['four_state_ALU_equivalence_qualified']
+            changed.add(CELL)
+        if decoded_mux:
+            from test_mc10164_decoded import decoded
+            assert recipe['mux_four_state_cases'] == 16777216
+            changed.update('src/verilog/cells/cell_' + n + '.v' for n in ['MC10164', 'MU10164'])
+        assert set(recipe['modified_RTL_sources']) == changed
     actual = {}
     for n, h in recipe['source_hashes'].items():
         read(n); actual[n] = hashes[n]
@@ -76,6 +88,10 @@ def inspect(root, parent, qualification, read_word=False):
             expected = raw.replace(original['project'].encode(), recipe['project'].encode())
             if name == BACKEND:
                 expected = transform(raw)
+            if direct_alu and name == CELL:
+                expected = direct_carry(raw)
+            if decoded_mux and name in ['src/verilog/cells/cell_MC10164.v', 'src/verilog/cells/cell_MU10164.v']:
+                expected = decoded(raw)
             if name == WRAPPER:
                 old = b'.CACHE_LINES(4),.RESPONSE_OVERLAP(1)) u_sdram('
                 assert expected.count(old) == 1
