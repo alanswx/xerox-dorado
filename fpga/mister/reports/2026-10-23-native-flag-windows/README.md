@@ -1,8 +1,55 @@
-# Native timing rejection and physical R flag windows
+# Native timing and capture-order qualification
 
 This receipt preserves the complete v5 native failure and the corrected
 component implementation of the original l06/l07 flag latches. No image was
 assembled or loaded; the qualified hardware core and measured speed are unchanged.
+
+## Latest: CP timing contract remains open
+
+The complete v7/v8 fits are rejected. v7 setup is
+-5.081/-4.818/+3.989/+4.748 ns; v8 is -4.638/-4.142/+4.101/+4.824 ns.
+Both have minimum hold +0.116 ns and pulse +1.122 ns. All nine stages and the
+central/RAM/visible-R query are terminal; each 953-member collection reads back
+exactly with every recorded process exited and no image. The actual worst
+moves from MemC c15.qb/Aad.5b to k11 task-bank capture (22 levels, 21.886 ns)
+to MemC b15.qb/Aad.7a to closed flag storage global592 (23 levels, 21.525 ns).
+Neither is selected. Native host external UCP remains visible.
+
+Both RM and shared-address profile matrices are now terminal **12/12**.
+The shared data view covers all 36 edge-triggered address bits, retaining
+actual clocks, h15 transparency, physical owners, RAM ports and the complete
+original oracle. Independent package D-at-clock checks pass 23,580 captures
+in eight groups per simulator. There are zero distinct old/new epoch samples;
+inverted bank data rejects at original output check15. v9 source staging and
+structural elaboration pass, but no remote project/build was started.
+
+Additional CP/root-coincidence tests reject in both simulators at event11327;
+the prior RM-only version rejects at the same event. At the existing fatal,
+a diagnostic observes the independent delayed original's shared state as
+`000008f0607ce3bf`, equal to the child and different from the joint result
+`000008f0617ce3bf` at Q24 (k04.A, SC&NoFreeze). The diagnostic still fails;
+it is not a qualifying gate. Physical-state, clock and solver checks remain.
+
+The first clock-only patch incorrectly changes the BEFORE view and rejects6735.
+The second limits the change to AFTER and passes that first boundary, then
+rejects12839: original clock7 has one edge while the candidate predicts zero.
+Both patches are failed experiments. Ordered CP/root subevents and the real
+producer setup contract need review before fitting another candidate.
+
+Separate original-ROM native runs use the period SkipDiskWait' jumper:
+MCS6532 PB1 is grounded, matching DoradoReset.masm DiskWait523..528. Every
+EPROM byte, guest/storage clock, CPU/memory model, medium and three-press input
+is retained, along with the original 5-billion-host-tick bound. The 2-second
+clock-settle delay remains. A passive observer records real 6502 PC and CP
+NoDispatch/input-clock timing. Both compile and were verified live during
+SDRAM initialization. They are pending experiments; the original runs remain
+terminal and neither original limit was extended. The host opens the pack
+read-only and keeps simulated writes in memory.
+
+`clock-order-followup-summary.json` records these terminal proofs, failed
+patches and immutable snapshots of the live native observations. Continue
+from the actual jobs, not from a RUNNING file alone. No hardware change or
+speed qualification follows. The full A-F objective remains active.
 
 ## Complete native v5 result
 
@@ -83,8 +130,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` maps 9,706 members to 1,737 deduplicated compressed blobs;
-lossless readback verifies 434,084,676 raw bytes, 16,914,653 compressed blob bytes.
+`manifest.json.gz` maps 16,018 members to 2,634 deduplicated compressed blobs;
+lossless readback verifies 849,017,908 raw bytes, 30,978,436 compressed blob bytes.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`
 adds the terminal pointer matrix, bounded RM capture and original native

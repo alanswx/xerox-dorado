@@ -1,5 +1,66 @@
 # Verilog from Sil: handoff
 
+Latest capture/CP ordering result (2026-10-23;
+[complete fits, matrices, rejected fixes and live native observations](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md)):
+v7/v8 are both TERMINAL and REJECTED. v7 setup is
+-5.081/-4.818/+3.989/+4.748ns; v8 -4.638/-4.142/+4.101/+4.824ns.
+Both minimum hold+0.116ns/pulse+1.122ns. Exact953-member collections match
+compiled sources; all nine stages/read-only queries and recorded process exits
+are retained, with16 original visible-R owners/four SRAM banks and host UCP.
+v7 worst is MemC c15.qb/Aad.5b -> Hold/MIR -> task-bank decode -> ProcL k11,
+global612/upper24,22levels/21.886ns data. v8 moves to MemC b15.qb/Aad.7a ->
+closed R flag storage global592/upper4,23levels/21.525ns data. No image/selection.
+
+RM-address and shared-all-address matrices are now BOTH terminal12/12.
+The shared view uses stored control/current external data for all36 edge D bits
+in the R-address packages, preserving current clocks, h15 transparent data,
+RAM ports and every original check. BOTH full11,300-event comparisons pass.
+All eight actual package D/clock groups pass23,580 captures per simulator;
+ZERO distinct old/new data samples remain an explicit coverage gap. Inverted
+bank data rejects original output check15 in BOTH. Private v9 stages/lints this
+version but was NOT transferred, fitted or assembled after the new CP gate.
+
+New CP/root-coincidence tests reject BOTH at11327, before address checks:
+shared Control-A Q24 disagrees. The prior RM-only version rejects identically.
+A diagnostic preserves the fatal, advances only the independent original once,
+and shows original/child shared state000008f0607ce3bf versus joint
+000008f0617ce3bf. This is a timing-order failure, not permission to mask bit24,
+clock7, solver failure or any physical-state comparison. Q24 is k04.A,
+SC&NoFreeze; its shadow has no processor-cone consumer, but its real native
+owner and full844-Q/reference clock checks must remain correct.
+
+Rejected clock-only fixes are retained: v1 incorrectly previews NoDispatch in
+the BEFORE clock view and fails6735. v2 restricts that preview to AFTER,
+gets beyond11327, then loses a real original clock7 edge at12839
+(actual1/expected0). A single early mask does not represent both transitions.
+Next determine/implement ordered CP/root subevents and the actual producer's
+setup contract; preserve all original assertions. No new fit until this is
+resolved. The original BaseROM FinishCP toggles MCPStrobe via INC/DEC;
+BasicStopDorado and DoDoradoMicroInst document its stop/clear/load/run protocol.
+
+Two new original-ROM native simulations fit the documented SkipDiskWait'
+backpanel jumper by grounding MCS6532 PB1. Only that external input and a
+passive CP observer change; all EPROMs, guest/storage clocks, models, media,
+normal three-press input and ORIGINAL5B bounds are identical to their parents.
+DoradoReset.masm DiskWait523..528 is the period branch; the separate2-second
+clock-settle delay remains. Host medium writes stay in the in-process vector.
+Old native runs remain terminal; no bound extension or restart occurred.
+New control `native-cedar-5c65-skip-wait-v1-20261023` driver28823/test29201;
+queue `native-cedar-queue-skip-wait-v1-20261023` driver29250/test29618.
+Both compile and were revalidated live while SDRAM initialization was pending.
+Use real6502 PC `dut.m.b_BaseBd.u_f61.u_cpu.logic_00.pc`; CP records include
+NoDispatch changes, instruction-clock mask and root coincidences. They are
+pending observations, not bootstrap/Cedar/firmware-traffic qualification.
+
+Next/TODO: resolve CP event ordering without clock/physical-state waivers;
+observe these exact native handles for real original-firmware CP and113 traffic;
+review the closed flag-storage path and actual owner/phase seams before another
+fit. Then original-ROM/Cedar/input,60ns phases/all timers, physical66.7MHz SDRAM
+and full A-F Checkpoint/Rollback/persistence/fresh boots/stress acceptance.
+No hardware change or measured speed gain. Last pinned4.025473MStartCycle/s
+(24.15% nominal, not retirements) remains. Full goal ACTIVE. Receipts below
+are historical observations; their earlier live handles are not current status.
+
 Latest physical flag-window work (2026-10-23;
 [reviewed fit and complete component evidence](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md)):
 v5 is terminal and REJECTED: setup -6.235/-5.868/+3.960/+4.663 ns,
