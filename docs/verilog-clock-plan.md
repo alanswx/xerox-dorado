@@ -14,6 +14,45 @@ Continue build/simulation work; notify them when a reviewed build is ready
 for hardware testing, and wait until they release MiSTer14 before any load,
 reboot or control. Earlier reload authorization is superseded while it is in use.
 
+Latest result (2026-10-24): projected-key fit and both reporters are TERMINAL.
+All963 raw members/533 source hashes verify. Key pruning is physically real:
+389 ->241 key keepers,385 ->239 logical key bits, unused key138 gone, none
+outside the269-bit support. Full timing remains REJECTED: setup-0.445/+0.054ns
+at slow100/-40, minimum hold+0.116ns; primary-input setup-0.059ns. Internal
++0.234ns is at17.5ns, not15ns. Area36,263ALMs/55,244registers. Remaining worst
+path: MemC d15.qa/tags/Hold -> control state121 -> after_child10 -> T state53
+-> low RM write;16.809ns data,-0.976ns skew. No assembly or speed/firmware pass.
+
+The COMPLETE primary-clock schedule adds the active BaseBoard10MHz and
+DskEth23530kHz crystals to CPU/pixel. Independent Fraction/deadline and integer
+schedules match160,000 intervals across the full300us period/all8CPU rotations.
+Some15ns intervals need FIVE ordered records; cold BaseBoard edges coincide
+with pixel. The previous1.25ns grid also cannot express the existing Ethernet
+model's exact timestamps. Preserve the failed first audit that incorrectly
+demanded overflow in every rotation. No source frequency is silently changed.
+
+New `dorado_primary_clock_events.sv` is an UNCONNECTED six-record merger using
+exact1/9412ns units. Both engines pass160,576 samples/all8rotations/full300us/
+four resets/transport pauses and reject five broken variants. Formal merger
+proof covers all195 bits for every valid source-record geometry with a distinct
+rank-based reference; four corruptions reject. Added-crystal phase induction
+covers arbitrary reset/advance histories; held-advance corruption rejects.
+The nested CPU/pixel unbounded proof remains byte-bound. Receipt
+`primary-clocks-followup-summary.json` retains all complete sources/results.
+No original60ns/native consumer/peripheral capture/timing qualification yet.
+
+Next/TODO: keep the key reduction and target ONLY the measured three late
+ContB producer selector bits (118/120/121, child11/9/10) with both Hold386
+alternatives computed early. Prove exact ordered outputs and unknown fallback
+before replacing those wires; retain all owners/flags/SRAM capture edges and
+the global barrier. The previous all363-output cofactor fit failed; narrow
+the cone based on the actual path, not by dropping checks. Then integrate
+the full primary source with board-specific capture windows/j02 debug/DispY
+raw-fake/Ethernet ordering. Original60ns/separate66.7MHz SDRAM and the full
+A–F/Cedar/Rollback/persistence/three-boot/stress objective remain active.
+Re-prove cache/owner context for intermediate event states before composing
+consumers; the existing specialization is bound to actual closed-owner commits.
+
 Latest progress (2026-10-24): projected-key temporal induction PASSES for ALL
 475 control/event/flag outputs, exact cached-payload/canonical invariants,
 arbitrary inputs/reset histories and original auxiliary initialization. The
@@ -24,7 +63,8 @@ including9,072 X/Z cases; broken unknown fallback rejects. Fresh exact-native
 156-owner/1,416-auxiliary-bit induction and stale-owner control pass. Full lint
 passes with three UNOPTFLAT/one MULTIDRIVEN warnings visible.
 
-Native fit LIVE: `/home/alans/mister/cp-key-native-v1-20261024`, builder3560219/
+Earlier live observation, now TERMINAL/REJECTED above:
+`/home/alans/mister/cp-key-native-v1-20261024`, builder3560219/
 session4830; map3560222 exits0 at92,908 logic cells/95,713 resources,35DSP/
 2,602RAM segments and985 retained warnings; fitter3573987 is now live.
 Physical reporter3560997/session95443; CP-key reporter

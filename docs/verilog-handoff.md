@@ -6,7 +6,70 @@ Continue Quartus on misterubuntu and simulation on the Mac. Notify the user
 when a concrete build is ready for hardware qualification; wait for allocation.
 The goal remains active. This supersedes earlier permission for immediate reloads.
 
-NOW LIVE (2026-10-24): `/home/alans/mister/cp-key-native-v1-20261024`,
+Latest terminal result (2026-10-24): projected-key native fit and BOTH reporters
+have exited, all stages0. All963 collected members/533 compiled source hashes
+verify; collection SHA
+`54ef15a748671bf68571161ce6061d8e30e5d3fbbfcd0cf1da1be50065a7d033`.
+REJECTED: setup -0.445/+0.054ns at slow100/-40, minimum hold+0.116ns;
+primary-owner input setup still -0.059ns. Internal+0.234ns is at17.5ns,
+not15ns. Area36,263ALMs/55,244registers; all16visibleR/fourSRAMs queried,
+84,713keepers/695primary+109copies/163history. Original ECC loop remains.
+Physical key pruning WORKED:389 ->241 keepers,385 ->239 logical key bits,
+critical unused key138 removed and no retained key indices outside support.
+The remaining slow100 path is MemC d15.qa -> cache tags/Hold -> control
+state121 -> after_child10 -> T root-arrival state53 -> low RM write.
+Data16.809ns, skew-0.976ns. No assembly, speed or firmware qualification.
+
+The clock-source audit now covers ALL active sources: CPU SCP/ECP, native50MHz
+pixel, BaseBoard10MHz d08 and DskEth23530kHz j20/EClk0. The last is the existing
+model's rounded nominal, not a changed frequency. Two independent schedules
+(absolute Fractions/original four-flop divider versus integer accumulators)
+match160,000 intervals over the complete300us joint period/all8CPU rotations.
+Cold sources need FIVE records in some15ns intervals; the previous four-record
+CPU/pixel producer alone is insufficient. BaseBoard transitions coincide with
+every fifth pixel transition at cold zero phase. The first audit's incorrect
+requirement that EVERY rotation overflow is retained as a failed coverage check.
+Ethernet timestamps do not fit the previous1.25ns-only grid.
+
+New UNCONNECTED `dorado_primary_clock_events.sv` merges the qualified CPU/pixel
+source with both remaining crystals using exact1/9412ns units. Six records
+give a conservative bound; simultaneous changes share ONE pre-event state.
+Both simulators pass160,576 full-vector samples at8rotations, full300us period,
+four resets and transport pauses. Each rejects all five corruptions: dropping
+BB/Ether, rounding Ether, truncating to4records, advancing while held. Formal
+proof checks ALL195 merged bits for every valid source-record geometry using
+an independent rank-based reference; four broken merges reject. Separate
+unbounded induction proves BB/Ether phases/levels/offsets for arbitrary reset/
+advance histories; bad-held advancement rejects. The existing unbounded
+CPU/pixel proof remains byte-bound to the nested source. No guest protocol
+assumption is added; merge geometry is the source-interface domain.
+
+Receipt `primary-clocks-followup-summary.json` retains complete native reports,
+actual key inventory, both clock schedules, failed audit, both simulator matrices,
+all formal controls and original CPU/pixel induction. Native consumers remain
+UNCONNECTED. They must process boundary inputs and each ordered event, actual
+BaseBoard e07/g08/6502/CP/j02 debug pulses, DispY b01 raw/fake contributions and
+Ethernet i20/EClk1/EClk2/CRC captures. Lane2 is a debug-INACTIVE root observation,
+not a replacement CPU clock. Source reset means cold initialization, not the
+guest boot button. Physical SDRAM/DDR/ARM clocks stay outside virtual freezing.
+Re-prove cache/owner context across subevents: the current closed-owner
+specialization is proved at actual commits, not arbitrary uncommitted
+intermediate event states.
+
+Next/TODO: retain the real key reduction, then address the MEASURED remaining
+late selector path. Investigate precomputing only the three ContB producer
+selector bits (joint_next118/120/121 -> child pins11/9/10) for both values of
+late Hold386, selecting when Hold arrives. This narrows the failed earlier
+all363-output cofactor experiment without adding a register/guest cycle.
+Require exact ordered-function/unknown fallback proof and complete original
+references before another fit; do not blindly retry seeds or buffers. Integrate
+the full primary event source with original capture windows toward60ns, then
+qualify separate66.7MHz SDRAM, pinned waits/speed and original-firmware Cedar.
+Authentic Rollback, new-file persistence, three fresh boots and2h stress remain.
+The user's FPGA is reserved; notify only when a reviewed build needs testing.
+
+Earlier live observation, now TERMINAL/REJECTED above:
+`/home/alans/mister/cp-key-native-v1-20261024`,
 builder3560219/session4830, fitter3573987. Map3560222 completed successfully:
 92,908 logic cells/95,713 device resources,96 fewer logic cells than the smaller
 parent;35DSP/2,602RAM segments unchanged, all985 warnings retained.
@@ -82,7 +145,8 @@ assumptions). A required-owner-bit omission has a counterexample. The269-bit
 support excludes before_pins[125]/key138, the new critical RIOT dependency;
 ALL11 saved CP bits remain cared. Receipt `cp-prefix-key-support-summary.json`.
 
-Next component proofs are LIVE: `cp-cache-key-projection-positive-v1-20261024`
+Earlier component observation, now PASSED as recorded above:
+`cp-cache-key-projection-positive-v1-20261024`
 driver8188/child8196/session67168, and `cp-cache-key-projection-negative-v1-20261024`
 driver8189/child8197/session44613. Verify driver argv plus child PPID: WASM
 child argv uses virtual `/work/proof.ys`, not the actual host output path.

@@ -6,6 +6,27 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`primary-clocks-followup-summary.json` preserves the complete963-member
+projected-key native fit and actual keeper inventory:533 source hashes verify;
+389 ->241 key keepers/385 ->239 logical bits, unused key138 removed, no bits
+outside support. REJECTED timing: setup-0.445/+0.054ns at slow100/-40,
+minimum hold+0.116ns, primary-input-0.059ns. Internal+0.234ns is at17.5ns.
+Area36,263ALMs/55,244registers. Remaining path runs from MemC d15.qa through
+tags/Hold/control state121/child10/T state53 into low RM write. All16visibleR/
+fourSRAMs and695primary/109copy/163history keepers are queried; ECC loop remains.
+
+The same receipt retains the source-bound ALL-primary schedule audit and its
+first rejected coverage expectation. Active10MHz BaseBoard and23530kHz Ethernet
+must join CPU/pixel; some15ns intervals need FIVE records and Ether is off the
+1.25ns grid. Independent schedules match the complete300us joint period at all
+eight CPU rotations. New UNCONNECTED six-record merger uses exact1/9412ns units.
+Both simulators pass160,576 samples/four resets/pauses and reject five faults.
+Formal proof covers all195 merge bits under valid source geometry with an
+independent rank reference, plus unbounded added-crystal phase induction for
+arbitrary reset/advance histories. All five formal controls reject. The original
+CPU/pixel induction remains byte-bound. No native capture, original60ns or
+physical timing pass follows. The user has reserved the FPGA; hardware untouched.
+
 `cp-key-native-staging-summary.json` retains the completed475-output temporal
 safety proof, required-bit counterexample, both unchanged full reference
 comparisons (14,884checks/all844Q/9,216RAM/all100clocks) and10,208 actual-guard
@@ -1103,8 +1124,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps64,444 members to6,848 deduplicated compressed blobs;
-lossless readback verifies2,219,256,644 unique raw bytes and82,113,614 compressed
+`manifest.json.gz` now maps65,527 members to7,295 deduplicated compressed blobs;
+lossless readback verifies2,423,109,692 unique raw bytes and88,988,858 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

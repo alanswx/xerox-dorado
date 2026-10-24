@@ -1,0 +1,1124 @@
+{
+  "status": "REVIEWED_NATIVE_KEY_REMOVAL_AND_ALL_PRIMARY_CLOCK_SOURCES",
+  "native_fit": {
+    "raw_members": 963,
+    "source_hashes_verified": 533,
+    "corners": [
+      {
+        "condition": "7_slow_1100mv_100c",
+        "setup": {
+          "slack_ns": -0.445,
+          "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_d15|qa",
+          "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:rm_l_rtl_0|dpram_v8o1:auto_generated|lutrama33~OBSERVABLEVIRTUALREGOUT0",
+          "arrival_ns": 25.61,
+          "required_ns": 25.165,
+          "report_sha256": "ba81b315b0ac967c2df18346abb0bc7e9c9c3b510dd975fed617a86781be22dd"
+        },
+        "hold": {
+          "slack_ns": 0.247,
+          "source": "emu:emu|dorado_ethernet_ddr:u_network_ddr|rx_cons[2]",
+          "sink": "emu:emu|dorado_ethernet_ddr:u_network_ddr|rx_cons[2]",
+          "arrival_ns": 7.716,
+          "required_ns": 7.469,
+          "report_sha256": "744f5f0e3356da3f5036aae31668910d9a3d9166d6a03bc0101f15fa07400870"
+        },
+        "input": {
+          "slack_ns": -0.059,
+          "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_d15|qa",
+          "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[138]",
+          "arrival_ns": 26.066,
+          "required_ns": 26.007,
+          "report_sha256": "88981834a5dcd8e7057f80f48f7beeb3de1d69a48031ddf289f0478bf10d550b"
+        },
+        "internal": {
+          "slack_ns": 0.234,
+          "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[19]",
+          "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[6]",
+          "arrival_ns": 25.339,
+          "required_ns": 25.573,
+          "report_sha256": "f93ac8711f8a99c4e1b1147129325ccae1c19fbc2aeef72bac26061679da78e9"
+        }
+      },
+      {
+        "condition": "7_slow_1100mv_-40c",
+        "setup": {
+          "slack_ns": 0.054,
+          "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_c15|qb",
+          "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+          "arrival_ns": 25.915,
+          "required_ns": 25.969,
+          "report_sha256": "995cbd95bc49d32da021e6917fa811aed831ba449c32cd791025a3cd122ed1e4"
+        },
+        "hold": {
+          "slack_ns": 0.219,
+          "source": "ascal:ascal|o_vpixq_pre[0].b[7]",
+          "sink": "ascal:ascal|o_vpixq[0].b[7]",
+          "arrival_ns": 7.918,
+          "required_ns": 7.699,
+          "report_sha256": "4cc831560f79f578ef56620d0f56358d2856a2792c3ebbca7ab94abe437fc7d3"
+        },
+        "input": {
+          "slack_ns": 0.054,
+          "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_c15|qb",
+          "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+          "arrival_ns": 25.915,
+          "required_ns": 25.969,
+          "report_sha256": "7686a5d7bdaec708aa131e9c2e69c80495dde237cfa83c65672aeb1f8e6377a2"
+        },
+        "internal": {
+          "slack_ns": 0.351,
+          "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[19]",
+          "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+          "arrival_ns": 25.249,
+          "required_ns": 25.6,
+          "report_sha256": "75080576da775fc7dd2d3505d502785bd2a3f6faf5aea869ab79f126eb983c89"
+        }
+      },
+      {
+        "condition": "MIN_fast_1100mv_100c",
+        "setup": {
+          "slack_ns": 3.957,
+          "source": "emu:emu|network_step",
+          "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MB7071H_snapshot:u_c22|altdpram:mem_rtl_0|dpram_q8o1:auto_generated|lutrama18~OBSERVABLEVIRTUALREGOUT0",
+          "arrival_ns": 17.24,
+          "required_ns": 21.197,
+          "report_sha256": "9b4d1a6a4c1f88e6567b93b4c17afa99d61779f77b7006d235b1cf9f584ad95f"
+        },
+        "hold": {
+          "slack_ns": 0.131,
+          "source": "emu:emu|dorado_ethernet_ddr:u_network_ddr|rx_cons[2]",
+          "sink": "emu:emu|dorado_ethernet_ddr:u_network_ddr|rx_cons[2]",
+          "arrival_ns": 3.829,
+          "required_ns": 3.698,
+          "report_sha256": "0048f3386f0311789886c3606573666698762f37649f0eee81d4ff54ddac3d87"
+        },
+        "input": {
+          "slack_ns": 4.322,
+          "source": "emu:emu|network_step",
+          "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[138]",
+          "arrival_ns": 17.071,
+          "required_ns": 21.393,
+          "report_sha256": "c2ab8901ed49ec40de1584eba9aff313375baf909e7d941cc5d3ce316e834c92"
+        },
+        "internal": {
+          "slack_ns": 8.25,
+          "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[19]",
+          "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[7]",
+          "arrival_ns": 13.103,
+          "required_ns": 21.353,
+          "report_sha256": "ad3334721f2416f8f6e6d8ccc2c057b68e5eda9fd1d3dec577b53b451c4655a4"
+        }
+      },
+      {
+        "condition": "MIN_fast_1100mv_-40c",
+        "setup": {
+          "slack_ns": 4.772,
+          "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_clock_before~DUPLICATE",
+          "sink": "emu:emu|network_step",
+          "arrival_ns": 7.502,
+          "required_ns": 12.274,
+          "report_sha256": "8b579297372fe3d963bb4cda944c7d38e69769bde83c07bdfd68634cb2d720fa"
+        },
+        "hold": {
+          "slack_ns": 0.116,
+          "source": "emu:emu|dorado_ethernet_ddr:u_network_ddr|rx_cons[2]",
+          "sink": "emu:emu|dorado_ethernet_ddr:u_network_ddr|rx_cons[2]",
+          "arrival_ns": 3.623,
+          "required_ns": 3.507,
+          "report_sha256": "de8d7d0bb5d0ee42f8f50053c7faee08f38d0b293779b4ec8e35535d1b9620ab"
+        },
+        "input": {
+          "slack_ns": 5.103,
+          "source": "emu:emu|network_step",
+          "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[138]",
+          "arrival_ns": 16.053,
+          "required_ns": 21.156,
+          "report_sha256": "8c1ad43b8e3c63ccd35615aacc686cfee98276c5206c7a223f5dd0de9f240c98"
+        },
+        "internal": {
+          "slack_ns": 9.566,
+          "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[19]",
+          "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[6]",
+          "arrival_ns": 11.554,
+          "required_ns": 21.12,
+          "report_sha256": "e90a10184fa28d1990ffc4d094210b78d49c55b2f05c43adab36a34186e8345e"
+        }
+      }
+    ],
+    "keeper_coverage": [
+      [
+        "7_slow_1100mv_100c",
+        "84713",
+        "804",
+        "695",
+        "109",
+        "163"
+      ],
+      [
+        "7_slow_1100mv_-40c",
+        "84713",
+        "804",
+        "695",
+        "109",
+        "163"
+      ],
+      [
+        "MIN_fast_1100mv_100c",
+        "84713",
+        "804",
+        "695",
+        "109",
+        "163"
+      ],
+      [
+        "MIN_fast_1100mv_-40c",
+        "84713",
+        "804",
+        "695",
+        "109",
+        "163"
+      ]
+    ],
+    "ALMs": 36263,
+    "registers": 55244,
+    "physical_key_keepers_before": 389,
+    "physical_key_keepers_after": 241,
+    "logical_key_bits_before": 385,
+    "logical_key_bits_after": 239,
+    "unused_key138_removed": true,
+    "retained_keys_outside_support": [],
+    "timing_accepted": false,
+    "remaining_path": "MemC d15.qa -> cache tags/Hold -> control state121 -> after_child10 -> T path -> low RM write",
+    "data_delay_ns": 16.809,
+    "clock_skew_ns": -0.976
+  },
+  "primary_source_audit": {
+    "status": "PASS_SOURCE_BOUND_ALL_PRIMARY_CLOCK_SCHEDULE_AUDIT",
+    "stage": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-key-native-stage-v1-20261024",
+    "stage_manifest_sha256": "c3c9fd0f656c291f609ec0dd2c2253c1243015489d3458ebe3a2e15faa423d0d",
+    "source_hashes": {
+      "machine.sv": "70453ac2364ec3bf5ce9db719354966865d44551f0df37a8a4bd52c3a6f93b8d",
+      "backplane.v": "a35b5b2adcffcac0cc1df01d725a8b109ef6ff197abec8caa1689d489d61c4fe",
+      "baseboard.v": "5a9ae95c12f696fa703a8012ec03d5e80b0b1c3e4885a9227551768f66775580",
+      "baseboard-crystal.v": "30eb1a85271585ada492cd6e65d750ddb1fa78da1d1a030ecf09412acb9fdd2a",
+      "dsketh.sv": "fd0df9c6006b9152f7101c6210ba8223b297102201ec6222e7603b7d17f2c1ca",
+      "dispy.sv": "9e04029cb5704cdd6c45a75f0b4825815b126712a62d3d27d9093e58f1dab8e8",
+      "cpu-pixel-source.sv": "56f9dc05b821fbd0708b949c2c9528a768ee86273278fd7f3264fe35bdb97e7a",
+      "original-divider-reference.py": "c623e08f9552b2373fabb6d9aa2348cc8e5a2e46383df6f102840bedd036d7f2"
+    },
+    "actual_active_sources": {
+      "CPU": "Original BaseBoard SCP/ECP divider, 3.75ns substeps",
+      "pixel": "Native machine u_pixclk, 50000kHz; RawPixelClk",
+      "BaseBoard": "MC12061 d08, 10000kHz; p10 feeds the original e07/g08 divider/6502",
+      "Ethernet": "DskEth j20, existing23530kHz model; EClk0 -> i20 -> EClk1/EClk2"
+    },
+    "excluded_source": "DispY a05 feeds the Crystal connector; actual native wrapper leaves it unused.",
+    "rotations": [
+      {
+        "rotation": 0,
+        "intervals": 20000,
+        "histogram": {
+          "3": 2944,
+          "4": 10000,
+          "5": 7056
+        },
+        "first_four_record_overflow": {
+          "tick": 1,
+          "start_ns": 15,
+          "records": [
+            {
+              "offset_units": 35295,
+              "changed_lanes": 6
+            },
+            {
+              "offset_units": 47060,
+              "changed_lanes": 8
+            },
+            {
+              "offset_units": 58820,
+              "changed_lanes": 32
+            },
+            {
+              "offset_units": 70590,
+              "changed_lanes": 1
+            },
+            {
+              "offset_units": 141180,
+              "changed_lanes": 8
+            }
+          ]
+        },
+        "first_six_record_interval": null,
+        "all_offsets_masks_and_returned_phase_match": true
+      },
+      {
+        "rotation": 1,
+        "intervals": 20000,
+        "histogram": {
+          "3": 5888,
+          "4": 14112
+        },
+        "first_four_record_overflow": null,
+        "first_six_record_interval": null,
+        "all_offsets_masks_and_returned_phase_match": true
+      },
+      {
+        "rotation": 2,
+        "intervals": 20000,
+        "histogram": {
+          "3": 5888,
+          "4": 14112
+        },
+        "first_four_record_overflow": null,
+        "first_six_record_interval": null,
+        "all_offsets_masks_and_returned_phase_match": true
+      },
+      {
+        "rotation": 3,
+        "intervals": 20000,
+        "histogram": {
+          "3": 2944,
+          "4": 10000,
+          "5": 7056
+        },
+        "first_four_record_overflow": {
+          "tick": 1,
+          "start_ns": 15,
+          "records": [
+            {
+              "offset_units": 47060,
+              "changed_lanes": 8
+            },
+            {
+              "offset_units": 58820,
+              "changed_lanes": 32
+            },
+            {
+              "offset_units": 70590,
+              "changed_lanes": 2
+            },
+            {
+              "offset_units": 105885,
+              "changed_lanes": 5
+            },
+            {
+              "offset_units": 141180,
+              "changed_lanes": 8
+            }
+          ]
+        },
+        "first_six_record_interval": null,
+        "all_offsets_masks_and_returned_phase_match": true
+      },
+      {
+        "rotation": 4,
+        "intervals": 20000,
+        "histogram": {
+          "3": 2944,
+          "4": 10000,
+          "5": 7056
+        },
+        "first_four_record_overflow": {
+          "tick": 1,
+          "start_ns": 15,
+          "records": [
+            {
+              "offset_units": 35295,
+              "changed_lanes": 2
+            },
+            {
+              "offset_units": 47060,
+              "changed_lanes": 8
+            },
+            {
+              "offset_units": 58820,
+              "changed_lanes": 32
+            },
+            {
+              "offset_units": 70590,
+              "changed_lanes": 5
+            },
+            {
+              "offset_units": 141180,
+              "changed_lanes": 8
+            }
+          ]
+        },
+        "first_six_record_interval": null,
+        "all_offsets_masks_and_returned_phase_match": true
+      },
+      {
+        "rotation": 5,
+        "intervals": 20000,
+        "histogram": {
+          "3": 5888,
+          "4": 14112
+        },
+        "first_four_record_overflow": null,
+        "first_six_record_interval": null,
+        "all_offsets_masks_and_returned_phase_match": true
+      },
+      {
+        "rotation": 6,
+        "intervals": 20000,
+        "histogram": {
+          "3": 5888,
+          "4": 14112
+        },
+        "first_four_record_overflow": null,
+        "first_six_record_interval": null,
+        "all_offsets_masks_and_returned_phase_match": true
+      },
+      {
+        "rotation": 7,
+        "intervals": 20000,
+        "histogram": {
+          "3": 2944,
+          "4": 10000,
+          "5": 7056
+        },
+        "first_four_record_overflow": {
+          "tick": 1,
+          "start_ns": 15,
+          "records": [
+            {
+              "offset_units": 47060,
+              "changed_lanes": 8
+            },
+            {
+              "offset_units": 58820,
+              "changed_lanes": 32
+            },
+            {
+              "offset_units": 70590,
+              "changed_lanes": 6
+            },
+            {
+              "offset_units": 105885,
+              "changed_lanes": 1
+            },
+            {
+              "offset_units": 141180,
+              "changed_lanes": 8
+            }
+          ]
+        },
+        "first_six_record_interval": null,
+        "all_offsets_masks_and_returned_phase_match": true
+      }
+    ],
+    "compared_intervals": 160000,
+    "joint_period_ns": 300000,
+    "exact_units_per_ns": 9412,
+    "interval_units": 141180,
+    "required_record_capacity": 5,
+    "source_level_lanes": 6,
+    "cold_BaseBoard_edges_coincide_with_pixel": true,
+    "six_records_conservative_bound_for_independent_crystal_phases": true,
+    "narrow_CPU_pixel_four_record_capacity_insufficient_for_complete_machine": true,
+    "first_Ethernet_edge_ns": "50000/2353",
+    "first_Ethernet_edge_units": 200000,
+    "one_point_25ns_grid_inexact_for_current_Ethernet_model": true,
+    "reference_methods": [
+      "Absolute Fraction deadlines and original four-flop divider",
+      "Integer phase accumulators and CPU truth maps"
+    ],
+    "Ethernet_frequency_changed": false,
+    "native_RTL_or_clocks_changed": false,
+    "source_schedule_only": true,
+    "native_consumers_integrated": false,
+    "FPGA_timing_qualified": false,
+    "firmware_qualified": false,
+    "speedup_qualified": false,
+    "full_goal_active": true
+  },
+  "simulator_cases": [
+    {
+      "engine": "icarus",
+      "variant": "positive",
+      "expected_rejection": false,
+      "actions": [
+        {
+          "label": "compile",
+          "command": [
+            "iverilog",
+            "-g2012",
+            "-s",
+            "tb_primary_clock_events",
+            "-o",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/icarus-positive/test.vvp",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_oscillator_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_clock_event_batch.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_primary_clock_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/tb.sv"
+          ],
+          "pid": 35531,
+          "started": 1792857196.529342,
+          "returncode": 0,
+          "finished": 1792857196.610695
+        },
+        {
+          "label": "test",
+          "command": [
+            "vvp",
+            "-i",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/icarus-positive/test.vvp",
+            "+expected=/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/expected.hex"
+          ],
+          "pid": 35535,
+          "started": 1792857196.61585,
+          "returncode": 0,
+          "finished": 1792857252.598835
+        }
+      ],
+      "passed": true,
+      "log_sha256": "4dc4ba1d867b1a71298d8eb32a79febe674e41e7107640a2ffc9ae9acb7ebd86"
+    },
+    {
+      "engine": "icarus",
+      "variant": "drop-bb",
+      "expected_rejection": true,
+      "actions": [
+        {
+          "label": "compile",
+          "command": [
+            "iverilog",
+            "-g2012",
+            "-s",
+            "tb_primary_clock_events",
+            "-o",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/icarus-drop-bb/test.vvp",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_oscillator_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_clock_event_batch.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/drop-bb.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/tb.sv"
+          ],
+          "pid": 35945,
+          "started": 1792857252.6039941,
+          "returncode": 0,
+          "finished": 1792857252.633806
+        },
+        {
+          "label": "test",
+          "command": [
+            "vvp",
+            "-i",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/icarus-drop-bb/test.vvp",
+            "+expected=/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/expected.hex"
+          ],
+          "pid": 35949,
+          "started": 1792857252.638023,
+          "returncode": 1,
+          "finished": 1792857252.8627799
+        }
+      ],
+      "passed": true,
+      "log_sha256": "09d9fc442c6590d2d0774ad0b96bad53415b962af74e38f8e9d2fc41578ac0a2"
+    },
+    {
+      "engine": "icarus",
+      "variant": "drop-ether",
+      "expected_rejection": true,
+      "actions": [
+        {
+          "label": "compile",
+          "command": [
+            "iverilog",
+            "-g2012",
+            "-s",
+            "tb_primary_clock_events",
+            "-o",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/icarus-drop-ether/test.vvp",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_oscillator_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_clock_event_batch.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/drop-ether.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/tb.sv"
+          ],
+          "pid": 35952,
+          "started": 1792857252.8676858,
+          "returncode": 0,
+          "finished": 1792857252.9145532
+        },
+        {
+          "label": "test",
+          "command": [
+            "vvp",
+            "-i",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/icarus-drop-ether/test.vvp",
+            "+expected=/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/expected.hex"
+          ],
+          "pid": 35957,
+          "started": 1792857252.938784,
+          "returncode": 1,
+          "finished": 1792857253.169745
+        }
+      ],
+      "passed": true,
+      "log_sha256": "dc1de7eb5bedf29cd63b5d1b87555134bc0d104fed5a2fd4d0b915e490071207"
+    },
+    {
+      "engine": "icarus",
+      "variant": "round-ether",
+      "expected_rejection": true,
+      "actions": [
+        {
+          "label": "compile",
+          "command": [
+            "iverilog",
+            "-g2012",
+            "-s",
+            "tb_primary_clock_events",
+            "-o",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/icarus-round-ether/test.vvp",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_oscillator_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_clock_event_batch.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/round-ether.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/tb.sv"
+          ],
+          "pid": 35959,
+          "started": 1792857253.183223,
+          "returncode": 0,
+          "finished": 1792857253.2345269
+        },
+        {
+          "label": "test",
+          "command": [
+            "vvp",
+            "-i",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/icarus-round-ether/test.vvp",
+            "+expected=/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/expected.hex"
+          ],
+          "pid": 35963,
+          "started": 1792857253.2374232,
+          "returncode": 1,
+          "finished": 1792857253.473056
+        }
+      ],
+      "passed": true,
+      "log_sha256": "fb46d20b67a754c1a398ed4da6df56805c1f38f6fda229831e56f1f706fd306d"
+    },
+    {
+      "engine": "icarus",
+      "variant": "capacity-four",
+      "expected_rejection": true,
+      "actions": [
+        {
+          "label": "compile",
+          "command": [
+            "iverilog",
+            "-g2012",
+            "-s",
+            "tb_primary_clock_events",
+            "-o",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/icarus-capacity-four/test.vvp",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_oscillator_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_clock_event_batch.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/capacity-four.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/tb.sv"
+          ],
+          "pid": 35969,
+          "started": 1792857253.477866,
+          "returncode": 0,
+          "finished": 1792857253.510337
+        },
+        {
+          "label": "test",
+          "command": [
+            "vvp",
+            "-i",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/icarus-capacity-four/test.vvp",
+            "+expected=/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/expected.hex"
+          ],
+          "pid": 35973,
+          "started": 1792857253.517189,
+          "returncode": 1,
+          "finished": 1792857253.748119
+        }
+      ],
+      "passed": true,
+      "log_sha256": "da68338ac26150bf43680e89f63ecf5d42f0eaee70a2a028f67c91b1a76c9a8a"
+    },
+    {
+      "engine": "icarus",
+      "variant": "advance-held",
+      "expected_rejection": true,
+      "actions": [
+        {
+          "label": "compile",
+          "command": [
+            "iverilog",
+            "-g2012",
+            "-s",
+            "tb_primary_clock_events",
+            "-o",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/icarus-advance-held/test.vvp",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_oscillator_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_clock_event_batch.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/advance-held.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/tb.sv"
+          ],
+          "pid": 35974,
+          "started": 1792857253.754548,
+          "returncode": 0,
+          "finished": 1792857253.795176
+        },
+        {
+          "label": "test",
+          "command": [
+            "vvp",
+            "-i",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/icarus-advance-held/test.vvp",
+            "+expected=/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/expected.hex"
+          ],
+          "pid": 35978,
+          "started": 1792857253.80263,
+          "returncode": 1,
+          "finished": 1792857254.033123
+        }
+      ],
+      "passed": true,
+      "log_sha256": "e08d919d728aca83e0341da36ac6d04ce06b691cd7a710f4c0b0e2f059c2d4ae"
+    },
+    {
+      "engine": "verilator",
+      "variant": "positive",
+      "expected_rejection": false,
+      "actions": [
+        {
+          "label": "compile",
+          "command": [
+            "verilator",
+            "--binary",
+            "--timing",
+            "-j",
+            "2",
+            "-Wno-fatal",
+            "--top-module",
+            "tb_primary_clock_events",
+            "--Mdir",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/verilator-positive/obj",
+            "-o",
+            "test",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_oscillator_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_clock_event_batch.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_primary_clock_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/tb.sv"
+          ],
+          "pid": 35981,
+          "started": 1792857254.0381062,
+          "returncode": 0,
+          "finished": 1792857259.357715
+        },
+        {
+          "label": "test",
+          "command": [
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/verilator-positive/obj/test",
+            "+expected=/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/expected.hex"
+          ],
+          "pid": 36252,
+          "started": 1792857259.361635,
+          "returncode": 0,
+          "finished": 1792857259.8614101
+        }
+      ],
+      "passed": true,
+      "log_sha256": "de88dc43e8ea59f842d0f14de4723ddf2c9ba3b10093bbd6a7be5480ef31e524"
+    },
+    {
+      "engine": "verilator",
+      "variant": "drop-bb",
+      "expected_rejection": true,
+      "actions": [
+        {
+          "label": "compile",
+          "command": [
+            "verilator",
+            "--binary",
+            "--timing",
+            "-j",
+            "2",
+            "-Wno-fatal",
+            "--top-module",
+            "tb_primary_clock_events",
+            "--Mdir",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/verilator-drop-bb/obj",
+            "-o",
+            "test",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_oscillator_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_clock_event_batch.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/drop-bb.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/tb.sv"
+          ],
+          "pid": 36258,
+          "started": 1792857259.871705,
+          "returncode": 0,
+          "finished": 1792857265.143094
+        },
+        {
+          "label": "test",
+          "command": [
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/verilator-drop-bb/obj/test",
+            "+expected=/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/expected.hex"
+          ],
+          "pid": 36515,
+          "started": 1792857265.1466198,
+          "returncode": 1,
+          "finished": 1792857265.555777
+        }
+      ],
+      "passed": true,
+      "log_sha256": "fa53c2c97a3a319a756c663a77663743274e388386a675c7223c7c91d1b59d56"
+    },
+    {
+      "engine": "verilator",
+      "variant": "drop-ether",
+      "expected_rejection": true,
+      "actions": [
+        {
+          "label": "compile",
+          "command": [
+            "verilator",
+            "--binary",
+            "--timing",
+            "-j",
+            "2",
+            "-Wno-fatal",
+            "--top-module",
+            "tb_primary_clock_events",
+            "--Mdir",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/verilator-drop-ether/obj",
+            "-o",
+            "test",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_oscillator_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_clock_event_batch.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/drop-ether.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/tb.sv"
+          ],
+          "pid": 36518,
+          "started": 1792857265.563266,
+          "returncode": 0,
+          "finished": 1792857270.6090298
+        },
+        {
+          "label": "test",
+          "command": [
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/verilator-drop-ether/obj/test",
+            "+expected=/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/expected.hex"
+          ],
+          "pid": 36790,
+          "started": 1792857270.611547,
+          "returncode": 1,
+          "finished": 1792857270.998034
+        }
+      ],
+      "passed": true,
+      "log_sha256": "14b9e35ec7878765ea925119943b43d31094f87f41c861316b24f9a5a331c131"
+    },
+    {
+      "engine": "verilator",
+      "variant": "round-ether",
+      "expected_rejection": true,
+      "actions": [
+        {
+          "label": "compile",
+          "command": [
+            "verilator",
+            "--binary",
+            "--timing",
+            "-j",
+            "2",
+            "-Wno-fatal",
+            "--top-module",
+            "tb_primary_clock_events",
+            "--Mdir",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/verilator-round-ether/obj",
+            "-o",
+            "test",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_oscillator_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_clock_event_batch.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/round-ether.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/tb.sv"
+          ],
+          "pid": 36794,
+          "started": 1792857271.00259,
+          "returncode": 0,
+          "finished": 1792857275.953303
+        },
+        {
+          "label": "test",
+          "command": [
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/verilator-round-ether/obj/test",
+            "+expected=/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/expected.hex"
+          ],
+          "pid": 37074,
+          "started": 1792857275.9566662,
+          "returncode": 1,
+          "finished": 1792857276.3792572
+        }
+      ],
+      "passed": true,
+      "log_sha256": "b88b64b9c40d7f70780b5ec2e932e4234aa4c2dc7bd8bbb88e563b8bff463b46"
+    },
+    {
+      "engine": "verilator",
+      "variant": "capacity-four",
+      "expected_rejection": true,
+      "actions": [
+        {
+          "label": "compile",
+          "command": [
+            "verilator",
+            "--binary",
+            "--timing",
+            "-j",
+            "2",
+            "-Wno-fatal",
+            "--top-module",
+            "tb_primary_clock_events",
+            "--Mdir",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/verilator-capacity-four/obj",
+            "-o",
+            "test",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_oscillator_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_clock_event_batch.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/capacity-four.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/tb.sv"
+          ],
+          "pid": 37081,
+          "started": 1792857276.392802,
+          "returncode": 0,
+          "finished": 1792857281.510647
+        },
+        {
+          "label": "test",
+          "command": [
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/verilator-capacity-four/obj/test",
+            "+expected=/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/expected.hex"
+          ],
+          "pid": 37373,
+          "started": 1792857281.51367,
+          "returncode": 1,
+          "finished": 1792857281.893947
+        }
+      ],
+      "passed": true,
+      "log_sha256": "afbdd917ea8765c1e92209f31a4db3e9250b911af5e91300111270627b333fd5"
+    },
+    {
+      "engine": "verilator",
+      "variant": "advance-held",
+      "expected_rejection": true,
+      "actions": [
+        {
+          "label": "compile",
+          "command": [
+            "verilator",
+            "--binary",
+            "--timing",
+            "-j",
+            "2",
+            "-Wno-fatal",
+            "--top-module",
+            "tb_primary_clock_events",
+            "--Mdir",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/verilator-advance-held/obj",
+            "-o",
+            "test",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_oscillator_events.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/dorado_clock_event_batch.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/advance-held.sv",
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/tb.sv"
+          ],
+          "pid": 37376,
+          "started": 1792857281.8998241,
+          "returncode": 0,
+          "finished": 1792857286.866456
+        },
+        {
+          "label": "test",
+          "command": [
+            "/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/verilator-advance-held/obj/test",
+            "+expected=/Users/alans/dev2/Dorado/build/rtl-executive/primary-clock-original-reference-v1-20261024/inputs/expected.hex"
+          ],
+          "pid": 37647,
+          "started": 1792857286.869807,
+          "returncode": 1,
+          "finished": 1792857287.272204
+        }
+      ],
+      "passed": true,
+      "log_sha256": "7b3bf5a46ba75997dd707f8ca8eaa0f6fcac9f397529ec3fc0859619fd2121ed"
+    }
+  ],
+  "formal_cases": [
+    {
+      "mode": "merge",
+      "variant": "positive",
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/formal-tools-venv/bin/yowasp-yosys",
+        "-Q",
+        "-T",
+        "-s",
+        "/work/proof.ys"
+      ],
+      "pid": 42167,
+      "started": 1792857651.637255,
+      "files": {
+        "proof.ys": "697fd60f52c82b86b6b18720ffacd40cb05f41f3d408ec0c30e4aa4d81cfeedf",
+        "reference.sv": "f536c6f1ed5d3903ce1fd29a3218c95e1bb80f0016ba144206a6891b9aa5ae5f",
+        "source.sv": "6639685a009c2eaea20b5400cd2c51c19d1a57487c22ee3a561b0c106aff0bec",
+        "actual.sv": "1246378c3906d89d7fa39c15ab609dda8d3fbf003c7411cd48f8edc49d8377f7"
+      },
+      "returncode": 0,
+      "passed": true,
+      "finished": 1792857672.382605,
+      "log_sha256": "6ff220cc285d31dad1a3da3f421f93b2f63b51821f6acbf0e2268382f0fa2e2d"
+    },
+    {
+      "mode": "merge",
+      "variant": "drop-bb",
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/formal-tools-venv/bin/yowasp-yosys",
+        "-Q",
+        "-T",
+        "-s",
+        "/work/proof.ys"
+      ],
+      "pid": 42312,
+      "started": 1792857672.387715,
+      "files": {
+        "proof.ys": "4b7e794e9ac3828532d7283dbf9f394a69c7141b4c721a9927dfafe91aa6494e",
+        "reference.sv": "f536c6f1ed5d3903ce1fd29a3218c95e1bb80f0016ba144206a6891b9aa5ae5f",
+        "source.sv": "db1d1d3f5fc480cc56f7835a88a78a8203de968a12ef8aa62e93814f1b3a885d",
+        "actual.sv": "7a73f68d514b8cba5d660ce088a274c4159da50efa2db7c386d676d9f208ae89"
+      },
+      "returncode": 0,
+      "passed": true,
+      "finished": 1792857674.399143,
+      "log_sha256": "070b24267812fb957c93412de0bb92e4c7634fcbf6f38f44124600b843ba7245"
+    },
+    {
+      "mode": "merge",
+      "variant": "drop-ether",
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/formal-tools-venv/bin/yowasp-yosys",
+        "-Q",
+        "-T",
+        "-s",
+        "/work/proof.ys"
+      ],
+      "pid": 42330,
+      "started": 1792857674.4019,
+      "files": {
+        "proof.ys": "4b7e794e9ac3828532d7283dbf9f394a69c7141b4c721a9927dfafe91aa6494e",
+        "reference.sv": "f536c6f1ed5d3903ce1fd29a3218c95e1bb80f0016ba144206a6891b9aa5ae5f",
+        "source.sv": "359e889580eba826c603fd9c3a77086d24681106239b210952cb8cfa7e8b3922",
+        "actual.sv": "b923fa7b501f3378e981ca900007371ce189b7980d24cf7f283ee3372e6a3fed"
+      },
+      "returncode": 0,
+      "passed": true,
+      "finished": 1792857676.0874019,
+      "log_sha256": "cb1395623fecce6d83aec8889fff01bf3d1ee93ed60f401c761a63d942923a30"
+    },
+    {
+      "mode": "merge",
+      "variant": "round-ether",
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/formal-tools-venv/bin/yowasp-yosys",
+        "-Q",
+        "-T",
+        "-s",
+        "/work/proof.ys"
+      ],
+      "pid": 42338,
+      "started": 1792857676.0955288,
+      "files": {
+        "proof.ys": "4b7e794e9ac3828532d7283dbf9f394a69c7141b4c721a9927dfafe91aa6494e",
+        "reference.sv": "f536c6f1ed5d3903ce1fd29a3218c95e1bb80f0016ba144206a6891b9aa5ae5f",
+        "source.sv": "99f9eb1a54b77ee4f62ad2773a53572816ed2292044847fdeac93e13387806fb",
+        "actual.sv": "641c8f811708439d9314f544ca7dab3a0674175177d6d225896d1611f5a1eb34"
+      },
+      "returncode": 0,
+      "passed": true,
+      "finished": 1792857678.0194979,
+      "log_sha256": "d5438b4b03db4b7804c5116421c70b752a0e2a54abab92da22700425e818acac"
+    },
+    {
+      "mode": "merge",
+      "variant": "capacity-four",
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/formal-tools-venv/bin/yowasp-yosys",
+        "-Q",
+        "-T",
+        "-s",
+        "/work/proof.ys"
+      ],
+      "pid": 42351,
+      "started": 1792857678.0235431,
+      "files": {
+        "proof.ys": "4b7e794e9ac3828532d7283dbf9f394a69c7141b4c721a9927dfafe91aa6494e",
+        "reference.sv": "f536c6f1ed5d3903ce1fd29a3218c95e1bb80f0016ba144206a6891b9aa5ae5f",
+        "source.sv": "690f5cdfaf1acae52405f9a19a29b13b3203d27c8ea0f2675ce984cb4e358278",
+        "actual.sv": "7013c765332c71e4300fa87b8ea57eca4bee8ec7bb12cd6c8524582b34d511c2"
+      },
+      "returncode": 0,
+      "passed": true,
+      "finished": 1792857679.599394,
+      "log_sha256": "271d3a44eb59212537e8c871823847de2c708472b56cbe3b7c1303f65c534b29"
+    },
+    {
+      "mode": "phase",
+      "variant": "positive",
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/formal-tools-venv/bin/yowasp-yosys",
+        "-Q",
+        "-T",
+        "-s",
+        "/work/proof.ys"
+      ],
+      "pid": 42368,
+      "started": 1792857679.6024268,
+      "files": {
+        "proof.ys": "1cd6f075b7c118815c6472de57c21f86d4b2ead053c1261d018d91daab1552c1",
+        "source.sv": "6639685a009c2eaea20b5400cd2c51c19d1a57487c22ee3a561b0c106aff0bec",
+        "actual.sv": "91cbd0ed70e491b33368ab78e5583482b23a534f85c42c859002261a8d468c9b"
+      },
+      "returncode": 0,
+      "passed": true,
+      "finished": 1792857680.675991,
+      "log_sha256": "9664f07fadfee117ed24e893243a09d42cc6c68b8b5aed332cbaa0382bbd7e6d"
+    },
+    {
+      "mode": "phase",
+      "variant": "advance-held",
+      "command": [
+        "/Users/alans/dev2/Dorado/build/rtl-executive/formal-tools-venv/bin/yowasp-yosys",
+        "-Q",
+        "-T",
+        "-s",
+        "/work/proof.ys"
+      ],
+      "pid": 42376,
+      "started": 1792857680.6806028,
+      "files": {
+        "proof.ys": "d6a03c4b3f65790dadbfcefb6a8f1e68c1ef5aa3b943addb5bf93500c43b12e9",
+        "source.sv": "c38341aaab339d38f4270e943a15c580b096607fa97b78b6ed7a9abb5cff0539",
+        "actual.sv": "0f67e9658e767583b90996eaac3872dcd9abfca35e3fb401900fb7d01e1a7ca8"
+      },
+      "returncode": 0,
+      "passed": true,
+      "finished": 1792857681.631796,
+      "log_sha256": "c989c5cdc9a221e4aa9c3b424809293ce26c5312ccf11f5c68c76231a202c1dc"
+    }
+  ],
+  "native_event_consumers_integrated": false,
+  "original60ns_qualified": false,
+  "user_using_FPGA": true,
+  "hardware_test_requires_user_release": true,
+  "physical_timing_qualified": false,
+  "firmware_qualified": false,
+  "speedup_qualified": false,
+  "assembly_permitted": false,
+  "hardware_changed": false,
+  "full_goal_active": true
+}
