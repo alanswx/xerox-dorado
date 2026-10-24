@@ -1,7 +1,10 @@
 # Verilog from Sil: handoff
 
 NOW LIVE (2026-10-24): `/home/alans/mister/cp-key-native-v1-20261024`,
-builder3560219/session4830, map3560222. Physical reporter3560997/session95443
+builder3560219/session4830, fitter3573987. Map3560222 completed successfully:
+92,908 logic cells/95,713 device resources,96 fewer logic cells than the smaller
+parent;35DSP/2,602RAM segments unchanged, all985 warnings retained.
+Physical reporter3560997/session95443
 and calibrated CP-key reporter3561220/session92132 wait on the SAME build.
 All533 frozen files verify; manifest
 `c3c9fd0f656c291f609ec0dd2c2253c1243015489d3458ebe3a2e15faa423d0d`.

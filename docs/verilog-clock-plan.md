@@ -20,7 +20,9 @@ including9,072 X/Z cases; broken unknown fallback rejects. Fresh exact-native
 passes with three UNOPTFLAT/one MULTIDRIVEN warnings visible.
 
 Native fit LIVE: `/home/alans/mister/cp-key-native-v1-20261024`, builder3560219/
-map3560222/session4830; physical reporter3560997/session95443; CP-key reporter
+session4830; map3560222 exits0 at92,908 logic cells/95,713 resources,35DSP/
+2,602RAM segments and985 retained warnings; fitter3573987 is now live.
+Physical reporter3560997/session95443; CP-key reporter
 3561220/session92132. All533 sources verify, manifest
 `c3c9fd0f656c291f609ec0dd2c2253c1243015489d3458ebe3a2e15faa423d0d`.
 Only the key comparison changes after relocation, retaining saved CP pins,
