@@ -72,11 +72,19 @@ bit230 (jointQ117) through root settling to result355/full unsettled.
 Next remove only dependencies proved redundant: investigate direct CP-register
 projection before the T-path, preserving CP subevents/ordering, and determine
 the minimum correct atomic settling depth. Five/six/seven-wave direct-RTL
-proofs against the24-wave reference are running at
-`memory-hold-all-{5,6,7}-waves-rtl-v1-20261023`, sessions77465/70680/16876.
-Four waves already FAIL on unsettled; never drop that output. No shorter
-candidate is selected until its complete result is proved. Re-run the full
-original comparisons, negative controls and fit after any actual source change.
+proofs against the24-wave reference now ALL PASS at
+`memory-hold-all-{5,6,7}-waves-rtl-v1-20261023`:955arbitrary binary state/input
+bits, all363outputs including unsettled, no assumptions. Four still FAILS;
+never drop that output. `cp-five-depth-summary.json` archives exact proofs.
+The five-pass guarded component tests are running as
+`cp-prefix-five-{icarus,verilator}-v2-20261023`, sessions7735/41405; paired
+Verilator bad variants are17873/89303/13636, all three Icarus controls reject.
+The first preparation assertion failed before compile: only the ordered
+evaluator defaults to8; the atomic helper defaults to24. The generator now
+changes ONLY the ordered selector to5. The unchanged24default preserves the
+proof helper/reference; actual roots explicitly receive WAVES=5. Failed
+preparation source/attempts are archived. Do not qualify the new component
+until both full runs, exact-source induction/controls and a full fit finish.
 Native/global pause integration and60ns/Cedar/speed acceptance remain open.
 
 Latest phase-preserving Hold/canonical-state milestone (2026-10-23;
@@ -10272,7 +10280,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Implement guarded ordinary-prefix bypass/conditional staging in the component; pass both complete original comparisons, reset/tag-change retries, direct four-step ready-result/write-permission proof and six simulator/three formal negative controls.
 - [x] Prove guarded-prefix safety by direct-RTL temporal induction; finish full15ns fit and retain -5.619ns global/-5.036ns owner rejection with the guard-comparator/feedback attribution.
 - [x] Move the guarded selection after parallel direct/staged control evaluation and qualify control-only settled eligibility; both full comparisons, six simulator controls, induction and three formal controls pass. Preserve full15ns rejection (-1.953ns global/-1.115ns owners).
-- [ ] Shorten the residual guard-to-CP/T-write dependency and root fixed-point diagnostic without changing any result; five/six/seven-wave proofs are pending, four remains rejected. Then qualify full15ns/native global pauses, actual CP frequency, one SRAM commit and60ns ordinary cadence.
+- [x] Prove five/six/seven atomic passes against24 for955arbitrary binary inputs/state bits/all363outputs, retaining unsettled and the four-pass rejection.
+- [ ] Qualify the running five-pass guarded component, then shorten residual guard-to-CP/T-write dependency if still required. Preserve every result and qualify full15ns/native global pauses, actual CP frequency, one SRAM commit and60ns ordinary cadence.
 - [x] Preserve dual-engine late-Hold component passes and reject the full 15 ns duplication fit on actual owner paths; no timing waiver or native promotion.
 - [x] Diagnose the original native keyboard's all-zero active-low matrix; repair adapter power-up and stopped-clock reset, with16 dual-engine cases including8 rejected controls.
 - [ ] Observe genuine Cedar113/C release and pinned storage windows on fresh input-reset-v3 control/queue jobs58600/58753, bound to passing final adapter synthesis/tests; retain original jobs29201/29618 and their unchanged bounds as Alto110 evidence.

@@ -43,8 +43,13 @@ diagnostic is retained. Fitted DB remains on misterubuntu at
 
 Next investigate exact direct CP-register projection before the T-path and
 minimum sufficient atomic settling depth; all outputs/CP subevents must remain.
-Five/six/seven-wave direct proofs were launched after this review and remain
-unselected until actual terminal results. Four waves remain rejected. Same
+`cp-five-depth-summary.json` now retains PASS for five/six/seven waves against
+the24-wave reference,955arbitrary binary state/input bits and all363outputs,
+including unsettled, with no assumptions. Four remains rejected. The actual
+five-pass guarded composition is in dual-engine testing, unqualified until
+its full comparisons/induction/controls/fit finish. The first generation's
+wrong two-defaults assertion is preserved before compile; only the ordered
+default is8, the atomic default24 remains unchanged. Same
 four native jobs are verified live at original5B bounds; hardware/Main/daemon
 and measured4.025473M StartCycle issues/s remain unchanged. Native global pauses,
 original60ns clocks/timers, physical66.7MHz SDRAM and full A-F acceptance remain.

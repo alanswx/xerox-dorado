@@ -102,7 +102,7 @@ def parallel_control(body):
     return body
 
 
-def candidate(raw,mutation=None,parallel_root=False,control_settled=False):
+def candidate(raw,mutation=None,parallel_root=False,control_settled=False,settling_waves=8):
     marker='output wire shared_state_mismatch,output wire [93:0] control_flags,output wire [843:0] physical_state\n'
     raw=replace(raw,marker,marker.rstrip()+',\n input wire cp_reset,output wire cp_ready\n')
     call=''' dorado_control_hold_ordered_step control(joint_q,clock_before,clock_after,pins_before[397:0],pins_after[397:0],
@@ -144,6 +144,10 @@ def candidate(raw,mutation=None,parallel_root=False,control_settled=False):
                  '  prefix_q,clock_before,clock_after,root_before,root_after,')
     if parallel_root:body=parallel_control(body)
     raw=raw[:start]+body+raw[end:]+CACHE
+    assert settling_waves in range(1,9)
+    assert raw.count('parameter integer WAVES=8')==1
+    assert 'module dorado_control_hold_atomic_step #(parameter integer WAVES=24)'in raw
+    raw=raw.replace('parameter integer WAVES=8',f'parameter integer WAVES={settling_waves}')
     if control_settled:
         raw=replace(raw,'  !unsettled,cp_prefix_live,cp_ready,', '  !cu,cp_prefix_live,cp_ready,')
     if mutation=='stale-tag':raw=replace(raw,'assign cache_hit=cache_valid && (cache_key==current_key) && (after_cp_saved==after_pins[292:282]);','assign cache_hit=cache_valid;')
@@ -218,11 +222,11 @@ def bench(raw):
     return raw
 
 
-def run(source,out,mutation,parallel_root=False,control_settled=False):
+def run(source,out,mutation,parallel_root=False,control_settled=False,settling_waves=8):
     assert not out.exists()
     parent,g=gate(source,json.loads((source/'run-state.json').read_text())['engine'])
     assert parent['all_hold_clocks']and parent['settling_waves']==8
-    generated=candidate((source/'candidate.sv').read_text(),mutation,parallel_root,control_settled)
+    generated=candidate((source/'candidate.sv').read_text(),mutation,parallel_root,control_settled,settling_waves)
     tb=bench((source/'inputs/tb_r_front_local.sv').read_text())
     out.mkdir(parents=True);paths=[];records=[]
     for row in parent['source_files']:
@@ -242,6 +246,7 @@ def run(source,out,mutation,parallel_root=False,control_settled=False):
     state=dict(status='RUNNING',pid=os.getpid(),started=time.time(),scope=__doc__,engine=engine,mutation=mutation,
         parent=str(source),parent_state_sha256=sha(source/'run-state.json'),source_files=records,actions=[],
         parallel_control_results=parallel_root,control_only_settled_eligibility=control_settled,
+        settling_waves=settling_waves,
         original_reference_and_checks_retained=True,physical_SRAM_banks=4,extra_guest_cycles=0,
         auxiliary_prefix_bits=269,tag_key_bits=567,cached_CP_pin_bits=22,
         native_pause_consumers_qualified=False,native_qualified=False,physical_timing_qualified=False,
@@ -272,4 +277,5 @@ if __name__=='__main__':
     parser.add_argument('--mutation',choices=['stale-tag','bad-prefix','unguarded-write'])
     parser.add_argument('--parallel-root',action='store_true')
     parser.add_argument('--control-settled',action='store_true')
-    args=parser.parse_args();raise SystemExit(run(args.source.resolve(),args.output.resolve(),args.mutation,args.parallel_root,args.control_settled))
+    parser.add_argument('--settling-waves',type=int,choices=range(1,9),default=8)
+    args=parser.parse_args();raise SystemExit(run(args.source.resolve(),args.output.resolve(),args.mutation,args.parallel_root,args.control_settled,args.settling_waves))

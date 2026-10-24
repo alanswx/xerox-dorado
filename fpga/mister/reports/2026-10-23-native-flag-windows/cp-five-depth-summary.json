@@ -1,0 +1,33 @@
+{
+  "status": "PROVED_FIVE_THROUGH_SEVEN_ATOMIC_WAVES",
+  "proofs": [
+    {
+      "directory": "memory-hold-all-5-waves-rtl-v1-20261023",
+      "waves": 5,
+      "state_sha256": "7196b92e78a3e8aeb7afaa8d3fe31835dd932c990f345d869ef8b11df65a2733",
+      "all363_outputs_equivalent": true
+    },
+    {
+      "directory": "memory-hold-all-6-waves-rtl-v1-20261023",
+      "waves": 6,
+      "state_sha256": "7ef2b02697bdbd21ffc5771810cbad60f31b2eefced6c4482c55bc5f43cd257e",
+      "all363_outputs_equivalent": true
+    },
+    {
+      "directory": "memory-hold-all-7-waves-rtl-v1-20261023",
+      "waves": 7,
+      "state_sha256": "bdd865d12c0ff0420d9d00c53c6a8fabaf9e75557df9bbccf2c3cfc430a6040e",
+      "all363_outputs_equivalent": true
+    }
+  ],
+  "reference_waves": 24,
+  "all_binary_state_and_input_bits": 955,
+  "compared_outputs": 363,
+  "unsettled_retained": true,
+  "assumptions_added": false,
+  "four_wave_counterexample_still_rejected": true,
+  "guarded_five_pass_component_qualified": false,
+  "physical_timing_qualified": false,
+  "speedup_qualified": false,
+  "full_goal_active": true
+}

@@ -46,8 +46,12 @@ cache counts are unchanged. Its full15ns fit is TERMINAL and REJECTED at
 Area5623ALMs/6109registers. The guard still feeds CP state[65] and T-path write
 control/Q505; the worst global path is root fixed-point/full-unsettled from
 saved prefix jointQ117. Investigate a proved direct CP projection and the
-minimum exact atomic settling depth. Five/six/seven-wave proofs are running;
-four is already rejected on unsettled. Preserve every result and original
+minimum exact atomic settling depth. Five/six/seven-wave direct proofs now
+ALL PASS955binary state/input bits/all363outputs against24, no assumptions;
+four remains rejected on unsettled. The five-pass guarded component is now
+running both original comparisons and six negative controls (v2 after a
+preserved preparation assertion failure). It is not yet a timing-qualified
+candidate. Preserve every result and original
 CP subevent, then repeat whole comparisons/proofs/timing and qualify actual
 native/global pause binding. Ordinary instructions still require four15ns
 ticks, with no promotion from a component pass or theoretical speed ratio.
