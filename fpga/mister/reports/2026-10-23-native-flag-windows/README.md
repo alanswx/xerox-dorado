@@ -6,6 +6,25 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`baseboard-event-rom-summary.json` retains the first actual isolated
+BaseBoard clock/RIOT integration with the original1725-node6502, ROMs/RAM and
+all five RIOTs. Both full-state RIOT engines pass82,725 host checks/10,588,800
+RAM-byte checks/27,075 events and four corruptions. Real reset clears256bytes
+and MidasSetup returns; normal/paused traces match. Every176,750 cold/steady
+clock interval matches an independent reference. All5178 MCU phase checks are
+settled; the latest unsettled age is14 versus33/34 steady half-period edges.
+The two failed cold-period assumptions and two compiler fixtures are preserved.
+All observation edits reverse byte-for-byte; the static PA7 declaration-scope
+change passes against the unmodified original reference.
+
+Full7316-output BaseBoard15ns budget PASSES all4 corners: setup+0.399/+0.229/
++4.751/+5.029ns, hold+0.338/+0.252/+0.178/+0.130ns, minimum clock pulse-width
+slack+5.919ns.8,667ALMs/13,037regs/11RAM blocks/0DSP. All658 collected members/
+608 compiled hashes verify; all handles exited, zero unconstrained paths,
+unchanged constraints. Native CPU-root/CP and other consumers remain pending;
+no full60ns, Cedar, SDRAM/CDC or hardware-speed qualification. FPGA stays with
+the user, full goal active, FPGA snapshots deferred.
+
 `single-bb-transfer-summary.json` and `single-bb-selection-summary.json`
 retain the selected single-transfer e07/g08 consumer and independent BB/Ether
 endpoints. Full195-bit source equivalence/phase induction and126-bit consumer
@@ -1244,8 +1263,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps71,494 members to8,919 deduplicated compressed blobs;
-lossless readback verifies2,941,784,363 unique raw bytes and107,152,952 compressed
+`manifest.json.gz` now maps79,118 members to9,073 deduplicated compressed blobs;
+lossless readback verifies2,954,494,752 unique raw bytes and108,053,582 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

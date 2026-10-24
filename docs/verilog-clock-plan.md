@@ -14,6 +14,62 @@ Continue build/simulation work; notify them when a reviewed build is ready
 for hardware testing, and wait until they release MiSTer14 before any load,
 reboot or control. Earlier reload authorization is superseded while it is in use.
 
+Isolated BaseBoard event integration QUALIFIED (2026-10-24): the real
+1725-node6502, original EPROMs/RAM and all FIVE RIOTs now run with the qualified
+BB clock cone and explicit pre-edge RIOT captures in an isolated generated
+board. New `dorado_riot_clock_event.sv` uses the original M6532 state/update;
+its synchronous reset occurs only on a real PHI2 event, with no phase-history
+register or extra guest cycle. Both engines pass82,725 host-state checks/
+27,075 events/10,588,800 RAM-byte comparisons, all73 live scalar bits/128 bytes,
+all four timer prescalers/IRQ clears and914 transport-held checks. Four compiled
+corruptions reject in both engines. The Icarus-only array-syntax lowering is
+checked against every original literal; Verilator uses the original vendor
+body. An observation-only PA7 declaration-scope change independently passes
+the SAME full-state matrix against an unchanged original reference.
+
+Original firmware clears zero page with256 stores/256DEX and returns from
+MidasSetup at guest tick176750,2651MC phases,865fetches/289stores. Normal and
+pseudo-random transport-paused runs have IDENTICAL132-line firmware/clock
+traces (firmware-only traces also match across bench revisions). All six clock
+Qs and the crystal match independent absolute50ns deadlines on EVERY176,750
+intervals, including the initial counter0->15 transient. The steady PHI2
+period is66/67 host ticks (1us average); the first power-up observation spans
+129 ticks. Preserve the two V2 failures that incorrectly required every cold
+period to be66/67, and the earlier V1 success without the stronger cold gate.
+No waveform/firmware check was removed to qualify V3/V4.
+
+All5178 non-reset phase boundaries see a fully settled6502. Across5177 measured
+half-periods in this reset/Midas workload, the last unsettled pre-edge check
+is at age14; steady halves have33/34 host edges. This is settling evidence for
+this workload, not arbitrary firmware/input histories or CPU retirement speed.
+
+Complete isolated BaseBoard15ns fit PASSES all4 corners with7316 output bits:
+all64 external inputs/100outputs,1725CPU nodes,six clock Qs and all5x1097RIOT
+state/RAM bits. Setup+0.399/+0.229/+4.751/+5.029ns; hold+0.338/+0.252/+0.178/
++0.130ns; clock pulse-width margins+6.317/+6.311/+5.987/+5.919ns.8,667ALMs/
+13,037regs/11RAM blocks/98,304RAM bits/0DSP. Zero unconstrained paths; no timing
+exceptions/retiming or changed15ns/2ns-I/O shell. Worst slow-40 path is Ether
+phase[2] through event aggregation to RIOT f63 RAM[41][1]. This remaining
+cross-source dependency has positive margin and is not a speed measurement.
+
+All658 raw members/608 compiled input hashes verify, allowing only appended
+Quartus version metadata. Collection SHA
+476cdd45254db33d377d5b8fafbddc0d48ff072871ba00352584780faaff85f1.
+Builder81097/map81098/fitter81400/STA84435/corners84730 all exited. Keep both
+616-member failed compiler collections: V1 used unsupported cross-module
+hierarchical taps; V2 exposed ports but Quartus could not name the procedural
+PA7-history scope. V3 uses explicit wire ports and moves that SAME static
+non-reset history declaration to module scope; all edits reverse byte-for-byte,
+all state/update expressions stay, and the full original-reference RIOT gate
+passes. Receipt `baseboard-event-rom-summary.json` preserves every gate/failure.
+
+This remains an ISOLATED slow-BaseBoard integration: native CPU-root/CP subevents,
+display/Ethernet consumers and native phase/capture integration remain open.
+The existing board CPU-root generator is deliberately untouched in this test;
+no full60ns instruction, Cedar, SDRAM clock/CDC, hardware or new speed pass is
+claimed. No image assembled/deployed and no MiSTer endpoint accessed. All
+clock-component jobs above are terminal. FPGA stays reserved for the user.
+
 Single-transfer consumer QUALIFIED/SELECTED (2026-10-24): canonical
 `dorado_baseboard_clock_step.sv` computes the physical e07/g08 transfer once,
 then selects it at each record. BB/Ether final source levels bypass event
@@ -221,12 +277,14 @@ no138 or unsupported indices. Receipt `native-selector-terminal-summary.json`
 retains full reports/source/readback. Never restart the completed builder or
 reporters. Original ECC loop/pulse and broader capture timing remain open.
 
-Next/TODO: the single-BB-transfer consumer and source now PASS full15ns
-component timing and are selected in canonical RTL. Keep every intermediate
-state/root edge and all2568 outputs in scope as consumers are added. Integrate
-6502/RIOT/CP and other
-board consumers in original event/capture order, with fresh cache-context proof
-for subevents. Existing17.5ns timing passes do not imply60ns nominal instruction
+Next/TODO: source/cone and isolated whole-BaseBoard/6502/RIOT now PASS15ns
+component timing and original reset/Midas firmware. Integrate actual processor/
+control/CP source records and the remaining display/Ethernet consumers. Preserve
+every intermediate state/root edge in original event/capture order and prove
+cache ownership/context again between UNCOMMITTED subevents. The existing
+closed-owner cache proof cannot be reused for that new context. Require exact
+original-firmware CP/CPU/Ready/Hold ordering before a new native fit.
+Existing17.5ns timing passes do not imply60ns nominal instruction
 cadence or new speed. Separate66.7MHz SDRAM/CDC/physical timing and the complete
 A–F/Cedar/Rollback/persistence/three-boot/stress objective remain active. Preserve
 Main SPI ownership/ARM buffered disk/direct-DDR Ethernet/historical daemon scope;

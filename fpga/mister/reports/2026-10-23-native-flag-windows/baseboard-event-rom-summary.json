@@ -1,0 +1,114 @@
+{
+  "status": "REVIEWED_BASEBOARD_EVENT_ROM_AND_FULL_STATE_COMPONENT",
+  "RIOT_host_checks_per_engine": 82725,
+  "RIOT_events_per_engine": 27075,
+  "RIOT_RAM_byte_checks_per_engine": 10588800,
+  "RIOT_scalar_bits": 73,
+  "RIOT_RAM_bytes": 128,
+  "negative_controls_per_engine": 4,
+  "cold_and_steady_clock_intervals_per_boot": 176750,
+  "original_reset_stores": 256,
+  "original_reset_DEX": 256,
+  "MidasSetup_return": true,
+  "transport_paused_firmware_trace_identical": true,
+  "MCU_convergence_checks_per_boot": 5178,
+  "MCU_unsettled_boundaries": 0,
+  "MCU_max_last_unsettled_check_age": 14,
+  "MCU_steady_half_period_host_edges": [
+    33,
+    34
+  ],
+  "MCU_settling_measurement_scope": "Original reset and first MidasSetup return, not arbitrary firmware/peripheral histories",
+  "failed_startup_cadence_assumption_preserved": true,
+  "two_compiler_failures_preserved": true,
+  "observation_edits_inverse_byte_identical": true,
+  "static_PA7_scope_change_full_state_reference_qualified": true,
+  "component_output_bits": 7316,
+  "component_corners": [
+    {
+      "condition": "7_slow_1100mv_100c",
+      "setup": {
+        "slack_ns": 0.399,
+        "source": "BaseBd_m_Rev_m_Am_nominal:bb|dorado_primary_clock_events:event_source|ether_phase[2]",
+        "sink": "BaseBd_m_Rev_m_Am_nominal:bb|cell_MCS6532_event:u_c62|dorado_riot_clock_event:u_event_riot|M6532:u_riot|riot_ram[21][4]",
+        "arrival_ns": 18.376,
+        "required_ns": 18.775,
+        "report_sha256": "325f9d24465847c18a791f4d4fadf4c2b998b4abef0401695b29094566f9b507"
+      },
+      "hold": {
+        "slack_ns": 0.338,
+        "source": "BaseBd_m_Rev_m_Am_nominal:bb|cell_MCS6532_event:u_f63|dorado_riot_clock_event:u_event_riot|M6532:u_riot|riot_ram[36][0]",
+        "sink": "result[2922]~reg0",
+        "arrival_ns": 4.691,
+        "required_ns": 4.353,
+        "report_sha256": "e63f606ee77a39fb352572ab283552c7e59f8e8bc054ab93747b61dac7f8a63c"
+      }
+    },
+    {
+      "condition": "7_slow_1100mv_-40c",
+      "setup": {
+        "slack_ns": 0.229,
+        "source": "BaseBd_m_Rev_m_Am_nominal:bb|dorado_primary_clock_events:event_source|ether_phase[2]",
+        "sink": "BaseBd_m_Rev_m_Am_nominal:bb|cell_MCS6532_event:u_f63|dorado_riot_clock_event:u_event_riot|M6532:u_riot|riot_ram[41][1]",
+        "arrival_ns": 18.644,
+        "required_ns": 18.873,
+        "report_sha256": "a020b3fc765709f2b1d19c8ec03f1554e3f744f0f6d77391588315f1c9e90804"
+      },
+      "hold": {
+        "slack_ns": 0.252,
+        "source": "BaseBd_m_Rev_m_Am_nominal:bb|cell_MCS6532_event:u_f63|dorado_riot_clock_event:u_event_riot|M6532:u_riot|riot_ram[36][0]",
+        "sink": "result[2922]~reg0",
+        "arrival_ns": 4.779,
+        "required_ns": 4.527,
+        "report_sha256": "205d130da9789d65fedd9cf434f335570ca1d2f134392369a71dbe97bc8b8f2b"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_100c",
+      "setup": {
+        "slack_ns": 4.751,
+        "source": "input_stage[39]",
+        "sink": "launch[39]",
+        "arrival_ns": 11.863,
+        "required_ns": 16.614,
+        "report_sha256": "6262532c6ba33f41012f327392b74202eb1bb9624747e5258976686740d7a6ae"
+      },
+      "hold": {
+        "slack_ns": 0.178,
+        "source": "BaseBd_m_Rev_m_Am_nominal:bb|cell_MCS6532_event:u_f63|dorado_riot_clock_event:u_event_riot|M6532:u_riot|interrupt[6]",
+        "sink": "BaseBd_m_Rev_m_Am_nominal:bb|cell_MCS6532_event:u_f63|dorado_riot_clock_event:u_event_riot|M6532:u_riot|interrupt[6]",
+        "arrival_ns": 1.969,
+        "required_ns": 1.791,
+        "report_sha256": "1485ed9036a945af11ee16c33d4206700c6f24234251342a0c096ff337e47e91"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_-40c",
+      "setup": {
+        "slack_ns": 5.029,
+        "source": "input_stage[39]",
+        "sink": "launch[39]",
+        "arrival_ns": 11.466,
+        "required_ns": 16.495,
+        "report_sha256": "1b64ec2091f8c3f66ade81f16d50a4a1da190d6b5f60d70983c86ad9b567491b"
+      },
+      "hold": {
+        "slack_ns": 0.13,
+        "source": "BaseBd_m_Rev_m_Am_nominal:bb|cell_MCS6532_event:u_f63|dorado_riot_clock_event:u_event_riot|M6532:u_riot|riot_ram[118][7]",
+        "sink": "result[2273]~reg0",
+        "arrival_ns": 2.007,
+        "required_ns": 1.877,
+        "report_sha256": "9c1940a6c7c030c73bd7f7e1fd0426c5bed51bf5f88b3211efe6f8310d649da7"
+      }
+    }
+  ],
+  "component_15ns_setup_hold_pass": true,
+  "native_CPU_root_CP_subevents_integrated": false,
+  "native_timing_qualified": false,
+  "Cedar_qualified": false,
+  "original_60ns_qualified": false,
+  "hardware_changed": false,
+  "speedup_qualified": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}
