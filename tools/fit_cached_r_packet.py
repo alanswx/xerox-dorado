@@ -19,10 +19,22 @@ from test_r_front_forward_view import sha
 ROOT=Path(__file__).resolve().parents[1]
 
 
-def prepare(tests,out):
+def prepare(tests,out,equivalence=None):
     assert not out.exists();s=json.loads((tests/'run-state.json').read_text())
     assert s['status']=='PASS_ENTRY_CACHED_FULL_PROCESSOR_PACKETS' and s['mutation'] is None
     assert s['all100_clock_counts_match'] and 'resets=1' in s['cache_coverage']
+    equivalence_hash=None
+    if s.get('pair_direct',False):
+        assert equivalence is not None
+        e=json.loads((equivalence/'run-state.json').read_text())
+        assert e['status']=='PASS_PAIR_DIRECT_CACHE_READY_AND_PERMISSION_INDUCTION'
+        for n,h in e['files'].items():assert sha(equivalence/n)==h
+        for row in e['cases']:
+            d=equivalence/row['mode'];assert row['passed'] and row['returncode']==0
+            for n,h in row['files'].items():assert sha(d/n)==h
+            assert sha(d/'proof.log')==row['log_sha256']
+        assert (tests/'packet.sv').read_text().startswith((equivalence/'new-packet.sv').read_text()+'\n')
+        equivalence_hash=sha(equivalence/'run-state.json')
     out.mkdir(parents=True);paths=[]
     for row in s['source_files']:
         p=tests/row['path'];assert sha(p)==row['output_sha256'];paths.append(row['path'])
@@ -42,7 +54,8 @@ def prepare(tests,out):
     for n,v in {'top.sv':top,'clock_fit.qsf':qsf,'clock.sdc':fixture.SDC,'clock_fit.qpf':'PROJECT_REVISION = "clock_fit"\n','audit.tcl':report}.items():(out/n).write_text(v)
     for n in ['fit_control_clock.py',Path(__file__).name]:shutil.copy2(ROOT/'tools'/n,out/n)
     r=dict(scope=__doc__,clock_period_ns=15,input_bits=1652,result_bits=4943,subevent_result_bits=2470,
-        tests=str(tests),tests_state_sha256=sha(tests/'run-state.json'),actual_entry_cache_and_auxiliary_state_retained=True,
+        tests=str(tests),tests_state_sha256=sha(tests/'run-state.json'),pair_direct=s.get('pair_direct',False),
+        equivalence_state_sha256=equivalence_hash,actual_entry_cache_and_auxiliary_state_retained=True,
         single_physical_RAM_owner_bits=9216,native_canonical_match_specialization_used=False,
         assembly_permitted=False,native_qualified=False,hardware_changed=False,hardware_requires_user_release=True,
         files={str(p.relative_to(out)):sha(p) for p in out.rglob('*') if p.is_file()})
@@ -51,4 +64,5 @@ def prepare(tests,out):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--tests',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
-    a=p.parse_args();prepare(a.tests.resolve(),a.output.resolve())
+    p.add_argument('--equivalence',type=Path)
+    a=p.parse_args();prepare(a.tests.resolve(),a.output.resolve(),a.equivalence.resolve() if a.equivalence else None)

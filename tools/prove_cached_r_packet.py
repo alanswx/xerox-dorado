@@ -99,7 +99,7 @@ def observed_cache(raw,stale):
     return text.replace('\nendmodule',invariants+'\nendmodule',1)
 
 
-def run(source,out,yosys):
+def run(source,out,yosys,pair_direct=False):
     assert not out.exists();s=json.loads((source/'run-state.json').read_text());assert s['status']=='PASS_FULL_PROCESSOR_STATELESS_EVALUATOR'
     for row in s['source_files']:assert sha(source/row['path'])==row['output_sha256']
     raw=(source/'candidate.sv').read_text()
@@ -110,7 +110,7 @@ def run(source,out,yosys):
     shutil.copy2(Path(__file__).with_name('generate_cached_r_packet.py'),out/'generate_cached_r_packet.py')
     state=dict(status='RUNNING',driver_pid=os.getpid(),started=time.time(),scope=__doc__,source=str(source),source_state_sha256=sha(source/'run-state.json'),
         compared_control_bits_per_subevent=475,physical_projection_bits=156,processor_owner_bits=844,
-        input_histories_unconstrained=True,committed_root_history_checked=True,initial_state='explicit auxiliary initializers; no architectural state assumed',
+        input_histories_unconstrained=True,committed_root_history_checked=True,pair_direct=pair_direct,initial_state='explicit auxiliary initializers; no architectural state assumed',
         native_canonical_match_specialization_used=False,files={p.name:sha(p) for p in out.iterdir() if p.is_file()},cases=[],hardware_changed=False)
 
     def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
@@ -124,6 +124,9 @@ def run(source,out,yosys):
             files={'top.sv':top};entity='projection_equivalence';signal='equal';strategy=''
         else:
             top=CONTROL.replace('SECOND_Q','q' if mode=='stale-second' else 'first[474:319]')
+            if pair_direct:
+                assert top.count('  fast,saved,saved_cp,saved_after,live);')==1
+                top=top.replace('  fast,saved,saved_cp,saved_after,live);','  (use_pair || fast),saved,saved_cp,saved_after,live);',1)
             files={'control.sv':atoms,'cache.sv':observed_cache(raw,mode=='stale-root'),'top.sv':top}
             entity='packet_control_equivalence';signal='equivalent'
             strategy='-seq 2 -tempinduct -maxsteps 4 -set-init-zero' if mode=='induction' else '-seq 5 -set-init-zero'
@@ -154,4 +157,5 @@ sat {strategy} -timeout 120 -prove {signal} 1 -{flag} -show-ports -dump_json /wo
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['source','output','yosys']:p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.output.resolve(),a.yosys.resolve()))
+    p.add_argument('--pair-direct',action='store_true')
+    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.output.resolve(),a.yosys.resolve(),a.pair_direct))

@@ -14,6 +14,40 @@ Continue build/simulation work; notify them when a reviewed build is ready
 for hardware testing, and wait until they release MiSTer14 before any load,
 reboot or control. Earlier reload authorization is superseded while it is in use.
 
+Pair-direct experiment completed; correct but NOT selected (2026-10-24).
+`pair-direct-packet-summary.json` preserves the single changed first-entry
+expression, `(use_pair || entry_fast)`. Unbounded induction proves both full
+475-bit control results plus all 1,416 cache bits, ready and SRAM permissions.
+Unready pair results may differ; the actual prefix capture stays identical.
+The dropped-entry-guard and prefix-taint controls produce counterexamples.
+Both simulators pass all 14,884 original transactions, 10,423 commits/4,461
+pairs, both 2,470-bit results, all 844 Qs/9,216 SRAM bits/100 clocks, unchanged
+cache coverage and all 403 geometry rejections. All four compiled corruptions
+reject at the original assertions.
+
+The complete 4,943-output fit is terminal, with all 86 members/input hashes/
+exited handles checked. Archive SHA
+ a7957016a4d6702f43d4423017a221f494efe41314b7d46630e6fcdcf6962ecc.
+Four-corner setup -9.747/-9.315/+1.403/+3.470ns; hold minima +0.161ns,
+pulse-width minimum +6.115ns, zero UCPs, no recovery/removal endpoints.
+8,675 ALMs/8,434 registers/9,216 MLAB bits include fixture resources.
+This does NOT demonstrate a timing improvement over the previous -9.270ns
+minimum. Keep pair_direct=False as the default. No native selection, image,
+hardware access or new speed measurement.
+
+NEXT: integrate an opt-in sparse FIRST control fall into the full processor
+packet, using the already-proved HIGH identity/stable-pin geometry and Q30-only
+fall theorem. The actual general first-control transfer and selector predicate
+still feed the second task/priority and cache-enable paths (worst data 24.060ns).
+Keep the raw original CP-prefix producer independent of the specialized route,
+including when a pair is unready. Prove the complete accepted results AND cache/
+ready/permission histories; retain all original guards, fallback, full replay
+and corruption controls before another complete fit. Then qualify common
+closed-owner/root/before-pins publication and entry-only owned-context pruning.
+Actual source/CP/device interior timestamps, all rotations/debug fallbacks and
+peripheral consumers remain required before native60ns qualification. The full
+goal remains active. The FPGA remains reserved for the user.
+
 Entry-cached complete packets QUALIFIED digitally; full15ns timing improved,
 still REJECTED (2026-10-24). `cached-processor-packet-summary.json` records the
 entry-only generic cache and a separately derived direct second root. The first
@@ -60,17 +94,8 @@ processor task/priority cone on the path. Actual evaluator results ALSO miss
 by7.702/7.693ns at the slow corners; deleting only the duplicate tag registers
 will not close this design.
 
-NEXT: separate the pair's direct-first data path from the single-event staged
-fallback. Pair ready ALREADY requires entry_fast, so prove the source-bound
-`ready && use_pair -> entry_fast` substitution, including identical cache state
-updates/prefix capture, before forcing the direct first path in pair mode.
-Retain all error/geometry/memory guards, results and negative controls. Then
-qualify the real common publication of owner/root/before-pins at packet close,
-re-prove entry-only owned-context specialization, and remove only the redundant
-wide entry comparison/tag copies that that proof permits. Never apply that
-specialization to the second uncommitted event. Refit all consumer paths, then
-bind actual source/CP/device timestamps (including interior pin events), all
-rotations/debug fallback and remaining consumers before full native60ns tests.
+The direct-first experiment described above now supersedes that proposed
+next step. The entry-cached configuration remains the best full component fit.
 
 The ORIGINAL 5c65 baseline also reached its unchanged5B-host bound and exited0,
 HOST_LIMIT. Driver57967/test58600 are absent; all535 frozen inputs and the
@@ -543,13 +568,14 @@ no138 or unsupported indices. Receipt `native-selector-terminal-summary.json`
 retains full reports/source/readback. Never restart the completed builder or
 reporters. Original ECC loop/pulse and broader capture timing remain open.
 
-Next/TODO: entry-cached complete844-Q fall/rise replay and950-bit control
-induction now PASS, but full15ns still misses setup by9.270ns. Separate pair-
-direct first evaluation from the staged single-event path using the existing
-ready/entry_fast implication. Then prove common closed-owner publication and
-entry-only owned-context specialization before pruning duplicate tag/equality
-logic. Preserve every error/ownership guard, refit all result/commit paths, then
-bind actual source/CP/device timestamps and the complete native cadence. Do not apply the Q30-only
+Next/TODO: entry-cached complete844-Q replay/control induction passes, but
+full15ns still misses setup by9.270ns. The pair-direct substitution is now
+proved/replayed and its -9.747ns fit demonstrates no improvement; keep it opt-in.
+Next qualify the sparse FIRST control fall within the complete processor,
+keeping the original raw prefix capture for every unready history. Then prove
+common closed-owner publication and entry-only owned-context specialization
+before pruning tags/equality logic. Refit all result/commit paths, then bind
+actual source/CP/device timestamps and complete native cadence. Do not apply the Q30-only
 control mask to other boards without proof. Bind actual CP producer/input epochs and
 processor source records; keep default rotation0 and ALL other rotations/debug
 fallbacks qualified. Then integrate display/Ethernet consumers. Preserve every

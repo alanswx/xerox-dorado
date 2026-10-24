@@ -60,7 +60,7 @@ def cache(raw,stale_root=False):
     return actual
 
 
-def packet(raw,mutation=None):
+def packet(raw,mutation=None,pair_direct=False):
     ports,bits=layout(raw);decl='\n'.join(f' wire {w} {prefix}_{n};' for prefix in ['first','second'] for n,w in ports)
     calls=[]
     for prefix in ['first','second']:
@@ -69,7 +69,7 @@ def packet(raw,mutation=None):
             clock_before=('clock_before' if first else "1'b0"),clock_after=('first_after' if first else "1'b1"),
             pins_before=('pins_before' if first else 'pins_after'),pins_after='pins_after',refresh_before_run_capture='refresh',cp_reset="1'b0",
             external_file_read=('original_read' if first or mutation=='drop-forward' else 'later_read'),cp_ready='',
-            entry_fast=('entry_fast' if first else "1'b1"),entry_prefix=('entry_prefix' if first else "{second_owner,113'b0}"),
+            entry_fast=(('(use_pair || entry_fast)' if pair_direct else 'entry_fast') if first else "1'b1"),entry_prefix=('entry_prefix' if first else "{second_owner,113'b0}"),
             entry_prefix_cp=('entry_prefix_cp' if first else 'pins_after[292:282]'),entry_after_cp=('entry_after_cp' if first else 'pins_after[292:282]'),
             control_owner=prefix+'_owner',live_prefix=('first_live_prefix' if first else ''))
         bindings.update({n:prefix+'_'+n for n,w in ports})

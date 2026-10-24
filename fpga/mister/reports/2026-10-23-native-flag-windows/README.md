@@ -6,6 +6,17 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`pair-direct-packet-summary.json` retains the completed direct-first experiment:
+950-bit control and 1,416-bit cache/ready/permission induction pass; both full
+simulators pass the same 14,884 original transactions and all memory/geometry/
+reset/clock checks. All four corruptions reject. Full4943-output15ns setup
+-9.747/-9.315/+1.403/+3.470ns is REJECTED and demonstrates no gain over -9.270ns.
+Hold/pulse minima +0.161/+6.115ns, zero UCPs, 8675ALMs/8434regs/9216MLAB bits.
+All86 collected members/input hashes/exited handles verify. Keep pair_direct
+False by default; next qualify the sparse first-control fall in the complete
+processor while preserving raw prefix capture on every unready history. No
+image, hardware access or speed change; the user keeps the FPGA.
+
 `cached-processor-packet-summary.json` retains the entry-cached full packet,
 real 156-owner projection and unbounded950-bit control/committed-context proof.
 Both simulators pass all14,884 transactions/full2470-bit subevents/844Qs/9216RAM/
@@ -20,8 +31,9 @@ The COMPLETE4943-output15ns fit improves setup to
 -9.270/-9.136/+1.037/+3.530ns, but remains REJECTED. Hold/pulse minima
 +0.134/+6.114ns, zeroUCPs,8856ALMs/8416regs/9216MLAB bits,86 exact members.
 Evaluator results still miss by7.702ns: pruning only canonical tag registers
-cannot close the circuit. Next qualify a pair-direct first route, then actual
-closed-owner publication/entry-only context pruning; preserve every guard.
+cannot close the circuit. The pair-direct trial above did not improve it.
+Next qualify the sparse first fall, then actual closed-owner publication/entry-
+only context pruning; preserve every guard.
 
 The original baseline is now terminal at its unchanged5B bound,535 verified
 inputs and unchanged medium:283,270,639 StartCycle ISSUES,388,029,729 raw requests/
@@ -1350,8 +1362,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps83,070 members to9,506 deduplicated compressed blobs;
-lossless readback verifies3,096,465,202 unique raw bytes and114,129,038 compressed
+`manifest.json.gz` now maps83,490 members to9,586 deduplicated compressed blobs;
+lossless readback verifies3,113,478,696 unique raw bytes and114,880,863 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

@@ -1,0 +1,144 @@
+{
+  "status": "REVIEWED_PAIR_DIRECT_SAFE_BUT_TIMING_NOT_IMPROVED",
+  "single_input_expression_change": true,
+  "ready_permission_and1416_cache_bits_inductively_equal": true,
+  "all950_control_bits_and156_owner_projection_proven": true,
+  "unready_pair_values_may_differ": true,
+  "prefix_capture_unchanged": true,
+  "original_replay_transactions": 14884,
+  "commits": 10423,
+  "pairs": 4461,
+  "all2470_subevent_bits_844_Qs_9216_RAM_100clocks_retained": true,
+  "invalid_geometries": 403,
+  "reset_checks_retained": true,
+  "all_four_processor_corruptions_rejected": true,
+  "component_corners": [
+    {
+      "corner": "7_slow_1100mv_100c",
+      "setup": {
+        "slack_ns": -9.747,
+        "source": "launch[347]~DUPLICATE",
+        "sink": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|prefix_saved[65]",
+        "arrival_ns": 28.396,
+        "required_ns": 18.649,
+        "report_sha256": "b6983579a882f3a5226d4a9aedbcd72246da289030f4dabd0c1d1c6cca2d9211"
+      },
+      "hold": {
+        "slack_ns": 0.354,
+        "source": "launch[1382]",
+        "sink": "result[3066]~reg0",
+        "arrival_ns": 4.224,
+        "required_ns": 3.87,
+        "report_sha256": "d50587c976107edc758e4c397ec62ee7a0fc64f996d50c67574bd03c02630a02"
+      },
+      "evaluator": {
+        "slack_ns": -8.552,
+        "source": "launch[4]~DUPLICATE",
+        "sink": "result[1415]~reg0",
+        "arrival_ns": 27.225,
+        "required_ns": 18.673,
+        "report_sha256": "38117e4d72f17a1777894b6c26720f5b957335e680530aa0796345b967ef5e76"
+      },
+      "pulse_width_ns": 6.462
+    },
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "setup": {
+        "slack_ns": -9.315,
+        "source": "launch[804]",
+        "sink": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|prefix_saved[181]",
+        "arrival_ns": 28.117,
+        "required_ns": 18.802,
+        "report_sha256": "2ae17b5916481e47421808eb5540f2f4331b5456daa40e533d6526e75034369c"
+      },
+      "hold": {
+        "slack_ns": 0.33,
+        "source": "launch[1382]",
+        "sink": "result[3066]~reg0",
+        "arrival_ns": 4.369,
+        "required_ns": 4.039,
+        "report_sha256": "ba6133f22cf71cebc8f53fe3d7977c7d717942ab108184d76c4729b2bb6f4f16"
+      },
+      "evaluator": {
+        "slack_ns": -8.323,
+        "source": "launch[736]",
+        "sink": "result[1413]~reg0",
+        "arrival_ns": 27.137,
+        "required_ns": 18.814,
+        "report_sha256": "0546d6c8edc33d620766543faf8f0ff817b9eda6003b8cd0d3c4ba0aae9880b7"
+      },
+      "pulse_width_ns": 6.488
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "setup": {
+        "slack_ns": 1.403,
+        "source": "launch[347]~DUPLICATE",
+        "sink": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|prefix_saved[178]",
+        "arrival_ns": 15.222,
+        "required_ns": 16.625,
+        "report_sha256": "8f33e0dc4d9d4e7bece105fa056acac15723c92faec9b85b2314bbdec0b586ac"
+      },
+      "hold": {
+        "slack_ns": 0.182,
+        "source": "launch[1071]~DUPLICATE",
+        "sink": "result[2755]~reg0",
+        "arrival_ns": 1.959,
+        "required_ns": 1.777,
+        "report_sha256": "53ab98eebef03bcef9b793f52ee18b15c7df853f526cee5b3a28d0d29b0fcb44"
+      },
+      "evaluator": {
+        "slack_ns": 1.811,
+        "source": "launch[1592]~DUPLICATE",
+        "sink": "result[1417]~reg0",
+        "arrival_ns": 14.801,
+        "required_ns": 16.612,
+        "report_sha256": "8a872b72ec8f4bb6a7686d7693c8b3365cc0e28b4b116a8963db35da2ecc4535"
+      },
+      "pulse_width_ns": 6.177
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "setup": {
+        "slack_ns": 3.47,
+        "source": "input_stage[836]",
+        "sink": "launch[836]",
+        "arrival_ns": 13.034,
+        "required_ns": 16.504,
+        "report_sha256": "b7bbc1e261181a8a3bbeea5998bf7ee7dfe43072c29778e108f04f3aebd28e7b"
+      },
+      "hold": {
+        "slack_ns": 0.161,
+        "source": "launch[1071]~DUPLICATE",
+        "sink": "result[2755]~reg0",
+        "arrival_ns": 1.814,
+        "required_ns": 1.653,
+        "report_sha256": "24fad775dc484e5980e31c01033f6ddf586f6e06802dc9a909ca1f4e11f026de"
+      },
+      "evaluator": {
+        "slack_ns": 3.958,
+        "source": "launch[748]",
+        "sink": "result[1417]~reg0",
+        "arrival_ns": 12.538,
+        "required_ns": 16.496,
+        "report_sha256": "3e87f3a14b0ad5ecc8a28e8f501e67d0dd0ffc363faaee1f587ecc642088c20c"
+      },
+      "pulse_width_ns": 6.115
+    }
+  ],
+  "component_area": {
+    "ALMs": 8675,
+    "registers": 8434,
+    "MLAB_bits": 9216
+  },
+  "component_15ns_pass": false,
+  "timing_gain_demonstrated": false,
+  "best_previous_setup_min_ns": -9.27,
+  "this_setup_min_ns": -9.747,
+  "variant_selected": false,
+  "source_and_device_timestamps_qualified": false,
+  "native60ns_or_hardware_speed_qualified": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}
