@@ -27,29 +27,32 @@ def read(path):
     return json.loads(path.read_text())
 
 
-def review(out, fit):
+def review(out, fit, parallel=False):
     assert not out.exists()
     out.mkdir(parents=True)
     positive, negative, proofs = [], [], []
+    family = 'cp-prefix-parallel' if parallel else 'cp-prefix-cache'
+    version = 1 if parallel else 2
     for engine in ['icarus', 'verilator']:
-        source = BUILD / f'cp-prefix-cache-{engine}-v2-20261023'
+        source = BUILD / f'{family}-{engine}-v{version}-20261023'
         state, checked = gate(source, engine)
         assert checked['coverage'] == dict(fast=13347, staged=1537, wait_edges=1553, retries=7, resets=1)
         positive.append(checked)
         retain(source, out / source.name)
         # First passing prototype lacked the explicit downstream write-enable
         # assertion; retain it as history, not the final protocol evidence.
-        source = BUILD / f'cp-prefix-cache-{engine}-v1-20261023'
-        state = read(source / 'run-state.json')
-        assert state['status'] == 'PASS_CP_PREFIX_CACHE_ORIGINAL_COMPARISON'
-        for row in state['source_files']:
-            assert sha(source / row['path']) == row['output_sha256']
-        retain(source, out / source.name)
+        if not parallel:
+            source = BUILD / f'cp-prefix-cache-{engine}-v1-20261023'
+            state = read(source / 'run-state.json')
+            assert state['status'] == 'PASS_CP_PREFIX_CACHE_ORIGINAL_COMPARISON'
+            for row in state['source_files']:
+                assert sha(source / row['path']) == row['output_sha256']
+            retain(source, out / source.name)
         for mutation, fatal in [
                 ('stale-tag', 'CP stale tag accepted changed CP data check=0'),
                 ('bad-prefix', 'R front resolved source mismatch check=0'),
                 ('unguarded-write', 'CP unready request reached the original SRAM owner check=0')]:
-            source = BUILD / f'cp-prefix-cache-{mutation}-{engine}-v2-20261023'
+            source = BUILD / f'{family}-{mutation}-{engine}-v{version}-20261023'
             state = read(source / 'run-state.json')
             assert state['status'] == 'CP_PREFIX_CACHE_FAILED' and state['mutation'] == mutation
             assert state['actions'][0]['returncode'] == 0 and state['actions'][-1]['returncode'] != 0
@@ -62,12 +65,17 @@ def review(out, fit):
     assert positive[0]['candidate_sha256'] == positive[1]['candidate_sha256']
     assert positive[0]['clocks'] == positive[1]['clocks']
 
-    for name, expected in [
+    cases = [
             ('cp-prefix-cache-ready-proof-v1-20261023', 'TERMINAL_CP_CACHE_PROOF_NOT_ESTABLISHED'),
             ('cp-prefix-cache-ready-proof-v2-20261023', 'PASS_BOUNDED_CP_CACHE_READY_EQUIVALENCE'),
             *[(f'cp-prefix-cache-{m}-proof-v1-20261023', 'PASS_BOUNDED_CP_CACHE_COUNTEREXAMPLE')
               for m in ['stale-tag', 'bad-prefix', 'unguarded-write']],
-            ('cp-prefix-cache-induction-v1-20261023', None)]:
+            ('cp-prefix-cache-induction-v1-20261023', None)]
+    if parallel:
+        cases = [(f'{family}-induction-v1-20261023', 'PASS_CP_CACHE_INDUCTIVE_READY_EQUIVALENCE'),
+                 *[(f'{family}-{m}-proof-v1-20261023', 'PASS_BOUNDED_CP_CACHE_COUNTEREXAMPLE')
+                   for m in ['stale-tag', 'bad-prefix', 'unguarded-write']]]
+    for name, expected in cases:
         source = BUILD / name
         state = read(source / 'run-state.json')
         assert state['status'] != 'RUNNING', name
@@ -93,6 +101,9 @@ def review(out, fit):
     assert provenance['result_bits'] == 1401 and provenance['launch_bits'] == 1651
     assert provenance['original_shell_inverse_byte_identical']
     assert provenance['physical_SRAM_banks'] == 4 and not provenance['assembly_permitted']
+    if parallel:
+        assert provenance['parallel_control_results'] and provenance['control_only_settled_eligibility']
+        assert provenance['unbounded_induction_proven']
     for name, h in provenance['files'].items():
         raw = (fit / name).read_bytes()
         if name == 'clock_fit.qsf':
@@ -108,8 +119,16 @@ def review(out, fit):
         counts = re.findall(r'; Unconstrained (?:Clocks|Input Ports|Input Port Paths|Output Ports|Output Port Paths)\s*; (\d+)\s*; (\d+)',
                             (reports / ('clock-ucp-' + condition + '.rpt')).read_text())
         assert len(counts) == 5 and all(v == ('0', '0') for v in counts)
+        pulse = reports / ('clock-mpw-' + condition + '.rpt')
+        row['minimum_pulse_width_slack_ns'] = float(re.search(r'Worst case slack is ([+-]?[\d.]+)', pulse.read_text())[1])
+        for mode in ['recovery', 'removal']:
+            report = reports / ('clock-' + mode + '-' + condition + '.rpt')
+            row[mode] = None if 'Nothing to report.' in report.read_text() else first_path(report)
         corners.append(row)
-    fit_passed = all(row['global']['slack_ns'] >= 0 and row['hold']['slack_ns'] >= 0 for row in corners)
+    fit_passed = all(row['global']['slack_ns'] >= 0 and row['hold']['slack_ns'] >= 0 and
+                     row['minimum_pulse_width_slack_ns'] >= 0 and
+                     all(row[mode] is None or row[mode]['slack_ns'] >= 0 for mode in ['recovery', 'removal'])
+                     for row in corners)
     fit_summary = (fit / 'clock_fit.fit.summary').read_text()
     area = dict(ALMs=int(re.search(r'Logic utilization \(in ALMs\) : ([\d,]+)', fit_summary)[1].replace(',', '')),
                 registers=int(re.search(r'Total registers : (\d+)', fit_summary)[1]))
@@ -124,7 +143,8 @@ def review(out, fit):
             for name in ['provenance.json.gz', 'host-cycle-limit.txt', 'window-control.txt']:
                 shutil.copy2(source / name, dest / name)
             native.append(row)
-    result = dict(status='REVIEWED_GUARDED_CP_PREFIX_COMPONENT', scope=__doc__,
+    result = dict(status='REVIEWED_PARALLEL_GUARDED_CP_PREFIX_COMPONENT' if parallel else 'REVIEWED_GUARDED_CP_PREFIX_COMPONENT', scope=__doc__,
+                  parallel_control_results=parallel,
                   functional_gates=positive, negative_controls=negative, formal_proofs=proofs,
                   component_fit_passed=fit_passed, fit_corners=corners, component_area=area,
                   original_results_preserved=True, timing_exceptions_added=False, physical_SRAM_banks=4,
@@ -141,8 +161,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ['output', 'fit', 'archive']:
         parser.add_argument('--' + name, type=Path, required=True)
+    parser.add_argument('--parallel', action='store_true')
     a = parser.parse_args()
-    result = review(a.output.resolve(), a.fit.resolve())
-    append_archive(a.archive.resolve(), a.output.resolve(), [], label='cp-prefix-cache', extra_tools=[
+    result = review(a.output.resolve(), a.fit.resolve(), a.parallel)
+    append_archive(a.archive.resolve(), a.output.resolve(), [], label='cp-prefix-parallel' if a.parallel else 'cp-prefix-cache', extra_tools=[
         'probe_cp_prefix_cache.py', 'prove_cp_prefix_cache.py', 'fit_cp_prefix_cache.py', Path(__file__).name])
     print(result['status'], flush=True)

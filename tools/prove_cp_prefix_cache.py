@@ -79,7 +79,7 @@ def run(experiment,yosys,out,depth,induction=False):
     assert not out.exists()
     r=json.loads((experiment/'run-state.json').read_text());parent=Path(r['parent'])
     raw=(experiment/'candidate.sv').read_text();old=(parent/'candidate.sv').read_text()
-    assert raw==candidate(old,r['mutation'])
+    assert raw==candidate(old,r['mutation'],r.get('parallel_control_results',False),r.get('control_only_settled_eligibility',False))
     assert ',host_clk,cp_commit,state_q[751:0],clock_before,clock_after,before_child,after_child,'in raw
     permission=re.findall(r'wire cp_commit=([^;]+);',raw);assert len(permission)==1
     permission=re.sub(r'\badvance\b','request',permission[0]);permission=re.sub(r'\bcp_ready\b','ready',permission)
@@ -97,6 +97,10 @@ def run(experiment,yosys,out,depth,induction=False):
     lowered=cache.replace(port_init,body_init,1)
     assert lowered.replace(body_init,port_init,1)==cache
     top=TOP.replace('RAM_PERMISSION',permission)
+    if r.get('control_only_settled_eligibility',False):
+        assert '  !cu,cp_prefix_live,cp_ready,'in raw
+        top=top.replace('refresh,other_settled && !new_unsettled,prefix_live,',
+                        'refresh,!new_unsettled,prefix_live,',1)
     if induction:
         # Expose a pure observation of existing private auxiliary state. The
         # inverse must reproduce the syntax-lowered actual module exactly.
@@ -139,6 +143,8 @@ sat STRATEGY -timeout 120 -prove equivalent 1 -FLAG -show-ports -dump_json /work
         initial_auxiliary_state='zero, matching explicit RTL power-up values',
         output_initializer_syntax_lowering=dict(constant_zero_outputs=3,inverse_byte_identical=True),
         source_bound_SRAM_permission=permission,source_files={p.name:sha(p)for p in out.iterdir()if p.is_file()},
+        parallel_control_results=r.get('parallel_control_results',False),
+        control_only_settled_eligibility=r.get('control_only_settled_eligibility',False),
         unbounded_induction_proven=False,native_qualified=False,physical_timing_qualified=False,speedup_qualified=False)
     def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
     save()

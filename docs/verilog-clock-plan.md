@@ -34,6 +34,24 @@ proofs/timing before native integration. All-board/backend pause semantics, actu
 frequency/arrivals, original60ns phases/timers, physical66.7MHz SDRAM and full
 A-F acceptance remain. No image/hardware/speed change is claimed.
 
+The parallel-control follow-up is now implemented and passes BOTH original
+14,884-event comparisons, all six simulator negative controls, direct-RTL
+temporal induction and three bounded formal counterexamples. The raw prefix
+producer and original SRAM owner remain single; pure direct/staged roots run
+in parallel and select the complete475-bit control result afterward. Eligibility
+uses control `!cu`; the full operand diagnostic remains visible. Exact fixture
+cache counts are unchanged. Its full15ns fit is TERMINAL and REJECTED at
+`/home/alans/mister/cp-prefix-parallel-fit-v1-20261023`: -1.953ns global /
+-1.115ns owner setup, positive hold/late-Hold/pulse margins and zero UCPs.
+Area5623ALMs/6109registers. The guard still feeds CP state[65] and T-path write
+control/Q505; the worst global path is root fixed-point/full-unsettled from
+saved prefix jointQ117. Investigate a proved direct CP projection and the
+minimum exact atomic settling depth. Five/six/seven-wave proofs are running;
+four is already rejected on unsettled. Preserve every result and original
+CP subevent, then repeat whole comparisons/proofs/timing and qualify actual
+native/global pause binding. Ordinary instructions still require four15ns
+ticks, with no promotion from a component pass or theoretical speed ratio.
+
 Latest structural result (2026-10-23): the phase-preserving Hold CLOCK rewrite
 and24->8 combinational settling fold pass direct Verilog-derived equivalence
 for955 arbitrary binary state/input bits and all363 atomic outputs. Both full

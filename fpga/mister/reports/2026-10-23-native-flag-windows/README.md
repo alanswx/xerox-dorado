@@ -4,6 +4,51 @@ This receipt preserves the complete v5 native failure and the corrected
 component implementation of the original l06/l07 flag latches. No image was
 assembled or loaded; the qualified hardware core and measured speed are unchanged.
 
+## Parallel control result selection
+
+`cp-prefix-parallel-summary.json` records the follow-up to the rejected
+guard-before-root cache. Pure direct/staged roots compute in parallel; only
+the full475-bit control result is selected by fast_path. Neither root consumes
+the guard. Eligibility uses control `!cu`, retaining the full operand diagnostic.
+The raw prefix producer and sole four-bank SRAM owner/ready-gated commit remain.
+
+BOTH complete original comparisons pass14,884checks/238writes/6,928reads/
+392epochs, all844Q/9216RAM and100original clock counts. All original fatal
+checks remain. Exact cache/reset/retry counts match the preceding implementation.
+Both engines reject all three broken variants at check0; all three have direct
+RTL bounded counterexamples. The actual new scheduler/control source passes
+temporal induction of cached-payload/canonical-identity invariants together with
+all475 ready-result bits and unready write exclusion. This proves unbounded
+binary component safety, with arbitrary inputs/reset history and exact power-up
+values; it does not establish native timing, pauses or CP arrival apertures.
+
+Map/fit/STA/four-corner reports all finish, but the full15ns fit is **REJECTED**:
+
+| Condition | Global setup | Owner setup | Late Hold -> owners | Hold |
+|---|---:|---:|---:|---:|
+| Slow100C | -1.681ns | -1.115ns | +1.246ns | +0.358ns |
+| Slow-40C | -1.953ns | -0.825ns | +1.690ns | +0.317ns |
+| Fast100C | +3.958ns | +5.890ns | +7.583ns | +0.181ns |
+| Fast-40C | +4.388ns | +7.461ns | +8.707ns | +0.165ns |
+
+All original launch/result indices and the SDC remain, plus timed reset/
+readiness. Minimum pulse width passes; recovery/removal have no paths; all
+five UCP classes are zero. Area5623ALMs includes1527virtual-pin ALMs;
+6109registers and no M10Ks. Worst owner source launch1611=heldQ805/jointQ117
+still crosses the guard, selected CP state[65] and the T-path write control
+to result1061=physical Q505. The worst global path begins at prefix_saved230
+(jointQ117) through root settling to result355/full unsettled. The original
+diagnostic is retained. Fitted DB remains on misterubuntu at
+`/home/alans/mister/cp-prefix-parallel-fit-v1-20261023`.
+
+Next investigate exact direct CP-register projection before the T-path and
+minimum sufficient atomic settling depth; all outputs/CP subevents must remain.
+Five/six/seven-wave direct proofs were launched after this review and remain
+unselected until actual terminal results. Four waves remain rejected. Same
+four native jobs are verified live at original5B bounds; hardware/Main/daemon
+and measured4.025473M StartCycle issues/s remain unchanged. Native global pauses,
+original60ns clocks/timers, physical66.7MHz SDRAM and full A-F acceptance remain.
+
 ## Guarded CP-prefix cache
 
 `cp-prefix-cache-summary.json` retains the implemented canonical/last-settled

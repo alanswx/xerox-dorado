@@ -30,7 +30,8 @@ def gate(run, engine):
     assert state['summary'] == 'checks=14884 writes=238 reads=6928 epochs=392'
     parent = Path(state['parent'])
     assert sha(parent / 'run-state.json') == state['parent_state_sha256']
-    assert (run / 'candidate.sv').read_text() == candidate((parent / 'candidate.sv').read_text())
+    assert (run / 'candidate.sv').read_text() == candidate((parent / 'candidate.sv').read_text(), None,
+        state.get('parallel_control_results', False), state.get('control_only_settled_eligibility', False))
     tb = (run / 'inputs/tb_r_front_local.sv').read_text()
     assert tb == bench((parent / 'inputs/tb_r_front_local.sv').read_text())
     for row in state['source_files']:
@@ -55,15 +56,17 @@ def prepare(parent, runs, formal, out):
     assert gates[0]['candidate_sha256'] == gates[1]['candidate_sha256']
     assert gates[0]['coverage'] == gates[1]['coverage'] and gates[0]['clocks'] == gates[1]['clocks']
     proof = json.loads((formal / 'run-state.json').read_text())
-    assert proof['status'] == 'PASS_BOUNDED_CP_CACHE_READY_EQUIVALENCE'
+    assert proof['status'] in ['PASS_BOUNDED_CP_CACHE_READY_EQUIVALENCE', 'PASS_CP_CACHE_INDUCTIVE_READY_EQUIVALENCE']
     assert proof['returncode'] == 0 and proof['proof_succeeded']
-    assert proof['compared_control_output_bits'] == 475 and proof['bounded_host_steps'] >= 4
+    assert proof['compared_control_output_bits'] == 475
+    assert proof['unbounded_induction_proven'] or proof['bounded_host_steps'] >= 4
     assert proof['source_bound_SRAM_permission'] == 'request && ready'
     assert proof['experiment_state_sha256'] == sha(runs[1] / 'run-state.json')
     for name, h in proof['source_files'].items():
         assert sha(formal / name) == h, name
     assert sha(formal / 'proof.log') == proof['proof_log_sha256']
-    assert 'SAT proof finished - no model found: SUCCESS!' in (formal / 'proof.log').read_text()
+    assert ('Induction step proven: SUCCESS!' if proof['unbounded_induction_proven'] else
+            'SAT proof finished - no model found: SUCCESS!') in (formal / 'proof.log').read_text()
     fixture_proof = json.loads((parent / 'provenance.json').read_text())
     for name, h in fixture_proof['files'].items():
         assert sha(parent / name) == h, name
@@ -89,6 +92,14 @@ def prepare(parent, runs, formal, out):
     name = 'dorado_r_front_control_step.sv'
     cache = module(rtl[name], 'dorado_cp_prefix_cache')
     lowered = (formal / 'cache.sv').read_text()
+    if proof['unbounded_induction_proven']:
+        from prove_cp_prefix_cache import INVARIANTS
+        # Remove pure proof observations; the fitted scheduler must be exactly
+        # the actual component, with no ghost logic or ghost output port.
+        assert lowered.count(INVARIANTS) == 1
+        lowered = lowered.replace(INVARIANTS, '', 1).replace(
+            ' output reg [10:0] prefix_cp_saved,after_cp_saved,output wire invariant);',
+            ' output reg [10:0] prefix_cp_saved,after_cp_saved);', 1)
     init_port = ' output reg [268:0] prefix_saved=0,\n output reg [10:0] prefix_cp_saved=0,after_cp_saved=0);'
     init_body = ' output reg [268:0] prefix_saved,\n output reg [10:0] prefix_cp_saved,after_cp_saved);\n initial begin prefix_saved=0;prefix_cp_saved=0;after_cp_saved=0;end'
     assert lowered.replace(init_body, init_port, 1) == cache
@@ -145,7 +156,9 @@ def prepare(parent, runs, formal, out):
                  original_launch_indices_retained=[0, 1649], original_result_indices_retained=[0, 1399],
                  auxiliary_reset_launch_bit=1650, readiness_result_bit=1400, original_shell_inverse_byte_identical=True,
                  functional_gates=gates, formal_directory=str(formal), formal_state_sha256=sha(formal / 'run-state.json'),
-                 formal_bounded_host_steps=proof['bounded_host_steps'], unbounded_induction_proven=False,
+                 formal_bounded_host_steps=proof['bounded_host_steps'], unbounded_induction_proven=proof['unbounded_induction_proven'],
+                 parallel_control_results=states[0].get('parallel_control_results', False),
+                 control_only_settled_eligibility=states[0].get('control_only_settled_eligibility', False),
                  quartus_genvar_syntax=syntax, output_initializer_syntax_lowering=proof['output_initializer_syntax_lowering'],
                  native_qualified=False, physical_timing_qualified=False, speedup_qualified=False, assembly_permitted=False,
                  files={p.name: sha(p) for p in out.iterdir() if p.is_file()})

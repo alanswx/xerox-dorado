@@ -49,6 +49,36 @@ all Cedar/Rollback/persistence/fresh-boot/input/stress gates remain open.
 All four original native tests were verified live at unchanged5B bounds.
 Hardware/Main/daemon and4.025473M measured StartCycle issues/s are unchanged.
 
+Parallel-control follow-up passes digital component qualification;15ns timing fails:
+`cp-prefix-parallel-{icarus,verilator}-v1-20261023` freezes two pure root
+alternatives and selects the entire475-bit control result afterward. Neither
+root consumes fast_path; the raw prefix producer and sole SRAM owner remain.
+Eligibility now uses control `!cu`, retaining full operand `unsettled` output.
+Both engines pass the complete original comparison with identical cache counts;
+all three bad variants reject in BOTH engines at check0. The positive Icarus
+run has completed. Exact-source induction and all three formal counterexample
+jobs PASS as well. The full15ns fit is TERMINAL and REJECTED at
+`/home/alans/mister/cp-prefix-parallel-fit-v1-20261023`; all build/report stages
+pass. Local terminal source/reports are `cp-prefix-parallel-fit-terminal-v1-20261023`.
+Worst owner setup improves to-1.115ns; worst global is-1.953ns. Minimum hold
+is+0.165ns, late-Hold owner+1.246ns; pulse/recovery/removal/UCP are reviewed.
+Area5623ALMs including1527virtual-pin ALMs/6109registers, no M10Ks. All original
+indices/constraints and added reset/readiness remain timed. The guard still
+feeds selected CP state[65], then the T-path write control to physical Q505;
+source launch1611 is heldQ805/jointQ117. The worst global path is saved-prefix
+bit230 (jointQ117) through root settling to result355/full unsettled.
+[Exact evidence](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#parallel-control-result-selection).
+
+Next remove only dependencies proved redundant: investigate direct CP-register
+projection before the T-path, preserving CP subevents/ordering, and determine
+the minimum correct atomic settling depth. Five/six/seven-wave direct-RTL
+proofs against the24-wave reference are running at
+`memory-hold-all-{5,6,7}-waves-rtl-v1-20261023`, sessions77465/70680/16876.
+Four waves already FAIL on unsettled; never drop that output. No shorter
+candidate is selected until its complete result is proved. Re-run the full
+original comparisons, negative controls and fit after any actual source change.
+Native/global pause integration and60ns/Cedar/speed acceptance remain open.
+
 Latest phase-preserving Hold/canonical-state milestone (2026-10-23;
 [proofs, rejected fit and next seam](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#phase-preserving-hold-and-direct-rtl-proof)):
 the original LOW phase cannot re-capture memory Hold. Retain its initial value
@@ -10241,7 +10271,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Prove conditional settled CP-prefix identity, reject changed saved-before pins and bind the pin/root snapshot seam to the staged native source; native runtime integration remains open.
 - [x] Implement guarded ordinary-prefix bypass/conditional staging in the component; pass both complete original comparisons, reset/tag-change retries, direct four-step ready-result/write-permission proof and six simulator/three formal negative controls.
 - [x] Prove guarded-prefix safety by direct-RTL temporal induction; finish full15ns fit and retain -5.619ns global/-5.036ns owner rejection with the guard-comparator/feedback attribution.
-- [ ] Move the guarded selection after parallel direct/staged control evaluation and qualify control-only settled eligibility, then repeat original comparisons/proofs/full15ns timing. Integrate global all-board/backend pauses, measure actual CP frequency and preserve one SRAM commit and the60ns ordinary budget.
+- [x] Move the guarded selection after parallel direct/staged control evaluation and qualify control-only settled eligibility; both full comparisons, six simulator controls, induction and three formal controls pass. Preserve full15ns rejection (-1.953ns global/-1.115ns owners).
+- [ ] Shorten the residual guard-to-CP/T-write dependency and root fixed-point diagnostic without changing any result; five/six/seven-wave proofs are pending, four remains rejected. Then qualify full15ns/native global pauses, actual CP frequency, one SRAM commit and60ns ordinary cadence.
 - [x] Preserve dual-engine late-Hold component passes and reject the full 15 ns duplication fit on actual owner paths; no timing waiver or native promotion.
 - [x] Diagnose the original native keyboard's all-zero active-low matrix; repair adapter power-up and stopped-clock reset, with16 dual-engine cases including8 rejected controls.
 - [ ] Observe genuine Cedar113/C release and pinned storage windows on fresh input-reset-v3 control/queue jobs58600/58753, bound to passing final adapter synthesis/tests; retain original jobs29201/29618 and their unchanged bounds as Alto110 evidence.
