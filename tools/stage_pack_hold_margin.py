@@ -18,6 +18,7 @@ def stage(parent, calibration, out, project):
     m = json.loads((parent/'r-front-control-native.json').read_text())
     c = json.loads((calibration/'run-state.json').read_text())
     assert c['status'] == 'PASS_STRONGER_PACK_HOLD_CONTRACT_CALIBRATION' and c['returncode'] == 0
+    assert c['constraint_namespace_isolated']
     assert c['manifest_sha256'] == sha(parent/'r-front-control-native.json')
     assert len(c['corners']) == 4 and c['minimum_delay_strengthening_ns'] == 0.250
     for row in c['corners']:

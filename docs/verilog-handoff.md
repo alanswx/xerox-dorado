@@ -6,6 +6,62 @@ Continue Quartus on misterubuntu and simulation on the Mac. Notify the user
 when a concrete build is ready for hardware qualification; wait for allocation.
 The goal remains active. This supersedes earlier permission for immediate reloads.
 
+Latest first-consumer milestone (2026-10-24): new UNCONNECTED
+`dorado_baseboard_clock_step.sv` consumes the qualified source packets and
+boundary debug inputs through the original e07/c08/g08/j02 clock cone. Its
+six input/output Qs are the actual4-bit e07 counter and both g08 FFs; no new
+saved owner or guest cycle. Both engines pass176,384 intervals/873,792 step
+comparisons/12,648 pause checks/520 exact restores, all64 physical initial
+states/eight CPU phases. Every state, output and each of7 edge counters is
+checked after the boundary and EACH source record. The full300us run has
+3000 crystal rises,600 Max rises,300 MCPreClk rises and10,000 natural CPU-root
+rises; these are clock counts, not retired instructions. Five compiled
+corruptions reject in both engines.6502/RIOT/CP and other board consumers are
+not yet integrated.
+
+Three first-oracle failures and two passive traces are preserved. At the
+simultaneous CPU/debug change, the continuous expression with two binary OR
+operators introduced a zero-time two-gate delta runt. Packed pin binding alone
+did not fix it. The final oracle uses the original j02 SINGLE three-input OR
+primitive, with its truth expression checked against cell_MC10210.p2; all Q,
+restore, pulse-count and reference checks stay. Analog pin skew/runt/setup/hold
+behavior is NOT qualified by this digital packet test.
+
+Combined source+consumer15ns fit is TERMINAL/REJECTED: setup
+-2.473/-2.542/+5.614/+5.725ns, minimum hold+0.165ns,3,947ALMs/2238regs.
+All2568 outputs (195source+126consumer bits at8rotations),59 raw members and
+compiled inputs verify; all handles absent. The first fixture's missing
+Quartus17 generate wrapper is retained as a parser failure. Worst path:
+Ether phase[4] -> due/rank/insertion -> source levels -> repeated consumer
+cursor/step -> final g08b Q (result968),15 logic levels/16.893ns data/-0.479ns
+skew. This reveals a redundant final-state dependency on Ether event placement.
+Fresh formal source proof checks ALL195 bits and additionally PROVES at most
+one BB transition per interval and BB/Ether endpoint independence. These are
+consequences of source geometry, not new guest assumptions; all seven proof
+cases/controls pass. Use this contract to optimize the consumer next.
+
+Native stricter-hold fit/reporters are TERMINAL; corrected complete1084-member
+collection SHAee27484f0aacd53f7f12ae026e2796c71db340fffafa7ef24dd486b0eda59197
+verifies all534 compiled inputs and preserves all795 initial collection members
+unchanged. Setup+0.216/+0.201/+4.305/+4.849ns, hold+0.194/+0.208/+0.131/+0.116ns
+at the EXISTING17.5ns period. Pack capture hold+0.628/+0.545/+0.255/+0.123ns;
+36,213ALMs/55,489regs. All431 targeted reports carrying slack are nonnegative.
+This is not15ns/full60ns/native firmware or speed qualification; original ECC
+loop and physical capture contracts still need review.
+
+A reporting bug in my unscoped SDC temporary name caused the original five
+corner/crossing workflows to overwrite report filenames. Keep the malformed
+reports and classification. Both the complete independent corner reader and
+inverse-checked copies of ALL FIVE original scripts recovered their full
+queries/path counts/models from the SAME fitted design, with NO refit, RTL,
+clock or constraint change. A third32-bit/four-corner calibration passes with
+the constraint body enclosed in a local procedure and a namespace sentinel.
+`pack-hold-native-stage-v2-20261024` contains that scoped SDC,534 inputs;
+it is PREPARED ONLY, no v2 native fit. The collector now permits a fresh named
+readback receipt so earlier readback evidence remains untouched. Receipt
+`baseboard-consumer-followup-summary.json` retains all these sources/gates,
+failed references/fixture, original reporting error and complete recoveries.
+
 Latest source-selection milestone (2026-10-24): canonical clock sources NOW
 use the proved parallel merger, exact one-bit pixel remainder and ten-state
 BaseBoard quotient. All source frequencies, timestamps, reset/pause and output
@@ -28,17 +84,10 @@ failed expectation and complete reports are preserved. Corrected V2 checks
 both timing terms per path. The fitter already used all-path hold and multi-
 corner optimization, so merely enabling those options would change nothing.
 
-New native project `/home/alans/mister/pack-hold-native-v1-20261024` is LIVE:
-builder4123657/session48775, map4123660 exited0, fitter4137879. Physical reporter
-4123941/session86943 and key reporter4124312/session34934 are verified live,
-queued on the SAME job.534 source/configuration hashes verify. Only the exact
-calibrated SDC and its QSF include are added after path relocation; every RTL
-byte, clock, seed, guest capture and barrier is unchanged. No additional guest
-cycle, false path, setup waiver, Main or daemon change. Upload SHA
+Earlier live native hold observation, now TERMINAL/recovered above:
+`/home/alans/mister/pack-hold-native-v1-20261024`, builder4123657/fitter4137879,
+reporters4123941+4124312. Do not restart. Upload SHA
 08c0ca60ba7d8f736a9ae9a9ad042c0fdd11aad790373726be2c1f8aef2623ff.
-Observe those handles; do not restart them on a polling timeout. Receipt
-`bb-phase-hold-followup-summary.json` retains all passing source qualification,
-canonical selection, failed/successful calibration, native stage and live lineage.
 
 Earlier terminal result (2026-10-24): projected-key native fit and BOTH reporters
 have exited, all stages0. All963 collected members/533 compiled source hashes
@@ -187,20 +236,18 @@ or network receive. Balanced49723 is at host1.31B/guest699.093M and has issued
 one CPU instruction; short-control75056 remains in ROM memory diagnostics at
 host640M/guest280.638M. All original5B bounds/inputs/media are unchanged.
 
-Next/TODO: review the exact stricter-hold native fit and both reporters: all
-534 hashes, every setup/hold corner,16visibleR/fourSRAMs and actual generation
-capture delays; no timing pass until those finish. For clock integration, first
-build a consumer that evaluates boundary input arrivals then every timestamped
-primary event against one pre-event state. Preserve BaseBoard e07/g08/6502/CP/
-j02 debug, DispY raw/fake contributions and Ethernet i20/EClk/CRC capture order.
-Compare against the original timed graphs and re-prove cache/owner context for
-intermediate event states; the current closed-owner specialization does not
-justify subevent reuse. Then close full native15ns timing toward60ns nominal
-instructions before real holds. Separate66.7MHz SDRAM/CDC/physical timing,
-pinned waits/speed and original-firmware interactive Cedar remain. Authentic
-Rollback, persistence, three fresh boots and2h stress remain. Main owns SPI;
-buffered disk/direct-DDR Ethernet/historical daemon scope stays; snapshots
-deferred. The user's FPGA remains reserved until they release it for a ready test.
+Next/TODO: exploit the PROVED single-BB-edge/independent-endpoint contract:
+precompute the one counter/FF transfer, preserve every intermediate slot and
+root edge, and remove Ether placement from final BB state. Prove equivalence
+to the package-tested generic consumer under the actual source contract;
+retain all2568 output fields and repeat the15ns fit. Then extend the real
+BaseBoard6502/RIOT/CP, DispY raw/fake and Ether i20/EClk/CRC consumers with
+original capture ordering. Re-prove cache/owner context across intermediate
+states before reusing the closed-owner specialization. Full native15ns/60ns
+nominal cadence, separate66.7MHz SDRAM/CDC/physical timing, pinned waits/speed,
+original-firmware interactive Cedar/Rollback/persistence/three boots/2h stress
+remain. Main owns SPI; ARM buffering/direct-DDR Ethernet/historical daemon
+scope stays; FPGA snapshots deferred. The FPGA remains reserved for the user.
 
 Earlier live observation, now TERMINAL/REJECTED above:
 `/home/alans/mister/cp-key-native-v1-20261024`,

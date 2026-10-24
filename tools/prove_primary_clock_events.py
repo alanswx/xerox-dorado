@@ -79,7 +79,21 @@ MERGE_TOP = '''module merge_equivalence(
  assign valid=!advance || reset || geometry;
  assign actual={levels_before,actual_after,actual_count,actual_offsets,actual_masks,actual_levels};
  assign expected={levels_before,cursor,count,offsets,masks,levels};
- assign equivalent=!valid || actual==expected;
+ reg [2:0] bb_transitions;
+ reg bb_cursor;
+ always @*begin
+  bb_transitions=0;bb_cursor=levels_before[4];
+  for(integer i=0;i<6;i++)if(i<int'(actual_count))begin
+   if(bb_cursor!=actual_levels[6*i+4])bb_transitions=bb_transitions+3'd1;
+   bb_cursor=actual_levels[6*i+4];
+  end
+ end
+ // These are proved consequences of the complete source geometry, not new
+ // assumptions on the guest. They permit independent clock-domain consumers.
+ wire bb_single=(actual_count<=6)&&(bb_transitions<=1)&&(bb_cursor==actual_after[4]);
+ wire independent_endpoints=(actual_after[4]==(levels_before[4]^(bb_due&&advance&&!reset))) &&
+  (actual_after[5]==(levels_before[5]^(ether_due&&advance&&!reset)));
+ assign equivalent=!valid || ((actual==expected)&&bb_single&&independent_endpoints);
 endmodule
 '''
 PHASE = '''module phase_equivalence(input wire clk,reset,advance,output wire equivalent);
@@ -200,7 +214,9 @@ sat {strategy} -timeout 120 -prove equivalent 1 -{flag} -show-ports -dump_json /
             return 1
     state.update(status='PASS_PRIMARY_CLOCK_MERGE_AND_PHASE_PROOFS', finished=time.time(),
         merge_proven_for_all_valid_source_records=True,
-        crystal_phase_unbounded_induction=True, reset_advance_protocol_assumptions=False)
+        crystal_phase_unbounded_induction=True, reset_advance_protocol_assumptions=False,
+        at_most_one_BB_transition_per_interval_proven=True,
+        independent_BB_and_Ether_endpoints_proven=True)
     save()
     print(state['status'], flush=True)
     return 0

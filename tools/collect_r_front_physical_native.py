@@ -15,7 +15,7 @@ def sha(p):
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
-def collect(project, output, reports_dir='physical-native-reports-v1', additional_reports=()):
+def collect(project, output, reports_dir='physical-native-reports-v1', additional_reports=(), readback_name='physical-native-input-readback.json'):
     assert project not in output.parents and not output.exists()
     build = json.loads((project / 'run-state.json').read_text())
     assert Path(reports_dir).name == reports_dir and reports_dir not in ['.', '..']
@@ -46,7 +46,8 @@ def collect(project, output, reports_dir='physical-native-reports-v1', additiona
         additional.append(folder)
     assert not list((project / 'core/output_files').glob('*.sof'))
     assert not list((project / 'core/output_files').glob('*.rbf'))
-    readback = project / 'physical-native-input-readback.json'
+    assert Path(readback_name).name == readback_name and readback_name.endswith('.json')
+    readback = project / readback_name
     assert not readback.exists()
     readback.write_text(json.dumps(dict(status='TERMINAL_PHYSICAL_NATIVE_INPUT_READBACK',
         absent_pids=pids, actual=actual, build_status=build['status'], report_status=extra['status'],
@@ -77,5 +78,6 @@ if __name__ == '__main__':
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--reports-dir', default='physical-native-reports-v1')
     p.add_argument('--additional-report', action='append', default=[])
+    p.add_argument('--readback-name', default='physical-native-input-readback.json')
     a = p.parse_args()
-    collect(a.project.resolve(), a.output.resolve(), a.reports_dir, a.additional_report)
+    collect(a.project.resolve(), a.output.resolve(), a.reports_dir, a.additional_report, a.readback_name)

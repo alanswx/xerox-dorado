@@ -6,6 +6,35 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`baseboard-consumer-followup-summary.json` retains the first actual e07/c08/
+g08/j02 clock consumer: six physical Qs, no new owner/guest cycle. Both engines
+pass176,384 intervals/873,792 steps/all64 initial states/eight CPU phases,
+12,648 holds/520 exact restores and full300us cadence. Every output and all
+seven edge counts compare; five compiled corruptions reject in both engines.
+Three initial oracle failures/two traces are retained. The final j02 uses its
+original single three-input OR primitive; two binary continuous OR operators
+had introduced a zero-time delta runt. Its truth function is bound to the
+original cell; no edge/physical-state check is removed. Analog skew/runt/setup/
+hold and full6502/RIOT/native consumers remain unqualified.
+
+Complete59-member producer+consumer15ns fit is REJECTED: setup
+-2.473/-2.542/+5.614/+5.725ns, minimum hold+0.165ns,3,947ALMs/2238regs.
+All2568 output fields are retained. Critical Ether-phase -> merge positioning
+-> repeated consumer cursor -> final g08b state reveals an unnecessary final
+dependency. A stronger complete195-bit proof establishes at most one BB
+transition and independent BB/Ether endpoints, without new guest assumptions.
+The first fixture's Quartus generate syntax failure is preserved too.
+
+The SAME native hold fit has recovered all original corner/crossing reports:
+1084 members/534 compiled hashes verify; all795 initial members are unchanged.
+At17.5ns, setup+0.216/+0.201/+4.305/+4.849ns and hold+0.194/+0.208/+0.131/
++0.116ns pass; all431 targeted reports with slack are nonnegative. The original
+SDC global-name collision and malformed reports are retained. Independent and
+inverse-checked read-only reporters restore all five workflows without a refit
+or compiled-input/constraint change. Scoped-SDC calibration passes32bits/four
+corners; its534-input v2 native stage is prepared only. No firmware, original
+60ns, new hardware speed, assembly or FPGA access is claimed.
+
 `bb-phase-hold-followup-summary.json` retains selection of the parallel merger,
 one-bit pixel and exact ten-state BaseBoard phase into canonical source RTL.
 All195-bit merger/phase proofs and both complete300us/eight-rotation references
@@ -1202,8 +1231,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps69,295 members to8,168 deduplicated compressed blobs;
-lossless readback verifies2,675,831,068 unique raw bytes and98,395,395 compressed
+`manifest.json.gz` now maps71,233 members to8,796 deduplicated compressed blobs;
+lossless readback verifies2,937,503,119 unique raw bytes and106,812,169 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

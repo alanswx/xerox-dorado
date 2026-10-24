@@ -17,7 +17,7 @@ import re
 import subprocess
 import time
 
-CONSTRAINT = r'''# Stronger hold relationship for the complete pack-generation capture.
+CONSTRAINT_BODY = r'''# Stronger hold relationship for the complete pack-generation capture.
 # Preserve real clock latency/skew. No false paths or guest-cycle changes.
 set pack_generation [get_registers {*|u_media|generation*}]
 set pack_flushed [get_registers {*|u_media|flushed_generation*}]
@@ -34,6 +34,8 @@ foreach collection [list $pack_generation $pack_flushed] {
 }
 set_min_delay -from $pack_generation -to $pack_flushed 0.250
 '''
+CONSTRAINT = ('proc dorado_apply_generation_hold_contract {} {\n'+CONSTRAINT_BODY+
+              '}\ndorado_apply_generation_hold_contract\nrename dorado_apply_generation_hold_contract {}\n')
 TCL = '''project_open Dorado
 create_timing_netlist -model slow
 set corners {}
@@ -49,7 +51,9 @@ foreach corner $corners {
  set b [get_registers {*|u_media|flushed_generation*}]
  puts "PACK_HOLD_MARGIN $corner source=[get_collection_size $a] sink=[get_collection_size $b]"
  foreach mode {setup hold} {report_timing -$mode -from $a -to $b -npaths 32 -detail full_path -file OUTPUT/$mode-before-$corner.rpt}
+ set name DORADO_HOLD_NAMESPACE_SENTINEL
 CONSTRAINT
+ if {$name ne "DORADO_HOLD_NAMESPACE_SENTINEL"} {error "Hold SDC leaked local variables"}
  update_timing_netlist
  foreach mode {setup hold} {report_timing -$mode -from $a -to $b -npaths 32 -detail full_path -file OUTPUT/$mode-after-$corner.rpt}
  delete_timing_netlist
@@ -104,7 +108,8 @@ def run(project, out, quartus):
     state = dict(status='RUNNING_READ_ONLY_HOLD_CALIBRATION', driver_pid=os.getpid(), started=time.time(),
                  project=str(project), manifest_sha256=sha(manifest), script_sha256=sha(script),
                  previous_pids_absent=pids, setup_constraint_changed=False, RTL_changed=False,
-                 minimum_delay_strengthening_ns=0.250, assembly_permitted=False)
+                 minimum_delay_strengthening_ns=0.250, assembly_permitted=False,
+                 constraint_namespace_isolated=True)
     path = out/'run-state.json'
     path.write_text(json.dumps(state, indent=2)+'\n')
     with (out/'audit.log').open('x') as log:
