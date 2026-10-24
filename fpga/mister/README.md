@@ -1,5 +1,14 @@
 # Xerox Dorado for MiSTer
 
+**Speed work, October 24:** qualified5c65 remains at the last measured
+4.025473M microinstruction starts/s. The private balanced task-priority slice
+passes both original-graph simulations, formal proofs and complete15ns caller
+timing(+0.587ns setup/+0.113ns hold). A new original-ROM native boot simulation
+is running; full-machine timing/60ns phases remain unqualified. Both baseline/queued
+simulations reach Cedar113; their first raw-memory windows differ, so they
+do not yet qualify a speedup. Current results and next steps are in the
+[handoff](../../docs/verilog-handoff.md) and [clock plan](../../docs/verilog-clock-plan.md).
+
 **The Executive cursor moves on MiSTer14 (October 17 UTC).**
 Run `/media/fat/Scripts/DoradoMouse.sh` and wait for the prompt. USB mouse
 packets reach the real terminal input, and screenshots show the cursor

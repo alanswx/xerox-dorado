@@ -22,8 +22,8 @@ from run_native_cedar_memory import run as native_run_test
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
-def prepare(stage,baseline,out,limit,monitor_baseboard=False):
-    assert not out.exists()and 200000000<=limit<=1000000000
+def prepare(stage,baseline,out,limit,monitor_baseboard=False,firmware_run=False):
+    assert not out.exists()and 200000000<=limit<=(5000000000 if firmware_run else 1000000000)
     r=json.loads((stage/'r-front-control-native.json').read_text())
     assert r['status']=='STAGED_PROCESSOR_CONTROL_NATIVE_EXPERIMENT'and not r['assembly_permitted']
     for n,h in r['source_hashes'].items():assert sha(stage/n)==h,n
@@ -84,6 +84,7 @@ def prepare(stage,baseline,out,limit,monitor_baseboard=False):
             'inputs':{str(p.relative_to(inputs)):sha(p)for p in inputs.rglob('*')if p.is_file()},'used_hdl':used,
             'window_control_path':str(out/'window-control.txt'),'window_initial_control':'0 2\n',
             'scope':__doc__,'host_limit':limit,'firmware_qualified':False,'hardware_changed':False,
+            'bounded_original_firmware_run':firmware_run,
             'passive_actual_BaseBoard_PC_monitor':monitor_baseboard,
             'baseline_run':str(baseline),'baseline_inputs_or_limits_changed':False}
     (out/'provenance.json.gz').write_bytes(gzip.compress((json.dumps(record,indent=2)+'\n').encode(),mtime=0))
@@ -124,8 +125,9 @@ if __name__=='__main__':
     p.add_argument('--stage',type=Path);p.add_argument('--baseline',type=Path);p.add_argument('--limit',type=int,default=250000000)
     p.add_argument('--reuse-from',type=Path)
     p.add_argument('--monitor-baseboard',action='store_true')
+    p.add_argument('--firmware-run',action='store_true',help='Prepare a separate original-ROM run up to5B clocks; never extend an existing job')
     a=p.parse_args()
     if a.prepare:
-        assert a.stage and a.baseline;prepare(a.stage.resolve(),a.baseline.resolve(),a.prepare.resolve(),a.limit,a.monitor_baseboard)
+        assert a.stage and a.baseline;prepare(a.stage.resolve(),a.baseline.resolve(),a.prepare.resolve(),a.limit,a.monitor_baseboard,a.firmware_run)
     elif a.reuse_from:reuse_run(a.run.resolve(),a.reuse_from.resolve())
     else:native_run_test(a.run.resolve())

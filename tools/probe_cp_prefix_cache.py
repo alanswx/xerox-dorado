@@ -109,7 +109,7 @@ def parallel_control(body,direct_cp=False):
     return body
 
 
-def candidate(raw,mutation=None,parallel_root=False,control_settled=False,settling_waves=8,direct_cp=False):
+def candidate(raw,mutation=None,parallel_root=False,control_settled=False,settling_waves=8,direct_cp=False,balanced_priority=False):
     marker='output wire shared_state_mismatch,output wire [93:0] control_flags,output wire [843:0] physical_state\n'
     raw=replace(raw,marker,marker.rstrip()+',\n input wire cp_reset,output wire cp_ready\n')
     call=''' dorado_control_hold_ordered_step control(joint_q,clock_before,clock_after,pins_before[397:0],pins_after[397:0],
@@ -163,6 +163,9 @@ def candidate(raw,mutation=None,parallel_root=False,control_settled=False,settli
     elif mutation=='bad-mir-prefix':raw=replace(raw,'prefix_saved<=prefix_live;','prefix_saved<=prefix_live ^ (269\'b1 << (113+85));')
     elif mutation=='unguarded-write':raw=replace(raw,'wire cp_commit=advance && cp_ready;','wire cp_commit=advance;')
     elif mutation is not None:raise ValueError(mutation)
+    if balanced_priority:
+        from balance_control_priority import transform
+        raw=transform(raw)
     return raw
 
 
@@ -231,11 +234,11 @@ def bench(raw):
     return raw
 
 
-def run(source,out,mutation,parallel_root=False,control_settled=False,settling_waves=8,direct_cp=False):
+def run(source,out,mutation,parallel_root=False,control_settled=False,settling_waves=8,direct_cp=False,balanced_priority=False):
     assert not out.exists()
     parent,g=gate(source,json.loads((source/'run-state.json').read_text())['engine'])
     assert parent['all_hold_clocks']and parent['settling_waves']==8
-    generated=candidate((source/'candidate.sv').read_text(),mutation,parallel_root,control_settled,settling_waves,direct_cp)
+    generated=candidate((source/'candidate.sv').read_text(),mutation,parallel_root,control_settled,settling_waves,direct_cp,balanced_priority)
     tb=bench((source/'inputs/tb_r_front_local.sv').read_text())
     out.mkdir(parents=True);paths=[];records=[]
     for row in parent['source_files']:
@@ -257,6 +260,7 @@ def run(source,out,mutation,parallel_root=False,control_settled=False,settling_w
         parallel_control_results=parallel_root,control_only_settled_eligibility=control_settled,
         settling_waves=settling_waves,
         direct_cp_projection=direct_cp,
+        balanced_task_priority=balanced_priority,
         corrupted_prefix_joint_Q_bit={'bad-prefix':69,'bad-mir-prefix':85}.get(mutation),
         original_reference_and_checks_retained=True,physical_SRAM_banks=4,extra_guest_cycles=0,
         auxiliary_prefix_bits=269,tag_key_bits=567,cached_CP_pin_bits=22,
@@ -290,4 +294,5 @@ if __name__=='__main__':
     parser.add_argument('--control-settled',action='store_true')
     parser.add_argument('--settling-waves',type=int,choices=range(1,9),default=8)
     parser.add_argument('--direct-cp',action='store_true')
-    args=parser.parse_args();raise SystemExit(run(args.source.resolve(),args.output.resolve(),args.mutation,args.parallel_root,args.control_settled,args.settling_waves,args.direct_cp))
+    parser.add_argument('--balanced-priority',action='store_true')
+    args=parser.parse_args();raise SystemExit(run(args.source.resolve(),args.output.resolve(),args.mutation,args.parallel_root,args.control_settled,args.settling_waves,args.direct_cp,args.balanced_priority))

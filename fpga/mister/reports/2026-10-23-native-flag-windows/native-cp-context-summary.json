@@ -1,0 +1,300 @@
+{
+  "status": "REVIEWED_NATIVE_CP_CONTEXT_AND_BOUNDED_STARTUP",
+  "scope": "Retain native owner-context proof, bounded startup and honest boot windows.\n\nThe context proof is compositional binary equivalence. The completed cold\nprefix checks real native consumers but does not reach Cedar. The two actual\nCedar113 windows have different raw traffic and cannot establish a speedup.\nA caller-slice timing result, when supplied, is separate from full-core timing.\n",
+  "source_changes_after_project_relocation": [
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v",
+    "src/verilog/rtl/dorado_r_front_control_step.sv"
+  ],
+  "native_source_count": 533,
+  "native_stage_manifest_sha256": "fc47788604a3aa4e591b1f8b6b115666e5ace0d354434b57c39f6963e9c0d009",
+  "context_proofs": [
+    {
+      "directory": "native-cp-context-proof-v1-20261024",
+      "status": "PASS_SOURCE_BOUND_NATIVE_CP_CONTEXT",
+      "state_sha256": "8e535456d7125595cb661ce7d849b35f76a34a29e853999794000a94f8d4ebe9"
+    },
+    {
+      "directory": "native-cp-context-stale-v1-20261024",
+      "status": "PASS_STALE_NATIVE_OWNER_COUNTEREXAMPLE",
+      "state_sha256": "641ca028fad7aca489dfc7bcc1d2e3c91298781cf61ed5f7413caf418e5fd80f"
+    }
+  ],
+  "cold_prefix": {
+    "host_bound": 300000000,
+    "enabled_machine_edges": 68288387,
+    "checked_control_pauses": 289,
+    "all_pause_snapshots_equal": true,
+    "original_ROM_CP_writes": 1,
+    "Cedar_boot_reached": false,
+    "limitation": "Frozen cold-v3 has the old out-of-bounds CP window class; no window opens in this prefix. Do not use it for Cedar-window qualification."
+  },
+  "window_ledger_tests": [
+    {
+      "directory": "native-window-legacy-regression-v1-20261024",
+      "gate_classes": 7,
+      "engines": [
+        "icarus",
+        "verilator"
+      ]
+    },
+    {
+      "directory": "native-window-control-pause-v1-20261024",
+      "gate_classes": 8,
+      "engines": [
+        "icarus",
+        "verilator"
+      ]
+    }
+  ],
+  "corrected_constructor_uses8_classes": true,
+  "original_live_observations": [
+    {
+      "directory": "cp-prefix-native-owned-cold-v1-20261024",
+      "pid": 45198,
+      "ps": "45198 23:24 R    /Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-owned-cold-v1-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-owned-cold-v1-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-owned-cold-v1-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792834631.1327949,
+      "state_sha256": "521c94470d815832f83bebddb4cccd61d95df90ce70f16074f52fe27cf1d0065"
+    },
+    {
+      "directory": "native-cedar-5c65-input-reset-v3-20261023",
+      "pid": 58600,
+      "ps": "58600 04:46:58 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792834631.2716851,
+      "state_sha256": "b75adcae9e42639f590196dc579c9442f5210d3519b5da4536adeffed2276ffc"
+    },
+    {
+      "directory": "native-cedar-queue-input-reset-v3-20261023",
+      "pid": 58753,
+      "ps": "58753 04:46:57 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792834631.41992,
+      "state_sha256": "ba82b45e488a278f03e6618a26b89a3768a7cd757cde7fd46b48d1c2eb71b04f"
+    }
+  ],
+  "Cedar113_raw_window_comparison": {
+    "compared_completed_prefix": 8192,
+    "ordered_operation_data_agree": false,
+    "first_disagreement": {
+      "index": 1536,
+      "control": {
+        "request": {
+          "tick": 1309481251,
+          "address": 5863712,
+          "write": 0,
+          "data": 0,
+          "pc": 818347119,
+          "fanout": 128,
+          "state": 2
+        },
+        "response_tick": 1309481258,
+        "response_data": 0,
+        "latency": 7
+      },
+      "candidate": {
+        "request": {
+          "tick": 1208734374,
+          "address": 8386816,
+          "write": 0,
+          "data": 0,
+          "pc": 818310246,
+          "fanout": 31,
+          "state": 2
+        },
+        "response_tick": 1208734381,
+        "response_data": 0,
+        "latency": 7
+      }
+    },
+    "control_prefix_ticks": 106255,
+    "candidate_prefix_ticks": 95797,
+    "control_prefix_budget": {
+      "consumed_raw_service_ticks": 26338,
+      "unowned_raw_ticks": 79916,
+      "same_edge_handoffs": 6049,
+      "positive_gaps": 2142,
+      "limitation": "Unowned raw time also includes guest execution and demand gaps; it is not exclusively arbitration overhead."
+    },
+    "candidate_prefix_budget": {
+      "consumed_raw_service_ticks": 26405,
+      "unowned_raw_ticks": 69391,
+      "same_edge_handoffs": 7027,
+      "positive_gaps": 1164,
+      "limitation": "Unowned raw time also includes guest execution and demand gaps; it is not exclusively arbitration overhead."
+    },
+    "prefix_tick_reduction_fraction": null,
+    "actual_firmware_comparison_qualified": false,
+    "limitation": "Only captured prefix. Native power-up reads are not Cedar execution; prefix caps and different progress endpoints remain explicit."
+  },
+  "caller_timing": {
+    "directory": "native-owned-caller-fit-terminal-v1-20261024",
+    "scope": "Actual native owner/control slice; not full core or the earlier generic fixture",
+    "clock_period_ns": 15,
+    "all1401_result_indices_retained": true,
+    "exceptions_added": false,
+    "corners": [
+      {
+        "condition": "7_slow_1100mv_100c",
+        "global": {
+          "slack_ns": -0.31,
+          "source": "dorado_r_front_control_step:evaluator|dorado_cp_prefix_cache:cp_guard|prefix_saved[170]",
+          "sink": "result[94]~reg0",
+          "arrival_ns": 19.016,
+          "required_ns": 18.706,
+          "report_sha256": "7bdf306fa246a9fe536c36b5a764ca6e4b03bff41302cc0279af890873469d14"
+        },
+        "owners": {
+          "slack_ns": -0.045,
+          "source": "launch[32]~DUPLICATE",
+          "sink": "result[1148]~reg0",
+          "arrival_ns": 18.787,
+          "required_ns": 18.742,
+          "report_sha256": "1252892b11c46c8569dd4629c2cc13b98b46034555046588ad76758122e60a38"
+        },
+        "late_owners": {
+          "slack_ns": 2.501,
+          "source": "launch[389]~DUPLICATE",
+          "sink": "result[853]~reg0",
+          "arrival_ns": 16.22,
+          "required_ns": 18.721,
+          "report_sha256": "258f681084c93f737993079cd6f7dfec4ed865033aec0febb386b57ee3707445"
+        },
+        "hold": {
+          "slack_ns": -0.056,
+          "source": "r_front_upper_q[34]",
+          "sink": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama43~OBSERVABLEPORTAADDRESSREGOUT1",
+          "arrival_ns": 4.155,
+          "required_ns": 4.211,
+          "report_sha256": "9eaf6ea8889f17028ad31c47255bee9b223100531dab5c1bb924b17f50b78e8c"
+        },
+        "pulse_slack_ns": 6.469,
+        "recovery": null,
+        "removal": null
+      },
+      {
+        "condition": "7_slow_1100mv_-40c",
+        "global": {
+          "slack_ns": -0.138,
+          "source": "r_front_upper_q[157]~DUPLICATE",
+          "sink": "result[94]~reg0",
+          "arrival_ns": 19.002,
+          "required_ns": 18.864,
+          "report_sha256": "8bc4369b7387a334847bb60015ee6ae6d3143de9bdb93fad7b00cdcadc264607"
+        },
+        "owners": {
+          "slack_ns": -0.111,
+          "source": "launch[32]~DUPLICATE",
+          "sink": "result[1148]~reg0",
+          "arrival_ns": 19.012,
+          "required_ns": 18.901,
+          "report_sha256": "6e4c531466772a77adf43907f3c26c32220a73a16c9a5a60372ae7f4a80ed47f"
+        },
+        "late_owners": {
+          "slack_ns": 2.902,
+          "source": "launch[389]~DUPLICATE",
+          "sink": "result[1148]~reg0",
+          "arrival_ns": 16.373,
+          "required_ns": 19.275,
+          "report_sha256": "f12e682c3cd310a1150284d323760adcac0cd076ee0e91214f140233f86f7cbc"
+        },
+        "hold": {
+          "slack_ns": -0.084,
+          "source": "r_front_upper_q[34]",
+          "sink": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama43~OBSERVABLEPORTAADDRESSREGOUT1",
+          "arrival_ns": 4.296,
+          "required_ns": 4.38,
+          "report_sha256": "94b88395db431079e85fa59431b96fd50ca8efe93a584fe66006d5627fd1b831"
+        },
+        "pulse_slack_ns": 6.46,
+        "recovery": null,
+        "removal": null
+      },
+      {
+        "condition": "MIN_fast_1100mv_100c",
+        "global": {
+          "slack_ns": 4.391,
+          "source": "input_stage[295]",
+          "sink": "launch[295]",
+          "arrival_ns": 12.273,
+          "required_ns": 16.664,
+          "report_sha256": "8ec18b295a26362979cf71e6bf5826aa90e437dbc4ba944129f2e5b9941c8772"
+        },
+        "owners": {
+          "slack_ns": 7.151,
+          "source": "launch[6]",
+          "sink": "result[853]~reg0",
+          "arrival_ns": 9.496,
+          "required_ns": 16.647,
+          "report_sha256": "40eee224f8f974d0eecd9a8ca8cb26710aa14fdc31b0ecc640209fd1075281ef"
+        },
+        "late_owners": {
+          "slack_ns": 8.433,
+          "source": "launch[389]~DUPLICATE",
+          "sink": "result[853]~reg0",
+          "arrival_ns": 8.214,
+          "required_ns": 16.647,
+          "report_sha256": "66ab53a18c01e7f4e717034484448ac58d926f669abaf074e432bebbf4e142cf"
+        },
+        "hold": {
+          "slack_ns": 0.024,
+          "source": "r_front_upper_q[34]",
+          "sink": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama43~OBSERVABLEPORTAADDRESSREGOUT1",
+          "arrival_ns": 1.964,
+          "required_ns": 1.94,
+          "report_sha256": "07be658b7d736671b03fcfc122b7bbb25977e05d68cb9f6f7080dad0e591eb9c"
+        },
+        "pulse_slack_ns": 6.179,
+        "recovery": null,
+        "removal": null
+      },
+      {
+        "condition": "MIN_fast_1100mv_-40c",
+        "global": {
+          "slack_ns": 4.754,
+          "source": "input_stage[295]",
+          "sink": "launch[295]",
+          "arrival_ns": 11.787,
+          "required_ns": 16.541,
+          "report_sha256": "55e2a6b8d321573b34e08c9e200a8ce0666be1db17a87af980c40a75c5659b34"
+        },
+        "owners": {
+          "slack_ns": 8.292,
+          "source": "launch[32]~DUPLICATE",
+          "sink": "result[1148]~reg0",
+          "arrival_ns": 8.249,
+          "required_ns": 16.541,
+          "report_sha256": "a3a8be21c9c1b085af9baae0d8a2fb82ec94733be2b02d789173bdeccda9c69f"
+        },
+        "late_owners": {
+          "slack_ns": 9.378,
+          "source": "launch[389]~DUPLICATE",
+          "sink": "result[853]~reg0",
+          "arrival_ns": 7.15,
+          "required_ns": 16.528,
+          "report_sha256": "2648aa4c71b8540aaef66c75be27ebd8bbba33d4af30b8115691cc744137b552"
+        },
+        "hold": {
+          "slack_ns": -0.002,
+          "source": "r_front_upper_q[34]",
+          "sink": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama43~OBSERVABLEPORTAADDRESSREGOUT1",
+          "arrival_ns": 1.818,
+          "required_ns": 1.82,
+          "report_sha256": "b5b13f2aad0b1567277dd05fa80cce5e51ee3e4a34aec116357d0c10780a83c3"
+        },
+        "pulse_slack_ns": 6.114,
+        "recovery": null,
+        "removal": null
+      }
+    ],
+    "area": {
+      "ALMs": 4357,
+      "registers": 3770
+    },
+    "caller_slice_timing_passed": false,
+    "full_native_timing_qualified": false
+  },
+  "hardware_changed": false,
+  "assembly_permitted": false,
+  "firmware_qualified": false,
+  "native_timing_qualified": false,
+  "speedup_qualified": false,
+  "full_goal_active": true
+}

@@ -9,6 +9,80 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Balanced task-priority follow-up (2026-10-24): the measured serial highest-task
+selection is replaced with a balanced binary encoder. Only two pure function
+bodies change. Direct RTL proof preserves all363 atomic outputs for955
+arbitrary binary input/state bits at BOTH five and24 settling waves; a broken
+low encoder bit has counterexamples at both depths. BOTH complete original
+comparisons pass14,884checks/238writes/6,928reads/392epochs, all844Q/9,216RAM
+bits/100clock counts, with unchanged cache/reset/retry coverage. All475 ready
+control/event/flag bits and SRAM write exclusion also pass temporal induction.
+
+The actual-owner caller slice now **PASSES the complete15ns timing test** at
+all four corners: minimum global setup+0.587ns, owner-result setup+1.056ns,
+hold+0.113ns and pulse+6.115ns, zero UCPs. All1,401 result indices/constraints
+remain, no exceptions. Area4,466ALMs/3,827registers. This closes this slice's
+budget; it is not full-native timing or original60ns phase qualification.
+[Exact proof and timing](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#balanced-task-priority-and-native-boot-staging).
+
+The exact rewrite is staged in separate generic/owned533-file native trees;
+their source-bound156-owner/context induction and corrupted-owner control
+pass again. A NEW `cp-prefix-balanced-native-boot-v1-20261024` has compiled
+and started at a fixed5B HOST bound with original firmware/inputs/read-only
+medium, shared global control/storage/disk barrier and corrected8-class window
+ledger. The new explicit `--firmware-run` preparation allows a boot-length
+experiment; it does not change or extend any older test. Short prefix bounds
+cannot reach the known original-ROM Cedar113 handoff. First qualify this actual
+whole-machine CP/firmware path at unchanged57.142857MHz/SYSPER4 before accelerating.
+
+Separately, the preceding owned-context full native source maps successfully
+in Quartus, with all988 warnings retained and no source changes. No loop/latch/
+multiple-driver diagnostic appears in that map log. This is synthesis evidence,
+not fitted feedback safety, native timing, image selection or a hardware gain.
+Next finish actual native phase/producer timing and integrate FOUR15ns ticks,
+all peripheral timers and the separate66.7MHz SDRAM crossing/physical constraints.
+Full A–F, Cedar/Rollback/persistence/fresh boots/stress remain active.
+
+Owner-context follow-up (2026-10-24): the actual native owner wiring makes
+the generic wide canonical-context comparison redundant. Source-bound proof
+checks all 156 control-owner projection bits and inductively compares both
+actual cache implementations, 1,416 auxiliary bits and their interfaces, with
+unconstrained owner power-up and no input/protocol assumptions. A corrupted
+owner has a counterexample. After project relocation, only the protected owner
+enable and that comparison differ across all 533 native source files.
+
+The actual-owner 15 ns caller slice is **REJECTED**: minimum global setup
+-0.310 ns, owner-result setup -0.111 ns and hold -0.084 ns. Every original
+1,401 result index and constraint remains; no exception was added. This fixture
+uses 420 live inputs and actual saved owners, unlike the earlier independent
+1,651-input generic fixture. Area is 4,357 ALMs / 3,770 registers. The critical
+path now crosses task priority selection; hold fails into a stack-RAM address.
+Do not call this a passing generic or full-native fit. Next test a balanced
+highest-task encoder, with exact atomic proofs and both complete original
+comparisons before another timing experiment.
+
+Generic native cold-v3 completed its ORIGINAL 300M-host-clock bound: 68,288,387
+enabled machine edges, 289 checked control pauses/snapshots, one real ROM CP
+write and no pause assertion failures. It did not reach Cedar. Its frozen CP
+window ledger has an out-of-range class7 index; no window opens in this run,
+so the pause checks remain useful but it cannot qualify Cedar windows. The
+constructor now extends the array AND all initialization/sum/report loops to
+eight classes. Legacy seven-class and new eight-class observers pass both
+simulators; the new test measures three actual CP-wait ticks. The separate
+owned-context native test keeps its original 1B-host bound and remains live.
+
+Both reset-correct baseline/queue jobs reached genuine BFN113 and released C.
+Their first 8,192-request windows close consistently, but raw operation sequences
+diverge at request1536: the queue performs an extra read block before resuming
+the preceding sequence. Preserve that difference; a common BFN/starting PC is
+not enough to establish an identical workload. Baseline/queue windows spend
+40,083/33,925 clocks in storage waits, zero ARM-disk waits, over different
+106,255/95,797-clock workloads. These are attribution observations, NOT a
+qualified speed comparison. Diagnose the extra traffic and pin architectural
+progress before claiming gains. [Exact proof, failure, startup and raw windows](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#native-owner-context-and-completed-startup-prefix).
+Hardware remains 5c65 at the last measured 4.025473M StartCycle issues/s;
+original60ns, separate66.7MHz SDRAM, all timers and the full A–F gates remain.
+
 Latest structural/native integration (2026-10-24): five-pass-only full fit is
 REJECTED(-2.512ns global/-1.440ns owners). Direct CP12projection then proves
 equal to ordered prefix/root for955arbitrary binary inputs; stale CP rejects.

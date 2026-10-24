@@ -84,11 +84,36 @@ always @(negedge host_clk)if(!reset && (host_ticks%10000000==0 || host_ticks+2>=
 '''
 
 
-def prepare(stage,baseline,component,out,limit):
+def extend_window_gate(raw):
+    """Extend the original seven-category ledger, including every partition loop."""
+    raw=replace(raw,'window_gate[0:6],','window_gate[0:7],')
+    raw=replace(raw,'for(integer j=0;j<7;j++)window_gate[j]=0;',
+                'for(integer j=0;j<8;j++)window_gate[j]=0;')
+    raw=replace(raw,'for(integer j=0;j<7;j++)gate_sum+=window_gate[j];',
+                'for(integer j=0;j<8;j++)gate_sum+=window_gate[j];')
+    raw=replace(raw,'for(integer j=0;j<7;j++)$display("NATIVE_WINDOW_GATE',
+                'for(integer j=0;j<8;j++)$display("NATIVE_WINDOW_GATE')
+    raw=replace(raw,'else window_gate[6]++;',
+                'else if(!control_ready)window_gate[7]++;\n      else window_gate[6]++;')
+    raw=replace(raw,'NATIVE_WINDOW_BEGIN id=%0d tick=%0d trigger=%0d BFN=%o pc=%h limit=%0d',
+                'NATIVE_WINDOW_BEGIN id=%0d tick=%0d trigger=%0d BFN=%o pc=%h limit=%0d gate_classes=8')
+    return raw
+
+
+def prepare(stage,baseline,component,out,limit,context_proof=None,firmware_run=False):
     assert not out.exists()
     staged=json.loads((stage/'r-front-control-native.json').read_text())
     assert staged['global_control_ready_gate_wired']and staged['storage_ready_kept_separate']
-    prepare_base(stage,baseline,out,limit,monitor_baseboard=True)
+    context=None
+    if staged.get('owned_context_specialization_requested',False):
+        assert context_proof is not None,'Owned-context mode requires its exact source-bound induction proof'
+        context=json.loads((context_proof/'run-state.json').read_text())
+        assert context['status']=='PASS_SOURCE_BOUND_NATIVE_CP_CONTEXT'and context['unbounded_induction_proven']
+        assert context['native_manifest_sha256']==sha(stage/'r-front-control-native.json')
+        assert not context['input_or_protocol_assumptions_added']and context['owned_projection_bits']==156
+        for name,h in context['source_files'].items():assert sha(context_proof/name)==h,name
+        assert sha(context_proof/'proof.log')==context['proof_log_sha256']
+    prepare_base(stage,baseline,out,limit,monitor_baseboard=True,firmware_run=firmware_run)
     provenance=out/'provenance.json.gz';r=json.loads(gzip.decompress(provenance.read_bytes()))
     tb=out/'inputs/harness/tb_native_cedar.sv';raw=tb.read_text()
     raw=replace(raw,'  wire storage_ready,storage_initialized,pack_ready,pack_fault;',
@@ -115,7 +140,7 @@ def prepare(stage,baseline,component,out,limit):
                 'always @(negedge host_clk)if(!reset && step && control_ready)begin')
     assert raw.count('else traffic_classes[6]++;')==1 and raw.count('else window_gate[6]++;')==1
     raw=replace(raw,'else traffic_classes[6]++;','else if(!control_ready)traffic_classes[7]++;\n    else traffic_classes[6]++;')
-    raw=replace(raw,'else window_gate[6]++;','else if(!control_ready)window_gate[7]++;\n      else window_gate[6]++;')
+    raw=extend_window_gate(raw)
     ref=(component/'inputs/tb_r_front_local.sv').read_text()
     function=re.search(r' function automatic \[9215:0\] memory_image\(\);.*? endfunction',ref,re.S)[0]
     function=function.replace('memory_image','native_cp_memory_image').replace('dut.child.', 'dut.m.r_front_evaluator.child.')
@@ -124,12 +149,17 @@ def prepare(stage,baseline,component,out,limit):
     tb.write_text(raw);r['inputs']['harness/tb_native_cedar.sv']=sha(tb)
     source=out/'inputs/prepare_cp_native_pause.py';source.write_bytes(Path(__file__).read_bytes())
     r['inputs'][source.name]=sha(source)
+    helper=out/'inputs/run_r_front_control_native.py'
+    helper.write_bytes((Path(__file__).parent/helper.name).read_bytes());r['inputs'][helper.name]=sha(helper)
     r.update(scope=__doc__,control_barrier_gate_in_native_harness=True,
              original_baseline_inputs_or_limits_changed=False,framework_reset_and_boot_stimulus_unchanged=True,
              passive_commit_and_all_ten_board_pause_checks=True,passive_closed_owner_and_SRAM_pause_checks=True,
              passive_held128_request_response_checks=True,traffic_gate_class7_is_control_wait=True,
+             window_gate_classes=8,window_gate_initialization_report_and_sum_extended=True,
              passive_CP_package_input_net_mapping=observer_map,
              passive_CP_observer_source_sha256=sha(original_ca),
+             owned_context_proof=str(context_proof)if context else None,
+             owned_context_proof_sha256=sha(context_proof/'run-state.json')if context else None,
              passive_forecast_monitor_requires_ready=True,full_goal_active=True)
     provenance.write_bytes(gzip.compress((json.dumps(r,indent=2)+'\n').encode(),mtime=0))
     print('PREPARED_SHARED_CONTROL_NATIVE_PAUSE_TEST',limit,'host clocks',flush=True)
@@ -139,4 +169,7 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ['stage','baseline','component','output']:parser.add_argument('--'+name,type=Path,required=True)
     parser.add_argument('--limit',type=int,default=300000000)
-    a=parser.parse_args();prepare(a.stage.resolve(),a.baseline.resolve(),a.component.resolve(),a.output.resolve(),a.limit)
+    parser.add_argument('--context-proof',type=Path)
+    parser.add_argument('--firmware-run',action='store_true',help='Prepare a separate bounded boot test up to5B clocks')
+    a=parser.parse_args();prepare(a.stage.resolve(),a.baseline.resolve(),a.component.resolve(),a.output.resolve(),a.limit,
+                                 a.context_proof.resolve()if a.context_proof else None,a.firmware_run)

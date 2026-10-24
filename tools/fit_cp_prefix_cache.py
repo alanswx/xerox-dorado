@@ -31,7 +31,7 @@ def gate(run, engine):
     parent = Path(state['parent'])
     assert sha(parent / 'run-state.json') == state['parent_state_sha256']
     assert (run / 'candidate.sv').read_text() == candidate((parent / 'candidate.sv').read_text(), None,
-        state.get('parallel_control_results', False), state.get('control_only_settled_eligibility', False), state.get('settling_waves', 8), state.get('direct_cp_projection', False))
+        state.get('parallel_control_results', False), state.get('control_only_settled_eligibility', False), state.get('settling_waves', 8), state.get('direct_cp_projection', False), state.get('balanced_task_priority', False))
     tb = (run / 'inputs/tb_r_front_local.sv').read_text()
     assert tb == bench((parent / 'inputs/tb_r_front_local.sv').read_text())
     for row in state['source_files']:

@@ -23,7 +23,7 @@ BP='src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v'
 MACHINE='src/build/rtl-executive/native16-tx-cable/dorado_native_machine.sv'
 
 
-def prepare(parent,fit,review,input_run,out,project):
+def prepare(parent,fit,review,input_run,out,project,owned_context=False,priority_review=None):
     assert not out.exists()and project.is_absolute()
     old=json.loads((parent/'r-front-control-native.json').read_text())
     assert old['status']=='STAGED_PROCESSOR_CONTROL_NATIVE_EXPERIMENT'
@@ -83,6 +83,11 @@ def prepare(parent,fit,review,input_run,out,project):
     body=replace(before,'    output wire storage_ready,','    output wire storage_ready,\n    output wire control_ready,')
     body=replace(body,'.physical_state(r_front_q));',
         '.physical_state(r_front_q),.cp_reset(storage_reset),.cp_ready(control_ready));')
+    if owned_context:
+        # Same enable as the cache's canonical snapshot and the SRAM owner.
+        # The source-bound context proof must pass before selecting this mode.
+        body=replace(body,'always @(posedge storage_clk)if(contb_advance)begin\n    r_front_lower_q',
+            'always @(posedge storage_clk)if(contb_advance && control_ready)begin\n    r_front_lower_q')
     assert raw.count(before)==1
     data[BP]=raw.replace(before,body,1).encode()
     raw=data[MACHINE].decode()
@@ -100,6 +105,37 @@ def prepare(parent,fit,review,input_run,out,project):
     assert 'always @(negedge clk_sys) network_step <= machine_enable;'in core
     assert '.ena(machine_enable)'in core
     data['core/Dorado.sv']=core.encode()
+    if owned_context:
+        name='src/verilog/rtl/dorado_r_front_control_step.sv'
+        raw=data[name].decode()
+        raw=replace(raw,''' wire canonical_match=(current_q==canonical_q)&&(before_pins==canonical_pins)&&
+                      (before_root==canonical_root)&&(refresh==canonical_refresh);''',
+                    " wire canonical_match=1'b1;")
+        data[name]=raw.encode()
+    priority=None
+    if priority_review is not None:
+        from balance_control_priority import transform
+        from prove_memory_mir_rtl import atomic
+        priority=json.loads((priority_review/'results.json').read_text())
+        assert priority['status']=='REVIEWED_BALANCED_CONTROL_PRIORITY_COMPONENT'
+        assert priority['caller_timing']['caller_slice_timing_passed']
+        assert priority['unbounded475_bit_ready_equivalence']
+        assert priority['all_original_physical_Q_bits']==844 and priority['all_original_RAM_bits']==9216
+        assert priority['all_original_clock_counts']==100 and not priority['assembly_permitted']
+        for row in priority['original_graph_comparisons']:
+            _,checked=gate(Path(row['directory']),row['engine'])
+            assert json.loads(json.dumps(checked))==row
+        proof_dir=priority_review/priority['atomic_proofs'][0]['directory']
+        p=json.loads((proof_dir/'run-state.json').read_text())
+        assert p['status']=='PASS_BALANCED_PRIORITY_ALL_ATOMIC_OUTPUTS'
+        assert sha(proof_dir/'run-state.json')==priority['atomic_proofs'][0]['state_sha256']
+        for n,h in p['files'].items():assert sha(proof_dir/n)==h,n
+        name='src/verilog/rtl/dorado_r_front_control_step.sv'
+        raw=data[name].decode();original=(proof_dir/'original.sv').read_text()
+        # The owned/generic caller cache guard differs; this pure atomic
+        # function rewrite has the exact same producer in either caller.
+        assert atomic(raw,'source_atomic')==atomic(original,'source_atomic')
+        data[name]=transform(raw).encode()
     for name in ['core/Dorado.sdc','core/sdram_timing.sdc']:
         # Only project path relocation is permitted in existing constraints.
         assert data[name]==(parent/name).read_bytes().replace(old['project'].encode(),str(project).encode())
@@ -115,6 +151,13 @@ def prepare(parent,fit,review,input_run,out,project):
         'component_fit':str(fit),'component_full15ns_passed':receipt['component_fit_passed'],'component_owner15ns_passed':True,
         'component_proof_gates':gates,'original_native_pause_clock_rate_unchanged':True,
         'global_control_ready_gate_wired':True,'storage_ready_kept_separate':True,
+        'owned_context_specialization_requested':owned_context,
+        'owner_commit_also_guarded_by_control_ready':owned_context,
+        'owned_context_equivalence_proven':False,
+        'balanced_task_priority_proven':priority is not None,
+        'priority_review':str(priority_review)if priority_review else None,
+        'priority_review_sha256':sha(priority_review/'results.json')if priority_review else None,
+        'owned_caller_slice15ns_passed':bool(priority),
         'canonical_runtime_guard_implemented':True,'first_step_fallback_implemented':True,
         'direct_CP_register_projection_proven':True,'component_settling_waves':5,
         'input_reset_source_run':str(input_run),'input_reset_provenance_sha256':sha(input_run/'provenance.json.gz'),
@@ -131,4 +174,7 @@ def prepare(parent,fit,review,input_run,out,project):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ['parent','fit','review','input-run','output','project']:parser.add_argument('--'+name,type=Path,required=True)
-    a=parser.parse_args();prepare(a.parent.resolve(),a.fit.resolve(),a.review.resolve(),a.input_run.resolve(),a.output.resolve(),a.project)
+    parser.add_argument('--owned-context',action='store_true')
+    parser.add_argument('--priority-review',type=Path)
+    a=parser.parse_args();prepare(a.parent.resolve(),a.fit.resolve(),a.review.resolve(),a.input_run.resolve(),a.output.resolve(),a.project,a.owned_context,
+        a.priority_review.resolve()if a.priority_review else None)

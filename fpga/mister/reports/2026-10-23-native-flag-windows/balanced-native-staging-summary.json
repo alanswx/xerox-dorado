@@ -1,0 +1,48 @@
+{
+  "status": "REVIEWED_BALANCED_NATIVE_STAGING_AND_LIVE_BOOT",
+  "scope": "Retain the timing-passing slice's real native staging and live boot test.\n\nKeep this distinct from full-machine timing, completed boot and performance.\nThe earlier owned-context synthesis maps successfully, with all988 warnings\nretained; absence of a loop diagnostic is not proof of fitted feedback safety.\nThe new5B boot test is a separate experiment, never an extended older bound.\n",
+  "native_source_count": 533,
+  "generic_to_owned_changes": [
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v",
+    "src/verilog/rtl/dorado_r_front_control_step.sv"
+  ],
+  "context_proofs": [
+    {
+      "directory": "native-balanced-cp-context-proof-v1-20261024",
+      "status": "PASS_SOURCE_BOUND_NATIVE_CP_CONTEXT",
+      "state_sha256": "d18a0dd7bbd878fd6adc889e2f3c9955eeccf4dd32aa43c17d693ce4efd8d9aa"
+    },
+    {
+      "directory": "native-balanced-cp-context-stale-v1-20261024",
+      "status": "PASS_STALE_NATIVE_OWNER_COUNTEREXAMPLE",
+      "state_sha256": "dbb6b246c7c2f0574c8175859d34894b63df4188d85877d0aced584a3cc9b1ee"
+    }
+  ],
+  "native_clock_hz": 57142857,
+  "sysper": 4,
+  "ordinary_host_ticks": 8,
+  "earlier_owned_native_synthesis": {
+    "directory": "native-cp-context-map-terminal-v1-20261024",
+    "returncode": 0,
+    "warnings": 988,
+    "source_changes": [],
+    "selected_structural_diagnostics": [],
+    "fitted_feedback_safety_qualified": false
+  },
+  "new_boot": {
+    "directory": "cp-prefix-balanced-native-boot-v1-20261024",
+    "pid": 49723,
+    "ps": "49723 01:31 R    /Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+    "observed": 1792835671.8404741,
+    "state_sha256": "3d3cac7ac66d24a5c07f20309b88645c21a8df4a930c32a2df17485787debb01"
+  },
+  "new_boot_fixed_bound": 5000000000,
+  "older_jobs_or_bounds_changed": false,
+  "native_timing_qualified": false,
+  "original60ns_qualified": false,
+  "firmware_qualified": false,
+  "hardware_changed": false,
+  "speedup_qualified": false,
+  "assembly_permitted": false,
+  "full_goal_active": true
+}

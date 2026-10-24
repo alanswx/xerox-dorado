@@ -111,14 +111,22 @@ endmodule
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
-def run(out):
+def run(out,control_pauses=False):
     assert not out.exists(),'Preserve existing observation test'
     out.mkdir(parents=True);inputs=out/'inputs';inputs.mkdir()
     observer=ROOT/'verilog/verilator/native_cedar/storage_windows.sv.inc'
     harness=ROOT/'verilog/verilator/native_cedar/tb_native_cedar.sv'
     for p in [observer,harness,Path(__file__),ROOT/'tools/report_native_storage_windows.py',ROOT/'tools/report_native_storage_traffic.py']:
         shutil.copyfile(p,inputs/p.name)
-    (inputs/'tb.sv').write_text(TB.replace('OBSERVER',observer.read_text()))
+    body=observer.read_text();tb=TB
+    if control_pauses:
+        from prepare_cp_native_pause import extend_window_gate
+        body=extend_window_gate(body)
+        tb=tb.replace('integer bfn=0;', 'reg control_ready=1;integer bfn=0;',1)
+        tb=tb.replace('storage_ready=1;@(negedge host_clk);step=1;',
+            'storage_ready=1;@(negedge host_clk);control_ready=0;repeat(3)@(negedge host_clk);control_ready=1;@(negedge host_clk);step=1;',1)
+        shutil.copyfile(ROOT/'tools/prepare_cp_native_pause.py',inputs/'prepare_cp_native_pause.py')
+    (inputs/'tb.sv').write_text(tb.replace('OBSERVER',body))
     text=harness.read_text();start=text.index('    wait(!reset);repeat(3)@(negedge host_clk);')
     end=text.index('\n  end\n  wire [12:0] a;',start);release=text[start:end]
     assert release.count("while(native_boot_request()!=32'o113)")==1
@@ -163,6 +171,9 @@ endmodule
             log=(out/(engine+'-test.log')).read_bytes();r=parse_windows(log)
             assert [w['complete']for w in r['windows'].values()]==[True,True,False,True]
             assert r['windows'][1]['firmware_trigger_observed']
+            if control_pauses:
+                assert all(set(w['gate'])==set(range(8)) for w in r['windows'].values())
+                assert int(r['windows'][1]['gate'][7]['ticks'])==3
             assert r['windows'][3]['footer']['status']=='ABORT' and r['windows'][3]['trace']['unpaired_request']
             assert sum(int(w['read_class'][5]['admitted'])for w in r['windows'].values())==4
             results[engine]=r;print(engine,'WINDOW_TEST PASS',flush=True)
@@ -179,7 +190,8 @@ endmodule
                 release_results[engine+'-'+label]=dict(returncode=rc,old_decimal_error_rejected=bad)
         assert results['icarus']==results['verilator'],'Observation differs between simulators'
         assert all(sha(inputs/n)==h for n,h in frozen.items())
-        state=dict(status='PASS_PASSIVE_NATIVE_WINDOW_OBSERVER_TWO_SIMULATORS',inputs=frozen,actions=actions,results=results,release_results=release_results,native_firmware_or_speed_qualified=False)
+        state=dict(status='PASS_PASSIVE_NATIVE_WINDOW_OBSERVER_TWO_SIMULATORS',inputs=frozen,actions=actions,results=results,release_results=release_results,
+                   control_pause_schema_tested=control_pauses,native_firmware_or_speed_qualified=False)
     except BaseException as e:
         state=dict(status='TERMINAL_FAILED',error=repr(e),actions=actions,results=results);raise
     finally:(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
@@ -187,4 +199,5 @@ endmodule
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True)
-    run(p.parse_args().output.resolve())
+    p.add_argument('--control-pauses',action='store_true')
+    a=p.parse_args();run(a.output.resolve(),a.control_pauses)

@@ -1,0 +1,1031 @@
+{
+  "status": "REVIEWED_BALANCED_CONTROL_PRIORITY_COMPONENT",
+  "scope": "Retain the balanced task encoder's complete comparisons and timing result.\n\nPure function substitution is proved at both five and24 atomic waves, with\nall363 outputs retained and corrupted-output counterexamples. Whole original\ncomponent comparisons and475-bit cache induction remain separate gates.\nThis receipt cannot qualify full-native clocks, Cedar or hardware performance.\n",
+  "atomic_proofs": [
+    {
+      "directory": "native-balanced-priority-proof-v1-20261024",
+      "status": "PASS_BALANCED_PRIORITY_ALL_ATOMIC_OUTPUTS",
+      "state_sha256": "fed6f70051b38620f60a43b673870b234bc699bc7ad64ef97da47b1e293a070b"
+    },
+    {
+      "directory": "native-balanced-priority-bad-v1-20261024",
+      "status": "PASS_BALANCED_PRIORITY_COUNTEREXAMPLES",
+      "state_sha256": "4618f696741953671de100896cc947e7c4aa02dca82852945be865a1a5847468"
+    }
+  ],
+  "original_graph_comparisons": [
+    {
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-icarus-v1-20261024",
+      "engine": "icarus",
+      "state_sha256": "a8b46793cff3bd682a8aaddb181c8ad752430b53579fab0f8a5932bd8258dbb3",
+      "candidate_sha256": "ad59be83012485bf04826c66f933cd90c732ec1fc964f3711b7c34263b4a66fc",
+      "clocks": [
+        [
+          "0",
+          "4464"
+        ],
+        [
+          "1",
+          "2232"
+        ],
+        [
+          "2",
+          "2232"
+        ],
+        [
+          "3",
+          "2232"
+        ],
+        [
+          "4",
+          "4393"
+        ],
+        [
+          "5",
+          "4393"
+        ],
+        [
+          "6",
+          "4393"
+        ],
+        [
+          "7",
+          "4201"
+        ],
+        [
+          "8",
+          "4393"
+        ],
+        [
+          "9",
+          "4393"
+        ],
+        [
+          "10",
+          "4464"
+        ],
+        [
+          "11",
+          "2180"
+        ],
+        [
+          "12",
+          "2180"
+        ],
+        [
+          "13",
+          "2181"
+        ],
+        [
+          "14",
+          "4393"
+        ],
+        [
+          "15",
+          "4464"
+        ],
+        [
+          "16",
+          "2180"
+        ],
+        [
+          "17",
+          "2180"
+        ],
+        [
+          "18",
+          "2181"
+        ],
+        [
+          "19",
+          "2180"
+        ],
+        [
+          "20",
+          "1616"
+        ],
+        [
+          "21",
+          "1616"
+        ],
+        [
+          "22",
+          "166"
+        ],
+        [
+          "23",
+          "4393"
+        ],
+        [
+          "24",
+          "4393"
+        ],
+        [
+          "25",
+          "2101"
+        ],
+        [
+          "26",
+          "2181"
+        ],
+        [
+          "27",
+          "2101"
+        ],
+        [
+          "28",
+          "2181"
+        ],
+        [
+          "29",
+          "32"
+        ],
+        [
+          "30",
+          "48"
+        ],
+        [
+          "31",
+          "32"
+        ],
+        [
+          "32",
+          "48"
+        ],
+        [
+          "33",
+          "2180"
+        ],
+        [
+          "34",
+          "4393"
+        ],
+        [
+          "35",
+          "4393"
+        ],
+        [
+          "36",
+          "4393"
+        ],
+        [
+          "37",
+          "4393"
+        ],
+        [
+          "38",
+          "2180"
+        ],
+        [
+          "39",
+          "4393"
+        ],
+        [
+          "40",
+          "4393"
+        ],
+        [
+          "41",
+          "4393"
+        ],
+        [
+          "42",
+          "1616"
+        ],
+        [
+          "43",
+          "32"
+        ],
+        [
+          "44",
+          "2180"
+        ],
+        [
+          "45",
+          "2180"
+        ],
+        [
+          "46",
+          "257"
+        ],
+        [
+          "47",
+          "2181"
+        ],
+        [
+          "48",
+          "2180"
+        ],
+        [
+          "49",
+          "2180"
+        ],
+        [
+          "50",
+          "2180"
+        ],
+        [
+          "51",
+          "2180"
+        ],
+        [
+          "52",
+          "2180"
+        ],
+        [
+          "53",
+          "1"
+        ],
+        [
+          "54",
+          "1"
+        ],
+        [
+          "55",
+          "1056"
+        ],
+        [
+          "56",
+          "1056"
+        ],
+        [
+          "57",
+          "1616"
+        ],
+        [
+          "58",
+          "1616"
+        ],
+        [
+          "59",
+          "1616"
+        ],
+        [
+          "60",
+          "1616"
+        ],
+        [
+          "61",
+          "1616"
+        ],
+        [
+          "62",
+          "1616"
+        ],
+        [
+          "63",
+          "1616"
+        ],
+        [
+          "64",
+          "1616"
+        ],
+        [
+          "65",
+          "239"
+        ],
+        [
+          "66",
+          "132"
+        ],
+        [
+          "67",
+          "2180"
+        ],
+        [
+          "68",
+          "2180"
+        ],
+        [
+          "69",
+          "32"
+        ],
+        [
+          "70",
+          "1616"
+        ],
+        [
+          "71",
+          "1616"
+        ],
+        [
+          "72",
+          "1616"
+        ],
+        [
+          "73",
+          "1616"
+        ],
+        [
+          "74",
+          "1616"
+        ],
+        [
+          "75",
+          "1616"
+        ],
+        [
+          "76",
+          "1616"
+        ],
+        [
+          "77",
+          "1616"
+        ],
+        [
+          "78",
+          "1616"
+        ],
+        [
+          "79",
+          "1616"
+        ],
+        [
+          "80",
+          "1616"
+        ],
+        [
+          "81",
+          "1616"
+        ],
+        [
+          "82",
+          "1616"
+        ],
+        [
+          "83",
+          "1616"
+        ],
+        [
+          "84",
+          "1616"
+        ],
+        [
+          "85",
+          "1616"
+        ],
+        [
+          "86",
+          "32"
+        ],
+        [
+          "87",
+          "1616"
+        ],
+        [
+          "88",
+          "1616"
+        ],
+        [
+          "89",
+          "1616"
+        ],
+        [
+          "90",
+          "1616"
+        ],
+        [
+          "91",
+          "65"
+        ],
+        [
+          "92",
+          "65"
+        ],
+        [
+          "93",
+          "65"
+        ],
+        [
+          "94",
+          "4401"
+        ],
+        [
+          "95",
+          "1"
+        ],
+        [
+          "96",
+          "2197"
+        ],
+        [
+          "97",
+          "2197"
+        ],
+        [
+          "98",
+          "2197"
+        ],
+        [
+          "99",
+          "2201"
+        ]
+      ],
+      "coverage": {
+        "fast": 13347,
+        "staged": 1537,
+        "wait_edges": 1553,
+        "retries": 7,
+        "resets": 1
+      },
+      "summary": "checks=14884 writes=238 reads=6928 epochs=392"
+    },
+    {
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-verilator-v1-20261024",
+      "engine": "verilator",
+      "state_sha256": "8d45279c28ffb81b4cba07747bf8d604c763994bdd04d91ec42bee4fc260e4ac",
+      "candidate_sha256": "ad59be83012485bf04826c66f933cd90c732ec1fc964f3711b7c34263b4a66fc",
+      "clocks": [
+        [
+          "0",
+          "4464"
+        ],
+        [
+          "1",
+          "2232"
+        ],
+        [
+          "2",
+          "2232"
+        ],
+        [
+          "3",
+          "2232"
+        ],
+        [
+          "4",
+          "4393"
+        ],
+        [
+          "5",
+          "4393"
+        ],
+        [
+          "6",
+          "4393"
+        ],
+        [
+          "7",
+          "4201"
+        ],
+        [
+          "8",
+          "4393"
+        ],
+        [
+          "9",
+          "4393"
+        ],
+        [
+          "10",
+          "4464"
+        ],
+        [
+          "11",
+          "2180"
+        ],
+        [
+          "12",
+          "2180"
+        ],
+        [
+          "13",
+          "2181"
+        ],
+        [
+          "14",
+          "4393"
+        ],
+        [
+          "15",
+          "4464"
+        ],
+        [
+          "16",
+          "2180"
+        ],
+        [
+          "17",
+          "2180"
+        ],
+        [
+          "18",
+          "2181"
+        ],
+        [
+          "19",
+          "2180"
+        ],
+        [
+          "20",
+          "1616"
+        ],
+        [
+          "21",
+          "1616"
+        ],
+        [
+          "22",
+          "166"
+        ],
+        [
+          "23",
+          "4393"
+        ],
+        [
+          "24",
+          "4393"
+        ],
+        [
+          "25",
+          "2101"
+        ],
+        [
+          "26",
+          "2181"
+        ],
+        [
+          "27",
+          "2101"
+        ],
+        [
+          "28",
+          "2181"
+        ],
+        [
+          "29",
+          "32"
+        ],
+        [
+          "30",
+          "48"
+        ],
+        [
+          "31",
+          "32"
+        ],
+        [
+          "32",
+          "48"
+        ],
+        [
+          "33",
+          "2180"
+        ],
+        [
+          "34",
+          "4393"
+        ],
+        [
+          "35",
+          "4393"
+        ],
+        [
+          "36",
+          "4393"
+        ],
+        [
+          "37",
+          "4393"
+        ],
+        [
+          "38",
+          "2180"
+        ],
+        [
+          "39",
+          "4393"
+        ],
+        [
+          "40",
+          "4393"
+        ],
+        [
+          "41",
+          "4393"
+        ],
+        [
+          "42",
+          "1616"
+        ],
+        [
+          "43",
+          "32"
+        ],
+        [
+          "44",
+          "2180"
+        ],
+        [
+          "45",
+          "2180"
+        ],
+        [
+          "46",
+          "257"
+        ],
+        [
+          "47",
+          "2181"
+        ],
+        [
+          "48",
+          "2180"
+        ],
+        [
+          "49",
+          "2180"
+        ],
+        [
+          "50",
+          "2180"
+        ],
+        [
+          "51",
+          "2180"
+        ],
+        [
+          "52",
+          "2180"
+        ],
+        [
+          "53",
+          "1"
+        ],
+        [
+          "54",
+          "1"
+        ],
+        [
+          "55",
+          "1056"
+        ],
+        [
+          "56",
+          "1056"
+        ],
+        [
+          "57",
+          "1616"
+        ],
+        [
+          "58",
+          "1616"
+        ],
+        [
+          "59",
+          "1616"
+        ],
+        [
+          "60",
+          "1616"
+        ],
+        [
+          "61",
+          "1616"
+        ],
+        [
+          "62",
+          "1616"
+        ],
+        [
+          "63",
+          "1616"
+        ],
+        [
+          "64",
+          "1616"
+        ],
+        [
+          "65",
+          "239"
+        ],
+        [
+          "66",
+          "132"
+        ],
+        [
+          "67",
+          "2180"
+        ],
+        [
+          "68",
+          "2180"
+        ],
+        [
+          "69",
+          "32"
+        ],
+        [
+          "70",
+          "1616"
+        ],
+        [
+          "71",
+          "1616"
+        ],
+        [
+          "72",
+          "1616"
+        ],
+        [
+          "73",
+          "1616"
+        ],
+        [
+          "74",
+          "1616"
+        ],
+        [
+          "75",
+          "1616"
+        ],
+        [
+          "76",
+          "1616"
+        ],
+        [
+          "77",
+          "1616"
+        ],
+        [
+          "78",
+          "1616"
+        ],
+        [
+          "79",
+          "1616"
+        ],
+        [
+          "80",
+          "1616"
+        ],
+        [
+          "81",
+          "1616"
+        ],
+        [
+          "82",
+          "1616"
+        ],
+        [
+          "83",
+          "1616"
+        ],
+        [
+          "84",
+          "1616"
+        ],
+        [
+          "85",
+          "1616"
+        ],
+        [
+          "86",
+          "32"
+        ],
+        [
+          "87",
+          "1616"
+        ],
+        [
+          "88",
+          "1616"
+        ],
+        [
+          "89",
+          "1616"
+        ],
+        [
+          "90",
+          "1616"
+        ],
+        [
+          "91",
+          "65"
+        ],
+        [
+          "92",
+          "65"
+        ],
+        [
+          "93",
+          "65"
+        ],
+        [
+          "94",
+          "4401"
+        ],
+        [
+          "95",
+          "1"
+        ],
+        [
+          "96",
+          "2197"
+        ],
+        [
+          "97",
+          "2197"
+        ],
+        [
+          "98",
+          "2197"
+        ],
+        [
+          "99",
+          "2201"
+        ]
+      ],
+      "coverage": {
+        "fast": 13347,
+        "staged": 1537,
+        "wait_edges": 1553,
+        "retries": 7,
+        "resets": 1
+      },
+      "summary": "checks=14884 writes=238 reads=6928 epochs=392"
+    }
+  ],
+  "all_original_physical_Q_bits": 844,
+  "all_original_RAM_bits": 9216,
+  "all_original_clock_counts": 100,
+  "unbounded475_bit_ready_equivalence": true,
+  "SRAM_permission": "request && ready",
+  "induction_state_sha256": "f9284f0a8f6a395b97a5a2c03c5a7504ec39197e9dccc422896d1ad2d4650e55",
+  "caller_timing": {
+    "directory": "native-balanced-caller-fit-terminal-v1-20261024",
+    "scope": "Actual native owner/control slice; not full core or the earlier generic fixture",
+    "clock_period_ns": 15,
+    "all1401_result_indices_retained": true,
+    "exceptions_added": false,
+    "corners": [
+      {
+        "condition": "7_slow_1100mv_100c",
+        "global": {
+          "slack_ns": 0.587,
+          "source": "r_front_lower_q[72]~DUPLICATE",
+          "sink": "result[483]~reg0",
+          "arrival_ns": 18.166,
+          "required_ns": 18.753,
+          "report_sha256": "30aa359d69950fc7f25deea54b8e1dc16decf08e3046cea35a2e6c512995855d"
+        },
+        "owners": {
+          "slack_ns": 1.056,
+          "source": "launch[31]",
+          "sink": "result[1149]~reg0",
+          "arrival_ns": 18.034,
+          "required_ns": 19.09,
+          "report_sha256": "9cd3cde6e7ed3bec94cbee6dd175c57af50c028030754a5ba0e5974666389796"
+        },
+        "late_owners": {
+          "slack_ns": 2.038,
+          "source": "launch[389]~DUPLICATE",
+          "sink": "result[1149]~reg0",
+          "arrival_ns": 17.052,
+          "required_ns": 19.09,
+          "report_sha256": "f8901e6f916b5465304322e6f13cc8bf6c6039a547414d906239e7b103b867d5"
+        },
+        "hold": {
+          "slack_ns": 0.209,
+          "source": "r_front_upper_q[33]",
+          "sink": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|lutrama34~OBSERVABLEPORTAADDRESSREGOUT2",
+          "arrival_ns": 4.421,
+          "required_ns": 4.212,
+          "report_sha256": "6a978a04812e47ffdcc9c5c95a76066991403c78df2c9e29fda051fa8e69d59d"
+        },
+        "pulse_slack_ns": 6.468,
+        "recovery": null,
+        "removal": null
+      },
+      {
+        "condition": "7_slow_1100mv_-40c",
+        "global": {
+          "slack_ns": 0.717,
+          "source": "dorado_r_front_control_step:evaluator|dorado_cp_prefix_cache:cp_guard|after_cp_saved[7]~DUPLICATE",
+          "sink": "result[355]~reg0",
+          "arrival_ns": 18.521,
+          "required_ns": 19.238,
+          "report_sha256": "fbf3ac9c6bb9bb24840954ff9156c7355816f1bb75413ead38b486ca2d0cfd87"
+        },
+        "owners": {
+          "slack_ns": 1.077,
+          "source": "launch[31]",
+          "sink": "result[1149]~reg0",
+          "arrival_ns": 18.179,
+          "required_ns": 19.256,
+          "report_sha256": "7f8a879f87c87a6560fd6a8e31bb8adaa8533f533e907abc6c9b3d908557ddd5"
+        },
+        "late_owners": {
+          "slack_ns": 2.502,
+          "source": "launch[389]~DUPLICATE",
+          "sink": "result[797]~reg0",
+          "arrival_ns": 16.465,
+          "required_ns": 18.967,
+          "report_sha256": "b6f1824fed66bd1a8cc8ef0e74c318188afde44deff51b3a30e570a88f1dd785"
+        },
+        "hold": {
+          "slack_ns": 0.177,
+          "source": "r_front_upper_q[33]",
+          "sink": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|lutrama34~OBSERVABLEPORTAADDRESSREGOUT2",
+          "arrival_ns": 4.558,
+          "required_ns": 4.381,
+          "report_sha256": "ad5bb80b90afa87542335517f5257d00d14d35b47468a58c648bcacd0438bccd"
+        },
+        "pulse_slack_ns": 6.468,
+        "recovery": null,
+        "removal": null
+      },
+      {
+        "condition": "MIN_fast_1100mv_100c",
+        "global": {
+          "slack_ns": 4.237,
+          "source": "input_stage[348]",
+          "sink": "launch[348]~DUPLICATE",
+          "arrival_ns": 12.41,
+          "required_ns": 16.647,
+          "report_sha256": "b0d7e04c266bc18942817e86a8ee6e9323a08ef11ba7f0e33f2e135020a2ded1"
+        },
+        "owners": {
+          "slack_ns": 7.508,
+          "source": "launch[2]~DUPLICATE",
+          "sink": "result[1215]~reg0",
+          "arrival_ns": 9.307,
+          "required_ns": 16.815,
+          "report_sha256": "9e377ae3045a987d8a9cf0ac426ca88007408e9be207e98d89836fbd5c5a072e"
+        },
+        "late_owners": {
+          "slack_ns": 8.091,
+          "source": "launch[389]~DUPLICATE",
+          "sink": "result[1149]~reg0",
+          "arrival_ns": 8.724,
+          "required_ns": 16.815,
+          "report_sha256": "d53bde8efed13f6d50ba56c8e97514db27b5f54d8706b47d34d6569cf97b7497"
+        },
+        "hold": {
+          "slack_ns": 0.164,
+          "source": "r_front_upper_q[33]",
+          "sink": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|lutrama34~OBSERVABLEPORTAADDRESSREGOUT2",
+          "arrival_ns": 2.106,
+          "required_ns": 1.942,
+          "report_sha256": "7cd2b8833a2c4a7a765c623335dee135aaf2d594dce754557ac04fbafa417973"
+        },
+        "pulse_slack_ns": 6.18,
+        "recovery": null,
+        "removal": null
+      },
+      {
+        "condition": "MIN_fast_1100mv_-40c",
+        "global": {
+          "slack_ns": 4.636,
+          "source": "input_stage[348]",
+          "sink": "launch[348]~DUPLICATE",
+          "arrival_ns": 11.89,
+          "required_ns": 16.526,
+          "report_sha256": "987320ba8e9a697b7047b42b7656fa5e8e68b04803a98c20359523c5ec6229f4"
+        },
+        "owners": {
+          "slack_ns": 8.726,
+          "source": "launch[2]~DUPLICATE",
+          "sink": "result[1215]~reg0",
+          "arrival_ns": 7.972,
+          "required_ns": 16.698,
+          "report_sha256": "86af528794e031da11085a0300e272b9e7d2796ec88f66ffd9baa4811245eb23"
+        },
+        "late_owners": {
+          "slack_ns": 9.139,
+          "source": "launch[389]~DUPLICATE",
+          "sink": "result[1149]~reg0",
+          "arrival_ns": 7.561,
+          "required_ns": 16.7,
+          "report_sha256": "e5b9057d7d63ad2ee164d20a52f3ddb58fe07d01d3718dfb16a51809802db8bc"
+        },
+        "hold": {
+          "slack_ns": 0.113,
+          "source": "r_front_upper_q[33]",
+          "sink": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|lutrama34~OBSERVABLEPORTAADDRESSREGOUT2",
+          "arrival_ns": 1.934,
+          "required_ns": 1.821,
+          "report_sha256": "8ea59bd7f9c90c2176d287657188a8dd089e348f145e917c9b0352a6ae4f0f33"
+        },
+        "pulse_slack_ns": 6.115,
+        "recovery": null,
+        "removal": null
+      }
+    ],
+    "area": {
+      "ALMs": 4466,
+      "registers": 3827
+    },
+    "caller_slice_timing_passed": true,
+    "full_native_timing_qualified": false
+  },
+  "source_change": "Only two task-priority encoder functions; no owner/capture/SRAM/clock change",
+  "native_timing_qualified": false,
+  "original60ns_qualified": false,
+  "firmware_qualified": false,
+  "hardware_changed": false,
+  "assembly_permitted": false,
+  "speedup_qualified": false,
+  "full_goal_active": true
+}

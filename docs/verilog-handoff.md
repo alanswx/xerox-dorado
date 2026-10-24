@@ -1,5 +1,79 @@
 # Verilog from Sil: handoff
 
+Latest balanced-priority milestone (2026-10-24;
+[exact proof, passing slice timing and native staging](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#balanced-task-priority-and-native-boot-staging)):
+`balanced-control-priority-summary.json` records a complete15ns actual-owner
+caller PASS at every corner: setup minimum+0.587ns /owner-result+1.056ns /
+hold+0.113ns /pulse+6.115ns, zero UCPs, all1,401 results/original constraints.
+Area4,466ALMs/3,827registers. Only two pure highest-task encoder functions change.
+Both full14,884-event comparisons pass844Q/9,216RAM/all100clocks. All363 atomic
+outputs prove equivalent for955arbitrary binary input/state bits at five AND24
+waves; corrupted encoder has both counterexamples. All475 ready results/SRAM
+permission pass temporal induction. No full-native/60ns/hardware speed claim.
+The first review's tuple/list metadata assertion failure is preserved; only
+JSON normalization changed, with no test or fit rerun.
+
+Passing caller fit: local `native-balanced-caller-fit-terminal-v1-20261024`,
+remote `/home/alans/mister/native-balanced-caller-fit-v1-20261024`.
+`balanced-native-staging-summary.json` binds BOTH actual533-file native
+generic/owned trees and new156-owner/context induction/negative control.
+NEW original-ROM test `cp-prefix-balanced-native-boot-v1-20261024` has compiled
+and runs as test49723/session61501, fixed5B HOST clocks. It retains57.142857MHz/
+SYSPER4, all actual board/closed-owner/SRAM/128-group pause checks and the fixed
+8-class ledger. Observe its actual PID/log; do not extend/restart on timeout.
+`--firmware-run` permits this separate boot-length preparation because1B is
+shorter than the known genuine113 handoff; no older bound or source changed.
+
+The preceding unbalanced owned-context native source maps successfully on
+misterubuntu, unchanged533-file manifest/all988warnings retained. Reports at
+`native-cp-context-map-terminal-v1-20261024`, remote database
+`/home/alans/mister/cp-prefix-native-owned-v1-20261024/core`.
+No loop/latch/multiple-driver diagnostic appears in that map log; fitted
+feedback safety and full native timing remain open. No fit/assembly/deployment
+was performed by the synthesis-only runner. Next qualify actual balanced
+native firmware/CP pauses and complete original60ns producer/capture phases,
+every peripheral timer, separate66.7MHz SDRAM physical IO/crossings and full A–F.
+Hardware/Main/daemon and last4.025473MStartCycle issues/s remain unchanged.
+
+Latest owner-context/startup result (2026-10-24;
+[exact archived evidence](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#native-owner-context-and-completed-startup-prefix)):
+`native-cp-context-summary.json` retains the source-bound owner proof, its
+corrupted-owner counterexample, complete 300M-host cold-v3 result, corrected
+window ledger tests and both real Cedar113 windows. Hardware/Main/daemon are
+unchanged; last measured speed remains 4.025473M StartCycle issues/s.
+
+`cp-prefix-native-owned-stage-v1-20261024` removes the wide generic context
+comparison only under the actual coupled native owner enable. All156 owner
+projection bits and temporal induction of1,416 auxiliary bits/interfaces pass,
+with unconstrained owner power-up/no protocol assumptions. Across533 files,
+only that comparison and owner enable differ after project relocation.
+`cp-prefix-native-owned-cold-v1-20261024`, driver44831/test45198/session73079,
+keeps its original1B HOST bound; do not extend/restart it on observation timeouts.
+
+Its actual-owner caller fit is terminal and REJECTED: global setup-0.310ns,
+owner-result setup-0.111ns, hold-0.084ns; 4,357ALMs/3,770registers. Source and
+reports are `native-owned-caller-fit-terminal-v1-20261024`; database remains
+`/home/alans/mister/native-owned-caller-fit-v1-20261024`. All1,401 result
+indices/SDC remain. This420-live-input owner fixture differs from the previous
+1,651-independent-input generic shell; neither is a full-native timing pass.
+Next test balanced highest-task encoding on the identified task-selection path.
+
+Generic cold-v3 is now TERMINAL at its ORIGINAL300M-host limit, exit0:
+68,288,387 enabled machine edges /289 checked pauses and equal snapshots /
+one original ROM CP write. No Cedar boot. Its frozen window ledger incorrectly
+indexes class7 in a7-entry array; no window opens in this cold prefix. Keep
+its pause evidence but never use it to qualify Cedar windows. The constructor
+now extends all array/init/sum/report bounds; both legacy and8-class observers
+pass both engines, with3 actual CP-wait ticks in the new test.
+
+Original reset-correct jobs58600/58753 both reached actual113/C release and
+completed window1, but their raw sequences diverge after1,536 matching requests.
+Queue has an extra read block and later resumes the baseline sequence. The
+different8,192-request windows cannot establish a speedup: retain both full
+traces and investigate architectural alignment/timer/background-read effects.
+Both continue at their ORIGINAL5B bounds. No image selection, full firmware
+qualification or change to the original60ns/physical66.7MHz/full A–F goal.
+
 Direct-CP/native-integration milestone (2026-10-24;
 [proofs and full timing limits](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#direct-cp-register-projection-and-native-staging)):
 the five-pass-only fit finishes but fails-2.512ns global/-1.440ns owners.
@@ -10332,7 +10406,7 @@ and has unreviewed hold violations; never deploy it.
 
 <a id="current-todos-2026-10-17-native23"></a>
 
-## Current TODOs (updated 2026-10-22)
+## Current TODOs (updated 2026-10-24)
 
 ### Structural speed work: current order
 
@@ -10346,11 +10420,17 @@ and has unreviewed hold violations; never deploy it.
 - [x] Qualify the five-pass guarded component digitally and preserve its full15ns timing rejection; prove direct CP12projection, reject stale CP, and pass complete dual-engine/inductive/negative-control checks for its implementation.
 - [x] Finish direct-CP full15ns fit: all physical owners pass(+0.583ns minimum), full diagnostic fails(-0.550ns). Preserve all fields/constraints and the delayed11302CP-corruption rejection.
 - [x] Stage actual shared control_ready gate and synthesis-qualified input adapters in a private native baseline; preserve source-preparation/observer-lint failures and pass full structural elaboration with warnings visible.
-- [ ] Inspect original-ROM native cold-v3 at fixed300M bound with real all-board/backend pause checks; preserve intentionally stopped cold-v2's initialization-monitor error. Classify wide physical-Q feedback before native timing promotion.
+- [x] Inspect original-ROM native cold-v3 at its unchanged300M bound: exit0,68,288,387 enabled edges,289 equal pause snapshots,one ROM CP write; no Cedar boot. Preserve its unused broken7-entry window ledger and qualify the corrected8-entry constructor in both engines.
+- [x] Prove actual native owner/context coupling with unconstrained owner power-up and a corrupted-owner counterexample; preserve the actual-owner caller fit rejection(-0.310ns setup/-0.084ns hold).
+- [x] Balance highest-task encoding; prove all363 atomic outputs at five/24waves, retain both corrupted-encoder counterexamples, pass both complete original comparisons and475-bit cache induction, and pass complete15ns caller timing(+0.587ns setup/+0.113ns hold).
+- [x] Bind timing-passing balanced functions into separate actual generic/owned native trees; re-prove156-owner/context induction and corrupted-owner rejection, then compile/start a NEW fixed5B original-firmware boot test with the corrected8-class ledger.
+- [x] Map preceding owned-context full native source without source changes; retain all988warnings and absence of selected structural diagnostics. This does not qualify fitted feedback or full native timing.
+- [ ] Complete the existing owned-context1B run and new balanced-native5B original-firmware run; classify physical-Q/RAM-read feedback with full native timing before promotion. Preserve every older bound/source.
 - [ ] Close remaining full diagnostic timing, then qualify native global pauses/actual CP frequency, one SRAM commit, original60ns phases/all timers and separate66.7MHz SDRAM. No new speed selection yet.
 - [x] Preserve dual-engine late-Hold component passes and reject the full 15 ns duplication fit on actual owner paths; no timing waiver or native promotion.
 - [x] Diagnose the original native keyboard's all-zero active-low matrix; repair adapter power-up and stopped-clock reset, with16 dual-engine cases including8 rejected controls.
-- [ ] Observe genuine Cedar113/C release and pinned storage windows on fresh input-reset-v3 control/queue jobs58600/58753, bound to passing final adapter synthesis/tests; retain original jobs29201/29618 and their unchanged bounds as Alto110 evidence.
+- [x] Observe genuine Cedar113/C release and complete8,192-request windows on input-reset-v3 jobs58600/58753. Preserve the raw-traffic divergence at1536; these are not yet an identical-workload speed comparison. Original5B bounds unchanged.
+- [ ] Explain extra queued boot reads and pin architectural progress/traffic before measuring native gains; retain full raw sequences and all timer/background-read behavior.
 - [ ] Shorten the remaining early CP/control/root composition using original capture boundaries and proved arrivals, preserving60ns cadence and all original state/RAM/capture checks.
 - [x] Update the plan from actual5c65 CPU cadence, storage pauses and unchanged early-read performance; preserve Native59/5c65 and all volumes.
 - [x] Qualify5c65 original Checkpoint return, fresh keyboard echo and pre-save file readback; retain the incomplete diagnostic write history.
@@ -10361,8 +10441,8 @@ and has unreviewed hold violations; never deploy it.
 - [x] Preserve 2.0384% MSA host-tick reduction and unchanged native 128-group synthetic result versus the adjacent successor; both final shared-driver legacy regressions reproduce previous evidence.
 - [x] Qualify a four-slot owner-tagged queue across queued/issued/held work, per-group exclusion, in-order issue/completion, saved payload, fairness and all-accepted-work reset drain. Pass dual-simulator/full native-width protocol, independent physical pins and original MSA/all-bit gates. Native reset/init integration remains open.
 - [x] Measure queue occupancy and response waits: native128 synthetic8,492->8,491 with unchanged raw/drain waits; original MSA101,546->101,328. Preserve the lack of a substantive speed gain; do not expand capacity or fit it alone.
-- [ ] Qualify the prepared default-off same-row WRITE command/ACK pipeline against actual chip capture and recovery/turnaround, all rank/bank/row transitions, reset/held-response/refresh/coherence, original old-word/MSA and pinned native128 traffic. Syntax-only preparation is not qualification.
-- [ ] Wire native queue global reset/admission-enable/backend-reset and drain-priority initialization mux; hold selftest reset through drain and retain global machine-edge barrier. Verify startup, accepted writes on reset and original firmware before promotion.
+- [x] Qualify same-row WRITE command/ACK pipeline as a component against physical capture/recovery/turnaround/rank/bank/row/reset/held-response/refresh/coherence and original old-word/MSA/native128 traffic; preserve8.4034% MSA /13.2022% synthetic-native reductions. These are not Cedar hardware gains.
+- [x] Wire native queue global reset/admission/backend-reset/drain-priority mux and hold selftest reset through drain; pass bounded-address physical-pin tests with128 owners. Full-width diagnostic reaches actual113; complete original-firmware/native timing qualification remains open.
 - [ ] Qualify a separately clocked SDRAM request/response path and physical IO constraints; evaluate66.7MHz first. Faster memory and faster CPU are separate experiments.
 - [ ] Integrate audited CPU phases and actual MIR/IFU/Ready/Hold/cache/Map producers to the original60ns ordinary cadence; calibrate every peripheral timer.
 - [ ] Qualify5c65 or its accepted successor's explicit Rollback, post-save filesystem changes and close/remount/cold persistence.

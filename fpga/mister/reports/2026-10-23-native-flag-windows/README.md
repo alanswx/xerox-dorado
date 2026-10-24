@@ -4,6 +4,112 @@ This receipt preserves the complete v5 native failure and the corrected
 component implementation of the original l06/l07 flag latches. No image was
 assembled or loaded; the qualified hardware core and measured speed are unchanged.
 
+## Balanced task priority and native boot staging
+
+`balanced-control-priority-summary.json` preserves a balanced binary
+highest-task encoder replacing exactly two serial priority function bodies.
+Every owner, capture, original reference/check and SRAM port remains unchanged.
+All363 atomic results prove equal for955arbitrary binary state/input bits at
+five AND24 settling waves; a corrupted encoder low bit has counterexamples
+at both depths. Both complete original comparisons pass14,884checks/238writes/
+6,928reads/392epochs, all844Q/9,216RAM/all100clock counts and unchanged
+13,347direct/1,537staged/1,553wait/7retry/1reset coverage. All475ready-result
+bits and SRAM write exclusion also pass temporal induction.
+
+The complete15ns actual-owner caller fixture now **PASSES**:
+
+| Condition | Global setup | Owner-result setup | Late Hold → owners | Hold |
+|---|---:|---:|---:|---:|
+| Slow100C | +0.587ns | +1.056ns | +2.038ns | +0.209ns |
+| Slow-40C | +0.717ns | +1.077ns | +2.502ns | +0.177ns |
+| Fast100C | +4.237ns | +7.508ns | +8.091ns | +0.164ns |
+| Fast-40C | +4.636ns | +8.726ns | +9.139ns | +0.113ns |
+
+All1,401 result indices and original SDC are retained, no exceptions. Minimum
+pulse margin+6.115ns, all UCP classes zero, recovery/removal empty. Area4,466
+ALMs including911virtual-pin ALMs/3,827registers/no M10Ks. Database remains
+`/home/alans/mister/native-balanced-caller-fit-v1-20261024`. This is the
+420-live-input actual-owner slice, not the generic1,651-input fixture, full
+native timing, original60ns cadence or measured hardware speed. Preserve the
+earlier failed actual-owner and generic fits. A first review metadata failure
+(JSON list versus tuple clock rows) is retained with exact failed tool; the
+corrected review reruns no RTL simulation or fit.
+
+`balanced-native-staging-summary.json` binds the exact rewrite to BOTH533-file
+native generic/owned stages. Source-bound156-owner projection/context induction
+and corrupted-owner negative control pass again with unconstrained owner
+power-up/no protocol assumptions. A NEW fixed5B-HOST boot test has compiled
+and is live, retaining original firmware/input/read-only medium,57.142857MHz/
+SYSPER4/shared whole-machine barrier/all original checks/corrected8-class window
+ledger. Older jobs/bounds/sources are unchanged. Short prefix bounds cannot
+reach the known genuine113 handoff; explicit `--firmware-run` now allows this
+separate original-firmware boot-length preparation. Its live process/source
+observation is not a terminal firmware or pause qualification.
+
+The preceding owned-context full native source maps successfully in Quartus,
+with unchanged533-file manifest and all988warnings retained. No loop/latch/
+multiple-driver diagnostic appears in the map log. This is synthesis evidence,
+not fitted-feedback safety or native timing; no fit/assembly was invoked.
+All60ns phases/timers, separate66.7MHz SDRAM crossings/IO timing, Cedar/Rollback/
+persistence/fresh boots/stress remain. Hardware/Main/daemon/speed unchanged.
+
+## Native owner context and completed startup prefix
+
+`native-cp-context-summary.json` preserves the actual native owner/context
+specialization and its source-bound proof. Across533 source files, after
+project relocation only the owner enable and wide canonical-context comparison
+change. The actual156-bit control projection is proved from native slices;
+temporal induction compares1,416 cache-state bits and interfaces under exact
+RTL cache initializers, unconstrained owner power-up and arbitrary inputs.
+No protocol assumptions are added. Corrupting an owner produces a counterexample.
+The generic guarded implementation and its earlier failures remain intact.
+
+The complete actual-owner caller fit at15ns is **REJECTED**:
+
+| Condition | Global setup | Owner-result setup | Late Hold → owners | Hold |
+|---|---:|---:|---:|---:|
+| Slow100C | -0.310ns | -0.045ns | +2.501ns | -0.056ns |
+| Slow-40C | -0.138ns | -0.111ns | +2.902ns | -0.084ns |
+| Fast100C | +4.391ns | +7.151ns | +8.433ns | +0.024ns |
+| Fast-40C | +4.754ns | +8.292ns | +9.378ns | -0.002ns |
+
+Area4,357ALMs/3,770registers. All1,401 result indices and original SDC remain,
+no exceptions. The420-input actual-owner fixture differs from the earlier
+1,651-independent-input generic shell; this is neither a generic pass nor
+full-native timing qualification. Global timing covers actual owner feedback
+as well as observed results. Worst setup now crosses task priority selection
+to result94; worst hold enters the stack-RAM address from upper owner34.
+All UCP categories are zero, pulse margins positive, recovery/removal empty.
+Remote database: `/home/alans/mister/native-owned-caller-fit-v1-20261024`.
+
+Generic native cold-v3 terminates exit0 at its ORIGINAL300M host bound:
+68,288,387 enabled machine edges,289 checked control pauses/equal owner and
+SRAM snapshots, one original-ROM CP write. It does not reach Cedar. Its
+frozen CP window ledger indexes class7 in a7-entry array; no window opens in
+this prefix, so do not infer Cedar-window qualification. The constructor is
+corrected to extend the array AND every init/sum/report loop; legacy7-class
+and new8-class observers pass both simulators. The new case checks3 real
+CP-wait ticks. Source, logs, expected old-decimal-trigger failures and parser
+results are retained. The owned-context test remains a separate1B-host run.
+
+Both real reset-correct native jobs now reach113, release C and complete
+window1 with8,192 requests/responses and consistent counter partitions. Their
+raw sequence differs at1536: queue inserts an extra block before returning
+to the preceding baseline address sequence. Preserve both complete traces.
+Baseline106,255/queue95,797 host clocks and40,083/33,925 storage-wait clocks
+refer to DIFFERENT workloads. Neither window includes ARM-disk waits. No
+percentage speedup is qualified; the comparison explicitly returns null.
+Common BFN/starting PC does not establish an identical workload or a fault.
+Investigate raw background reads, task/timer alignment and architectural
+progress before selecting a native experiment. Live observations are verified
+processes plus frozen source/tails, not terminal boot results or snapshots.
+
+Next test balanced task-priority selection on the measured path; retain
+original captures, every field, four SRAM owners and all original checks.
+Full native timing/60ns phases/all timers/separate66.7MHz SDRAM/Cedar/Rollback/
+persistence/fresh boots/stress remain. Hardware/Main/daemon and the last
+4.025473M StartCycle issues/s measurement are unchanged.
+
 ## Direct CP register projection and native staging
 
 The five-pass-only composition passes both complete original comparisons and

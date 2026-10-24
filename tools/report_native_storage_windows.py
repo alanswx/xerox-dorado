@@ -52,7 +52,9 @@ def parse_windows(raw):
             assert len(trace['completed'])==int(footer['completed'])
             assert int(footer['consume_sum'])==sum(r['latency']for r in trace['completed'])
             assert int(footer['ticks'])==int(footer['end'])-int(footer['begin'])+1
-            assert set(w['gate'])==set(range(7)) and set(w['block'])==set(range(9))
+            gate_classes=int(begin.get('gate_classes',7))
+            assert gate_classes in (7,8),'Unknown gate ledger schema'
+            assert set(w['gate'])==set(range(gate_classes)) and set(w['block'])==set(range(9))
             for table in ['gate','block','fanout']:
                 assert sum(int(f['ticks'])for f in w[table].values())==int(footer['ticks']),table
             assert sum(int(f['admitted'])for f in w['groups'].values())==int(footer['admitted'])

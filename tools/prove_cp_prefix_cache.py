@@ -79,7 +79,7 @@ def run(experiment,yosys,out,depth,induction=False):
     assert not out.exists()
     r=json.loads((experiment/'run-state.json').read_text());parent=Path(r['parent'])
     raw=(experiment/'candidate.sv').read_text();old=(parent/'candidate.sv').read_text()
-    assert raw==candidate(old,r['mutation'],r.get('parallel_control_results',False),r.get('control_only_settled_eligibility',False),r.get('settling_waves',8),r.get('direct_cp_projection',False))
+    assert raw==candidate(old,r['mutation'],r.get('parallel_control_results',False),r.get('control_only_settled_eligibility',False),r.get('settling_waves',8),r.get('direct_cp_projection',False),r.get('balanced_task_priority',False))
     assert ',host_clk,cp_commit,state_q[751:0],clock_before,clock_after,before_child,after_child,'in raw
     permission=re.findall(r'wire cp_commit=([^;]+);',raw);assert len(permission)==1
     permission=re.sub(r'\badvance\b','request',permission[0]);permission=re.sub(r'\bcp_ready\b','ready',permission)
@@ -147,6 +147,7 @@ sat STRATEGY -timeout 120 -prove equivalent 1 -FLAG -show-ports -dump_json /work
         control_only_settled_eligibility=r.get('control_only_settled_eligibility',False),
         settling_waves=r.get('settling_waves',8),
         direct_cp_projection=r.get('direct_cp_projection',False),
+        balanced_task_priority=r.get('balanced_task_priority',False),
         unbounded_induction_proven=False,native_qualified=False,physical_timing_qualified=False,speedup_qualified=False)
     def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
     save()
