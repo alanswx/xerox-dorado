@@ -15,7 +15,7 @@ import time
 from test_r_front_forward_view import sha
 
 
-def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False):
+def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network=False):
     assert not out.exists()
     state = json.loads((source/'run-state.json').read_text())
     test = state['actions'][-1]
@@ -50,6 +50,31 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False):
             fields['keyboard_'+name]=(prefix+'dut__DOT__u_keyboard__DOT__'+name,size)
         for name,size in [('kbd_pending',1),('msg_bit',1),('msg_word',1),('msg',4)]:
             fields['terminal_'+name]=(prefix+'dut__DOT__u_terminal__DOT__'+name,size)
+    if network:
+        for name,size in [('cpu_debug',4),('control_debug',2),('rx_ready',1),('rx_line',1),
+                          ('rx_wr',1),('rx_commit',1),('rx_words',2),('tx_valid',1),
+                          ('tx_good',4),('tx_bad',4),('tx_dropped',4),('rx_bad',4),('rs',4),('ri',4)]:
+            fields['network_'+name]=(prefix+name,size)
+        for name,size in [('rstate',1),('rlength',2),('rword',2),('rshift',2),('rcrc',2),
+                          ('rq',2),('rphase',2),('rbit',1),('rhalf',1),('rgap',4),('tactive',1),('tcount',2)]:
+            fields['network_wire_'+name]=(prefix+'wire_port__DOT__'+name,size)
+        fields['network_buffer_rx']=(prefix+'wire_port__DOT__rx_buffer',2048)
+        for name in ['RxFifoEmpty','RxFifoFull','RxEOP']:
+            fields['network_controller_'+name]=(prefix+'dut__DOT__m__DOT__b_DskEth__DOT__'+name,1)
+        rm_bindings={}
+        for board in ['ProcH','ProcL']:
+            paths=list((source/'inputs/src').rglob(board+'_full_snapshot.sv'));assert len(paths)==1
+            text=paths[0].read_text()
+            for package in ['h06','j06']:
+                body=re.search(r'cell_MB7071H_snapshot u_'+package+r' \(.*?\n  \);',text,re.S)[0]
+                pins=dict(re.findall(r'\.p(\d+)\((\w+)\)',body))
+                assert [pins[str(pin)]for pin in range(7,15)]==[
+                    'RbAdr_'+str(i)+('_p_'if i>=4 or board=='ProcL'else'')for i in range(8)]
+                assert pins['3']=='SelectRm_p_'+('a'if board=='ProcH'else'b')
+                start=(0 if board=='ProcH' else 8)+(0 if package=='h06' else 4)
+                assert [pins[str(pin)]for pin in [19,18,17,16]]==['dRm_'+f'{start+i:02d}'for i in range(4)]
+                fields['register_file_'+board+'_'+package]=(prefix+'dut__DOT__m__DOT__b_'+board+'__DOT__u_'+package+'__DOT__mem',256)
+                rm_bindings[board+'/'+package]=dict(source=str(paths[0]),source_sha256=sha(paths[0]),pins=pins)
     ram_pins={}
     board=source/'inputs/src/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v'
     riot_banks={}
@@ -159,8 +184,19 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False):
                                EndOfDelay_word=image[0x9f]|image[0xa0]<<8,
                                compiled_delay_operands=delay_rom,
                                address_interpretation='Timer/EndOfDelay addresses match exact compiled ROM Delay operands; no guest writes.')
+    if network:
+        data=bytes.fromhex(result['fields']['network_buffer_rx'])
+        result['network_buffer']=dict(first32_words=[int.from_bytes(data[i:i+2],'little')for i in range(0,64,2)],
+            limitation='Last host-loaded serial receive buffer, not proof the guest consumed it; no host server state is read.')
+        banks={board+package:bytes.fromhex(result['fields']['register_file_'+board+'_'+package])
+               for board in ['ProcH','ProcL']for package in ['h06','j06']}
+        words=[(banks['ProcHh06'][a^15]&15)|((banks['ProcHj06'][a^15]&15)<<4)|
+               ((banks['ProcLh06'][a^255]&15)<<8)|((banks['ProcLj06'][a^255]&15)<<12)for a in range(256)]
+        result['register_file']=dict(wire_order_words=words,source_bindings=rm_bindings,
+            address_convention='Source address pins: ProcH low4 complemented/index XOR15; ProcL all8 complemented/index XOR255',
+            data_convention='Same nibble packing as generate_r_file_reference.specs; software interpretation requires separate symbol/constant checks')
     result.update(decoded_nodes=decoded,counters={k:int.from_bytes(bytes.fromhex(v),'little')
-                  for k,v in result['fields'].items() if not k.startswith(('nodes_','ram_','riot_RAM_'))},
+                  for k,v in result['fields'].items() if not k.startswith(('nodes_','ram_','riot_RAM_','network_buffer_','register_file_'))},
                   source=str(source),pid=pid,source_state_sha256=sha(source/'run-state.json'),
                   binary_sha256=sha(binary),header_sha256=sha(header),layout=offsets,
                   read_only_guest_inspection=True)
@@ -178,4 +214,5 @@ if __name__ == '__main__':
     p.add_argument('--low-ram',action='store_true',help='Legacy name: read extra SRAM bank RS0, not the RIOT zero page')
     p.add_argument('--riot-ram',action='store_true',help='Read the five original 128-byte RIOT RAM banks containing zero page and stack')
     p.add_argument('--keyboard',action='store_true',help='Read actual queued PS/2 event, keyboard matrix and terminal serialization state')
-    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.pid,a.low_ram,a.riot_ram,a.keyboard)
+    p.add_argument('--network',action='store_true',help='Read serial receive state/buffer and actual controller FIFO flags without writing guest state')
+    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.pid,a.low_ram,a.riot_ram,a.keyboard,a.network)

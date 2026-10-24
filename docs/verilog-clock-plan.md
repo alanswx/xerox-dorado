@@ -9,6 +9,64 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Full-native follow-up (2026-10-24): the balanced slice's passing15ns shell does
+NOT close the actual machine. The unchanged57.142857MHz/SYSPER4 native fit is
+terminal and REJECTED: setup-1.314ns at slow100C/-1.053ns at slow-40C, minimum
+hold+0.090ns. All original sources/SDCs and four-corner/physical-owner/RAM
+reports are retained. Worst path: MemC a15/b15 address latch -> asynchronous
+cache-tag lookup -> conditional Hold producer (pin386) -> control/T path ->
+stack-RAM write. The source drives322 loads; actual primary-owner input setup
+also fails-1.278ns. No timing exception or assembly follows from the slice pass.
+
+The fanout diagnostic `memc-address-fanout-native-v1-20261024` is terminal and
+REJECTED: setup -0.995ns/-0.979ns, minimum hold +0.053ns. Quartus ignores five
+MAX_FANOUT assignments and inserts logic for nine others, but the worst
+duplicated a14/qb owner still drives321 loads through a320-load wire cell.
+Its cache-tag/Hold/control path now ends at upper-Q[4]. Do not claim the
+requested32-load limit was achieved. All956 collected members are verified.
+The isolated v2 fit enables physical register duplication, previously OFF.
+Only QSF physical assignments change after relocation; HDL, capture edges,
+SRAM ports, clocks and SDCs are identical. Require actual fanout and complete
+timing before promotion. The initial failed package binding is retained.
+No new guest pipeline stage is allowed.
+
+The actual map report lists ONE physical logic loop: unchanged DskEth
+`EccComputeErr_p_`. Its original enabled-XOR/wired-OR feedback is a sticky
+error-retention equation, `err = !ComputeECC_n && (EccData32 || err)`. TimeQuest
+analyzes it as a latch; pulse/arrival/timing qualification remains open. The
+two broad processor-Q cycles reported by Verilator are not listed as loops
+in this fitted netlist. A quiet map LOG alone was insufficient evidence;
+retain the detailed map/STA warning and do not waive it.
+
+Clock-rate migration now has a source-bound counterexample and a lossless
+producer. The active wrapper pixel oscillator is correctly bound to
+`2*SYSPER` today; the legacy default16 DispY crystal drives an UNUSED connector
+in this wrapper. Do not repair that unused source as if it clocked the raster.
+At FOUR15ns ticks, the active square-wave model emits4,000 instead of6,000
+required50MHz transitions per1,000 instructions and its remainder escapes its
+range. New `dorado_oscillator_events.sv` preserves up toTWO ordered transitions
+per tick, their polarity, exact endpoint coincidence and rational edge offsets
+within the interval, so consumers can interleave them with CPU subphases.
+Twelve rate/ratio instances pass;14 case records across two engines cover
+pauses/resets, four corrupted variants, the native counterexample and an
+unsupported rate. The50MHz/four-tick producer passes temporal induction against
+an independent5ns reference, including timestamps; all four corruptions have
+counterexamples. These are v3 simulator/v2 formal receipts; the old count-only
+API's v2/v1 evidence remains historical.
+It is NOT yet connected to native display consumers. Migrate their derived
+clock/capture/latch families and video enable together; exposing only final
+square-wave level would lose events again.
+
+Read-only native inspection further rules out treating the two boot windows
+as equivalent work: baseline RM's expected sequence is0, remote host remains
+177400B, BootDataPtr1000B, while the queue is on the disk/germ path. Source
+pin polarity and Initial.mb symbols/known constants anchor that interpretation.
+Both last serial buffers contain the zero-payload reply sequence76B. Root cause
+of the baseline's missing acceptance remains OPEN; no guest state or existing
+bound was changed. `wire_port.rx_bad` checks host-buffer commits, not the real
+Dorado receiver's CRC status. [Exact timing, clock proofs and readbacks](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#full-native-timing-and-clock-rate-follow-up).
+Hardware remains5c65; original60ns/separate66.7MHz/full A–F remains active.
+
 Balanced task-priority follow-up (2026-10-24): the measured serial highest-task
 selection is replaced with a balanced binary encoder. Only two pure function
 bodies change. Direct RTL proof preserves all363 atomic outputs for955

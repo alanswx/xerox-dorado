@@ -15,10 +15,11 @@ def sha(p):
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
-def collect(project, output):
+def collect(project, output, reports_dir='physical-native-reports-v1'):
     assert project not in output.parents and not output.exists()
     build = json.loads((project / 'run-state.json').read_text())
-    follow = project / 'physical-native-reports-v1'
+    assert Path(reports_dir).name == reports_dir and reports_dir not in ['.', '..']
+    follow = project / reports_dir
     extra = json.loads((follow / 'run-state.json').read_text())
     assert build['status'] in ['TERMINAL_TIMING_OBSERVED_REVIEW_REQUIRED', 'TERMINAL_FAILED']
     assert extra['status'] in ['TERMINAL_PHYSICAL_NATIVE_REPORTS_REVIEW_REQUIRED', 'TERMINAL_FAILED']
@@ -61,5 +62,6 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--project', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--reports-dir', default='physical-native-reports-v1')
     a = p.parse_args()
-    collect(a.project.resolve(), a.output.resolve())
+    collect(a.project.resolve(), a.output.resolve(), a.reports_dir)

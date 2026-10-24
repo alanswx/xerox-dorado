@@ -4,6 +4,94 @@ This receipt preserves the complete v5 native failure and the corrected
 component implementation of the original l06/l07 flag latches. No image was
 assembled or loaded; the qualified hardware core and measured speed are unchanged.
 
+## Full native timing and clock-rate follow-up
+
+`native-clock-followup-audited-summary.json` retains the complete actual native
+fit, the ordered-clock producer and read-only boot diagnosis. It adds explicit
+physical-loop classification to `native-clock-followup-summary.json`, with no
+test/refit. The passing component shell is not a full-machine timing pass:
+
+| Condition | Native setup | Native hold | Primary-owner input setup | Owner internal setup |
+|---|---:|---:|---:|---:|
+| Slow100C | -1.314ns | +0.167ns | -1.278ns | -0.052ns |
+| Slow-40C | -1.053ns | +0.132ns | -0.908ns | +0.224ns |
+| Fast100C | +3.718ns | +0.131ns | +4.938ns | +7.603ns |
+| Fast-40C | +4.516ns | +0.090ns | +5.568ns | +9.229ns |
+
+Keep57.142857MHz/SYSPER4 and every source/SDC/report. All533 source hashes
+match;695primary+133duplicate central registers/263history, all16 original
+visible-R bits/four SRAM banks are queried. The actual worst path starts at
+MemC a15/b15 Aad latch, through asynchronous cache tags and conditional-Hold
+pin386, control/T logic, to stack-RAM write. Source fanout322,17logic levels/
+17.712ns data delay at slow100C. Database is
+`/home/alans/mister/cp-prefix-balanced-native-owned-v1-20261024/core`.
+
+The map REPORT lists one loop, unchanged DskEth EccComputeErr_p_. Original
+c05 enabled-XOR/wired-OR wiring, including unused-input pulldowns, yields
+`err = !ComputeECC_n && (EccData32 || err)`: disabled clears, enabled/data1
+sets, enabled/data0 retains. TimeQuest analyzes this feedback as a latch.
+Its pulse/arrival/timing qualification is not waived. The broad processor-Q
+cycles are not listed as loops in this fitted netlist. A quiet map LOG was
+not sufficient classification evidence; the detailed warning is retained.
+
+`native-clock-timestamps-summary.json` additionally retains the terminal first
+fanout diagnostic, exact timestamp API and new proofs. The fanout fit changes
+ONLY QSF MAX_FANOUT32/IGNORE_MAX_FANOUT_OFF for16 original MemC Aad owners,
+after relocation. All956 collected members verify. It remains REJECTED:
+
+| Condition | Native setup | Native hold | Primary-owner input setup | Owner internal setup |
+|---|---:|---:|---:|---:|
+| Slow100C | -0.995ns | +0.115ns | -0.995ns | +0.173ns |
+| Slow-40C | -0.979ns | +0.087ns | -0.979ns | +0.355ns |
+| Fast100C | +3.684ns | +0.096ns | +4.644ns | +7.788ns |
+| Fast-40C | +4.505ns | +0.053ns | +5.412ns | +9.383ns |
+
+Five assignments are ignored and nine groups receive inserted logic. Worst
+path starts at a14/qb~SynDup, still321loads via a320-load wire cell, through
+cache tags/Hold/control to upper-Q[4];18logic levels/17.864ns data delay. The
+requested fanout limit was not achieved. The next isolated v2 fit changes only
+physical register duplication OFF->ON relative to v1. All HDL/SRAM ports/capture
+boundaries/SDCs/clocks remain identical. Earlier failed package binding remains
+retained. Observe actual processes and inspect effective fanout/full timing;
+no assembly or assumed speed improvement.
+
+The current active50MHz pixel generator comes from the wrapper's2*SYSPER
+K1115A. DispY's default16 crystal feeds a connector the wrapper does not use;
+it is not the raster clock. At four15ns samples/60ns, the actual active cell
+produces4,000/6,000 required transitions per1,000 instructions and its remainder
+escapes its range. The current eight-sample ratio passes. No native timer is
+changed by this probe.
+
+`dorado_oscillator_events.sv` provides up to TWO transitions per tick, ordered
+polarity, exact endpoint coincidence and rational within-interval timestamps,
+preserving fractional phase through pauses/resets. Both simulators pass12
+rate/ratio instances;14 case records cover those checks and reject dropped
+second edges, reversed order, advance during hold, incorrect timestamps and
+an unsupported rate.
+The initial test's valid endpoint negative was rejected by an overly narrow
+diagnostic regex; source/failed log and the passing old API are retained. At50MHz/
+four ticks, temporal induction passes against an independent3x5ns reference
+per interval, exact timestamps/power-up and arbitrary reset/advance history.
+All four bad variants have counterexamples. Current evidence is simulator v3/
+formal v2; earlier v2/v1 count-only API evidence remains historical. The edge
+offsets permit interleaving with CPU subphases. This producer is not consumed by the
+native display: migrate its actual derived clock/latch/capture families and
+video enable before claiming correct50MHz raster or60ns CPU operation.
+
+Read-only LLDB captures use actual generated-header offsets and detach the
+same live simulations. Both last serial buffers contain microcode reply265B/
+sequence76B with no payload. Baseline RM expectsSeqNo0 with unestablished
+RHost177400B and unchanged BootDataPtr1000B; the queued run reached disk/germ.
+Per-board address polarity/nibble pins/word ordering, original Initial.mb
+symbols and four constant anchors support the register interpretation. A
+first incorrect uniform-address assumption is rejected BEFORE debugger attach.
+No guest value, input, source, disk or existing bound changes. Root cause of
+packet0 not being accepted remains open; do not compare these as equal work.
+The wire-port rx_bad counter only checks host-buffer commits, not Dorado's
+receiver CRC. Source/header/binary hashes, exact raw fields and detach logs
+are retained. Full clock/SDRAM66.7MHz/Cedar/Rollback/persistence/boots/stress
+remain; hardware/Main/daemon and measured speed are unchanged.
+
 ## Balanced task priority and native boot staging
 
 `balanced-control-priority-summary.json` preserves a balanced binary
@@ -806,8 +894,9 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` maps30,443 members to3,394 deduplicated compressed blobs;
-lossless readback verifies904,386,697 raw bytes,35,177,730 compressed blob bytes.
+`manifest.json.gz` now maps48,855 members to5,130 deduplicated compressed blobs;
+lossless readback verifies1,451,325,571 unique raw bytes and55,781,411 compressed
+blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`
 adds the terminal pointer matrix, bounded RM capture and original native

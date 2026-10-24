@@ -1,5 +1,67 @@
 # Verilog from Sil: handoff
 
+Latest actual-native timing/clock-rate result (2026-10-24;
+[full receipt](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#full-native-timing-and-clock-rate-follow-up)):
+`native-clock-timestamps-summary.json` adds exact oscillator timestamps and
+the terminal first fanout fit. The earlier audited summary retains the loop
+classification correction without rerunning its fit/test. The balanced
+slice passes15ns, but the ACTUAL full native57.142857MHz/SYSPER4 fit fails
+-1.314ns setup(-1.053ns other slow corner), minimum hold+0.090ns. Source,
+constraints/all physical-owner/RAM/four-corner reports are frozen in
+`balanced-native-fit-terminal-v1-20261024`; remote DB remains
+`/home/alans/mister/cp-prefix-balanced-native-owned-v1-20261024/core`.
+All533 source hashes match. Central coverage is695primary+133physical copies,
+263history registers; all16 canonical visible-R bits and four SRAM banks are
+queried. Worst path starts at MemC a15/b15 Aad latch, through cache tags/
+conditional Hold (pin386), control/T address logic, to stack-RAM write;322loads.
+
+First fanout fit is terminal and REJECTED: slow setup -0.995ns/-0.979ns,
+minimum hold +0.053ns. Five ignored MAX_FANOUT warnings/nine insertion groups
+are retained. The critical duplicated a14/qb still drives321 loads via a320-load
+wire cell, cache tags/Hold/control to upper-Q[4]. All956 collected files verify;
+local `memc-address-fanout-fit-terminal-v1-20261024`, remote v1 DB retained.
+NEXT LIVE diagnostic: `/home/alans/mister/memc-address-fanout-native-v2-20261024`,
+builder2460464/session44240, map2460467 verified live; reporter session77539.
+Local immutable stage
+`memc-address-fanout-native-stage-v2-20261024`; verify actual PIDs before waiting.
+Only QSF physical-register-duplication OFF->ON differs from v1 after relocation.
+The16 bound original address owners retain their fanout assignments. Same HDL/
+SDC/clocks/captures/SRAM ports; no new guest stage. First assumed a13/eight-owner
+binding failure remains preserved. No assembly or assumed fanout improvement.
+
+Full map/STA identify one physical feedback loop, unchanged DskEth ECC flag:
+`err = !ComputeECC_n && (EccData32 || err)` from c05's enabled XOR/wired-OR
+connections and original unused ECL-input pulldowns. This is error retention,
+not a new processor loop. TimeQuest analyzes it as a latch; analog/pulse/
+arrival qualification remains open. The broad packed processor-Q cycles
+are not listed as physical loops. The map LOG's lack of diagnostics was not
+enough; preserve the actual detailed report/STA warning.
+
+NEW maintained-but-unconnected prototype `verilog/rtl/dorado_oscillator_events.sv`
+retains both ordered oscillator edges in one fabric interval. Actual wrapper
+pixel source uses2*SYSPER; DispY's unscaled crystal only drives an unused
+connector. At target4ticks/60ns, the sampled50MHz square wave loses2,000 of
+6,000 transitions per1,000 instructions and leaves an invalid accumulator.
+`oscillator-events-v3-20261024` passes14 case records in two engines across12
+rate/ratio instances: order/endpoint/exact rational edge-position/pause/reset
+checks,4 bad variants, native counterexample and excessive-rate rejection.
+V1's diagnostic regex miss and the count-only v2 API are retained separately.
+`oscillator-events-{positive,drop-second,reverse-order,advance-while-held,late-offset}-proof-v2-20261024`
+passes50MHz/four-tick induction/four counterexamples against independent5ns
+steps, including exact timestamps and no input assumptions. Timestamp offsets
+allow eventual CPU-subphase interleaving. Consumers are NOT migrated: all DispY
+derived clock/latch/capture families and CE_PIXEL must consume ordered events.
+
+Read-only LLDB captures `native-{5c65,queue}-network-read-v1-20261024` and
+`native-5c65-network-read-v3-20261024` detach/resume the same jobs. Baseline
+still expectsSeqNo0/RHost177400B/BootDataPtr1000B; queue reached disk/germ.
+RM interpretation is anchored by exact source pins (ProcH address XOR15,
+ProcL XOR255, MSB-first word bits), Initial.mb symbols and four constants.
+Both last serial buffers contain empty microcode reply76B. Why packet0 was
+not accepted remains open; the A/B is not a speed comparison. rx_bad0 is host
+buffer integrity, not proof of the real receiver CRC status. Existing1B/5B
+jobs and media remain unchanged. Hardware/Main/daemon/4.025473M issues/s remain.
+
 Latest balanced-priority milestone (2026-10-24;
 [exact proof, passing slice timing and native staging](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#balanced-task-priority-and-native-boot-staging)):
 `balanced-control-priority-summary.json` records a complete15ns actual-owner
@@ -10425,6 +10487,11 @@ and has unreviewed hold violations; never deploy it.
 - [x] Balance highest-task encoding; prove all363 atomic outputs at five/24waves, retain both corrupted-encoder counterexamples, pass both complete original comparisons and475-bit cache induction, and pass complete15ns caller timing(+0.587ns setup/+0.113ns hold).
 - [x] Bind timing-passing balanced functions into separate actual generic/owned native trees; re-prove156-owner/context induction and corrupted-owner rejection, then compile/start a NEW fixed5B original-firmware boot test with the corrected8-class ledger.
 - [x] Map preceding owned-context full native source without source changes; retain all988warnings and absence of selected structural diagnostics. This does not qualify fitted feedback or full native timing.
+- [x] Finish actual balanced full native fit and physical-owner/RAM queries; preserve-1.314ns rejection and322-load MemC address/cache-tag/Hold/write-path attribution. Classify the sole reported physical loop as unchanged DskEth ECC retention; keep latch timing open.
+- [x] Demonstrate actual active pixel-generator aliasing at four ticks and qualify a lossless ordered-event producer in both simulators/50MHz induction, with all corrupted variants rejected. Keep the legacy unused Crystal output separate from the active raster input.
+- [x] Preserve terminal first fanout fit (-0.995ns setup/+0.053ns hold), five ignored assignments/nine insertion groups and still321/320-load critical driver. Prove exact oscillator edge timestamps with four formal/simulator negative controls.
+- [ ] Follow physical-duplication v2 builder/report through terminal actual fanout and full timing; no HDL/clock change or timing exception. Migrate real display consumers/video enable to ordered events while preserving original capture windows.
+- [ ] Diagnose baseline SeqNo0 after the last reply76B without altering existing tests; qualify actual receiver acceptance/CRC and pin common architectural progress before native speed comparison.
 - [ ] Complete the existing owned-context1B run and new balanced-native5B original-firmware run; classify physical-Q/RAM-read feedback with full native timing before promotion. Preserve every older bound/source.
 - [ ] Close remaining full diagnostic timing, then qualify native global pauses/actual CP frequency, one SRAM commit, original60ns phases/all timers and separate66.7MHz SDRAM. No new speed selection yet.
 - [x] Preserve dual-engine late-Hold component passes and reject the full 15 ns duplication fit on actual owner paths; no timing waiver or native promotion.

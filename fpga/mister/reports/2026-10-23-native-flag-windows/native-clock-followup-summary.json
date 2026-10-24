@@ -1,0 +1,529 @@
+{
+  "status": "REVIEWED_NATIVE_TIMING_AND_ORDERED_CLOCK_PRODUCER",
+  "scope": "Preserve full-native timing failure, ordered-clock proof and boot observations.\n\nKeep component timing, actual native timing and firmware progress separate.\nThe new oscillator producer is not connected to display consumers. The native\nfit fails; the next physical-fanout experiment changes no HDL or clock. Live\nprocess observations and read-only debugger reads are not completed boot gates.\n",
+  "native_fit_corners": [
+    {
+      "condition": "7_slow_1100mv_100c",
+      "setup": {
+        "slack_ns": -1.314,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a15|qa",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama7~OBSERVABLEVIRTUALREGOUT0",
+        "arrival_ns": 26.479,
+        "required_ns": 25.165,
+        "report_sha256": "971192cde1d8df07717fab7a2919f5baf84a9918a9da0020edb4a3fb89952988"
+      },
+      "hold": {
+        "slack_ns": 0.167,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[34]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|lutrama27~OBSERVABLEPORTAADDRESSREGOUT1",
+        "arrival_ns": 7.845,
+        "required_ns": 7.678,
+        "report_sha256": "50a2adab3e262b8624d06eb295a97fd0f73884692618063b66f62c575960f495"
+      },
+      "owner_input": {
+        "slack_ns": -1.278,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a15|qa",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[312]",
+        "arrival_ns": 26.857,
+        "required_ns": 25.579,
+        "report_sha256": "a9c98e7c4d745154a5dd30957ec8200486a42738f3c890be6c3e1c4d89112efd"
+      },
+      "owner_internal": {
+        "slack_ns": -0.052,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[188]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 25.62,
+        "required_ns": 25.568,
+        "report_sha256": "1a31327277f149cc5db6784cf411ba9e2d7f7c9e690ac7f26033b1f15f9a4d9c"
+      }
+    },
+    {
+      "condition": "7_slow_1100mv_-40c",
+      "setup": {
+        "slack_ns": -1.053,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_b15|qa",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama7~OBSERVABLEVIRTUALREGOUT0",
+        "arrival_ns": 26.282,
+        "required_ns": 25.229,
+        "report_sha256": "6235151c4f06ee0fffccaaef11c4e78480cc5f23034f4e8bd61c5abacd73d1b5"
+      },
+      "hold": {
+        "slack_ns": 0.132,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[34]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|lutrama27~OBSERVABLEPORTAADDRESSREGOUT1",
+        "arrival_ns": 8.012,
+        "required_ns": 7.88,
+        "report_sha256": "9219c01a9cf25ba0813a80f6af3e1766b0c8fd3d0169f2fe9bf34a3d3d4081ef"
+      },
+      "owner_input": {
+        "slack_ns": -0.908,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_b15|qa",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[312]",
+        "arrival_ns": 26.513,
+        "required_ns": 25.605,
+        "report_sha256": "320bdb240e82ddf4a85b4dad42dd6704e3a0347a8f1b956f0e672bf02bbd950b"
+      },
+      "owner_internal": {
+        "slack_ns": 0.224,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[188]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 25.372,
+        "required_ns": 25.596,
+        "report_sha256": "43e05def9acdc4c10a0d9883513810abd9dd178ee510cbc71b0ae1ff6396bb48"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_100c",
+      "setup": {
+        "slack_ns": 3.718,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|BaseBd_m_Rev_m_Am_nominal:b_BaseBd|cell_CLOCKGEN:u_clockgen|phase[1]",
+        "sink": "emu:emu|network_step",
+        "arrival_ns": 8.726,
+        "required_ns": 12.444,
+        "report_sha256": "cb887c7788a13a201d50c2784be4f279de91ae42dc4391de217850d4cef53e69"
+      },
+      "hold": {
+        "slack_ns": 0.131,
+        "source": "emu:emu|dorado_ethernet_ddr:u_network_ddr|tx_prod[2]",
+        "sink": "emu:emu|dorado_ethernet_ddr:u_network_ddr|tx_prod[2]",
+        "arrival_ns": 3.836,
+        "required_ns": 3.705,
+        "report_sha256": "86321da0f2798f0442e75e8da8d7acefc70e40d1bdd4456caedb30203701629c"
+      },
+      "owner_input": {
+        "slack_ns": 4.938,
+        "source": "emu:emu|network_step",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[102]",
+        "arrival_ns": 16.434,
+        "required_ns": 21.372,
+        "report_sha256": "55b86e57e3e0ab18105175faf24ec84f6e0302adfc6e8f85728782a918ac8b4d"
+      },
+      "owner_internal": {
+        "slack_ns": 7.603,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[188]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 13.742,
+        "required_ns": 21.345,
+        "report_sha256": "b3184df7c497b3bbd97dd5bc4754e5eaf06155868362e9b795578fb1e373f841"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_-40c",
+      "setup": {
+        "slack_ns": 4.516,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|BaseBd_m_Rev_m_Am_nominal:b_BaseBd|cell_CLOCKGEN:u_clockgen|phase[1]",
+        "sink": "emu:emu|network_step",
+        "arrival_ns": 7.714,
+        "required_ns": 12.23,
+        "report_sha256": "11311153bf0204e267af7f79d60317deb4c1de96f0fec3fd2f33d13a8fac2f58"
+      },
+      "hold": {
+        "slack_ns": 0.09,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[34]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|lutrama27~OBSERVABLEPORTAADDRESSREGOUT1",
+        "arrival_ns": 3.693,
+        "required_ns": 3.603,
+        "report_sha256": "abe521b3a2eb144c59837bbcc43bb0f0a0684147e0a1376a4d379456e334be39"
+      },
+      "owner_input": {
+        "slack_ns": 5.568,
+        "source": "emu:emu|network_step",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[102]~DUPLICATE",
+        "arrival_ns": 15.574,
+        "required_ns": 21.142,
+        "report_sha256": "828c6bf793014a578c7bb2367aa9ff95b756b44195411b293af3f2211f3eb3ad"
+      },
+      "owner_internal": {
+        "slack_ns": 9.229,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[188]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 11.887,
+        "required_ns": 21.116,
+        "report_sha256": "ea1cd0b03300aa5e1d3a6645b9f0c7fcbcd7ba905ae7e83123e9b5752978a7c6"
+      }
+    }
+  ],
+  "physical_native_coverage": [
+    [
+      "7_slow_1100mv_100c",
+      "85184",
+      "828",
+      "695",
+      "133",
+      "263"
+    ],
+    [
+      "7_slow_1100mv_-40c",
+      "85184",
+      "828",
+      "695",
+      "133",
+      "263"
+    ],
+    [
+      "MIN_fast_1100mv_100c",
+      "85184",
+      "828",
+      "695",
+      "133",
+      "263"
+    ],
+    [
+      "MIN_fast_1100mv_-40c",
+      "85184",
+      "828",
+      "695",
+      "133",
+      "263"
+    ]
+  ],
+  "native_fit_accepted": false,
+  "native_source_count": 533,
+  "native_clock_hz": 57142857,
+  "sysper": 4,
+  "oscillator_cases": [
+    {
+      "engine": "icarus",
+      "case": "positive",
+      "returncode": 0,
+      "expected_rejection": false,
+      "log_sha256": "c3eb58629e6375070c2231674d5ce0842dfdc35e4e36d0c196dcafe3743f237c"
+    },
+    {
+      "engine": "icarus",
+      "case": "drop-second",
+      "returncode": 1,
+      "expected_rejection": true,
+      "log_sha256": "89a37b18cc852bb0207d7efd3e1623f7bb3b777f36032f86161941b41851273c"
+    },
+    {
+      "engine": "icarus",
+      "case": "reverse-order",
+      "returncode": 1,
+      "expected_rejection": true,
+      "log_sha256": "2467e34de912d9a4d161290a09fb9e47dcb5a992285fcc0c163cb5ebfb971927"
+    },
+    {
+      "engine": "icarus",
+      "case": "advance-while-held",
+      "returncode": 1,
+      "expected_rejection": true,
+      "log_sha256": "e9d274bfb68dcb286cafca1123624e37f5425a9114a0f8f0df63f59defbbeacb"
+    },
+    {
+      "engine": "icarus",
+      "case": "native-square",
+      "returncode": 0,
+      "expected_rejection": false,
+      "log_sha256": "a140c268e430fc4d81bef32e8d45aa6680e6a8ff4d348043b814c16a6200859c"
+    },
+    {
+      "engine": "icarus",
+      "case": "invalid-rate",
+      "returncode": 1,
+      "expected_rejection": true,
+      "log_sha256": "c58c67d4b0387cbcac5c04cbb91d76f6e5828c78b5eaab990ce1e883763b63a3"
+    },
+    {
+      "engine": "verilator",
+      "case": "positive",
+      "returncode": 0,
+      "expected_rejection": false,
+      "log_sha256": "c6cd5022e8923a6360d41ab50752c76ae1a697f5212db8e9cd3cd51d3fa551bd"
+    },
+    {
+      "engine": "verilator",
+      "case": "drop-second",
+      "returncode": 1,
+      "expected_rejection": true,
+      "log_sha256": "0cd55582c889400ba8d3ca9c0e9a1c02e6239dae254c0983cde6e98473b49d8f"
+    },
+    {
+      "engine": "verilator",
+      "case": "reverse-order",
+      "returncode": 1,
+      "expected_rejection": true,
+      "log_sha256": "cd60e31b6f844f2c08fc87a8696ecc8c6e07b30ec0a4d89a828f3fbd38751f37"
+    },
+    {
+      "engine": "verilator",
+      "case": "advance-while-held",
+      "returncode": 1,
+      "expected_rejection": true,
+      "log_sha256": "6c70f40f32c161cbc860e635bf745092e932c81fd12542fef98420ec68346ce9"
+    },
+    {
+      "engine": "verilator",
+      "case": "native-square",
+      "returncode": 0,
+      "expected_rejection": false,
+      "log_sha256": "f230ded9652ab7c1385a7da5a62927c197fe0d2a242eeddf962854155072d6d4"
+    },
+    {
+      "engine": "verilator",
+      "case": "invalid-rate",
+      "returncode": 1,
+      "expected_rejection": true,
+      "log_sha256": "929e9c413272ed0ec14b50412b80ec16b77bfe92298c11f0fbc575e2891aea04"
+    }
+  ],
+  "oscillator_proofs": [
+    {
+      "variant": "positive",
+      "status": "PASS_ORDERED_50MHZ_EVENTS_INDUCTION",
+      "state_sha256": "94e1b481a60d746ea26f015e5c72cbe77b619829ce9ad92b1e44193141602d6b"
+    },
+    {
+      "variant": "drop-second",
+      "status": "PASS_OSCILLATOR_EVENT_COUNTEREXAMPLE",
+      "state_sha256": "47f9c7fb9069b707b21aba8c10d66e886ba423db00b837ead2a0f0c356163493"
+    },
+    {
+      "variant": "reverse-order",
+      "status": "PASS_OSCILLATOR_EVENT_COUNTEREXAMPLE",
+      "state_sha256": "abedd8c5d1a8bd7ceae2e8d2ce29a9786550da83b2fc1c62d5d2f9798a584725"
+    },
+    {
+      "variant": "advance-while-held",
+      "status": "PASS_OSCILLATOR_EVENT_COUNTEREXAMPLE",
+      "state_sha256": "14c2d3892ce39bea9eb8b2c6cd2e8fa7d94f708946880a3fbc1c6b0a455b4d4d"
+    }
+  ],
+  "active_pixel_counterexample": "Four15ns samples produce4000/6000 required half-period transitions; current eight-sample ratio passes.",
+  "display_crystal_output_unused_in_current_wrapper": true,
+  "ordered_events_consumed_by_native_display": false,
+  "network_read_observations": [
+    {
+      "directory": "native-5c65-network-read-v1-20261024",
+      "pid": 58600,
+      "counters": {
+        "host_ticks": 1763528434,
+        "guest_ticks": 983627114,
+        "boot_samples": 342857142,
+        "step": 1,
+        "phi_inverted": 1,
+        "phase": 0,
+        "reset_n": 1,
+        "watchdog_counter": 7377221,
+        "watchdog_phase_a": 0,
+        "watchdog_phase_b": 0,
+        "MCD0": 0,
+        "MCD1": 0,
+        "MCD2": 0,
+        "MCD3": 0,
+        "MCD4": 0,
+        "MCD5": 0,
+        "MCD6": 0,
+        "MCD7": 0,
+        "network_cpu_debug": 818347125,
+        "network_control_debug": 284,
+        "network_rx_ready": 1,
+        "network_rx_line": 0,
+        "network_rx_wr": 0,
+        "network_rx_commit": 0,
+        "network_rx_words": 13,
+        "network_tx_valid": 0,
+        "network_tx_good": 1,
+        "network_tx_bad": 0,
+        "network_tx_dropped": 0,
+        "network_rx_bad": 0,
+        "network_rs": 0,
+        "network_ri": 12,
+        "network_wire_rstate": 0,
+        "network_wire_rlength": 13,
+        "network_wire_rword": 12,
+        "network_wire_rshift": 0,
+        "network_wire_rcrc": 38980,
+        "network_wire_rq": 8705,
+        "network_wire_rphase": 0,
+        "network_wire_rbit": 0,
+        "network_wire_rhalf": 0,
+        "network_wire_rgap": 26665,
+        "network_wire_tactive": 0,
+        "network_wire_tcount": 14,
+        "network_controller_RxFifoEmpty": 1,
+        "network_controller_RxFifoFull": 0,
+        "network_controller_RxEOP": 0
+      }
+    },
+    {
+      "directory": "native-queue-network-read-v1-20261024",
+      "pid": 58753,
+      "counters": {
+        "host_ticks": 1961369197,
+        "guest_ticks": 1097269122,
+        "boot_samples": 342857142,
+        "step": 1,
+        "phi_inverted": 0,
+        "phase": 1,
+        "reset_n": 1,
+        "watchdog_counter": 8229538,
+        "watchdog_phase_a": 0,
+        "watchdog_phase_b": 0,
+        "MCD0": 0,
+        "MCD1": 0,
+        "MCD2": 0,
+        "MCD3": 0,
+        "MCD4": 0,
+        "MCD5": 1,
+        "MCD6": 1,
+        "MCD7": 0,
+        "network_cpu_debug": 806572252,
+        "network_control_debug": 284,
+        "network_rx_ready": 1,
+        "network_rx_line": 0,
+        "network_rx_wr": 0,
+        "network_rx_commit": 0,
+        "network_rx_words": 13,
+        "network_tx_valid": 0,
+        "network_tx_good": 1,
+        "network_tx_bad": 0,
+        "network_tx_dropped": 0,
+        "network_rx_bad": 0,
+        "network_rs": 0,
+        "network_ri": 12,
+        "network_wire_rstate": 0,
+        "network_wire_rlength": 13,
+        "network_wire_rword": 12,
+        "network_wire_rshift": 0,
+        "network_wire_rcrc": 38980,
+        "network_wire_rq": 8705,
+        "network_wire_rphase": 0,
+        "network_wire_rbit": 0,
+        "network_wire_rhalf": 0,
+        "network_wire_rgap": 26665,
+        "network_wire_tactive": 0,
+        "network_wire_tcount": 14,
+        "network_controller_RxFifoEmpty": 1,
+        "network_controller_RxFifoFull": 0,
+        "network_controller_RxEOP": 0
+      }
+    },
+    {
+      "directory": "native-5c65-network-read-v3-20261024",
+      "pid": 58600,
+      "counters": {
+        "host_ticks": 1801926843,
+        "guest_ticks": 1007816713,
+        "boot_samples": 342857142,
+        "step": 1,
+        "phi_inverted": 0,
+        "phase": 1,
+        "reset_n": 1,
+        "watchdog_counter": 7558643,
+        "watchdog_phase_a": 0,
+        "watchdog_phase_b": 0,
+        "MCD0": 0,
+        "MCD1": 1,
+        "MCD2": 0,
+        "MCD3": 1,
+        "MCD4": 0,
+        "MCD5": 0,
+        "MCD6": 0,
+        "MCD7": 0,
+        "network_cpu_debug": 818347119,
+        "network_control_debug": 287,
+        "network_rx_ready": 1,
+        "network_rx_line": 0,
+        "network_rx_wr": 0,
+        "network_rx_commit": 0,
+        "network_rx_words": 13,
+        "network_tx_valid": 0,
+        "network_tx_good": 1,
+        "network_tx_bad": 0,
+        "network_tx_dropped": 0,
+        "network_rx_bad": 0,
+        "network_rs": 0,
+        "network_ri": 12,
+        "network_wire_rstate": 0,
+        "network_wire_rlength": 13,
+        "network_wire_rword": 12,
+        "network_wire_rshift": 0,
+        "network_wire_rcrc": 38980,
+        "network_wire_rq": 8705,
+        "network_wire_rphase": 0,
+        "network_wire_rbit": 0,
+        "network_wire_rhalf": 0,
+        "network_wire_rgap": 26665,
+        "network_wire_tactive": 0,
+        "network_wire_tcount": 14,
+        "network_controller_RxFifoEmpty": 1,
+        "network_controller_RxFifoFull": 0,
+        "network_controller_RxEOP": 0
+      }
+    }
+  ],
+  "baseline_sequence_number": 0,
+  "baseline_remote_host": 65280,
+  "software_register_anchors": {
+    "R400": 256,
+    "BOOTDATAPTR": 512,
+    "LHOST": 34,
+    "BFN": 75
+  },
+  "protocol_root_cause_established": false,
+  "matched_firmware_speed_qualified": false,
+  "next_fanout_experiment": {
+    "project": "/home/alans/mister/memc-address-fanout-native-v1-20261024",
+    "observed": 1792838568.6635678,
+    "run_state": {
+      "status": "RUNNING",
+      "builder_pid": 2336080,
+      "started": 1792838373.4922276,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 2336083,
+          "started": 1792838373.4925213
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "stage_pid": 2336083,
+    "stage_command": "quartus_map --read_settings_files=on --write_settings_files=off Dorado ",
+    "stage_process_state": [
+      "Name:\tquartus_map",
+      "Umask:\t0002",
+      "State:\tR (running)",
+      "Tgid:\t2336083"
+    ],
+    "manifest_sha256": "26378461c0f001e16bacfa187e95b7b5986925fbe13eb012cd3b55a9bb993ae8",
+    "driver_tail": "R_FRONT_READY_NATIVE map\n",
+    "map_tail": "ster/memc-address-fanout-native-v1-20261024/src/fpga/mister/snapshot_native_processor/cell_MC1668_snapshot.v Line: 55\n    Warning (18060): Ignored Maximum Fan-Out logic option for node \"emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_d15|qa\" File: /home/alans/mister/memc-address-fanout-native-v1-20261024/src/fpga/mister/snapshot_native_processor/cell_MC1668_snapshot.v Line: 55\n    Warning (18060): Ignored Maximum Fan-Out logic option for node \"emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_c15|qb\" File: /home/alans/mister/memc-address-fanout-native-v1-20261024/src/fpga/mister/snapshot_native_processor/cell_MC1668_snapshot.v Line: 55\n    Warning (18060): Ignored Maximum Fan-Out logic option for node \"emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_c15|qa\" File: /home/alans/mister/memc-address-fanout-native-v1-20261024/src/fpga/mister/snapshot_native_processor/cell_MC1668_snapshot.v Line: 55\n    Warning (18060): Ignored Maximum Fan-Out logic option for node \"emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_d14|qb\" File: /home/alans/mister/memc-address-fanout-native-v1-20261024/src/fpga/mister/snapshot_native_processor/cell_MC1668_snapshot.v Line: 55\nInfo (17049): 1598 registe"
+  },
+  "native_live_observations": [
+    {
+      "directory": "cp-prefix-balanced-native-boot-v1-20261024",
+      "pid": 49723,
+      "ps": "49723 51:53 R    /Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792838693.169245,
+      "state_sha256": "3d3cac7ac66d24a5c07f20309b88645c21a8df4a930c32a2df17485787debb01"
+    },
+    {
+      "directory": "cp-prefix-native-owned-cold-v1-20261024",
+      "pid": 45198,
+      "ps": "45198 01:31:06 R    /Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-owned-cold-v1-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-owned-cold-v1-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-owned-cold-v1-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792838693.174193,
+      "state_sha256": "521c94470d815832f83bebddb4cccd61d95df90ce70f16074f52fe27cf1d0065"
+    },
+    {
+      "directory": "native-cedar-5c65-input-reset-v3-20261023",
+      "pid": 58600,
+      "ps": "58600 05:54:40 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792838693.178913,
+      "state_sha256": "b75adcae9e42639f590196dc579c9442f5210d3519b5da4536adeffed2276ffc"
+    },
+    {
+      "directory": "native-cedar-queue-input-reset-v3-20261023",
+      "pid": 58753,
+      "ps": "58753 05:54:39 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792838693.183508,
+      "state_sha256": "ba82b45e488a278f03e6618a26b89a3768a7cd757cde7fd46b48d1c2eb71b04f"
+    }
+  ],
+  "hardware_changed": false,
+  "assembly_permitted": false,
+  "speedup_qualified": false,
+  "full_goal_active": true
+}
