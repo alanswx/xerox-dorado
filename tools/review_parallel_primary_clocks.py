@@ -38,7 +38,7 @@ def review(out):
     source = stage/'dorado_primary_clock_events.sv'
     original = (stage/'original.sv').read_text()
     actual = source.read_text()
-    assert sha(stage/'original.sv') == sha(ROOT/'verilog/rtl/dorado_primary_clock_events.sv')
+    assert sha(stage/'original.sv') == sha(BUILD/'primary-clock-component-stage-v1-20261024/dorado_primary_clock_events.sv')
     assert extract(original, 'phase') == extract(actual, 'phase')
     directories.append(stage)
     tests = BUILD/'primary-parallel-original-reference-v1-20261024'

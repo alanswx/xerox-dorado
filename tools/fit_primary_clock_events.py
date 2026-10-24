@@ -68,7 +68,8 @@ def prepare(tests, proofs, out, source=None, oscillator_source=None, pixel_gates
         assert not states[0]['protocol_or_state_assumptions']
         assert states[0]['stage_state_sha256'] == states[1]['stage_state_sha256']
         assert sha(pixel_gates[0]/'candidate.sv') == sha(oscillator_source)
-        assert sha(pixel_gates[0]/'original.sv') == sha(ROOT/'verilog/rtl/dorado_oscillator_events.sv')
+        assert sha(ROOT/'verilog/rtl/dorado_oscillator_events.sv') in [
+            sha(pixel_gates[0]/'original.sv'), sha(oscillator_source)]
         assert states[2]['unbounded_induction_proven'] and not states[2]['assumptions_added']
         assert states[2]['tests_state_sha256'] == states[3]['tests_state_sha256']
         assert sha(pixel_gates[2]/'pixel-original.sv') == sha(oscillator_source)

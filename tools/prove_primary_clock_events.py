@@ -118,13 +118,18 @@ def extract(raw, mode):
         body = raw[begin:end]
         assert raw[:begin]+body+raw[end:] == raw
         return MERGE_PORTS.replace('BODY', body), MERGE_TOP
-    begin = raw.index(' reg [18:0] bb_phase=0;')
+    quotient = ' reg [3:0] bb_phase_tenths=0;' in raw
+    begin = raw.index(' reg [3:0] bb_phase_tenths=0;' if quotient else ' reg [18:0] bb_phase=0;')
     end = raw.index(' assign levels_before=', begin)
     clock_begin = raw.index(' always @(posedge clk)begin', end)
     clock_end = raw.index('\nendmodule', clock_begin)
     declarations, update = raw[begin:end], raw[clock_begin:clock_end]
     assert raw[:begin]+declarations+raw[end:clock_begin]+update+raw[clock_end:] == raw
-    return PHASE.replace('ACTUAL_DECLS', declarations).replace('ACTUAL_UPDATE', update), None
+    result = PHASE.replace('ACTUAL_DECLS', declarations).replace('ACTUAL_UPDATE', update)
+    if quotient:
+        # Prove the implementation range as a conjunction, never an assumption.
+        result = result.replace(' assign equivalent=', ' assign equivalent=bb_phase_tenths<10 && ', 1)
+    return result, None
 
 
 def run(tests, out, yosys):

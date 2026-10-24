@@ -1,0 +1,204 @@
+{
+  "status": "REVIEWED_SELECTED_15NS_PRIMARY_SOURCES_AND_STRICTER_HOLD_WORK",
+  "component_corners": [
+    {
+      "condition": "7_slow_1100mv_100c",
+      "setup": {
+        "slack_ns": 1.171,
+        "source": "dorado_primary_clock_events:rotations[0].source|ether_phase[2]",
+        "sink": "result[1197]~reg0",
+        "arrival_ns": 17.484,
+        "required_ns": 18.655,
+        "report_sha256": "05cd8eb35fbff9aeff9d38930ead269dc1219a6ffecf380681420f60e761d2f9"
+      },
+      "hold": {
+        "slack_ns": 0.449,
+        "source": "dorado_primary_clock_events:rotations[0].source|ether_phase[3]",
+        "sink": "dorado_primary_clock_events:rotations[0].source|ether_phase[3]",
+        "arrival_ns": 4.333,
+        "required_ns": 3.884,
+        "report_sha256": "9d0ff2ab7464da028988869ec87a14bacd8dc2c56568fce4dd68040e414265cc"
+      },
+      "evaluator": {
+        "slack_ns": 2.079,
+        "source": "launch[0]~DUPLICATE",
+        "sink": "result[611]~reg0",
+        "arrival_ns": 16.631,
+        "required_ns": 18.71,
+        "report_sha256": "f7b71a72bc9950e5af9fe41be2727c45ca5584bceacca8c947290afea7ade848"
+      }
+    },
+    {
+      "condition": "7_slow_1100mv_-40c",
+      "setup": {
+        "slack_ns": 1.064,
+        "source": "dorado_primary_clock_events:rotations[0].source|ether_phase[2]",
+        "sink": "result[35]~reg0",
+        "arrival_ns": 17.797,
+        "required_ns": 18.861,
+        "report_sha256": "7e346a0ee9474882b43e4a35cec3790819e51fa11c35f24aeb9e853ebbe02e71"
+      },
+      "hold": {
+        "slack_ns": 0.458,
+        "source": "dorado_primary_clock_events:rotations[0].source|ether_phase[3]",
+        "sink": "dorado_primary_clock_events:rotations[0].source|ether_phase[3]",
+        "arrival_ns": 4.499,
+        "required_ns": 4.041,
+        "report_sha256": "a0135f43b7b4cc969c82a44858299831f71e027095848af7a69471a9025710eb"
+      },
+      "evaluator": {
+        "slack_ns": 2.428,
+        "source": "launch[0]~DUPLICATE",
+        "sink": "result[611]~reg0",
+        "arrival_ns": 16.434,
+        "required_ns": 18.862,
+        "report_sha256": "4aa6b94cc46dc091b7f21eeeffc87897355d0bee44331da5008febf16a45b671"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_100c",
+      "setup": {
+        "slack_ns": 5.44,
+        "source": "input_stage[0]",
+        "sink": "launch[0]~DUPLICATE",
+        "arrival_ns": 11.353,
+        "required_ns": 16.793,
+        "report_sha256": "702b50487244504bbd50d5b339de8ccf0d0e1b15fca6551becb36da2c0d90a27"
+      },
+      "hold": {
+        "slack_ns": 0.197,
+        "source": "dorado_primary_clock_events:rotations[0].source|ether_level",
+        "sink": "dorado_primary_clock_events:rotations[0].source|ether_level",
+        "arrival_ns": 1.984,
+        "required_ns": 1.787,
+        "report_sha256": "15bbcfc2ef754aeb29a58e82115872df5523005119d6d2b3c114072f3b556f97"
+      },
+      "evaluator": {
+        "slack_ns": 7.794,
+        "source": "launch[1]",
+        "sink": "result[611]~reg0",
+        "arrival_ns": 8.848,
+        "required_ns": 16.642,
+        "report_sha256": "0e97a8b498f2697eec1d786239dac0d2f0cf03bb59ea6229ca969a66d10e6ae6"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_-40c",
+      "setup": {
+        "slack_ns": 5.6,
+        "source": "input_stage[0]",
+        "sink": "launch[0]~DUPLICATE",
+        "arrival_ns": 11.075,
+        "required_ns": 16.675,
+        "report_sha256": "d141607ffb21357b4267e7380e0974b36678873bfe1f19a43f8c8b08f1519465"
+      },
+      "hold": {
+        "slack_ns": 0.189,
+        "source": "dorado_primary_clock_events:rotations[0].source|ether_level",
+        "sink": "dorado_primary_clock_events:rotations[0].source|ether_level",
+        "arrival_ns": 1.85,
+        "required_ns": 1.661,
+        "report_sha256": "4596d6d2c1b8c78c85aa1a16a9b98e2b04d3983e861aecb243ab54cdab5fe551"
+      },
+      "evaluator": {
+        "slack_ns": 8.926,
+        "source": "launch[0]~DUPLICATE",
+        "sink": "result[611]~reg0",
+        "arrival_ns": 7.6,
+        "required_ns": 16.526,
+        "report_sha256": "f4d8eb07edfcb359f9095d4f011b0e4b0bfbf37a38cc9b2e987ec6c19d88360e"
+      }
+    }
+  ],
+  "component_timing_qualified": true,
+  "source_modules_selected": true,
+  "ALMs": 2808,
+  "registers": 1391,
+  "DSPs": 0,
+  "all_primary_output_bits": 1560,
+  "calibration_verified_bits": 32,
+  "calibration_verified_corners": 4,
+  "stricter_hold_ns": 0.37,
+  "native_job": {
+    "observed": 1792863527.0483549,
+    "project": "/home/alans/mister/pack-hold-native-v1-20261024",
+    "state": {
+      "status": "RUNNING",
+      "builder_pid": 4123657,
+      "started": 1792863269.726007,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 4123660,
+          "started": 1792863269.7263305,
+          "returncode": 0,
+          "finished": 1792863465.7125683
+        },
+        {
+          "stage": "fit",
+          "pid": 4137879,
+          "started": 1792863465.7129872
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "handles": [
+      {
+        "pid": 4123657,
+        "live": true,
+        "command": "python3 /home/alans/mister/pack-hold-native-v1-20261024/build_r_front_ready_native.py --project /home/alans/mister/pack-hold-native-v1-20261024 --manifest r-front-control-native.json "
+      },
+      {
+        "pid": 4137879,
+        "live": true,
+        "command": "quartus_fit --read_settings_files=on --write_settings_files=off Dorado "
+      }
+    ],
+    "reporters": [
+      {
+        "directory": "physical-report",
+        "state": {
+          "status": "WAITING_EXISTING_NATIVE_BUILD",
+          "pid": 4123941,
+          "started": 1792863272.5681148,
+          "project": "/home/alans/mister/pack-hold-native-v1-20261024",
+          "script_sha256": "e994f87a985cfc0e6129998afe63e0904b8bfe2c0fb5276d129738172f934121",
+          "manifest_sha256": "260679ea2481162ce7cd70270504a3b344a21f0274b7e9fdd0156d2fbfb8431e",
+          "actions": [],
+          "assembly_permitted": false,
+          "constraints_changed": false
+        },
+        "live": true,
+        "command": "python3 /home/alans/mister/pack-hold-native-v1-20261024/report_r_front_physical_native.py --project /home/alans/mister/pack-hold-native-v1-20261024 --output /home/alans/mister/pack-hold-native-v1-20261024/physical-report "
+      },
+      {
+        "directory": "cp-key-report",
+        "state": {
+          "status": "WAITING_EXISTING_PHYSICAL_NATIVE_REPORT",
+          "pid": 4124312,
+          "started": 1792863276.5524862,
+          "project": "/home/alans/mister/pack-hold-native-v1-20261024",
+          "manifest_sha256": "260679ea2481162ce7cd70270504a3b344a21f0274b7e9fdd0156d2fbfb8431e",
+          "script_sha256": "aa75019c51cd8f4549b63e0385d172e5645be4df00686faf10bffb4133be572d",
+          "driver_sha256": "70e77bd436bf39e7b46ca0d62c7e8db1cd2556b34feb20476657f33e10c01143",
+          "actions": [],
+          "constraints_changed": false,
+          "assembly_permitted": false,
+          "native_timing_qualified": false
+        },
+        "live": true,
+        "command": "python3 /home/alans/mister/pack-hold-native-v1-20261024/report_cp_cache_key_native.py --project /home/alans/mister/pack-hold-native-v1-20261024 --output /home/alans/mister/pack-hold-native-v1-20261024/cp-key-report "
+      }
+    ],
+    "compiled_input_files_verified": 534,
+    "manifest_sha256": "260679ea2481162ce7cd70270504a3b344a21f0274b7e9fdd0156d2fbfb8431e"
+  },
+  "native_consumers_integrated": false,
+  "native_timing_qualified": false,
+  "firmware_qualified": false,
+  "speedup_qualified": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}

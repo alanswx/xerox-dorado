@@ -14,6 +14,40 @@ Continue build/simulation work; notify them when a reviewed build is ready
 for hardware testing, and wait until they release MiSTer14 before any load,
 reboot or control. Earlier reload authorization is superseded while it is in use.
 
+Latest source-selection milestone (2026-10-24): canonical clock sources NOW
+use the proved parallel merger, exact one-bit pixel remainder and ten-state
+BaseBoard quotient. All source frequencies, timestamps, reset/pause and output
+records are preserved. Complete two-engine300us/all8-phase references and all
+195-bit merger/phase proofs pass, including the quotient-range conjunction
+(proved, never assumed). Source-only15ns timing PASSES at all4 corners:
+setup+1.171/+1.064/+5.440/+5.600ns, hold+0.449/+0.458/+0.197/+0.189ns.
+All1560 ports/eight rotations/zero unconstrained paths and exact58-member
+compiled-input readback verify.2,808ALMs/1391regs/0DSP. Source collection SHA
+40f9d36dbb84b7b7e9568ded6ad6c78c1b7427954768308e29f30268326ccc7c.
+This is ONLY the event producer; native consumers and measured speed do not
+change. Historical reviewers now bind their immutable parent snapshots so
+selecting newer canonical sources does not invalidate the earlier evidence.
+
+Disk-generation hold calibration verifies ALL32 capture bits at ALL4 corners:
+adding set_min_delay0.250 strengthens the relationship by0.370ns because the
+existing derived hold uncertainty adds0.120ns. Data/skew/setup remain identical.
+The first calibration expected only0.250ns and failed; its original state,
+failed expectation and complete reports are preserved. Corrected V2 checks
+both timing terms per path. The fitter already used all-path hold and multi-
+corner optimization, so merely enabling those options would change nothing.
+
+New native project `/home/alans/mister/pack-hold-native-v1-20261024` is LIVE:
+builder4123657/session48775, map4123660 exited0, fitter4137879. Physical reporter
+4123941/session86943 and key reporter4124312/session34934 are verified live,
+queued on the SAME job.534 source/configuration hashes verify. Only the exact
+calibrated SDC and its QSF include are added after path relocation; every RTL
+byte, clock, seed, guest capture and barrier is unchanged. No additional guest
+cycle, false path, setup waiver, Main or daemon change. Upload SHA
+08c0ca60ba7d8f736a9ae9a9ad042c0fdd11aad790373726be2c1f8aef2623ff.
+Observe those handles; do not restart them on a polling timeout. Receipt
+`bb-phase-hold-followup-summary.json` retains all passing source qualification,
+canonical selection, failed/successful calibration, native stage and live lineage.
+
 Latest result (2026-10-24): projected-key fit and both reporters are TERMINAL.
 All963 raw members/533 source hashes verify. Key pruning is physically real:
 389 ->241 key keepers,385 ->239 logical key bits, unused key138 gone, none
@@ -107,18 +141,19 @@ no138 or unsupported indices. Receipt `native-selector-terminal-summary.json`
 retains full reports/source/readback. Never restart the completed builder or
 reporters. Original ECC loop/pulse and broader capture timing remain open.
 
-Next/TODO: reduce BaseBoard phase arithmetic via the exact10-state quotient
-(current19-bit phase is a multiple of47,060); retain exact offsets/reset/pause,
-re-prove source chronology and fit15ns. Separately correct the disk-generation
-physical hold path with exact capture semantics and real delay/skew control,
-then review every setup/hold corner. No blind seed retry, timing waiver or
-added guest cycle. Then integrate all primary events/original capture windows/
-j02 debug/DispY raw-fake/Ethernet ordering and re-prove cache context across
-intermediate events. Original60ns/separate66.7MHz SDRAM and the full A–F/Cedar/
-Rollback/persistence/three-boot/stress objective remain active. Main SPI ownership,
-ARM buffered disk/direct-DDR Ethernet/historical daemon scope stay intact; FPGA
-snapshots deferred. Hardware and last measured4.025473M StartCycle issues/s
-are unchanged. The FPGA stays reserved for the user.
+Next/TODO: finish the SAME stricter-hold native fit/reporters and inspect all
+534 source hashes, full setup/hold corners and physical capture/16visibleR/four
+SRAM coverage. No native timing pass is inferred from the source-only15ns pass.
+Implement the primary-event consumer with boundary input arrivals and ordered
+simultaneous pre-event state; preserve e07/g08/6502/CP/j02 debug, DispY raw/fake
+and Ether i20/EClk/CRC ordering. Gate against original timed board graphs and
+re-prove cache context across intermediate subevents before using its current
+closed-owner specialization. Then close FULL native15ns/original60ns nominal
+cadence. Separate66.7MHz SDRAM/CDC/physical timing and the complete A–F/Cedar/
+Rollback/persistence/three-boot/stress goal remain active. Preserve Main SPI
+ownership/ARM buffering/direct-DDR Ethernet/historical daemon scope; defer
+FPGA snapshots. Last measured4.025473M StartCycle issues/s is unchanged.
+The FPGA remains reserved for the user.
 
 Latest progress (2026-10-24): projected-key temporal induction PASSES for ALL
 475 control/event/flag outputs, exact cached-payload/canonical invariants,

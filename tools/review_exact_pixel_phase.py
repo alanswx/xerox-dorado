@@ -74,7 +74,7 @@ def review(out):
         stage, s = checked('exact-pixel-phase-stage-'+suffix, 'PREPARED_EXACT_PIXEL_PHASE', True)
         assert s['specialized_samples'] == 4 and s['specialized_frequency_khz'] == 50000
         assert s['original_output_equations_and_level_update_preserved'] and not s['extra_virtual_cycles']
-        assert sha(stage/'original.sv') == sha(ROOT/'verilog/rtl/dorado_oscillator_events.sv')
+        assert sha(stage/'original.sv') == sha(BUILD/'primary-clock-component-stage-v1-20261024/dorado_oscillator_events.sv')
         _, p = checked('exact-pixel-phase-proof-'+suffix, 'PASS_EXACT_PIXEL_PHASE_INDUCTION')
         assert p['compared_bits'] == 136 and p['unbounded_induction_proven']
         assert not p['protocol_or_state_assumptions']

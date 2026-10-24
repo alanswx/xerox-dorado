@@ -104,7 +104,7 @@ def review(out):
         if case['variant'] == 'positive':
             assert 'samples=160576 joint_period_ns=300000 maximum=5 resets=4' in (d/'test.log').read_text()
     for name in ['dorado_primary_clock_events.sv', 'dorado_clock_event_batch.sv', 'dorado_oscillator_events.sv']:
-        assert sha(ROOT/'verilog/rtl'/name) == t['inputs'][name]
+        assert sha(BUILD/'primary-clock-component-stage-v1-20261024'/name) == t['inputs'][name]
     retain(tests, out/tests.name)
     proofs = BUILD/'primary-clock-formal-v1-20261024'
     p = read(proofs/'run-state.json')

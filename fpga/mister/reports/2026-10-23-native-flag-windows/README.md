@@ -6,6 +6,23 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`bb-phase-hold-followup-summary.json` retains selection of the parallel merger,
+one-bit pixel and exact ten-state BaseBoard phase into canonical source RTL.
+All195-bit merger/phase proofs and both complete300us/eight-rotation references
+pass; the quotient range is proved as a conjunction. Source-only15ns PASSES:
+setup+1.171/+1.064/+5.440/+5.600ns, hold+0.449/+0.458/+0.197/+0.189ns,
+2,808ALMs/1391regs/0DSP. All1560 ports/four corners/zero unconstrained paths,
+58-member collection and exact compiled inputs verify. Native consumers stay
+unconnected; no full-native timing, firmware or speed pass follows.
+
+Both disk-generation calibrations are retained. The first expectation failed
+because set_min_delay0.250 also engages existing0.120ns derived hold uncertainty.
+V2 verifies every one of32 paths at all4 corners: checking strengthens by0.370ns,
+with setup/data/skew unchanged. The new native stage adds only that exact SDC
+and its QSF include; all RTL/clocks/seed/captures/barriers stay unchanged. All534
+remote hashes and live builder4123657/fitter4137879/reporters4123941+4124312
+lineage verify. It is live, not accepted timing; no assembly or hardware access.
+
 `exact-pixel-phase-followup-summary.json` retains the exact one-bit pixel
 remainder specialization,136-bit original-oscillator unbounded induction and
 stuck-phase counterexample. Both engines retain all12 oscillator configurations,
@@ -1185,8 +1202,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps68,551 members to8,054 deduplicated compressed blobs;
-lossless readback verifies2,655,306,739 unique raw bytes and97,656,758 compressed
+`manifest.json.gz` now maps69,295 members to8,168 deduplicated compressed blobs;
+lossless readback verifies2,675,831,068 unique raw bytes and98,395,395 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

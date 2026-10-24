@@ -6,7 +6,41 @@ Continue Quartus on misterubuntu and simulation on the Mac. Notify the user
 when a concrete build is ready for hardware qualification; wait for allocation.
 The goal remains active. This supersedes earlier permission for immediate reloads.
 
-Latest terminal result (2026-10-24): projected-key native fit and BOTH reporters
+Latest source-selection milestone (2026-10-24): canonical clock sources NOW
+use the proved parallel merger, exact one-bit pixel remainder and ten-state
+BaseBoard quotient. All source frequencies, timestamps, reset/pause and output
+records are preserved. Complete two-engine300us/all8-phase references and all
+195-bit merger/phase proofs pass, including the quotient-range conjunction
+(proved, never assumed). Source-only15ns timing PASSES at all4 corners:
+setup+1.171/+1.064/+5.440/+5.600ns, hold+0.449/+0.458/+0.197/+0.189ns.
+All1560 ports/eight rotations/zero unconstrained paths and exact58-member
+compiled-input readback verify.2,808ALMs/1391regs/0DSP. Source collection SHA
+40f9d36dbb84b7b7e9568ded6ad6c78c1b7427954768308e29f30268326ccc7c.
+This is ONLY the event producer; native consumers and measured speed do not
+change. Historical reviewers now bind their immutable parent snapshots so
+selecting newer canonical sources does not invalidate the earlier evidence.
+
+Disk-generation hold calibration verifies ALL32 capture bits at ALL4 corners:
+adding set_min_delay0.250 strengthens the relationship by0.370ns because the
+existing derived hold uncertainty adds0.120ns. Data/skew/setup remain identical.
+The first calibration expected only0.250ns and failed; its original state,
+failed expectation and complete reports are preserved. Corrected V2 checks
+both timing terms per path. The fitter already used all-path hold and multi-
+corner optimization, so merely enabling those options would change nothing.
+
+New native project `/home/alans/mister/pack-hold-native-v1-20261024` is LIVE:
+builder4123657/session48775, map4123660 exited0, fitter4137879. Physical reporter
+4123941/session86943 and key reporter4124312/session34934 are verified live,
+queued on the SAME job.534 source/configuration hashes verify. Only the exact
+calibrated SDC and its QSF include are added after path relocation; every RTL
+byte, clock, seed, guest capture and barrier is unchanged. No additional guest
+cycle, false path, setup waiver, Main or daemon change. Upload SHA
+08c0ca60ba7d8f736a9ae9a9ad042c0fdd11aad790373726be2c1f8aef2623ff.
+Observe those handles; do not restart them on a polling timeout. Receipt
+`bb-phase-hold-followup-summary.json` retains all passing source qualification,
+canonical selection, failed/successful calibration, native stage and live lineage.
+
+Earlier terminal result (2026-10-24): projected-key native fit and BOTH reporters
 have exited, all stages0. All963 collected members/533 compiled source hashes
 verify; collection SHA
 `54ef15a748671bf68571161ce6061d8e30e5d3fbbfcd0cf1da1be50065a7d033`.
@@ -153,18 +187,20 @@ or network receive. Balanced49723 is at host1.31B/guest699.093M and has issued
 one CPU instruction; short-control75056 remains in ROM memory diagnostics at
 host640M/guest280.638M. All original5B bounds/inputs/media are unchanged.
 
-Next/TODO: reduce the measured BaseBoard phase arithmetic using its exact
-10-state quotient (the current19-bit phase is a multiple of47,060). Preserve
-source timestamps/reset/pause, re-prove complete chronology and fit15ns again.
-Separately correct the native disk-generation physical hold path with measured
-minimum-delay/clock-skew control, retaining its exact capture semantics and
-all setup/hold corners. No blind seed retry, false-path waiver or guest cycle.
-Then integrate primary events with original capture windows toward60ns and
-re-prove owner/cache context across intermediate events. Separate66.7MHz SDRAM,
+Next/TODO: review the exact stricter-hold native fit and both reporters: all
+534 hashes, every setup/hold corner,16visibleR/fourSRAMs and actual generation
+capture delays; no timing pass until those finish. For clock integration, first
+build a consumer that evaluates boundary input arrivals then every timestamped
+primary event against one pre-event state. Preserve BaseBoard e07/g08/6502/CP/
+j02 debug, DispY raw/fake contributions and Ethernet i20/EClk/CRC capture order.
+Compare against the original timed graphs and re-prove cache/owner context for
+intermediate event states; the current closed-owner specialization does not
+justify subevent reuse. Then close full native15ns timing toward60ns nominal
+instructions before real holds. Separate66.7MHz SDRAM/CDC/physical timing,
 pinned waits/speed and original-firmware interactive Cedar remain. Authentic
-Rollback, new-file persistence, three fresh boots and2h stress remain. Main
-owns SPI; buffered disk/direct-DDR network/daemon scope remains; FPGA snapshots
-deferred. The user's FPGA is reserved; notify only when a reviewed build needs it.
+Rollback, persistence, three fresh boots and2h stress remain. Main owns SPI;
+buffered disk/direct-DDR Ethernet/historical daemon scope stays; snapshots
+deferred. The user's FPGA remains reserved until they release it for a ready test.
 
 Earlier live observation, now TERMINAL/REJECTED above:
 `/home/alans/mister/cp-key-native-v1-20261024`,

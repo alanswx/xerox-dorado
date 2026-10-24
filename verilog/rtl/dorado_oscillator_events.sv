@@ -26,12 +26,27 @@ module dorado_oscillator_events #(
     localparam integer STEP=120*FREQUENCY_KHZ;
     localparam integer WIDTH=$clog2(MODULUS);
     localparam integer SUM_WIDTH=$clog2(3*MODULUS);
-    reg [WIDTH-1:0] remainder=0;
+    wire [WIDTH-1:0] remainder;
     wire [SUM_WIDTH-1:0] sum=SUM_WIDTH'(remainder)+SUM_WIDTH'(STEP);
     wire [1:0] due=(sum>=SUM_WIDTH'(2*MODULUS)) ? 2'd2 :
                          (sum>=SUM_WIDTH'(MODULUS)) ? 2'd1 : 2'd0;
     wire [SUM_WIDTH-1:0] reduced=sum-(due==2 ? SUM_WIDTH'(2*MODULUS) :
                                                    due==1 ? SUM_WIDTH'(MODULUS) : SUM_WIDTH'(0));
+    generate if(SAMPLES_PER_INSTRUCTION==4 && FREQUENCY_KHZ==50000)begin: exact_pixel
+        reg pixel_half=0;
+        assign remainder=pixel_half ? WIDTH'(2000000) : WIDTH'(0);
+        always @(posedge clk)begin
+            if(reset)pixel_half<=0;
+            else if(advance)pixel_half<=!pixel_half;
+        end
+    end else begin: rational
+        reg [WIDTH-1:0] phase_remainder=0;
+        assign remainder=phase_remainder;
+        always @(posedge clk)begin
+            if(reset)phase_remainder<=0;
+            else if(advance)phase_remainder<=WIDTH'(reduced);
+        end
+    end endgenerate
     wire active=advance && !reset;
     assign edge_count=active ? due : 2'd0;
     assign rising=(edge_count==2) || (edge_count==1 && !level_before);
@@ -43,8 +58,8 @@ module dorado_oscillator_events #(
     assign second_offset_units=(edge_count==2) ? 32'(2*MODULUS)-32'(remainder) : 32'd0;
     assign interval_units=32'(STEP);
     always @(posedge clk)begin
-        if(reset)begin remainder<=0;level_before<=0;end
-        else if(advance)begin remainder<=WIDTH'(reduced);level_before<=level_after;end
+        if(reset)begin level_before<=0;end
+        else if(advance)begin level_before<=level_after;end
     end
     initial begin
         if(SAMPLES_PER_INSTRUCTION<1 || FREQUENCY_KHZ<1 || STEP>2*MODULUS)
