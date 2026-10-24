@@ -6,6 +6,20 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`selector-projection-followup-summary.json` retains the rejected swapped-
+cofactor negative: it proved equality, refuting the presumed binary dependency
+on after_pins386 for the three selectors. V2 projects that input to zero only
+for those bits, preserving exact original fallback for any unknown function
+input. All482 next-state/producer bits prove equal at5/24 waves over1253
+arbitrary binary inputs; required-bit corruption rejects. Both complete
+references pass14,884 checks/all100 clocks/unchanged cache coverage. Four-state
+testing passes5140 checks/5012 unknowns and32 fallback contracts, with a broken
+fallback rejected. Both533-source stages, native156-owner/1416-aux induction,
+stale-owner rejection and structural lint are retained. All110 parent warnings
+remain, including3 UNOPTFLAT/1 MULTIDRIVEN. No new native fit or timing/speed
+pass. The independent15ns primary-producer component fixture is preserved;
+its live Quartus result still needs terminal collection. FPGA remains reserved.
+
 `primary-clocks-followup-summary.json` preserves the complete963-member
 projected-key native fit and actual keeper inventory:533 source hashes verify;
 389 ->241 key keepers/385 ->239 logical bits, unused key138 removed, no bits
@@ -1124,8 +1138,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps65,527 members to7,295 deduplicated compressed blobs;
-lossless readback verifies2,423,109,692 unique raw bytes and88,988,858 compressed
+`manifest.json.gz` now maps66,888 members to7,355 deduplicated compressed blobs;
+lossless readback verifies2,444,521,862 unique raw bytes and90,221,242 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

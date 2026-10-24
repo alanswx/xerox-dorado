@@ -1,0 +1,83 @@
+{
+  "status": "REVIEWED_SELECTOR_INDEPENDENCE_AND_NATIVE_CONTEXT",
+  "records": [
+    {
+      "directory": "selector-preview-positive-v1-20261024",
+      "status": "PASS_SELECTOR_PREVIEW_ALL_PRODUCER_BITS",
+      "state_sha256": "ec87925c831485fcebe8c854f273954373621358e94db509a0f8b5b7243314b4"
+    },
+    {
+      "directory": "selector-preview-negative-v1-20261024",
+      "status": "TERMINAL_SELECTOR_PREVIEW_NOT_ESTABLISHED",
+      "state_sha256": "b15b17031a7fd833279548c3f4617329fc4dcc67b6aac66614f5cae15166d32c"
+    },
+    {
+      "directory": "selector-preview-positive-v2-20261024",
+      "status": "PASS_SELECTOR_PREVIEW_ALL_PRODUCER_BITS",
+      "state_sha256": "aa535f68d63727369ceca92a1eb147d2e3e791712962e38a69c5374486664d7b"
+    },
+    {
+      "directory": "selector-preview-negative-v2-20261024",
+      "status": "PASS_SELECTOR_PREVIEW_COUNTEREXAMPLES",
+      "state_sha256": "7accfb7ff0b82640c3acbb986b3ddef6673a1865575c5ae67692130aba24cf5d"
+    },
+    {
+      "directory": "selector-icarus-v2-20261024",
+      "status": "PASS_SELECTOR_COMPLETE_ORIGINAL_COMPARISON",
+      "state_sha256": "936503c7f6696ee3710cca287e6520f9e80e2063008245b56af8ac423daefb34"
+    },
+    {
+      "directory": "selector-verilator-v2-20261024",
+      "status": "PASS_SELECTOR_COMPLETE_ORIGINAL_COMPARISON",
+      "state_sha256": "b1f39427c34e93877c62ec0a55d1dc892118aa5d7dd564e49caae25cbcd11859"
+    },
+    {
+      "directory": "selector-four-state-v2-20261024",
+      "status": "PASS_SELECTOR_PREVIEW_FOUR_STATE",
+      "state_sha256": "33b12e686b4b96246e77f5f9e1a662c832d0050bdcb239bac8ec51a2ae898c4a"
+    },
+    {
+      "directory": "selector-bad-unknown-v2-20261024",
+      "status": "PASS_SELECTOR_UNKNOWN_FALLBACK_COUNTEREXAMPLE",
+      "state_sha256": "2f18c5482cedd4f97d765c8c1e16bfd41a6b88fc74fbf210278c907748a5f1b0"
+    },
+    {
+      "directory": "selector-native-context-proof-v2-20261024",
+      "status": "PASS_SOURCE_BOUND_NATIVE_CP_CONTEXT",
+      "state_sha256": "08e50e9768edaf6f36a493e461facfbc2b420d96b7dcb4b3a8ef6dfd6efcd2fc"
+    },
+    {
+      "directory": "selector-native-context-stale-v2-20261024",
+      "status": "PASS_STALE_NATIVE_OWNER_COUNTEREXAMPLE",
+      "state_sha256": "61e9f49abffcebb86b71402eb55fa9a7b09d0f069b949d5f69e2cbd6241a8250"
+    },
+    {
+      "directory": "selector-native-lint-v2-20261024",
+      "status": "PASS_NATIVE_PROCESSOR_CONTROL_ELABORATION",
+      "state_sha256": "7ae355d4946054738e88733093a450393dd1672e5d435671d4e5935a5dec7a40"
+    }
+  ],
+  "original_swapped_cofactor_negative_rejected": true,
+  "binary_constant_projection_proven": true,
+  "compared_bits": 482,
+  "four_state_checks": 5140,
+  "unknown_checks": 5012,
+  "fallback_contract_checks": 32,
+  "full_original_comparisons_per_engine": 14884,
+  "warning_counts": {
+    "WIDTHTRUNC": 55,
+    "WIDTHEXPAND": 50,
+    "UNSIGNED": 1,
+    "MULTIDRIVEN": 1,
+    "UNOPTFLAT": 3
+  },
+  "native_fit_not_yet_started": true,
+  "primary_component_fit_requires_terminal_collection": true,
+  "physical_timing_qualified": false,
+  "firmware_qualified": false,
+  "speedup_qualified": false,
+  "assembly_permitted": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}

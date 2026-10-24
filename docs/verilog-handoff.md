@@ -56,14 +56,39 @@ Re-prove cache/owner context across subevents: the current closed-owner
 specialization is proved at actual commits, not arbitrary uncommitted
 intermediate event states.
 
-Next/TODO: retain the real key reduction, then address the MEASURED remaining
-late selector path. Investigate precomputing only the three ContB producer
-selector bits (joint_next118/120/121 -> child pins11/9/10) for both values of
-late Hold386, selecting when Hold arrives. This narrows the failed earlier
-all363-output cofactor experiment without adding a register/guest cycle.
-Require exact ordered-function/unknown fallback proof and complete original
-references before another fit; do not blindly retry seeds or buffers. Integrate
-the full primary event source with original capture windows toward60ns, then
+Selector follow-up (2026-10-24): the first swapped-Hold-cofactor negative
+control unexpectedly PROVED EQUAL. Preserve its failed negative-control result:
+the three selector bits are binary-independent of after_pins386, regardless of
+the fitted net name. V2 supplies that input as zero only for those three bits;
+ANY unknown among the1247 ordered-function inputs uses the original selector.
+All156 next-state bits plus326 producer pins prove equal at5/24 waves over
+1253 arbitrary binary inputs, with required-selector counterexamples. Both
+complete original-reference runs pass14,884 checks/238 writes/6928 reads/392
+epochs, all100 clock counts and unchanged cache coverage. Four-state testing
+passes5140 producer checks/5012 unknown checks plus32 fallback-contract checks;
+a broken fallback compiles and fails. No owner, guest cycle or capture changes.
+
+Both native stages retain533 source hashes with only the control RTL changed
+after project relocation. Source-bound native context induction passes156 owner/
+1416 auxiliary bits with unconstrained owner power-up; stale-owner corruption
+rejects. Structural elaboration passes with exactly the same110 warnings as the
+parent, including3 UNOPTFLAT and1 MULTIDRIVEN; the ECC loop remains unresolved.
+Receipt `selector-projection-followup-summary.json` retains both premise runs,
+V2 positive/negative proofs, all comparisons, both stages and native gates.
+
+Independent15ns PRIMARY-PRODUCER-ONLY fit is running on misterubuntu:
+`/home/alans/mister/primary-clock-component-v1-20261024`, builder3936076,
+fitter3947061 (map3936079 exited0). It retains all195 event-vector bits for each
+of8 rotations,1560 captured results, the unchanged registered fixture/SDC and
+all-device timing reports. Observe the existing job; do not restart it. No
+native integration or timing acceptance follows from a component result.
+
+Next/TODO: fit the qualified three-selector projection in a fresh native
+project, inspect all physical paths/corners and retain failures. The fit has
+NOT started. Stages `selector-native[-generic]-stage-v2-20261024` are ready;
+context proof/stale control and structural lint share the same v2 date suffix.
+Collect and review the exact running primary component build. Integrate the
+full primary event source with original capture windows toward60ns, then
 qualify separate66.7MHz SDRAM, pinned waits/speed and original-firmware Cedar.
 Authentic Rollback, new-file persistence, three fresh boots and2h stress remain.
 The user's FPGA is reserved; notify only when a reviewed build needs testing.

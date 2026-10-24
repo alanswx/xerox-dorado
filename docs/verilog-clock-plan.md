@@ -3,8 +3,8 @@
 Started 2026-10-18 UTC. Native59 is preserved as a qualified 50 MHz SDRAM/direct-DDR
 Cedar desktop/input baseline; StorageReadCapture1 now qualifies the corrected BL8 path. Native49/fresh49b and Native34 preserve earlier
 50 MHz references; Native26 preserves the earlier 33.333 MHz reference.
-The user has released MiSTer14 for reloads/faster builds; keeping
-that session alive is no longer a constraint. See the [clock audit](verilog-from-sil.md#clock-architecture-audit-2026-10-18)
+MiSTer14 is currently reserved for the user; build and simulate without
+accessing it until they release it again. See the [clock audit](verilog-from-sil.md#clock-architecture-audit-2026-10-18)
 for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
@@ -41,14 +41,30 @@ The nested CPU/pixel unbounded proof remains byte-bound. Receipt
 `primary-clocks-followup-summary.json` retains all complete sources/results.
 No original60ns/native consumer/peripheral capture/timing qualification yet.
 
-Next/TODO: keep the key reduction and target ONLY the measured three late
-ContB producer selector bits (118/120/121, child11/9/10) with both Hold386
-alternatives computed early. Prove exact ordered outputs and unknown fallback
-before replacing those wires; retain all owners/flags/SRAM capture edges and
-the global barrier. The previous all363-output cofactor fit failed; narrow
-the cone based on the actual path, not by dropping checks. Then integrate
-the full primary source with board-specific capture windows/j02 debug/DispY
-raw-fake/Ethernet ordering. Original60ns/separate66.7MHz SDRAM and the full
+Selector update (2026-10-24): swapped-cofactor negative control proved equal,
+refuting the premise that those three selector bits depend on after_pins386.
+Preserve that rejected negative. V2 uses constant-zero386 for only those bits,
+with exact original fallback for ANY unknown function input. All482 next-state/
+producer bits prove equal at5/24 waves over1253 arbitrary binary inputs; a
+required-bit corruption produces counterexamples. Both complete original
+references pass14,884 checks/all100 clocks/unchanged cache coverage. Four-state
+checks5140 (5012 unknown) and32 fallback-contract checks pass; broken fallback
+rejects. Native context induction156owners/1416aux and stale-owner control pass.
+Structural lint retains the same110 warnings, including3 loops/1 multiple driver.
+Both533-source native stages are ready; no new native fit has started.
+Receipt `selector-projection-followup-summary.json` retains the full evidence.
+
+The independent all-primary-source15ns component fit is running on misterubuntu
+at `/home/alans/mister/primary-clock-component-v1-20261024`, builder3936076,
+fitter3947061/map3936079 exited0. All8 rotations/1560 output bits and original
+fixture constraints remain. Follow this job, collect all corners and inspect
+actual paths; even a passing component does not qualify native timing or60ns.
+
+Next/TODO: retain the key reduction, fit the proved three-selector projection
+in a fresh project and review actual physical paths/all corners. Preserve all
+owners, flags, SRAM captures and barriers. Then integrate the full primary
+source with board-specific capture windows, j02 debug and DispY raw/fake/
+Ethernet ordering. Original60ns/separate66.7MHz SDRAM and the full
 A–F/Cedar/Rollback/persistence/three-boot/stress objective remain active.
 Re-prove cache/owner context for intermediate event states before composing
 consumers; the existing specialization is bound to actual closed-owner commits.
