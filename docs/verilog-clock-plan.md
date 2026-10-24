@@ -29,7 +29,7 @@ setting is reported On, but all four corners' global/owner paths and margins
 are identical to v1. All956 collected files verify. Do not repeat that setting
 as if it solved the fanout. No new guest pipeline stage is allowed.
 
-Next `memc-tag-buffers-native-v1-20261024` keeps84 existing Aad inversions
+The diagnostic `memc-tag-buffers-native-v1-20261024` keeps84 existing Aad inversions
 separately at21 cache-tag RAMs. Only MemC's combinational address wiring changes
 after relocation; original owners, RAM functions/ports/capture edges, clocks
 and SDCs remain. All168 affected address pins prove equal for arbitrary original
@@ -37,9 +37,33 @@ latch states; wrong polarity has a counterexample. Full native elaboration
 passes with all structural warnings visible. The first lint used an old
 observer hierarchy and is retained as a failure; the correct existing balanced
 harness passes without dropping checks. Actual physical separation, fanout and
-all-device timing remain unqualified pending this isolated fit. Independent
+all-device timing were unqualified at staging. Independent
 PARC wire-list checks bind all84 inversions to unique original MC1668 output
 pairs, ruling out replacement of a wired-OR contribution.
+Its complete fit is now terminal and REJECTED: -1.314ns/-1.053ns setup and
++0.090ns minimum hold. All four corners' queried global/owner reports are
+BYTE-IDENTICAL to the original balanced fit; the worst source still drives322
+loads. The kept wire aliases did not fix that path. All956 collected files
+verify; no assembly or clock change.
+
+Next native experiment `memory-hold-cofactor-native-v1-20261024` applies
+Boolean alternatives only to the156-Q atomic control/memory step, after the
+guarded CP-cache/balanced-priority fixes. This is smaller in scope than the
+earlier whole844-Q forecast experiment whose early CP path failed timing.
+Both low/high values of late input386 are computed before selecting all363
+results. Exact-case X/Z fallback preserves the original four-state transfer;
+per-wave diagnostics remain visible. No state/RAM/port/clock/capture change.
+All955 arbitrary binary state/input bits prove equal at five AND24 waves;
+wrong selection has both counterexamples. Both original full comparisons pass
+14,884checks/238writes/6,928reads/392epochs/all100clocks, with identical cache
+coverage. A separate128-case test covers64 X/Z selectors at both wave counts
+and rejects a zeroed unknown fallback. Wrong selection is rejected by both
+original references at check15; the first diagnostic parser's narrow matcher
+is retained as a reader failure, without rerunning those tests.
+Native structural elaboration passes. Only the control file changes after
+relocation; combinational branch keep attributes strip back to the exact
+proved rewrite. Require actual late-input timing AND all other paths/area;
+the new full fit remains live. No hardware speed or firmware qualification.
 
 The actual map report lists ONE physical logic loop: unchanged DskEth
 `EccComputeErr_p_`. Its original enabled-XOR/wired-OR feedback is a sticky
@@ -86,6 +110,9 @@ at host2,083,350,168 has RTC430=014B and task0.T threshold015B; the timeout
 subtraction is still negative. This explains a pending timeout at THAT sample,
 not the missed packet0 or calibrated clock speed. Same job detaches/resumes;
 original bounds/media/firmware remain unchanged.
+At host2,309,520,361 the RTC word has advanced to015B, threshold remains015B,
+and global Q=SeqNo=0. Its subtraction is still negative. The two readbacks
+establish clock movement, not calibration or a missed-timeout defect.
 
 The raw window reader now delimits at the FIRST operation/data/sampled-PC
 disagreement. The1,536-operation common prefix takes18,213/17,059 host ticks

@@ -6,6 +6,45 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`atomic-memory-hold-summary.json` adds the complete kept-inverter rejection:
+all956 files verify; global/owner reports at all four corners are byte-identical
+to the original balanced fit (-1.314ns/-1.053ns setup, +0.090ns minimum hold).
+The worst source still drives322 loads. The kept aliases did not improve this
+path. Sources, readback, reports and unchanged constraints remain retained.
+
+The next native experiment factors late pin386 only in the current156-Q
+stateless atomic control/memory function. Low/high results are precomputed and
+all363 outputs select the actual input. An exact-case original fallback handles
+X/Z in simulation, retaining per-wave diagnostics. No new owner/state/RAM/port/
+clock/capture epoch. This follows the guarded CP-cache/balanced-priority work;
+the earlier rejected whole844-Q forecast's early CP path is not assumed fixed
+by that older result. The actual new full native fit remains live/unqualified.
+
+All955 arbitrary binary state/input bits prove equal for all363 outputs at
+five AND24 waves, with bad-select counterexamples at both depths. Both full
+original comparisons pass14,884checks/238writes/6,928reads/392epochs/all844Q/
+9,216RAM/all100clocks and identical13,347fast/1,537staged/1,553wait/7retry/1reset
+coverage. Icarus additionally checks128 cases,64 X/Z selectors, all363 results
+and15/72 per-wave diagnostic bits. A wrong unknown fallback is rejected.
+Both swapped-select simulations fail original resolved-source check15; their
+initial harness statuses remain terminal because its diagnostic matcher
+expected only a state mismatch. The corrected reader accepts the actual
+independent-original rejection; neither negative was rerun. V1 proofs before
+diagnostic aliases and v2 proofs of the exact tested rewrite remain separate.
+
+The native533-source stage changes only the control file after relocation.
+Kept low/high combinational result boundaries strip back to the exact proved
+rewrite; the unknown fallback is not kept. Full structural elaboration passes
+with three known warnings visible. Complete timing, actual native firmware,
+original60ns/peripheral/SDRAM66.7MHz and the full A-F goal remain open.
+
+Source-bound readbackv5 at host2,309,520,361 shows actual ROM RTC430015B,
+saved task0.T015B and global Q=SeqNo=0; the subtraction is still negative.
+The prior RTC014B moved, without establishing timer calibration or packet0's
+root cause. Original job58600 detached/resumed at its same bound. A vendor
+LCELL identity model was inspected and retained as an unimplemented option;
+no LCELL native experiment or qualification is claimed.
+
 `tag-address-and-rom-wait-audited-summary.json` adds the terminal second fanout fit:
 physical register duplication is On but all four corners' reported global/
 owner paths, arrivals and margins match v1 exactly. It is REJECTED at-0.995ns,
@@ -931,8 +970,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps52,089 members to5,222 deduplicated compressed blobs;
-lossless readback verifies1,502,127,584 unique raw bytes and57,314,106 compressed
+`manifest.json.gz` now maps54,076 members to5,319 deduplicated compressed blobs;
+lossless readback verifies1,565,761,974 unique raw bytes and59,735,568 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

@@ -50,6 +50,9 @@ def run(source,readback,out):
     for kind,suffix in [('F10145A','sv'),('MC10173','v')]:
         name=f'src/fpga/mister/snapshot_native_conta/cell_{kind}_snapshot.{suffix}'
         copy(source/'inputs'/name,'native/'+name)
+    if 'Q_register'in observed:
+        name='src/fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v'
+        copy(source/'inputs'/name,'native/'+name)
     binary=out/'symbols'
     command=['cc','-O2','-I'+str(inputs/'dorado/include'),str(helper),
              *[str(inputs/f'dorado/src/{n}.c')for n in ['mb','microcode','disasm']],'-o',str(binary)]
@@ -120,6 +123,9 @@ def run(source,readback,out):
         readback_sha256=sha(readback/'result.json'),decoder_command=command,
         input_hashes=copied,original_ROM_or_guest_state_changed=False,
         packet0_root_cause_established=False,firmware_or_clock_speed_qualified=False)
+    if 'Q_register'in observed:
+        result['global_Q']=reverse(observed['Q_register']['wire_order_word'])
+        result['sequence_compare_Q_matches']=result['global_Q']==result['sequence_number']
     assert result['sequence_number']==0
     for name,digest in copied.items():assert sha(inputs/name)==digest,name
     (out/'results.json').write_text(json.dumps(result,indent=2)+'\n')

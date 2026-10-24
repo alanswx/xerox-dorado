@@ -1,5 +1,43 @@
 # Verilog from Sil: handoff
 
+Latest milestone (2026-10-24): `atomic-memory-hold-summary.json` retains the
+terminal kept-inverter failure and a proved atomic late-Hold alternative.
+The kept-buffer fit is REJECTED at -1.314ns/-1.053ns setup, +0.090ns minimum
+hold. All queried global/owner reports at all four corners are byte-identical
+to the original balanced fit; source fanout remains322. All956 files verify.
+Do not describe the kept wire aliases as a physical fanout improvement.
+
+NOW LIVE: `/home/alans/mister/memory-hold-cofactor-native-v1-20261024`,
+builder2702825/session83901, fitter2717359 verified live, reporter session64799.
+Local stage `memory-hold-cofactor-native-stage-v1-20261024`; all533 sources
+are bound. Only the control file changes after relocation. Both Boolean values
+of late pin386 are computed in stateless atomic156-Q control/memory functions,
+then all363 results select the actual pin. Exact-case unknown fallback and
+per-wave diagnostics retain four-state behavior. Prefix cache, owners, four
+physical SRAMs/ports/capture boundaries, clocks and SDC remain unchanged.
+Branch keep attributes invert back to the exact proved function; the unknown
+fallback is not kept. Require actual selection timing, full paths and area.
+
+`atomic-memory-hold-{positive,negative}-proof-v2-20261024` proves all363outputs
+for955 arbitrary binary state/input bits at five/24 waves, with both bad-select
+counterexamples. V1 before diagnostic aliases is retained separately. Both
+complete original comparisons pass14,884checks/238writes/6,928reads/392epochs,
+all844Q/9,216RAM/all100clocks, same13,347fast/1,537staged/1,553wait/7retry/1reset
+coverage. Icarus also passes128 four-state cases (64 X/Z selectors), with a
+bad unknown-fallback rejection. Both swapped-select controls fail the ORIGINAL
+resolved-source check15; their initial terminal reader statuses reflect a
+too-narrow diagnostic matcher, not an accepted wrong design. Raw failures
+are retained; no control was rerun. Full native elaboration passes, retaining
+three known structural warnings. No firmware, timing or speed qualification.
+
+Baseline readbackv5 at host2,309,520,361 shows actual ROM RTC430=015B versus
+task0.T015B and global Q=SeqNo=0. Earlier RTC014B advanced; timeout subtraction
+remains negative. The clock moves; neither its calibration nor packet0's
+missing acceptance is resolved. `native-initial-rom-wait-v3-20261024` binds the
+actual ROM slots/instructions, source-pinned T/Q files and detach/resume.
+Same original jobs/bounds/media continue. An installed-vendor LCELL identity
+model is retained as an UNIMPLEMENTED physical-buffer option, not another fit.
+
 Latest follow-up (2026-10-24): `tag-address-and-rom-wait-audited-summary.json` retains
 the second physical-duplication fit, actual-ROM timeout binding and next
 cache-tag address experiment. V2 is terminal/REJECTED: its On duplication
@@ -7,9 +45,9 @@ setting produces IDENTICAL four-corner critical paths/margins to v1
 (-0.995ns setup/+0.053ns minimum hold), still321/320-load driver. Both956-file
 collections verify. Stop treating that setting as a fanout fix.
 
-NOW LIVE: `/home/alans/mister/memc-tag-buffers-native-v1-20261024`,
-builder2569759/session54811; fitter2583749 verified live; read-only reporter
-session68759. Local stage `memc-tag-buffers-native-stage-v1-20261024`.
+The then-live diagnostic is now terminal as recorded above:
+`/home/alans/mister/memc-tag-buffers-native-v1-20261024`.
+Local stage `memc-tag-buffers-native-stage-v1-20261024`.
 Only MemC combinational wiring changes after relocation:84 kept inversions at
 21 cache-tag RAMs. All168 address bits prove equal for arbitrary original
 owners; wrong-polarity counterexample passes. No new state/stage/port/capture
@@ -10527,7 +10565,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Preserve terminal first fanout fit (-0.995ns setup/+0.053ns hold), five ignored assignments/nine insertion groups and still321/320-load critical driver. Prove exact oscillator edge timestamps with four formal/simulator negative controls.
 - [x] Finish physical-duplication v2 and preserve identical rejected margins/critical paths; bind actual-ROM RTC slot and source-bound saved T threshold, plus maximal matching raw-work prefix.
 - [x] Prepare84 kept cache-tag address inversions, prove all168 RAM address pins equal and reject wrong polarity, pass complete native structural elaboration with matching existing harness; retain old-observer lint failure.
-- [ ] Follow actual cache-tag buffer fit through physical separation/fanout/full timing, then qualify original native firmware before speed selection. Migrate actual display consumers/video enable to ordered events, preserving original capture windows.
+- [x] Finish cache-tag kept-inverter fit: preserve all956 files, unchanged byte-identical queried paths/-1.314ns rejection and322-source loads. No effective fanout improvement.
+- [x] Factor the late memory-Hold pin in the current atomic function; prove363 outputs for955 arbitrary inputs at five/24waves, retain both select counterexamples, pass128 four-state cases and both complete original comparisons/all100clocks with identical cache coverage.
+- [x] Stage exact cofactor rewrite in the actual native caller, with inverse-checked branch keep attributes and full native structural elaboration; preserve original clocks/ports/captures and both diagnostic-reader failures.
+- [ ] Follow actual atomic Hold-cofactor fit through area/all-device and late-input timing, then qualify original native firmware before speed selection. Migrate actual display consumers/video enable to ordered events, preserving original capture windows.
 - [ ] Diagnose baseline SeqNo0 after the last reply76B without altering existing tests; qualify actual receiver acceptance/CRC and pin common architectural progress before native speed comparison.
 - [ ] Complete the existing owned-context1B run and new balanced-native5B original-firmware run; classify physical-Q/RAM-read feedback with full native timing before promotion. Preserve every older bound/source.
 - [ ] Close remaining full diagnostic timing, then qualify native global pauses/actual CP frequency, one SRAM commit, original60ns phases/all timers and separate66.7MHz SDRAM. No new speed selection yet.

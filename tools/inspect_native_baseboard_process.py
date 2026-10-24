@@ -61,7 +61,7 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
         fields['network_buffer_rx']=(prefix+'wire_port__DOT__rx_buffer',2048)
         for name in ['RxFifoEmpty','RxFifoFull','RxEOP']:
             fields['network_controller_'+name]=(prefix+'dut__DOT__m__DOT__b_DskEth__DOT__'+name,1)
-        rm_bindings={};t_bindings={}
+        rm_bindings={};t_bindings={};q_bindings={}
         for board in ['ProcH','ProcL']:
             paths=list((source/'inputs/src').rglob(board+'_full_snapshot.sv'));assert len(paths)==1
             text=paths[0].read_text()
@@ -89,6 +89,13 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
                 start=(0 if board=='ProcH'else 8)+(0 if package=='i03'else 4)
                 assert [pins[str(pin)]for pin in [1,2,15,14]]==['T_'+f'{start+i:02d}'for i in range(4)]
                 fields['T_latch_'+board+'_'+package]=(prefix+'dut__DOT__m__DOT__b_'+board+'__DOT__u_'+package+'__DOT__q',1)
+            for package in ['c12','c11']:
+                body=re.search(r'cell_MC10141_snapshot u_'+package+r' \(.*?\n  \);',text,re.S)[0]
+                pins=dict(re.findall(r'\.p(\d+)\((\w+)\)',body))
+                start=(0 if board=='ProcH'else 8)+(0 if package=='c12'else 4)
+                assert [pins[str(pin)].removesuffix('__drv')for pin in [14,15,2,3]]==['Q_'+f'{start+i:02d}'for i in range(4)]
+                fields['Q_register_'+board+'_'+package]=(prefix+'dut__DOT__m__DOT__b_'+board+'__DOT__u_'+package+'__DOT__q',1)
+                q_bindings[board+'/'+package]=dict(source=str(paths[0]),source_sha256=sha(paths[0]),pins=pins)
     ram_pins={}
     board=source/'inputs/src/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v'
     riot_banks={}
@@ -219,6 +226,10 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
         result['T_file']=dict(wire_order_words=t_words,wire_order_active_latch=latch,source_bindings=t_bindings,
             address_convention='All four CurrLast pins complemented; physical array index task XOR15',
             data_convention='Logical software word is bit-reversed16 of wire-order word; active latch depends on sampled task/phase')
+        q_word=sum(int.from_bytes(bytes.fromhex(result['fields']['Q_register_'+board+'_'+package]),'little')<<shift
+                   for board,package,shift in [('ProcH','c12',0),('ProcH','c11',4),('ProcL','c12',8),('ProcL','c11',12)])
+        result['Q_register']=dict(wire_order_word=q_word,source_bindings=q_bindings,
+            data_convention='Logical software word is bit-reversed16 of wire-order word; Q is global, HM3.3')
     result.update(decoded_nodes=decoded,counters={k:int.from_bytes(bytes.fromhex(v),'little')
                   for k,v in result['fields'].items() if not k.startswith(('nodes_','ram_','riot_RAM_','network_buffer_','register_file_','T_file_'))},
                   source=str(source),pid=pid,source_state_sha256=sha(source/'run-state.json'),
