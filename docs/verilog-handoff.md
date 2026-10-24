@@ -1,5 +1,67 @@
 # Verilog from Sil: handoff
 
+Direct-CP/native-integration milestone (2026-10-24;
+[proofs and full timing limits](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#direct-cp-register-projection-and-native-staging)):
+the five-pass-only fit finishes but fails-2.512ns global/-1.440ns owners.
+`cp-prefix-five-summary.json` preserves both full comparisons, induction,
+all six negative controls and the full fit. Shorter settling alone is not a
+native speed gain and no constraint/result was removed.
+
+Direct CP projection proves ALL12joint-Q[75:64] bits equal the ordered
+prefix/root result for955arbitrary binary state/input bits, no assumptions;
+stale CP has a counterexample. The actual new component selects all other
+state/events/flags normally and keeps CP subevents/the sole four SRAMs.
+Both full original comparisons pass14,884checks/238writes/6,928reads/392epochs,
+844Q/9216RAM/all100clocks and exact cache/reset/retry counts. Induction passes
+all475ready-result bits/write exclusion. All FOUR bad variants reject in both
+engines and have formal counterexamples. Old CP-bit69 corruption now fails
+later, at11302 on the ORIGINAL solver check; it still affects other control
+state, so do not remove CP-prefix staging wholesale. MIR-bit85 corruption
+rejects the original resolved-source check0; stale-tag/unguarded-write reject0.
+
+The complete15ns direct-CP fit finishes all stages. Physical owners now pass
+EVERY corner: minimum+0.583ns setup, hold+0.087ns, late-Hold owners+2.926ns.
+Full timing remains REJECTED at-0.550ns to result355/unsettled; retain it.
+Worst source is launch649=before-pin246 through the wide guard, selected
+memory-state153 and the child T-path comparison. Area5504ALMs including1527
+virtual-pin ALMs/6080registers, no M10Ks, zero UCPs/positive pulse margins.
+Remote DB `/home/alans/mister/cp-prefix-direct-fit-v1-20261024`; local source/
+reports `cp-prefix-direct-fit-terminal-v1-20261024`. Exact receipt is
+`cp-prefix-direct-summary.json`; hardware/Main/daemon/speed are unchanged.
+
+Actual native source integration is now staged privately at
+`cp-prefix-native-stage-v2-20261024` (533frozen source files). `control_ready`
+threads through the real backplane/wrapper and gates the SAME falling-edge
+machine enable/network_step as storage/disk; storage_ready stays separate.
+The final stopped-clock keyboard/terminal sources are bound to the16-case
+proof and adapter synthesis. Keep57.142857MHz/SYSPER4 for this correctness
+comparison. No native fit/assembly/deployment or60ns qualification is implied.
+The first source-preparation tuple/list identity assertion is preserved.
+
+`cp-prefix-native-lint-v2-20261024` passes full native elaboration with structural
+warnings visible: two wide physical-Q/RAM-read feedback paths, existing DskEth
+ECC feedback and the existing dual-clock pack buffer warning. These remain
+unclassified for hardware. Lint v1 failed because the passive observer named
+removed package j02; its seven INPUT pins are now mapped to exact frozen
+original nets, preserving the observer and all original fatal checks.
+
+The original-ROM diagnostic `cp-prefix-native-cold-v3-20261024` is running at
+its fixed300M host bound, session50501. Its source adds actual pre-commit/
+ten-board enable/closed-owner/9216-bit SRAM pause checks and held128-group
+request/response checks. CP pauses use traffic/window class7, separate from
+storage; forecasts are checked only when valid, with a separate commit-edge
+readiness assertion. No artificial CP input, guest state import or ROM patch.
+Cold v2 was intentionally SIGTERM'ed (36430): storage_reset remains asserted
+during SDRAM initialization, so its full SRAM snapshots wrongly counted all
+initialization clocks as CP pauses. `stop-reason.json` retains the exact reason,
+original300M bound and sources; v3 scopes snapshots to storage_initialized,
+with identical RTL/input/clock/bound. V1 preserves the failed j02-observer lint.
+The four original native processes29201/29618/58600/58753 remain untouched at5B.
+Next inspect v3's actual cold/CP/storage behavior, classify physical-Q feedback,
+close the diagnostic path and qualify native timing/60ns phases/all timers.
+Full A-F/Cedar/Rollback/persistence/three fresh boots/input/two-hour stress
+remain; no new measured gain over4.025473M StartCycle issues/s is claimed.
+
 Guarded CP-prefix component follow-up (2026-10-23;
 [exact proof and rejected timing receipt](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#guarded-cp-prefix-cache)):
 `tools/probe_cp_prefix_cache.py` implements canonical/last-settled eligibility,
@@ -10281,7 +10343,11 @@ and has unreviewed hold violations; never deploy it.
 - [x] Prove guarded-prefix safety by direct-RTL temporal induction; finish full15ns fit and retain -5.619ns global/-5.036ns owner rejection with the guard-comparator/feedback attribution.
 - [x] Move the guarded selection after parallel direct/staged control evaluation and qualify control-only settled eligibility; both full comparisons, six simulator controls, induction and three formal controls pass. Preserve full15ns rejection (-1.953ns global/-1.115ns owners).
 - [x] Prove five/six/seven atomic passes against24 for955arbitrary binary inputs/state bits/all363outputs, retaining unsettled and the four-pass rejection.
-- [ ] Qualify the running five-pass guarded component, then shorten residual guard-to-CP/T-write dependency if still required. Preserve every result and qualify full15ns/native global pauses, actual CP frequency, one SRAM commit and60ns ordinary cadence.
+- [x] Qualify the five-pass guarded component digitally and preserve its full15ns timing rejection; prove direct CP12projection, reject stale CP, and pass complete dual-engine/inductive/negative-control checks for its implementation.
+- [x] Finish direct-CP full15ns fit: all physical owners pass(+0.583ns minimum), full diagnostic fails(-0.550ns). Preserve all fields/constraints and the delayed11302CP-corruption rejection.
+- [x] Stage actual shared control_ready gate and synthesis-qualified input adapters in a private native baseline; preserve source-preparation/observer-lint failures and pass full structural elaboration with warnings visible.
+- [ ] Inspect original-ROM native cold-v3 at fixed300M bound with real all-board/backend pause checks; preserve intentionally stopped cold-v2's initialization-monitor error. Classify wide physical-Q feedback before native timing promotion.
+- [ ] Close remaining full diagnostic timing, then qualify native global pauses/actual CP frequency, one SRAM commit, original60ns phases/all timers and separate66.7MHz SDRAM. No new speed selection yet.
 - [x] Preserve dual-engine late-Hold component passes and reject the full 15 ns duplication fit on actual owner paths; no timing waiver or native promotion.
 - [x] Diagnose the original native keyboard's all-zero active-low matrix; repair adapter power-up and stopped-clock reset, with16 dual-engine cases including8 rejected controls.
 - [ ] Observe genuine Cedar113/C release and pinned storage windows on fresh input-reset-v3 control/queue jobs58600/58753, bound to passing final adapter synthesis/tests; retain original jobs29201/29618 and their unchanged bounds as Alto110 evidence.

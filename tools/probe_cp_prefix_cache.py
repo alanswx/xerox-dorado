@@ -67,7 +67,7 @@ endmodule
 '''
 
 
-def parallel_control(body):
+def parallel_control(body,direct_cp=False):
     """Select complete control results after two pure combinational roots.
 
     Keep the raw prefix producer and the single physical SRAM owner intact.
@@ -99,10 +99,17 @@ def parallel_control(body):
   {staged_q,prefix_events|root_events,prefix_repeated|root_repeated|(prefix_events&root_events),
    prefix_unsettled|root_unsettled,staged_flags,prefix_events,prefix_repeated};''')
     assert 'fast_path ?'in body and body.count('fast_path ?')==1
+    if direct_cp:
+        body=replace(body,' assign {state_next,clock_events,repeated_events,unsettled,flags,cp_prefix_events,cp_prefix_repeated}=',
+            ''' wire [155:0] selected_q;
+ // Direct CP Q is identical to ordered prefix/root CP Q for every binary
+ // input, independently of the guard. Keep every other result selected.
+ assign state_next={selected_q[155:76],direct_q[75:64],selected_q[63:0]};
+ assign {selected_q,clock_events,repeated_events,unsettled,flags,cp_prefix_events,cp_prefix_repeated}=''' )
     return body
 
 
-def candidate(raw,mutation=None,parallel_root=False,control_settled=False,settling_waves=8):
+def candidate(raw,mutation=None,parallel_root=False,control_settled=False,settling_waves=8,direct_cp=False):
     marker='output wire shared_state_mismatch,output wire [93:0] control_flags,output wire [843:0] physical_state\n'
     raw=replace(raw,marker,marker.rstrip()+',\n input wire cp_reset,output wire cp_ready\n')
     call=''' dorado_control_hold_ordered_step control(joint_q,clock_before,clock_after,pins_before[397:0],pins_after[397:0],
@@ -142,7 +149,8 @@ def candidate(raw,mutation=None,parallel_root=False,control_settled=False,settli
                  '  raw_prefix_q,raw_prefix_events,raw_prefix_repeated,raw_prefix_unsettled,')
     body=replace(body,'  prefix_q,clock_before,clock_after,prefix_pins,pins_after,',
                  '  prefix_q,clock_before,clock_after,root_before,root_after,')
-    if parallel_root:body=parallel_control(body)
+    assert not direct_cp or parallel_root
+    if parallel_root:body=parallel_control(body,direct_cp)
     raw=raw[:start]+body+raw[end:]+CACHE
     assert settling_waves in range(1,9)
     assert raw.count('parameter integer WAVES=8')==1
@@ -152,6 +160,7 @@ def candidate(raw,mutation=None,parallel_root=False,control_settled=False,settli
         raw=replace(raw,'  !unsettled,cp_prefix_live,cp_ready,', '  !cu,cp_prefix_live,cp_ready,')
     if mutation=='stale-tag':raw=replace(raw,'assign cache_hit=cache_valid && (cache_key==current_key) && (after_cp_saved==after_pins[292:282]);','assign cache_hit=cache_valid;')
     elif mutation=='bad-prefix':raw=replace(raw,'prefix_saved<=prefix_live;','prefix_saved<=prefix_live ^ (269\'b1 << (113+69));')
+    elif mutation=='bad-mir-prefix':raw=replace(raw,'prefix_saved<=prefix_live;','prefix_saved<=prefix_live ^ (269\'b1 << (113+85));')
     elif mutation=='unguarded-write':raw=replace(raw,'wire cp_commit=advance && cp_ready;','wire cp_commit=advance;')
     elif mutation is not None:raise ValueError(mutation)
     return raw
@@ -222,11 +231,11 @@ def bench(raw):
     return raw
 
 
-def run(source,out,mutation,parallel_root=False,control_settled=False,settling_waves=8):
+def run(source,out,mutation,parallel_root=False,control_settled=False,settling_waves=8,direct_cp=False):
     assert not out.exists()
     parent,g=gate(source,json.loads((source/'run-state.json').read_text())['engine'])
     assert parent['all_hold_clocks']and parent['settling_waves']==8
-    generated=candidate((source/'candidate.sv').read_text(),mutation,parallel_root,control_settled,settling_waves)
+    generated=candidate((source/'candidate.sv').read_text(),mutation,parallel_root,control_settled,settling_waves,direct_cp)
     tb=bench((source/'inputs/tb_r_front_local.sv').read_text())
     out.mkdir(parents=True);paths=[];records=[]
     for row in parent['source_files']:
@@ -247,6 +256,8 @@ def run(source,out,mutation,parallel_root=False,control_settled=False,settling_w
         parent=str(source),parent_state_sha256=sha(source/'run-state.json'),source_files=records,actions=[],
         parallel_control_results=parallel_root,control_only_settled_eligibility=control_settled,
         settling_waves=settling_waves,
+        direct_cp_projection=direct_cp,
+        corrupted_prefix_joint_Q_bit={'bad-prefix':69,'bad-mir-prefix':85}.get(mutation),
         original_reference_and_checks_retained=True,physical_SRAM_banks=4,extra_guest_cycles=0,
         auxiliary_prefix_bits=269,tag_key_bits=567,cached_CP_pin_bits=22,
         native_pause_consumers_qualified=False,native_qualified=False,physical_timing_qualified=False,
@@ -274,8 +285,9 @@ def run(source,out,mutation,parallel_root=False,control_settled=False,settling_w
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ['source','output']:parser.add_argument('--'+name,type=Path,required=True)
-    parser.add_argument('--mutation',choices=['stale-tag','bad-prefix','unguarded-write'])
+    parser.add_argument('--mutation',choices=['stale-tag','bad-prefix','bad-mir-prefix','unguarded-write'])
     parser.add_argument('--parallel-root',action='store_true')
     parser.add_argument('--control-settled',action='store_true')
     parser.add_argument('--settling-waves',type=int,choices=range(1,9),default=8)
-    args=parser.parse_args();raise SystemExit(run(args.source.resolve(),args.output.resolve(),args.mutation,args.parallel_root,args.control_settled,args.settling_waves))
+    parser.add_argument('--direct-cp',action='store_true')
+    args=parser.parse_args();raise SystemExit(run(args.source.resolve(),args.output.resolve(),args.mutation,args.parallel_root,args.control_settled,args.settling_waves,args.direct_cp))

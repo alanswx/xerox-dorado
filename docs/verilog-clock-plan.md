@@ -9,6 +9,35 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Latest structural/native integration (2026-10-24): five-pass-only full fit is
+REJECTED(-2.512ns global/-1.440ns owners). Direct CP12projection then proves
+equal to ordered prefix/root for955arbitrary binary inputs; stale CP rejects.
+Its implementation passes both full14,884-event comparisons/all844Q/9216RAM/
+100clocks and induction of475ready-result bits/write exclusion. All four bad
+variants reject in BOTH engines and have formal counterexamples: CP corruption
+now fails original solver check11302, MIR corruption original source check0.
+Preserve CP subevents and staging for other control state.
+
+The direct-CP full15ns fit now passes physical owners at all corners, minimum
++0.583ns setup/+0.087ns hold. Full timing remains REJECTED at-0.550ns on
+unsettled; no diagnostic/field/constraint is dropped. Area5504ALMs/6080regs,
+zero UCPs/positive pulse margins. Guard-to-memory-state153/child-T comparison
+is the residual path. [Exact evidence](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#direct-cp-register-projection-and-native-staging).
+
+Private native stage-v2 now wires control_ready through the actual wrapper/
+backplane and shared falling-edge machine gate, with storage readiness separate.
+Keep57.142857MHz/SYSPER4 for original-ROM/pause qualification first. This is
+not a faster native selection or waiver of the original60ns target. Native
+lint-v2 passes; two physical-Q/RAM-read feedback paths and existing ECC/pack
+warnings remain unclassified for hardware. Cold-v3 runs at fixed300M bound,
+with real ten-board/owner/SRAM/held128-transaction checks and CP class7 waits.
+Cold-v2 was deliberately stopped for an initialization-monitor scope error,
+not timeout: cache reset is held during physical RAM initialization. V3 excludes
+initialization from CP-pause snapshots; all RTL/firmware/clocks/input/bounds
+are identical. All four original5B jobs continue. Next qualify actual native
+pause/firmware behavior, resolve feedback/diagnostic timing, then integrate
+60ns phases/all timers and separate66.7MHz SDRAM; full A-F remains active.
+
 Guarded-prefix implementation follow-up (2026-10-23): the
 canonical/last-settled component and tagged fallback now pass BOTH complete
 14,884-event original comparisons, including844Q/9216RAM/100clock counts.

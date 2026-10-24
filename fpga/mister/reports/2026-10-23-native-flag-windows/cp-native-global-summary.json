@@ -1,0 +1,88 @@
+{
+  "status": "REVIEWED_SHARED_CONTROL_NATIVE_SOURCE_AND_LIVE_PREFIX",
+  "scope": "Retain source-bound shared native gate, failures, lint and live observation.\n\nThis verifies wiring/source identity, not completed startup, physical timing,\nfeedback safety, faster clocks or software speed. A running prefix simulation\ncannot satisfy the complete original-ROM/Cedar/pause/performance acceptance.\n",
+  "stage": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-stage-v2-20261024",
+  "stage_manifest_sha256": "2226b01a121e16b6706d94262400165bf8395fe392d91b5211f3bc9953b275e6",
+  "component_all_physical_owners_meet15ns": true,
+  "component_full15ns_timing_passed": false,
+  "shared_global_gate_source_bound": true,
+  "ten_snapshot_board_enables_share_commit": true,
+  "eight_MSA_groups_share_commit": true,
+  "storage_readiness_kept_separate": true,
+  "native_clock_hz": 57142857,
+  "sysper": 4,
+  "ordinary_host_ticks": 8,
+  "stopped_reset_correct_adapters_source_bound": true,
+  "lint": [
+    {
+      "directory": "cp-prefix-native-lint-v1-20261024",
+      "status": "NATIVE_PROCESSOR_CONTROL_ELABORATION_FAILED",
+      "state_sha256": "6c6a2288978082a74fd6a89b6112eba19a1301a31cd6b759b447c267edb88ace"
+    },
+    {
+      "directory": "cp-prefix-native-lint-v2-20261024",
+      "status": "PASS_NATIVE_PROCESSOR_CONTROL_ELABORATION",
+      "state_sha256": "b6779b4ffd3bd60fe11132c850852f99054866c8ffe550ab756a8b8abdaeb559"
+    }
+  ],
+  "feedback_warnings_not_physical_qualification": true,
+  "stopped_v2_reason": {
+    "status": "INTENTIONAL_STOP_FOR_MONITOR_SCOPE_ERROR",
+    "time": 1792828242.2105799,
+    "pid": 36430,
+    "ps": "36430 07:11 R    /Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-cold-v2-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-cold-v2-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-cold-v2-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root\n",
+    "original_host_bound": 300000000,
+    "reason": "Backplane storage_reset stays asserted until SDRAM initialization. CP pause snapshot/counters incorrectly included all initialization ticks, adding avoidable full9216-bit comparisons and misclassifying reset as CP wait. Restrict the monitor to storage_initialized; no RTL, firmware, clock or bound change.",
+    "original_four_native_jobs_changed": false
+  },
+  "corrected_monitor_only_changes": [
+    "harness/tb_native_cedar.sv",
+    "prepare_cp_native_pause.py"
+  ],
+  "corrected_fixed_host_bound": 300000000,
+  "live_native_prefix": {
+    "directory": "cp-prefix-native-cold-v3-20261024",
+    "pid": 37455,
+    "ps": "37455 05:55 R    /Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-cold-v3-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-cold-v3-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-cold-v3-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+    "observed": 1792828638.17444,
+    "state_sha256": "a2f3f769c4d3572ec934d1f880feb70de02e3609821cff25660b2be9150d9905"
+  },
+  "original_four_native_observations": [
+    {
+      "directory": "native-cedar-5c65-skip-wait-v1-20261023",
+      "pid": 29201,
+      "ps": "29201 07:03:33 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792828638.240578,
+      "state_sha256": "e0d1087b204623337f82baec72fe60c308dd14aad7337126ff32938b17055f43"
+    },
+    {
+      "directory": "native-cedar-5c65-input-reset-v3-20261023",
+      "pid": 58600,
+      "ps": "58600 03:07:05 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792828638.244843,
+      "state_sha256": "b75adcae9e42639f590196dc579c9442f5210d3519b5da4536adeffed2276ffc"
+    },
+    {
+      "directory": "native-cedar-queue-skip-wait-v1-20261023",
+      "pid": 29618,
+      "ps": "29618 07:02:31 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792828638.249046,
+      "state_sha256": "0d15076c270b2b79a1d15a8ac4153fbad6d04e7ab608ed8a46e02288168fa225"
+    },
+    {
+      "directory": "native-cedar-queue-input-reset-v3-20261023",
+      "pid": 58753,
+      "ps": "58753 03:07:04 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792828638.252946,
+      "state_sha256": "ba82b45e488a278f03e6618a26b89a3768a7cd757cde7fd46b48d1c2eb71b04f"
+    }
+  ],
+  "runtime_pause_contract_qualified": false,
+  "firmware_qualified": false,
+  "physical_timing_qualified": false,
+  "speedup_qualified": false,
+  "hardware_changed": false,
+  "assembly_permitted": false,
+  "original60ns_and_separate66MHz_qualification_still_required": true,
+  "full_goal_active": true
+}

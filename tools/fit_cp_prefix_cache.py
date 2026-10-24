@@ -31,7 +31,7 @@ def gate(run, engine):
     parent = Path(state['parent'])
     assert sha(parent / 'run-state.json') == state['parent_state_sha256']
     assert (run / 'candidate.sv').read_text() == candidate((parent / 'candidate.sv').read_text(), None,
-        state.get('parallel_control_results', False), state.get('control_only_settled_eligibility', False), state.get('settling_waves', 8))
+        state.get('parallel_control_results', False), state.get('control_only_settled_eligibility', False), state.get('settling_waves', 8), state.get('direct_cp_projection', False))
     tb = (run / 'inputs/tb_r_front_local.sv').read_text()
     assert tb == bench((parent / 'inputs/tb_r_front_local.sv').read_text())
     for row in state['source_files']:
@@ -160,6 +160,7 @@ def prepare(parent, runs, formal, out):
                  parallel_control_results=states[0].get('parallel_control_results', False),
                  control_only_settled_eligibility=states[0].get('control_only_settled_eligibility', False),
                  settling_waves=states[0].get('settling_waves', 8),
+                 direct_cp_projection=states[0].get('direct_cp_projection', False),
                  quartus_genvar_syntax=syntax, output_initializer_syntax_lowering=proof['output_initializer_syntax_lowering'],
                  native_qualified=False, physical_timing_qualified=False, speedup_qualified=False, assembly_permitted=False,
                  files={p.name: sha(p) for p in out.iterdir() if p.is_file()})

@@ -4,6 +4,95 @@ This receipt preserves the complete v5 native failure and the corrected
 component implementation of the original l06/l07 flag latches. No image was
 assembled or loaded; the qualified hardware core and measured speed are unchanged.
 
+## Direct CP register projection and native staging
+
+The five-pass-only composition passes both complete original comparisons and
+induction, but its full15ns fit is REJECTED. `cp-prefix-five-summary.json`
+retains every source/result/constraint and all negative controls:
+
+| Condition | Global setup | Owner setup | Late Hold -> owners | Hold |
+|---|---:|---:|---:|---:|
+| Slow100C | -2.512ns | -1.440ns | +1.210ns | +0.379ns |
+| Slow-40C | -2.475ns | -1.331ns | +1.371ns | +0.340ns |
+| Fast100C | +3.832ns | +5.912ns | +7.203ns | +0.179ns |
+| Fast-40C | +4.314ns | +7.309ns | +8.479ns | +0.165ns |
+
+Area5461ALMs including1527virtual-pin ALMs/6095registers/no M10Ks. Shorter
+settling is not itself a measured native gain. All five UCP classes are zero;
+pulse margins pass, recovery/removal have no paths. The physical DB remains
+at `/home/alans/mister/cp-prefix-five-fit-v1-20261024`.
+
+`cp-prefix-direct-summary.json` contains the targeted next change. ALL12CP
+owner bits jointQ[75:64] prove equal between direct atomic and ordered
+prefix/root evaluation for955arbitrary binary state/input bits, no assumptions.
+A stale CP projection has a counterexample. Only those12result bits use the
+direct result; other control state, events, CP subevents and flags stay ordered.
+There is one SRAM owner and one ready-gated commit. BOTH full original
+comparisons pass14,884checks/238writes/6,928reads/392epochs,844Q/9216RAM/
+100clocks and unchanged cache/reset/retry counts. Exact-source temporal
+induction passes475ready-result bits/write exclusion/canonical invariants.
+
+All FOUR broken variants reject in both simulators and have formal
+counterexamples. CP-bit69 corruption now rejects the ORIGINAL solver at11302,
+rather than the earlier source check0; it still affects other controller
+state, so do not remove CP-prefix staging wholesale. New MIR-bit85 corruption
+fails the original resolved-source check0. Stale tags and unguarded writes
+remain rejected at0. Preserve every failure and original assertion.
+
+All15ns physical-owner paths now pass; full timing remains **REJECTED**:
+
+| Condition | Global setup | Owner setup | Late Hold -> owners | Hold |
+|---|---:|---:|---:|---:|
+| Slow100C | -0.543ns | +0.677ns | +2.926ns | +0.127ns |
+| Slow-40C | -0.550ns | +0.583ns | +3.114ns | +0.095ns |
+| Fast100C | +3.595ns | +7.105ns | +8.623ns | +0.136ns |
+| Fast-40C | +4.131ns | +8.466ns | +9.576ns | +0.087ns |
+
+The residual result355/unsettled path starts at launch649=before-pin246,
+through the wide guard/selected memory-state153/child T comparison. The
+diagnostic remains timed. All original1650launch/1400result indices plus
+reset/readiness are retained, with the same SDC and no exceptions. Area5504ALMs
+including1527virtual-pin ALMs/6080registers/no M10Ks. Five UCP classes are zero,
+pulse margins pass and recovery/removal have no paths. Remote DB:
+`/home/alans/mister/cp-prefix-direct-fit-v1-20261024`.
+
+`cp-native-global-summary.json` then binds actual private native source wiring,
+not a completed native qualification.533source files preserve the57.142857MHz/
+SYSPER4 baseline while control_ready threads through backplane/wrapper into
+the SAME falling-edge-latched global machine enable/network_step. All ten
+snapshot boards and eight MSA groups share the commit signal; storage_ready
+stays separate. Final reset-correct keyboard/terminal bytes are bound to the
+16-case simulator proof and Quartus adapter synthesis. The initial preparation
+tuple/list identity check failed before source copy and is preserved.
+
+Full native lint-v2 passes with structural warnings visible: two physical-Q/
+RAM-read feedback paths, existing ECC feedback and the existing dual-clock
+pack buffer warning. These are not classified as safe physical loops. Lint-v1
+found the old passive observer still naming removed package j02; all seven
+observed INPUT pins are now mapped to the exact original frozen net names.
+No observer or original fatal check was removed.
+
+The source-bound original-ROM native test adds actual commit/readiness,
+ten-board enable, closed-owner/full9216-bit SRAM pause and held128-group
+request/response checks. The native source gate and test harness gate agree;
+traffic/window class7 records CP waits separately. No artificial CP stimulus,
+guest state import, firmware patch or persisted simulation disk write occurs.
+Cold-v2 passed real input reset and started physical RAM initialization, then
+was deliberately SIGTERM'ed for a MONITOR scope error: storage_reset holds CP
+reset during initialization, so the monitor wrongly counted/reset-snapshotted
+every initialization clock. The exact source/log/stop reason and simulator
+sample are retained. Cold-v3 changes ONLY the monitor/preparer, excluding
+initialization from CP-pause snapshots, with identical RTL/firmware/input/
+clock/300Mbound. Its actual live process/source/tail observation is retained;
+it is not a boot, pause-contract or speed qualification.
+
+All four original5B native jobs remain untouched and were verified live.
+No native fit, image assembly/deployment, Main/daemon change or measured gain
+is claimed. Last hardware4.025473M StartCycle issues/s remains. Classify native
+feedback/CP/storage behavior, close full diagnostic timing and finish original
+60ns phases/all timers/separate66.7MHz SDRAM/full A-F acceptance. Complete
+FPGA snapshots remain deferred.
+
 ## Parallel control result selection
 
 `cp-prefix-parallel-summary.json` records the follow-up to the rejected

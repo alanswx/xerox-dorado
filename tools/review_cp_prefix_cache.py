@@ -27,14 +27,17 @@ def read(path):
     return json.loads(path.read_text())
 
 
-def review(out, fit, parallel=False):
+def review(out, fit, parallel=False, five=False, direct=False):
     assert not out.exists()
     out.mkdir(parents=True)
     positive, negative, proofs = [], [], []
-    family = 'cp-prefix-parallel' if parallel else 'cp-prefix-cache'
-    version = 1 if parallel else 2
+    five = five or direct
+    parallel = parallel or five
+    family = 'cp-prefix-direct' if direct else 'cp-prefix-five' if five else 'cp-prefix-parallel' if parallel else 'cp-prefix-cache'
+    version = 1 if direct else 2 if five else 1 if parallel else 2
+    date = '20261024' if direct else '20261023'
     for engine in ['icarus', 'verilator']:
-        source = BUILD / f'{family}-{engine}-v{version}-20261023'
+        source = BUILD / f'{family}-{engine}-v{version}-{date}'
         state, checked = gate(source, engine)
         assert checked['coverage'] == dict(fast=13347, staged=1537, wait_edges=1553, retries=7, resets=1)
         positive.append(checked)
@@ -48,15 +51,21 @@ def review(out, fit, parallel=False):
             for row in state['source_files']:
                 assert sha(source / row['path']) == row['output_sha256']
             retain(source, out / source.name)
-        for mutation, fatal in [
+        controls = [
                 ('stale-tag', 'CP stale tag accepted changed CP data check=0'),
                 ('bad-prefix', 'R front resolved source mismatch check=0'),
-                ('unguarded-write', 'CP unready request reached the original SRAM owner check=0')]:
-            source = BUILD / f'{family}-{mutation}-{engine}-v{version}-20261023'
+                ('unguarded-write', 'CP unready request reached the original SRAM owner check=0')]
+        if direct:
+            controls[1] = ('bad-prefix', 'R front solver unsettled/repeated')
+            controls.append(('bad-mir-prefix', 'R front resolved source mismatch check=0'))
+        for mutation, fatal in controls:
+            source = BUILD / f'{family}-{mutation}-{engine}-v{version}-{date}'
             state = read(source / 'run-state.json')
             assert state['status'] == 'CP_PREFIX_CACHE_FAILED' and state['mutation'] == mutation
             assert state['actions'][0]['returncode'] == 0 and state['actions'][-1]['returncode'] != 0
             assert fatal in (source / 'test.log').read_text()
+            if direct and mutation == 'bad-prefix':
+                assert 'R_FRONT_LOCAL_SOLVER check=11302 ' in (source / 'test.log').read_text()
             for row in state['source_files']:
                 assert sha(source / row['path']) == row['output_sha256']
             negative.append(dict(directory=source.name, engine=engine, mutation=mutation,
@@ -72,9 +81,9 @@ def review(out, fit, parallel=False):
               for m in ['stale-tag', 'bad-prefix', 'unguarded-write']],
             ('cp-prefix-cache-induction-v1-20261023', None)]
     if parallel:
-        cases = [(f'{family}-induction-v1-20261023', 'PASS_CP_CACHE_INDUCTIVE_READY_EQUIVALENCE'),
-                 *[(f'{family}-{m}-proof-v1-20261023', 'PASS_BOUNDED_CP_CACHE_COUNTEREXAMPLE')
-                   for m in ['stale-tag', 'bad-prefix', 'unguarded-write']]]
+        cases = [(f'{family}-induction-v1-{date}', 'PASS_CP_CACHE_INDUCTIVE_READY_EQUIVALENCE'),
+                 *[(f'{family}-{m}-proof-v1-{date}', 'PASS_BOUNDED_CP_CACHE_COUNTEREXAMPLE')
+                   for m in ['stale-tag', 'bad-prefix', 'unguarded-write', *(['bad-mir-prefix'] if direct else [])]]]
     for name, expected in cases:
         source = BUILD / name
         state = read(source / 'run-state.json')
@@ -93,6 +102,18 @@ def review(out, fit, parallel=False):
                            unbounded_induction_proven=state['unbounded_induction_proven'],
                            proof_succeeded=state['proof_succeeded'], counterexample_found=state['counterexample_found']))
         retain(source, out / source.name)
+    projection = []
+    if direct:
+        for kind, expected in [('direct', 'PASS_DIRECT_CP_REGISTER_PROJECTION'), ('stale', 'PASS_STALE_CP_PROJECTION_COUNTEREXAMPLE')]:
+            source = BUILD / f'cp-register-{kind}-proof-v1-20261024'
+            state = read(source / 'run-state.json')
+            assert state['status'] == expected and state['returncode'] == 0
+            assert state['compared_output_bits'] == 12 and state['state_and_input_bits'] == 955 and not state['assumptions_added']
+            for path, h in state['source_files'].items():
+                assert sha(source / path) == h, path
+            assert sha(source / 'proof.log') == state['proof_log_sha256']
+            projection.append(dict(directory=source.name, status=expected, state_sha256=sha(source / 'run-state.json')))
+            retain(source, out / source.name)
 
     fit_state = read(fit / 'run-state.json')
     assert fit_state['status'] == 'TERMINAL_REVIEW_REQUIRED'
@@ -104,6 +125,10 @@ def review(out, fit, parallel=False):
     if parallel:
         assert provenance['parallel_control_results'] and provenance['control_only_settled_eligibility']
         assert provenance['unbounded_induction_proven']
+    if five:
+        assert provenance['settling_waves'] == 5
+    if direct:
+        assert provenance['direct_cp_projection']
     for name, h in provenance['files'].items():
         raw = (fit / name).read_bytes()
         if name == 'clock_fit.qsf':
@@ -143,8 +168,11 @@ def review(out, fit, parallel=False):
             for name in ['provenance.json.gz', 'host-cycle-limit.txt', 'window-control.txt']:
                 shutil.copy2(source / name, dest / name)
             native.append(row)
-    result = dict(status='REVIEWED_PARALLEL_GUARDED_CP_PREFIX_COMPONENT' if parallel else 'REVIEWED_GUARDED_CP_PREFIX_COMPONENT', scope=__doc__,
+    result = dict(status='REVIEWED_DIRECT_CP_GUARDED_COMPONENT' if direct else 'REVIEWED_FIVE_PASS_GUARDED_CP_PREFIX_COMPONENT' if five else
+                  'REVIEWED_PARALLEL_GUARDED_CP_PREFIX_COMPONENT' if parallel else 'REVIEWED_GUARDED_CP_PREFIX_COMPONENT', scope=__doc__,
                   parallel_control_results=parallel,
+                  settling_waves=provenance.get('settling_waves', 8),
+                  direct_cp_projection=direct, projection_proofs=projection,
                   functional_gates=positive, negative_controls=negative, formal_proofs=proofs,
                   component_fit_passed=fit_passed, fit_corners=corners, component_area=area,
                   original_results_preserved=True, timing_exceptions_added=False, physical_SRAM_banks=4,
@@ -161,9 +189,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ['output', 'fit', 'archive']:
         parser.add_argument('--' + name, type=Path, required=True)
-    parser.add_argument('--parallel', action='store_true')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--parallel', action='store_true')
+    mode.add_argument('--five', action='store_true')
+    mode.add_argument('--direct', action='store_true')
     a = parser.parse_args()
-    result = review(a.output.resolve(), a.fit.resolve(), a.parallel)
-    append_archive(a.archive.resolve(), a.output.resolve(), [], label='cp-prefix-parallel' if a.parallel else 'cp-prefix-cache', extra_tools=[
-        'probe_cp_prefix_cache.py', 'prove_cp_prefix_cache.py', 'fit_cp_prefix_cache.py', Path(__file__).name])
+    result = review(a.output.resolve(), a.fit.resolve(), a.parallel, a.five, a.direct)
+    append_archive(a.archive.resolve(), a.output.resolve(), [], label='cp-prefix-direct' if a.direct else 'cp-prefix-five' if a.five else 'cp-prefix-parallel' if a.parallel else 'cp-prefix-cache', extra_tools=[
+        'probe_cp_prefix_cache.py', 'prove_cp_prefix_cache.py', 'prove_cp_register_projection.py', 'fit_cp_prefix_cache.py', Path(__file__).name])
     print(result['status'], flush=True)
