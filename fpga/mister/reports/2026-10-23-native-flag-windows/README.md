@@ -6,6 +6,32 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`control-fall-fusion-summary.json` retains all8-rotation root geometry,
+1,905,792 debug schedules, the sparse falling-root transfer and corrected
+parallel fall/rise. All363 control bits/fresh endpoint certificates prove at
+5/24waves. The first stale-Q30 overwrite fails and stays; the new MIR's set
+requires the one-bit zero cofactor. Both11-case proof runs/negative controls
+pass, with frontend-only parameter elaboration independently bound.
+
+Both full original references pass14,884 checks/all844Q/9216RAM/100clocks,
+4975 sparse captures and unchanged cache coverage. Four compiled corruptions
+hit original solver checks2/14; first unrecognized rejection receipts and
+separate classifications stay intact. Unknown fallback passes3824 X/Z checks;
+its corruption rejects. The passive-counter declaration-order failure stays.
+Both COMPLETE726-output15ns budgets pass: serial1005ALMs/1188regs/minsetup
++2.007/minhold+0.164ns; parallel871ALMs/1112regs/minsetup+4.508/minhold+0.163ns.
+All58 members/10 compiled inputs per variant verify, all handles absent and
+zero UCPs. This covers the certified control function, not full844-Q/SRAM packet
+fusion, native cache ownership between uncommitted events or physical CP timing.
+
+The original queue run finished its5B bound with303,561,422 StartCycle issues,
+429,085,040 raw requests/completions and no device/SDRAM-model fault. Storage-only
+holds1,788,967,726ticks versus ARM-disk-only8,248,925; raw streams diverge at1536,
+so these totals are attribution rather than a speed comparison. The medium is
+unchanged. Final `rx=0` counts receive ERRORS; no total-RX count is recorded.
+All537 inputs/terminal handles validate. No original60ns/Cedar/Rollback/
+persistence/new hardware-speed qualification, no MiSTer access; full goal active.
+
 `baseboard-event-rom-summary.json` retains the first actual isolated
 BaseBoard clock/RIOT integration with the original1725-node6502, ROMs/RAM and
 all five RIOTs. Both full-state RIOT engines pass82,725 host checks/10,588,800
@@ -1263,8 +1289,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps79,118 members to9,073 deduplicated compressed blobs;
-lossless readback verifies2,954,494,752 unique raw bytes and108,053,582 compressed
+`manifest.json.gz` now maps80,683 members to9,250 deduplicated compressed blobs;
+lossless readback verifies2,988,419,253 unique raw bytes and110,303,436 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

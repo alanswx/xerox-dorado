@@ -14,6 +14,82 @@ Continue build/simulation work; notify them when a reviewed build is ready
 for hardware testing, and wait until they release MiSTer14 before any load,
 reboot or control. Earlier reload authorization is superseded while it is in use.
 
+Certified control fall/fusion milestone (2026-10-24): `control-fall-fusion`
+receipt now preserves source geometry, sparse falling-root transfer, parallel
+fall/rise composition and the full original capture tests. This is NOT selected
+into native RTL; the complete844-Q/SRAM packet consumer/cache ownership remains
+open. The full A–F objective and FPGA reservation remain in force.
+
+Original BaseBoard wiring/cell binding proves native CLK.ca' has the SAME
+polarity as SCP'|ECP|debug (j02.p3 -> l01.p7 -> l01.p2). All160,000 exact source
+intervals/all8 rotations/full300us and1,905,792 boundary/record debug schedules
+are checked. With constant or a single debug change, at most two root edges
+occur and a double edge is FALL then RISE. Default rotation0 has one normal
+root edge per interval; rotations1/5 alternate zero/two and stay in scope.
+A retained TWO-debug-change counterexample requires the generic fallback.
+This audits packet geometry, not actual CP pin epochs or a debug-rate limit.
+
+The actual156-Q/56-clock/94-flag control evaluator admits a sparse fall when
+its actual HIGH-root identity prefix is certified and all398 pins stay fixed.
+Only original Q30/CRamClock can change; event8 and every flag remain exact.
+A fused rise evaluates from the ORIGINAL state in parallel, with one Q30-zero
+cofactor preserving any asynchronous set from the new MIR. The first overwrite
+formula failed at result bit237/Q30: old1 -> fall0 -> serial-rise1, incorrectly
+fused0. Preserve that counterexample. Corrected proofs compare ALL363 result
+bits at5/24waves, certify each computed endpoint's fresh identity predicate,
+and reject wrong Q30, dropped clock8, absent certificate, stale pins and stale
+fall-Q30. Both complete11-case runs pass. Deferred frontend elaboration changes
+no miter/function/parameter; normalized top/source comparisons verify every case.
+The identity certificate is a checked predicate, not guessed guest state.
+
+The sparse fall is also wired into the actual cache's direct path in PRIVATE
+component copies. Both engines pass14,884 checks/all844 physical Qs/9216RAM bits/
+100 clocks and exercise4,975 sparse captures. Existing cache coverage remains
+fast13347/staged1537/wait1553/retries7/reset1. ALL original assertions and timed
+references remain; the bench adds only an inverse-checked passive counter.
+Wrong-Q30 and dropped-event variants compile and fail the ORIGINAL solver at
+checks2 and14 in both engines. An initial driver failed to recognize that
+rejection text; keep its terminal records and separate verified classifications,
+with no rerun/assertion change. Keep the Icarus V1 declaration-after-use counter
+failure and paired Verilator success too; V2 moves only the passive observer.
+ANY X/Z among all955 original inputs plus the certificate retains the complete
+original evaluator:3824 unknown checks plus2 known cases pass at5/24waves; a
+broken unknown fallback rejects. Broader rejected CP-arrival profiles/analog
+pulse contracts remain unresolved; these are the existing qualified references.
+
+Both COMPLETE726-output15ns budgets pass (363 fall+363 combined bits), with
+identical555-input staging/constraints and no exception/retiming. Serial:
+1005ALMs/1188regs, setup+2.160/+2.007/+5.170/+5.343ns, minimum hold+0.164ns.
+Parallel:871ALMs/1112regs, setup+4.508/+4.724/+5.263/+5.446ns, minimum hold+0.163ns.
+All726 ports/four corners/zero UCPs and all10 compiled hashes per variant verify;
+all builders/stages exited. Both58-member collections are retained, SHA
+15ba16c06bdb85ff0c8a02257e0c492738343ecfdb4fe8a2bb5fb7d36accd448 (serial),
+64bf677a8f300ab24ffdc7cc744447c57d82a9ea992d19d9b2a368b0aff2270d (parallel).
+This is the CERTIFIED control function only. Packet fallback/cache staging,
+all844-Q/latch/SRAM capture/commit semantics, actual CP producer timestamps and
+full native timing must still be integrated. The stored closed-owner cache
+certificate cannot simply be reused on an uncommitted intermediate state.
+
+Original queue diagnostic is now TERMINAL at its UNCHANGED5B-host bound,
+HOST_LIMIT/return0; driver57966/test58753 absent. All537 frozen input hashes and
+mediumf3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51
+verify. Counts:3,050,833,907 enabled machine edges;303,561,422 STARTCYCLE ISSUES
+(not retirements);429,085,040 accepted/completed raw requests (419,012,080 reads,
+10,072,960 writes), every128 group present. First-word/consume sum1,392,510,830
+host ticks each, mean3.2453ticks. Exclusive gate counts:storage-only1,788,967,726;
+ARM-disk-only8,248,925; initialization151,949,437; enabled3,050,833,908; reset5;
+both/other/reserved0. The positive-edge observer has one more tick than the
+negative-edge stop print; this boundary is explicit and totals balance.
+Raw-block counts:fill323,246,069/refresh59,000,449/lookup4,716,700/backpressure0/
+other0/notblocked4,461,087,341. Per-group offer waits overlap and are NOT wall time.
+Final disk46reads/1volatile write, TX5, CRC errors0, RECEIVE ERRORS0; the log's
+`rx=0` is rx_bad, not a receive-packet count. No device/independent-SDRAM assertion
+failed. No Cedar/desktop/persistence/paired speed/hardware-stress qualification:
+raw streams already diverge at request1536, baseline still runs at its original
+5B bound, and simulation walltime is not MIPS. Three other original bounded
+native jobs were verified live (75056/49723/58600); never restart/extend them.
+Hardware speed remains the previous4.025473M StartCycle issues/s measurement.
+
 Isolated BaseBoard event integration QUALIFIED (2026-10-24): the real
 1725-node6502, original EPROMs/RAM and all FIVE RIOTs now run with the qualified
 BB clock cone and explicit pre-edge RIOT captures in an isolated generated
@@ -277,11 +353,15 @@ no138 or unsupported indices. Receipt `native-selector-terminal-summary.json`
 retains full reports/source/readback. Never restart the completed builder or
 reporters. Original ECC loop/pulse and broader capture timing remain open.
 
-Next/TODO: source/cone and isolated whole-BaseBoard/6502/RIOT now PASS15ns
-component timing and original reset/Midas firmware. Integrate actual processor/
-control/CP source records and the remaining display/Ethernet consumers. Preserve
-every intermediate state/root edge in original event/capture order and prove
-cache ownership/context again between UNCOMMITTED subevents. The existing
+Next/TODO: extend the now-proved sparse/fused156-Q control transfer to the
+COMPLETE844-Q closed-owner processor state, transparent latch projections and
+single-owner SRAM read-before-write/write commitments. Do not apply the Q30-only
+mask to other boards without proof. Bind actual CP producer/input epochs and
+processor source records; keep default rotation0 and ALL other rotations/debug
+fallbacks qualified. Then integrate display/Ethernet consumers. Preserve every
+intermediate state/root edge in original event/capture order. The pure endpoint
+identity proofs above are not a source-bound cache ownership proof: establish
+owner/context again between UNCOMMITTED subevents. The existing
 closed-owner cache proof cannot be reused for that new context. Require exact
 original-firmware CP/CPU/Ready/Hold ordering before a new native fit.
 Existing17.5ns timing passes do not imply60ns nominal instruction

@@ -1,0 +1,904 @@
+{
+  "status": "REVIEWED_CONTROL_FALL_FUSION_AND_TERMINAL_QUEUE_ATTRIBUTION",
+  "source_intervals": 160000,
+  "CPU_rotations": 8,
+  "debug_schedules": 1905792,
+  "arbitrary_debug_fallback_required": true,
+  "exact_control_bits": 363,
+  "fresh_pure_endpoint_certificates_proven": true,
+  "stale_Q30_counterexample_preserved": true,
+  "binary_cases_per_frontend": 11,
+  "frontend_elaboration_only_change_inverse_checked": true,
+  "full_capture_checks_per_engine": 14884,
+  "all844Q_9216RAM_100clocks_retained": true,
+  "sparse_captures_per_engine": 4975,
+  "original_cache_coverage_unchanged": true,
+  "corruptions_reject_at_original_checks": [
+    2,
+    14
+  ],
+  "failed_negative_result_recognition_preserved_and_classified": true,
+  "passive_counter_parser_failure_preserved": true,
+  "unknown_input_checks": 3824,
+  "unknown_fallback_corruption_rejected": true,
+  "control_component_bits": 726,
+  "component_corners": [
+    {
+      "variant": "serial",
+      "results": [
+        {
+          "corner": "7_slow_1100mv_100c",
+          "setup": {
+            "slack_ns": 2.16,
+            "source": "launch[405]",
+            "sink": "result[49]~reg0",
+            "arrival_ns": 16.496,
+            "required_ns": 18.656,
+            "report_sha256": "20e6ff046b8b67bc330b7c3b42466553242a4efc04dd34846063864e30481441"
+          },
+          "hold": {
+            "slack_ns": 0.355,
+            "source": "launch[388]",
+            "sink": "result[360]~reg0",
+            "arrival_ns": 4.231,
+            "required_ns": 3.876,
+            "report_sha256": "3608177f473786cffb080cac4aec39b7f433d8924eb48326b8bb274d8d21365a"
+          }
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "setup": {
+            "slack_ns": 2.007,
+            "source": "launch[405]",
+            "sink": "result[9]~reg0",
+            "arrival_ns": 16.812,
+            "required_ns": 18.819,
+            "report_sha256": "5dbd156242f99580a8ccd977427a524480c02e9f45b3a8831430cf40cfbd13db"
+          },
+          "hold": {
+            "slack_ns": 0.335,
+            "source": "launch[388]",
+            "sink": "result[360]~reg0",
+            "arrival_ns": 4.373,
+            "required_ns": 4.038,
+            "report_sha256": "f5a8889fcf3641621828edc2dcd1c1c2cd227bc58b768214c213c5042a7f3397"
+          }
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "setup": {
+            "slack_ns": 5.17,
+            "source": "input_stage[291]",
+            "sink": "launch[291]",
+            "arrival_ns": 11.443,
+            "required_ns": 16.613,
+            "report_sha256": "1672691511b43da12dc00dd80c01195c5bfa0aff3396e3b5c53193b8216b4ac7"
+          },
+          "hold": {
+            "slack_ns": 0.192,
+            "source": "launch[388]",
+            "sink": "result[360]~reg0",
+            "arrival_ns": 1.971,
+            "required_ns": 1.779,
+            "report_sha256": "bf36f011258967cba5e97cc81471e84b09a04c03ff8c39cc698e31a0ae30cff2"
+          }
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "setup": {
+            "slack_ns": 5.343,
+            "source": "input_stage[291]",
+            "sink": "launch[291]",
+            "arrival_ns": 11.151,
+            "required_ns": 16.494,
+            "report_sha256": "ab2f991213ad18a86fb5d1db1d7e4e6cde155775afcda325c5060cd86594a5ba"
+          },
+          "hold": {
+            "slack_ns": 0.164,
+            "source": "launch[388]",
+            "sink": "result[360]~reg0",
+            "arrival_ns": 1.819,
+            "required_ns": 1.655,
+            "report_sha256": "7b0da4bb24c499efef46213740bf5a2a7783d25f62502c63013116dbeaadcdad"
+          }
+        }
+      ]
+    },
+    {
+      "variant": "parallel",
+      "results": [
+        {
+          "corner": "7_slow_1100mv_100c",
+          "setup": {
+            "slack_ns": 4.508,
+            "source": "input_stage[350]",
+            "sink": "launch[350]",
+            "arrival_ns": 14.212,
+            "required_ns": 18.72,
+            "report_sha256": "7dc187675f069e413f240fda1a8f1e8afa4f343836b41c0096547b554856343b"
+          },
+          "hold": {
+            "slack_ns": 0.354,
+            "source": "launch[522]",
+            "sink": "result[433]~reg0",
+            "arrival_ns": 4.242,
+            "required_ns": 3.888,
+            "report_sha256": "56e33165c4e5aefe5cba1d2bfc4dc7ad68c8508326a83fe67e377a82b364254e"
+          }
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "setup": {
+            "slack_ns": 4.724,
+            "source": "input_stage[350]",
+            "sink": "launch[350]",
+            "arrival_ns": 14.152,
+            "required_ns": 18.876,
+            "report_sha256": "6f8972ac58dc5405033884ac152d57468d7fdfd1b13f989c05f639d97f07a0f8"
+          },
+          "hold": {
+            "slack_ns": 0.336,
+            "source": "launch[522]",
+            "sink": "result[433]~reg0",
+            "arrival_ns": 4.387,
+            "required_ns": 4.051,
+            "report_sha256": "95e41104c3400c9e86f2ac5f8368c864b430558aced138290436afb84117bddb"
+          }
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "setup": {
+            "slack_ns": 5.263,
+            "source": "input_stage[350]",
+            "sink": "launch[350]",
+            "arrival_ns": 11.379,
+            "required_ns": 16.642,
+            "report_sha256": "79104b09f11a6697e5fc606a007b4e17d88e0efd17d436d0df0a72984edd6488"
+          },
+          "hold": {
+            "slack_ns": 0.191,
+            "source": "launch[522]",
+            "sink": "result[433]~reg0",
+            "arrival_ns": 1.972,
+            "required_ns": 1.781,
+            "report_sha256": "f4e1d7082ae6f318052135e3e19ae5e5c344bd4ee69bf030d4caf495b6e87ffd"
+          }
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "setup": {
+            "slack_ns": 5.446,
+            "source": "input_stage[350]",
+            "sink": "launch[350]",
+            "arrival_ns": 11.074,
+            "required_ns": 16.52,
+            "report_sha256": "5b503d02096742724108d3a662a239db1e7549e1833db8bf93565ee9ee3409d9"
+          },
+          "hold": {
+            "slack_ns": 0.163,
+            "source": "launch[522]",
+            "sink": "result[433]~reg0",
+            "arrival_ns": 1.821,
+            "required_ns": 1.658,
+            "report_sha256": "629d8dd03038fceaf969e69bf88edf7017e00f42fb7be728299f2230acf18508"
+          }
+        }
+      ]
+    }
+  ],
+  "terminal_native_queue": {
+    "status": "PRESERVED_TERMINAL_NATIVE_128_GROUP_DIAGNOSTIC",
+    "source_run": "/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023",
+    "original_bound": 5000000000,
+    "original_handles_absent": [
+      57966,
+      58753
+    ],
+    "all_frozen_input_hashes_verified": 537,
+    "unchanged_medium_sha256": "f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51",
+    "terminal_reason": "HOST_LIMIT",
+    "enabled_machine_edges": 3050833907,
+    "final_CPU_debug": "30725725",
+    "totals": {
+      "ticks": 5000000001,
+      "issues": 303561422,
+      "accepted": 429085040,
+      "completed": 429085040,
+      "reads": 419012080,
+      "writes": 10072960,
+      "first_count": 429085040,
+      "first_latency_sum": 1392510830,
+      "consume_latency_sum": 1392510830,
+      "trace_limit": 8192
+    },
+    "gate_ticks": {
+      "reset": 5,
+      "physical_initialization": 151949437,
+      "enabled_machine_edge": 3050833908,
+      "simultaneous_disk_storage": 0,
+      "disk_only": 8248925,
+      "storage_only": 1788967726,
+      "other": 0,
+      "reserved_unused": 0
+    },
+    "raw_block_ticks": {
+      "burst_fill": 323246069,
+      "refresh": 59000449,
+      "lookup": 4716700,
+      "response_backpressure": 0,
+      "other": 0,
+      "not_blocked": 4461087341
+    },
+    "fanout": {
+      "0": 3092402568,
+      "1": 5938959,
+      "2": 71196549,
+      "3": 8773347,
+      "4": 36775635,
+      "5": 4898464,
+      "6": 6648403,
+      "7": 4868783,
+      "8": 17199707,
+      "9": 6052874,
+      "10": 71203907,
+      "11": 8464333,
+      "12": 36782105,
+      "13": 4912456,
+      "14": 6656711,
+      "15": 5019209,
+      "16": 16984289,
+      "17": 6134942,
+      "18": 71278734,
+      "19": 8369355,
+      "20": 36777492,
+      "21": 5069436,
+      "22": 6661790,
+      "23": 5111788,
+      "24": 17000060,
+      "25": 6040297,
+      "26": 70907641,
+      "27": 8551912,
+      "28": 43571650,
+      "29": 4746851,
+      "30": 4746894,
+      "31": 8929797,
+      "32": 14994366,
+      "33": 3575872,
+      "34": 42109383,
+      "35": 5804353,
+      "36": 20479265,
+      "37": 2859417,
+      "38": 2859405,
+      "39": 4020429,
+      "40": 13106111,
+      "41": 3977104,
+      "42": 42901067,
+      "43": 5006448,
+      "44": 20561215,
+      "45": 2867256,
+      "46": 3008809,
+      "47": 2901674,
+      "48": 13122865,
+      "49": 3154137,
+      "50": 43202093,
+      "51": 5037051,
+      "52": 20565561,
+      "53": 2867217,
+      "54": 2988501,
+      "55": 2868746,
+      "56": 13110321,
+      "57": 3194434,
+      "58": 43147221,
+      "59": 4974357,
+      "60": 20562113,
+      "61": 2868023,
+      "62": 2992241,
+      "63": 2869537,
+      "64": 12639007,
+      "65": 6242599,
+      "66": 43167783,
+      "67": 4941764,
+      "68": 20550847,
+      "69": 2868705,
+      "70": 2969973,
+      "71": 2893926,
+      "72": 12986391,
+      "73": 4102728,
+      "74": 43204211,
+      "75": 4850583,
+      "76": 20560771,
+      "77": 2890909,
+      "78": 2962387,
+      "79": 2901308,
+      "80": 13123927,
+      "81": 3090040,
+      "82": 43183451,
+      "83": 5009594,
+      "84": 20536603,
+      "85": 2916506,
+      "86": 2968463,
+      "87": 2880196,
+      "88": 13123565,
+      "89": 3281719,
+      "90": 43202089,
+      "91": 5102162,
+      "92": 20524635,
+      "93": 2931536,
+      "94": 2962373,
+      "95": 2867250,
+      "96": 13123171,
+      "97": 3359597,
+      "98": 43069894,
+      "99": 4925391,
+      "100": 20517440,
+      "101": 2927361,
+      "102": 2965130,
+      "103": 2865432,
+      "104": 13133916,
+      "105": 3299509,
+      "106": 43054836,
+      "107": 4861969,
+      "108": 20514932,
+      "109": 2920705,
+      "110": 2958226,
+      "111": 2966796,
+      "112": 13116130,
+      "113": 3331442,
+      "114": 42555892,
+      "115": 4897062,
+      "116": 20519182,
+      "117": 2892157,
+      "118": 2968572,
+      "119": 7045484,
+      "120": 13115778,
+      "121": 3362605,
+      "122": 43040726,
+      "123": 5673215,
+      "124": 20966222,
+      "125": 2857564,
+      "126": 2857564,
+      "127": 2857564,
+      "128": 2857564
+    },
+    "groups": {
+      "0": {
+        "requests": 3668440,
+        "offer_wait": 921936804
+      },
+      "1": {
+        "requests": 3668440,
+        "offer_wait": 925555769
+      },
+      "2": {
+        "requests": 3668439,
+        "offer_wait": 928643979
+      },
+      "3": {
+        "requests": 3668439,
+        "offer_wait": 932277835
+      },
+      "4": {
+        "requests": 3668440,
+        "offer_wait": 960920709
+      },
+      "5": {
+        "requests": 3668440,
+        "offer_wait": 967613273
+      },
+      "6": {
+        "requests": 3668439,
+        "offer_wait": 1027856243
+      },
+      "7": {
+        "requests": 3668439,
+        "offer_wait": 1032524103
+      },
+      "8": {
+        "requests": 3668440,
+        "offer_wait": 1036638330
+      },
+      "9": {
+        "requests": 3668440,
+        "offer_wait": 1040352929
+      },
+      "10": {
+        "requests": 3668439,
+        "offer_wait": 1044157465
+      },
+      "11": {
+        "requests": 3668439,
+        "offer_wait": 1047904580
+      },
+      "12": {
+        "requests": 3668440,
+        "offer_wait": 1080509373
+      },
+      "13": {
+        "requests": 3668440,
+        "offer_wait": 1087123608
+      },
+      "14": {
+        "requests": 3668439,
+        "offer_wait": 1147347084
+      },
+      "15": {
+        "requests": 3668439,
+        "offer_wait": 1151929459
+      },
+      "16": {
+        "requests": 3668440,
+        "offer_wait": 1156030998
+      },
+      "17": {
+        "requests": 3668440,
+        "offer_wait": 1159784079
+      },
+      "18": {
+        "requests": 3668439,
+        "offer_wait": 1163579295
+      },
+      "19": {
+        "requests": 3668439,
+        "offer_wait": 1167291290
+      },
+      "20": {
+        "requests": 3668440,
+        "offer_wait": 1199904621
+      },
+      "21": {
+        "requests": 3668440,
+        "offer_wait": 1206542189
+      },
+      "22": {
+        "requests": 3668439,
+        "offer_wait": 1266727561
+      },
+      "23": {
+        "requests": 3668439,
+        "offer_wait": 1271306341
+      },
+      "24": {
+        "requests": 3668440,
+        "offer_wait": 1275480154
+      },
+      "25": {
+        "requests": 3668440,
+        "offer_wait": 1279174603
+      },
+      "26": {
+        "requests": 3668439,
+        "offer_wait": 1282965129
+      },
+      "27": {
+        "requests": 3668439,
+        "offer_wait": 1286680571
+      },
+      "28": {
+        "requests": 3668440,
+        "offer_wait": 1319299780
+      },
+      "29": {
+        "requests": 3668440,
+        "offer_wait": 1326236688
+      },
+      "30": {
+        "requests": 3668439,
+        "offer_wait": 1038502268
+      },
+      "31": {
+        "requests": 3668439,
+        "offer_wait": 1042923226
+      },
+      "32": {
+        "requests": 3144175,
+        "offer_wait": 98551843
+      },
+      "33": {
+        "requests": 3144175,
+        "offer_wait": 101677787
+      },
+      "34": {
+        "requests": 3144175,
+        "offer_wait": 111614233
+      },
+      "35": {
+        "requests": 3144175,
+        "offer_wait": 115647105
+      },
+      "36": {
+        "requests": 3144175,
+        "offer_wait": 138123620
+      },
+      "37": {
+        "requests": 3144175,
+        "offer_wait": 143421127
+      },
+      "38": {
+        "requests": 3144175,
+        "offer_wait": 195947774
+      },
+      "39": {
+        "requests": 3144175,
+        "offer_wait": 203799375
+      },
+      "40": {
+        "requests": 3144175,
+        "offer_wait": 207233234
+      },
+      "41": {
+        "requests": 3144175,
+        "offer_wait": 210426910
+      },
+      "42": {
+        "requests": 3144175,
+        "offer_wait": 213787955
+      },
+      "43": {
+        "requests": 3144175,
+        "offer_wait": 217021590
+      },
+      "44": {
+        "requests": 3144175,
+        "offer_wait": 244587465
+      },
+      "45": {
+        "requests": 3144175,
+        "offer_wait": 249912603
+      },
+      "46": {
+        "requests": 3144175,
+        "offer_wait": 302317776
+      },
+      "47": {
+        "requests": 3144175,
+        "offer_wait": 306002917
+      },
+      "48": {
+        "requests": 3144175,
+        "offer_wait": 309424410
+      },
+      "49": {
+        "requests": 3144175,
+        "offer_wait": 312640822
+      },
+      "50": {
+        "requests": 3144175,
+        "offer_wait": 316000493
+      },
+      "51": {
+        "requests": 3144175,
+        "offer_wait": 319213219
+      },
+      "52": {
+        "requests": 3144175,
+        "offer_wait": 347264702
+      },
+      "53": {
+        "requests": 3144175,
+        "offer_wait": 352509746
+      },
+      "54": {
+        "requests": 3144175,
+        "offer_wait": 404936929
+      },
+      "55": {
+        "requests": 3144175,
+        "offer_wait": 408586108
+      },
+      "56": {
+        "requests": 3144175,
+        "offer_wait": 412064839
+      },
+      "57": {
+        "requests": 3144175,
+        "offer_wait": 415238067
+      },
+      "58": {
+        "requests": 3144175,
+        "offer_wait": 418602114
+      },
+      "59": {
+        "requests": 3144175,
+        "offer_wait": 421798694
+      },
+      "60": {
+        "requests": 3144175,
+        "offer_wait": 449857973
+      },
+      "61": {
+        "requests": 3144175,
+        "offer_wait": 455199247
+      },
+      "62": {
+        "requests": 3144175,
+        "offer_wait": 507575372
+      },
+      "63": {
+        "requests": 3144175,
+        "offer_wait": 511263348
+      },
+      "64": {
+        "requests": 3144179,
+        "offer_wait": 457902088
+      },
+      "65": {
+        "requests": 3144179,
+        "offer_wait": 461032716
+      },
+      "66": {
+        "requests": 3144179,
+        "offer_wait": 464005546
+      },
+      "67": {
+        "requests": 3144179,
+        "offer_wait": 467188827
+      },
+      "68": {
+        "requests": 3144179,
+        "offer_wait": 494520493
+      },
+      "69": {
+        "requests": 3144179,
+        "offer_wait": 499911591
+      },
+      "70": {
+        "requests": 3144179,
+        "offer_wait": 552480453
+      },
+      "71": {
+        "requests": 3144179,
+        "offer_wait": 555982768
+      },
+      "72": {
+        "requests": 3144179,
+        "offer_wait": 559417198
+      },
+      "73": {
+        "requests": 3144179,
+        "offer_wait": 562610185
+      },
+      "74": {
+        "requests": 3144179,
+        "offer_wait": 565990633
+      },
+      "75": {
+        "requests": 3144179,
+        "offer_wait": 569234052
+      },
+      "76": {
+        "requests": 3144179,
+        "offer_wait": 597309586
+      },
+      "77": {
+        "requests": 3144179,
+        "offer_wait": 602695980
+      },
+      "78": {
+        "requests": 3144179,
+        "offer_wait": 655174866
+      },
+      "79": {
+        "requests": 3144179,
+        "offer_wait": 658646101
+      },
+      "80": {
+        "requests": 3144179,
+        "offer_wait": 662068609
+      },
+      "81": {
+        "requests": 3144179,
+        "offer_wait": 665304722
+      },
+      "82": {
+        "requests": 3144179,
+        "offer_wait": 668679122
+      },
+      "83": {
+        "requests": 3144179,
+        "offer_wait": 671865606
+      },
+      "84": {
+        "requests": 3144179,
+        "offer_wait": 699941762
+      },
+      "85": {
+        "requests": 3144179,
+        "offer_wait": 706074560
+      },
+      "86": {
+        "requests": 3144179,
+        "offer_wait": 758354990
+      },
+      "87": {
+        "requests": 3144179,
+        "offer_wait": 762095572
+      },
+      "88": {
+        "requests": 3144179,
+        "offer_wait": 765566412
+      },
+      "89": {
+        "requests": 3144179,
+        "offer_wait": 768736503
+      },
+      "90": {
+        "requests": 3144179,
+        "offer_wait": 772082053
+      },
+      "91": {
+        "requests": 3144179,
+        "offer_wait": 775231249
+      },
+      "92": {
+        "requests": 3144179,
+        "offer_wait": 803290187
+      },
+      "93": {
+        "requests": 3144179,
+        "offer_wait": 811963834
+      },
+      "94": {
+        "requests": 3144179,
+        "offer_wait": 863694630
+      },
+      "95": {
+        "requests": 3144179,
+        "offer_wait": 867326726
+      },
+      "96": {
+        "requests": 3452114,
+        "offer_wait": 813234767
+      },
+      "97": {
+        "requests": 3452114,
+        "offer_wait": 816669990
+      },
+      "98": {
+        "requests": 3452114,
+        "offer_wait": 819923824
+      },
+      "99": {
+        "requests": 3452114,
+        "offer_wait": 823363354
+      },
+      "100": {
+        "requests": 3452114,
+        "offer_wait": 852657189
+      },
+      "101": {
+        "requests": 3452114,
+        "offer_wait": 858762476
+      },
+      "102": {
+        "requests": 3452114,
+        "offer_wait": 916204920
+      },
+      "103": {
+        "requests": 3452114,
+        "offer_wait": 920265832
+      },
+      "104": {
+        "requests": 3452114,
+        "offer_wait": 924024662
+      },
+      "105": {
+        "requests": 3452114,
+        "offer_wait": 927530508
+      },
+      "106": {
+        "requests": 3452114,
+        "offer_wait": 931218400
+      },
+      "107": {
+        "requests": 3452114,
+        "offer_wait": 934734739
+      },
+      "108": {
+        "requests": 3452114,
+        "offer_wait": 965547093
+      },
+      "109": {
+        "requests": 3452114,
+        "offer_wait": 971521404
+      },
+      "110": {
+        "requests": 3452114,
+        "offer_wait": 1028987594
+      },
+      "111": {
+        "requests": 3452114,
+        "offer_wait": 1033039995
+      },
+      "112": {
+        "requests": 3452114,
+        "offer_wait": 1036784865
+      },
+      "113": {
+        "requests": 3452114,
+        "offer_wait": 1040340017
+      },
+      "114": {
+        "requests": 3452114,
+        "offer_wait": 1044027375
+      },
+      "115": {
+        "requests": 3452114,
+        "offer_wait": 1047505047
+      },
+      "116": {
+        "requests": 3452114,
+        "offer_wait": 1078313231
+      },
+      "117": {
+        "requests": 3452114,
+        "offer_wait": 1084311421
+      },
+      "118": {
+        "requests": 3452114,
+        "offer_wait": 1141522485
+      },
+      "119": {
+        "requests": 3452114,
+        "offer_wait": 1147284548
+      },
+      "120": {
+        "requests": 3452114,
+        "offer_wait": 1151086426
+      },
+      "121": {
+        "requests": 3452114,
+        "offer_wait": 1154569224
+      },
+      "122": {
+        "requests": 3452114,
+        "offer_wait": 1158142042
+      },
+      "123": {
+        "requests": 3452114,
+        "offer_wait": 1161621711
+      },
+      "124": {
+        "requests": 3452114,
+        "offer_wait": 1192246975
+      },
+      "125": {
+        "requests": 3452114,
+        "offer_wait": 1198879209
+      },
+      "126": {
+        "requests": 3452114,
+        "offer_wait": 1255694497
+      },
+      "127": {
+        "requests": 3452114,
+        "offer_wait": 1264150059
+      }
+    },
+    "mean_raw_first_word_ticks": 3.2453026793942756,
+    "counter_boundary": "Final positive-edge gate accounting has one more enabled edge than the negative-edge diagnostic stop print",
+    "receive_errors": 0,
+    "receive_packet_total_not_recorded": true,
+    "TX_packets": 5,
+    "TX_CRC_errors": 0,
+    "actual_device_and_independent_SDRAM_fault_assertions_retained": true,
+    "paired_workloads_previously_diverge_at_raw_request": 1536,
+    "pinned_workload_comparison_qualified": false,
+    "firmware_qualified": false,
+    "desktop_qualified": false,
+    "persistence_qualified": false,
+    "hardware_speed_qualified": false,
+    "two_hour_hardware_qualification": false,
+    "hardware_changed": false,
+    "original_bound_extended": false,
+    "full_goal_active": true
+  },
+  "broader_CP_arrival_profiles_or_analog_pulse_timing_qualified": false,
+  "uncommitted_packet_cache_context_qualified": false,
+  "complete844Q_SRAM_packet_fusion_qualified": false,
+  "native_15ns_or_60ns_qualified": false,
+  "Cedar_Rollback_persistence_qualified": false,
+  "hardware_speed_qualified": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}
