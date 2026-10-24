@@ -1,0 +1,162 @@
+{
+  "status": "REVIEWED_EXACT_ORIGINAL_CP_FLAG_MARGIN_REPLAY",
+  "scope": "Preserve exact-state CP timing replay and its initialization failures.\n\nEight original-g18 valid-margin cases agreeing between engines do not qualify\nthe candidate, native producer setup, other sinks, a bitstream or CPU speed.\nThe original failing full comparison remains rejected and unchanged.\n",
+  "original_timing_source_sha256": "ca8f24d1e52e0c0b15f3c74009e3bf930a7e10cd7ce118cea7991d85e6e5182c",
+  "original_part_timing": {
+    "source": "DoradoDocs/datasheets/Motorola_MECL_DataBook_1978.pdf",
+    "source_sha256": "30cf66bb2f0f33e4d6e5f9fea17c2cd3e4e1ae6885411954cd6195d31597765a",
+    "pdf_page": 129,
+    "printed_page": "3-82",
+    "part": "MC10176/MC10576",
+    "minimum_setup_ns": 2.5,
+    "minimum_hold_ns": 1.5,
+    "page_image_visually_reviewed": true,
+    "extracted_files": {
+      "mc10176-page.txt": "0716d6b32cf0adc7aae196c77bbd26a0de753ce31085b71216cf7b87b726838a",
+      "page-number.txt": "38a407cd7d38b41132709485046d7817571b73c32433877751399e229ce11ce2",
+      "mc10176-1978.png": "d45edd0c4d3f582309635f8f4acff60e6ccf4e669f253455b87cefefdad5df66",
+      "mc10176-1978-129.pdf": "8d0d160981c7f49fc3147850ce7db1855a8a25155e6dbb8fbfefd70bbbdedbb7"
+    }
+  },
+  "snapshots_identical_between_engines": true,
+  "exact_restore_trials_per_engine": 11,
+  "physical_state_bits_per_restore": 844,
+  "RAM_bits_per_restore": 9216,
+  "valid_g18_trials_per_engine": 8,
+  "timing_violation_trials_per_engine": 3,
+  "comparison": [
+    {
+      "offset_ps": -16000,
+      "margin_ps": 16000,
+      "part_setup_hold_met": true,
+      "Icarus_Q": 0,
+      "Verilator_Q": 0
+    },
+    {
+      "offset_ps": -8000,
+      "margin_ps": 8000,
+      "part_setup_hold_met": true,
+      "Icarus_Q": 0,
+      "Verilator_Q": 0
+    },
+    {
+      "offset_ps": -4000,
+      "margin_ps": 4000,
+      "part_setup_hold_met": true,
+      "Icarus_Q": 0,
+      "Verilator_Q": 0
+    },
+    {
+      "offset_ps": -2500,
+      "margin_ps": 2500,
+      "part_setup_hold_met": true,
+      "Icarus_Q": 0,
+      "Verilator_Q": 0
+    },
+    {
+      "offset_ps": -1000,
+      "margin_ps": 1000,
+      "part_setup_hold_met": false,
+      "Icarus_Q": 0,
+      "Verilator_Q": 0
+    },
+    {
+      "offset_ps": 0,
+      "margin_ps": 0,
+      "part_setup_hold_met": false,
+      "Icarus_Q": 1,
+      "Verilator_Q": 0
+    },
+    {
+      "offset_ps": 1000,
+      "margin_ps": 1000,
+      "part_setup_hold_met": false,
+      "Icarus_Q": 1,
+      "Verilator_Q": 1
+    },
+    {
+      "offset_ps": 1500,
+      "margin_ps": 1500,
+      "part_setup_hold_met": true,
+      "Icarus_Q": 1,
+      "Verilator_Q": 1
+    },
+    {
+      "offset_ps": 4000,
+      "margin_ps": 4000,
+      "part_setup_hold_met": true,
+      "Icarus_Q": 1,
+      "Verilator_Q": 1
+    },
+    {
+      "offset_ps": 8000,
+      "margin_ps": 8000,
+      "part_setup_hold_met": true,
+      "Icarus_Q": 1,
+      "Verilator_Q": 1
+    },
+    {
+      "offset_ps": 16000,
+      "margin_ps": 16000,
+      "part_setup_hold_met": true,
+      "Icarus_Q": 1,
+      "Verilator_Q": 1
+    }
+  ],
+  "original_failed_miter_retained": true,
+  "initialization_history": [
+    {
+      "directory": "r-front-cp-flag-replay-icarus-v1-20261023",
+      "status": "ORIGINAL_CP_FLAG_MARGIN_REPLAY_FAILED",
+      "state_sha256": "a85fd73303c8e6d929937f5305bfa868d956664fa619132ad093e966a87d7a43"
+    },
+    {
+      "directory": "r-front-cp-flag-replay-icarus-v2-20261023",
+      "status": "PASS_ORIGINAL_CP_FLAG_MARGIN_REPLAY",
+      "state_sha256": "aa6b4e1aac3ba9ae73dc0ca7887b49cf9615e3337f5a193d28456531ea6432bf"
+    },
+    {
+      "directory": "r-front-cp-flag-replay-icarus-v3-20261023",
+      "status": "PASS_ORIGINAL_CP_FLAG_MARGIN_REPLAY",
+      "state_sha256": "b32286e1dd0e23e8562e4336c0081b8ee750640718519ccaf657621ebd47501d"
+    },
+    {
+      "directory": "r-front-cp-flag-replay-verilator-v1-20261023",
+      "status": "ORIGINAL_CP_FLAG_MARGIN_REPLAY_FAILED",
+      "state_sha256": "2abfeffde810a6442ae4f1650c2be9256fc2e5ee90dcb7feddb78e832e69ccce"
+    },
+    {
+      "directory": "r-front-cp-flag-replay-verilator-v2-20261023",
+      "status": "ORIGINAL_CP_FLAG_MARGIN_REPLAY_FAILED",
+      "state_sha256": "af339b56115d2ecf41a597ea99b4b68f539539d72710894e8a0c033ae8f8197a"
+    },
+    {
+      "directory": "r-front-cp-flag-replay-verilator-v3-20261023",
+      "status": "PASS_ORIGINAL_CP_FLAG_MARGIN_REPLAY",
+      "state_sha256": "0ad1adb76a5286fc7cc1068860115e23b1f69a2ad5dbb7fbcd441d93eee02788"
+    }
+  ],
+  "native_observations": [
+    {
+      "directory": "native-cedar-5c65-skip-wait-v1-20261023",
+      "pid": 29201,
+      "ps": "29201 01:36:51 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792809036.991355,
+      "state_sha256": "e0d1087b204623337f82baec72fe60c308dd14aad7337126ff32938b17055f43"
+    },
+    {
+      "directory": "native-cedar-queue-skip-wait-v1-20261023",
+      "pid": 29618,
+      "ps": "29618 01:35:49 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792809036.995573,
+      "state_sha256": "0d15076c270b2b79a1d15a8ac4153fbad6d04e7ab608ed8a46e02288168fa225"
+    }
+  ],
+  "candidate_margin_equivalence_qualified": false,
+  "other_sink_timing_qualified": false,
+  "native_producer_setup_qualified": false,
+  "physical_timing_qualified": false,
+  "assembly_permitted": false,
+  "hardware_changed": false,
+  "speedup_qualified": false
+}

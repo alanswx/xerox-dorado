@@ -1,5 +1,41 @@
 # Verilog from Sil: handoff
 
+Latest exact-state timing replay (2026-10-23;
+[complete replay/source/failure evidence](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#exact-state-cp-timing-replay)):
+the Icarus/Verilator pre-event snapshots are byte-identical: all844 physical
+Qs,9216 functional RAM bits and before/after pins. The short original-graph
+replay now restores every bit exactly before EACH of11 CP-skew trials in BOTH
+engines. It leaves original cells and the parent failing miter untouched.
+Both agree on all8 g18 cases meeting the documented2.5ns setup/1.5ns hold,
+including the boundaries. Offsets-1/0/+1ns violate that aperture; only zero
+skew disagrees (IcarusQ1/VerilatorQ0), reproducing the original failure.
+This qualifies an original-g18 diagnostic, NOT candidate/native equivalence.
+
+Replay initialization failures remain archived. Time-zero fixture load did
+not restore state; a real edge fixes Icarus, but Verilator still retains
+phase-init reset on bits23/25/29 while CP controls are loading. The final
+two-pulse fixture restores controls, lets their asynchronous resets settle,
+then reloads all Qs. Every bit/RAM is compared before proceeding; no reset
+priority, state bit or original FF model was modified. This is component
+fixture seeding, not native state import or an FPGA snapshot feature.
+
+Additional passive clock7 observation preserves all g18 outcomes. BOTH engines
+measure LOW widths16.5/8.5/4.5/3.0/1.5/0.5ns for CP offsets
+-16/-8/-4/-2.5/-1/0ns, then no clock7 edge at positive offsets. Thus the
+earlier ideal clock7 edge at zero skew is a0.5ns pulse. Its physical capture/
+minimum pulse specification remains UNQUALIFIED; do not infer it from toggle
+frequency or count that ideal edge as proof of a required hardware capture.
+`cp-flag-replay-summary.json` and `cp-clock7-width-summary.json` retain all
+terminal runs and exact sources, alongside the original rejected matrix.
+
+Next: compare the candidate only under fully established source/capture
+contracts, including clock widths and other sinks; audit the actual native
+CP/root producer phases and partition the failing native combinational path.
+The complete native timing/60ns/66.7MHz/original Cedar/A-F gates remain open.
+Original native tests29201/29618 were revalidated live; same sources/5B bounds,
+no restarts or state plants. Hardware and measured4.025473M StartCycle issues/s
+remain unchanged. Full goal ACTIVE; complete FPGA snapshots stay deferred.
+
 Latest CP ordering component result (2026-10-23;
 [bounded passes, rejected variants and live profile observations](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#cp-before-root-subevents)):
 the profile matrix is now TERMINAL and REJECTED. Fast-gates Icarus disagrees

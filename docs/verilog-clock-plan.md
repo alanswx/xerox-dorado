@@ -11,6 +11,24 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Exact-state CP replay follow-up (2026-10-23): BOTH original graphs restore the
+byte-identical saved844-Q/9216-RAM/pin snapshot before EACH of11 skew trials.
+All8 g18 captures meeting original2.5ns setup/1.5ns hold agree between engines;
+offsets-1/0/+1ns violate the aperture and only zero skew disagrees. Original
+cells, all restore checks and the failed parent miter remain unchanged.
+Initialization attempts are preserved: a nonzero-time load edge, then a
+second fixture pulse after CP/reset settling are required for exact restoration
+in both engines. This is component replay, not native state import/snapshot.
+
+Both clock7 observers measure a0.5ns LOW pulse at zero skew, with4.5ns at-4ns
+and no edge at positive skew. This is an ideal reference waveform, not proof
+that the original chip captures a runt pulse; physical pulse qualification
+remains open. [Exact runs, source and limits](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#exact-state-cp-timing-replay).
+Next establish actual native CP/root source phases, other sink setup/hold and
+clock-width contracts before candidate promotion/native fitting. Complete
+60ns/physical66.7MHz/Cedar and A-F acceptance remain; hardware/speed unchanged.
+Original native handles29201/29618 retain their exact5B bounds and sources.
+
 CP/root subevent follow-up (2026-10-23): v3 passes BOTH expanded14,884-event
 comparisons with every original physical-Q/RAM/clock/fixed-point check intact.
 The broader matrix is now TERMINAL/REJECTED: fast-gates Icarus fails event12839

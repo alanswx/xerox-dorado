@@ -4,6 +4,46 @@ This receipt preserves the complete v5 native failure and the corrected
 component implementation of the original l06/l07 flag latches. No image was
 assembled or loaded; the qualified hardware core and measured speed are unchanged.
 
+## Exact-state CP timing replay
+
+The saved pre-event snapshots from Icarus and Verilator are byte-identical:
+844 physical state bits,9,216 functional RAM bits and before/after input pins.
+The short replay uses the unchanged full timed original graph and its original
+functional RAM. Before **each** of11 trials per engine, every state and RAM bit
+must equal that snapshot. This makes the capture reproducible without rerunning
+the14,884-event history. It seeds a component fixture, not a native machine.
+
+Both engines agree at all **eight** offsets meeting the MC10176's documented
+setup/hold requirements. CP offsets-16/-8/-4/-2.5ns give g18 Q0;
++1.5/+4/+8/+16ns give Q1. Offsets-1/0/+1ns violate the2.5ns setup/1.5ns hold
+aperture. Only zero skew disagrees: IcarusQ1/VerilatorQ0, reproducing the
+original profile failure. The invalid-margin trials remain explicit diagnostics;
+they do not qualify a candidate or erase the original failed full comparison.
+`cp-flag-replay-summary.json` retains all results and initialization attempts.
+
+The initial time-zero load failed exact restoration in both engines. A real
+load edge restored Icarus, while Verilator still showed bits23/25/29 under the
+old phase-init reset during CP loading. The final procedure loads controls,
+waits for their asynchronous resets to settle, then loads all Qs again. The
+original reset priority and every original cell stay unchanged; exact full-state
+and RAM comparisons remain mandatory before every trial. This is no FPGA
+snapshot implementation or native CPU-state plant.
+
+The added clock7 observer leaves all g18 outcomes unchanged. Both engines
+measure LOW widths16.5/8.5/4.5/3.0/1.5/0.5ns at offsets
+-16/-8/-4/-2.5/-1/0ns; positive offsets give no clock7 edge. Consequently the
+ideal clock7 edge at zero skew follows only a **0.5ns LOW pulse**. Physical
+capture of that pulse and the relevant minimum-width contract remain open;
+toggle-frequency ratings alone do not establish a minimum pulse specification.
+`cp-clock7-width-summary.json` preserves both complete waveform replays.
+
+This establishes original-g18 timing behavior, not candidate equivalence,
+other sink timing, native source setup, a fitted image or a speed gain. The
+original profile rejection is retained. Next audit actual native CP/root phases
+and all relevant capture/pulse contracts before native timing/integration.
+Both original native runs continue at their original bounds; the full A-F goal
+remains active and complete FPGA snapshots remain deferred.
+
 ## CP-before-root subevents
 
 **Latest: the profile matrix is terminal and rejected.** Fast-gates Icarus
