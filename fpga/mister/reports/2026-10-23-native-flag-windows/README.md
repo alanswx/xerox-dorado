@@ -6,6 +6,32 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`exact-pixel-phase-followup-summary.json` retains the exact one-bit pixel
+remainder specialization,136-bit original-oscillator unbounded induction and
+stuck-phase counterexample. Both engines retain all12 oscillator configurations,
+rate/negative controls, CPU/pixel comparisons and all-primary300us references.
+Fresh eight-rotation original-divider induction and195-bit merger/added-phase
+proofs pass. The first generic-branch forward-declaration compile failure is
+retained; corrected V2 reruns all gates. No source frequency or guest cycle changes.
+
+`exact-pixel-phase-terminal-summary.json` preserves the complete58-member
+15ns fit/input readback/absent handles.3,210ALMs/0DSP/1407regs; setup
+-0.273/-0.194/+5.168/+5.316ns, minimum hold+0.170ns. Still REJECTED15ns,
+with1560 ports/eight rotations/four corners/zero unconstrained paths intact.
+Worst path moves to BB phase[4] -> due/time -> rank/Ether insertion -> joined
+mask/level cursor -> result[34],13 logic levels/14.627ns data/-0.476ns skew.
+Canonical RTL and native consumers remain unchanged.
+
+`native-selector-terminal-summary.json` preserves all961 native members/533
+compiled hashes, completed builder and both reporters/all absent handles.
+Setup+0.067/+0.197/+4.066/+4.781ns, input+0.368/+0.337/+4.602/+5.329ns,
+at17.5ns. REJECTED hold:-0.064/-0.041/+0.034/+0.011ns. Actual capture path
+is disk generation[19] -> flushed_generation[19], same clock,0.629ns data/
+0.693ns skew.36,213ALMs/55,368regs; all16visibleR/fourSRAMs and84,837keepers/
+695primary/106copies/153history retained. Cache pruning persists:243keepers/
+239logical bits, no unused138 or unsupported indices. No assembly, timing,
+firmware, original60ns or speed qualification. FPGA remains reserved for user.
+
 `parallel-primary-followup-summary.json` preserves a parallel insertion merger
 with no source phase/frequency/cycle change. Both absolute-time matrices pass
 160,576 samples/eight rotations/full300us/resets/pauses and five corruptions.
@@ -1159,8 +1185,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps67,137 members to7,481 deduplicated compressed blobs;
-lossless readback verifies2,454,513,778 unique raw bytes and91,045,468 compressed
+`manifest.json.gz` now maps68,551 members to8,054 deduplicated compressed blobs;
+lossless readback verifies2,655,306,739 unique raw bytes and97,656,758 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

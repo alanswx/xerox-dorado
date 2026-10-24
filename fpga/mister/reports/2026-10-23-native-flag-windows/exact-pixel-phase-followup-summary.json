@@ -1,0 +1,106 @@
+{
+  "status": "REVIEWED_EXACT_PIXEL_PHASE_AND_ALL_SOURCE_GATES",
+  "records": [
+    {
+      "directory": "exact-pixel-phase-stage-v1-20261024",
+      "status": "PREPARED_EXACT_PIXEL_PHASE",
+      "state_sha256": "34e3ce154f547f6dd8c0412213c99ffcfcd7b6b108afda9106b83b7acaa4f413"
+    },
+    {
+      "directory": "exact-pixel-phase-proof-v1-20261024",
+      "status": "PASS_EXACT_PIXEL_PHASE_INDUCTION",
+      "state_sha256": "b7c1520ea78e4fd2b64733bc716162c35e1cbb9c0ab905ae2af3e569d79ee86a"
+    },
+    {
+      "directory": "exact-pixel-phase-negative-v1-20261024",
+      "status": "PASS_PIXEL_PHASE_COUNTEREXAMPLE",
+      "state_sha256": "afcd5a4f4dc8a32cfa8e8758cbd7e9515710ca0b60b9ce4ec1a53ce18d1ca872"
+    },
+    {
+      "directory": "exact-pixel-clock-batch-v1-20261024",
+      "status": "PASS_COMMON_CPU_PIXEL_EVENT_BATCH",
+      "state_sha256": "e4d0bfa9ed8d0353e284ac2ad04dd70d033596a2cbffc5fbdc3e226815c3614b"
+    },
+    {
+      "directory": "exact-pixel-clock-batch-proof-v1-20261024",
+      "status": "PASS_COMMON_CLOCK_BATCH_INDUCTION",
+      "state_sha256": "cb7e06662749c22d1a5d0d1f7c4284d8be3e7236b2d5c2f9e9d818824aaaebc0"
+    },
+    {
+      "directory": "exact-pixel-clock-batch-negative-v1-20261024",
+      "status": "PASS_CLOCK_BATCH_COUNTEREXAMPLE",
+      "state_sha256": "38737dbf262d4e483bcb5585540a15c0144a542e9540df74a8cc9a7b071fa77e"
+    },
+    {
+      "directory": "exact-pixel-primary-reference-v1-20261024",
+      "status": "PASS_ALL_PRIMARY_CLOCK_ORIGINAL_REFERENCES",
+      "state_sha256": "61c5b4f71cce0563009d69bc81cc04c70e9d7f17412d927be7674f749369f115"
+    },
+    {
+      "directory": "exact-pixel-phase-stage-v2-20261024",
+      "status": "PREPARED_EXACT_PIXEL_PHASE",
+      "state_sha256": "4d456f8d6ad83bd4189b1486b98a66a3cd8f8d79ea4da96b9af3f07e79610baa"
+    },
+    {
+      "directory": "exact-pixel-phase-proof-v2-20261024",
+      "status": "PASS_EXACT_PIXEL_PHASE_INDUCTION",
+      "state_sha256": "cb97d3cff10d2dd240bbcbff588d296468a72d1a564c24bac8ac456e314c7972"
+    },
+    {
+      "directory": "exact-pixel-phase-negative-v2-20261024",
+      "status": "PASS_PIXEL_PHASE_COUNTEREXAMPLE",
+      "state_sha256": "bea7d9b67f54788b1ea3e3c41b846268b14dc39551af916e35c3fb14d9578251"
+    },
+    {
+      "directory": "exact-pixel-clock-batch-v2-20261024",
+      "status": "PASS_COMMON_CPU_PIXEL_EVENT_BATCH",
+      "state_sha256": "31c2b990a7353eaabe0592d10a669c5f255f131a21b6b36722eb98d62799b2c0"
+    },
+    {
+      "directory": "exact-pixel-clock-batch-proof-v2-20261024",
+      "status": "PASS_COMMON_CLOCK_BATCH_INDUCTION",
+      "state_sha256": "6bb51547747eda72ca4d9b742291df8c2718beeb1db260bc86ef8b6a7210e18c"
+    },
+    {
+      "directory": "exact-pixel-clock-batch-negative-v2-20261024",
+      "status": "PASS_CLOCK_BATCH_COUNTEREXAMPLE",
+      "state_sha256": "0391621cd9c43871bcf4e0baa016adc5076fab2ac638f0142c744753113f5664"
+    },
+    {
+      "directory": "exact-pixel-primary-reference-v2-20261024",
+      "status": "PASS_ALL_PRIMARY_CLOCK_ORIGINAL_REFERENCES",
+      "state_sha256": "2bb12565c377a036222da1856cf06cfe3b556bed1bdd36b23c5e24cd201bb03a"
+    },
+    {
+      "directory": "exact-pixel-oscillator-v1-20261024",
+      "status": "TERMINAL_OSCILLATOR_EVENT_TEST_FAILED",
+      "state_sha256": "ac3fe51546e81b5a33819a7cd68b9f639b28e250d71dc447283c9b621f5a383b"
+    },
+    {
+      "directory": "exact-pixel-oscillator-v2-20261024",
+      "status": "PASS_ORDERED_OSCILLATOR_EVENTS_AND_NATIVE_RATE_COUNTEREXAMPLE",
+      "state_sha256": "d50caf3d2869e18875b3a07cba1e81d7c12e4a161ec743eb8d3c4e0ed8a7c7da"
+    },
+    {
+      "directory": "exact-pixel-primary-formal-v2-20261024",
+      "status": "PASS_PRIMARY_CLOCK_MERGE_AND_PHASE_PROOFS",
+      "state_sha256": "d2895a1350a5e9e801819c7f9c823ee2aed3eb6b409954b40bfde69f35bfbb1c"
+    }
+  ],
+  "generic_elaboration_failure_preserved": true,
+  "oscillator_parameter_cases": 12,
+  "full_oscillator_induction_bits": 136,
+  "CPU_pixel_rotations": 8,
+  "primary_merged_bits": 195,
+  "primary_full_samples_per_positive": 160576,
+  "extra_virtual_cycles": 0,
+  "frequencies_changed": false,
+  "canonical_RTL_changed": false,
+  "native_consumers_integrated": false,
+  "physical_timing_qualified": false,
+  "firmware_qualified": false,
+  "speedup_qualified": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}

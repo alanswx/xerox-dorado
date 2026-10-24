@@ -77,24 +77,48 @@ explicit memory_map lowers the same truth table without assumptions. Receipts
 retain all qualification, live-work observations and complete timing rejections.
 The isolated candidate is not yet selected into canonical RTL/native consumers.
 
-Native selector build is LIVE at `/home/alans/mister/selector-native-v2-20261024`,
-builder3967034/session61153, fitter3981329; map3967037 exits0 at92,910 logic
-cells/95,715 resources/35DSP/2,602RAM segments,985 retained warnings. All533
-remote hashes verify, manifest a92d70fa8089b3f980762d184bfcbdb5d37fcd2202d4e994f82e51e36f9e718d.
-Physical reporter3968671/session29270 and key reporter3968891/session30366
-are verified live and queued on the SAME job. Never restart on a polling timeout.
+Exact pixel-state follow-up (2026-10-24):50MHz/four-sample remainder uses one
+bit for the exact0/2,000,000 alternation; output equations/level updates and
+other parameter recurrences stay unchanged.136-bit original-oscillator temporal
+induction and stuck-phase control pass. Both engines retain all12 oscillator
+configurations/negative controls. CPU/pixel original-divider tests/induction
+cover all8 phases/arbitrary reset/advance histories; held-advance corruption
+rejects. Full primary references pass160,576 samples/full300us and all source
+corruptions;195-bit merger/added-crystal phase proofs pass. The first generic-
+branch declaration-order compile failure is retained; V2 reruns every gate.
 
-Next/TODO: simplify the measured pixel arithmetic via its exact fixed-ratio
-50MHz/four-sample state; re-prove unbounded CPU/pixel phase and complete source
-chronology before a new15ns fit. Follow the existing native selector job and
-both reporters into full timing/path review. Preserve owners/flags/SRAM captures/
-barriers. Then integrate all primary events with original capture windows,
-j02 debug and DispY raw/fake/Ethernet ordering; re-prove cache context across
+Pixel-specialized fit is TERMINAL/REJECTED15ns: setup
+-0.273/-0.194/+5.168/+5.316ns, minimum hold+0.170ns,3,210ALMs/0DSP/1407regs.
+All58 members/input readback/absent handles,1560 ports/eight rotations/four
+corners/zero unconstrained paths verify. Worst path moves to BB phase[4] ->
+due/time -> rank/Ether insertion -> joined mask/level cursor -> result[34],
+14.627ns data/-0.476ns skew/13 logic levels. Receipts
+`exact-pixel-phase-followup-summary.json` and `exact-pixel-phase-terminal-summary.json`
+retain all gates/failure/full timing; no canonical/native-consumer selection.
+
+Native selector fit and both reporters are TERMINAL/all actions0/handles absent.
+All961 members/533 compiled hashes verify. Setup+0.067/+0.197/+4.066/+4.781ns,
+input+0.368/+0.337/+4.602/+5.329ns, at17.5ns. REJECTED hold:
+-0.064/-0.041/+0.034/+0.011ns. Actual path is disk generation[19] ->
+flushed_generation[19], same clock,0.629ns data/0.693ns skew.36,213ALMs/
+55,368regs; all16visibleR/fourSRAMs and84,837keepers/695primary/106copies/
+153history retained. Key pruning remains real:243keepers/239logical bits,
+no138 or unsupported indices. Receipt `native-selector-terminal-summary.json`
+retains full reports/source/readback. Never restart the completed builder or
+reporters. Original ECC loop/pulse and broader capture timing remain open.
+
+Next/TODO: reduce BaseBoard phase arithmetic via the exact10-state quotient
+(current19-bit phase is a multiple of47,060); retain exact offsets/reset/pause,
+re-prove source chronology and fit15ns. Separately correct the disk-generation
+physical hold path with exact capture semantics and real delay/skew control,
+then review every setup/hold corner. No blind seed retry, timing waiver or
+added guest cycle. Then integrate all primary events/original capture windows/
+j02 debug/DispY raw-fake/Ethernet ordering and re-prove cache context across
 intermediate events. Original60ns/separate66.7MHz SDRAM and the full A–F/Cedar/
-Rollback/persistence/three-boot/stress objective remain active. The four original
-bounded simulations progress unchanged:5c65 TX2/disk10 at host3.65B; queue TX3/
-disk45 at host3.99B, both fault/CRC/RX0. Neither is a desktop/network-RX pass.
-Hardware and last measured4.025473M StartCycle issues/s are unchanged.
+Rollback/persistence/three-boot/stress objective remain active. Main SPI ownership,
+ARM buffered disk/direct-DDR Ethernet/historical daemon scope stay intact; FPGA
+snapshots deferred. Hardware and last measured4.025473M StartCycle issues/s
+are unchanged. The FPGA stays reserved for the user.
 
 Latest progress (2026-10-24): projected-key temporal induction PASSES for ALL
 475 control/event/flag outputs, exact cached-payload/canonical invariants,

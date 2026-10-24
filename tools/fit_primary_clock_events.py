@@ -39,7 +39,7 @@ endmodule
 '''
 
 
-def prepare(tests, proofs, out, source=None):
+def prepare(tests, proofs, out, source=None, oscillator_source=None, pixel_gates=None):
     assert not out.exists()
     t = json.loads((tests/'run-state.json').read_text())
     p = json.loads((proofs/'run-state.json').read_text())
@@ -49,6 +49,40 @@ def prepare(tests, proofs, out, source=None):
     assert all(c['passed'] for c in p['cases']) and p['tests_state_sha256'] == sha(tests/'run-state.json')
     for name, digest in t['inputs'].items():
         assert sha(tests/'inputs'/name) == digest
+    pixel_record = None
+    if oscillator_source is not None:
+        assert pixel_gates and len(pixel_gates) == 5
+        rows = []
+        statuses = ['PASS_EXACT_PIXEL_PHASE_INDUCTION', 'PASS_PIXEL_PHASE_COUNTEREXAMPLE',
+                    'PASS_COMMON_CLOCK_BATCH_INDUCTION', 'PASS_CLOCK_BATCH_COUNTEREXAMPLE',
+                    'PASS_ORDERED_OSCILLATOR_EVENTS_AND_NATIVE_RATE_COUNTEREXAMPLE']
+        states = []
+        for directory, status in zip(pixel_gates, statuses, strict=True):
+            state = json.loads((directory/'run-state.json').read_text())
+            assert state['status'] == status
+            for name, digest in state.get('files', {}).items():
+                assert sha(directory/name) == digest
+            states.append(state)
+            rows.append(dict(directory=str(directory), state_sha256=sha(directory/'run-state.json')))
+        assert states[0]['compared_bits'] == 136 and states[0]['unbounded_induction_proven']
+        assert not states[0]['protocol_or_state_assumptions']
+        assert states[0]['stage_state_sha256'] == states[1]['stage_state_sha256']
+        assert sha(pixel_gates[0]/'candidate.sv') == sha(oscillator_source)
+        assert sha(pixel_gates[0]/'original.sv') == sha(ROOT/'verilog/rtl/dorado_oscillator_events.sv')
+        assert states[2]['unbounded_induction_proven'] and not states[2]['assumptions_added']
+        assert states[2]['tests_state_sha256'] == states[3]['tests_state_sha256']
+        assert sha(pixel_gates[2]/'pixel-original.sv') == sha(oscillator_source)
+        assert sha(pixel_gates[2]/'original.sv') == t['inputs']['dorado_clock_event_batch.sv']
+        oscillator = states[4]
+        assert len(oscillator['cases']) == 14
+        assert oscillator['inputs']['positive.sv'] == sha(oscillator_source)
+        for name, digest in oscillator['inputs'].items():
+            assert sha(pixel_gates[4]/'inputs'/name) == digest
+        assert all((c['returncode'] != 0) == c['expected_rejection'] for c in oscillator['cases'])
+        pixel_record = dict(gates=rows, all_original_oscillator_configurations_retained=True,
+                            unbounded_CPU_pixel_and_full_oscillator_equivalence=True)
+    else:
+        assert not pixel_gates
     out.mkdir(parents=True)
     qsf = fixture.QSF.replace('set_global_assignment -name SYSTEMVERILOG_FILE dorado_control_clock_step.sv\n',
         ''.join('set_global_assignment -name SYSTEMVERILOG_FILE '+n+'\n' for n in [
@@ -64,6 +98,8 @@ def prepare(tests, proofs, out, source=None):
         (out/name).write_text(value)
     for name in ['dorado_oscillator_events.sv', 'dorado_clock_event_batch.sv', 'dorado_primary_clock_events.sv']:
         path = source if source is not None and name == 'dorado_primary_clock_events.sv' else ROOT/'verilog/rtl'/name
+        if oscillator_source is not None and name == 'dorado_oscillator_events.sv':
+            path = oscillator_source
         assert sha(path) == t['inputs'][name]
         shutil.copy2(tests/'inputs'/name, out/name)
     for name in [Path(__file__).name, 'fit_control_clock.py']:
@@ -78,6 +114,9 @@ def prepare(tests, proofs, out, source=None):
         firmware_qualified=False, speedup_qualified=False, user_FPGA_untouched=True)
     if source is not None:
         record.update(candidate_source=str(source), candidate_source_sha256=sha(source))
+    if oscillator_source is not None:
+        record.update(oscillator_source=str(oscillator_source), oscillator_source_sha256=sha(oscillator_source),
+                      pixel_phase_qualification=pixel_record)
     (out/'provenance.json').write_text(json.dumps(record, indent=2)+'\n')
     print('PREPARED_ALL_PRIMARY_CLOCK_15NS_COMPONENT', flush=True)
 
@@ -87,5 +126,12 @@ if __name__ == '__main__':
     for name in ['tests', 'proofs', 'output']:
         p.add_argument('--'+name, type=Path, required=True)
     p.add_argument('--source', type=Path, help='Exact independently qualified primary-merger candidate')
+    p.add_argument('--oscillator-source', type=Path)
+    for name in ['pixel-proof', 'pixel-negative', 'cpu-pixel-proof', 'cpu-pixel-negative', 'oscillator-tests']:
+        p.add_argument('--'+name, type=Path)
     a = p.parse_args()
-    prepare(a.tests.resolve(), a.proofs.resolve(), a.output.resolve(), a.source.resolve() if a.source else None)
+    gates = [a.pixel_proof, a.pixel_negative, a.cpu_pixel_proof, a.cpu_pixel_negative, a.oscillator_tests]
+    assert all(gates) if a.oscillator_source else not any(gates)
+    prepare(a.tests.resolve(), a.proofs.resolve(), a.output.resolve(), a.source.resolve() if a.source else None,
+            a.oscillator_source.resolve() if a.oscillator_source else None,
+            [g.resolve() for g in gates] if a.oscillator_source else None)

@@ -1,0 +1,198 @@
+{
+  "status": "REVIEWED_NATIVE_SELECTOR_SETUP_GAIN_AND_HOLD_REJECTION",
+  "raw_members": 961,
+  "compiled_source_hashes_verified": 533,
+  "ALMs": 36213,
+  "registers": 55368,
+  "corners": [
+    {
+      "condition": "7_slow_1100mv_100c",
+      "setup": {
+        "slack_ns": 0.067,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[123]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 25.889,
+        "required_ns": 25.956,
+        "report_sha256": "cbcb7ad3f7cd2641f065c4cd1a98bd841dcd454ba5112984952e1b84e6adce00"
+      },
+      "hold": {
+        "slack_ns": -0.064,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_pack_hps:u_media|generation[19]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_pack_hps:u_media|flushed_generation[19]",
+        "arrival_ns": 7.966,
+        "required_ns": 8.03,
+        "report_sha256": "f888ee7fe3c220c81ad10a91cd91a54f4daeff59b9ab162362e76d1e0314b593"
+      },
+      "input": {
+        "slack_ns": 0.368,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_before[172]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 25.219,
+        "required_ns": 25.587,
+        "report_sha256": "55d505c8f5d39d385e258b4f25b7289a5d71419e1aed2ed61982dea8e40b22cf"
+      },
+      "internal": {
+        "slack_ns": 0.067,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[123]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 25.889,
+        "required_ns": 25.956,
+        "report_sha256": "c664b1302451874d64d9f79b7b320d22081cb102c6115d3c96ef0490b25bcd27"
+      }
+    },
+    {
+      "condition": "7_slow_1100mv_-40c",
+      "setup": {
+        "slack_ns": 0.197,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|BaseBd_m_Rev_m_Am_nominal:b_BaseBd|cell_MCS6532:u_i62|M6532:u_riot|dir_a[6]~DUPLICATE",
+        "sink": "emu:emu|network_step",
+        "arrival_ns": 16.266,
+        "required_ns": 16.463,
+        "report_sha256": "b64a75eb586154f921f3eb0cfa2830e511cd8f5cbcf7fdfb5478a75cc411a2f5"
+      },
+      "hold": {
+        "slack_ns": -0.041,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_pack_hps:u_media|generation[19]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_pack_hps:u_media|flushed_generation[19]",
+        "arrival_ns": 8.184,
+        "required_ns": 8.225,
+        "report_sha256": "ed974730cd671764b180d64629a4d27ca3f1718f283a2c12951e16bd3135790b"
+      },
+      "input": {
+        "slack_ns": 0.337,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a15|qb",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[7]",
+        "arrival_ns": 25.279,
+        "required_ns": 25.616,
+        "report_sha256": "40ff3d687ecf8fbadf171abf99b887d132bd8eacff17015ac48770bdfea28d29"
+      },
+      "internal": {
+        "slack_ns": 0.299,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[123]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[6]",
+        "arrival_ns": 25.691,
+        "required_ns": 25.99,
+        "report_sha256": "2b03ee427b27bd77694fe7f3a0757bca9388c8b2b40a414ca3605f3da2e0acc1"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_100c",
+      "setup": {
+        "slack_ns": 4.066,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_msa|ready_q",
+        "sink": "emu:emu|network_step",
+        "arrival_ns": 8.442,
+        "required_ns": 12.508,
+        "report_sha256": "501ba209c696a2c849c535b54fbf241b6b695ac6229013d96fa1856fe11f73f0"
+      },
+      "hold": {
+        "slack_ns": 0.034,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_pack_hps:u_media|generation[19]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_pack_hps:u_media|flushed_generation[19]",
+        "arrival_ns": 3.96,
+        "required_ns": 3.926,
+        "report_sha256": "ff6aa4bc845b4b8ce1f8623115ad8a0fec039c5fd37f68f995e2d3d4e57733a2"
+      },
+      "input": {
+        "slack_ns": 4.602,
+        "source": "emu:emu|network_step",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[108]~DUPLICATE",
+        "arrival_ns": 16.754,
+        "required_ns": 21.356,
+        "report_sha256": "f133f340a8e0ca92bf39869c24a9a5995928c26e9fb9eaed8485249b0da4e248"
+      },
+      "internal": {
+        "slack_ns": 7.759,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[32]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[98]",
+        "arrival_ns": 13.627,
+        "required_ns": 21.386,
+        "report_sha256": "f17d857fee26268da4dfd28b7f34ede6796516175f859b8ff6f73063e735b171"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_-40c",
+      "setup": {
+        "slack_ns": 4.781,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_msa|ready_q",
+        "sink": "emu:emu|network_step",
+        "arrival_ns": 7.495,
+        "required_ns": 12.276,
+        "report_sha256": "8614e59e6b737937d178cb8a3d7b125e3d1f8c7645c78fe4f904d3d48506b189"
+      },
+      "hold": {
+        "slack_ns": 0.011,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_pack_hps:u_media|generation[19]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_pack_hps:u_media|flushed_generation[19]",
+        "arrival_ns": 3.744,
+        "required_ns": 3.733,
+        "report_sha256": "aa037f367591973f89b933e482bf27b7da5d054f56517b159ca8b5be19bf0887"
+      },
+      "input": {
+        "slack_ns": 5.329,
+        "source": "emu:emu|network_step",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[108]~DUPLICATE",
+        "arrival_ns": 15.795,
+        "required_ns": 21.124,
+        "report_sha256": "e32aae05700a48a48362da64fc79c2ce071843f3b2fbbd7ec9f374be6e9cbc0e"
+      },
+      "internal": {
+        "slack_ns": 9.345,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[32]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[98]",
+        "arrival_ns": 11.812,
+        "required_ns": 21.157,
+        "report_sha256": "3c349b3e247e52540e3a3e7df91e165a80ab5ceecbf6a37f9ef984a24d7fe9b4"
+      }
+    }
+  ],
+  "coverage": [
+    [
+      "7_slow_1100mv_100c",
+      "84837",
+      "801",
+      "695",
+      "106",
+      "153"
+    ],
+    [
+      "7_slow_1100mv_-40c",
+      "84837",
+      "801",
+      "695",
+      "106",
+      "153"
+    ],
+    [
+      "MIN_fast_1100mv_100c",
+      "84837",
+      "801",
+      "695",
+      "106",
+      "153"
+    ],
+    [
+      "MIN_fast_1100mv_-40c",
+      "84837",
+      "801",
+      "695",
+      "106",
+      "153"
+    ]
+  ],
+  "clock_period_ns": 17.5,
+  "physical_key_keepers": 243,
+  "logical_key_bits": 239,
+  "unused_key138_removed": true,
+  "failing_hold": "disk generation[19] -> flushed_generation[19]",
+  "hold_data_delay_ns": 0.629,
+  "hold_clock_skew_ns": 0.693,
+  "physical_timing_qualified": false,
+  "firmware_qualified": false,
+  "speedup_qualified": false,
+  "assembly_permitted": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "original60ns_qualified": false,
+  "full_goal_active": true
+}

@@ -1,0 +1,129 @@
+{
+  "status": "REVIEWED_EXACT_PIXEL_COMPONENT_TIMING_REJECTION",
+  "corners": [
+    {
+      "condition": "7_slow_1100mv_100c",
+      "setup": {
+        "slack_ns": -0.273,
+        "source": "dorado_primary_clock_events:rotations[0].source|bb_phase[4]",
+        "sink": "result[34]~reg0",
+        "arrival_ns": 18.991,
+        "required_ns": 18.718,
+        "report_sha256": "db9c0893393c54df937cd9c9a779ddbb7531fedbf69bed899226c284adf6235d"
+      },
+      "hold": {
+        "slack_ns": 0.442,
+        "source": "dorado_primary_clock_events:rotations[0].source|bb_level",
+        "sink": "dorado_primary_clock_events:rotations[0].source|bb_level",
+        "arrival_ns": 4.376,
+        "required_ns": 3.934,
+        "report_sha256": "cf589e4b467d0f9a7ffe43b075d1788ae55ada76af5a99124a81180c33917fab"
+      },
+      "evaluator": {
+        "slack_ns": 1.178,
+        "source": "launch[0]",
+        "sink": "result[620]~reg0",
+        "arrival_ns": 17.865,
+        "required_ns": 19.043,
+        "report_sha256": "c08d5747cef250bef02ca0f069c534ef18e040638e5ea14cae1ca99e538d4956"
+      }
+    },
+    {
+      "condition": "7_slow_1100mv_-40c",
+      "setup": {
+        "slack_ns": -0.194,
+        "source": "dorado_primary_clock_events:rotations[0].source|bb_phase[4]",
+        "sink": "result[34]~reg0",
+        "arrival_ns": 19.071,
+        "required_ns": 18.877,
+        "report_sha256": "5b2dadf177a155f941c8f3d0786e7bdb711c9cbac87131e27623d4ba0298582f"
+      },
+      "hold": {
+        "slack_ns": 0.456,
+        "source": "dorado_primary_clock_events:rotations[0].source|ether_phase[3]",
+        "sink": "dorado_primary_clock_events:rotations[0].source|ether_phase[3]",
+        "arrival_ns": 4.497,
+        "required_ns": 4.041,
+        "report_sha256": "b4287101abebc32e50ff53d84ba7051dcf84e1b9e9947ba246cb87926a64feca"
+      },
+      "evaluator": {
+        "slack_ns": 1.167,
+        "source": "launch[0]",
+        "sink": "result[620]~reg0",
+        "arrival_ns": 18.026,
+        "required_ns": 19.193,
+        "report_sha256": "ae6f689cb738b68b606f2717490963c34d6904b8c820a5eff3ec1f5b3e95150c"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_100c",
+      "setup": {
+        "slack_ns": 5.168,
+        "source": "input_stage[1]",
+        "sink": "launch[1]",
+        "arrival_ns": 11.446,
+        "required_ns": 16.614,
+        "report_sha256": "d84e028b6288b9144e41b8a1abbc845696cc8d86984b2423dacbd06bb486adba"
+      },
+      "hold": {
+        "slack_ns": 0.18,
+        "source": "dorado_primary_clock_events:rotations[0].source|bb_level",
+        "sink": "dorado_primary_clock_events:rotations[0].source|bb_level",
+        "arrival_ns": 1.992,
+        "required_ns": 1.812,
+        "report_sha256": "243e6cf516c81f3a0c2b910a4f4b468b19ea148e14e7943323b7b2aac8b41b7c"
+      },
+      "evaluator": {
+        "slack_ns": 7.698,
+        "source": "launch[0]",
+        "sink": "result[620]~reg0",
+        "arrival_ns": 9.097,
+        "required_ns": 16.795,
+        "report_sha256": "20263a414e1c50fd8976516daac2deb1773b774092b7a92b8127d7ec9a540a89"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_-40c",
+      "setup": {
+        "slack_ns": 5.316,
+        "source": "input_stage[1]",
+        "sink": "launch[1]",
+        "arrival_ns": 11.18,
+        "required_ns": 16.496,
+        "report_sha256": "8fa9051ee12c6104f10daa0d0fb9e6489aef4cbf48ccbe8398d0275b107d60bd"
+      },
+      "hold": {
+        "slack_ns": 0.17,
+        "source": "dorado_primary_clock_events:rotations[0].source|bb_level",
+        "sink": "dorado_primary_clock_events:rotations[0].source|bb_level",
+        "arrival_ns": 1.857,
+        "required_ns": 1.687,
+        "report_sha256": "3eab37d1e0cbe0939a98c158e656476efafd5181971e4e1cf7dbebf8843ac872"
+      },
+      "evaluator": {
+        "slack_ns": 8.755,
+        "source": "launch[0]",
+        "sink": "result[620]~reg0",
+        "arrival_ns": 7.923,
+        "required_ns": 16.678,
+        "report_sha256": "7ebd0f0bf5971258bf304f6d189e33b2a570ae97ad5f0629f202f166c2365cb0"
+      }
+    }
+  ],
+  "ALMs": 3210,
+  "registers": 1407,
+  "DSPs": 0,
+  "period_ns": 15,
+  "data_delay_ns": 14.627,
+  "clock_skew_ns": -0.476,
+  "logic_levels": 13,
+  "remaining_path": "BB phase -> due/time -> rank -> Ether insertion -> joined mask -> level cursor",
+  "physical_timing_qualified": false,
+  "canonical_RTL_changed": false,
+  "native_consumers_integrated": false,
+  "firmware_qualified": false,
+  "speedup_qualified": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}

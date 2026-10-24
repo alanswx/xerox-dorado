@@ -28,7 +28,7 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def run(stage,out):
+def run(stage,out,source=None):
     assert not out.exists()
     p=json.loads((stage/'r-front-control-native.json').read_text())
     for name,digest in p['source_hashes'].items():assert sha(stage/name)==digest,name
@@ -45,16 +45,22 @@ def run(stage,out):
     assert '.p7(RawPixelClk)'in b01
     assert len(re.findall(r'\bPixelClkVCO\b',display))==1
     out.mkdir(parents=True);inputs=out/'inputs';inputs.mkdir()
-    paths={Path(RTL).name:ROOT/RTL,Path(TB).name:ROOT/TB,'cell_K1115A.v':stage/CELL,
+    paths={Path(RTL).name:source or ROOT/RTL,Path(TB).name:ROOT/TB,'cell_K1115A.v':stage/CELL,
            'native-wrapper.sv':stage/WRAPPER,'native-backplane.v':stage/BP,'native-display.sv':stage/DISPLAY,
            'native-manifest.json':stage/'r-front-control-native.json',Path(__file__).name:Path(__file__)}
     for name,path in paths.items():(inputs/name).write_bytes(path.read_bytes())
     rtl=(inputs/Path(RTL).name).read_text()
+    held_before='else if(advance)begin remainder<='
+    held_after="else if(1'b1)begin remainder<="
+    if 'else if(advance)pixel_half<=!pixel_half;' in rtl:
+        held_before='else if(advance)pixel_half<=!pixel_half;'
+        held_after="else if(1'b1)pixel_half<=!pixel_half;"
+    assert rtl.count(held_before)==1
     variants={
         'positive':rtl,
         'drop-second':rtl.replace("assign edge_count=active ? due : 2'd0;", "assign edge_count=active ? (due==2 ? 2'd1 : due) : 2'd0;",1),
         'reverse-order':rtl.replace("assign rising_first=(edge_count!=0) && !level_before;", "assign rising_first=(edge_count!=0) && level_before;",1),
-        'advance-while-held':rtl.replace('else if(advance)begin remainder<=', "else if(1'b1)begin remainder<=",1),
+        'advance-while-held':rtl.replace(held_before,held_after,1),
         'late-offset':rtl.replace("assign first_offset_units=(edge_count!=0) ? 32'(MODULUS)-32'(remainder) : 32'd0;",
                                   "assign first_offset_units=(edge_count!=0) ? 32'(STEP) : 32'd0;",1),
     }
@@ -127,4 +133,5 @@ endmodule
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--stage',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
-    a=p.parse_args();run(a.stage.resolve(),a.output.resolve())
+    p.add_argument('--source',type=Path)
+    a=p.parse_args();run(a.stage.resolve(),a.output.resolve(),a.source.resolve()if a.source else None)

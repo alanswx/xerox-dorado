@@ -104,15 +104,46 @@ formal gates, live-work observations and complete timing rejections. Canonical
 `dorado_primary_clock_events.sv` remains the original version; the qualified
 parallel candidate lives in `primary-parallel-merge-stage-v1-20261024`.
 
-Native selector fit HAS started at
-`/home/alans/mister/selector-native-v2-20261024`: builder3967034/session61153,
-fitter3981329; map3967037 exited0 (92,910 logic cells/95,715 resources,
-35DSP/2,602RAM segments,985 retained warnings). All533 remote source hashes
-verify. Manifest a92d70fa8089b3f980762d184bfcbdb5d37fcd2202d4e994f82e51e36f9e718d.
-Upload SHA41dba960aa97f2a707edf04b8149db158d21ebbcdeb74391e0cd8a15b37c3bf1.
-Read-only physical reporter3968671/session29270 and CP-key reporter3968891/
-session30366 are verified live, queued on the SAME builder/reports. Observe
-these handles; do not restart. No assembly, native timing, speed or firmware pass.
+Latest exact-pixel phase work (2026-10-24): for50MHz/four15ns samples the
+rational remainder alternates0/2,000,000, so the isolated candidate uses one
+phase bit and preserves all output equations/level updates. All other parameter
+recurrences stay generic. Full136-bit oscillator/state equivalence proves by
+unbounded induction for arbitrary reset/advance histories; a stuck phase rejects.
+Both engines retain all12 oscillator configurations and original rate/negative
+controls. CPU/pixel tests and independent four-flop phase induction cover all8
+rotations, with held-advance rejection. The complete primary-reference matrix
+passes160,576 samples/full300us plus all source corruptions; its195-bit merger
+and added-crystal phase proofs also pass. The first candidate's fixed-ratio
+gates passed, but the broad oscillator gate rejected a generic-branch forward
+declaration in Icarus; retain that failure. Corrected V2 reruns ALL gates.
+
+The exact-pixel component fit is TERMINAL/REJECTED15ns: setup
+-0.273/-0.194/+5.168/+5.316ns, minimum hold+0.170ns,3,210ALMs/0DSP/1407regs.
+All58 collected members/input hashes verify; all recorded handles are absent.
+Full1560-port/eight-rotation/four-corner scope and zero unconstrained paths
+remain. Pixel arithmetic is no longer worst: BB phase[4] -> due/time -> rank/
+Ether insertion -> joined mask/level cursor -> result[34],13 logic levels,
+14.627ns data/-0.476ns skew. Do not call the smaller miss a timing pass.
+Receipts `exact-pixel-phase-followup-summary.json` and
+`exact-pixel-phase-terminal-summary.json` preserve source, all gates, failed
+first candidate and full timing. Canonical RTL/native consumers remain unchanged.
+Candidate `exact-pixel-phase-stage-v2-20261024`; component
+`/home/alans/mister/exact-pixel-primary-component-v2-20261024` is finished.
+
+Native selector fit and BOTH reporters are now TERMINAL, all actions0/all
+recorded handles absent. All961 collected members/533 source hashes verify;
+collection SHAaff3b58d50fb26ab04c057cfef4da13103dc2515395845898d8487b37b7ac85c.
+Setup improves to+0.067/+0.197/+4.066/+4.781ns, primary input
++0.368/+0.337/+4.602/+5.329ns. Those are at17.5ns, not15ns. HOLD FAILS:
+-0.064/-0.041/+0.034/+0.011ns, disk generation[19] -> flushed_generation[19],
+same launch/latch clock,0.629ns data versus0.693ns skew. This is a real data-
+capture hold path, not a reason to add a false path or another guest cycle.
+REJECTED full timing; no assembly. Area36,213ALMs/55,368regs; all16 visibleR/
+fourSRAM queries,84,837keepers/695primary+106copies/153history retained.
+Cache pruning persists:243 physical keepers/239 logical bits, unused138 absent,
+no unsupported indices. Original ECC-loop/pulse review remains open. Receipt
+`native-selector-terminal-summary.json` retains the full native result. Do not
+restart builder3967034/fitter3981329/reporters3968671+3968891; all have exited.
 
 Original bounded native simulations remain live, unchanged: 5c65 process58600
 at host3.65B/guest2.054B has178.946M StartCycle issues, disk10/TX2; queued58753
@@ -122,15 +153,18 @@ or network receive. Balanced49723 is at host1.31B/guest699.093M and has issued
 one CPU instruction; short-control75056 remains in ROM memory diagnostics at
 host640M/guest280.638M. All original5B bounds/inputs/media are unchanged.
 
-Next/TODO: simplify the measured pixel remainder path using its exact fixed
-50MHz/four-sample state, with independent unbounded phase and all-source
-comparisons; do not change frequency, add a guest cycle or waive timing.
-Follow the native selector fit and both reporters into all-device/physical-path
-review. Then integrate the full primary event source with original capture
-windows toward60ns; re-prove owner/cache context across intermediate events.
-Separate66.7MHz SDRAM, pinned waits/speed and original-firmware Cedar remain.
-Authentic Rollback, new-file persistence, three fresh boots and2h stress remain.
-The user's FPGA is reserved; notify only when a reviewed build needs testing.
+Next/TODO: reduce the measured BaseBoard phase arithmetic using its exact
+10-state quotient (the current19-bit phase is a multiple of47,060). Preserve
+source timestamps/reset/pause, re-prove complete chronology and fit15ns again.
+Separately correct the native disk-generation physical hold path with measured
+minimum-delay/clock-skew control, retaining its exact capture semantics and
+all setup/hold corners. No blind seed retry, false-path waiver or guest cycle.
+Then integrate primary events with original capture windows toward60ns and
+re-prove owner/cache context across intermediate events. Separate66.7MHz SDRAM,
+pinned waits/speed and original-firmware interactive Cedar remain. Authentic
+Rollback, new-file persistence, three fresh boots and2h stress remain. Main
+owns SPI; buffered disk/direct-DDR network/daemon scope remains; FPGA snapshots
+deferred. The user's FPGA is reserved; notify only when a reviewed build needs it.
 
 Earlier live observation, now TERMINAL/REJECTED above:
 `/home/alans/mister/cp-key-native-v1-20261024`,

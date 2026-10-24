@@ -98,7 +98,7 @@ MUTATIONS = {
 }
 
 
-def run(audit, out, source=None):
+def run(audit, out, source=None, oscillator_source=None):
     assert not out.exists()
     a = json.loads((audit/'results.json').read_text())
     assert a['status'] == 'PASS_SOURCE_BOUND_ALL_PRIMARY_CLOCK_SCHEDULE_AUDIT'
@@ -110,6 +110,8 @@ def run(audit, out, source=None):
     inputs.mkdir()
     for name in ['dorado_primary_clock_events.sv', 'dorado_clock_event_batch.sv', 'dorado_oscillator_events.sv']:
         path = source if source is not None and name == 'dorado_primary_clock_events.sv' else ROOT/'verilog/rtl'/name
+        if oscillator_source is not None and name == 'dorado_oscillator_events.sv':
+            path = oscillator_source
         shutil.copy2(path, inputs/name)
     assert sha(inputs/'dorado_clock_event_batch.sv') == a['source_hashes']['cpu-pixel-source.sv']
     (inputs/'tb.sv').write_text(TB)
@@ -144,6 +146,8 @@ def run(audit, out, source=None):
         native_RTL_changed=False, hardware_changed=False, FPGA_timing_qualified=False, speedup_qualified=False)
     if source is not None:
         state.update(candidate_source=str(source), candidate_source_sha256=sha(source))
+    if oscillator_source is not None:
+        state.update(oscillator_source=str(oscillator_source), oscillator_source_sha256=sha(oscillator_source))
 
     def save():
         (out/'run-state.json').write_text(json.dumps(state, indent=2)+'\n')
@@ -200,5 +204,7 @@ if __name__ == '__main__':
     p.add_argument('--audit', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--source', type=Path, help='Isolated primary merger candidate; preserve both nested producers and every reference/check')
+    p.add_argument('--oscillator-source', type=Path)
     a = p.parse_args()
-    raise SystemExit(run(a.audit.resolve(), a.output.resolve(), a.source.resolve() if a.source else None))
+    raise SystemExit(run(a.audit.resolve(), a.output.resolve(), a.source.resolve() if a.source else None,
+                        a.oscillator_source.resolve() if a.oscillator_source else None))

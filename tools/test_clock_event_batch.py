@@ -20,7 +20,7 @@ from test_oscillator_events import sha, BP, WRAPPER, DISPLAY
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run(stage, out):
+def run(stage, out, oscillator_source=None):
     assert not out.exists()
     manifest = json.loads((stage/'r-front-control-native.json').read_text())
     for name, digest in manifest['source_hashes'].items():
@@ -49,7 +49,7 @@ def run(stage, out):
     inputs.mkdir()
     paths = {
         'dorado_clock_event_batch.sv': ROOT/'verilog/rtl/dorado_clock_event_batch.sv',
-        'dorado_oscillator_events.sv': ROOT/'verilog/rtl/dorado_oscillator_events.sv',
+        'dorado_oscillator_events.sv': oscillator_source or ROOT/'verilog/rtl/dorado_oscillator_events.sv',
         'tb_clock_event_batch.sv': ROOT/'verilog/verilator/tb_clock_event_batch.sv',
         'native-wrapper.sv': stage/WRAPPER, 'native-backplane.v': stage/BP,
         'native-display.sv': stage/DISPLAY, 'native-manifest.json': stage/'r-front-control-native.json',
@@ -138,5 +138,6 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     for name in ['stage', 'output']:
         p.add_argument('--'+name, type=Path, required=True)
+    p.add_argument('--oscillator-source', type=Path)
     a = p.parse_args()
-    run(a.stage.resolve(), a.output.resolve())
+    run(a.stage.resolve(), a.output.resolve(), a.oscillator_source.resolve() if a.oscillator_source else None)
