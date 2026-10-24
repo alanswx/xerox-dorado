@@ -1,5 +1,40 @@
 # Verilog from Sil: handoff
 
+Latest structural-cut experiment (2026-10-23;
+[complete component proof and cadence rejection](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#registered-control-cut-and-cadence-budget)):
+the 475-bit registered control/operand cut passes BOTH original-reference
+comparisons: 14,884 events, 238 writes, 6,928 reads and 392 address epochs per
+engine. All 844 physical Qs and 9,216 RAM bits remain checked; all 69 original
+fatal checks remain verbatim and all 100 clock counts match the parents. The
+control stage leaves SRAM unchanged; the operand stage commits the original
+four banks once, with old owner state/pins held. Post-commit physical views
+must use the new owners, not a saved transaction's clock-event descriptor.
+
+The proposed NONOVERLAPPED native schedule is REJECTED despite those passes.
+The original ordinary instruction spans two 30 ns source clocks, hence four
+distributed-root transitions. At 66.7 MHz the target budget is FOUR 15 ns host
+ticks per instruction. Spending two ticks on EACH transition needs eight,
+or 120 ns. This is not the required 60 ns design. No Quartus fit was started;
+the unrun fit scaffold was removed. The budget audit binds its arithmetic to
+the frozen clock-generator source; its inactive-debug phase table does not
+qualify small-N pulse timing or complete Run/Step/extended-cycle behavior.
+
+Next structural work: bind the split to existing original capture edges, or
+prove overlap with correct owner forwarding and every board consumer. Explore
+precomputing late Hold/MIR alternatives with a final selection only if exact
+transfer equivalence, one set of SRAM banks and the original phase/cycle count
+are retained. Do not insert a generic pipeline delay or issue another full
+native fit on the component pass alone. Actual CP/root source margins, the
+rejected fast-gates profile, native integration and physical timing remain.
+
+Both original native jobs 29201/29618 were verified live again, at their same
+5B host bounds. Latest frozen prefixes reach control host740M/guest343108544
+and queue host790M/guest421856124: CP writes3, BFN0, issues1, no firmware113
+window, pack1/0 and fault/CRC/RX zero. Enabled ticks are not instructions.
+`control-cut-budget-summary.json` preserves sources/results and these live
+observations. Hardware and measured 4.025473M StartCycle issues/s are unchanged.
+Full A-F goal ACTIVE; complete FPGA snapshots remain deferred.
+
 Latest exact-state timing replay (2026-10-23;
 [complete replay/source/failure evidence](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#exact-state-cp-timing-replay)):
 the Icarus/Verilator pre-event snapshots are byte-identical: all844 physical

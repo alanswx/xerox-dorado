@@ -9,6 +9,26 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Structural cut / phase-budget decision (2026-10-23): the registered 475-bit
+control/operand COMPONENT split passes both complete 14,884-event original
+comparisons, retaining all 844 Qs, 9,216 RAM bits, 69 original fatal checks and
+100 clock counts. It does NOT establish a suitable native schedule. Two host
+edges for every distributed-root transition would require EIGHT 15 ns ticks
+per ordinary instruction, or 120 ns. The 60 ns target allows FOUR. Reject the
+nonoverlapped schedule; no fit/build was launched. The source-bound audit and
+all passing component evidence are retained in
+[the structural-cut receipt](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#registered-control-cut-and-cadence-budget).
+
+Next: shorten the actual late Hold/MIR path using existing capture boundaries,
+or prove an overlapped pipeline's state forwarding and all external consumers.
+Precomputing Boolean alternatives before a late Hold selection is a possible
+phase-preserving experiment, not an implemented/qualified fix. Require exact
+event transfer and shared physical SRAM ports; no speculative guest state.
+Do not substitute a 120 ns pipeline for E's original 60 ns acceptance. Actual
+source arrival, the rejected CP timing profile, native integration, separate
+66.7 MHz SDRAM and the complete A-F gates remain open. Same native tests and
+5B bounds continue, no firmware113 capture yet; hardware/speed unchanged.
+
 ### Structural speed plan (revised 2026-10-22)
 
 Exact-state CP replay follow-up (2026-10-23): BOTH original graphs restore the

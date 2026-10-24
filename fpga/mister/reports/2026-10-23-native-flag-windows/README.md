@@ -4,6 +4,46 @@ This receipt preserves the complete v5 native failure and the corrected
 component implementation of the original l06/l07 flag latches. No image was
 assembled or loaded; the qualified hardware core and measured speed are unchanged.
 
+## Registered control cut and cadence budget
+
+Both original-reference comparisons pass the experimental 475-bit registered
+control/operand boundary: **14,884 checks / 238 writes / 6,928 reads / 392
+epochs** per engine. All 844 physical Qs and 9,216 RAM bits are compared. All
+69 original fatal checks remain verbatim; all 100 clock counts match the
+parent runs. Candidate bytes match between engines, and only the candidate
+factorization and bench stage exercise change. Original timed cells and RAM
+references are byte-identical to their parents.
+
+The first host edge records the control result while SRAM advance is disabled.
+The second commits the same four SRAM banks once, retaining old owner state
+and inputs across both stages. Physical views after commit are recomputed
+from the new owners; a transaction's saved event descriptor is not reused.
+This proves a bounded component transaction, not native consumer scheduling.
+The original fast-gates CP miter remains rejected and unchanged.
+
+**The nonoverlapped native schedule is rejected.** An ordinary original
+instruction spans two 30 ns source-clock periods and four distributed-root
+transitions. At 66.7 MHz, 60 ns allows four host ticks. Two ticks for each
+root transition would need eight ticks, or **120 ns**. Passing an isolated
+15 ns fit would not repair that cadence, so no Quartus job was started and
+the unrun fit scaffold was removed. This rejects that specific schedule,
+not a phase-specific split or an overlapped pipeline with proved forwarding.
+
+The audit uses the frozen native `cell_CLOCKGEN` source and reproduces its
+N=16 digital phase table. Its inactive-debug root table does not qualify the
+N=2 phase quantization, real pulse widths, Run/Step or extended instructions.
+The next implementation must fit existing capture edges, or prove overlap and
+all board consumers while retaining the original instruction/phase count.
+Precomputing late Hold/MIR alternatives with a final selection is only a
+possible combinational experiment; it must share the original SRAM banks
+and preserve every event/capture invariant before any native fit.
+
+`control-cut-budget-summary.json` retains both terminal comparisons, their
+exact transforms, the cadence rejection and immutable observations of the
+same live native jobs. No native run was restarted or extended, no state was
+planted and no core was loaded. Full A-F goal remains active; hardware and
+measured speed are unchanged.
+
 ## Exact-state CP timing replay
 
 The saved pre-event snapshots from Icarus and Verilator are byte-identical:
