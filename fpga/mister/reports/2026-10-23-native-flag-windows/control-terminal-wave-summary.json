@@ -1,0 +1,1536 @@
+{
+  "status": "REVIEWED_COFACTOR_REJECTION_AND_SHORT_CONTROL",
+  "scope": "Retain the rejected cofactor fit and source-bound shorter control evidence.\n\nTiming failure remains failure even when transfer proofs pass. Preserve initial\nsyntax/parser failures, all363 output checks, original full graph references,\nall955 single-input X/Z cases and actual live native job handles. No deployment\nor original60ns/firmware/speed qualification follows from this review.\n",
+  "rejected_cofactor_corners": [
+    {
+      "condition": "7_slow_1100mv_100c",
+      "setup": {
+        "slack_ns": -3.618,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[234]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[260]",
+        "arrival_ns": 29.245,
+        "required_ns": 25.627,
+        "report_sha256": "dccbab173b90b55f1b13ce5d7a54ab970403d9f345cd1228c8ae4e8845d26058"
+      },
+      "hold": {
+        "slack_ns": -0.02,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_msa|cell_MC10176:u_j01|q[2]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemD_full_snapshot_experiment:b_MemD|storage_rx_pipeline.words[0][7]",
+        "arrival_ns": 7.858,
+        "required_ns": 7.878,
+        "report_sha256": "cc9b0142827cdc19225b8e847f504d8b5de844f423b0f0e93490d782105389b9"
+      },
+      "primary_input": {
+        "slack_ns": -3.421,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcH_full_snapshot_experiment:b_ProcH|cell_MC10231_snapshot:u_j20|qb~DUPLICATE",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[260]",
+        "arrival_ns": 29.048,
+        "required_ns": 25.627,
+        "report_sha256": "a1692e93991383d370e49424df2256904a4be5b91ae5766fcd55eb8adad4f097"
+      },
+      "internal": {
+        "slack_ns": -3.618,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[234]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[260]",
+        "arrival_ns": 29.245,
+        "required_ns": 25.627,
+        "report_sha256": "36b8ca3711b596b38f67c1808acde9d863c05bacd5769d22c4d70a681cbcbd92"
+      },
+      "MemC_output": {
+        "slack_ns": -1.366,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a15|qb",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[295]",
+        "arrival_ns": 26.938,
+        "required_ns": 25.572,
+        "report_sha256": "af98a46ed9f16f6b162241c05eb26e27a6810def15805f6b2eb2f20116b6e182"
+      }
+    },
+    {
+      "condition": "7_slow_1100mv_-40c",
+      "setup": {
+        "slack_ns": -2.835,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[234]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[260]",
+        "arrival_ns": 28.502,
+        "required_ns": 25.667,
+        "report_sha256": "e07c28fe05714560a342c173e9db52a267884161aa207a987fdefb7a99cbd09f"
+      },
+      "hold": {
+        "slack_ns": -0.001,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_msa|cell_MC10176:u_j01|q[2]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemD_full_snapshot_experiment:b_MemD|storage_rx_pipeline.words[0][7]",
+        "arrival_ns": 8.061,
+        "required_ns": 8.062,
+        "report_sha256": "42dd30700238968ade06c079580e654f59d4e59ddb943a621cb9c94792dcced2"
+      },
+      "primary_input": {
+        "slack_ns": -2.629,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_MC10231_snapshot:u_h22|qb",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[260]",
+        "arrival_ns": 28.296,
+        "required_ns": 25.667,
+        "report_sha256": "fc6deab1adcc15f36201475db174efd8561d206959d7a160d3950d06186ee54c"
+      },
+      "internal": {
+        "slack_ns": -2.835,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[234]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[260]",
+        "arrival_ns": 28.502,
+        "required_ns": 25.667,
+        "report_sha256": "877e80cad3375933e0a4a5f1775720a005cf18ef5b249ca1ef719e27f094a661"
+      },
+      "MemC_output": {
+        "slack_ns": -1.089,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a15|qb",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[295]",
+        "arrival_ns": 26.69,
+        "required_ns": 25.601,
+        "report_sha256": "e02558e0c804e16be0aab5c331319f1340d17948b2fba216e882d2299e293db8"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_100c",
+      "setup": {
+        "slack_ns": 2.59,
+        "source": "emu:emu|network_step",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|cell_MC10176_snapshot:u_d02|q[5]",
+        "arrival_ns": 18.952,
+        "required_ns": 21.542,
+        "report_sha256": "72cb6936eea828a5544da253b1436ef44c726e7bd234c18398f81608834b9ecd"
+      },
+      "hold": {
+        "slack_ns": 0.038,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_msa|cell_MC10176:u_j01|q[2]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemD_full_snapshot_experiment:b_MemD|storage_rx_pipeline.words[0][7]",
+        "arrival_ns": 3.884,
+        "required_ns": 3.846,
+        "report_sha256": "c5e9c77102e09bd761d4944e3f475573ae6588bcbd20ff65fed7401a81e11386"
+      },
+      "primary_input": {
+        "slack_ns": 4.6,
+        "source": "emu:emu|network_step",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[43]",
+        "arrival_ns": 16.766,
+        "required_ns": 21.366,
+        "report_sha256": "3de16a8934f4d534fd46b1e675a48717cf29c5178fc601f88f1f4a2cfd4680b2"
+      },
+      "internal": {
+        "slack_ns": 5.162,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[221]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[260]",
+        "arrival_ns": 16.391,
+        "required_ns": 21.553,
+        "report_sha256": "e666c4d3b58f0bd2e216e09d6ce57a2019249e96743ea26bc682fb6d46a80b7f"
+      },
+      "MemC_output": {
+        "slack_ns": 7.018,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_b15|qb",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[338]",
+        "arrival_ns": 14.347,
+        "required_ns": 21.365,
+        "report_sha256": "9dbc9af5cd31395c4df0242a6d22bf17f5b9fb2758da4b0a45dcf94a37b0c978"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_-40c",
+      "setup": {
+        "slack_ns": 3.846,
+        "source": "emu:emu|network_step",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ContB_full_snapshot_experiment:b_ContB|cell_MC10176_snapshot:u_d02|q[5]",
+        "arrival_ns": 17.465,
+        "required_ns": 21.311,
+        "report_sha256": "ed8e395d510a22216917ce0e78012422df6203138cf66608353f4a0040f52b70"
+      },
+      "hold": {
+        "slack_ns": 0.006,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_msa|cell_MC10176:u_j01|q[2]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemD_full_snapshot_experiment:b_MemD|storage_rx_pipeline.words[0][7]",
+        "arrival_ns": 3.664,
+        "required_ns": 3.658,
+        "report_sha256": "4897cd99bbedf7c70418286e6e6987c0ad227012cfa0016b7dbe069f5135fa09"
+      },
+      "primary_input": {
+        "slack_ns": 5.266,
+        "source": "emu:emu|network_step",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[43]",
+        "arrival_ns": 15.865,
+        "required_ns": 21.131,
+        "report_sha256": "ee0e3903a7e7a305e21bce9549834b4a55ea2988e3124bdfefcf87fda0f93293"
+      },
+      "internal": {
+        "slack_ns": 7.45,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[221]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[260]",
+        "arrival_ns": 13.874,
+        "required_ns": 21.324,
+        "report_sha256": "199e907d3b0a043cdb3c48353f2c19aeef929390267b5639aa3f41a6b28ec1b7"
+      },
+      "MemC_output": {
+        "slack_ns": 8.688,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_b15|qb",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[338]",
+        "arrival_ns": 12.441,
+        "required_ns": 21.129,
+        "report_sha256": "152a8d82e1bd4a59dc4b5fe1752456b76ece99fb3572f8694150fbb0d947f876"
+      }
+    }
+  ],
+  "cofactor_accepted": false,
+  "collected_native_members": 957,
+  "diagnostic_properties": [
+    {
+      "directory": "control-terminal-four-transfer-v1-20261024",
+      "outputs_compared": 362,
+      "state_sha256": "9b88f0a81d0a88b5602de8281c0417ed7c55c0665470bef62272c2544da7868b"
+    },
+    {
+      "directory": "control-terminal-settled-v1-20261024",
+      "outputs_compared": 1,
+      "state_sha256": "31d037da951c6e06ca114838fc7795dfac25dd1840d9385fd396cfa88f58b9cf"
+    }
+  ],
+  "full_output_proofs": [
+    {
+      "directory": "control-short-positive-proof-v1-20261024",
+      "status": "TERMINAL_SHORT_CONTROL_PROOF_NOT_ESTABLISHED",
+      "state_sha256": "5e871447010c1c3ca78c3c93e4ca6462850527d0d8d3fadc2d294769535ef9fa"
+    },
+    {
+      "directory": "control-short-negative-proof-v1-20261024",
+      "status": "TERMINAL_SHORT_CONTROL_PROOF_NOT_ESTABLISHED",
+      "state_sha256": "b10ab4ebb57da92e2038d2cf8ea7c666e18289b4bf30e12c13720365cb19cd7c"
+    },
+    {
+      "directory": "control-short-positive-proof-v2-20261024",
+      "status": "PASS_SHORT_CONTROL_ALL_OUTPUTS",
+      "state_sha256": "50e8437f053fb876e330c9c3148e30afa4093bbdaff3bf9c41dde52156c53461"
+    },
+    {
+      "directory": "control-short-negative-proof-v2-20261024",
+      "status": "PASS_SHORT_CONTROL_COUNTEREXAMPLES",
+      "state_sha256": "7671de40c222fff37574f97ff90ba2cfac8da80f257e179e443999ae449e831d"
+    }
+  ],
+  "comparisons": [
+    {
+      "directory": "control-short-four-state-v1-20261024",
+      "status": "TERMINAL_SHORT_CONTROL_TEST_NOT_ESTABLISHED",
+      "interpretation": "Initial positional-port syntax error; no test executed; retained without overwrite.",
+      "state_sha256": "6122b36c5a86dd2b54f3838947611e7e040a19c9e5a843d07b92ad050c60a54b"
+    },
+    {
+      "directory": "control-short-icarus-v1-20261024",
+      "status": "TERMINAL_SHORT_CONTROL_TEST_NOT_ESTABLISHED",
+      "interpretation": "Initial positional-port syntax error; no test executed; retained without overwrite.",
+      "state_sha256": "cd69781766bcc23165899a53358f64fd28cb9630debb10354b9d69fcaebc9ebb"
+    },
+    {
+      "directory": "control-short-verilator-v1-20261024",
+      "status": "TERMINAL_SHORT_CONTROL_TEST_NOT_ESTABLISHED",
+      "interpretation": "Initial positional-port syntax error; no test executed; retained without overwrite.",
+      "state_sha256": "62c9863a0205529306dc86adc8d0bf6312ef200637627477d94033af6057f19b"
+    },
+    {
+      "directory": "control-short-bad-unknown-v1-20261024",
+      "status": "TERMINAL_SHORT_CONTROL_TEST_NOT_ESTABLISHED",
+      "interpretation": "Initial positional-port syntax error; no test executed; retained without overwrite.",
+      "state_sha256": "bb7f041455ae76dfa6b3347c1f9f016e16cb5bfc47d83d2f9778e6a9e8e356a5"
+    },
+    {
+      "directory": "control-short-bad-state-icarus-v1-20261024",
+      "status": "TERMINAL_SHORT_CONTROL_TEST_NOT_ESTABLISHED",
+      "interpretation": "Initial positional-port syntax error; no test executed; retained without overwrite.",
+      "state_sha256": "c1b10c2ddfd683c6eaedd907f472ac52b2637522f24cc45515a136c25c8ce5ac"
+    },
+    {
+      "directory": "control-short-four-state-v2-20261024",
+      "status": "PASS_SHORT_CONTROL_FOUR_STATE",
+      "interpretation": "All-input four-state comparison / independent unknown-fallback rejection",
+      "state_sha256": "83c58de4d6a1920bf4f2551464511b14840281117cf9f218d7c76784e334a3dd"
+    },
+    {
+      "directory": "control-short-icarus-v2-20261024",
+      "status": "PASS_SHORT_CONTROL_COMPLETE_ORIGINAL_COMPARISON",
+      "interpretation": "Complete original reference comparison",
+      "state_sha256": "e0cb45207b9114c241755ef5a6bd26636c1133c47fd35ea2ae6f1976ee599ac8"
+    },
+    {
+      "directory": "control-short-verilator-v2-20261024",
+      "status": "PASS_SHORT_CONTROL_COMPLETE_ORIGINAL_COMPARISON",
+      "interpretation": "Complete original reference comparison",
+      "state_sha256": "2cc9b4db0931e476ea17892fe74ad4013ef5520e6b230397174b4293b70e933c"
+    },
+    {
+      "directory": "control-short-bad-unknown-v2-20261024",
+      "status": "PASS_SHORT_CONTROL_SIMULATOR_COUNTEREXAMPLE",
+      "interpretation": "All-input four-state comparison / independent unknown-fallback rejection",
+      "state_sha256": "b60d83637e56c27e3275de97e36da1005948d4d8846fcd55791e5a00a0bbe708"
+    },
+    {
+      "directory": "control-short-bad-state-icarus-v2-20261024",
+      "status": "TERMINAL_SHORT_CONTROL_TEST_NOT_ESTABLISHED",
+      "interpretation": "Original reference rejected state-bit corruption at check0; Icarus diagnostic parser initially missed this message; no rerun.",
+      "state_sha256": "10d71788cc80fc36261d7637231e990fbe04dc7ddc842acc4b61c12de62c786d"
+    },
+    {
+      "directory": "control-short-bad-state-verilator-v2-20261024",
+      "status": "PASS_SHORT_CONTROL_SIMULATOR_COUNTEREXAMPLE",
+      "interpretation": "Original reference rejected state-bit corruption at check0; Icarus diagnostic parser initially missed this message; no rerun.",
+      "state_sha256": "37761e9d463deeee914fa8e8ceab087800adc3db2f80422779ad4142e180a5d8"
+    }
+  ],
+  "all_original_physical_Q_bits": 844,
+  "all_original_RAM_bits": 9216,
+  "all_original_clock_counts": 100,
+  "arbitrary_binary_input_bits": 955,
+  "compared_atomic_output_bits": 363,
+  "explicit_four_state_checks": 1974,
+  "unknown_input_checks": 1910,
+  "independent_unknown_inputs": 955,
+  "native_shortened_control": {
+    "binary_transfer_passes": 4,
+    "original_requested_passes": [
+      5,
+      24
+    ],
+    "compared_outputs": 363,
+    "proofs": [
+      {
+        "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/control-short-positive-proof-v2-20261024",
+        "state_sha256": "50e8437f053fb876e330c9c3148e30afa4093bbdaff3bf9c41dde52156c53461",
+        "status": "PASS_SHORT_CONTROL_ALL_OUTPUTS"
+      },
+      {
+        "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/control-short-negative-proof-v2-20261024",
+        "state_sha256": "7671de40c222fff37574f97ff90ba2cfac8da80f257e179e443999ae449e831d",
+        "status": "PASS_SHORT_CONTROL_COUNTEREXAMPLES"
+      }
+    ],
+    "original_graph_comparisons": [
+      {
+        "engine": "icarus",
+        "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/control-short-icarus-v2-20261024",
+        "state_sha256": "e0cb45207b9114c241755ef5a6bd26636c1133c47fd35ea2ae6f1976ee599ac8",
+        "cache_coverage": "fast=13347 staged=1537 wait_edges=1553 retries=7 resets=1",
+        "negative_directory": "/Users/alans/dev2/Dorado/build/rtl-executive/control-short-bad-state-icarus-v2-20261024",
+        "negative_state_sha256": "10d71788cc80fc36261d7637231e990fbe04dc7ddc842acc4b61c12de62c786d",
+        "negative_original_reference_check": 0,
+        "negative_reader_missed_state_commit_message": true
+      },
+      {
+        "engine": "verilator",
+        "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/control-short-verilator-v2-20261024",
+        "state_sha256": "2cc9b4db0931e476ea17892fe74ad4013ef5520e6b230397174b4293b70e933c",
+        "cache_coverage": "fast=13347 staged=1537 wait_edges=1553 retries=7 resets=1",
+        "negative_directory": "/Users/alans/dev2/Dorado/build/rtl-executive/control-short-bad-state-verilator-v2-20261024",
+        "negative_state_sha256": "37761e9d463deeee914fa8e8ceab087800adc3db2f80422779ad4142e180a5d8",
+        "negative_original_reference_check": 0,
+        "negative_reader_missed_state_commit_message": false
+      }
+    ],
+    "four_state_checks": 1974,
+    "unknown_input_checks": 1910,
+    "independent_unknown_input_bits": 955,
+    "unchanged_parameter_modes_tested": [
+      4,
+      6
+    ],
+    "original_per_wave_diagnostics_preserved": true,
+    "unknown_fallback": "exact original requested-depth body",
+    "extra_state_or_guest_cycles": 0,
+    "SRAM_or_capture_changes": false
+  },
+  "native_live": {
+    "project": "/home/alans/mister/control-short-native-v1-20261024",
+    "observed": 1792845849.068355,
+    "run_state": {
+      "status": "RUNNING",
+      "builder_pid": 2864466,
+      "started": 1792845803.3948898,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 2864469,
+          "started": 1792845803.395224
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "stage_pid": 2864469,
+    "stage_command": "quartus_map --read_settings_files=on --write_settings_files=off Dorado ",
+    "stage_cwd": "/home/alans/mister/control-short-native-v1-20261024/core",
+    "stage_process_state": [
+      "Name:\tquartus_map",
+      "Umask:\t0002",
+      "State:\tR (running)",
+      "Tgid:\t2864469"
+    ],
+    "builder_command": "python3 /home/alans/mister/control-short-native-v1-20261024/build_r_front_ready_native.py --project /home/alans/mister/control-short-native-v1-20261024 --manifest r-front-control-native.json ",
+    "manifest_sha256": "72222722cb52eb5986ce250740cb32ee4f27ea100a0949cb2ac585eac208a9f8",
+    "source_hashes_verified": 533,
+    "driver_tail": "R_FRONT_READY_NATIVE map\n"
+  },
+  "native_boot_observations": [
+    {
+      "directory": "cp-prefix-balanced-native-boot-v1-20261024",
+      "pid": 49723,
+      "ps": "49723 02:51:37 R    /Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792845877.2090628,
+      "state_sha256": "3d3cac7ac66d24a5c07f20309b88645c21a8df4a930c32a2df17485787debb01"
+    },
+    {
+      "directory": "cp-prefix-native-owned-cold-v1-20261024",
+      "pid": 45198,
+      "ps": "45198 03:30:50 R    /Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-owned-cold-v1-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-owned-cold-v1-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-owned-cold-v1-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792845877.213334,
+      "state_sha256": "521c94470d815832f83bebddb4cccd61d95df90ce70f16074f52fe27cf1d0065"
+    },
+    {
+      "directory": "native-cedar-5c65-input-reset-v3-20261023",
+      "pid": 58600,
+      "ps": "58600 07:54:24 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792845877.217819,
+      "state_sha256": "b75adcae9e42639f590196dc579c9442f5210d3519b5da4536adeffed2276ffc"
+    },
+    {
+      "directory": "native-cedar-queue-input-reset-v3-20261023",
+      "pid": 58753,
+      "ps": "58753 07:54:23 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792845877.222002,
+      "state_sha256": "ba82b45e488a278f03e6618a26b89a3768a7cd757cde7fd46b48d1c2eb71b04f"
+    }
+  ],
+  "baseline_original_ROM_wait": {
+    "status": "PASS_ORIGINAL_ROM_WAIT_BINDING",
+    "scope": "Bind a passive native wait observation to its actual EPROM microinstructions.\n\nThe standalone Initial.mb has different placement and an RTC register allocation\nwhich differs from the ROM payload. Use its symbols only after checking the\nactual ROM fields. This is static decoding/readback interpretation, never guest\nexecution, packet acceptance, timer calibration or a complete firmware gate.\n",
+    "blocks": [
+      "# ROM BootBlock c000: payload fe00, origin fc0, 16 hunks",
+      "# ROM BootBlock c00b: payload c016, origin c40, 224 hunks"
+    ],
+    "standalone_symbols": {
+      "WRITEMAP": {
+        "image": 238,
+        "real": 3296
+      },
+      "WRITEMANLP": {
+        "image": 87,
+        "real": 3174
+      },
+      "WRITEMANIFOLD": {
+        "image": 86,
+        "real": 3184
+      },
+      "WRITEALUFTABLE": {
+        "image": 13,
+        "real": 3936
+      },
+      "WRITEALUF": {
+        "image": 8,
+        "real": 3918
+      },
+      "WAITFORSECTOR": {
+        "image": 741,
+        "real": 3632
+      },
+      "WAITFORMAPBUF": {
+        "image": 242,
+        "real": 3312
+      },
+      "UPDATESECTOR": {
+        "image": 750,
+        "real": 3584
+      },
+      "TOFFRET": {
+        "image": 921,
+        "real": 3984
+      },
+      "THTPERSCANLINE": {
+        "image": 376,
+        "real": 3556
+      },
+      "THTLAST": {
+        "image": 381,
+        "real": 3574
+      },
+      "THTINITPC": {
+        "image": 358,
+        "real": 3536
+      },
+      "THTINITAHT": {
+        "image": 362,
+        "real": 3543
+      },
+      "THTINIT1": {
+        "image": 364,
+        "real": 3539
+      },
+      "TERMINALTABLE": {
+        "image": 434,
+        "real": 3280
+      },
+      "TASKINITLOOP": {
+        "image": 70,
+        "real": 3141
+      },
+      "TASKINIT": {
+        "image": 75,
+        "real": 3169
+      },
+      "STORETERMINALLO": {
+        "image": 459,
+        "real": 3299
+      },
+      "STKINITL": {
+        "image": 46,
+        "real": 3146
+      },
+      "SETUPETHERBOOTREQUEST": {
+        "image": 255,
+        "real": 3115
+      },
+      "SETTESTSYN": {
+        "image": 226,
+        "real": 3152
+      },
+      "SETMCR": {
+        "image": 153,
+        "real": 3072
+      },
+      "SETDRIVEANDSUBSECTOR": {
+        "image": 709,
+        "real": 3888
+      },
+      "SETBRFORPAGE": {
+        "image": 234,
+        "real": 3856
+      },
+      "SETBOOTFLAG": {
+        "image": 462,
+        "real": 3305
+      },
+      "SENDTAGWAIT": {
+        "image": 736,
+        "real": 3523
+      },
+      "SENDTAG": {
+        "image": 732,
+        "real": 3520
+      },
+      "SENDDRIVETAG": {
+        "image": 720,
+        "real": 3808
+      },
+      "SEEKWAIT": {
+        "image": 727,
+        "real": 3815
+      },
+      "SEEKDONE": {
+        "image": 731,
+        "real": 3826
+      },
+      "SEEKANDWAITFORREADY": {
+        "image": 725,
+        "real": 3824
+      },
+      "SECTORWAITLOOP": {
+        "image": 743,
+        "real": 3643
+      },
+      "SECTORFOUND": {
+        "image": 749,
+        "real": 3639
+      },
+      "RMINITL": {
+        "image": 29,
+        "real": 3138
+      },
+      "RETN": {
+        "image": 158,
+        "real": 3083
+      },
+      "RESETTAGS": {
+        "image": 245,
+        "real": 3088
+      },
+      "RESETMAPL": {
+        "image": 193,
+        "real": 3094
+      },
+      "RESETFAULTINFO": {
+        "image": 233,
+        "real": 3086
+      },
+      "RESETETHERBOOTTIMER": {
+        "image": 272,
+        "real": 3124
+      },
+      "RESETETHER": {
+        "image": 283,
+        "real": 3424
+      },
+      "RESETDISK": {
+        "image": 469,
+        "real": 3553
+      },
+      "READTERMINALRET": {
+        "image": 428,
+        "real": 3302
+      },
+      "READTERMINAL": {
+        "image": 423,
+        "real": 3264
+      },
+      "READECC": {
+        "image": 766,
+        "real": 3696
+      },
+      "READBOOTKEYS": {
+        "image": 114,
+        "real": 3206
+      },
+      "READ20MUFFS": {
+        "image": 701,
+        "real": 3792
+      },
+      "READ20MLOOP": {
+        "image": 703,
+        "real": 3782
+      },
+      "READ1MUFF": {
+        "image": 697,
+        "real": 3392
+      },
+      "PRESETVACANTL": {
+        "image": 220,
+        "real": 3326
+      },
+      "PRESETVACANTE": {
+        "image": 223,
+        "real": 3323
+      },
+      "PRESETMAPL": {
+        "image": 213,
+        "real": 3310
+      },
+      "PRESETMAPE": {
+        "image": 216,
+        "real": 3315
+      },
+      "PRESETMAP": {
+        "image": 187,
+        "real": 3104
+      },
+      "OUTPUTGETST": {
+        "image": 468,
+        "real": 3328
+      },
+      "NOSTORAGE": {
+        "image": 225,
+        "real": 3239
+      },
+      "NOSECTORTW": {
+        "image": 761,
+        "real": 3590
+      },
+      "MSGMALFORMED": {
+        "image": 463,
+        "real": 3266
+      },
+      "MSGCOMPLETE": {
+        "image": 429,
+        "real": 3268
+      },
+      "MOUSEXY": {
+        "image": 450,
+        "real": 3298
+      },
+      "MICROCODEBOOTFAILED": {
+        "image": 142,
+        "real": 3332
+      },
+      "MAPMODULE": {
+        "image": 212,
+        "real": 3301
+      },
+      "LWRETN": {
+        "image": 157,
+        "real": 3082
+      },
+      "LRTYPETABLE": {
+        "image": 869,
+        "real": 3980
+      },
+      "LRTYPERM": {
+        "image": 902,
+        "real": 3989
+      },
+      "LRTYPEIM": {
+        "image": 873,
+        "real": 4029
+      },
+      "LRTYPEIFUM": {
+        "image": 896,
+        "real": 4025
+      },
+      "LRTYPEEND": {
+        "image": 921,
+        "real": 3984
+      },
+      "LRPREFNEXT": {
+        "image": 894,
+        "real": 4024
+      },
+      "LRNOPREFNEXT": {
+        "image": 895,
+        "real": 3973
+      },
+      "LRLOOPTON": {
+        "image": 864,
+        "real": 3975
+      },
+      "LRLOOPTOFF": {
+        "image": 865,
+        "real": 3974
+      },
+      "LOWRM": {
+        "image": 903,
+        "real": 3990
+      },
+      "LONGWAIT": {
+        "image": 156,
+        "real": 3136
+      },
+      "LOADRAM": {
+        "image": 862,
+        "real": 3968
+      },
+      "LOADIMLH": {
+        "image": 885,
+        "real": 3976
+      },
+      "LOADHRAMRUN": {
+        "image": 417,
+        "real": 3613
+      },
+      "LOADHRAMLOOP": {
+        "image": 406,
+        "real": 3598
+      },
+      "KWAITSECTOR": {
+        "image": 544,
+        "real": 3675
+      },
+      "KSECTORERROR": {
+        "image": 597,
+        "real": 3622
+      },
+      "KSECTORDONE": {
+        "image": 561,
+        "real": 3671
+      },
+      "KSAMEDRIVE": {
+        "image": 504,
+        "real": 3435
+      },
+      "KREADCHECKEND": {
+        "image": 657,
+        "real": 3729
+      },
+      "KREADBADTW": {
+        "image": 662,
+        "real": 3750
+      },
+      "KNOUPDATEDATAPTR": {
+        "image": 584,
+        "real": 3684
+      },
+      "KNOTLASTSECTOR": {
+        "image": 571,
+        "real": 3682
+      },
+      "KNORESTORE": {
+        "image": 537,
+        "real": 3650
+      },
+      "KNOHDWERR": {
+        "image": 670,
+        "real": 3766
+      },
+      "KNOCHECKNEXT": {
+        "image": 650,
+        "real": 3741
+      },
+      "KNOCHECKLOOP": {
+        "image": 648,
+        "real": 3432
+      },
+      "KNEWDRIVE": {
+        "image": 499,
+        "real": 3434
+      },
+      "KIDLELOOP": {
+        "image": 484,
+        "real": 3492
+      },
+      "KIDLECONT": {
+        "image": 488,
+        "real": 3496
+      },
+      "KFORGETCMMD": {
+        "image": 479,
+        "real": 3508
+      },
+      "KDRIVE0": {
+        "image": 511,
+        "real": 3447
+      },
+      "KDONENONZERO": {
+        "image": 570,
+        "real": 3668
+      },
+      "KDIVSUB": {
+        "image": 515,
+        "real": 3390
+      },
+      "KDIVDONE": {
+        "image": 522,
+        "real": 3391
+      },
+      "KDIVADD": {
+        "image": 516,
+        "real": 3386
+      },
+      "KDISABLE": {
+        "image": 482,
+        "real": 3551
+      },
+      "KCONTINUECMMD": {
+        "image": 507,
+        "real": 3450
+      },
+      "KCMMDWRITE": {
+        "image": 619,
+        "real": 3752
+      },
+      "KCMMDTABLE": {
+        "image": 614,
+        "real": 3724
+      },
+      "KCMMDSHIFT": {
+        "image": 660,
+        "real": 3755
+      },
+      "KCMMDREAD": {
+        "image": 629,
+        "real": 3713
+      },
+      "KCMMDNONE": {
+        "image": 618,
+        "real": 3745
+      },
+      "KCMMDINTIME": {
+        "image": 553,
+        "real": 3653
+      },
+      "KCMMDENDBLOCK": {
+        "image": 666,
+        "real": 3753
+      },
+      "KCMMDDONE": {
+        "image": 589,
+        "real": 3703
+      },
+      "KCMMDCHECK": {
+        "image": 636,
+        "real": 3715
+      },
+      "KCMMDCHAIN": {
+        "image": 591,
+        "real": 3455
+      },
+      "KCHECKSEEK": {
+        "image": 528,
+        "real": 3441
+      },
+      "KCHECKNEXT": {
+        "image": 642,
+        "real": 3739
+      },
+      "KCHECKLOOP": {
+        "image": 639,
+        "real": 3742
+      },
+      "KCHECKLAST": {
+        "image": 645,
+        "real": 3730
+      },
+      "KCHECKERROR": {
+        "image": 643,
+        "real": 3738
+      },
+      "KCHECKEND": {
+        "image": 647,
+        "real": 3743
+      },
+      "KCHECKDONE": {
+        "image": 652,
+        "real": 3718
+      },
+      "KCHECKBADTW": {
+        "image": 663,
+        "real": 3736
+      },
+      "KBADSECTOR": {
+        "image": 604,
+        "real": 3634
+      },
+      "JUNKTASKLOOP": {
+        "image": 859,
+        "real": 3251
+      },
+      "JNKINITPC": {
+        "image": 857,
+        "real": 3216
+      },
+      "INITRAMPILOT": {
+        "image": 674,
+        "real": 3776
+      },
+      "INITIALDEBUG": {
+        "image": 0,
+        "real": 3907
+      },
+      "INITIAL1": {
+        "image": 2,
+        "real": 3905
+      },
+      "INITIAL": {
+        "image": 1,
+        "real": 3904
+      },
+      "INITHRAM": {
+        "image": 394,
+        "real": 3616
+      },
+      "IMRHTABLE": {
+        "image": 877,
+        "real": 3992
+      },
+      "IMLHTABLE": {
+        "image": 887,
+        "real": 4017
+      },
+      "ILC": {
+        "image": 926,
+        "real": 0
+      },
+      "IFUMINITL": {
+        "image": 49,
+        "real": 3173
+      },
+      "HRAMTABLE": {
+        "image": 396,
+        "real": 3602
+      },
+      "HIGHRM": {
+        "image": 912,
+        "real": 3991
+      },
+      "GOTBOOTKEY": {
+        "image": 134,
+        "real": 3354
+      },
+      "GETTASKINITPC": {
+        "image": 74,
+        "real": 3168
+      },
+      "FINDMODULE": {
+        "image": 209,
+        "real": 3311
+      },
+      "EWAIT": {
+        "image": 336,
+        "real": 3428
+      },
+      "ETHERMICROCODEBOOT": {
+        "image": 252,
+        "real": 3360
+      },
+      "ETHERBOOTRETURN": {
+        "image": 281,
+        "real": 3129
+      },
+      "ETHERBOOTING": {
+        "image": 125,
+        "real": 3334
+      },
+      "ETHERBOOTDONE": {
+        "image": 280,
+        "real": 3111
+      },
+      "EOTINITPC": {
+        "image": 330,
+        "real": 3408
+      },
+      "EOSTOP": {
+        "image": 347,
+        "real": 3413
+      },
+      "EOIDLE": {
+        "image": 332,
+        "real": 3410
+      },
+      "EOGO": {
+        "image": 338,
+        "real": 3429
+      },
+      "EOABRT": {
+        "image": 348,
+        "real": 3402
+      },
+      "EOABR1": {
+        "image": 350,
+        "real": 3412
+      },
+      "ENDOFSTORAGE": {
+        "image": 217,
+        "real": 3309
+      },
+      "ELODOV": {
+        "image": 353,
+        "real": 3415
+      },
+      "EITINITPC": {
+        "image": 294,
+        "real": 3472
+      },
+      "EINITCOMMON": {
+        "image": 354,
+        "real": 3872
+      },
+      "EILAST": {
+        "image": 296,
+        "real": 3474
+      },
+      "EIIDLE": {
+        "image": 297,
+        "real": 3491
+      },
+      "EIEND": {
+        "image": 305,
+        "real": 3462
+      },
+      "EIDONE": {
+        "image": 326,
+        "real": 3479
+      },
+      "DSKINITPC": {
+        "image": 473,
+        "real": 3552
+      },
+      "DORETURN": {
+        "image": 152,
+        "real": 3073
+      },
+      "DOMUFFOUTPUT": {
+        "image": 707,
+        "real": 3456
+      },
+      "DOHRAMDISP": {
+        "image": 407,
+        "real": 3611
+      },
+      "DOETHERMICROCODEBOOT": {
+        "image": 135,
+        "real": 3363
+      },
+      "DODISKBLOCK": {
+        "image": 606,
+        "real": 3664
+      },
+      "DISPLAYINITCONFIG": {
+        "image": 382,
+        "real": 3232
+      },
+      "DISKMBOOTRET": {
+        "image": 813,
+        "real": 3248
+      },
+      "DISKHARDMICROCODEBOOT": {
+        "image": 790,
+        "real": 3680
+      },
+      "CONFIGTABLE": {
+        "image": 409,
+        "real": 3624
+      },
+      "CLRCACHEFROWL": {
+        "image": 161,
+        "real": 3210
+      },
+      "CLRCACHEFCOLL": {
+        "image": 162,
+        "real": 3202
+      },
+      "CLEARDISK": {
+        "image": 779,
+        "real": 3568
+      },
+      "CLEARCACHEFLAGS": {
+        "image": 159,
+        "real": 3200
+      },
+      "CHECKKEY": {
+        "image": 143,
+        "real": 3344
+      },
+      "CHECKECCLOOP": {
+        "image": 774,
+        "real": 3759
+      },
+      "CHECKECCEND": {
+        "image": 778,
+        "real": 3733
+      },
+      "CHECKECC": {
+        "image": 773,
+        "real": 3712
+      },
+      "CHECKCHECKSUMANDLOAD": {
+        "image": 145,
+        "real": 3376
+      },
+      "BUTTONSKEYSET": {
+        "image": 459,
+        "real": 3299
+      },
+      "BOOTTRANSFERTIMEOUT": {
+        "image": 852,
+        "real": 3870
+      },
+      "BOOTTRANSFERLP": {
+        "image": 823,
+        "real": 3886
+      },
+      "BOOTTRANSFERDONE": {
+        "image": 856,
+        "real": 3875
+      },
+      "BOOTTRANSFER": {
+        "image": 815,
+        "real": 3840
+      },
+      "BOOTSTRAPCHECKSUMERROR": {
+        "image": 5,
+        "real": 3910
+      },
+      "BOOTOTHERERROR": {
+        "image": 848,
+        "real": 3860
+      },
+      "BOOTMEM": {
+        "image": 56,
+        "real": 3172
+      },
+      "BOOTLABELERROR": {
+        "image": 854,
+        "real": 3883
+      },
+      "BOOTFILTER": {
+        "image": 328,
+        "real": 3488
+      },
+      "BOOTEOF": {
+        "image": 855,
+        "real": 3879
+      },
+      "BOOTEMULATOR": {
+        "image": 91,
+        "real": 3218
+      },
+      "BOOTDISKERROR": {
+        "image": 853,
+        "real": 3877
+      },
+      "BLESSBASEBOARD": {
+        "image": 80,
+        "real": 3161
+      },
+      "AWAITETHERBOOTREPLY": {
+        "image": 275,
+        "real": 3119
+      },
+      "AMIDSTBOOT": {
+        "image": 460,
+        "real": 3271
+      },
+      "AFTERHRAMTABLE": {
+        "image": 403,
+        "real": 3600
+      }
+    },
+    "standalone_RM_symbols": {
+      "WAKEUPTIME": 179,
+      "VSYNCCONST": 126,
+      "VISIBLELINECONST": 125,
+      "VIRTUALBANKS": 72,
+      "VCWSHADOWREG": 144,
+      "TVCWSHADOWREG": 112,
+      "TTEMP2": 117,
+      "TTEMP1": 116,
+      "TTEMP0": 115,
+      "TSLCREG": 107,
+      "TSETNEXTWCB": 103,
+      "TSCRATCH": 105,
+      "TREG400C": 114,
+      "TREADERPTRREG": 101,
+      "TOPBORDERCONST": 124,
+      "TNWRDSMINUS1": 102,
+      "TNEXTCOUNT": 98,
+      "TNEXTADDRLO": 99,
+      "TNEXTADDRHI": 100,
+      "TFIELDAREAREG": 113,
+      "TERMINALLO": 121,
+      "TERMINALHI": 120,
+      "TEMP17": 31,
+      "TDCBCHAINREG": 106,
+      "TCURSORYREG": 119,
+      "TCOUNT": 97,
+      "TCHANNELREG": 104,
+      "TBRHIREG": 108,
+      "TADDRESS": 96,
+      "SEQNO": 23,
+      "SECTOR": 85,
+      "RTIMER": 21,
+      "RTCLOCK": 176,
+      "RTCDELTALO": 177,
+      "RTC430": 178,
+      "RNUM": 69,
+      "RLC": 23,
+      "RHOST": 19,
+      "RETRIES": 22,
+      "REG400C": 146,
+      "REALPAGES": 73,
+      "RCONST": 70,
+      "R400": 16,
+      "NWW": 0,
+      "MAXSECTORS": 86,
+      "LRTEMP2": 30,
+      "LRTEMP1": 28,
+      "LRTEMP0": 27,
+      "LRITEM": 29,
+      "LRFLAG": 26,
+      "LMARGCONST": 109,
+      "LHOST": 18,
+      "KTEMP3": 95,
+      "KTEMP2": 94,
+      "KTEMP1": 93,
+      "KTEMP0": 92,
+      "KSTATUS": 90,
+      "KSELECT": 91,
+      "KPTR": 87,
+      "KIOCB": 80,
+      "KHDSEC": 84,
+      "KDATALO": 81,
+      "KDATAHI": 82,
+      "KCYL": 83,
+      "KCMMD": 88,
+      "JUNKTEMP": 191,
+      "IOCB": 18,
+      "HTEMP3": 150,
+      "HTEMP2": 149,
+      "HTEMP1": 148,
+      "HTEMP0": 147,
+      "FLTTEMP": 60,
+      "FLTPOINTERS": 54,
+      "FLTPIPE1": 53,
+      "FLTPIPE0": 52,
+      "FLTMEMPTR": 59,
+      "FLTERRORS": 55,
+      "FLTEMUPC": 61,
+      "FIELDAREAREG": 145,
+      "FAULTVAL": 56,
+      "FAULTMAPVAL": 57,
+      "FAULTINFO": 58,
+      "EVENTUPDATETIMER": 188,
+      "EVENTTEMP1": 190,
+      "EVENTTEMP0": 189,
+      "EVENTBPREV": 187,
+      "EVENTBLO": 186,
+      "EVENTBHI1": 185,
+      "EVENTBHI0": 184,
+      "EVENTAPREV": 183,
+      "EVENTALO": 182,
+      "EVENTAHI1": 181,
+      "EVENTAHI0": 180,
+      "ETEMP4": 30,
+      "ETEMP3": 29,
+      "ETEMP2": 28,
+      "ETEMP1": 27,
+      "ETEMP0": 26,
+      "ETEMP": 26,
+      "EOTIME": 68,
+      "EOTEMP2": 67,
+      "EOTEMP1": 66,
+      "EOPTR": 28,
+      "EOCNT": 29,
+      "EOCB": 64,
+      "EMBLINK": 24,
+      "ELOAD": 25,
+      "EITEMP2": 51,
+      "EITEMP1": 50,
+      "EIPTR": 26,
+      "EICNT": 27,
+      "EICB": 48,
+      "DSKMADDR": 89,
+      "DMBLINK": 19,
+      "DISPLAYCONFIG": 118,
+      "CURSORXCONST": 127,
+      "BTEMP2": 22,
+      "BTEMP1": 21,
+      "BTEMP0": 20,
+      "BSETNEXTWCB": 167,
+      "BSCRATCH": 169,
+      "BREADERPTRREG": 165,
+      "BOOTTIMER": 122,
+      "BOOTSTATE": 123,
+      "BOOTDATAPTR": 17,
+      "BNWRDSMINUS1": 166,
+      "BNEXTCOUNT": 162,
+      "BNEXTADDRLO": 163,
+      "BNEXTADDRHI": 164,
+      "BFN": 20,
+      "BCOUNT": 161,
+      "BCHANNELREG": 168,
+      "BADDRESS": 160,
+      "AUTPC": 71,
+      "ASETNEXTWCB": 135,
+      "ASCRATCH": 137,
+      "AREADERPTRREG": 133,
+      "ANWRDSMINUS1": 134,
+      "ANEXTCOUNT": 130,
+      "ANEXTADDRLO": 131,
+      "ANEXTADDRHI": 132,
+      "ACOUNT": 129,
+      "ACHANNELREG": 136,
+      "AADDRESS": 128
+    },
+    "instruction_bindings": [
+      {
+        "standalone_real": 3119,
+        "ROM_real": 3183,
+        "differing_fields": [],
+        "standalone": {
+          "rstk": 7,
+          "aluf": 8,
+          "bsel": 3,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 139,
+          "jcn": 92
+        },
+        "ROM": {
+          "rstk": 7,
+          "aluf": 8,
+          "bsel": 3,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 139,
+          "jcn": 92
+        }
+      },
+      {
+        "standalone_real": 3124,
+        "ROM_real": 3188,
+        "differing_fields": [],
+        "standalone": {
+          "rstk": 0,
+          "aluf": 0,
+          "bsel": 1,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 139,
+          "jcn": 173
+        },
+        "ROM": {
+          "rstk": 0,
+          "aluf": 0,
+          "bsel": 1,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 139,
+          "jcn": 173
+        }
+      },
+      {
+        "standalone_real": 3125,
+        "ROM_real": 3189,
+        "differing_fields": [],
+        "standalone": {
+          "rstk": 0,
+          "aluf": 0,
+          "bsel": 1,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 49,
+          "jcn": 174
+        },
+        "ROM": {
+          "rstk": 0,
+          "aluf": 0,
+          "bsel": 1,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 49,
+          "jcn": 174
+        }
+      },
+      {
+        "standalone_real": 3121,
+        "ROM_real": 3185,
+        "differing_fields": [],
+        "standalone": {
+          "rstk": 7,
+          "aluf": 10,
+          "bsel": 1,
+          "lc": 1,
+          "asel": 6,
+          "block": 0,
+          "ff": 59,
+          "jcn": 175
+        },
+        "ROM": {
+          "rstk": 7,
+          "aluf": 10,
+          "bsel": 1,
+          "lc": 1,
+          "asel": 6,
+          "block": 0,
+          "ff": 59,
+          "jcn": 175
+        }
+      },
+      {
+        "standalone_real": 3110,
+        "ROM_real": 3174,
+        "differing_fields": [
+          "rstk"
+        ],
+        "standalone": {
+          "rstk": 2,
+          "aluf": 5,
+          "bsel": 2,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 129,
+          "jcn": 112
+        },
+        "ROM": {
+          "rstk": 3,
+          "aluf": 5,
+          "bsel": 2,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 129,
+          "jcn": 112
+        }
+      },
+      {
+        "standalone_real": 3117,
+        "ROM_real": 3181,
+        "differing_fields": [
+          "rstk"
+        ],
+        "standalone": {
+          "rstk": 2,
+          "aluf": 10,
+          "bsel": 1,
+          "lc": 1,
+          "asel": 4,
+          "block": 0,
+          "ff": 129,
+          "jcn": 177
+        },
+        "ROM": {
+          "rstk": 3,
+          "aluf": 10,
+          "bsel": 1,
+          "lc": 1,
+          "asel": 4,
+          "block": 0,
+          "ff": 129,
+          "jcn": 177
+        }
+      }
+    ],
+    "ROM_relocation": 64,
+    "sequence_address": 23,
+    "sequence_number": 0,
+    "actual_RTC430_address": 179,
+    "standalone_RTC430_address": 178,
+    "RTC430_value": 13,
+    "emulator_task_T_threshold": 13,
+    "timeout_subtraction": 65535,
+    "timeout_subtraction_is_negative": true,
+    "timeout_condition": "ROM subtraction RTC430 - task0.T - 1; interpret sampled flags/branch timing separately",
+    "host_tick": 2479192672,
+    "guest_tick": 1434470840,
+    "readback_sha256": "7d02041e999ebaf3f92a7731e202a4f7fdd6dd791211ec1b083724185b42eb1a",
+    "decoder_command": [
+      "cc",
+      "-O2",
+      "-I/Users/alans/dev2/Dorado/build/rtl-executive/native-initial-rom-wait-v4-20261024/inputs/dorado/include",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-initial-rom-wait-v4-20261024/inputs/initial_rom_symbols.c",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-initial-rom-wait-v4-20261024/inputs/dorado/src/mb.c",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-initial-rom-wait-v4-20261024/inputs/dorado/src/microcode.c",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-initial-rom-wait-v4-20261024/inputs/dorado/src/disasm.c",
+      "-o",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-initial-rom-wait-v4-20261024/symbols"
+    ],
+    "input_hashes": {
+      "dorado/src/mb.c": "86cee4d2070a496294575ddaa5ad6e76e17255dd48b20fca5c8988f01dcfeb92",
+      "dorado/include/mb.h": "c6cf90c0717eaf9371af2f8fed939015df47cf900cf33964e689097c1791e853",
+      "dorado/src/microcode.c": "249722898b43bb6da76dac94d3e48e391829db4213aa55d8956ba3f9ee0c52e2",
+      "dorado/include/microcode.h": "546ac420461bd1dc1368f6a0c44ed37fc3f5aafc563592f24506e8886c78ab1f",
+      "dorado/src/disasm.c": "e3b6ab2fdae3de70eebc31a5872ac28076f82db6a33530a25e915fa1765f8263",
+      "dorado/include/disasm.h": "351782f5a9c91f2e59ac9b64191990651609e9142910849fc06e88c1dfafe128",
+      "initial_rom_symbols.c": "546c2485cb1dac90ced8de2570d8761096392f1d51eb0e69d80d005cc6fc7916",
+      "inspect_initial_rom_wait.py": "66b9d0f65eca326022520dfe26b2bad76185fe339e0a03405ab39e116b6383a6",
+      "baseboard_rom_im.py": "237179d374c0dd976d02688194b7f553d3051f76ed6d3764ea05678e9c79fe20",
+      "Initial.mb": "b3fd586a653e69447891e66fd95bbc12cab6bb0074f5ae47025b80d15a92ff60",
+      "readback.json": "7d02041e999ebaf3f92a7731e202a4f7fdd6dd791211ec1b083724185b42eb1a",
+      "readback-detach.log": "faec307a6f4d8d5ada37e98a4a1e6a779b41dd7a01bfaf022efff57ab6477eb1",
+      "native-provenance.json.gz": "3c180699e83f266a37377cb7085482e3786907cff949670bd4054607d7b92758",
+      "native/src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "a3067afe1f21cf1a28175316f2d8e365e2b56600208b6e96b3e17a12fe2c3cf8",
+      "native/src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "4cb7855963757ea62aaf799b76a34184b6d8f9ad9aec066c20d2e08f92d849bd",
+      "native/src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+      "native/src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+      "native/src/fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v": "2ce357063c805920ce1f4583f4d3d22e9fe32a01fbd3782b9ab06c6c85502df0",
+      "eprom/BaseBd-f60.mem": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "eprom/BaseBd-e60.mem": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "eprom/BaseBd-c61.mem": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "eprom/BaseBd-b61.mem": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa"
+    },
+    "original_ROM_or_guest_state_changed": false,
+    "packet0_root_cause_established": false,
+    "firmware_or_clock_speed_qualified": false,
+    "global_Q": 0,
+    "sequence_compare_Q_matches": true
+  },
+  "packet0_acceptance_or_clock_calibration_qualified": false,
+  "native_timing_qualified": false,
+  "firmware_qualified": false,
+  "speedup_qualified": false,
+  "assembly_permitted": false,
+  "hardware_changed": false,
+  "full_goal_active": true
+}

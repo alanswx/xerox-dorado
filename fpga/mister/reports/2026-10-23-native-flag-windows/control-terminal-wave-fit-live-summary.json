@@ -1,0 +1,52 @@
+{
+  "status": "VERIFIED_SHORT_CONTROL_FITTER_LIVE",
+  "observation_sha256": "27ef7012d95f491d12ef77f3953ea86834dcc346f59a49346e8a387036b5c42d",
+  "native_live": {
+    "project": "/home/alans/mister/control-short-native-v1-20261024",
+    "observed": 1792846108.1778767,
+    "run_state": {
+      "status": "RUNNING",
+      "builder_pid": 2864466,
+      "started": 1792845803.3948898,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 2864469,
+          "started": 1792845803.395224,
+          "returncode": 0,
+          "finished": 1792845997.8704283
+        },
+        {
+          "stage": "fit",
+          "pid": 2878208,
+          "started": 1792845997.870882
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "stage_pid": 2878208,
+    "stage_command": "quartus_fit --read_settings_files=on --write_settings_files=off Dorado ",
+    "stage_cwd": "/home/alans/mister/control-short-native-v1-20261024/core",
+    "stage_process_state": [
+      "Name:\tquartus_fit",
+      "Umask:\t0002",
+      "State:\tR (running)",
+      "Tgid:\t2878208"
+    ],
+    "builder_command": "python3 /home/alans/mister/control-short-native-v1-20261024/build_r_front_ready_native.py --project /home/alans/mister/control-short-native-v1-20261024 --manifest r-front-control-native.json ",
+    "manifest_sha256": "72222722cb52eb5986ce250740cb32ee4f27ea100a0949cb2ac585eac208a9f8",
+    "source_hashes_verified": 533,
+    "driver_tail": "R_FRONT_READY_NATIVE map\nR_FRONT_READY_NATIVE fit\n",
+    "map_tail": "ll_cnt_sel_4|combout\" File: /home/alans/mister/control-short-native-v1-20261024/core/sys/pll_cfg/altera_pll_reconfig_core.v Line: 2179\n    Info (17048): Logic cell \"pll_cfg_hdmi:pll_cfg_hdmi|generic_lcell_comb:lcell_fpll_0_1|combout\" File: /home/alans/mister/control-short-native-v1-20261024/core/sys/pll_cfg/altera_pll_reconfig_core.v Line: 2179\n    Info (17048): Logic cell \"pll_cfg_hdmi:pll_cfg_hdmi|up_dn\" File: /home/alans/mister/control-short-native-v1-20261024/core/sys/pll_cfg/pll_cfg_hdmi.v Line: 167\n    Info (17048): Logic cell \"pll_cfg_hdmi:pll_cfg_hdmi|phase_en\" File: /home/alans/mister/control-short-native-v1-20261024/core/sys/pll_cfg/pll_cfg_hdmi.v Line: 166\n    Info (17048): Logic cell \"pll_cfg_hdmi:pll_cfg_hdmi|dprio_ser_shift_load\" File: /home/alans/mister/control-short-native-v1-20261024/core/sys/pll_cfg/pll_cfg_hdmi.v Line: 159\n    Info (17048): Logic cell \"pll_cfg_hdmi:pll_cfg_hdmi|dyn_phase_shift:dyn_phase_shift_inst|gnd\" File: /home/alans/mister/control-short-native-v1-20261024/core/sys/pll_cfg/altera_pll_reconfig_core.v Line: 1919\nInfo (144001): Generated suppressed messages file /home/alans/mister/control-short-native-v1-20261024/core/output_files/Dorado.map.smsg\nInfo (16010): Generating hard_block partition \"hard_block:auto_generated_inst\"\n    Info (16011): Adding 42 node(s), including 2 DDIO, 2 PLL, 0 transceiver and 0 LCELL\nWarning: RST port on the PLL is not properly connected on instance emu:emu|pll:pll|pll_0002:pll_inst|altera_pll:altera_pll_i|general[0].gpll. The reset port on the PLL should be connected. If the PLL loses lock for any reason, you might need to manually reset the PLL in order to re-establish lock to the reference clock. File: /home/alans/intelFPGA_lite/17.0/quartus/libraries/megafunctions/altera_pll.v Line: 749\n    Info: Must be connected\nWarning: RST port on the PLL is not properly connected on instance pll_audio:pll_audio|pll_audio_0002:pll_audio_inst|altera_pll:altera_pll_i|general[0].gpll. The reset port on the PLL should be connected. If the PLL loses lock for any reason, you might need to manually reset the PLL in order to re-establish lock to the reference clock. File: /home/alans/intelFPGA_lite/17.0/quartus/libraries/megafunctions/altera_pll.v Line: 749\n    Info: Must be connected\nWarning (21074): Design contains 3 input pin(s) that do not drive logic\n    Warning (15610): No output dependent on input pin \"HDMI_TX_INT\" File: /home/alans/mister/control-short-native-v1-20261024/core/sys/sys_top.v Line: 44\n    Warning (15610): No output dependent on input pin \"SD_SPI_MISO\" File: /home/alans/mister/control-short-native-v1-20261024/core/sys/sys_top.v Line: 100\n    Warning (15610): No output dependent on input pin \"ADC_SDO\" File: /home/alans/mister/control-short-native-v1-20261024/core/sys/sys_top.v Line: 110\nInfo (21057): Implemented 95809 device resources after synthesis - the final resource count might be different\n    Info (21058): Implemented 16 input pins\n    Info (21059): Implemented 97 output pins\n    Info (21060): Implemented 32 bidirectional pins\n    Info (21061): Implemented 93004 logic cells\n    Info (21064): Implemented 2602 RAM segments\n    Info (21065): Implemented 2 PLLs\n    Info (21062): Implemented 35 DSP elements\nInfo: Quartus Prime Analysis & Synthesis was successful. 0 errors, 985 warnings\n    Info: Peak virtual memory: 2951 megabytes\n    Info: Processing ended: Sat Oct 24 05:46:37 2026\n    Info: Elapsed time: 00:03:14\n    Info: Total CPU time (on all processors): 00:03:37\n",
+    "fit_tail": "0 sysmem|fpga_interfaces|clocks_resets|h2f_user0_clk\nInfo (176233): Starting register packing\nWarning (176250): Ignoring invalid fast I/O register assignments. See the Ignored Assignments panel in the Fitter Compilation Report for more information.\nWarning (176251): Ignoring some wildcard destinations of fast I/O register assignments\n    Info (176252): Wildcard assignment \"Fast Output Enable Register=ON\" to \"SDRAM_DQ[*]\" matches multiple destination nodes -- some destinations are not valid targets for this assignment\n    Info (176252): Wildcard assignment \"Fast Output Register=ON\" to \"SDRAM_*\" matches multiple destination nodes -- some destinations are not valid targets for this assignment\n    Info (176252): Wildcard assignment \"Fast Input Register=ON\" to \"SDRAM_DQ[*]\" matches multiple destination nodes -- some destinations are not valid targets for this assignment\nInfo (176235): Finished register packing\n    Extra Info (176218): Packed 75 registers into blocks of type Block RAM\n    Extra Info (176218): Packed 799 registers into blocks of type DSP block\n    Extra Info (176218): Packed 12 registers into blocks of type I/O input buffer\n    Extra Info (176218): Packed 74 registers into blocks of type I/O output buffer\n    Extra Info (176220): Created 186 register duplicates\nInfo (11798): Fitter preparation operations ending: elapsed time is 00:00:28\nInfo (170189): Fitter placement preparation operations beginning\nInfo (14951): The Fitter is using Advanced Physical Optimization.\n"
+  },
+  "synthesis_logic_cells": 93004,
+  "balanced_baseline_logic_cells": 94056,
+  "logic_cells_reduced": 1052,
+  "native_timing_qualified": false,
+  "firmware_qualified": false,
+  "speedup_qualified": false,
+  "hardware_changed": false,
+  "full_goal_active": true
+}

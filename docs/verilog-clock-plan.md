@@ -9,6 +9,30 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Current follow-up (2026-10-24): the atomic Hold-cofactor full fit is now
+TERMINAL/REJECTED: setup -3.618ns/-2.835ns at the slow corners, minimum hold
+-0.020ns. All957 collected files/533 source hashes verify. The worst path is
+upper_q[234] -> ContB/control -> T enable -> lower_q[260]; MemC output setup
+still fails -1.366ns. Logical cofactor equivalence did not close physical timing.
+
+The next isolated native fit shortens atomic evaluation without adding a guest
+cycle. Diagnostic proofs distinguish four-pass data transfer from the extra
+settling-recognition pass. The ACTUAL replacement proves all363 outputs against
+both original five/24-wave functions for955 arbitrary binary state/input bits,
+without assumptions. Every original diagnostic stays exact; ANY X/Z input uses
+the original complete requested-depth body. Other WAVES values remain unchanged.
+Both complete original comparisons pass14,884events/all844Q/9,216RAM/all100clocks
+and unchanged cache/reset/retry coverage.1,974 four-state stimuli cover X and Z
+on EACH955 inputs at four/five/six/24 waves. State-bit/unknown-fallback controls
+reject independently; initial syntax/parser failures remain retained.
+`control-short-native-v1-20261024` is live on misterubuntu at unchanged
+57.142857MHz/SYSPER4, with533 verified sources/only control RTL changed and
+full structural elaboration passing. Require actual whole-device timing before
+firmware/hardware selection. No speed gain or original60ns qualification yet.
+Map succeeds at93,004 logic cells (1,052 fewer than the balanced baseline),
+unchanged35 DSPs/2,602 RAM segments; all985 warnings are retained. The same
+builder2864466/fitter2878208 proceeds to physical timing, without assembly.
+
 Full-native follow-up (2026-10-24): the balanced slice's passing15ns shell does
 NOT close the actual machine. The unchanged57.142857MHz/SYSPER4 native fit is
 terminal and REJECTED: setup-1.314ns at slow100C/-1.053ns at slow-40C, minimum
@@ -46,7 +70,7 @@ BYTE-IDENTICAL to the original balanced fit; the worst source still drives322
 loads. The kept wire aliases did not fix that path. All956 collected files
 verify; no assembly or clock change.
 
-Next native experiment `memory-hold-cofactor-native-v1-20261024` applies
+The previous native experiment `memory-hold-cofactor-native-v1-20261024` applies
 Boolean alternatives only to the156-Q atomic control/memory step, after the
 guarded CP-cache/balanced-priority fixes. This is smaller in scope than the
 earlier whole844-Q forecast experiment whose early CP path failed timing.
@@ -63,7 +87,7 @@ is retained as a reader failure, without rerunning those tests.
 Native structural elaboration passes. Only the control file changes after
 relocation; combinational branch keep attributes strip back to the exact
 proved rewrite. Require actual late-input timing AND all other paths/area;
-the new full fit remains live. No hardware speed or firmware qualification.
+the full fit is now rejected as recorded above. No hardware speed or firmware qualification.
 
 The actual map report lists ONE physical logic loop: unchanged DskEth
 `EccComputeErr_p_`. Its original enabled-XOR/wired-OR feedback is a sticky

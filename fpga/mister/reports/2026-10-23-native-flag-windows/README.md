@@ -6,6 +6,39 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`control-terminal-wave-summary.json` adds the TERMINAL atomic-cofactor fit:
+all957 collected members/533 original source hashes verify. It is REJECTED:
+setup -3.618ns/-2.835ns, minimum hold -0.020ns. Worst path moved to upper_q234
+through ContB/control and T enable into lower_q260; MemC output setup still
+fails -1.366ns. No assembly or deployment follows from its transfer proofs.
+
+The next shorter transfer preserves all363 original outputs. Four-pass
+state/event/flag equivalence and unconditional original settled output were
+first diagnosed separately. The ACTUAL replacement then proves all363 outputs
+against original five/24-wave functions for955 arbitrary binary state/input
+bits, no assumptions. It preserves the full original X/Z result whenever ANY
+input is unknown, and all original per-wave diagnostic vectors for every input.
+Other parameter modes remain unchanged; no saved state or guest cycle is added.
+Both full original comparisons pass14,884checks/238writes/6,928reads/392epochs,
+all844Q/9,216RAM/all100clocks and identical cache/reset/retry coverage.
+The four-state test passes1,974 stimuli:64 binary plus X and Z on EACH955inputs,
+all363 results and all diagnostics at four/five/six/24 waves. Independent
+state-bit and unknown-fallback corruptions reject. Initial positional-port
+syntax failures and the Icarus negative-reader's missed state-commit diagnostic
+are retained without overwriting or rerunning those jobs.
+
+The533-source native stage changes only control RTL after path relocation;
+full native structural elaboration passes with three known warnings visible.
+`control-short-native-v1-20261024` is live at57.142857MHz/SYSPER4. Timing,
+firmware, original60ns/peripheral/SDRAM66.7MHz and full A–F remain unqualified.
+`control-terminal-wave-fit-live-summary.json` retains a later actual fitter
+observation after successful synthesis:93,004 logic cells against94,056 in the
+balanced baseline,35 DSPs/2,602 RAM segments unchanged, all985 warnings visible.
+An area reduction is not a physical timing or machine-speed pass.
+Latest passive baseline ROM binding at host2,479,192,672 still has RTC430015B,
+task0.T015B, Q=SeqNo=0 and a negative timeout subtraction. No guest state,
+existing bound, input pacing or medium changed; no packet0 root cause claim.
+
 `atomic-memory-hold-summary.json` adds the complete kept-inverter rejection:
 all956 files verify; global/owner reports at all four corners are byte-identical
 to the original balanced fit (-1.314ns/-1.053ns setup, +0.090ns minimum hold).
@@ -18,7 +51,7 @@ all363 outputs select the actual input. An exact-case original fallback handles
 X/Z in simulation, retaining per-wave diagnostics. No new owner/state/RAM/port/
 clock/capture epoch. This follows the guarded CP-cache/balanced-priority work;
 the earlier rejected whole844-Q forecast's early CP path is not assumed fixed
-by that older result. The actual new full native fit remains live/unqualified.
+by that older result. Its actual full fit is now rejected as recorded above.
 
 All955 arbitrary binary state/input bits prove equal for all363 outputs at
 five AND24 waves, with bad-select counterexamples at both depths. Both full
@@ -970,8 +1003,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps54,076 members to5,319 deduplicated compressed blobs;
-lossless readback verifies1,565,761,974 unique raw bytes and59,735,568 compressed
+`manifest.json.gz` now maps56,353 members to5,794 deduplicated compressed blobs;
+lossless readback verifies1,769,014,203 unique raw bytes and66,884,747 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

@@ -1,5 +1,52 @@
 # Verilog from Sil: handoff
 
+Latest milestone (2026-10-24): `control-terminal-wave-summary.json` retains the
+complete atomic-cofactor timing rejection and a proved shorter control transfer.
+The cofactor fit is TERMINAL/REJECTED: slow100C setup -3.618ns, slow-40C
+-2.835ns, minimum hold -0.020ns. All957 collected members and533 compiled
+source hashes verify. Worst path moved to upper_q[234] -> ContB/control ->
+T-register enable -> lower_q[260]; MemC output timing still fails -1.366ns.
+Do not deploy it or claim the late-selection rewrite fixed whole-machine timing.
+
+NOW LIVE: `/home/alans/mister/control-short-native-v1-20261024`,
+builder2864466/session74040, fitter2878208 verified live; reporter session53708.
+Local stage `control-short-native-stage-v1-20261024`, manifest
+`72222722cb52eb5986ce250740cb32ee4f27ea100a0949cb2ac585eac208a9f8`.
+All533 sources verify; only the control RTL changes after path relocation.
+Observe those actual handles; never restart/extend after an observation timeout.
+Map2864469 exited successfully:93,004 logic cells versus94,056 in the original
+balanced fit,35 DSPs/2,602 RAM segments unchanged. All985 warnings remain in the
+report. `control-terminal-wave-fit-live-summary.json` freezes the actual fitter
+and source hashes. Synthesis area is improved; physical timing remains open.
+
+The earlier direct four-wave attempt failed on its unsettled output. Separate
+diagnostic proofs now establish that its362 state/event/flag bits already match
+24 waves and that the original24-wave unsettled bit is always zero for ALL955
+binary state/input bits. The actual replacement then proves ALL363 outputs
+against the original at BOTH five/24 waves, without assumptions. It computes
+four transfer passes and preserves the original settled result. For ANY X/Z
+input, the exact original requested-depth body supplies the entire result;
+all original per-wave diagnostics retain their values/widths for every input.
+Other parameter depths remain unchanged. No new saved state or guest cycle.
+
+Both complete original comparisons pass14,884checks/238writes/6,928reads/
+392epochs/all844Q/9,216RAM/all100clocks, with identical cache/reset/retry coverage.
+An independent Icarus test passes1,974 stimuli, including BOTH X and Z on EACH
+of955 inputs, all363 results and diagnostics at four/five/six/24 waves. Both
+full original references reject a corrupted state bit at check0; the Icarus
+reader initially missed its state-commit diagnostic, retained without rerun.
+The wrong unknown fallback also rejects. Initial port-syntax failures are
+preserved separately; v2 is the proved/tested source. Full native structural
+elaboration passes with the same three known warnings visible. Clocks remain
+57.142857MHz/SYSPER4; native fit, firmware and speed are NOT qualified.
+
+Baseline network-v6/ROM-wait-v4 at host2,479,192,672 still has actual RTC430015B,
+task0.T015B, global Q=SeqNo=0 and negative timeout subtraction. Same original
+job detached/resumed with unchanged bound/media. Queue job continues disk/germ
+work; these are different workloads, not a CPU-speed A/B. Hardware remains5c65,
+last4.025473M StartCycle issues/s. Original60ns, separate66.7MHz SDRAM and the
+full A–F/Cedar/Rollback/persistence/fresh-boots/stress goal remain active.
+
 Latest milestone (2026-10-24): `atomic-memory-hold-summary.json` retains the
 terminal kept-inverter failure and a proved atomic late-Hold alternative.
 The kept-buffer fit is REJECTED at -1.314ns/-1.053ns setup, +0.090ns minimum
@@ -7,8 +54,9 @@ hold. All queried global/owner reports at all four corners are byte-identical
 to the original balanced fit; source fanout remains322. All956 files verify.
 Do not describe the kept wire aliases as a physical fanout improvement.
 
-NOW LIVE: `/home/alans/mister/memory-hold-cofactor-native-v1-20261024`,
-builder2702825/session83901, fitter2717359 verified live, reporter session64799.
+Earlier live observation, now TERMINAL/REJECTED as recorded above:
+`/home/alans/mister/memory-hold-cofactor-native-v1-20261024`.
+Builder2702825/fitter2717359/reporter2703622 all exited; collection verified.
 Local stage `memory-hold-cofactor-native-stage-v1-20261024`; all533 sources
 are bound. Only the control file changes after relocation. Both Boolean values
 of late pin386 are computed in stateless atomic156-Q control/memory functions,
@@ -10568,7 +10616,10 @@ and has unreviewed hold violations; never deploy it.
 - [x] Finish cache-tag kept-inverter fit: preserve all956 files, unchanged byte-identical queried paths/-1.314ns rejection and322-source loads. No effective fanout improvement.
 - [x] Factor the late memory-Hold pin in the current atomic function; prove363 outputs for955 arbitrary inputs at five/24waves, retain both select counterexamples, pass128 four-state cases and both complete original comparisons/all100clocks with identical cache coverage.
 - [x] Stage exact cofactor rewrite in the actual native caller, with inverse-checked branch keep attributes and full native structural elaboration; preserve original clocks/ports/captures and both diagnostic-reader failures.
-- [ ] Follow actual atomic Hold-cofactor fit through area/all-device and late-input timing, then qualify original native firmware before speed selection. Migrate actual display consumers/video enable to ordered events, preserving original capture windows.
+- [x] Finish atomic Hold-cofactor fit and all-device/physical-owner queries; retain all957 files, -3.618ns setup/-0.020ns hold rejection and the changed upper-control/T-enable critical path. No deployment.
+- [x] Separate four-pass data transfer from terminal settling recognition, then prove the actual replacement's ALL363 outputs at five/24 waves for955 arbitrary binary inputs; retain original X/Z fallback and diagnostics, both complete original comparisons/all100clocks, all955-input X/Z coverage and independent negative controls.
+- [x] Stage the shorter transfer in the actual533-source native caller and pass complete native structural elaboration with original warnings; preserve original owners, SRAM ports, clocks and capture phases. Retain initial syntax/diagnostic-reader failures.
+- [ ] Follow existing shorter-control native fit through area/all-device/owner timing, then qualify original native firmware before speed selection. Migrate actual display consumers/video enable to ordered events, preserving original capture windows.
 - [ ] Diagnose baseline SeqNo0 after the last reply76B without altering existing tests; qualify actual receiver acceptance/CRC and pin common architectural progress before native speed comparison.
 - [ ] Complete the existing owned-context1B run and new balanced-native5B original-firmware run; classify physical-Q/RAM-read feedback with full native timing before promotion. Preserve every older bound/source.
 - [ ] Close remaining full diagnostic timing, then qualify native global pauses/actual CP frequency, one SRAM commit, original60ns phases/all timers and separate66.7MHz SDRAM. No new speed selection yet.
