@@ -92,7 +92,7 @@ def review(out):
     (out/'results.json').write_text(json.dumps(result,indent=2)+'\n');return result,dirs
 
 
-def append_archive(archive,out,dirs):
+def append_archive(archive,out,dirs,label='capture-followup',extra_tools=()):
     verify(archive)
     r=json.loads(gzip.decompress((archive/'manifest.json.gz').read_bytes()));names={m['name'] for m in r['members']}
     paths={}
@@ -102,10 +102,11 @@ def append_archive(archive,out,dirs):
             if not p.is_file() or ('obj' in rel.parts and p.suffix!='.dot'):continue
             if p.suffix in {'.vvp','.o','.a','.rbf','.sof','.pack'}:continue
             paths['runs/'+d.name+'/'+str(rel)]=p
-    for p in out.iterdir():paths['capture-followup/'+p.name]=p
+    for p in out.iterdir():paths[label+'/'+p.name]=p
     for name in ['probe_r_front_pointer_capture.py','test_r_front_pointer_matrix.py','inspect_r_front_pointer_epoch.py',
-                 'stage_r_front_pointer_native.py','review_r_front_capture_followup.py']:
-        paths['capture-followup/tools/'+name]=ROOT/'tools'/name
+                 'stage_r_front_pointer_native.py','review_r_front_capture_followup.py',*extra_tools]:
+        assert Path(name).name==name
+        paths[label+'/tools/'+name]=ROOT/'tools'/name
     for name,p in sorted(paths.items()):
         assert name not in names,name
         raw=p.read_bytes()
@@ -117,7 +118,7 @@ def append_archive(archive,out,dirs):
             r['blobs'][h]=dict(stored=stored,raw_bytes=len(raw),stored_bytes=q.stat().st_size,stored_sha256=sha(q))
         r['members'].append(dict(name=name,blob=h));names.add(name)
     (archive/'manifest.json.gz').write_bytes(gzip.compress((json.dumps(r,indent=2)+'\n').encode(),mtime=0))
-    (archive/'capture-followup-summary.json').write_bytes((out/'results.json').read_bytes());verify(archive)
+    (archive/(label+'-summary.json')).write_bytes((out/'results.json').read_bytes());verify(archive)
 
 
 if __name__=='__main__':

@@ -49,8 +49,8 @@ Separate v7 tests data-only stored-control/current-external inputs at ProcL
 h14(RBase/task/NextMacroDly) and l14(StkP[0:5]). BOTH balanced comparisons and
 actual D-at-clock checks pass(2181/2180 edges); four wrong-data controls reject
 at15. Crucially, the two proposed data epochs differ at ZERO tested captures.
-This is a coverage limit, not an exhaustive epoch proof. Broader pointer matrix
-PID14070 is live; freeze its probe/matrix/helper/task-event sources. A separate
+This is a coverage limit, not an exhaustive epoch proof. The broader pointer
+matrix is now terminal12/12 in BOTH/six profiles; its frozen run is archived. A separate
 Verilator LOW-root CP stress passes12,840checks, including512transactions;
 it adds NO package captures or distinct epoch samples. Preserve that limit.
 v7 structural elaboration passes with all3 UNOPTFLAT and inherited MULTIDRIVEN
@@ -58,8 +58,27 @@ warnings visible. Remote private builder3731193, fitter3752099, reporter3731219,
 `/home/alans/mister/r-front-control844-physical-windows-native-v7-20261023`.
 No assembly, native promotion, firmware/phase or speed qualification.
 
-Next/TODO: finish pointer matrix; cover/prove the missing distinct capture
-epoch cases and review the remaining RBase/address crossing; inspect v7 timing
+The next four-input RM capture experiment now passes BOTH full comparisons;
+zeroing its RBase data rejects1434 in BOTH. Actual ProcL g10/h10 D-at-clock
+checks pass4393captures per simulator, again ZERO distinct old/new samples.
+Only pins156..159 at low RM address capture change; other data, clocks,
+transparent windows and complete original oracle remain. Private v8 structural
+elaboration passes; exact remote builder3827433/map3827436/reporter3827460 run
+at `/home/alans/mister/r-front-control844-physical-windows-native-v8-20261023`.
+Its broader matrix `r-front-rm-address-matrix-v2-20261023`, PID18090, is live;
+freeze RM probe/matrix, flag helper and task-event tool. v1 stopped before any
+simulation because its driver used an old metadata key; original receipt and
+driver are kept. v2 fixes that key without changing RTL or assertions.
+
+Original5c65 and queued native runs are BOTH terminal at their ORIGINAL5B
+host limits. Each ends with only1 counted StartCycle/BFN0 and no Cedar113
+release, so neither is firmware/Cedar qualification. The first8191 matched raw
+completions take109062->102908ticks(5.64266% fewer), but remain power-up prefix
+traffic. No hardware speed claim, bound extension or job restart follows.
+Full source/log/terminal/progress evidence is in the same reviewed archive.
+
+Next/TODO: finish RM profile matrix; cover/prove the missing distinct capture
+epoch cases and original-ROM producer/startup seams; review v7/v8 actual timing
 and producer epochs without waivers. Then original-ROM/Cedar/input,
 60ns phases/all peripheral timers, separate66.7MHz SDRAM and full A-F
 Rollback/persistence/fresh boots/stress acceptance. Hardware unchanged:

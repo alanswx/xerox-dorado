@@ -83,10 +83,12 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` maps 6,689 members to 1,627 deduplicated compressed blobs;
-lossless readback verifies 422,292,860 raw bytes, 15,860,049 compressed blob bytes.
+`manifest.json.gz` maps 9,706 members to 1,737 deduplicated compressed blobs;
+lossless readback verifies 434,084,676 raw bytes, 16,914,653 compressed blob bytes.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
-the terminal v6 and bounded pointer checks. `collection.json.gz` retains the
+the terminal v6 and bounded pointer checks. `address-followup-summary.json`
+adds the terminal pointer matrix, bounded RM capture and original native
+traffic observations. `collection.json.gz` retains the
 remote v5 collection envelope and member hashes. Sources, reports, original
 reference models, test benches and failed receipts are included; FPGA images,
 simulator executables and Quartus databases are excluded.
@@ -100,7 +102,24 @@ capture data differ. A passing comparison does not prove that unexercised
 distinction. A further Verilator run passes 12,840 full comparisons, including
 512 LOW-root CP transactions, but adds no package edges or distinct capture
 epochs. Four wrong-pointer controls reject at check15 in the original resolved
-source comparison. The broader pointer matrix is recorded as a verified live
-job, not a pass, in the follow-up receipt. The separately staged v7 remains an
-experimental fit with assembly disabled. Native source/phase and firmware correctness, 60 ns cadence/timers,
+source comparison. The original capture follow-up records the pointer matrix while live; the
+later address follow-up records its terminal **12/12** pass. The separately
+staged v7 remains an experimental fit with assembly disabled.
+
+The four-input low RM address experiment keeps the existing before-event RBase
+mux data only at the g10/h10 capture. Both full comparisons pass; wrong-data
+controls reject at check1434. Actual package D-at-clock checks pass 4,393 edges
+per simulator, with zero distinct old/new data samples. v8 source staging and
+structural elaboration pass, retaining the clock/storage/barrier and all
+warnings. Its full-core fit and broader timing-profile matrix are still live;
+neither is qualified here. The first matrix driver stopped on a metadata key
+before starting any child; its failed receipt and original driver are retained.
+
+The original 5c65 and queue native runs both ended normally at their unchanged
+5-billion-host-tick limits. Neither reached the Cedar113 release; both end
+with one counted StartCycle and BFN zero. The first 8,191 matching raw
+completions take 109,062 versus 102,908 host ticks (5.64266% fewer), including
+unowned time that also contains demand gaps. This is power-up-prefix transport
+evidence, not native firmware throughput or Cedar/hardware speed. No original
+bound was extended and no run was restarted. Native source/phase and firmware correctness, 60 ns cadence/timers,
 faster SDRAM and the complete Cedar/Rollback/persistence/boot/stress goal remain.

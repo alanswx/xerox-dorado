@@ -1,0 +1,98 @@
+{
+  "status": "REVIEWED_RM_CAPTURE_AND_TERMINAL_PRE_CEDAR_TRAFFIC",
+  "scope": "Review bounded low RM capture tests and terminal pre-Cedar traffic.\n\nKeep failed matrix-driver metadata checks, coverage gaps and live experiments\nexplicit. Original five-billion-tick native runs stay terminal at their bounds;\ntheir power-up traffic is not a Cedar workload or a hardware speed measurement.\n",
+  "bounded_gates": [
+    {
+      "run": "r-front-rm-address-icarus-v1-20261023",
+      "status": "PASS_R_FRONT_RM_ADDRESS_EPOCH_PROBE",
+      "run_state_sha256": "2cd0edb446659db7e50dc4ce8d6354218d7fe3663acd4711ec81083a0c2dba0d"
+    },
+    {
+      "run": "r-front-rm-address-zero-icarus-v1-20261023",
+      "status": "R_FRONT_RM_ADDRESS_EPOCH_PROBE_FAILED",
+      "run_state_sha256": "fb24cd4e54a6b37d30e01b9c1574f79b38e11e08679aca5b4b3c14d3001ad751"
+    },
+    {
+      "run": "r-front-rm-address-pin-audit-icarus-v1-20261023",
+      "status": "PASS_POINTER_PACKAGE_D_AT_CLOCK_AUDIT",
+      "actual_clock_edges": 4393,
+      "distinct_epoch_samples": 0
+    },
+    {
+      "run": "r-front-rm-address-verilator-v1-20261023",
+      "status": "PASS_R_FRONT_RM_ADDRESS_EPOCH_PROBE",
+      "run_state_sha256": "de75e5f7f6f8e6604ee23cd8b80a2529249c368714bf3c0905e09904a1849071"
+    },
+    {
+      "run": "r-front-rm-address-zero-verilator-v1-20261023",
+      "status": "R_FRONT_RM_ADDRESS_EPOCH_PROBE_FAILED",
+      "run_state_sha256": "20fbadaf6c4179b92dcd9797436215420552b3fc97b3776abd12cfff52039c89"
+    },
+    {
+      "run": "r-front-rm-address-pin-audit-verilator-v1-20261023",
+      "status": "PASS_POINTER_PACKAGE_D_AT_CLOCK_AUDIT",
+      "actual_clock_edges": 4393,
+      "distinct_epoch_samples": 0
+    }
+  ],
+  "pointer_matrix_status": "PASS_R_FRONT_POINTER_CAPTURE_PROFILE_MATRIX",
+  "pointer_matrix_cases": 12,
+  "RM_profile_matrix": {
+    "status": "VERIFIED_LIVE_MATRIX",
+    "pid": 18090,
+    "cases_at_observation": 8,
+    "ps": "18090 06:07 Ss   /opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python tools/test_r_front_rm_address_matrix.py --output build/rtl-executive/r-front-rm-address-matrix-v2-20261023",
+    "observed": 1792800141.6621492
+  },
+  "native_v8_manifest_sha256": "8f069570cbca743997bfa1ac44b84483c8d612fe202f88d3199b9d4f67cd7a8f",
+  "distinct_capture_epoch_samples": 0,
+  "original_native_traffic_comparison": {
+    "compared_completed_prefix": 8191,
+    "ordered_operation_data_agree": true,
+    "first_disagreement": null,
+    "control_prefix_ticks": 109062,
+    "candidate_prefix_ticks": 102908,
+    "control_prefix_budget": {
+      "consumed_raw_service_ticks": 26995,
+      "unowned_raw_ticks": 82066,
+      "same_edge_handoffs": 5999,
+      "positive_gaps": 2191,
+      "limitation": "Unowned raw time also includes guest execution and demand gaps; it is not exclusively arbitration overhead."
+    },
+    "candidate_prefix_budget": {
+      "consumed_raw_service_ticks": 27039,
+      "unowned_raw_ticks": 75868,
+      "same_edge_handoffs": 7050,
+      "positive_gaps": 1140,
+      "limitation": "Unowned raw time also includes guest execution and demand gaps; it is not exclusively arbitration overhead."
+    },
+    "prefix_tick_reduction_fraction": 0.056426619720892704,
+    "actual_firmware_comparison_qualified": false,
+    "limitation": "Only captured prefix. Native power-up reads are not Cedar execution; prefix caps and different progress endpoints remain explicit."
+  },
+  "original_native_endpoints": [
+    {
+      "host": 5000000000,
+      "issues": 1,
+      "admitted": 360465904,
+      "completed": 360465904,
+      "reads": 360465904,
+      "writes": 0,
+      "BFN": 0
+    },
+    {
+      "host": 5000000000,
+      "issues": 1,
+      "admitted": 384562928,
+      "completed": 384562928,
+      "reads": 384562928,
+      "writes": 0,
+      "BFN": 0
+    }
+  ],
+  "original_native_bounds_extended": false,
+  "full_firmware_traffic_qualified": false,
+  "native_timing_qualified": false,
+  "speedup_qualified": false,
+  "assembly_permitted": false
+}
