@@ -14,6 +14,54 @@ Continue build/simulation work; notify them when a reviewed build is ready
 for hardware testing, and wait until they release MiSTer14 before any load,
 reboot or control. Earlier reload authorization is superseded while it is in use.
 
+Split paired/single processor QUALIFIED digitally; full15ns improved,
+still REJECTED (2026-10-24). `split-processor-packet-summary.json` retains
+three combinational invocations with one physical SRAM owner/final commit.
+Only the unconditional paired-first result and its forwarding feed the second
+event. Singles and raw-prefix capture use the separate real-input invocation.
+
+The source audit checks all15 inputs of BOTH first invocations: under the
+ORIGINAL accepted geometry they equal the prior qualified inputs, with an
+unchanged second call and ready/error guards. Real raw-prefix inputs match for
+EVERY history, including rejected pairs. Bad fall-clock, second owner and SRAM
+address-mux controls reject the audit. Geometry-wide950-bit control induction,
+actual selector5/24-wave proof and all1416-bit cache/ready/permission induction
+bind the actual source. The cache proof's split-mode flag/invocation audit and
+miter define its scope; its inherited opening prose describes the default
+single-input experiment. No new state assumption or native timing claim.
+
+Both original14,884-transaction replays PASS:10,423 commits/4,461 pairs,
+both2470-bit results/all844Qs/9216RAM/100clocks,8885fast/1538staged/1538prep/
+one reset and403 invalid geometries. All six corruptions reject: Icarus
+forwarding/early-write/stale-intermediate/stale-root at original203/203/16/2;
+Verilator bad fall data/clock leave0/70 unaffected pairs and fail original
+paired-write coverage. No original assertion or result field was removed.
+
+Complete4943-output/1652-input fit: all stages exit0;86 collected members,
+compiled inputs and exited processes verify. Archive SHA
+73beaaea0d2a565bb6335abb5bcfea2441173230acfe5b1c8c1f7b55c0681eeb.
+Same15ns/2ns-I/O/no exceptions/retiming. Setup -2.538/-2.111/+3.076/+3.734ns,
+versus previous best -9.270ns and sparse-first -9.899ns. Hold
++0.130/+0.118/+0.114/+0.068ns; pulse+6.457/+6.493/+6.174/+6.111ns;
+zero UCPs, no recovery/removal endpoints. Evaluator setup
+-2.524/-2.111/+5.030/+6.678ns. Area9387ALMs/8223regs/9216MLAB bits includes
+fixture resources. This is substantial component timing progress, not a
+native60ns pass or hardware-speed gain. All split fits/replays are terminal.
+
+NEXT: the worst path now stays in SINGLE fallback: saved-prefix task/priority
+-> FF decode/after_child209 -> pre/settled operand views -> R bypass/l07 ->
+first_result1410 (faults[1], fitted result3883). Keep the entire fault result.
+Test a parallel two-cofactor calculation of that one diagnostic bit selected
+by late FF decode, with exact binary/four-state equivalence, meaningful bad
+controls, full original replay and all4943 timing endpoints. Add no saved state
+or guest cycles and do not waive the remaining path. Then qualify actual common
+closed-owner/root/before-pin publication and entry-only context pruning, source/
+CP/device interior epochs, all rotations/debug fallbacks and remaining consumers
+before complete native60ns testing. The full A–F/66.7MHz SDRAM/Main/daemon/Cedar/
+Rollback/persistence/three-boot/two-hour objective remains active; snapshots
+remain deferred. Last hardware rate4.025473M StartCycle ISSUES/s is unchanged.
+No native selection/image/hardware access. The user still keeps the FPGA.
+
 Sparse FIRST control fall completed; full timing still REJECTED (2026-10-24).
 `sparse-first-packet-summary.json` preserves the opt-in specialization. The
 first control result uses the proved Q30-only fall; its selectors bypass the
@@ -50,20 +98,8 @@ endpoints. Evaluator-only setup -7.578/-7.607/+2.517/+4.486ns. Area 9,244ALMs/
 8,353regs/9,216MLAB bits includes fixture resources. No timing gain established;
 keep the previous entry-cached default (-9.270ns best full component minimum).
 
-NEXT: physically separate the unconditional paired-first function from the
-staged single-event fallback BEFORE supplying the second event. The current
-first result still multiplexes both functions. Worst fitted path is the saved
-prefix -> first selector/control priority -> first state72 -> second task/
-consistency checks -> ready -> physical SRAM write enable: 23.822ns/22 levels.
-Keep a real-input raw prefix producer, all fallback/error/geometry guards, exact
-forwarding and ONE architectural/SRAM owner/final commit. Prove substitutions
-and cache histories, replay every original result/RAM/clock/geometry/reset check,
-and refit all 4,943 endpoints. This is structural separation, not an exception
-on the observed path. Then qualify common closed-context publication/pruning,
-actual source/CP/device interior epochs and all rotations/debug/consumers before
-native60ns qualification. No native selection/image/FPGA access or new hardware
-speed; last hardware rate remains 4.025473M StartCycle ISSUES/s. The full A–F
-objective stays active, snapshots deferred; the user keeps the FPGA.
+The physical separation is now qualified above and reduces the full timing
+miss to2.538ns. The single-event R-fault cone is the next optimization target.
 
 Pair-direct experiment completed; correct but NOT selected (2026-10-24).
 `pair-direct-packet-summary.json` preserves the single changed first-entry
@@ -609,14 +645,14 @@ no138 or unsupported indices. Receipt `native-selector-terminal-summary.json`
 retains full reports/source/readback. Never restart the completed builder or
 reporters. Original ECC loop/pulse and broader capture timing remain open.
 
-Next/TODO: sparse-first fall/control/selector/cache proofs and both complete
-processor replays PASS, but full15ns timing misses by9.899ns. Keep both pair-
-direct and sparse-pair experiments opt-in; the preceding -9.270ns fit is better.
-Physically separate unconditional paired-first data from the staged fallback
-before second-event inputs. Retain raw-prefix capture, every guard and one SRAM
-owner; prove/replay/refit the complete interface. Then prove common closed-owner
-publication and entry-only owned-context specialization before pruning tags.
-Bind actual source/CP/device interior timestamps and the complete native cadence.
+Next/TODO: separated paired/single functions PASS both full processor replays,
+source input-substitution audit, control/selector proofs and complete cache/
+permission induction. Full15ns setup now misses2.538ns (prior best9.270ns).
+The remaining worst path is single-event faults[1]; qualify exact parallel
+cofactors with original unknown behavior and full original replay, then refit
+all4943 endpoints. Keep every fault/error/ownership guard and the single SRAM.
+Then qualify actual common closed-context publication/entry-only pruning and
+actual source/CP/device interior timestamps/complete native cadence.
 Do not apply the Q30-only
 control mask to other boards without proof. Bind actual CP producer/input epochs and
 processor source records; keep default rotation0 and ALL other rotations/debug

@@ -6,6 +6,25 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`split-processor-packet-summary.json` retains separated paired-first and
+single/fallback functions with one SRAM owner/final commit. Every input of both
+first calls matches under the original geometry; the second/ready guards stay.
+Three input/owner audit corruptions reject. Raw-prefix inputs match for every
+history; all1416 cache bits/ready/permissions prove. The actual selector and
+geometry-wide950-bit control proofs bind unchanged function bodies. Both full
+original14,884-event replays pass every2470-bit subevent/844Q/9216RAM/100clock/
+403geometry/reset/cache check. All six compiled corruptions reject at original
+result/ownership/paired-write coverage assertions.
+
+Full4943-output15ns timing improves to -2.538/-2.111/+3.076/+3.734ns, still
+REJECTED (prior best -9.270ns). Hold/pulse minima +0.068/+6.111ns; zero UCPs,
+9387ALMs/8223regs/9216MLAB bits,86 verified members/exited handles. The new worst
+path stays inside the SINGLE function and ends at first-result faults[1]. Next
+qualify parallel cofactors for that complete bit, including original X/Z
+behavior, all guards and every endpoint. No saved state/guest cycles, path
+waiver, native selection, image or hardware-speed claim. The FPGA remains with
+the user and the full goal stays active.
+
 `sparse-first-packet-summary.json` preserves the completed sparse-first trial.
 All950 control bits prove throughout certified geometry, independently of error/
 ready; both seven-case proofs pass. All1416 cache bits/ready/SRAM permissions
@@ -1383,8 +1402,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps84,231 members to9,715 deduplicated compressed blobs;
-lossless readback verifies3,158,534,839 unique raw bytes and116,899,951 compressed
+`manifest.json.gz` now maps84,776 members to9,783 deduplicated compressed blobs;
+lossless readback verifies3,168,738,741 unique raw bytes and117,337,809 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

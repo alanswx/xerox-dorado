@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Source-bound proof of pair-direct ready, permissions and full cache history.
 
-Only first.entry_fast changes to use_pair OR entry_fast. The actual pair ready
-requires entry_fast, so accepted invocations have identical function inputs.
-For unaccepted pairs arbitrary different results/guards are allowed, while the
-actual prefix producer is structurally independent of that mode. Induct both
-actual1416-bit caches, ready and SRAM permission, with arbitrary histories.
-Required negatives drop the entry guard or corrupt unready prefix capture.
-This is compositional equivalence, not a new architectural input assumption.
+The default experiment changes only first.entry_fast to use_pair OR entry_fast.
+Sparse mode additionally normalizes paired inputs under the original geometry;
+split mode uses an unconditional paired-first function and a separate single/
+real-prefix invocation. Bind every actual invocation and the unchanged prefix
+producer before allowing arbitrary result differences outside certified geometry.
+Induct both actual1416-bit caches, ready and SRAM permission for arbitrary
+histories. Required negatives drop the entry guard or corrupt unready prefix
+capture. No new architectural input assumption or physical timing claim.
 """
 import argparse
 import json
@@ -63,17 +64,41 @@ def exposed(raw,name):
     return original.replace(old,new,1).replace('module dorado_packet_prefix_cache(',f'module {name}(',1).replace('\nendmodule',observe+'\nendmodule',1)
 
 
-def run(source,out,yosys,sparse_pair=False):
+def run(source,out,yosys,sparse_pair=False,split_pair=False):
+    assert not split_pair or sparse_pair
     assert not out.exists();s=json.loads((source/'run-state.json').read_text());assert s['status']=='PASS_FULL_PROCESSOR_STATELESS_EVALUATOR'
     for row in s['source_files']:assert sha(source/row['path'])==row['output_sha256']
-    raw=(source/'candidate.sv').read_text();old=packet(raw);new=packet(raw,pair_direct=True,sparse_pair=sparse_pair)
-    assert new.count('.entry_fast((use_pair || entry_fast))')==1
-    restored=new.replace('.entry_fast((use_pair || entry_fast))','.entry_fast(entry_fast)',1)
-    if sparse_pair:
-        for v in ['use_pair',"1'b0"]:
-            assert restored.count(',\n  .pair_fall('+v+')')==1
-            restored=restored.replace(',\n  .pair_fall('+v+')','',1)
-    assert restored==old
+    raw=(source/'candidate.sv').read_text();old=packet(raw)
+    if split_pair:
+        from generate_split_r_packet import packet as split
+        new=split(raw)
+        # The split generator inverse-checks its exact edit whitelist. Bind
+        # the actual invocation which produces the shared raw prefix to the
+        # REAL inputs, separately from unconditional paired-first data.
+        single=new.split(' dorado_r_front_prefix_step single(',1)[1].split(');',1)[0]
+        first=new.split(' dorado_r_front_prefix_step first(',1)[1].split(');',1)[0]
+        second=new.split(' dorado_r_front_prefix_step second(',1)[1].split(');',1)[0]
+        for binding in ['.held_q(held_q)','.clock_before(clock_before)','.clock_after(first_after)',
+                        '.pins_before(pins_before)','.pins_after(pins_after)',
+                        '.entry_fast(entry_fast)',".pair_fall(1'b0)",'.live_prefix(first_live_prefix)']:
+            assert binding in single,binding
+        for binding in ['.held_q(held_q)',".clock_before(1'b1)",".clock_after(1'b0)",
+                        '.pins_before(pins_after)','.pins_after(pins_after)',".entry_fast(1'b1)",
+                        ".pair_fall(1'b1)",'.live_prefix()','.control_owner(first_owner)']:
+            assert binding in first,binding
+        assert '.held_q(first_held_next)' in second
+        assert new.count('.live_prefix(first_live_prefix)')==1
+        assert new.count(' dorado_r_file_ports files(')==1
+        assert 'control_projection(use_pair ? second_held_next:single_held_next)' in new
+    else:
+        new=packet(raw,pair_direct=True,sparse_pair=sparse_pair)
+        assert new.count('.entry_fast((use_pair || entry_fast))')==1
+        restored=new.replace('.entry_fast((use_pair || entry_fast))','.entry_fast(entry_fast)',1)
+        if sparse_pair:
+            for v in ['use_pair',"1'b0"]:
+                assert restored.count(',\n  .pair_fall('+v+')')==1
+                restored=restored.replace(',\n  .pair_fall('+v+')','',1)
+        assert restored==old
     assert 'ready=entry_ready && entry_fast && clock_before && clock_after' in new
     actual_stage=stage(raw,sparse_pair);ordered=module(raw,'dorado_control_hold_ordered_step')
     assert 'assign control_owner=joint_q;assign live_prefix=cp_prefix_live;' in actual_stage
@@ -98,9 +123,10 @@ def run(source,out,yosys,sparse_pair=False):
     out.mkdir(parents=True)
     for n,text in {'old-packet.sv':old,'new-packet.sv':new,'controlled-stage.sv':actual_stage,'actual-ordered.sv':ordered}.items():(out/n).write_text(text)
     for n in [Path(__file__).name,'generate_cached_r_packet.py']:shutil.copy2(Path(__file__).with_name(n),out/n)
+    if split_pair:shutil.copy2(Path(__file__).with_name('generate_split_r_packet.py'),out/'generate_split_r_packet.py')
     state=dict(status='RUNNING',driver_pid=os.getpid(),started=time.time(),scope=__doc__,source=str(source),
-        source_state_sha256=sha(source/'run-state.json'),cache_state_bits=1416,sparse_pair=sparse_pair,
-        source_bound_input_substitution_only=True,prefix_producer_fast_mode_independent=True,
+        source_state_sha256=sha(source/'run-state.json'),cache_state_bits=1416,sparse_pair=sparse_pair,split_pair=split_pair,
+        source_bound_input_substitution_only=not split_pair,prefix_producer_fast_mode_independent=True,
         all_unready_pair_result_differences_allowed=True,input_histories_unconstrained=True,
         files={p.name:sha(p) for p in out.iterdir() if p.is_file()},cases=[],hardware_changed=False)
 
@@ -148,4 +174,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['source','output','yosys']:p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--sparse-pair',action='store_true')
-    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.output.resolve(),a.yosys.resolve(),a.sparse_pair))
+    p.add_argument('--split-pair',action='store_true')
+    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.output.resolve(),a.yosys.resolve(),a.sparse_pair,a.split_pair))

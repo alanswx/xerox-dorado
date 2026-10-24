@@ -80,7 +80,7 @@ def bench(raw):
     return raw
 
 
-def run(source,proof,out,engine,mutation,pair_direct=False,sparse_pair=False):
+def run(source,proof,out,engine,mutation,pair_direct=False,sparse_pair=False,packet_builder=None,extra_tools=(),variant=None):
     assert not out.exists();s=json.loads((source/'run-state.json').read_text())
     assert s['status']=='PASS_FULL_PROCESSOR_PACKET_SINGLE_COMMIT' and s['quartus_syntax'] and s['geometry_checks']
     p=json.loads((proof/'run-state.json').read_text());induction=next(v for v in p['cases'] if v['mode']=='induction')
@@ -92,16 +92,18 @@ def run(source,proof,out,engine,mutation,pair_direct=False,sparse_pair=False):
         q=source/row['path'];assert sha(q)==row['output_sha256']
         dest=out/row['path'];dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(q.read_bytes());paths.append(dest)
         rows.append(dict(path=row['path'],parent_sha256=sha(q),output_sha256=sha(dest)))
-    raw=(source/'candidate.sv').read_text();actual=packet(raw,mutation,pair_direct,sparse_pair)+'\n'+stage(raw,sparse_pair,mutation)+'\n'+cache(raw,mutation=='stale-root')
+    builder=packet if packet_builder is None else packet_builder
+    raw=(source/'candidate.sv').read_text();actual=builder(raw,mutation,pair_direct,sparse_pair)+'\n'+stage(raw,sparse_pair,mutation)+'\n'+cache(raw,mutation=='stale-root')
     (out/'packet.sv').write_text(actual);paths.append(out/'packet.sv')
     for n in ['forward.sv']:
         assert sha(source/n)==s['files'][n];shutil.copy2(source/n,out/n);paths.append(out/n)
     (out/'tb.sv').write_text(bench((source/'tb.sv').read_text()));paths.append(out/'tb.sv')
     for name in [Path(__file__).name,'generate_cached_r_packet.py']:shutil.copy2(Path(__file__).with_name(name),out/name)
+    for tool in extra_tools:shutil.copy2(tool,out/tool.name)
     state=dict(status='RUNNING',driver_pid=os.getpid(),started=time.time(),scope=__doc__,engine=engine,mutation=mutation,source=str(source),
         source_state_sha256=sha(source/'run-state.json'),induction_proof=str(proof/'induction'),induction_log_sha256=induction['log_sha256'],
-        source_files=rows,files={q.name:sha(q) for q in [out/'packet.sv',out/'forward.sv',out/'tb.sv',out/Path(__file__).name,out/'generate_cached_r_packet.py']},
-        actions=[],pair_direct=pair_direct,sparse_pair=sparse_pair,entry_cache_only=True,native_canonical_match_specialization_used=False,second_root_requires_derived_identity=True,
+        source_files=rows,files={q.name:sha(q) for q in [out/'packet.sv',out/'forward.sv',out/'tb.sv',out/Path(__file__).name,out/'generate_cached_r_packet.py',*[out/tool.name for tool in extra_tools]]},
+        actions=[],pair_direct=pair_direct,sparse_pair=sparse_pair,packet_variant=variant,entry_cache_only=True,native_canonical_match_specialization_used=False,second_root_requires_derived_identity=True,
         one_physical_SRAM_owner=True,all2470_bits_per_subevent_checked=True,source_and_device_timestamp_qualified=False,
         native_integrated=False,timing_qualified=False,hardware_changed=False)
 

@@ -29,6 +29,7 @@ def prepare(tests,out,equivalence=None):
         e=json.loads((equivalence/'run-state.json').read_text())
         assert e['status']=='PASS_PAIR_DIRECT_CACHE_READY_AND_PERMISSION_INDUCTION'
         assert e.get('sparse_pair',False)==s.get('sparse_pair',False)
+        assert e.get('split_pair',False)==(s.get('packet_variant')=='split-pair')
         for n,h in e['files'].items():assert sha(equivalence/n)==h
         for row in e['cases']:
             d=equivalence/row['mode'];assert row['passed'] and row['returncode']==0
@@ -57,7 +58,7 @@ def prepare(tests,out,equivalence=None):
     for n,v in {'top.sv':top,'clock_fit.qsf':qsf,'clock.sdc':fixture.SDC,'clock_fit.qpf':'PROJECT_REVISION = "clock_fit"\n','audit.tcl':report}.items():(out/n).write_text(v)
     for n in ['fit_control_clock.py',Path(__file__).name]:shutil.copy2(ROOT/'tools'/n,out/n)
     r=dict(scope=__doc__,clock_period_ns=15,input_bits=1652,result_bits=4943,subevent_result_bits=2470,
-        tests=str(tests),tests_state_sha256=sha(tests/'run-state.json'),pair_direct=s.get('pair_direct',False),sparse_pair=s.get('sparse_pair',False),
+        tests=str(tests),tests_state_sha256=sha(tests/'run-state.json'),pair_direct=s.get('pair_direct',False),sparse_pair=s.get('sparse_pair',False),packet_variant=s.get('packet_variant'),
         equivalence_state_sha256=equivalence_hash,actual_entry_cache_and_auxiliary_state_retained=True,
         single_physical_RAM_owner_bits=9216,native_canonical_match_specialization_used=False,
         assembly_permitted=False,native_qualified=False,hardware_changed=False,hardware_requires_user_release=True,
