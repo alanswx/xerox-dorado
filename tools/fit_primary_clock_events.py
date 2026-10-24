@@ -39,7 +39,7 @@ endmodule
 '''
 
 
-def prepare(tests, proofs, out):
+def prepare(tests, proofs, out, source=None):
     assert not out.exists()
     t = json.loads((tests/'run-state.json').read_text())
     p = json.loads((proofs/'run-state.json').read_text())
@@ -63,7 +63,8 @@ def prepare(tests, proofs, out):
     for name, value in files.items():
         (out/name).write_text(value)
     for name in ['dorado_oscillator_events.sv', 'dorado_clock_event_batch.sv', 'dorado_primary_clock_events.sv']:
-        assert sha(ROOT/'verilog/rtl'/name) == t['inputs'][name]
+        path = source if source is not None and name == 'dorado_primary_clock_events.sv' else ROOT/'verilog/rtl'/name
+        assert sha(path) == t['inputs'][name]
         shutil.copy2(tests/'inputs'/name, out/name)
     for name in [Path(__file__).name, 'fit_control_clock.py']:
         shutil.copy2(ROOT/'tools'/name, out/name)
@@ -75,6 +76,8 @@ def prepare(tests, proofs, out):
         files={p.name: sha(p) for p in out.iterdir() if p.is_file()},
         assembly_permitted=False, native_qualified=False, physical_timing_qualified=False,
         firmware_qualified=False, speedup_qualified=False, user_FPGA_untouched=True)
+    if source is not None:
+        record.update(candidate_source=str(source), candidate_source_sha256=sha(source))
     (out/'provenance.json').write_text(json.dumps(record, indent=2)+'\n')
     print('PREPARED_ALL_PRIMARY_CLOCK_15NS_COMPONENT', flush=True)
 
@@ -83,5 +86,6 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     for name in ['tests', 'proofs', 'output']:
         p.add_argument('--'+name, type=Path, required=True)
+    p.add_argument('--source', type=Path, help='Exact independently qualified primary-merger candidate')
     a = p.parse_args()
-    prepare(a.tests.resolve(), a.proofs.resolve(), a.output.resolve())
+    prepare(a.tests.resolve(), a.proofs.resolve(), a.output.resolve(), a.source.resolve() if a.source else None)

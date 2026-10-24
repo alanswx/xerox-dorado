@@ -6,6 +6,27 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`parallel-primary-followup-summary.json` preserves a parallel insertion merger
+with no source phase/frequency/cycle change. Both absolute-time matrices pass
+160,576 samples/eight rotations/full300us/resets/pauses and five corruptions.
+The reference bench/expected data/nested sources remain byte-identical. All195
+merge bits prove equal; phase induction and formal controls pass. The first
+unsupported-ROM SAT attempt is retained: explicit memory_map lowers the same
+truth table without assumptions. Native selector build3967034/fitter3981329
+and reporter3968671/3968891 lineage plus all533 remote source hashes and the
+four unchanged bounded native simulation observations are retained.
+
+`parallel-primary-terminal-summary.json` preserves BOTH complete58-member
+component fits, exact input readback/all absent handles. Serial merger:
+18,260ALMs/32DSP, setup -136.409/-136.557/-66.261/-53.767ns. Parallel:
+3,856ALMs/0DSP, setup -0.960/-0.825/+4.908/+5.146ns, minimum hold+0.169ns.
+Both are REJECTED15ns, with all1560 ports/eight rotations/four corners and
+zero unconstrained paths. The passing launch-only subset misses the actual
+worst path: internal pixel remainder[12] -> inner event count -> BB matching/
+insertion -> rank/joined mask/level cursor -> result[1205]. It has13 logic
+levels/15.312ns data/-0.478ns skew. No source is selected into native consumers,
+no original60ns or firmware/speed pass follows, and FPGA remains reserved.
+
 `selector-projection-followup-summary.json` retains the rejected swapped-
 cofactor negative: it proved equality, refuting the presumed binary dependency
 on after_pins386 for the three selectors. V2 projects that input to zero only
@@ -1138,8 +1159,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps66,888 members to7,355 deduplicated compressed blobs;
-lossless readback verifies2,444,521,862 unique raw bytes and90,221,242 compressed
+`manifest.json.gz` now maps67,137 members to7,481 deduplicated compressed blobs;
+lossless readback verifies2,454,513,778 unique raw bytes and91,045,468 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

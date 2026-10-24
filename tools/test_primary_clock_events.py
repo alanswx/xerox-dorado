@@ -98,7 +98,7 @@ MUTATIONS = {
 }
 
 
-def run(audit, out):
+def run(audit, out, source=None):
     assert not out.exists()
     a = json.loads((audit/'results.json').read_text())
     assert a['status'] == 'PASS_SOURCE_BOUND_ALL_PRIMARY_CLOCK_SCHEDULE_AUDIT'
@@ -109,7 +109,8 @@ def run(audit, out):
     inputs = out/'inputs'
     inputs.mkdir()
     for name in ['dorado_primary_clock_events.sv', 'dorado_clock_event_batch.sv', 'dorado_oscillator_events.sv']:
-        shutil.copy2(ROOT/'verilog/rtl'/name, inputs/name)
+        path = source if source is not None and name == 'dorado_primary_clock_events.sv' else ROOT/'verilog/rtl'/name
+        shutil.copy2(path, inputs/name)
     assert sha(inputs/'dorado_clock_event_batch.sv') == a['source_hashes']['cpu-pixel-source.sv']
     (inputs/'tb.sv').write_text(TB)
     shutil.copy2(ROOT/'tools/audit_native_primary_clocks.py', inputs/'audit_native_primary_clocks.py')
@@ -141,6 +142,8 @@ def run(audit, out):
         active_sources=['CPU SCP/ECP', '50MHz pixel', '10MHz BaseBoard', '23530kHz Ethernet'],
         compared_nominal_intervals=160000, joint_period_ns=300000, native_consumers_integrated=False,
         native_RTL_changed=False, hardware_changed=False, FPGA_timing_qualified=False, speedup_qualified=False)
+    if source is not None:
+        state.update(candidate_source=str(source), candidate_source_sha256=sha(source))
 
     def save():
         (out/'run-state.json').write_text(json.dumps(state, indent=2)+'\n')
@@ -196,5 +199,6 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--audit', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--source', type=Path, help='Isolated primary merger candidate; preserve both nested producers and every reference/check')
     a = p.parse_args()
-    raise SystemExit(run(a.audit.resolve(), a.output.resolve()))
+    raise SystemExit(run(a.audit.resolve(), a.output.resolve(), a.source.resolve() if a.source else None))

@@ -51,23 +51,50 @@ references pass14,884 checks/all100 clocks/unchanged cache coverage. Four-state
 checks5140 (5012 unknown) and32 fallback-contract checks pass; broken fallback
 rejects. Native context induction156owners/1416aux and stale-owner control pass.
 Structural lint retains the same110 warnings, including3 loops/1 multiple driver.
-Both533-source native stages are ready; no new native fit has started.
+Both533-source native stages pass those gates; the live native fit is recorded below.
 Receipt `selector-projection-followup-summary.json` retains the full evidence.
 
-The independent all-primary-source15ns component fit is running on misterubuntu
-at `/home/alans/mister/primary-clock-component-v1-20261024`, builder3936076,
-fitter3947061/map3936079 exited0. All8 rotations/1560 output bits and original
-fixture constraints remain. Follow this job, collect all corners and inspect
-actual paths; even a passing component does not qualify native timing or60ns.
+Both isolated primary-producer15ns fits are now TERMINAL and REJECTED. All
+stages0/all recorded processes absent; both58-member raw collections verify
+all inputs, allowing only appended Quartus version metadata. Serial merger:
+18,260ALMs/32DSP/1619regs, setup -136.409/-136.557/-66.261/-53.767ns.
+The new parallel insertion/coalescing merger reduces this to3,856ALMs/0DSP/
+1577regs, setup -0.960/-0.825/+4.908/+5.146ns, minimum hold+0.169ns. Full
+1560-port/eight-rotation/all4-corner scope and zero unconstrained paths remain.
+The passing launch-only subset omits the worst INTERNAL-source path; do not
+quote it as a pass. Worst path: pixel remainder[12] -> arithmetic/inner count
+-> BB coalescing/insertion -> rank/joined mask/level cursor -> result[1205],
+13 logic levels/15.312ns data/-0.478ns skew.
 
-Next/TODO: retain the key reduction, fit the proved three-selector projection
-in a fresh project and review actual physical paths/all corners. Preserve all
-owners, flags, SRAM captures and barriers. Then integrate the full primary
-source with board-specific capture windows, j02 debug and DispY raw/fake/
-Ethernet ordering. Original60ns/separate66.7MHz SDRAM and the full
-A–F/Cedar/Rollback/persistence/three-boot/stress objective remain active.
-Re-prove cache/owner context for intermediate event states before composing
-consumers; the existing specialization is bound to actual closed-owner commits.
+The parallel merger leaves source clocks/phase state/guest cycles untouched.
+Both complete absolute-time references pass160,576 samples/eight phases/full
+300us/reset/pause and all5 corruptions. Bench/expected.hex/nested sources stay
+byte-identical. All195 merged bits prove equal under the original source
+geometry, plus added-phase unbounded induction and all controls. The first
+SAT attempt could not import the scale table's ROM read and is retained;
+explicit memory_map lowers the same truth table without assumptions. Receipts
+`parallel-primary-followup-summary.json` and `parallel-primary-terminal-summary.json`
+retain all qualification, live-work observations and complete timing rejections.
+The isolated candidate is not yet selected into canonical RTL/native consumers.
+
+Native selector build is LIVE at `/home/alans/mister/selector-native-v2-20261024`,
+builder3967034/session61153, fitter3981329; map3967037 exits0 at92,910 logic
+cells/95,715 resources/35DSP/2,602RAM segments,985 retained warnings. All533
+remote hashes verify, manifest a92d70fa8089b3f980762d184bfcbdb5d37fcd2202d4e994f82e51e36f9e718d.
+Physical reporter3968671/session29270 and key reporter3968891/session30366
+are verified live and queued on the SAME job. Never restart on a polling timeout.
+
+Next/TODO: simplify the measured pixel arithmetic via its exact fixed-ratio
+50MHz/four-sample state; re-prove unbounded CPU/pixel phase and complete source
+chronology before a new15ns fit. Follow the existing native selector job and
+both reporters into full timing/path review. Preserve owners/flags/SRAM captures/
+barriers. Then integrate all primary events with original capture windows,
+j02 debug and DispY raw/fake/Ethernet ordering; re-prove cache context across
+intermediate events. Original60ns/separate66.7MHz SDRAM and the full A–F/Cedar/
+Rollback/persistence/three-boot/stress objective remain active. The four original
+bounded simulations progress unchanged:5c65 TX2/disk10 at host3.65B; queue TX3/
+disk45 at host3.99B, both fault/CRC/RX0. Neither is a desktop/network-RX pass.
+Hardware and last measured4.025473M StartCycle issues/s are unchanged.
 
 Latest progress (2026-10-24): projected-key temporal induction PASSES for ALL
 475 control/event/flag outputs, exact cached-payload/canonical invariants,

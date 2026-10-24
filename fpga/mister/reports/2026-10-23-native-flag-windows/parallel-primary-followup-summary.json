@@ -1,0 +1,210 @@
+{
+  "status": "REVIEWED_PARALLEL_PRIMARY_CLOCK_MERGER_AND_LIVE_NATIVE_FIT",
+  "source_phase_state_unchanged": true,
+  "independent_full_reference_cases": 12,
+  "full_vector_samples_per_positive": 160576,
+  "formal_cases": 7,
+  "unsupported_ROM_proof_retained": true,
+  "memory_lowering_adds_no_assumptions": true,
+  "synthesis_observations": [
+    {
+      "variant": "original",
+      "synthesized_logic_cells": 28390,
+      "warning_codes": {
+        "12473": 1,
+        "13024": 1,
+        "13410": 2
+      },
+      "log_sha256": "300653cbbbdf1a17c46d038dd58b5c670e4fce8b843d8b2dcac532b6a4b233d3"
+    },
+    {
+      "variant": "parallel",
+      "synthesized_logic_cells": 6829,
+      "warning_codes": {
+        "12473": 1,
+        "13024": 1,
+        "13410": 26
+      },
+      "log_sha256": "7f14073b6e48af8bfa39cb43df6c1697f78f690ce14bbc7159f025fa68628189"
+    }
+  ],
+  "jobs": {
+    "observed": 1792861493.776292,
+    "hardware_changed": false,
+    "full_goal_active": true,
+    "jobs": [
+      {
+        "project": "/home/alans/mister/primary-clock-component-v1-20261024",
+        "state": {
+          "builder_pid": 3936076,
+          "status": "RUNNING",
+          "stages": [
+            {
+              "stage": "map",
+              "pid": 3936079,
+              "started": 1792860677.2298522,
+              "returncode": 0,
+              "finished": 1792860832.8116887
+            },
+            {
+              "stage": "fit",
+              "pid": 3947061,
+              "started": 1792860832.8121016
+            }
+          ]
+        },
+        "handles": [
+          {
+            "pid": 3936076,
+            "live": true,
+            "cwd": "/home/alans",
+            "command": "python3 /home/alans/mister/primary-clock-component-v1-20261024/fit_control_clock.py --run /home/alans/mister/primary-clock-component-v1-20261024 "
+          },
+          {
+            "pid": 3936079,
+            "live": false
+          },
+          {
+            "pid": 3947061,
+            "live": true,
+            "cwd": "/home/alans/mister/primary-clock-component-v1-20261024",
+            "command": "quartus_fit --read_settings_files=on --write_settings_files=off clock_fit "
+          }
+        ],
+        "reporters": [],
+        "source_files_verified": 10,
+        "manifest_sha256": "0d4a82f449e9507426ec75e80ebee5f29b17f9940fb0ccfe580a8c9aae09afe9"
+      },
+      {
+        "project": "/home/alans/mister/selector-native-v2-20261024",
+        "state": {
+          "status": "RUNNING",
+          "builder_pid": 3967034,
+          "started": 1792861108.6525562,
+          "stages": [
+            {
+              "stage": "map",
+              "pid": 3967037,
+              "started": 1792861108.6530073,
+              "returncode": 0,
+              "finished": 1792861307.1145458
+            },
+            {
+              "stage": "fit",
+              "pid": 3981329,
+              "started": 1792861307.1149552
+            }
+          ],
+          "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+          "assembly_permitted": false
+        },
+        "handles": [
+          {
+            "pid": 3967034,
+            "live": true,
+            "cwd": "/home/alans",
+            "command": "python3 /home/alans/mister/selector-native-v2-20261024/build_r_front_ready_native.py --project /home/alans/mister/selector-native-v2-20261024 --manifest r-front-control-native.json "
+          },
+          {
+            "pid": 3967037,
+            "live": false
+          },
+          {
+            "pid": 3981329,
+            "live": true,
+            "cwd": "/home/alans/mister/selector-native-v2-20261024/core",
+            "command": "quartus_fit --read_settings_files=on --write_settings_files=off Dorado "
+          }
+        ],
+        "reporters": [
+          {
+            "directory": "physical-report",
+            "state": {
+              "status": "WAITING_EXISTING_NATIVE_BUILD",
+              "pid": 3968671,
+              "started": 1792861129.40951,
+              "project": "/home/alans/mister/selector-native-v2-20261024",
+              "script_sha256": "e994f87a985cfc0e6129998afe63e0904b8bfe2c0fb5276d129738172f934121",
+              "manifest_sha256": "a92d70fa8089b3f980762d184bfcbdb5d37fcd2202d4e994f82e51e36f9e718d",
+              "actions": [],
+              "assembly_permitted": false,
+              "constraints_changed": false
+            },
+            "live": true,
+            "command": "python3 /home/alans/mister/selector-native-v2-20261024/report_r_front_physical_native.py --project /home/alans/mister/selector-native-v2-20261024 --output /home/alans/mister/selector-native-v2-20261024/physical-report "
+          },
+          {
+            "directory": "cp-key-report",
+            "state": {
+              "status": "WAITING_EXISTING_PHYSICAL_NATIVE_REPORT",
+              "pid": 3968891,
+              "started": 1792861131.916334,
+              "project": "/home/alans/mister/selector-native-v2-20261024",
+              "manifest_sha256": "a92d70fa8089b3f980762d184bfcbdb5d37fcd2202d4e994f82e51e36f9e718d",
+              "script_sha256": "aa75019c51cd8f4549b63e0385d172e5645be4df00686faf10bffb4133be572d",
+              "driver_sha256": "70e77bd436bf39e7b46ca0d62c7e8db1cd2556b34feb20476657f33e10c01143",
+              "actions": [],
+              "constraints_changed": false,
+              "assembly_permitted": false,
+              "native_timing_qualified": false
+            },
+            "live": true,
+            "command": "python3 /home/alans/mister/selector-native-v2-20261024/report_cp_cache_key_native.py --project /home/alans/mister/selector-native-v2-20261024 --output /home/alans/mister/selector-native-v2-20261024/cp-key-report "
+          }
+        ],
+        "source_files_verified": 533,
+        "manifest_sha256": "a92d70fa8089b3f980762d184bfcbdb5d37fcd2202d4e994f82e51e36f9e718d"
+      },
+      {
+        "project": "/home/alans/mister/primary-clock-parallel-component-v1-20261024",
+        "state": {
+          "builder_pid": 3991795,
+          "status": "RUNNING",
+          "stages": [
+            {
+              "stage": "map",
+              "pid": 3991798,
+              "started": 1792861448.9655688,
+              "returncode": 0,
+              "finished": 1792861484.3411393
+            },
+            {
+              "stage": "fit",
+              "pid": 3994313,
+              "started": 1792861484.3415275
+            }
+          ]
+        },
+        "handles": [
+          {
+            "pid": 3991795,
+            "live": true,
+            "cwd": "/home/alans",
+            "command": "python3 /home/alans/mister/primary-clock-parallel-component-v1-20261024/fit_control_clock.py --run /home/alans/mister/primary-clock-parallel-component-v1-20261024 "
+          },
+          {
+            "pid": 3991798,
+            "live": false
+          },
+          {
+            "pid": 3994313,
+            "live": true,
+            "cwd": "/home/alans/mister/primary-clock-parallel-component-v1-20261024",
+            "command": "quartus_fit --read_settings_files=on --write_settings_files=off clock_fit "
+          }
+        ],
+        "reporters": [],
+        "source_files_verified": 10,
+        "manifest_sha256": "841140ff80a619bbc75ce8c6b43a77dae41781b0f4a0fac1a31d572b884c31fc"
+      }
+    ]
+  },
+  "native_consumers_integrated": false,
+  "physical_timing_qualified": false,
+  "firmware_qualified": false,
+  "speedup_qualified": false,
+  "assembly_permitted": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}

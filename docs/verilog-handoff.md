@@ -76,20 +76,59 @@ parent, including3 UNOPTFLAT and1 MULTIDRIVEN; the ECC loop remains unresolved.
 Receipt `selector-projection-followup-summary.json` retains both premise runs,
 V2 positive/negative proofs, all comparisons, both stages and native gates.
 
-Independent15ns PRIMARY-PRODUCER-ONLY fit is running on misterubuntu:
-`/home/alans/mister/primary-clock-component-v1-20261024`, builder3936076,
-fitter3947061 (map3936079 exited0). It retains all195 event-vector bits for each
-of8 rotations,1560 captured results, the unchanged registered fixture/SDC and
-all-device timing reports. Observe the existing job; do not restart it. No
-native integration or timing acceptance follows from a component result.
+Clock producer implementation follow-up (2026-10-24): both isolated15ns fits
+are now TERMINAL, all4 stages0/all recorded handles absent. Both58-member
+collections verify compiled inputs exactly, allowing only Quartus's appended
+LAST_QUARTUS_VERSION metadata. The original six-round serial merger is rejected:
+setup -136.409/-136.557/-66.261/-53.767ns,18,260ALMs/32DSP/1619registers.
+A new parallel insertion merger coalesces the two added crystals against the
+already ordered CPU/pixel records and uses constant quantum scaling. It changes
+no source clocks, source phase state, guest cycles or native consumers.
+Both full reference matrices pass160,576 samples/all8 rotations/full300us,
+resets/pauses and all5 corruptions; the reference bench/expected.hex/nested
+sources are byte-identical. All195 merged bits prove equal for the same valid
+source geometry; phase induction and all formal controls pass. First proof
+failed because SAT could not import a ROM read; retain it and its classification.
+Explicit memory_map lowers that same total truth table without assumptions.
 
-Next/TODO: fit the qualified three-selector projection in a fresh native
-project, inspect all physical paths/corners and retain failures. The fit has
-NOT started. Stages `selector-native[-generic]-stage-v2-20261024` are ready;
-context proof/stale control and structural lint share the same v2 date suffix.
-Collect and review the exact running primary component build. Integrate the
-full primary event source with original capture windows toward60ns, then
-qualify separate66.7MHz SDRAM, pinned waits/speed and original-firmware Cedar.
+Parallel fit:3,856ALMs/0DSP/1577registers, setup -0.960/-0.825/+4.908/+5.146ns;
+minimum hold+0.169ns. Still REJECTED15ns. All1560 output ports/eight rotations,
+all4 corners and zero unconstrained paths are retained. The launch-only subset
+passes, but the ACTUAL worst path starts at internal pixel remainder[12] and
+ends result[1205],13 logic levels/15.312ns data/-0.478ns skew. It traverses the
+pixel arithmetic/inner count, BB matching/insertion, rank, joined mask and level
+cursor. Do not promote the passing subset to a component timing pass.
+Receipts `parallel-primary-followup-summary.json` and
+`parallel-primary-terminal-summary.json` retain all sources, tests, failed proof,
+formal gates, live-work observations and complete timing rejections. Canonical
+`dorado_primary_clock_events.sv` remains the original version; the qualified
+parallel candidate lives in `primary-parallel-merge-stage-v1-20261024`.
+
+Native selector fit HAS started at
+`/home/alans/mister/selector-native-v2-20261024`: builder3967034/session61153,
+fitter3981329; map3967037 exited0 (92,910 logic cells/95,715 resources,
+35DSP/2,602RAM segments,985 retained warnings). All533 remote source hashes
+verify. Manifest a92d70fa8089b3f980762d184bfcbdb5d37fcd2202d4e994f82e51e36f9e718d.
+Upload SHA41dba960aa97f2a707edf04b8149db158d21ebbcdeb74391e0cd8a15b37c3bf1.
+Read-only physical reporter3968671/session29270 and CP-key reporter3968891/
+session30366 are verified live, queued on the SAME builder/reports. Observe
+these handles; do not restart. No assembly, native timing, speed or firmware pass.
+
+Original bounded native simulations remain live, unchanged: 5c65 process58600
+at host3.65B/guest2.054B has178.946M StartCycle issues, disk10/TX2; queued58753
+at host3.99B/guest2.428B has225.729M issues, disk45/TX3. Both fault/CRC/RX0.
+They are progressing beyond the earlier timer wait, not qualified Cedar boots
+or network receive. Balanced49723 is at host1.31B/guest699.093M and has issued
+one CPU instruction; short-control75056 remains in ROM memory diagnostics at
+host640M/guest280.638M. All original5B bounds/inputs/media are unchanged.
+
+Next/TODO: simplify the measured pixel remainder path using its exact fixed
+50MHz/four-sample state, with independent unbounded phase and all-source
+comparisons; do not change frequency, add a guest cycle or waive timing.
+Follow the native selector fit and both reporters into all-device/physical-path
+review. Then integrate the full primary event source with original capture
+windows toward60ns; re-prove owner/cache context across intermediate events.
+Separate66.7MHz SDRAM, pinned waits/speed and original-firmware Cedar remain.
 Authentic Rollback, new-file persistence, three fresh boots and2h stress remain.
 The user's FPGA is reserved; notify only when a reviewed build needs testing.
 

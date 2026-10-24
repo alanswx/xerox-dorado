@@ -166,6 +166,7 @@ def run(tests, out, yosys):
 hierarchy -check -top {top}
 proc
 flatten
+memory_map
 opt
 check -assert
 sat {strategy} -timeout 120 -prove equivalent 1 -{flag} -show-ports -dump_json /work/counterexample.json
