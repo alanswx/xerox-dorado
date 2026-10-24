@@ -80,9 +80,9 @@ module dorado_terminal (
     input  wire signed [8:0] mouse_dx,
     input  wire signed [8:0] mouse_dy,
     input  wire        mouse_pending,
-    output reg         mouse_taken,     // one pulse when a 06B message starts
-    output reg  signed [8:0] mouse_sent_dx,
-    output reg  signed [8:0] mouse_sent_dy,
+    output reg         mouse_taken = 1'b0, // one pulse when a 06B message starts
+    output reg  signed [8:0] mouse_sent_dx = 9'sd0,
+    output reg  signed [8:0] mouse_sent_dy = 9'sd0,
 
     // The serial return channel, as the differential pair the BaseBoard's
     // MC10125 receives.
@@ -91,15 +91,18 @@ module dorado_terminal (
 );
 
   // ---- edge-detect the five words so a TRANSITION can outrank the mouse ----
-  reg [15:0] prev0, prev1, prev2, prev3, prev4;
-  reg  [4:0] kbd_pending;
+  reg [15:0] prev0=16'hFFFF, prev1=16'hFFFF, prev2=16'hFFFF,
+             prev3=16'hFFFF, prev4=16'hFFFF;
+  reg  [4:0] kbd_pending=5'd0;
 
   // ---- message state ----
-  reg  [4:0] msg_bit;        // 0..31
-  reg  [2:0] msg_word;       // round-robin cursor, 0..4
-  reg  [6:0] msg_type;
-  reg [15:0] msg_body;
-  reg [31:0] msg;
+  // The source clock is gated during configuration/reset. These initial
+  // values are FPGA configuration state, matching the asynchronous reset.
+  reg  [4:0] msg_bit=5'd0;   // 0..31
+  reg  [2:0] msg_word=3'd1;  // round-robin cursor, 0..4
+  reg  [6:0] msg_type=7'd1;
+  reg [15:0] msg_body=16'hFFFF;
+  reg [31:0] msg=32'h81ffff80;
 
   wire [15:0] word_of_0 = key_word0, word_of_1 = key_word1,
               word_of_2 = key_word2, word_of_3 = key_word3,
@@ -114,6 +117,8 @@ module dorado_terminal (
       default: word_of = word_of_4;
     endcase
   endfunction
+
+  wire [2:0] pending_word = lowest_pending(kbd_pending);
 
   // Lowest pending word first, so a burst is reported in a stable order.
   function [2:0] lowest_pending(input [4:0] p);
@@ -136,20 +141,24 @@ module dorado_terminal (
                                  (mouse_dy < -9'sd128) ? -9'sd128 : mouse_dy;
   wire [15:0] mouse_body = {dx_clamped[7:0] + 8'h80, dy_clamped[7:0] + 8'h80};
 
-  always @(posedge sys_clk) begin
-    mouse_taken <= 1'b0;
+  // Reset also applies while the native machine clock is stopped.
+  always @(posedge sys_clk or posedge reset) begin
     if (reset) begin
+      mouse_taken <= 1'b0;
       msg_bit <= 5'd0; kbd_pending <= 5'd0;
       // Preloaded with the first message the round-robin will send (type 1,
       // keyboard word 0), so the machine's first sampled bit is a real start
       // bit rather than whatever the register powered up holding.
-      msg_type <= 7'd1; msg_body <= key_word0;
-      msg <= {1'b1, 7'd1, key_word0, 1'b1, 7'd0};
+      // The keyboard resets to all keys released. Use that value directly:
+      // its nonblocking reset assignment settles after this same event.
+      msg_type <= 7'd1; msg_body <= 16'hFFFF;
+      msg <= {1'b1, 7'd1, 16'hFFFF, 1'b1, 7'd0};
       msg_word <= 3'd1;
       prev0 <= 16'hFFFF; prev1 <= 16'hFFFF; prev2 <= 16'hFFFF;
       prev3 <= 16'hFFFF; prev4 <= 16'hFFFF;
       mouse_sent_dx <= 9'sd0; mouse_sent_dy <= 9'sd0;
     end else begin
+      mouse_taken <= 1'b0;
       // A transition on any word raises its pending bit. Sampled every
       // sys_clk, not per line, so a brief press is not missed.
       if (key_word0 !== prev0) begin kbd_pending[0] <= 1'b1; prev0 <= key_word0; end
@@ -168,12 +177,11 @@ module dorado_terminal (
         if (msg_bit == 5'd31) begin
           // ---- message boundary: choose, then LATCH ----
           if (|kbd_pending) begin
-            automatic reg [2:0] w = lowest_pending(kbd_pending);
-            kbd_pending[w] <= 1'b0;
-            msg_type <= (w < 3'd4) ? {4'd0, w} + 7'd1 : 7'd5;
-            msg_body <= word_of(w);
-            msg <= {1'b1, ((w < 3'd4) ? ({4'd0, w} + 7'd1) : 7'd5),
-                    word_of(w), 1'b1, 7'd0};
+            kbd_pending[pending_word] <= 1'b0;
+            msg_type <= (pending_word < 3'd4) ? {4'd0, pending_word} + 7'd1 : 7'd5;
+            msg_body <= word_of(pending_word);
+            msg <= {1'b1, ((pending_word < 3'd4) ? ({4'd0, pending_word} + 7'd1) : 7'd5),
+                    word_of(pending_word), 1'b1, 7'd0};
           end else if (mouse_pending) begin
             msg_type <= 7'd6;
             msg_body <= mouse_body;

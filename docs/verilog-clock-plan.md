@@ -9,6 +9,31 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Latest decision (2026-10-23): the late-Hold same-cycle Boolean alternatives
+pass both full component comparisons, but the complete15ns fit is REJECTED:
+owner setup -16.283ns even though the late-input/owner path meets +7.047ns.
+The remaining critical path crosses early control CP-prefix/root composition.
+Keep the original capture boundaries and60ns budget; no multicycle exception,
+result removal or native selection follows from the component pass.
+[Complete evidence and coverage limits](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#late-hold-selection-and-stopped-clock-input-reset).
+
+Actual native boot observation changes the immediate A/B measurement task:
+the original tests request Alto110 with keyboard words0000, every key held.
+Their adapter resets never see a machine-clock edge. Explicit FPGA power-up
+values plus asynchronous keyboard/terminal resets now pass16 dual-engine
+cases, including8 expected negative-control rejections. Two new frozen native
+tests, `native-cedar-{5c65,queue}-input-reset-v3-20261023`, pass the real cold
+reset assertion and run at their original5B bounds (processes58600/58753).
+Their exact adapter sources pass both simulators and isolated Cyclone V
+synthesis. The earlier v2 tests were deliberately stopped after Quartus
+rejected register inference; failed sources/logs and explicit SIGTERM reasons
+are retained. Final strobe history stays clocked and asynchronous branches
+assign constants. This is synthesis qualification, not full native timing.
+Original29201/29618 remain untouched. Next require actual firmware113/C release
+before measuring Cedar storage; do not count a delivered PS/2 toggle or empty
+queue as proof of guest boot-key state. Original firmware/clocks/medium/button
+stimulus are unchanged. Hardware/speed unchanged; full A-F goal ACTIVE.
+
 Structural cut / phase-budget decision (2026-10-23): the registered 475-bit
 control/operand COMPONENT split passes both complete 14,884-event original
 comparisons, retaining all 844 Qs, 9,216 RAM bits, 69 original fatal checks and

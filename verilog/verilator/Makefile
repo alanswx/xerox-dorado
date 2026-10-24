@@ -1890,6 +1890,14 @@ key-queue-test:
 		verilog/cells/dorado_keyboard.v >/dev/null
 	@./obj_key_queue/tb_key_queue
 
+.PHONY: keyboard-stopped-reset-test
+keyboard-stopped-reset-test:
+	@cd ../.. && $(V) --binary --top-module tb_keyboard_stopped_reset $(V_WARN) \
+		--Mdir verilog/verilator/obj_keyboard_stopped_reset -o tb_keyboard_stopped_reset \
+		verilog/verilator/tb_keyboard_stopped_reset.sv fpga/mister/dorado_key_queue.sv \
+		verilog/cells/dorado_keyboard.v verilog/cells/dorado_terminal.v >/dev/null
+	@./obj_keyboard_stopped_reset/tb_keyboard_stopped_reset
+
 keyboard-terminal-test:
 	@cd ../.. && $(V) --binary --top-module tb_keyboard_terminal $(V_WARN) \
 		--Mdir verilog/verilator/obj_keyboard_terminal -o tb_keyboard_terminal \

@@ -4,6 +4,95 @@ This receipt preserves the complete v5 native failure and the corrected
 component implementation of the original l06/l07 flag latches. No image was
 assembled or loaded; the qualified hardware core and measured speed are unchanged.
 
+## Late Hold selection and stopped-clock input reset
+
+`late-hold-selection-summary.json` retains the two stateless alternatives for
+the actual MemC15.sil+2 late Hold pin, followed by same-cycle selection. BOTH
+full original comparisons pass **14,884 checks /238 writes /6,928 reads /392
+epochs** with all844 physical Qs,9216 RAM bits,69 original fatal checks and100
+clock counts retained. Forecasts instantiate no RAM or sequential storage;
+the original evaluator remains the sole four-bank SRAM owner. Inverting the
+actual full-state selection fails the independent original check15/Q840 in
+both engines. There are2709 distinct full-state checks, exclusively at Q840;
+the eight closed R flags have ZERO distinct alternative coverage. These are
+bounded transfer tests, not proof of flag influence, native timing or speed.
+
+The isolated15ns fit is **rejected**. Sources and the entire1400-result shell
+and SDC are retained. Initial Quartus17 genvar parsing fails; the next attempt
+uses the already-proved separate-genvar spelling and finishes synthesis, fit
+and STA. The first corner query misses top-level register names; subsequent
+escaped-name and in-netlist escaping-mode queries also fail. All are retained.
+The final literal-name query completes on the SAME fitted database, covering
+844 owner registers and the real late input at every condition:
+
+| Condition | Global setup | Owner setup | Late Hold -> owners | Hold |
+|---|---:|---:|---:|---:|
+| Slow100C | -17.177ns | -16.283ns | +7.047ns | +0.420ns |
+| Slow-40C | -17.162ns | -15.997ns | +7.345ns | +0.396ns |
+| Fast100C | -2.332ns | -1.665ns | +9.920ns | +0.200ns |
+| Fast-40C | +0.295ns | +0.891ns | +10.837ns | +0.178ns |
+
+The worst global path ends at result355, an `unsettled` diagnostic. The worst
+functional owner path ends at result1150, physical Q594; both start at
+launch686, before-controls bit283. Thus removing diagnostics would not qualify
+this candidate. The early control CP-prefix/root composition remains too long.
+All five reported unconstrained path classes are zero. The fit uses9093 ALMs
+(1526 containing virtual pins),3748 registers and no M10Ks; the source has one
+physical R-file owner. Synthesis retains1193 result registers after optimizing
+constants; no source result field was removed. No exception or refit was used
+to obtain the final reports.
+
+`late-hold-timing-input-reset-paths-summary.json` is the authoritative timing/
+input receipt. Its metadata-only correction anchors detail rows: the first
+receipt's parser matched the summary column labels for source/sink names.
+Raw reports, slacks, source hashes and the rejection remain identical; the
+original receipt is retained with the explicit correction link/hash.
+
+The actual native boot-input failure is independently observed by read-only
+debugger inspection of process29618: raw PS/2 and delivered event are621,
+queue count0, but ALL FOUR keyboard words are0000. Active-low0000 means every
+key is held. The original gated machine clock has no edges while reset is
+asserted. Asynchronous reset alone also fails the real native cold test,
+because reset begins high at time zero without a rising edge in Verilator.
+Both failed asynchronous-only native tests stop immediately at their new
+matrix assertion, preserving their exact sources/logs.
+
+The keyboard and terminal utility adapters now declare power-up state matching
+reset and accept asynchronous reset with a stopped source clock. Terminal
+reset/configuration sends81ffff80 directly, avoiding a same-event keyboard
+nonblocking-assignment dependency. Pure pending-word selection replaces an
+automatic block temporary rejected by Icarus, retaining the same priority.
+The original boards/ROM, source clocks, memory, key queue and boot stimulus
+remain unchanged. Final tests in BOTH simulators cover cold reset low/high,
+no machine edges, queued C, exact83fbff80 serial delivery and stopped warm
+reset. Eight functional cases pass and eight controls reject: missing
+power-up values and each/both asynchronous resets removed. Existing queue and
+keyboard/terminal tests pass in both. The earlier unsupported-Icarus syntax
+failure and less-complete passing tests remain archived.
+
+The final source is recorded in `input-reset-synthesis-summary.json` and
+`keyboard-stopped-reset-v5-20261023`. Actual Quartus synthesis rejected the
+intermediate reset implementation's unconditional mouse_taken assignment.
+The final implementation keeps strobe history clocked separately and assigns
+mouse_taken's constant in both reset/normal branches. It passes the same16
+dual-engine cases and isolated Cyclone V synthesis with0 errors/9 visible
+warnings. This does not qualify placement/routing, reset recovery/removal,
+full-core timing or a native boot. The failed synthesis source and report
+remain archived. The matching input-reset-v2 simulations were deliberately
+stopped with SIGTERM for this known source rejection, with their bounds,
+prefixes and termination reasons preserved. No observation timeout caused a
+restart; the new v3 tests bind both final simulator and synthesis receipts.
+
+Original native processes29201/29618 are verified live at their unchanged5B
+bounds; both have requested Alto110. Fresh source-changed control/queue
+processes58600/58753 pass the real cold assertion at host6/guest0 and remain
+live, with original5B bounds, EPROMs, clocks, memory model, C/button stimulus,
+SkipDiskWait jumper and read-only host pack. Their frozen inputs and process
+observations are retained as observations, not a Cedar boot pass. No guest
+state was planted and no old process restarted. Actual113/C release and Cedar
+storage attribution are the next gates. Hardware/speed remain unchanged;
+complete60ns/physical-SDRAM/Rollback/persistence/input/stress acceptance remains.
+
 ## Registered control cut and cadence budget
 
 Both original-reference comparisons pass the experimental 475-bit registered
@@ -337,8 +426,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` maps 16,018 members to 2,634 deduplicated compressed blobs;
-lossless readback verifies 849,017,908 raw bytes, 30,978,436 compressed blob bytes.
+`manifest.json.gz` maps29,064 members to3,233 deduplicated compressed blobs;
+lossless readback verifies881,390,797 raw bytes,33,695,246 compressed blob bytes.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`
 adds the terminal pointer matrix, bounded RM capture and original native

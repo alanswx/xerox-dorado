@@ -52,7 +52,8 @@ TOOLS   = ../tools
         instruction-progress-test storage-linecache-test storage-linecache-array-test storage-linecache-board-test storage-sdram-test storage-sdram-board-test pack-wallclock-test \
         clean-generated
 
-instruction-progress-test pack-wallclock-test storage-linecache-test storage-linecache-array-test storage-linecache-board-test storage-sdram-test storage-sdram-board-test storage-arb-test speed-monitor-test pause-monitor-test t-controls-test control-phases-test run-control-test control-clock-test processor-capture-test task-capture-test t-file-test t-parity-test r-operand-test mc1668-latch-test clock-phases-test clock-phase-audit key-queue-test ethernet-input-hold-test ethernet-receive-sequence-test memory-density64-test map-density64-test storage-board64-test pack-fault-test:
+.PHONY: keyboard-stopped-reset-test
+instruction-progress-test pack-wallclock-test storage-linecache-test storage-linecache-array-test storage-linecache-board-test storage-sdram-test storage-sdram-board-test storage-arb-test speed-monitor-test pause-monitor-test t-controls-test control-phases-test run-control-test control-clock-test processor-capture-test task-capture-test t-file-test t-parity-test r-operand-test mc1668-latch-test clock-phases-test clock-phase-audit key-queue-test keyboard-stopped-reset-test ethernet-input-hold-test ethernet-receive-sequence-test memory-density64-test map-density64-test storage-board64-test pack-fault-test:
 	@$(MAKE) -C verilator $@
 
 # PROM contents, sliced per package position from PARC's own BCPL.

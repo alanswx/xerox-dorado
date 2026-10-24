@@ -1,5 +1,69 @@
 # Verilog from Sil: handoff
 
+Latest clock-path and native-input milestone (2026-10-23;
+[proofs, timing rejection and startup evidence](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#late-hold-selection-and-stopped-clock-input-reset)):
+the same-cycle late-Hold alternatives pass BOTH complete 14,884-event component
+comparisons, retaining all original physical-Q/RAM/fatal/clock checks and one
+four-bank SRAM owner. No pipeline register or guest cycle is added. Coverage
+distinguishes physical Q840 only; the eight closed R flags have ZERO distinct
+alternative coverage. Keep that limitation and the earlier CP-profile rejection.
+
+The isolated 15 ns fit is now REJECTED on functional timing. Map/fit/STA finish;
+the original corner query and two repair attempts fail, then the literal-name
+query completes all four conditions on the SAME fitted database. Global setup
+is -17.177 ns to diagnostic result355; owner-only setup is -16.283 ns to
+result1150 (physical Q594). The late Hold input to owners meets +7.047 ns, but
+the early control/CP-prefix/root composition remains too long. No result or
+constraint was removed and no timing exception was added. This is not a faster
+native candidate. The receipt preserves all query failures; its path-metadata
+correction fixes column-header matches without changing reports or slack.
+
+Read-only inspection of original native process29618 finds raw/queued event
+621 correctly delivered, but ALL FOUR keyboard words are0000: every key held.
+The machine clock is gated throughout reset, so synchronous adapter resets
+never execute. Asynchronous reset alone also fails the real cold fixture:
+reset starts HIGH at time zero with no rising edge in Verilator. Keyboard and
+terminal adapters now have explicit FPGA power-up values matching reset plus
+asynchronous resets; the first terminal packet is81ffff80 without depending on
+same-event keyboard NBA ordering. Pending-word selection is a pure wire,
+retaining priority while supporting Icarus. Original board/firmware/clocks and
+the key queue are unchanged.
+
+Final stopped-clock input tests (`keyboard-stopped-reset-v5-20261023`) cover both cold reset levels, queued C ->
+ffff/ffff/fbff/ffff -> serial83fbff80, and a stopped warm reset. Both simulators
+pass all8 functional cases and reject all8 controls (missing power-up values,
+keyboard-only/terminal-only/both synchronous reset). Existing queue and
+keyboard-terminal tests pass in both; matrix placement, terminal framing/
+priority and mouse-terminal tests pass. Earlier limited tests and both failed
+asynchronous-only native attempts remain archived.
+
+Actual Quartus synthesis also caught unsupported register inference in the
+intermediate reset implementation. The final version keeps strobe history on
+source clock edges and puts mouse_taken's constant assignment in both reset/
+normal branches. Both final-source simulators pass the16-case suite; isolated
+Cyclone V synthesis passes with0 errors/9 visible warnings, not a full timing
+qualification. The two input-reset-v2 tests were explicitly stopped with
+SIGTERM because their exact utility source was rejected by Quartus; their
+bounds, logs and termination reason are preserved. This was not a timeout.
+`input-reset-synthesis-summary.json` is the final input-source receipt.
+
+Original native jobs29201/29618 continue unchanged at their5B host bounds and
+have requested Alto110, not Cedar113. Fresh, source-changed control/queue jobs
+58600/58753 (`native-cedar-{5c65,queue}-input-reset-v3-20261023`) both pass the
+native reset assertion at host6/guest0 and are RUNNING. They retain the same
+5B bound, original EPROMs, physical memory model, C/button stimulus, SkipDiskWait
+jumper and read-only host medium. These are new experiments for a diagnosed
+source defect, not restarts or extensions of old runs. Revalidate their actual
+process handles; do not infer liveness from run-state files alone.
+
+Next: observe a genuine113 request/C release and then pinned Cedar storage
+windows in BOTH fresh runs. Separately shorten the actual early CP/control
+path using original capture boundaries and source-arrival contracts, retaining
+the60ns budget. Native timing, separate66.7MHz SDRAM, all peripheral timing,
+Rollback/persistence, final fresh boots/input/stress and the full A-F goal remain
+open. Hardware and last measured4.025473M StartCycle issues/s are unchanged;
+complete FPGA snapshots stay deferred.
+
 Latest structural-cut experiment (2026-10-23;
 [complete component proof and cadence rejection](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#registered-control-cut-and-cadence-budget)):
 the 475-bit registered control/operand cut passes BOTH original-reference
@@ -10059,6 +10123,10 @@ and has unreviewed hold violations; never deploy it.
 
 ### Structural speed work: current order
 
+- [x] Preserve dual-engine late-Hold component passes and reject the full 15 ns duplication fit on actual owner paths; no timing waiver or native promotion.
+- [x] Diagnose the original native keyboard's all-zero active-low matrix; repair adapter power-up and stopped-clock reset, with16 dual-engine cases including8 rejected controls.
+- [ ] Observe genuine Cedar113/C release and pinned storage windows on fresh input-reset-v3 control/queue jobs58600/58753, bound to passing final adapter synthesis/tests; retain original jobs29201/29618 and their unchanged bounds as Alto110 evidence.
+- [ ] Shorten the remaining early CP/control/root composition using original capture boundaries and proved arrivals, preserving60ns cadence and all original state/RAM/capture checks.
 - [x] Update the plan from actual5c65 CPU cadence, storage pauses and unchanged early-read performance; preserve Native59/5c65 and all volumes.
 - [x] Qualify5c65 original Checkpoint return, fresh keyboard echo and pre-save file readback; retain the incomplete diagnostic write history.
 - [ ] Attribute128-group request admission, word-return, drain and handoff waits on pinned traffic; distinguish original Hold, transport barriers and ARM disk waits.

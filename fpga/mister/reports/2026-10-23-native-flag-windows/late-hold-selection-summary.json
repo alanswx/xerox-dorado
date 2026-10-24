@@ -1,0 +1,965 @@
+{
+  "status": "REVIEWED_LATE_HOLD_COMPONENT_SELECTION_AND_ROM_DELAY_PROGRESS",
+  "scope": "Preserve late Hold selection proofs, limitations and real ROM-delay progress.\n\nOnly the component transfer is under test. No new clock, native fit, FPGA\nimage, machine cadence or Cedar performance claim follows from this receipt.\nKeep earlier failed/limited attempts and the rejected CP timing profile.\n",
+  "component_gates": [
+    {
+      "engine": "icarus",
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-late-hold-all-icarus-v3-20261023",
+      "state_sha256": "4e16130290cb3c47c238b6d632476f46f5016dbf52e8a2aa73628744e2eae7dc",
+      "candidate_sha256": "80535af3504cfa3a5fc010c1a2cfda6189500e60e310136611274ac65e2d8c22",
+      "pure_forecasts_sha256": "d14b22bbb3bb8ea6d0789d062c379f55f4b36212f48b6e2f507a87469ea4ba1e",
+      "summary": "checks=14884 writes=238 reads=6928 epochs=392",
+      "coverage": {
+        "checks": "29768",
+        "distinct": "0",
+        "bits": "00",
+        "seen": "11",
+        "state_distinct": "2709",
+        "state_bits": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "shared_RAM_banks": "4",
+        "sequential_forecasts": "0"
+      },
+      "clocks": [
+        [
+          "0",
+          "4464"
+        ],
+        [
+          "1",
+          "2232"
+        ],
+        [
+          "2",
+          "2232"
+        ],
+        [
+          "3",
+          "2232"
+        ],
+        [
+          "4",
+          "4393"
+        ],
+        [
+          "5",
+          "4393"
+        ],
+        [
+          "6",
+          "4393"
+        ],
+        [
+          "7",
+          "4201"
+        ],
+        [
+          "8",
+          "4393"
+        ],
+        [
+          "9",
+          "4393"
+        ],
+        [
+          "10",
+          "4464"
+        ],
+        [
+          "11",
+          "2180"
+        ],
+        [
+          "12",
+          "2180"
+        ],
+        [
+          "13",
+          "2181"
+        ],
+        [
+          "14",
+          "4393"
+        ],
+        [
+          "15",
+          "4464"
+        ],
+        [
+          "16",
+          "2180"
+        ],
+        [
+          "17",
+          "2180"
+        ],
+        [
+          "18",
+          "2181"
+        ],
+        [
+          "19",
+          "2180"
+        ],
+        [
+          "20",
+          "1616"
+        ],
+        [
+          "21",
+          "1616"
+        ],
+        [
+          "22",
+          "166"
+        ],
+        [
+          "23",
+          "4393"
+        ],
+        [
+          "24",
+          "4393"
+        ],
+        [
+          "25",
+          "2101"
+        ],
+        [
+          "26",
+          "2181"
+        ],
+        [
+          "27",
+          "2101"
+        ],
+        [
+          "28",
+          "2181"
+        ],
+        [
+          "29",
+          "32"
+        ],
+        [
+          "30",
+          "48"
+        ],
+        [
+          "31",
+          "32"
+        ],
+        [
+          "32",
+          "48"
+        ],
+        [
+          "33",
+          "2180"
+        ],
+        [
+          "34",
+          "4393"
+        ],
+        [
+          "35",
+          "4393"
+        ],
+        [
+          "36",
+          "4393"
+        ],
+        [
+          "37",
+          "4393"
+        ],
+        [
+          "38",
+          "2180"
+        ],
+        [
+          "39",
+          "4393"
+        ],
+        [
+          "40",
+          "4393"
+        ],
+        [
+          "41",
+          "4393"
+        ],
+        [
+          "42",
+          "1616"
+        ],
+        [
+          "43",
+          "32"
+        ],
+        [
+          "44",
+          "2180"
+        ],
+        [
+          "45",
+          "2180"
+        ],
+        [
+          "46",
+          "257"
+        ],
+        [
+          "47",
+          "2181"
+        ],
+        [
+          "48",
+          "2180"
+        ],
+        [
+          "49",
+          "2180"
+        ],
+        [
+          "50",
+          "2180"
+        ],
+        [
+          "51",
+          "2180"
+        ],
+        [
+          "52",
+          "2180"
+        ],
+        [
+          "53",
+          "1"
+        ],
+        [
+          "54",
+          "1"
+        ],
+        [
+          "55",
+          "1056"
+        ],
+        [
+          "56",
+          "1056"
+        ],
+        [
+          "57",
+          "1616"
+        ],
+        [
+          "58",
+          "1616"
+        ],
+        [
+          "59",
+          "1616"
+        ],
+        [
+          "60",
+          "1616"
+        ],
+        [
+          "61",
+          "1616"
+        ],
+        [
+          "62",
+          "1616"
+        ],
+        [
+          "63",
+          "1616"
+        ],
+        [
+          "64",
+          "1616"
+        ],
+        [
+          "65",
+          "239"
+        ],
+        [
+          "66",
+          "132"
+        ],
+        [
+          "67",
+          "2180"
+        ],
+        [
+          "68",
+          "2180"
+        ],
+        [
+          "69",
+          "32"
+        ],
+        [
+          "70",
+          "1616"
+        ],
+        [
+          "71",
+          "1616"
+        ],
+        [
+          "72",
+          "1616"
+        ],
+        [
+          "73",
+          "1616"
+        ],
+        [
+          "74",
+          "1616"
+        ],
+        [
+          "75",
+          "1616"
+        ],
+        [
+          "76",
+          "1616"
+        ],
+        [
+          "77",
+          "1616"
+        ],
+        [
+          "78",
+          "1616"
+        ],
+        [
+          "79",
+          "1616"
+        ],
+        [
+          "80",
+          "1616"
+        ],
+        [
+          "81",
+          "1616"
+        ],
+        [
+          "82",
+          "1616"
+        ],
+        [
+          "83",
+          "1616"
+        ],
+        [
+          "84",
+          "1616"
+        ],
+        [
+          "85",
+          "1616"
+        ],
+        [
+          "86",
+          "32"
+        ],
+        [
+          "87",
+          "1616"
+        ],
+        [
+          "88",
+          "1616"
+        ],
+        [
+          "89",
+          "1616"
+        ],
+        [
+          "90",
+          "1616"
+        ],
+        [
+          "91",
+          "65"
+        ],
+        [
+          "92",
+          "65"
+        ],
+        [
+          "93",
+          "65"
+        ],
+        [
+          "94",
+          "4401"
+        ],
+        [
+          "95",
+          "1"
+        ],
+        [
+          "96",
+          "2197"
+        ],
+        [
+          "97",
+          "2197"
+        ],
+        [
+          "98",
+          "2197"
+        ],
+        [
+          "99",
+          "2201"
+        ]
+      ]
+    },
+    {
+      "engine": "verilator",
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-late-hold-all-verilator-v3-20261023",
+      "state_sha256": "1d93f8d9230b1232c100479829c2615a513f8a50d9303843969243486e5186b9",
+      "candidate_sha256": "80535af3504cfa3a5fc010c1a2cfda6189500e60e310136611274ac65e2d8c22",
+      "pure_forecasts_sha256": "d14b22bbb3bb8ea6d0789d062c379f55f4b36212f48b6e2f507a87469ea4ba1e",
+      "summary": "checks=14884 writes=238 reads=6928 epochs=392",
+      "coverage": {
+        "checks": "29768",
+        "distinct": "0",
+        "bits": "00",
+        "seen": "11",
+        "state_distinct": "2709",
+        "state_bits": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "shared_RAM_banks": "4",
+        "sequential_forecasts": "0"
+      },
+      "clocks": [
+        [
+          "0",
+          "4464"
+        ],
+        [
+          "1",
+          "2232"
+        ],
+        [
+          "2",
+          "2232"
+        ],
+        [
+          "3",
+          "2232"
+        ],
+        [
+          "4",
+          "4393"
+        ],
+        [
+          "5",
+          "4393"
+        ],
+        [
+          "6",
+          "4393"
+        ],
+        [
+          "7",
+          "4201"
+        ],
+        [
+          "8",
+          "4393"
+        ],
+        [
+          "9",
+          "4393"
+        ],
+        [
+          "10",
+          "4464"
+        ],
+        [
+          "11",
+          "2180"
+        ],
+        [
+          "12",
+          "2180"
+        ],
+        [
+          "13",
+          "2181"
+        ],
+        [
+          "14",
+          "4393"
+        ],
+        [
+          "15",
+          "4464"
+        ],
+        [
+          "16",
+          "2180"
+        ],
+        [
+          "17",
+          "2180"
+        ],
+        [
+          "18",
+          "2181"
+        ],
+        [
+          "19",
+          "2180"
+        ],
+        [
+          "20",
+          "1616"
+        ],
+        [
+          "21",
+          "1616"
+        ],
+        [
+          "22",
+          "166"
+        ],
+        [
+          "23",
+          "4393"
+        ],
+        [
+          "24",
+          "4393"
+        ],
+        [
+          "25",
+          "2101"
+        ],
+        [
+          "26",
+          "2181"
+        ],
+        [
+          "27",
+          "2101"
+        ],
+        [
+          "28",
+          "2181"
+        ],
+        [
+          "29",
+          "32"
+        ],
+        [
+          "30",
+          "48"
+        ],
+        [
+          "31",
+          "32"
+        ],
+        [
+          "32",
+          "48"
+        ],
+        [
+          "33",
+          "2180"
+        ],
+        [
+          "34",
+          "4393"
+        ],
+        [
+          "35",
+          "4393"
+        ],
+        [
+          "36",
+          "4393"
+        ],
+        [
+          "37",
+          "4393"
+        ],
+        [
+          "38",
+          "2180"
+        ],
+        [
+          "39",
+          "4393"
+        ],
+        [
+          "40",
+          "4393"
+        ],
+        [
+          "41",
+          "4393"
+        ],
+        [
+          "42",
+          "1616"
+        ],
+        [
+          "43",
+          "32"
+        ],
+        [
+          "44",
+          "2180"
+        ],
+        [
+          "45",
+          "2180"
+        ],
+        [
+          "46",
+          "257"
+        ],
+        [
+          "47",
+          "2181"
+        ],
+        [
+          "48",
+          "2180"
+        ],
+        [
+          "49",
+          "2180"
+        ],
+        [
+          "50",
+          "2180"
+        ],
+        [
+          "51",
+          "2180"
+        ],
+        [
+          "52",
+          "2180"
+        ],
+        [
+          "53",
+          "1"
+        ],
+        [
+          "54",
+          "1"
+        ],
+        [
+          "55",
+          "1056"
+        ],
+        [
+          "56",
+          "1056"
+        ],
+        [
+          "57",
+          "1616"
+        ],
+        [
+          "58",
+          "1616"
+        ],
+        [
+          "59",
+          "1616"
+        ],
+        [
+          "60",
+          "1616"
+        ],
+        [
+          "61",
+          "1616"
+        ],
+        [
+          "62",
+          "1616"
+        ],
+        [
+          "63",
+          "1616"
+        ],
+        [
+          "64",
+          "1616"
+        ],
+        [
+          "65",
+          "239"
+        ],
+        [
+          "66",
+          "132"
+        ],
+        [
+          "67",
+          "2180"
+        ],
+        [
+          "68",
+          "2180"
+        ],
+        [
+          "69",
+          "32"
+        ],
+        [
+          "70",
+          "1616"
+        ],
+        [
+          "71",
+          "1616"
+        ],
+        [
+          "72",
+          "1616"
+        ],
+        [
+          "73",
+          "1616"
+        ],
+        [
+          "74",
+          "1616"
+        ],
+        [
+          "75",
+          "1616"
+        ],
+        [
+          "76",
+          "1616"
+        ],
+        [
+          "77",
+          "1616"
+        ],
+        [
+          "78",
+          "1616"
+        ],
+        [
+          "79",
+          "1616"
+        ],
+        [
+          "80",
+          "1616"
+        ],
+        [
+          "81",
+          "1616"
+        ],
+        [
+          "82",
+          "1616"
+        ],
+        [
+          "83",
+          "1616"
+        ],
+        [
+          "84",
+          "1616"
+        ],
+        [
+          "85",
+          "1616"
+        ],
+        [
+          "86",
+          "32"
+        ],
+        [
+          "87",
+          "1616"
+        ],
+        [
+          "88",
+          "1616"
+        ],
+        [
+          "89",
+          "1616"
+        ],
+        [
+          "90",
+          "1616"
+        ],
+        [
+          "91",
+          "65"
+        ],
+        [
+          "92",
+          "65"
+        ],
+        [
+          "93",
+          "65"
+        ],
+        [
+          "94",
+          "4401"
+        ],
+        [
+          "95",
+          "1"
+        ],
+        [
+          "96",
+          "2197"
+        ],
+        [
+          "97",
+          "2197"
+        ],
+        [
+          "98",
+          "2197"
+        ],
+        [
+          "99",
+          "2201"
+        ]
+      ]
+    }
+  ],
+  "physical_hierarchies": [
+    {
+      "reachable_instances": 5635,
+      "physical_R_file_owners": [
+        "dut/child/child/child/files"
+      ],
+      "forecast_instances": 1878,
+      "forecast_sequential_processes": 0,
+      "forecast_RAM_owners": 0
+    },
+    {
+      "reachable_instances": 5635,
+      "physical_R_file_owners": [
+        "dut/child/child/child/files"
+      ],
+      "forecast_instances": 1878,
+      "forecast_sequential_processes": 0,
+      "forecast_RAM_owners": 0
+    }
+  ],
+  "negative_controls": [
+    {
+      "engine": "icarus",
+      "directory": "r-front-late-hold-all-inverted-icarus-v3-20261023",
+      "state_sha256": "7ef91b2dd7137477b76dbe370b22bc412cf28cf25f950612bb9f77731dc0a2ae",
+      "independent_original_rejection": "check15 / physical Q840"
+    },
+    {
+      "engine": "verilator",
+      "directory": "r-front-late-hold-all-inverted-verilator-v3-20261023",
+      "state_sha256": "d4e79fce90e250d1fdbb31b4500c983b55be5973ec79adcd2b7ab36294c3be7b",
+      "independent_original_rejection": "check15 / physical Q840"
+    }
+  ],
+  "history": [
+    {
+      "directory": "r-front-late-hold-icarus-v1-20261023",
+      "status": "LATE_HOLD_COFACTOR_FAILED",
+      "state_sha256": "a760260642e0d72ddf401218842baa0ff0f831217dfd6e7b841d2655184154ac"
+    },
+    {
+      "directory": "r-front-late-hold-icarus-v2-20261023",
+      "status": "PASS_LATE_HOLD_COFACTOR",
+      "state_sha256": "c9cb40d048ed778901584d52402d9f5c3eb2b07a5b32b233ac9b350b99dc7149"
+    },
+    {
+      "directory": "r-front-late-hold-verilator-v1-20261023",
+      "status": "PASS_LATE_HOLD_COFACTOR",
+      "state_sha256": "05bab55761771cf0b6b3baffdac60f2daf5b0f5c27ca35160fa6b3af315b7551"
+    },
+    {
+      "directory": "r-front-late-hold-inverted-verilator-v2-20261023",
+      "status": "LATE_HOLD_COFACTOR_FAILED",
+      "state_sha256": "f9f3eeac598fa301db3e874622ab700dda8940da500615422e4c6f28b222de52"
+    }
+  ],
+  "extra_guest_cycles": 0,
+  "extra_pipeline_registers": 0,
+  "eight_flag_derivative_coverage": 0,
+  "selected_full_state_distinct_checks": 2709,
+  "observed_full_state_distinct_bits": [
+    840
+  ],
+  "full_domain_derivative_proven": false,
+  "eight_flag_influence_or_speedup_claimed": false,
+  "live_delay_observations": [
+    {
+      "directory": "native-cedar-queue-live-delay-riot-v2-20261023",
+      "guest_ticks": 501636379,
+      "timer": 25,
+      "target": 30,
+      "result_sha256": "a634edaae6fcb88d9af7e3d6e2440a532c6341eff324517fb2dc9ec1a1cdb68d",
+      "binary_sha256": "499e345a5ef1ac823a04375ac8fea7c3a7f1ec2533628b0119d8b6b059fc5d22",
+      "header_sha256": "a38ed02546327d098c644cd0df64504eb37ae6375d52918bc0aafe3596d5e3e6"
+    },
+    {
+      "directory": "native-cedar-queue-live-delay-riot-v3-20261023",
+      "guest_ticks": 529207902,
+      "timer": 27,
+      "target": 30,
+      "result_sha256": "2d5a01b345e0ef21c56c214dbf7c7022d130b49370f87c64a79dc7737d7f6db3",
+      "binary_sha256": "499e345a5ef1ac823a04375ac8fea7c3a7f1ec2533628b0119d8b6b059fc5d22",
+      "header_sha256": "a38ed02546327d098c644cd0df64504eb37ae6375d52918bc0aafe3596d5e3e6"
+    }
+  ],
+  "compiled_delay_operands": {
+    "eprom": "inputs/src/verilog/proms/eprom/BaseBd-c61.mem",
+    "sha256": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+    "byte_order": "Each stored byte bit-reversed by original board data wiring",
+    "logical_address": 62656,
+    "decoded_bytes": "859f84a0a0098a18659f859fa90065a085a08810f12092f6a553c5a030f7d006a552c59f90ef60"
+  },
+  "rejected_RAM_interpretation": {
+    "directory": "native-cedar-queue-live-delay-ram-v1-20261023",
+    "reason": "RS0 is EXTRA SRAM, not RIOT zero page. Its zero values say nothing about Timer100ms or EndOfDelay."
+  },
+  "no_inspected_guest_state_changed": true,
+  "original_native_runs_restarted": false,
+  "native_observations": [
+    {
+      "directory": "native-cedar-5c65-skip-wait-v1-20261023",
+      "pid": 29201,
+      "ps": "29201 02:52:54 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792813599.2077901,
+      "state_sha256": "e0d1087b204623337f82baec72fe60c308dd14aad7337126ff32938b17055f43"
+    },
+    {
+      "directory": "native-cedar-queue-skip-wait-v1-20261023",
+      "pid": 29618,
+      "ps": "29618 02:51:52 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792813599.2118568,
+      "state_sha256": "0d15076c270b2b79a1d15a8ac4153fbad6d04e7ab608ed8a46e02288168fa225"
+    }
+  ],
+  "CP_profile_rejection_retained": true,
+  "assembly_permitted": false,
+  "hardware_changed": false,
+  "native_qualified": false,
+  "speedup_qualified": false
+}

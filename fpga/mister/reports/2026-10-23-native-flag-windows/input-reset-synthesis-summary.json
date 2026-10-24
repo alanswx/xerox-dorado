@@ -1,0 +1,181 @@
+{
+  "status": "REVIEWED_SYNTHESIZABLE_STOPPED_INPUT_RESET_AND_FRESH_NATIVE_TESTS",
+  "scope": "Preserve rejected component timing and the native boot-input reset repair.\n\nNo timing exception, result field removal or FPGA deployment is authorized.\nNative tests are observations of specific live processes, not boot passes.\n",
+  "proof_sha256": "e6ce215229ade33f1a97bd1840be86e852c2bb94f2a8cb25c12baf0a72e557b6",
+  "cases": [
+    {
+      "engine": "icarus",
+      "mode": "corrected",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "436526e0d07a832f5466cd5fb202db14f1b06b677b8e4a47d524e121c3c5f318"
+    },
+    {
+      "engine": "icarus",
+      "mode": "corrected_reset_high",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "6b58d71a30ee7eac80024b43adebae24b0167116884a135a1b6a033e89ed267d"
+    },
+    {
+      "engine": "icarus",
+      "mode": "missing_powerup_init",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "013b8aba8a72d22645cf3c2ddf12ab4222f0e0bed5ab5ad5c9d54b6937b8ea2f"
+    },
+    {
+      "engine": "icarus",
+      "mode": "keyboard_sync_reset",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "1085bdd221dfea4ad560750208ddcf882869d4ce4f9ddd22b3232fa08d2c7d4e"
+    },
+    {
+      "engine": "icarus",
+      "mode": "terminal_sync_reset",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "41e5f2235ccc608547ba81190a01fcd374eb6bddfe9af4ed1f991dff6bd0625d"
+    },
+    {
+      "engine": "icarus",
+      "mode": "both_sync_reset",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "7d856edfdb0a96ffcc7ea6827ec1e2d944e750d5c5dfc5af951b50e062c9db7c"
+    },
+    {
+      "engine": "icarus",
+      "mode": "existing_queue",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "8965de31c2f7bc6a3984fb30035f540dc09335fba32d074ebc02dfcdb52f92ef"
+    },
+    {
+      "engine": "icarus",
+      "mode": "existing_terminal",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "42b16287008a42390d1ac136d79db7dfc450d472a867001b540bf434e62d35d8"
+    },
+    {
+      "engine": "verilator",
+      "mode": "corrected",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "622c772296fd236a7696b6e03d690f1136b3064da746616554e3b7109e4495fa"
+    },
+    {
+      "engine": "verilator",
+      "mode": "corrected_reset_high",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "aa65e6bae076bcbe259584ee9612dc88fdd99c23f54cfa42cff65d16e5645c0e"
+    },
+    {
+      "engine": "verilator",
+      "mode": "missing_powerup_init",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "cff401623da5f1a16a433d9a84e426726c510ca58d4613f8d24e3621da51409d"
+    },
+    {
+      "engine": "verilator",
+      "mode": "keyboard_sync_reset",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "186ed646ce4a21e9d5a9a801f997b7cd91593b6c926212b51dc200c5e56405d8"
+    },
+    {
+      "engine": "verilator",
+      "mode": "terminal_sync_reset",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "3f79ef198f59043a9e3659ae6fee26fa0ef9052cdede7bc06bb73a3bc35ac289"
+    },
+    {
+      "engine": "verilator",
+      "mode": "both_sync_reset",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "0d6f7074dfbf1496d32d29e62937d8790206b6b2679158452e10d656618f49ea"
+    },
+    {
+      "engine": "verilator",
+      "mode": "existing_queue",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "ac21baf0df154ffe028388f4454b3ac8d851de2d552e233ba4dd302602835c00"
+    },
+    {
+      "engine": "verilator",
+      "mode": "existing_terminal",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "293dc8efb4640e0ac3bc08915978379df1ad1e3eaa9b179a3cb7bc5decc9b8be"
+    }
+  ],
+  "synthesis_state_sha256": "fa399affc22e1c188f9802f7b12bb6d66c3ba7f80a3fc04580b9f75bd4282e0b",
+  "final_adapter_hashes": {
+    "dorado_keyboard.v": "141eca88f9b94bf2b160a6d059347647aeb630910bdaa2186e55995995bd08eb",
+    "dorado_terminal.v": "637b3ff5bf7c06efd3877d6082574f7c00784341a8a88fa6cc762a9c916b811a"
+  },
+  "synthesis_scope": "Isolated Cyclone V adapters only; no place/route, timing or full core qualification",
+  "final_register_implementation": "Clock strobe history separately; constant asynchronous reset branches including mouse_taken",
+  "superseded_native_tests": [
+    {
+      "directory": "native-cedar-5c65-input-reset-v2-20261023",
+      "test_pid": 56491,
+      "returncode": -15,
+      "reason": "Known Quartus-rejected input-adapter source; no observation timeout or bound extension"
+    },
+    {
+      "directory": "native-cedar-queue-input-reset-v2-20261023",
+      "test_pid": 56539,
+      "returncode": -15,
+      "reason": "Known Quartus-rejected input-adapter source; no observation timeout or bound extension"
+    }
+  ],
+  "native_observations": [
+    {
+      "directory": "native-cedar-5c65-input-reset-v3-20261023",
+      "pid": 58600,
+      "ps": "58600 01:08 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792817481.830988,
+      "state_sha256": "b75adcae9e42639f590196dc579c9442f5210d3519b5da4536adeffed2276ffc",
+      "cold_reset_assertion_passed": true
+    },
+    {
+      "directory": "native-cedar-queue-input-reset-v3-20261023",
+      "pid": 58753,
+      "ps": "58753 01:08 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792817482.052505,
+      "state_sha256": "ba82b45e488a278f03e6618a26b89a3768a7cd757cde7fd46b48d1c2eb71b04f",
+      "cold_reset_assertion_passed": true
+    }
+  ],
+  "original_native_observations": [
+    {
+      "directory": "native-cedar-5c65-skip-wait-v1-20261023",
+      "pid": 29201,
+      "ps": "29201 03:57:37 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792817482.140036,
+      "state_sha256": "e0d1087b204623337f82baec72fe60c308dd14aad7337126ff32938b17055f43"
+    },
+    {
+      "directory": "native-cedar-queue-skip-wait-v1-20261023",
+      "pid": 29618,
+      "ps": "29618 03:56:35 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792817482.143784,
+      "state_sha256": "0d15076c270b2b79a1d15a8ac4153fbad6d04e7ab608ed8a46e02288168fa225"
+    }
+  ],
+  "firmware_qualified": false,
+  "desktop_qualified": false,
+  "physical_timing_qualified": false,
+  "hardware_changed": false,
+  "speedup_qualified": false,
+  "original_bounded_jobs_changed": false,
+  "full_goal_active": true
+}

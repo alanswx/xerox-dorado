@@ -1,0 +1,1221 @@
+{
+  "status": "REVIEWED_LATE_HOLD_TIMING_REJECTED_AND_INPUT_RESET_REPAIRED",
+  "scope": "Preserve rejected component timing and the native boot-input reset repair.\n\nNo timing exception, result field removal or FPGA deployment is authorized.\nNative tests are observations of specific live processes, not boot passes.\n",
+  "component_gates": [
+    {
+      "engine": "icarus",
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-late-hold-all-icarus-v3-20261023",
+      "state_sha256": "4e16130290cb3c47c238b6d632476f46f5016dbf52e8a2aa73628744e2eae7dc",
+      "candidate_sha256": "80535af3504cfa3a5fc010c1a2cfda6189500e60e310136611274ac65e2d8c22",
+      "pure_forecasts_sha256": "d14b22bbb3bb8ea6d0789d062c379f55f4b36212f48b6e2f507a87469ea4ba1e",
+      "summary": "checks=14884 writes=238 reads=6928 epochs=392",
+      "coverage": {
+        "checks": "29768",
+        "distinct": "0",
+        "bits": "00",
+        "seen": "11",
+        "state_distinct": "2709",
+        "state_bits": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "shared_RAM_banks": "4",
+        "sequential_forecasts": "0"
+      },
+      "clocks": [
+        [
+          "0",
+          "4464"
+        ],
+        [
+          "1",
+          "2232"
+        ],
+        [
+          "2",
+          "2232"
+        ],
+        [
+          "3",
+          "2232"
+        ],
+        [
+          "4",
+          "4393"
+        ],
+        [
+          "5",
+          "4393"
+        ],
+        [
+          "6",
+          "4393"
+        ],
+        [
+          "7",
+          "4201"
+        ],
+        [
+          "8",
+          "4393"
+        ],
+        [
+          "9",
+          "4393"
+        ],
+        [
+          "10",
+          "4464"
+        ],
+        [
+          "11",
+          "2180"
+        ],
+        [
+          "12",
+          "2180"
+        ],
+        [
+          "13",
+          "2181"
+        ],
+        [
+          "14",
+          "4393"
+        ],
+        [
+          "15",
+          "4464"
+        ],
+        [
+          "16",
+          "2180"
+        ],
+        [
+          "17",
+          "2180"
+        ],
+        [
+          "18",
+          "2181"
+        ],
+        [
+          "19",
+          "2180"
+        ],
+        [
+          "20",
+          "1616"
+        ],
+        [
+          "21",
+          "1616"
+        ],
+        [
+          "22",
+          "166"
+        ],
+        [
+          "23",
+          "4393"
+        ],
+        [
+          "24",
+          "4393"
+        ],
+        [
+          "25",
+          "2101"
+        ],
+        [
+          "26",
+          "2181"
+        ],
+        [
+          "27",
+          "2101"
+        ],
+        [
+          "28",
+          "2181"
+        ],
+        [
+          "29",
+          "32"
+        ],
+        [
+          "30",
+          "48"
+        ],
+        [
+          "31",
+          "32"
+        ],
+        [
+          "32",
+          "48"
+        ],
+        [
+          "33",
+          "2180"
+        ],
+        [
+          "34",
+          "4393"
+        ],
+        [
+          "35",
+          "4393"
+        ],
+        [
+          "36",
+          "4393"
+        ],
+        [
+          "37",
+          "4393"
+        ],
+        [
+          "38",
+          "2180"
+        ],
+        [
+          "39",
+          "4393"
+        ],
+        [
+          "40",
+          "4393"
+        ],
+        [
+          "41",
+          "4393"
+        ],
+        [
+          "42",
+          "1616"
+        ],
+        [
+          "43",
+          "32"
+        ],
+        [
+          "44",
+          "2180"
+        ],
+        [
+          "45",
+          "2180"
+        ],
+        [
+          "46",
+          "257"
+        ],
+        [
+          "47",
+          "2181"
+        ],
+        [
+          "48",
+          "2180"
+        ],
+        [
+          "49",
+          "2180"
+        ],
+        [
+          "50",
+          "2180"
+        ],
+        [
+          "51",
+          "2180"
+        ],
+        [
+          "52",
+          "2180"
+        ],
+        [
+          "53",
+          "1"
+        ],
+        [
+          "54",
+          "1"
+        ],
+        [
+          "55",
+          "1056"
+        ],
+        [
+          "56",
+          "1056"
+        ],
+        [
+          "57",
+          "1616"
+        ],
+        [
+          "58",
+          "1616"
+        ],
+        [
+          "59",
+          "1616"
+        ],
+        [
+          "60",
+          "1616"
+        ],
+        [
+          "61",
+          "1616"
+        ],
+        [
+          "62",
+          "1616"
+        ],
+        [
+          "63",
+          "1616"
+        ],
+        [
+          "64",
+          "1616"
+        ],
+        [
+          "65",
+          "239"
+        ],
+        [
+          "66",
+          "132"
+        ],
+        [
+          "67",
+          "2180"
+        ],
+        [
+          "68",
+          "2180"
+        ],
+        [
+          "69",
+          "32"
+        ],
+        [
+          "70",
+          "1616"
+        ],
+        [
+          "71",
+          "1616"
+        ],
+        [
+          "72",
+          "1616"
+        ],
+        [
+          "73",
+          "1616"
+        ],
+        [
+          "74",
+          "1616"
+        ],
+        [
+          "75",
+          "1616"
+        ],
+        [
+          "76",
+          "1616"
+        ],
+        [
+          "77",
+          "1616"
+        ],
+        [
+          "78",
+          "1616"
+        ],
+        [
+          "79",
+          "1616"
+        ],
+        [
+          "80",
+          "1616"
+        ],
+        [
+          "81",
+          "1616"
+        ],
+        [
+          "82",
+          "1616"
+        ],
+        [
+          "83",
+          "1616"
+        ],
+        [
+          "84",
+          "1616"
+        ],
+        [
+          "85",
+          "1616"
+        ],
+        [
+          "86",
+          "32"
+        ],
+        [
+          "87",
+          "1616"
+        ],
+        [
+          "88",
+          "1616"
+        ],
+        [
+          "89",
+          "1616"
+        ],
+        [
+          "90",
+          "1616"
+        ],
+        [
+          "91",
+          "65"
+        ],
+        [
+          "92",
+          "65"
+        ],
+        [
+          "93",
+          "65"
+        ],
+        [
+          "94",
+          "4401"
+        ],
+        [
+          "95",
+          "1"
+        ],
+        [
+          "96",
+          "2197"
+        ],
+        [
+          "97",
+          "2197"
+        ],
+        [
+          "98",
+          "2197"
+        ],
+        [
+          "99",
+          "2201"
+        ]
+      ]
+    },
+    {
+      "engine": "verilator",
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/r-front-late-hold-all-verilator-v3-20261023",
+      "state_sha256": "1d93f8d9230b1232c100479829c2615a513f8a50d9303843969243486e5186b9",
+      "candidate_sha256": "80535af3504cfa3a5fc010c1a2cfda6189500e60e310136611274ac65e2d8c22",
+      "pure_forecasts_sha256": "d14b22bbb3bb8ea6d0789d062c379f55f4b36212f48b6e2f507a87469ea4ba1e",
+      "summary": "checks=14884 writes=238 reads=6928 epochs=392",
+      "coverage": {
+        "checks": "29768",
+        "distinct": "0",
+        "bits": "00",
+        "seen": "11",
+        "state_distinct": "2709",
+        "state_bits": "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "shared_RAM_banks": "4",
+        "sequential_forecasts": "0"
+      },
+      "clocks": [
+        [
+          "0",
+          "4464"
+        ],
+        [
+          "1",
+          "2232"
+        ],
+        [
+          "2",
+          "2232"
+        ],
+        [
+          "3",
+          "2232"
+        ],
+        [
+          "4",
+          "4393"
+        ],
+        [
+          "5",
+          "4393"
+        ],
+        [
+          "6",
+          "4393"
+        ],
+        [
+          "7",
+          "4201"
+        ],
+        [
+          "8",
+          "4393"
+        ],
+        [
+          "9",
+          "4393"
+        ],
+        [
+          "10",
+          "4464"
+        ],
+        [
+          "11",
+          "2180"
+        ],
+        [
+          "12",
+          "2180"
+        ],
+        [
+          "13",
+          "2181"
+        ],
+        [
+          "14",
+          "4393"
+        ],
+        [
+          "15",
+          "4464"
+        ],
+        [
+          "16",
+          "2180"
+        ],
+        [
+          "17",
+          "2180"
+        ],
+        [
+          "18",
+          "2181"
+        ],
+        [
+          "19",
+          "2180"
+        ],
+        [
+          "20",
+          "1616"
+        ],
+        [
+          "21",
+          "1616"
+        ],
+        [
+          "22",
+          "166"
+        ],
+        [
+          "23",
+          "4393"
+        ],
+        [
+          "24",
+          "4393"
+        ],
+        [
+          "25",
+          "2101"
+        ],
+        [
+          "26",
+          "2181"
+        ],
+        [
+          "27",
+          "2101"
+        ],
+        [
+          "28",
+          "2181"
+        ],
+        [
+          "29",
+          "32"
+        ],
+        [
+          "30",
+          "48"
+        ],
+        [
+          "31",
+          "32"
+        ],
+        [
+          "32",
+          "48"
+        ],
+        [
+          "33",
+          "2180"
+        ],
+        [
+          "34",
+          "4393"
+        ],
+        [
+          "35",
+          "4393"
+        ],
+        [
+          "36",
+          "4393"
+        ],
+        [
+          "37",
+          "4393"
+        ],
+        [
+          "38",
+          "2180"
+        ],
+        [
+          "39",
+          "4393"
+        ],
+        [
+          "40",
+          "4393"
+        ],
+        [
+          "41",
+          "4393"
+        ],
+        [
+          "42",
+          "1616"
+        ],
+        [
+          "43",
+          "32"
+        ],
+        [
+          "44",
+          "2180"
+        ],
+        [
+          "45",
+          "2180"
+        ],
+        [
+          "46",
+          "257"
+        ],
+        [
+          "47",
+          "2181"
+        ],
+        [
+          "48",
+          "2180"
+        ],
+        [
+          "49",
+          "2180"
+        ],
+        [
+          "50",
+          "2180"
+        ],
+        [
+          "51",
+          "2180"
+        ],
+        [
+          "52",
+          "2180"
+        ],
+        [
+          "53",
+          "1"
+        ],
+        [
+          "54",
+          "1"
+        ],
+        [
+          "55",
+          "1056"
+        ],
+        [
+          "56",
+          "1056"
+        ],
+        [
+          "57",
+          "1616"
+        ],
+        [
+          "58",
+          "1616"
+        ],
+        [
+          "59",
+          "1616"
+        ],
+        [
+          "60",
+          "1616"
+        ],
+        [
+          "61",
+          "1616"
+        ],
+        [
+          "62",
+          "1616"
+        ],
+        [
+          "63",
+          "1616"
+        ],
+        [
+          "64",
+          "1616"
+        ],
+        [
+          "65",
+          "239"
+        ],
+        [
+          "66",
+          "132"
+        ],
+        [
+          "67",
+          "2180"
+        ],
+        [
+          "68",
+          "2180"
+        ],
+        [
+          "69",
+          "32"
+        ],
+        [
+          "70",
+          "1616"
+        ],
+        [
+          "71",
+          "1616"
+        ],
+        [
+          "72",
+          "1616"
+        ],
+        [
+          "73",
+          "1616"
+        ],
+        [
+          "74",
+          "1616"
+        ],
+        [
+          "75",
+          "1616"
+        ],
+        [
+          "76",
+          "1616"
+        ],
+        [
+          "77",
+          "1616"
+        ],
+        [
+          "78",
+          "1616"
+        ],
+        [
+          "79",
+          "1616"
+        ],
+        [
+          "80",
+          "1616"
+        ],
+        [
+          "81",
+          "1616"
+        ],
+        [
+          "82",
+          "1616"
+        ],
+        [
+          "83",
+          "1616"
+        ],
+        [
+          "84",
+          "1616"
+        ],
+        [
+          "85",
+          "1616"
+        ],
+        [
+          "86",
+          "32"
+        ],
+        [
+          "87",
+          "1616"
+        ],
+        [
+          "88",
+          "1616"
+        ],
+        [
+          "89",
+          "1616"
+        ],
+        [
+          "90",
+          "1616"
+        ],
+        [
+          "91",
+          "65"
+        ],
+        [
+          "92",
+          "65"
+        ],
+        [
+          "93",
+          "65"
+        ],
+        [
+          "94",
+          "4401"
+        ],
+        [
+          "95",
+          "1"
+        ],
+        [
+          "96",
+          "2197"
+        ],
+        [
+          "97",
+          "2197"
+        ],
+        [
+          "98",
+          "2197"
+        ],
+        [
+          "99",
+          "2201"
+        ]
+      ]
+    }
+  ],
+  "fit_source_provenance_sha256": "3da896678a07a7e0dadd30bac69bd934eebc4136d0aec9896b883c76371d4503",
+  "corners": [
+    {
+      "condition": "7_slow_1100mv_100c",
+      "global": {
+        "slack_ns": -17.177,
+        "source": "launch[686]",
+        "sink": "result[355]~reg0",
+        "arrival_ns": 35.86,
+        "required_ns": 18.683,
+        "report_sha256": "cfeef1fce5e3fe665f54af37d93e26d0025b8710181b19c97cc2c6ae09260dbc"
+      },
+      "owners": {
+        "slack_ns": -16.283,
+        "source": "launch[686]",
+        "sink": "result[1150]~reg0",
+        "arrival_ns": 35.09,
+        "required_ns": 18.807,
+        "report_sha256": "c0260614c5e90d80ede742c79ae49b9038f2df20aba789225908521cbf326555"
+      },
+      "late_owners": {
+        "slack_ns": 7.047,
+        "source": "launch[388]",
+        "sink": "result[595]~reg0",
+        "arrival_ns": 11.66,
+        "required_ns": 18.707,
+        "report_sha256": "6a5e6c6a803fd1af88d88cfa4ab839439bf639c0b973e05e2018b6ccdd7d4160"
+      },
+      "hold": {
+        "slack_ns": 0.42,
+        "source": "launch[1433]",
+        "sink": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_mno1:auto_generated|lutrama52~OBSERVABLEPORTAADDRESSREGOUT2",
+        "arrival_ns": 4.17,
+        "required_ns": 3.75,
+        "report_sha256": "8f6cd2548aae95ab3751389afd2fa57a580014c752cc1030b338abe15f4307e6"
+      }
+    },
+    {
+      "condition": "7_slow_1100mv_-40c",
+      "global": {
+        "slack_ns": -17.162,
+        "source": "launch[686]",
+        "sink": "result[355]~reg0",
+        "arrival_ns": 36.004,
+        "required_ns": 18.842,
+        "report_sha256": "862a19bea9afe5b5e0c22fcb57162ae50eef4bc7db3cfab029bc8a396e17d77d"
+      },
+      "owners": {
+        "slack_ns": -15.997,
+        "source": "launch[686]",
+        "sink": "result[1150]~reg0",
+        "arrival_ns": 34.968,
+        "required_ns": 18.971,
+        "report_sha256": "71025f853fb85bedb3bd2eaaf9c3e24e03fe858e59d9d6e69b686e3604038ab0"
+      },
+      "late_owners": {
+        "slack_ns": 7.345,
+        "source": "launch[388]",
+        "sink": "result[595]~reg0",
+        "arrival_ns": 11.52,
+        "required_ns": 18.865,
+        "report_sha256": "7dfb641ceb5bc78937cb1a12a251f054d1f1e9bb7b7a8d7f734c6dfe1da3badb"
+      },
+      "hold": {
+        "slack_ns": 0.396,
+        "source": "launch[1433]",
+        "sink": "dorado_r_front_control_step:evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_mno1:auto_generated|lutrama52~OBSERVABLEPORTAADDRESSREGOUT2",
+        "arrival_ns": 4.299,
+        "required_ns": 3.903,
+        "report_sha256": "b54a844edcef7b413b7a4130066a49ebf91c48b897be4b96a269917a9e05a76a"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_100c",
+      "global": {
+        "slack_ns": -2.332,
+        "source": "launch[686]",
+        "sink": "result[39]~reg0",
+        "arrival_ns": 18.951,
+        "required_ns": 16.619,
+        "report_sha256": "29abaac8b282209bea2ba5a5c0128d729d263e6697579f50073a8b3ef1a47be0"
+      },
+      "owners": {
+        "slack_ns": -1.665,
+        "source": "launch[686]",
+        "sink": "result[976]~reg0",
+        "arrival_ns": 18.291,
+        "required_ns": 16.626,
+        "report_sha256": "0b365e329d3d035ae167e898afa4940b4c1524c04be6b31bd180a69f4572226e"
+      },
+      "late_owners": {
+        "slack_ns": 9.92,
+        "source": "launch[388]",
+        "sink": "result[595]~reg0",
+        "arrival_ns": 6.721,
+        "required_ns": 16.641,
+        "report_sha256": "eb3dcf5f9e29f6193051f964a26ef4b1351b391981791cb5c087aa2a6db5a798"
+      },
+      "hold": {
+        "slack_ns": 0.2,
+        "source": "launch[1566]",
+        "sink": "result[167]~reg0",
+        "arrival_ns": 2.012,
+        "required_ns": 1.812,
+        "report_sha256": "6ca9711b2d8cbeb7f56e273b635f05213e63326acc2adb9281430dcfda9f91d6"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_-40c",
+      "global": {
+        "slack_ns": 0.295,
+        "source": "launch[686]",
+        "sink": "result[355]~reg0",
+        "arrival_ns": 16.211,
+        "required_ns": 16.506,
+        "report_sha256": "60a8f5e967553477dcf27bac33f7ff5a344ba00eb05a9c61382b2dbed078832b"
+      },
+      "owners": {
+        "slack_ns": 0.891,
+        "source": "launch[686]",
+        "sink": "result[1150]~reg0",
+        "arrival_ns": 15.679,
+        "required_ns": 16.57,
+        "report_sha256": "86b48da6003f85f275789617c5f4703ba682497f0b233519f090a1dd8228dfd8"
+      },
+      "late_owners": {
+        "slack_ns": 10.837,
+        "source": "launch[388]",
+        "sink": "result[595]~reg0",
+        "arrival_ns": 5.689,
+        "required_ns": 16.526,
+        "report_sha256": "8aa7d124820536182ef6fdd224362afd6167c179b24df7af5a9d2a8cddcdfb19"
+      },
+      "hold": {
+        "slack_ns": 0.178,
+        "source": "launch[1566]",
+        "sink": "result[167]~reg0",
+        "arrival_ns": 1.866,
+        "required_ns": 1.688,
+        "report_sha256": "9cfd79e91cd5b0fb75992881a684e22041b697b0d71dfeae9329a097d0e4f620"
+      }
+    }
+  ],
+  "fit_parser_and_query_history": [
+    {
+      "directory": "r-front-late-hold-fit-failed-v1-20261023",
+      "scope": "Preserved terminal parser/report-query failure"
+    },
+    {
+      "directory": "r-front-late-hold-flat-query-v3-20261023",
+      "scope": "Preserved terminal parser/report-query failure"
+    },
+    {
+      "directory": "r-front-late-hold-flat-query-v4-20261023",
+      "scope": "Preserved terminal parser/report-query failure"
+    }
+  ],
+  "full_result_fields": 1400,
+  "synthesized_result_registers": 1193,
+  "all_owner_registers": 844,
+  "timing_exceptions_added": false,
+  "fields_removed": false,
+  "fit_or_native_timing_qualified": false,
+  "input_reset_proof_sha256": "eee5298b2b8f2f3773b91d892a360a866eedb9ac6cfb62428dab4a356b7fa996",
+  "input_reset_cases": [
+    {
+      "engine": "icarus",
+      "mode": "corrected",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "30e202d7fa02732b0e09365d2df9bc37ae96bdcbc54c7ce40df84ccb151aaec8"
+    },
+    {
+      "engine": "icarus",
+      "mode": "corrected_reset_high",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "bf4de20dc63a7115e331da78dbd8fde4519d506d7f288f5406229744b22b3865"
+    },
+    {
+      "engine": "icarus",
+      "mode": "missing_powerup_init",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "5b45268ea3048ff3b4290798db27c864150611926f30904d1cf05fb24f81f9da"
+    },
+    {
+      "engine": "icarus",
+      "mode": "keyboard_sync_reset",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "b1844adf697fc9d3ff53e96cbd66ec27cf931d69e48f64218b145d55c4698f97"
+    },
+    {
+      "engine": "icarus",
+      "mode": "terminal_sync_reset",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "9040c52fcacf73e1c13377ee326af723f754e1004f2a62a7b15f3383d74ec300"
+    },
+    {
+      "engine": "icarus",
+      "mode": "both_sync_reset",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "9dac7871658bbd2b430ac3038430e16459d579556d53f433c16b32fd840cda4a"
+    },
+    {
+      "engine": "icarus",
+      "mode": "existing_queue",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "68f2ddb5ae8ee374f2bae99a5c3d3dd6e6572b4daa242b7d6dee86ce395d7dd0"
+    },
+    {
+      "engine": "icarus",
+      "mode": "existing_terminal",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "d05411312524838356a17baf39c0df2c1fe117a230da7b2fb7a916a919873506"
+    },
+    {
+      "engine": "verilator",
+      "mode": "corrected",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "7b6554e33c039e01d5a79efa01082b86272f2c86d07ab1b216d90ef00658ef2c"
+    },
+    {
+      "engine": "verilator",
+      "mode": "corrected_reset_high",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "7c1367b6209fa1b5485a3bd58ad140681ff2b9f1ba71344be22407f4d5477a13"
+    },
+    {
+      "engine": "verilator",
+      "mode": "missing_powerup_init",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "cb3bd9cfd5b592dbf8ba842c83e27b64f3106f8d85c3d9ab585a5259ae8e4ee7"
+    },
+    {
+      "engine": "verilator",
+      "mode": "keyboard_sync_reset",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "275641876172ce5c40675bddb8c0bb2ec9bd8b6ac0437d1b4746b9185f20aeff"
+    },
+    {
+      "engine": "verilator",
+      "mode": "terminal_sync_reset",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "6f818edcb2a8dd184c16e00f81b3f7a3ab1617085001ad0172165e9cf5de5cd3"
+    },
+    {
+      "engine": "verilator",
+      "mode": "both_sync_reset",
+      "expected_rejection": true,
+      "test_returncode": 1,
+      "log_sha256": "4e31837a591bc8de92ff255e5510496edff634eaa3d4a409f4a46b911b2b5630"
+    },
+    {
+      "engine": "verilator",
+      "mode": "existing_queue",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "65db819e20baa957244334e317c4ffca6565b6151dbac29015821345bbab607a"
+    },
+    {
+      "engine": "verilator",
+      "mode": "existing_terminal",
+      "expected_rejection": false,
+      "test_returncode": 0,
+      "log_sha256": "c26c154c132363b7f751787d42b99804019d6644f323d078899350b7fa0138c5"
+    }
+  ],
+  "observed_original_keyboard": {
+    "inspection": "native-cedar-queue-keyboard-read-v1-20261023",
+    "pid": 29618,
+    "counters": {
+      "host_ticks": 1328266269,
+      "guest_ticks": 765539764,
+      "boot_samples": 342857142,
+      "step": 1,
+      "phi_inverted": 1,
+      "phase": 0,
+      "reset_n": 1,
+      "watchdog_counter": 5741562,
+      "watchdog_phase_a": 1,
+      "watchdog_phase_b": 0,
+      "MCD0": 0,
+      "MCD1": 0,
+      "MCD2": 0,
+      "MCD3": 0,
+      "MCD4": 0,
+      "MCD5": 0,
+      "MCD6": 0,
+      "MCD7": 0,
+      "keyboard_ps2_key": 1569,
+      "keyboard_machine_key": 1569,
+      "keyboard_keys__DOT__count": 0,
+      "keyboard_keys__DOT__head": 1,
+      "keyboard_keys__DOT__tail": 1,
+      "keyboard_keys__DOT__last_event": 545,
+      "keyboard_word0": 0,
+      "terminal_prev0": 0,
+      "keyboard_word1": 0,
+      "terminal_prev1": 0,
+      "keyboard_word2": 0,
+      "terminal_prev2": 0,
+      "keyboard_word3": 0,
+      "terminal_prev3": 0,
+      "keyboard_prev_strobe": 1,
+      "terminal_kbd_pending": 0,
+      "terminal_msg_bit": 7,
+      "terminal_msg_word": 2,
+      "terminal_msg": 2181038208
+    }
+  },
+  "native_observations": [
+    {
+      "directory": "native-cedar-5c65-skip-wait-v1-20261023",
+      "pid": 29201,
+      "ps": "29201 03:49:58 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792817023.6534138,
+      "state_sha256": "e0d1087b204623337f82baec72fe60c308dd14aad7337126ff32938b17055f43",
+      "boot_and_reset_events": []
+    },
+    {
+      "directory": "native-cedar-5c65-input-reset-v2-20261023",
+      "pid": 56491,
+      "ps": "56491 02:53 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v2-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v2-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v2-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792817023.7235048,
+      "state_sha256": "c1909c71865f1283cc905a9f848f0e992f7c67373c1be1dcf18cca6cc4af92fe",
+      "boot_and_reset_events": [
+        "NATIVE_INPUT_RESET_PASS host=6 guest=0 matrix=ffff/ffff/ffff/ffff terminal=81ffff80"
+      ]
+    },
+    {
+      "directory": "native-cedar-queue-skip-wait-v1-20261023",
+      "pid": 29618,
+      "ps": "29618 03:48:56 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792817023.9745321,
+      "state_sha256": "0d15076c270b2b79a1d15a8ac4153fbad6d04e7ab608ed8a46e02288168fa225",
+      "boot_and_reset_events": [
+        "NATIVE_BOOT_REQUEST 110"
+      ]
+    },
+    {
+      "directory": "native-cedar-queue-input-reset-v2-20261023",
+      "pid": 56539,
+      "ps": "56539 02:53 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v2-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v2-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v2-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792817024.045629,
+      "state_sha256": "c4827a9259196db204700fe482676f4319a73da38fe0a8cfd9c54e1ac6b0789f",
+      "boot_and_reset_events": [
+        "NATIVE_INPUT_RESET_PASS host=6 guest=0 matrix=ffff/ffff/ffff/ffff terminal=81ffff80"
+      ]
+    }
+  ],
+  "original_jobs_or_bounds_changed": false,
+  "new_native_tests_are_fresh_changed_source_experiments": true,
+  "firmware_qualified": false,
+  "desktop_qualified": false,
+  "hardware_changed": false,
+  "speedup_qualified": false,
+  "full_goal_active": true,
+  "full_FPGA_snapshots_deferred": true,
+  "path_metadata_correction": {
+    "superseded_results_sha256": "2bc08dbfb2f05210fe6cfcfba65bb6b0f23f57cc96ec381c68d43e2726999b3f",
+    "reason": "Anchor metadata fields at the start of a detail row; the original parser matched the summary table column labels.",
+    "report_source_slack_or_qualification_changed": false,
+    "experiments_rerun": false
+  }
+}

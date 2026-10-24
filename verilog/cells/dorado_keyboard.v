@@ -36,13 +36,15 @@ module dorado_keyboard (
     // MiSTer's ps2_key: {strobe_toggle, pressed, extended, code[7:0]}.
     input  wire [10:0] ps2_key,
 
-    output reg  [15:0] key_word0,
-    output reg  [15:0] key_word1,
-    output reg  [15:0] key_word2,
-    output reg  [15:0] key_word3
+    output reg  [15:0] key_word0 = 16'hFFFF,
+    output reg  [15:0] key_word1 = 16'hFFFF,
+    output reg  [15:0] key_word2 = 16'hFFFF,
+    output reg  [15:0] key_word3 = 16'hFFFF
 );
 
-  reg  prev_strobe;
+  // Configuration can begin with reset already high and no source clocks.
+  // Explicit power-up values match reset, including the active-low matrix.
+  reg  prev_strobe = 1'b0;
   wire        strobe   = ps2_key[10];
   wire        pressed  = ps2_key[9];
   wire        extended = ps2_key[8];
@@ -138,13 +140,17 @@ module dorado_keyboard (
   wire [3:0]  bsel  = pos[3:0];
   wire [15:0] mask  = 16'd1 << bsel;
 
-  always @(posedge sys_clk) begin
+  // The native machine clock is stopped while reset is asserted. Reset
+  // must therefore reach this host-input adapter without a clock edge;
+  // otherwise the active-low matrix powers up as every key held down.
+  // Strobe history follows actual source edges. Keeping this separate
+  // avoids an asynchronous load of the nonconstant input strobe.
+  always @(posedge sys_clk) prev_strobe <= strobe;
+  always @(posedge sys_clk or posedge reset) begin
     if (reset) begin
       key_word0 <= 16'hFFFF; key_word1 <= 16'hFFFF;
       key_word2 <= 16'hFFFF; key_word3 <= 16'hFFFF;
-      prev_strobe <= strobe;
     end else begin
-      prev_strobe <= strobe;
       // The strobe TOGGLES per event, so an edge on it is one key event --
       // and a repeat of the same code is a distinct event, which matters
       // because the terminal reports transitions.
