@@ -1,5 +1,11 @@
 # Verilog from Sil: handoff
 
+FPGA AVAILABILITY (user instruction,2026-10-24): the user is now using the
+FPGA. Do not load, reboot or control MiSTer14 until they release it again.
+Continue Quartus on misterubuntu and simulation on the Mac. Notify the user
+when a concrete build is ready for hardware qualification; wait for allocation.
+The goal remains active. This supersedes earlier permission for immediate reloads.
+
 NOW LIVE (2026-10-24): `/home/alans/mister/cp-key-native-v1-20261024`,
 builder3560219/session4830, fitter3573987. Map3560222 completed successfully:
 92,908 logic cells/95,713 device resources,96 fewer logic cells than the smaller

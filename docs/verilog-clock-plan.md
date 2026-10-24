@@ -9,6 +9,11 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Hardware allocation update (user,2026-10-24): the user needs the FPGA now.
+Continue build/simulation work; notify them when a reviewed build is ready
+for hardware testing, and wait until they release MiSTer14 before any load,
+reboot or control. Earlier reload authorization is superseded while it is in use.
+
 Latest progress (2026-10-24): projected-key temporal induction PASSES for ALL
 475 control/event/flag outputs, exact cached-payload/canonical invariants,
 arbitrary inputs/reset histories and original auxiliary initialization. The
