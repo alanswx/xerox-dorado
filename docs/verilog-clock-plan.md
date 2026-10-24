@@ -9,6 +9,37 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Latest result (2026-10-24): the shorter-control native fit is TERMINAL/REJECTED,
+although improved: slow setup -0.475ns/-0.145ns, minimum hold +0.112ns,
+36,289ALMs/55,684registers. All957 collected files/533 sources verify. Worst
+path is MemC d15.qb (321 loads) -> cache tags/compare -> Hold386 -> control ->
+low RM write;16.931ns data with -0.884ns skew. Internal-owner setup+0.195ns is
+at the unchanged17.5ns fabric period; it does NOT qualify the15ns target.
+Next address the actual cache-tag fanout/late Hold path with explicit physical
+buffering, verify placement and re-run whole-device timing. No new guest cycle.
+
+The common clock source `dorado_clock_event_batch.sv` now merges natural CPU
+SCP'/ECP and50MHz pixel events within one15ns interval. It retains exact1.25ns
+offsets, all eight steady-state CPU rotations and simultaneous changes as ONE
+record with a common pre-event view. Both simulators pass2,048 intervals per
+rotation with pauses/resets; five corrupted variants reject. Full temporal
+induction and its stronger explicit four-record-capacity property pass for
+arbitrary reset/advance histories; all five formal controls reject. Preserve
+the initial coverage-only failure, which incorrectly demanded four records
+for rotations that merge simultaneous events. These are SOURCE proofs only.
+Native consumers remain unconnected: evaluate boundary input changes, each
+actual gated clock/transparent latch/SRAM window, j02 debug pulses, DispY b01's
+raw/fake wired contributions and video enable in the correct event order.
+No original60ns, faster SDRAM, firmware or machine-speed qualification yet.
+
+A NEW fixed5B HOST native boot of the shorter control has compiled190 HDL
+sources and started (driver74661/test75056, local `control-short-native-boot-v1-20261024`).
+Generic/owned callers pass fresh exact-source156-owner/1,416-auxiliary context
+induction and stale-owner rejection. Original ROM, input/reset/button stimulus,
+read-only medium, all ten-board/owner/SRAM/held128-request checks and8-class
+ledger remain. Older jobs/bounds are untouched. This run still uses existing
+57.142857MHz/SYSPER4 clocks, NOT the new common clock batch; no Cedar pass yet.
+
 Current follow-up (2026-10-24): the atomic Hold-cofactor full fit is now
 TERMINAL/REJECTED: setup -3.618ns/-2.835ns at the slow corners, minimum hold
 -0.020ns. All957 collected files/533 source hashes verify. The worst path is
@@ -25,13 +56,13 @@ Both complete original comparisons pass14,884events/all844Q/9,216RAM/all100clock
 and unchanged cache/reset/retry coverage.1,974 four-state stimuli cover X and Z
 on EACH955 inputs at four/five/six/24 waves. State-bit/unknown-fallback controls
 reject independently; initial syntax/parser failures remain retained.
-`control-short-native-v1-20261024` is live on misterubuntu at unchanged
+`control-short-native-v1-20261024` ran on misterubuntu at unchanged
 57.142857MHz/SYSPER4, with533 verified sources/only control RTL changed and
-full structural elaboration passing. Require actual whole-device timing before
-firmware/hardware selection. No speed gain or original60ns qualification yet.
+full structural elaboration passing. Its complete timing is now rejected as
+recorded above. No speed gain or original60ns qualification yet.
 Map succeeds at93,004 logic cells (1,052 fewer than the balanced baseline),
 unchanged35 DSPs/2,602 RAM segments; all985 warnings are retained. The same
-builder2864466/fitter2878208 proceeds to physical timing, without assembly.
+builder2864466/fitter2878208 completed physical timing, without assembly.
 
 Full-native follow-up (2026-10-24): the balanced slice's passing15ns shell does
 NOT close the actual machine. The unchanged57.142857MHz/SYSPER4 native fit is
@@ -6828,7 +6859,7 @@ original sheets/manual remain the references.
 | T and task setup | ProcL20 d17 MC10176 clocks on SHCP'C; ProcH20 h22 on Clock0'Da. Both produce TbSelMd/write enables from LC/FF and task comparison. Processor Curr/Next stages also use SHCP'C/Clock1'. | Control decode/capture interface passes8192 cases. Clock-source paths now checked against original wire lists; edge-enable integration and complete T setup/data/task ordering remain. |
 | Map latch/MCR | MemX f01/g01 MC10175 follow Mapbuf while MapbufLd' is low; f04 F10016 consumes Mapbuf at Clk1'Ab. | Preserve transparency before close and the consuming edge. Current clock lag/PRECAP values are compensation, not the physical specification. |
 | RAM writes | F10145A captures address/data in the active write window; existing native fit has narrowly reviewed own-address hold exceptions. | Keep old-data reads, write commitment and setup checks; re-review every new placement. |
-| Peripheral clocks | K1115A rates depend on SYSPER; MC12061's fabric/8 currently mis-scales the BaseBoard clock. | Qualify prepared timer correction against original firmware and measure terminal/Ethernet/disk/Junk rates together. |
+| Peripheral clocks | Active pixel K1115A and BaseBoard MC12061 now use2*boardSYSPER; the earlier fabric/8 diagnosis is historical. At four15ns ticks, pixel square-wave sampling loses events; the ordered producer/batch retains them. | Integrate actual consumers and measure terminal/Ethernet/disk/Junk/BaseBoard rates together against nominal60ns time. |
 
 Evidence for this first implementation lives in
 `fpga/mister/reports/2026-10-18-clock-phases/`. Board/firmware equivalence,

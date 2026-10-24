@@ -6,6 +6,40 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`common-clock-batch-summary.json` retains the complete shorter-control fit:
+all957 members/533 source hashes verify, all builder/reporter processes exited.
+REJECTED: setup -0.475ns/-0.145ns at the slow corners, minimum hold+0.112ns.
+Area36,289ALMs/55,684registers. Worst path: MemC d15.qb,321loads, cache tags/
+Hold386/shortened control into low RM write;16.931ns data,-0.884ns clock skew.
+Primary-input setup-0.396ns; internal-owner+0.195ns is at17.5ns, not15ns.
+Coverage695primary+109copies=804central/274history, all16visibleR/four SRAMs.
+
+The common CPU/pixel producer is now proved separately. Every natural SCP'/
+ECP/50MHz pixel transition within15ns receives an exact1.25ns offset, with
+simultaneous changes merged into one record. Both simulators pass2,048
+intervals at EACH of eight initial CPU rotations, including pauses and three
+resets; all five actual bad variants reject. Temporal induction compares all
+offsets/masks/post-event levels against the original four-flop divider and an
+independent absolute-time pixel counter, with arbitrary reset/advance histories
+and no assumptions. A stronger second proof explicitly checks capacity<=4.
+All five formal corruptions have counterexamples. The first smoke's incorrect
+four-record demand in coincidence rotations remains retained; no timeline
+comparison was removed from the corrected full test.
+Original BaseBoard wire-list connections and active native pixel wiring bind
+the references. Native consumers remain UNCONNECTED; boundary inputs, j02
+debug pulses, DispY raw/fake wired contributions and actual derived-clock/
+latch/SRAM/video capture must still be integrated. No native speed claim.
+
+`short-control-native-boot-summary.json` binds the shorter transfer to a NEW
+fixed5B original-firmware test, driver74661/test75056/session52350. Compilation
+of190 HDL sources passes; original input reset/matrixFFFF and first HPS read
+pass, physical initialization is ongoing. Fresh native owner/context induction
+and a stale-owner counterexample bind the exact generic/owned533-source callers;
+1,416auxiliary bits and156owner projection, no owner power-up/protocol assumptions.
+Original ROM/clocks/reset/buttons/media and all existing pause/SRAM/held128-group
+checks remain. The complete immutable input tree is retained. This is not
+firmware qualification, a clock-batch integration or an FPGA speed result.
+
 `control-terminal-wave-summary.json` adds the TERMINAL atomic-cofactor fit:
 all957 collected members/533 original source hashes verify. It is REJECTED:
 setup -3.618ns/-2.835ns, minimum hold -0.020ns. Worst path moved to upper_q234
@@ -29,7 +63,8 @@ are retained without overwriting or rerunning those jobs.
 
 The533-source native stage changes only control RTL after path relocation;
 full native structural elaboration passes with three known warnings visible.
-`control-short-native-v1-20261024` is live at57.142857MHz/SYSPER4. Timing,
+`control-short-native-v1-20261024` was fitted at57.142857MHz/SYSPER4; it is now
+terminal/rejected as recorded above. Timing,
 firmware, original60ns/peripheral/SDRAM66.7MHz and full A–F remain unqualified.
 `control-terminal-wave-fit-live-summary.json` retains a later actual fitter
 observation after successful synthesis:93,004 logic cells against94,056 in the
@@ -1003,8 +1038,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps56,353 members to5,794 deduplicated compressed blobs;
-lossless readback verifies1,769,014,203 unique raw bytes and66,884,747 compressed
+`manifest.json.gz` now maps59,142 members to6,264 deduplicated compressed blobs;
+lossless readback verifies1,973,136,306 unique raw bytes and73,737,847 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

@@ -46,8 +46,12 @@ def stage(parent, evidence, out, project):
         assert p['compared_output_bits'] == 363 and p['arbitrary_binary_input_and_state_bits'] == 955
         assert not p['assumptions_added'] and p['extra_state_or_guest_cycles'] == 0
         verify_files(d, p)
-        assert (d/'original.sv').read_text() == original
-        assert (d/'candidate.sv').read_text() == transform(original, variant == 'negative')
+        # The theorem compares the pure atomic module. Generic and owned
+        # callers differ in their cache guard, qualified separately by the
+        # exact native owner/context proof before a firmware test can start.
+        proved_source = (d/'original.sv').read_text()
+        assert module(proved_source, 'dorado_control_hold_atomic_step') == module(original, 'dorado_control_hold_atomic_step')
+        assert (d/'candidate.sv').read_text() == transform(proved_source, variant == 'negative')
         proofs.append(dict(directory=str(d), state_sha256=sha(d/'run-state.json'), status=p['status']))
     comparisons = []
     for engine in ['icarus', 'verilator']:

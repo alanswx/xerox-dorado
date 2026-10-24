@@ -1,5 +1,56 @@
 # Verilog from Sil: handoff
 
+NOW LIVE (2026-10-24): shorter-control original-firmware simulation
+`control-short-native-boot-v1-20261024`, driver74661/test75056/session52350,
+fixed5B HOST bound set before launch. Compile190 HDL sources succeeds; input
+reset/matrixFFFF and first HPS read pass, full physical memory initialization
+is in progress. This is NOT a Cedar or CPU-progress pass. All earlier jobs/
+bounds remain unchanged; medium opens read-only and guest writes stay volatile.
+`short-control-native-boot-summary.json` retains complete frozen inputs and
+the actual process observation. Exact generic/owned533-source callers pass
+fresh156-owner/1,416-auxiliary-bit context induction with unconstrained owner
+power-up/no protocol assumptions; stale-owner corruption has a counterexample.
+Only their original cache guard/owner commit wiring differs. Native clock
+remains57.142857MHz/SYSPER4/eight enabled ticks per instruction. The new common
+clock batch is NOT connected in this boot. No FPGA image was assembled/loaded.
+
+Latest milestone (2026-10-24): `common-clock-batch-summary.json` retains the
+complete shorter-control fit and a proved common CPU/pixel event source.
+The fit is TERMINAL/REJECTED: setup -0.475ns/-0.145ns at the slow corners;
+minimum hold +0.112ns. All957 collected files/533 source hashes verify.
+Area36,289ALMs/55,684registers. Worst path: MemC d15.qb (321 loads) -> c10
+cache-tag read/compare -> conditional Hold pin386 -> shortened control ->
+low RM write. Data16.931ns, clock skew-0.884ns at a17.5ns period. Primary-owner
+input setup also fails -0.396ns; internal owner setup is positive +0.195ns at
+THIS period, not a15ns pass. Keeper coverage is695primary+109copies=804central,
+274history, all16 canonical visible-R bits/four SRAM banks queried. No assembly.
+Builder2864466/fitter2878208/reporter2866428 and all recorded stages exited.
+Local frozen fit `control-short-fit-terminal-v1-20261024`; remote DB remains
+`/home/alans/mister/control-short-native-v1-20261024/core`.
+
+New `verilog/rtl/dorado_clock_event_batch.sv` places natural SCP'/ECP and50MHz
+raw pixel changes on ONE chronological15ns interval. Exact1.25ns offsets,
+up to four records, simultaneous changes merged into one pre-event state.
+It reuses the proved rational pixel producer and original eight-position CPU
+divider relationship. Both simulators pass2,048 intervals at EACH of eight
+initial CPU rotations, pauses and three resets; all five broken variants reject.
+Temporal induction proves every offset/mask/post-event level for arbitrary
+reset/advance histories at all eight rotations, without assumptions. A separate
+stronger induction explicitly proves the four-record bound. All five formal
+corruptions have counterexamples. Initial smoke failure demanded four records
+even when coincidence merges them; preserve it. The corrected test retains
+all original timeline comparisons and checks the proper rotation coverage.
+
+This source is UNCONNECTED. Next consumers must process input arrivals before
+the batch, then propagate actual derived clocks/latches/SRAM windows per record.
+Re-evaluate BaseBoard j02's real debug pulse at each event; the exposed root
+level is its debug-INACTIVE OR only. DispY b01 has two wired contributions from
+RawPixelClk/UseFakePixelClk/FakePixelClk; preserve both through g13 and c06/k11
+pixel families. Do not replace that graph with one guessed pixel enable.
+Private cache-tag LCELL buffers remain the next physical fanout option; the
+kept inversions and QSF duplication attempts already failed. Original60ns,
+separate66.7MHz SDRAM and full A–F/Cedar/Rollback/persistence/stress remain open.
+
 Latest milestone (2026-10-24): `control-terminal-wave-summary.json` retains the
 complete atomic-cofactor timing rejection and a proved shorter control transfer.
 The cofactor fit is TERMINAL/REJECTED: slow100C setup -3.618ns, slow-40C
@@ -8,8 +59,9 @@ source hashes verify. Worst path moved to upper_q[234] -> ContB/control ->
 T-register enable -> lower_q[260]; MemC output timing still fails -1.366ns.
 Do not deploy it or claim the late-selection rewrite fixed whole-machine timing.
 
-NOW LIVE: `/home/alans/mister/control-short-native-v1-20261024`,
-builder2864466/session74040, fitter2878208 verified live; reporter session53708.
+Earlier live observation, now TERMINAL/REJECTED as recorded above:
+`/home/alans/mister/control-short-native-v1-20261024`.
+Builder2864466/session74040, fitter2878208, reporter session53708 all finished.
 Local stage `control-short-native-stage-v1-20261024`, manifest
 `72222722cb52eb5986ce250740cb32ee4f27ea100a0949cb2ac585eac208a9f8`.
 All533 sources verify; only the control RTL changes after path relocation.
@@ -10619,7 +10671,12 @@ and has unreviewed hold violations; never deploy it.
 - [x] Finish atomic Hold-cofactor fit and all-device/physical-owner queries; retain all957 files, -3.618ns setup/-0.020ns hold rejection and the changed upper-control/T-enable critical path. No deployment.
 - [x] Separate four-pass data transfer from terminal settling recognition, then prove the actual replacement's ALL363 outputs at five/24 waves for955 arbitrary binary inputs; retain original X/Z fallback and diagnostics, both complete original comparisons/all100clocks, all955-input X/Z coverage and independent negative controls.
 - [x] Stage the shorter transfer in the actual533-source native caller and pass complete native structural elaboration with original warnings; preserve original owners, SRAM ports, clocks and capture phases. Retain initial syntax/diagnostic-reader failures.
-- [ ] Follow existing shorter-control native fit through area/all-device/owner timing, then qualify original native firmware before speed selection. Migrate actual display consumers/video enable to ordered events, preserving original capture windows.
+- [x] Finish shorter-control full native fit and all owner/RAM reports: retain957files, -0.475ns/-0.145ns rejection, +0.112ns hold,321-load cache-tag/Hold/RM-write path and36,289ALM area. Internal+0.195ns is at17.5ns, not15ns.
+- [x] Implement common15ns CPU/pixel chronology with exact1.25ns offsets, all eight CPU rotations and merged coincident edges; pass both independent original-divider simulations, temporal induction including explicit four-record bound, and all five simulator/formal corruption controls. Preserve incorrect initial coincidence-coverage failure.
+- [ ] Force actual local cache-tag address buffering and inspect physical fanout/full timing; no repeated kept-alias/QSF-duplication assumption. Qualify original native firmware before any speed selection.
+- [ ] Migrate actual BaseBoard/DispY source and derived-clock/latch/SRAM consumers to the ordered batch; preserve j02 debug pulses, input-arrival ordering, b01 wired-OR/fake-clock paths and same-event pre-state capture.
+- [x] Bind shorter control into the generic caller without changing its owner contract, prove exact native owner/context coupling again plus stale-owner rejection, and compile/start a NEW fixed5B original-firmware boot with all existing pause/RAM/held-request checks and corrected8-class ledger.
+- [ ] Follow shorter-control boot75056 through original BaseBoard113/Cedar, without changing existing bounds, firmware, input pacing or medium. Physical timing remains separately rejected; do not deploy on simulation evidence alone.
 - [ ] Diagnose baseline SeqNo0 after the last reply76B without altering existing tests; qualify actual receiver acceptance/CRC and pin common architectural progress before native speed comparison.
 - [ ] Complete the existing owned-context1B run and new balanced-native5B original-firmware run; classify physical-Q/RAM-read feedback with full native timing before promotion. Preserve every older bound/source.
 - [ ] Close remaining full diagnostic timing, then qualify native global pauses/actual CP frequency, one SRAM commit, original60ns phases/all timers and separate66.7MHz SDRAM. No new speed selection yet.

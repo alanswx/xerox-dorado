@@ -1,0 +1,41 @@
+{
+  "status": "REVIEWED_SHORT_CONTROL_SOURCE_BOUND_LIVE_BOOT",
+  "source_count": 533,
+  "generic_to_owned_changes": [
+    "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v",
+    "src/verilog/rtl/dorado_r_front_control_step.sv"
+  ],
+  "context_proofs": [
+    {
+      "directory": "control-short-native-context-proof-v1-20261024",
+      "status": "PASS_SOURCE_BOUND_NATIVE_CP_CONTEXT",
+      "state_sha256": "5f2de291a283a5e5f896ff59ef11f0738483c2354a08f667ba6af9e304e0912c"
+    },
+    {
+      "directory": "control-short-native-context-stale-v1-20261024",
+      "status": "PASS_STALE_NATIVE_OWNER_COUNTEREXAMPLE",
+      "state_sha256": "382a8eb572e5f59f96758d1553b89be0aaa78fb336e0d1271808161edff09dc2"
+    }
+  ],
+  "live_boot": {
+    "directory": "control-short-native-boot-v1-20261024",
+    "pid": 75056,
+    "ps": "75056 02:19 R    /Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-boot-v1-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-boot-v1-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-boot-v1-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+    "observed": 1792848046.024491,
+    "state_sha256": "059e069b47860c8de76c77030fc1c51342269750947992c88917f35330b08af1"
+  },
+  "fixed_host_bound": 5000000000,
+  "original_firmware_and_framework_reset_unchanged": true,
+  "original_older_bounds_unchanged": true,
+  "all_eight_window_classes": true,
+  "original_medium_readonly_guest_writes_volatile": true,
+  "common_clock_batch_connected": false,
+  "native_clock_hz": 57142857,
+  "sysper": 4,
+  "native_timing_qualified": false,
+  "firmware_qualified": false,
+  "speedup_qualified": false,
+  "hardware_changed": false,
+  "assembly_permitted": false,
+  "full_goal_active": true
+}
