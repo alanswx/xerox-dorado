@@ -1,0 +1,46 @@
+{
+  "status": "REVIEWED_CP_SUBEVENT_NEGATIVE_CONTROLS_BOTH_ENGINES",
+  "negative_controls": [
+    {
+      "engine": "icarus",
+      "mutation": "root-first",
+      "event": 11327,
+      "directory": "r-front-cp-subevents-root-first-icarus-v3-20261023",
+      "state_sha256": "e900b720539d09e10c212142ca984b52f9a3f238ac4a2561ee072ba713dc38c3",
+      "test_sha256": "d1972f401e0f0b5841caec48f42e41d8b278503e4af538d6ddd63028d1a01ace",
+      "candidate_sha256": "cfad58f6260495f0824d0846af1590bd834f381475cafa609995c978381cf13a"
+    },
+    {
+      "engine": "icarus",
+      "mutation": "task-root-first",
+      "event": 12839,
+      "directory": "r-front-cp-subevents-task-root-first-icarus-v3-20261023",
+      "state_sha256": "d352a5c68c1d85941369294a8b1cad3d66db2f9a88ef700556d5919cbf08ad74",
+      "test_sha256": "3997c85a89fd3d60951133de662501387636b61861d9e2f950191fffabd9332f",
+      "candidate_sha256": "9c31f503d8a31505a2658f9b662bf4b2a4d29fb473ebacb56ab20d3f77d3ef0c"
+    },
+    {
+      "engine": "verilator",
+      "mutation": "root-first",
+      "event": 11327,
+      "directory": "r-front-cp-subevents-root-first-verilator-v3-20261023",
+      "state_sha256": "b272c48832edc15f93432b7ea030177d7d105c1ea68f01d7fda988315a505ed9",
+      "test_sha256": "712613f180d417bf0f42ebb7f7a75d08c76ab9e792dd874e02c3c0b7fe5468e9",
+      "candidate_sha256": "cfad58f6260495f0824d0846af1590bd834f381475cafa609995c978381cf13a"
+    },
+    {
+      "engine": "verilator",
+      "mutation": "task-root-first",
+      "event": 12839,
+      "directory": "r-front-cp-subevents-task-root-first-verilator-v3-20261023",
+      "state_sha256": "d92262bbb14dc08323ce85d60f9f3ee70efb0d3533c7c8ac8ae95cec5e0c3ffd",
+      "test_sha256": "2cf5d84ecdbcd51cb557add658a9fdaabc0a460ab44766cd8a4bca94be15403a",
+      "candidate_sha256": "9c31f503d8a31505a2658f9b662bf4b2a4d29fb473ebacb56ab20d3f77d3ef0c"
+    }
+  ],
+  "original_checks_unchanged": true,
+  "native_timing_qualified": false,
+  "assembly_permitted": false,
+  "hardware_changed": false,
+  "speedup_qualified": false
+}

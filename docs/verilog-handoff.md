@@ -1,5 +1,70 @@
 # Verilog from Sil: handoff
 
+Latest CP ordering component result (2026-10-23;
+[bounded passes, rejected variants and live profile observations](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#cp-before-root-subevents)):
+the profile matrix is now TERMINAL and REJECTED. Fast-gates Icarus disagrees
+at event12839/Q88: original ProcH g18 captures1 for FF076|Freeze, candidate0.
+Clock counts pass before that physical-state rejection. The paired fast-gates
+Verilator case passes with BYTE-IDENTICAL candidate, bench and timed sources.
+This is an unresolved capture-arrival contract, not permission to mask Q88,
+change the original FF or select an engine. Preserve the failed test.
+Both passive diagnostics are now TERMINAL: at8988202.500ns, g18 D falls and C
+rises together. Icarus samplesD1/Q1; Verilator samplesD0 thenQ0 at+1ns, with
+neither original outcome changed by observation. The original1978 MC10176
+sheet (PDF129/printed3-82, visually checked) requires2.5ns setup/1.5ns hold.
+This stimulus has zero margin and cannot establish one physical truth. Keep
+the matrix rejection; next replay exact pre-event state/RAM with CP skew and
+measure valid setup margins, then derive the native producer's contract.
+`cp-flag-arrival-summary.json` retains both traces and the original part page.
+
+v3 passes BOTH complete14,884-event comparisons, including the two original
+CP/root alignments,844 physical Qs,9,216 RAM bits and100 actual clock checks.
+Summary BOTH:14884checks/238writes/6928reads/392epochs. Actual package-D audits
+cover28,700 address captures in eight groups per engine; zero distinct old/new
+address data epochs remains a coverage gap, not an exhaustive proof.
+
+The control CP write is evaluated at the old root before the distributed root
+arrival. Its intermediate Q is a combinational wire, not storage. The actual
+task/controller evaluator needs the same order: clearing NoDispatch at LOW
+must expose a LOW interval before the rising root, preserving real clock7.
+Canonical f14 events retain separate prefix/root ownership through a four-bit
+wire descriptor; all atomic transfer functions, physical owners, RAM ports,
+original reference and rejection checks remain. No extra state or guest cycle.
+v1 orders only the joint control and rejects12839 in BOTH; v2 also orders a
+processor helper but misses the actual task/controller supplier and rejects
+12839 in Verilator. Both earlier failures remain. Deliberately disabling
+joint ordering rejects11327; disabling task ordering rejects12839 in BOTH
+engines. The Icarus negative controls are now terminal, with exact candidate
+bytes matching their Verilator partners; the separate negative follow-up
+preserves them without rewriting the earlier live observations.
+
+The six-profile matrix `r-front-cp-subevents-matrix-v1-20261023` has7passes,
+1failure and4unrun Icarus profiles. All its recorded processes, including
+root36963/case38213, are absent. Its earlier7/12 LIVE receipt is historical.
+Negative tests37777/37776 are also terminal; do not restart those jobs.
+The matrix's probe/driver freeze is released. Passive g18 C/D/Freeze/Q
+arrival diagnostics retain all fatals and print pre-event state/RAM for replay:
+`r-front-cp-flag-arrival-icarus-v1-20261023` and Verilatorv2 are terminal.
+v1 Verilator failed
+compilation because a9216-bit display exceeded its8192-bit limit; v2 splits
+only the diagnostic RAM display. Do not restart those terminal diagnostics.
+Observation may perturb same-delta scheduling; diagnostic outcomes cannot
+override the original profile failure. Follow recorded current statuses.
+Do not promote the combinational composition or start a native fit on these
+bounded passes alone: full profile completion, source arrival contracts,
+native integration and physical setup/hold remain required. v9 stays unfitted.
+
+The original-ROM QUEUED native run now executes real FinishCP: host371308340/
+guest145150301 and host371316957/guest145155634, PCF8AB/data00, instruction mask1
+on both observed writes. This agrees with the watchdog startup diagnosis below;
+it is not Cedar113 or representative firmware storage qualification. The
+passive observer is not proof of every asynchronous NoDispatch transition.
+Control29201 and queued29618 remain live, unchanged and at their original5B
+limits. Immutable prefixes/ps records are archived; no hardware change or new
+speed result. Last measured4.025473M StartCycle issues/s (24.15% nominal, not
+retirements). Full A-F goal ACTIVE. Next resolve actual g18 setup/arrival and
+complete profile qualification, review native phases and follow real113 traffic.
+
 Latest original-ROM startup diagnosis (2026-10-23;
 [reviewed frozen runs and limitations](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#original-rom-watchdog-startup)):
 the repeated F3AC/F3AE zero-page loops are explained by the modeled watchdog's

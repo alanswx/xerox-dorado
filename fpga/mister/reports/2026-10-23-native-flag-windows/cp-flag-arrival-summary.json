@@ -1,0 +1,68 @@
+{
+  "status": "REVIEWED_CP_FLAG_ZERO_SETUP_DIAGNOSTIC",
+  "observed_arrivals": [
+    {
+      "engine": "icarus",
+      "directory": "r-front-cp-flag-arrival-icarus-v1-20261023",
+      "state_sha256": "51a79ca9f7be55471df10c3f598d11a011ec627828203f816a383c5e09d46452",
+      "clock": [
+        "8988202.500",
+        "1",
+        "1"
+      ],
+      "arrival_lines": [
+        "CP_FLAG_ARRIVAL t=8988202.000 check=12839 root=1 CP_NoDispatch=0 freeze=0 D=1 C=0 Q=1",
+        "CP_FLAG_CLOCK t=8988202.500 check=12839 D=1 Q=1",
+        "CP_FLAG_ARRIVAL t=8988202.500 check=12839 root=1 CP_NoDispatch=0 freeze=0 D=1 C=1 Q=1",
+        "CP_FLAG_ARRIVAL t=8988202.500 check=12839 root=1 CP_NoDispatch=0 freeze=0 D=0 C=1 Q=1"
+      ],
+      "zero_setup_margin_at_trace_precision": true,
+      "test_returncode": 1,
+      "outcome_changed_by_observation": false
+    },
+    {
+      "engine": "verilator",
+      "directory": "r-front-cp-flag-arrival-verilator-v2-20261023",
+      "state_sha256": "5ba4fa437efbd670775ec288f57fcc8a07892330a4695607c792a0e1d89f16c5",
+      "clock": [
+        "8988202.500",
+        "0",
+        "1"
+      ],
+      "arrival_lines": [
+        "CP_FLAG_ARRIVAL t=8988202.000 check=12839 root=1 CP_NoDispatch=0 freeze=0 D=1 C=0 Q=1",
+        "CP_FLAG_CLOCK t=8988202.500 check=12839 D=0 Q=1",
+        "CP_FLAG_ARRIVAL t=8988202.500 check=12839 root=1 CP_NoDispatch=0 freeze=0 D=0 C=1 Q=1",
+        "CP_FLAG_ARRIVAL t=8988203.500 check=12839 root=1 CP_NoDispatch=0 freeze=0 D=0 C=1 Q=0"
+      ],
+      "zero_setup_margin_at_trace_precision": true,
+      "test_returncode": 0,
+      "outcome_changed_by_observation": false
+    }
+  ],
+  "live_arrival_diagnostics": [],
+  "original_part_timing": {
+    "source": "DoradoDocs/datasheets/Motorola_MECL_DataBook_1978.pdf",
+    "source_sha256": "30cf66bb2f0f33e4d6e5f9fea17c2cd3e4e1ae6885411954cd6195d31597765a",
+    "pdf_page": 129,
+    "printed_page": "3-82",
+    "part": "MC10176/MC10576",
+    "minimum_setup_ns": 2.5,
+    "minimum_hold_ns": 1.5,
+    "page_image_visually_reviewed": true,
+    "extracted_files": {
+      "mc10176-page.txt": "0716d6b32cf0adc7aae196c77bbd26a0de753ce31085b71216cf7b87b726838a",
+      "page-number.txt": "38a407cd7d38b41132709485046d7817571b73c32433877751399e229ce11ce2",
+      "mc10176-1978.png": "d45edd0c4d3f582309635f8f4acff60e6ccf4e669f253455b87cefefdad5df66",
+      "mc10176-1978-129.pdf": "8d0d160981c7f49fc3147850ce7db1855a8a25155e6dbb8fbfefd70bbbdedbb7"
+    }
+  },
+  "original_matrix_rejection_retained": true,
+  "reference_model_changed": false,
+  "valid_margin_replay_qualified": false,
+  "native_producer_setup_qualified": false,
+  "physical_timing_qualified": false,
+  "assembly_permitted": false,
+  "hardware_changed": false,
+  "speedup_qualified": false
+}

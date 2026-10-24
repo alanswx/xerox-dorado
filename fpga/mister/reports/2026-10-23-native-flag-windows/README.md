@@ -4,6 +4,88 @@ This receipt preserves the complete v5 native failure and the corrected
 component implementation of the original l06/l07 flag latches. No image was
 assembled or loaded; the qualified hardware core and measured speed are unchanged.
 
+## CP-before-root subevents
+
+**Latest: the profile matrix is terminal and rejected.** Fast-gates Icarus
+fails event12839 at physical Q88: original ProcH g18 captures1 for FF076|Freeze
+while the candidate predicts0. All clock comparisons passed before that state
+rejection. The paired Verilator fast-gates case passes with byte-identical
+candidate, bench and timed RTL. Capture setup/arrival is unresolved; this is
+not permission to mask Q88, alter the original FF or choose a simulator.
+`cp-subevents-matrix-summary.json` retains the complete terminal matrix,
+source equality, rejection and recorded process absence. The earlier primary
+summary's live7/12 observation remains historical evidence.
+
+Both passive pin-arrival diagnostics are now terminal. At8988202.500ns D falls
+and C rises at exactly the same modeled timestamp. Icarus's clock process sees
+D1 and retainsQ1; Verilator seesD0 and updatesQ0 at8988203.500ns. Neither
+original outcome changed when observed. The original Motorola1978 data book,
+PDF page129/printed3-82, specifies **2.5ns minimum setup and1.5ns minimum hold**
+for MC10176/MC10576; the extracted page was visually checked. Thus this raw
+stimulus has zero margin and cannot establish a uniquely reliable physical
+result. `cp-flag-arrival-summary.json` preserves both complete diagnostics,
+pre-event state/RAM, the source-page PDF/image/text and their hashes.
+
+The original matrix rejection remains. No bit, reference or fatal is changed.
+Next replay the saved state with CP timing offsets, measure source/capture
+margins and establish the native producer contract before qualifying the model.
+
+`cp-subevents-summary.json` preserves two complete balanced passes and the
+completed Verilator timing profiles, earlier rejected compositions, negative
+controls and immutable observations of actual live Icarus/native handles.
+
+The corrected v3 composition passes **14,884 events in both simulators**:
+238 writes,6,928 reads,392 address epochs. The extra transactions exercise both
+CP pulse/root alignments across the four CP banks in this component. All original
+844-Q,9,216-RAM-bit,100-clock,package-pin,physical-output and settled-state
+rejection checks remain unchanged. Eight address-package pin audits cover
+28,700 captures per engine; the old/new address data views differ at zero tested
+captures, so exhaustive address-epoch qualification remains open.
+
+The control evaluator first sees local CP pins at the old root, then the
+distributed root and remaining inputs. Each intermediate Q is a wire; no
+storage, RAM copy, new clock or guest instruction cycle is added. The actual
+task/controller evaluator must do the same: clearing NoDispatch while the root
+is LOW creates a LOW interval at clock7 before the root rises. Canonical f14
+events carry their prefix/root ownership through a four-bit wire descriptor.
+Every atomic transfer function and the physical RAM port implementation stay
+unchanged. Native timing of this composition has not been assessed.
+
+The first joint-only version gets beyond11327 but rejects12839 in both engines.
+The second also updates a processor helper, but that helper does not supply the
+failing clock count; it still rejects12839 in Verilator. Both failed sources and
+logs are retained. Starting from v3, disabling joint ordering restores11327;
+disabling task ordering restores12839 in BOTH engines. All four negative
+controls are now terminal; each Icarus candidate matches its Verilator partner
+byte-for-byte. `cp-subevents-negatives-summary.json` adds the terminal Icarus
+trees and exact rejection checks, preserving the primary receipt's earlier
+live observations.
+
+The profile matrix ends with **7 passes,1 failure and4 unrun Icarus profiles**.
+All six Verilator profiles and balanced Icarus pass. Profile cells are copied exactly
+from the independently qualified original timing profiles. The expanded bench
+and all checks are retained. All recorded matrix processes are absent; do not
+restart that terminal matrix. Its probe/driver freeze is released.
+Do not assemble, select a native fit or claim a corrected full machine from
+these bounded component results. Source arrival contracts, complete profile
+qualification, native integration and physical timing remain required.
+
+New passive ProcH g18 C/D/Freeze/Q arrival diagnostics keep the same candidate,
+original timed graph and every fatal, printing pre-event state and RAM for
+bounded replay. The Icarus v1 and Verilator v2 diagnostics are terminal;
+no prior job was restarted. Verilator v1 stopped at compilation because one
+9216-bit display exceeded its8192-bit argument limit; v2 splits that diagnostic
+output only. Observation itself may perturb same-delta ordering, so these are
+diagnostics and cannot qualify or erase the original failing profile.
+
+The SAME queued original-ROM native run29618 now executes FinishCP at
+host371308340/guest145150301 and host371316957/guest145155634, PCF8AB/data00,
+instruction mask1 on both observed transactions. This independently progresses
+past the watchdog interval; it does not qualify all CP transitions, Cedar113 or
+representative storage traffic. Both original native jobs retain their exact
+sources, normal inputs, original5B bounds and in-memory-only medium writes.
+Hardware and measured speed are unchanged; the full A-F goal remains active.
+
 ## Original-ROM watchdog startup
 
 `baseboard-watchdog-summary.json` and the lossless archive preserve eight

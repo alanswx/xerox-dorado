@@ -11,6 +11,45 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+CP/root subevent follow-up (2026-10-23): v3 passes BOTH expanded14,884-event
+comparisons with every original physical-Q/RAM/clock/fixed-point check intact.
+The broader matrix is now TERMINAL/REJECTED: fast-gates Icarus fails event12839
+at physical Q88 (ProcH g18 FF076|Freeze, original1/candidate0), after passing
+clock counts. Its paired Verilator case passes with byte-identical RTL/bench/
+timed inputs. Arrival/setup remains unresolved; preserve this rejection and
+do not mask the bit, change its reference or select one simulator as truth.
+Both now-terminal passive traces show D falling/C rising at8988202.500ns:
+Icarus samples1, Verilator0, with original outcomes retained. The original1978
+MC10176 sheet (PDF129/printed3-82) requires2.5ns setup/1.5ns hold; this event
+has zero margin. Next replay the exact pre-event state/RAM with CP skew,
+establish valid-margin comparisons and the native producer's setup contract.
+This diagnoses the zero-margin test boundary, not a native timing pass.
+Control CP arrival precedes the distributed root; the actual task/controller
+supplier preserves the same order, including the LOW interval when NoDispatch
+clears before a rising root. Canonical f14 events retain prefix/root ownership.
+Intermediate values are wires; atomic transfer functions and RAM ports are
+unchanged, with no extra state or guest cycle.28,700 package-D captures per
+engine pass; distinct old/new address epochs remain ZERO, an explicit gap.
+
+Earlier joint-only/helper-only prototypes still reject12839. Removing joint
+ordering rejects11327 and removing task ordering rejects12839 in BOTH engines;
+all four negative controls are terminal and archived. The full six-profile matrix
+`r-front-cp-subevents-matrix-v1-20261023` ends with7passes/1failure/4unrun Icarus
+profiles; all recorded processes are absent and its driver freeze is released.
+The primary7/12 live archive is historical. Passive flag-arrival diagnostics
+keep the same candidate/reference/fatals and capture pre-event state/RAM for
+replay and are now terminal. Do not restart them. Finish the
+g18 source setup/arrival and profile gates before any native fit. This
+composition has no native timing or speed qualification;
+v9 remains unfitted. [Complete evidence and limits](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#cp-before-root-subevents).
+
+Queued native original-ROM run29618 has now reached actual FinishCP at
+guest145150301/145155634 (host371308340/371316957, PCF8AB/data00, mask1).
+This is genuine producer progress, not Cedar113/storage-workload qualification.
+Both original native jobs/5B bounds stay unchanged. Next finish CP qualification
+and native phase partition, then measure authentic113 storage traffic. Full
+A-F goal remains active; hardware and last measured4.025473M issues/s unchanged.
+
 Original-ROM startup follow-up (2026-10-23): the apparent repeated zero-page
 clear is the modeled watchdog's initial phase. Exact isolated BaseBoard/ROM
 tests pass the256-byte clear at both ratios, irregular clock pauses and the
