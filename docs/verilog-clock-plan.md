@@ -14,6 +14,59 @@ Continue build/simulation work; notify them when a reviewed build is ready
 for hardware testing, and wait until they release MiSTer14 before any load,
 reboot or control. Earlier reload authorization is superseded while it is in use.
 
+Stateless processor and single SRAM owner qualified (2026-10-24):
+`pure-processor-seam-summary.json` now preserves the full evaluator with explicit
+RM/STK read and write ports. The caller owns the same four 256x9 banks once;
+read address/select, old-state write data, odd parity and `advance && cp_ready`
+commit gating stay exact. Both original references pass all 14,884 checks,
+844 physical Qs, 9,216 SRAM bits and 100 clock counts: 238 writes, 6,928 reads,
+392 capture epochs and 4,975 sparse control falls. Cache coverage is unchanged
+(fast 13,347; staged 1,537; wait edges 1,553; retries 7; reset 1). Disabling a
+write or corrupting its data fails the ORIGINAL storage assertion at check 203.
+No original reference assertion or capture epoch was removed.
+
+A new PURE control-prefix function derives the actual prefix from each call's
+current state/pins. It selects direct evaluation only when that fresh prefix is
+an identity and there is no split CP event. All 475 control/event/flag/prefix
+outputs prove equal to always-ordered evaluation at both 5/24 waves, for
+arbitrary binary owners/pins and WITHOUT cache or owner history assumptions.
+Forced-direct and stale-prefix variants produce counterexamples. Both X and Z
+in every one of the 955 inputs pass full-output fallback comparison (3,820
+checks plus two binary witnesses); a broken unknown guard rejects.
+
+The COMPLETE pure processor clone now agrees on all 30 result ports with the
+original cached evaluator through another full 14,884-check original-reference
+run, including all closed/physical Qs, addresses/selects, write data, events and
+functional observations. The original cached instance, all SRAM/reference
+checks and all retry/reset exercises remain in that fixture. Independent
+elaboration of the pure top retains 67 module types with NO clocked sensitivity,
+delayed assignment, delay, unpacked array, prefix-cache owner or SRAM owner.
+A deliberately injected observable clocked bit is detected (one rising-edge
+sensitivity and one delayed assignment). This establishes a stateless processor
+function with an explicit memory seam; it does NOT yet compose two subevents.
+
+Early preflight owner overcount (an unused original module was counted), Icarus
+declaration-after-use failure and their exact sources remain in the receipt.
+The original formal driver recorded an empty log hash at launch as well as the
+correct completed log hash. Keep both original records, verify all static proof
+inputs and bind the TERMINAL log hash; only future drivers omit the launch-log
+entry. No theorem rerun, assertion change or source replacement was needed.
+All new simulation/proof/elaboration jobs are terminal. Sources/reports are
+losslessly retained; no native RTL selection, assembly, FPGA access or measured
+hardware-speed change follows. The user's FPGA reservation remains in force.
+
+Next: compose the complete 844-Q fall/rise transfers through this pure function,
+preserving intermediate transparent-latch views and single-owner SRAM
+read-before-write/write ordering. Qualify any same-packet write forwarding and
+physical port schedule before one final architectural commit. Bind the actual
+CP producer/input epochs, all source rotations/debug fallback and peripheral
+timestamps, then fit the full native 15 ns consumer. The fresh stateless prefix
+avoids reusing the closed-owner cache certificate on uncommitted state; that
+cache remains qualified for its existing committed caller only. Separate
+66.7 MHz SDRAM, pinned transport gains and the complete A–F/Cedar/Rollback/
+persistence/three-boot/two-hour hardware stress gates remain open. The last
+hardware measurement is still 4.025473M StartCycle ISSUES/s, not retirements.
+
 Certified control fall/fusion milestone (2026-10-24): `control-fall-fusion`
 receipt now preserves source geometry, sparse falling-root transfer, parallel
 fall/rise composition and the full original capture tests. This is NOT selected
@@ -353,10 +406,11 @@ no138 or unsupported indices. Receipt `native-selector-terminal-summary.json`
 retains full reports/source/readback. Never restart the completed builder or
 reporters. Original ECC loop/pulse and broader capture timing remain open.
 
-Next/TODO: extend the now-proved sparse/fused156-Q control transfer to the
-COMPLETE844-Q closed-owner processor state, transparent latch projections and
+Next/TODO: the complete844-Q stateless processor and single-owner SRAM seam
+now pass the original references. Compose its actual fall/rise subevents,
+including transparent latch projections, same-packet memory forwarding and
 single-owner SRAM read-before-write/write commitments. Do not apply the Q30-only
-mask to other boards without proof. Bind actual CP producer/input epochs and
+control mask to other boards without proof. Bind actual CP producer/input epochs and
 processor source records; keep default rotation0 and ALL other rotations/debug
 fallbacks qualified. Then integrate display/Ethernet consumers. Preserve every
 intermediate state/root edge in original event/capture order. The pure endpoint

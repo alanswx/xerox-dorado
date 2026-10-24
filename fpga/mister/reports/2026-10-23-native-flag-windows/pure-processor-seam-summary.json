@@ -1,0 +1,48 @@
+{
+  "status": "REVIEWED_SINGLE_OWNER_MEMORY_AND_STATELESS_PROCESSOR",
+  "memory_reference_checks_per_engine": 14884,
+  "physical_Qs": 844,
+  "RAM_bits": 9216,
+  "clock_channels": 100,
+  "sparse_control_captures": 4975,
+  "actual_writes": 238,
+  "reads": 6928,
+  "distinct_capture_epochs": 392,
+  "closed_owner_cache_coverage_unchanged": true,
+  "memory_corruptions_rejected_at_original_check": 203,
+  "early_preflight_and_declaration_failures_retained": true,
+  "pure_control_bits": 475,
+  "pure_control_wave_parameters": [
+    5,
+    24
+  ],
+  "arbitrary_control_owners_and_pins": true,
+  "cache_history_assumed_by_pure_function": false,
+  "original_launch_log_snapshot_preserved_terminal_hash_bound": true,
+  "stale_prefix_and_forced_direct_corruptions_rejected": true,
+  "pure_control_unknown_cases": 3820,
+  "pure_control_unknown_corruption_rejected": true,
+  "full_pure_processor_output_ports": 30,
+  "full_pure_processor_original_reference_checks": 14884,
+  "pure_processor_embedded_state_or_memory_arrays": 0,
+  "structural_clocked_bit_calibration_rejected": true,
+  "two_event_memory_forwarding_qualified": false,
+  "actual_CP_and_device_timestamps_qualified": false,
+  "full_native_15ns_or_60ns_qualified": false,
+  "SDRAM66MHz_qualified": false,
+  "Cedar_Rollback_persistence_qualified": false,
+  "hardware_speed_qualified": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true,
+  "references": [
+    {
+      "run": "processor-memory-seam-icarus-v3-20261024",
+      "state_sha256": "9f0bc4d7be2722b1157ad0fdaef1eb1c60167e6831a08bb3d74bede2579b3ce8"
+    },
+    {
+      "run": "processor-memory-seam-verilator-v2-20261024",
+      "state_sha256": "00f3cb0d4d953bb20cd84d2b39b8cb51c40ae87f65f15ec1096232b2f72e9430"
+    }
+  ]
+}

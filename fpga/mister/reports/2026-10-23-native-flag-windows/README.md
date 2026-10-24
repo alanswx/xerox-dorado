@@ -6,6 +6,21 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`pure-processor-seam-summary.json` retains the next structural step: explicit
+RM/STK ports with one original physical owner and a stateless full processor
+function. Both memory references pass all 14,884 original checks/844 Qs/9,216
+RAM bits/100 clocks, with unchanged cache coverage. Two write corruptions hit
+the original storage assertion at check 203. A fresh CP prefix proves all 475
+outputs at 5/24 waves without cache history; stale-prefix/forced-direct variants
+reject. All 955 inputs receive X/Z (3,820 full-output comparisons); the unknown
+guard corruption rejects. The complete pure processor agrees on all 30 result
+ports through the full original reference suite. Elaborated structure contains
+no clocked state, array, SRAM owner or cache owner; an injected clocked bit is
+detected. Early preflight/declaration failures and the original empty launch-log
+hash remain alongside the binding completed proof hashes. Two-event memory
+forwarding/port scheduling, input timestamps, full native timing and hardware
+qualification remain open. No FPGA access or native selection.
+
 `control-fall-fusion-summary.json` retains all8-rotation root geometry,
 1,905,792 debug schedules, the sparse falling-root transfer and corrected
 parallel fall/rise. All363 control bits/fresh endpoint certificates prove at
@@ -1289,8 +1304,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps80,683 members to9,250 deduplicated compressed blobs;
-lossless readback verifies2,988,419,253 unique raw bytes and110,303,436 compressed
+`manifest.json.gz` now maps81,428 members to9,315 deduplicated compressed blobs;
+lossless readback verifies3,007,764,784 unique raw bytes and111,809,615 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`
