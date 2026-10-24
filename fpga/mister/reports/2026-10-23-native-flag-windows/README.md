@@ -6,6 +6,31 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`cached-processor-packet-summary.json` retains the entry-cached full packet,
+real 156-owner projection and unbounded950-bit control/committed-context proof.
+Both simulators pass all14,884 transactions/full2470-bit subevents/844Qs/9216RAM/
+100clocks, with4461 pairs/10423 commits. Cache coverage8885fast/1538staged/
+1538preparation/one reset and403 invalid geometries are checked. Final root tags
+are checked too; stale-root, owner and forwarding corruptions reject. The earlier
+weaker negative that found no bounded counterexample stays, alongside the
+stronger passing proof. Preserve the unrecognized early-write rejection and
+its separate classification, with original driver/assertions untouched.
+
+The COMPLETE4943-output15ns fit improves setup to
+-9.270/-9.136/+1.037/+3.530ns, but remains REJECTED. Hold/pulse minima
++0.134/+6.114ns, zeroUCPs,8856ALMs/8416regs/9216MLAB bits,86 exact members.
+Evaluator results still miss by7.702ns: pruning only canonical tag registers
+cannot close the circuit. Next qualify a pair-direct first route, then actual
+closed-owner publication/entry-only context pruning; preserve every guard.
+
+The original baseline is now terminal at its unchanged5B bound,535 verified
+inputs and unchanged medium:283,270,639 StartCycle ISSUES,388,029,729 raw requests/
+completions, storage-only holds1,913,298,527 vsARM-disk7,538,874 ticks. No device/
+SDRAM-model fault. Source-derived last enabled step is zero here/one for queue;
+retain the reader audit and all conservation checks. The request streams already
+differ, so no paired speed gain/Cedar/persistence claim follows. No FPGA access,
+assembly, native selection, actual60ns cadence or hardware speed improvement.
+
 `processor-packet-summary.json` retains COMPLETE single-commit processor
 packets against the original checked graph: all 14,884 transactions, both
 simulators, 4,461 pairs/10,423 commits, both full 2,470-bit subevent results,
@@ -1325,8 +1350,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps82,065 members to9,407 deduplicated compressed blobs;
-lossless readback verifies3,067,827,951 unique raw bytes and112,816,040 compressed
+`manifest.json.gz` now maps83,070 members to9,506 deduplicated compressed blobs;
+lossless readback verifies3,096,465,202 unique raw bytes and114,129,038 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

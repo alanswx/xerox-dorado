@@ -14,6 +14,85 @@ Continue build/simulation work; notify them when a reviewed build is ready
 for hardware testing, and wait until they release MiSTer14 before any load,
 reboot or control. Earlier reload authorization is superseded while it is in use.
 
+Entry-cached complete packets QUALIFIED digitally; full15ns timing improved,
+still REJECTED (2026-10-24). `cached-processor-packet-summary.json` records the
+entry-only generic cache and a separately derived direct second root. The first
+event uses the actual prefix cache/staging; a pair requires its HIGH-root
+identity. The falling endpoint plus the real 844-Q held-state projection supplies
+the second event's LOW identity. No native canonical_match specialization is
+used on either committed or uncommitted inputs in this component.
+
+The lookup's first-event root and the committed packet root are now distinct.
+The cache tags the final control owner, final pins and final rising root after
+a pair. All 156 control owners project exactly through the real closed-latch
+encoding. Unbounded induction proves BOTH 475-bit subevent results against the
+fresh ordered reference, exact cached-payload/canonical invariants and the saved
+committed-root history, with arbitrary binary inputs/reset histories and only explicit
+auxiliary initializers. Wrong owner projection, stale final root and stale
+second-root inputs reject. Keep V1's weaker five-step stale-root calibration:
+it found no counterexample and its driver failed; V2 adds the actual root-tag
+contract and passes induction plus all negative controls. The compiled root-tag
+corruption is also rejected at original replay record 2.
+
+Both simulators still replay all 14,884 original transactions as 10,423 commits,
+4,461 pairs, 119 paired write events and 238 forwarded bytes. Both full 2,470-bit
+results, all 844 closed/physical Qs, all 100 clocks and every SRAM bit match.
+Coverage: 8,885 fast/1,538 staged commits, 1,538 preparation edges, one cache
+reset. Preparation/reset changes no architectural owner or SRAM. All 403 invalid
+geometries still hold state. Dropped forwarding/stale intermediates reject at
+records 203/16; an early write hits the ORIGINAL invalid-geometry assertion.
+The initial reader did not recognize that text: retain its failed status and
+separate hash-bound rejection classification without a rerun/assertion change.
+The V2 Verilator run additionally checks the final root/pin tags on every commit;
+its RTL is byte-identical to the two V1 simulator runs.
+
+The complete 4,943-output/1,652-input fit (including the actual cache) finished
+all map/fit/STA/corner stages. All 86 collected members/compiled hashes/exited
+handles verify; archive SHA
+ba4f3fb9b44b13da6bab6d2d89b9cb1fa3476aa5efccaa25f8acbd619554fe51.
+Same15ns/2ns-I/O constraints, no exceptions/retiming. Setup now
+-9.270/-9.136/+1.037/+3.530ns, versus the prior -22.504ns minimum. Hold
++0.355/+0.327/+0.181/+0.134ns; pulse width+6.469/+6.484/+6.178/+6.114ns;
+zero UCPs, no recovery/removal endpoints. Area 8,856ALMs/8,416regs/9,216MLAB bits
+includes fixture resources. Full15ns remains REJECTED. The new worst endpoint
+is canonical_q[106]/[130], with entry fast-path equality/muxes and the second
+processor task/priority cone on the path. Actual evaluator results ALSO miss
+by7.702/7.693ns at the slow corners; deleting only the duplicate tag registers
+will not close this design.
+
+NEXT: separate the pair's direct-first data path from the single-event staged
+fallback. Pair ready ALREADY requires entry_fast, so prove the source-bound
+`ready && use_pair -> entry_fast` substitution, including identical cache state
+updates/prefix capture, before forcing the direct first path in pair mode.
+Retain all error/geometry/memory guards, results and negative controls. Then
+qualify the real common publication of owner/root/before-pins at packet close,
+re-prove entry-only owned-context specialization, and remove only the redundant
+wide entry comparison/tag copies that that proof permits. Never apply that
+specialization to the second uncommitted event. Refit all consumer paths, then
+bind actual source/CP/device timestamps (including interior pin events), all
+rotations/debug fallback and remaining consumers before full native60ns tests.
+
+The ORIGINAL 5c65 baseline also reached its unchanged5B-host bound and exited0,
+HOST_LIMIT. Driver57967/test58600 are absent; all535 frozen inputs and the
+unchanged f3bce2a8... medium verify. Counts:2,888,495,264 enabled machine edges;
+283,270,639 StartCycle ISSUES (not retirements);388,029,729 accepted/completed
+raw requests, every128 group present. Exclusive storage holds1,913,298,527 ticks,
+ARM-disk holds7,538,874, physical initialization190,667,331, reset5; all totals
+balance. Mean first-word latency3.2810 host ticks; fill568,543,000 and
+refresh63,180,801 raw-block ticks. Final disk43reads/0writes, TX2, CRC/RX ERRORS0;
+receive packet total is not recorded. The source-derived final counter boundary
+is zero enabled edges here and one in the queue run: the negedge stop prints
+before its nonblocking guest-counter increment. Keep the reader's original
+one-edge assumption and audit; no conservation check or simulation bound was
+relaxed. Queue/baseline streams diverge at raw request1536, so these totals are
+attribution, NOT a repeatable speed comparison or Cedar qualification.
+
+All new cache/proof/replay/fit jobs and the old baseline are terminal. No FPGA
+access, assembly, native selection or new hardware-speed measurement. The user
+keeps the FPGA. The full A–F/66.7MHz SDRAM/Main/daemon/Cedar/Rollback/persistence/
+three-boot/two-hour hardware objective remains active; snapshots deferred.
+Last hardware rate remains4.025473M StartCycle issues/s.
+
 Full processor single-commit packets QUALIFIED digitally; 15 ns fit REJECTED
 (2026-10-24). `processor-packet-summary.json` preserves the complete fall/rise
 composition with ONE original RM/STK owner. Both simulators replay all 14,884
@@ -464,11 +543,13 @@ no138 or unsupported indices. Receipt `native-selector-terminal-summary.json`
 retains full reports/source/readback. Never restart the completed builder or
 reporters. Original ECC loop/pulse and broader capture timing remain open.
 
-Next/TODO: complete844-Q single-commit fall/rise replay now PASSES, including
-all transparent latch projections and SRAM forwarding, but the complete15ns
-component misses setup by22.504ns. Replace the serial fresh-prefix chain using
-the entry-only closed-owner cache/staging and PROVED fresh LOW endpoint; retain
-all error/ownership checks and refit. Then bind real source/CP/device timestamps. Do not apply the Q30-only
+Next/TODO: entry-cached complete844-Q fall/rise replay and950-bit control
+induction now PASS, but full15ns still misses setup by9.270ns. Separate pair-
+direct first evaluation from the staged single-event path using the existing
+ready/entry_fast implication. Then prove common closed-owner publication and
+entry-only owned-context specialization before pruning duplicate tag/equality
+logic. Preserve every error/ownership guard, refit all result/commit paths, then
+bind actual source/CP/device timestamps and the complete native cadence. Do not apply the Q30-only
 control mask to other boards without proof. Bind actual CP producer/input epochs and
 processor source records; keep default rotation0 and ALL other rotations/debug
 fallbacks qualified. Then integrate display/Ethernet consumers. Preserve every
