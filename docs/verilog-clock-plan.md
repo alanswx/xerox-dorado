@@ -9,6 +9,32 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Latest structural result (2026-10-23): the phase-preserving Hold CLOCK rewrite
+and24->8 combinational settling fold pass direct Verilog-derived equivalence
+for955 arbitrary binary state/input bits and all363 atomic outputs. Both full
+original timed comparisons pass14,884events/all844Q/9216RAM/100clock counts.
+No guest cycle or storage is added. Four settling passes are rejected on the
+unsettled result; both simulators replay that counterexample. The original CP
+arrival-profile failure remains unqualified and unchanged.
+
+The new full15ns component fit is REJECTED: -7.699ns global/-7.567ns owners,
+despite +2.128ns on late-Hold owner paths.4169ALMs/3511registers, all result
+fields and constraints retained. Critical source is after-pin291 CP bank
+select, crossing the CP-prefix/root/tasking sequence and ContB to R flags.
+[Exact sources, proofs, failures and reports](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#phase-preserving-hold-and-direct-rtl-proof).
+
+Next structural implementation: conditional ordinary-prefix bypass with an
+explicit canonical/last-settled guard and startup fallback; stage only actual
+CP-prefix events when required. The unchanged-root/exact-saved-pins identity
+has a direct RTL proof; corrupting saved CP before-pins rejects. The staged
+native source already saves prior live pins/root at the same owner commit
+edge, but runtime eligibility, CP frequency, input stability/invalidation and
+all-board/backend pause behavior still need qualification. Preserve all CP
+subevents and single SRAM ownership/commit. Do not impose two host edges on
+every ordinary root transition: that remains120ns at66.7MHz and is rejected.
+Require FOUR15ns ticks/60ns ordinary cadence, all phases/timers and the full
+A-F acceptance. Hardware/speed unchanged; full goal ACTIVE.
+
 Latest decision (2026-10-23): the late-Hold same-cycle Boolean alternatives
 pass both full component comparisons, but the complete15ns fit is REJECTED:
 owner setup -16.283ns even though the late-input/owner path meets +7.047ns.

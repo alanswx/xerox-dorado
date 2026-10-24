@@ -4,6 +4,81 @@ This receipt preserves the complete v5 native failure and the corrected
 component implementation of the original l06/l07 flag latches. No image was
 assembled or loaded; the qualified hardware core and measured speed are unchanged.
 
+## Phase-preserving Hold and direct RTL proof
+
+`phase-hold-formal-summary.json` records the new alternative to duplication:
+LOW control/memory clocks cannot rise to re-capture Hold, so MIR and task-clock
+evaluation can retain initial Hold, with DisHold clearing it AFTER the first
+transfer. HIGH masks the substituted operand. Other clocks/data, observable
+Hold, original before-clock evaluation, all owners and the sole four SRAM
+banks remain unchanged. There is no added register or guest cycle.
+
+Four source-bound recurrence/mask properties prove with Z3; four wrong masks
+have counterexamples. The first malformed SMT parenthesis and two source-
+generation/compile failures are retained. The stronger proof compiles the
+complete old/new Verilog atomic functions with project-local YoWASP Yosys:
+**955 arbitrary binary state/input bits, all363 output bits**, including156
+Qs,56events,56repeated events,94flags and unsettled. No input/state assumptions,
+unknown-cell skipping, X matching or timing exceptions are used. Tool/package
+versions, exact HDL, proof scripts and complete logs are retained. This proves
+a digital rewrite relative to the existing evaluator; it does not resolve
+the rejected original CP-arrival profile or qualify native timing.
+
+Eight settling passes prove equivalent to24. Four are REJECTED: a real
+counterexample differs in unsettled even though Q/events/flags agree. Both
+simulators replay the exact363-bit result. The wrong-Hold formal control
+differs in six event bits, also replayed by both simulators. This illustrates
+why state equality alone is insufficient. Independently, with the NEW
+diagnostic assertions removed and the original bench BYTE-IDENTICAL, both
+simulators reject inverted Hold at check16: physical settled Q changes at
+commit. Neither the reference nor any original fatal check was altered.
+
+Both final MIR+task/eight-pass original-graph comparisons pass
+**14,884checks/238writes/6,928reads/392epochs**, all844 physical Qs/9216RAM bits
+and all100 clock counts.476,288 per-wave clock comparisons pass per engine;
+63 HIGH epochs exercise different substitute/actual Hold values. LOW
+DisHold-clear fixture coverage remains ZERO; the direct RTL proof covers
+arbitrary binary DisHold. Earlier MIR-only24/eight-pass results, failures and
+all original timed inputs are retained.
+
+The full1400-result15ns component fit is TERMINAL and **REJECTED**:
+
+| Condition | Global setup | Owner setup | Late Hold -> owners | Hold |
+|---|---:|---:|---:|---:|
+| Slow100C | -7.495ns | -7.325ns | +2.154ns | +0.377ns |
+| Slow-40C | -7.699ns | -7.567ns | +2.128ns | +0.325ns |
+| Fast100C | +3.724ns | +3.778ns | +8.257ns | +0.193ns |
+| Fast-40C | +4.244ns | +5.271ns | +9.203ns | +0.158ns |
+
+All map/fit/STA/four-condition queries finish with no build/report repair.
+All five reported UCP classes are zero.4169ALMs include1526virtual-pin ALMs;
+3511registers, no M10Ks. The fitted DB is retained on misterubuntu; source/
+reports are archived here without build databases. No result or constraint
+was removed. Global worst launch293 maps to after-pin291 (CP bank select),
+through CP-prefix/root/tasking/ContB; worst owner result1146 is physical Q590.
+Late Hold now meets timing, but the remaining CP composition does not.
+This improves the rejected duplicated implementation, not hardware speed.
+
+The next CP-prefix bypass condition is also formally checked. A settled
+transaction's exact saved after-pins/root form a canonical unchanged next
+transaction: same state/flags and zero events/repeated/unsettled. Perturbing
+the saved CP-strobe before-pin yields a counterexample. The source-bound
+`cp-identity-native-seam-summary.json` confirms staged unfitted v9 saves
+`r_front_before<=r_front_live` and the prior root with the same owner commit
+enable. Canonical/last-settled guards, first-step fallback, a conditional CP
+pipeline and all-board/backend pause contracts are NOT implemented/qualified.
+Measure actual CP events before assuming a rare path. The next design must
+bypass only under the proved contract and stage required CP events with one
+SRAM commit; it must retain FOUR15ns ticks/60ns for ordinary instructions.
+The earlier unconditional120ns pipeline remains rejected.
+
+All four original/corrected-input native processes were verified live again
+at the same5B bounds. Corrected runs have passed memory initialization and
+entered original BaseBoard code, with no Cedar113 release/window yet. Hardware,
+last measured4.025473M StartCycle issues/s and Main/daemon are unchanged. The
+complete native timing/clock/timer/Cedar/Rollback/persistence/input/stress goal
+remains active; complete FPGA snapshots remain deferred.
+
 ## Late Hold selection and stopped-clock input reset
 
 `late-hold-selection-summary.json` retains the two stateless alternatives for
@@ -426,8 +501,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` maps29,064 members to3,233 deduplicated compressed blobs;
-lossless readback verifies881,390,797 raw bytes,33,695,246 compressed blob bytes.
+`manifest.json.gz` maps30,443 members to3,394 deduplicated compressed blobs;
+lossless readback verifies904,386,697 raw bytes,35,177,730 compressed blob bytes.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`
 adds the terminal pointer matrix, bounded RM capture and original native

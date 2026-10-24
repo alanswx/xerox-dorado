@@ -1,5 +1,69 @@
 # Verilog from Sil: handoff
 
+Latest phase-preserving Hold/canonical-state milestone (2026-10-23;
+[proofs, rejected fit and next seam](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#phase-preserving-hold-and-direct-rtl-proof)):
+the original LOW phase cannot re-capture memory Hold. Retain its initial value
+for clock evaluation, then apply DisHold after the first transfer; HIGH masks
+the operand. Apply this only to MIR and RepeatCurrent/task CLOCK operands.
+All data/observable Hold functions, original before-clock functions and owners
+stay unchanged. Four source-bound Boolean properties prove the recurrence;
+four broken rewrites have counterexamples. Direct Verilog-derived SAT proves
+all363 atomic outputs (156 Qs/56 events/56 repeated/94 flags/unsettled) equal
+for955 arbitrary binary state/input bits, with no pin/state assumptions.
+
+Eight combinational settling passes also prove identical to24. Four FAIL:
+their counterexample changes the unsettled flag, despite matching Qs/events.
+Both simulators reproduce that exact363-bit mismatch. Wrong Hold changes six
+event flags; its formal counterexample also replays in BOTH engines. With the
+new diagnostic assertions removed, BOTH byte-identical original benches reject
+the inverted-Hold variant at check16 (settled physical Q changes on commit).
+The earlier CP-arrival-profile rejection is unchanged; these proofs do not
+qualify original analog arrival/pulse timing or the whole core.
+
+Final MIR+task/eight-pass comparisons BOTH pass14,884checks/238writes/6,928reads/
+392epochs, all844physical Qs/9216RAM bits and all100 original clock counts.
+476,288 per-wave clock comparisons pass per engine;63 HIGH epochs exercise
+different substituted Hold values. LOW DisHold-clear simulation coverage is
+ZERO, explicitly retained; the direct RTL proof covers all binary DisHold
+values. No pipeline storage, extra guest cycle, RAM duplication or reference
+change is introduced.
+
+The isolated15ns fit is TERMINAL and REJECTED: all map/fit/STA/four-corner query
+stages pass, but setup is -7.699ns global/-7.567ns to physical owners. The late
+Hold path now meets +2.128ns minimum; worst source is launch293=after-pin291
+(CP bank select), through CP-prefix/root/tasking and ContB selector to R flags.
+Worst owner is result1146=physical Q590. Area4169ALMs including1526virtual-pin
+ALMs/3511registers. All1400 result fields/constraints remain; no exceptions or
+field drops. This improves the rejected duplication experiment, not measured
+hardware speed. The fitted DB remains on misterubuntu at
+`/home/alans/mister/memory-hold-all-eight-fit-v1-20261023`; local terminal source/
+reports are `memory-hold-all-eight-fit-terminal-v1-20261023`.
+
+The next conditional CP fast-path property now has a direct RTL proof: after
+a settled transaction, an unchanged root and EXACT saved previous after-pins
+leave Q/flags unchanged and produce zero events/repeated/unsettled. Changing
+the saved CP-strobe before-pin gives a counterexample. Source-bound audit of
+unfitted v9 confirms `r_front_before<=r_front_live` and the saved clock share
+the owner commit enable. This confirms a source seam, not runtime eligibility.
+Canonical/last-settled guards and first-step fallback are NOT implemented.
+
+Next implement/qualify ordinary CP-prefix bypass under that contract and stage
+ONLY required CP-prefix events, retaining full ordering and one SRAM commit.
+Measure actual CP-event frequency; do not assume every bus-address change is
+a write. Validate saved state/pins/root across every board and backend pause,
+including invalidation/retry if external inputs change. Ordinary instructions
+must retain the FOUR15ns-tick/60ns budget; the earlier unconditional two-edge
+transaction still fails that budget. No native v9 promotion follows from this
+component fit. Separate66.7MHz SDRAM, original phase arrivals/widths/timers,
+Cedar/Rollback/persistence/fresh boots/input/stress and the full A-F goal remain.
+
+Same original29201/29618 and corrected-input58600/58753 tests were verified live
+again with unchanged5B bounds. Corrected runs passed memory initialization
+and entered original BaseBoard startup; no113 release or Cedar window yet.
+Hardware and measured4.025473M StartCycle issues/s are unchanged. Complete
+FPGA snapshots remain deferred. Full evidence: `phase-hold-formal-summary.json`
+and `cp-identity-native-seam-summary.json` in the linked report archive.
+
 Latest clock-path and native-input milestone (2026-10-23;
 [proofs, timing rejection and startup evidence](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#late-hold-selection-and-stopped-clock-input-reset)):
 the same-cycle late-Hold alternatives pass BOTH complete 14,884-event component
@@ -10123,6 +10187,10 @@ and has unreviewed hold violations; never deploy it.
 
 ### Structural speed work: current order
 
+- [x] Prove the phase-preserving Hold clock rewrite and24->8 settling fold directly from Verilog for955 binary inputs/state bits/all363 atomic outputs; retain the rejected four-pass and wrong-Hold cases with dual-engine replays.
+- [x] Finish both complete original comparisons for MIR+task clocks/eight passes and the full15ns component fit; preserve -7.699ns rejection, positive late-Hold margin and CP-bank critical-path attribution.
+- [x] Prove conditional settled CP-prefix identity, reject changed saved-before pins and bind the pin/root snapshot seam to the staged native source; no runtime fast path yet.
+- [ ] Implement/qualify guarded ordinary prefix bypass and CP-event-only staging, measure CP event frequency, preserve source snapshots across all-board/backend pauses and one SRAM commit, and keep the60ns ordinary budget.
 - [x] Preserve dual-engine late-Hold component passes and reject the full 15 ns duplication fit on actual owner paths; no timing waiver or native promotion.
 - [x] Diagnose the original native keyboard's all-zero active-low matrix; repair adapter power-up and stopped-clock reset, with16 dual-engine cases including8 rejected controls.
 - [ ] Observe genuine Cedar113/C release and pinned storage windows on fresh input-reset-v3 control/queue jobs58600/58753, bound to passing final adapter synthesis/tests; retain original jobs29201/29618 and their unchanged bounds as Alto110 evidence.
