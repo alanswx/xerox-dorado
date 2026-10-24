@@ -1,0 +1,149 @@
+{
+  "status": "REVIEWED_FAILED_ALL_PIN_FIT_AND_CLUSTERED_BUFFER_SOURCE",
+  "rejected_fit": {
+    "directory": "memc-lcell-short-failed-v2-20261024",
+    "raw_members": 582,
+    "ALMs": 39337,
+    "utilization_percent": 94,
+    "unrouted_signals": [
+      "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_msaOdd|dorado_storage_group:u_storage_7|cache_data[5]",
+      "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_msaOdd|dorado_storage_group:u_storage_7|cache_data[0]"
+    ],
+    "all_intermediate_and_final_unrouted": [
+      "emu:emu|hps_io:hps_io|status[10]",
+      "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemX_full_snapshot_experiment:b_MemX|cell_MosRam_snapshot:u_a12|write_pending",
+      "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_msaOdd|dorado_storage_group:u_storage_7|cache_data[5]",
+      "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|msa_ddram:b_msaOdd|dorado_storage_group:u_storage_7|cache_data[0]"
+    ],
+    "completed_physical_timing_available": false
+  },
+  "clustered_source": {
+    "directory": "memc-lcell-short-native-stage-v3-20261024",
+    "source_hashes_verified": 534,
+    "manifest_sha256": "a586d2924266b274be7f2ed7da22ba0d6580248e012d913241e2cf37398e4ce1",
+    "RTL_instances": 72,
+    "affected_address_pins": 168,
+    "maximum_RAMs_per_buffer": 4,
+    "exact_critical_pin_covered": true,
+    "arbitrary_binary_equivalence": true,
+    "wrong_polarity_counterexample": true,
+    "four_state_cases": 128
+  },
+  "frozen_live_fit": {
+    "project": "/home/alans/mister/memc-lcell-short-native-v3-20261024",
+    "observed": 1792852697.545366,
+    "run_state": {
+      "status": "RUNNING",
+      "builder_pid": 3327607,
+      "started": 1792852104.3049984,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 3327610,
+          "started": 1792852104.3053885,
+          "returncode": 0,
+          "finished": 1792852301.006964
+        },
+        {
+          "stage": "fit",
+          "pid": 3341503,
+          "started": 1792852301.0073645
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "stage_pid": 3341503,
+    "stage_command": "quartus_fit --read_settings_files=on --write_settings_files=off Dorado ",
+    "stage_cwd": "/home/alans/mister/memc-lcell-short-native-v3-20261024/core",
+    "manifest_sha256": "a586d2924266b274be7f2ed7da22ba0d6580248e012d913241e2cf37398e4ce1",
+    "source_hashes_verified": 534,
+    "map_tail": ":pll_cfg_hdmi|dprio_ser_shift_load\" File: /home/alans/mister/memc-lcell-short-native-v3-20261024/core/sys/pll_cfg/pll_cfg_hdmi.v Line: 159\n    Info (17048): Logic cell \"pll_cfg_hdmi:pll_cfg_hdmi|dyn_phase_shift:dyn_phase_shift_inst|gnd\" File: /home/alans/mister/memc-lcell-short-native-v3-20261024/core/sys/pll_cfg/altera_pll_reconfig_core.v Line: 1919\nInfo (144001): Generated suppressed messages file /home/alans/mister/memc-lcell-short-native-v3-20261024/core/output_files/Dorado.map.smsg\nInfo (16010): Generating hard_block partition \"hard_block:auto_generated_inst\"\n    Info (16011): Adding 42 node(s), including 2 DDIO, 2 PLL, 0 transceiver and 0 LCELL\nWarning: RST port on the PLL is not properly connected on instance emu:emu|pll:pll|pll_0002:pll_inst|altera_pll:altera_pll_i|general[0].gpll. The reset port on the PLL should be connected. If the PLL loses lock for any reason, you might need to manually reset the PLL in order to re-establish lock to the reference clock. File: /home/alans/intelFPGA_lite/17.0/quartus/libraries/megafunctions/altera_pll.v Line: 749\n    Info: Must be connected\nWarning: RST port on the PLL is not properly connected on instance pll_audio:pll_audio|pll_audio_0002:pll_audio_inst|altera_pll:altera_pll_i|general[0].gpll. The reset port on the PLL should be connected. If the PLL loses lock for any reason, you might need to manually reset the PLL in order to re-establish lock to the reference clock. File: /home/alans/intelFPGA_lite/17.0/quartus/libraries/megafunctions/altera_pll.v Line: 749\n    Info: Must be connected\nWarning (21074): Design contains 3 input pin(s) that do not drive logic\n    Warning (15610): No output dependent on input pin \"HDMI_TX_INT\" File: /home/alans/mister/memc-lcell-short-native-v3-20261024/core/sys/sys_top.v Line: 44\n    Warning (15610): No output dependent on input pin \"SD_SPI_MISO\" File: /home/alans/mister/memc-lcell-short-native-v3-20261024/core/sys/sys_top.v Line: 100\n    Warning (15610): No output dependent on input pin \"ADC_SDO\" File: /home/alans/mister/memc-lcell-short-native-v3-20261024/core/sys/sys_top.v Line: 110\nInfo (21057): Implemented 96022 device resources after synthesis - the final resource count might be different\n    Info (21058): Implemented 16 input pins\n    Info (21059): Implemented 97 output pins\n    Info (21060): Implemented 32 bidirectional pins\n    Info (21061): Implemented 93217 logic cells\n    Info (21064): Implemented 2602 RAM segments\n    Info (21065): Implemented 2 PLLs\n    Info (21062): Implemented 35 DSP elements\nInfo: Quartus Prime Analysis & Synthesis was successful. 0 errors, 985 warnings\n    Info: Peak virtual memory: 2969 megabytes\n    Info: Processing ended: Sat Oct 24 07:31:40 2026\n    Info: Elapsed time: 00:03:16\n    Info: Total CPU time (on all processors): 00:03:40\n",
+    "reporters": [
+      {
+        "name": "physical-report",
+        "state": {
+          "status": "WAITING_EXISTING_NATIVE_BUILD",
+          "pid": 3328009,
+          "started": 1792852108.577291,
+          "project": "/home/alans/mister/memc-lcell-short-native-v3-20261024",
+          "script_sha256": "e994f87a985cfc0e6129998afe63e0904b8bfe2c0fb5276d129738172f934121",
+          "manifest_sha256": "a586d2924266b274be7f2ed7da22ba0d6580248e012d913241e2cf37398e4ce1",
+          "actions": [],
+          "assembly_permitted": false,
+          "constraints_changed": false
+        },
+        "command": "python3 /home/alans/mister/memc-lcell-short-native-v3-20261024/report_r_front_physical_native.py --project /home/alans/mister/memc-lcell-short-native-v3-20261024 --output /home/alans/mister/memc-lcell-short-native-v3-20261024/physical-report "
+      },
+      {
+        "name": "tag-buffer-report",
+        "state": {
+          "status": "WAITING_EXISTING_PHYSICAL_NATIVE_REPORT",
+          "pid": 3328337,
+          "started": 1792852112.5915756,
+          "project": "/home/alans/mister/memc-lcell-short-native-v3-20261024",
+          "manifest_sha256": "a586d2924266b274be7f2ed7da22ba0d6580248e012d913241e2cf37398e4ce1",
+          "script_sha256": "389b8601da025ab3fe81588b469fea1226e478b55eb953a01ff8647fed19212d",
+          "driver_sha256": "b9953357f153f7f00496928e5ac5b10863f0198c7c47873e5e5cabbd008d9018",
+          "actions": [],
+          "constraints_changed": false,
+          "assembly_permitted": false,
+          "physical_replication_qualified": false,
+          "native_timing_qualified": false
+        },
+        "command": "python3 /home/alans/mister/memc-lcell-short-native-v3-20261024/report_memc_tag_buffers.py --project /home/alans/mister/memc-lcell-short-native-v3-20261024 --output /home/alans/mister/memc-lcell-short-native-v3-20261024/tag-buffer-report "
+      }
+    ]
+  },
+  "startup_diagnostic": {
+    "directory": "cp-prefix-native-owned-cold-v1-20261024",
+    "original_limit": 1000000000,
+    "status": "TERMINAL_NATIVE_MEMORY_DIAGNOSTIC",
+    "final": {
+      "NATIVE_PROGRESS ": "NATIVE_PROGRESS host=1000000000 guest=505472968 initialized=1 init_addr=7fffff cpu=d0fff000 bb=1e48f853 control=100 keys=1 disk=         1/         0 fault=00000000:00000000 tx=0 crc=0 rx=0",
+      "NATIVE_TRAFFIC_PROGRESS ": "NATIVE_TRAFFIC_PROGRESS host=1000000000 issues=0 admitted=60657011 completed=60657011 reads=60657011 writes=0 BFN=00000000000",
+      "NATIVE_CP_PAUSE ": "NATIVE_CP_PAUSE host=1000000000 guest=505472968 ready=1 commits=505472968 pauses=48480 snapshots=48480 pending=1 replies=0 held_req=19846837729 held_rsp=0",
+      "NATIVE844_BASEBOARD ": "NATIVE844_BASEBOARD host=1000000000 guest=505472968 phi_rises=3791056 sync_rises=1091444 PC=f853 bus=f853 reset=1 phi=0 sync=1"
+    },
+    "process_handles_absent": true,
+    "startup_only": true,
+    "CPU_instruction_issue_or_firmware_boot_qualified": false
+  },
+  "ongoing_original_bounded_native_tests": [
+    {
+      "directory": "control-short-native-boot-v1-20261024",
+      "pid": 75056,
+      "ps": "75056 01:27:25 R    /Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-boot-v1-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-boot-v1-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-boot-v1-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792853152.7468421,
+      "state_sha256": "059e069b47860c8de76c77030fc1c51342269750947992c88917f35330b08af1"
+    },
+    {
+      "directory": "cp-prefix-balanced-native-boot-v1-20261024",
+      "pid": 49723,
+      "ps": "49723 04:52:52 R    /Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792853152.75148,
+      "state_sha256": "3d3cac7ac66d24a5c07f20309b88645c21a8df4a930c32a2df17485787debb01"
+    },
+    {
+      "directory": "native-cedar-5c65-input-reset-v3-20261023",
+      "pid": 58600,
+      "ps": "58600 09:55:39 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792853152.757237,
+      "state_sha256": "b75adcae9e42639f590196dc579c9442f5210d3519b5da4536adeffed2276ffc"
+    },
+    {
+      "directory": "native-cedar-queue-input-reset-v3-20261023",
+      "pid": 58753,
+      "ps": "58753 09:55:38 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792853152.762746,
+      "state_sha256": "ba82b45e488a278f03e6618a26b89a3768a7cd757cde7fd46b48d1c2eb71b04f"
+    }
+  ],
+  "physical_replication_qualified": false,
+  "native_timing_qualified": false,
+  "speedup_qualified": false,
+  "firmware_qualified": false,
+  "hardware_changed": false,
+  "assembly_permitted": false,
+  "full_goal_active": true
+}

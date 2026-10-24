@@ -9,6 +9,50 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Current status (2026-10-24): the all168 local-buffer native fit v2 FAILED
+routing (exit3,39,337ALMs/94%, final odd storage-group7 cache_data[0]/[5]
+unrouted). No current-build timing or FPGA image follows from it. All582 raw
+members/534 source hashes verify; intermediate fitting attempts and source-
+carried historical reports remain distinguished from the final failure.
+
+The reduced-cost v3 reports are LIVE on misterubuntu: builder3327607,
+physical reporter3328009 and calibrated tag-buffer reporter3328337.72 shared
+LCELLs cover ALL168 address pins at21RAMs, at most four RAMs per buffer,
+including actual critical positive c10.p14. Only combinational MemC wiring
+changes after relocation; the vendor simulation model is excluded from Quartus.
+All534 inputs, arbitrary-state equivalence, wrong-polarity counterexample,
+128 four-state address cases and full native elaboration pass. Map93,217 logic
+cells/96,022 resources,985 warnings. Fitter3341503 exits0 at40,192ALMs/96% and
+55,617registers. Initial global setup -0.225ns/-0.267ns now ends at network_step
+from RIOT dir_a[6], an8.75ns half-cycle path; this rejects deployment already.
+Complete physical preservation/fanout and all-device reports remain open.
+This fit keeps57.142857MHz/eight enabled ticks;
+it is a timing-enabling step, not a claimed speed increase.
+
+Address-window audit now binds the two ORIGINAL MemC families: low/complement
+bits use preFHCa=ppclk2'a OR preFH'x with closed R=sAad/S=0; high/positive bits
+use preFHCb=ppSH' with closed S=sAad/R=0. Open latches pass D and ignore S/R.
+Preserve both wired-OR dAad.7 contributors. A first incorrect all-Reset-unwired
+audit is retained as a failed source assertion. Before folding these captures
+into four15ns intervals, derive actual source arrival, tag lookup and consuming
+Hold/write edges. No unconditional address capture, prediction or added guest
+bubble is justified by the stateless buffering proof.
+
+The owned1B startup run has finished at its original bound:505,472,968 guest
+ticks,48,480 matched pauses/snapshots,60,657,011 completed reads, CPU issues0,
+BFN0. All actions exit0; this is insufficient startup-only evidence, not CPU/
+Cedar qualification. Longer original5B jobs continue unchanged. Baseline58600
+has naturally reached TX2/BFN113/disk reads after its earlier wait; queue58753
+also reaches BFN113/disk traffic. No desktop or matched-throughputput pass yet.
+Receipts: `memc-lcell-buffers-summary.json`, `memc-clustered-buffers-summary.json`
+and `memc-address-windows-summary.json`; see handoff for exact handles/hashes.
+
+Next/TODO: finish physical-buffer and all-device timing review on the SAME live
+job, follow existing firmware bounds, integrate the source-bound capture/event
+ordering and qualify separate66.7MHz SDRAM. Hardware5c65 remains at its last
+4.025473M StartCycle issues/s; original60ns/16.67M ordinary cadence and the full
+A–F/interactive Cedar/Rollback/persistence/three-boot/stress objective remain.
+
 Latest result (2026-10-24): the shorter-control native fit is TERMINAL/REJECTED,
 although improved: slow setup -0.475ns/-0.145ns, minimum hold +0.112ns,
 36,289ALMs/55,684registers. All957 collected files/533 sources verify. Worst

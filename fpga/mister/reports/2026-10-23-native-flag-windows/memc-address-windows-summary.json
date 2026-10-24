@@ -1,0 +1,550 @@
+{
+  "status": "SOURCE_BOUND_MEMC_ADDRESS_WINDOW_AUDIT",
+  "inputs": {
+    "MemC-Rev-Be.wl": "8615bee88184da291d3d959c5a33b441315712d9da9672b1113ffc0d637f93ee",
+    "MemC-Rev-Be.lc": "27c151dead3e9a9c4f5eb5a01cd0b585aef20e61ecd28c7d0bcc7e79b907045d",
+    "cell_MC1668_snapshot.v": "0055cd34c334bab9911d3f0499ee955d112f5764235a39333a49f429e06d3c82",
+    "cell_SE10210.v": "a9f3cde0404357cc01103176a03a8d62c460256bde5d4cbd7721a05b60952bea"
+  },
+  "original_latches": [
+    {
+      "package": "a14",
+      "side": "a",
+      "D": "dAad.2'",
+      "C": "preFHCa",
+      "S": "unwired MECL pulldown=0",
+      "R": "sAad.2",
+      "Q": "Aad.2'a",
+      "Qn": "Aad.2a",
+      "D_drivers": [
+        {
+          "pkg": "c07",
+          "pin": 3,
+          "dir": "out",
+          "xy": [
+            101,
+            142
+          ]
+        },
+        {
+          "pkg": "c07",
+          "pin": 2,
+          "dir": "out",
+          "xy": [
+            105,
+            142
+          ]
+        }
+      ]
+    },
+    {
+      "package": "a14",
+      "side": "b",
+      "D": "dAad.3'",
+      "C": "preFHCa",
+      "S": "unwired MECL pulldown=0",
+      "R": "sAad.3",
+      "Q": "Aad.3'a",
+      "Qn": "Aad.3a",
+      "D_drivers": [
+        {
+          "pkg": "c07",
+          "pin": 14,
+          "dir": "out",
+          "xy": [
+            101,
+            154
+          ]
+        },
+        {
+          "pkg": "c07",
+          "pin": 15,
+          "dir": "out",
+          "xy": [
+            105,
+            154
+          ]
+        }
+      ]
+    },
+    {
+      "package": "a15",
+      "side": "a",
+      "D": "dAad.4",
+      "C": "preFHCb",
+      "S": "sAad.4",
+      "R": "unwired MECL pulldown=0",
+      "Q": "Aad.4a",
+      "Qn": "Aad.4'a",
+      "D_drivers": [
+        {
+          "pkg": "#5b42",
+          "pin": 5,
+          "dir": "out",
+          "xy": [
+            37,
+            76
+          ]
+        },
+        {
+          "pkg": "a05",
+          "pin": 15,
+          "dir": "out",
+          "xy": [
+            33,
+            112
+          ]
+        }
+      ]
+    },
+    {
+      "package": "a15",
+      "side": "b",
+      "D": "dAad.5",
+      "C": "preFHCb",
+      "S": "sAad.5",
+      "R": "unwired MECL pulldown=0",
+      "Q": "Aad.5a",
+      "Qn": "Aad.5'a",
+      "D_drivers": [
+        {
+          "pkg": "#5b42",
+          "pin": 4,
+          "dir": "out",
+          "xy": [
+            41,
+            76
+          ]
+        },
+        {
+          "pkg": "a05",
+          "pin": 2,
+          "dir": "out",
+          "xy": [
+            33,
+            100
+          ]
+        }
+      ]
+    },
+    {
+      "package": "b14",
+      "side": "a",
+      "D": "dAad.0'",
+      "C": "preFHCa",
+      "S": "unwired MECL pulldown=0",
+      "R": "sAad.0",
+      "Q": "Aad.0'a",
+      "Qn": "Aad.0a",
+      "D_drivers": [
+        {
+          "pkg": "b07",
+          "pin": 3,
+          "dir": "out",
+          "xy": [
+            65,
+            142
+          ]
+        },
+        {
+          "pkg": "b07",
+          "pin": 2,
+          "dir": "out",
+          "xy": [
+            69,
+            142
+          ]
+        }
+      ]
+    },
+    {
+      "package": "b14",
+      "side": "b",
+      "D": "dAad.0'",
+      "C": "preFHCa",
+      "S": "unwired MECL pulldown=0",
+      "R": "sAad.0",
+      "Q": "Aad.0'b",
+      "Qn": "Aad.0b",
+      "D_drivers": [
+        {
+          "pkg": "b07",
+          "pin": 3,
+          "dir": "out",
+          "xy": [
+            65,
+            142
+          ]
+        },
+        {
+          "pkg": "b07",
+          "pin": 2,
+          "dir": "out",
+          "xy": [
+            69,
+            142
+          ]
+        }
+      ]
+    },
+    {
+      "package": "b15",
+      "side": "a",
+      "D": "dAad.6",
+      "C": "preFHCb",
+      "S": "sAad.6",
+      "R": "unwired MECL pulldown=0",
+      "Q": "Aad.6a",
+      "Qn": "Aad.6'a",
+      "D_drivers": [
+        {
+          "pkg": "b02",
+          "pin": 3,
+          "dir": "out",
+          "xy": [
+            65,
+            40
+          ]
+        },
+        {
+          "pkg": "#5b42",
+          "pin": 3,
+          "dir": "out",
+          "xy": [
+            45,
+            76
+          ]
+        }
+      ]
+    },
+    {
+      "package": "b15",
+      "side": "b",
+      "D": "dAad.7",
+      "C": "preFHCb",
+      "S": "sAad.7",
+      "R": "unwired MECL pulldown=0",
+      "Q": "Aad.7a",
+      "Qn": "Aad.7'a",
+      "D_drivers": [
+        {
+          "pkg": "b02",
+          "pin": 4,
+          "dir": "out",
+          "xy": [
+            61,
+            40
+          ]
+        },
+        {
+          "pkg": "#5b42",
+          "pin": 2,
+          "dir": "out",
+          "xy": [
+            49,
+            76
+          ]
+        }
+      ]
+    },
+    {
+      "package": "c14",
+      "side": "a",
+      "D": "dAad.1'",
+      "C": "preFHCa",
+      "S": "unwired MECL pulldown=0",
+      "R": "sAad.1",
+      "Q": "Aad.1'a",
+      "Qn": "Aad.1a",
+      "D_drivers": [
+        {
+          "pkg": "b07",
+          "pin": 14,
+          "dir": "out",
+          "xy": [
+            65,
+            154
+          ]
+        },
+        {
+          "pkg": "b07",
+          "pin": 15,
+          "dir": "out",
+          "xy": [
+            69,
+            154
+          ]
+        }
+      ]
+    },
+    {
+      "package": "c14",
+      "side": "b",
+      "D": "dAad.1'",
+      "C": "preFHCa",
+      "S": "unwired MECL pulldown=0",
+      "R": "sAad.1",
+      "Q": "Aad.1'b",
+      "Qn": "Aad.1b",
+      "D_drivers": [
+        {
+          "pkg": "b07",
+          "pin": 14,
+          "dir": "out",
+          "xy": [
+            65,
+            154
+          ]
+        },
+        {
+          "pkg": "b07",
+          "pin": 15,
+          "dir": "out",
+          "xy": [
+            69,
+            154
+          ]
+        }
+      ]
+    },
+    {
+      "package": "c15",
+      "side": "a",
+      "D": "dAad.4",
+      "C": "preFHCb",
+      "S": "sAad.4",
+      "R": "unwired MECL pulldown=0",
+      "Q": "Aad.4b",
+      "Qn": "Aad.4'b",
+      "D_drivers": [
+        {
+          "pkg": "#5b42",
+          "pin": 5,
+          "dir": "out",
+          "xy": [
+            37,
+            76
+          ]
+        },
+        {
+          "pkg": "a05",
+          "pin": 15,
+          "dir": "out",
+          "xy": [
+            33,
+            112
+          ]
+        }
+      ]
+    },
+    {
+      "package": "c15",
+      "side": "b",
+      "D": "dAad.5",
+      "C": "preFHCb",
+      "S": "sAad.5",
+      "R": "unwired MECL pulldown=0",
+      "Q": "Aad.5b",
+      "Qn": "Aad.5'b",
+      "D_drivers": [
+        {
+          "pkg": "#5b42",
+          "pin": 4,
+          "dir": "out",
+          "xy": [
+            41,
+            76
+          ]
+        },
+        {
+          "pkg": "a05",
+          "pin": 2,
+          "dir": "out",
+          "xy": [
+            33,
+            100
+          ]
+        }
+      ]
+    },
+    {
+      "package": "d14",
+      "side": "a",
+      "D": "dAad.2'",
+      "C": "preFHCa",
+      "S": "unwired MECL pulldown=0",
+      "R": "sAad.2",
+      "Q": "Aad.2'b",
+      "Qn": "Aad.2b",
+      "D_drivers": [
+        {
+          "pkg": "c07",
+          "pin": 3,
+          "dir": "out",
+          "xy": [
+            101,
+            142
+          ]
+        },
+        {
+          "pkg": "c07",
+          "pin": 2,
+          "dir": "out",
+          "xy": [
+            105,
+            142
+          ]
+        }
+      ]
+    },
+    {
+      "package": "d14",
+      "side": "b",
+      "D": "dAad.3'",
+      "C": "preFHCa",
+      "S": "unwired MECL pulldown=0",
+      "R": "sAad.3",
+      "Q": "Aad.3'b",
+      "Qn": "Aad.3b",
+      "D_drivers": [
+        {
+          "pkg": "c07",
+          "pin": 14,
+          "dir": "out",
+          "xy": [
+            101,
+            154
+          ]
+        },
+        {
+          "pkg": "c07",
+          "pin": 15,
+          "dir": "out",
+          "xy": [
+            105,
+            154
+          ]
+        }
+      ]
+    },
+    {
+      "package": "d15",
+      "side": "a",
+      "D": "dAad.6",
+      "C": "preFHCb",
+      "S": "sAad.6",
+      "R": "unwired MECL pulldown=0",
+      "Q": "Aad.6b",
+      "Qn": "Aad.6'b",
+      "D_drivers": [
+        {
+          "pkg": "b02",
+          "pin": 3,
+          "dir": "out",
+          "xy": [
+            65,
+            40
+          ]
+        },
+        {
+          "pkg": "#5b42",
+          "pin": 3,
+          "dir": "out",
+          "xy": [
+            45,
+            76
+          ]
+        }
+      ]
+    },
+    {
+      "package": "d15",
+      "side": "b",
+      "D": "dAad.7",
+      "C": "preFHCb",
+      "S": "sAad.7",
+      "R": "unwired MECL pulldown=0",
+      "Q": "Aad.7b",
+      "Qn": "Aad.7'b",
+      "D_drivers": [
+        {
+          "pkg": "b02",
+          "pin": 4,
+          "dir": "out",
+          "xy": [
+            61,
+            40
+          ]
+        },
+        {
+          "pkg": "#5b42",
+          "pin": 2,
+          "dir": "out",
+          "xy": [
+            49,
+            76
+          ]
+        }
+      ]
+    }
+  ],
+  "original_h12_pins": {
+    "15": "GND360",
+    "10": "ppclk2'a",
+    "5": "ppSH'",
+    "13": "preClk1'AB",
+    "12": "preClk1'B",
+    "14": "preClk1'D",
+    "11": "preFH'x",
+    "3": "preFHCa",
+    "2": "preFHCb",
+    "4": "preSH'BD"
+  },
+  "clock_equations": {
+    "preFHCb": "ppSH'",
+    "preFHCa": "ppclk2'a OR preFH'x"
+  },
+  "clock_sources": {
+    "l02": {
+      "6": "CLK.mc'",
+      "13": "Hia",
+      "14": "Hia",
+      "15": "Hia",
+      "9": "MemClkEnable'a",
+      "7": "MemSH",
+      "3": "ppFH'",
+      "2": "ppSH'"
+    },
+    "l01": {
+      "7": "CLK.mc'",
+      "11": "CLKEnable'b",
+      "15": "GND530",
+      "12": "IgnoreProc",
+      "13": "MemC21.sil+1",
+      "5": "MemClkEnable'a",
+      "3": "ppclk2'a",
+      "2": "ppclk2'b"
+    },
+    "l06": {
+      "9": "DisBR",
+      "5": "MapTroubleInEc1",
+      "7": "MemB.0",
+      "6": "MemB.0'",
+      "11": "MemBase.0",
+      "3": "MemC02.sil+7",
+      "10": "MemC19.sil+4",
+      "4": "PipeStore_'",
+      "12": "ppFH'",
+      "15": "preFH'x",
+      "14": "preSH'x"
+    }
+  },
+  "original_behavior": "C high: transparent D, S/R ignored. C low: low/complement bits have R=sAad, S=0; high/positive bits have S=sAad, R=0; otherwise hold.",
+  "native_approximation": "Canonical Q samples D at enabled host edges while C is high; output pins expose stored Q.",
+  "required_next_work": "Preserve the two different transparent windows, wired-OR D and closed Set before folding address visibility/tag lookup/Hold captures into four15ns intervals. Derive actual pre/post-source ordering before any bypass, prediction or registration.",
+  "new_reset_or_unconditional_capture_authorized": false,
+  "source_phases_integrated": false,
+  "FPGA_timing_or_speed_qualified": false,
+  "hardware_changed": false,
+  "full_goal_active": true
+}

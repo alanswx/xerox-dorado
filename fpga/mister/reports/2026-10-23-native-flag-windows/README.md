@@ -6,6 +6,33 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`memc-clustered-buffers-summary.json` preserves the complete all168-buffer
+native v2 ROUTING FAILURE:582 raw members/534 source hashes, fitter exit3,
+39,337ALMs/94%,53,497registers and two final unrouted odd-group7 cache data nets.
+Intermediate fitting attempts are retained. Neither current-build STA nor
+physical queries completed; the older STA report carried as source is not a
+result of this fit. Both initial review-parser mistakes are retained.
+
+The source-equivalent v3 candidate uses72 buffers, each serving at most four
+RAMs, covering all168 address pins including actual critical c10.p14. All534
+frozen inputs verify; formal equivalence, wrong-polarity rejection,128 X/Z
+cases and full native elaboration pass. Its actual fitter/reporter handles
+are recorded LIVE in the frozen observation. Since that observation, fitter
+3341503 exits0 (40,192ALMs/96%,55,617registers); initial setup -0.225ns/-0.267ns
+is still rejected. Complete crossing/physical/topology reports are pending.
+The exact owned1B startup test
+is now terminal at its original bound with zero CPU instruction issues; full
+sources/logs/provenance and absent process handles are retained. Four longer
+original5B jobs remain live in the frozen observation, including natural
+baseline TX2/BFN113/disk progress. No firmware, speed or physical timing pass.
+
+`memc-lcell-buffers-summary.json` retains the incomplete inverse-only v1's
+deliberate source-gap stop, corrected v2 staging and physical fanout query
+calibration:321 IC loads at d15.qb's actual Q output, versus one clock-to-Q
+CELL edge at its keeper. `memc-address-windows-summary.json` binds original
+low/complement Reset and high/positive Set behavior, two transparent clock
+families and wired-OR D; the first incorrect all-Reset-unwired audit remains.
+
 `common-clock-batch-summary.json` retains the complete shorter-control fit:
 all957 members/533 source hashes verify, all builder/reporter processes exited.
 REJECTED: setup -0.475ns/-0.145ns at the slow corners, minimum hold+0.112ns.
@@ -1038,8 +1065,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps59,142 members to6,264 deduplicated compressed blobs;
-lossless readback verifies1,973,136,306 unique raw bytes and73,737,847 compressed
+`manifest.json.gz` now maps62,081 members to6,379 deduplicated compressed blobs;
+lossless readback verifies2,005,769,070 unique raw bytes and75,008,688 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

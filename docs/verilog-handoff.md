@@ -1,5 +1,71 @@
 # Verilog from Sil: handoff
 
+Current status (2026-10-24): hardware remains qualified5c65. The last measured
+rate is4,025,473 StartCycle issues/s (24.15% of original nominal16.67M/s),
+not retired instructions. Host/SDRAM57.142857MHz, eight enabled ticks/140ns
+before waits. The current buffering fit keeps these clocks; expect no ordinary
+instruction-cadence gain from this fit alone. Four15ns ticks/original60ns,
+separate66.7MHz SDRAM, reduced storage waits and full A–F remain open.
+
+NOW LIVE: `/home/alans/mister/memc-lcell-short-native-v3-20261024`, builder
+3327607/session10438. Fitter3341503 has exited0:40,192ALMs/96%,55,617registers.
+Remaining crossing/physical/topology reports are in progress. Initial global
+setup is -0.225ns/-0.267ns at slow100/-40: RIOT dir_a[6] -> network_step,
+an8.75ns half-cycle path. This is already a timing rejection for deployment;
+finish all reports to identify remaining owner/fanout issues before the next
+change. No15ns qualification or assembly. Map succeeds at93,217 logic cells/
+96,022 device resources; all985 warnings retained. Physical reporter3328009/
+session97620 and tag-buffer reporter3328337/session27429 wait on this same
+build. Local stage `memc-lcell-short-native-stage-v3-20261024`, manifest
+`a586d2924266b274be7f2ed7da22ba0d6580248e012d913241e2cf37398e4ce1`;
+all534 frozen files verify. Only MemC combinational wiring changes after path
+relocation, with a simulation-only vendor LCELL identity model excluded from
+Quartus.72 buffers cover all168 cache-tag address pins/21RAMs, at most four
+RAMs per buffer, including the actual positive d15.qb -> c10.p14 critical pin.
+Arbitrary-state address equivalence, wrong-polarity counterexample,128 X/Z
+cases and full native elaboration pass; three known UNOPTFLAT warnings remain.
+Actual physical buffers/fanout and all-device timing are still unqualified.
+
+The preceding all168-buffer v2 fit is TERMINAL/REJECTED: fitter exit3 after
+31m57s,39,337ALMs/94% utilization,53,497registers; final unrouted signals are
+odd storage-group7 cache_data[0]/[5]. Intermediate internal routing attempts
+failed on other nets; preserve all of them. No completed current-build STA,
+assembly or netlist query. A historical STA summary carried under src/ is NOT
+this fit's timing result. All582 collected members/534 source hashes verify.
+The inverse-only84-buffer v1 omitted c10.p14 and was deliberately stopped
+at its verified map process for that source gap, not an observation timeout.
+`memc-lcell-buffers-summary.json` and `memc-clustered-buffers-summary.json`
+retain the stopped attempt, live observations, full failure, proofs and lints.
+Physical-Q query calibration reproduces321 IC loads; its keeper has one CELL
+clock-to-Q arc, which must not be mistaken for one routing load.
+
+`memc-address-windows-summary.json` binds all16 address latches to the PARC
+wire list. Low/complement bits use preFHCa=ppclk2'a OR preFH'x and closed
+R=sAad/S=0; high/positive bits use preFHCb=ppSH' and closed S=sAad/R=0.
+Both families are HIGH-transparent with S/R ignored while open. dAad.7 has
+two wired-OR contributors; retain both. The initial incorrect assumption that
+all Reset pins were unwired failed its source assertion and is retained.
+No guessed address bypass, new capture edge or extra guest cycle is installed.
+
+Original owned-context startup test45198/driver44831 has TERMINATED at its
+unchanged1B HOST bound:505,472,968 enabled guest ticks,48,480 matched pause/
+snapshot observations,60,657,011 completed reads, zero CPU instruction issues
+and BFN0. All actions exit0 and process handles are absent. This is startup/
+pause evidence only, insufficient for CPU/113/Cedar; do not extend/restart it.
+The existing5B baseline58600 naturally passed its earlier network wait (TX2
+first sampled at2.63B HOST) and now has BFN113/disk reads. Queue58753 also has
+BFN113/disk traffic. No reported pack/CRC/RX faults at the frozen observations;
+neither is a desktop/functional-equivalence/speed pass. Balanced49723 and
+short-control75056 remain in original-ROM startup at their existing5B bounds.
+
+Next/TODO: follow the exact live fit/reporter handles, review actual buffer
+drivers/locations/fanout and all four timing corners before any assembly.
+Continue the original bounded firmware jobs without changing their inputs or
+limits. Derive address-window/tag/Hold consuming-edge ordering for integration
+with the common event batch; then qualify original60ns and separate SDRAM
+crossings/timing. Interactive Cedar, authentic Rollback, new-file persistence,
+three fresh-seed boots and the two-hour mixed-I/O stress gate remain required.
+
 NOW LIVE (2026-10-24): shorter-control original-firmware simulation
 `control-short-native-boot-v1-20261024`, driver74661/test75056/session52350,
 fixed5B HOST bound set before launch. Compile190 HDL sources succeeds; input
