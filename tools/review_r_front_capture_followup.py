@@ -102,7 +102,8 @@ def append_archive(archive,out,dirs,label='capture-followup',extra_tools=()):
             if not p.is_file() or ('obj' in rel.parts and p.suffix!='.dot'):continue
             if p.suffix in {'.vvp','.o','.a','.rbf','.sof','.pack'}:continue
             paths['runs/'+d.name+'/'+str(rel)]=p
-    for p in out.iterdir():paths[label+'/'+p.name]=p
+    for p in out.rglob('*'):
+        if p.is_file():paths[label+'/'+str(p.relative_to(out))]=p
     for name in ['probe_r_front_pointer_capture.py','test_r_front_pointer_matrix.py','inspect_r_front_pointer_epoch.py',
                  'stage_r_front_pointer_native.py','review_r_front_capture_followup.py',*extra_tools]:
         assert Path(name).name==name

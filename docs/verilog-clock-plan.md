@@ -11,6 +11,25 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ### Structural speed plan (revised 2026-10-22)
 
+Original-ROM startup follow-up (2026-10-23): the apparent repeated zero-page
+clear is the modeled watchdog's initial phase. Exact isolated BaseBoard/ROM
+tests pass the256-byte clear at both ratios, irregular clock pauses and the
+first MidasSetup JSR/RTS. STX$0601 enables WatchdogOut low while WatchdogIn/g22A Q'
+are high, so j17/j08 reset the CPU until the original g21 Q21 boundary. Without
+any counter seed or timer change,396 resets precede the first phase at139809848
+enabled ticks/counter1048576; actual ROM FinishCP follows at145117901 ticks,
+PCF8AB/bank_n110. Earlier insufficient endpoints/failures remain archived.
+This is isolated-board evidence, not native boot/CP-root/physical qualification.
+
+Read-only inspection confirms queued native test29618 is below this boundary
+(80112008 enabled ticks/counter600841/g22A=B=0). Both original native handles
+29201/29618 were verified live again. Keep their exact5B bounds, inputs, media
+and original timers; observe the same runs rather than restarting or planting
+state. Next use their authentic113 traffic for storage attribution and resolve
+the CP ordering gate below before any v9 fit. Hardware and last measured
+4.025473M StartCycle issues/s remain unchanged. Full A-F goal stays ACTIVE.
+[All terminal isolated runs, live observations and limits](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#original-rom-watchdog-startup).
+
 Latest capture/CP ordering result (2026-10-23;
 [complete fits, matrices, rejected fixes and live native observations](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md)):
 v7/v8 are both TERMINAL and REJECTED. v7 setup is

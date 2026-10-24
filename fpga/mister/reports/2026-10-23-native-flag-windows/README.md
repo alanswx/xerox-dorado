@@ -4,6 +4,51 @@ This receipt preserves the complete v5 native failure and the corrected
 component implementation of the original l06/l07 flag latches. No image was
 assembled or loaded; the qualified hardware core and measured speed are unchanged.
 
+## Original-ROM watchdog startup
+
+`baseboard-watchdog-summary.json` and the lossless archive preserve eight
+terminal isolated-board diagnostics, exact native sources/EPROMs and passive
+read-only observations of the existing full-machine runs. No RTL, original
+timer, native bound, guest state, disk image or hardware was changed.
+
+The 256-byte zero-page clear passes at SYSPER4 and16, with precisely256 stores
+and256 DEX instructions. Irregular host-domain clock pauses also pass. The first
+JSR/RTS through MidasSetup returns at349348 enabled ticks. Extending beyond the
+old eight-byte boot gate exposes a reset at STX$0601 (Watchdog DDR), PCF3EE:
+PA6 changes low while WatchdogIn and g22A Q' are high. The actual XOR/NAND and
+j08 reset FF therefore restart the CPU. g21's original Q21 divider keeps
+counting MCPreClk falling edges through these CPU resets.
+
+Full original-divider startup observes **396 resets**, followed by the first
+g22 phase at **139,809,848 enabled ticks**, g21 counter **1,048,576**. The ROM
+then reaches its genuine FinishCP INC/DEC sequence at **145,117,901 ticks**,
+PC **F8AB**, raw bank_n110/data000001000. Every clear in the observed startup
+still has exactly256 stores/DEX operations. No counter seed or shortened timer
+is used. This is the deterministic startup of this model; it does not establish
+power-up behavior for every original physical board or calibrate all timers.
+
+The shorter startup experiment's second-reset fatal is retained. The first
+extended observer also rejected an early endpoint: programming MCP DDR creates
+a physical strobe atPCF3E9 before the watchdog boundary, which is not execution
+of FinishCP. v2 observes that DDR strobe after the boundary; the final test
+additionally requires PCF8A5..F8AB, with unchanged physical models and160M bound.
+These are different observation endpoints, not fixes to the firmware or gates.
+
+LLDB read-only inspection uses field offsets compiled from the exact running
+model header and stops at an evaluation entry, then detaches/resumes. The
+queued native run shows80,112,008 enabled ticks, watchdog counter600,841 and
+g22A=B=0, consistent with the initial phase. Early decoded input/IR node aliases
+are explicitly unusable: some corresponding netlist outputs are tied off.
+Only actual package/owner fields and meaningful PC/X outputs inform this result.
+These snapshots are not settled-state comparisons or wall-time benchmarks.
+
+Both full-machine tests29201/29618 were verified live again and their immutable
+prefix observations are archived. Keep their original5B limits and exact inputs;
+the isolated board's idle other-board inputs do not qualify native CP/root
+ordering, Initial, Cedar or representative128-group firmware storage traffic.
+The CP timing failure below remains open; v9 remains unfitted. Hardware and
+measured4.025473M StartCycle issues/s are unchanged. Full goal ACTIVE.
+
 ## Latest: CP timing contract remains open
 
 The complete v7/v8 fits are rejected. v7 setup is

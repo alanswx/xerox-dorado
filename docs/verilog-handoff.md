@@ -1,5 +1,39 @@
 # Verilog from Sil: handoff
 
+Latest original-ROM startup diagnosis (2026-10-23;
+[reviewed frozen runs and limitations](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#original-rom-watchdog-startup)):
+the repeated F3AC/F3AE zero-page loops are explained by the modeled watchdog's
+initial phase, not evidence of a stuck 6502. Exact frozen BaseBoard/cells/EPROMs
+clear all256 bytes at SYSPER4 and16; irregular clock pauses also pass. The first
+JSR/RTS through MidasSetup returns correctly at349348 enabled ticks. Extending
+the trace shows STX$0601 atF3EB enabling PA6/WatchdogOut low while WatchdogIn and
+g22A Q' are high. j17 pulls BootMC' low; j08 resets the CPU. Original g21 counts
+MCPreClk falling edges and exposes Q21; it is not reset with the CPU.
+
+With the full original divider and no counter/state plant, isolated startup
+observes396 such resets, then g22's first phase at139809848 enabled ticks,
+g21.cnt=1048576. The ROM subsequently executes its actual FinishCP INC/DEC
+strobe at145117901 ticks, PCF8AB/bank_n110/data000001000. This is isolated
+BaseBoard evidence with idle other-board inputs, NOT native CP/root equivalence,
+Initial/Cedar, timer calibration, physical timing or speed qualification.
+The earlier short startup assertion and early-DDR strobe false endpoint are
+preserved as failed/insufficient diagnostics; no original component gate changed.
+
+Read-only LLDB inspection of the SAME live queued native test29618 found
+80112008 enabled ticks/g21.cnt600841/g22A=B=0, below that boundary. Actual field
+offsets come from its compiled model header; no guest values or inputs changed.
+Early unused input/IR node aliases must not be interpreted as package state.
+Debugger-paused wall time is not a simulation performance benchmark. Both
+original native tests29201/29618 were verified live again; their original5B
+limits, source, medium, normal three-press stimulus and SkipDiskWait input stay
+unchanged. Observe the actual watchdog/ROM progress; do not restart or plant
+state to skip this interval. All eight isolated runs are terminal and archived.
+
+Next/TODO: follow those exact native runs into authentic firmware113/storage
+traffic while resolving the CP/root ordering failure below; v9 remains unfitted.
+Full A-F goal ACTIVE. Hardware unchanged; last measured4.025473M StartCycle
+issues/s(24.15% nominal, not retirements). No new speed qualification.
+
 Latest capture/CP ordering result (2026-10-23;
 [complete fits, matrices, rejected fixes and live native observations](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md)):
 v7/v8 are both TERMINAL and REJECTED. v7 setup is

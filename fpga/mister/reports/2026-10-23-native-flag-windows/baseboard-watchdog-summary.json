@@ -1,0 +1,211 @@
+{
+  "status": "REVIEWED_ISOLATED_ORIGINAL_WATCHDOG_STARTUP",
+  "scope": "Preserve watchdog-startup diagnostics without claiming native boot or speed.\n\nReview terminal isolated-board runs, including rejected/insufficient earlier\nobservations. Snapshot exact live native handles once; never archive a mutable\nlive log as a terminal result or change any run's original bound.\n",
+  "isolated_runs": [
+    {
+      "directory": "native-baseboard-reset-sysper4-v1-20261023",
+      "status": "PASS_ISOLATED_BASEBOARD_RESET_CLEAR",
+      "test_returncode": 0,
+      "state_sha256": "03e8e2f65dcfe2513fb653a7844f40fb611fdf4392828b7bffaff94f10164383",
+      "test_sha256": "7145536dd15e9d71f74c899f2841ae9ebf56b580564a4a1c4b67a69f7aa25938",
+      "BB_RESET_CLEAR_EXIT": [
+        "BB_RESET_CLEAR_EXIT ticks=313215 phases=2349 fetches=774 stores=256 dex=256 x=00 period_min=133 period_max=261"
+      ],
+      "BB_RESET_MIDAS_RETURN": [],
+      "BB_WATCHDOG_FIRST_PHASE": [],
+      "BB_RESET_FIRST_CP_WRITE": [],
+      "BB_RESET_ROM_FINISH_CP": [],
+      "BB_RESET_BOUND": []
+    },
+    {
+      "directory": "native-baseboard-reset-sysper16-v1-20261023",
+      "status": "PASS_ISOLATED_BASEBOARD_RESET_CLEAR",
+      "test_returncode": 0,
+      "state_sha256": "38304fb215a242c7be6918661815c8d20fe00e4feb0c00187a9a6a78622a21be",
+      "test_sha256": "cf8eeaf9c124ae8eecf3b2f8919006fa20d55528d52759adc374f67cc6b7e063",
+      "BB_RESET_CLEAR_EXIT": [
+        "BB_RESET_CLEAR_EXIT ticks=1240531 phases=2326 fetches=774 stores=256 dex=256 x=00 period_min=533 period_max=1042"
+      ],
+      "BB_RESET_MIDAS_RETURN": [],
+      "BB_WATCHDOG_FIRST_PHASE": [],
+      "BB_RESET_FIRST_CP_WRITE": [],
+      "BB_RESET_ROM_FINISH_CP": [],
+      "BB_RESET_BOUND": []
+    },
+    {
+      "directory": "native-baseboard-reset-gated-sysper4-v1-20261023",
+      "status": "PASS_ISOLATED_BASEBOARD_RESET_CLEAR",
+      "test_returncode": 0,
+      "state_sha256": "5443f6ae355bdef327e2cb078c05d633d07911842a6c6cf24c327d37771016fc",
+      "test_sha256": "3c6306c270491f13c80ffee2ff19bd2f3beab9ad065c8d09a2c589aca52f0b54",
+      "BB_RESET_CLEAR_EXIT": [
+        "BB_RESET_CLEAR_EXIT ticks=313215 phases=2349 fetches=774 stores=256 dex=256 x=00 period_min=133 period_max=261"
+      ],
+      "BB_RESET_MIDAS_RETURN": [],
+      "BB_WATCHDOG_FIRST_PHASE": [],
+      "BB_RESET_FIRST_CP_WRITE": [],
+      "BB_RESET_ROM_FINISH_CP": [],
+      "BB_RESET_BOUND": []
+    },
+    {
+      "directory": "native-baseboard-midas-gated-sysper4-v1-20261023",
+      "status": "PASS_ISOLATED_BASEBOARD_RESET_CLEAR",
+      "test_returncode": 0,
+      "state_sha256": "a8ce95dd0ad1df9fa451d522dee91bf066de05311ed9d7c4c81b265d5e4f0af0",
+      "test_sha256": "526099f0181b32d80739435fdcf3a44dbc1c86770e9126c50efcdcc597b3f479",
+      "BB_RESET_CLEAR_EXIT": [
+        "BB_RESET_CLEAR_EXIT ticks=313215 phases=2349 fetches=774 stores=256 dex=256 x=00 period_min=133 period_max=261"
+      ],
+      "BB_RESET_MIDAS_RETURN": [
+        "BB_RESET_MIDAS_RETURN ticks=349348 phases=2620 fetches=865 stores=289 x=ff"
+      ],
+      "BB_WATCHDOG_FIRST_PHASE": [],
+      "BB_RESET_FIRST_CP_WRITE": [],
+      "BB_RESET_ROM_FINISH_CP": [],
+      "BB_RESET_BOUND": []
+    },
+    {
+      "directory": "native-baseboard-startup-gated-sysper4-v1-20261023",
+      "status": "ISOLATED_BASEBOARD_RESET_CLEAR_FAILED",
+      "test_returncode": 1,
+      "state_sha256": "85affd5588b890d465315147909688448800dab36ea8a6bc2a184927616a26c2",
+      "test_sha256": "a06d56e34b1307a962d8e6aef7e510a642fd0617c64fe17e6e92fae580553362",
+      "BB_RESET_CLEAR_EXIT": [
+        "BB_RESET_CLEAR_EXIT ticks=313215 phases=2349 fetches=774 stores=256 dex=256 x=00 period_min=133 period_max=261"
+      ],
+      "BB_RESET_MIDAS_RETURN": [
+        "BB_RESET_MIDAS_RETURN ticks=349348 phases=2620 fetches=865 stores=289 x=ff"
+      ],
+      "BB_WATCHDOG_FIRST_PHASE": [],
+      "BB_RESET_FIRST_CP_WRITE": [],
+      "BB_RESET_ROM_FINISH_CP": [],
+      "BB_RESET_BOUND": []
+    },
+    {
+      "directory": "native-baseboard-watchdog-sysper4-v1-20261023",
+      "status": "ISOLATED_BASEBOARD_RESET_CLEAR_FAILED",
+      "test_returncode": 1,
+      "state_sha256": "b09c8391893536f3b46ceb5b0f3df59508b350d16bfac530d5ae459c5147ddc6",
+      "test_sha256": "82bc884ef7b3508753b5c429388311d073351e5593249c8500b7f509381577d7",
+      "BB_RESET_CLEAR_EXIT": [
+        "BB_RESET_CLEAR_EXIT ticks=313215 phases=2349 fetches=774 stores=256 dex=256 x=00 period_min=133 period_max=261"
+      ],
+      "BB_RESET_MIDAS_RETURN": [
+        "BB_RESET_MIDAS_RETURN ticks=349348 phases=2620 fetches=865 stores=289 x=ff"
+      ],
+      "BB_WATCHDOG_FIRST_PHASE": [],
+      "BB_RESET_FIRST_CP_WRITE": [
+        "BB_RESET_FIRST_CP_WRITE ticks=355596 phases=2667 fetches=879 pc=f3e9 bank_n=111 resets=0"
+      ],
+      "BB_RESET_ROM_FINISH_CP": [],
+      "BB_RESET_BOUND": []
+    },
+    {
+      "directory": "native-baseboard-watchdog-sysper4-v2-20261023",
+      "status": "PASS_ISOLATED_BASEBOARD_RESET_CLEAR",
+      "test_returncode": 0,
+      "state_sha256": "13429de4eb00e3d02cd56fb0fd8aa517bf8946c90ad308d29bc399c6d0a3120a",
+      "test_sha256": "b467fc3574fac8c814339cf82cc43145616cf8ef0f6dd555fa4241f8281e29d1",
+      "BB_RESET_CLEAR_EXIT": [
+        "BB_RESET_CLEAR_EXIT ticks=313215 phases=2349 fetches=774 stores=256 dex=256 x=00 period_min=133 period_max=261"
+      ],
+      "BB_RESET_MIDAS_RETURN": [
+        "BB_RESET_MIDAS_RETURN ticks=349348 phases=2620 fetches=865 stores=289 x=ff"
+      ],
+      "BB_WATCHDOG_FIRST_PHASE": [
+        "BB_WATCHDOG_FIRST_PHASE ticks=139809848 phases=1048576 counter=1048576 resets=396 in=1 out=1"
+      ],
+      "BB_RESET_FIRST_CP_WRITE": [
+        "BB_RESET_FIRST_CP_WRITE ticks=139958447 phases=1049691 fetches=349755 pc=f3e9 bank_n=111 resets=396"
+      ],
+      "BB_RESET_ROM_FINISH_CP": [],
+      "BB_RESET_BOUND": []
+    },
+    {
+      "directory": "native-baseboard-watchdog-finish-cp-sysper4-v1-20261023",
+      "status": "PASS_ISOLATED_BASEBOARD_RESET_CLEAR",
+      "test_returncode": 0,
+      "state_sha256": "29a6e04b9c88765d2c55a946f06b356088ed7b5d4c1c918f7918f3f5328544fd",
+      "test_sha256": "ffeaad78ec5ce1430a2b1f45ba72c52c5abca4cbd381bf4925d734ace6e87474",
+      "BB_RESET_CLEAR_EXIT": [
+        "BB_RESET_CLEAR_EXIT ticks=313215 phases=2349 fetches=774 stores=256 dex=256 x=00 period_min=133 period_max=261"
+      ],
+      "BB_RESET_MIDAS_RETURN": [
+        "BB_RESET_MIDAS_RETURN ticks=349348 phases=2620 fetches=865 stores=289 x=ff"
+      ],
+      "BB_WATCHDOG_FIRST_PHASE": [
+        "BB_WATCHDOG_FIRST_PHASE ticks=139809848 phases=1048576 counter=1048576 resets=396 in=1 out=1"
+      ],
+      "BB_RESET_FIRST_CP_WRITE": [
+        "BB_RESET_FIRST_CP_WRITE ticks=145117901 phases=1088387 fetches=360227 pc=f8ab bank_n=110 resets=396"
+      ],
+      "BB_RESET_ROM_FINISH_CP": [
+        "BB_RESET_ROM_FINISH_CP ticks=145117901 pc=f8ab data=000001000"
+      ],
+      "BB_RESET_BOUND": []
+    }
+  ],
+  "read_only_inspections": [
+    {
+      "directory": "native-baseboard-queue-readonly-v1-20261023",
+      "result_sha256": "85aed07123141eddea311cb96e088abbc20cb28ed71aa1fccef920debbf48aaf",
+      "scope": "Read-only debugger observation at eval entry, not a settled-state or wall-time benchmark"
+    },
+    {
+      "directory": "native-baseboard-queue-readonly-v2-20261023",
+      "result_sha256": "4ae6627b864075db8e1ce28b6e01252feaa6f33db138baee28f5928e1e80f8eb",
+      "scope": "Read-only debugger observation at eval entry, not a settled-state or wall-time benchmark"
+    },
+    {
+      "directory": "native-baseboard-queue-readonly-v3-20261023",
+      "result_sha256": "af00f1eb9490f6409fb63ea470ed0ac0504bb7d6d1a48b1886b495c9a908f2e0",
+      "scope": "Read-only debugger observation at eval entry, not a settled-state or wall-time benchmark"
+    },
+    {
+      "directory": "native-baseboard-queue-readonly-v4-20261023",
+      "result_sha256": "7042b72db9f0a5630137f8b8aa8a94be013cc8e40a106505d2f5d3077efcdc99",
+      "scope": "Read-only debugger observation at eval entry, not a settled-state or wall-time benchmark"
+    },
+    {
+      "directory": "native-baseboard-queue-readonly-v5-20261023",
+      "result_sha256": "fd9930bc888911241d547b4d5c279eeff4d899b802cbd706f0cf0e76cec9f430",
+      "scope": "Read-only debugger observation at eval entry, not a settled-state or wall-time benchmark"
+    },
+    {
+      "directory": "native-baseboard-queue-watchdog-readonly-v1-20261023",
+      "result_sha256": "1ca6911563f9ab8e9b79645acc10cb7aabd0bd0a82ef9b208c78feb8bfa3b003",
+      "scope": "Read-only debugger observation at eval entry, not a settled-state or wall-time benchmark"
+    },
+    {
+      "early_alias_limit": "Do not interpret early decoded res/rdy/phi/ir aliases; some corresponding no[] nodes are tied off. Use actual package/owner fields."
+    }
+  ],
+  "native_observations": [
+    {
+      "kind": "5c65",
+      "pid": 29201,
+      "observed": 1792805855.8178911,
+      "ps": "29201 43:50 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "state_sha256": "e0d1087b204623337f82baec72fe60c308dd14aad7337126ff32938b17055f43",
+      "bound": 5000000000
+    },
+    {
+      "kind": "queue",
+      "pid": 29618,
+      "observed": 1792805855.8221078,
+      "ps": "29618 42:48 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "state_sha256": "0d15076c270b2b79a1d15a8ac4153fbad6d04e7ab608ed8a46e02288168fa225",
+      "bound": 5000000000
+    }
+  ],
+  "first_watchdog_phase_ticks": 139809848,
+  "first_watchdog_phase_counter": 1048576,
+  "initial_watchdog_resets": 396,
+  "original_native_limits_changed": false,
+  "firmware_qualified": false,
+  "native_Cedar_qualified": false,
+  "CP_root_ordering_fixed": false,
+  "timing_qualified": false,
+  "hardware_changed": false,
+  "speedup_qualified": false
+}
