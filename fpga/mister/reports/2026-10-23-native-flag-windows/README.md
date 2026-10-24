@@ -6,6 +6,19 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`cp-key-native-staging-summary.json` retains the completed475-output temporal
+safety proof, required-bit counterexample, both unchanged full reference
+comparisons (14,884checks/all844Q/9,216RAM/all100clocks) and10,208 actual-guard
+comparison cases (9,072 X/Z plus broken-fallback rejection). Fresh156-owner/
+1,416-auxiliary-bit exact-native context induction and stale-owner rejection
+pass. Complete533-source generic/native stages change only the key comparison
+after path relocation, retaining full-key X/Z equality and all saved CP bits.
+Full lint passes with three UNOPTFLAT/one MULTIDRIVEN warnings visible.
+Parent physical-query calibration sees389 keepers/385 key indices and the
+critical unused key138. Actual new fit and both reporter handles are recorded
+LIVE, with all533 remote source hashes checked. No physical removal/timing,
+firmware, original60ns, faster SDRAM or speed pass follows. Hardware unchanged.
+
 `cp-prefix-key-support-summary.json` preserves the complete actual-prefix
 dependency audit,269-output formal projection and required-bit counterexample.
 For1,134 arbitrary binary input bits, changing298/567 transaction-key bits
@@ -1090,8 +1103,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps63,112 members to6,803 deduplicated compressed blobs;
-lossless readback verifies2,210,975,463 unique raw bytes and81,501,866 compressed
+`manifest.json.gz` now maps64,444 members to6,848 deduplicated compressed blobs;
+lossless readback verifies2,219,256,644 unique raw bytes and82,113,614 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

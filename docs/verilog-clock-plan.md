@@ -9,6 +9,36 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Latest progress (2026-10-24): projected-key temporal induction PASSES for ALL
+475 control/event/flag outputs, exact cached-payload/canonical invariants,
+arbitrary inputs/reset histories and original auxiliary initialization. The
+required-bit omission is rejected. Both full original graph comparisons pass
+14,884checks/all844Q/9,216RAM/all100clock counts; cache coverage is unchanged
+in this fixture, not a performance result.10,208 actual-guard cases pass,
+including9,072 X/Z cases; broken unknown fallback rejects. Fresh exact-native
+156-owner/1,416-auxiliary-bit induction and stale-owner control pass. Full lint
+passes with three UNOPTFLAT/one MULTIDRIVEN warnings visible.
+
+Native fit LIVE: `/home/alans/mister/cp-key-native-v1-20261024`, builder3560219/
+map3560222/session4830; physical reporter3560997/session95443; CP-key reporter
+3561220/session92132. All533 sources verify, manifest
+`c3c9fd0f656c291f609ec0dd2c2253c1243015489d3458ebe3a2e15faa423d0d`.
+Only the key comparison changes after relocation, retaining saved CP pins,
+exact original X/Z full-key equality, all owners/SRAM windows/clocks/SDCs and
+global storage/control barrier. NO LCELL buffer cost is carried forward.
+Parent-netlist calibration finds389 key keepers/385 logical bits and key138;
+candidate physical removal and timing remain open. Full receipt
+`cp-key-native-staging-summary.json`; exact handles are in the handoff.
+
+Next/TODO: review actual key-bit removal, all four timing corners and physical
+owner/SRAM/SDRAM/pulse paths on this SAME fit before assembly. Then qualify
+original-firmware hardware boot/input if timing closes. No new native boot has
+been launched for this candidate; original simulation inputs/bounds remain.
+Ordinary cadence is still140ns and hardware5c65's last StartCycle rate is
+4.025473M/s. Original60ns/four15ns capture/event integration, faster separate
+SDRAM, pinned transport gains and full A–F/Cedar/Rollback/persistence/three-
+boot/stress objective remain active; this component pass does not close them.
+
 Latest (2026-10-24): v3 and both read-only reporters are TERMINAL, all966 raw
 members/534 source hashes verify. REJECTED: setup -0.225/-0.267ns, minimum
 hold+0.070ns, primary-input setup -0.072ns; internal+0.158ns is at17.5ns.

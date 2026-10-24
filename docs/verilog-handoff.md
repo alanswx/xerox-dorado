@@ -1,5 +1,52 @@
 # Verilog from Sil: handoff
 
+NOW LIVE (2026-10-24): `/home/alans/mister/cp-key-native-v1-20261024`,
+builder3560219/session4830, map3560222. Physical reporter3560997/session95443
+and calibrated CP-key reporter3561220/session92132 wait on the SAME build.
+All533 frozen files verify; manifest
+`c3c9fd0f656c291f609ec0dd2c2253c1243015489d3458ebe3a2e15faa423d0d`.
+Local stage `cp-key-native-stage-v1-20261024`; generic stage manifest
+`5dc5aced54b7da0dd363b76d60fb592bafd4d32e742cde79829cc56a4fe9a2d8`.
+Upload SHA`7304c957e96050d4f5d09c4de245c19a0be2b0549a92d135af9e7e38632d1e1a`.
+No restart/extension on observation timeout. No new native boot or assembly.
+
+The projected key is now digitally qualified. Temporal induction proves ALL
+475 control/event/flag outputs match the complete uncached ordered evaluator
+whenever ready, with exact cached-payload/canonical invariants and arbitrary
+input/reset histories. Removing a required owner bit has a counterexample.
+Both complete original comparisons pass14,884checks/238writes/6,928reads/
+392epochs, all844Q/9,216RAM/all100clock counts unchanged. Cache coverage is
+unchanged in this fixture (fast13347/staged1537/wait1553/retries7/reset1),
+not a speed measurement.10,208 actual-guard comparison cases pass, including
+9,072 X/Z cases over EVERY567 stored/live key bit with equal/known-mismatch
+backgrounds; deliberately zeroing the unknown fallback rejects.
+
+Fresh exact-native context induction proves156 owner projections and1,416
+auxiliary bits/three cache-interface outputs with unconstrained owner power-up,
+no protocol assumptions; stale-owner corruption rejects. Full native lint
+passes with the same three UNOPTFLAT and one MULTIDRIVEN warnings visible.
+Only the cache comparison changes after project relocation. All11 saved CP
+pins and exact full-key X/Z equality remain; no new state, guest cycle, SRAM
+port/capture, clock, SDC or machine/storage barrier change. Start from the
+smaller shorter-control parent, with NO failed LCELL-buffer experiment.
+
+Calibrated actual parent-netlist query finds389 cache-key keepers/385 distinct
+key bits, including unused key138 (before_pins[125], ProcL IfuData_6). This
+confirms the named-register query can see the offending dependency. Candidate
+physical removal and whole-device timing remain unqualified. Complete receipt
+`cp-key-native-staging-summary.json`; component sources/proofs/tests, both
+stages, native context proofs, lint, calibration and actual live handles retained.
+
+Next/TODO: follow this exact fit and BOTH reporters; verify fitted key indices
+against the269-bit support, critical key138 removal and all-device/four-corner/
+physical-owner/SRAM/SDRAM/pulse timing. A successful map/fit is insufficient.
+If timing closes, qualify original-firmware hardware boot/input on MiSTer14
+with protected5c65/Native59/media preserved. Existing long simulation jobs
+retain their original inputs/bounds. Original60ns/four15ns capture integration,
+separate66.7MHz SDRAM, pinned wait/speed gains, authentic Rollback/persistence,
+three fresh-seed boots and two-hour mixed-I/O stress remain OPEN. Hardware
+speed remains the last measured4.025473M StartCycle issues/s on5c65.
+
 Latest terminal result (2026-10-24): LCELL v3 is REJECTED. Builder3327607,
 physical reporter3328009 and topology reporter3328337 have exited; all stages
 exit0. All966 collected members/534 source hashes verify (collection SHA
