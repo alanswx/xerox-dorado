@@ -1,0 +1,19 @@
+{
+  "status": "SELECTED_QUALIFIED_SINGLE_BB_TRANSFER_SOURCES",
+  "canonical_files": {
+    "verilog/rtl/dorado_primary_clock_events.sv": "6ae9c0127bccce230c129d16da8b6549c415b191a2cfc175518b6dbcb1b44d10",
+    "verilog/rtl/dorado_baseboard_clock_step.sv": "1dc537cbf8f80d0fc7b41f2d9213ac14163dddac5706d0c75efd22e5ad9d141c",
+    "verilog/rtl/dorado_oscillator_events.sv": "000b2b4d45a2a457b8bb04fcfdb0c93d5591e916064a057cce9a405b68da026c",
+    "verilog/rtl/dorado_clock_event_batch.sv": "56f9dc05b821fbd0708b949c2c9528a768ee86273278fd7f3264fe35bdb97e7a",
+    "verilog/verilator/tb_baseboard_clock_events.sv": "a72672a93aba9831c32c7ccc7463f1d4cfcf5ae4febc8802730ff303805a9d18"
+  },
+  "review_state_sha256": "de452fcf0f2b7f8aa980155a00beb67072841748f067dab5e87c80232b965a48",
+  "canonical_RTL_and_bench_byte_identical_to_qualified_inputs": true,
+  "canonical_fixture_RTL_top_and_constraints_byte_identical_to_qualified_fit": true,
+  "all_five_regenerated_corruptions_byte_identical_to_qualified_tests": true,
+  "native_consumers_integrated": false,
+  "hardware_changed": false,
+  "new_speed_qualified": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}

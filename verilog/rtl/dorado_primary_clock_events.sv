@@ -133,7 +133,9 @@ module dorado_primary_clock_events #(
     end
    end
   end
-  levels_after=cursor;
+  // BB/Ether endpoints are independent of where their records were inserted.
+  levels_after={levels_before[5]^(ether_due && advance && !reset),
+                levels_before[4]^(bb_due && advance && !reset),cursor[3:0]};
  end
  always @(posedge clk)begin
   if(reset)begin bb_phase_tenths<=0;ether_phase<=0;bb_level<=0;ether_level<=0;end

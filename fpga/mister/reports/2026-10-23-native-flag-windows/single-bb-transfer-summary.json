@@ -1,0 +1,102 @@
+{
+  "status": "REVIEWED_SINGLE_BB_TRANSFER_CORRECTNESS_AND_COMPONENT_TIMING",
+  "consumer_compared_bits": 126,
+  "source_compared_bits": 195,
+  "physical_Q_bits": 6,
+  "consumer_intervals_per_engine": 176384,
+  "consumer_steps_per_engine": 873792,
+  "original_package_reference_unchanged": true,
+  "all_original_checks_retained": true,
+  "single_BB_geometry_independently_proven": true,
+  "extra_guest_cycles": 0,
+  "component_output_bits": 2568,
+  "CPU_rotations": 8,
+  "corners": [
+    {
+      "condition": "7_slow_1100mv_100c",
+      "setup": {
+        "slack_ns": 1.197,
+        "source": "dorado_primary_clock_events:rotations[0].source|ether_phase[4]",
+        "sink": "result[994]~reg0",
+        "arrival_ns": 17.5,
+        "required_ns": 18.697,
+        "report_sha256": "43e628fc3d6d77811fb0886524aaac39941eed54f41ae90c9e512ed39b9f9985"
+      },
+      "hold": {
+        "slack_ns": 0.444,
+        "source": "dorado_primary_clock_events:rotations[0].source|bb_level",
+        "sink": "dorado_primary_clock_events:rotations[0].source|bb_level",
+        "arrival_ns": 4.338,
+        "required_ns": 3.894,
+        "report_sha256": "8e353e1b618c551a7ea837945043cdf3ffa90baff07e2f90359504d6f5058f76"
+      }
+    },
+    {
+      "condition": "7_slow_1100mv_-40c",
+      "setup": {
+        "slack_ns": 0.84,
+        "source": "dorado_primary_clock_events:rotations[0].source|ether_phase[4]",
+        "sink": "result[1376]~reg0",
+        "arrival_ns": 17.99,
+        "required_ns": 18.83,
+        "report_sha256": "dd1abc708cb128483d8f9c41a1943a5010af6dca50739f2573b6042994097333"
+      },
+      "hold": {
+        "slack_ns": 0.464,
+        "source": "dorado_primary_clock_events:rotations[0].source|ether_phase[3]",
+        "sink": "dorado_primary_clock_events:rotations[0].source|ether_phase[3]",
+        "arrival_ns": 4.571,
+        "required_ns": 4.107,
+        "report_sha256": "0216d4b674ab3135e4c2414d99b1828858172817349a4abfa82052d7f654ab76"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_100c",
+      "setup": {
+        "slack_ns": 5.135,
+        "source": "input_stage[0]",
+        "sink": "launch[0]",
+        "arrival_ns": 11.691,
+        "required_ns": 16.826,
+        "report_sha256": "2fd21fdbfb2865d72abed8553a446d3b130c4237b1f12c4da01615b21954fc38"
+      },
+      "hold": {
+        "slack_ns": 0.182,
+        "source": "dorado_primary_clock_events:rotations[0].source|bb_level",
+        "sink": "dorado_primary_clock_events:rotations[0].source|bb_level",
+        "arrival_ns": 1.97,
+        "required_ns": 1.788,
+        "report_sha256": "61892da63706515fb17f63367d19120c3421ae4b3aa9c472af3a6903cdb2caea"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_-40c",
+      "setup": {
+        "slack_ns": 5.367,
+        "source": "input_stage[0]",
+        "sink": "launch[0]",
+        "arrival_ns": 11.34,
+        "required_ns": 16.707,
+        "report_sha256": "35f5940247f3233e6a99be09229c18f5cf83d7cef966fe01546b16a513b61d1d"
+      },
+      "hold": {
+        "slack_ns": 0.169,
+        "source": "dorado_primary_clock_events:rotations[7].source|dorado_clock_event_batch:inner|cpu_phase[2]",
+        "sink": "dorado_primary_clock_events:rotations[7].source|dorado_clock_event_batch:inner|cpu_phase[2]~DUPLICATE",
+        "arrival_ns": 1.816,
+        "required_ns": 1.647,
+        "report_sha256": "1dba9aed2a9c07708082d7a7e21466f3d7f201602707017179516f6573890ec2"
+      }
+    }
+  ],
+  "component_15ns_setup_and_hold_pass": true,
+  "complete_collection_members": 59,
+  "native_consumers_integrated": false,
+  "native_timing_qualified": false,
+  "analog_capture_qualified": false,
+  "firmware_qualified": false,
+  "speedup_qualified": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}

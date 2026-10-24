@@ -64,7 +64,9 @@ def review(out):
                 if c['variant'] == 'positive':
                     assert 'samples=176384 steps=873792 holds=12648 restores=520' in p.read_text()
             for name in ['dorado_baseboard_clock_step.sv', 'dorado_primary_clock_events.sv', 'dorado_oscillator_events.sv']:
-                assert sha(ROOT/'verilog/rtl'/name) == s['inputs'][name]
+                # The V4 milestone belongs to its immutable compiled fixture;
+                # later canonical selection must not rewrite its evidence.
+                assert sha(BUILD/'baseboard-clock-consumer-component-stage-v2-20261024'/name) == s['inputs'][name]
         dirs.append(d)
     for version in [1, 3]:
         d = BUILD/f'baseboard-clock-consumer-delta-trace-v{version}-20261024'

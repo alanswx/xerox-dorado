@@ -25,7 +25,7 @@ module tb_baseboard_clock_events;
   dorado_primary_clock_events #(.INITIAL_CPU_PHASE(p)) source(
    clk,reset,advance,before_sources[p],after_sources,counts[p],offsets,masks,source_levels[p]);
   assign producer[p]={before_sources[p],after_sources,counts[p],offsets,masks,source_levels[p]};
-  dorado_baseboard_clock_step consumer(owners[p],before_sources[p],counts[p],source_levels[p],
+  dorado_baseboard_clock_step consumer(owners[p],before_sources[p],after_sources,counts[p],source_levels[p],
    debug_before[p],boundary_debug[p],event_debug[p],consume,next_state[p],state_steps[p],edge_steps[p],
    roots[p],maxes[p],pres[p],auxes[p],invalid[p]);
   baseboard_clock_original reference(fixture_load,fixture_states[p],oracle_packet[p],oracle_state[p],

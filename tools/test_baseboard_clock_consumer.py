@@ -30,7 +30,7 @@ MUTATIONS = {
 }
 
 
-def run(stage, out):
+def run(stage, out, candidate=None, schedule=None):
     assert not out.exists()
     manifest = json.loads((stage/'r-front-control-native.json').read_text())
     for name, digest in manifest['source_hashes'].items():
@@ -58,7 +58,10 @@ def run(stage, out):
     files.update({name: ROOT/'verilog/verilator'/name for name in ['baseboard_clock_original.sv', 'tb_baseboard_clock_events.sv']})
     files.update({name: ROOT/'verilog/cells'/name for name in ['cell_MC10210.v', 'cell_SN74LS04.v']})
     files.update({'BaseBd.wl': wl, 'BaseBd_nominal.v': base})
-    schedule = ROOT/'build/rtl-executive/exact-bb-primary-reference-v1-20261024'
+    if candidate is not None:
+        for name in ['dorado_primary_clock_events.sv', 'dorado_baseboard_clock_step.sv']:
+            files[name] = candidate/name
+    schedule = schedule or ROOT/'build/rtl-executive/single-bb-primary-reference-v1-20261024'
     s = json.loads((schedule/'run-state.json').read_text())
     assert s['status'] == 'PASS_ALL_PRIMARY_CLOCK_ORIGINAL_REFERENCES'
     for name in ['dorado_primary_clock_events.sv', 'dorado_clock_event_batch.sv', 'dorado_oscillator_events.sv']:
@@ -67,6 +70,16 @@ def run(stage, out):
     files['expected.hex'] = schedule/'inputs/expected.hex'
     for name, path in files.items():
         shutil.copy2(path, inputs/name)
+    parallel = 'state_q,source_before,source_after,' in (inputs/'dorado_baseboard_clock_step.sv').read_text()
+    if candidate is not None:
+        # Add only the endpoint input. Every original package, test and check
+        # stays byte-identical, including all intermediate states/edge counts.
+        tb = inputs/'tb_baseboard_clock_events.sv'
+        old = 'consumer(owners[p],before_sources[p],counts[p]'
+        raw_tb = tb.read_text()
+        new = 'consumer(owners[p],before_sources[p],after_sources,counts[p]'
+        assert raw_tb.count(old)+raw_tb.count(new) == 1
+        tb.write_text(raw_tb.replace(old, new, 1) if parallel else raw_tb.replace(new, old, 1))
     (out/Path(__file__).name).write_bytes(Path(__file__).read_bytes())
     raw = (inputs/'dorado_baseboard_clock_step.sv').read_text()
     # Preserve the original j02 equation while binding its pins as one packet.
@@ -75,7 +88,10 @@ def run(stage, out):
         gate = re.sub(r'\b'+pin+r'\b', expression, gate)
     terms = gate.strip('()').split(' | ')
     assert len(terms) == 3 and 'or j02(root, '+', '.join(terms)+');' in (inputs/'baseboard_clock_original.sv').read_text()
-    for name, replacements in MUTATIONS.items():
+    mutations = dict(MUTATIONS)
+    if parallel:
+        mutations['drop-boundary'] = [('events_at_steps[7*index+:7]=selected_events;', "events_at_steps[7*index+:7]=(index==0) ? 7'b0 : selected_events;")]
+    for name, replacements in mutations.items():
         changed = raw
         for before, after in replacements:
             assert changed.count(before) == 1
@@ -87,6 +103,8 @@ def run(stage, out):
         native_consumer_integrated=False, analog_timing_qualified=False,
         native_timing_qualified=False, firmware_qualified=False, speedup_qualified=False,
         hardware_changed=False, cases=[], inputs={p.name: sha(p) for p in inputs.iterdir()})
+    state.update(candidate=str(candidate) if candidate else None, schedule=str(schedule),
+                 schedule_state_sha256=sha(schedule/'run-state.json'), single_BB_transfer=parallel)
 
     def save():
         (out/'run-state.json').write_text(json.dumps(state, indent=2)+'\n')
@@ -137,5 +155,9 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     for name in ['stage', 'output']:
         p.add_argument('--'+name, type=Path, required=True)
+    p.add_argument('--candidate', type=Path)
+    p.add_argument('--schedule', type=Path)
     args = p.parse_args()
-    raise SystemExit(run(args.stage.resolve(), args.output.resolve()))
+    raise SystemExit(run(args.stage.resolve(), args.output.resolve(),
+                        args.candidate.resolve() if args.candidate else None,
+                        args.schedule.resolve() if args.schedule else None))

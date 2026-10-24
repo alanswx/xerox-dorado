@@ -6,6 +6,19 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`single-bb-transfer-summary.json` and `single-bb-selection-summary.json`
+retain the selected single-transfer e07/g08 consumer and independent BB/Ether
+endpoints. Full195-bit source equivalence/phase induction and126-bit consumer
+equivalence pass under separately proved source geometry, with arbitrary six-Q
+state/debug inputs. Both full package references and all original state/edge
+checks/five corruptions pass. Complete2568-output/eight-rotation15ns fit PASSES:
+setup+1.197/+0.840/+5.135/+5.367ns, hold+0.444/+0.464/+0.182/+0.169ns;
+3,757ALMs/2219regs/0DSP. All59 collected members/11 compiled inputs verify,
+all handles absent, no unconstrained paths. Canonical sources/bench/default
+fixture match qualified inputs byte-for-byte. No native consumer,6502/RIOT/CP,
+original60ns, analog capture, firmware, hardware or speed qualification follows.
+The FPGA remains reserved for the user; the full delivery goal stays active.
+
 `baseboard-consumer-followup-summary.json` retains the first actual e07/c08/
 g08/j02 clock consumer: six physical Qs, no new owner/guest cycle. Both engines
 pass176,384 intervals/873,792 steps/all64 initial states/eight CPU phases,
@@ -1231,8 +1244,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps71,233 members to8,796 deduplicated compressed blobs;
-lossless readback verifies2,937,503,119 unique raw bytes and106,812,169 compressed
+`manifest.json.gz` now maps71,494 members to8,919 deduplicated compressed blobs;
+lossless readback verifies2,941,784,363 unique raw bytes and107,152,952 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

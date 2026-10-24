@@ -14,6 +14,39 @@ Continue build/simulation work; notify them when a reviewed build is ready
 for hardware testing, and wait until they release MiSTer14 before any load,
 reboot or control. Earlier reload authorization is superseded while it is in use.
 
+Single-transfer consumer QUALIFIED/SELECTED (2026-10-24): canonical
+`dorado_baseboard_clock_step.sv` computes the physical e07/g08 transfer once,
+then selects it at each record. BB/Ether final source levels bypass event
+insertion. All195 source bits retain the independent300us/eight-rotation
+absolute reference and seven merger/phase proof cases. All126 consumer bits
+prove equal to the frozen package-tested generic implementation for arbitrary
+six-Q state/debug inputs under the separately PROVED one-BB-transition/endpoint
+contract. Wrong-endpoint and missing-contract controls find counterexamples.
+Both original-package simulators pass176,384 intervals/873,792 steps/12,648 holds/
+520 restores, with every original state/edge check and five corruptions retained.
+Only the endpoint input was added to the bench; its inverse comparison passes.
+
+Complete2568-output/eight-rotation15ns component fit PASSES all4 corners:
+setup+1.197/+0.840/+5.135/+5.367ns, hold+0.444/+0.464/+0.182/+0.169ns;
+3,757ALMs/2219regs/0DSP. Old serial consumer missed setup by2.542ns. All59 raw
+members/11 compiled input hashes verify, permitting only appended Quartus
+version metadata; builder63429/map63430/fit63857/STA65144/corners65232 all exited.
+Collection SHA44da0611a6cf65f286039e979fa0ae73a1f6191847b1cc49c77f1fbe8e7a34ee.
+Worst slow-40 path is now an intermediate consumer event bit (result1376),
+11 levels/13.440ns data/-0.550ns skew. Zero unconstrained paths. Canonical RTL,
+bench, regenerated five corruptions and default staged RTL/top/constraints are
+byte-identical to the qualified inputs. Receipts `single-bb-transfer-summary.json`
+and `single-bb-selection-summary.json` preserve the gates and selection. The
+historical V4 reviewer now binds its immutable compiled fixture.
+
+Still UNCONNECTED to native boards: this does not qualify6502/RIOT/CP, analog
+capture, original60ns cadence, firmware or speed. No new guest cycle/saved state,
+FPGA access or hardware image. No Quartus clock-component job remains running.
+Next integrate the remaining consumers in original capture/event order with
+fresh subevent cache-context proof, then require full native timing/firmware.
+Last measured4.025473M StartCycle issues/s is unchanged (not retirement speed).
+The full A–F goal remains active; FPGA snapshots stay deferred.
+
 Latest first-consumer milestone (2026-10-24): new UNCONNECTED
 `dorado_baseboard_clock_step.sv` consumes the qualified source packets and
 boundary debug inputs through the original e07/c08/g08/j02 clock cone. Its
@@ -188,11 +221,10 @@ no138 or unsupported indices. Receipt `native-selector-terminal-summary.json`
 retains full reports/source/readback. Never restart the completed builder or
 reporters. Original ECC loop/pulse and broader capture timing remain open.
 
-Next/TODO: apply the PROVED one-BB-transition/independent-endpoint contract
-to the consumer, precomputing the single physical counter/FF transfer while
-retaining every intermediate state, root edge and all2568 output fields.
-Prove equality to the package-tested generic consumer under the actual source
-contract; repeat full15ns component timing. Then integrate6502/RIOT/CP and other
+Next/TODO: the single-BB-transfer consumer and source now PASS full15ns
+component timing and are selected in canonical RTL. Keep every intermediate
+state/root edge and all2568 outputs in scope as consumers are added. Integrate
+6502/RIOT/CP and other
 board consumers in original event/capture order, with fresh cache-context proof
 for subevents. Existing17.5ns timing passes do not imply60ns nominal instruction
 cadence or new speed. Separate66.7MHz SDRAM/CDC/physical timing and the complete
