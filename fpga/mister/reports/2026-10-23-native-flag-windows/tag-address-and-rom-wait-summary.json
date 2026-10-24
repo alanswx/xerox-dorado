@@ -1,0 +1,1985 @@
+{
+  "status": "REVIEWED_TAG_ADDRESS_BUFFERS_AND_ROM_WAIT",
+  "scope": "Review unchanged duplication failure, actual ROM wait and new address wiring.",
+  "duplication_fit_corners": [
+    {
+      "condition": "7_slow_1100mv_100c",
+      "setup": {
+        "slack_ns": -0.995,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a14|qb~SynDup",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 26.563,
+        "required_ns": 25.568,
+        "report_sha256": "0d25825b1178e08b10dd628e5aa30b85ceb1a078bd1bcd88450217e1d239c757"
+      },
+      "hold": {
+        "slack_ns": 0.115,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[32]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|lutrama60~OBSERVABLEPORTAADDRESSREGOUT3",
+        "arrival_ns": 7.788,
+        "required_ns": 7.673,
+        "report_sha256": "c519afb302b3258649168dce82c81dadb80a31eb70e69fc8d3b372b11c818e3d"
+      },
+      "input": {
+        "slack_ns": -0.995,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a14|qb~SynDup",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 26.563,
+        "required_ns": 25.568,
+        "report_sha256": "3d97438fb313c90137a86e3102a2e9e6d8cf0f4e4e3e15b255744229bbc35faf"
+      },
+      "internal": {
+        "slack_ns": 0.173,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[66]~DUPLICATE",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 25.395,
+        "required_ns": 25.568,
+        "report_sha256": "f5f5cfd1f65b84518774b99c8a3ab111584713eb45e503d78465f2b9b8fc1786"
+      }
+    },
+    {
+      "condition": "7_slow_1100mv_-40c",
+      "setup": {
+        "slack_ns": -0.979,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_b15|qa~SynDup",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 26.57,
+        "required_ns": 25.591,
+        "report_sha256": "bf2c783572b6125ab1a79ed439f066bd4361f779b52d2fafe603d0b60bdc53c4"
+      },
+      "hold": {
+        "slack_ns": 0.087,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[32]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|lutrama60~OBSERVABLEPORTAADDRESSREGOUT3",
+        "arrival_ns": 7.963,
+        "required_ns": 7.876,
+        "report_sha256": "dcdd88fd62090bdaeb4aa8f333a97d630a625610ce4e5e43af0810611a368a29"
+      },
+      "input": {
+        "slack_ns": -0.979,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_b15|qa~SynDup",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 26.57,
+        "required_ns": 25.591,
+        "report_sha256": "0d331d4cf8f3fbe1513dde3992dbd3e848a56e1fa05998460d5303e48ce4d4e4"
+      },
+      "internal": {
+        "slack_ns": 0.355,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[66]~DUPLICATE",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 25.236,
+        "required_ns": 25.591,
+        "report_sha256": "0c8261fe06fd9e265db7addb43c77fc05e9f2944ea581bc2df335b854adb9486"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_100c",
+      "setup": {
+        "slack_ns": 3.684,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[250]",
+        "sink": "emu:emu|network_step",
+        "arrival_ns": 8.772,
+        "required_ns": 12.456,
+        "report_sha256": "8944c1323329be0712e617655c5973a7975f77b3849e90c46625af6c908fd8a2"
+      },
+      "hold": {
+        "slack_ns": 0.096,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[32]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|lutrama60~OBSERVABLEPORTAADDRESSREGOUT3",
+        "arrival_ns": 3.879,
+        "required_ns": 3.783,
+        "report_sha256": "1d3fdd4be8dcb7ec78f375fe5efd272342dde751629e8b82b6de13f52bb40ebe"
+      },
+      "input": {
+        "slack_ns": 4.644,
+        "source": "emu:emu|network_step",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[110]",
+        "arrival_ns": 16.922,
+        "required_ns": 21.566,
+        "report_sha256": "23b74d1dffa68c1628c265d6100f092fe8442f52cadbad47d8db130366b9e3ea"
+      },
+      "internal": {
+        "slack_ns": 7.788,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[185]~DUPLICATE",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_lower_q[325]",
+        "arrival_ns": 13.581,
+        "required_ns": 21.369,
+        "report_sha256": "0c69f7132299f792f5415f29fb5227d90613a460b40515f74c12d18d91779bf9"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_-40c",
+      "setup": {
+        "slack_ns": 4.505,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[250]",
+        "sink": "emu:emu|network_step",
+        "arrival_ns": 7.738,
+        "required_ns": 12.243,
+        "report_sha256": "e01e12d3e72292e793b435e2060d67e172e9aa228a448e0db8d71d1b179aa2a8"
+      },
+      "hold": {
+        "slack_ns": 0.053,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[32]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_l_rtl_0|dpram_dqp1:auto_generated|lutrama60~OBSERVABLEPORTAADDRESSREGOUT3",
+        "arrival_ns": 3.652,
+        "required_ns": 3.599,
+        "report_sha256": "99db56c20871bddfb53e6583a0d53477a000e0f220c546aa71631afca478322c"
+      },
+      "input": {
+        "slack_ns": 5.412,
+        "source": "emu:emu|network_step",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[110]",
+        "arrival_ns": 15.921,
+        "required_ns": 21.333,
+        "report_sha256": "ddbcc82443955ae34f352d0a3353290db11d55a6ee61e14f47c907897d2faf81"
+      },
+      "internal": {
+        "slack_ns": 9.383,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[185]~DUPLICATE",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 11.734,
+        "required_ns": 21.117,
+        "report_sha256": "c0fe4c0d89da7e9c0735bdaef9792165b7b5aefa27d6fe60c3ac86ad4f826c3f"
+      }
+    }
+  ],
+  "duplication_fit_accepted": false,
+  "physical_duplication_setting_effective_but_reported_paths_unchanged": true,
+  "tag_address_buffers": {
+    "kept_inversions": 84,
+    "affected_RAMs": 21,
+    "compared_address_bits": 168,
+    "bindings": [
+      {
+        "package": "a08",
+        "pin": 7,
+        "original": "Aad_0a",
+        "source": "Aad_0_p_a",
+        "local": "tag_address_a08_7"
+      },
+      {
+        "package": "a08",
+        "pin": 8,
+        "original": "Aad_1a",
+        "source": "Aad_1_p_a",
+        "local": "tag_address_a08_8"
+      },
+      {
+        "package": "a08",
+        "pin": 9,
+        "original": "Aad_2a",
+        "source": "Aad_2_p_a",
+        "local": "tag_address_a08_9"
+      },
+      {
+        "package": "a08",
+        "pin": 10,
+        "original": "Aad_3a",
+        "source": "Aad_3_p_a",
+        "local": "tag_address_a08_10"
+      },
+      {
+        "package": "a10",
+        "pin": 7,
+        "original": "Aad_0a",
+        "source": "Aad_0_p_a",
+        "local": "tag_address_a10_7"
+      },
+      {
+        "package": "a10",
+        "pin": 8,
+        "original": "Aad_1a",
+        "source": "Aad_1_p_a",
+        "local": "tag_address_a10_8"
+      },
+      {
+        "package": "a10",
+        "pin": 9,
+        "original": "Aad_2a",
+        "source": "Aad_2_p_a",
+        "local": "tag_address_a10_9"
+      },
+      {
+        "package": "a10",
+        "pin": 10,
+        "original": "Aad_3a",
+        "source": "Aad_3_p_a",
+        "local": "tag_address_a10_10"
+      },
+      {
+        "package": "a12",
+        "pin": 7,
+        "original": "Aad_0a",
+        "source": "Aad_0_p_a",
+        "local": "tag_address_a12_7"
+      },
+      {
+        "package": "a12",
+        "pin": 8,
+        "original": "Aad_1a",
+        "source": "Aad_1_p_a",
+        "local": "tag_address_a12_8"
+      },
+      {
+        "package": "a12",
+        "pin": 9,
+        "original": "Aad_2a",
+        "source": "Aad_2_p_a",
+        "local": "tag_address_a12_9"
+      },
+      {
+        "package": "a12",
+        "pin": 10,
+        "original": "Aad_3a",
+        "source": "Aad_3_p_a",
+        "local": "tag_address_a12_10"
+      },
+      {
+        "package": "a18",
+        "pin": 7,
+        "original": "Aad_0a",
+        "source": "Aad_0_p_a",
+        "local": "tag_address_a18_7"
+      },
+      {
+        "package": "a18",
+        "pin": 8,
+        "original": "Aad_1a",
+        "source": "Aad_1_p_a",
+        "local": "tag_address_a18_8"
+      },
+      {
+        "package": "a18",
+        "pin": 9,
+        "original": "Aad_2a",
+        "source": "Aad_2_p_a",
+        "local": "tag_address_a18_9"
+      },
+      {
+        "package": "a18",
+        "pin": 10,
+        "original": "Aad_3a",
+        "source": "Aad_3_p_a",
+        "local": "tag_address_a18_10"
+      },
+      {
+        "package": "a20",
+        "pin": 7,
+        "original": "Aad_0a",
+        "source": "Aad_0_p_a",
+        "local": "tag_address_a20_7"
+      },
+      {
+        "package": "a20",
+        "pin": 8,
+        "original": "Aad_1a",
+        "source": "Aad_1_p_a",
+        "local": "tag_address_a20_8"
+      },
+      {
+        "package": "a20",
+        "pin": 9,
+        "original": "Aad_2a",
+        "source": "Aad_2_p_a",
+        "local": "tag_address_a20_9"
+      },
+      {
+        "package": "a20",
+        "pin": 10,
+        "original": "Aad_3a",
+        "source": "Aad_3_p_a",
+        "local": "tag_address_a20_10"
+      },
+      {
+        "package": "b08",
+        "pin": 11,
+        "original": "Aad_4_p_a",
+        "source": "Aad_4a",
+        "local": "tag_address_b08_11"
+      },
+      {
+        "package": "b08",
+        "pin": 12,
+        "original": "Aad_5_p_a",
+        "source": "Aad_5a",
+        "local": "tag_address_b08_12"
+      },
+      {
+        "package": "b08",
+        "pin": 13,
+        "original": "Aad_6_p_a",
+        "source": "Aad_6a",
+        "local": "tag_address_b08_13"
+      },
+      {
+        "package": "b08",
+        "pin": 14,
+        "original": "Aad_7_p_a",
+        "source": "Aad_7a",
+        "local": "tag_address_b08_14"
+      },
+      {
+        "package": "b10",
+        "pin": 11,
+        "original": "Aad_4_p_a",
+        "source": "Aad_4a",
+        "local": "tag_address_b10_11"
+      },
+      {
+        "package": "b10",
+        "pin": 12,
+        "original": "Aad_5_p_a",
+        "source": "Aad_5a",
+        "local": "tag_address_b10_12"
+      },
+      {
+        "package": "b10",
+        "pin": 13,
+        "original": "Aad_6_p_a",
+        "source": "Aad_6a",
+        "local": "tag_address_b10_13"
+      },
+      {
+        "package": "b10",
+        "pin": 14,
+        "original": "Aad_7_p_a",
+        "source": "Aad_7a",
+        "local": "tag_address_b10_14"
+      },
+      {
+        "package": "b12",
+        "pin": 11,
+        "original": "Aad_4_p_a",
+        "source": "Aad_4a",
+        "local": "tag_address_b12_11"
+      },
+      {
+        "package": "b12",
+        "pin": 12,
+        "original": "Aad_5_p_a",
+        "source": "Aad_5a",
+        "local": "tag_address_b12_12"
+      },
+      {
+        "package": "b12",
+        "pin": 13,
+        "original": "Aad_6_p_a",
+        "source": "Aad_6a",
+        "local": "tag_address_b12_13"
+      },
+      {
+        "package": "b12",
+        "pin": 14,
+        "original": "Aad_7_p_a",
+        "source": "Aad_7a",
+        "local": "tag_address_b12_14"
+      },
+      {
+        "package": "b18",
+        "pin": 11,
+        "original": "Aad_4_p_a",
+        "source": "Aad_4a",
+        "local": "tag_address_b18_11"
+      },
+      {
+        "package": "b18",
+        "pin": 12,
+        "original": "Aad_5_p_a",
+        "source": "Aad_5a",
+        "local": "tag_address_b18_12"
+      },
+      {
+        "package": "b18",
+        "pin": 13,
+        "original": "Aad_6_p_a",
+        "source": "Aad_6a",
+        "local": "tag_address_b18_13"
+      },
+      {
+        "package": "b18",
+        "pin": 14,
+        "original": "Aad_7_p_a",
+        "source": "Aad_7a",
+        "local": "tag_address_b18_14"
+      },
+      {
+        "package": "b20",
+        "pin": 11,
+        "original": "Aad_4_p_a",
+        "source": "Aad_4a",
+        "local": "tag_address_b20_11"
+      },
+      {
+        "package": "b20",
+        "pin": 12,
+        "original": "Aad_5_p_a",
+        "source": "Aad_5a",
+        "local": "tag_address_b20_12"
+      },
+      {
+        "package": "b20",
+        "pin": 13,
+        "original": "Aad_6_p_a",
+        "source": "Aad_6a",
+        "local": "tag_address_b20_13"
+      },
+      {
+        "package": "b20",
+        "pin": 14,
+        "original": "Aad_7_p_a",
+        "source": "Aad_7a",
+        "local": "tag_address_b20_14"
+      },
+      {
+        "package": "c08",
+        "pin": 7,
+        "original": "Aad_0b",
+        "source": "Aad_0_p_b",
+        "local": "tag_address_c08_7"
+      },
+      {
+        "package": "c08",
+        "pin": 8,
+        "original": "Aad_1b",
+        "source": "Aad_1_p_b",
+        "local": "tag_address_c08_8"
+      },
+      {
+        "package": "c08",
+        "pin": 9,
+        "original": "Aad_2b",
+        "source": "Aad_2_p_b",
+        "local": "tag_address_c08_9"
+      },
+      {
+        "package": "c08",
+        "pin": 10,
+        "original": "Aad_3b",
+        "source": "Aad_3_p_b",
+        "local": "tag_address_c08_10"
+      },
+      {
+        "package": "c10",
+        "pin": 7,
+        "original": "Aad_0b",
+        "source": "Aad_0_p_b",
+        "local": "tag_address_c10_7"
+      },
+      {
+        "package": "c10",
+        "pin": 8,
+        "original": "Aad_1b",
+        "source": "Aad_1_p_b",
+        "local": "tag_address_c10_8"
+      },
+      {
+        "package": "c10",
+        "pin": 9,
+        "original": "Aad_2b",
+        "source": "Aad_2_p_b",
+        "local": "tag_address_c10_9"
+      },
+      {
+        "package": "c10",
+        "pin": 10,
+        "original": "Aad_3b",
+        "source": "Aad_3_p_b",
+        "local": "tag_address_c10_10"
+      },
+      {
+        "package": "c12",
+        "pin": 7,
+        "original": "Aad_0b",
+        "source": "Aad_0_p_b",
+        "local": "tag_address_c12_7"
+      },
+      {
+        "package": "c12",
+        "pin": 8,
+        "original": "Aad_1b",
+        "source": "Aad_1_p_b",
+        "local": "tag_address_c12_8"
+      },
+      {
+        "package": "c12",
+        "pin": 9,
+        "original": "Aad_2b",
+        "source": "Aad_2_p_b",
+        "local": "tag_address_c12_9"
+      },
+      {
+        "package": "c12",
+        "pin": 10,
+        "original": "Aad_3b",
+        "source": "Aad_3_p_b",
+        "local": "tag_address_c12_10"
+      },
+      {
+        "package": "c18",
+        "pin": 7,
+        "original": "Aad_0b",
+        "source": "Aad_0_p_b",
+        "local": "tag_address_c18_7"
+      },
+      {
+        "package": "c18",
+        "pin": 8,
+        "original": "Aad_1b",
+        "source": "Aad_1_p_b",
+        "local": "tag_address_c18_8"
+      },
+      {
+        "package": "c18",
+        "pin": 9,
+        "original": "Aad_2b",
+        "source": "Aad_2_p_b",
+        "local": "tag_address_c18_9"
+      },
+      {
+        "package": "c18",
+        "pin": 10,
+        "original": "Aad_3b",
+        "source": "Aad_3_p_b",
+        "local": "tag_address_c18_10"
+      },
+      {
+        "package": "c20",
+        "pin": 7,
+        "original": "Aad_0b",
+        "source": "Aad_0_p_b",
+        "local": "tag_address_c20_7"
+      },
+      {
+        "package": "c20",
+        "pin": 8,
+        "original": "Aad_1b",
+        "source": "Aad_1_p_b",
+        "local": "tag_address_c20_8"
+      },
+      {
+        "package": "c20",
+        "pin": 9,
+        "original": "Aad_2b",
+        "source": "Aad_2_p_b",
+        "local": "tag_address_c20_9"
+      },
+      {
+        "package": "c20",
+        "pin": 10,
+        "original": "Aad_3b",
+        "source": "Aad_3_p_b",
+        "local": "tag_address_c20_10"
+      },
+      {
+        "package": "c22",
+        "pin": 11,
+        "original": "Aad_4_p_b",
+        "source": "Aad_4b",
+        "local": "tag_address_c22_11"
+      },
+      {
+        "package": "c22",
+        "pin": 12,
+        "original": "Aad_5_p_b",
+        "source": "Aad_5b",
+        "local": "tag_address_c22_12"
+      },
+      {
+        "package": "c22",
+        "pin": 13,
+        "original": "Aad_6_p_b",
+        "source": "Aad_6b",
+        "local": "tag_address_c22_13"
+      },
+      {
+        "package": "c22",
+        "pin": 14,
+        "original": "Aad_7_p_b",
+        "source": "Aad_7b",
+        "local": "tag_address_c22_14"
+      },
+      {
+        "package": "d08",
+        "pin": 11,
+        "original": "Aad_4_p_b",
+        "source": "Aad_4b",
+        "local": "tag_address_d08_11"
+      },
+      {
+        "package": "d08",
+        "pin": 12,
+        "original": "Aad_5_p_b",
+        "source": "Aad_5b",
+        "local": "tag_address_d08_12"
+      },
+      {
+        "package": "d08",
+        "pin": 13,
+        "original": "Aad_6_p_b",
+        "source": "Aad_6b",
+        "local": "tag_address_d08_13"
+      },
+      {
+        "package": "d08",
+        "pin": 14,
+        "original": "Aad_7_p_b",
+        "source": "Aad_7b",
+        "local": "tag_address_d08_14"
+      },
+      {
+        "package": "d10",
+        "pin": 11,
+        "original": "Aad_4_p_b",
+        "source": "Aad_4b",
+        "local": "tag_address_d10_11"
+      },
+      {
+        "package": "d10",
+        "pin": 12,
+        "original": "Aad_5_p_b",
+        "source": "Aad_5b",
+        "local": "tag_address_d10_12"
+      },
+      {
+        "package": "d10",
+        "pin": 13,
+        "original": "Aad_6_p_b",
+        "source": "Aad_6b",
+        "local": "tag_address_d10_13"
+      },
+      {
+        "package": "d10",
+        "pin": 14,
+        "original": "Aad_7_p_b",
+        "source": "Aad_7b",
+        "local": "tag_address_d10_14"
+      },
+      {
+        "package": "d12",
+        "pin": 11,
+        "original": "Aad_4_p_b",
+        "source": "Aad_4b",
+        "local": "tag_address_d12_11"
+      },
+      {
+        "package": "d12",
+        "pin": 12,
+        "original": "Aad_5_p_b",
+        "source": "Aad_5b",
+        "local": "tag_address_d12_12"
+      },
+      {
+        "package": "d12",
+        "pin": 13,
+        "original": "Aad_6_p_b",
+        "source": "Aad_6b",
+        "local": "tag_address_d12_13"
+      },
+      {
+        "package": "d12",
+        "pin": 14,
+        "original": "Aad_7_p_b",
+        "source": "Aad_7b",
+        "local": "tag_address_d12_14"
+      },
+      {
+        "package": "d18",
+        "pin": 11,
+        "original": "Aad_4_p_b",
+        "source": "Aad_4b",
+        "local": "tag_address_d18_11"
+      },
+      {
+        "package": "d18",
+        "pin": 12,
+        "original": "Aad_5_p_b",
+        "source": "Aad_5b",
+        "local": "tag_address_d18_12"
+      },
+      {
+        "package": "d18",
+        "pin": 13,
+        "original": "Aad_6_p_b",
+        "source": "Aad_6b",
+        "local": "tag_address_d18_13"
+      },
+      {
+        "package": "d18",
+        "pin": 14,
+        "original": "Aad_7_p_b",
+        "source": "Aad_7b",
+        "local": "tag_address_d18_14"
+      },
+      {
+        "package": "d20",
+        "pin": 11,
+        "original": "Aad_4_p_b",
+        "source": "Aad_4b",
+        "local": "tag_address_d20_11"
+      },
+      {
+        "package": "d20",
+        "pin": 12,
+        "original": "Aad_5_p_b",
+        "source": "Aad_5b",
+        "local": "tag_address_d20_12"
+      },
+      {
+        "package": "d20",
+        "pin": 13,
+        "original": "Aad_6_p_b",
+        "source": "Aad_6b",
+        "local": "tag_address_d20_13"
+      },
+      {
+        "package": "d20",
+        "pin": 14,
+        "original": "Aad_7_p_b",
+        "source": "Aad_7b",
+        "local": "tag_address_d20_14"
+      }
+    ],
+    "proofs": [
+      {
+        "variant": "positive",
+        "returncode": 0,
+        "proof_log_sha256": "455d30135f24d6d40b813b64c4dd702478a04fbf633ff03678230a4e476727e9",
+        "source_sha256": "5e5553f827d3d52576e75fcce396af056d25965014bcca8e9fde282c9463124d",
+        "command": [
+          "/Users/alans/dev2/Dorado/build/rtl-executive/formal-tools-venv/bin/yowasp-yosys",
+          "-Q",
+          "-T",
+          "-s",
+          "/work/proof.ys"
+        ]
+      },
+      {
+        "variant": "wrong-polarity",
+        "returncode": 0,
+        "proof_log_sha256": "35458ae48f86ae3eab5591e6b634fee2913b28269143e3d9d6ceffc8cd1d9362",
+        "source_sha256": "05a82202cb0f44286f140a3a8d61d3e972c5365a7151e67f3fa38c82f4c17f05",
+        "command": [
+          "/Users/alans/dev2/Dorado/build/rtl-executive/formal-tools-venv/bin/yowasp-yosys",
+          "-Q",
+          "-T",
+          "-s",
+          "/work/proof.ys"
+        ]
+      }
+    ],
+    "capture_edges_or_RAM_ports_changed": false,
+    "extra_state": false,
+    "actual_physical_duplication_qualified": false
+  },
+  "tag_address_extra_state_or_clock_changes": false,
+  "original_ROM_wait": {
+    "status": "PASS_ORIGINAL_ROM_WAIT_BINDING",
+    "scope": "Bind a passive native wait observation to its actual EPROM microinstructions.\n\nThe standalone Initial.mb has different placement and an RTC register allocation\nwhich differs from the ROM payload. Use its symbols only after checking the\nactual ROM fields. This is static decoding/readback interpretation, never guest\nexecution, packet acceptance, timer calibration or a complete firmware gate.\n",
+    "blocks": [
+      "# ROM BootBlock c000: payload fe00, origin fc0, 16 hunks",
+      "# ROM BootBlock c00b: payload c016, origin c40, 224 hunks"
+    ],
+    "standalone_symbols": {
+      "WRITEMAP": {
+        "image": 238,
+        "real": 3296
+      },
+      "WRITEMANLP": {
+        "image": 87,
+        "real": 3174
+      },
+      "WRITEMANIFOLD": {
+        "image": 86,
+        "real": 3184
+      },
+      "WRITEALUFTABLE": {
+        "image": 13,
+        "real": 3936
+      },
+      "WRITEALUF": {
+        "image": 8,
+        "real": 3918
+      },
+      "WAITFORSECTOR": {
+        "image": 741,
+        "real": 3632
+      },
+      "WAITFORMAPBUF": {
+        "image": 242,
+        "real": 3312
+      },
+      "UPDATESECTOR": {
+        "image": 750,
+        "real": 3584
+      },
+      "TOFFRET": {
+        "image": 921,
+        "real": 3984
+      },
+      "THTPERSCANLINE": {
+        "image": 376,
+        "real": 3556
+      },
+      "THTLAST": {
+        "image": 381,
+        "real": 3574
+      },
+      "THTINITPC": {
+        "image": 358,
+        "real": 3536
+      },
+      "THTINITAHT": {
+        "image": 362,
+        "real": 3543
+      },
+      "THTINIT1": {
+        "image": 364,
+        "real": 3539
+      },
+      "TERMINALTABLE": {
+        "image": 434,
+        "real": 3280
+      },
+      "TASKINITLOOP": {
+        "image": 70,
+        "real": 3141
+      },
+      "TASKINIT": {
+        "image": 75,
+        "real": 3169
+      },
+      "STORETERMINALLO": {
+        "image": 459,
+        "real": 3299
+      },
+      "STKINITL": {
+        "image": 46,
+        "real": 3146
+      },
+      "SETUPETHERBOOTREQUEST": {
+        "image": 255,
+        "real": 3115
+      },
+      "SETTESTSYN": {
+        "image": 226,
+        "real": 3152
+      },
+      "SETMCR": {
+        "image": 153,
+        "real": 3072
+      },
+      "SETDRIVEANDSUBSECTOR": {
+        "image": 709,
+        "real": 3888
+      },
+      "SETBRFORPAGE": {
+        "image": 234,
+        "real": 3856
+      },
+      "SETBOOTFLAG": {
+        "image": 462,
+        "real": 3305
+      },
+      "SENDTAGWAIT": {
+        "image": 736,
+        "real": 3523
+      },
+      "SENDTAG": {
+        "image": 732,
+        "real": 3520
+      },
+      "SENDDRIVETAG": {
+        "image": 720,
+        "real": 3808
+      },
+      "SEEKWAIT": {
+        "image": 727,
+        "real": 3815
+      },
+      "SEEKDONE": {
+        "image": 731,
+        "real": 3826
+      },
+      "SEEKANDWAITFORREADY": {
+        "image": 725,
+        "real": 3824
+      },
+      "SECTORWAITLOOP": {
+        "image": 743,
+        "real": 3643
+      },
+      "SECTORFOUND": {
+        "image": 749,
+        "real": 3639
+      },
+      "RMINITL": {
+        "image": 29,
+        "real": 3138
+      },
+      "RETN": {
+        "image": 158,
+        "real": 3083
+      },
+      "RESETTAGS": {
+        "image": 245,
+        "real": 3088
+      },
+      "RESETMAPL": {
+        "image": 193,
+        "real": 3094
+      },
+      "RESETFAULTINFO": {
+        "image": 233,
+        "real": 3086
+      },
+      "RESETETHERBOOTTIMER": {
+        "image": 272,
+        "real": 3124
+      },
+      "RESETETHER": {
+        "image": 283,
+        "real": 3424
+      },
+      "RESETDISK": {
+        "image": 469,
+        "real": 3553
+      },
+      "READTERMINALRET": {
+        "image": 428,
+        "real": 3302
+      },
+      "READTERMINAL": {
+        "image": 423,
+        "real": 3264
+      },
+      "READECC": {
+        "image": 766,
+        "real": 3696
+      },
+      "READBOOTKEYS": {
+        "image": 114,
+        "real": 3206
+      },
+      "READ20MUFFS": {
+        "image": 701,
+        "real": 3792
+      },
+      "READ20MLOOP": {
+        "image": 703,
+        "real": 3782
+      },
+      "READ1MUFF": {
+        "image": 697,
+        "real": 3392
+      },
+      "PRESETVACANTL": {
+        "image": 220,
+        "real": 3326
+      },
+      "PRESETVACANTE": {
+        "image": 223,
+        "real": 3323
+      },
+      "PRESETMAPL": {
+        "image": 213,
+        "real": 3310
+      },
+      "PRESETMAPE": {
+        "image": 216,
+        "real": 3315
+      },
+      "PRESETMAP": {
+        "image": 187,
+        "real": 3104
+      },
+      "OUTPUTGETST": {
+        "image": 468,
+        "real": 3328
+      },
+      "NOSTORAGE": {
+        "image": 225,
+        "real": 3239
+      },
+      "NOSECTORTW": {
+        "image": 761,
+        "real": 3590
+      },
+      "MSGMALFORMED": {
+        "image": 463,
+        "real": 3266
+      },
+      "MSGCOMPLETE": {
+        "image": 429,
+        "real": 3268
+      },
+      "MOUSEXY": {
+        "image": 450,
+        "real": 3298
+      },
+      "MICROCODEBOOTFAILED": {
+        "image": 142,
+        "real": 3332
+      },
+      "MAPMODULE": {
+        "image": 212,
+        "real": 3301
+      },
+      "LWRETN": {
+        "image": 157,
+        "real": 3082
+      },
+      "LRTYPETABLE": {
+        "image": 869,
+        "real": 3980
+      },
+      "LRTYPERM": {
+        "image": 902,
+        "real": 3989
+      },
+      "LRTYPEIM": {
+        "image": 873,
+        "real": 4029
+      },
+      "LRTYPEIFUM": {
+        "image": 896,
+        "real": 4025
+      },
+      "LRTYPEEND": {
+        "image": 921,
+        "real": 3984
+      },
+      "LRPREFNEXT": {
+        "image": 894,
+        "real": 4024
+      },
+      "LRNOPREFNEXT": {
+        "image": 895,
+        "real": 3973
+      },
+      "LRLOOPTON": {
+        "image": 864,
+        "real": 3975
+      },
+      "LRLOOPTOFF": {
+        "image": 865,
+        "real": 3974
+      },
+      "LOWRM": {
+        "image": 903,
+        "real": 3990
+      },
+      "LONGWAIT": {
+        "image": 156,
+        "real": 3136
+      },
+      "LOADRAM": {
+        "image": 862,
+        "real": 3968
+      },
+      "LOADIMLH": {
+        "image": 885,
+        "real": 3976
+      },
+      "LOADHRAMRUN": {
+        "image": 417,
+        "real": 3613
+      },
+      "LOADHRAMLOOP": {
+        "image": 406,
+        "real": 3598
+      },
+      "KWAITSECTOR": {
+        "image": 544,
+        "real": 3675
+      },
+      "KSECTORERROR": {
+        "image": 597,
+        "real": 3622
+      },
+      "KSECTORDONE": {
+        "image": 561,
+        "real": 3671
+      },
+      "KSAMEDRIVE": {
+        "image": 504,
+        "real": 3435
+      },
+      "KREADCHECKEND": {
+        "image": 657,
+        "real": 3729
+      },
+      "KREADBADTW": {
+        "image": 662,
+        "real": 3750
+      },
+      "KNOUPDATEDATAPTR": {
+        "image": 584,
+        "real": 3684
+      },
+      "KNOTLASTSECTOR": {
+        "image": 571,
+        "real": 3682
+      },
+      "KNORESTORE": {
+        "image": 537,
+        "real": 3650
+      },
+      "KNOHDWERR": {
+        "image": 670,
+        "real": 3766
+      },
+      "KNOCHECKNEXT": {
+        "image": 650,
+        "real": 3741
+      },
+      "KNOCHECKLOOP": {
+        "image": 648,
+        "real": 3432
+      },
+      "KNEWDRIVE": {
+        "image": 499,
+        "real": 3434
+      },
+      "KIDLELOOP": {
+        "image": 484,
+        "real": 3492
+      },
+      "KIDLECONT": {
+        "image": 488,
+        "real": 3496
+      },
+      "KFORGETCMMD": {
+        "image": 479,
+        "real": 3508
+      },
+      "KDRIVE0": {
+        "image": 511,
+        "real": 3447
+      },
+      "KDONENONZERO": {
+        "image": 570,
+        "real": 3668
+      },
+      "KDIVSUB": {
+        "image": 515,
+        "real": 3390
+      },
+      "KDIVDONE": {
+        "image": 522,
+        "real": 3391
+      },
+      "KDIVADD": {
+        "image": 516,
+        "real": 3386
+      },
+      "KDISABLE": {
+        "image": 482,
+        "real": 3551
+      },
+      "KCONTINUECMMD": {
+        "image": 507,
+        "real": 3450
+      },
+      "KCMMDWRITE": {
+        "image": 619,
+        "real": 3752
+      },
+      "KCMMDTABLE": {
+        "image": 614,
+        "real": 3724
+      },
+      "KCMMDSHIFT": {
+        "image": 660,
+        "real": 3755
+      },
+      "KCMMDREAD": {
+        "image": 629,
+        "real": 3713
+      },
+      "KCMMDNONE": {
+        "image": 618,
+        "real": 3745
+      },
+      "KCMMDINTIME": {
+        "image": 553,
+        "real": 3653
+      },
+      "KCMMDENDBLOCK": {
+        "image": 666,
+        "real": 3753
+      },
+      "KCMMDDONE": {
+        "image": 589,
+        "real": 3703
+      },
+      "KCMMDCHECK": {
+        "image": 636,
+        "real": 3715
+      },
+      "KCMMDCHAIN": {
+        "image": 591,
+        "real": 3455
+      },
+      "KCHECKSEEK": {
+        "image": 528,
+        "real": 3441
+      },
+      "KCHECKNEXT": {
+        "image": 642,
+        "real": 3739
+      },
+      "KCHECKLOOP": {
+        "image": 639,
+        "real": 3742
+      },
+      "KCHECKLAST": {
+        "image": 645,
+        "real": 3730
+      },
+      "KCHECKERROR": {
+        "image": 643,
+        "real": 3738
+      },
+      "KCHECKEND": {
+        "image": 647,
+        "real": 3743
+      },
+      "KCHECKDONE": {
+        "image": 652,
+        "real": 3718
+      },
+      "KCHECKBADTW": {
+        "image": 663,
+        "real": 3736
+      },
+      "KBADSECTOR": {
+        "image": 604,
+        "real": 3634
+      },
+      "JUNKTASKLOOP": {
+        "image": 859,
+        "real": 3251
+      },
+      "JNKINITPC": {
+        "image": 857,
+        "real": 3216
+      },
+      "INITRAMPILOT": {
+        "image": 674,
+        "real": 3776
+      },
+      "INITIALDEBUG": {
+        "image": 0,
+        "real": 3907
+      },
+      "INITIAL1": {
+        "image": 2,
+        "real": 3905
+      },
+      "INITIAL": {
+        "image": 1,
+        "real": 3904
+      },
+      "INITHRAM": {
+        "image": 394,
+        "real": 3616
+      },
+      "IMRHTABLE": {
+        "image": 877,
+        "real": 3992
+      },
+      "IMLHTABLE": {
+        "image": 887,
+        "real": 4017
+      },
+      "ILC": {
+        "image": 926,
+        "real": 0
+      },
+      "IFUMINITL": {
+        "image": 49,
+        "real": 3173
+      },
+      "HRAMTABLE": {
+        "image": 396,
+        "real": 3602
+      },
+      "HIGHRM": {
+        "image": 912,
+        "real": 3991
+      },
+      "GOTBOOTKEY": {
+        "image": 134,
+        "real": 3354
+      },
+      "GETTASKINITPC": {
+        "image": 74,
+        "real": 3168
+      },
+      "FINDMODULE": {
+        "image": 209,
+        "real": 3311
+      },
+      "EWAIT": {
+        "image": 336,
+        "real": 3428
+      },
+      "ETHERMICROCODEBOOT": {
+        "image": 252,
+        "real": 3360
+      },
+      "ETHERBOOTRETURN": {
+        "image": 281,
+        "real": 3129
+      },
+      "ETHERBOOTING": {
+        "image": 125,
+        "real": 3334
+      },
+      "ETHERBOOTDONE": {
+        "image": 280,
+        "real": 3111
+      },
+      "EOTINITPC": {
+        "image": 330,
+        "real": 3408
+      },
+      "EOSTOP": {
+        "image": 347,
+        "real": 3413
+      },
+      "EOIDLE": {
+        "image": 332,
+        "real": 3410
+      },
+      "EOGO": {
+        "image": 338,
+        "real": 3429
+      },
+      "EOABRT": {
+        "image": 348,
+        "real": 3402
+      },
+      "EOABR1": {
+        "image": 350,
+        "real": 3412
+      },
+      "ENDOFSTORAGE": {
+        "image": 217,
+        "real": 3309
+      },
+      "ELODOV": {
+        "image": 353,
+        "real": 3415
+      },
+      "EITINITPC": {
+        "image": 294,
+        "real": 3472
+      },
+      "EINITCOMMON": {
+        "image": 354,
+        "real": 3872
+      },
+      "EILAST": {
+        "image": 296,
+        "real": 3474
+      },
+      "EIIDLE": {
+        "image": 297,
+        "real": 3491
+      },
+      "EIEND": {
+        "image": 305,
+        "real": 3462
+      },
+      "EIDONE": {
+        "image": 326,
+        "real": 3479
+      },
+      "DSKINITPC": {
+        "image": 473,
+        "real": 3552
+      },
+      "DORETURN": {
+        "image": 152,
+        "real": 3073
+      },
+      "DOMUFFOUTPUT": {
+        "image": 707,
+        "real": 3456
+      },
+      "DOHRAMDISP": {
+        "image": 407,
+        "real": 3611
+      },
+      "DOETHERMICROCODEBOOT": {
+        "image": 135,
+        "real": 3363
+      },
+      "DODISKBLOCK": {
+        "image": 606,
+        "real": 3664
+      },
+      "DISPLAYINITCONFIG": {
+        "image": 382,
+        "real": 3232
+      },
+      "DISKMBOOTRET": {
+        "image": 813,
+        "real": 3248
+      },
+      "DISKHARDMICROCODEBOOT": {
+        "image": 790,
+        "real": 3680
+      },
+      "CONFIGTABLE": {
+        "image": 409,
+        "real": 3624
+      },
+      "CLRCACHEFROWL": {
+        "image": 161,
+        "real": 3210
+      },
+      "CLRCACHEFCOLL": {
+        "image": 162,
+        "real": 3202
+      },
+      "CLEARDISK": {
+        "image": 779,
+        "real": 3568
+      },
+      "CLEARCACHEFLAGS": {
+        "image": 159,
+        "real": 3200
+      },
+      "CHECKKEY": {
+        "image": 143,
+        "real": 3344
+      },
+      "CHECKECCLOOP": {
+        "image": 774,
+        "real": 3759
+      },
+      "CHECKECCEND": {
+        "image": 778,
+        "real": 3733
+      },
+      "CHECKECC": {
+        "image": 773,
+        "real": 3712
+      },
+      "CHECKCHECKSUMANDLOAD": {
+        "image": 145,
+        "real": 3376
+      },
+      "BUTTONSKEYSET": {
+        "image": 459,
+        "real": 3299
+      },
+      "BOOTTRANSFERTIMEOUT": {
+        "image": 852,
+        "real": 3870
+      },
+      "BOOTTRANSFERLP": {
+        "image": 823,
+        "real": 3886
+      },
+      "BOOTTRANSFERDONE": {
+        "image": 856,
+        "real": 3875
+      },
+      "BOOTTRANSFER": {
+        "image": 815,
+        "real": 3840
+      },
+      "BOOTSTRAPCHECKSUMERROR": {
+        "image": 5,
+        "real": 3910
+      },
+      "BOOTOTHERERROR": {
+        "image": 848,
+        "real": 3860
+      },
+      "BOOTMEM": {
+        "image": 56,
+        "real": 3172
+      },
+      "BOOTLABELERROR": {
+        "image": 854,
+        "real": 3883
+      },
+      "BOOTFILTER": {
+        "image": 328,
+        "real": 3488
+      },
+      "BOOTEOF": {
+        "image": 855,
+        "real": 3879
+      },
+      "BOOTEMULATOR": {
+        "image": 91,
+        "real": 3218
+      },
+      "BOOTDISKERROR": {
+        "image": 853,
+        "real": 3877
+      },
+      "BLESSBASEBOARD": {
+        "image": 80,
+        "real": 3161
+      },
+      "AWAITETHERBOOTREPLY": {
+        "image": 275,
+        "real": 3119
+      },
+      "AMIDSTBOOT": {
+        "image": 460,
+        "real": 3271
+      },
+      "AFTERHRAMTABLE": {
+        "image": 403,
+        "real": 3600
+      }
+    },
+    "standalone_RM_symbols": {
+      "WAKEUPTIME": 179,
+      "VSYNCCONST": 126,
+      "VISIBLELINECONST": 125,
+      "VIRTUALBANKS": 72,
+      "VCWSHADOWREG": 144,
+      "TVCWSHADOWREG": 112,
+      "TTEMP2": 117,
+      "TTEMP1": 116,
+      "TTEMP0": 115,
+      "TSLCREG": 107,
+      "TSETNEXTWCB": 103,
+      "TSCRATCH": 105,
+      "TREG400C": 114,
+      "TREADERPTRREG": 101,
+      "TOPBORDERCONST": 124,
+      "TNWRDSMINUS1": 102,
+      "TNEXTCOUNT": 98,
+      "TNEXTADDRLO": 99,
+      "TNEXTADDRHI": 100,
+      "TFIELDAREAREG": 113,
+      "TERMINALLO": 121,
+      "TERMINALHI": 120,
+      "TEMP17": 31,
+      "TDCBCHAINREG": 106,
+      "TCURSORYREG": 119,
+      "TCOUNT": 97,
+      "TCHANNELREG": 104,
+      "TBRHIREG": 108,
+      "TADDRESS": 96,
+      "SEQNO": 23,
+      "SECTOR": 85,
+      "RTIMER": 21,
+      "RTCLOCK": 176,
+      "RTCDELTALO": 177,
+      "RTC430": 178,
+      "RNUM": 69,
+      "RLC": 23,
+      "RHOST": 19,
+      "RETRIES": 22,
+      "REG400C": 146,
+      "REALPAGES": 73,
+      "RCONST": 70,
+      "R400": 16,
+      "NWW": 0,
+      "MAXSECTORS": 86,
+      "LRTEMP2": 30,
+      "LRTEMP1": 28,
+      "LRTEMP0": 27,
+      "LRITEM": 29,
+      "LRFLAG": 26,
+      "LMARGCONST": 109,
+      "LHOST": 18,
+      "KTEMP3": 95,
+      "KTEMP2": 94,
+      "KTEMP1": 93,
+      "KTEMP0": 92,
+      "KSTATUS": 90,
+      "KSELECT": 91,
+      "KPTR": 87,
+      "KIOCB": 80,
+      "KHDSEC": 84,
+      "KDATALO": 81,
+      "KDATAHI": 82,
+      "KCYL": 83,
+      "KCMMD": 88,
+      "JUNKTEMP": 191,
+      "IOCB": 18,
+      "HTEMP3": 150,
+      "HTEMP2": 149,
+      "HTEMP1": 148,
+      "HTEMP0": 147,
+      "FLTTEMP": 60,
+      "FLTPOINTERS": 54,
+      "FLTPIPE1": 53,
+      "FLTPIPE0": 52,
+      "FLTMEMPTR": 59,
+      "FLTERRORS": 55,
+      "FLTEMUPC": 61,
+      "FIELDAREAREG": 145,
+      "FAULTVAL": 56,
+      "FAULTMAPVAL": 57,
+      "FAULTINFO": 58,
+      "EVENTUPDATETIMER": 188,
+      "EVENTTEMP1": 190,
+      "EVENTTEMP0": 189,
+      "EVENTBPREV": 187,
+      "EVENTBLO": 186,
+      "EVENTBHI1": 185,
+      "EVENTBHI0": 184,
+      "EVENTAPREV": 183,
+      "EVENTALO": 182,
+      "EVENTAHI1": 181,
+      "EVENTAHI0": 180,
+      "ETEMP4": 30,
+      "ETEMP3": 29,
+      "ETEMP2": 28,
+      "ETEMP1": 27,
+      "ETEMP0": 26,
+      "ETEMP": 26,
+      "EOTIME": 68,
+      "EOTEMP2": 67,
+      "EOTEMP1": 66,
+      "EOPTR": 28,
+      "EOCNT": 29,
+      "EOCB": 64,
+      "EMBLINK": 24,
+      "ELOAD": 25,
+      "EITEMP2": 51,
+      "EITEMP1": 50,
+      "EIPTR": 26,
+      "EICNT": 27,
+      "EICB": 48,
+      "DSKMADDR": 89,
+      "DMBLINK": 19,
+      "DISPLAYCONFIG": 118,
+      "CURSORXCONST": 127,
+      "BTEMP2": 22,
+      "BTEMP1": 21,
+      "BTEMP0": 20,
+      "BSETNEXTWCB": 167,
+      "BSCRATCH": 169,
+      "BREADERPTRREG": 165,
+      "BOOTTIMER": 122,
+      "BOOTSTATE": 123,
+      "BOOTDATAPTR": 17,
+      "BNWRDSMINUS1": 166,
+      "BNEXTCOUNT": 162,
+      "BNEXTADDRLO": 163,
+      "BNEXTADDRHI": 164,
+      "BFN": 20,
+      "BCOUNT": 161,
+      "BCHANNELREG": 168,
+      "BADDRESS": 160,
+      "AUTPC": 71,
+      "ASETNEXTWCB": 135,
+      "ASCRATCH": 137,
+      "AREADERPTRREG": 133,
+      "ANWRDSMINUS1": 134,
+      "ANEXTCOUNT": 130,
+      "ANEXTADDRLO": 131,
+      "ANEXTADDRHI": 132,
+      "ACOUNT": 129,
+      "ACHANNELREG": 136,
+      "AADDRESS": 128
+    },
+    "instruction_bindings": [
+      {
+        "standalone_real": 3119,
+        "ROM_real": 3183,
+        "differing_fields": [],
+        "standalone": {
+          "rstk": 7,
+          "aluf": 8,
+          "bsel": 3,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 139,
+          "jcn": 92
+        },
+        "ROM": {
+          "rstk": 7,
+          "aluf": 8,
+          "bsel": 3,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 139,
+          "jcn": 92
+        }
+      },
+      {
+        "standalone_real": 3124,
+        "ROM_real": 3188,
+        "differing_fields": [],
+        "standalone": {
+          "rstk": 0,
+          "aluf": 0,
+          "bsel": 1,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 139,
+          "jcn": 173
+        },
+        "ROM": {
+          "rstk": 0,
+          "aluf": 0,
+          "bsel": 1,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 139,
+          "jcn": 173
+        }
+      },
+      {
+        "standalone_real": 3125,
+        "ROM_real": 3189,
+        "differing_fields": [],
+        "standalone": {
+          "rstk": 0,
+          "aluf": 0,
+          "bsel": 1,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 49,
+          "jcn": 174
+        },
+        "ROM": {
+          "rstk": 0,
+          "aluf": 0,
+          "bsel": 1,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 49,
+          "jcn": 174
+        }
+      },
+      {
+        "standalone_real": 3121,
+        "ROM_real": 3185,
+        "differing_fields": [],
+        "standalone": {
+          "rstk": 7,
+          "aluf": 10,
+          "bsel": 1,
+          "lc": 1,
+          "asel": 6,
+          "block": 0,
+          "ff": 59,
+          "jcn": 175
+        },
+        "ROM": {
+          "rstk": 7,
+          "aluf": 10,
+          "bsel": 1,
+          "lc": 1,
+          "asel": 6,
+          "block": 0,
+          "ff": 59,
+          "jcn": 175
+        }
+      },
+      {
+        "standalone_real": 3110,
+        "ROM_real": 3174,
+        "differing_fields": [
+          "rstk"
+        ],
+        "standalone": {
+          "rstk": 2,
+          "aluf": 5,
+          "bsel": 2,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 129,
+          "jcn": 112
+        },
+        "ROM": {
+          "rstk": 3,
+          "aluf": 5,
+          "bsel": 2,
+          "lc": 0,
+          "asel": 4,
+          "block": 0,
+          "ff": 129,
+          "jcn": 112
+        }
+      },
+      {
+        "standalone_real": 3117,
+        "ROM_real": 3181,
+        "differing_fields": [
+          "rstk"
+        ],
+        "standalone": {
+          "rstk": 2,
+          "aluf": 10,
+          "bsel": 1,
+          "lc": 1,
+          "asel": 4,
+          "block": 0,
+          "ff": 129,
+          "jcn": 177
+        },
+        "ROM": {
+          "rstk": 3,
+          "aluf": 10,
+          "bsel": 1,
+          "lc": 1,
+          "asel": 4,
+          "block": 0,
+          "ff": 129,
+          "jcn": 177
+        }
+      }
+    ],
+    "ROM_relocation": 64,
+    "sequence_address": 23,
+    "sequence_number": 0,
+    "actual_RTC430_address": 179,
+    "standalone_RTC430_address": 178,
+    "RTC430_value": 12,
+    "emulator_task_T_threshold": 13,
+    "timeout_subtraction": 65534,
+    "timeout_subtraction_is_negative": true,
+    "timeout_condition": "ROM subtraction RTC430 - task0.T - 1; interpret sampled flags/branch timing separately",
+    "host_tick": 2083350168,
+    "guest_tick": 1185103276,
+    "readback_sha256": "a97984d042cad42abb92c52534efab72cfff9dd2b8cc90ebd1d20375ce899df5",
+    "decoder_command": [
+      "cc",
+      "-O2",
+      "-I/Users/alans/dev2/Dorado/build/rtl-executive/native-initial-rom-wait-v2-20261024/inputs/dorado/include",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-initial-rom-wait-v2-20261024/inputs/initial_rom_symbols.c",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-initial-rom-wait-v2-20261024/inputs/dorado/src/mb.c",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-initial-rom-wait-v2-20261024/inputs/dorado/src/microcode.c",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-initial-rom-wait-v2-20261024/inputs/dorado/src/disasm.c",
+      "-o",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-initial-rom-wait-v2-20261024/symbols"
+    ],
+    "input_hashes": {
+      "dorado/src/mb.c": "86cee4d2070a496294575ddaa5ad6e76e17255dd48b20fca5c8988f01dcfeb92",
+      "dorado/include/mb.h": "c6cf90c0717eaf9371af2f8fed939015df47cf900cf33964e689097c1791e853",
+      "dorado/src/microcode.c": "249722898b43bb6da76dac94d3e48e391829db4213aa55d8956ba3f9ee0c52e2",
+      "dorado/include/microcode.h": "546ac420461bd1dc1368f6a0c44ed37fc3f5aafc563592f24506e8886c78ab1f",
+      "dorado/src/disasm.c": "e3b6ab2fdae3de70eebc31a5872ac28076f82db6a33530a25e915fa1765f8263",
+      "dorado/include/disasm.h": "351782f5a9c91f2e59ac9b64191990651609e9142910849fc06e88c1dfafe128",
+      "initial_rom_symbols.c": "546c2485cb1dac90ced8de2570d8761096392f1d51eb0e69d80d005cc6fc7916",
+      "inspect_initial_rom_wait.py": "0b351c026af1a0adb5210e10c10005dd20f102e3ced3f2adb03b495c9ce05220",
+      "baseboard_rom_im.py": "237179d374c0dd976d02688194b7f553d3051f76ed6d3764ea05678e9c79fe20",
+      "Initial.mb": "b3fd586a653e69447891e66fd95bbc12cab6bb0074f5ae47025b80d15a92ff60",
+      "readback.json": "a97984d042cad42abb92c52534efab72cfff9dd2b8cc90ebd1d20375ce899df5",
+      "readback-detach.log": "0226a29b772099c520e3dba5b91e5d5306c0b543b9d9c9702db889376bfd7ad5",
+      "native-provenance.json.gz": "3c180699e83f266a37377cb7085482e3786907cff949670bd4054607d7b92758",
+      "native/src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "a3067afe1f21cf1a28175316f2d8e365e2b56600208b6e96b3e17a12fe2c3cf8",
+      "native/src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "4cb7855963757ea62aaf799b76a34184b6d8f9ad9aec066c20d2e08f92d849bd",
+      "native/src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+      "native/src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+      "eprom/BaseBd-f60.mem": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "eprom/BaseBd-e60.mem": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "eprom/BaseBd-c61.mem": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "eprom/BaseBd-b61.mem": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa"
+    },
+    "original_ROM_or_guest_state_changed": false,
+    "packet0_root_cause_established": false,
+    "firmware_or_clock_speed_qualified": false
+  },
+  "matching_raw_work_prefix": {
+    "count": 1536,
+    "control_ticks": 18213,
+    "candidate_ticks": 17059,
+    "control_budget": {
+      "consumed_raw_service_ticks": 4938,
+      "unowned_raw_ticks": 13274,
+      "same_edge_handoffs": 1134,
+      "positive_gaps": 401,
+      "limitation": "Unowned raw time also includes guest execution and demand gaps; it is not exclusively arbitration overhead."
+    },
+    "candidate_budget": {
+      "consumed_raw_service_ticks": 4944,
+      "unowned_raw_ticks": 12114,
+      "same_edge_handoffs": 1332,
+      "positive_gaps": 203,
+      "limitation": "Unowned raw time also includes guest execution and demand gaps; it is not exclusively arbitration overhead."
+    },
+    "stopped_at_first_operation_data_or_PC_difference": true,
+    "firmware_instruction_progress_qualified": false,
+    "limitation": "Only identical ordered raw operations, read results and sampled PCs; no equal CPU/task/device state or repeatable hardware gain is established."
+  },
+  "next_fit_live_observation": {
+    "project": "/home/alans/mister/memc-tag-buffers-native-v1-20261024",
+    "observed": 1792841768.1907754,
+    "run_state": {
+      "status": "RUNNING",
+      "builder_pid": 2569759,
+      "started": 1792841651.9734378,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 2569762,
+          "started": 1792841651.9737558
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "stage_pid": 2569762,
+    "stage_command": "quartus_map --read_settings_files=on --write_settings_files=off Dorado ",
+    "stage_cwd": "/home/alans/mister/memc-tag-buffers-native-v1-20261024/core",
+    "stage_process_state": [
+      "Name:\tquartus_map",
+      "Umask:\t0002",
+      "State:\tR (running)",
+      "Tgid:\t2569762"
+    ],
+    "manifest_sha256": "b710aa41346d2f817e34b48a6eda5bb944c3228c15de21eb0f92f5d04b7fabd9",
+    "driver_tail": "R_FRONT_READY_NATIVE map\n",
+    "map_tail": "dpram_v8o1 File: /home/alans/mister/memc-tag-buffers-native-v1-20261024/core/db/dpram_v8o1.tdf Line: 30\nInfo (12130): Elaborated megafunction instantiation \"emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DskEth_full_snapshot_experiment:b_DskEth|cell_MCM10149:u_b14|altsyncram:mem_rtl_0\"\nInfo (12133): Instantiated megafunction \"emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DskEth_full_snapshot_experiment:b_DskEth|cell_MCM10149:u_b14|altsyncram:mem_rtl_0\" with the following parameter:\n    Info (12134): Parameter \"OPERATION_MODE\" = \"ROM\"\n    Info (12134): Parameter \"WIDTH_A\" = \"4\"\n    Info (12134): Parameter \"WIDTHAD_A\" = \"8\"\n    Info (12134): Parameter \"NUMWORDS_A\" = \"256\"\n    Info (12134): Parameter \"OUTDATA_REG_A\" = \"UNREGISTERED\"\n    Info (12134): Parameter \"ADDRESS_ACLR_A\" = \"NONE\"\n    Info (12134): Parameter \"OUTDATA_ACLR_A\" = \"NONE\"\n    Info (12134): Parameter \"INDATA_ACLR_A\" = \"NONE\"\n    Info (12134): Parameter \"WRCONTROL_ACLR_A\" = \"NONE\"\n    Info (12134): Parameter \"INIT_FILE\" = \"db/Dorado.ram0_cell_MCM10149_e20e625e.hdl.mif\"\nInfo (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_35e1.tdf\n    Info (12023): Found entity 1: altsyncram_35e1 File: /home/alans/mister/memc-tag-buffers-native-v1-20261024/core/db/altsyncram_35e1.tdf Line: 28\nInfo (12130): Elaborated megafunction instantiation \"emu:emu|dorado_key_queue:u_key_queue|altsyncram:events_rtl_0\"\nInfo (12133): Instantiated megafunction \"emu:emu|dorado_key_queue:u_key_queue|altsyncram:events_rtl_0\" with the following parameter:\n    Info (12134): Parameter \"OPERATION_MODE\" = \"DUAL_PORT\"\n    Info (12134): Parameter \"WIDTH_A\" = \"10\"\n    Info (12134): Parameter \"WIDTHAD_A\" = \"8\"\n    Info (12134): Parameter \"NUMWORDS_A\" = \"256\"\n    Info (12134): Parameter \"WIDTH_B\" = \"10\"\n    Info (12134): Parameter \"WIDTHAD_B\" = \"8\"\n    Info (12134): Parameter \"NUMWORDS_B\" = \"256\"\n    Info (12134): Parameter \"ADDRESS_ACLR_A\" = \"NONE\"\n    Info (12134): Parameter \"OUTDATA_REG_B\" = \"UNREGISTERED\"\n    Info (12134): Parameter \"ADDRESS_ACLR_B\" = \"NONE\"\n    Info (12134): Parameter \"OUTDATA_ACLR_B\" = \"NONE\"\n    Info (12134): Parameter \"ADDRESS_REG_B\" = \"CLOCK0\"\n    Info (12134): Parameter \"INDATA_ACLR_A\" = \"NONE\"\n    Info (12134): Parameter \"WRCONTROL_ACLR_A\" = \"NONE\"\n    Info (12134): Parameter \"READ_DURING_WRITE_MODE_MIXED_PORTS\" = \"OLD_DATA\"\nInfo (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_c6n1.tdf\n    Info (12023): Found "
+  },
+  "native_live_observations": [
+    {
+      "directory": "cp-prefix-balanced-native-boot-v1-20261024",
+      "pid": 49723,
+      "ps": "49723 01:43:11 R    /Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-balanced-native-boot-v1-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792841771.7021341,
+      "state_sha256": "3d3cac7ac66d24a5c07f20309b88645c21a8df4a930c32a2df17485787debb01"
+    },
+    {
+      "directory": "cp-prefix-native-owned-cold-v1-20261024",
+      "pid": 45198,
+      "ps": "45198 02:22:24 R    /Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-owned-cold-v1-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-owned-cold-v1-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-native-owned-cold-v1-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792841771.708413,
+      "state_sha256": "521c94470d815832f83bebddb4cccd61d95df90ce70f16074f52fe27cf1d0065"
+    },
+    {
+      "directory": "native-cedar-5c65-input-reset-v3-20261023",
+      "pid": 58600,
+      "ps": "58600 06:45:58 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792841771.714731,
+      "state_sha256": "b75adcae9e42639f590196dc579c9442f5210d3519b5da4536adeffed2276ffc"
+    },
+    {
+      "directory": "native-cedar-queue-input-reset-v3-20261023",
+      "pid": 58753,
+      "ps": "58753 06:45:57 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792841771.720771,
+      "state_sha256": "ba82b45e488a278f03e6618a26b89a3768a7cd757cde7fd46b48d1c2eb71b04f"
+    }
+  ],
+  "native_timing_qualified": false,
+  "firmware_qualified": false,
+  "speedup_qualified": false,
+  "assembly_permitted": false,
+  "hardware_changed": false,
+  "full_goal_active": true
+}

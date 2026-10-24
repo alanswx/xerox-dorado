@@ -61,7 +61,7 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
         fields['network_buffer_rx']=(prefix+'wire_port__DOT__rx_buffer',2048)
         for name in ['RxFifoEmpty','RxFifoFull','RxEOP']:
             fields['network_controller_'+name]=(prefix+'dut__DOT__m__DOT__b_DskEth__DOT__'+name,1)
-        rm_bindings={}
+        rm_bindings={};t_bindings={}
         for board in ['ProcH','ProcL']:
             paths=list((source/'inputs/src').rglob(board+'_full_snapshot.sv'));assert len(paths)==1
             text=paths[0].read_text()
@@ -75,6 +75,20 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
                 assert [pins[str(pin)]for pin in [19,18,17,16]]==['dRm_'+f'{start+i:02d}'for i in range(4)]
                 fields['register_file_'+board+'_'+package]=(prefix+'dut__DOT__m__DOT__b_'+board+'__DOT__u_'+package+'__DOT__mem',256)
                 rm_bindings[board+'/'+package]=dict(source=str(paths[0]),source_sha256=sha(paths[0]),pins=pins)
+            for package in ['l03','l04']:
+                body=re.search(r'cell_F10145A_snapshot u_'+package+r' \(.*?\n  \);',text,re.S)[0]
+                pins=dict(re.findall(r'\.p(\d+)\((\w+)\)',body))
+                assert [pins[str(pin)]for pin in [10,9,7,6]]==['CurrLast_'+str(i)+'_p_'for i in range(4)]
+                start=(0 if board=='ProcH'else 8)+(0 if package=='l03'else 4)
+                assert [pins[str(pin)]for pin in [5,4,11,12]]==['dTm_'+f'{start+i:02d}'for i in range(4)]
+                fields['T_file_'+board+'_'+package]=(prefix+'dut__DOT__m__DOT__b_'+board+'__DOT__u_'+package+'__DOT__mem',16)
+                t_bindings[board+'/'+package]=dict(source=str(paths[0]),source_sha256=sha(paths[0]),pins=pins)
+            for package in ['i03','i04']:
+                body=re.search(r'cell_MC10173_snapshot u_'+package+r' \(.*?\n  \);',text,re.S)[0]
+                pins=dict(re.findall(r'\.p(\d+)\((\w+)\)',body))
+                start=(0 if board=='ProcH'else 8)+(0 if package=='i03'else 4)
+                assert [pins[str(pin)]for pin in [1,2,15,14]]==['T_'+f'{start+i:02d}'for i in range(4)]
+                fields['T_latch_'+board+'_'+package]=(prefix+'dut__DOT__m__DOT__b_'+board+'__DOT__u_'+package+'__DOT__q',1)
     ram_pins={}
     board=source/'inputs/src/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v'
     riot_banks={}
@@ -195,8 +209,18 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
         result['register_file']=dict(wire_order_words=words,source_bindings=rm_bindings,
             address_convention='Source address pins: ProcH low4 complemented/index XOR15; ProcL all8 complemented/index XOR255',
             data_convention='Same nibble packing as generate_r_file_reference.specs; software interpretation requires separate symbol/constant checks')
+        t_banks={board+package:bytes.fromhex(result['fields']['T_file_'+board+'_'+package])
+                 for board in ['ProcH','ProcL']for package in ['l03','l04']}
+        t_words=[sum((t_banks[board+package][task^15]&15)<<shift
+                     for board,package,shift in [('ProcH','l03',0),('ProcH','l04',4),('ProcL','l03',8),('ProcL','l04',12)])
+                 for task in range(16)]
+        latch=sum(int.from_bytes(bytes.fromhex(result['fields']['T_latch_'+board+'_'+package]),'little')<<shift
+                  for board,package,shift in [('ProcH','i03',0),('ProcH','i04',4),('ProcL','i03',8),('ProcL','i04',12)])
+        result['T_file']=dict(wire_order_words=t_words,wire_order_active_latch=latch,source_bindings=t_bindings,
+            address_convention='All four CurrLast pins complemented; physical array index task XOR15',
+            data_convention='Logical software word is bit-reversed16 of wire-order word; active latch depends on sampled task/phase')
     result.update(decoded_nodes=decoded,counters={k:int.from_bytes(bytes.fromhex(v),'little')
-                  for k,v in result['fields'].items() if not k.startswith(('nodes_','ram_','riot_RAM_','network_buffer_','register_file_'))},
+                  for k,v in result['fields'].items() if not k.startswith(('nodes_','ram_','riot_RAM_','network_buffer_','register_file_','T_file_'))},
                   source=str(source),pid=pid,source_state_sha256=sha(source/'run-state.json'),
                   binary_sha256=sha(binary),header_sha256=sha(header),layout=offsets,
                   read_only_guest_inspection=True)

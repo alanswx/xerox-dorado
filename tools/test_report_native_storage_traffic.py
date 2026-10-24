@@ -30,6 +30,20 @@ def run(output):
     budget=compare(a,a)['control_prefix_budget']
     assert budget['consumed_raw_service_ticks']==6 and budget['unowned_raw_ticks']==0
     assert budget['same_edge_handoffs']==1 and budget['positive_gaps']==0
+    # Do not silently skip a mismatched operation or sampled PC to make the
+    # remainder comparable. Unpaired requests never enter the common prefix.
+    matched=compare(a,a)['matching_raw_work_prefix']
+    assert matched['count']==2 and matched['control_ticks']==7
+    assert matched['control_budget']['consumed_raw_service_ticks']==6
+    wrong_second=parse(TRACE.replace('data=0789','data=0788').encode())
+    matched=compare(a,wrong_second)['matching_raw_work_prefix']
+    assert matched['count']==1 and matched['candidate_ticks']==5
+    assert matched['stopped_at_first_operation_data_or_PC_difference']
+    wrong_pc=parse(TRACE.replace('pc=30222000','pc=30224000').encode())
+    assert compare(a,wrong_pc)['ordered_operation_data_agree']
+    assert compare(a,wrong_pc)['matching_raw_work_prefix']['count']==1
+    assert compare(a,parse(TRACE.replace('data=0456','data=0457').encode()))['matching_raw_work_prefix']['count']==0
+    assert compare(parse(b''),a)['matching_raw_work_prefix']['control_ticks']is None
     cases=[
         ('orphan',TRACE[TRACE.index('NATIVE_TRAFFIC_R'):]),
         ('owner',TRACE.replace('tick=14 address=000081','tick=14 address=000082')),
@@ -47,6 +61,7 @@ def run(output):
         write_response_data_ignored=True,read_and_write_corruption_detected=True,
         trace_cap_unpaired_request_preserved=True,partial_record_preserved=True,
         empty_comparison_not_pass=True,native_firmware_qualified=False,
+        matching_prefix_stops_at_first_PC_or_operation_difference=True,
         source_hashes={p.name:hashlib.sha256(p.read_bytes()).hexdigest()for p in [
             Path(__file__),Path(__file__).with_name('report_native_storage_traffic.py')]})
     output.write_text(json.dumps(result,indent=2)+'\n');print(result['status'])

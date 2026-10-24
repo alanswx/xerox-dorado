@@ -1,5 +1,40 @@
 # Verilog from Sil: handoff
 
+Latest follow-up (2026-10-24): `tag-address-and-rom-wait-audited-summary.json` retains
+the second physical-duplication fit, actual-ROM timeout binding and next
+cache-tag address experiment. V2 is terminal/REJECTED: its On duplication
+setting produces IDENTICAL four-corner critical paths/margins to v1
+(-0.995ns setup/+0.053ns minimum hold), still321/320-load driver. Both956-file
+collections verify. Stop treating that setting as a fanout fix.
+
+NOW LIVE: `/home/alans/mister/memc-tag-buffers-native-v1-20261024`,
+builder2569759/session54811; fitter2583749 verified live; read-only reporter
+session68759. Local stage `memc-tag-buffers-native-stage-v1-20261024`.
+Only MemC combinational wiring changes after relocation:84 kept inversions at
+21 cache-tag RAMs. All168 address bits prove equal for arbitrary original
+owners; wrong-polarity counterexample passes. No new state/stage/port/capture
+edge/clock/SDC. Full native structural elaboration passes (three known UNOPTFLAT
+warnings retained). The first lint used the old5c65 observer's removed u_j02;
+the existing matching balanced harness passes with its checks intact. Require
+actual inverter separation/fanout and full timing; no assembly/deployment.
+The audited receipt adds independent original-wire-list checks for all84
+unique MC1668 complementary output pairs; no wired-OR contribution is removed.
+
+ROM wait now binds six actual EPROM instructions: four match standalone after
++0x40 placement, two RTC operations select RM263B instead of standalone262B.
+`native-initial-rom-wait-v2-20261024` and read-only network-v4 freeze actual
+task T-file source pins, full RM and EPROM bytes. At host2,083,350,168,
+SeqNo0, RTC430=014B and task0.T=015B: timeout subtraction remains negative.
+This is a pending timeout at that sample, not packet0 root cause or timer
+calibration. Original simulator58600 detached/resumed, same5B bound/medium.
+
+The reader's maximal matching prefix stops at the first PC/operation/data
+difference:1,536 completed operations,18,213/17,059 baseline/queue host ticks.
+Raw service4,938/4,944; unowned time13,274/12,114 includes guest demand and
+execution. This is transport attribution, not equal full CPU/device state or
+a repeatable firmware/hardware gain. Full8,192 windows still diverge at1536.
+Preserve the failed first prefix-budget reader and corrected controls.
+
 Latest actual-native timing/clock-rate result (2026-10-24;
 [full receipt](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#full-native-timing-and-clock-rate-follow-up)):
 `native-clock-timestamps-summary.json` adds exact oscillator timestamps and
@@ -20,8 +55,8 @@ minimum hold +0.053ns. Five ignored MAX_FANOUT warnings/nine insertion groups
 are retained. The critical duplicated a14/qb still drives321 loads via a320-load
 wire cell, cache tags/Hold/control to upper-Q[4]. All956 collected files verify;
 local `memc-address-fanout-fit-terminal-v1-20261024`, remote v1 DB retained.
-NEXT LIVE diagnostic: `/home/alans/mister/memc-address-fanout-native-v2-20261024`,
-builder2460464/session44240, map2460467 verified live; reporter session77539.
+The next-in-history v2 diagnostic is now terminal, with unchanged rejected
+timing as recorded above: `/home/alans/mister/memc-address-fanout-native-v2-20261024`.
 Local immutable stage
 `memc-address-fanout-native-stage-v2-20261024`; verify actual PIDs before waiting.
 Only QSF physical-register-duplication OFF->ON differs from v1 after relocation.
@@ -10490,7 +10525,9 @@ and has unreviewed hold violations; never deploy it.
 - [x] Finish actual balanced full native fit and physical-owner/RAM queries; preserve-1.314ns rejection and322-load MemC address/cache-tag/Hold/write-path attribution. Classify the sole reported physical loop as unchanged DskEth ECC retention; keep latch timing open.
 - [x] Demonstrate actual active pixel-generator aliasing at four ticks and qualify a lossless ordered-event producer in both simulators/50MHz induction, with all corrupted variants rejected. Keep the legacy unused Crystal output separate from the active raster input.
 - [x] Preserve terminal first fanout fit (-0.995ns setup/+0.053ns hold), five ignored assignments/nine insertion groups and still321/320-load critical driver. Prove exact oscillator edge timestamps with four formal/simulator negative controls.
-- [ ] Follow physical-duplication v2 builder/report through terminal actual fanout and full timing; no HDL/clock change or timing exception. Migrate real display consumers/video enable to ordered events while preserving original capture windows.
+- [x] Finish physical-duplication v2 and preserve identical rejected margins/critical paths; bind actual-ROM RTC slot and source-bound saved T threshold, plus maximal matching raw-work prefix.
+- [x] Prepare84 kept cache-tag address inversions, prove all168 RAM address pins equal and reject wrong polarity, pass complete native structural elaboration with matching existing harness; retain old-observer lint failure.
+- [ ] Follow actual cache-tag buffer fit through physical separation/fanout/full timing, then qualify original native firmware before speed selection. Migrate actual display consumers/video enable to ordered events, preserving original capture windows.
 - [ ] Diagnose baseline SeqNo0 after the last reply76B without altering existing tests; qualify actual receiver acceptance/CRC and pin common architectural progress before native speed comparison.
 - [ ] Complete the existing owned-context1B run and new balanced-native5B original-firmware run; classify physical-Q/RAM-read feedback with full native timing before promotion. Preserve every older bound/source.
 - [ ] Close remaining full diagnostic timing, then qualify native global pauses/actual CP frequency, one SRAM commit, original60ns phases/all timers and separate66.7MHz SDRAM. No new speed selection yet.

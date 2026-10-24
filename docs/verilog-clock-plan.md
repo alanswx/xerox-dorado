@@ -24,11 +24,22 @@ MAX_FANOUT assignments and inserts logic for nine others, but the worst
 duplicated a14/qb owner still drives321 loads through a320-load wire cell.
 Its cache-tag/Hold/control path now ends at upper-Q[4]. Do not claim the
 requested32-load limit was achieved. All956 collected members are verified.
-The isolated v2 fit enables physical register duplication, previously OFF.
-Only QSF physical assignments change after relocation; HDL, capture edges,
-SRAM ports, clocks and SDCs are identical. Require actual fanout and complete
-timing before promotion. The initial failed package binding is retained.
-No new guest pipeline stage is allowed.
+The isolated v2 fit is also terminal and REJECTED. Its physical-duplication
+setting is reported On, but all four corners' global/owner paths and margins
+are identical to v1. All956 collected files verify. Do not repeat that setting
+as if it solved the fanout. No new guest pipeline stage is allowed.
+
+Next `memc-tag-buffers-native-v1-20261024` keeps84 existing Aad inversions
+separately at21 cache-tag RAMs. Only MemC's combinational address wiring changes
+after relocation; original owners, RAM functions/ports/capture edges, clocks
+and SDCs remain. All168 affected address pins prove equal for arbitrary original
+latch states; wrong polarity has a counterexample. Full native elaboration
+passes with all structural warnings visible. The first lint used an old
+observer hierarchy and is retained as a failure; the correct existing balanced
+harness passes without dropping checks. Actual physical separation, fanout and
+all-device timing remain unqualified pending this isolated fit. Independent
+PARC wire-list checks bind all84 inversions to unique original MC1668 output
+pairs, ruling out replacement of a wired-OR contribution.
 
 The actual map report lists ONE physical logic loop: unchanged DskEth
 `EccComputeErr_p_`. Its original enabled-XOR/wired-OR feedback is a sticky
@@ -66,6 +77,23 @@ of the baseline's missing acceptance remains OPEN; no guest state or existing
 bound was changed. `wire_port.rx_bad` checks host-buffer commits, not the real
 Dorado receiver's CRC status. [Exact timing, clock proofs and readbacks](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#full-native-timing-and-clock-rate-follow-up).
 Hardware remains5c65; original60ns/separate66.7MHz/full A–F remains active.
+
+Original-ROM wait binding (2026-10-24) now checks actual EPROM instructions,
+not standalone symbol addresses alone. Four wait/reset instructions match
+after+0x40 relocation; two RTC operations differ only in RSTK, selecting
+RM263B rather than standalone262B. A source-bound read-only T-file capture
+at host2,083,350,168 has RTC430=014B and task0.T threshold015B; the timeout
+subtraction is still negative. This explains a pending timeout at THAT sample,
+not the missed packet0 or calibrated clock speed. Same job detaches/resumes;
+original bounds/media/firmware remain unchanged.
+
+The raw window reader now delimits at the FIRST operation/data/sampled-PC
+disagreement. The1,536-operation common prefix takes18,213/17,059 host ticks
+for baseline/queue, with raw service4,938/4,944 and unowned gaps13,274/12,114.
+Unowned time includes guest demand/execution; sampled PCs do not establish
+equal CPU/task/device state or repeatable hardware gains. Full windows still
+diverge at1536; no firmware speed qualification follows. The initial short-
+prefix indexing failure and corrected reader controls are retained.
 
 Balanced task-priority follow-up (2026-10-24): the measured serial highest-task
 selection is replaced with a balanced binary encoder. Only two pure function

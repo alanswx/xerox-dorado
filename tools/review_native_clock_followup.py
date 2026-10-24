@@ -193,12 +193,141 @@ def review(out):
     (out/'results.json').write_text(json.dumps(result,indent=2)+'\n');return result
 
 
+def review_buffers(out):
+    """Review unchanged duplication failure, actual ROM wait and new address wiring."""
+    assert not out.exists();out.mkdir(parents=True)
+    fit=BUILD/'memc-address-fanout-fit-terminal-v2-20261024'
+    envelope=BUILD/'memc-address-fanout-native-v2-20261024-terminal.tgz.json'
+    collected=read(envelope);assert sha(Path(str(envelope)[:-5]))==collected['archive_sha256']
+    for row in collected['members']:
+        file=fit/row['path'];assert sha(file)==row['sha256']and file.stat().st_size==row['bytes']
+    assert read(fit/'run-state.json')['status']=='TERMINAL_TIMING_OBSERVED_REVIEW_REQUIRED'
+    assert all(s['returncode']==0 for s in read(fit/'run-state.json')['stages'])
+    assert read(fit/'physical-report/run-state.json')['status']=='TERMINAL_PHYSICAL_NATIVE_REPORTS_REVIEW_REQUIRED'
+    p=read(fit/'r-front-control-native.json')
+    for name,digest in p['source_hashes'].items():assert sha(fit/name)==digest,name
+    assert read(fit/'physical-native-input-readback.json')['actual']==p['source_hashes']
+    previous=BUILD/'memc-address-fanout-fit-terminal-v1-20261024'
+    corners=[]
+    for condition in ['7_slow_1100mv_100c','7_slow_1100mv_-40c','MIN_fast_1100mv_100c','MIN_fast_1100mv_-40c']:
+        row=dict(condition=condition)
+        for key,prefix in [('setup','native59-setup'),('hold','native59-hold'),
+                           ('input','physical-native-input-setup'),('internal','physical-native-internal-setup')]:
+            name=prefix+'-'+condition+'.rpt';row[key]=first_path(fit/'core'/name)
+            old=first_path(previous/'core'/name)
+            assert all(row[key][k]==old[k]for k in ['slack_ns','source','sink','arrival_ns','required_ns'])
+        corners.append(row)
+    assert corners[0]['setup']['slack_ns']==-0.995
+    fit_settings=(fit/'core/output_files/Dorado.fit.rpt').read_text(errors='replace')
+    assert re.search(r'Perform Register Duplication for Performance\s*; On\s*; Off',fit_settings)
+    retain(fit,out/fit.name);shutil.copy2(envelope,out/envelope.name)
+    stage=BUILD/'memc-tag-buffers-native-stage-v1-20261024';m=read(stage/'r-front-control-native.json')
+    parent=Path(m['parent_stage']);old=read(parent/'r-front-control-native.json')
+    assert sha(parent/'r-front-control-native.json')==m['parent_manifest_sha256']
+    for name,digest in m['source_hashes'].items():assert sha(stage/name)==digest,name
+    changed=[name for name in old['source_hashes']if(stage/name).read_bytes().replace(m['project'].encode(),old['project'].encode())!=(parent/name).read_bytes()]
+    assert changed==['src/fpga/mister/snapshot_native_memc/MemC_full_snapshot.sv']
+    buffers=m['cache_tag_address_buffers']
+    assert buffers['kept_inversions']==84 and buffers['affected_RAMs']==21 and buffers['compared_address_bits']==168
+    assert not buffers['extra_state']and not buffers['capture_edges_or_RAM_ports_changed']
+    # A substituted inverse must come from ONE original output, not a
+    # wired-OR net. Check this independently against PARC's physical pin list.
+    from sil_netlist import load_board
+    from sil_to_verilog import vname
+    wire_list=ROOT/'chm/sil/MemC-Rev-Be.dm!1_/MemC-Rev-Be.wl'
+    board=load_board(str(wire_list));nets={vname(n):(n,row)for n,row in board.nets.items()}
+    original_drivers=[]
+    for binding in buffers['bindings']:
+        net,row=nets[binding['original']];drivers=[pin for pin in row['pins']if pin['dir']=='out']
+        assert len(drivers)==1,(binding,drivers)
+        driver=drivers[0]
+        assert board.packages[driver['pkg']]['type']=='MC1668'and driver['pin']in [3,14]
+        source,source_row=nets[binding['source']]
+        source_drivers=[pin for pin in source_row['pins']if pin['dir']=='out']
+        assert len(source_drivers)==1 and source_drivers[0]['pkg']==driver['pkg']
+        assert source_drivers[0]['pin']=={3:2,14:15}[driver['pin']]
+        original_drivers.append(dict(binding=binding,original_net=net,source_net=source,
+                                     inverse_driver=driver,source_driver=source_drivers[0]))
+    for source in [wire_list,wire_list.with_suffix('.lc')]:
+        shutil.copy2(source,out/source.name)
+    assert sha(stage/'stage_memc_tag_buffers.py')==sha(ROOT/'tools/stage_memc_tag_buffers.py')
+    for proof in buffers['proofs']:
+        d=stage/'address-proof'/proof['variant']
+        assert sha(d/'actual.sv')==proof['source_sha256']and sha(d/'proof.log')==proof['proof_log_sha256']
+        assert proof['returncode']==0
+        expected='no model found: SUCCESS!'if proof['variant']=='positive'else'model found: FAIL!'
+        assert expected in(d/'proof.log').read_text()
+    lint=BUILD/'memc-tag-buffers-native-lint-v2-20261024';l=read(lint/'run-state.json')
+    assert l['status']=='PASS_NATIVE_PROCESSOR_CONTROL_ELABORATION'and l['structural_warnings_visible']
+    assert l['stage_manifest_sha256']==sha(stage/'r-front-control-native.json')
+    failed_lint=BUILD/'memc-tag-buffers-native-lint-v1-20261024'
+    assert read(failed_lint/'run-state.json')['status']=='NATIVE_PROCESSOR_CONTROL_ELABORATION_FAILED'
+    assert "Can't find definition of 'u_j02'"in(failed_lint/'lint.log').read_text()
+    for d in [stage,lint,failed_lint]:retain(d,out/d.name)
+    rom=BUILD/'native-initial-rom-wait-v2-20261024';r=read(rom/'results.json')
+    assert r['status']=='PASS_ORIGINAL_ROM_WAIT_BINDING'
+    assert r['actual_RTC430_address']==0xb3 and r['standalone_RTC430_address']==0xb2
+    assert r['RTC430_value']==0o14 and r['emulator_task_T_threshold']==0o15
+    assert r['timeout_subtraction_is_negative']and r['sequence_number']==0
+    for name,digest in r['input_hashes'].items():assert sha(rom/'inputs'/name)==digest,name
+    debug=BUILD/'native-5c65-network-read-v4-20261024';capture=read(debug/'result.json')
+    assert sha(debug/'result.json')==r['readback_sha256']and capture['read_only_guest_inspection']
+    assert f"Process {capture['pid']} detached"in(debug/'lldb.log').read_text()
+    for d in [rom,BUILD/'native-initial-rom-wait-v1-20261024',debug,
+              BUILD/'native-initial-real-symbols-v1-20261024']:retain(d,out/d.name)
+    reader=BUILD/'native-traffic-reader-matched-prefix-v2-20261024.json';t=read(reader)
+    assert t['status']=='PASS_NATIVE_TRAFFIC_READER_CONTROLS'
+    assert t['matching_prefix_stops_at_first_PC_or_operation_difference']
+    for name,digest in t['source_hashes'].items():assert sha(ROOT/'tools'/name)==digest,name
+    shutil.copy2(reader,out/reader.name)
+    retain(BUILD/'native-matching-prefix-reader-failed-v1-20261024',out/'native-matching-prefix-reader-failed-v1-20261024')
+    from report_native_storage_windows import parse_windows
+    from report_native_storage_traffic import compare
+    windows=[]
+    for label,kind in [('control','5c65'),('candidate','queue')]:
+        run=BUILD/f'native-cedar-{kind}-input-reset-v3-20261023'
+        raw=(run/'test.log').read_bytes();raw=raw[:raw.rfind(b'\n')+1]
+        raw=b'\n'.join(line for line in raw.splitlines()if line.startswith(b'NATIVE_WINDOW_'))+b'\n'
+        (out/(label+'-window.log')).write_bytes(raw)
+        w=parse_windows(raw)['windows'][1];assert w['complete'];windows.append(w['trace'])
+    matched=compare(*windows)
+    assert matched['first_disagreement']['index']==1536
+    prefix=matched['matching_raw_work_prefix']
+    assert prefix['count']==1536 and(prefix['control_ticks'],prefix['candidate_ticks'])==(18213,17059)
+    assert prefix['control_budget']['consumed_raw_service_ticks']==4938
+    assert prefix['candidate_budget']['consumed_raw_service_ticks']==4944
+    remote=BUILD/'memc-tag-buffers-native-live-v1-20261024.json';live=read(remote)
+    assert live['run_state']['status']=='RUNNING'and 'quartus'in live['stage_command']
+    assert live['manifest_sha256']==sha(stage/'r-front-control-native.json');shutil.copy2(remote,out/remote.name)
+    native=[]
+    for name in ['cp-prefix-balanced-native-boot-v1-20261024','cp-prefix-native-owned-cold-v1-20261024',
+                 'native-cedar-5c65-input-reset-v3-20261023','native-cedar-queue-input-reset-v3-20261023']:
+        run=BUILD/name;dest=out/('observed-'+name);native.append(observation(run,dest))
+        for file in ['provenance.json.gz','host-cycle-limit.txt','window-control.txt']:shutil.copy2(run/file,dest/file)
+    result=dict(status='REVIEWED_TAG_ADDRESS_BUFFERS_AND_ROM_WAIT',scope=review_buffers.__doc__,
+        duplication_fit_corners=corners,duplication_fit_accepted=False,
+        physical_duplication_setting_effective_but_reported_paths_unchanged=True,
+        tag_address_buffers=buffers,tag_address_extra_state_or_clock_changes=False,
+        tag_address_original_pin_driver_audit=original_drivers,
+        tag_address_original_wire_list_sha256=sha(wire_list),
+        original_ROM_wait=r,matching_raw_work_prefix=prefix,
+        next_fit_live_observation=live,native_live_observations=native,
+        native_timing_qualified=False,firmware_qualified=False,speedup_qualified=False,
+        assembly_permitted=False,hardware_changed=False,full_goal_active=True)
+    (out/'results.json').write_text(json.dumps(result,indent=2)+'\n');return result
+
+
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for name in ['output','archive']:p.add_argument('--'+name,type=Path,required=True)
-    p.add_argument('--label',default='native-clock-timestamps')
-    a=p.parse_args();r=review(a.output.resolve())
-    append_archive(a.archive.resolve(),a.output.resolve(),[],label=a.label,extra_tools=[
+    p.add_argument('--label')
+    p.add_argument('--buffers',action='store_true')
+    a=p.parse_args();r=(review_buffers if a.buffers else review)(a.output.resolve())
+    label=a.label or('tag-address-and-rom-wait'if a.buffers else'native-clock-timestamps')
+    append_archive(a.archive.resolve(),a.output.resolve(),[],label=label,extra_tools=[
         'test_oscillator_events.py','prove_oscillator_events.py','inspect_native_baseboard_process.py',
-        'stage_memc_address_fanout.py','collect_r_front_physical_native.py',Path(__file__).name])
+        'stage_memc_address_fanout.py','collect_r_front_physical_native.py',Path(__file__).name,
+        'stage_memc_tag_buffers.py','inspect_initial_rom_wait.py','initial_rom_symbols.c',
+        'report_native_storage_traffic.py','report_native_storage_windows.py','test_report_native_storage_traffic.py',
+        'review_late_hold_and_input_reset.py'])
     print(r['status'],flush=True)

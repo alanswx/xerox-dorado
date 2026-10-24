@@ -29,7 +29,7 @@ def retain(source,dest):
     for path in source.rglob('*'):
         rel=path.relative_to(source)
         if not path.is_file()or any(x in rel.parts for x in ['obj','db','incremental_db']):continue
-        if path.suffix in ['.o','.a','.vvp','.rbf','.sof','.pack']or path.name in ['test','layout']:continue
+        if path.suffix in ['.o','.a','.vvp','.rbf','.sof','.pack']or path.name in ['test','layout','symbols','inspect']:continue
         raw=path.read_bytes()
         assert not raw.startswith((b'\x7fELF',b'\xcf\xfa\xed\xfe')),path
         target=dest/rel;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)

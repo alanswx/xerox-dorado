@@ -82,24 +82,39 @@ def compare(a,b):
         same=all(left['request'][n]==right['request'][n]for n in fields)
         if not left['request']['write']:same &= left['response_data']==right['response_data']
         if not same:first=dict(index=i,control=left,candidate=right);break
-    def ticks(r):
-        if not count:return None
-        return r['completed'][count-1]['response_tick']-r['completed'][0]['request']['tick']+1
+    def ticks(r,n=count):
+        if not n:return None
+        return r['completed'][n-1]['response_tick']-r['completed'][0]['request']['tick']+1
     at=ticks(a);bt=ticks(b)
-    def budget(r):
-        rows=r['completed'][:count]
+    def budget(r,n=count):
+        rows=r['completed'][:n]
         if not rows:return None
         service=sum(row['latency']for row in rows)
-        gaps=[rows[i]['request']['tick']-rows[i-1]['response_tick']for i in range(1,count)]
+        gaps=[rows[i]['request']['tick']-rows[i-1]['response_tick']for i in range(1,n)]
         assert all(g>=0 for g in gaps)
-        elapsed=ticks(r);assert elapsed==service+sum(gaps)+1
+        elapsed=ticks(r,n);assert elapsed==service+sum(gaps)+1
         return dict(consumed_raw_service_ticks=service,unowned_raw_ticks=sum(gaps),
             same_edge_handoffs=sum(g==0 for g in gaps),positive_gaps=sum(g>0 for g in gaps),
             limitation='Unowned raw time also includes guest execution and demand gaps; it is not exclusively arbitration overhead.')
+    # Delimit at the FIRST semantic or sampled-PC disagreement, never search
+    # past it for a convenient matching endpoint. This remains a raw-work
+    # diagnostic: sampled PCs do not count retired instructions or prove the
+    # same task/device state at the two window boundaries.
+    common=0
+    for left,right in zip(a['completed'][:count],b['completed'][:count]):
+        if any(left['request'][key]!=right['request'][key]for key in ['address','write','data','pc']):break
+        if not left['request']['write']and left['response_data']!=right['response_data']:break
+        common+=1
+    matched=dict(count=common,control_ticks=ticks(a,common),candidate_ticks=ticks(b,common),
+                 control_budget=budget(a,common),candidate_budget=budget(b,common),
+                 stopped_at_first_operation_data_or_PC_difference=common<count,
+                 firmware_instruction_progress_qualified=False,
+                 limitation='Only identical ordered raw operations, read results and sampled PCs; no equal CPU/task/device state or repeatable hardware gain is established.')
     return dict(compared_completed_prefix=count,ordered_operation_data_agree=first is None if count else None,
         first_disagreement=first,control_prefix_ticks=at,candidate_prefix_ticks=bt,
         control_prefix_budget=budget(a),candidate_prefix_budget=budget(b),
         prefix_tick_reduction_fraction=(at-bt)/at if at and first is None else None,
+        matching_raw_work_prefix=matched,
         actual_firmware_comparison_qualified=False,
         limitation='Only captured prefix. Native power-up reads are not Cedar execution; prefix caps and different progress endpoints remain explicit.')
 

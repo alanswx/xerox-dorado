@@ -6,6 +6,43 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`tag-address-and-rom-wait-audited-summary.json` adds the terminal second fanout fit:
+physical register duplication is On but all four corners' reported global/
+owner paths, arrivals and margins match v1 exactly. It is REJECTED at-0.995ns,
+still321/320loads. All956 collected members verify; actual setting On is
+retained in the fit report, without assuming extra duplication occurred.
+
+The next isolated stage keeps84 existing inversions separately at21 cache-tag
+RAMs. All168 address bits prove equivalent for arbitrary original owners;
+wrong polarity has a counterexample. Only MemC combinational wiring changes
+after project relocation; original state/RAM ports/capture edges/clocks/SDCs
+remain identical. Full structural native lint passes with three known warnings
+visible. An initial old-hierarchy observer lint failure is retained, followed
+by a pass with the existing balanced harness and unchanged checks. The actual
+fit remains live; physical separation/fanout/timing are not yet qualified.
+The audited revision additionally checks PARC's original wire list: all84
+inversions have a unique MC1668 complementary output pair. None substitutes
+for a wired-OR contribution. The first receipt remains retained separately.
+
+The exact EPROM wait/reset instructions also qualify the register interpretation:
+four match standalone Initial after+0x40 placement; two RTC operations select
+RM263B instead of standalone262B. All original native input hashes match.
+Read-only network-v4/T-file capture at host2,083,350,168 has RTC430014B and
+saved task0.T015B, giving a negative timeout subtraction. SeqNo remains0.
+This supports a pending timeout at that sample, not a permanent wait, packet0
+root cause or calibrated clocks. Decoder-only C helpers execute no processor.
+Sources, original EPROMs, instruction fields, header/binary identities and
+detach logs are retained. The initial wrong-BootBlock exploration is retained.
+
+The raw-work diagnostic now stops at the first address/payload/read-result/
+sampled-PC disagreement. Its maximal1,536-operation common prefix takes18,213/
+17,059 host ticks for baseline/queue. Raw service4,938/4,944, unowned time
+13,274/12,114; same-edge handoffs1,134/1,332. Unowned time includes guest
+demand/execution. Sampled PCs do not establish identical CPU/task/device state;
+the full windows diverge immediately afterward. No repeatable firmware or
+hardware speed gain is qualified. The first short-prefix loop-bound error,
+its corrected reader controls and exact completed raw-window lines remain.
+
 `native-clock-followup-audited-summary.json` retains the complete actual native
 fit, the ordered-clock producer and read-only boot diagnosis. It adds explicit
 physical-loop classification to `native-clock-followup-summary.json`, with no
@@ -894,8 +931,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps48,855 members to5,130 deduplicated compressed blobs;
-lossless readback verifies1,451,325,571 unique raw bytes and55,781,411 compressed
+`manifest.json.gz` now maps52,089 members to5,222 deduplicated compressed blobs;
+lossless readback verifies1,502,127,584 unique raw bytes and57,314,106 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`
