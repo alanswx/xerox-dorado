@@ -99,24 +99,41 @@ def observed_cache(raw,stale):
     return text.replace('\nendmodule',invariants+'\nendmodule',1)
 
 
-def run(source,out,yosys,pair_direct=False):
+def sparse_control(top,mutation=None):
+    old='''  first[474:319],first[318:263],first[262:207],first[206],refresh,first[205:112],first[111:56],first[55:0],'''
+    new=old.replace('first[','first_raw[')
+    assert top.count(old)==1
+    extra=''' wire [474:0] first_raw;wire [362:0] falling_control;
+ dorado_control_fall_step first_fall(q,after_pins,refresh,
+  falling_control[362:207],falling_control[206:151],falling_control[150:95],falling_control[94],falling_control[93:0]);
+ assign first=use_pair ? {falling_control,112'b0}:first_raw;
+'''
+    if mutation=='wrong-fall-cram':extra=extra.replace("{falling_control,112'b0}","{falling_control ^ (363'b1<<237),112'b0}",1)
+    if mutation=='drop-fall-clock':extra=extra.replace("{falling_control,112'b0}","{falling_control & ~(363'b1<<159),112'b0}",1)
+    return top.replace(old,new,1).replace(' wire first_after=',extra+' wire first_after=',1)
+
+
+def run(source,out,yosys,pair_direct=False,sparse_pair=False):
+    assert not sparse_pair or pair_direct
     assert not out.exists();s=json.loads((source/'run-state.json').read_text());assert s['status']=='PASS_FULL_PROCESSOR_STATELESS_EVALUATOR'
     for row in s['source_files']:assert sha(source/row['path'])==row['output_sha256']
     raw=(source/'candidate.sv').read_text()
     atoms='\n'.join(module(raw,n) for n in ['dorado_control_hold_atomic_step','dorado_control_terminal_body','dorado_control_hold_ordered_step',
         'dorado_control_certified_fall_step','dorado_control_fall_step'])
-    out.mkdir(parents=True);(out/'controlled-processor.sv').write_text(stage(raw));(out/'cache.sv').write_text(cache(raw))
+    out.mkdir(parents=True);(out/'controlled-processor.sv').write_text(stage(raw,sparse_pair));(out/'cache.sv').write_text(cache(raw))
     shutil.copy2(Path(__file__),out/Path(__file__).name)
     shutil.copy2(Path(__file__).with_name('generate_cached_r_packet.py'),out/'generate_cached_r_packet.py')
     state=dict(status='RUNNING',driver_pid=os.getpid(),started=time.time(),scope=__doc__,source=str(source),source_state_sha256=sha(source/'run-state.json'),
         compared_control_bits_per_subevent=475,physical_projection_bits=156,processor_owner_bits=844,
-        input_histories_unconstrained=True,committed_root_history_checked=True,pair_direct=pair_direct,initial_state='explicit auxiliary initializers; no architectural state assumed',
+        input_histories_unconstrained=True,committed_root_history_checked=True,pair_direct=pair_direct,sparse_pair=sparse_pair,initial_state='explicit auxiliary initializers; no architectural state assumed',
         native_canonical_match_specialization_used=False,files={p.name:sha(p) for p in out.iterdir() if p.is_file()},cases=[],hardware_changed=False)
 
     def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
 
     save()
-    for mode in ['projection','bad-projection','induction','stale-root','stale-second']:
+    modes=['projection','bad-projection','induction','stale-root','stale-second']
+    if sparse_pair:modes+=['wrong-fall-cram','drop-fall-clock']
+    for mode in modes:
         d=out/mode;d.mkdir()
         if mode.endswith('projection'):
             top=projected(raw)
@@ -127,6 +144,16 @@ def run(source,out,yosys,pair_direct=False):
             if pair_direct:
                 assert top.count('  fast,saved,saved_cp,saved_after,live);')==1
                 top=top.replace('  fast,saved,saved_cp,saved_after,live);','  (use_pair || fast),saved,saved_cp,saved_after,live);',1)
+            if sparse_pair:
+                top=sparse_control(top,mode)
+                # Prove every result throughout the certified geometry, even
+                # if result-dependent error guards would refuse acceptance.
+                # Otherwise a corrupt result could hide by suppressing ready.
+                old=" assign equivalent=invariant && (!ready || different==950'b0);"
+                new=""" wire control_domain=entry_ready && (!use_pair ||
+  (fast && before_root && after_root && before_pins==after_pins));
+ assign equivalent=invariant && (!control_domain || different==950'b0);"""
+                assert top.count(old)==1;top=top.replace(old,new,1)
             files={'control.sv':atoms,'cache.sv':observed_cache(raw,mode=='stale-root'),'top.sv':top}
             entity='packet_control_equivalence';signal='equivalent'
             strategy='-seq 2 -tempinduct -maxsteps 4 -set-init-zero' if mode=='induction' else '-seq 5 -set-init-zero'
@@ -149,7 +176,7 @@ sat {strategy} -timeout 120 -prove {signal} 1 -{flag} -show-ports -dump_json /wo
         text=(d/'proof.log').read_text();marker=('Induction step proven: SUCCESS!' if mode=='induction' else 'no model found: SUCCESS!') if flag=='verify' else 'model found: FAIL!'
         passed=code==0 and marker in text;row.update(passed=passed,returncode=code,finished=time.time(),log_sha256=sha(d/'proof.log'));save()
         if not passed:break
-    passed=len(state['cases'])==5 and all(v['passed'] for v in state['cases'])
+    passed=len(state['cases'])==len(modes) and all(v['passed'] for v in state['cases'])
     state.update(status='PASS_ENTRY_CACHED_PACKET_INDUCTION_AND_OWNER_PROJECTION' if passed else 'TERMINAL_CACHED_PACKET_PROOF_NOT_ESTABLISHED',finished=time.time());save()
     print(state['status'],flush=True);return 0 if passed else 1
 
@@ -158,4 +185,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['source','output','yosys']:p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--pair-direct',action='store_true')
-    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.output.resolve(),a.yosys.resolve(),a.pair_direct))
+    p.add_argument('--sparse-pair',action='store_true')
+    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.output.resolve(),a.yosys.resolve(),a.pair_direct,a.sparse_pair))

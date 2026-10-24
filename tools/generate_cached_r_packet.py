@@ -23,7 +23,7 @@ def projection(raw):
 '''.replace('CQ',cq.replace('held_q','q')).replace('JOINT',joint.replace('held_q','q'))
 
 
-def stage(raw):
+def stage(raw,sparse_pair=False,mutation=None):
     original=module(raw,'dorado_r_front_pure_step');actual=original
     old='output wire [15:0] file_write_data\n);'
     new='''output wire [15:0] file_write_data,
@@ -42,6 +42,59 @@ def stage(raw):
     actual=actual[:first]+guard+actual[last:]
     actual=actual.replace('module dorado_r_front_pure_step #','module dorado_r_front_prefix_step #',1)
     assert actual.replace('module dorado_r_front_prefix_step #','module dorado_r_front_pure_step #',1).replace(guard,old_guard,1).replace(new,old,1)==original
+    return sparse_stage(actual,mutation) if sparse_pair else actual
+
+
+def sparse_stage(original,mutation=None):
+    """Specialize only the accepted stable-pin HIGH->LOW first event.
+
+    Keep the raw ordered prefix producer on its REAL inputs for cache fills
+    even on rejected invocations. The processor's before inputs may be
+    normalized only on the guarded pair branch. No new architectural state.
+    """
+    actual=original;changes=[]
+    def change(old,new):
+        nonlocal actual
+        assert actual.count(old)==1,old
+        actual=actual.replace(old,new,1);changes.append((old,new))
+    change(' output wire [155:0] control_owner,output wire [268:0] live_prefix\n);',
+           ' output wire [155:0] control_owner,output wire [268:0] live_prefix,input wire pair_fall\n);')
+    # Only expression references in the BODY change, never named port labels.
+    header,body=actual.split('\n);',1)
+    body=re.sub(r'(?<![.\w])clock_before\b','capture_clock_before',body)
+    body=re.sub(r'(?<![.\w])pins_before\b','capture_pins_before',body)
+    actual=header+'\n);'+body
+    marker=' // These32 bits retain the CLOSED input latch data.'
+    change(marker," wire capture_clock_before=pair_fall ? 1'b1:clock_before;\n"
+           ' wire [400:0] capture_pins_before=pair_fall ? pins_after:pins_before;\n'+marker)
+    old=''' dorado_control_hold_ordered_step control(joint_q,capture_clock_before,clock_after,capture_pins_before[397:0],pins_after[397:0],
+  joint_next_original,joint_events,joint_repeated,cu,refresh_before_run_capture,control_flags,cp_prefix_events,cp_prefix_repeated,
+  cp_fast,cp_prefix_saved,cp_prefix_cp_saved,cp_after_cp_saved,cp_prefix_live);'''
+    new=''' wire [474:0] ordered_control;
+ wire [362:0] falling_control;
+ // Raw prefix capture MUST keep the real inputs, including rejected pairs.
+ dorado_control_hold_ordered_step control(joint_q,clock_before,clock_after,pins_before[397:0],pins_after[397:0],
+  ordered_control[474:319],ordered_control[318:263],ordered_control[262:207],ordered_control[206],refresh_before_run_capture,
+  ordered_control[205:112],ordered_control[111:56],ordered_control[55:0],
+  cp_fast,cp_prefix_saved,cp_prefix_cp_saved,cp_after_cp_saved,cp_prefix_live);
+ dorado_control_fall_step first_fall(joint_q,pins_after[397:0],refresh_before_run_capture,
+  falling_control[362:207],falling_control[206:151],falling_control[150:95],falling_control[94],falling_control[93:0]);
+ assign {joint_next_original,joint_events,joint_repeated,cu,control_flags,cp_prefix_events,cp_prefix_repeated}=
+  pair_fall ? {falling_control,112'b0}:ordered_control;'''
+    if mutation=='wrong-fall-cram':new=new.replace("{falling_control,112'b0}","{falling_control ^ (363'b1<<237),112'b0}",1)
+    if mutation=='drop-fall-clock':new=new.replace("{falling_control,112'b0}","{falling_control & ~(363'b1<<159),112'b0}",1)
+    change(old,new)
+    change(' wire [2:0] late_producer_selector;',' wire [2:0] late_producer_selector,ordinary_selector;')
+    change('.selected(late_producer_selector));','.selected(ordinary_selector));\n'
+           ' assign late_producer_selector=pair_fall ? {joint_q[118],joint_q[121],joint_q[120]}:ordinary_selector;')
+    # Invert every allowed edit to bind this specialization to the actual
+    # original processor; all unmentioned code must remain byte-identical.
+    restored=actual
+    for old,new in reversed(changes):restored=restored.replace(new,old,1)
+    h,b=restored.split('\n);',1)
+    b=re.sub(r'\bcapture_clock_before\b','clock_before',b)
+    b=re.sub(r'\bcapture_pins_before\b','pins_before',b)
+    assert h+'\n);'+b==original
     return actual
 
 
@@ -60,7 +113,8 @@ def cache(raw,stale_root=False):
     return actual
 
 
-def packet(raw,mutation=None,pair_direct=False):
+def packet(raw,mutation=None,pair_direct=False,sparse_pair=False):
+    assert not sparse_pair or pair_direct
     ports,bits=layout(raw);decl='\n'.join(f' wire {w} {prefix}_{n};' for prefix in ['first','second'] for n,w in ports)
     calls=[]
     for prefix in ['first','second']:
@@ -73,6 +127,7 @@ def packet(raw,mutation=None,pair_direct=False):
             entry_prefix_cp=('entry_prefix_cp' if first else 'pins_after[292:282]'),entry_after_cp=('entry_after_cp' if first else 'pins_after[292:282]'),
             control_owner=prefix+'_owner',live_prefix=('first_live_prefix' if first else ''))
         bindings.update({n:prefix+'_'+n for n,w in ports})
+        if sparse_pair:bindings['pair_fall']='use_pair' if first else "1'b0"
         calls.append(' dorado_r_front_prefix_step '+prefix+'(\n  '+',\n  '.join(f'.{n}({v})' for n,v in bindings.items())+');')
     pack=lambda p:'{'+','.join(p+'_'+n for n,w in ports)+'}'
     commit="1'b1" if mutation=='early-write' else 'advance && ready'

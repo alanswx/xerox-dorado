@@ -6,6 +6,57 @@ Continue Quartus on misterubuntu and simulation on the Mac. Notify the user
 when a concrete build is ready for hardware qualification; wait for allocation.
 The goal remains active. This supersedes earlier permission for immediate reloads.
 
+Sparse FIRST control fall completed; full timing still REJECTED (2026-10-24).
+`sparse-first-packet-summary.json` preserves the opt-in specialization. The
+first control result uses the proved Q30-only fall; its selectors bypass the
+general preview. Before-clock/pins normalize only on the guarded pair branch.
+The raw CP-prefix producer ALWAYS keeps the original inputs, including rejected
+pairs. No architectural storage, RAM copy, capture edge or guard was removed.
+
+Unbounded induction proves all 950 control-result bits THROUGHOUT certified
+geometry, independent of result-dependent ready/error guards. Both earlier
+accepted-only and stronger proofs pass all seven cases; bad projection, final
+root, second owner, fall-Q30 and fall-clock controls reject. Actual 1,416-bit
+cache state, ready and SRAM permissions remain equal for arbitrary binary/reset
+histories, allowing arbitrary unready-pair result differences. Both cache-proof
+versions pass. The ACTUAL current selector wrapper proves its three unchanged
+owners at 5/24 waves; a wrong selector rejects. This matters because the older
+selector certificate used a different ordered wrapper.
+
+Both simulators pass the unchanged 14,884-transaction original replay: 10,423
+commits/4,461 pairs, both complete 2,470-bit results, 844 Qs, 9,216 SRAM bits and
+100 clocks. Cache coverage stays 8,885 fast/1,538 staged/1,538 preparation/one
+reset; all 403 invalid geometries refuse commitment. Retain Icarus V1's original
+declaration-order error; V2 only moves that wire declaration. Four previous
+corruptions hit original assertions. Both engines also reject bad fall data/
+clock through the ORIGINAL coverage check: consistency guards leave 0/70
+unaffected pairs respectively and zero paired writes. They do not silently
+qualify a design which achieves safety by disabling the optimization.
+
+Complete 4,943-output/1,652-input, same15ns/2ns-I/O fit: all stages exit0,
+86 collected members/frozen hashes/exited processes verify. Archive SHA
+7fa6ceb60a312b61e126276301bc9b995209a058c38f6fedc9001f4497770d8c.
+Setup -9.899/-9.666/+1.921/+3.877ns, hold +0.320/+0.270/+0.169/+0.112ns,
+pulse width +6.462/+6.488/+6.177/+6.115ns; zero UCPs, no recovery/removal
+endpoints. Evaluator-only setup -7.578/-7.607/+2.517/+4.486ns. Area 9,244ALMs/
+8,353regs/9,216MLAB bits includes fixture resources. No timing gain established;
+keep the previous entry-cached default (-9.270ns best full component minimum).
+
+NEXT: physically separate the unconditional paired-first function from the
+staged single-event fallback BEFORE supplying the second event. The current
+first result still multiplexes both functions. Worst fitted path is the saved
+prefix -> first selector/control priority -> first state72 -> second task/
+consistency checks -> ready -> physical SRAM write enable: 23.822ns/22 levels.
+Keep a real-input raw prefix producer, all fallback/error/geometry guards, exact
+forwarding and ONE architectural/SRAM owner/final commit. Prove substitutions
+and cache histories, replay every original result/RAM/clock/geometry/reset check,
+and refit all 4,943 endpoints. This is structural separation, not an exception
+on the observed path. Then qualify common closed-context publication/pruning,
+actual source/CP/device interior epochs and all rotations/debug/consumers before
+native60ns qualification. No native selection/image/FPGA access or new hardware
+speed; last hardware rate remains 4.025473M StartCycle ISSUES/s. The full A–F
+objective stays active, snapshots deferred; the user keeps the FPGA.
+
 Pair-direct experiment completed; correct but NOT selected (2026-10-24).
 `pair-direct-packet-summary.json` preserves the single changed first-entry
 expression, `(use_pair || entry_fast)`. Unbounded induction proves both full
@@ -27,18 +78,8 @@ This does NOT demonstrate a timing improvement over the previous -9.270ns
 minimum. Keep pair_direct=False as the default. No native selection, image,
 hardware access or new speed measurement.
 
-NEXT: integrate an opt-in sparse FIRST control fall into the full processor
-packet, using the already-proved HIGH identity/stable-pin geometry and Q30-only
-fall theorem. The actual general first-control transfer and selector predicate
-still feed the second task/priority and cache-enable paths (worst data 24.060ns).
-Keep the raw original CP-prefix producer independent of the specialized route,
-including when a pair is unready. Prove the complete accepted results AND cache/
-ready/permission histories; retain all original guards, fallback, full replay
-and corruption controls before another complete fit. Then qualify common
-closed-owner/root/before-pins publication and entry-only owned-context pruning.
-Actual source/CP/device interior timestamps, all rotations/debug fallbacks and
-peripheral consumers remain required before native60ns qualification. The full
-goal remains active. The FPGA remains reserved for the user.
+That sparse-first step is now completed above. It did not improve the full
+component fit; the unconditional pair/fallback separation is next.
 
 Entry-cached complete packets QUALIFIED digitally; full15ns timing improved,
 still REJECTED (2026-10-24). `cached-processor-packet-summary.json` records the

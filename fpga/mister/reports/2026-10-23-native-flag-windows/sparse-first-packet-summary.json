@@ -1,0 +1,192 @@
+{
+  "status": "REVIEWED_SPARSE_FIRST_SAFE_BUT_TIMING_NOT_IMPROVED",
+  "all950_control_bits_proven_throughout_geometry": true,
+  "actual_current_selector_bypass_proven_at5_and24waves": true,
+  "ready_permissions_and1416_cache_bits_inductively_equal": true,
+  "raw_prefix_keeps_actual_inputs_for_all_histories": true,
+  "full_original_replay_transactions": 14884,
+  "commits": 10423,
+  "pairs": 4461,
+  "all2470_subevent_bits_844_Qs_9216_RAM_100clocks_retained": true,
+  "invalid_geometries": 403,
+  "reset_checks_retained": true,
+  "negative_controls": [
+    {
+      "mutation": "early-write",
+      "driver_status": "PASS_CACHED_PACKET_COUNTEREXAMPLE",
+      "effect": "ORIGINAL_RESULT_OR_OWNERSHIP_ASSERTION",
+      "original_driver_status_retained": true
+    },
+    {
+      "mutation": "drop-forward",
+      "driver_status": "PASS_CACHED_PACKET_COUNTEREXAMPLE",
+      "effect": "ORIGINAL_RESULT_OR_OWNERSHIP_ASSERTION",
+      "original_driver_status_retained": true
+    },
+    {
+      "mutation": "stale-intermediate",
+      "driver_status": "PASS_CACHED_PACKET_COUNTEREXAMPLE",
+      "effect": "ORIGINAL_RESULT_OR_OWNERSHIP_ASSERTION",
+      "original_driver_status_retained": true
+    },
+    {
+      "mutation": "stale-root",
+      "driver_status": "PASS_CACHED_PACKET_COUNTEREXAMPLE",
+      "effect": "ORIGINAL_RESULT_OR_OWNERSHIP_ASSERTION",
+      "original_driver_status_retained": true
+    },
+    {
+      "mutation": "wrong-fall-cram",
+      "driver_status": "PASS_CACHED_PACKET_COUNTEREXAMPLE",
+      "effect": "ORIGINAL_PAIR_COVERAGE_ASSERTION_AFTER_GUARDS_REFUSE_CORRUPTION",
+      "original_driver_status_retained": true
+    },
+    {
+      "mutation": "drop-fall-clock",
+      "driver_status": "PASS_CACHED_PACKET_COUNTEREXAMPLE",
+      "effect": "ORIGINAL_PAIR_COVERAGE_ASSERTION_AFTER_GUARDS_REFUSE_CORRUPTION",
+      "original_driver_status_retained": true
+    }
+  ],
+  "component_corners": [
+    {
+      "corner": "7_slow_1100mv_100c",
+      "setup": {
+        "slack_ns": -9.899,
+        "source": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|prefix_saved[145]",
+        "sink": "dorado_r_front_packet_step:actual|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_mno1:auto_generated|lutrama63~OBSERVABLEVIRTUALREGOUT0",
+        "arrival_ns": 28.121,
+        "required_ns": 18.222,
+        "report_sha256": "093afe538173678734d1d11bca770504632e134ef524a84b8df439ebb5dc5be2"
+      },
+      "hold": {
+        "slack_ns": 0.32,
+        "source": "launch[1267]",
+        "sink": "result[2951]~reg0",
+        "arrival_ns": 4.561,
+        "required_ns": 4.241,
+        "report_sha256": "8e083421bf2cd1cf9f25086efa5958656e0b81d1a5f6c3cc8982656fe8bdd012"
+      },
+      "evaluator": {
+        "slack_ns": -7.578,
+        "source": "launch[125]",
+        "sink": "result[1417]~reg0",
+        "arrival_ns": 26.232,
+        "required_ns": 18.654,
+        "report_sha256": "06fa0c08e81a2b31df9c7d9decad435428e2d976a695b6b42099a73268ef8f65"
+      },
+      "pulse_width_ns": 6.462
+    },
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "setup": {
+        "slack_ns": -9.666,
+        "source": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|prefix_saved[145]",
+        "sink": "dorado_r_front_packet_step:actual|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_mno1:auto_generated|lutrama63~OBSERVABLEVIRTUALREGOUT0",
+        "arrival_ns": 28.071,
+        "required_ns": 18.405,
+        "report_sha256": "1d6e59bc7e6e65b379ab2142c5bddda6b17b263d8512f5d2745add049c2cd776"
+      },
+      "hold": {
+        "slack_ns": 0.27,
+        "source": "launch[1267]",
+        "sink": "result[2951]~reg0",
+        "arrival_ns": 4.677,
+        "required_ns": 4.407,
+        "report_sha256": "7954a003af787636c77b3185fa4a19141861948cf497116efe2d6b80842a7706"
+      },
+      "evaluator": {
+        "slack_ns": -7.607,
+        "source": "launch[7]~DUPLICATE",
+        "sink": "result[2]~reg0",
+        "arrival_ns": 26.435,
+        "required_ns": 18.828,
+        "report_sha256": "3c6a11792f29190f82185881df3e94be3823609d081f2be3ec7d1966635f15d2"
+      },
+      "pulse_width_ns": 6.488
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "setup": {
+        "slack_ns": 1.921,
+        "source": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|prefix_saved[145]",
+        "sink": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|canonical_q[128]",
+        "arrival_ns": 14.712,
+        "required_ns": 16.633,
+        "report_sha256": "4d032f7b1e01954e3dc310b8cb09e56aae195625db3b29d3a3f95e20c23dd9ce"
+      },
+      "hold": {
+        "slack_ns": 0.169,
+        "source": "launch[1267]",
+        "sink": "result[2951]~reg0",
+        "arrival_ns": 2.121,
+        "required_ns": 1.952,
+        "report_sha256": "7fd9bfcbcd0aab8637109683c13d263bf4e003b8c31b2245e1fa23864671b215"
+      },
+      "evaluator": {
+        "slack_ns": 2.517,
+        "source": "launch[544]",
+        "sink": "result[1417]~reg0",
+        "arrival_ns": 14.086,
+        "required_ns": 16.603,
+        "report_sha256": "52e3b8c235224905e70f0afa7b787214ae72f0e1a539daa1e30d4e9cff500863"
+      },
+      "pulse_width_ns": 6.177
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "setup": {
+        "slack_ns": 3.877,
+        "source": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|prefix_saved[145]",
+        "sink": "dorado_r_front_packet_step:actual|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_mno1:auto_generated|lutrama63~OBSERVABLEVIRTUALREGOUT0",
+        "arrival_ns": 12.484,
+        "required_ns": 16.361,
+        "report_sha256": "a8dd515bc48e048b79d4c8c79473a8074a9b4b3dbb5cac2d3fba3a4efe1e470d"
+      },
+      "hold": {
+        "slack_ns": 0.112,
+        "source": "launch[1267]",
+        "sink": "result[2951]~reg0",
+        "arrival_ns": 1.939,
+        "required_ns": 1.827,
+        "report_sha256": "13ed1998662b013dffd7f99276bfc12b22020af88a9e2d7743dcecc07c2575a4"
+      },
+      "evaluator": {
+        "slack_ns": 4.486,
+        "source": "launch[125]",
+        "sink": "result[1417]~reg0",
+        "arrival_ns": 12.005,
+        "required_ns": 16.491,
+        "report_sha256": "a81885f147c4fc3f5a876bd871003004ddcdb19fd5e926babaca6b98ee7a5d87"
+      },
+      "pulse_width_ns": 6.115
+    }
+  ],
+  "component_area": {
+    "ALMs": 9244,
+    "registers": 8353,
+    "MLAB_bits": 9216
+  },
+  "component_15ns_pass": false,
+  "best_previous_setup_min_ns": -9.27,
+  "this_setup_min_ns": -9.899,
+  "timing_gain_demonstrated": false,
+  "worst_path_data_delay_ns": 23.822,
+  "worst_path_components": [
+    "entry_cache|prefix_saved[145]",
+    "first|selector_preview|low_hold|root_arrival",
+    "first|control|root_arrival",
+    "first|state_next[72]",
+    "second|child|child|child|child|child|child|t_path",
+    "second|unsettled",
+    "actual|ready",
+    "files|stk_h_rtl_0|auto_generated|wr_decode"
+  ],
+  "next_structural_step": "Separate unconditional paired-first data from staged single-event fallback before second-event inputs; retain all guards and one physical SRAM owner",
+  "variant_selected": false,
+  "source_and_device_timestamps_qualified": false,
+  "native60ns_or_hardware_speed_qualified": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}

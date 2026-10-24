@@ -63,14 +63,19 @@ def exposed(raw,name):
     return original.replace(old,new,1).replace('module dorado_packet_prefix_cache(',f'module {name}(',1).replace('\nendmodule',observe+'\nendmodule',1)
 
 
-def run(source,out,yosys):
+def run(source,out,yosys,sparse_pair=False):
     assert not out.exists();s=json.loads((source/'run-state.json').read_text());assert s['status']=='PASS_FULL_PROCESSOR_STATELESS_EVALUATOR'
     for row in s['source_files']:assert sha(source/row['path'])==row['output_sha256']
-    raw=(source/'candidate.sv').read_text();old=packet(raw);new=packet(raw,pair_direct=True)
+    raw=(source/'candidate.sv').read_text();old=packet(raw);new=packet(raw,pair_direct=True,sparse_pair=sparse_pair)
     assert new.count('.entry_fast((use_pair || entry_fast))')==1
-    assert new.replace('.entry_fast((use_pair || entry_fast))','.entry_fast(entry_fast)',1)==old
+    restored=new.replace('.entry_fast((use_pair || entry_fast))','.entry_fast(entry_fast)',1)
+    if sparse_pair:
+        for v in ['use_pair',"1'b0"]:
+            assert restored.count(',\n  .pair_fall('+v+')')==1
+            restored=restored.replace(',\n  .pair_fall('+v+')','',1)
+    assert restored==old
     assert 'ready=entry_ready && entry_fast && clock_before && clock_after' in new
-    actual_stage=stage(raw);ordered=module(raw,'dorado_control_hold_ordered_step')
+    actual_stage=stage(raw,sparse_pair);ordered=module(raw,'dorado_control_hold_ordered_step')
     assert 'assign control_owner=joint_q;assign live_prefix=cp_prefix_live;' in actual_stage
     assert 'wire [155:0] joint_q={held_q[843:798],cq};' in actual_stage
     assert 'assign prefix_live={raw_prefix_q,raw_prefix_events,raw_prefix_repeated,raw_prefix_unsettled};' in ordered
@@ -80,11 +85,21 @@ def run(source,out,yosys):
   refresh_before_run_capture,);''' in ordered
     assert '''wire [397:0] prefix_pins=split_event ?
   {pins_before[397:293],pins_after[292:282],pins_before[281:0]} : pins_before;''' in ordered
+    if sparse_pair:
+        # The generated function's inverse audit checks every unmentioned byte.
+        # Explicitly bind normalization and selector choice to the SAME pair
+        # branch as the wrapper's unchanged full401-pin/high-root ready guard.
+        assert '''wire capture_clock_before=pair_fall ? 1'b1:clock_before;
+ wire [400:0] capture_pins_before=pair_fall ? pins_after:pins_before;''' in actual_stage
+        assert 'control(joint_q,clock_before,clock_after,pins_before[397:0],pins_after[397:0],' in actual_stage
+        assert 'pair_fall ? {falling_control,112\'b0}:ordered_control;' in actual_stage
+        assert 'pair_fall ? {joint_q[118],joint_q[121],joint_q[120]}:ordinary_selector;' in actual_stage
+        assert 'clock_before && clock_after && pins_before==pins_after' in new
     out.mkdir(parents=True)
     for n,text in {'old-packet.sv':old,'new-packet.sv':new,'controlled-stage.sv':actual_stage,'actual-ordered.sv':ordered}.items():(out/n).write_text(text)
     for n in [Path(__file__).name,'generate_cached_r_packet.py']:shutil.copy2(Path(__file__).with_name(n),out/n)
     state=dict(status='RUNNING',driver_pid=os.getpid(),started=time.time(),scope=__doc__,source=str(source),
-        source_state_sha256=sha(source/'run-state.json'),cache_state_bits=1416,
+        source_state_sha256=sha(source/'run-state.json'),cache_state_bits=1416,sparse_pair=sparse_pair,
         source_bound_input_substitution_only=True,prefix_producer_fast_mode_independent=True,
         all_unready_pair_result_differences_allowed=True,input_histories_unconstrained=True,
         files={p.name:sha(p) for p in out.iterdir() if p.is_file()},cases=[],hardware_changed=False)
@@ -97,6 +112,14 @@ def run(source,out,yosys):
         (d/'original.sv').write_text(exposed(raw,'original_cache'));(d/'actual.sv').write_text(exposed(raw,'changed_cache'))
         top=TOP.replace('PREFIX',('new_domain ? prefix_live:prefix_invalid' if mode=='prefix-taint' else 'prefix_live')).replace(
             'ENTRY_GUARD',"1'b1" if mode=='drop-entry-guard' else 'new_fast')
+        if sparse_pair:
+            top=top.replace('[397:0] before_pins,after_pins','[400:0] before_pins,after_pins',1)
+            top=top.replace(' wire new_domain=!use_pair || new_fast;',
+                ''' wire geometry=before_root && committed_root && !first_root && before_pins==after_pins;
+ wire new_domain=!use_pair || (new_fast && geometry);''',1)
+            top=top.replace('before_root,first_root,before_pins,after_pins,','before_root,first_root,before_pins[397:0],after_pins[397:0],')
+            top=top.replace('old_fast && guard_common','old_fast && geometry && guard_common',1)
+            top=top.replace('&& new_guard','&& geometry && new_guard',1)
         (d/'top.sv').write_text(top)
         flag='verify' if mode=='induction' else 'falsify'
         strategy='-seq 2 -tempinduct -maxsteps 4 -set-init-zero' if mode=='induction' else '-seq 3 -set-init-zero'
@@ -124,4 +147,5 @@ sat {strategy} -timeout 120 -prove equal 1 -{flag} -show-ports -dump_json /work/
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['source','output','yosys']:p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.output.resolve(),a.yosys.resolve()))
+    p.add_argument('--sparse-pair',action='store_true')
+    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.output.resolve(),a.yosys.resolve(),a.sparse_pair))
