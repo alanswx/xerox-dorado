@@ -1,0 +1,1126 @@
+{
+  "status": "REVIEWED_GUARDED_CP_PREFIX_COMPONENT",
+  "scope": "Retain guarded-prefix correctness, negative controls and full timing results.\n\nThis receipt qualifies a component experiment only. Preserve timing failures,\nall original comparisons and each proof's explicit scope. Native all-board\npause integration, firmware, timers, physical SDRAM and measured speed remain\nopen; the complete delivery goal is not narrowed by this review.\n",
+  "functional_gates": [
+    {
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-cache-icarus-v2-20261023",
+      "engine": "icarus",
+      "state_sha256": "51aace146b8e5b9f5016387b07c686ce3b7d443e5d60411d8f7d9eacf3a6dd81",
+      "candidate_sha256": "1ab068f0b33c365dda1da9843fe7f13090bd29f18fd47e8ccc012df7ccd6692a",
+      "clocks": [
+        [
+          "0",
+          "4464"
+        ],
+        [
+          "1",
+          "2232"
+        ],
+        [
+          "2",
+          "2232"
+        ],
+        [
+          "3",
+          "2232"
+        ],
+        [
+          "4",
+          "4393"
+        ],
+        [
+          "5",
+          "4393"
+        ],
+        [
+          "6",
+          "4393"
+        ],
+        [
+          "7",
+          "4201"
+        ],
+        [
+          "8",
+          "4393"
+        ],
+        [
+          "9",
+          "4393"
+        ],
+        [
+          "10",
+          "4464"
+        ],
+        [
+          "11",
+          "2180"
+        ],
+        [
+          "12",
+          "2180"
+        ],
+        [
+          "13",
+          "2181"
+        ],
+        [
+          "14",
+          "4393"
+        ],
+        [
+          "15",
+          "4464"
+        ],
+        [
+          "16",
+          "2180"
+        ],
+        [
+          "17",
+          "2180"
+        ],
+        [
+          "18",
+          "2181"
+        ],
+        [
+          "19",
+          "2180"
+        ],
+        [
+          "20",
+          "1616"
+        ],
+        [
+          "21",
+          "1616"
+        ],
+        [
+          "22",
+          "166"
+        ],
+        [
+          "23",
+          "4393"
+        ],
+        [
+          "24",
+          "4393"
+        ],
+        [
+          "25",
+          "2101"
+        ],
+        [
+          "26",
+          "2181"
+        ],
+        [
+          "27",
+          "2101"
+        ],
+        [
+          "28",
+          "2181"
+        ],
+        [
+          "29",
+          "32"
+        ],
+        [
+          "30",
+          "48"
+        ],
+        [
+          "31",
+          "32"
+        ],
+        [
+          "32",
+          "48"
+        ],
+        [
+          "33",
+          "2180"
+        ],
+        [
+          "34",
+          "4393"
+        ],
+        [
+          "35",
+          "4393"
+        ],
+        [
+          "36",
+          "4393"
+        ],
+        [
+          "37",
+          "4393"
+        ],
+        [
+          "38",
+          "2180"
+        ],
+        [
+          "39",
+          "4393"
+        ],
+        [
+          "40",
+          "4393"
+        ],
+        [
+          "41",
+          "4393"
+        ],
+        [
+          "42",
+          "1616"
+        ],
+        [
+          "43",
+          "32"
+        ],
+        [
+          "44",
+          "2180"
+        ],
+        [
+          "45",
+          "2180"
+        ],
+        [
+          "46",
+          "257"
+        ],
+        [
+          "47",
+          "2181"
+        ],
+        [
+          "48",
+          "2180"
+        ],
+        [
+          "49",
+          "2180"
+        ],
+        [
+          "50",
+          "2180"
+        ],
+        [
+          "51",
+          "2180"
+        ],
+        [
+          "52",
+          "2180"
+        ],
+        [
+          "53",
+          "1"
+        ],
+        [
+          "54",
+          "1"
+        ],
+        [
+          "55",
+          "1056"
+        ],
+        [
+          "56",
+          "1056"
+        ],
+        [
+          "57",
+          "1616"
+        ],
+        [
+          "58",
+          "1616"
+        ],
+        [
+          "59",
+          "1616"
+        ],
+        [
+          "60",
+          "1616"
+        ],
+        [
+          "61",
+          "1616"
+        ],
+        [
+          "62",
+          "1616"
+        ],
+        [
+          "63",
+          "1616"
+        ],
+        [
+          "64",
+          "1616"
+        ],
+        [
+          "65",
+          "239"
+        ],
+        [
+          "66",
+          "132"
+        ],
+        [
+          "67",
+          "2180"
+        ],
+        [
+          "68",
+          "2180"
+        ],
+        [
+          "69",
+          "32"
+        ],
+        [
+          "70",
+          "1616"
+        ],
+        [
+          "71",
+          "1616"
+        ],
+        [
+          "72",
+          "1616"
+        ],
+        [
+          "73",
+          "1616"
+        ],
+        [
+          "74",
+          "1616"
+        ],
+        [
+          "75",
+          "1616"
+        ],
+        [
+          "76",
+          "1616"
+        ],
+        [
+          "77",
+          "1616"
+        ],
+        [
+          "78",
+          "1616"
+        ],
+        [
+          "79",
+          "1616"
+        ],
+        [
+          "80",
+          "1616"
+        ],
+        [
+          "81",
+          "1616"
+        ],
+        [
+          "82",
+          "1616"
+        ],
+        [
+          "83",
+          "1616"
+        ],
+        [
+          "84",
+          "1616"
+        ],
+        [
+          "85",
+          "1616"
+        ],
+        [
+          "86",
+          "32"
+        ],
+        [
+          "87",
+          "1616"
+        ],
+        [
+          "88",
+          "1616"
+        ],
+        [
+          "89",
+          "1616"
+        ],
+        [
+          "90",
+          "1616"
+        ],
+        [
+          "91",
+          "65"
+        ],
+        [
+          "92",
+          "65"
+        ],
+        [
+          "93",
+          "65"
+        ],
+        [
+          "94",
+          "4401"
+        ],
+        [
+          "95",
+          "1"
+        ],
+        [
+          "96",
+          "2197"
+        ],
+        [
+          "97",
+          "2197"
+        ],
+        [
+          "98",
+          "2197"
+        ],
+        [
+          "99",
+          "2201"
+        ]
+      ],
+      "coverage": {
+        "fast": 13347,
+        "staged": 1537,
+        "wait_edges": 1553,
+        "retries": 7,
+        "resets": 1
+      },
+      "summary": "checks=14884 writes=238 reads=6928 epochs=392"
+    },
+    {
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/cp-prefix-cache-verilator-v2-20261023",
+      "engine": "verilator",
+      "state_sha256": "3d4402e992e242f49919d00db6a0d1b06507cbc7e6a2dae810c5b68faa1b890c",
+      "candidate_sha256": "1ab068f0b33c365dda1da9843fe7f13090bd29f18fd47e8ccc012df7ccd6692a",
+      "clocks": [
+        [
+          "0",
+          "4464"
+        ],
+        [
+          "1",
+          "2232"
+        ],
+        [
+          "2",
+          "2232"
+        ],
+        [
+          "3",
+          "2232"
+        ],
+        [
+          "4",
+          "4393"
+        ],
+        [
+          "5",
+          "4393"
+        ],
+        [
+          "6",
+          "4393"
+        ],
+        [
+          "7",
+          "4201"
+        ],
+        [
+          "8",
+          "4393"
+        ],
+        [
+          "9",
+          "4393"
+        ],
+        [
+          "10",
+          "4464"
+        ],
+        [
+          "11",
+          "2180"
+        ],
+        [
+          "12",
+          "2180"
+        ],
+        [
+          "13",
+          "2181"
+        ],
+        [
+          "14",
+          "4393"
+        ],
+        [
+          "15",
+          "4464"
+        ],
+        [
+          "16",
+          "2180"
+        ],
+        [
+          "17",
+          "2180"
+        ],
+        [
+          "18",
+          "2181"
+        ],
+        [
+          "19",
+          "2180"
+        ],
+        [
+          "20",
+          "1616"
+        ],
+        [
+          "21",
+          "1616"
+        ],
+        [
+          "22",
+          "166"
+        ],
+        [
+          "23",
+          "4393"
+        ],
+        [
+          "24",
+          "4393"
+        ],
+        [
+          "25",
+          "2101"
+        ],
+        [
+          "26",
+          "2181"
+        ],
+        [
+          "27",
+          "2101"
+        ],
+        [
+          "28",
+          "2181"
+        ],
+        [
+          "29",
+          "32"
+        ],
+        [
+          "30",
+          "48"
+        ],
+        [
+          "31",
+          "32"
+        ],
+        [
+          "32",
+          "48"
+        ],
+        [
+          "33",
+          "2180"
+        ],
+        [
+          "34",
+          "4393"
+        ],
+        [
+          "35",
+          "4393"
+        ],
+        [
+          "36",
+          "4393"
+        ],
+        [
+          "37",
+          "4393"
+        ],
+        [
+          "38",
+          "2180"
+        ],
+        [
+          "39",
+          "4393"
+        ],
+        [
+          "40",
+          "4393"
+        ],
+        [
+          "41",
+          "4393"
+        ],
+        [
+          "42",
+          "1616"
+        ],
+        [
+          "43",
+          "32"
+        ],
+        [
+          "44",
+          "2180"
+        ],
+        [
+          "45",
+          "2180"
+        ],
+        [
+          "46",
+          "257"
+        ],
+        [
+          "47",
+          "2181"
+        ],
+        [
+          "48",
+          "2180"
+        ],
+        [
+          "49",
+          "2180"
+        ],
+        [
+          "50",
+          "2180"
+        ],
+        [
+          "51",
+          "2180"
+        ],
+        [
+          "52",
+          "2180"
+        ],
+        [
+          "53",
+          "1"
+        ],
+        [
+          "54",
+          "1"
+        ],
+        [
+          "55",
+          "1056"
+        ],
+        [
+          "56",
+          "1056"
+        ],
+        [
+          "57",
+          "1616"
+        ],
+        [
+          "58",
+          "1616"
+        ],
+        [
+          "59",
+          "1616"
+        ],
+        [
+          "60",
+          "1616"
+        ],
+        [
+          "61",
+          "1616"
+        ],
+        [
+          "62",
+          "1616"
+        ],
+        [
+          "63",
+          "1616"
+        ],
+        [
+          "64",
+          "1616"
+        ],
+        [
+          "65",
+          "239"
+        ],
+        [
+          "66",
+          "132"
+        ],
+        [
+          "67",
+          "2180"
+        ],
+        [
+          "68",
+          "2180"
+        ],
+        [
+          "69",
+          "32"
+        ],
+        [
+          "70",
+          "1616"
+        ],
+        [
+          "71",
+          "1616"
+        ],
+        [
+          "72",
+          "1616"
+        ],
+        [
+          "73",
+          "1616"
+        ],
+        [
+          "74",
+          "1616"
+        ],
+        [
+          "75",
+          "1616"
+        ],
+        [
+          "76",
+          "1616"
+        ],
+        [
+          "77",
+          "1616"
+        ],
+        [
+          "78",
+          "1616"
+        ],
+        [
+          "79",
+          "1616"
+        ],
+        [
+          "80",
+          "1616"
+        ],
+        [
+          "81",
+          "1616"
+        ],
+        [
+          "82",
+          "1616"
+        ],
+        [
+          "83",
+          "1616"
+        ],
+        [
+          "84",
+          "1616"
+        ],
+        [
+          "85",
+          "1616"
+        ],
+        [
+          "86",
+          "32"
+        ],
+        [
+          "87",
+          "1616"
+        ],
+        [
+          "88",
+          "1616"
+        ],
+        [
+          "89",
+          "1616"
+        ],
+        [
+          "90",
+          "1616"
+        ],
+        [
+          "91",
+          "65"
+        ],
+        [
+          "92",
+          "65"
+        ],
+        [
+          "93",
+          "65"
+        ],
+        [
+          "94",
+          "4401"
+        ],
+        [
+          "95",
+          "1"
+        ],
+        [
+          "96",
+          "2197"
+        ],
+        [
+          "97",
+          "2197"
+        ],
+        [
+          "98",
+          "2197"
+        ],
+        [
+          "99",
+          "2201"
+        ]
+      ],
+      "coverage": {
+        "fast": 13347,
+        "staged": 1537,
+        "wait_edges": 1553,
+        "retries": 7,
+        "resets": 1
+      },
+      "summary": "checks=14884 writes=238 reads=6928 epochs=392"
+    }
+  ],
+  "negative_controls": [
+    {
+      "directory": "cp-prefix-cache-stale-tag-icarus-v2-20261023",
+      "engine": "icarus",
+      "mutation": "stale-tag",
+      "rejection": "CP stale tag accepted changed CP data check=0",
+      "state_sha256": "3e201a94d4ffc1cd49371ab80a1c7bd7ea793a2d46aa6c17a56cf65c5810f04a"
+    },
+    {
+      "directory": "cp-prefix-cache-bad-prefix-icarus-v2-20261023",
+      "engine": "icarus",
+      "mutation": "bad-prefix",
+      "rejection": "R front resolved source mismatch check=0",
+      "state_sha256": "124feb497d564d84e9246d280bb944cd17e003e9a16315b1071fb68093428d15"
+    },
+    {
+      "directory": "cp-prefix-cache-unguarded-write-icarus-v2-20261023",
+      "engine": "icarus",
+      "mutation": "unguarded-write",
+      "rejection": "CP unready request reached the original SRAM owner check=0",
+      "state_sha256": "f68d080a7439b950a32157c89c738c6072ee6be3102ac7299b1635fd8db86934"
+    },
+    {
+      "directory": "cp-prefix-cache-stale-tag-verilator-v2-20261023",
+      "engine": "verilator",
+      "mutation": "stale-tag",
+      "rejection": "CP stale tag accepted changed CP data check=0",
+      "state_sha256": "4ed67fbf165d9e68bbd786404eb30d52cdc5af9cd5be9dee8248a83321a35668"
+    },
+    {
+      "directory": "cp-prefix-cache-bad-prefix-verilator-v2-20261023",
+      "engine": "verilator",
+      "mutation": "bad-prefix",
+      "rejection": "R front resolved source mismatch check=0",
+      "state_sha256": "98df1321929f3d14192ac2d595bbbca418daffb12f89f4c75b32d5eeef4eb188"
+    },
+    {
+      "directory": "cp-prefix-cache-unguarded-write-verilator-v2-20261023",
+      "engine": "verilator",
+      "mutation": "unguarded-write",
+      "rejection": "CP unready request reached the original SRAM owner check=0",
+      "state_sha256": "48890cdca548961109374b6405e0a34dc52eea36ad39cf3e117775d743d88c81"
+    }
+  ],
+  "formal_proofs": [
+    {
+      "directory": "cp-prefix-cache-ready-proof-v1-20261023",
+      "status": "TERMINAL_CP_CACHE_PROOF_NOT_ESTABLISHED",
+      "state_sha256": "89b374a2acba142388a4ef11d46053e5734e7bb3ff34be3d8c2fe3a59c1e76ea",
+      "bounded_host_steps": 4,
+      "unbounded_induction_proven": false,
+      "proof_succeeded": false,
+      "counterexample_found": false
+    },
+    {
+      "directory": "cp-prefix-cache-ready-proof-v2-20261023",
+      "status": "PASS_BOUNDED_CP_CACHE_READY_EQUIVALENCE",
+      "state_sha256": "468bf9270e42b2351d489812e067d4740423f5632a1c5a894baa7f2762364bce",
+      "bounded_host_steps": 4,
+      "unbounded_induction_proven": false,
+      "proof_succeeded": true,
+      "counterexample_found": false
+    },
+    {
+      "directory": "cp-prefix-cache-stale-tag-proof-v1-20261023",
+      "status": "PASS_BOUNDED_CP_CACHE_COUNTEREXAMPLE",
+      "state_sha256": "b504ace10bdf9f34dc08fdfd09481c22c9a114f3621d2f5072042f050d47a25c",
+      "bounded_host_steps": 4,
+      "unbounded_induction_proven": false,
+      "proof_succeeded": false,
+      "counterexample_found": true
+    },
+    {
+      "directory": "cp-prefix-cache-bad-prefix-proof-v1-20261023",
+      "status": "PASS_BOUNDED_CP_CACHE_COUNTEREXAMPLE",
+      "state_sha256": "6c3d58e6ce861d253d9507b34f78e9c117b70fe13256660514876fcf9cacdbb7",
+      "bounded_host_steps": 4,
+      "unbounded_induction_proven": false,
+      "proof_succeeded": false,
+      "counterexample_found": true
+    },
+    {
+      "directory": "cp-prefix-cache-unguarded-write-proof-v1-20261023",
+      "status": "PASS_BOUNDED_CP_CACHE_COUNTEREXAMPLE",
+      "state_sha256": "9565f70e684ec3fc355ba180a718cd0f296e6c0a2728ed693c22440ba2168ac7",
+      "bounded_host_steps": 4,
+      "unbounded_induction_proven": false,
+      "proof_succeeded": false,
+      "counterexample_found": true
+    },
+    {
+      "directory": "cp-prefix-cache-induction-v1-20261023",
+      "status": "PASS_CP_CACHE_INDUCTIVE_READY_EQUIVALENCE",
+      "state_sha256": "446ea0864cb7e845e3554b5305be916a328f95ea7e270f607a027d8fda652848",
+      "bounded_host_steps": null,
+      "unbounded_induction_proven": true,
+      "proof_succeeded": true,
+      "counterexample_found": false
+    }
+  ],
+  "component_fit_passed": false,
+  "fit_corners": [
+    {
+      "condition": "7_slow_1100mv_100c",
+      "global": {
+        "slack_ns": -5.381,
+        "source": "launch[558]",
+        "sink": "dorado_r_front_control_step:evaluator|dorado_cp_prefix_cache:cp_guard|canonical_valid~DUPLICATE",
+        "arrival_ns": 24.123,
+        "required_ns": 18.742,
+        "report_sha256": "a3bf79df843bd53f8d5ee7e2c61a8557956e2822cb9b70a423312bee89acb09b"
+      },
+      "owners": {
+        "slack_ns": -4.875,
+        "source": "launch[558]",
+        "sink": "result[1148]~reg0",
+        "arrival_ns": 23.611,
+        "required_ns": 18.736,
+        "report_sha256": "ced0c5dbd11a5d2752ad0f816abf67317f2ad1c27abc6456a789ad6afae06975"
+      },
+      "late_owners": {
+        "slack_ns": 0.848,
+        "source": "launch[388]",
+        "sink": "result[1148]~reg0",
+        "arrival_ns": 18.252,
+        "required_ns": 19.1,
+        "report_sha256": "1579ddad662e0394332c079d8b1d5c6dc55b5cbe1ec9798929ca0262efe50f6c"
+      },
+      "hold": {
+        "slack_ns": 0.378,
+        "source": "launch[1234]",
+        "sink": "result[984]~reg0",
+        "arrival_ns": 4.315,
+        "required_ns": 3.937,
+        "report_sha256": "9a5171b42712ab302434a477ffa9ea5d1b7b15f87c21c3034432fbe8579a2072"
+      }
+    },
+    {
+      "condition": "7_slow_1100mv_-40c",
+      "global": {
+        "slack_ns": -5.619,
+        "source": "dorado_r_front_control_step:evaluator|dorado_cp_prefix_cache:cp_guard|canonical_pins[249]",
+        "sink": "dorado_r_front_control_step:evaluator|dorado_cp_prefix_cache:cp_guard|canonical_valid~DUPLICATE",
+        "arrival_ns": 24.517,
+        "required_ns": 18.898,
+        "report_sha256": "f05d44f7e6facd52edf65e11293e4284b01d898a7eccfdcb6155c6eddb1fa2d2"
+      },
+      "owners": {
+        "slack_ns": -5.036,
+        "source": "launch[608]",
+        "sink": "result[1148]~reg0",
+        "arrival_ns": 23.929,
+        "required_ns": 18.893,
+        "report_sha256": "d341db433825acf9b9ed62d82c4b8fdeb713f230482cee387760b79d17efb6d9"
+      },
+      "late_owners": {
+        "slack_ns": 1.022,
+        "source": "launch[388]",
+        "sink": "result[1148]~reg0",
+        "arrival_ns": 18.24,
+        "required_ns": 19.262,
+        "report_sha256": "efabdedbaf630625d55ebdbc73119ba9ad23b1c85a448d6f4ff2c794d40fdebb"
+      },
+      "hold": {
+        "slack_ns": 0.338,
+        "source": "launch[395]",
+        "sink": "dorado_r_front_control_step:evaluator|dorado_cp_prefix_cache:cp_guard|canonical_pins[393]",
+        "arrival_ns": 4.893,
+        "required_ns": 4.555,
+        "report_sha256": "c2c5c4837f609fa7d8ff0195adfd5eae585193ba8b1915adcf2ca3726951d59a"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_100c",
+      "global": {
+        "slack_ns": 3.774,
+        "source": "launch[1550]",
+        "sink": "result[355]~reg0",
+        "arrival_ns": 12.888,
+        "required_ns": 16.662,
+        "report_sha256": "4afb2336180e57474f09f30b5503506004ce166f9004ab8356f314e1aa67a548"
+      },
+      "owners": {
+        "slack_ns": 4.252,
+        "source": "launch[1550]",
+        "sink": "result[1148]~reg0",
+        "arrival_ns": 12.576,
+        "required_ns": 16.828,
+        "report_sha256": "b06fe1cf117cb8c9c7cf1f2580f675e67de36eabe33b4c99520290eb57491c6b"
+      },
+      "late_owners": {
+        "slack_ns": 7.17,
+        "source": "launch[388]",
+        "sink": "result[1148]~reg0",
+        "arrival_ns": 9.658,
+        "required_ns": 16.828,
+        "report_sha256": "e89765ba5c86f16280d078d78b1141be9a97c50c1169e1a1b165638bc8434bda"
+      },
+      "hold": {
+        "slack_ns": 0.179,
+        "source": "launch[1234]",
+        "sink": "result[984]~reg0",
+        "arrival_ns": 2.001,
+        "required_ns": 1.822,
+        "report_sha256": "140b48cc494e57a6a8793bf1c5c58694e12e286763f62af51b5afda80be7e98d"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_-40c",
+      "global": {
+        "slack_ns": 4.353,
+        "source": "input_stage[419]",
+        "sink": "launch[419]~DUPLICATE",
+        "arrival_ns": 12.193,
+        "required_ns": 16.546,
+        "report_sha256": "0977026ff453f1b0c31564ac038d869ceba060e3f94a39021bef2d19fbfca447"
+      },
+      "owners": {
+        "slack_ns": 5.978,
+        "source": "launch[558]",
+        "sink": "result[1148]~reg0",
+        "arrival_ns": 10.556,
+        "required_ns": 16.534,
+        "report_sha256": "d049692bc4211d6aacf85fcf1d8e2b052f9c989176c70b2190ac1cf24499bffc"
+      },
+      "late_owners": {
+        "slack_ns": 8.461,
+        "source": "launch[388]",
+        "sink": "result[1148]~reg0",
+        "arrival_ns": 8.245,
+        "required_ns": 16.706,
+        "report_sha256": "3873cf59b402de23184c07f3ae07497fe6b4a8b2875fa4e78c9e97512937a65e"
+      },
+      "hold": {
+        "slack_ns": 0.157,
+        "source": "launch[1234]",
+        "sink": "result[984]~reg0",
+        "arrival_ns": 1.851,
+        "required_ns": 1.694,
+        "report_sha256": "0c1ecfbbc23a6dd48a9c88f21d89ec7672884cec2a182e92746fea6b824eecde"
+      }
+    }
+  ],
+  "component_area": {
+    "ALMs": 5442,
+    "registers": 6068
+  },
+  "original_results_preserved": true,
+  "timing_exceptions_added": false,
+  "physical_SRAM_banks": 4,
+  "fixture_fast_fraction_is_not_a_native_speed_measurement": true,
+  "native_observations": [
+    {
+      "directory": "native-cedar-5c65-skip-wait-v1-20261023",
+      "pid": 29201,
+      "ps": "29201 05:44:45 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792823910.490679,
+      "state_sha256": "e0d1087b204623337f82baec72fe60c308dd14aad7337126ff32938b17055f43"
+    },
+    {
+      "directory": "native-cedar-5c65-input-reset-v3-20261023",
+      "pid": 58600,
+      "ps": "58600 01:48:17 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-5c65-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792823910.495243,
+      "state_sha256": "b75adcae9e42639f590196dc579c9442f5210d3519b5da4536adeffed2276ffc"
+    },
+    {
+      "directory": "native-cedar-queue-skip-wait-v1-20261023",
+      "pid": 29618,
+      "ps": "29618 05:43:43 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-skip-wait-v1-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792823910.4997199,
+      "state_sha256": "0d15076c270b2b79a1d15a8ac4153fbad6d04e7ab608ed8a46e02288168fa225"
+    },
+    {
+      "directory": "native-cedar-queue-input-reset-v3-20261023",
+      "pid": 58753,
+      "ps": "58753 01:48:16 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cedar-queue-input-reset-v3-20261023/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792823910.504063,
+      "state_sha256": "ba82b45e488a278f03e6618a26b89a3768a7cd757cde7fd46b48d1c2eb71b04f"
+    }
+  ],
+  "native_all_board_pause_integration_qualified": false,
+  "original_CP_arrival_profile_still_unqualified": true,
+  "hardware_changed": false,
+  "physical_timing_qualified": false,
+  "speedup_qualified": false,
+  "full_goal_active": true,
+  "full_FPGA_snapshots_deferred": true
+}

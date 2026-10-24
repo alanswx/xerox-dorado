@@ -9,6 +9,31 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Guarded-prefix implementation follow-up (2026-10-23): the
+canonical/last-settled component and tagged fallback now pass BOTH complete
+14,884-event original comparisons, including844Q/9216RAM/100clock counts.
+Reset and changed-input retries preserve the sole four-bank SRAM owner;
+unready requests cannot reach its commit enable. Fixture13,347direct /
+1,537staged is not native frequency or a measured gain. Both engines reject
+stale tags, corrupted prefixes and unguarded writes; all three also have
+direct-RTL bounded counterexamples. Four-step ready-result equivalence passes
+all475control/event/flag bits with958 arbitrary inputs per step. Stronger
+cached-payload/canonical-identity invariants plus the safety property now pass
+direct-RTL temporal induction, with arbitrary inputs/reset history and exact
+auxiliary power-up values. This proves unbounded binary component safety,
+not global/native pause behavior, physical timing or software speed.
+
+The guarded component's full15ns fit is TERMINAL and REJECTED: -5.619ns global /
+-5.036ns owners, with positive hold/late-Hold margins. All original launch/
+result indices and SDC remain, with added timed reset/readiness. Area5442ALMs /
+6068registers. The fast_path comparator now precedes root/control/R-flag logic;
+canonical_valid feedback is the global worst sink. Next compute direct/staged
+control alternatives in parallel and select afterward; use control-settled
+eligibility while retaining the full diagnostic output. Re-run all comparisons/
+proofs/timing before native integration. All-board/backend pause semantics, actual CP
+frequency/arrivals, original60ns phases/timers, physical66.7MHz SDRAM and full
+A-F acceptance remain. No image/hardware/speed change is claimed.
+
 Latest structural result (2026-10-23): the phase-preserving Hold CLOCK rewrite
 and24->8 combinational settling fold pass direct Verilog-derived equivalence
 for955 arbitrary binary state/input bits and all363 atomic outputs. Both full

@@ -4,6 +4,66 @@ This receipt preserves the complete v5 native failure and the corrected
 component implementation of the original l06/l07 flag latches. No image was
 assembled or loaded; the qualified hardware core and measured speed are unchanged.
 
+## Guarded CP-prefix cache
+
+`cp-prefix-cache-summary.json` retains the implemented canonical/last-settled
+guard, first-step fallback and tagged269-bit prefix pipeline. The567-bit key
+contains every prefix input; the root's11CP pins are also checked. Only exact
+canonical unchanged prefixes bypass. Reset invalidates eligibility and cache.
+The original four SRAMs remain the sole storage owners and receive commit
+permission only when `advance && cp_ready`.
+
+Both final v2 engines pass14,884checks/238writes/6,928reads/392epochs, retaining
+all844physical Qs/9216RAM bits, every original fatal and all100clock counts.
+Fixture coverage13,347direct/1,537staged,1,553wait edges includes7changed-input
+retries and1reset invalidation. This is NOT native CP frequency or speed.
+Both engines reject stale-tag, corrupted-prefix and unguarded-write controls
+at check0; corrupted prefix fails an original source assertion, and unguarded
+write fails observation of the actual SRAM owner's enable. Earlier passing v1
+fixtures lacked that explicit owner-enable check and remain as history.
+
+Direct Verilog-derived four-step proof compares475control/event/flag outputs
+plus write permission for958arbitrary inputs per step, first-step reset only.
+Each of the three broken variants has an independent SAT counterexample.
+The stronger proof adds pure ghost functions observing saved payload/key and
+canonical identity. The actual scheduler is inverse-byte-identical after
+removing those observations. Base and induction length1 prove the combined
+invariant and ready-result/write-exclusion property, with arbitrary input/reset
+histories and exact RTL auxiliary power-up values. This is unbounded digital
+component safety, not original analog timing or native all-board integration.
+The initial frontend failure on ANSI output initializers remains: the next
+proof lowers exactly three constant-zero initializers to identical initial
+statements, with an inverse byte check. All sources/scripts/logs are retained.
+
+The full15ns component fit finishes map/fit/STA/four-corner reports but is
+**REJECTED**. All original1650launch/1400result indices and the SDC remain;
+reset launch1650/readiness result1400 are added and timed, without exceptions.
+
+| Condition | Global setup | Owner setup | Late Hold -> owners | Hold |
+|---|---:|---:|---:|---:|
+| Slow100C | -5.381ns | -4.875ns | +0.848ns | +0.378ns |
+| Slow-40C | -5.619ns | -5.036ns | +1.022ns | +0.338ns |
+| Fast100C | +3.774ns | +4.252ns | +7.170ns | +0.179ns |
+| Fast-40C | +4.353ns | +5.978ns | +8.461ns | +0.157ns |
+
+All five UCP classes are zero.5442ALMs include1527virtual-pin ALMs;
+6068registers, no M10Ks. The global worst sink is canonical_valid feedback;
+the owner path goes from launch608=before-pin205 through the wide fast_path
+comparison, root CP selection/tasking/ContB and R flags to result1148=physical
+Q592. The guard replaced the old prefix path but now adds latency ahead of
+the root. Next compute direct/staged control results in parallel and select
+afterward, and derive eligibility from control-settled state while retaining
+the full diagnostic. Re-prove and time the actual result before native use.
+The fitted DB remains on misterubuntu at
+`/home/alans/mister/cp-prefix-cache-fit-v1-20261023`.
+
+All four native tests were verified live at unchanged5B bounds; source/log
+observations are retained, not a completed boot claim. Main/daemon/hardware
+and last4.025473M StartCycle issues/s are unchanged. Global board/backend
+pauses, actual CP frequency/arrival/pulse contracts, original60ns phases/all
+timers, physical66.7MHz SDRAM and the full Cedar/Rollback/persistence/three-
+boot/input/two-hour stress acceptance remain. Full FPGA snapshots are deferred.
+
 ## Phase-preserving Hold and direct RTL proof
 
 `phase-hold-formal-summary.json` records the new alternative to duplication:

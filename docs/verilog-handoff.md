@@ -1,5 +1,54 @@
 # Verilog from Sil: handoff
 
+Guarded CP-prefix component follow-up (2026-10-23;
+[exact proof and rejected timing receipt](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#guarded-cp-prefix-cache)):
+`tools/probe_cp_prefix_cache.py` implements canonical/last-settled eligibility,
+first-step fallback and a tagged269-bit prefix register. Only exact canonical
+unchanged prefixes bypass; all other prefixes stage while the caller holds
+architectural owners. The original four SRAM banks commit only when
+`advance && cp_ready`. Reset invalidates both eligibility and cached payload;
+full567-bit prefix keys plus saved root CP pins reject changed inputs.
+
+Both v2 engines pass the complete14,884checks/238writes/6,928reads/392epochs,
+all844Q/9216RAM and100 original clock counts. Fixture coverage is13,347direct /
+1,537staged transactions,1,553wait edges including reset/retry probes,7changed-
+input retries and1reset invalidation. These counts are NOT native frequency or
+speed evidence. Both engines reject stale-tag, corrupted-prefix and unguarded-
+write variants at check0; the last checks the actual SRAM-owner enable.
+The original bad-prefix rejection uses an existing resolved-source assertion.
+
+Direct RTL proof v2 passes475 control/event/flag outputs and write permission
+for four host steps,958 arbitrary input bits per step, first-step reset only.
+All three negative variants have formal counterexamples. The first proof's
+frontend failure is retained; exactly three constant-zero output initializers
+are lowered to identical initial statements with an inverse byte check.
+The stronger direct-RTL proof now passes temporal induction of cached-payload/
+canonical-identity invariants together with all475 ready-result bits and
+unready write exclusion. The base case and induction length1 both prove;
+all958 inputs/reset histories are arbitrary, auxiliary power-up state matches
+the actual RTL. This is unbounded binary component safety, not timing or
+global machine/pause qualification. Pure ghost observation functions add no
+functional scheduler logic; inverse removal recovers the exact cache module.
+
+The full15ns fit is TERMINAL and REJECTED on misterubuntu at
+`/home/alans/mister/cp-prefix-cache-fit-v1-20261023`. Every original1650launch /
+1400result index and the SDC remain; reset launch1650/readiness result1400
+are added and timed. All build/report stages pass, but worst setup is-5.619ns
+global/-5.036ns owners; minimum hold+0.157ns and late-Hold owners+0.848ns.
+Area5442ALMs includes1527virtual-pin ALMs;6068registers. The guard comparator
+now feeds root CP selection, control tasking and the R flags; before-pin205
+through fast_path reaches physical Q592, while canonical_valid feedback is
+the global worst sink. No assembly/deployment is allowed.
+Next move the guard selection after parallel direct/staged control evaluation
+and use control-settled eligibility rather than full-operand diagnostic
+feedback, with the same complete comparisons and direct-RTL proof. Then
+integrate global all-board/backend pauses and measure actual CP frequency;
+retain FOUR15ns ticks/60ns
+ordinary cadence. Original CP arrival/width, timers, physical66.7MHz SDRAM and
+all Cedar/Rollback/persistence/fresh-boot/input/stress gates remain open.
+All four original native tests were verified live at unchanged5B bounds.
+Hardware/Main/daemon and4.025473M measured StartCycle issues/s are unchanged.
+
 Latest phase-preserving Hold/canonical-state milestone (2026-10-23;
 [proofs, rejected fit and next seam](../fpga/mister/reports/2026-10-23-native-flag-windows/README.md#phase-preserving-hold-and-direct-rtl-proof)):
 the original LOW phase cannot re-capture memory Hold. Retain its initial value
@@ -10189,8 +10238,10 @@ and has unreviewed hold violations; never deploy it.
 
 - [x] Prove the phase-preserving Hold clock rewrite and24->8 settling fold directly from Verilog for955 binary inputs/state bits/all363 atomic outputs; retain the rejected four-pass and wrong-Hold cases with dual-engine replays.
 - [x] Finish both complete original comparisons for MIR+task clocks/eight passes and the full15ns component fit; preserve -7.699ns rejection, positive late-Hold margin and CP-bank critical-path attribution.
-- [x] Prove conditional settled CP-prefix identity, reject changed saved-before pins and bind the pin/root snapshot seam to the staged native source; no runtime fast path yet.
-- [ ] Implement/qualify guarded ordinary prefix bypass and CP-event-only staging, measure CP event frequency, preserve source snapshots across all-board/backend pauses and one SRAM commit, and keep the60ns ordinary budget.
+- [x] Prove conditional settled CP-prefix identity, reject changed saved-before pins and bind the pin/root snapshot seam to the staged native source; native runtime integration remains open.
+- [x] Implement guarded ordinary-prefix bypass/conditional staging in the component; pass both complete original comparisons, reset/tag-change retries, direct four-step ready-result/write-permission proof and six simulator/three formal negative controls.
+- [x] Prove guarded-prefix safety by direct-RTL temporal induction; finish full15ns fit and retain -5.619ns global/-5.036ns owner rejection with the guard-comparator/feedback attribution.
+- [ ] Move the guarded selection after parallel direct/staged control evaluation and qualify control-only settled eligibility, then repeat original comparisons/proofs/full15ns timing. Integrate global all-board/backend pauses, measure actual CP frequency and preserve one SRAM commit and the60ns ordinary budget.
 - [x] Preserve dual-engine late-Hold component passes and reject the full 15 ns duplication fit on actual owner paths; no timing waiver or native promotion.
 - [x] Diagnose the original native keyboard's all-zero active-low matrix; repair adapter power-up and stopped-clock reset, with16 dual-engine cases including8 rejected controls.
 - [ ] Observe genuine Cedar113/C release and pinned storage windows on fresh input-reset-v3 control/queue jobs58600/58753, bound to passing final adapter synthesis/tests; retain original jobs29201/29618 and their unchanged bounds as Alto110 evidence.
