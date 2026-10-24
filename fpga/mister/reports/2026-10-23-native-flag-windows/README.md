@@ -6,6 +6,27 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`processor-packet-summary.json` retains COMPLETE single-commit processor
+packets against the original checked graph: all 14,884 transactions, both
+simulators, 4,461 pairs/10,423 commits, both full 2,470-bit subevent results,
+844 Qs, all 100 clocks and 9,216 SRAM bits. Every before/after SRAM word/owner
+link is independently replayed. One physical owner forwards 238 bytes from 119
+write events; no early commit. All 403 invalid geometries hold owners and RAM.
+Three compiled corruptions reject at records 203/203/16. All 18 forwarding bits
+prove for arbitrary bank words/selections; dropped forwarding/parity reject.
+
+The COMPLETE 4,943-output15ns fit is TERMINAL/REJECTED: setup
+-22.500/-22.504/-4.332/-1.580ns, minimum hold+0.094ns, pulse width+6.111ns,
+zero UCPs. 8,665ALMs/7,189regs/9,216MLAB bits include fixture resources.
+All 86 collected members/compiled inputs/exited handles verify. The critical
+path crosses first and second CP prefixes before the SRAM write enable; the
+result path also fails. Preserve the display-width/compiler and Quartus syntax
+failures. Known native syntax lowering passes full replay. Next qualify entry-
+only cached prefix plus a proven fresh LOW-root identity, preserving all error
+and memory gates. Actual source/device pin epochs and full native timing remain
+open; equal packet endpoints alone cannot prove interior pin stability. No
+native selection, assembly, FPGA access or measured hardware speed change.
+
 `pure-processor-seam-summary.json` retains the next structural step: explicit
 RM/STK ports with one original physical owner and a stateless full processor
 function. Both memory references pass all 14,884 original checks/844 Qs/9,216
@@ -1304,8 +1325,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps81,428 members to9,315 deduplicated compressed blobs;
-lossless readback verifies3,007,764,784 unique raw bytes and111,809,615 compressed
+`manifest.json.gz` now maps82,065 members to9,407 deduplicated compressed blobs;
+lossless readback verifies3,067,827,951 unique raw bytes and112,816,040 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

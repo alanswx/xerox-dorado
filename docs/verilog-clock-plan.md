@@ -14,6 +14,64 @@ Continue build/simulation work; notify them when a reviewed build is ready
 for hardware testing, and wait until they release MiSTer14 before any load,
 reboot or control. Earlier reload authorization is superseded while it is in use.
 
+Full processor single-commit packets QUALIFIED digitally; 15 ns fit REJECTED
+(2026-10-24). `processor-packet-summary.json` preserves the complete fall/rise
+composition with ONE original RM/STK owner. Both simulators replay all 14,884
+original-reference transactions as 10,423 commits, including 4,461 paired
+packets, 119 paired write events and 238 forwarded bytes. Both 2,470-bit subevent
+results (all 844 closed/physical Qs and 100 clocks) and every one of the 9,216
+SRAM bits agree. These are fixture commit counts, NOT native speed measurements.
+No intermediate architectural owner or physical SRAM write is committed during
+a pair. Single-event evaluation supplies the ordered fallback.
+
+The oracle is a passive trace of the UNCHANGED original cached/pure processor
+reference fixture: all 14,884 transactions and original capture/storage/cache assertions still pass.
+Independent readback checks every owner/root/pin link, every old addressed word
+and parity BEFORE its write, and every full SRAM transition AFTER it. The four
+arbitrary nine-bit bank words prove all 18 forwarding bits for every bank select
+and write gate, including odd parity; dropped forwarding and bad parity reject.
+Early-write and dropped-forwarding replay corruptions fail at record 203; stale
+intermediate owners fail at record 16. Another 403 invalid pin/root geometries
+refuse ready and leave the complete owner/SRAM unchanged even with advance high.
+The candidate uses one read port per physical bank and one final write commit;
+no duplicated SRAM or flattened architectural RAM transport is introduced.
+
+The mode defines constant pins through both events. Equal before/after pins
+alone do NOT establish the actual CP/device epochs inside a source packet:
+record/bind those intermediate events before native selection. Source rotations,
+arbitrary debug fallback and original analog capture/pulse contracts remain in
+scope. The original trace's oversized display-argument compiler failure and the
+first Quartus parser failure are preserved. The corrected cone/read-window
+syntax is byte-identical to the previously qualified native lowering and passes
+the complete replay again. No logic, assertion or timing constraint changed.
+
+COMPLETE 4,943-output/1,651-input component fit at 15 ns, no exceptions/retiming:
+all map/fit/STA/corner jobs exit zero and all inputs/process exits read back.
+86 collected members, archive SHA
+3cce326b7bb787e1f8f8336d00ef3f9a5596bee4d137b2d19d661fac9ea04f37.
+Four-corner setup is -22.500/-22.504/-4.332/-1.580 ns: REJECTED. Hold minima
++0.305/+0.240/+0.149/+0.094 ns and pulse-width +6.460/+6.491/+6.174/+6.111 ns
+pass; zero UCPs, no recovery/removal endpoints. Area is 8,665 ALMs/7,189 registers/
+9,216 MLAB bits, including fixture/virtual-pin resources (not native area).
+The worst slow path starts at before-pins[283] (CP data), crosses first CP prefix/
+root evaluation and the second CP prefix/certificate, then reaches the physical
+SRAM write gate: 37 logic levels, 36.361 ns data. The evaluator-result path also
+fails by 21.737 ns, so moving only the write gate cannot close this circuit.
+
+NEXT: remove that serial prefix chain structurally. Use the qualified closed-
+owner prefix cache/staging at packet ENTRY only, then derive the first fall's
+fresh LOW-root identity from the proved fall/endpoint theorem and actual full
+844-Q held-state projection. Qualify a direct second root against the fresh
+pure oracle; never apply native canonical_match=1 to uncommitted owners. Retain
+all unsettled/repeated checks, X/Z fallback, SRAM barriers/epochs, all results and
+corruption gates. Refit the full consumer at 15 ns. Then bind actual source/CP/
+device timestamps and integrate the remaining consumers/full native cadence.
+All new packet/proof/timing jobs are terminal. No assembly, FPGA access, native
+selection, real 60 ns cadence or measured speed improvement is qualified. The
+user keeps the FPGA. The full A–F/66.7 MHz SDRAM/Main/daemon/Cedar/Rollback/
+persistence/three-boot/two-hour hardware objective remains active; snapshots are
+deferred. Last hardware measurement remains 4.025473M StartCycle ISSUES/s.
+
 Stateless processor and single SRAM owner qualified (2026-10-24):
 `pure-processor-seam-summary.json` now preserves the full evaluator with explicit
 RM/STK read and write ports. The caller owns the same four 256x9 banks once;
@@ -406,10 +464,11 @@ no138 or unsupported indices. Receipt `native-selector-terminal-summary.json`
 retains full reports/source/readback. Never restart the completed builder or
 reporters. Original ECC loop/pulse and broader capture timing remain open.
 
-Next/TODO: the complete844-Q stateless processor and single-owner SRAM seam
-now pass the original references. Compose its actual fall/rise subevents,
-including transparent latch projections, same-packet memory forwarding and
-single-owner SRAM read-before-write/write commitments. Do not apply the Q30-only
+Next/TODO: complete844-Q single-commit fall/rise replay now PASSES, including
+all transparent latch projections and SRAM forwarding, but the complete15ns
+component misses setup by22.504ns. Replace the serial fresh-prefix chain using
+the entry-only closed-owner cache/staging and PROVED fresh LOW endpoint; retain
+all error/ownership checks and refit. Then bind real source/CP/device timestamps. Do not apply the Q30-only
 control mask to other boards without proof. Bind actual CP producer/input epochs and
 processor source records; keep default rotation0 and ALL other rotations/debug
 fallbacks qualified. Then integrate display/Ethernet consumers. Preserve every
