@@ -1,0 +1,724 @@
+{
+  "status": "REJECTED_NATIVE_CLUSTERED_BUFFER_TIMING_AND_REPLICATION",
+  "raw_members": 966,
+  "source_hashes_verified": 534,
+  "completed_report_processes_absent": [
+    3327607,
+    3328009,
+    3327610,
+    3341503,
+    3403178,
+    3404354,
+    3404912,
+    3413304,
+    3416004,
+    3418399,
+    3421764,
+    3425056,
+    3328337,
+    3428253
+  ],
+  "corners": [
+    {
+      "condition": "7_slow_1100mv_100c",
+      "setup": {
+        "slack_ns": -0.225,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|BaseBd_m_Rev_m_Am_nominal:b_BaseBd|cell_MCS6532:u_i62|M6532:u_riot|dir_a[6]~DUPLICATE",
+        "sink": "emu:emu|network_step",
+        "arrival_ns": 16.596,
+        "required_ns": 16.371,
+        "report_sha256": "f4cbfeff867948868cb3eb04240fdb4e9f9428479f740f4868e66f1b7dbe39f5"
+      },
+      "hold": {
+        "slack_ns": 0.151,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[34]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama8~OBSERVABLEPORTAADDRESSREGOUT1",
+        "arrival_ns": 7.824,
+        "required_ns": 7.673,
+        "report_sha256": "8a4028de217ebcfae7faaac29cf2564cb506efbf1745072e48372008ee097adf"
+      },
+      "input": {
+        "slack_ns": -0.072,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a14|qb",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 25.638,
+        "required_ns": 25.566,
+        "report_sha256": "ef1d725e0a86ed63202eca989ac2c530bd2526b71cf3e2fc99983d4bea5942ba"
+      },
+      "internal": {
+        "slack_ns": 0.158,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[21]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 25.408,
+        "required_ns": 25.566,
+        "report_sha256": "c25d29417ce75e0b5f1a25847ee4d817db04a011fd80de14318c16317d538870"
+      }
+    },
+    {
+      "condition": "7_slow_1100mv_-40c",
+      "setup": {
+        "slack_ns": -0.267,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|BaseBd_m_Rev_m_Am_nominal:b_BaseBd|cell_MCS6532:u_i62|M6532:u_riot|dir_a[6]~DUPLICATE",
+        "sink": "emu:emu|network_step",
+        "arrival_ns": 16.691,
+        "required_ns": 16.424,
+        "report_sha256": "90e236a515c8710292b42cacd51f37dd4abbc89cc72724f2be4196caeac2f549"
+      },
+      "hold": {
+        "slack_ns": 0.103,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[34]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama8~OBSERVABLEPORTAADDRESSREGOUT1",
+        "arrival_ns": 7.979,
+        "required_ns": 7.876,
+        "report_sha256": "aeb8eaf178c3d188bca699dc9dd54206524472b5393f5b646d35ebdb74129cfe"
+      },
+      "input": {
+        "slack_ns": 0.03,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a14|qb",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 25.56,
+        "required_ns": 25.59,
+        "report_sha256": "deacd1840e51cf831b390b2111e57e6e395abf4ae56d5b7f386964d1e1ec0534"
+      },
+      "internal": {
+        "slack_ns": 0.754,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[21]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 24.836,
+        "required_ns": 25.59,
+        "report_sha256": "e2c3c130d6116f0e71470c9475e10c9b0bd00aa732093c697a8be836e889ade5"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_100c",
+      "setup": {
+        "slack_ns": 3.85,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_cp_prefix_cache:cp_guard|cache_key[138]",
+        "sink": "emu:emu|network_step",
+        "arrival_ns": 8.812,
+        "required_ns": 12.662,
+        "report_sha256": "b4d13e9dccb61a362bfd0f27e708d0bd16a51aa0e1071ba33933bb5ea631be93"
+      },
+      "hold": {
+        "slack_ns": 0.115,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[34]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama8~OBSERVABLEPORTAADDRESSREGOUT1",
+        "arrival_ns": 3.898,
+        "required_ns": 3.783,
+        "report_sha256": "b36d60a0509e3e7b44f4c3efc192387eb58dd0b4f0905b8e5755d1b2b007057f"
+      },
+      "input": {
+        "slack_ns": 4.941,
+        "source": "emu:emu|network_step",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[198]~DUPLICATE",
+        "arrival_ns": 16.391,
+        "required_ns": 21.332,
+        "report_sha256": "a674b4bccd020cc658c1754211150bdb7e3fc9d22a50aab3ab95490c1fc2f906"
+      },
+      "internal": {
+        "slack_ns": 8.057,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[21]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 13.291,
+        "required_ns": 21.348,
+        "report_sha256": "7ce98a6b757bcf99552326ab2b99f7bbed9f2707fa263f80c994073c9011e3c7"
+      }
+    },
+    {
+      "condition": "MIN_fast_1100mv_-40c",
+      "setup": {
+        "slack_ns": 4.622,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_cp_prefix_cache:cp_guard|cache_key[138]",
+        "sink": "emu:emu|network_step",
+        "arrival_ns": 7.808,
+        "required_ns": 12.43,
+        "report_sha256": "a4b592e10a52831c016527c2443a677fb40405ab76d345e22deab20f1b4d6d8b"
+      },
+      "hold": {
+        "slack_ns": 0.07,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[34]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_control_step:r_front_evaluator|dorado_local_r_front_ready_step:child|dorado_local_r_front_step:child|dorado_local_r_memory_step:child|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama8~OBSERVABLEPORTAADDRESSREGOUT1",
+        "arrival_ns": 3.669,
+        "required_ns": 3.599,
+        "report_sha256": "ed1b00141928bcef6ec400fd22d40c5dd674b7393388bb1b80811c9a7c21eeec"
+      },
+      "input": {
+        "slack_ns": 5.615,
+        "source": "emu:emu|network_step",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[198]~DUPLICATE",
+        "arrival_ns": 15.486,
+        "required_ns": 21.101,
+        "report_sha256": "cddcf68081668883277f03a0852de68eb0f06b10627a7ab7154eed33fc4bf25a"
+      },
+      "internal": {
+        "slack_ns": 9.498,
+        "source": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[21]",
+        "sink": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|r_front_upper_q[4]",
+        "arrival_ns": 11.618,
+        "required_ns": 21.116,
+        "report_sha256": "017704dc0ea2ba4d1f7d601d5390ed49c6545a50e097ea8f53766c95b06c5e83"
+      }
+    }
+  ],
+  "keeper_coverage": [
+    [
+      "7_slow_1100mv_100c",
+      "85086",
+      "801",
+      "695",
+      "106",
+      "271"
+    ],
+    [
+      "7_slow_1100mv_-40c",
+      "85086",
+      "801",
+      "695",
+      "106",
+      "271"
+    ],
+    [
+      "MIN_fast_1100mv_100c",
+      "85086",
+      "801",
+      "695",
+      "106",
+      "271"
+    ],
+    [
+      "MIN_fast_1100mv_-40c",
+      "85086",
+      "801",
+      "695",
+      "106",
+      "271"
+    ]
+  ],
+  "physical_topology": {
+    "status": "TERMINAL_TAG_BUFFER_TOPOLOGY_REVIEW_REQUIRED",
+    "owners": [
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a14|qa~DUPLICATE",
+        "emu|u_native|m|b_MemC|u_a14|qa~DUPLICATE|q",
+        "61"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a14|qa",
+        "emu|u_native|m|b_MemC|u_a14|qa|q",
+        "1"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a14|qb",
+        "emu|u_native|m|b_MemC|u_a14|qb|q",
+        "323"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a15|qa",
+        "emu|u_native|m|b_MemC|u_a15|qa|q",
+        "323"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_a15|qb",
+        "emu|u_native|m|b_MemC|u_a15|qb|q",
+        "323"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_b14|qa",
+        "emu|u_native|m|b_MemC|u_b14|qa|q",
+        "97"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_b15|qa",
+        "emu|u_native|m|b_MemC|u_b15|qa|q",
+        "323"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_b15|qb",
+        "emu|u_native|m|b_MemC|u_b15|qb|q",
+        "323"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_c14|qa~DUPLICATE",
+        "emu|u_native|m|b_MemC|u_c14|qa~DUPLICATE|q",
+        "127"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_c14|qa",
+        "emu|u_native|m|b_MemC|u_c14|qa|q",
+        "8"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_c15|qa",
+        "emu|u_native|m|b_MemC|u_c15|qa|q",
+        "323"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_c15|qb",
+        "emu|u_native|m|b_MemC|u_c15|qb|q",
+        "323"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_d14|qa",
+        "emu|u_native|m|b_MemC|u_d14|qa|q",
+        "73"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_d14|qb",
+        "emu|u_native|m|b_MemC|u_d14|qb|q",
+        "386"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_d15|qa",
+        "emu|u_native|m|b_MemC|u_d15|qa|q",
+        "323"
+      ],
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_d15|qb",
+        "emu|u_native|m|b_MemC|u_d15|qb|q",
+        "323"
+      ]
+    ],
+    "critical_owner_outputs": [
+      [
+        "TAG_OWNER_OUTPUT",
+        "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|MemC_full_snapshot_experiment:b_MemC|cell_MC1668_snapshot:u_d15|qb",
+        "emu|u_native|m|b_MemC|u_d15|qb|q",
+        "323"
+      ]
+    ],
+    "named_cells": [
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_3b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X19_Y38_N54"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_3b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X19_Y38_N51"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_7_p_b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y38_N24"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_6_p_b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y37_N0"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_5_p_b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X24_Y38_N12"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_4_p_b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X19_Y40_N57"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_7_p_a",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y41_N6"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_6_p_a",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y41_N54"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_5_p_a",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y42_N36"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_4_p_a",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X31_Y40_N42"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g0_Aad_3a",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X29_Y39_N57"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_7_p_a",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y38_N54"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_6_p_a",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y37_N24"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_5_p_a",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X24_Y38_N18"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_4_p_a",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X19_Y40_N24"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_7_p_b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y38_N48"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_6_p_b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y37_N9"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_5_p_b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X24_Y38_N0"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_4_p_b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X19_Y40_N42"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_3a",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X24_Y41_N45"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_7_p_b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "MLABCELL_X8_Y34_N57"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_6_p_b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X11_Y34_N54"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_5_p_b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X18_Y34_N57"
+      ],
+      [
+        "TAG_CELL",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_4_p_b",
+        "cell",
+        "cyclonev_lcell_comb",
+        "LABCELL_X18_Y31_N45"
+      ]
+    ],
+    "named_nets": [
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_4_p_a",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_4_p_a|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_4_p_a",
+        "cyclonev_lcell_comb",
+        "LABCELL_X31_Y40_N42",
+        "128"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_4_p_b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_4_p_b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_4_p_b",
+        "cyclonev_lcell_comb",
+        "LABCELL_X19_Y40_N42",
+        "64"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_5_p_a",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_5_p_a|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_5_p_a",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y42_N36",
+        "128"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_4_p_b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_4_p_b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_4_p_b",
+        "cyclonev_lcell_comb",
+        "LABCELL_X19_Y40_N57",
+        "256"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_4_p_a",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_4_p_a|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_4_p_a",
+        "cyclonev_lcell_comb",
+        "LABCELL_X19_Y40_N24",
+        "192"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_6_p_a",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_6_p_a|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_6_p_a",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y37_N24",
+        "192"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_7_p_b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_7_p_b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_7_p_b",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y38_N24",
+        "256"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_5_p_a",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_5_p_a|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_5_p_a",
+        "cyclonev_lcell_comb",
+        "LABCELL_X24_Y38_N18",
+        "192"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_7_p_a",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_7_p_a|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_7_p_a",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y38_N54",
+        "192"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_4_p_b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_4_p_b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_4_p_b",
+        "cyclonev_lcell_comb",
+        "LABCELL_X18_Y31_N45",
+        "64"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_6_p_b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_6_p_b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_6_p_b",
+        "cyclonev_lcell_comb",
+        "LABCELL_X11_Y34_N54",
+        "64"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_5_p_b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_5_p_b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_5_p_b",
+        "cyclonev_lcell_comb",
+        "LABCELL_X18_Y34_N57",
+        "64"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_3b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_3b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_3b",
+        "cyclonev_lcell_comb",
+        "LABCELL_X19_Y38_N54",
+        "128"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_6_p_b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_6_p_b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_6_p_b",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y37_N0",
+        "256"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_5_p_b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_5_p_b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g4_Aad_5_p_b",
+        "cyclonev_lcell_comb",
+        "LABCELL_X24_Y38_N12",
+        "256"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_3b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_3b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_3b",
+        "cyclonev_lcell_comb",
+        "LABCELL_X19_Y38_N51",
+        "192"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g0_Aad_3a",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g0_Aad_3a|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g0_Aad_3a",
+        "cyclonev_lcell_comb",
+        "LABCELL_X29_Y39_N57",
+        "256"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_7_p_a",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_7_p_a|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_7_p_a",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y41_N6",
+        "128"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_6_p_a",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_6_p_a|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g2_Aad_6_p_a",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y41_N54",
+        "128"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_7_p_b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_7_p_b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g3_Aad_7_p_b",
+        "cyclonev_lcell_comb",
+        "MLABCELL_X8_Y34_N57",
+        "64"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_6_p_b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_6_p_b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_6_p_b",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y37_N9",
+        "64"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_5_p_b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_5_p_b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_5_p_b",
+        "cyclonev_lcell_comb",
+        "LABCELL_X24_Y38_N0",
+        "64"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_7_p_b",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_7_p_b|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g5_Aad_7_p_b",
+        "cyclonev_lcell_comb",
+        "LABCELL_X27_Y38_N48",
+        "64"
+      ],
+      [
+        "TAG_NET",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_3a",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_3a|combout",
+        "emu|u_native|m|b_MemC|u_tag_lcell_g1_Aad_3a",
+        "cyclonev_lcell_comb",
+        "LABCELL_X24_Y41_N45",
+        "64"
+      ]
+    ],
+    "named_cell_count": 24,
+    "named_net_count": 24,
+    "distinct_net_driver_pins": 24,
+    "direct_routing_fanout_at_output_pins": true,
+    "RTL_instances": 72,
+    "physical_replication_qualified": false,
+    "native_timing_qualified": false,
+    "assembly_permitted": false
+  },
+  "buffer_IC_fanout_histogram": {
+    "64": 9,
+    "128": 5,
+    "192": 5,
+    "256": 5
+  },
+  "original_critical_Q_IC_fanout": 321,
+  "candidate_critical_Q_IC_fanout": 323,
+  "intended_physical_fanout_bound_achieved": false,
+  "ALMs": 40192,
+  "registers": 55617,
+  "primary_owner_input_setup_also_fails": true,
+  "internal_setup_at_17_5ns_not_15ns": true,
+  "unchanged_ECC_loop_pulse_and_timing_review_required": true,
+  "next_work": "Return to the smaller shorter-control parent. Audit the actual cached-prefix key dependencies and prove any pruning before changing Ready or the machine barrier. Integrate original capture windows/event chronology without extra ordinary guest cycles.",
+  "native_timing_qualified": false,
+  "original60ns_qualified": false,
+  "firmware_qualified": false,
+  "speedup_qualified": false,
+  "assembly_permitted": false,
+  "hardware_changed": false,
+  "full_goal_active": true
+}

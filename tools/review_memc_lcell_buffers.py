@@ -17,7 +17,7 @@ import subprocess
 from sil_netlist import load_board
 
 from stage_memc_lcell_buffers import MEMC, SIM_MODEL, pins
-from review_late_hold_and_input_reset import retain
+from review_late_hold_and_input_reset import retain, first_path
 from review_r_front_capture_followup import append_archive
 from review_r_front_cp_subevents import observation
 from test_r_front_forward_view import sha
@@ -332,6 +332,83 @@ def clustered(out):
     return result
 
 
+def fitted(out):
+    """Review completed topology and timing; successful routing is not a pass."""
+    assert not out.exists()
+    out.mkdir(parents=True)
+    source = BUILD/'memc-lcell-short-fit-terminal-v3-20261024'
+    receipt = BUILD/'memc-lcell-short-native-v3-20261024-terminal-v1.tgz.json'
+    collected = envelope(source, receipt)
+    assert collected['status'] == 'TERMINAL_PHYSICAL_NATIVE_RAW_COLLECTION'
+    assert len(collected['members']) == 966
+    build = read(source/'run-state.json')
+    physical = read(source/'physical-report/run-state.json')
+    topology = read(source/'tag-buffer-report/run-state.json')
+    assert build['status'] == 'TERMINAL_TIMING_OBSERVED_REVIEW_REQUIRED'
+    assert physical['status'] == 'TERMINAL_PHYSICAL_NATIVE_REPORTS_REVIEW_REQUIRED'
+    assert topology['status'] == 'TERMINAL_TAG_BUFFER_TOPOLOGY_REVIEW_REQUIRED'
+    assert all(a['returncode'] == 0 for a in [*build['stages'], *physical['actions'], *topology['actions']])
+    m = read(source/'r-front-control-native.json')
+    actual = read(source/'physical-native-input-readback.json')
+    assert actual['actual'] == m['source_hashes'] and len(actual['actual']) == 534
+    for name, digest in m['source_hashes'].items():
+        assert sha(source/name) == digest
+    assert sha(source/'physical-report/audit_r_front_physical_native.tcl') == physical['script_sha256']
+    assert sha(source/'tag-buffer-report/audit_memc_tag_buffers.tcl') == topology['script_sha256']
+    assert sha(source/'tag-buffer-report/audit.log') == topology['log_sha256']
+    assert all(not r['assembly_permitted'] for r in [m, physical, topology])
+    log = (source/'physical-report/audit.log').read_text()
+    coverage = re.findall(r'PHYSICAL_NATIVE_COVERAGE (\S+) keepers=(\d+) central=(\d+) primary=(\d+) duplicates=(\d+) history=(\d+)', log)
+    assert len(coverage) == 4 and all(r[1:] == ('85086', '801', '695', '106', '271') for r in coverage)
+    corners = []
+    for corner in ['7_slow_1100mv_100c', '7_slow_1100mv_-40c', 'MIN_fast_1100mv_100c', 'MIN_fast_1100mv_-40c']:
+        row = dict(condition=corner)
+        for label, prefix in [('setup', 'native59-setup'), ('hold', 'native59-hold'),
+                              ('input', 'physical-native-input-setup'), ('internal', 'physical-native-internal-setup')]:
+            row[label] = first_path(source/'core'/(prefix+'-'+corner+'.rpt'))
+        visible = re.findall(r'^PHYSICAL_NATIVE_VISIBLE_R '+re.escape(corner)+r' (.+)$', log, re.M)
+        assert len({re.sub(r'~DUPLICATE.*$', '', name) for name in visible}) == 16
+        assert len(re.findall(r'^PHYSICAL_NATIVE_RAM '+re.escape(corner)+r' (\w+) keepers=', log, re.M)) == 4
+        corners.append(row)
+    assert [r['setup']['slack_ns'] for r in corners] == [-0.225, -0.267, 3.850, 4.622]
+    assert [r['hold']['slack_ns'] for r in corners] == [0.151, 0.103, 0.115, 0.070]
+    assert [r['input']['slack_ns'] for r in corners] == [-0.072, 0.030, 4.941, 5.615]
+    assert [r['internal']['slack_ns'] for r in corners] == [0.158, 0.754, 8.057, 9.498]
+    assert all('|network_step' in r['setup']['sink'] for r in corners)
+    assert all('|dir_a[6]~DUPLICATE' in r['setup']['source'] for r in corners[:2])
+    t = read(source/'tag-buffer-report/results.json')
+    assert t['RTL_instances'] == 72
+    assert t['named_cell_count'] == t['named_net_count'] == t['distinct_net_driver_pins'] == 24
+    assert len(t['named_cells']) == len(t['named_nets']) == 24
+    assert len(t['critical_owner_outputs']) == 1 and int(t['critical_owner_outputs'][0][3]) == 323
+    assert all(r[3] == 'cyclonev_lcell_comb' and r[4].startswith(('LABCELL_', 'MLABCELL_')) for r in t['named_cells'])
+    histogram = {count: sum(int(r[-1]) == count for r in t['named_nets'])
+                 for count in sorted({int(r[-1]) for r in t['named_nets']})}
+    assert histogram == {64: 9, 128: 5, 192: 5, 256: 5}
+    assert not t['physical_replication_qualified'] and not t['native_timing_qualified']
+    summary = (source/'core/output_files/Dorado.fit.summary').read_text()
+    assert 'Fitter Status : Successful' in summary and '40,192 / 41,910 ( 96 % )' in summary
+    assert 'Total registers : 55617' in summary
+    assert 'analyzing 1 combinational loops as latches' in (source/'sta.log').read_text()
+    retain(source, out/source.name)
+    shutil.copy2(receipt, out/receipt.name)
+    rejected = BUILD/'memc-lcell-terminal-review-v1-20261024'
+    assert read(rejected/'failure.json')['status'] == 'REJECTED_REVIEW_ASSUMED_ALL_LCELL_LOCATIONS_ARE_LABCELL'
+    retain(rejected, out/('rejected-'+rejected.name))
+    result = dict(status='REJECTED_NATIVE_CLUSTERED_BUFFER_TIMING_AND_REPLICATION',
+        raw_members=966, source_hashes_verified=534, completed_report_processes_absent=actual['absent_pids'],
+        corners=corners, keeper_coverage=coverage, physical_topology=t,
+        buffer_IC_fanout_histogram=histogram, original_critical_Q_IC_fanout=321, candidate_critical_Q_IC_fanout=323,
+        intended_physical_fanout_bound_achieved=False, ALMs=40192, registers=55617,
+        primary_owner_input_setup_also_fails=True, internal_setup_at_17_5ns_not_15ns=True,
+        unchanged_ECC_loop_pulse_and_timing_review_required=True,
+        next_work='Return to the smaller shorter-control parent. Audit the actual cached-prefix key dependencies and prove any pruning before changing Ready or the machine barrier. Integrate original capture windows/event chronology without extra ordinary guest cycles.',
+        native_timing_qualified=False, original60ns_qualified=False, firmware_qualified=False,
+        speedup_qualified=False, assembly_permitted=False, hardware_changed=False, full_goal_active=True)
+    (out/'results.json').write_text(json.dumps(result, indent=2)+'\n')
+    return result
+
+
 def address_windows(out):
     """Bind the remaining address-latch window work to the original pins."""
     assert not out.exists()
@@ -394,11 +471,13 @@ if __name__ == '__main__':
         p.add_argument('--'+name, type=Path, required=True)
     p.add_argument('--address-windows', action='store_true')
     p.add_argument('--clustered', action='store_true')
+    p.add_argument('--fitted', action='store_true')
     a = p.parse_args()
-    assert not (a.address_windows and a.clustered)
-    r = (clustered(a.output.resolve()) if a.clustered else
+    assert sum([a.address_windows, a.clustered, a.fitted]) <= 1
+    r = (fitted(a.output.resolve()) if a.fitted else clustered(a.output.resolve()) if a.clustered else
          address_windows(a.output.resolve()) if a.address_windows else review(a.output.resolve()))
-    label = 'memc-clustered-buffers' if a.clustered else 'memc-address-windows' if a.address_windows else 'memc-lcell-buffers'
+    label = 'memc-lcell-terminal' if a.fitted else 'memc-clustered-buffers' if a.clustered else 'memc-address-windows' if a.address_windows else 'memc-lcell-buffers'
     append_archive(a.archive.resolve(), a.output.resolve(), [], label=label, extra_tools=[
-        'stage_memc_lcell_buffers.py', 'report_memc_tag_buffers.py', 'collect_failed_native_fit.py', Path(__file__).name])
+        'stage_memc_lcell_buffers.py', 'report_memc_tag_buffers.py', 'collect_failed_native_fit.py',
+        'collect_r_front_physical_native.py', Path(__file__).name])
     print(r['status'], flush=True)

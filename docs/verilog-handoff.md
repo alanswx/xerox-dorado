@@ -1,5 +1,43 @@
 # Verilog from Sil: handoff
 
+Latest terminal result (2026-10-24): LCELL v3 is REJECTED. Builder3327607,
+physical reporter3328009 and topology reporter3328337 have exited; all stages
+exit0. All966 collected members/534 source hashes verify (collection SHA
+`d9649e0c38dd2adcb7b875c42f7a368483e3f2ae690324b67d6d6b55fdc0199d`).
+Global setup -0.225/-0.267ns, minimum hold+0.070ns; primary-owner input setup
+also fails -0.072ns. Internal setup+0.158ns is at17.5ns, not15ns. Worst global
+slow path is RIOT dir_a[6] -> network_step with8.75ns half-cycle budget.
+Area40,192ALMs/55,617registers. Coverage85,086keepers/695primary+106copies,
+271history, all16visibleR/fourSRAMs. One unchanged ECC loop remains reported.
+
+Actual netlist has only24 named physical LCELLs/drivers from72 RTL instances;
+their direct IC fanouts are64/128/192/256, not bounded RAM counts. Measured
+critical d15.qb output still has323 loads (preceding fit321). The intended
+physical fanout separation FAILED. One valid comb location is MLABCELL, not
+LABCELL; retain the reviewer's initial rejected location assumption. Complete
+receipt `memc-lcell-terminal-summary.json`. No assembly or hardware change.
+Return to the smaller shorter-control parent for the next structural change;
+do not carry this buffer cost forward or blindly repeat fit settings/seeds.
+
+The binary prefix-key support audit PASSES at
+`cp-prefix-key-support-v1-20261024`: ALL269 cached output bits are unchanged
+when298 of567 key bits vary arbitrarily (1,134 arbitrary input bits, no
+assumptions). A required-owner-bit omission has a counterexample. The269-bit
+support excludes before_pins[125]/key138, the new critical RIOT dependency;
+ALL11 saved CP bits remain cared. Receipt `cp-prefix-key-support-summary.json`.
+
+Next component proofs are LIVE: `cp-cache-key-projection-positive-v1-20261024`
+driver8188/child8196/session67168, and `cp-cache-key-projection-negative-v1-20261024`
+driver8189/child8197/session44613. Verify driver argv plus child PPID: WASM
+child argv uses virtual `/work/proof.ys`, not the actual host output path.
+The positive asks unbounded inductive safety for all475 control/event/flag
+outputs and payload/canonical invariants under arbitrary inputs/reset histories.
+The negative removes one required key bit. Their private candidate compares
+the269-bit support only for binary keys and retains the ORIGINAL full equality
+for any X/Z. No native source or barrier is changed. Formal completion,
+four-state checks, exact owned-context integration, new fit and original-
+firmware boot remain required. Current hardware remains5c65.
+
 Current status (2026-10-24): hardware remains qualified5c65. The last measured
 rate is4,025,473 StartCycle issues/s (24.15% of original nominal16.67M/s),
 not retired instructions. Host/SDRAM57.142857MHz, eight enabled ticks/140ns
@@ -7,7 +45,8 @@ before waits. The current buffering fit keeps these clocks; expect no ordinary
 instruction-cadence gain from this fit alone. Four15ns ticks/original60ns,
 separate66.7MHz SDRAM, reduced storage waits and full A–F remain open.
 
-NOW LIVE: `/home/alans/mister/memc-lcell-short-native-v3-20261024`, builder
+Earlier live observation, now TERMINAL/REJECTED as recorded above:
+`/home/alans/mister/memc-lcell-short-native-v3-20261024`, builder
 3327607/session10438. Fitter3341503 has exited0:40,192ALMs/96%,55,617registers.
 Remaining crossing/physical/topology reports are in progress. Initial global
 setup is -0.225ns/-0.267ns at slow100/-40: RIOT dir_a[6] -> network_step,

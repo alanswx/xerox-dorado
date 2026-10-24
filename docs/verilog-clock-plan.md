@@ -9,13 +9,34 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Latest (2026-10-24): v3 and both read-only reporters are TERMINAL, all966 raw
+members/534 source hashes verify. REJECTED: setup -0.225/-0.267ns, minimum
+hold+0.070ns, primary-input setup -0.072ns; internal+0.158ns is at17.5ns.
+The actual topology preserves only24 distinct named drivers from72 RTL
+buffers; critical d15.qb has323 loads versus321 before. Buffer outputs drive
+64–256 IC loads. Do not claim bounded physical fanout or carry the extra
+40,192ALM fit forward as a fix. Receipt `memc-lcell-terminal-summary.json`.
+
+Next structural candidate starts from the smaller shorter-control parent.
+`audit_cp_prefix_key_support.py` now PROVES the actual ALL269-output cached
+prefix independent of298/567 key bits for1,134 arbitrary binary inputs with
+no assumptions. A required-owner-bit omission has a counterexample. The269
+cared bits include ALL11 saved CP pins; before_pins[125]/key138 is absent,
+though it drives the new failing RIOT -> Ready -> falling-edge network_step
+path. Receipt `cp-prefix-key-support-summary.json`. Actual475-output temporal
+cache/commit safety and a bad-key control are LIVE locally (drivers8188/8189,
+children8196/8197, sessions67168/44613). The private proof candidate retains
+original full equality for X/Z; four-state testing and exact native context
+integration are still required. No native cache, state, clock, capture edge
+or barrier changes yet. Full timing/firmware/60ns must follow, not be inferred.
+
 Current status (2026-10-24): the all168 local-buffer native fit v2 FAILED
 routing (exit3,39,337ALMs/94%, final odd storage-group7 cache_data[0]/[5]
 unrouted). No current-build timing or FPGA image follows from it. All582 raw
 members/534 source hashes verify; intermediate fitting attempts and source-
 carried historical reports remain distinguished from the final failure.
 
-The reduced-cost v3 reports are LIVE on misterubuntu: builder3327607,
+Earlier live observation, now TERMINAL/REJECTED above: v3 builder3327607,
 physical reporter3328009 and calibrated tag-buffer reporter3328337.72 shared
 LCELLs cover ALL168 address pins at21RAMs, at most four RAMs per buffer,
 including actual critical positive c10.p14. Only combinational MemC wiring

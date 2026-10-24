@@ -6,6 +6,31 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`cp-prefix-key-support-summary.json` preserves the complete actual-prefix
+dependency audit,269-output formal projection and required-bit counterexample.
+For1,134 arbitrary binary input bits, changing298/567 transaction-key bits
+cannot change ANY cached prefix output. The269 cared bits retain all11 saved
+CP pins and exclude the failing RIOT dependency before_pins[125]/key138.
+Complete actual-source, extracted atomic function, cone JSON, miters, scripts
+and logs are retained. Full475-output temporal safety and a corrupted-key
+control are recorded LIVE with actual host driver/child-PPID observations.
+One rejected reviewer incorrectly expected host paths in WASM child argv;
+its source/failure is retained. No native cache, barrier or clock was changed;
+four-state, integration, full timing and original-firmware gates remain open.
+
+`memc-lcell-terminal-summary.json` preserves all966 collected v3 members and
+534 verified source hashes, including completed physical and topology reports.
+All build/query stages exit0, but timing is REJECTED: setup -0.225/-0.267ns,
+minimum hold+0.070ns, primary-input setup -0.072ns. Internal+0.158ns is at the
+unchanged17.5ns period. Slow global worst path is RIOT dir_a[6] -> network_step
+with8.75ns half-cycle budget. Actual netlist retains24 distinct named LCELL
+drivers from72 RTL buffers, fanouts64–256; critical d15.qb still drives323
+loads versus321 before. The intended physical fanout reduction failed. Area
+40,192ALMs/55,617registers. Retain one MLABCELL comb location and the initial
+review assertion that incorrectly expected only LABCELL locations. All16
+visibleR bits/fourSRAMs and695primary/106copy/271history keepers are queried.
+The original ECC loop warning remains. No timing waiver, assembly or speedup.
+
 `memc-clustered-buffers-summary.json` preserves the complete all168-buffer
 native v2 ROUTING FAILURE:582 raw members/534 source hashes, fitter exit3,
 39,337ALMs/94%,53,497registers and two final unrouted odd-group7 cache data nets.
@@ -1065,8 +1090,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps62,081 members to6,379 deduplicated compressed blobs;
-lossless readback verifies2,005,769,070 unique raw bytes and75,008,688 compressed
+`manifest.json.gz` now maps63,112 members to6,803 deduplicated compressed blobs;
+lossless readback verifies2,210,975,463 unique raw bytes and81,501,866 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`
