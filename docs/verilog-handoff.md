@@ -57,6 +57,15 @@ speed gain is qualified. Original62048 remains at its fixed5B host bound;
 protected media/FPGA untouched. Full goal ACTIVE; FPGA snapshots deferred.
 Receipt: `native-registered-read-summary.json` in the native flag archive.
 
+ELABORATION CLOCK BINDING FOLLOW-UP: the preserved native harness supplied
+`DORADO_HOST_CLOCK_HZ=57142857` to the first elaborations above, while each
+frozen Quartus QSF specifies66666667. The lint tool now takes that macro from
+the actual staged QSF and verifies it against the manifest. Ready lintv4 and
+registered-read lintv2 both PASS at66666667,197/198 sources and the same10/6
+visible structural warnings. Earlier lint logs retain their narrower clock
+scope. Frozen Quartus sources/jobs, guest media and hardware are unchanged.
+Receipt: `native-lint-clock-binding-summary.json` in the native flag archive.
+
 TARGETING CORRECTION (2026-10-25): the v1 Ready-comparison proof/transform below
 covers `dorado_r_front_prefix_step`, used by the paired first/second paths.
 The native `use_pair=0` path is ACTUALLY `dorado_r_front_parallel_fault_step

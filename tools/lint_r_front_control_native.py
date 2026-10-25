@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import time
@@ -41,10 +42,19 @@ def run(stage,native_run,out,baseline_only=False,structural=False,report_unoptfl
         harness_root=stage
     support += [harness_root/'harness/xsds_model.sv',harness_root/'harness/tb_native_cedar.sv']
     assert all(p.exists()for p in support)
+    defines=list(base['defines'])
+    if not baseline_only:
+        # The preserved native harness may come from a slower baseline. Use
+        # the staged build's actual clock macro when elaborating its SDRAM.
+        qsf=(stage/'core/Dorado.qsf').read_text()
+        clocks=re.findall(r'VERILOG_MACRO\s+"(DORADO_HOST_CLOCK_HZ=\d+)"',qsf)
+        assert clocks==['DORADO_HOST_CLOCK_HZ='+str(record['frequency_hz'])],clocks
+        assert sum(d.startswith('DORADO_HOST_CLOCK_HZ=')for d in defines)==1
+        defines=[d for d in defines if not d.startswith('DORADO_HOST_CLOCK_HZ=')]+clocks
     cmd=['verilator','--lint-only','--timing','--top-module','tb_native_cedar','-Wno-fatal',
          '-Wno-PINMISSING','-Wno-UNOPTFLAT','-Wno-MULTIDRIVEN','-Wno-LATCH','-Wno-TIMESCALEMOD',
          '-Iverilog/cells','-Iverilog/generated','-Iverilog/vendor/6502','-Iverilog/vendor/riot',
-         *['-D'+d for d in base['defines']],*map(str,support)]
+         *['-D'+d for d in defines],*map(str,support)]
     if structural:cmd=[s for s in cmd if s not in ['-Wno-UNOPTFLAT','-Wno-MULTIDRIVEN']]
     if report_unoptflat:
         assert structural
@@ -53,6 +63,8 @@ def run(stage,native_run,out,baseline_only=False,structural=False,report_unoptfl
     state=dict(status='RUNNING',pid=os.getpid(),started=time.time(),stage=str(stage),
                stage_manifest_sha256=sha(stage/'r-front-control-native.json'),source_files=len(support),
                command=cmd,baseline_only=baseline_only,structural_warnings_visible=structural,simulation_started=False,media_opened=False,hardware_changed=False)
+    state.update(effective_defines=defines,baseline_original_defines=base['defines'],
+                 stage_clock_macro_checked_against_QSF=not baseline_only)
     def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
     with(out/'lint.log').open('w')as log:
         p=subprocess.Popen(cmd,cwd=root/'src',stdout=log,stderr=subprocess.STDOUT)

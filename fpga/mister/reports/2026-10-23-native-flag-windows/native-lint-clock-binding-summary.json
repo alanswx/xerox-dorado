@@ -1,0 +1,31 @@
+{
+  "status": "PASS_NATIVE_ELABORATION_CLOCK_BOUND_TO_QSF",
+  "candidates": [
+    {
+      "stage": "native-ready-compare-full15-stage-v2-20261025",
+      "lint": "native-ready-compare-full15-lint-v4-20261025",
+      "lint_state_sha256": "514c577ae5f1bff5efdf560b598f6d48d3cbb9eb79a8b9e146c9141d406937d1",
+      "source_files": 197,
+      "clock_hz": 66666667,
+      "structural_warnings": 10,
+      "prior_lint": "native-ready-compare-full15-lint-v3-20261025",
+      "prior_lint_clock_hz": 57142857,
+      "prior_result_scope": "Elaborated the staged sources using the preserved slower harness macro; superseded for build-clock elaboration."
+    },
+    {
+      "stage": "native-r-read-buffer-full15-stage-v1-20261025",
+      "lint": "native-r-read-buffer-full15-lint-v2-20261025",
+      "lint_state_sha256": "26710c31779367be10a06eca83be8fd63399add3b502be232a35ef3ea3c27a75",
+      "source_files": 198,
+      "clock_hz": 66666667,
+      "structural_warnings": 6,
+      "prior_lint": "native-r-read-buffer-full15-lint-v1-20261025",
+      "prior_lint_clock_hz": 57142857,
+      "prior_result_scope": "Elaborated the staged sources using the preserved slower harness macro; superseded for build-clock elaboration."
+    }
+  ],
+  "original_frozen_Quartus_sources_or_jobs_changed": false,
+  "simulation_or_physical_timing_or_firmware_qualified": false,
+  "hardware_or_media_changed": false,
+  "full_goal_active": true
+}

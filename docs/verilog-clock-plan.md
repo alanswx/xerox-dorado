@@ -69,6 +69,13 @@ write-bypass behavior. The new caller proves safe buffered-read publication;
 it does not by itself prove this full schedule. Full goal stays ACTIVE.
 Receipt: `native-registered-read-summary.json` in the native flag archive.
 
+Elaboration follow-up: lint now binds `DORADO_HOST_CLOCK_HZ` to the actual
+staged QSF/manifest, rather than inheriting57142857 from the baseline harness.
+Correct-clock66666667 Ready lintv4 and registered-read lintv2 PASS,197/198
+sources and unchanged10/6 visible warnings. Earlier logs keep their narrower
+clock scope. No frozen fit input/job changed. Receipt:
+`native-lint-clock-binding-summary.json`.
+
 TARGETING CORRECTION (2026-10-25): v1 optimized the paired prefix module only.
 Native `use_pair=0` ACTUALLY selects `dorado_r_front_parallel_fault_step single`;
 its mismatch expression was unchanged. V1 fit4042975 remains frozen and cannot
