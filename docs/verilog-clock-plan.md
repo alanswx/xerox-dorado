@@ -14,7 +14,57 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-Current completed timing and MemC read pipeline (2026-10-25):
+Current prepared operand/flag view (2026-10-25):
+
+- [x] Collect SAME MemC122249: ALL9 stages0,577 hashes/327 reports. ALL four
+  corners fail: slow100/-40/fast100/-40 = -10.541/-10.848/-1.891/-.610ns;
+  hold+.219ns. Area40,146ALMs/96%,55,730 registers, unchanged memory. Worst
+  upper_q45/global633 -> before-view/l10 -> l06 flag -> DoCBr -> selector
+  preview -> state_next708 -> ready/network_step,17 levels/17.330ns vs7.500ns.
+  No assembly/load; no measured hardware gain. Completed job must not restart.
+- [x] Prove actual native single physical844-bit view is a pre-event function
+  of held_q/before root/pins/SRAM word alone:2,696 arbitrary binary input bits,
+  no assumptions, independently free late pins/root/prefix/interior/HOST CLOCK.
+  Advance0/pair_fall0 match actual native wiring. Wrong read changes physical
+  data. V1 host-clock0 cofactor remains historical, superseded by v2.
+- [x] Implement a prepared88-bit physical operand/flag view with descriptor
+  matching, independent host preparation and raw paired/X/Z fallback. Preserve
+  original guest owners, SRAM/write edges, native R cells and all old readiness
+  gates. Actual backplane's physical view now consumes the prepared data.
+- [x] Reduce logical1,264-bit tag to909 supported bits, keeping ALL844 owners;
+  omit only355 unused descriptor bits. Prove ready844-bit equivalence against
+  the actual native function by induction. Wrong owner-tag/flag cases change
+  real output data. Do not substitute graph support for that proof.
+- [x] Pass11,895 four-state checks across every1,982 actual input in three
+  contexts: all2,969 old raw outputs and844 fallback bits exact. Missing raw
+  fallback negative rejects. Preserve older unmasked source/proof/replay scopes.
+- [x] Both final complete Verilator programs PASS with original fixtures,
+  references/assertions/all2,470 results/844 Q/9,216 SRAM/100 clocks/native R/
+  j19/paired writes/interior read intact. Added2,700 full/43 words preparation
+  edges check no guest memory/state/input publication. SAME Icarus29720/full
+  and29722/words verified live; observe them without restarting.
+- [x] Stage578 exact inputs, four incremental HDL edits; all other clocks/
+  timers/ROM/SDC policy bytes unchanged. Actual66.666667MHz200-source elaboration
+  PASS with six structural warnings, not physical/loop closure. Start ONE
+  timing builder290188 at `Dorado_CPRead15_PreparedOperand_20261025`; SAME
+  mapper290191 verified live. No assembly/load or new60ns/firmware claim.
+- [x] Start independent early original-ROM/physical-SDRAM prepared-view check
+  30666 at immutable300M host bound, retaining all baseline pause/storage/input
+  assertions. R-read24433 reached post-initialization BaseBoard execution;
+  MemC26169 pending. These are not CoolBoot/Cedar tests. Original62048 stays5B.
+- [ ] Finish SAME Icarus/startups and collect SAME prepared-view fit's complete
+  corners/crossings/area. Phase remaining captures within original overlapping
+  t0/t1/t3 sequence, preserving actual MIR/Ready/Hold/IM/TPC/bypass behavior.
+- [ ] Qualify four15ns/60ns ordinary cadence (diagnostic still120ns BEFORE
+  holds/preparation), actual peripheral rates,66.7MHz SDRAM timing/reset/refresh,
+  pinned useful progress/stalls, original Cedar/input/Checkpoint/Rollback/
+  persistence/three fresh boots/two-hour stress. No new measured hardware gain.
+  FPGA and protected media unchanged. Full goal ACTIVE; snapshots deferred.
+
+Receipt: `native-operand-view-summary.json`. First review's Python parse
+rejection retained; corrected review changes no original assertion/reference.
+
+Previous completed timing and MemC read pipeline (2026-10-25):
 
 - [x] Finish SAME R-read full/words Icarus22806/22813. BOTH programs PASS in
   BOTH engines, retaining every original reference/assertion/state/RAM/clock

@@ -70,6 +70,7 @@ def review(stage,out,launch=None):
     native_single=source.get('actual_native_single_comparison_connected',False)
     registered=source.get('registered_R_read_buffer_connected',False)
     memc=source.get('registered_MemC_tag_reads_connected',False)
+    operand=source.get('prepared_native_operand_view_connected',False)
     new_ready=bool(native_single and source.get('ready_compare_proof_state_sha256'))
     launch_state=None
     if launch:
@@ -87,15 +88,16 @@ def review(stage,out,launch=None):
         assert source['status']=='PREPARED_FULL_NATIVE_15NS_PHASE_GUARD_DIAGNOSTIC'
         assert source['phase_guard_new_pins']==85 and source['all795_control_and_shared_frame_bits_proved']
     if task:assert source['task_terminal_proof_state_sha256']and source['sparse_shared_capture_frames']
-    if shared:assert source['processor_terminal_proof_state_sha256']and source['address_task_owner_proof_state_sha256']and len(source['functional_HDL_changes'])==(12 if memc else 9 if registered else 6 if ready else 4)
+    if shared:assert source['processor_terminal_proof_state_sha256']and source['address_task_owner_proof_state_sha256']and len(source['functional_HDL_changes'])==(13 if operand else 12 if memc else 9 if registered else 6 if ready else 4)
     if parallel:
         assert source['task_parallel_proof_state_sha256']
         if not ready:assert source['incremental_functional_HDL_changes']==['src/verilog/rtl/dorado_local_task_capture_step.sv']
-    if ready:assert source['ready_compare_proof_state_sha256']and source['all2969_prefix_outputs_retained']and source['shared_state_mismatch_guard_retained']and len(source['incremental_functional_HDL_changes'])==3
+    if ready:assert source['ready_compare_proof_state_sha256']and source['all2969_prefix_outputs_retained']and source['shared_state_mismatch_guard_retained']and len(source['incremental_functional_HDL_changes'])==(4 if operand else 3)
     builder=launch_state['builder_pid'] if launch_state else {PROJECT:2865831,GUARD_PROJECT:3301754,TASK_PROJECT:3440305,SHARED_PROJECT:3571235,PARALLEL_PROJECT:3827091,READY_PROJECT:4042975}[project]
     if registered:assert source['R_read_buffer_proof_state_sha256']and source['single_SRAM_owner_and_write_edge_unchanged']
     if memc:assert registered and source['MemC_tag_read_proof_state_sha256']and len(source['MemC_tag_read_packages'])==21 and source['all21_address_matches_gate_whole_machine_publication']
-    query=QUERY.replace('Path(PROJECT)','Path('+repr(project)+')',1).replace('BUILDER_PID',str(builder)).replace('SOURCE_COUNT','577'if memc else'576'if registered else'575'if ready else'574')
+    if operand:assert memc and source['operand_buffer_proof_state_sha256']and source['operand_view_bits_registered']==88 and source['operand_view_tag_support_bits']==909
+    query=QUERY.replace('Path(PROJECT)','Path('+repr(project)+')',1).replace('BUILDER_PID',str(builder)).replace('SOURCE_COUNT','578'if operand else'577'if memc else'576'if registered else'575'if ready else'574')
     (out/'collection-query.py').write_text(query)
     bundle=out/'terminal.tgz'
     with bundle.open('xb')as f:
@@ -133,7 +135,7 @@ def review(stage,out,launch=None):
         project=project,source_files_verified=len(source['source_hashes']),terminal_state=observation['run_state'],
         nominal_ordinary_ns=120,target_ordinary_ns=60,frequency_hz=66666667,sysper=4,
         all_summary_checks=checks,setup_paths_by_corner=corners,worst_setup_path=worst,
-        critical_path=(('Ready-comparison candidate: 'if ready else'Parallel-task candidate: 'if parallel else'Shared-task-owner candidate: 'if shared else'Task-terminal candidate: ')+'inspect preserved full path; '+worst['From Node']+' -> '+worst['To Node']if task else
+        critical_path=(('Prepared native operand-view candidate: 'if operand else'MemC registered-read candidate: 'if memc else'RM/STK registered-read candidate: 'if registered else'Ready-comparison candidate: 'if ready else'Parallel-task candidate: 'if parallel else'Shared-task-owner candidate: 'if shared else'Task-terminal candidate: ')+'inspect preserved full path; '+worst['From Node']+' -> '+worst['To Node']if task else
                       'MemC a15 address -> asynchronous cache-tag b20 -> miss/Hold pin386 -> shared control frames -> processor T-path settling -> machine_enable -> falling-edge network_step'if guarded else
                        'R address -> asynchronous RM read -> ContA/ContB/direct capture -> event settling check -> machine_enable -> falling-edge network_step'),
         phase_guard_only=guarded and not task,task_terminal_and_sparse_frames=task,
@@ -142,6 +144,7 @@ def review(stage,out,launch=None):
         parallel_ready_comparison=ready,
         registered_R_read_buffer=registered,
         registered_MemC_tag_reads=memc,
+        prepared_native_operand_view=operand,
         actual_native_single_comparison_connected=source.get('actual_native_single_comparison_connected',False),
         ready_v1_targeting_limitation='Paired prefix only; ordinary native single comparison unchanged'if ready and not source.get('actual_native_single_comparison_connected')else None,
         all_summary_slacks_nonnegative=all(float(x)>=0 for _,x in checks),

@@ -168,8 +168,8 @@ print(json.dumps(row))
         verify(startup/'inputs',pv['inputs'])
         stage=Path(pv['stage']);m=read(stage/'r-front-control-native.json')
         assert pv['stage_manifest_sha256']==sha(stage/'r-front-control-native.json')and m['registered_R_read_buffer_connected']
-        from prepare_registered_read_native import MONITOR,memc_monitor
-        extra=MONITOR+memc_monitor(m)+'\n'
+        from prepare_registered_read_native import MONITOR,memc_monitor,operand_monitor
+        extra=MONITOR+memc_monitor(m)+operand_monitor(m)+'\n'
         for n,h in m['source_hashes'].items():
             raw=(startup/'inputs'/n).read_bytes()
             if n=='harness/tb_native_cedar.sv':
@@ -177,7 +177,7 @@ print(json.dumps(row))
             assert hashlib.sha256(raw).hexdigest()==h,n
         baseline=Path(pv['baseline_run']);old=json.loads(gzip.decompress((baseline/'provenance.json.gz').read_bytes()));verify(baseline/'inputs',old['inputs'])
         assert pv['every_original_harness_assertion_and_boot_input_retained']and pv['registered_read_passive_monitor']
-        assert(startup/'inputs/harness/tb_native_cedar.sv').read_text().replace(MONITOR+memc_monitor(m)+'\n','',1)==(baseline/'inputs/harness/tb_native_cedar.sv').read_text()
+        assert(startup/'inputs/harness/tb_native_cedar.sv').read_text().replace(extra,'',1)==(baseline/'inputs/harness/tb_native_cedar.sv').read_text()
         assert sha(startup/'inputs/harness/host.cpp')==old['inputs']['harness/host.cpp']
         assert pv['normal_baseboard_boot_presses']==3 and pv['host_clock_hz']==66666667
         assert pv['host_limit']==int((startup/'host-cycle-limit.txt').read_text())==300000000

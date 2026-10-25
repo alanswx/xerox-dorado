@@ -53,6 +53,19 @@ def memc_monitor(manifest):
     return text+'  end\n'
 
 
+def operand_monitor(manifest):
+    if not manifest.get('prepared_native_operand_view_connected'):return ''
+    return '''
+  always @(posedge host_clk)if(!reset)begin
+    if(step && !dut.m.r_front_dispatch.operand_view_ready)
+      $fatal(1,"NATIVE_OPERAND_VIEW unready machine publication host=%0d",host_ticks);
+    if(dut.m.r_front_dispatch.operand_view_ready &&
+       dut.m.r_front_prepared_q!==dut.m.r_first_result[859:16])
+      $fatal(1,"NATIVE_OPERAND_VIEW prepared view differs from raw native view host=%0d",host_ticks);
+  end
+'''
+
+
 def prepare(stage,baseline,out,limit):
     assert not out.exists()and 200000000<=limit<=5000000000
     s=json.loads((stage/'r-front-control-native.json').read_text());verify(stage,s['source_hashes'])
@@ -74,7 +87,7 @@ def prepare(stage,baseline,out,limit):
     assert 'NATIVE_CP board advanced while control paused'in raw
     assert '.SYSPER(4)'in raw and '.SYSPER(2)'not in raw
     assert 'dut.m.r_front_dispatch.files.advance'in raw and raw.count('endmodule')==1
-    extra=MONITOR+memc_monitor(s)
+    extra=MONITOR+memc_monitor(s)+operand_monitor(s)
     actual=raw.replace('endmodule',extra+'\nendmodule',1)
     assert actual.replace(extra+'\n','',1)==raw
     tb.write_text(actual)
@@ -99,6 +112,7 @@ def prepare(stage,baseline,out,limit):
         'every_original_harness_assertion_and_boot_input_retained':True,
         'single_SRAM_owner_and_unchanged_write_edge':True,'registered_read_passive_monitor':True,
         'registered_MemC_tag_read_passive_monitor':bool(s.get('registered_MemC_tag_reads_connected')),
+        'prepared_operand_view_passive_monitor':bool(s.get('prepared_native_operand_view_connected')),
         'baseline_inputs_and_limits_unchanged':True,'full60ns_event_batch_connected':False,
         'firmware_qualified':False,'hardware_changed':False,'full_goal_active':True}
     (out/'provenance.json.gz').write_bytes(gzip.compress((json.dumps(record,indent=2)+'\n').encode(),mtime=0))

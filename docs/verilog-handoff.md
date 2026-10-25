@@ -7,7 +7,72 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-CURRENT TERMINAL READ TIMING AND MEMC READ PIPELINE (2026-10-25):
+CURRENT PREPARED OPERAND/BRANCH-FLAG VIEW (2026-10-25):
+SAME MemC122249 is TERMINAL: ALL9 stages0,577 source hashes/327 reports verified.
+ALL corners still fail: slow100C -10.541ns, slow-40C -10.848ns, fast100C -1.891ns,
+fast-40C -.610ns; minimum hold+.219ns. Area40,146ALMs/96%,55,730 registers,
+unchanged2,506,566 memory bits/332 RAM blocks. The worst is still the operand
+flag chain: upper_q45/global633 -> before-view bypass/l10 -> l06 physical flag
+-> ContA DoCBr -> selector-preview sparse decision -> state_next708 -> ready/
+network_step.17 levels/17.330ns against7.500ns. No assembly/load or speed gain.
+
+A real register now prepares that physical operand view ahead of the consumer.
+The actual complete native SINGLE function proves all844 physical output bits
+depend only on closed held_q, before root/pins and original SRAM word. All late
+root/pins/prefix/interior/host-clock inputs vary independently (2,696 free binary
+bits, no assumptions); advance=0/pair_fall=0 are actual native bindings. Wrong
+original-read cofactor produces a real physical difference. Earlier v1 fixed
+host_clk=0 and is retained with that narrower scope, superseded by v2.
+
+New `dorado_native_operand_buffer.sv` stores ONLY88 projected bits (R input,
+T input/visible and l06/l07 flags), with a matching pre-event descriptor. All
+other physical bits come from existing owners. No extra guest owner/RAM/reset.
+The actual backplane consumes this prepared view and whole-machine publication
+waits for its match, retaining every original alias/settling/repeat/Ready/Hold/
+storage condition. Paired mode and ANY unknown actual function input select
+the complete raw original view. No raw data bypass on the ordinary binary path.
+
+Conservative netlist support drops355 unused descriptor bits, not any owned
+state: logical tag1,264 bits,909 supported including ALL844 owner bits. Separate
+induction against the ACTUAL native function proves every ready844-bit view;
+wrong held-owner tag and wrong branch-flag negatives produce actual wrong
+published data. The mask is proved, not merely inferred from a graph. All
+11,895 X/Z checks PASS: every1,982 input independently X/Z in three contexts,
+all2,969 old raw outputs and the844-bit fallback view exact. Missing-fallback
+negative fails the actual view comparison. Older unmasked proofs/tests retained.
+
+BOTH complete Verilator programs PASS with final masked helper, keeping all
+original fixtures/references/assertions/2,470 results/844 Q/9,216 SRAM/100 clocks/
+native16 R/j19/paired writes/interior read. Extra preparation checks no owner,
+RAM or published-input mutation (2,700 full/43 words host edges). SAME Icarus
+29720/full and29722/words remain verified live, not passing. First review-helper
+Python parse rejection retained; corrected reader passed without any test change.
+
+Actual native stage `native-operand-buffer-full15-stage-v1-20261025`:578 exact
+inputs, four incremental HDL changes (control's read-only known export, caller,
+backplane, new helper). Correct66.666667MHz200-source elaboration PASS with six
+visible structural warnings; not physical loop closure. ONE new timing builder
+290188 at `/home/alans/mister/Dorado_CPRead15_PreparedOperand_20261025`;
+SAME mapper290191 verified live. Source inputs frozen; do not restart.
+
+Original-ROM/physical-SDRAM startup30666 also runs at an immutable300M host
+bound, with actual prepared-view publication checks and every baseline assertion.
+Earlier R-read24433 has completed physical initialization and is executing the
+BaseBoard ROM (200M host/5,850,229 guest samples, zero pack/CRC/RX faults at that
+observation); it is still pending, not a firmware pass. MemC26169 remains pending.
+All three are EARLY startup checks, not CoolBoot/Cedar evidence. Original62048
+continues at its original5B bound. Protected medium hash exact; FPGA untouched.
+
+NEXT: follow SAME fit290188 and pending simulators, collect all terminal corners/
+crossings and inspect area before selection. Prepared view cuts the measured
+flag-to-control dependency, but original overlapping t0/t1/t3 capture and four
+15ns/60ns instruction cadence, all peripheral/SDRAM timing, pinned progress/waits,
+original Cedar/input/Checkpoint/Rollback/persistence/three boots/two-hour stress
+remain required. This diagnostic still120ns nominal BEFORE holds/preparation.
+Full goal ACTIVE; FPGA snapshots deferred. Receipt:
+`native-operand-view-summary.json` in the native flag archive.
+
+PREVIOUS TERMINAL READ TIMING AND MEMC READ PIPELINE (2026-10-25):
 The SAME Ready4184852 and RM/STK-read11306 builds are TERMINAL. ALL9 stages
 exit0 in each; all575/576 input hashes and327 reports per build are verified.
 Both full+words replays now PASS in BOTH Icarus and Verilator. No expired

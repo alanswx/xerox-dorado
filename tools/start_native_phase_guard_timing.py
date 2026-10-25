@@ -26,12 +26,14 @@ def start(stage,out):
     if registered:assert r['R_read_buffer_proof_state_sha256']and r['single_SRAM_owner_and_write_edge_unchanged']and r['actual_native_single_comparison_connected']
     memc=r.get('registered_MemC_tag_reads_connected',False)
     if memc:assert registered and r['MemC_tag_read_proof_state_sha256']and len(r['MemC_tag_read_packages'])==21 and r['all21_address_matches_gate_whole_machine_publication']
-    source_count=577 if memc else 576 if registered else 575 if r.get('ready_compare_proof_state_sha256')else 574
+    operand=r.get('prepared_native_operand_view_connected',False)
+    if operand:assert memc and r['operand_buffer_proof_state_sha256']and r['operand_view_bits_registered']==88 and r['operand_view_tag_support_bits']==909
+    source_count=578 if operand else 577 if memc else 576 if registered else 575 if r.get('ready_compare_proof_state_sha256')else 574
     assert len(r['source_hashes'])==source_count
     check='from pathlib import Path\np=Path('+repr(project)+')\nassert not p.exists(), "Observe existing project; do not restart"\n'
     subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10','misterubuntu','python3','-'],input=check,text=True,check=True)
     manifest_sha=sha(stage/'r-front-control-native.json')
-    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py','stage_native_ready_compare.py','stage_native_r_read_buffer.py','integrate_r_read_buffer.py','stage_native_memc_read_buffer.py','qualify_memc_read_buffer.py']if(stage/n).is_file()]
+    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py','stage_native_ready_compare.py','stage_native_r_read_buffer.py','integrate_r_read_buffer.py','stage_native_memc_read_buffer.py','qualify_memc_read_buffer.py','stage_native_operand_buffer.py','integrate_native_operand_buffer.py']if(stage/n).is_file()]
     assert stagers,'Missing the executed staging helper'
     names=sorted(r['source_hashes'])+['r-front-control-native.json','build_r_front_ready_native.py',*stagers]
     bundle=out/'stage.tgz'
