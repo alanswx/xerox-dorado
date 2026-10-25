@@ -72,7 +72,7 @@ def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proo
         assert t['status']=='PASS_ACTUAL_NATIVE_READY_COMPARISON'and all(a['passed']for a in t['actions'])
         assert sha(proof/'native-control-after.sv')==t['source_control_sha256']
         path=source/'adapters/dorado_local_r_front_ready_step.sv';assert sha(path)==t['source_ready_sha256']
-        after=control_transform(after);ready_after=child_transform(path.read_text())
+        after=control_transform(after,t.get('actual_native_single_path_qualified',False));ready_after=child_transform(path.read_text())
         assert after==(ready_proof/'native-control-after.sv').read_text()
         assert ready_after==(ready_proof/'native-ready-after.sv').read_text()
         ready_helper=Path(__file__).resolve().parents[1]/HELPER

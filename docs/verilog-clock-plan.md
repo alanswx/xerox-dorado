@@ -14,7 +14,69 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST complete-prefix parallel Ready comparison (2026-10-25):
+Current registered read milestone (2026-10-25):
+
+- [x] Correct the actual native single Ready path as well as paired prefix.
+  Independent full-interface proofs:2,969 outputs/1,982 inputs/no assumptions;
+  11,895 X/Z checks per family. BOTH programs PASS in BOTH engines; SAME full
+  Icarus19744 completed normally. QSF-selected native16/use_pair=0
+  binding checked,197-source elaboration passes with10 visible warnings.
+- [x] Launch ONE corrected Ready timing builder4184852,575 exact inputs at
+  `Dorado_CPRead15_ReadyCompareNativeSingle_20261025`. Map4184855 exits0;
+  SAME fitter6728 live. Previous paired-only v1 fit collected: all9 stages0,
+  worst -12.971ns, ordinary native mismatch unchanged. Preserve its limitation.
+- [x] Implement/prove a registered RM/STK read with independent banks, enabled
+  address tags, odd parity/wired OR and committed-write forwarding. Induction
+  leaves9,216 RAM bits arbitrary; no assumptions or guest reset. Four wrong-data
+  negatives exercise stale write/parity/tag/STK faults.
+- [x] Connect it to the actual caller and BOTH before/interior handshakes while
+  keeping the single SRAM owner/write edge and every publication/storage gate.
+  Both complete Verilator programs PASS with original references/assertions,
+  all2,470 results/844 Q/9,216 SRAM/100 clocks/native R/j19/paired writes. Added
+  host preparation checks no guest publication;534 full/5 words edges. Preserve
+  original interior-read coverage. First proof/frontend/declaration failures
+  retained; corrected Icarus22806/full and22813/words remain verified live.
+- [x] Stage576 exact inputs and elaborate198 native sources: six structural
+  warnings remain, down from ten; not physical timing/loop closure. Start ONE
+  independent registered-read timing builder11306 at
+  `Dorado_CPRead15_RegisteredRead_20261025`; no assembly/load.
+- [ ] Finish SAME Icarus peers and collect ALL corners/crossings from BOTH same
+  timing jobs. Compare real endpoints and hold/setup; do not infer gain from
+  elaboration, fewer warnings, formal proofs or successful fitter exit codes.
+- [ ] Complete original capture chronology with the qualified flag owner,
+  actual MIR/Ready/Hold, previous-write bypass and special IM/TPC cycles.
+  Integrate early read preparation into the existing interval; avoid charging
+  an extra guest cycle for the new register. Keep storage-ready authoritative.
+- [ ] Qualify60ns, all peripheral timers and66.7MHz SDRAM command/DQ/reset/
+  refresh/crossings, then pinned speed/waits, original Cedar/input/Checkpoint/
+  Rollback/persistence, three fresh boots and two-hour stress. Current fits are
+  still120ns nominal; no newly measured hardware speed gain. FPGA untouched.
+
+Original pipeline schedule (HM sections2.3/3.1; implementation requirement):
+
+| Phase for instruction N | Elapsed time | 15ns FPGA tick | Required work |
+| --- | ---: | ---: | --- |
+| t0 | 0ns | 0 | Load MIR; select RM/STK read |
+| t1 | 30ns | 2 | Capture read; start ALU interval |
+| t2 | 60ns | 4 | Start instruction N+1 while N continues |
+| t3 | 90ns | 6 | Capture N result; also t1 of N+1 |
+| t4 | 120ns | 8 | Finish write; also t2 of N+1 |
+
+There are four FPGA ticks PER NEW INSTRUCTION, not four15ns intervals named
+t0/t1/t2/t3. The overlapping pipeline must preserve older-instruction completion
+when Hold suspends the current instruction and retain original task-switch and
+write-bypass behavior. The new caller proves safe buffered-read publication;
+it does not by itself prove this full schedule. Full goal stays ACTIVE.
+Receipt: `native-registered-read-summary.json` in the native flag archive.
+
+TARGETING CORRECTION (2026-10-25): v1 optimized the paired prefix module only.
+Native `use_pair=0` ACTUALLY selects `dorado_r_front_parallel_fault_step single`;
+its mismatch expression was unchanged. V1 fit4042975 remains frozen and cannot
+qualify the intended ordinary-path speed change. V2 must prove and connect BOTH
+full interfaces and explicitly verify the real single-instance source binding.
+No hardware/speed promotion follows from the previous headline scope.
+
+Previous complete-prefix parallel Ready comparison (2026-10-25):
 
 - [x] Replace serial capture-then-compare on the measured path with four
   parallel Notify/PreEmpting capture comparisons plus hold/clear comparisons.

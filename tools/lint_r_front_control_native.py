@@ -24,7 +24,9 @@ def run(stage,native_run,out,baseline_only=False,structural=False,report_unoptfl
     assert record['status']in ['STAGED_PROCESSOR_CONTROL_NATIVE_EXPERIMENT',
                               'PREPARED_FULL_NATIVE_15NS_PHASE_GUARD_DIAGNOSTIC']and not record['assembly_permitted']
     if record['status']=='PREPARED_FULL_NATIVE_15NS_PHASE_GUARD_DIAGNOSTIC':
-        count=575 if record.get('ready_compare_proof_state_sha256')else 574
+        registered=record.get('registered_R_read_buffer_connected',False)
+        if registered:assert record['R_read_buffer_proof_state_sha256']and record['single_SRAM_owner_and_write_edge_unchanged']
+        count=576 if registered else 575 if record.get('ready_compare_proof_state_sha256')else 574
         assert record['frequency_hz']==66666667 and record['sysper']==4 and len(record['source_hashes'])==count
         assert record['all795_control_and_shared_frame_bits_proved']and record['no_new_timing_exceptions']
     for n,h in record['source_hashes'].items():assert sha(stage/n)==h,n

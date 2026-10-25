@@ -7,7 +7,67 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST COMPLETE-PREFIX PARALLEL READY COMPARISON (2026-10-25):
+CURRENT REGISTERED RM/STK READ INTEGRATION (2026-10-25):
+The Ready targeting correction is implemented. V2 proves BOTH actual native
+`parallel_fault_step single` and paired `prefix_step` interfaces: all2,969
+outputs/1,982 arbitrary binary inputs, no assumptions. Both families pass11,895
+X/Z checks each. BOTH complete programs now PASS in BOTH Verilator and Icarus;
+SAME full Icarus19744 completed normally. Actual QSF/native16/use_pair=0 bindings
+are checked explicitly. Corrected full-core timing builder4184852 runs at
+`/home/alans/mister/Dorado_CPRead15_ReadyCompareNativeSingle_20261025`,575 inputs.
+Map4184855 exits0; SAME fitter6728 is verified live. Native197-source elaboration
+passes with10 visible structural warnings. No timing/assembly/load promotion.
+
+The next REAL register boundary is now connected to the actual caller:
+`dorado_r_read_buffer.sv` captures the four independent9-bit RM/STK banks,
+matches enabled-bank addresses/selects, preserves wired-OR/parity, and forwards
+committed writes into held responses. The original four RAM arrays and their
+write/publication edge remain unchanged. Before/interior captures wait for a
+matching response; preparation runs independently of payload readiness. No
+asynchronous SRAM data bypass remains in the caller's control input.
+
+Inductive proof PASS with all9,216 initial RAM bits unconstrained, arbitrary
+descriptors/writes/reset, no assumptions. Four wrong-data negatives expose stale
+writes, wrong parity, ignored address tags and a missing STK bank. BOTH complete
+Verilator full/words replays PASS, retaining every original fixture/reference/
+assertion,2,470-bit result/844 Q/9,216 SRAM/100 clocks/native16 R/j19/paired writes.
+Only auxiliary host preparation is added (534 full/5 words edges); every such
+edge checks no guest memory/state/published-input mutation. Words still exercises
+its original interior read. Corrected Icarus22806/full and22813/words are verified
+live. First Icarus declaration-order rejections and two proof frontend failures
+are retained; neither is a data-proof pass. V2 changes declaration order only.
+
+Native stage `native-r-read-buffer-full15-stage-v1-20261025` has576 exact inputs,
+three incremental HDL changes (caller, SRAM read-only bank export, buffer).
+Native198-source elaboration PASS; six visible structural warnings remain
+(previously ten). This is not physical timing/loop closure. ONE separate timing
+builder11306 runs at `/home/alans/mister/Dorado_CPRead15_RegisteredRead_20261025`.
+Both timing inputs are frozen. Observe SAME jobs; never restart on a lost handle.
+The previous v1 paired-only Ready fit is terminal and collected: all9 stages0,
+575 hashes, all corners still fail, worst -12.971ns. It left the ordinary native
+comparison unchanged and is retained with that explicit targeting limitation.
+
+NEXT: collect all corners/crossings from BOTH same jobs once terminal; finish
+same Icarus peers. Schedule the registered read within original t0..t1 (30ns),
+then ALU t1..t3 and write t3..t4 with preceding-write bypass and actual flag/
+Ready/Hold epochs. New instructions overlap every60ns: t3 of N is t1 of N+1.
+Do not equate these30ns hardware phase names with15ns FPGA ticks. Current fits
+remain120ns nominal ordinary instructions; no60ns/SDRAM/timer/firmware/hardware
+speed gain is qualified. Original62048 remains at its fixed5B host bound;
+protected media/FPGA untouched. Full goal ACTIVE; FPGA snapshots deferred.
+Receipt: `native-registered-read-summary.json` in the native flag archive.
+
+TARGETING CORRECTION (2026-10-25): the v1 Ready-comparison proof/transform below
+covers `dorado_r_front_prefix_step`, used by the paired first/second paths.
+The native `use_pair=0` path is ACTUALLY `dorado_r_front_parallel_fault_step
+single`, whose mismatch expression v1 left unchanged. V1 therefore does not
+establish a shorter ordinary native comparison path. Its running fit4042975
+and inputs remain frozen as a limited diagnostic; no speed promotion/load.
+V2 now targets BOTH modules, with independent full-interface proofs and explicit
+native single-instance binding checks. Follow the new qualification before
+making another native timing selection. The previous headline scope was wrong.
+
+PREVIOUS COMPLETE-PREFIX PARALLEL READY COMPARISON (2026-10-25):
 The measured21-level path includes child Ready capture followed by its masked
 comparison. New stateless `dorado_ready_compare_step.sv` computes FOUR capture
 cases (Notify/PreEmpting combinations), hold and clear comparisons in parallel.

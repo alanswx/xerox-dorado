@@ -16,7 +16,7 @@ from review_baseboard_clock_consumer import verify
 from test_external_r_packet import sha
 
 
-def run(proof,out):
+def run(proof,out,family='prefix'):
     assert not out.exists();out.mkdir(parents=True)
     r=json.loads((proof/'run-state.json').read_text());verify(proof,r['files'])
     assert r['status']=='PASS_ACTUAL_NATIVE_READY_COMPARISON'and all(a['passed']for a in r['actions'])
@@ -25,7 +25,9 @@ def run(proof,out):
     bits=r['arbitrary_binary_input_bits'];outputs=r['compared_outputs'];assert bits==1982 and outputs==2969
     signals=json.loads((proof/'wrong-preempt-selector/counterexample.json').read_text())['signal']
     row=next(s for s in signals if s['name']=='stimulus');seed=int(row['data'][0],2)
-    for p in(proof/'complete-interface').glob('*.sv'):shutil.copy2(p,out/p.name)
+    case=r.get('proof_families',{}).get(family,{}).get('case','complete-interface')
+    if family=='single':assert r['actual_native_single_path_qualified']
+    for p in(proof/case).glob('*.sv'):shutil.copy2(p,out/p.name)
     tb=f'''`timescale 1ns/1ps
 module tb_ready_compare_xz;
  reg [{bits-1}:0] stimulus,base;wire [{outputs-1}:0] actual,expected;wire equivalent;
@@ -56,7 +58,7 @@ endmodule
 '''
     (out/'tb.sv').write_text(tb);shutil.copy2(Path(__file__),out/Path(__file__).name)
     state=dict(status='RUNNING',scope=__doc__,started=time.time(),proof=str(proof),proof_state_sha256=sha(proof/'run-state.json'),
-        input_bits=bits,compared_outputs=outputs,files={p.name:sha(p)for p in out.iterdir()},actions=[])
+        input_bits=bits,compared_outputs=outputs,family=family,files={p.name:sha(p)for p in out.iterdir()},actions=[])
     def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
     paths=sorted(str(p)for p in out.glob('*.sv'));save();code=1
     for label,cmd in [('compile',['iverilog','-g2012','-s','tb_ready_compare_xz','-o',str(out/'test.vvp'),*paths]),
@@ -74,4 +76,5 @@ endmodule
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['proof','output']:p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();raise SystemExit(run(a.proof.resolve(),a.output.resolve()))
+    p.add_argument('--family',choices=['single','prefix'],default='prefix')
+    a=p.parse_args();raise SystemExit(run(a.proof.resolve(),a.output.resolve(),a.family))

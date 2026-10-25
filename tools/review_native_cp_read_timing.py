@@ -63,27 +63,37 @@ def paths(report):
     return rows
 
 
-def review(stage,out):
+def review(stage,out,launch=None):
     assert not out.exists();out.mkdir(parents=True)
     source=json.loads((stage/'r-front-control-native.json').read_text())
     project=source['project']
-    assert project in [PROJECT,GUARD_PROJECT,TASK_PROJECT,SHARED_PROJECT,PARALLEL_PROJECT,READY_PROJECT] and source['frequency_hz']==66666667 and source['sysper']==4
+    native_single=source.get('actual_native_single_comparison_connected',False)
+    registered=source.get('registered_R_read_buffer_connected',False)
+    new_ready=bool(native_single and source.get('ready_compare_proof_state_sha256'))
+    launch_state=None
+    if launch:
+        launch_state=json.loads((launch/'launch-observation.json').read_text())
+        assert launch_state['project']==project and launch_state['manifest_sha256']==sha(stage/'r-front-control-native.json')
+        assert launch_state['verified_source_count']==len(source['source_hashes'])
+        assert not launch_state['assembly_permitted']
+    assert (project in [PROJECT,GUARD_PROJECT,TASK_PROJECT,SHARED_PROJECT,PARALLEL_PROJECT,READY_PROJECT] or (new_ready and launch_state)) and source['frequency_hz']==66666667 and source['sysper']==4
     guarded=project!=PROJECT
-    task=project in [TASK_PROJECT,SHARED_PROJECT,PARALLEL_PROJECT,READY_PROJECT]
-    shared=project in [SHARED_PROJECT,PARALLEL_PROJECT,READY_PROJECT]
-    parallel=project in [PARALLEL_PROJECT,READY_PROJECT]
-    ready=project==READY_PROJECT
+    task=project in [TASK_PROJECT,SHARED_PROJECT,PARALLEL_PROJECT,READY_PROJECT] or new_ready
+    shared=project in [SHARED_PROJECT,PARALLEL_PROJECT,READY_PROJECT] or new_ready
+    parallel=project in [PARALLEL_PROJECT,READY_PROJECT] or new_ready
+    ready=project==READY_PROJECT or new_ready
     if guarded:
         assert source['status']=='PREPARED_FULL_NATIVE_15NS_PHASE_GUARD_DIAGNOSTIC'
         assert source['phase_guard_new_pins']==85 and source['all795_control_and_shared_frame_bits_proved']
     if task:assert source['task_terminal_proof_state_sha256']and source['sparse_shared_capture_frames']
-    if shared:assert source['processor_terminal_proof_state_sha256']and source['address_task_owner_proof_state_sha256']and len(source['functional_HDL_changes'])==(6 if ready else 4)
+    if shared:assert source['processor_terminal_proof_state_sha256']and source['address_task_owner_proof_state_sha256']and len(source['functional_HDL_changes'])==(9 if registered else 6 if ready else 4)
     if parallel:
         assert source['task_parallel_proof_state_sha256']
         if not ready:assert source['incremental_functional_HDL_changes']==['src/verilog/rtl/dorado_local_task_capture_step.sv']
     if ready:assert source['ready_compare_proof_state_sha256']and source['all2969_prefix_outputs_retained']and source['shared_state_mismatch_guard_retained']and len(source['incremental_functional_HDL_changes'])==3
-    builder={PROJECT:2865831,GUARD_PROJECT:3301754,TASK_PROJECT:3440305,SHARED_PROJECT:3571235,PARALLEL_PROJECT:3827091,READY_PROJECT:4042975}[project]
-    query=QUERY.replace('Path(PROJECT)','Path('+repr(project)+')',1).replace('BUILDER_PID',str(builder)).replace('SOURCE_COUNT','575'if ready else'574')
+    builder=launch_state['builder_pid'] if launch_state else {PROJECT:2865831,GUARD_PROJECT:3301754,TASK_PROJECT:3440305,SHARED_PROJECT:3571235,PARALLEL_PROJECT:3827091,READY_PROJECT:4042975}[project]
+    if registered:assert source['R_read_buffer_proof_state_sha256']and source['single_SRAM_owner_and_write_edge_unchanged']
+    query=QUERY.replace('Path(PROJECT)','Path('+repr(project)+')',1).replace('BUILDER_PID',str(builder)).replace('SOURCE_COUNT','576'if registered else'575'if ready else'574')
     (out/'collection-query.py').write_text(query)
     bundle=out/'terminal.tgz'
     with bundle.open('xb')as f:
@@ -128,6 +138,9 @@ def review(stage,out):
         shared_address_task_owner=shared,
         parallel_task_capture=parallel,
         parallel_ready_comparison=ready,
+        registered_R_read_buffer=registered,
+        actual_native_single_comparison_connected=source.get('actual_native_single_comparison_connected',False),
+        ready_v1_targeting_limitation='Paired prefix only; ordinary native single comparison unchanged'if ready and not source.get('actual_native_single_comparison_connected')else None,
         all_summary_slacks_nonnegative=all(float(x)>=0 for _,x in checks),
         fit_summary=fit,exact_stage_manifest_sha256=sha(stage/'r-front-control-native.json'),
         collection_sha256=sha(terminal/'collection.json'),bundle_sha256=sha(bundle),
@@ -141,7 +154,8 @@ def review(stage,out):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--stage',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--launch',type=Path,help='Verified launch receipt for a new source-bound candidate')
     p.add_argument('--archive',type=Path)
-    a=p.parse_args();r=review(a.stage.resolve(),a.output.resolve())
+    a=p.parse_args();r=review(a.stage.resolve(),a.output.resolve(),a.launch.resolve()if a.launch else None)
     if a.archive:append_archive(a.archive.resolve(),a.output.resolve(),[],label='full-core15-timing',extra_tools=[Path(__file__).name])
     print(r['status'],r['worst_setup_path']['slack_ns'])
