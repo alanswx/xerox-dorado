@@ -14,7 +14,44 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST native-facing capture and actual producer wiring (2026-10-25):
+LATEST measured native path and task consumer closure (2026-10-25):
+
+- [x] Qualify actual shared falling support102->85 for ALL795 results/956
+  arbitrary binary inputs, with actual HIGH-identity closure and changed-data/
+  real-clock witness. Both full/words programs pass BOTH engines, retaining
+  all2470 result bits/844 Q/9216 SRAM/100 clocks and native R/j19 boundaries.
+  Four-state7652 checks and real functional unknown-default rejection pass.
+- [x] Collect SAME85-guard full-core fit/all9 stages/574 hashes/327 files.
+  REJECT timing at four corners: -12.480/-12.460/-3.775/-1.962ns. Logic96%,
+ 130ALMs fewer but worse slack than previous-11.669ns. Worst path: MemC a15
+  address -> asynchronous cache tag -> miss/Hold pin386 -> shared control ->
+  processor T-path settling -> machine_enable -> falling network_step.
+  19.134ns data against7.500ns; no constraint waiver or FPGA programming.
+- [x] Prove actual shared task consumer16->7 waves and terminal unsettledZERO,
+  ALL139 outputs/678 arbitrary inputs, including four arbitrary capture frames,
+  no assumptions. Retain four-wave counterexample. Unknown contexts preserve
+  original fallback;4071 four-state checks and wrong-default rejection pass.
+  Direct sparse falling frames independently preserve all795 results; wrong
+  StartCycle frame changes actual clock events12/17 at6732, not stored Q.
+- [x] Both Verilator full/words replays pass for sparse frames and combined task
+  closure. Stage574 exact inputs/two changed HDL files, unchanged SDC except
+  project root; native196-source elaboration passes with10 warnings visible.
+  Start one timing-only job3440305, map3440308 verified live, project
+  `/home/alans/mister/Dorado_CPRead15_TaskTerminal_20261025`. No assembly/load.
+- [ ] Follow SAME fit and FOUR Icarus peers95068/95067/97228/97227, which remain
+  live rather than passing. Review measured area/paths before selection; never
+  restart an existing job because an observation handle expires.
+- [ ] Finish actual source-arrival diagnostic87487 (fixed600M HOST) and native
+  before/after Q/data/clock analysis. Original62048/69736 remain5B HOST, unchanged.
+  Migrate actual producers/common chronological owner; retain all MIR/Ready/Hold/
+  IFU/cache/Map/device/write-close gates. Current diagnostic66.7MHz/SYSPER4 is
+ 120ns nominal; four15ns/60ns, SDRAM66.7MHz protocol/reset/refresh/DQ/timers and
+  full A–F/Cedar/input/Rollback/persistence/three boots/two-hour stress remain.
+
+Receipt: `native-phase-task-summary.json` in the native flag archive. No selected
+hardware speed gain; FPGA snapshots deferred and the full goal stays ACTIVE.
+
+Previous native-facing capture and actual producer wiring (2026-10-25):
 
 - [x] Add stateless native-facing `dorado_processor_flag_capture.sv`, preserving
   physical pre-event Q/own prior80 flags, separate raw/derived roots and actual

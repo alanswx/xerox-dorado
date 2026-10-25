@@ -7,7 +7,70 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST NATIVE-FACING ALU CAPTURE AND ACTUAL PRODUCER OBSERVATION (2026-10-25):
+LATEST ACTUAL-NATIVE TASK TERMINAL CLOSURE AND TIMING (2026-10-25):
+The85-pin falling guard is now qualified on the actual frozen shared-control
+source, not only an earlier component. Six formal cases compare all795 bits
+(363 control results plus432 capture-frame bits) for956 arbitrary binary input
+bits, with no assumptions. They include actual HIGH-identity closure, changed
+ControlB data with a real clock event, and wrong-selector/no-certificate
+counterexamples. Only WAVES5/24 use the smaller support; other depths retain102.
+All FOUR full/words replays in Icarus/Verilator pass, preserving every original
+2470-bit result/844 physical Q/9216 SRAM bits/100 clocks and j19/native R cells.
+Four-state coverage passes7652 checks; a wrong unknown default corrupts actual
+control results. Pinned sparse commit counts stay514/full and1/words: no claim
+of fewer native cycles follows from this guard change.
+
+SAME85-guard full-core fit is TERMINAL: project
+`/home/alans/mister/Dorado_CPRead15_PhaseGuard85_20261025`, builder3301754,
+all nine stages exit0, all574 source hashes verified and327 report/log files
+collected. Timing REJECTED at all four corners: slow100C -12.480ns, slow-40C
+-12.460ns, fast100C -3.775ns, fast-40C -1.962ns. Previous worst was-11.669ns;
+the guard did NOT improve timing. Logic40,308/41,910ALMs (96%,130 fewer),
+memory2,506,566 bits (44%). Worst path has18 logic levels/19.134ns data against
+7.500ns: MemC a15 Aad -> b20 asynchronous tag RAM -> miss/Hold pin386 ->
+guard/control153 -> processor Hold -> task root-arrival/settle -> machine_enable
+-> falling network_step. Constrained SDRAM setup3.326ns/hold3.849ns and overall
+hold0.245ns do not qualify66.7MHz memory protocol, reset, refresh or timers.
+No assembly/load. All original constraints remain, with project-root relocation.
+
+The next candidate changes the measured consumer, not only guard selection:
+shared task capture16->7 waves, with its known shared-context terminal unsettled
+proved ZERO for ALL678 arbitrary binary inputs, including arbitrary four-frame
+contents, and ALL139 state/event/repeat/unsettled outputs. No assumptions;
+four-wave truncation rejects. Unknown contexts keep the exact original fallback;
+other WAVES values retain their original behavior. Positive four-state checks
+4071 pass; forcing the shortcut under unknowns changes real state/event results.
+Direct sparse falling frames also compare all795 outputs under the native HIGH
+certificate. Wrong saved StartCycle at record6732 changes actual clock events12
+and17 (result1538/1543), not a claimed stored-Q counterexample.
+
+Both Verilator full/words replays PASS for sparse frames alone and for the
+combined task candidate. FOUR Icarus peers remain VERIFIED LIVE, not passes:
+95068/95067 sparse full/words,97228/97227 task full/words. Follow their existing
+run-state/process handles. Native elaboration passes196 HDL sources with10
+unresolved structural warnings visible. Preserve the two preflight tooling
+reader/status rejections; neither changed staged sources or ran the machine.
+
+NEW single isolated full-core job: builder3440305, map3440308 verified live,
+`/home/alans/mister/Dorado_CPRead15_TaskTerminal_20261025`. Local574-input stage
+`native-task-terminal-full15-stage-v1-20261025`; only shared control and task
+consumer HDL differ from the previous frozen parent. Original constraints,
+PLL66.666667MHz/SYSPER4 and storage/network enables stay. This remains120ns
+nominal, NOT four-tick60ns. Assembly/programming disabled. Never restart an
+existing job because a tool observation expires. Follow SAME fit to terminal,
+inspect actual paths/area, and finish pending replays before any selection.
+
+SAME native jobs62048/69736/87487 remain live at their original5B/5B/600M HOST
+bounds. Last observation:790M/3.15B/250M HOST respectively;69736 now disk5 reads/
+0 writes andTX2, not a new Cedar/boot pass. ALU probe is still before non-FFF
+capture. Protected media hash unchanged; hardware untouched, no measured gain.
+Then close real native ALU/operand capture arrivals and chronological owner,
+four15ns phases/all timers, SDRAM66.7MHz and original Cedar/input/Rollback/cold
+persistence/three fresh boots/two-hour stress. Full FPGA snapshots deferred.
+Goal stays ACTIVE. Receipt: `native-phase-task-summary.json` in the native flag
+archive; the frozen review distinguishes terminal evidence from live processes.
+
+PREVIOUS NATIVE-FACING ALU CAPTURE AND ACTUAL PRODUCER OBSERVATION (2026-10-25):
 `verilog/rtl/dorado_processor_flag_capture.sv` now packages the actual pre-event
 physical state, external arrivals and before/settled flag frames. Its source
 root and derived processor/flag root are explicit separate inputs. The candidate
@@ -12709,6 +12772,11 @@ and has unreviewed hold violations; never deploy it.
 
 ### Structural speed work: current order
 
+- [x] Prove actual native102->85 falling support for all795 outputs/956 inputs, HIGH closure and nonvacuous changed-data/clock cases; pass both full/words replays in both engines and7652 four-state checks. Keep unsupported depths at102.
+- [x] Collect SAME85-guard full-core fit/all nine stages/574 input hashes/327 files; reject slow100C-12.480ns (worse than-11.669), preserve MemC a15/tag/Hold -> task settling -> network_step path and96% area. No assembly/load.
+- [x] Prove actual shared task consumer16->7 waves and terminal closure for ALL139 outputs/678 arbitrary inputs/four arbitrary frames without assumptions; retain four-wave and unknown-default counterexamples. Pass4071 four-state checks and both Verilator complete replays.
+- [x] Qualify direct sparse falling frames against ALL795 outputs; retain actual event12/17 wrong-frame counterexample. Stage574 exact inputs with only two HDL changes; pass native196-source elaboration with10 warnings visible and launch one isolated task-terminal fit3440305 on misterubuntu.
+- [ ] Follow SAME task-terminal fit3440305 and pending Icarus95068/95067/97228/97227 to terminal; review actual physical paths, preserve every failure and forbid programming until full timing/native boot gates pass. Keep diagnostic120ns distinct from target60ns.
 - [x] Prove the phase-preserving Hold clock rewrite and24->8 settling fold directly from Verilog for955 binary inputs/state bits/all363 atomic outputs; retain the rejected four-pass and wrong-Hold cases with dual-engine replays.
 - [x] Finish both complete original comparisons for MIR+task clocks/eight passes and the full15ns component fit; preserve -7.699ns rejection, positive late-Hold margin and CP-bank critical-path attribution.
 - [x] Prove conditional settled CP-prefix identity, reject changed saved-before pins and bind the pin/root snapshot seam to the staged native source; native runtime integration remains open.

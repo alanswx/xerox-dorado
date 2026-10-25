@@ -19,13 +19,14 @@ from test_external_r_packet import sha
 
 ROOT=Path(__file__).resolve().parents[1]
 PROJECT='/home/alans/mister/Dorado_CPRead15_Diag_v2_20261025'
+GUARD_PROJECT='/home/alans/mister/Dorado_CPRead15_PhaseGuard85_20261025'
 
 QUERY=r'''from pathlib import Path
 import hashlib,io,json,sys,tarfile,time
 p=Path(PROJECT)
 state=json.loads((p/'run-state.json').read_text())
 assert state['status']=='TERMINAL_TIMING_OBSERVED_REVIEW_REQUIRED',state
-assert state['builder_pid']==2865831 and not state['assembly_permitted']
+assert state['builder_pid']==BUILDER_PID and not state['assembly_permitted']
 assert len(state['stages'])==9 and all(s['returncode']==0 for s in state['stages'])
 manifest=json.loads((p/'r-front-control-native.json').read_text())
 actual={n:hashlib.sha256((p/n).read_bytes()).hexdigest()for n in manifest['source_hashes']}
@@ -61,8 +62,13 @@ def paths(report):
 def review(stage,out):
     assert not out.exists();out.mkdir(parents=True)
     source=json.loads((stage/'r-front-control-native.json').read_text())
-    assert source['project']==PROJECT and source['frequency_hz']==66666667 and source['sysper']==4
-    query=QUERY.replace('Path(PROJECT)','Path('+repr(PROJECT)+')',1)
+    project=source['project']
+    assert project in [PROJECT,GUARD_PROJECT] and source['frequency_hz']==66666667 and source['sysper']==4
+    guarded=project==GUARD_PROJECT
+    if guarded:
+        assert source['status']=='PREPARED_FULL_NATIVE_15NS_PHASE_GUARD_DIAGNOSTIC'
+        assert source['phase_guard_new_pins']==85 and source['all795_control_and_shared_frame_bits_proved']
+    query=QUERY.replace('Path(PROJECT)','Path('+repr(project)+')',1).replace('BUILDER_PID',str(3301754 if guarded else 2865831))
     (out/'collection-query.py').write_text(query)
     bundle=out/'terminal.tgz'
     with bundle.open('xb')as f:
@@ -87,17 +93,20 @@ def review(stage,out):
         corners[f.name.removeprefix('native59-setup-').removesuffix('.rpt')]=rows
     assert len(corners)==4
     worst=min((row for rows in corners.values()for row in rows),key=lambda r:r['slack_ns'])
-    assert 'r_front_lower_q[48]'in worst['From Node']and worst['To Node'].endswith('|network_step')
+    expected_source='cell_MC1668_snapshot:u_a15|qa'if guarded else'r_front_lower_q[48]'
+    assert expected_source in worst['From Node']and worst['To Node'].endswith('|network_step')
     assert '(INVERTED)'in worst['Latch Clock']
     full=next(f for f in(terminal/'core').glob('native59-setup-*.rpt')if worst in paths(f.read_text())).read_text()
     assert '; 7.500' in full and 'direct_arrival' in full and 'unsettled' in full
     fit=(terminal/'core/output_files/Dorado.fit.summary').read_text()
     assert 'Fitter Status : Successful'in fit
     result=dict(status='REVIEWED_FULL_CORE_15NS_TIMING_REJECTION',scope=__doc__,
-        project=PROJECT,source_files_verified=len(source['source_hashes']),terminal_state=observation['run_state'],
+        project=project,source_files_verified=len(source['source_hashes']),terminal_state=observation['run_state'],
         nominal_ordinary_ns=120,target_ordinary_ns=60,frequency_hz=66666667,sysper=4,
         all_summary_checks=checks,setup_paths_by_corner=corners,worst_setup_path=worst,
-        critical_path='R address -> asynchronous RM read -> ContA/ContB/direct capture -> event settling check -> machine_enable -> falling-edge network_step',
+        critical_path=('MemC a15 address -> asynchronous cache-tag b20 -> miss/Hold pin386 -> shared control frames -> processor T-path settling -> machine_enable -> falling-edge network_step'if guarded else
+                       'R address -> asynchronous RM read -> ContA/ContB/direct capture -> event settling check -> machine_enable -> falling-edge network_step'),
+        phase_guard_only=guarded,
         fit_summary=fit,exact_stage_manifest_sha256=sha(stage/'r-front-control-native.json'),
         collection_sha256=sha(terminal/'collection.json'),bundle_sha256=sha(bundle),
         full_core_timing_qualified=False,SDRAM_protocol_or_physical_timing_qualified=False,
