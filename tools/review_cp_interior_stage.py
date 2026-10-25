@@ -144,6 +144,11 @@ def review(out,require_words=False):
         _,_,il=positive(all_peer.name,'checks=12481 words=4096 Qs=844 RAM=9216 clocks=100 sets=3ffff')
         for name in ['candidate.sv','initial.hex','transactions.hex']:
             assert sha(all_peer/name)==sha(a/name),name
+    old_i=BUILD/'cp-interior-stage-collisions-icarus-v1-20261024';old_v=BUILD/'cp-interior-stage-collisions-verilator-v1-20261024'
+    older_collision_terminal=read(old_i/'run-state.json')['status']==PASS
+    if older_collision_terminal:
+        assert 'checks=17089 collisions=128 Qs=844 RAM=9216 clocks=100 sets=3ffff'in(old_i/'test.log').read_text()
+        for name in ['candidate.sv','initial.hex','transactions.hex']:assert sha(old_i/name)==sha(old_v/name)
     native=BUILD/'control-short-native-jumper-read-v4-20261025';n=read(native/'result.json')
     assert n['read_only_guest_inspection']and n['pid']==69736 and 'detached'in(native/'lldb.log').read_text().lower()
     assert n['riot_ram']['timer100ms_word']==26 and n['riot_ram']['EndOfDelay_word']==30;dirs.append(native)
@@ -153,6 +158,9 @@ def review(out,require_words=False):
         if d.name in snapshots:(out/d.name/'run-state.json').write_bytes(snapshots[d.name])
     result=dict(status='REVIEWED_SINGLE_PORT_CP_WORDS_WITH_PENDING_NATIVE_EPOCH_GATES'if require_words else'STAGED_SINGLE_PORT_CP_CAPTURE_WITH_PENDING_GATES',scope=__doc__,
                 current_Icarus_Verilator_full_word_trace_byte_identical=require_words,
+                older_rising_collision_peer_terminal=older_collision_terminal,
+                older_rising_collision_trace_byte_identical=older_collision_terminal,
+                older_rising_candidate_not_the_extended_current_candidate=True,
                 focused_both_engines=focused,Verilator_continuous_words=4096,continuous_checks=12481,
                 Verilator_fresh_collision_fixtures=128,collision_checks=17089,collision_interior_reads=3,
                 Verilator_RAM_fixtures=64,RAM_checks=12737,RAM_interior_reads=64,

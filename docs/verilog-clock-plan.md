@@ -40,16 +40,23 @@ LATEST one-port interior read implementation (2026-10-25):
 - [x] SAME current full-word Icarus10990/session11512 is TERMINAL PASS:
   12481 checks/4096 words. Candidate, initial owner/RAM and the ENTIRE transaction
   trace are byte-identical to the Verilator peer. Do not restart it.
-- [ ] Finish SAME older rising-only128-collision Icarus10076/session59484 and
-  current64-RAM Icarus12518/session56923, both verified live by actual `ps`.
-  Do not restart or change bounds. The former is a DIFFERENT older candidate;
-  it cannot by itself qualify the extended descriptor. Then run the current
-  collision peer and remaining RAM/arrival/unknown-context checks.
+- [x] Older rising-only collision Icarus10076/session59484 is TERMINAL PASS:
+  128 fixtures/17089 checks, entire trace byte-identical to its OLDER Verilator
+  peer. Preserve the source-version distinction; do not restart it. Receipt:
+  `single-port-cp-capture-old-collision-terminal-summary.json`.
+- [ ] Finish SAME CURRENT collision Icarus13697/session43106 and current64-RAM
+  Icarus12518/session56923, both verified live by actual `ps` in that receipt.
+  Do not restart or change bounds. Then require the remaining arrival/unknown-
+  context/owner gates before native use.
 - [ ] Wire the stage into the real native caller's freeze/publication/barrier,
   preserving828 stored bits plus16 external visible-R owners. Start/ack/release
   and owner publication are still TESTBENCH-driven. Earlier metadata confusing
   the RTL controller with its caller is clarified in the caller-audit receipt;
-  historical state/source files remain unchanged. No native integration yet.
+  historical state/source files remain unchanged. No native integration yet. Next native-caller step: inspect whether its live port
+  descriptors can change during a pending read. The current controller REQUIRES
+  them frozen. Qualify descriptor tagging/invalidation and the one-owner RAM
+  write barrier before allowing a stale buffered read to publish; do not assume
+  that a held processor owner also freezes every live source pin.
 - [ ] Qualify every original16-R interior edge, actual CP/Ready/MIR/Hold offsets,
   unknown/noncanonical paths, full-processor nonvacuous TPC capture, IFU/Memory,
   and SAME-fixture timing before selecting a full-core fit. All A–F stay open.

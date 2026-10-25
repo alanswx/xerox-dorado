@@ -1,0 +1,268 @@
+{
+  "status": "REVIEWED_SINGLE_PORT_CP_WORDS_WITH_PENDING_NATIVE_EPOCH_GATES",
+  "scope": "Retain the staged one-port correction, bounded passes and outstanding gates.\n\nFull original assertions remain. A live peer is observed by its actual process,\nnot inferred from a lock/state file. This does not select a native core or\nqualify arbitrary owners, unknown contexts, other arrival orders or timing.\n",
+  "current_Icarus_Verilator_full_word_trace_byte_identical": true,
+  "older_rising_collision_peer_terminal": true,
+  "older_rising_collision_trace_byte_identical": true,
+  "older_rising_candidate_not_the_extended_current_candidate": true,
+  "focused_both_engines": [
+    {
+      "engine": "icarus",
+      "directory": "cp-interior-stage-icarus-v3-20261025",
+      "checks": 196,
+      "interior_reads": 1
+    },
+    {
+      "engine": "verilator",
+      "directory": "cp-interior-stage-verilator-v3-20261025",
+      "checks": 196,
+      "interior_reads": 1
+    }
+  ],
+  "Verilator_continuous_words": 4096,
+  "continuous_checks": 12481,
+  "Verilator_fresh_collision_fixtures": 128,
+  "collision_checks": 17089,
+  "collision_interior_reads": 3,
+  "Verilator_RAM_fixtures": 64,
+  "RAM_checks": 12737,
+  "RAM_interior_reads": 64,
+  "RAM_high_byte_edge_pairs": 64,
+  "other_cells_independently_seeded": true,
+  "original_844_Q_9216_RAM_100_clock_event_assertions_retained": true,
+  "original_event_fatal_checks_preserved": 59,
+  "only_one_DUT_physical_SRAM_read_port_per_bank": true,
+  "extra_architectural_owner_bits": 0,
+  "stage_auxiliary_data_bits": 36,
+  "stage_auxiliary_phase_bits": 2,
+  "controller_ack_hold_reset_contracts_inductively_proven": true,
+  "controller_initial_buffers_unconstrained": true,
+  "controller_no_protocol_assumptions": true,
+  "controller_negative_cases": [
+    "early-ready",
+    "stale-capture",
+    "ordinary-stall"
+  ],
+  "processor_real_output_negatives": [
+    {
+      "mutation": "stale-data",
+      "directory": "cp-interior-stage-stale-icarus-v3-20261025",
+      "real_original_output_failure": true
+    },
+    {
+      "mutation": "missing-valid",
+      "directory": "cp-interior-stage-no-valid-icarus-v3-20261025",
+      "real_original_output_failure": true
+    }
+  ],
+  "before_physical_observations_remain_original": true,
+  "data_and_parity_from_same_interior_read": true,
+  "ordinary_need_false_requires_no_extra_cycle": true,
+  "disabled_generated_candidate_byte_identical": true,
+  "stable_LOW_failure_preserved_and_fixed": true,
+  "runs": [
+    {
+      "directory": "cp-interior-read-icarus-v1-20261024",
+      "status": "TERMINAL_PREPARATION_FAILED",
+      "state_sha256": "b0fb740fd397faf416d99891b087b5e9d569f0310499746e0d6fb1de865faf0d",
+      "source_sha256": null
+    },
+    {
+      "directory": "cp-interior-read-icarus-v2-20261024",
+      "status": "TERMINAL_FULL_PROCESSOR_CP_SOURCE_NOT_ESTABLISHED",
+      "state_sha256": "f0d99b058fad51ed0fae04e65620f653bdd5af3e610be3fa27e68a370a95e517",
+      "source_sha256": "98108747b641a1b20f10a5c17e6a43dfcf32b833c4809e0d6c7ef34e1398c466"
+    },
+    {
+      "directory": "cp-interior-read-icarus-v3-20261024",
+      "status": "TERMINAL_PREPARATION_FAILED",
+      "state_sha256": "ae4e0d8dbe94f57d2e6830f5ad650a2edcb8f3d9df407e032115b1123be682d1",
+      "source_sha256": null
+    },
+    {
+      "directory": "cp-interior-read-icarus-v4-20261024",
+      "status": "PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE",
+      "state_sha256": "4448957f87ab909229db1a9c649db3abefbfc03b4f512e8e798a4901475c25d9",
+      "source_sha256": "c97f14f4c5c7b72c5dd03765ccb11f186e98159fe8dcf3426df61a1268b3c28e"
+    },
+    {
+      "directory": "cp-interior-stage-all-verilator-v1-20261024",
+      "status": "TERMINAL_FULL_PROCESSOR_CP_SOURCE_NOT_ESTABLISHED",
+      "state_sha256": "5c532cade25797f3d3e1753f93c43071b3cbf061c73f98da5d371c7c268ea381",
+      "source_sha256": "c97f14f4c5c7b72c5dd03765ccb11f186e98159fe8dcf3426df61a1268b3c28e"
+    },
+    {
+      "directory": "cp-interior-stage-collisions-icarus-v1-20261024",
+      "status": "PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE",
+      "state_sha256": "9a0970cd2032d86985e155b92fad756a6bd0704d173b3cc8b6684f488147b73c",
+      "source_sha256": "c97f14f4c5c7b72c5dd03765ccb11f186e98159fe8dcf3426df61a1268b3c28e"
+    },
+    {
+      "directory": "cp-interior-stage-collisions-verilator-v1-20261024",
+      "status": "PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE",
+      "state_sha256": "9c99bced9e0360dbaba019db3569cf934d7692eee6b64b3a087b1dea6cd2e48d",
+      "source_sha256": "c97f14f4c5c7b72c5dd03765ccb11f186e98159fe8dcf3426df61a1268b3c28e"
+    },
+    {
+      "directory": "cp-interior-stage-icarus-v1-20261024",
+      "status": "TERMINAL_FULL_PROCESSOR_CP_SOURCE_NOT_ESTABLISHED",
+      "state_sha256": "2e963be570fc79bae7003e9c76f209506374a07fc856c3b79888f3acdd6c7ef5",
+      "source_sha256": "c97f14f4c5c7b72c5dd03765ccb11f186e98159fe8dcf3426df61a1268b3c28e"
+    },
+    {
+      "directory": "cp-interior-stage-icarus-v2-20261024",
+      "status": "PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE",
+      "state_sha256": "4ed10e31ab9d1218583462158d51f131e76fb6933b30f70cd30ebd081f5ddfaa",
+      "source_sha256": "c97f14f4c5c7b72c5dd03765ccb11f186e98159fe8dcf3426df61a1268b3c28e"
+    },
+    {
+      "directory": "cp-interior-stage-no-valid-icarus-v2-20261024",
+      "status": "TERMINAL_FULL_PROCESSOR_CP_SOURCE_NOT_ESTABLISHED",
+      "state_sha256": "9ffabd4ad6bc4fdb10bdc1af1d93ce6ea950d1ed616de6f2e5188bf1dfd5a54c",
+      "source_sha256": "c97f14f4c5c7b72c5dd03765ccb11f186e98159fe8dcf3426df61a1268b3c28e"
+    },
+    {
+      "directory": "cp-interior-stage-proof-v1-20261024",
+      "status": "TERMINAL_INTERIOR_STAGE_CONTRACT_NOT_ESTABLISHED",
+      "state_sha256": "d8bef9dc7a933566b9a939366e850adcac1fa19e2cbb8d2101363c637fdb32a1",
+      "source_sha256": null
+    },
+    {
+      "directory": "cp-interior-stage-proof-v2-20261024",
+      "status": "TERMINAL_INTERIOR_STAGE_CONTRACT_NOT_ESTABLISHED",
+      "state_sha256": "a4b287562bd95744cd98ded3e45eaf5763f9b0abaa18cbf1f13c89071912b3ff",
+      "source_sha256": null
+    },
+    {
+      "directory": "cp-interior-stage-proof-v3-20261024",
+      "status": "PASS_INTERIOR_STAGE_CONTRACTS_AND_NEGATIVES",
+      "state_sha256": "b55996612e1aff77faaa0674857555961bb4ab8f0818aa26104ba7dc75f0ba7c",
+      "source_sha256": null
+    },
+    {
+      "directory": "cp-interior-stage-ram64-verilator-v1-20261024",
+      "status": "PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE",
+      "state_sha256": "9ba4f69e462c3ddec5966e56fda2fc5aa60820fc4e031de4a318f1d27a9794e3",
+      "source_sha256": "c97f14f4c5c7b72c5dd03765ccb11f186e98159fe8dcf3426df61a1268b3c28e"
+    },
+    {
+      "directory": "cp-interior-stage-stale-icarus-v2-20261024",
+      "status": "TERMINAL_FULL_PROCESSOR_CP_SOURCE_NOT_ESTABLISHED",
+      "state_sha256": "68e12953fb0def1900d1a0613a42b52dd6958b721fb22bd622b3c59bce155a0f",
+      "source_sha256": "c97f14f4c5c7b72c5dd03765ccb11f186e98159fe8dcf3426df61a1268b3c28e"
+    },
+    {
+      "directory": "cp-interior-stage-verilator-v2-20261024",
+      "status": "PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE",
+      "state_sha256": "75fb7f034b5133ef397f0e87de5a3d4a045db344d8709f709055107142a7e412",
+      "source_sha256": "c97f14f4c5c7b72c5dd03765ccb11f186e98159fe8dcf3426df61a1268b3c28e"
+    },
+    {
+      "directory": "cp-interior-stage-all-icarus-v2-20261025",
+      "status": "PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE",
+      "state_sha256": "aee44b33fded04e55dd9e440302bac371bd9c14911a53757c519688ce2b173a5",
+      "source_sha256": "e0da778c61bafacbaadd777dfc2c33d100f3dbea6ee66c1b72c644057176e5d3"
+    },
+    {
+      "directory": "cp-interior-stage-all-verilator-v2-20261025",
+      "status": "PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE",
+      "state_sha256": "bae81dd9878b8e0c5a47c74fc9272da99dca8f8c9258d63ef99a57904dc5bb80",
+      "source_sha256": "e0da778c61bafacbaadd777dfc2c33d100f3dbea6ee66c1b72c644057176e5d3"
+    },
+    {
+      "directory": "cp-interior-stage-collisions-icarus-v2-20261025",
+      "status": "RUNNING",
+      "state_sha256": "681276692d5feefdd6e93ccf01d1892e1254e0c180a1da4f27c5137a74391856",
+      "source_sha256": "e0da778c61bafacbaadd777dfc2c33d100f3dbea6ee66c1b72c644057176e5d3"
+    },
+    {
+      "directory": "cp-interior-stage-collisions-verilator-v2-20261025",
+      "status": "PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE",
+      "state_sha256": "a8545cf4799bc627d553130c3e15cfce17efb28b040d7fcb333ead7015263ce7",
+      "source_sha256": "e0da778c61bafacbaadd777dfc2c33d100f3dbea6ee66c1b72c644057176e5d3"
+    },
+    {
+      "directory": "cp-interior-stage-icarus-v3-20261025",
+      "status": "PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE",
+      "state_sha256": "8e19e643c607e7a23e9e427a3dccc3a67d5d76aebbd2084ba69126aeb7277a1e",
+      "source_sha256": "e0da778c61bafacbaadd777dfc2c33d100f3dbea6ee66c1b72c644057176e5d3"
+    },
+    {
+      "directory": "cp-interior-stage-no-valid-icarus-v3-20261025",
+      "status": "TERMINAL_FULL_PROCESSOR_CP_SOURCE_NOT_ESTABLISHED",
+      "state_sha256": "fb35656159b1e72337f29d0903e9d21dca078cde8072d1ae5f4844648c1842bf",
+      "source_sha256": "e0da778c61bafacbaadd777dfc2c33d100f3dbea6ee66c1b72c644057176e5d3"
+    },
+    {
+      "directory": "cp-interior-stage-proof-v4-20261025",
+      "status": "PASS_INTERIOR_STAGE_CONTRACTS_AND_NEGATIVES",
+      "state_sha256": "07ec69b1cdd90688a0b04b1b39b00eb77865e549ca1891951ee11b8398cde9f4",
+      "source_sha256": null
+    },
+    {
+      "directory": "cp-interior-stage-ram64-icarus-v2-20261025",
+      "status": "RUNNING",
+      "state_sha256": "02cb8bf6886dd73e0b4c809d0de29cb0b9fee9a186d40ec319bf4db9a2184374",
+      "source_sha256": "e0da778c61bafacbaadd777dfc2c33d100f3dbea6ee66c1b72c644057176e5d3"
+    },
+    {
+      "directory": "cp-interior-stage-ram64-verilator-v2-20261025",
+      "status": "PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE",
+      "state_sha256": "77ca752491683e16bd80f46978d7cc11db350238a1cee63c854bc0962930590e",
+      "source_sha256": "e0da778c61bafacbaadd777dfc2c33d100f3dbea6ee66c1b72c644057176e5d3"
+    },
+    {
+      "directory": "cp-interior-stage-stale-icarus-v3-20261025",
+      "status": "TERMINAL_FULL_PROCESSOR_CP_SOURCE_NOT_ESTABLISHED",
+      "state_sha256": "2097a08cd6fc71f09d5128a5ba3cb959a4188608f3b8267b2be0edca97158d9f",
+      "source_sha256": "e0da778c61bafacbaadd777dfc2c33d100f3dbea6ee66c1b72c644057176e5d3"
+    },
+    {
+      "directory": "cp-interior-stage-verilator-v3-20261025",
+      "status": "PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE",
+      "state_sha256": "1251cae8cdbefed72e88c6c3f6e15aa0adfa4d3df2ff280b04c862d00191794f",
+      "source_sha256": "e0da778c61bafacbaadd777dfc2c33d100f3dbea6ee66c1b72c644057176e5d3"
+    }
+  ],
+  "verified_live_peers": [
+    {
+      "directory": "cp-interior-stage-collisions-icarus-v2-20261025",
+      "pid": 13697,
+      "ps": "13697 00:37 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/cp-interior-stage-collisions-icarus-v2-20261025/test.vvp",
+      "observed": 1792913136.3034828,
+      "source_sha256": "e0da778c61bafacbaadd777dfc2c33d100f3dbea6ee66c1b72c644057176e5d3",
+      "terminal_pass_required": true
+    },
+    {
+      "directory": "cp-interior-stage-ram64-icarus-v2-20261025",
+      "pid": 12518,
+      "ps": "12518 09:24 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/cp-interior-stage-ram64-icarus-v2-20261025/test.vvp",
+      "observed": 1792913136.445056,
+      "source_sha256": "e0da778c61bafacbaadd777dfc2c33d100f3dbea6ee66c1b72c644057176e5d3",
+      "terminal_pass_required": true
+    }
+  ],
+  "full_current_Icarus_words_pending": false,
+  "fresh_native_timer_observation": {
+    "pid": 69736,
+    "host": 1020081560,
+    "guest_ticks": 518044505,
+    "timer100ms": 26,
+    "EndOfDelay": 30,
+    "debugger_detached": true
+  },
+  "native_timer_ticks_not_microinstructions": true,
+  "original_native_5B_host_bound_unchanged": true,
+  "native_caller_freeze_publication_and_barrier_integration_pending": true,
+  "read_controller_is_synthesizable_RTL": true,
+  "caller_is_still_testbench": true,
+  "historical_caller_flag_corrected": "Older states set caller_testbench_only false when the RTL controller was selected; caller start/ack/release/freeze/publication still come from the testbench. Compiled files and old states are preserved.",
+  "unknown_context_and_arbitrary_owner_arrival_qualification_pending": true,
+  "original16_R_interior_edges_and_IFU_Memory_pending": true,
+  "nonvacuous_full_processor_TPC_negative_pending": true,
+  "physical_timing_qualified": false,
+  "native_integrated": false,
+  "new_RBF_ready": false,
+  "hardware_changed": false,
+  "full_goal_active": true
+}

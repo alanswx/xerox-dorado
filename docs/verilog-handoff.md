@@ -21,7 +21,11 @@ bits. It waits for the read acknowledgement, survives stalls, resets only its
 auxiliary transaction, and bypasses staging on ordinary need=0 transfers. Formal
 interface contracts pass induction without protocol assumptions or initialized
 data buffers; bad early-ready/stale-capture/ordinary-stall cases fail. The caller
-must still freeze descriptors/owners; that native contract is not proven here.
+must still freeze descriptors/owners; that native contract is not proven here. Next native-caller step: inspect whether its live port
+  descriptors can change during a pending read. The current controller REQUIRES
+  them frozen. Qualify descriptor tagging/invalidation and the one-owner RAM
+  write barrier before allowing a stale buffered read to publish; do not assume
+  that a held processor owner also freezes every live source pin.
 
 `tools/generate_cp_interior_read.py` keeps physical BEFORE Q/data intact and
 supplies actual closing data to the original R/flag/parity consumers. No extra
@@ -41,11 +45,14 @@ continuous native replay or arbitrary owner/arrival/unknown-context proof.
 
 CURRENT WORD PEERS COMPLETE: Icarus10990/session11512 passed12481 checks/4096
 words. Candidate HDL, initial owner/RAM and the ENTIRE transaction trace match
-Verilator byte for byte. Do not restart. LIVE at latest review: OLDER rising-only
-collision Icarus10076/session59484 and current64-RAM Icarus12518/session56923.
-Actual `ps` handles verified; do not restart/change bounds. The older collision
-binary differs from the extended one. Finish/archive these, then run the current
-collision peer and remaining arrival/XZ/noncanonical tests. Preserve every original16-R C/D/Set/interior edge,
+Verilator byte for byte. Do not restart. The OLDER rising-only collision
+Icarus10076/session59484 is now TERMINAL PASS too:128 fixtures/17089 checks,
+byte-identical full trace to its OLDER Verilator peer. This differs from the
+extended current candidate; preserve that distinction. The additional receipt is
+`single-port-cp-capture-old-collision-terminal-summary.json`.
+LIVE at latest review: CURRENT collision Icarus13697/session43106 and64-RAM
+Icarus12518/session56923. Actual `ps` handles verified; do not restart/change
+bounds. Finish/archive these and remaining arrival/XZ/noncanonical tests. Preserve every original16-R C/D/Set/interior edge,
 828+16 native ownership and the one SRAM. Connect native freeze/barrier/publication
 only after those gates, then continue IFU/Memory and full-device timing. All A–F,
 60ns/timer, SDRAM, firmware/Cedar/Rollback/persistence/stress gates remain.
