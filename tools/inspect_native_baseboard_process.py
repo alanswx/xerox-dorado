@@ -15,7 +15,7 @@ import time
 from test_r_front_forward_view import sha
 
 
-def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network=False, network_wire_only=False, translated_front=False, front_control=False, receiver_fifo=False):
+def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network=False, network_wire_only=False, translated_front=False, front_control=False, receiver_fifo=False, branch_flags=False):
     network_wire_only = network_wire_only or translated_front or receiver_fifo
     network = network or network_wire_only
     assert not out.exists()
@@ -139,6 +139,25 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
         control_binding=dict(backplane_sha256=sha(backplane),caller_sha256=sha(caller),
                              tagged_stage_sha256=sha(tagged),native_pair_mode=False,
                              scope='Raw compiled read/publication-gate inputs at the debugger boundary; no inferred duration or guest writes.')
+    branch_binding=None
+    if branch_flags:
+        from native_branch_flag_sources import bindings
+        branch_binding=bindings(source)
+        for name,digest in branch_binding['source_hashes'].items():
+            path=(Path(__file__).resolve().parents[1]/name if name.startswith('chm/') else source/'inputs'/name)
+            assert sha(path)==digest
+            target=out/'branch-source'/name;target.parent.mkdir(parents=True,exist_ok=True)
+            target.write_bytes(path.read_bytes())
+        helper=Path(__file__).with_name('native_branch_flag_sources.py')
+        (out/helper.name).write_bytes(helper.read_bytes())
+        proc=prefix+'dut__DOT__m__DOT__b_ProcH__DOT__'
+        fields['branch_e13_memory']=(proc+'u_e13__DOT__mem',16)
+        for package in ['f17','g11','h11']:
+            fields['branch_'+package+'_q']=(proc+'u_'+package+'__DOT__q',1)
+        for name,size in [('a',1),('a_lat',1),('d_lat',1),('we_d',1),('ce_lat',1)]:
+            fields['branch_e13_'+name]=(proc+'u_e13__DOT__'+name,size)
+        for name in ['BCWrite_p_','Clock1_p_Cb']:
+            fields['branch_'+name]=(proc+name,1)
     receiver_binding=None
     if receiver_fifo:
         board_path=source/'inputs/src/fpga/mister/snapshot_native_dsketh/DskEth_full_snapshot.sv'
@@ -349,6 +368,14 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
         result['network_inspection_scope']+=' Original translated processor SRAM/owner bits are also read raw.'
     if control_binding is not None:
         result['front_control_source_binding']=control_binding
+    if branch_binding is not None:
+        result['branch_flag_source_binding']=branch_binding
+        result['branch_flags_raw']=dict(
+            physical_slots=list(bytes.fromhex(result['fields']['branch_e13_memory'])),
+            f17_q=int.from_bytes(bytes.fromhex(result['fields']['branch_f17_q']),'little'),
+            g11_q=int.from_bytes(bytes.fromhex(result['fields']['branch_g11_q']),'little'),
+            h11_q=int.from_bytes(bytes.fromhex(result['fields']['branch_h11_q']),'little'),
+            scope='Raw stored package bits at one evaluation boundary; no instruction attribution or phase correctness inferred.')
     if receiver_binding is not None:
         slots=[]
         for index in range(16):
@@ -380,4 +407,5 @@ if __name__ == '__main__':
     p.add_argument('--translated-front',action='store_true',help='Also read the compiled translated processor SRAMs and828+16 owner layout, without changing guest state')
     p.add_argument('--front-control',action='store_true',help='Read private combined caller/publication gate inputs with source binding')
     p.add_argument('--receiver-fifo',action='store_true',help='Read original DskEth receive FIFO and status with physical pin binding')
-    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.pid,a.low_ram,a.riot_ram,a.keyboard,a.network,a.network_wire_only,a.translated_front,a.front_control,a.receiver_fifo)
+    p.add_argument('--branch-flags',action='store_true',help='Read original per-task branch-condition file and flag latches with source binding')
+    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.pid,a.low_ram,a.riot_ram,a.keyboard,a.network,a.network_wire_only,a.translated_front,a.front_control,a.receiver_fifo,a.branch_flags)

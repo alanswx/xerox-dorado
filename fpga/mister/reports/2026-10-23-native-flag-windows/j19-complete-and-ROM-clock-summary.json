@@ -1,0 +1,1408 @@
+{
+  "status": "REVIEWED_COMPLETE_J19_REPLAYS_AND_ACTUAL_ROM_CLOCK",
+  "capture_review": {
+    "status": "REVIEWED_SEPARATE_J19_DATA_EPOCHS_AND_TERMINAL_NATIVE_PREFIX",
+    "scope": "Review separate original j19 data routes and bounded native startup.\n\nPreserve the rejected earlier underflow transfer, its accidentally passing\nforced-one control, both corrected data tests and specific epoch negatives.\nDigital profile evidence does not qualify arbitrary arrivals or FPGA timing.\n",
+    "runs": [
+      {
+        "directory": "j19-full-icarus-v1-20261025",
+        "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+        "state_sha256": "f1091ac9830878973309538a00fae3d195bad58fcb2ee2ac0ed7eaab82058183",
+        "observed": 1792934567.110365
+      },
+      {
+        "directory": "j19-full-verilator-v1-20261025",
+        "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+        "state_sha256": "f69d0a92fef65a0bb2ed948f691fd151f3992a2654ec0835bc748b45a60e0b42",
+        "observed": 1792934567.134945
+      },
+      {
+        "directory": "j19-words-icarus-v1-20261025",
+        "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+        "state_sha256": "f9d90d6b508f140d87f94c2a28f1ccda3a08d62d4f43d2c88c20542d6a2aed38",
+        "observed": 1792934567.162299
+      },
+      {
+        "directory": "j19-words-verilator-v1-20261025",
+        "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+        "state_sha256": "fa59213bacdc183926f2a2b0cca865de09304dbb4ec6faa45ac71a61cb9e1166",
+        "observed": 1792934567.204872
+      },
+      {
+        "directory": "j19-full-icarus-v2-20261025",
+        "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+        "state_sha256": "507e9986ca4477cee988a3b06cf9451f6745091c681457420938947a47681314",
+        "observed": 1792934567.230879
+      },
+      {
+        "directory": "j19-full-verilator-v2-20261025",
+        "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+        "state_sha256": "a8ef88398b18f317b8bb2f4d1cb85b877dbf067133eae1fd960c7a33abeaf541",
+        "observed": 1792934567.25557
+      },
+      {
+        "directory": "j19-words-icarus-v2-20261025",
+        "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+        "state_sha256": "961044bb351945bb35f43a1422c3fe53ade8d8d9497bc0016e3a0ea4b1c2f26f",
+        "observed": 1792934567.281109
+      },
+      {
+        "directory": "j19-words-verilator-v2-20261025",
+        "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+        "state_sha256": "22d5d2bc686daddb83241af331d407e01f522312f50b6a5ac58b8661b689d08c",
+        "observed": 1792934567.306318
+      },
+      {
+        "directory": "full-tpc-j19-epochs-icarus-v3-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "98d6a998bc50fa949a07622064f1caad54b19a8003cd887cfa6758d40bdd47aa",
+        "observed": 1792934567.351966
+      },
+      {
+        "directory": "full-tpc-j19-epochs-late-icarus-v3-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "964260e73de0565491d558178088bb279d14d35bf6e6bbf65680215783597793",
+        "observed": 1792934567.375139
+      },
+      {
+        "directory": "full-tpc-j19-epochs-verilator-v3-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "fd0f1fcb051e15af3a2b8cdd20c093587424b14f8d2dfbddd63d2f2e85f909c6",
+        "observed": 1792934567.400672
+      },
+      {
+        "directory": "full-tpc-j19-epochs-late-verilator-v3-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "37be3ec1124d1d1a122e24d681fe828280a35475cc5f2b9449cc0ab61363b4d4",
+        "observed": 1792934567.433277
+      },
+      {
+        "directory": "j19-aperture-sp255-rstk3-icarus-v2-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "ccd9ebc2145bf3722825039fd28ec634765943f7f27c37313160424b510fae55",
+        "observed": 1792934567.461615
+      },
+      {
+        "directory": "j19-aperture-sp255-rstk3-old-overflow-icarus-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "510c602f92afe59472e35eb2008f1da3936f41ac71f5b33addbd52c740d31b0e",
+        "observed": 1792934567.485858
+      },
+      {
+        "directory": "j19-aperture-sp255-rstk3-verilator-v2-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "54d0e82a73c333b403c84fa844179778173c1ea8754b4b1562f4a6c2c57eb088",
+        "observed": 1792934567.521462
+      },
+      {
+        "directory": "j19-aperture-sp255-rstk3-old-overflow-verilator-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "739e59533be2453c34a718a51d7a03541ea6883ddc95286bca21c5f388721a57",
+        "observed": 1792934567.548377
+      },
+      {
+        "directory": "j19-aperture-sp0-rstk8-icarus-v2-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "f2526c7916c306b55be4a4675e5f4f6da59bb6a2a52defc6ab3979e7282d22e8",
+        "observed": 1792934567.5855649
+      },
+      {
+        "directory": "j19-aperture-sp0-rstk8-late-underflow-icarus-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "6058b3d3c7c9c36d576773f3057fd887f6f4d23f68686ab415298ff14cfea6d5",
+        "observed": 1792934567.608073
+      },
+      {
+        "directory": "j19-aperture-sp0-rstk8-verilator-v2-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "0a428b2afad2a2996dea25c8fa02755ebe395ca76fc81b1e220e1d3d212bce9b",
+        "observed": 1792934567.6440609
+      },
+      {
+        "directory": "j19-aperture-sp0-rstk8-late-underflow-verilator-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "3dc0b081ce6b833fce2976b267e03cef0f7bba20644c3cd22db564cf7bdd6247",
+        "observed": 1792934567.6710558
+      },
+      {
+        "directory": "j19-aperture-sp0-rstk8-icarus-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "61198621a77e6a3d163e45b1afbc37e1b3b7776c5bd397cb3ce8523476fa1abb",
+        "observed": 1792934567.707874
+      },
+      {
+        "directory": "j19-aperture-sp0-rstk8-bad-data-icarus-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "5abeb2e18e1d3676666d7ccbbe49055c17caef4f5f939c09c857e7e1a9347d5f",
+        "observed": 1792934567.7316768
+      },
+      {
+        "directory": "j19-aperture-sp0-rstk8-verilator-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "ec90a97e521c2b564e42b3663db04b3ee479853fe0861c077984910030474526",
+        "observed": 1792934567.757889
+      },
+      {
+        "directory": "j19-aperture-sp0-rstk8-bad-data-verilator-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "7484b674b1c949ba583d936bc8a8733c6c5aee117bbc7997ed872834ea8e009e",
+        "observed": 1792934567.7865
+      },
+      {
+        "directory": "j19-rstk0-icarus-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "4ad38e130b993592b242caa1c98df3bff9db03eb7008c0b7b49763e515204d2d",
+        "observed": 1792934567.818385
+      },
+      {
+        "directory": "j19-rstk0-verilator-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "3ec76e64d84f41050d441dc2468455023eec524e3207913c30a6516699db1068",
+        "observed": 1792934567.8425741
+      },
+      {
+        "directory": "j19-sp255-rstk0-icarus-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "6cae20fa0bcc8a4a20c506d5ed082fad49f75d44777c40bebc5f2a9e1003c47c",
+        "observed": 1792934567.873909
+      },
+      {
+        "directory": "j19-sp255-rstk0-verilator-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "32de856c406771bc399a7362c9c6ea393755416adb9f73faf66462a4740bbf3c",
+        "observed": 1792934567.897981
+      },
+      {
+        "directory": "j19-sp255-rstk3-bad-data-icarus-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "3092fc437d8a1041125ced2dda351c18fd8862b4c35b8d8de896995c84162b14",
+        "observed": 1792934567.9248939
+      },
+      {
+        "directory": "j19-sp255-rstk3-bad-data-verilator-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "657a898c0cca6770e9fc9400c58cfb39ac7bb7ec29bd5dfd10c74fc046edebbc",
+        "observed": 1792934567.950124
+      },
+      {
+        "directory": "j19-sp255-rstk3-icarus-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "5945dfbf2c4c4b4f627b0a524ee85f094d04269456596b3fd99bfc6439ff02d3",
+        "observed": 1792934567.979406
+      },
+      {
+        "directory": "j19-sp255-rstk3-verilator-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "10e720f5fedde7262827c589e5ccd795250425b4181f49b403a56645a4326063",
+        "observed": 1792934568.0053601
+      },
+      {
+        "directory": "j19-aperture-sp255-rstk3-bad-data-icarus-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "804d41dcfa446adaee512a43a2cbbc7895d7fae315a29f647548707b74656367",
+        "observed": 1792934568.03776
+      },
+      {
+        "directory": "j19-aperture-sp255-rstk3-bad-data-verilator-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "85b35746f931de52a4ab76e4f4551124cb8bc5ba7c5c45bb9cabbdcde3c182ef",
+        "observed": 1792934568.0628932
+      },
+      {
+        "directory": "j19-aperture-sp255-rstk3-icarus-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "0e888dd853fca9ef5a3b49ed323e61d9a457913530bc55fda302113f8c0320ca",
+        "observed": 1792934568.090705
+      },
+      {
+        "directory": "j19-aperture-sp255-rstk3-verilator-v1-20261025",
+        "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+        "state_sha256": "09bb2b50ff25f347058caf9ef09c64b923a7c29ef3e8545ad06efd455041ac8a",
+        "observed": 1792934568.1157
+      }
+    ],
+    "pending_replays": [],
+    "replays": [
+      {
+        "version": 1,
+        "mode": "full",
+        "complete_both_engines": true,
+        "summaries": [
+          "transactions=14884 commits=10423 pairs=4461 candidates=4461 fallbacks=0 paired_writes=119 forwarded_bytes=238 Qs=844 RAM=9216 results=2470 clocks=100",
+          "transactions=14884 commits=10423 pairs=4461 candidates=4461 fallbacks=0 paired_writes=119 forwarded_bytes=238 Qs=844 RAM=9216 results=2470 clocks=100"
+        ]
+      },
+      {
+        "version": 1,
+        "mode": "words",
+        "complete_both_engines": true,
+        "summaries": [
+          "transactions=12481 commits=12387 pairs=94 candidates=94 fallbacks=0 paired_writes=0 forwarded_bytes=0 Qs=844 RAM=9216 results=2470 clocks=100",
+          "transactions=12481 commits=12387 pairs=94 candidates=94 fallbacks=0 paired_writes=0 forwarded_bytes=0 Qs=844 RAM=9216 results=2470 clocks=100"
+        ]
+      },
+      {
+        "version": 2,
+        "mode": "full",
+        "complete_both_engines": true,
+        "summaries": [
+          "transactions=14884 commits=10423 pairs=4461 candidates=4461 fallbacks=0 paired_writes=119 forwarded_bytes=238 Qs=844 RAM=9216 results=2470 clocks=100",
+          "transactions=14884 commits=10423 pairs=4461 candidates=4461 fallbacks=0 paired_writes=119 forwarded_bytes=238 Qs=844 RAM=9216 results=2470 clocks=100"
+        ]
+      },
+      {
+        "version": 2,
+        "mode": "words",
+        "complete_both_engines": true,
+        "summaries": [
+          "transactions=12481 commits=12387 pairs=94 candidates=94 fallbacks=0 paired_writes=0 forwarded_bytes=0 Qs=844 RAM=9216 results=2470 clocks=100",
+          "transactions=12481 commits=12387 pairs=94 candidates=94 fallbacks=0 paired_writes=0 forwarded_bytes=0 Qs=844 RAM=9216 results=2470 clocks=100"
+        ]
+      }
+    ],
+    "directed": [
+      {
+        "engine": "icarus",
+        "stack_pointer": 255,
+        "RSTK": 3,
+        "events": 339,
+        "retained_reads": 1,
+        "negative": "old-overflow",
+        "negative_bit": 734,
+        "negative_check": 337,
+        "original_sink_arrivals": [
+          [
+            "281219.100",
+            "11",
+            "11",
+            "3"
+          ],
+          [
+            "281222.300",
+            "11",
+            "10",
+            "3"
+          ],
+          [
+            "281222.300",
+            "00",
+            "10",
+            "3"
+          ],
+          [
+            "281224.000",
+            "11",
+            "10",
+            "3"
+          ],
+          [
+            "281225.500",
+            "11",
+            "10",
+            "2"
+          ]
+        ]
+      },
+      {
+        "engine": "verilator",
+        "stack_pointer": 255,
+        "RSTK": 3,
+        "events": 339,
+        "retained_reads": 1,
+        "negative": "old-overflow",
+        "negative_bit": 734,
+        "negative_check": 337,
+        "original_sink_arrivals": [
+          [
+            "281219.100",
+            "11",
+            "11",
+            "3"
+          ],
+          [
+            "281222.300",
+            "00",
+            "10",
+            "3"
+          ],
+          [
+            "281224.000",
+            "11",
+            "10",
+            "3"
+          ],
+          [
+            "281225.500",
+            "11",
+            "10",
+            "2"
+          ]
+        ]
+      },
+      {
+        "engine": "icarus",
+        "stack_pointer": 0,
+        "RSTK": 8,
+        "events": 339,
+        "retained_reads": 1,
+        "negative": "late-underflow",
+        "negative_bit": 735,
+        "negative_check": 337,
+        "original_sink_arrivals": [
+          [
+            "281219.100",
+            "11",
+            "11",
+            "3"
+          ],
+          [
+            "281222.300",
+            "00",
+            "11",
+            "3"
+          ],
+          [
+            "281224.000",
+            "11",
+            "11",
+            "3"
+          ],
+          [
+            "281225.500",
+            "11",
+            "01",
+            "3"
+          ],
+          [
+            "281225.500",
+            "11",
+            "01",
+            "3"
+          ]
+        ]
+      },
+      {
+        "engine": "verilator",
+        "stack_pointer": 0,
+        "RSTK": 8,
+        "events": 339,
+        "retained_reads": 1,
+        "negative": "late-underflow",
+        "negative_bit": 735,
+        "negative_check": 337,
+        "original_sink_arrivals": [
+          [
+            "281219.100",
+            "11",
+            "11",
+            "3"
+          ],
+          [
+            "281222.300",
+            "00",
+            "11",
+            "3"
+          ],
+          [
+            "281224.000",
+            "11",
+            "11",
+            "3"
+          ],
+          [
+            "281225.500",
+            "11",
+            "01",
+            "3"
+          ],
+          [
+            "281225.500",
+            "11",
+            "01",
+            "3"
+          ]
+        ]
+      }
+    ],
+    "current_adapter_TPC_gate": [
+      {
+        "engine": "icarus",
+        "checks": 204,
+        "original_reads": 1,
+        "negative_bit": 74,
+        "negative_check": 202
+      },
+      {
+        "engine": "verilator",
+        "checks": 204,
+        "original_reads": 1,
+        "negative_bit": 74,
+        "negative_check": 202
+      }
+    ],
+    "rejected_historical_epoch_rule": [
+      {
+        "engine": "icarus",
+        "earlier_helper_rejected": true,
+        "forced_one_was_not_a_valid_negative": true
+      },
+      {
+        "engine": "verilator",
+        "earlier_helper_rejected": true,
+        "forced_one_was_not_a_valid_negative": true
+      }
+    ],
+    "routes": {
+      "inherited": {
+        "clock_arrival_ps": 8750,
+        "enable_fall_ps": 7400,
+        "overflow_D_arrival_ps": 7400,
+        "underflow_D_arrival_ps": 9150,
+        "clock_LOW_ps": 1350,
+        "overflow_setup_ps": 1350,
+        "underflow_D_after_clock_ps": 400,
+        "diagnostic_epoch_order_valid": true,
+        "source_routes": {
+          "BaseBd-Rev-Am": {
+            "j02.3": "BaseBd12.sil+1",
+            "l01.11": "BaseBd12.sil+1",
+            "l01.13": "CLK.pl'"
+          },
+          "ContA-Rev-Cd": {
+            "h03.11": "CPStrb'",
+            "h03.14": "ContA02.sil+1",
+            "h01.15": "ContA02.sil+1",
+            "h01.10": "sBLOCK",
+            "g16.13": "sBLOCK",
+            "g16.12": "brMIRc",
+            "g16.15": "PrBlock'"
+          },
+          "ProcL-Rev-Ci": {
+            "l01.11": "CLK.pl'",
+            "l01.14": "ppClk'c",
+            "g13.5": "ppClk'c",
+            "g13.3": "PreClock0'D",
+            "j18.5": "PreClock0'D",
+            "j18.4": "Clock0'Dc",
+            "l10.13": "PrBlock'",
+            "l10.14": "StkSela",
+            "l10.15": "StkSel'a",
+            "h19.7": "StkSela",
+            "h19.3": "StkPWriteEn'",
+            "j19.6": "StkPWriteEn'",
+            "j19.11": "StkPWriteEn'",
+            "j19.9": "Clock0'Dc",
+            "j19.7": "ProcL24.sil+10",
+            "j19.10": "ProcL24.sil+11",
+            "j19.2": "OVFLerr'",
+            "j19.15": "UFLerr'",
+            "h17.9": "StkSel'a",
+            "h17.7": "ProcL24.sil+10",
+            "k19.12": "StkSel'a",
+            "k19.9": "ProcL24.sil+1",
+            "k19.11": "ProcL24.sil+1",
+            "k19.6": "ProcL24.sil+1",
+            "j20.11": "ProcL24.sil+1",
+            "j20.12": "ProcL24.sil+1",
+            "j20.15": "ProcL24.sil+11"
+          }
+        },
+        "package_types": {
+          "BaseBd-Rev-Am": {
+            "j02": "MC10210",
+            "l01": "MC10210"
+          },
+          "ContA-Rev-Cd": {
+            "h03": "MC10103",
+            "h01": "MC10172",
+            "g16": "MC10231"
+          },
+          "ProcL-Rev-Ci": {
+            "l01": "SE10210",
+            "g13": "SE10210",
+            "j18": "SE10210",
+            "l10": "MC1660",
+            "h19": "MC10102",
+            "j19": "MC10231",
+            "h17": "MC10105",
+            "k19": "MC10101",
+            "j20": "MC10117"
+          }
+        },
+        "simultaneous_CP_and_root_sources": true,
+        "clock_connector_positions": {
+          "BaseBd-Rev-Am": [
+            "C13"
+          ],
+          "ProcL-Rev-Ci": [
+            "C9"
+          ]
+        },
+        "clock_connection_is_named_net_fixture": true,
+        "physical_clock_backplane_route_qualified": false,
+        "other_data_inputs_stable": true,
+        "physical_pulse_acceptance_qualified": false,
+        "arbitrary_source_arrivals_qualified": false
+      },
+      "aperture": {
+        "clock_arrival_ps": 16000,
+        "enable_fall_ps": 14300,
+        "overflow_D_arrival_ps": 14300,
+        "underflow_D_arrival_ps": 17500,
+        "clock_LOW_ps": 1700,
+        "overflow_setup_ps": 1700,
+        "underflow_D_after_clock_ps": 1500,
+        "diagnostic_epoch_order_valid": true,
+        "source_routes": {
+          "BaseBd-Rev-Am": {
+            "j02.3": "BaseBd12.sil+1",
+            "l01.11": "BaseBd12.sil+1",
+            "l01.13": "CLK.pl'"
+          },
+          "ContA-Rev-Cd": {
+            "h03.11": "CPStrb'",
+            "h03.14": "ContA02.sil+1",
+            "h01.15": "ContA02.sil+1",
+            "h01.10": "sBLOCK",
+            "g16.13": "sBLOCK",
+            "g16.12": "brMIRc",
+            "g16.15": "PrBlock'"
+          },
+          "ProcL-Rev-Ci": {
+            "l01.11": "CLK.pl'",
+            "l01.14": "ppClk'c",
+            "g13.5": "ppClk'c",
+            "g13.3": "PreClock0'D",
+            "j18.5": "PreClock0'D",
+            "j18.4": "Clock0'Dc",
+            "l10.13": "PrBlock'",
+            "l10.14": "StkSela",
+            "l10.15": "StkSel'a",
+            "h19.7": "StkSela",
+            "h19.3": "StkPWriteEn'",
+            "j19.6": "StkPWriteEn'",
+            "j19.11": "StkPWriteEn'",
+            "j19.9": "Clock0'Dc",
+            "j19.7": "ProcL24.sil+10",
+            "j19.10": "ProcL24.sil+11",
+            "j19.2": "OVFLerr'",
+            "j19.15": "UFLerr'",
+            "h17.9": "StkSel'a",
+            "h17.7": "ProcL24.sil+10",
+            "k19.12": "StkSel'a",
+            "k19.9": "ProcL24.sil+1",
+            "k19.11": "ProcL24.sil+1",
+            "k19.6": "ProcL24.sil+1",
+            "j20.11": "ProcL24.sil+1",
+            "j20.12": "ProcL24.sil+1",
+            "j20.15": "ProcL24.sil+11"
+          }
+        },
+        "package_types": {
+          "BaseBd-Rev-Am": {
+            "j02": "MC10210",
+            "l01": "MC10210"
+          },
+          "ContA-Rev-Cd": {
+            "h03": "MC10103",
+            "h01": "MC10172",
+            "g16": "MC10231"
+          },
+          "ProcL-Rev-Ci": {
+            "l01": "SE10210",
+            "g13": "SE10210",
+            "j18": "SE10210",
+            "l10": "MC1660",
+            "h19": "MC10102",
+            "j19": "MC10231",
+            "h17": "MC10105",
+            "k19": "MC10101",
+            "j20": "MC10117"
+          }
+        },
+        "simultaneous_CP_and_root_sources": true,
+        "clock_connector_positions": {
+          "BaseBd-Rev-Am": [
+            "C13"
+          ],
+          "ProcL-Rev-Ci": [
+            "C9"
+          ]
+        },
+        "clock_connection_is_named_net_fixture": true,
+        "physical_clock_backplane_route_qualified": false,
+        "other_data_inputs_stable": true,
+        "physical_pulse_acceptance_qualified": false,
+        "arbitrary_source_arrivals_qualified": false
+      }
+    },
+    "actual_stored_bits_per_event": 844,
+    "SRAM_bits_per_event": 9216,
+    "clock_channels": 100,
+    "original_result_bits": 2470,
+    "new_owner_bits": 0,
+    "new_RAM_ports": 0,
+    "replay_versions_share_exact_stimuli_and_all_other_HDL": true,
+    "original_staged_read_retained_first": true,
+    "new_j19_adapter_selected_in_native": false,
+    "native_prefix": {
+      "pid": 40369,
+      "host_ticks": 250000000,
+      "enabled_machine_ticks": 37059037,
+      "reason": "HOST_LIMIT",
+      "memory_selftest_passes": 6,
+      "pauses": 159,
+      "normal_boot_presses_reached": false,
+      "firmware_qualified": false
+    },
+    "native_read_only_inspection": {
+      "host_ticks": 198687918,
+      "guest_ticks": 5009907,
+      "boot_samples": 5009907,
+      "step": 1,
+      "phi_inverted": 0,
+      "reset_n": 1,
+      "watchdog_counter": 37573,
+      "watchdog_phase_a": 0,
+      "watchdog_phase_b": 0,
+      "MCD0": 1,
+      "MCD1": 0,
+      "MCD2": 0,
+      "MCD3": 1,
+      "MCD4": 0,
+      "MCD5": 1,
+      "MCD6": 0,
+      "MCD7": 1,
+      "network_cpu_debug": 3506434048,
+      "network_control_debug": 256,
+      "network_rx_ready": 1,
+      "network_rx_line": 0,
+      "network_rx_wr": 0,
+      "network_rx_commit": 0,
+      "network_rx_words": 254,
+      "network_tx_valid": 0,
+      "network_tx_good": 0,
+      "network_tx_bad": 0,
+      "network_tx_dropped": 0,
+      "network_rx_bad": 0,
+      "network_rs": 0,
+      "network_ri": 253,
+      "network_wire_rstate": 0,
+      "network_wire_rlength": 254,
+      "network_wire_rword": 253,
+      "network_wire_rshift": 0,
+      "network_wire_rcrc": 47542,
+      "network_wire_rq": 1,
+      "network_wire_rphase": 20,
+      "network_wire_rbit": 0,
+      "network_wire_rhalf": 0,
+      "network_wire_rgap": 26665,
+      "network_wire_tactive": 0,
+      "network_wire_tcount": 0,
+      "network_controller_RxFifoEmpty": 0,
+      "network_controller_RxFifoFull": 0,
+      "network_controller_RxEOP": 0,
+      "front_control_initialized": 1,
+      "front_control_storage_ready": 1,
+      "front_control_control_ready": 1,
+      "front_control_alias_ok": 1,
+      "front_control_unsettled": 0,
+      "front_control_repeated": 0,
+      "front_control_read_needed": 0,
+      "front_control_entry_ready": 1,
+      "front_control_shared_mismatch": 0,
+      "front_control_read_phase": 0,
+      "front_control_descriptor": 18374702976624234325,
+      "front_control_descriptor_q": 0,
+      "phase": 1
+    },
+    "arbitrary_arrivals_qualified": false,
+    "full_processor_unknowns_qualified": false,
+    "physical_pulse_acceptance_qualified": false,
+    "native_paired_mode_qualified": false,
+    "physical_timing_qualified": false,
+    "original_firmware_Cedar_qualified": false,
+    "new_RBF_ready": false,
+    "hardware_changed": false,
+    "hardware_speed_gain_measured": false,
+    "full_goal_active": true
+  },
+  "clock_and_branch_review": {
+    "status": "REVIEWED_NATIVE_CLOCK_CANDIDATES_AND_BRANCH_FLAG_SEAM",
+    "scope": "Compare read-only native clock candidates and inventory saved branch flags.\n\nThe .mb supplies register names, not the embedded ROM's instruction map. Decode\nthe exact EPROM payload and bind its timeout operands before interpreting RTC.\nPreserve the standalone register candidates to expose their different layout.\nNo CPU emulator, guest state writes or timer calibration is involved.\n",
+    "source_run": "/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024",
+    "pid": 69736,
+    "source_bindings": {
+      "ProcH-Rev-Ce": {
+        "sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+        "address_xor": 15
+      },
+      "ProcL-Rev-Ci": {
+        "sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+        "address_xor": 255
+      }
+    },
+    "original_low_bank_anchors": {
+      "R400": 256,
+      "BOOTDATAPTR": 512,
+      "LHOST": 34,
+      "BFN": 75
+    },
+    "observations": [
+      {
+        "inspection": "control-short-native-network-read-v3-20261025",
+        "inspection_sha256": "5ede6bafdd6dcb1b15a6a4a00feb2c589315a90fac9c70df9e5675ae57b2762a",
+        "host_ticks": 1529849958,
+        "enabled_machine_ticks": 836406552,
+        "register_candidates": {
+          "RTCLOCK": {
+            "address": 176,
+            "value": 35622,
+            "octal": "105446"
+          },
+          "RTCDELTALO": {
+            "address": 177,
+            "value": 11,
+            "octal": "000013"
+          },
+          "RTC430": {
+            "address": 178,
+            "value": 11,
+            "octal": "000013"
+          },
+          "SEQNO": {
+            "address": 23,
+            "value": 0,
+            "octal": "000000"
+          },
+          "RETRIES": {
+            "address": 22,
+            "value": 65524,
+            "octal": "177764"
+          },
+          "RHOST": {
+            "address": 19,
+            "value": 65280,
+            "octal": "177400"
+          },
+          "EICNT": {
+            "address": 27,
+            "value": 1,
+            "octal": "000001"
+          },
+          "EIPTR": {
+            "address": 26,
+            "value": 0,
+            "octal": "000000"
+          }
+        },
+        "transmitted_packets": 1,
+        "ROM_wait": {
+          "actual_RTC430_address": 179,
+          "RTC430_value": 11,
+          "emulator_task_T_threshold": 13,
+          "timeout_subtraction": 65533,
+          "timeout_subtraction_is_negative": true,
+          "evidence_sha256": "cc44232efbf427a9ec686365bfaf965821baf63bb40975e88c81d6df4051d01d"
+        }
+      },
+      {
+        "inspection": "control-short-native-receiver-read-v1-20261025",
+        "inspection_sha256": "9a3918dac4bc454c8b7176f6744433c49803f7964246e069c01f481eb1859856",
+        "host_ticks": 1842227625,
+        "enabled_machine_ticks": 1033194122,
+        "register_candidates": {
+          "RTCLOCK": {
+            "address": 176,
+            "value": 16208,
+            "octal": "037520"
+          },
+          "RTCDELTALO": {
+            "address": 177,
+            "value": 11,
+            "octal": "000013"
+          },
+          "RTC430": {
+            "address": 178,
+            "value": 11,
+            "octal": "000013"
+          },
+          "SEQNO": {
+            "address": 23,
+            "value": 0,
+            "octal": "000000"
+          },
+          "RETRIES": {
+            "address": 22,
+            "value": 65524,
+            "octal": "177764"
+          },
+          "RHOST": {
+            "address": 19,
+            "value": 65280,
+            "octal": "177400"
+          },
+          "EICNT": {
+            "address": 27,
+            "value": 1,
+            "octal": "000001"
+          },
+          "EIPTR": {
+            "address": 26,
+            "value": 0,
+            "octal": "000000"
+          }
+        },
+        "transmitted_packets": 1,
+        "ROM_wait": {
+          "actual_RTC430_address": 179,
+          "RTC430_value": 12,
+          "emulator_task_T_threshold": 13,
+          "timeout_subtraction": 65534,
+          "timeout_subtraction_is_negative": true,
+          "evidence_sha256": "883f6293290346997537e2847c3adba1f0fdf2f8be3a9e4ffdc2e49c56177378"
+        }
+      },
+      {
+        "inspection": "control-short-native-clock-read-v1-20261025",
+        "inspection_sha256": "c4c37b4dcd7b91097e70e718fb3466eb37b5fb2c9d487ffe7fe71f4edf5d42e3",
+        "host_ticks": 2091563457,
+        "enabled_machine_ticks": 1190267488,
+        "register_candidates": {
+          "RTCLOCK": {
+            "address": 176,
+            "value": 53022,
+            "octal": "147436"
+          },
+          "RTCDELTALO": {
+            "address": 177,
+            "value": 11,
+            "octal": "000013"
+          },
+          "RTC430": {
+            "address": 178,
+            "value": 11,
+            "octal": "000013"
+          },
+          "SEQNO": {
+            "address": 23,
+            "value": 0,
+            "octal": "000000"
+          },
+          "RETRIES": {
+            "address": 22,
+            "value": 65524,
+            "octal": "177764"
+          },
+          "RHOST": {
+            "address": 19,
+            "value": 65280,
+            "octal": "177400"
+          },
+          "EICNT": {
+            "address": 27,
+            "value": 1,
+            "octal": "000001"
+          },
+          "EIPTR": {
+            "address": 26,
+            "value": 0,
+            "octal": "000000"
+          }
+        },
+        "transmitted_packets": 1,
+        "ROM_wait": {
+          "actual_RTC430_address": 179,
+          "RTC430_value": 12,
+          "emulator_task_T_threshold": 13,
+          "timeout_subtraction": 65534,
+          "timeout_subtraction_is_negative": true,
+          "evidence_sha256": "d3dfb82808c2056996a425640a0dfc96766b00f4351b50c100fd5a7bda7f97f1"
+        }
+      },
+      {
+        "inspection": "control-short-native-branch-read-v1-20261025",
+        "inspection_sha256": "6ee02094bc155c936cf33eafef8849c1c2a59f5fec16fc99a2a3002db1e77512",
+        "host_ticks": 2119879387,
+        "enabled_machine_ticks": 1208105112,
+        "register_candidates": {
+          "RTCLOCK": {
+            "address": 176,
+            "value": 57203,
+            "octal": "157563"
+          },
+          "RTCDELTALO": {
+            "address": 177,
+            "value": 11,
+            "octal": "000013"
+          },
+          "RTC430": {
+            "address": 178,
+            "value": 11,
+            "octal": "000013"
+          },
+          "SEQNO": {
+            "address": 23,
+            "value": 0,
+            "octal": "000000"
+          },
+          "RETRIES": {
+            "address": 22,
+            "value": 65524,
+            "octal": "177764"
+          },
+          "RHOST": {
+            "address": 19,
+            "value": 65280,
+            "octal": "177400"
+          },
+          "EICNT": {
+            "address": 27,
+            "value": 1,
+            "octal": "000001"
+          },
+          "EIPTR": {
+            "address": 26,
+            "value": 0,
+            "octal": "000000"
+          }
+        },
+        "transmitted_packets": 1,
+        "ROM_wait": {
+          "actual_RTC430_address": 179,
+          "RTC430_value": 12,
+          "emulator_task_T_threshold": 13,
+          "timeout_subtraction": 65534,
+          "timeout_subtraction_is_negative": true,
+          "evidence_sha256": "f9f6625fbef40e7bdc74cb711acc02d358b6b62438790b06a7d2f22491a3ff14"
+        }
+      }
+    ],
+    "intervals": [
+      {
+        "enabled_machine_ticks": 196787570,
+        "low_word_delta_mod65536": 46122,
+        "low_word_numerically_decreased": true,
+        "machine_ticks_per_modulo_increment": 4266.674688868653,
+        "standalone_RTC430_candidate_delta": 0,
+        "actual_RTC430_delta": 1,
+        "upper_register_ROM_mapping_qualified": true
+      },
+      {
+        "enabled_machine_ticks": 157073366,
+        "low_word_delta_mod65536": 36814,
+        "low_word_numerically_decreased": false,
+        "machine_ticks_per_modulo_increment": 4266.674797631336,
+        "standalone_RTC430_candidate_delta": 0,
+        "actual_RTC430_delta": 0,
+        "upper_register_ROM_mapping_qualified": true
+      },
+      {
+        "enabled_machine_ticks": 17837624,
+        "low_word_delta_mod65536": 4181,
+        "low_word_numerically_decreased": false,
+        "machine_ticks_per_modulo_increment": 4266.353503946424,
+        "standalone_RTC430_candidate_delta": 0,
+        "actual_RTC430_delta": 0,
+        "upper_register_ROM_mapping_qualified": true
+      }
+    ],
+    "branch_flag_source_binding": {
+      "scope": "Bind original ProcH per-task branch flags and their compiled storage cells.\n\nThese 80 bits remain outside the 844-bit processor/control owner vector.\nThis source inventory does not qualify capture phases or interpret a sampled\ncarry as the carry of a particular instruction.\n",
+      "packages": {
+        "e13": {
+          "kind": "F10145A",
+          "stored_bits": 64,
+          "original_pins": {
+            "13": "BCWrite'",
+            "10": "CurrLast.0'",
+            "9": "CurrLast.1'",
+            "7": "CurrLast.2'",
+            "6": "CurrLast.3'",
+            "14": "ProcH11.sil+11",
+            "4": "ProcH11.sil+16",
+            "11": "ProcH11.sil+17",
+            "12": "ProcH11.sil+18",
+            "2": "ProcH11.sil+5",
+            "5": "ProcH11.sil+6",
+            "1": "ProcH11.sil+7",
+            "15": "ProcH11.sil+8"
+          },
+          "native_pins": {
+            "1": "ProcH11_sil_pl_7",
+            "2": "ProcH11_sil_pl_5",
+            "4": "ProcH11_sil_pl_16",
+            "5": "ProcH11_sil_pl_6",
+            "6": "CurrLast_3_p_",
+            "7": "CurrLast_2_p_",
+            "9": "CurrLast_1_p_",
+            "10": "CurrLast_0_p_",
+            "11": "ProcH11_sil_pl_17",
+            "12": "ProcH11_sil_pl_18",
+            "13": "BCWrite_p_",
+            "14": "ProcH11_sil_pl_11",
+            "15": "ProcH11_sil_pl_8"
+          },
+          "cell_source": "src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv",
+          "cell_sha256": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0"
+        },
+        "f17": {
+          "kind": "MC10173",
+          "stored_bits": 4,
+          "original_pins": {
+            "15": "ALUCarry",
+            "6": "aluOut=0'",
+            "7": "Clock1'Cb",
+            "14": "Overflow'",
+            "10": "ProcH11.sil+11",
+            "11": "ProcH11.sil+2",
+            "13": "ProcH11.sil+3",
+            "4": "ProcH11.sil+4",
+            "5": "ProcH11.sil+5",
+            "3": "ProcH11.sil+7",
+            "12": "ProcH11.sil+8",
+            "9": "ProcH11.sil+9",
+            "1": "ResEqZero'",
+            "2": "ResLtZero'"
+          },
+          "native_pins": {
+            "1": "ResEqZero_p___drv",
+            "2": "ResLtZero_p___drv",
+            "3": "ProcH11_sil_pl_7",
+            "4": "ProcH11_sil_pl_4",
+            "5": "ProcH11_sil_pl_5",
+            "6": "aluOut_eq_0_p_",
+            "7": "Clock1_p_Cb",
+            "9": "ProcH11_sil_pl_9",
+            "10": "ProcH11_sil_pl_11",
+            "11": "ProcH11_sil_pl_2",
+            "12": "ProcH11_sil_pl_8",
+            "13": "ProcH11_sil_pl_3",
+            "14": "Overflow_p___drv",
+            "15": "ALUCarry__drv"
+          },
+          "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+          "cell_sha256": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc"
+        },
+        "g11": {
+          "kind": "MC10176",
+          "stored_bits": 6,
+          "original_pins": {
+            "11": "aluOut=0'",
+            "9": "Clock1'Da",
+            "15": "ProcH11.sil+16",
+            "12": "ProcH11.sil+4",
+            "14": "ProcH11.sil+6",
+            "5": "TIOA.0",
+            "6": "TIOA.1",
+            "7": "TIOA.2",
+            "10": "TIOA.3",
+            "2": "TIOAdly.0",
+            "3": "TIOAdly.1",
+            "4": "TIOAdly.2",
+            "13": "TIOAdly.3"
+          },
+          "native_pins": {
+            "2": "TIOAdly_0",
+            "3": "TIOAdly_1",
+            "4": "TIOAdly_2",
+            "5": "TIOA_0",
+            "6": "TIOA_1",
+            "7": "TIOA_2",
+            "9": "Clock1_p_Da",
+            "10": "TIOA_3",
+            "11": "aluOut_eq_0_p_",
+            "12": "ProcH11_sil_pl_4",
+            "13": "TIOAdly_3",
+            "14": "ProcH11_sil_pl_6",
+            "15": "ProcH11_sil_pl_16"
+          },
+          "cell_source": "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+          "cell_sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+        },
+        "h11": {
+          "kind": "MC10176",
+          "stored_bits": 6,
+          "original_pins": {
+            "9": "Clock1'Da",
+            "14": "ProcH11.sil+17",
+            "15": "ProcH11.sil+18",
+            "12": "ProcH11.sil+2",
+            "11": "ProcH11.sil+3",
+            "5": "TIOA.4",
+            "6": "TIOA.5",
+            "7": "TIOA.6",
+            "10": "TIOA.7",
+            "2": "TIOAdly.4",
+            "3": "TIOAdly.5",
+            "4": "TIOAdly.6",
+            "13": "TIOAdly.7"
+          },
+          "native_pins": {
+            "2": "TIOAdly_4",
+            "3": "TIOAdly_5",
+            "4": "TIOAdly_6",
+            "5": "TIOA_4",
+            "6": "TIOA_5",
+            "7": "TIOA_6",
+            "9": "Clock1_p_Da",
+            "10": "TIOA_7",
+            "11": "ProcH11_sil_pl_3",
+            "12": "ProcH11_sil_pl_2",
+            "13": "TIOAdly_7",
+            "14": "ProcH11_sil_pl_17",
+            "15": "ProcH11_sil_pl_18"
+          },
+          "cell_source": "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+          "cell_sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+        }
+      },
+      "source_hashes": {
+        "chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+        "src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "c38ad5cecd3e5a29bb4ed9bea3787508566a25b6a377124253573662943bb37e",
+        "src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+        "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+        "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+      },
+      "physical_bits": 80,
+      "existing_g18_carry_bit": 91,
+      "existing_g18_overflow_bit": 92,
+      "owner_vector_contains_this_family": false,
+      "per_task_file_address": "Physical slot is logical task XOR15",
+      "physical_timing_qualified": false,
+      "phase_contract_qualified": false
+    },
+    "rejected_binding_controls": [
+      {
+        "case": "wrong_task_address",
+        "rejected": true,
+        "diagnostic": "('e13', 10, \"CurrLast.0'\", 'wrong_task_address')"
+      },
+      {
+        "case": "wrong_flag_clock",
+        "rejected": true,
+        "diagnostic": "('f17', 7, \"Clock1'Cb\", 'wrong_flag_clock')"
+      },
+      {
+        "case": "wrong_g18_carry",
+        "rejected": true,
+        "diagnostic": ""
+      }
+    ],
+    "static_reader_compilation": [
+      "cc",
+      "-O2",
+      "-I/Users/alans/dev2/Dorado/build/rtl-executive/native-clock-and-branch-analysis-v4-20261025",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-clock-and-branch-analysis-v4-20261025/registers.c",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-clock-and-branch-analysis-v4-20261025/mb.c",
+      "-o",
+      "/Users/alans/dev2/Dorado/build/rtl-executive/native-clock-and-branch-analysis-v4-20261025/symbols"
+    ],
+    "reader_parent_sha256": "a637aa64b500829a44206312ba29bee82eb7a751fb4ae47c8d3beacf6ab2beae",
+    "upper_RTC_register_mapping_bound_to_runtime_ROM": true,
+    "standalone_RTC430_register_would_falsely_suggest_a_missing_carry": true,
+    "clock_stall_or_missing_carry_established": false,
+    "first_packet_rejection_established": false,
+    "next_action": "Qualify the saved flag write/capture windows and normal multiword carry across task switches before selecting native paired phases; preserve the original boot run and normal retries.",
+    "branch_family_integrated_into_common_owner": false,
+    "native_timing_qualified": false,
+    "hardware_changed": false,
+    "speed_gain_measured": false,
+    "full_goal_active": true,
+    "files": {
+      "native_branch_flag_sources.py": "e3e82a0ebb75a2b4e9b213fd1e67a58025e211752bce63c4186e3a1cd1f34b27",
+      "Initial.mb": "b3fd586a653e69447891e66fd95bbc12cab6bb0074f5ae47025b80d15a92ff60",
+      "analyze_native_clock_progress.py": "92536f413611bd685eb0648c4e901f0de6f69826edbfca93b227925224e44e40",
+      "inspect_initial_rom_wait.py": "1f711196861b283f4acdce5a0c7fe22cf5ba51c0dc90c1a7f5bff3b06c621bf3",
+      "InitialJunk.mc": "c58af8c85ebd0f042115841ca49ef4990031650a0be3889dee383f15ce0f6547",
+      "mb.c": "86cee4d2070a496294575ddaa5ad6e76e17255dd48b20fca5c8988f01dcfeb92",
+      "InitialEther.mc": "f1d5c3724d02656a4b8ff67e069f11959c25c39de37e5d1413eb850dad33aaf2",
+      "registers.c": "62f241a7e0fde4529f6bb9e7a33f5167e1b62073973db2c298e2e8881d31e592",
+      "mb.h": "c6cf90c0717eaf9371af2f8fed939015df47cf900cf33964e689097c1791e853",
+      "register-symbols.log": "689d967b06ba13f09982a50266f9820a497f6ecd5ab90536f93f31deb8703f0e",
+      "ROM-control-short-native-clock-read-v1-20261025/results.json": "d3dfb82808c2056996a425640a0dfc96766b00f4351b50c100fd5a7bda7f97f1",
+      "ROM-control-short-native-clock-read-v1-20261025/compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ROM-control-short-native-clock-read-v1-20261025/symbols.log": "4c8b69f4d759e1ec0e83ecdcf53cb336651abf5e30bfd5e6bf477315f67f3de2",
+      "ROM-control-short-native-clock-read-v1-20261025/rom-im-c00b.txt": "7d5f5a043ebe59f5c714ea00f247ea7e8b21482a581c1485f9aa2d40e830a7ef",
+      "ROM-control-short-native-clock-read-v1-20261025/rom-im-c000.txt": "9a12df76a11b158601e0ca6563756350eabf659264c67d103625c25458167124",
+      "wirelists/ProcL-Rev-Ci.wl": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "wirelists/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "control-short-native-branch-read-v1-20261025/layout-compile.log": "d30cac7cd29d6704f7c43c77992e4666ad46f45e1510d6003c2a7f793af2ae7d",
+      "control-short-native-branch-read-v1-20261025/lldb.log": "34651224c12ab4fc44353035be8624d9cb2231586073128a1e50fcde20bf798c",
+      "control-short-native-branch-read-v1-20261025/native_branch_flag_sources.py": "136bdbdbf97a8bc46d2d0c1877a63f11b76475edd62fa5969b2c5ed4efc6f565",
+      "control-short-native-branch-read-v1-20261025/result.json": "6ee02094bc155c936cf33eafef8849c1c2a59f5fec16fc99a2a3002db1e77512",
+      "control-short-native-branch-read-v1-20261025/memory.json": "f83a8bf3f68c974ff6c2562f8c9edcf46e464cf088538c8001133496c14f280a",
+      "control-short-native-branch-read-v1-20261025/layout.cpp": "e2f33c04a1552a0cd8a8d99829d1956656ce5c2244cb91c22b0190aa6bdde3d8",
+      "control-short-native-branch-read-v1-20261025/inspect_native_baseboard_process.py": "677aadf2e66bebc651713f93a1fe14dcf5266ffd226879ec1d1a7f4a2a18e0e5",
+      "control-short-native-branch-read-v1-20261025/commands.lldb": "d4b78b3084985e0850363e73f0e1af4b908b77ef60e287ba90282aa639915809",
+      "control-short-native-branch-read-v1-20261025/layout.json": "756550f32ae75f113736072ef53664e216314fe43d4e9117bcb344560f80815f",
+      "control-short-native-branch-read-v1-20261025/read.py": "286329e4fe010ec8a6099f7ad3b7b537aee62aef83fe7b1303474321e7c8136e",
+      "control-short-native-receiver-read-v1-20261025/layout-compile.log": "7de340c18e5c9f0402427baef6399811104ea161c3008a6fa7f7fefb903a7f9a",
+      "control-short-native-receiver-read-v1-20261025/lldb.log": "d0f13237a79c86dc3dbbc8bfd8d3861d5496c0380c5e01516e7e77422b2093f6",
+      "control-short-native-receiver-read-v1-20261025/result.json": "9a3918dac4bc454c8b7176f6744433c49803f7964246e069c01f481eb1859856",
+      "control-short-native-receiver-read-v1-20261025/memory.json": "98f29e557aeb26c090f828f140642174724dd7869a3dd7fb0fe93b3fc5b37615",
+      "control-short-native-receiver-read-v1-20261025/layout.cpp": "10c70ae99a52b0cf80849e8d79e0ca53efb3a8a8fc7e0a35f00f59dd17675136",
+      "control-short-native-receiver-read-v1-20261025/inspect_native_baseboard_process.py": "d632c70e6b09293cfe52b7b102a0435230bde1862637a1e97eefe52f4165da75",
+      "control-short-native-receiver-read-v1-20261025/commands.lldb": "d0545e133923d2c79d03b47c221dcb5b599127927131dff7b66979bccbf36cb2",
+      "control-short-native-receiver-read-v1-20261025/layout.json": "2c7bfc6d9151fb8f85a0595e63509d64415938b4c7ce3bcda9cd20d29c0cd421",
+      "control-short-native-receiver-read-v1-20261025/read.py": "8a18de8b317f204bf71b7cbbffa2267ff5568188f450bc016d53317fb16c4f29",
+      "ROM-control-short-native-branch-read-v1-20261025/results.json": "f9f6625fbef40e7bdc74cb711acc02d358b6b62438790b06a7d2f22491a3ff14",
+      "ROM-control-short-native-branch-read-v1-20261025/compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ROM-control-short-native-branch-read-v1-20261025/symbols.log": "4c8b69f4d759e1ec0e83ecdcf53cb336651abf5e30bfd5e6bf477315f67f3de2",
+      "ROM-control-short-native-branch-read-v1-20261025/rom-im-c00b.txt": "7d5f5a043ebe59f5c714ea00f247ea7e8b21482a581c1485f9aa2d40e830a7ef",
+      "ROM-control-short-native-branch-read-v1-20261025/rom-im-c000.txt": "9a12df76a11b158601e0ca6563756350eabf659264c67d103625c25458167124",
+      "control-short-native-network-read-v3-20261025/layout-compile.log": "e37167c8ef2122d20de06d22911ae351209d9656d0343611a86d8d9e13fef689",
+      "control-short-native-network-read-v3-20261025/lldb.log": "c4ebd9abe944c617e4efbbb165664dd8a55a901227b745691d7fcfb8a348324a",
+      "control-short-native-network-read-v3-20261025/result.json": "5ede6bafdd6dcb1b15a6a4a00feb2c589315a90fac9c70df9e5675ae57b2762a",
+      "control-short-native-network-read-v3-20261025/memory.json": "512b1690c807417e66c76cf7fe7a59d62b00a1064b871253576c8695a0c443d6",
+      "control-short-native-network-read-v3-20261025/layout.cpp": "f491e62118d5ad80825aba746cd8f366a6ee06bb666ef5d170cf7d803ddb5902",
+      "control-short-native-network-read-v3-20261025/inspect_native_baseboard_process.py": "310da4b7ebe8008ef21e76fe0a2f97c9dbfc1e73259d2b165c6575583366d189",
+      "control-short-native-network-read-v3-20261025/commands.lldb": "ac38d7e7b3256cd7c0e5cdd3f189ea0ef01acc7a28571e63c8d97e745d54911e",
+      "control-short-native-network-read-v3-20261025/layout.json": "8131fba15ca51bd2f599133e59fc954d0a1cf3e9a9344b81c91399433524dece",
+      "control-short-native-network-read-v3-20261025/read.py": "0a87a9cfcfca815a2defea5acb969a75895438d22f61ce53145164ca753e4609",
+      "ROM-control-short-native-receiver-read-v1-20261025/results.json": "883f6293290346997537e2847c3adba1f0fdf2f8be3a9e4ffdc2e49c56177378",
+      "ROM-control-short-native-receiver-read-v1-20261025/compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ROM-control-short-native-receiver-read-v1-20261025/symbols.log": "4c8b69f4d759e1ec0e83ecdcf53cb336651abf5e30bfd5e6bf477315f67f3de2",
+      "ROM-control-short-native-receiver-read-v1-20261025/rom-im-c00b.txt": "7d5f5a043ebe59f5c714ea00f247ea7e8b21482a581c1485f9aa2d40e830a7ef",
+      "ROM-control-short-native-receiver-read-v1-20261025/rom-im-c000.txt": "9a12df76a11b158601e0ca6563756350eabf659264c67d103625c25458167124",
+      "control-short-native-clock-read-v1-20261025/layout-compile.log": "a35e53358b4f965e9cd2c288140ad66481b71bc0d4fe9baea2e7df34d605ef3e",
+      "control-short-native-clock-read-v1-20261025/lldb.log": "1cc034e7bcf42e74b622181c5a94ebf267a5c2989e1e12fce3e7031840610938",
+      "control-short-native-clock-read-v1-20261025/result.json": "c4c37b4dcd7b91097e70e718fb3466eb37b5fb2c9d487ffe7fe71f4edf5d42e3",
+      "control-short-native-clock-read-v1-20261025/memory.json": "d5eafa83c671bb95d7c2a5f6a07996b35637ca1b32957d3c6bcf1ee240e45e7f",
+      "control-short-native-clock-read-v1-20261025/layout.cpp": "10c70ae99a52b0cf80849e8d79e0ca53efb3a8a8fc7e0a35f00f59dd17675136",
+      "control-short-native-clock-read-v1-20261025/inspect_native_baseboard_process.py": "c589620efc3be4c84ba4e8dade669344847283dafc6b7124fa8cec15c5bcba77",
+      "control-short-native-clock-read-v1-20261025/commands.lldb": "2735eccabf9e54016818281c3e14eb6e22630f9257c6762f2685e94255c7d313",
+      "control-short-native-clock-read-v1-20261025/layout.json": "2c7bfc6d9151fb8f85a0595e63509d64415938b4c7ce3bcda9cd20d29c0cd421",
+      "control-short-native-clock-read-v1-20261025/read.py": "99ffa28a06e677fafe19d5c68b7f30c0e38c41e8ae6cf0691912d46a883eb3c2",
+      "ROM-control-short-native-network-read-v3-20261025/results.json": "cc44232efbf427a9ec686365bfaf965821baf63bb40975e88c81d6df4051d01d",
+      "ROM-control-short-native-network-read-v3-20261025/compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ROM-control-short-native-network-read-v3-20261025/symbols.log": "4c8b69f4d759e1ec0e83ecdcf53cb336651abf5e30bfd5e6bf477315f67f3de2",
+      "ROM-control-short-native-network-read-v3-20261025/rom-im-c00b.txt": "7d5f5a043ebe59f5c714ea00f247ea7e8b21482a581c1485f9aa2d40e830a7ef",
+      "ROM-control-short-native-network-read-v3-20261025/rom-im-c000.txt": "9a12df76a11b158601e0ca6563756350eabf659264c67d103625c25458167124",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/sil_netlist.py": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/Initial.mb": "b3fd586a653e69447891e66fd95bbc12cab6bb0074f5ae47025b80d15a92ff60",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/native-provenance.json.gz": "661cd338f0d695015495d723181f97968ae19b2088b2058dfddf8efe9a01cda1",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/inspect_initial_rom_wait.py": "1f711196861b283f4acdce5a0c7fe22cf5ba51c0dc90c1a7f5bff3b06c621bf3",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/readback.json": "5ede6bafdd6dcb1b15a6a4a00feb2c589315a90fac9c70df9e5675ae57b2762a",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/initial_rom_symbols.c": "546c2485cb1dac90ced8de2570d8761096392f1d51eb0e69d80d005cc6fc7916",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/baseboard_rom_im.py": "237179d374c0dd976d02688194b7f553d3051f76ed6d3764ea05678e9c79fe20",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/readback-detach.log": "c4ebd9abe944c617e4efbbb165664dd8a55a901227b745691d7fcfb8a348324a",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/wirelists/ProcL-Rev-Ci.wl": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/wirelists/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/eprom/BaseBd-f60.mem": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/eprom/BaseBd-b61.mem": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/eprom/BaseBd-e60.mem": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/eprom/BaseBd-c61.mem": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/dorado/include/microcode.h": "546ac420461bd1dc1368f6a0c44ed37fc3f5aafc563592f24506e8886c78ab1f",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/dorado/include/disasm.h": "351782f5a9c91f2e59ac9b64191990651609e9142910849fc06e88c1dfafe128",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/dorado/include/mb.h": "c6cf90c0717eaf9371af2f8fed939015df47cf900cf33964e689097c1791e853",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/dorado/src/disasm.c": "e3b6ab2fdae3de70eebc31a5872ac28076f82db6a33530a25e915fa1765f8263",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/dorado/src/mb.c": "86cee4d2070a496294575ddaa5ad6e76e17255dd48b20fca5c8988f01dcfeb92",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/dorado/src/microcode.c": "249722898b43bb6da76dac94d3e48e391829db4213aa55d8956ba3f9ee0c52e2",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/native/src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "a35b5b2adcffcac0cc1df01d725a8b109ef6ff197abec8caa1689d489d61c4fe",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/native/src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/native/src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/native/src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "c38ad5cecd3e5a29bb4ed9bea3787508566a25b6a377124253573662943bb37e",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/native/src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "ce0e8fa3933fcb4ffb8d6f912f65f5f0d46c30e834c9c8cf246cfbd018be7510",
+      "ROM-control-short-native-network-read-v3-20261025/inputs/native/src/verilog/rtl/dorado_r_file_ports.sv": "2b07a3403a4df126759f43092c99b6647766f790487834c76d2c3fbffb160ef2",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/sil_netlist.py": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/Initial.mb": "b3fd586a653e69447891e66fd95bbc12cab6bb0074f5ae47025b80d15a92ff60",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/native-provenance.json.gz": "661cd338f0d695015495d723181f97968ae19b2088b2058dfddf8efe9a01cda1",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/inspect_initial_rom_wait.py": "1f711196861b283f4acdce5a0c7fe22cf5ba51c0dc90c1a7f5bff3b06c621bf3",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/readback.json": "9a3918dac4bc454c8b7176f6744433c49803f7964246e069c01f481eb1859856",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/initial_rom_symbols.c": "546c2485cb1dac90ced8de2570d8761096392f1d51eb0e69d80d005cc6fc7916",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/baseboard_rom_im.py": "237179d374c0dd976d02688194b7f553d3051f76ed6d3764ea05678e9c79fe20",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/readback-detach.log": "d0f13237a79c86dc3dbbc8bfd8d3861d5496c0380c5e01516e7e77422b2093f6",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/wirelists/ProcL-Rev-Ci.wl": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/wirelists/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/eprom/BaseBd-f60.mem": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/eprom/BaseBd-b61.mem": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/eprom/BaseBd-e60.mem": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/eprom/BaseBd-c61.mem": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/dorado/include/microcode.h": "546ac420461bd1dc1368f6a0c44ed37fc3f5aafc563592f24506e8886c78ab1f",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/dorado/include/disasm.h": "351782f5a9c91f2e59ac9b64191990651609e9142910849fc06e88c1dfafe128",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/dorado/include/mb.h": "c6cf90c0717eaf9371af2f8fed939015df47cf900cf33964e689097c1791e853",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/dorado/src/disasm.c": "e3b6ab2fdae3de70eebc31a5872ac28076f82db6a33530a25e915fa1765f8263",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/dorado/src/mb.c": "86cee4d2070a496294575ddaa5ad6e76e17255dd48b20fca5c8988f01dcfeb92",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/dorado/src/microcode.c": "249722898b43bb6da76dac94d3e48e391829db4213aa55d8956ba3f9ee0c52e2",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/native/src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "a35b5b2adcffcac0cc1df01d725a8b109ef6ff197abec8caa1689d489d61c4fe",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/native/src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/native/src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/native/src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "c38ad5cecd3e5a29bb4ed9bea3787508566a25b6a377124253573662943bb37e",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/native/src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "ce0e8fa3933fcb4ffb8d6f912f65f5f0d46c30e834c9c8cf246cfbd018be7510",
+      "ROM-control-short-native-receiver-read-v1-20261025/inputs/native/src/verilog/rtl/dorado_r_file_ports.sv": "2b07a3403a4df126759f43092c99b6647766f790487834c76d2c3fbffb160ef2",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/sil_netlist.py": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/Initial.mb": "b3fd586a653e69447891e66fd95bbc12cab6bb0074f5ae47025b80d15a92ff60",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/native-provenance.json.gz": "661cd338f0d695015495d723181f97968ae19b2088b2058dfddf8efe9a01cda1",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/inspect_initial_rom_wait.py": "1f711196861b283f4acdce5a0c7fe22cf5ba51c0dc90c1a7f5bff3b06c621bf3",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/readback.json": "6ee02094bc155c936cf33eafef8849c1c2a59f5fec16fc99a2a3002db1e77512",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/initial_rom_symbols.c": "546c2485cb1dac90ced8de2570d8761096392f1d51eb0e69d80d005cc6fc7916",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/baseboard_rom_im.py": "237179d374c0dd976d02688194b7f553d3051f76ed6d3764ea05678e9c79fe20",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/readback-detach.log": "34651224c12ab4fc44353035be8624d9cb2231586073128a1e50fcde20bf798c",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/wirelists/ProcL-Rev-Ci.wl": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/wirelists/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/eprom/BaseBd-f60.mem": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/eprom/BaseBd-b61.mem": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/eprom/BaseBd-e60.mem": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/eprom/BaseBd-c61.mem": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/dorado/include/microcode.h": "546ac420461bd1dc1368f6a0c44ed37fc3f5aafc563592f24506e8886c78ab1f",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/dorado/include/disasm.h": "351782f5a9c91f2e59ac9b64191990651609e9142910849fc06e88c1dfafe128",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/dorado/include/mb.h": "c6cf90c0717eaf9371af2f8fed939015df47cf900cf33964e689097c1791e853",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/dorado/src/disasm.c": "e3b6ab2fdae3de70eebc31a5872ac28076f82db6a33530a25e915fa1765f8263",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/dorado/src/mb.c": "86cee4d2070a496294575ddaa5ad6e76e17255dd48b20fca5c8988f01dcfeb92",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/dorado/src/microcode.c": "249722898b43bb6da76dac94d3e48e391829db4213aa55d8956ba3f9ee0c52e2",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/native/src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "a35b5b2adcffcac0cc1df01d725a8b109ef6ff197abec8caa1689d489d61c4fe",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/native/src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/native/src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/native/src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "c38ad5cecd3e5a29bb4ed9bea3787508566a25b6a377124253573662943bb37e",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/native/src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "ce0e8fa3933fcb4ffb8d6f912f65f5f0d46c30e834c9c8cf246cfbd018be7510",
+      "ROM-control-short-native-branch-read-v1-20261025/inputs/native/src/verilog/rtl/dorado_r_file_ports.sv": "2b07a3403a4df126759f43092c99b6647766f790487834c76d2c3fbffb160ef2",
+      "control-short-native-branch-read-v1-20261025/branch-source/src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+      "control-short-native-branch-read-v1-20261025/branch-source/src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+      "control-short-native-branch-read-v1-20261025/branch-source/src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e",
+      "control-short-native-branch-read-v1-20261025/branch-source/src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "c38ad5cecd3e5a29bb4ed9bea3787508566a25b6a377124253573662943bb37e",
+      "control-short-native-branch-read-v1-20261025/branch-source/chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/sil_netlist.py": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/Initial.mb": "b3fd586a653e69447891e66fd95bbc12cab6bb0074f5ae47025b80d15a92ff60",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/native-provenance.json.gz": "661cd338f0d695015495d723181f97968ae19b2088b2058dfddf8efe9a01cda1",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/inspect_initial_rom_wait.py": "1f711196861b283f4acdce5a0c7fe22cf5ba51c0dc90c1a7f5bff3b06c621bf3",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/readback.json": "c4c37b4dcd7b91097e70e718fb3466eb37b5fb2c9d487ffe7fe71f4edf5d42e3",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/initial_rom_symbols.c": "546c2485cb1dac90ced8de2570d8761096392f1d51eb0e69d80d005cc6fc7916",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/baseboard_rom_im.py": "237179d374c0dd976d02688194b7f553d3051f76ed6d3764ea05678e9c79fe20",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/readback-detach.log": "1cc034e7bcf42e74b622181c5a94ebf267a5c2989e1e12fce3e7031840610938",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/wirelists/ProcL-Rev-Ci.wl": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/wirelists/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/eprom/BaseBd-f60.mem": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/eprom/BaseBd-b61.mem": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/eprom/BaseBd-e60.mem": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/eprom/BaseBd-c61.mem": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/dorado/include/microcode.h": "546ac420461bd1dc1368f6a0c44ed37fc3f5aafc563592f24506e8886c78ab1f",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/dorado/include/disasm.h": "351782f5a9c91f2e59ac9b64191990651609e9142910849fc06e88c1dfafe128",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/dorado/include/mb.h": "c6cf90c0717eaf9371af2f8fed939015df47cf900cf33964e689097c1791e853",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/dorado/src/disasm.c": "e3b6ab2fdae3de70eebc31a5872ac28076f82db6a33530a25e915fa1765f8263",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/dorado/src/mb.c": "86cee4d2070a496294575ddaa5ad6e76e17255dd48b20fca5c8988f01dcfeb92",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/dorado/src/microcode.c": "249722898b43bb6da76dac94d3e48e391829db4213aa55d8956ba3f9ee0c52e2",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/native/src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "a35b5b2adcffcac0cc1df01d725a8b109ef6ff197abec8caa1689d489d61c4fe",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/native/src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/native/src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/native/src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "c38ad5cecd3e5a29bb4ed9bea3787508566a25b6a377124253573662943bb37e",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/native/src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "ce0e8fa3933fcb4ffb8d6f912f65f5f0d46c30e834c9c8cf246cfbd018be7510",
+      "ROM-control-short-native-clock-read-v1-20261025/inputs/native/src/verilog/rtl/dorado_r_file_ports.sv": "2b07a3403a4df126759f43092c99b6647766f790487834c76d2c3fbffb160ef2"
+    }
+  },
+  "legacy_decoder_semantic_result_unchanged": true,
+  "legacy_decoder_previous_result_sha256": "9791d8811c5ecbea527f6dfe42dbacc8ff47a5db6dad0f6dd34994aa30f0af9a",
+  "no_pending_j19_replay_jobs": true,
+  "original_native_pid": 69736,
+  "original_host_bound": 5000000000,
+  "original_run_or_firmware_or_medium_changed": false,
+  "branch_flag_family_qualification_remaining": true,
+  "source_arrival_unknown_and_pulse_gates_remaining": true,
+  "hardware_or_speed_qualification_changed": false,
+  "full_goal_active": true,
+  "original_native_live_observation": {
+    "pid": 69736,
+    "observed": 1792934734.148471,
+    "ps": "69736 12:17:27 703:56.65 R    /Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root"
+  }
+}

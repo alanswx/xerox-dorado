@@ -14,7 +14,37 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST separate j19 data epochs and terminal native prefix (2026-10-25):
+LATEST complete j19 peers and ROM-bound clock/flag seam (2026-10-25):
+
+- [x] Finish SAME v2 Icarus full52407 and words52406. BOTH engines pass both
+  full/mixed profiles; every original result/state/RAM/clock comparison stays.
+  V1/v2 use the exact SAME stimuli/initials/reference and all other HDL; only
+  the j19 adapter differs. Current review has zero pending replay peers.
+- [x] Extend the original EPROM timeout decoder to actual translated RM/T
+  storage, with original address-pin, T-vector and828+16 owner binding. Four
+  read-only observations verify RTC430 is logical RM179 (263B), not the
+  standalone .mb's178 (262B). The correct high word advances11->12 decimal across a low-word
+  wrap; all sampled timeout subtractions remain negative at task0.T=13.
+  Waiting for the original retry remains valid. A frozen clock or missing
+  carry is NOT established. No timer calibration or instruction-speed claim.
+- [x] Bind and read ProcH e13/f17/g11/h11:80 stored bits outside the844-Q
+  common owner, including shared TIOA delay bits. Keep them distinct from
+  existing g18 bits91/92. Three wrong address/clock/carry pin bindings reject.
+  The legacy discrete RM/T decoder still reproduces its prior observation.
+- [ ] Qualify remaining j19 source/arrival/unknown/pulse contracts. For the
+  next missing producer group, build an independent original branch-condition
+  capture reference, exercise multiword carry and task switches, and preserve
+  the per-task file's complete write window and visible flag latch. Then carry
+  the qualified phases into a NEW native stage with actual ALU/MIR/Ready/Hold/
+  IFU/Memory/event consumers. Keep native69736's source and5B HOST bound.
+- [ ] Complete SAME-fixture timing,60ns/timer calibration and separate physical
+  66.7MHz SDRAM, original Cedar/Rollback/persistence, three fresh boots and all
+  A–F/stress acceptance. No new fit/RBF/load or measured hardware speed gain.
+
+Receipt: `j19-complete-and-ROM-clock-summary.json` in the native flag archive.
+The previous pending-peer receipt below remains an immutable historical prefix.
+
+Previous separate j19 data epochs and terminal native prefix (2026-10-25):
 
 - [x] Finish SAME v1 Icarus j19 peers47431/full and47853/words: both match
   Verilator. Retain this as historical bounded evidence; the new underflow
@@ -31,7 +61,7 @@ LATEST separate j19 data epochs and terminal native prefix (2026-10-25):
   the named-net fixture is not a physical backplane-route or part qualification.
 - [x] Both corrected v2 Verilator full/mixed replays retain14884/4461 pairs/
   119 paired writes/238 forwarded bytes and12481/94 pairs/one staged read.
-- [ ] Finish SAME v2 Icarus peers52407/full and52406/words; preserve frozen
+- [x] Finish SAME v2 Icarus peers52407/full and52406/words; preserve frozen
   helper versions when comparing sources. Do not restart them.
 - [x] Retain the original204-event TPCBypass positive/bit74 negative against
   the current adapter. Both v3 focused engines pass; the mutation fails ONLY

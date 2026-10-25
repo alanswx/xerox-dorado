@@ -7,7 +7,44 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST SEPARATE J19 DATA EPOCHS AND TERMINAL STARTUP (2026-10-25):
+LATEST COMPLETE J19 REPLAYS AND ROM-BOUND CLOCK READ (2026-10-25):
+SAME corrected Icarus peers52407/full and52406/words finished PASS. Both-engine
+full/mixed outcomes and all100 clocks match; no replay peer remains pending.
+The review additionally verifies exact v1/v2 stimuli, initial fixtures and ALL
+other HDL/reference sources. Only the j19 adapter changes. Do not restart jobs.
+
+The native timeout is still pending at the sampled boundary, not frozen. The
+standalone Initial.mb names RTC430 at RM178 (262B), but the original ROM payload's
+actual reset/wait instructions address RM179 (263B). `inspect_initial_rom_wait.py`
+now supports the translated storage with original physical RM addresses,
+all four T-file vectors and the actual828+16 owner packing checked. Four
+existing/read-only69736 samples show the actual high clock11->12 decimal across a
+low-word wrap. At the latest sample (HOST2119879387/guest1208105112), the high
+word is12 (014B) and task0.T13 (015B); the original timeout subtraction is177776B, negative.
+The wrong standalone slot stays11 and would falsely suggest missing carry.
+No clock-stall, failed retry or timer-calibration conclusion follows. Each
+debugger read detached/resumed the SAME process; its5B HOST bound is unchanged.
+The old discrete-file decoder also reproduces its prior clock13/threshold13
+observation with the extended tool.
+
+The next producer boundary is now explicit. Original ProcH e13 (16x4 branch
+condition file), f17 (four visible flags), g11/h11 (six bits each, including
+shared TIOA delay) retain80 stored bits outside the844-Q common owner. Existing
+g18 carry/overflow copies are separate bits91/92. `native_branch_flag_sources.py`
+checks original wirelist pins, actual native instances and compiled cell hashes;
+three address/clock/carry-corruption controls reject. The optional read-only
+`--branch-flags` inspector reads these original cells. One sampled raw flag/file
+state does not attribute a carry to a particular instruction or prove phases.
+
+NEXT: preserve the j19 arrival/unknown/pulse gates; extract/check the original
+branch-condition capture family, normal multiword carry and task-switch/write
+windows. Then integrate the actual ALU and other native producer phases in a
+NEW stage. Preserve69736/5B HOST, all MIR/Ready/Hold/IFU/Memory/event/WE-close,
+SAME-fixture timing and full A–F/60ns/SDRAM/Cedar/Rollback/persistence/fresh-boot/
+stress requirements. No new RBF, FPGA load or measured speed gain. Receipt:
+`fpga/mister/reports/2026-10-23-native-flag-windows/j19-complete-and-ROM-clock-summary.json`.
+
+PREVIOUS SEPARATE J19 DATA EPOCHS AND TERMINAL STARTUP (2026-10-25):
 The earlier j19 full and mixed Icarus peers47431/47853 finished PASS and match
 their Verilator peers. Preserve them as v1 history: a new underflow case rejects
 that version's shared data-epoch rule, despite those full replay passes.

@@ -15,10 +15,53 @@ import shutil
 import subprocess
 
 from baseboard_rom_im import decode
+from sil_netlist import load_board
 from test_r_front_forward_view import sha
 
 ROOT=Path(__file__).resolve().parents[1]
 FIELDS=['rstk','aluf','bsel','lc','asel','block','ff','jcn']
+
+
+def translated_registers(source,observed):
+    """Bind raw translated RM/T storage to the original physical address pins."""
+    inputs=source/'inputs';paths={};masks={}
+    bp='src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v'
+    assert 'assign r_front_held={r_front_upper_q,r_front_visible_r_ProcL,r_front_visible_r_ProcH,r_front_lower_q};' in (inputs/bp).read_text()
+    paths['native/'+bp]=inputs/bp
+    port='src/verilog/rtl/dorado_r_file_ports.sv'
+    assert 'assign read_data={ql[7:0],qh[7:0]};' in (inputs/port).read_text()
+    paths['native/'+port]=inputs/port
+    for half,name in [('h','ProcH-Rev-Ce'),('l','ProcL-Rev-Ci')]:
+        wl=ROOT/'chm/sil'/(name+'.dm!1_')/(name+'.wl')
+        board=load_board(str(wl));pins={(p['pkg'],p['pin']):net for net,r in board.nets.items() for p in r['pins']}
+        paths['wirelists/'+wl.name]=wl
+        mask=0
+        for bit in range(8):
+            net=pins['h06',7+bit]
+            assert net in ['RbAdr.'+str(bit),'RbAdr.'+str(bit)+"'"]
+            assert pins['j06',7+bit]==net
+            if net.endswith("'"):mask|=1<<(7-bit)
+        masks[half]=mask
+        short=name.split('-')[0]
+        path=inputs/'src/fpga/mister/snapshot_native_processor'/(short+'_full_snapshot.sv')
+        raw=path.read_text();paths['native/'+str(path.relative_to(inputs))]=path
+        for package,offset in [('l03',0),('l04',4)]:
+            # All four original address pins are complemented, including
+            # during task writeback. The sampled T threshold is task0's slot15.
+            assert [pins[package,p] for p in [10,9,7,6]]==["CurrLast."+str(i)+"'" for i in range(4)]
+            vector=re.findall(r'wire \[63:0\] r_front_'+package+r'=([^;]+);',raw)
+            assert len(vector)==1
+            actual=list(map(int,re.findall(r'r_front_q\[(\d+)\]',vector[0])))
+            first=116+(0 if half=='h' else 8)+offset
+            expected=[first+16*slot+bit for slot in range(15,-1,-1) for bit in range(3,-1,-1)]
+            assert actual==expected,(short,package)
+    assert masks==dict(h=15,l=255)
+    banks=observed['translated_front']['physical_9bit_banks']
+    reverse=lambda word:int(f'{word:016b}'[::-1],2)
+    words=[reverse((banks['rm_h'][a^15]&255)|((banks['rm_l'][a^255]&255)<<8)) for a in range(256)]
+    q=int(observed['translated_front']['held_owner_hex'],16)
+    task_t=[reverse((q>>(116+16*(task^15)))&65535) for task in range(16)]
+    return words,task_t,paths
 
 
 def run(source,readback,out):
@@ -44,9 +87,17 @@ def run(source,readback,out):
     mb=copy(ROOT/'chm/dorado/expanded/bootstrap.dm!20_/Initial.mb','Initial.mb')
     copy(readback/'result.json','readback.json');copy(readback/'lldb.log','readback-detach.log')
     copy(source/'provenance.json.gz','native-provenance.json.gz')
-    for binding in observed['T_file']['source_bindings'].values():
-        path=Path(binding['source']);assert sha(path)==binding['source_sha256']
-        copy(path,'native/'+str(path.relative_to(source/'inputs')))
+    translated=None
+    if 'translated_front' in observed:
+        words,task_t,paths=translated_registers(source,observed)
+        translated=dict(source_binding='Original address pins, native T vectors and exact828+16 owner packing',
+                        source_hashes={name:sha(path) for name,path in paths.items()})
+        for name,path in paths.items():copy(path,name)
+        copy(ROOT/'tools/sil_netlist.py','sil_netlist.py')
+    else:
+        for binding in observed['T_file']['source_bindings'].values():
+            path=Path(binding['source']);assert sha(path)==binding['source_sha256']
+            copy(path,'native/'+str(path.relative_to(source/'inputs')))
     for kind,suffix in [('F10145A','sv'),('MC10173','v')]:
         name=f'src/fpga/mister/snapshot_native_conta/cell_{kind}_snapshot.{suffix}'
         copy(source/'inputs'/name,'native/'+name)
@@ -107,8 +158,9 @@ def run(source,readback,out):
     assert sequence_address==registers['SEQNO']==0x17
     assert clock_address==registers['RTC430']+1==0xb3
     reverse=lambda word:int(f'{word:016b}'[::-1],2)
-    words=list(map(reverse,observed['register_file']['wire_order_words']))
-    task_t=list(map(reverse,observed['T_file']['wire_order_words']))
+    if translated is None:
+        words=list(map(reverse,observed['register_file']['wire_order_words']))
+        task_t=list(map(reverse,observed['T_file']['wire_order_words']))
     clock=words[clock_address];threshold=task_t[0]
     alu=(clock-threshold-1)&0xffff
     result=dict(status='PASS_ORIGINAL_ROM_WAIT_BINDING',scope=__doc__,blocks=blocks,
@@ -123,6 +175,7 @@ def run(source,readback,out):
         readback_sha256=sha(readback/'result.json'),decoder_command=command,
         input_hashes=copied,original_ROM_or_guest_state_changed=False,
         packet0_root_cause_established=False,firmware_or_clock_speed_qualified=False)
+    if translated is not None:result['translated_source_binding']=translated
     if 'Q_register'in observed:
         result['global_Q']=reverse(observed['Q_register']['wire_order_word'])
         result['sequence_compare_Q_matches']=result['global_Q']==result['sequence_number']

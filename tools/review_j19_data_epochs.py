@@ -99,6 +99,23 @@ def review(out, require_full=False):
             replays.append(dict(version=version,mode=mode,complete_both_engines=complete,
                                 summaries=[s.get('summary') for s in states]))
 
+    # The corrected data rule is the only HDL change between these replay
+    # versions. Check the complete retained stimuli/references too, rather
+    # than accepting identical summary strings as proof of the same test.
+    for mode in ['full','words']:
+        for engine in ['icarus','verilator']:
+            before=BUILD/f'j19-{mode}-{engine}-v1-20261025'
+            after=BUILD/f'j19-{mode}-{engine}-v2-20261025'
+            a=read(before/'run-state.json');b=read(after/'run-state.json')
+            assert a['source_trace_sha256']==b['source_trace_sha256']
+            assert a['source_initial_sha256']==b['source_initial_sha256']
+            old_paths={r['path'] for r in a['source_files']}
+            assert old_paths=={r['path'] for r in b['source_files']}
+            for name in old_paths-{ADAPTER}:
+                old=(before/name).read_text().replace(str(before),'REPLAY_DIRECTORY')
+                new=(after/name).read_text().replace(str(after),'REPLAY_DIRECTORY')
+                assert old==new,(mode,engine,name)
+
     tpc = []
     for engine in ['icarus','verilator']:
         positive=BUILD/f'full-tpc-j19-epochs-{engine}-v3-20261025'
@@ -245,6 +262,7 @@ def review(out, require_full=False):
                 directed=directed,current_adapter_TPC_gate=tpc,rejected_historical_epoch_rule=historical,
                 routes=routes,actual_stored_bits_per_event=844,SRAM_bits_per_event=9216,
                 clock_channels=100,original_result_bits=2470,new_owner_bits=0,new_RAM_ports=0,
+                replay_versions_share_exact_stimuli_and_all_other_HDL=True,
                 original_staged_read_retained_first=True,
                 new_j19_adapter_selected_in_native=False,
                 native_prefix=dict(pid=40369,host_ticks=250000000,enabled_machine_ticks=37059037,
