@@ -7,7 +7,107 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST ACTUAL-NATIVE TASK TERMINAL CLOSURE AND TIMING (2026-10-25):
+LATEST ACTUAL SHARED TASK OWNER AND FULL-CORE REJECTION (2026-10-25):
+SAME task-terminal job3440305 is TERMINAL: all nine stages exit0, all574 source
+hashes verified,327 reports/logs collected. REJECT timing at ALL four corners:
+slow100C -13.075ns, slow-40C -13.071ns, fast100C -3.454ns, fast-40C -1.779ns.
+Logic40,163/41,910ALMs (96%,145 fewer than the85-guard fit),55,228 registers,
+2,506,566 memory bits (44%),330RAM blocks. Min hold0.136ns. Worst path remains
+MemC a15 -> asynchronous b12 cache-tag RAM -> miss/Hold pin386 -> control152
+-> processor Hold/task transfer -> unsettled -> machine_enable -> falling
+network_step:19 logic levels,19.715ns data,7.500ns relationship, skew-0.700ns.
+This is worse than-12.480ns and does NOT establish a hardware speed gain.
+No assembly/load. Source/constraints and every all-device/crossing report remain.
+Task16->7 and sparse-frame full/words Icarus are now ALL PASS, matching both
+Verilator programs and every original2470-bit result/844 Q/9216 SRAM/100 clocks.
+
+The actual R-address module evaluates the same task transfer twice, once for
+addressing and once inside its operand child. A new direct-RTL proof establishes
+ALL139 Q/event/repeat/settle outputs identical for ALL2114 arbitrary binary
+inputs, including every shared frame, without assumptions. The first invariant
+receipt miscounted one202-bit capture bus as201; its frozen interface/proof used
+2114, and the complete-interface qualification corrects that metadata explicitly.
+
+The candidate now takes the child's actual task result rather than evaluating
+a second copy. ALL807 module outputs prove identical for the complete2114-bit
+interface. Existing unsettled/address/state/clock/storage comparisons are kept,
+including the four-state self-comparison when Q is unknown. Wrong StartCycle
+alias changes actual address bits1/3, not only unsettled. BOTH full/words
+Verilator programs PASS with all original fixtures/assertions/native R/j19/one
+SRAM owner retained. Positive four-state coverage passes12687 checks/ALL807
+outputs (3 known contexts,12684 independent X/Z trials). First Icarus attempt
+rejects aliases before their declarations; moving the same assignments below
+the declarations passes full proof, four-state test and both Verilator programs.
+Both source/proof versions and the compile rejection are retained.
+
+The separate64-Q processor16->5 phase closure also has BOTH Verilator programs
+and words Icarus PASS; full Icarus612 remains live at the review. Its first bad
+unknown fallback changes only unsettled0 versusX, so that trial remains a
+diagnostic-only NOT_ESTABLISHED result, not a state/event counterexample.
+Pending shared-owner Icarus2624/full and2625/words are verified live, not passes.
+
+NEW single timing-only native job3571235/map3571238, verified live:
+`/home/alans/mister/Dorado_CPRead15_SharedTask_20261025`.
+Local stage `native-shared-task-full15-stage-v1-20261025` has574 exact inputs;
+only FOUR HDL files change: shared control, task consumer, separate processor
+atomic phase and shared R-address task result. Everything else is byte-identical
+to the frozen parent, with project-root relocation only in build/constraint files.
+Original PLL66.666667MHz/SYSPER4, machine/network/storage barriers and media stay.
+Native196-source elaboration PASSES with7 visible UNOPTFLAT warnings, down from10.
+This does NOT prove physical loops/timing solved. Follow SAME job/three pending
+Icarus peers; no restart on expired handles. Assembly/programming disabled.
+
+Diagnostic cadence is still120ns, not four15ns/60ns. Original native simulations
+62048/69736/87487 remain at fixed5B/5B/600M HOST bounds; last review860M/3.24B/
+340M HOST. No new ALU128-record non-FFF capture yet. Protected pack hash unchanged,
+no hardware load or measured speed gain. Native source arrivals/common ownership,
+four15ns chronology/all timers, SDRAM66.7MHz/reset/refresh/DQ and full A–F original
+Cedar/input/Rollback/cold persistence/three fresh boots/two-hour stress remain.
+Full FPGA snapshots deferred; goal ACTIVE. Receipt: `native-shared-task-owner-summary.json`.
+
+PREVIOUS SEPARATE PROCESSOR PHASE CLOSURE (2026-10-25):
+The actual frozen `dorado_processor_capture_step.sv` contains an ordered CP/root
+wrapper AND its64-Q atomic evaluator. The ordered wrapper is byte-identical;
+only the atomic evaluator has a new private candidate. For ALL122 arbitrary
+binary state/input bits, ALL109 state/event/repeat/unsettled outputs at five
+waves equal the original16-wave result, with no assumptions. Original terminal
+unsettled is separately proved ZERO; one-wave truncation has a counterexample.
+Nondefault wave parameters and unknown contexts retain the original evaluator.
+The initial attempt selected the ordered wrapper rather than the atomic body;
+that source-preflight rejection is preserved, and no proof ran on that attempt.
+
+Both complete Verilator full/words replays PASS, preserving original raw input/
+initial data/reference/assertions,844 Q/9216 SRAM/2470 result bits/100 clocks,
+native16 R cells, j19 epochs and one SRAM owner. Positive four-state coverage
+passes735 checks/ALL109 outputs (3 known contexts,732 independent X/Z trials).
+The deliberately wrong unknown-default test stops at output0: actual0 versus
+expectedX in unsettled. It does NOT establish a state/event counterexample;
+retain its original NOT_ESTABLISHED status, not a functional-negative pass.
+The exact original fallback stays in the actual candidate.
+
+SAME new Icarus peers612/full and613/words are verified live, not passing.
+Sparse-frame full AND words Icarus have now PASSED, so that candidate has both
+complete programs passing in both engines. Task-terminal words Icarus also
+PASSED; SAME task-terminal full97228 remains live at review. No old source,
+trace, firmware, cycle limit or checker was replaced by the newer candidates.
+
+SAME task-terminal full-core job3440305/fit3455869 remains VERIFIED LIVE after
+successful mapping. It includes the prior task/sparse changes, NOT this new
+processor-phase candidate. Follow `/home/alans/mister/Dorado_CPRead15_TaskTerminal_20261025`
+without restart; collect all physical timing/corner/source reports when terminal,
+then use its real critical path to choose the next full-core candidate. In
+particular retain the address-consistency, shared-owner and storage barriers;
+do not replace them with a guessed settled condition. No timing/speed promotion.
+
+SAME native62048/69736/87487 and5B/5B/600M HOST bounds remain; ALU source probe
+has not reached its non-FFF128-record capture yet. Original60ns/four15ns phases,
+native producer arrival/ownership integration, separate SDRAM66.7MHz physical
+protocol/reset/refresh/timers and full A–F/Cedar/Rollback/persistence/three boots/
+two-hour stress remain. Hardware untouched, protected media unchanged, goal
+ACTIVE. Receipt: `native-processor-terminal-summary.json` in the native flag
+archive; pending observations and diagnostic-only failures remain explicit.
+
+PREVIOUS ACTUAL-NATIVE TASK TERMINAL CLOSURE AND TIMING (2026-10-25):
 The85-pin falling guard is now qualified on the actual frozen shared-control
 source, not only an earlier component. Six formal cases compare all795 bits
 (363 control results plus432 capture-frame bits) for956 arbitrary binary input
@@ -12772,6 +12872,14 @@ and has unreviewed hold violations; never deploy it.
 
 ### Structural speed work: current order
 
+- [x] Complete task/sparse full+words in BOTH engines with all original outcomes. Collect SAME task-terminal full-core job/all9 stages/574 hashes/327 reports; reject -13.075/-13.071/-3.454/-1.779ns, preserving MemC tag/Hold/task -> network_step path and40,163ALMs/96%. No assembly/load.
+- [x] Prove the actual address/operand task evaluators identical for all139 outputs/2114 arbitrary inputs; correct the first receipt's input-count metadata without rewriting its frozen proof. Share actual child result and prove ALL807 complete-interface outputs without assumptions, retaining every guard and unknown self-comparison.
+- [x] Pass both shared-owner Verilator programs and12687 four-state/807-output checks. Wrong StartCycle alias changes actual address bits1/3. Preserve first Icarus forward-declaration rejection and both qualified source variants.
+- [x] Stage574 exact native inputs/four changed HDL files; preserve original SDC/PLL/SYSPER/barriers/media. Full196-source elaboration passes with7 warnings versus10. Start one shared-task timing-only job3571235/map3571238 on misterubuntu.
+- [ ] Follow SAME shared-task timing job3571235 and pending processor612/shared-owner2624/2625 Icarus. Inspect actual full timing before selection, then finish source-arrival capture/chronological owner/four15ns phases/memory/timers and full Cedar/Rollback/persistence/stress gates. Diagnostic120ns remains distinct from target60ns.
+- [x] Prove actual separate processor atomic16->5-wave transfer/terminal closure for ALL109 outputs/122 arbitrary inputs without assumptions; retain ordered CP/root wrapper byte-identically, nondefault/unknown fallback, one-wave counterexample and first wrong-wrapper preflight rejection. Pass735 four-state checks and both complete Verilator replays.
+- [x] Finish sparse-frame full/words Icarus with unchanged original outcomes; task-terminal words Icarus passes. Preserve the processor bad-unknown trial as diagnostic-only output0 actual0/expectedX, NOT a state/event negative pass.
+- [ ] Follow SAME task-terminal full97228 and processor full612/words613 Icarus, plus SAME full-core builder3440305/fit3455869; inspect actual terminal paths before selecting another full-core candidate. New processor closure is NOT in that fit; retain every address/storage/owner gate.
 - [x] Prove actual native102->85 falling support for all795 outputs/956 inputs, HIGH closure and nonvacuous changed-data/clock cases; pass both full/words replays in both engines and7652 four-state checks. Keep unsupported depths at102.
 - [x] Collect SAME85-guard full-core fit/all nine stages/574 input hashes/327 files; reject slow100C-12.480ns (worse than-11.669), preserve MemC a15/tag/Hold -> task settling -> network_step path and96% area. No assembly/load.
 - [x] Prove actual shared task consumer16->7 waves and terminal closure for ALL139 outputs/678 arbitrary inputs/four arbitrary frames without assumptions; retain four-wave and unknown-default counterexamples. Pass4071 four-state checks and both Verilator complete replays.

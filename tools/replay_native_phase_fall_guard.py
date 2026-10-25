@@ -18,7 +18,7 @@ from review_baseboard_clock_consumer import verify
 from test_external_r_packet import sha
 
 
-def run(source,proof,out,engine,wrong_frame=False,task_proof=None):
+def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proof=None,address_proof=None):
     assert not out.exists();out.mkdir(parents=True)
     s=json.loads((source/'run-state.json').read_text());verify(source,s['files'])
     assert s['status']=='PASS_COMBINED_CP_COHERENT_PACKETS'and s['experimental_j19_ordered_epochs']
@@ -38,6 +38,24 @@ def run(source,proof,out,engine,wrong_frame=False,task_proof=None):
         assert sha(source/'adapters/dorado_local_task_capture_step.sv')==t['source_task_sha256']
         task_after=task_transform(task_before)
         assert task_after==(task_proof/'native-task-after.sv').read_text()
+    processor_after=None
+    if processor_proof:
+        from qualify_native_processor_terminal import transform as processor_transform
+        t=json.loads((processor_proof/'run-state.json').read_text());verify(processor_proof,t['files'])
+        assert t['status']=='PASS_ACTUAL_NATIVE_PROCESSOR_TERMINAL_CLOSURE'and all(a['passed']for a in t['actions'])
+        path=source/'inputs/verilog/rtl/dorado_processor_capture_step.sv'
+        assert sha(path)==t['source_sha256']
+        processor_after=processor_transform(path.read_text())
+        assert processor_after==(processor_proof/'native-processor-after.sv').read_text()
+    address_after=None
+    if address_proof:
+        from qualify_native_address_task_owner import transform as address_transform
+        t=json.loads((address_proof/'run-state.json').read_text());verify(address_proof,t['files'])
+        assert t['status']=='PASS_ACTUAL_NATIVE_SHARED_ADDRESS_TASK_OWNER'and all(a['passed']for a in t['actions'])
+        path=source/'adapters/dorado_local_r_address_step.sv'
+        assert sha(path)==t['source_address_sha256']
+        address_after=address_transform(path.read_text())
+        assert address_after==(address_proof/'native-address-after.sv').read_text()
     if wrong_frame:
         assert p['sparse_shared_capture_frames']
         token='fall_before=state_q[47:0],fall_after='
@@ -49,6 +67,8 @@ def run(source,proof,out,engine,wrong_frame=False,task_proof=None):
         q=out/n;q.parent.mkdir(parents=True,exist_ok=True);text=(source/n).read_text()
         if n=='candidate.sv':text=after
         elif n=='adapters/dorado_local_task_capture_step.sv'and task_after is not None:text=task_after
+        elif n=='inputs/verilog/rtl/dorado_processor_capture_step.sv'and processor_after is not None:text=processor_after
+        elif n=='adapters/dorado_local_r_address_step.sv'and address_after is not None:text=address_after
         elif n=='tb.sv':
             original=text;text=text.replace(str(source),str(out))
             scope='dut.packet.single.control.direct_arrival'
@@ -70,16 +90,24 @@ def run(source,proof,out,engine,wrong_frame=False,task_proof=None):
         if target.exists():continue
         target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source/n,target)
     helpers=out/'executed-tools';helpers.mkdir()
-    for n in [Path(__file__).name,'qualify_native_phase_fall_guard.py',*(['qualify_native_task_terminal.py']if task_proof else[])]:
+    for n in [Path(__file__).name,'qualify_native_phase_fall_guard.py',*(['qualify_native_task_terminal.py']if task_proof else[]),
+              *(['qualify_native_processor_terminal.py']if processor_proof else[]),
+              *(['qualify_native_address_task_owner.py','prove_native_address_task_owner.py']if address_proof else[])]:
         shutil.copy2(Path(__file__).with_name(n),helpers/n)
     state=dict(status='RUNNING',scope=__doc__,source=str(source),engine=engine,started=time.time(),
         proof=str(proof),proof_state_sha256=sha(proof/'run-state.json'),source_state_sha256=sha(source/'run-state.json'),
         original_trace_sha256=s['source_trace_sha256'],original_initial_sha256=s['source_initial_sha256'],
         original_assertions_and_reference_unchanged=True,
         only_functional_change=('native shared fall-stability support102->85; direct sparse frames'if p.get('sparse_shared_capture_frames')else'native shared fall-stability support102->85')+
-                              ('; shared task consumer16->7 waves and proved terminal closure'if task_proof else''),
+                              ('; shared task consumer16->7 waves and proved terminal closure'if task_proof else'')+
+                              ('; separate processor phase16->5 waves and proved terminal closure'if processor_proof else'')+
+                              ('; one shared child task result supplies address/operand consumers'if address_proof else''),
         task_terminal_proof=str(task_proof)if task_proof else None,
         task_terminal_proof_state_sha256=sha(task_proof/'run-state.json')if task_proof else None,
+        processor_terminal_proof=str(processor_proof)if processor_proof else None,
+        processor_terminal_proof_state_sha256=sha(processor_proof/'run-state.json')if processor_proof else None,
+        address_task_owner_proof=str(address_proof)if address_proof else None,
+        address_task_owner_proof_state_sha256=sha(address_proof/'run-state.json')if address_proof else None,
         sparse_shared_capture_frames=p.get('sparse_shared_capture_frames',False),wrong_shared_start_frame=wrong_frame,
         native_cells_j19_single_SRAM_and_commit_barriers_retained=True,source_files=rows,actions=[],
         files={str(p.relative_to(out)):sha(p)for p in out.rglob('*')if p.is_file()})
@@ -114,5 +142,9 @@ if __name__=='__main__':
     p.add_argument('--engine',choices=['icarus','verilator'],required=True)
     p.add_argument('--wrong-frame',action='store_true')
     p.add_argument('--task-proof',type=Path)
+    p.add_argument('--processor-proof',type=Path)
+    p.add_argument('--address-proof',type=Path)
     a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.proof.resolve(),a.output.resolve(),a.engine,a.wrong_frame,
-                                        a.task_proof.resolve()if a.task_proof else None))
+                                        a.task_proof.resolve()if a.task_proof else None,
+                                        a.processor_proof.resolve()if a.processor_proof else None,
+                                        a.address_proof.resolve()if a.address_proof else None))

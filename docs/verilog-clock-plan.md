@@ -14,7 +14,69 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST measured native path and task consumer closure (2026-10-25):
+LATEST shared actual task result and measured full-core timing (2026-10-25):
+
+- [x] Finish task-terminal/sparse full+words replays in BOTH engines, with
+  every original result/Q/SRAM/100-clock assertion and native R/j19/owner check.
+- [x] Collect SAME task-terminal full-core fit/all9 stages/574 source hashes/
+  327 reports. REJECT all corners: -13.075/-13.071/-3.454/-1.779ns. Area40,163
+  ALMs/96%,145 fewer than the guard-only fit but worse timing. Critical path:
+  MemC a15/cache-tag b12 -> miss/Hold386 -> control/task -> unsettled ->
+  machine_enable -> falling network_step;19.715ns data against7.500ns.
+- [x] Prove ALL139 results of the actual address/operand task evaluations
+  identical for2114 arbitrary inputs without assumptions. Share the real child
+  result and prove ALL807 complete-interface outputs identical, retaining ALL
+  comparisons/barriers and unknown self-comparison. The first invariant receipt
+  reported2113 but its actual frozen interface/proof had2114; preserve/correct
+  that metadata explicitly. Wrong StartCycle alias changes actual address1/3.
+- [x] Pass both shared-owner Verilator programs and12687 four-state checks on
+  all807 outputs. Retain first Icarus forward-declaration compile rejection;
+  move identical assignments after declarations and re-prove the exact source.
+  Processor16->5 words Icarus now also passes; full Icarus612 remains pending.
+- [x] Stage574 exact inputs/four changed HDL files, with no clock/timer/storage/
+  network/constraint change. Native196-source elaboration passes with7 visible
+  warnings (previous10). Launch one timing-only full-core job3571235/map3571238:
+  `/home/alans/mister/Dorado_CPRead15_SharedTask_20261025`. No assembly/load.
+- [ ] Follow SAME fit and live Icarus612/2624/2625. Use real terminal physical
+  paths and all-device/source reports before selection. Current diagnostic is
+  still120ns ordinary, not the four15ns/60ns target. Original native62048/69736/
+  87487 and5B/5B/600M HOST bounds stay unchanged; ALU source capture still pending.
+- [ ] Finish native arrival/common chronology, all timers, SDRAM66.7MHz physical
+  command/DQ/reset/refresh and full A–F original Cedar/input/Rollback/cold
+  persistence/three boots/two-hour stress. Hardware untouched; no measured gain.
+
+Receipt: `native-shared-task-owner-summary.json`. Full goal ACTIVE; snapshots
+deferred. Previous rejected fits and source/unknown failures remain retained.
+
+Previous separate processor phase closure (2026-10-25):
+
+- [x] Prove actual64-Q atomic processor16->5-wave transfer and terminal closure:
+  ALL109 outputs/122 arbitrary binary inputs, no assumptions. Ordered CP/root
+  wrapper remains byte-identical; nondefault wave parameters and full-context
+  unknowns retain original behavior. Preserve one-wave counterexample and first
+  wrong-wrapper preflight rejection, which started no proof.
+- [x] Pass both complete Verilator full/words replays with every original result,
+  Q/SRAM/100-clock, raw-input/initial, native R/j19 and barrier check retained.
+  Four-state735 checks compare all109 fields. Bad unknown shortcut changes only
+  unsettled0 versusX at its first failure: preserve NOT_ESTABLISHED status and
+  do not claim an actual state/event counterexample.
+- [x] Finish BOTH sparse-frame Icarus programs, matching Verilator and original
+  outcomes. Task-terminal words Icarus also passes.
+- [ ] Follow SAME task-terminal full97228 and new processor full612/words613
+  Icarus. Follow SAME full-core builder3440305/fit3455869, verified live after
+  map success. The new processor closure is NOT in that fit. Inspect actual
+  critical paths/area before the next complete native candidate; preserve
+  address-consistency/shared-owner/storage gates and every original constraint.
+- [ ] Close actual source-arrival records from SAME87487/600M HOST, then native
+  common capture ownership, four15ns/60ns phases and all timers. Separately
+  qualify SDRAM66.7MHz/reset/refresh/DQ, pinned speed/stalls and full A–F original
+  Cedar/input/Rollback/cold persistence/three boots/two-hour stress. Keep the
+  original62048/69736 runs and5B HOST bounds. No hardware or selected speed gain.
+
+Receipt: `native-processor-terminal-summary.json`; full goal ACTIVE, FPGA
+snapshots deferred. No terminal timing, firmware or native arrival pass inferred.
+
+Previous measured native path and task consumer closure (2026-10-25):
 
 - [x] Qualify actual shared falling support102->85 for ALL795 results/956
   arbitrary binary inputs, with actual HIGH-identity closure and changed-data/

@@ -52,22 +52,34 @@ endmodule
 def run(proof,out,bad=False):
     assert not out.exists();out.mkdir(parents=True)
     s=json.loads((proof/'run-state.json').read_text());verify(proof,s['files'])
-    assert s['status']=='PASS_ACTUAL_NATIVE_TASK_TERMINAL_CLOSURE'and all(a['passed']for a in s['actions'])
-    witness=proof/'four-wave-counterexample'
+    processor=s['status']=='PASS_ACTUAL_NATIVE_PROCESSOR_TERMINAL_CLOSURE'
+    assert s['status']in ['PASS_ACTUAL_NATIVE_TASK_TERMINAL_CLOSURE','PASS_ACTUAL_NATIVE_PROCESSOR_TERMINAL_CLOSURE']and all(a['passed']for a in s['actions'])
+    witness=proof/('one-wave-counterexample'if processor else'four-wave-counterexample')
     sig={x['name']:x for x in json.loads((witness/'counterexample.json').read_text())['signal']}
     def value(n):
         row=sig[n];return int(row['data'][0],2)if'data'in row else int(row['wave'][0],2)
     seed=0
-    for n,width in [('stop_tasks',1),('canonical',2),('q',88),('cb',1),('ca',1),('pb',76),('pa',76),('frames',433)]:
+    fields=[('q',64),('cb',1),('ca',1),('pb',28),('pa',28)]if processor else[('stop_tasks',1),('canonical',2),('q',88),('cb',1),('ca',1),('pb',76),('pa',76),('frames',433)]
+    for n,width in fields:
         seed=(seed<<width)|value(n)
-    for n in ['original.sv','actual.sv','top.sv']:shutil.copy2(proof/'seven-wave-complete-result'/n,out/n)
+    for n in ['original.sv','actual.sv','top.sv']:shutil.copy2(proof/('five-wave-complete-result'if processor else'seven-wave-complete-result')/n,out/n)
     if bad:
         p=out/'actual.sv';text=p.read_text();token='default:begin end'
         assert text.count(token)==1
-        p.write_text(text.replace(token,"default:{state_next,clock_events,repeated_events,unsettled}={q,events,repeated,1'b0};",1))
-    (out/'tb.sv').write_text(TB.replace("678'hSEED",f"678'h{seed:x}"));shutil.copy2(Path(__file__),out/Path(__file__).name)
+        result="{short_result[108:1],1'b0}"if processor else"{q,events,repeated,1'b0}"
+        p.write_text(text.replace(token,'default:{state_next,clock_events,repeated_events,unsettled}='+result+';',1))
+    template=TB
+    if processor:
+        template=template.replace('reg [677:0]','reg [121:0]').replace('wire stop_tasks,cb,ca;wire [1:0] canonical;wire [87:0] q;wire [75:0] pb,pa;wire [432:0] frames;',
+            'wire cb,ca;wire [63:0] q;wire [27:0] pb,pa;')
+        template=template.replace('{stop_tasks,canonical,q,cb,ca,pb,pa,frames}','{q,cb,ca,pb,pa}')
+        template=template.replace('wire [138:0]','wire [108:0]').replace('native_task_terminal_contract dut(stop_tasks,canonical,q,cb,ca,pb,pa,frames,',
+            'processor_terminal_contract dut(q,cb,ca,pb,pa,')
+        template=template.replace('k<139','k<109').replace('k<678','k<122').replace("678'hSEED","122'hSEED").replace('outputs=139','outputs=109')
+    bits,outputs=(122,109)if processor else(678,139)
+    (out/'tb.sv').write_text(template.replace(f"{bits}'hSEED",f"{bits}'h{seed:x}"));shutil.copy2(Path(__file__),out/Path(__file__).name)
     state=dict(status='RUNNING',scope=__doc__,proof=str(proof),proof_state_sha256=sha(proof/'run-state.json'),
-        bad_unknown_default=bad,variable_bits=678,compared_bits=139,started=time.time(),actions=[],
+        bad_unknown_default=bad,variable_bits=bits,compared_bits=outputs,processor_phase_evaluator=processor,started=time.time(),actions=[],
         files={p.name:sha(p)for p in out.iterdir()})
     def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
     save();code=1
@@ -81,9 +93,10 @@ def run(proof,out,bad=False):
         if code:break
     log=(out/'test.log').read_text()if(out/'test.log').exists()else''
     passed=state['actions'][0]['returncode']==0 and (code!=0 and any(
-        f'output={k} 'in log for k in range(1,139))if bad else
-        code==0 and 'NATIVE_TASK_TERMINAL_XZ_PASS known=3 unknown=4068 checks=4071 outputs=139'in log)
-    state.update(status=('PASS_NATIVE_TASK_TERMINAL_UNKNOWN_COUNTEREXAMPLE'if bad else'PASS_NATIVE_TASK_TERMINAL_XZ')if passed else
+        f'output={k} 'in log for k in range(1,outputs))if bad else
+        code==0 and f'NATIVE_TASK_TERMINAL_XZ_PASS known=3 unknown={6*bits} checks={6*bits+3} outputs={outputs}'in log)
+    prefix='PASS_NATIVE_PROCESSOR_TERMINAL_'if processor else'PASS_NATIVE_TASK_TERMINAL_'
+    state.update(status=(prefix+('UNKNOWN_COUNTEREXAMPLE'if bad else'XZ'))if passed else
                  'TERMINAL_NATIVE_TASK_TERMINAL_XZ_NOT_ESTABLISHED',returncode=code,finished=time.time())
     save();print(state['status'],flush=True);return 0 if passed else 1
 
