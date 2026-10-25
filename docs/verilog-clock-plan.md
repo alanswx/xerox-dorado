@@ -3,16 +3,42 @@
 Started 2026-10-18 UTC. Native59 is preserved as a qualified 50 MHz SDRAM/direct-DDR
 Cedar desktop/input baseline; StorageReadCapture1 now qualifies the corrected BL8 path. Native49/fresh49b and Native34 preserve earlier
 50 MHz references; Native26 preserves the earlier 33.333 MHz reference.
-MiSTer14 is currently reserved for the user; build and simulate without
-accessing it until they release it again. See the [clock audit](verilog-from-sil.md#clock-architecture-audit-2026-10-18)
+MiSTer14 was released again by the user on2026-10-24. Load only a reviewed
+full-core candidate. See the [clock audit](verilog-from-sil.md#clock-architecture-audit-2026-10-18)
 for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
-Hardware allocation update (user,2026-10-24): the user needs the FPGA now.
-Continue build/simulation work; notify them when a reviewed build is ready
-for hardware testing, and wait until they release MiSTer14 before any load,
-reboot or control. Earlier reload authorization is superseded while it is in use.
+Hardware allocation update (latest user instruction,2026-10-24): "you can use
+the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
+No reload/reboot/control performed, and no new full-core image is qualified.
+This supersedes earlier reservation statements below, not historical receipts.
+
+Guard packet review COMPLETE;15ns fit REJECTED (2026-10-24).
+`control-guard-packet-summary.json` verifies both full14884-transaction processor
+replays, unchanged2470results/844owners/9216RAM/100clocks/403geometry/reset and
+all92 collected fit members/source readback/terminal handles/corners. Setup
+-6.841/-6.692/+3.510/+4.143ns; hold minimum+0.153ns;8591ALMs/5637regs/9216MLAB
+bits. The proved six-data-bit helper is the sole changed compiled HDL. There
+is no timing gain over specialized owned-6.777ns and no native selection.
+
+Whole-control support audit proves290 ignored pins/108 sufficient cared pins
+for ALL363 outputs of the unchanged atomic wrapper at5 AND24waves, with1751
+arbitrary binary inputs. Dropping required CP292 changes actual results. This
+is conservative support, not a proof that every108 pin is necessary. Critical
+input119/ProcL IfuData_0 is outside the support. NEXT: prove the actual102-pin
+guard formed by this support minus the prior six fall-only data bits, with
+arbitrary398-bit changes, HIGH identity certificate, all363 results, real
+selector/certificate counterexamples, X/Z fallback, both full replays and the
+same complete fit. The support audit alone does not authorize that substitution.
+
+Corrected native test69736 remains live with the original5B HOST bound and now
+passes physical initialization/actual `NATIVE_BOOT_ENV_PASS skip_wait_PB1=0`.
+Latest observation host310M/guest74,534,312, CPwrites1/issues0/TX0/faults0;
+no firmware/Cedar pass. Continue without restart/extension. All A–F acceptance,
+native producer/interior epochs, sole-owner integration,60ns/timers and physical
+66.7MHz SDRAM remain required. Last measured hardware4.025473M StartCycle issues/s
+is unchanged; no retirement-speed claim. FPGA snapshots remain deferred.
 
 Startup-environment repair (2026-10-24): source readback disproves the inherited
 `skip_disk_wait_jumper_fitted` claim in BOTH older private control-short/balanced

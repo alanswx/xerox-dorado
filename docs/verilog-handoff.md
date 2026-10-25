@@ -1,10 +1,35 @@
 # Verilog from Sil: handoff
 
-FPGA AVAILABILITY (user instruction,2026-10-24): the user is now using the
-FPGA. Do not load, reboot or control MiSTer14 until they release it again.
-Continue Quartus on misterubuntu and simulation on the Mac. Notify the user
-when a concrete build is ready for hardware qualification; wait for allocation.
-The goal remains active. This supersedes earlier permission for immediate reloads.
+FPGA AVAILABILITY (latest user instruction,2026-10-24): "you can use the fpga".
+MiSTer14 is released for Dorado testing again. Read-only SSH confirms it is
+reachable and running SMC777; no reload/reboot/control was performed. There is
+no newly qualified full-core RBF ready to load. Build on misterubuntu and
+simulate on the Mac until that gate passes. The goal remains active. This
+supersedes older reservation statements below; archived receipts stay historical.
+
+Guard packet review COMPLETE (2026-10-24): `control-guard-packet-summary.json`.
+Both full original14884-transaction Icarus/Verilator replays pass with unchanged
+2470 results/844 owners/9216 RAM/100 clock counts/403 geometry/reset checks.
+The sole compiled HDL change is the proved six-data-bit guard in candidate.sv.
+All92 collected members, source readback, terminal processes and four timing
+corners verify. Setup -6.841/-6.692/+3.510/+4.143ns; hold minima+0.153ns,
+8591ALMs/5637regs/9216MLAB bits. This is no timing gain over specialized owned
+-6.777ns; it remains unselected. No new native60ns or hardware speed result.
+
+Whole-control dependency audit independently proves arbitrary substitutions
+of290 pins against ALL363 results of the unchanged atomic wrapper, at BOTH
+5/24 waves (1751 arbitrary binary miter inputs). Its108-pin support is sufficient,
+not proven minimal. Dropping CP292 changes actual outputs. Worst timing input
+119/ProcL IfuData_0 is outside this support. NEXT: combine this support with the
+six previously proved fall-only data exclusions; prove the actual102-pin guard
+with arbitrary398-bit before/after changes, HIGH identity certificate, complete
+results, selector/certificate counterexamples, X/Z fallback and full replays.
+Do not infer that this binary support audit alone permits changing the guard.
+
+Fresh corrected native test69736 remains live at its original5B HOST bound.
+It passed physical initialization and `NATIVE_BOOT_ENV_PASS skip_wait_PB1=0`;
+latest observed host310M/guest74,534,312, CP writes1, issues0, TX0, faults0.
+No firmware/Cedar qualification yet. Do not restart/extend it.
 
 Native boot-environment defect FIXED in staging (2026-10-24):
 `native-jumper-preservation-summary.json` proves BOTH private control-short and
