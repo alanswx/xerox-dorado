@@ -28,7 +28,11 @@ def run(stage,native_run,out,baseline_only=False,structural=False,report_unoptfl
     root=native_run/'inputs'if baseline_only else stage
     support=[root/n for n in base['used_hdl']]
     if not baseline_only:support += [stage/n for n in record['extra_RTL_sources']if n not in base['used_hdl']]
-    support += [native_run/'inputs/harness/xsds_model.sv',native_run/'inputs/harness/tb_native_cedar.sv']
+    harness_root=native_run/'inputs'
+    if not baseline_only and record.get('native_observation_harness'):
+        assert record['native_observation_harness']=='harness/tb_native_cedar.sv'
+        harness_root=stage
+    support += [harness_root/'harness/xsds_model.sv',harness_root/'harness/tb_native_cedar.sv']
     assert all(p.exists()for p in support)
     cmd=['verilator','--lint-only','--timing','--top-module','tb_native_cedar','-Wno-fatal',
          '-Wno-PINMISSING','-Wno-UNOPTFLAT','-Wno-MULTIDRIVEN','-Wno-LATCH','-Wno-TIMESCALEMOD',

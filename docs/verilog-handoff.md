@@ -7,7 +7,61 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST OPERAND/ALU CAPTURE PASS AND FULL-CORE15NS REJECTION (2026-10-25):
+LATEST NATIVE-FACING ALU CAPTURE AND ACTUAL PRODUCER OBSERVATION (2026-10-25):
+`verilog/rtl/dorado_processor_flag_capture.sv` now packages the actual pre-event
+physical state, external arrivals and before/settled flag frames. Its source
+root and derived processor/flag root are explicit separate inputs. The candidate
+retains its OWN previous80 flags in the physical frame during verification.
+No architectural reset, clock or state is introduced by this stateless block.
+
+The read-only1198-state ALU view now has ordinary explicit connections rather
+than Quartus-incompatible hierarchical probes. Exact package pins/clock aliases
+are followed; no timing exception or logic approximation is added. BOTH engines
+compare ALL2287 outputs on1024 arbitrary1632-bit input cases, then pass the SAME
+15470-event original program/1198 physical states/9216 SRAM/147 clocks/964
+observations with this lowered view and native-facing transfer. Original input
+records, initial fixture and function-write coverage remain. Export numbering is
+now deterministic; both older equivalent numbering variants stay archived.
+An annotation splits the three finite flag-transfer wave entries for Verilator;
+logic tokens are unchanged, and the false aggregate-array cycle warning is gone.
+
+A late-source-root rebinding trial passed. A subsequent all-binary proof explains
+why: ALL16 early capture-data bits are independent of raw source-root level with
+physical Q held fixed (1632 input bits, zero assumptions). This is NOT permission
+to use late registered state or alter actual capture edges/physical arrivals.
+Raw roots remain observable and separate for the larger phase migration.
+
+The new block is CONNECTED PASSIVELY in a private actual-native stage, not selected
+as flag owner: `native-alu-observation-stage-v3-20261025`. All578 inputs verified;
+all1198 physical Q bits (including the whole three function/flag RAM packages)
+and actual producer/flag pins are exported. Snapshot host-history payload packing
+is not used as physical Q. Inverse checks restore the exact original board,
+backplane, RAM-cell update code and harness after removing only observation ports,
+wires/history/printing. Existing common r_capture_commit alone advances observation
+history. Existing architectural owners, storage/network barriers and clock enables
+remain authoritative. Native lint with actual observing harness passes;9 unresolved
+UNOPTFLAT warnings remain visible. This stage stays57.142857MHz/SYSPER4 (140ns
+nominal), not a selected faster fit. The separate15ns full-core fit stays rejected.
+
+SAME new source diagnostic: `native-alu-source-boot-prefix-v1-20261025`, compile
+exited0, test87487 verified live, independent fixed600,000,000 HOST bound. It uses
+198 production HDL sources and the original firmware/six-pass SDRAM/device/media
+checks. Disk host opens read-only; guest writes stay in its simulation vector.
+It records128 actual-native phase samples only after CIA leaves the initialFFF.
+RAM initialization consumes ~195M HOST and the earlier source reached non-FFF
+around430M, so an initialization-only prefix would not exercise the processor.
+Do not restart/extend on an expired observation handle. Original62048/69736 and
+their5B HOST bounds are untouched. No new hardware load or measured speed gain.
+
+NEXT: follow SAME87487 and decode its actual before/after Q/data/clock frames;
+qualify native source arrivals, migrate flags/operand producers into the common
+chronological owner, and shorten the measured settling/control-enable path.
+Then full-core timing, SDRAM66.7MHz/reset/refresh/DQ/timers and hardware benchmark.
+Full60ns/A–F/original Cedar/Rollback/persistence/three boots/two-hour stress remain;
+full FPGA snapshots deferred. Protected pack unchanged; full goal stays active.
+Receipt: `native-alu-capture-summary.json` in the native flag archive.
+
+PREVIOUS OPERAND/ALU CAPTURE PASS AND FULL-CORE15NS REJECTION (2026-10-25):
 The SAME full-core job is terminal: builder2865831, all nine stages exited0;
 no assembly or hardware load. All574 remote inputs match the frozen stage.
 At15ns/SYSPER4 (120ns nominal), setup FAILS at all four corners: slow100C

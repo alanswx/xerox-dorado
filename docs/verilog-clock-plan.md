@@ -14,7 +14,43 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST coupled operand capture and measured full-core timing (2026-10-25):
+LATEST native-facing capture and actual producer wiring (2026-10-25):
+
+- [x] Add stateless native-facing `dorado_processor_flag_capture.sv`, preserving
+  physical pre-event Q/own prior80 flags, separate raw/derived roots and actual
+  before/late flag frames. No new architectural reset or clock.
+- [x] Replace ALU-view hierarchical probes with exact explicit pin connections.
+  BOTH engines compare all2287 outputs/1024 arbitrary1632-bit cases, then pass
+  the SAME15470-event program/all1198 states/9216 SRAM/147 clocks/964 observations.
+  Input/initial data, original assertions and function write windows stay intact.
+- [x] Make export numbering deterministic. Retain both older tested numbering
+  variants and the initial forward-declaration rejection. Split only the finite
+  flag-wave array for Verilator; unchanged logic tokens and passing replay.
+- [x] Resolve the late-source-root trial: all-binary proof establishes independence
+  of the16 early capture-data bits from raw root level with Q fixed (1632 inputs,
+  zero assumptions). Pre-event REGISTERED state and actual capture edges/arrivals
+  still require preservation; this does not qualify the native phase contract.
+- [x] Connect a passive actual-native probe with578 pinned inputs/198 compiled HDL
+  sources, physical Q/whole RAM/pin exports and existing-common-commit-only history.
+  Restore exact original update/clock/enable code by inverse checks. Observing
+  native harness elaborates;9 unresolved structural warnings remain visible.
+  Existing flag owners/barriers remain selected;57.142857MHz/SYSPER4 stays140ns.
+- [x] Launch independent fixed600M HOST source diagnostic; compile exits0/test87487
+  verified live. Capture128 samples after the processor leaves initialFFF, without
+  guest state or firmware changes. Original62048/69736/5B bounds stay unchanged.
+- [ ] Follow SAME87487/native-alu-source-boot-prefix-v1-20261025; decode actual
+  source Q/data/clock phases and qualify the native input-arrival contract.
+  Never restart/extend a live diagnostic because its observation handle expires.
+- [ ] Migrate the real flag/operand producers into the common chronological owner
+  and shorten the measured iterative settle -> machine/network-enable path.
+  Keep all storage/MIR/Ready/Hold/IFU/cache/Map/device/write-close gates.
+- [ ] Refit, qualify66.7MHz SDRAM/refresh/reset/DQ/peripheral timers and benchmark.
+  Full four-tick60ns and A–F/Cedar/Rollback/persistence/three boots/two-hour stress
+  remain. Full FPGA snapshots deferred; no new selected fit or measured gain.
+
+Receipt: `native-alu-capture-summary.json` in the native flag archive.
+
+Previous coupled operand capture and measured full-core timing (2026-10-25):
 
 - [x] Collect SAME full-core15ns job, all nine stages exit0 and574 input hashes
   verified. Reject timing: slow100C -11.669ns, slow-40C -11.499ns, fast100C

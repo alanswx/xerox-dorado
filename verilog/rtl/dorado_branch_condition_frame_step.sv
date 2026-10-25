@@ -9,7 +9,8 @@ module dorado_branch_condition_frame_step #(parameter integer PINS=38,WAVES=3)(
  input wire [PINS-1:0] pins_before,pins_early,pins_after,
  output wire [79:0] state_next,output wire [3:0] clock_events,
  output wire unsettled);
- wire [79:0] q[0:WAVES];wire [3:0] before_clocks,final_clocks;
+ wire [79:0] q[0:WAVES] /* verilator split_var */;
+ wire [3:0] before_clocks,final_clocks;
  wire [23:0] early_data;
  branch_condition_cone before_view(.fixture_load(1'b0),.fixture_state(state_q),
   .base(clock_before),.start_a(1'b0),.en(1'b0),.pins(pins_before),.clocks(before_clocks));
