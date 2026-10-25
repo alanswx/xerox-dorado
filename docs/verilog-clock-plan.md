@@ -38,7 +38,28 @@ then equal-domain422-input/4943-output15ns fits and complete corner review.
 No FPGA access or speed change. Source/CP/device interior epochs,60ns cadence,
 physical66.7MHz SDRAM and all A–F acceptance stay active; snapshots deferred.
 
-Owned packet context PROVEN; timing comparison still PENDING (2026-10-24).
+Owned packet context/replays QUALIFIED; BOTH full15ns fits REJECTED (2026-10-24).
+`owned-processor-packet-summary.json` retains all four full original replays,
+all1416 cache bits/156 control projection bits and X/Z/corruption gates. Both
+engines pass14884 transactions/10423 commits/4461 pairs, every original2470-bit
+result/844Qs/9216RAM/100clocks/403geometry/reset check; coverage is unchanged.
+Both equal-domain422-input/4943-output fits are terminal. All stages exit0;
+compiled hashes/exited handles and91/92 collected members verify. Generic setup
+-8.217/-8.299/+2.570/+4.418ns, specialized-6.777/-6.759/+3.669/+4.313ns.
+Hold minima+0.151/+0.090ns, pulse minima+6.111/+6.110ns, zero UCPs. Generic
+8824ALMs/6291regs versus8556ALMs/5657regs; one9216-bit SRAM each. Improvement is
+1.522ns in worst setup/634 fewer registers ON THIS SAME owned fixture. It is
+not comparable to the old1652-input arbitrary-context fixture as a speed result.
+
+Next/TODO: specialized worst is after-pins349/ContB DMD_07 -> full stable-pin
+guard -> SINGLE CP/root captures -> R faults[1],21.097ns/24levels at slow100C.
+Prove data-only falling-guard support for DMD06..11 with the actual HIGH identity
+certificate, every363-bit control result and unchanged X/Z fallback. Preserve
+all required clock/selector pins. Refit the SAME caller after full proof/replays.
+Original R owners/source/CP/device epochs/native60ns/66.7MHz/all A–F remain;
+no native selection/hardware speed claim. The FPGA remains reserved for the user.
+
+Earlier digital milestone (later completed by the full receipt above):
 `owned-packet-context-digital-summary.json` retains the source-bound828 stored
 owners/402 input-snapshot bits/16 external R aliases. All156 control projection
 bits survive publication; unbounded induction compares all1416 cache bits and
@@ -54,10 +75,10 @@ owner/RAM/100clock/reset/403geometry assertion. The before-root negative explici
 injects a contract violation into the snapshot; it is not a legal-history proof.
 Three compiled early-write/forwarding/intermediate-owner corruptions reject.
 
-Next/TODO: finish the SAME two Icarus runs (generic test67390/session34170,
-specialized test67389/session63434, verified live at5m47s). Then stage generic/
-specialized fits with `fit_owned_r_packet.py`, and review complete four-corner
-timing with `review_owned_r_packet.py`. Both fixtures use the SAME422 live inputs,
+Both Icarus replays and generic/specialized fits are now terminal; do not restart.
+Component budgeting overlapped the frozen compiled peer tests; final review
+verified both terminal passes/all corners. Pending-peer staging retains actual
+input hashes/live observation. Both fixtures use the SAME422 live inputs,
 4943 outputs, original16 R aliases and single9216-bit SRAM; do not treat the
 old1652-input arbitrary-owner fixture as an equal-domain comparison. No new fit,
 native promotion or measured hardware speed. Bind actual source/CP/device interior
@@ -65,6 +86,16 @@ epochs next, preserving all rotations/debug and original consumers. Complete
 60ns cadence/physical66.7MHz SDRAM/A–F/Cedar/Rollback/persistence/three-boot/stress
 acceptance stays active. The FPGA remains reserved; last measured4.025473M
 StartCycle issues/s is unchanged. FPGA snapshots remain deferred.
+
+Before native integration: keep one828-bit closed-owner group/one SRAM and the
+common publication guard; do not duplicate the native owners inside a wrapper.
+The16 external R aliases must be supplied by the original g06/g07 latch owners
+with every subevent's capture/transparent behavior. The replay's last_result
+alias update is an oracle fixture, not proof of those native consumers. Bind
+actual intermediate source/CP/device pins, distinguish closed and physical Q,
+and preserve original consuming edges,6 k21 error bits/pre-edge data and g18
+setup/hold. Then qualify full native cadence and all timers; component timing
+alone cannot establish original60ns or interactive Cedar.
 
 Parallel R-fault calculation QUALIFIED digitally; full15ns improves to a
 2.039ns miss, still REJECTED (2026-10-24). `parallel-r-fault-summary.json`

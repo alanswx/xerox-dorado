@@ -6,6 +6,26 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`owned-processor-packet-summary.json` completes the owned caller qualification:
+all four full original replays pass14884 transactions/10423 commits/4461 pairs,
+all2470-bit results/844Qs/9216RAM/100clocks/403geometry/reset checks and unchanged
+coverage. Full1416-bit cache induction/156-bit projection/XZ/negative controls
+bind the actual publication. Generic and specialized fits use the SAME422 inputs
+and4943 outputs,15ns/2ns-I/O/no exceptions, original16 R aliases and one SRAM.
+All stages/compiled input hashes/exited handles and91/92 collected members verify.
+
+Both15ns fits REJECTED. Generic setup-8.217/-8.299/+2.570/+4.418ns, specialized
+-6.777/-6.759/+3.669/+4.313ns. Hold minima+0.151/+0.090ns; pulse minima
++6.111/+6.110ns, zero UCPs. Area8824ALMs/6291regs ->8556ALMs/5657regs,9216MLAB
+bits each. This is1.522ns better worst setup and634 fewer registers on the SAME
+fixture, not a comparison with the old arbitrary-owner1652-input fixture.
+Archives SHA5dc034057b99915e21c9ff18b82f4215695a1ded37e6bc10250dfabf182ca0fd
+and0c25f96330dceeccdc16d728d713c03043eac387becfa26fed63c0cada6e400a.
+Next bind the DMD_07/stable-pin guard critical path to actual data-only fall
+support; preserve the HIGH identity certificate, every result and X/Z behavior.
+Original native R consumers/interior epochs/60ns/all A–F remain unqualified.
+No FPGA access, native selection, speed claim or goal narrowing follows.
+
 `native-jumper-preservation-summary.json` retains the source-level explanation
 for long private native startup waits: BOTH control-short and balanced stages
 overwrote the baseline's grounded SkipDiskWait PB1 while inheriting 'fitted'

@@ -37,7 +37,32 @@ schedule_time observation at19m29s showed103.558us toward the~156us replay end,
 with successful detach. Keep the same runs, then stage/review the two full
 422-input/4943-output timing fits. All A–F and hardware reservation remain.
 
-Owned packet context PROVEN; full timing comparison PENDING (2026-10-24).
+Owned packet context/replays QUALIFIED; BOTH full15ns fits REJECTED (2026-10-24).
+`owned-processor-packet-summary.json` retains all four full original replays,
+all1416 cache bits/156 control projection bits, X/Z gates and corruption checks.
+Both engines agree on14884 transactions/10423 commits/4461 pairs/119 paired
+writes/238 forwarded bytes, every2470-bit result/844Qs/9216RAM/100clocks,403
+geometry cases and8885fast/1538staged/1538prep/one reset. No assertion removed.
+
+Equal-domain422-input/4943-output fits are terminal; every stage/compiled input/
+exited handle verifies, with91/92 collected members. Generic setup
+-8.217/-8.299/+2.570/+4.418ns, hold+0.367/+0.349/+0.169/+0.151ns;
+specialized setup-6.777/-6.759/+3.669/+4.313ns, hold+0.151/+0.148/+0.133/+0.090ns.
+Pulse minima+6.111/+6.110ns; zero UCPs/no recovery/removal endpoints. Generic
+8824ALMs/6291regs, specialized8556ALMs/5657regs; both one9216-bit MLAB SRAM.
+634 registers disappear. Compare THESE owned fixtures: the earlier1652-input
+arbitrary-context fit is a different input domain. No native selection/speed gain.
+
+Worst specialized path is launch365 = after-pins349 = ContB DMD_07 through
+direct_arrival's wide stable-pin guard, child CP/root capture and R faults[1]
+(first_result1410/global3883),21.097ns/24levels at slow100C. NEXT: prove whether
+fall-guard data-only input support can exclude DMD06..11 while preserving the
+actual HIGH identity certificate, complete363 control results and original
+unknown-input fallback. Do not drop a required clock/selector/control pin.
+Then refit the SAME owned caller and finish native integration contracts below.
+No new native60ns, SDRAM or firmware pass. The FPGA remains with the user.
+
+Earlier digital milestone (Icarus/fits were pending at that collection):
 `owned-packet-context-digital-summary.json` binds the native caller's828 stored
 owners,401-pin/one-root snapshots and16 external visible-R aliases. All156
 projected control bits survive publication. Unbounded induction compares all1416
@@ -56,10 +81,10 @@ cache/reset coverage. All403 geometry checks remain; the before-root corruption
 explicitly fault-injects the owned snapshot OUTSIDE legal publication histories.
 Early-write/drop-forward/stale-intermediate controls fail original assertions.
 
-NEXT: observe the SAME Icarus runs `owned-{generic,specialized}-icarus-v2-20261024`
-(sessions34170/63434, tests67390/67389; verified live at5m47s). Do not restart.
-Then use `fit_owned_r_packet.py` for two422-input/4943-output fixtures of the
-SAME owned caller, with identical15ns/2ns-I/O/no exceptions and one SRAM owner.
+Both Icarus runs and both isolated422-input/4943-output fits are now TERMINAL.
+Do not restart those jobs. Component budgeting overlapped the identical frozen
+compiled peer tests; final review verified both terminal passes and all corners.
+Staging retains the pending peer's exact input hashes and live observation.
 `review_owned_r_packet.py` requires both engines and complete four-corner fits.
 The old1652-input arbitrary-context fixture is a different input domain.
 No new fit, native selection, image,60ns cadence or hardware speed is qualified.
@@ -67,6 +92,18 @@ Actual source/CP/device interior epochs, all rotations/debug/consumers,66.7MHz
 SDRAM and complete A–F/Cedar/Rollback/persistence/stress qualification remain.
 The FPGA stays with the user; the last measured rate remains4.025473M StartCycle
 ISSUES/s. Full goal active; snapshots deferred.
+
+Native integration contract: preserve ONE828-bit closed-owner group, ONE SRAM
+owner and the protected owner/pins/FINAL-root publication. Do not instantiate
+the owned caller alongside a second copy of the old native owners. The16
+external aliases belong to the original ProcH/ProcL g06/g07 latch owners. The
+packet replay's alias publication from last_result is an oracle fixture; bind
+the actual native latch capture/transparent behavior at EACH subevent before
+claiming native correctness. Preserve physical-state versus closed-state views.
+Bind real source/CP/device intermediate pins and original consuming edges,
+including the6 k21 pre-edge/old-Q error bits and g18 setup/hold contract. Complete
+native consumer and phase/timer qualification follows the component fit; no
+owner alias, error result or capture edge may be waived for timing closure.
 
 Parallel R-fault calculation QUALIFIED digitally; full15ns improves to a
 2.039ns miss, still REJECTED (2026-10-24). `parallel-r-fault-summary.json`

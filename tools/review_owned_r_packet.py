@@ -95,6 +95,13 @@ def review(out,digital_only=False):
     fits=[];stages=[]
     for label in ['generic','specialized']:
         st=BUILD/f'owned-{label}-stage-v1-20261024';p=read(st/'provenance.json');verify(st,p['files'])
+        assert checked(Path(p['tests']))['specialized']==p['specialized']
+        assert sha(Path(p['tests'])/'run-state.json')==p['tests_state_sha256']
+        peer=checked(Path(p['peer']));assert peer['specialized']==p['specialized']
+        if p.get('pending_peer_at_staging') is not None:
+            assert peer['files']==p['pending_peer_at_staging']['frozen_input_hashes']
+            assert p['pending_peer_at_staging']['qualification_still_requires_terminal_pass']
+        else:assert sha(Path(p['peer'])/'run-state.json')==p['peer_state_sha256']
         assert p['input_bits']==422 and p['result_bits']==4943 and not p['assembly_permitted']
         assert p['specialized']==(label=='specialized') and (st/'top.sv').read_text()==TOP
         fit,envelope,receipt=collection(f'owned-{label}-terminal-v1-20261024')

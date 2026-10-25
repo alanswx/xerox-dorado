@@ -11,6 +11,8 @@ import argparse
 import json
 from pathlib import Path
 import shutil
+import subprocess
+import time
 
 import fit_control_clock as fixture
 from generate_owned_r_packet import caller,cache
@@ -43,10 +45,24 @@ def checked(directory):
     return s
 
 
-def prepare(tests,peer,out):
-    assert not out.exists();s=checked(tests);other=checked(peer)
+def prepare(tests,peer,out,allow_running_peer=False):
+    assert not out.exists();s=checked(tests);pending=None
+    other=json.loads((peer/'run-state.json').read_text())
+    if other['status']=='RUNNING' and allow_running_peer:
+        for n,h in other['files'].items():assert sha(peer/n)==h
+        assert other['mutation'] is None and other['all_original_assertions_retained']
+        assert other['engine']=='icarus' and s['engine']=='verilator'
+        assert other['files']==s['files'],'Pending peer must compile the identical frozen sources/bench'
+        assert len(other['actions'])==2 and other['actions'][0]['returncode']==0
+        action=other['actions'][1];assert action['label']=='test' and 'returncode' not in action
+        ps=subprocess.check_output(['ps','-p',str(action['pid']),'-o','pid=,etime=,stat=,command='],text=True).strip()
+        assert str(peer/'test.vvp') in ps
+        pending=dict(time=time.time(),pid=action['pid'],ps=ps,observed_state_sha256=sha(peer/'run-state.json'),
+                     frozen_input_hashes=other['files'],qualification_still_requires_terminal_pass=True)
+    else:other=checked(peer)
     assert s['specialized']==other['specialized'] and {s['engine'],other['engine']}=={'icarus','verilator'}
-    assert s['summary']==other['summary'] and s['proof_state_sha256']==other['proof_state_sha256']
+    if pending is None:assert s['summary']==other['summary']
+    assert s['proof_state_sha256']==other['proof_state_sha256']
     proof=Path(s['proof']);p=json.loads((proof/'run-state.json').read_text())
     assert sha(proof/'run-state.json')==s['proof_state_sha256'] and p['status']=='PASS_SOURCE_BOUND_OWNED_PACKET_CANONICAL_CONTEXT'
     for n,h in p['files'].items():assert sha(proof/n)==h
@@ -74,7 +90,8 @@ def prepare(tests,peer,out):
     for n in ['fit_control_clock.py',Path(__file__).name,'generate_owned_r_packet.py','test_owned_r_packet.py']:shutil.copy2(Path(__file__).with_name(n),out/n)
     record=dict(scope=__doc__,clock_period_ns=15,input_bits=422,result_bits=4943,stored_architectural_owner_bits=828,owned_input_snapshot_bits=402,
         original_external_R_alias_bits=16,single_physical_SRAM_bits=9216,specialized=s['specialized'],source_cache_state_bits=1416,
-        tests=str(tests),tests_state_sha256=sha(tests/'run-state.json'),peer=str(peer),peer_state_sha256=sha(peer/'run-state.json'),
+        tests=str(tests),tests_state_sha256=sha(tests/'run-state.json'),peer=str(peer),peer_state_sha256=sha(peer/'run-state.json') if pending is None else None,
+        pending_peer_at_staging=pending,
         proof_state_sha256=sha(proof/'run-state.json'),four_state_state_sha256=s['four_state_state_sha256'],bad_unknown_state_sha256=s['bad_unknown_state_sha256'],
         prefix_key_unchanged=True,whole_packet_final_root_retained=True,refresh_comparison_retained=True,
         assembly_permitted=False,native_qualified=False,source_device_epochs_qualified=False,hardware_changed=False,hardware_requires_user_release=True,
@@ -85,4 +102,5 @@ def prepare(tests,peer,out):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['tests','peer','output']:p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();prepare(a.tests.resolve(),a.peer.resolve(),a.output.resolve())
+    p.add_argument('--allow-running-peer',action='store_true',help='Parallel component budgeting only; require identical frozen compiled peer and live handle. Final review still requires both terminal passes.')
+    a=p.parse_args();prepare(a.tests.resolve(),a.peer.resolve(),a.output.resolve(),a.allow_running_peer)

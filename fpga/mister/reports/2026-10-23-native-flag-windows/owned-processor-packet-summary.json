@@ -1,0 +1,301 @@
+{
+  "status": "REVIEWED_SOURCE_BOUND_OWNED_PROCESSOR_PACKET",
+  "scope": "Review native publication, complete replays and both equal-domain fits.\n\nThis qualifies an owned processor packet component, not native source/device\nepochs, sixty-nanosecond cadence, SDRAM, Cedar or hardware speed. Retain failed\ntestbench attempts and distinguish the old racing false negative calibration.\n",
+  "cache_bits_inductively_compared": 1416,
+  "control_projection_bits": 156,
+  "stored_closed_owners": 828,
+  "external_R_aliases": 16,
+  "powerup_owners_unconstrained": true,
+  "prefix_key_unchanged": true,
+  "refresh_check_retained": true,
+  "whole_final_root_preserved": true,
+  "XZ_context_cases": 4984,
+  "XZ_external_cases": 68,
+  "four_state_comparisons": 40292,
+  "historical_racing_false_control_excluded": true,
+  "testbench_clock_race_and_declaration_failures_preserved": true,
+  "full_replays": 4,
+  "original_transactions_per_replay": 14884,
+  "commits": 10423,
+  "pairs": 4461,
+  "paired_writes": 119,
+  "forwarded_bytes": 238,
+  "all_original_result_state_RAM_clock_assertions_retained": true,
+  "invalid_geometries": 403,
+  "before_root_negative_is_explicit_contract_violation": true,
+  "negative_controls": [
+    {
+      "mutation": "early-write",
+      "original_assertion": "PACKET invalid geometry committed bit=0"
+    },
+    {
+      "mutation": "drop-forward",
+      "original_assertion": "PACKET second result mismatch record=203"
+    },
+    {
+      "mutation": "stale-intermediate",
+      "original_assertion": "PACKET second result mismatch record=16"
+    }
+  ],
+  "fit_input_bits": 422,
+  "fit_result_bits": 4943,
+  "equal_domain_fits": [
+    {
+      "variant": "generic",
+      "corners": [
+        {
+          "corner": "7_slow_1100mv_100c",
+          "setup": {
+            "slack_ns": -8.217,
+            "source": "launch[168]",
+            "sink": "result[1413]~reg0",
+            "arrival_ns": 27.011,
+            "required_ns": 18.794,
+            "report_sha256": "632361a158b66b6362eab8872c5da092ba616c7a15971275980d1df417f8090d"
+          },
+          "hold": {
+            "slack_ns": 0.367,
+            "source": "launch[320]",
+            "sink": "dorado_r_front_owned_packet:actual|r_front_before[304]",
+            "arrival_ns": 4.397,
+            "required_ns": 4.03,
+            "report_sha256": "2869274f56cc376d7cfb2ac63cd73e5019e7c50d7e81676fc53c501da13a66a2"
+          },
+          "evaluator": {
+            "slack_ns": -8.217,
+            "source": "launch[168]",
+            "sink": "result[1413]~reg0",
+            "arrival_ns": 27.011,
+            "required_ns": 18.794,
+            "report_sha256": "352f09f6ccdcc4de7e1fa8641072df1ccf198b3dfe1867b57ba663c7569ea859"
+          },
+          "pulse_width_ns": 6.457
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "setup": {
+            "slack_ns": -8.299,
+            "source": "launch[168]",
+            "sink": "result[1413]~reg0",
+            "arrival_ns": 27.259,
+            "required_ns": 18.96,
+            "report_sha256": "fd4818d18d23e2fc718e72f55f870163ee39d23f247d061bfcf337782ab0d455"
+          },
+          "hold": {
+            "slack_ns": 0.349,
+            "source": "launch[320]",
+            "sink": "dorado_r_front_owned_packet:actual|r_front_before[304]",
+            "arrival_ns": 4.553,
+            "required_ns": 4.204,
+            "report_sha256": "86936ad503e958154afdfa5386cc27df1ef52a2d355628294b90361f4115b987"
+          },
+          "evaluator": {
+            "slack_ns": -8.299,
+            "source": "launch[168]",
+            "sink": "result[1413]~reg0",
+            "arrival_ns": 27.259,
+            "required_ns": 18.96,
+            "report_sha256": "22816ad1c69b13bb341a71930f25600aecd156bca10277334cb4cdb590d62909"
+          },
+          "pulse_width_ns": 6.492
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "setup": {
+            "slack_ns": 2.57,
+            "source": "dorado_r_front_owned_packet:actual|r_front_before[74]~DUPLICATE",
+            "sink": "result[1413]~reg0",
+            "arrival_ns": 14.118,
+            "required_ns": 16.688,
+            "report_sha256": "7d2be2a697f389bf89c7d5e24515b54b8d0713a3d2df98c13f2e61b47cc277ed"
+          },
+          "hold": {
+            "slack_ns": 0.169,
+            "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[42]",
+            "sink": "result[649]~reg0",
+            "arrival_ns": 2.125,
+            "required_ns": 1.956,
+            "report_sha256": "bf4d36a8e6f6fa57d5fd961844d7d6d230f9acf0dbbe7e9d768cf1ef28c52e21"
+          },
+          "evaluator": {
+            "slack_ns": 2.814,
+            "source": "launch[401]~DUPLICATE",
+            "sink": "result[1413]~reg0",
+            "arrival_ns": 14.047,
+            "required_ns": 16.861,
+            "report_sha256": "5b0f909bea493bf0574102010928f7233e09a6276b19cc75b11ea71448e938b1"
+          },
+          "pulse_width_ns": 6.174
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "setup": {
+            "slack_ns": 4.418,
+            "source": "input_stage[41]",
+            "sink": "launch[41]~DUPLICATE",
+            "arrival_ns": 12.123,
+            "required_ns": 16.541,
+            "report_sha256": "d1307f2487c393247bf0d87e9424e8325906809292e345d727d514c2863d571e"
+          },
+          "hold": {
+            "slack_ns": 0.151,
+            "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[42]",
+            "sink": "result[649]~reg0",
+            "arrival_ns": 1.986,
+            "required_ns": 1.835,
+            "report_sha256": "716eae103930c2e742669a6f02606eb9df602222cedf1f2180db6459ca27610e"
+          },
+          "evaluator": {
+            "slack_ns": 4.603,
+            "source": "launch[168]",
+            "sink": "result[1413]~reg0",
+            "arrival_ns": 11.964,
+            "required_ns": 16.567,
+            "report_sha256": "18c5f56badad5dc017c2a32cf5493d8998779c9ed4b437e40d5847a895b72b0c"
+          },
+          "pulse_width_ns": 6.111
+        }
+      ],
+      "area": {
+        "ALMs": 8824,
+        "registers": 6291,
+        "MLAB_bits": 9216
+      },
+      "archive_sha256": "5dc034057b99915e21c9ff18b82f4215695a1ded37e6bc10250dfabf182ca0fd",
+      "members": 91,
+      "pass_15ns": false
+    },
+    {
+      "variant": "specialized",
+      "corners": [
+        {
+          "corner": "7_slow_1100mv_100c",
+          "setup": {
+            "slack_ns": -6.777,
+            "source": "launch[365]~DUPLICATE",
+            "sink": "result[3883]~reg0",
+            "arrival_ns": 25.505,
+            "required_ns": 18.728,
+            "report_sha256": "ad631482d00b94a1addb9faada4ed0d32dddd49e4e84b90be078498e343c36e7"
+          },
+          "hold": {
+            "slack_ns": 0.151,
+            "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[33]",
+            "sink": "dorado_r_front_owned_packet:actual|dorado_r_front_packet_step:packet|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama16~OBSERVABLEPORTAADDRESSREGOUT2",
+            "arrival_ns": 4.299,
+            "required_ns": 4.148,
+            "report_sha256": "213938cddb2dd5636de2984c81fa8aad8f18e0ae620b8c8c5a2f753d9ddda254"
+          },
+          "evaluator": {
+            "slack_ns": -6.777,
+            "source": "launch[365]~DUPLICATE",
+            "sink": "result[3883]~reg0",
+            "arrival_ns": 25.505,
+            "required_ns": 18.728,
+            "report_sha256": "490fb2e56d6fb38aa9083ed15c12aaa842a1547427e42ce0f9ee272383a3dcb0"
+          },
+          "pulse_width_ns": 6.463
+        },
+        {
+          "corner": "7_slow_1100mv_-40c",
+          "setup": {
+            "slack_ns": -6.759,
+            "source": "launch[365]~DUPLICATE",
+            "sink": "result[3883]~reg0",
+            "arrival_ns": 25.648,
+            "required_ns": 18.889,
+            "report_sha256": "5e4ab85a0338463afc613c86eb0a6bc000baa939dde4aa1b3595e0dc7fa9b960"
+          },
+          "hold": {
+            "slack_ns": 0.148,
+            "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[33]",
+            "sink": "dorado_r_front_owned_packet:actual|dorado_r_front_packet_step:packet|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama16~OBSERVABLEPORTAADDRESSREGOUT2",
+            "arrival_ns": 4.455,
+            "required_ns": 4.307,
+            "report_sha256": "c54fbd55b56c4c6059852424f4e11cbda5130f4c77e45563ceab1e7db1ecd5c9"
+          },
+          "evaluator": {
+            "slack_ns": -6.759,
+            "source": "launch[365]~DUPLICATE",
+            "sink": "result[3883]~reg0",
+            "arrival_ns": 25.648,
+            "required_ns": 18.889,
+            "report_sha256": "8cd35295c42e3b95365b4a3ef34801129ec5655b052d1de5cf83da5f68246f99"
+          },
+          "pulse_width_ns": 6.493
+        },
+        {
+          "corner": "MIN_fast_1100mv_100c",
+          "setup": {
+            "slack_ns": 3.669,
+            "source": "launch[377]~DUPLICATE",
+            "sink": "result[3883]~reg0",
+            "arrival_ns": 12.985,
+            "required_ns": 16.654,
+            "report_sha256": "0d156823a4c45f22432e981ad7d8131d057b877801d87e93e6e3644fc3893d0a"
+          },
+          "hold": {
+            "slack_ns": 0.133,
+            "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[33]",
+            "sink": "dorado_r_front_owned_packet:actual|dorado_r_front_packet_step:packet|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama16~OBSERVABLEPORTAADDRESSREGOUT2",
+            "arrival_ns": 2.039,
+            "required_ns": 1.906,
+            "report_sha256": "f71acddb6179ccff9a7558299ae482b2a97e556caedd8c5f24f783db6a540c12"
+          },
+          "evaluator": {
+            "slack_ns": 3.669,
+            "source": "launch[377]~DUPLICATE",
+            "sink": "result[3883]~reg0",
+            "arrival_ns": 12.985,
+            "required_ns": 16.654,
+            "report_sha256": "b537b6bda2b18817b92b6d38428d405770b59a6d436716963578661c7531ea60"
+          },
+          "pulse_width_ns": 6.173
+        },
+        {
+          "corner": "MIN_fast_1100mv_-40c",
+          "setup": {
+            "slack_ns": 4.313,
+            "source": "input_stage[301]",
+            "sink": "launch[301]",
+            "arrival_ns": 12.227,
+            "required_ns": 16.54,
+            "report_sha256": "eb5558a1290fef656e11c2d32c0af6f3d7daf3fe12e210de9e47fd6571a9b3e5"
+          },
+          "hold": {
+            "slack_ns": 0.09,
+            "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[33]",
+            "sink": "dorado_r_front_owned_packet:actual|dorado_r_front_packet_step:packet|dorado_r_file_ports:files|altdpram:stk_h_rtl_0|dpram_dqp1:auto_generated|lutrama16~OBSERVABLEPORTAADDRESSREGOUT2",
+            "arrival_ns": 1.874,
+            "required_ns": 1.784,
+            "report_sha256": "bb606aff4028df7d2bdcb7c792205e5d5f87a0ddca4290d0cb31018e54ee8094"
+          },
+          "evaluator": {
+            "slack_ns": 5.298,
+            "source": "launch[377]~DUPLICATE",
+            "sink": "result[3883]~reg0",
+            "arrival_ns": 11.236,
+            "required_ns": 16.534,
+            "report_sha256": "8da0449f7f3ca8b9d12a96bf5a705a85b8e64aa5dcd3b7098411cf9df79719a9"
+          },
+          "pulse_width_ns": 6.11
+        }
+      ],
+      "area": {
+        "ALMs": 8556,
+        "registers": 5657,
+        "MLAB_bits": 9216
+      },
+      "archive_sha256": "0c25f96330dceeccdc16d728d713c03043eac387becfa26fed63c0cada6e400a",
+      "members": 92,
+      "pass_15ns": false
+    }
+  ],
+  "same_fitted_sources_except_cache_specialization": true,
+  "variant_selected": false,
+  "native60ns_or_hardware_speed_qualified": false,
+  "source_CP_device_interior_epochs_qualified": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}
