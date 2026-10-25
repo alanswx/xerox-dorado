@@ -71,6 +71,12 @@ def prepare(tests,peer,out,allow_running_peer=False):
         d=proof/row['mode'];assert sha(d/'proof.log')==row['log_sha256']
         for n,h in row['files'].items():assert sha(d/n)==h
     raw=(tests/'candidate.sv').read_text();bp=(proof/'native-backplane.v').read_text()
+    original_raw=(Path(p['source'])/'candidate.sv').read_text()
+    if s.get('fall_data_guard_review') is not None:
+        from test_owned_r_packet import fall_guard_source
+        review=Path(s['fall_data_guard_review']);assert sha(review/'results.json')==s['fall_data_guard_review_sha256']
+        assert raw==fall_guard_source(original_raw,review)
+    else:assert raw==original_raw
     assert (tests/'caller.sv').read_text()==caller(raw,bp)
     assert (tests/'packet.sv').read_text()==packet(raw)+'\n'+stage(raw,True)+'\n'+cache(raw,s['specialized'])
     out.mkdir(parents=True);paths=[row['path'] for row in s['source_files']]+['packet.sv','forward.sv','caller.sv']
@@ -92,6 +98,7 @@ def prepare(tests,peer,out,allow_running_peer=False):
         original_external_R_alias_bits=16,single_physical_SRAM_bits=9216,specialized=s['specialized'],source_cache_state_bits=1416,
         tests=str(tests),tests_state_sha256=sha(tests/'run-state.json'),peer=str(peer),peer_state_sha256=sha(peer/'run-state.json') if pending is None else None,
         pending_peer_at_staging=pending,
+        fall_data_guard_review=s.get('fall_data_guard_review'),fall_data_guard_review_sha256=s.get('fall_data_guard_review_sha256'),
         proof_state_sha256=sha(proof/'run-state.json'),four_state_state_sha256=s['four_state_state_sha256'],bad_unknown_state_sha256=s['bad_unknown_state_sha256'],
         prefix_key_unchanged=True,whole_packet_final_root_retained=True,refresh_comparison_retained=True,
         assembly_permitted=False,native_qualified=False,source_device_epochs_qualified=False,hardware_changed=False,hardware_requires_user_release=True,

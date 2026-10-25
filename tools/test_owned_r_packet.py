@@ -9,6 +9,7 @@ into the owned snapshot for that one negative test, outside legal publication.
 That injection does not support the legal-history cache equivalence theorem.
 """
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -21,6 +22,31 @@ from generate_owned_r_packet import caller,cache
 from generate_parallel_r_fault import packet
 from generate_cached_r_packet import stage,cache as generic_cache
 from test_r_front_forward_view import sha
+from prove_cp_prefix_cache import module
+
+
+def fall_guard_source(raw,review):
+    """Apply only the exact fully reviewed control guard definition."""
+    r=json.loads((review/'results.json').read_text())
+    assert r['status']=='REVIEWED_SOURCE_BOUND_FALL_DATA_GUARD' and r['checked_wave_depths']==[5,24]
+    assert r['no_result_or_state_bit_masked'] and r['actual_HIGH_identity_certificate_required']
+    proof=review/'fall-data-guard-proof-v1-20261024';p=json.loads((proof/'run-state.json').read_text())
+    assert p['status']=='PASS_SOURCE_BOUND_FALL_DATA_GUARD'
+    for n,h in p['files'].items():assert sha(proof/n)==h
+    for row in p['cases']:
+        d=proof/(row['mode']+'-w'+str(row['waves']));assert row['passed'] and row['returncode']==0
+        for n,h in row['files'].items():assert sha(d/n)==h
+        assert sha(d/'proof.log')==row['log_sha256']
+    for name,status in [('fall-data-guard-four-state-v1-20261024','PASS_FALL_DATA_FOUR_STATE'),('fall-data-guard-bad-unknown-v1-20261024','PASS_FALL_DATA_UNKNOWN_COUNTEREXAMPLE')]:
+        d=review/name;s=json.loads((d/'run-state.json').read_text());assert s['status']==status
+        for n,h in s['files'].items():assert sha(d/n)==h
+        assert sha(d/'test.log')==s['test_log_sha256'] and s['proof_state_sha256']==sha(proof/'run-state.json')
+    for name in ['dorado_control_hold_atomic_step','dorado_control_terminal_body']:
+        assert module(raw,name)==module((proof/'atomic.sv').read_text(),name)
+    old=module(raw,'dorado_control_certified_fall_step');assert old==(proof/'original.sv').read_text()
+    new=(proof/'actual.sv').read_text().replace('module dorado_control_data_guard_step #','module dorado_control_certified_fall_step #',1)
+    assert raw.count(old)==1;actual=raw.replace(old,new,1);assert actual.replace(new,old,1)==raw
+    return actual
 
 
 def bench(original):
@@ -84,7 +110,7 @@ def trace_links(bench_text):
     return dict(records=count,consecutive_owner_pin_root_links=count-1,discontinuities=0,trace=str(Path(name)),trace_sha256=sha(Path(name)))
 
 
-def run(proof,four_state,bad_unknown,out,engine,specialized,mutation):
+def run(proof,four_state,bad_unknown,out,engine,specialized,mutation,fall_guard=None):
     assert not out.exists();p=json.loads((proof/'run-state.json').read_text())
     assert p['status']=='PASS_SOURCE_BOUND_OWNED_PACKET_CANONICAL_CONTEXT'
     for n,h in p['files'].items():assert sha(proof/n)==h
@@ -98,17 +124,23 @@ def run(proof,four_state,bad_unknown,out,engine,specialized,mutation):
     for n,h in s['files'].items():assert sha(source/n)==h
     raw=(source/'candidate.sv').read_text();bp=(proof/'native-backplane.v').read_text()
     parent_packet=(source/'packet.sv').read_text();assert parent_packet==packet(raw)+'\n'+stage(raw,True)+'\n'+generic_cache(raw)
+    if fall_guard is not None:raw=fall_guard_source(raw,fall_guard)
     actual=packet(raw,mutation)+'\n'+stage(raw,True,mutation)+'\n'+cache(raw,specialized)
     out.mkdir(parents=True);paths=[];rows=[]
     for row in s['source_files']:
         src=source/row['path'];assert sha(src)==row['output_sha256']
-        dest=out/row['path'];dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(src,dest);paths.append(dest);rows.append(row)
+        dest=out/row['path'];dest.parent.mkdir(parents=True,exist_ok=True)
+        if row['path']=='candidate.sv':dest.write_text(raw)
+        else:shutil.copy2(src,dest)
+        paths.append(dest);rows.append(dict(row,parent_sha256=sha(src),output_sha256=sha(dest)))
     tb=(source/'tb.sv').read_text();links=trace_links(tb)
     for n,v in {'packet.sv':actual,'caller.sv':caller(raw,bp),'tb.sv':bench(tb)}.items():(out/n).write_text(v);paths.append(out/n)
     shutil.copy2(source/'forward.sv',out/'forward.sv');paths.append(out/'forward.sv')
     for n in [Path(__file__).name,'generate_owned_r_packet.py','prove_owned_r_packet.py']:shutil.copy2(Path(__file__).with_name(n),out/n)
     state=dict(status='RUNNING',driver_pid=os.getpid(),started=time.time(),scope=__doc__,engine=engine,specialized=specialized,mutation=mutation,
         proof=str(proof),proof_state_sha256=sha(proof/'run-state.json'),four_state_state_sha256=sha(four_state/'run-state.json'),bad_unknown_state_sha256=sha(bad_unknown/'run-state.json'),
+        fall_data_guard_review=str(fall_guard) if fall_guard is not None else None,
+        fall_data_guard_review_sha256=sha(fall_guard/'results.json') if fall_guard is not None else None,
         source=str(source),source_state_sha256=sha(source/'run-state.json'),trace_links=links,source_files=rows,
         files={str(v.relative_to(out)):sha(v) for v in out.rglob('*') if v.is_file()},actions=[],stored_owner_bits=828,external_original_R_alias_bits=16,
         single_physical_SRAM_bits=9216,all_original_assertions_retained=True,geometry_tests=403,
@@ -143,4 +175,6 @@ if __name__=='__main__':
     for n in ['proof','four-state','bad-unknown','output']:p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--engine',choices=['icarus','verilator'],required=True);p.add_argument('--specialized',action='store_true')
     p.add_argument('--mutation',choices=['early-write','drop-forward','stale-intermediate','invert-low','stale-low'])
-    a=p.parse_args();raise SystemExit(run(a.proof.resolve(),a.four_state.resolve(),a.bad_unknown.resolve(),a.output.resolve(),a.engine,a.specialized,a.mutation))
+    p.add_argument('--fall-data-guard',type=Path,help='Apply only the exact reviewed data-only fall guard; no other source changes')
+    a=p.parse_args();raise SystemExit(run(a.proof.resolve(),a.four_state.resolve(),a.bad_unknown.resolve(),a.output.resolve(),a.engine,a.specialized,a.mutation,
+        a.fall_data_guard.resolve() if a.fall_data_guard else None))

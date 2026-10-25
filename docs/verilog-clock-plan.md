@@ -38,6 +38,35 @@ then equal-domain422-input/4943-output15ns fits and complete corner review.
 No FPGA access or speed change. Source/CP/device interior epochs,60ns cadence,
 physical66.7MHz SDRAM and all A–F acceptance stay active; snapshots deferred.
 
+Data-only fall-guard proof COMPLETE; processor/fit follow-up IN PROGRESS
+(2026-10-24). `fall-data-guard-summary.json` proves that ContB DMD06..11,
+pins348..353, may differ when all other pins stay stable and the actual HIGH
+identity certificate holds. Both5/24-wave checks retain all363 control-result
+bits/156owners/56clock channels. Required selector345 omission and missing
+certificate produce counterexamples. A nonvacuous changed-data/Q30-event witness
+selects old generic/new sparse branches with identical complete results. The
+existing cache identity invariant uses the same atomic/terminal source functions.
+The canonical certificate is essential; no arbitrary-ready assumption is added.
+
+4 known changed-data/4520 X/Z cases pass; corrupt unknown default changes real
+result bits at trial0/bit283. Full unknown fallback, parent geometry, every
+state/result/clock/cache-key/SRAM check and later rising-edge setup/hold remain.
+Opt-in changes only the certified-fall guard definition. Its full Verilator
+processor replay passes every original14884-event/844Q/9216RAM/2470result/100clock/
+403geometry/reset check with unchanged coverage. Icarus test72355/session34220
+and isolated full15ns422-input/4943-output fit(builder1140806, fitter1145744)
+are verified live; no restart or new timing claim. Final review still requires
+both terminal engines and all corners. No native selection or FPGA access.
+
+Next/TODO: complete those exact runs; qualify the source-only guard change, then
+bind actual native producer aliases/interior epochs and sole-owner integration.
+Keep the existing828-owner/402-snapshot publication and one packet SRAM, avoiding
+duplicate owned-wrapper state. A conservative single-event bridge needs its
+actual source-event bound; it does not replace the original60ns common batch,
+all rotations/debug and both-subevent16-R-owner behavior. Complete66.7MHz SDRAM/
+A–F/Cedar/Rollback/persistence/fresh boots/stress acceptance stays active. The
+user retains the FPGA and measured hardware speed is unchanged.
+
 Owned packet context/replays QUALIFIED; BOTH full15ns fits REJECTED (2026-10-24).
 `owned-processor-packet-summary.json` retains all four full original replays,
 all1416 cache bits/156 control projection bits and X/Z/corruption gates. Both

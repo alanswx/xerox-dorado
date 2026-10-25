@@ -6,6 +6,23 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`fall-data-guard-summary.json` qualifies a source-only control guard reduction.
+With the independently derived HIGH identity certificate and every other pin
+stable, DMD06..11/pins348..353 can vary across the fall. All363 result bits
+(156owners/56events/56repeated/unsettled/94flags) agree at5/24 waves. Dropping
+selector345 or the certificate fails. A real changed-data/Q30-clock witness
+selects old generic/new sparse branches with equal results. The original cache
+identity invariant is bound to the identical atomic/terminal function source.
+Four changed-data/4520 XZ tests pass; corrupt unknown fallback changes ACTUAL
+results at trial0/bit283. No result/state/clock or later setup/hold waiver.
+
+This receipt qualifies the guard helper only. The isolated full processor
+Verilator follow-up passes all14884 original transactions, original full results/
+state/RAM/100clocks/403geometry/reset and unchanged coverage. Its Icarus and SAME
+422-input/4943-output15ns fit remain pending. No native/60ns/hardware-speed pass;
+real source/CP/device/16-R-owner consuming epochs and complete A–F remain. The
+user retains the FPGA; no endpoint was accessed.
+
 `owned-processor-packet-summary.json` completes the owned caller qualification:
 all four full original replays pass14884 transactions/10423 commits/4461 pairs,
 all2470-bit results/844Qs/9216RAM/100clocks/403geometry/reset checks and unchanged

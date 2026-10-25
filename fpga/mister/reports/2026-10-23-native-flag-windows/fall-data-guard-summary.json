@@ -1,0 +1,47 @@
+{
+  "status": "REVIEWED_SOURCE_BOUND_FALL_DATA_GUARD",
+  "scope": "Review the six-data-bit fall guard theorem and exact unknown fallback.\n\nBind all363 results to the real HIGH-identity certificate already maintained\nby packet cache induction. Preserve all required selector bits, both waveform\ndepths, nonvacuous changed-data/clock witness and real bad-default output failure.\nThe helper is not yet integrated into the processor packet or fitted natively.\n",
+  "compared_bits": 363,
+  "physical_owners": 156,
+  "clock_channels": 56,
+  "omitted_input_bits": [
+    348,
+    349,
+    350,
+    351,
+    352,
+    353
+  ],
+  "native_data_bits": [
+    "DMD_06",
+    "DMD_07",
+    "DMD_08",
+    "DMD_09",
+    "DMD_10",
+    "DMD_11"
+  ],
+  "retained_selector_bits": [
+    345,
+    346,
+    347
+  ],
+  "checked_wave_depths": [
+    5,
+    24
+  ],
+  "actual_HIGH_identity_certificate_required": true,
+  "existing_cache_identity_invariant_source_bound": true,
+  "wrong_selector_and_missing_certificate_rejected": true,
+  "changed_data_with_real_clock_event_witnessed": true,
+  "four_state_known": 4,
+  "four_state_XZ": 4520,
+  "unknown_fallback_bad_control_changes_actual_results": true,
+  "no_result_or_state_bit_masked": true,
+  "no_saved_state_or_guest_cycles_added": true,
+  "processor_packet_integration_pending": true,
+  "full_replays_and_timing_fit_pending": true,
+  "native60ns_or_speed_qualified": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}

@@ -37,6 +37,44 @@ schedule_time observation at19m29s showed103.558us toward the~156us replay end,
 with successful detach. Keep the same runs, then stage/review the two full
 422-input/4943-output timing fits. All A–F and hardware reservation remain.
 
+Data-only fall guard PROVEN; isolated full-processor qualification IN PROGRESS
+(2026-10-24). `fall-data-guard-summary.json` binds pins348..353 to ContB
+DMD06..11. With the independently checked HIGH identity certificate and ALL
+other pins stable, these six DATA bits may change across the fall. Both5/24-wave
+proofs compare every363 control bits (156owners/56events/56repeated/unsettled/
+94flags). Adjacent DMD03..05 selector bits345..347 stay required: omitting345
+fails. Dropping the HIGH certificate also fails. A witness changes data while
+taking the real Q30 clock event, selecting the old generic/new sparse branches
+with equal complete results. The existing cache identity invariant is bound to
+the identical atomic/terminal functions; it is not an assumed ready history.
+
+Four-state tests pass4 newly eligible witnesses and4520 X/Z cases across565
+variable inputs. The full unknown-input check/generic fallback stays. Forcing
+the bad unknown default changes ACTUAL control results at trial0/bit283. No state,
+result field, clock, cache key, SRAM, guest cycle or parent geometry guard is
+removed. This does not waive a later rising-edge DMD setup/hold requirement.
+
+The opt-in processor changes ONLY that guard definition in candidate.sv. Full
+Verilator replay passes all original14884 transactions/10423 commits/4461 pairs/
+119paired writes/238forwarded bytes,2470results/844Qs/9216RAM/100clocks/403geometry/
+reset and cache coverage. `fall-data-guard-owned-icarus-v1-20261024` test72355/
+session34220 is running; do not restart. The SAME422-input/4943-output15ns budget
+is running on misterubuntu, project`fall-data-guard-owned-packet-v1-20261024`,
+builder1140806/fitter1145744 verified live. Stage sources bind the exact guard
+proof/review and identical compiled peer; both terminal replay passes and full
+corner review remain required. No new guard timing result/native selection yet.
+
+NEXT: finish those exact handles; collect/review before promoting the opt-in.
+Then bind real native producer aliases/interior epochs. Keep the existing common
+828-owner/402-snapshot publication block with ONE packet SRAM; the owned-caller
+benchmark must not create duplicate native owners. Native conservative single-
+event integration can retain the current clock source only after its real
+source-event bound is audited. The original60ns common batch still requires
+all phases/rotations/debug fallback and both-subevent original16-R-owner capture.
+Do not replace that objective with the conservative bridge. Complete66.7MHz/
+A–F/Cedar/Rollback/persistence/three-boot/stress goal remains active. The FPGA
+stays with the user; hardware and last measured4.025473M issues/s are unchanged.
+
 Owned packet context/replays QUALIFIED; BOTH full15ns fits REJECTED (2026-10-24).
 `owned-processor-packet-summary.json` retains all four full original replays,
 all1416 cache bits/156 control projection bits, X/Z gates and corruption checks.
