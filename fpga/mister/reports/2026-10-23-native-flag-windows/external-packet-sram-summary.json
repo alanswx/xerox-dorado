@@ -1,0 +1,152 @@
+{
+  "status": "REVIEWED_EXTERNAL_PACKET_SRAM_AND_UNCHANGED_PAIRED_PATH",
+  "scope": "Retain the exact packet SRAM move, complete replays and reachable-RAM audit.\n\nThis closes a wiring prerequisite, not the combined staged/paired native path,\n15ns physical timing, interactive boot or a measured performance improvement.\n",
+  "runs": [
+    {
+      "directory": "external-packet-icarus-drop-forward-v1-20261025",
+      "status": "PREFLIGHT_FAILED_UNUSED_LIBRARY_COUNT",
+      "state_sha256": "ec15893d8d1733dc4b57f393464caeaee32e9d78e33c0eb0b081da473f004795"
+    },
+    {
+      "directory": "external-packet-icarus-drop-forward-v2-20261025",
+      "status": "TERMINAL_EXTERNAL_PACKET_NOT_ESTABLISHED",
+      "state_sha256": "ba96822076fbdd6c04ec6eb109319e048e2952bc0a93aae7a22ffeed8db6f041"
+    },
+    {
+      "directory": "external-packet-icarus-drop-forward-v3-20261025",
+      "status": "PASS_EXTERNAL_PACKET_COUNTEREXAMPLE",
+      "state_sha256": "a01c1b966347eea41898fc0027749890fd1c1307fcc1a37379edf679fea7d350"
+    },
+    {
+      "directory": "external-packet-icarus-early-write-v1-20261025",
+      "status": "PREFLIGHT_FAILED_UNUSED_LIBRARY_COUNT",
+      "state_sha256": "ec15893d8d1733dc4b57f393464caeaee32e9d78e33c0eb0b081da473f004795"
+    },
+    {
+      "directory": "external-packet-icarus-early-write-v2-20261025",
+      "status": "TERMINAL_EXTERNAL_PACKET_NOT_ESTABLISHED",
+      "state_sha256": "ab49b1d35c02ca47fffbe3a2365abdc6d7ca19fb3efc1cf246d355aea3533a9e"
+    },
+    {
+      "directory": "external-packet-icarus-early-write-v3-20261025",
+      "status": "PASS_EXTERNAL_PACKET_COUNTEREXAMPLE",
+      "state_sha256": "0b5c57135262312eb49cfe7c63b05f4c4bb1ae8724e60ae17d4aad4889f56377"
+    },
+    {
+      "directory": "external-packet-icarus-v1-20261025",
+      "status": "PREFLIGHT_FAILED_UNUSED_LIBRARY_COUNT",
+      "state_sha256": "ec15893d8d1733dc4b57f393464caeaee32e9d78e33c0eb0b081da473f004795"
+    },
+    {
+      "directory": "external-packet-icarus-v2-20261025",
+      "status": "TERMINAL_EXTERNAL_PACKET_NOT_ESTABLISHED",
+      "state_sha256": "f54b71120490c8055c6fc15aec9a5e6925a30f3b9ba1dba5ad0aaf1a52ed2439"
+    },
+    {
+      "directory": "external-packet-icarus-v3-20261025",
+      "status": "PASS_EXTERNAL_FULL_PROCESSOR_PACKETS",
+      "state_sha256": "7b047e4a179a837d7f82668aa07d286d2748cd1dd7feb843a6738e9dde6178d5"
+    },
+    {
+      "directory": "external-packet-verilator-v1-20261025",
+      "status": "PREFLIGHT_FAILED_UNUSED_LIBRARY_COUNT",
+      "state_sha256": "ec15893d8d1733dc4b57f393464caeaee32e9d78e33c0eb0b081da473f004795"
+    },
+    {
+      "directory": "external-packet-verilator-v2-20261025",
+      "status": "PASS_EXTERNAL_FULL_PROCESSOR_PACKETS",
+      "state_sha256": "1c086ce7a9040c7ab543a2554c55fe2089797e81f5e60bfffe80d39350f25ccb"
+    },
+    {
+      "directory": "external-packet-verilator-v3-20261025",
+      "status": "PASS_EXTERNAL_FULL_PROCESSOR_PACKETS",
+      "state_sha256": "f3030278852dfdca8520c90d4873d232c2f7c198b554e60db49dfd97ba650b0c"
+    }
+  ],
+  "full_original_replay_both_engines": true,
+  "transactions": 14884,
+  "commits": 10423,
+  "pairs": 4461,
+  "paired_writes": 119,
+  "forwarded_bytes": 238,
+  "geometry_rejections": 403,
+  "checked_result_bits": 2470,
+  "checked_owner_bits": 844,
+  "checked_SRAM_bits": 9216,
+  "checked_clock_channels": 100,
+  "processor_and_forwarding_source_byte_identical": true,
+  "cache_coverage_unchanged": true,
+  "reachable_SRAM_instances": 1,
+  "reachable_banks": 4,
+  "reachable_bits": 9216,
+  "duplicate_control_SRAM_instances": 2,
+  "duplicate_control_bits": 18432,
+  "actual_negative_failures": {
+    "early-write": [
+      "FATAL: /Users/alans/dev2/Dorado/build/rtl-executive/external-packet-icarus-early-write-v3-20261025/tb.sv:113: PACKET invalid geometry committed bit=0"
+    ],
+    "drop-forward": [
+      "PACKET_DIFF last bit=1305 actual=0 expected=1",
+      "PACKET_DIFF last bit=1306 actual=0 expected=1",
+      "PACKET_DIFF last bit=1309 actual=1 expected=0",
+      "PACKET_DIFF last bit=1311 actual=1 expected=0",
+      "PACKET_DIFF last bit=1312 actual=1 expected=0",
+      "PACKET_DIFF last bit=1313 actual=1 expected=0",
+      "PACKET_DIFF last bit=1314 actual=1 expected=0",
+      "PACKET_DIFF last bit=1316 actual=1 expected=0",
+      "PACKET_DIFF last bit=1317 actual=1 expected=0",
+      "PACKET_DIFF last bit=1321 actual=1 expected=0",
+      "FATAL: /Users/alans/dev2/Dorado/build/rtl-executive/external-packet-icarus-drop-forward-v3-20261025/tb.sv:99: PACKET second result mismatch record=203"
+    ]
+  },
+  "all_preflight_compile_failures_retained": true,
+  "native_network_read": {
+    "pid": 69736,
+    "host_ticks": 1508494884,
+    "guest_ticks": 822953784,
+    "last_host_loaded_frame_octal": [
+      "021001",
+      "001000",
+      "000026",
+      "000265",
+      "000001",
+      "000076",
+      "000042",
+      "000001",
+      "000001",
+      "000001",
+      "000000",
+      "000004",
+      "177777"
+    ],
+    "frame_type": "Microcode boot reply265B",
+    "last_frame_offset_octal": "76",
+    "wire_idle": true,
+    "controller_FIFO_empty": true,
+    "final_frame_sequence_matches_Cedar_file_length": true,
+    "Cedar_file_sha256": "bbb6ca595e09b109fce669fec7a0e5c4d0638eebe1f8a5f9da7543df066840c4",
+    "no_new_RX_or_TX_CRC_fault_count": true,
+    "not_proof_of_guest_consumption": true,
+    "boot_pass": false,
+    "same_process_detached_and_resumed": true
+  },
+  "protected_medium_unchanged": true,
+  "native_integrated": false,
+  "staged_and_paired_combined": false,
+  "raw_translated_front_read": {
+    "pid": 69736,
+    "host_ticks": 1529849958,
+    "guest_ticks": 836406552,
+    "physical_banks": 4,
+    "physical_bits": 9216,
+    "held_owner_bits": 844,
+    "same_binary_and_header": true,
+    "not_a_logical_register_decode_or_boot_pass": true
+  },
+  "native16_visible_R_hookup_qualified": false,
+  "physical_timing_qualified": false,
+  "new_RBF_ready": false,
+  "hardware_changed": false,
+  "measured_speed_improvement": false,
+  "full_goal_active": true
+}

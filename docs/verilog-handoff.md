@@ -7,7 +7,46 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST TAGGED CALLER REVIEW (2026-10-25):
+LATEST PAIRED SRAM BOUNDARY (2026-10-25):
+`external-packet-sram-summary.json` retains the next wiring prerequisite.
+`tools/generate_external_r_packet.py` exports the exact selected FIRST-event
+port from the qualified packet and moves its sole SRAM to the existing caller.
+The processor/forwarding/cache/ready/guard/result logic is unchanged. One common
+commit condition protects828 stored bits,402-bit history and SRAM. Original16
+visible-R owners remain EXTERNAL; the actual native cells/clocks are not tested
+by their fixture model. This is not the combined tagged-read/paired candidate.
+
+Both complete14884-record replays pass:10423 commits/4461 pairs/119 paired writes/
+238 forwarded bytes/403 geometry rejections; all2470 result bits,844 states,
+9216 RAM bits and100 clocks. Cache coverage/reset behavior is identical. Early
+SRAM writes corrupt a rejected geometry; removing forwarding changes the actual
+second-event result. Both negative controls fail. Elaboration contains exactly
+ONE four-bank9216-bit SRAM; an observable duplicate is detected as18432bits.
+Initial source-text counting mistakenly included an unused library SRAM, then
+Icarus rejected declaration-after-use. Preserve those failed attempts; the
+corrected source passes both engines. No qualified processor logic was altered.
+
+NEXT: generate a combined staged/paired caller from COMPATIBLE source-closed CP
+and capture functions. Do not simply wire the older packet's endpoint-only
+processor to the newer staged processor. Preserve sparse ordinary fall,
+forwarding, original2470-bit layout, generic PREFIX keys and one memory/owner.
+Qualify source-coherent original traces with actual paired writes AND staged
+CP/root collisions; then connect native16-R cells, whole-machine payload/
+settling/repeated/error readiness and real producer event retention. SAME-fixture
+timing and all A–F acceptance remain open. No new RBF or measured hardware gain.
+
+Native69736 is still the SAME5B HOST firmware run. It emitted request113B and
+the last host-loaded receive frame is microcode reply265B, sequence76B (the
+empty final reply expected from CedarDorado.eb!6's length). At host1508494884/
+guest822953784 the wire was idle/FIFO empty, TXgood1/TXbad0/RXbad0. This does
+NOT prove the guest consumed the stream. A second read at host1529849958/
+guest836406552 retains the actual translated four256x9 banks and828+16 owner
+bits RAW, without claiming logical register decoding. Both debugger reads
+detached/resumed. `--network-wire-only` avoids the old inspector's discrete-RAM
+assumption; `--translated-front` adds the actual compiled SRAM/owner fields.
+The failed old inspector preflight never attached. Protected medium unchanged.
+
+PREVIOUS TAGGED CALLER REVIEW (2026-10-25):
 `tagged-read-caller-summary.json` retains the synthesized read/publication caller,
 complete processor suites, unbounded SRAM/publication proofs and real corruption
 witnesses. The prior stage suites also completed in both engines; see

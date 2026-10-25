@@ -15,7 +15,9 @@ import time
 from test_r_front_forward_view import sha
 
 
-def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network=False):
+def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network=False, network_wire_only=False, translated_front=False):
+    network_wire_only = network_wire_only or translated_front
+    network = network or network_wire_only
     assert not out.exists()
     state = json.loads((source/'run-state.json').read_text())
     test = state['actions'][-1]
@@ -62,7 +64,7 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
         for name in ['RxFifoEmpty','RxFifoFull','RxEOP']:
             fields['network_controller_'+name]=(prefix+'dut__DOT__m__DOT__b_DskEth__DOT__'+name,1)
         rm_bindings={};t_bindings={};q_bindings={}
-        for board in ['ProcH','ProcL']:
+        for board in ([] if network_wire_only else ['ProcH','ProcL']):
             paths=list((source/'inputs/src').rglob(board+'_full_snapshot.sv'));assert len(paths)==1
             text=paths[0].read_text()
             for package in ['h06','j06']:
@@ -96,6 +98,15 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
                 assert [pins[str(pin)].removesuffix('__drv')for pin in [14,15,2,3]]==['Q_'+f'{start+i:02d}'for i in range(4)]
                 fields['Q_register_'+board+'_'+package]=(prefix+'dut__DOT__m__DOT__b_'+board+'__DOT__u_'+package+'__DOT__q',1)
                 q_bindings[board+'/'+package]=dict(source=str(paths[0]),source_sha256=sha(paths[0]),pins=pins)
+    if translated_front:
+        for bank in ['rm_h','stk_h','rm_l','stk_l']:
+            matches=re.findall(r'VlUnpacked<SData/\*8:0\*/, 256> (\w+__DOT__files__DOT__'+bank+r');',header.read_text())
+            assert len(matches)==1,(bank,matches)
+            fields['translated_bank_'+bank]=(matches[0],512)
+        front=prefix+'dut__DOT__m__DOT__'
+        for key,name,size in [('lower','r_front_lower_q',72),('upper','r_front_upper_q',32),
+                              ('visible_h','r_front_visible_r_ProcH',1),('visible_l','r_front_visible_r_ProcL',1)]:
+            fields['translated_owner_'+key]=(front+name,size)
     ram_pins={}
     board=source/'inputs/src/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v'
     riot_banks={}
@@ -226,6 +237,7 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
         data=bytes.fromhex(result['fields']['network_buffer_rx'])
         result['network_buffer']=dict(first32_words=[int.from_bytes(data[i:i+2],'little')for i in range(0,64,2)],
             limitation='Last host-loaded serial receive buffer, not proof the guest consumed it; no host server state is read.')
+    if network and not network_wire_only:
         banks={board+package:bytes.fromhex(result['fields']['register_file_'+board+'_'+package])
                for board in ['ProcH','ProcL']for package in ['h06','j06']}
         words=[(banks['ProcHh06'][a^15]&15)|((banks['ProcHj06'][a^15]&15)<<4)|
@@ -248,10 +260,26 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
         result['Q_register']=dict(wire_order_word=q_word,source_bindings=q_bindings,
             data_convention='Logical software word is bit-reversed16 of wire-order word; Q is global, HM3.3')
     result.update(decoded_nodes=decoded,counters={k:int.from_bytes(bytes.fromhex(v),'little')
-                  for k,v in result['fields'].items() if not k.startswith(('nodes_','ram_','riot_RAM_','network_buffer_','register_file_','T_file_'))},
+                  for k,v in result['fields'].items() if not k.startswith(('nodes_','ram_','riot_RAM_','network_buffer_','register_file_','T_file_','translated_'))},
                   source=str(source),pid=pid,source_state_sha256=sha(source/'run-state.json'),
                   binary_sha256=sha(binary),header_sha256=sha(header),layout=offsets,
                   read_only_guest_inspection=True)
+    if network_wire_only:
+        result['network_inspection_scope']='Serial wire state/buffer and controller FIFO flags only; no assumption about processor SRAM implementation.'
+    if translated_front:
+        banks={}
+        for bank in ['rm_h','stk_h','rm_l','stk_l']:
+            raw=bytes.fromhex(result['fields']['translated_bank_'+bank])
+            banks[bank]=[int.from_bytes(raw[i:i+2],'little')for i in range(0,512,2)]
+            assert len(banks[bank])==256 and all(v<512 for v in banks[bank])
+        lower=int.from_bytes(bytes.fromhex(result['fields']['translated_owner_lower']),'little')&((1<<572)-1)
+        upper=int.from_bytes(bytes.fromhex(result['fields']['translated_owner_upper']),'little')
+        h=int.from_bytes(bytes.fromhex(result['fields']['translated_owner_visible_h']),'little')
+        l=int.from_bytes(bytes.fromhex(result['fields']['translated_owner_visible_l']),'little')
+        result['translated_front']=dict(physical_9bit_banks=banks,held_owner_hex=f'{(upper<<588)|(l<<580)|(h<<572)|lower:0211x}',
+            stored_owner_bits=828,external_visible_R_bits=16,
+            limitation='Raw physical addresses and wire-order bits only. Logical register names/addresses require separate source-bound decoding; no guest execution or state change.')
+        result['network_inspection_scope']+=' Original translated processor SRAM/owner bits are also read raw.'
     if phase_alias is not None:
         result['counters']['phase']=1-result['counters']['phi_inverted']
         result['phase_alias_binding']=phase_alias
@@ -270,4 +298,6 @@ if __name__ == '__main__':
     p.add_argument('--riot-ram',action='store_true',help='Read the five original 128-byte RIOT RAM banks containing zero page and stack')
     p.add_argument('--keyboard',action='store_true',help='Read actual queued PS/2 event, keyboard matrix and terminal serialization state')
     p.add_argument('--network',action='store_true',help='Read serial receive state/buffer and actual controller FIFO flags without writing guest state')
-    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.pid,a.low_ram,a.riot_ram,a.keyboard,a.network)
+    p.add_argument('--network-wire-only',action='store_true',help='Read network wire/FIFO state without requiring the older discrete processor SRAM cells')
+    p.add_argument('--translated-front',action='store_true',help='Also read the compiled translated processor SRAMs and828+16 owner layout, without changing guest state')
+    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.pid,a.low_ram,a.riot_ram,a.keyboard,a.network,a.network_wire_only,a.translated_front)

@@ -14,7 +14,41 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST tagged read/publication caller (2026-10-25):
+LATEST paired SRAM sharing prerequisite (2026-10-25):
+
+- [x] Export the qualified packet's exact selected FIRST-event SRAM port and
+  move its sole physical SRAM into the existing828+16 publication caller.
+  Processor evaluations, forwarding, cache keys, geometry/error checks and
+  all2470 result bits remain byte-identical. Owners and memory share the same
+  `contb_advance && control_ready` condition; no new state or ordinary cycle.
+- [x] Preserve the complete original14884-transaction replay in BOTH engines:
+  10423 commits,4461 pairs,119 paired writes,238 forwarded bytes,403 geometry
+  rejections, all844 owners/9216 memory bits/100 clocks. Cache preparation,
+  fast/staged counts and reset behavior remain identical. A bad write gate
+  corrupts memory at rejected geometry0; dropping forwarding changes real
+  second-event results. Keep both counterexamples and earlier compile failures.
+- [x] Inspect the ACTUAL elaborated hierarchy: one SRAM/four256x9 banks,
+  9216 bits. The unused library SRAM module is not an instantiated owner.
+  An observable duplicate control is detected as two SRAMs/eight banks/18432
+  bits. The exact828-bit owner,402-bit history and16 external aliases remain.
+- [ ] Combine this port boundary with the tagged staged path using ONE SRAM.
+  This refactor preserves the prior packet; it does not yet connect it to the
+  newer source-closed CP/interior-capture processor. Generate both paths from
+  compatible source/capture functions, preserving the ordinary sparse fall
+  and forwarding. Keep interior descriptors outside the2470-bit result layout.
+  Normalize actual producers at their boundaries without changing retained
+  PREFIX keys. Qualify source-coherent original traces with real paired writes,
+  CP/root collisions and staged reads before claiming a combined path.
+
+Receipt: `external-packet-sram-summary.json`. Native clock/source/visible-R,
+full payload/clock/error barriers and physical timing remain open. No new RBF,
+FPGA load or measured speed gain. Native69736 reached its113B request; read-only
+snapshots show the host-loaded final265B reply/sequence76B, matching Cedar's
+file length. This is NOT proof of guest acceptance or boot. Raw translated
+SRAM/owner snapshots are retained for source-bound decoding. Debugger detached
+and resumed the SAME5B HOST run; no guest writes or bound changes.
+
+Previous tagged read/publication caller milestone (2026-10-25):
 
 - [x] Complete the prior current word/collision/RAM suites in BOTH engines.
   All three complete transaction traces, candidate HDL and initial fixtures
