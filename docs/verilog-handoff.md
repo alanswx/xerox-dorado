@@ -7,6 +7,69 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
+LATEST shared control capture prototype (2026-10-24):
+`shared-control-capture-staging-summary.json` retains the passing full Verilator
+fixture, formal frame checks, X/Z fallback, failed attempts, verified live peers
+and the earlier component fit. Status STAGED_SHARED_CONTROL_CAPTURE_WITH_PENDING_FULL_GATES;
+this is NOT native selection or a complete producer/epoch qualification.
+
+The joint evaluator now exposes four108-bit combinational capture frames per
+CP/root transfer:48 controller/task Qs BEFORE,48 AFTER and12 original capture
+edges. Lower R consumers use those records instead of recalculating controller
+and task transfers. No new architectural storage, clock stage, reset or SRAM.
+Sparse paired-first and unknown contexts retain their original consumers.
+The original16 visible-R latch owners and interior capture checks remain required.
+
+V4 full Verilator PASS:14884 transactions/10423 commits/4461 pairs,119 paired
+writes/238 forwarded bytes,ALL2470 results/844 owners/9216 RAM bits/100 clock
+counts/403 geometry rejections; cache fast8885/staged1538/preparation1538/reset1.
+All original assertions remain, plus passive diagnostic/sample output only.
+Atomic frame/result equivalence and chronology pass at5/24waves with955 arbitrary
+binary inputs. Full1941-bit caller-context guard passes4 known/15528 independent
+X/Z cases against all139 original consumer results. An always-known bad guard
+changes real processor Q32..63; wrong StartA frames change architectural outputs
+at record14. These do not prove arbitrary whole-processor arrival histories.
+
+V1 exposed the wrong capture branch at record64: a fast entry bypasses the
+retained older PREFIX payload. The actual direct evaluator's frames must drive
+that branch. Both original errors and the diagnostic reproduction are preserved.
+V3's function arguments preceded their net declarations, rejected by Icarus
+before simulation; V4 moves the declaration and compiles in BOTH engines.
+
+Follow SAME Icarus tests: V2 pid98473/session92106 (older binary prototype),
+V4 pid99375/session30128 (current full-context version), both verified live.
+Do not restart/extend them. Current V4 outputs live in
+`shared-control-capture-{verilator,icarus}-v4-20261024`.
+
+Earlier V2 budget collected ONCE,92 members/all source readback/exited handles/
+four corners: setup -1.499/-1.284/+4.291/+4.675ns; minimum hold+0.122ns,
+zero UCPs,8382ALMs/5768regs/9216MLAB bits. Worst slack improves0.806ns from
+SAME102-pin fixture-2.305ns, but15ns is still REJECTED. New worst result1415 is
+parity_ok[2], launched from an owned register rather than the old CP pin guard.
+This fit does not qualify V4's strengthened X/Z selector. A separate SAME422-input/
+4943-output V4 fit is running on misterubuntu at
+`/home/alans/mister/shared-control-capture-owned-packet-v4-20261024`, builder1918004
+(map1918005 at last verified observation).42 actual remote inputs matched.
+V2 map/fit/STA/corners1910562/1911752/1918107/1918439 all exited0; builder1910552
+exited. No assembly/RBF or FPGA reload is permitted by these budget projects.
+
+NEXT: finish these SAME full Icarus runs and the V4 fit; collect V4 reports ONCE,
+require all corners/source/exited handles and both terminal full replays before
+combined review. Then close actual CP/Ready/MIR/Hold sources in the independent
+844-Q original-graph fixture, integrate the qualified asynchronous Block epoch
+with these shared consumers, and qualify every original16-R interior edge.
+Continue shared capture through IFU/Memory and native publication; a bounded
+packet replay is not an arbitrary epoch invariant. All A–F, original60ns/timers,
+physical66.7MHz SDRAM, original-firmware Cedar/Rollback/persistence and final
+hardware acceptance remain. No new hardware speed; FPGA remains available.
+
+Same native69736 read-only observation at host722090001/guest331921372:
+Timer100ms13, EndOfDelay30, reset released, watchdog2489416/phase11; PCF6AA
+in the original watchdog routine called by Delay. Timer is advancing through
+power-up waits. Debugger detached, no guest changes/restart/bound extension.
+Retained with compiled layout/RIOT RAM in the staging receipt. No firmware or
+Cedar pass yet; original5B HOST bound stays.
+
 LATEST CP source/capture work (2026-10-24): original CP producer relationships
 are now explicit:13 physical wires drive20 native aliases and18 MIR set inputs.
 CPOut8 already exists at native slot344; memory MIR data remains independent.

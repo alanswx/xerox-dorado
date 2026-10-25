@@ -14,6 +14,41 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
+LATEST shared capture implementation (2026-10-24):
+
+- [x] Expose actual joint CP/root transfer frames as combinational wires:
+  48 controller/task Qs before/after and12 capture edges, four waves per transfer.
+  Lower R consumers reuse them; no added owner, reset, SRAM or guest cycle.
+- [x] Preserve all363 atomic results and frame chronology at5/24waves with955
+  arbitrary inputs. Keep the actual direct frames when a fast entry bypasses
+  the older PREFIX payload; retain the record64 counterexample.
+- [x] V4 full Verilator replay, all14884 transactions/2470 results/844 owners/
+  9216 RAM bits/100 clocks/403 geometry checks and original cache coverage.
+  Bad StartA frames change architectural state at record14.
+- [x] Full1941-bit context guard:4 known/15528 independent X/Z fallback cases,
+  all139 consumer results; bad guard changes real processor Qs. Preserve the
+  V3 Icarus pre-test declaration error and corrected V4 compilation.
+- [ ] Finish SAME Icarus98473/session92106 (V2) and99375/session30128 (V4).
+  Both were verified live; do not restart or change their bounds.
+- [ ] Finish SAME V4 Quartus builder1918004 on misterubuntu, project
+  `shared-control-capture-owned-packet-v4-20261024`.42 actual inputs verified.
+  Collect terminal reports once; review all corners and both complete replays.
+- [ ] Close actual CP/MIR/Ready/Hold sources in the independent844-Q original
+  graph; compose the asynchronous Block capture with these shared consumers.
+  Qualify original16-R interior epochs, IFU/Memory and native publication.
+
+Receipt: `shared-control-capture-staging-summary.json`, explicitly pending full
+and native gates. Earlier V2 budget:92 verified members; setup
+-1.499/-1.284/+4.291/+4.675ns, hold minimum+0.122ns, zero UCPs,
+8382ALMs/5768regs/9216MLAB bits.0.806ns better than SAME102-pin-2.305ns,
+still15ns REJECTED. V4 selector changes need their own fit; no measured FPGA gain.
+Latest worst result1415 is parity_ok[2], from owned state. No clock/error bit
+was dropped to obtain the gain. FPGA is available; all A–F acceptance remains.
+
+Native69736 timer advances: read-only snapshot at host722090001/guest331921372
+shows Timer100ms13/EndOfDelay30 and original PacifyWatchdog PCF6AA; debugger
+detached. Continue same5B HOST bound; this is not a Cedar/firmware pass.
+
 LATEST CP source/capture progress (2026-10-24):
 
 - [x] Bind actual13-wire CP source,20 direct aliases and18 decoded MIR set
