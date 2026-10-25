@@ -17,7 +17,7 @@ from review_baseboard_clock_consumer import verify
 from test_external_r_packet import sha
 
 
-def start(stage,out):
+def start(stage,out,clock_enable_audit=None,baseboard=None,baseboard_negative=None):
     assert not out.exists();out.mkdir(parents=True)
     r=json.loads((stage/'r-front-control-native.json').read_text());verify(stage,r['source_hashes'])
     assert r['status']=='PREPARED_FULL_NATIVE_15NS_PHASE_GUARD_DIAGNOSTIC'and not r['assembly_permitted']
@@ -30,10 +30,25 @@ def start(stage,out):
     if operand:assert memc and r['operand_buffer_proof_state_sha256']and r['operand_view_bits_registered']==88 and r['operand_view_tag_support_bits']==909
     source_count=578 if operand else 577 if memc else 576 if registered else 575 if r.get('ready_compare_proof_state_sha256')else 574
     assert len(r['source_hashes'])==source_count
+    ce_preflight=None
+    if r.get('clock_enable_conversion_staged'):
+        assert clock_enable_audit and baseboard and baseboard_negative
+        a=json.loads((clock_enable_audit/'results.json').read_text())
+        assert a['status']=='PASS_NATIVE_COMMON_CLOCK_ENABLE_STRUCTURAL_AUDIT'and a['stage_manifest_sha256']==sha(stage/'r-front-control-native.json')
+        assert a['process_counts']['removed_guards']==1823 and a['process_counts']['HOST_CLOCK_RETAINS_EXISTING_POLICY']==1975
+        for d,status in [(baseboard,'PASS_ORIGINAL_ROM_BASEBOARD_COMMON_CLOCK_EQUIVALENCE'),(baseboard_negative,'PASS_MISSING_CLOCK_ENABLE_COUNTEREXAMPLE')]:
+            b=json.loads((d/'run-state.json').read_text());verify(d,b['files'])
+            assert b['status']==status and all(x.get('returncode')==0 for x in b['actions']if x['label']=='compile')
+            tested=Path(b['stage']);bm=json.loads((tested/'r-front-control-native.json').read_text());verify(tested,bm['source_hashes'])
+            assert sha(tested/'r-front-control-native.json')==b['stage_manifest_sha256']
+            assert {n:h for n,h in bm['source_hashes'].items()if Path(n).suffix in ['.v','.sv']}=={n:h for n,h in r['source_hashes'].items()if Path(n).suffix in ['.v','.sv']}
+        ce_preflight=dict(structural_audit_sha256=sha(clock_enable_audit/'results.json'),
+            baseboard_test_state_sha256=sha(baseboard/'run-state.json'),negative_state_sha256=sha(baseboard_negative/'run-state.json'),
+            complete_functional_and_timing_qualification=False,diagnostic_fit_only=True)
     check='from pathlib import Path\np=Path('+repr(project)+')\nassert not p.exists(), "Observe existing project; do not restart"\n'
     subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10','misterubuntu','python3','-'],input=check,text=True,check=True)
     manifest_sha=sha(stage/'r-front-control-native.json')
-    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py','stage_native_ready_compare.py','stage_native_r_read_buffer.py','integrate_r_read_buffer.py','stage_native_memc_read_buffer.py','qualify_memc_read_buffer.py','stage_native_operand_buffer.py','integrate_native_operand_buffer.py']if(stage/n).is_file()]
+    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py','stage_native_ready_compare.py','stage_native_r_read_buffer.py','integrate_r_read_buffer.py','stage_native_memc_read_buffer.py','qualify_memc_read_buffer.py','stage_native_operand_buffer.py','integrate_native_operand_buffer.py','stage_native_clock_enables.py']if(stage/n).is_file()]
     assert stagers,'Missing the executed staging helper'
     names=sorted(r['source_hashes'])+['r-front-control-native.json','build_r_front_ready_native.py',*stagers]
     bundle=out/'stage.tgz'
@@ -78,6 +93,7 @@ print(json.dumps(result))
     (out/'launch.stdout').write_text(launch.stdout);(out/'launch.stderr').write_text(launch.stderr)
     assert launch.returncode==0,(launch.stdout,launch.stderr)
     result=json.loads(launch.stdout);assert result['verified_source_count']==source_count
+    if ce_preflight:result['clock_enable_diagnostic_preflight']=ce_preflight
     (out/'launch-observation.json').write_text(json.dumps(result,indent=2)+'\n')
     print('NEW_FULL_CORE_PHASE_GUARD_TIMING_JOB',result['builder_pid'],result['project'])
     return result
@@ -86,4 +102,5 @@ print(json.dumps(result))
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--stage',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
-    a=p.parse_args();start(a.stage.resolve(),a.output.resolve())
+    for n in ['clock-enable-audit','baseboard','baseboard-negative']:p.add_argument('--'+n,type=Path)
+    a=p.parse_args();start(a.stage.resolve(),a.output.resolve(),a.clock_enable_audit,a.baseboard,a.baseboard_negative)

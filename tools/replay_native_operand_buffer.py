@@ -105,8 +105,11 @@ def run(source,proof,out,engine):
     log=(out/'test.log').read_text()if(out/'test.log').exists()else''
     passed=code==0 and outcomes(log)==outcomes((source/'test.log').read_text())
     if passed:
-        m=re.search(r'^OPERAND_BUFFER_PREPARATION edges=(\d+)$',log,re.M);assert m and int(m[1])>0
-        state.update(outcomes=outcomes(log),operand_prepare_edges=int(m[1]))
+        m=re.search(r'^OPERAND_BUFFER_PREPARATION edges=(\d+)$',log,re.M)
+        prepared_edges=int(m[1])if m else None
+        state.update(outcomes=outcomes(log),operand_prepare_edges=prepared_edges,
+                     original_results_match=True,known_preparation_coverage=bool(prepared_edges))
+        passed=bool(prepared_edges)
     state.update(status='PASS_PREPARED_OPERAND_COMPLETE_NATIVE_CALLER'if passed else'TERMINAL_PREPARED_OPERAND_CALLER_NOT_ESTABLISHED',
         returncode=code,finished=time.time(),original60ns_schedule_or_timing_or_firmware_qualified=False)
     save();print(state['status'],flush=True);return 0 if passed else 1

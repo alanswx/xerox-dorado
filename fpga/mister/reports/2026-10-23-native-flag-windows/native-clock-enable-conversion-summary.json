@@ -1,0 +1,217 @@
+{
+  "status": "REVIEWED_NATIVE_COMMON_CLOCK_ENABLE_EXPERIMENT",
+  "scope": "Retain the source-bound native clock-enable conversion and its current gates.\n\nThe whole-core fit remains diagnostic until all terminal timing and functional\nchecks pass. Preserve earlier failed tooling attempts and the older Icarus\ncoverage rejection; do not promote a successful compiler/test exit alone.\n",
+  "stage_manifest_sha256": "665da68e19fa84a5e2c82433dd5901ec7ad2d72eae0bb294dee5f7d315d21dd8",
+  "converted_module_types": 33,
+  "actual_native_instances": 12782,
+  "guest_processes_guarded": 1823,
+  "host_processes_unchanged": 1975,
+  "original_transfer_ASTs_recovered": true,
+  "source_processes": 58,
+  "BaseBoard_original_ROM_result": "CLOCK_ENABLE_BASEBOARD_PASS host=465811 active=349348 paused=116463 state_vectors=208 outputs=69 RAM_arrays=37",
+  "missing_enable_negative_passed": true,
+  "storage_cases": [
+    {
+      "label": "icarus-w8-sample0",
+      "engine": "icarus",
+      "width": 8,
+      "host_address_sample": 0,
+      "returncode": 0,
+      "passed": true,
+      "metrics": [
+        "STORAGE_READY_GROUP PASS width=8 checks=40000 steps=3531 reads=1591 writes=359 paused_responses=1948 reset_cycles=14"
+      ]
+    },
+    {
+      "label": "icarus-w8-sample1",
+      "engine": "icarus",
+      "width": 8,
+      "host_address_sample": 1,
+      "returncode": 0,
+      "passed": true,
+      "metrics": [
+        "STORAGE_READY_GROUP PASS width=8 checks=40000 steps=3531 reads=1591 writes=359 paused_responses=1948 reset_cycles=14"
+      ]
+    },
+    {
+      "label": "icarus-w12-sample0",
+      "engine": "icarus",
+      "width": 12,
+      "host_address_sample": 0,
+      "returncode": 0,
+      "passed": true,
+      "metrics": [
+        "STORAGE_READY_GROUP PASS width=12 checks=40000 steps=3531 reads=1591 writes=359 paused_responses=1948 reset_cycles=14"
+      ]
+    },
+    {
+      "label": "icarus-w12-sample1",
+      "engine": "icarus",
+      "width": 12,
+      "host_address_sample": 1,
+      "returncode": 0,
+      "passed": true,
+      "metrics": [
+        "STORAGE_READY_GROUP PASS width=12 checks=40000 steps=3531 reads=1591 writes=359 paused_responses=1948 reset_cycles=14"
+      ]
+    },
+    {
+      "label": "verilator-w8-sample0",
+      "engine": "verilator",
+      "width": 8,
+      "host_address_sample": 0,
+      "returncode": 0,
+      "passed": true,
+      "metrics": [
+        "STORAGE_READY_GROUP PASS width=8 checks=40000 steps=3531 reads=1591 writes=359 paused_responses=1948 reset_cycles=14"
+      ]
+    },
+    {
+      "label": "verilator-w8-sample1",
+      "engine": "verilator",
+      "width": 8,
+      "host_address_sample": 1,
+      "returncode": 0,
+      "passed": true,
+      "metrics": [
+        "STORAGE_READY_GROUP PASS width=8 checks=40000 steps=3531 reads=1591 writes=359 paused_responses=1948 reset_cycles=14"
+      ]
+    },
+    {
+      "label": "verilator-w12-sample0",
+      "engine": "verilator",
+      "width": 12,
+      "host_address_sample": 0,
+      "returncode": 0,
+      "passed": true,
+      "metrics": [
+        "STORAGE_READY_GROUP PASS width=12 checks=40000 steps=3531 reads=1591 writes=359 paused_responses=1948 reset_cycles=14"
+      ]
+    },
+    {
+      "label": "verilator-w12-sample1",
+      "engine": "verilator",
+      "width": 12,
+      "host_address_sample": 1,
+      "returncode": 0,
+      "passed": true,
+      "metrics": [
+        "STORAGE_READY_GROUP PASS width=12 checks=40000 steps=3531 reads=1591 writes=359 paused_responses=1948 reset_cycles=14"
+      ]
+    }
+  ],
+  "structural_warning_count": 6,
+  "completed_prepared_operand_timing_corners": {
+    "7_slow_1100mv_-40c": -10.242,
+    "7_slow_1100mv_100c": -10.044,
+    "MIN_fast_1100mv_-40c": -0.421,
+    "MIN_fast_1100mv_100c": -1.758
+  },
+  "completed_prepared_operand_worst": {
+    "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|ProcL_full_snapshot_experiment:b_ProcL|cell_F10016_snapshot:u_d15|q[3]",
+    "To Node": "emu:emu|network_step",
+    "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+    "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+    "Data Arrival Time": "25.381",
+    "Data Required Time": "15.139",
+    "Slack": "-10.242 (VIOLATED)",
+    "slack_ns": -10.242
+  },
+  "same_clock_enable_fit": {
+    "observed": 1792971182.6433222,
+    "run_state": {
+      "status": "RUNNING",
+      "builder_pid": 458549,
+      "started": 1792970917.7454796,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 458552,
+          "started": 1792970917.7458668,
+          "returncode": 0,
+          "finished": 1792971147.3902361
+        },
+        {
+          "stage": "fit",
+          "pid": 474666,
+          "started": 1792971147.3907151
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "processes": [
+      {
+        "pid": 458549,
+        "returncode": 0,
+        "process": "458549       04:24 00:00:00 Ss   python3 /home/alans/mister/Dorado_CPRead15_ClockEnable_v4_20261025/build_r_front_ready_native.py --project /home/alans/mister/Dorado_CPRead15_ClockEnable_v4_20261025 --manifest r-front-control-native.json"
+      },
+      {
+        "pid": 474666,
+        "returncode": 0,
+        "process": "474666       00:35 00:00:38 Rl   quartus_fit --read_settings_files=on --write_settings_files=off Dorado"
+      }
+    ],
+    "source_files_verified": 578
+  },
+  "older_full_Icarus_coverage_gap": {
+    "status": "TERMINAL_ORIGINAL_RESULTS_MATCH_KNOWN_PREPARATION_COVERAGE_MISSING",
+    "saved_driver_status": "RUNNING",
+    "test_pid": 29720,
+    "test_returncode": 0,
+    "test_log_sha256": "cb26751395478dcf0aea4465d17c7a6a534d133f931feae8a867551164da0316",
+    "known_preparation_edges": 0,
+    "passed": false,
+    "original_assertions_or_coverage_requirements_waived": false
+  },
+  "original_native_observations": [
+    {
+      "run": "native-registered-read-startup-v1-20261025",
+      "status": "TERMINAL_NATIVE_MEMORY_DIAGNOSTIC",
+      "last_pid": 24433,
+      "last_returncode": 0
+    },
+    {
+      "run": "native-memc-registered-read-startup-v1-20261025",
+      "status": "RUNNING",
+      "last_pid": 26169,
+      "last_returncode": null,
+      "process": "26169 01:21:58  81:55.07 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-memc-registered-read-startup-v1-20261025/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-memc-registered-read-startup-v1-20261025/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-memc-registered-read-startup-v1-20261025/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "verified_live": true,
+      "observed": 1792971182.657423
+    },
+    {
+      "run": "native-prepared-operand-startup-v1-20261025",
+      "status": "RUNNING",
+      "last_pid": 30666,
+      "last_returncode": null,
+      "process": "30666 43:53  43:51.51 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-prepared-operand-startup-v1-20261025/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-prepared-operand-startup-v1-20261025/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-prepared-operand-startup-v1-20261025/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "verified_live": true,
+      "observed": 1792971182.661742
+    },
+    {
+      "run": "native-cp-read-j19-boot-v1-20261025",
+      "status": "RUNNING",
+      "last_pid": 62048,
+      "last_returncode": null,
+      "process": "62048 09:36:29 575:07.32 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "verified_live": true,
+      "observed": 1792971182.665946
+    }
+  ],
+  "retained_tooling_failures": [
+    "Initial inventory used positional pin labels instead of formal names; corrected inventory resolves all six host clock processes.",
+    "First variant stage removed original modules referenced by unused wrappers; keep originals and append variants.",
+    "Second variant stage appended after vendor macro undef; insert before cleanup.",
+    "First BaseBoard test omitted generated scope in cross-references; exact scaled_crystal path restored.",
+    "AST reader compared synthetic combinational alias hashes and baked diagnostic line numbers; scope edge-sensitive processes and normalize diagnostic location only.",
+    "First storage fixture selected an older DEFER_READS API; corrected fixture uses actual native machine_step/after-address interface."
+  ],
+  "nominal_ordinary_ns": 120,
+  "target_ordinary_ns": 60,
+  "full_machine_equivalence_or_firmware_or_physical_timing_qualified": false,
+  "measured_hardware_speed_gain": false,
+  "FPGA_or_protected_media_changed": false,
+  "full_goal_active": true,
+  "next_action": "Observe SAME clock-enable458549 through all terminal timing reports. Finish actual peripheral/full-native equivalence and old Icarus known-preparation coverage. Then chronological producer splitting, original60ns phases and full hardware qualification."
+}

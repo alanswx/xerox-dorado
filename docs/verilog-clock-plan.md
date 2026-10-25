@@ -14,7 +14,53 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-Current prepared operand/flag view (2026-10-25):
+Current common-clock enable conversion (2026-10-25):
+
+- [x] Collect SAME PreparedOperand290188: all9 stages0/578 source hashes.
+  Setup slow100/-40/fast100/-40 = -10.044/-10.242/-1.758/-.421ns. Area39,467
+  ALMs/94%,56,399 registers, unchanged memory. Worst ProcL d15.q[3] ->
+  falling-edge network_step. No timing pass, assembly, load or hardware gain.
+- [x] Inventory the actual instantiated clock hierarchy, including positional
+  formal-port resolution:12,782 instances,1,823 guest and1,975 host processes.
+  No unclassified processes or virtual clock-as-data uses; no guest negedges.
+- [x] Stage selective common-clock enables:33 private module variants/58 source
+  processes; remove experimental global clock gating/falling-edge step capture.
+  Keep original readiness guards, all host services and async reset branches.
+  Preserve original modules and the current120ns nominal phase schedule.
+- [x] Audit actual before/after process ASTs and advance bindings. Exactly one
+  added guard per guest process; all host process bodies retained. Full native
+  lint/XML pass at66.666667MHz, six structural warnings still visible.
+- [x] Compare the complete original-ROM BaseBoard under random pauses through
+  reset clear and MidasSetup return:465,811 host/349,348 active/116,463 paused;
+  208 state vectors,69 outputs,37 written RAM arrays. Missing-enable negative
+  rejects by actual state mismatch. No guest state/ROM initialization added.
+- [x] Compare actual native storage group/address behavior in both simulators,
+  widths8/12 and HOST_ADDR_SAMPLE0/1:all eight cases pass40,000 host checks,
+  3,531 guest steps,1,591 reads,359 writes,1,948 paused replies and14 resets.
+  Retain original assertions and add host-preparation state comparisons.
+- [x] Start one source-verified timing-only builder458549 at
+  `Dorado_CPRead15_ClockEnable_v4_20261025`. v4 HDL equals tested v3; report
+  targets now follow renamed types and common-clock consumers. Preserve SDC
+  policy, no new exceptions. FPGA and protected disk remain unchanged.
+- [ ] Observe SAME458549 through terminal all-corner/crossing/SDRAM/area review.
+  Complete actual peripheral/full-native equivalence; a full15ns deadline
+  alone need not close the remaining control paths.
+- [ ] Resolve the older full-Icarus operand replay's known-input coverage gap:
+  test29720 exited0 with all original results exact but preparation_edges=0;
+  driver stopped on coverage assertion, leaving stale RUNNING. Preserve that
+  rejection. Words29722 passes34 edges. Future drivers now record terminal
+  coverage rejection without weakening the required positive-edge check.
+- [ ] Finish existing immutable native startup/boot observations. R-read24433
+  terminated at300M host (early startup only); never restart a saved job due
+  to timeout. Then finish chronological capture splitting, original60ns
+  phases, calibrated peripherals/SDRAM, measured hardware gains and the full
+  Cedar/input/Rollback/persistence/three-boot/two-hour gates. Snapshots deferred.
+
+Receipt: `native-clock-enable-conversion-summary.json`. Tooling failures and
+source versions are retained; structural equivalence is not firmware or timing
+qualification. Goal remains ACTIVE.
+
+Previous prepared operand/flag view (2026-10-25):
 
 - [x] Collect SAME MemC122249: ALL9 stages0,577 hashes/327 reports. ALL four
   corners fail: slow100/-40/fast100/-40 = -10.541/-10.848/-1.891/-.610ns;

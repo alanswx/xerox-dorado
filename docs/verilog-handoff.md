@@ -7,7 +7,72 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-CURRENT PREPARED OPERAND/BRANCH-FLAG VIEW (2026-10-25):
+CURRENT COMMON-CLOCK ENABLE CONVERSION (2026-10-25):
+SAME PreparedOperand290188 is TERMINAL: all9 stages0,578 source hashes and all
+four corners collected. Setup slow100/-40/fast100/-40 =
+-10.044/-10.242/-1.758/-.421ns. Area39,467ALMs/94%,56,399 registers; memory
+unchanged. Worst actual path starts ProcL d15.q[3] and ends network_step.
+This remains a timing rejection, not a loadable image or measured speed gain.
+
+Private `native-clock-enable-stage-v4-20261025` changes the transport structure:
+native guest state now samples the common rising host clock with an explicit
+advance enable. It removes altclkctrl and the preceding falling-edge
+network_step register in the experimental shell; existing storage/control/pack
+readiness conditions still gate publication. The original120ns/SYSPER4 phase
+schedule stays unchanged. This does NOT yet qualify60ns or a full15ns path.
+
+Source-bound hierarchy inventory resolves positional ports correctly:12,782
+native instances,1,823 guest-clock processes and1,975 host processes. No
+unclassified clock processes or virtual clock-as-data uses remain. The one
+host clock-as-data use is the existing control function's unused reduction.
+Thirty-three private module variants add guards at58 unique source processes;
+the original modules stay present. All actual instantiated process ASTs compare:
+remove exactly one new guard from each guest process to recover the old body;
+every host process is unchanged. Async keyboard/terminal reset branches remain
+outside their new guards. There are no negative-edge guest processes. This is
+a structural audit, not a full sequential-equivalence proof.
+
+The complete BaseBoard differential test uses original firmware and the original
+6502/RIOT/RAM model:465,811 host ticks,349,348 active and116,463 paused;208 state
+vectors and69 outputs checked each host tick, all37 written RAM arrays compared
+at completion. The256-store/256-DEX reset loop and first MidasSetup return pass.
+Missing-enable negative produces a real state mismatch. Actual staged storage
+group/address comparisons pass eight cases in Icarus/Verilator, widths8/12 and
+HOST_ADDR_SAMPLE0/1. Each checks40,000 host ticks,3,531 guest steps,1,591 reads,
+359 writes,1,948 replies while paused and14 reset cycles, with original state,
+output and coverage assertions retained plus host-preparation state comparisons.
+
+Full native common-clock lint and XML elaboration pass at66.666667MHz; the six
+existing structural warnings remain visible. v4 HDL bytes equal tested v3;
+v4 changes only relocated QSF paths and the storage-ready report script, which
+now reports native consumers instead of demanding a removed step register.
+Existing timing exceptions retain their scope with renamed variant types.
+ONE timing-only build458549 started at
+`/home/alans/mister/Dorado_CPRead15_ClockEnable_v4_20261025`, source578 verified;
+observe this same job. No assembly/deployment is permitted yet.
+
+Older operand replay update: words Icarus29722 PASSED (34 preparation edges).
+Full Icarus29720 exited0 and all original architectural results match, but
+OPERAND_BUFFER_PREPARATION reports0. Its driver then stopped on the required
+coverage assertion and left a stale RUNNING record. It is NOT live or passing;
+the review records the coverage gap without rewriting that historical run.
+Future replay drivers now write a terminal coverage rejection instead of leaving
+RUNNING after this condition; the positive-edge coverage requirement is retained.
+R-read24433 reached its immutable300M host bound and terminated normally; this
+is only an early startup diagnostic. Other saved native runs are observed at
+their existing limits, never restarted on an observation timeout.
+
+NEXT: finish SAME458549 and collect all corner/crossing/area/SDRAM reports;
+qualify remaining peripheral and full-native clock-enable behavior, address
+the older full-Icarus known-preparation coverage gap, then use the actual new
+paths for chronological producer splitting and the original overlapping60ns
+phases. Pinned hardware gains, timers/SDRAM, Cedar/input/Checkpoint/Rollback/
+persistence/three fresh boots/two-hour stress remain required. No new hardware
+speed claim; FPGA/protected medium unchanged. Full goal ACTIVE; snapshots
+deferred. Receipt `native-clock-enable-conversion-summary.json` retains the
+source sets, tests, inventory corrections and earlier tooling failures.
+
+PREVIOUS PREPARED OPERAND/BRANCH-FLAG VIEW (2026-10-25):
 SAME MemC122249 is TERMINAL: ALL9 stages0,577 source hashes/327 reports verified.
 ALL corners still fail: slow100C -10.541ns, slow-40C -10.848ns, fast100C -1.891ns,
 fast-40C -.610ns; minimum hold+.219ns. Area40,146ALMs/96%,55,730 registers,
