@@ -142,7 +142,24 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
             m=re.search(r'^  cell_SN74LS04 u_'+pkg+r' \(\n(.*?)^  \);',text,re.M|re.S);assert m
             pins=dict(re.findall(r'\.p(\d+)\(([^()]*)\)',m[1]))
             for bit,ip,op in pairs:assert pins[str(ip)]==f'MCA_{bit:02d}' and pins[str(op)]=='RA'+str(bit)
-    assert all(name in header.read_text() for name, size in fields.values())
+    phase_alias=None
+    if fields['phase'][0] not in header.read_text():
+        # The compiler may eliminate both MCClk and its packed debug alias.
+        # Bind the actual wire-list path: g08.Q' -> MCPreClk -> f61.CK2i,
+        # whose unchanged package wrapper drives CK2o/MCClk from CK2i.
+        text=board.read_text()
+        g08=re.search(r'cell_SN74LS74 u_g08 \(.*?\n  \);',text,re.S)[0]
+        f61=re.search(r'cell_MCS6502 u_f61 \(.*?\n  \);',text,re.S)[0]
+        assert '.p6(MCPreClk)' in g08 and '.p37(MCPreClk)' in f61 and '.p39(MCClk)' in f61
+        wrapper=source/'inputs/src/verilog/cells/cell_MCS6502.v'
+        flipflop=source/'inputs/src/verilog/cells/cell_SN74LS74.v'
+        assert re.search(r'assign p39\s*=\s*p37;',wrapper.read_text())
+        assert re.search(r'assign p6\s*=\s*~qa;',flipflop.read_text())
+        del fields['phase']
+        phase_alias=dict(source='phi_inverted',inverted=True,board_sha256=sha(board),
+                         CPU_wrapper_sha256=sha(wrapper),flipflop_sha256=sha(flipflop))
+    missing=[name for name,size in fields.values() if name not in header.read_text()]
+    assert not missing,missing
     layout = out/'layout.cpp'
     layout.write_text('#include <cstdio>\n#include <cstddef>\n#include "Vtb_native_cedar___024root.h"\n'
         'int main(){\n'+''.join(f'printf("{key} %zu {size}\\n",offsetof(Vtb_native_cedar___024root,{name}));\n'
@@ -235,6 +252,9 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
                   source=str(source),pid=pid,source_state_sha256=sha(source/'run-state.json'),
                   binary_sha256=sha(binary),header_sha256=sha(header),layout=offsets,
                   read_only_guest_inspection=True)
+    if phase_alias is not None:
+        result['counters']['phase']=1-result['counters']['phi_inverted']
+        result['phase_alias_binding']=phase_alias
     (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')
     (out/Path(__file__).name).write_bytes(Path(__file__).read_bytes())
     print(json.dumps(dict(counters=result['counters'],nodes=result['decoded_nodes'],

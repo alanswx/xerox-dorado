@@ -14,6 +14,30 @@ Continue build/simulation work; notify them when a reviewed build is ready
 for hardware testing, and wait until they release MiSTer14 before any load,
 reboot or control. Earlier reload authorization is superseded while it is in use.
 
+Startup-environment repair (2026-10-24): source readback disproves the inherited
+`skip_disk_wait_jumper_fitted` claim in BOTH older private control-short/balanced
+native simulations. Their stage overlay restored the default PB1 connection.
+The original ROM therefore retains its disk-wait path. Read-only RIOT inspection
+found Timer100ms74/EndOfDelay229; startup delay alone cannot diagnose a CPU/cache
+hang. Existing runs and5B bounds remain unchanged. Receipt:
+`native-jumper-preservation-summary.json`.
+
+The native preparer now carries the baseline's source-verified PB1 ground AFTER
+overlays, preserving every other board byte. Wrong baseline metadata rejects;
+already fitted source is unchanged. Actual package-PB1 monitoring is added.
+A separate fresh `control-short-native-jumper-boot-v2-20261024` compiles190 HDL
+sources and is verified live(test69736/session80422); original ROMs/clock rates/
+media/button sequence/storage checks and fixed5B HOST limit stay. This is an
+environment repair, not a Cedar/CPU/storage-speed/timing pass. Failed pre-attach
+inspector layouts and strict monitor-preparation attempt remain archived.
+
+Next/TODO: observe that same fresh run through physical initialization, actual
+PB1 check and firmware CP/CPU/113 progress. Complete both original owned-packet
+Icarus checks (67390/67389; generic scheduler103.558us at19m29s, debugger detached),
+then equal-domain422-input/4943-output15ns fits and complete corner review.
+No FPGA access or speed change. Source/CP/device interior epochs,60ns cadence,
+physical66.7MHz SDRAM and all A–F acceptance stay active; snapshots deferred.
+
 Owned packet context PROVEN; timing comparison still PENDING (2026-10-24).
 `owned-packet-context-digital-summary.json` retains the source-bound828 stored
 owners/402 input-snapshot bits/16 external R aliases. All156 control projection

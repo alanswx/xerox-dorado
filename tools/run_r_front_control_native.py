@@ -17,6 +17,7 @@ import subprocess
 import time
 
 from run_native_cedar_memory import run as native_run_test
+from preserve_native_environment import BASEBOARD,preserve
 
 
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
@@ -30,8 +31,16 @@ def prepare(stage,baseline,out,limit,monitor_baseboard=False,firmware_run=False)
     original=json.loads(gzip.decompress((baseline/'provenance.json.gz').read_bytes()))
     for n,h in original['inputs'].items():assert sha(baseline/'inputs'/n)==h,n
     out.mkdir(parents=True);inputs=out/'inputs';shutil.copytree(baseline/'inputs',inputs)
+    environment=[]
     for n in r['source_hashes']:
-        p=inputs/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((stage/n).read_bytes())
+        raw=(stage/n).read_bytes()
+        if n==BASEBOARD:
+            raw,receipt=preserve(raw,(baseline/'inputs'/n).read_bytes(),original)
+            if receipt is not None:environment.append(receipt)
+        p=inputs/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw)
+    if original.get('skip_disk_wait_jumper_fitted',False):assert len(environment)==1
+    helper=Path(__file__).with_name('preserve_native_environment.py')
+    shutil.copy2(helper,inputs/helper.name)
     host=(inputs/'harness/host.cpp').read_text()
     assert 'fopen(medium,"rb")'in host and 'pack[word]=uint16_t(value);'in host
     assert 'fwrite('not in host and 'ofstream'not in host
@@ -52,6 +61,19 @@ def prepare(stage,baseline,out,limit,monitor_baseboard=False,firmware_run=False)
     if(host_ticks+1>=limit)begin
       if(processor_samples<1000)$fatal(1,"Native844 prefix never advanced after physical initialization");
       $display("NATIVE844_PREFIX samples=%0d root_edges=%0d CP_edges=%0d no_guest_state_import=1",processor_samples,processor_root_edges,processor_cp_edges);
+    end
+  end
+'''
+    if environment:
+        monitor+='''
+  // Verify the actual staged package input, not an inherited metadata flag.
+  reg checked_skip_wait_environment=0;
+  always @(negedge host_clk)if(step && !reset)begin
+    if(dut.m.b_BaseBd.u_i62.pb_in[1]!==1'b0)
+      $fatal(1,"NATIVE_BOOT_ENV SkipDiskWait PB1 is not grounded");
+    if(!checked_skip_wait_environment)begin
+      $display("NATIVE_BOOT_ENV_PASS skip_wait_PB1=0 original_ROM=unchanged");
+      checked_skip_wait_environment=1;
     end
   end
 '''
@@ -86,6 +108,7 @@ def prepare(stage,baseline,out,limit,monitor_baseboard=False,firmware_run=False)
             'scope':__doc__,'host_limit':limit,'firmware_qualified':False,'hardware_changed':False,
             'bounded_original_firmware_run':firmware_run,
             'passive_actual_BaseBoard_PC_monitor':monitor_baseboard,
+            'source_verified_physical_environment_preservation':environment,
             'baseline_run':str(baseline),'baseline_inputs_or_limits_changed':False}
     (out/'provenance.json.gz').write_bytes(gzip.compress((json.dumps(record,indent=2)+'\n').encode(),mtime=0))
     print(record['status'],len(used),'HDL sources;limit',limit,flush=True)

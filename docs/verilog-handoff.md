@@ -6,6 +6,37 @@ Continue Quartus on misterubuntu and simulation on the Mac. Notify the user
 when a concrete build is ready for hardware qualification; wait for allocation.
 The goal remains active. This supersedes earlier permission for immediate reloads.
 
+Native boot-environment defect FIXED in staging (2026-10-24):
+`native-jumper-preservation-summary.json` proves BOTH private control-short and
+balanced-prefix runs inherited `skip_disk_wait_jumper_fitted=true` while their
+compiled BaseBd source still connected PB1 to SkipWait_p___drv. The stage overlay
+had replaced the baseline's grounded input. Those runs have the ROM's normal
+disk-wait path enabled; their idle startup is not evidence of a CPU/cache hang.
+Read-only inspection found Timer100ms74/EndOfDelay229, consistent with a long
+firmware delay; debugger detached/resumed. Preserve both original runs/5B bounds.
+
+`run_r_front_control_native.py` now source-verifies/reapplies ONLY the documented
+PB1 ground after stage overlays and records actual input identities. Its output
+BaseBd is byte-identical to the qualified baseline's board. A false baseline
+claim rejects; an already fitted stage stays byte-identical. Original ROMs,
+clocks, defines, storage/media, keyboard/buttons and all prior checks remain.
+An added passive monitor checks the actual control RIOT PB1 input, not metadata.
+
+Fresh separate `control-short-native-jumper-boot-v2-20261024` compiled190 HDL
+sources and was verified live (test69736/session80422), with the same fixed5B
+HOST bound. Only BaseBd PB1, the passive harness monitor and preparation tools
+change. No firmware/CPU progress, Cedar, timing or speed qualification yet.
+Both layout failures occurred BEFORE debugger attach; the corrected inspector
+binds optimized-away MCClk through original g08.Q'/f61.CK2i/CK2o wiring. The
+strict ambiguous-monitor preparation failure is retained. No FPGA endpoint used.
+
+NEXT: follow test69736 without restarting/extending it; confirm its actual
+PB1 assertion, firmware CP/CPU/113 progress and original storage/owner checks.
+The two existing owned-packet Icarus checks continue (67390/67389); a read-only
+schedule_time observation at19m29s showed103.558us toward the~156us replay end,
+with successful detach. Keep the same runs, then stage/review the two full
+422-input/4943-output timing fits. All A–F and hardware reservation remain.
+
 Owned packet context PROVEN; full timing comparison PENDING (2026-10-24).
 `owned-packet-context-digital-summary.json` binds the native caller's828 stored
 owners,401-pin/one-root snapshots and16 external visible-R aliases. All156
@@ -941,7 +972,7 @@ with the common event batch; then qualify original60ns and separate SDRAM
 crossings/timing. Interactive Cedar, authentic Rollback, new-file persistence,
 three fresh-seed boots and the two-hour mixed-I/O stress gate remain required.
 
-NOW LIVE (2026-10-24): shorter-control original-firmware simulation
+HISTORICAL START (2026-10-24; jumper claim later disproven above): shorter-control original-firmware simulation
 `control-short-native-boot-v1-20261024`, driver74661/test75056/session52350,
 fixed5B HOST bound set before launch. Compile190 HDL sources succeeds; input
 reset/matrixFFFF and first HPS read pass, full physical memory initialization

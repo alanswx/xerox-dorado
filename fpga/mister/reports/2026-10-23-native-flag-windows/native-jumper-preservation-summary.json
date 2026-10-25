@@ -1,0 +1,70 @@
+{
+  "status": "REVIEWED_SOURCE_VERIFIED_NATIVE_JUMPER_PRESERVATION",
+  "scope": "Bind the native startup jumper defect and its source-only staging repair.\n\nThe old diagnostics inherited 'jumper fitted' metadata while their stage overlay\nrestored the ungrounded PB1. Preserve those runs/limits and the read-only RIOT\ninspection. A separate fresh original-ROM run restores the same baseline jumper,\nretains all assertions/medium/timers/buttons and adds an actual package-pin check.\nThis is an environment repair, not Cedar, storage-speed or FPGA qualification.\n",
+  "original_runs": [
+    {
+      "run": "control-short-native-boot-v1-20261024",
+      "metadata_claim_disagrees_with_actual_source": true,
+      "repair": {
+        "path": "src/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v",
+        "input": "control RIOT PB1 / SkipDiskWait active low",
+        "level": 0,
+        "baseline_sha256": "cded996f79a2de072d63b5111a4af0fafe44ee86152e421b3bb30925b42bba82",
+        "staged_sha256": "5a9ae95c12f696fa703a8012ec03d5e80b0b1c3e4885a9227551768f66775580",
+        "output_sha256": "cded996f79a2de072d63b5111a4af0fafe44ee86152e421b3bb30925b42bba82",
+        "changed": true,
+        "only_external_PB1_input_changed": true,
+        "original_ROM_and_clock_bytes_unchanged": true
+      },
+      "provenance_sha256": "4331a6a581cbd626058d9605cf26ed360d69fe319e219f33ea1d95ab98512a98",
+      "bound_sha256": "2bfcc35e80297373de79fcc76bccd70a38b2194b640e2506df8c79c8a96c044e"
+    },
+    {
+      "run": "cp-prefix-balanced-native-boot-v1-20261024",
+      "metadata_claim_disagrees_with_actual_source": true,
+      "repair": {
+        "path": "src/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v",
+        "input": "control RIOT PB1 / SkipDiskWait active low",
+        "level": 0,
+        "baseline_sha256": "cded996f79a2de072d63b5111a4af0fafe44ee86152e421b3bb30925b42bba82",
+        "staged_sha256": "5a9ae95c12f696fa703a8012ec03d5e80b0b1c3e4885a9227551768f66775580",
+        "output_sha256": "cded996f79a2de072d63b5111a4af0fafe44ee86152e421b3bb30925b42bba82",
+        "changed": true,
+        "only_external_PB1_input_changed": true,
+        "original_ROM_and_clock_bytes_unchanged": true
+      },
+      "provenance_sha256": "6bb1ce7700ae646dc7d4b664a1887e9f17a0c19e71cb1d1e44ea844e8f142d1f",
+      "bound_sha256": "2bfcc35e80297373de79fcc76bccd70a38b2194b640e2506df8c79c8a96c044e"
+    }
+  ],
+  "original_runs_or_bounds_changed": false,
+  "source_only_PB1_restored_to_baseline": true,
+  "wrong_baseline_metadata_rejected": true,
+  "idempotent_already_fitted_stage": true,
+  "fresh_changed_files": [
+    "harness/tb_native_cedar.sv",
+    "src/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v",
+    "run_r_front_control_native.py"
+  ],
+  "fresh_added_file": "preserve_native_environment.py",
+  "all_other_compiled_sources_ROMs_defines_media_buttons_and_clocks_unchanged": true,
+  "actual_package_pin_monitor_added": true,
+  "read_only_RIOT_inspection": {
+    "timer100ms": 74,
+    "EndOfDelay": 229,
+    "process_detached": true
+  },
+  "failed_inspector_and_preparation_attempts_preserved": true,
+  "fresh_run": "/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024",
+  "fresh_run_observation": {
+    "time": 1792890622.01371,
+    "test_pid": 69736,
+    "ps": "69736 02:14 R    /Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root"
+  },
+  "fresh_run_bound": 5000000000,
+  "firmware_boot_qualified": false,
+  "storage_or_native_speed_qualified": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}

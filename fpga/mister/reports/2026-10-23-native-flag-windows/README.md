@@ -6,6 +6,22 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`native-jumper-preservation-summary.json` retains the source-level explanation
+for long private native startup waits: BOTH control-short and balanced stages
+overwrote the baseline's grounded SkipDiskWait PB1 while inheriting 'fitted'
+metadata. Their actual compiled source uses SkipWait_p___drv. Read-only timer
+inspection found Timer100ms74/EndOfDelay229 and detached successfully. Preserve
+those original runs/limits; no CPU/cache-hang or Cedar conclusion follows.
+
+The repaired preparer reapplies ONLY the baseline's verified PB1 ground after
+overlays, yielding the exact baseline BaseBd bytes. False baseline metadata
+rejects and already fitted stages are unchanged. All other compiled ROMs/HDL/
+clocks/defines/storage/media/buttons match. A separate fresh native run compiles
+and its exact test69736 handle is verified live at collection; fixed5B HOST bound,
+actual package-PB1 monitor and all old correctness assertions remain. No boot,
+timing or speed pass. The pre-attach layout failures and strict monitor-guard
+preparation failure are retained. No FPGA access; the full goal stays active.
+
 `owned-packet-context-digital-summary.json` retains the real native publication
 seam:828 stored owners,402 snapshot bits and16 external R aliases. The156-bit
 projection and all1416 cache bits/ready/fast/hit prove for arbitrary binary
