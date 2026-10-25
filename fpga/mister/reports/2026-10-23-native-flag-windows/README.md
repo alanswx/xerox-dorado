@@ -1,5 +1,30 @@
 # Native timing and capture-order qualification
 
+Latest directed follow-up,2026-10-25:
+`native-R-capture-complete-summary.json` closes BOTH actual-cell full/mixed
+simulator peers. `j19-capture-and-native-RX-summary.json` preserves the next
+capture case and its opt-in repair: original ProcL j19 has an interior LOW
+interval despite equal HIGH endpoints. Both engines reproduce missed clocks
+55/56; BEFORE/input-before-root/after-root epochs retain them. The full original
+staged-read case remains first, followed in the same history by a task capture.
+Both engines pass204 events/all844 Qs/9216 RAM bits/100 clocks/one read. Turning
+off Block capture in BOTH actual generated/generic copies corrupts only real
+TPCBypass bit74 at202. Earlier unobservable controls and final-coverage failures
+remain archived; no assertion was removed to make the new case pass.
+
+Full/mixed Verilator j19 replays pass; SAME Icarus47431/47853 remain live at
+review. The modeled1.35ns LOW interval is not physically qualified: the two
+MC10231 data sheets give setup/hold and toggle rates but no independent minimum
+LOW-width table entry. Other data/arrival/unknown cases, native producer epochs,
+timing and all A–F gates remain. The running private native tree is unchanged.
+
+The read-only native RX analysis matches every word of the LAST reply in the
+actual FIFO, its serial CRC and zero EOP status. Pointers9/9, FIFO empty; four
+source-bound RM anchors agree, but SeqNo0/RHost177400B persist. This narrows the
+first-packet investigation without asserting its status or rejection cause.
+Debugger detached/resumed69736. The other native40369 run reached150M HOST
+within the original six-pass self-test. No new FPGA image or measured gain.
+
 Latest update,2026-10-25: `combined-cp-paired-read-complete-summary.json`
 closes all seven original combined-path both-engine groups. The five previously
 live peers are terminal PASS, with complete trace/initial equality and full

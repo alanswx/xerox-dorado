@@ -14,7 +14,44 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST actual visible-R cells and private native hookup (2026-10-25):
+LATEST ordered j19 capture and observable TPCBypass (2026-10-25):
+
+- [x] Finish SAME original four-cell full/mixed Icarus peers40576/40577. Exact
+  complete outcomes, sources and100 clocks match Verilator. Receipt:
+  `native-R-capture-complete-summary.json`. No reruns required.
+- [x] Reach an actual TPC capture through normal memory Block input261 and
+  ordinary phases. BOTH original graphs expose missed ProcL j19 clock events
+  55/56: equal HIGH endpoints contain a1.35ns LOW interval in this digital
+  profile. Preserve the failures and every original clock/state assertion.
+- [x] Implement OPT-IN j19 BEFORE/input-before-root/after-root epochs and
+  preceding-data selection, adding no state/port/guest cycle. Preserve the
+  original staged-read case first, then the directed crossing in ONE history.
+  Both engines pass204 events/844 states/9216 RAM bits/100 clocks/one read.
+- [x] Calibrate the nonvacuous FULL processor TPCBypass negative: disabling
+  Block capture in both active/generated and generic copies changes only
+  actual state bit74 at202, detected by the original assertion in BOTH engines.
+  Preserve the initial inactive-copy control and lost-read-coverage attempt.
+- [x] Both Verilator full replay profiles pass with the j19 adapter:14884
+  subevents/4461 pairs/119 paired writes/238 forwarded bytes; mixed12481/
+  94 pairs/one staged read. Original results/state/RAM/100 clocks stay checked.
+- [ ] Finish SAME Icarus j19 peers47431/full and47853/words. Scope/pending
+  identities: `j19-capture-and-native-RX-summary.json` and handoff.
+- [ ] Qualify other j19 data/clock/source-arrival/unknown cases and physical
+  pulse acceptance. The1978/ON data-sheet tables specify setup/hold/toggle
+  rate, not an independent minimum clock LOW width. The ideal1.35ns pulse
+  is not a hardware qualification. Running native40369 keeps its old source;
+  incorporate any qualified change into a NEW reviewed native stage.
+- [x] Decode an actual native receive FIFO read: the whole last13-word reply,
+  serial CRC and zero EOP status match, empty FIFO/pointers9/9. Four anchored
+  RM constants decode correctly, while SeqNo0/RHost177400B show first-packet
+  acceptance remains open. No first-packet/all-packet CRC inference follows.
+- [ ] Follow native40369/250M HOST through the original six-pass self-test
+  (170M HOST at latest observation), retaining69736/5B HOST and normal retries.
+  Continue actual all-board/MIR/Ready/Hold/IFU/Memory/event/WE-close integration
+  and SAME-fixture timing. Full A–F,60ns/timers, separate66.7MHz SDRAM, original
+  Cedar/Rollback/persistence/fresh boots/stress remain. Hardware speed unchanged.
+
+Previous actual visible-R cells and private native hookup (2026-10-25):
 
 - [x] Retain the actual four ProcH/ProcL g06/g07 cells and16 sole Q owners.
   Expose original operand D/S/C epochs; compose paired captures per half without
@@ -36,8 +73,8 @@ LATEST actual visible-R cells and private native hookup (2026-10-25):
   original board cells. Preserve firmware/PB1/boot/media/storage/devices and all
   old monitors. Add actual16-R hold/commit checks. Elaboration and compilation
   pass; full lint retains eight UNOPTFLAT warnings for review.
-- [ ] Finish SAME actual-cell Icarus jobs: full40576 and words40577. Verilator
-  counterparts are complete. Receipt: `native-R-capture-summary.json`.
+- [x] Finish SAME actual-cell Icarus jobs: full40576 and words40577. Both match
+  Verilator. Receipt: `native-R-capture-complete-summary.json`.
 - [ ] Follow native40369/session12757 at its own250M HOST bound past memory
   initialization (20M HOST, guest0 at review). Keep original69736/5B HOST run.
   New native paired mode is OFF pending other-board phase composition; this

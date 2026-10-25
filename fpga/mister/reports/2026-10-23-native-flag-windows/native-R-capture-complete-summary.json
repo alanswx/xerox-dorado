@@ -1,0 +1,361 @@
+{
+  "status": "REVIEWED_ORIGINAL_NATIVE_R_CELLS_AND_PRIVATE_HOOKUP",
+  "scope": "Review original visible-R owners, their capture contract and native hookup.\n\nSeparate primitive/interface proofs, bounded processor replays and a private\nfull-board startup observation. None establishes native paired-phase timing,\nfirmware boot, FPGA timing closure or a measured hardware speed improvement.\n",
+  "runs": [
+    {
+      "directory": "native-R-capture-proof-v1-20261025",
+      "status": "TERMINAL_NATIVE_R_CAPTURE_NOT_ESTABLISHED",
+      "state_sha256": "7018b1f8ef6cd4ef8a22e1034a34a8417b7e358a1b1a685014596410b445f461",
+      "observed": 1792929304.3310988
+    },
+    {
+      "directory": "native-R-capture-proof-v2-20261025",
+      "status": "PASS_ORIGINAL_NATIVE_R_CAPTURE_AND_NEGATIVES",
+      "state_sha256": "3e5f2a907fba10124b9db5ce0e0eddcf92aa9c45100a7fde61fbe5fda1f0345e",
+      "observed": 1792929304.335923
+    },
+    {
+      "directory": "native-R-four-state-icarus-v1-20261025",
+      "status": "PASS_NATIVE_R_FOUR_STATE_CAPTURE",
+      "state_sha256": "b192b3dd9fa1be5fd55321ca369da68fba61e3a15c26b0f94f91fd21c264246b",
+      "observed": 1792929304.340372
+    },
+    {
+      "directory": "native-R-full-final-clock-icarus-v1-20261025",
+      "status": "TERMINAL_COMBINED_CP_PACKET_REPLAY_NOT_ESTABLISHED",
+      "state_sha256": "ac927f55688a2b56539cf132df0630cfbd7e616d715482c5e67cd98f66e28c16",
+      "observed": 1792929304.358235
+    },
+    {
+      "directory": "native-R-full-final-clock-icarus-v2-20261025",
+      "status": "TERMINAL_COMBINED_CP_PACKET_REPLAY_NOT_ESTABLISHED",
+      "state_sha256": "8b9e44813d38d890b54dcebde42b98d6de03b37ad938b4667ec89aac1480ad7a",
+      "observed": 1792929304.3839118
+    },
+    {
+      "directory": "native-R-full-icarus-v2-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "39b1417f0d2af9e2a37ab67253c11b8fa04fa4d608b7b56ace57b4bb57ed22cb",
+      "observed": 1792929304.4092941
+    },
+    {
+      "directory": "native-R-full-verilator-v1-20261025",
+      "status": "TERMINAL_COMBINED_CP_PACKET_REPLAY_NOT_ESTABLISHED",
+      "state_sha256": "d8dc791343cace60528049e006b126bcf76c77bee1aa7877bf7f4df1202dc5ac",
+      "observed": 1792929304.437454
+    },
+    {
+      "directory": "native-R-full-verilator-v2-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "4ddf757100187fe0f6f4d3e6e3f892fd8e443faf931574d088fb009ecc72c967",
+      "observed": 1792929304.4669518
+    },
+    {
+      "directory": "native-R-single-bad-select-icarus-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_COUNTEREXAMPLE",
+      "state_sha256": "9a179fea623afae01cd7efd13edc2d3c24786f86c41d2655e0ff62b082eaf9a8",
+      "observed": 1792929304.504832
+    },
+    {
+      "directory": "native-R-single-icarus-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK",
+      "state_sha256": "b65ec4c929cd4e51478b3df07564b6e3077351c6e5b77bcbb6834e690785eeaf",
+      "observed": 1792929304.529909
+    },
+    {
+      "directory": "native-R-single-verilator-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK",
+      "state_sha256": "a8274d5f44b91d770801c90051a10565e8d88baad64840b258f978cff9998780",
+      "observed": 1792929304.5592802
+    },
+    {
+      "directory": "native-R-words-icarus-v1-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "97f8d8822f8711b798e33ea1c174080cd71e4f787dfc9dc44b97fe93a74164d0",
+      "observed": 1792929304.5919008
+    },
+    {
+      "directory": "native-R-words-late-tpc-verilator-v1-20261025",
+      "status": "TERMINAL_COMBINED_CP_PACKET_REPLAY_NOT_ESTABLISHED",
+      "state_sha256": "e7f0e5c7ea25ec8e51f8583cca88864f866d0a687a3c862a17344130fed420c1",
+      "observed": 1792929304.6174898
+    },
+    {
+      "directory": "native-R-words-late-tpc-verilator-v2-20261025",
+      "status": "TERMINAL_COMBINED_CP_PACKET_REPLAY_NOT_ESTABLISHED",
+      "state_sha256": "0d3551285072ba7ec1c6b9b20eb38168304af8124a75c4a77da6364b890a81d0",
+      "observed": 1792929304.647543
+    },
+    {
+      "directory": "native-R-words-verilator-v1-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "f485e3f91e3b7f96c08b4a0d8ec09cede5272f7e801217d17dca13476ac09955",
+      "observed": 1792929304.674897
+    }
+  ],
+  "pending_peers": [],
+  "complete_both_engine_replays": [
+    "full",
+    "words"
+  ],
+  "capture_source_pins": {
+    "status": "GENERATED_ORIGINAL_FOUR_NATIVE_R_CELLS",
+    "packages": [
+      {
+        "board": "ProcH",
+        "package": "g06",
+        "source": "build/rtl-executive/control-short-native-jumper-boot-v2-20261024/inputs/src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv",
+        "source_sha256": "c38ad5cecd3e5a29bb4ed9bea3787508566a25b6a377124253573662943bb37e",
+        "pins": {
+          "1": "R_00",
+          "2": "R_01",
+          "3": "dR_01",
+          "4": "dRm_01",
+          "5": "dR_00",
+          "6": "dRm_00",
+          "7": "PreSHCP_p_B",
+          "9": "RbBypassDly",
+          "10": "dR_03",
+          "11": "dRm_03",
+          "12": "dR_02",
+          "13": "dRm_02",
+          "14": "R_03",
+          "15": "R_02"
+        },
+        "original_instance_sha256": "fe0b7dfb0e6b07cae5cc94c24cd7ceab2a25ddf44ee96e858a77d01a0982be33"
+      },
+      {
+        "board": "ProcH",
+        "package": "g07",
+        "source": "build/rtl-executive/control-short-native-jumper-boot-v2-20261024/inputs/src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv",
+        "source_sha256": "c38ad5cecd3e5a29bb4ed9bea3787508566a25b6a377124253573662943bb37e",
+        "pins": {
+          "1": "R_04",
+          "2": "R_05",
+          "3": "dR_05",
+          "4": "dRm_05",
+          "5": "dR_04",
+          "6": "dRm_04",
+          "7": "PreSHCP_p_B",
+          "9": "RbBypassDly",
+          "10": "dR_07",
+          "11": "dRm_07",
+          "12": "dR_06",
+          "13": "dRm_06",
+          "14": "R_07",
+          "15": "R_06"
+        },
+        "original_instance_sha256": "d9f571ac295d1920d5e3b69841de3ad31c631cb68e7b0edba510603521c4c898"
+      },
+      {
+        "board": "ProcL",
+        "package": "g06",
+        "source": "build/rtl-executive/control-short-native-jumper-boot-v2-20261024/inputs/src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv",
+        "source_sha256": "ce0e8fa3933fcb4ffb8d6f912f65f5f0d46c30e834c9c8cf246cfbd018be7510",
+        "pins": {
+          "1": "R_08",
+          "2": "R_09",
+          "3": "dR_09",
+          "4": "dRm_09",
+          "5": "dR_08",
+          "6": "dRm_08",
+          "7": "PreSHCP_p_B",
+          "9": "RbBypassDly",
+          "10": "dR_11",
+          "11": "dRm_11",
+          "12": "dR_10",
+          "13": "dRm_10",
+          "14": "R_11",
+          "15": "R_10"
+        },
+        "original_instance_sha256": "499755065f43af8ca01d29789e354b7c3582339b2ad13beded9c63f7ff90cb8f"
+      },
+      {
+        "board": "ProcL",
+        "package": "g07",
+        "source": "build/rtl-executive/control-short-native-jumper-boot-v2-20261024/inputs/src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv",
+        "source_sha256": "ce0e8fa3933fcb4ffb8d6f912f65f5f0d46c30e834c9c8cf246cfbd018be7510",
+        "pins": {
+          "1": "R_12",
+          "2": "R_13",
+          "3": "dR_13",
+          "4": "dRm_13",
+          "5": "dR_12",
+          "6": "dRm_12",
+          "7": "PreSHCP_p_B",
+          "9": "RbBypassDly",
+          "10": "dR_15",
+          "11": "dRm_15",
+          "12": "dR_14",
+          "13": "dRm_14",
+          "14": "R_15",
+          "15": "R_14"
+        },
+        "original_instance_sha256": "6390ebc8c512c3da1707d1fc002dbf77dc0d8a2aee38fe441c674ee785334176"
+      }
+    ],
+    "native_cell_source": "build/rtl-executive/control-short-native-jumper-boot-v2-20261024/inputs/src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+    "native_cell_sha256": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+    "state_bits": 16,
+    "original_pin_connections_unchanged": true,
+    "administrative_interface_inactive": true,
+    "no_reset_or_initialization_added": true,
+    "full_board_clock_hookup_qualified": false
+  },
+  "focused_payload_gate_both_engines": true,
+  "predicted_result_R_register_removed": true,
+  "unchanged_original_cell_state_bits": 16,
+  "unchanged_processor_result_bits": 2470,
+  "checked_all_owner_bits": 844,
+  "checked_all_SRAM_bits": 9216,
+  "checked_clock_counts": 100,
+  "replays": {
+    "full": {
+      "summary": "transactions=14884 commits=10423 pairs=4461 candidates=4461 fallbacks=0 paired_writes=119 forwarded_bytes=238 Qs=844 RAM=9216 results=2470 clocks=100",
+      "coverage": {
+        "first_only": 4358,
+        "first_only_changed": 0,
+        "last_open": 4424
+      },
+      "staged_reads": 0
+    },
+    "words": {
+      "summary": "transactions=12481 commits=12387 pairs=94 candidates=94 fallbacks=0 paired_writes=0 forwarded_bytes=0 Qs=844 RAM=9216 results=2470 clocks=100",
+      "coverage": {
+        "first_only": 88,
+        "first_only_changed": 0,
+        "last_open": 88
+      },
+      "staged_reads": 1
+    }
+  },
+  "arbitrary_binary_capture_interface_induction": true,
+  "interface_protocol_assumptions": 0,
+  "primitive_four_state_cases": 16384,
+  "full_processor_four_state_proof": false,
+  "actual_mux_mutation_corrupts_native_R": true,
+  "formal_native_R_corruption_mutations": [
+    "final-clock",
+    "last-data",
+    "invert-select"
+  ],
+  "final_clock_full_replay_counterexample": false,
+  "final_clock_full_replay_first_only_changed": 0,
+  "full_replay_mutation_coverage_limitation_preserved": true,
+  "private_native_source_count": 194,
+  "actual_original_R_board_cells_rewired": true,
+  "private_native_paired_mode_enabled": false,
+  "native_lint_UNOPTFLAT": [
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-cells-prefix-v1-20261025/inputs/src/verilog/rtl/dorado_r_flag_window_step.sv:18:50: Signal unoptimizable: Circular combinational logic: 'tb_native_cedar.dut.m.r_front_dispatch.packet.single.l07_windows.__VdfgRegularize_hcb6b5bad_0_0'",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-cells-prefix-v1-20261025/inputs/src/verilog/rtl/dorado_local_t_file_step.sv:27:23: Signal unoptimizable: Circular combinational logic: 'tb_native_cedar.dut.m.r_front_dispatch.packet.single.child.child.child.child.child.child.t_path.t_path.__VdfgRegularize_h6b568295_0_0'",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-cells-prefix-v1-20261025/inputs/src/verilog/rtl/dorado_local_t_file_step.sv:27:44: Signal unoptimizable: Circular combinational logic: 'tb_native_cedar.dut.m.r_front_dispatch.packet.single.child.child.child.child.child.child.t_path.t_path.__VdfgRegularize_h6b568295_0_1'",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-cells-prefix-v1-20261025/inputs/src/verilog/rtl/dorado_r_read_window_step.sv:20:55: Signal unoptimizable: Circular combinational logic: '__VdfgRegularize_h4af1c392_0_426'",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-cells-prefix-v1-20261025/inputs/src/verilog/rtl/dorado_r_front_control_step.sv:2968:7: Signal unoptimizable: Circular combinational logic: 'tb_native_cedar.dut.m.r_front_dispatch.packet.single.interior_closing'",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-cells-prefix-v1-20261025/inputs/src/fpga/mister/snapshot_native_dsketh/DskEth_full_snapshot.sv:313:8: Signal unoptimizable: Circular combinational logic: 'tb_native_cedar.dut.m.b_DskEth.EccComputeErr_p_'",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-cells-prefix-v1-20261025/inputs/src/verilog/rtl/dorado_r_front_control_step.sv:2976:102: Signal unoptimizable: Circular combinational logic: '__VdfgRegularize_hebeb780c_0_3333'",
+    "/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-cells-prefix-v1-20261025/inputs/src/verilog/rtl/dorado_r_front_control_step.sv:2974:102: Signal unoptimizable: Circular combinational logic: '__VdfgRegularize_hebeb780c_0_3332'"
+  ],
+  "native_startup_observation": {
+    "status": "RUNNING",
+    "pid": 40369,
+    "observed": 1792929304.833005,
+    "state_sha256": "ecf3914ac54ca66422e816a3b6c7578607ace3043b8abfcc675ea068b0fdcfbe",
+    "verified_live": true,
+    "ps": "40369 38:28  38:21.62 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-cells-prefix-v1-20261025/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-cells-prefix-v1-20261025/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-cells-prefix-v1-20261025/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+    "progress_lines": [
+      "NATIVE_CP_PROGRESS host=90000000 pc6502=0000 writes=0 NoDispatch_changes=0 unmasked_changes=0 root_collisions=0",
+      "NATIVE_INPUT_PROGRESS host=90000000 guest=0 raw=621 queued=1 event=000 matrix=ffff/ffff/ffff/ffff",
+      "NATIVE_TRAFFIC_PROGRESS host=90000000 issues=0 admitted=0 completed=0 reads=0 writes=0 BFN=00000000000",
+      "NATIVE_CP_PAUSE host=90000000 guest=0 ready=0 commits=0 pauses=0 snapshots=0 pending=0 replies=0 held_req=0 held_rsp=0",
+      "NATIVE844_BASEBOARD host=90000000 guest=0 phi_rises=0 sync_rises=0 PC=0000 bus=0000 reset=0 phi=1 sync=1",
+      "NATIVE_PROGRESS host=90000000 guest=0 initialized=0 init_addr=62625d cpu=d0fff000 bb=3e450000 control=100 keys=1 disk=         1/         0 fault=00000000:00000000 tx=0 crc=0 rx=0",
+      "NATIVE_CP_PROGRESS host=100000000 pc6502=0000 writes=0 NoDispatch_changes=0 unmasked_changes=0 root_collisions=0",
+      "NATIVE_INPUT_PROGRESS host=100000000 guest=0 raw=621 queued=1 event=000 matrix=ffff/ffff/ffff/ffff",
+      "NATIVE_TRAFFIC_PROGRESS host=100000000 issues=0 admitted=0 completed=0 reads=0 writes=0 BFN=00000000000",
+      "NATIVE_CP_PAUSE host=100000000 guest=0 ready=0 commits=0 pauses=0 snapshots=0 pending=0 replies=0 held_req=0 held_rsp=0",
+      "NATIVE844_BASEBOARD host=100000000 guest=0 phi_rises=0 sync_rises=0 PC=0000 bus=0000 reset=0 phi=1 sync=1",
+      "NATIVE_PROGRESS host=100000000 guest=0 initialized=0 init_addr=77935f cpu=d0fff000 bb=3e450000 control=100 keys=1 disk=         1/         0 fault=00000000:00000000 tx=0 crc=0 rx=0"
+    ]
+  },
+  "native_read_only_inspections": [
+    {
+      "directory": "native-cp-read-startup-inspection-v1-20261025",
+      "result_sha256": "efeb28f44db6076221895c3ff9968de6734ac183a0d6eff5e49c2eafb2d9fbc7",
+      "counters": {
+        "host_ticks": 40069039,
+        "guest_ticks": 0,
+        "boot_samples": 0,
+        "step": 0,
+        "phi_inverted": 0,
+        "reset_n": 0,
+        "watchdog_counter": 0,
+        "watchdog_phase_a": 0,
+        "watchdog_phase_b": 0,
+        "MCD0": 0,
+        "MCD1": 0,
+        "MCD2": 0,
+        "MCD3": 0,
+        "MCD4": 0,
+        "MCD5": 0,
+        "MCD6": 0,
+        "MCD7": 0,
+        "network_cpu_debug": 3506434048,
+        "network_control_debug": 256,
+        "network_rx_ready": 0,
+        "network_rx_line": 0,
+        "network_rx_wr": 0,
+        "network_rx_commit": 0,
+        "network_rx_words": 254,
+        "network_tx_valid": 0,
+        "network_tx_good": 0,
+        "network_tx_bad": 0,
+        "network_tx_dropped": 0,
+        "network_rx_bad": 0,
+        "network_rs": 0,
+        "network_ri": 253,
+        "network_wire_rstate": 1,
+        "network_wire_rlength": 254,
+        "network_wire_rword": 0,
+        "network_wire_rshift": 0,
+        "network_wire_rcrc": 0,
+        "network_wire_rq": 1,
+        "network_wire_rphase": 0,
+        "network_wire_rbit": 15,
+        "network_wire_rhalf": 0,
+        "network_wire_rgap": 0,
+        "network_wire_tactive": 0,
+        "network_wire_tcount": 0,
+        "network_controller_RxFifoEmpty": 0,
+        "network_controller_RxFifoFull": 0,
+        "network_controller_RxEOP": 0,
+        "front_control_initialized": 0,
+        "front_control_storage_ready": 0,
+        "front_control_control_ready": 0,
+        "front_control_alias_ok": 1,
+        "front_control_unsettled": 0,
+        "front_control_repeated": 0,
+        "front_control_read_needed": 0,
+        "front_control_entry_ready": 0,
+        "front_control_shared_mismatch": 0,
+        "front_control_read_phase": 0,
+        "front_control_descriptor": 18374702976624234325,
+        "front_control_descriptor_q": 0,
+        "phase": 1
+      },
+      "read_only_detached": true
+    }
+  ],
+  "original_memory_selftest_passes": 6,
+  "baseline_first_logged_memory_release_host_tick": 200000000,
+  "bounded_startup_qualifies_CoolBoot_or_Cedar": false,
+  "original_firmware_bytes_unchanged": true,
+  "protected_medium_unchanged": true,
+  "native_all_board_event_retention_qualified": false,
+  "native_paired_phase_composition_qualified": false,
+  "physical15ns_or60ns_qualified": false,
+  "firmware_boot_qualified": false,
+  "new_RBF_ready": false,
+  "hardware_changed": false,
+  "measured_hardware_speed_gain": false,
+  "full_goal_active": true
+}

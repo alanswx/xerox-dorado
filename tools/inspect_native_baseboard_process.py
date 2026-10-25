@@ -15,8 +15,8 @@ import time
 from test_r_front_forward_view import sha
 
 
-def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network=False, network_wire_only=False, translated_front=False, front_control=False):
-    network_wire_only = network_wire_only or translated_front
+def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network=False, network_wire_only=False, translated_front=False, front_control=False, receiver_fifo=False):
+    network_wire_only = network_wire_only or translated_front or receiver_fifo
     network = network or network_wire_only
     assert not out.exists()
     state = json.loads((source/'run-state.json').read_text())
@@ -139,6 +139,41 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
         control_binding=dict(backplane_sha256=sha(backplane),caller_sha256=sha(caller),
                              tagged_stage_sha256=sha(tagged),native_pair_mode=False,
                              scope='Raw compiled read/publication-gate inputs at the debugger boundary; no inferred duration or guest writes.')
+    receiver_binding=None
+    if receiver_fifo:
+        board_path=source/'inputs/src/fpga/mister/snapshot_native_dsketh/DskEth_full_snapshot.sv'
+        text=board_path.read_text();bindings={}
+        disk=prefix+'dut__DOT__m__DOT__b_DskEth__DOT__'
+        for index,pkg in enumerate(['j08','j09','j10','j11','j12']):
+            body=re.search(r'cell_F10145A_snapshot u_'+pkg+r' \(.*?\n  \);',text,re.S)[0]
+            pins={int(p):net for p,net in re.findall(r'\.p(\d+)\((\w+)\)',body)}
+            assert [pins[p]for p in [10,9,7,6]]==['RxFifoAd_'+str(i)for i in range(4)]
+            assert pins[13]=='RxFifoWE_p_'
+            for bit,pin in enumerate([5,4,11,12]):
+                number=4*index+bit
+                if number<19:assert pins[pin]=='RxSR_'+f'{number:02d}'
+                else:assert pin not in pins  # Original unused MECL input LOW.
+            fields['receiver_FIFO_'+pkg]=(disk+'u_'+pkg+'__DOT__mem',16)
+            bindings[pkg]=pins
+        for pkg in ['l09','l12']:
+            body=re.search(r'cell_F10016_snapshot u_'+pkg+r' \(.*?\n  \);',text,re.S)[0]
+            pins={int(p):net for p,net in re.findall(r'\.p(\d+)\((\w+)\)',body)}
+            assert pins[12]=='bIOReset' and pins[13]=='Clock1_p_Bd'
+            assert pins[6]==('RxWriteFifo_p_' if pkg=='l09' else 'RxReadFifo_p_')
+            fields['receiver_pointer_'+pkg]=(disk+'u_'+pkg+'__DOT__q',1)
+            bindings[pkg]=pins
+        for pkg in ['i08','i09','i10','i11']:
+            fields['receiver_shift_'+pkg]=(disk+'u_'+pkg+'__DOT__q',1)
+        for name in ['RxState_0','RxState_1','RxState_2','RxCollision','RxFifoEmpty','RxFifoFull',
+                     'RxEOP','RxCRCReset','RxCRCClk','RxReadFifo_p_','RxWriteFifo_p_']:
+            fields['receiver_'+name]=(disk+name,1)
+        cell_path=source/'inputs/src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv'
+        cell=cell_path.read_text()
+        assert 'wire [3:0] a = {p10, p9, p7, p6};' in cell
+        assert 'd_lat<={p12,p11,p4,p5};' in re.sub(r'\s+','',cell)
+        receiver_binding=dict(board_sha256=sha(board_path),FIFO_cell_sha256=sha(cell_path),
+                              packages=bindings,depth=16,data_plus_EOP_bits=19,
+                              scope='Current physical receive FIFO contents/pointers and shift state; consumed slots remain stale, not a receive history.')
     ram_pins={}
     board=source/'inputs/src/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v'
     riot_banks={}
@@ -292,7 +327,7 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
         result['Q_register']=dict(wire_order_word=q_word,source_bindings=q_bindings,
             data_convention='Logical software word is bit-reversed16 of wire-order word; Q is global, HM3.3')
     result.update(decoded_nodes=decoded,counters={k:int.from_bytes(bytes.fromhex(v),'little')
-                  for k,v in result['fields'].items() if not k.startswith(('nodes_','ram_','riot_RAM_','network_buffer_','register_file_','T_file_','translated_'))},
+                  for k,v in result['fields'].items() if not k.startswith(('nodes_','ram_','riot_RAM_','network_buffer_','register_file_','T_file_','translated_','receiver_FIFO_'))},
                   source=str(source),pid=pid,source_state_sha256=sha(source/'run-state.json'),
                   binary_sha256=sha(binary),header_sha256=sha(header),layout=offsets,
                   read_only_guest_inspection=True)
@@ -314,6 +349,15 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
         result['network_inspection_scope']+=' Original translated processor SRAM/owner bits are also read raw.'
     if control_binding is not None:
         result['front_control_source_binding']=control_binding
+    if receiver_binding is not None:
+        slots=[]
+        for index in range(16):
+            raw=sum((bytes.fromhex(result['fields']['receiver_FIFO_'+pkg])[index]&15)<<(4*half)
+                    for half,pkg in enumerate(['j08','j09','j10','j11','j12']))
+            slots.append(dict(physical_address=index,wire_bits=raw,
+                              logical_word=int(f'{raw&65535:016b}'[::-1],2),EOP=(raw>>18)&1,
+                              auxiliary_16_17=(raw>>16)&3))
+        result['receiver_FIFO']=dict(source_binding=receiver_binding,slots=slots)
     if phase_alias is not None:
         result['counters']['phase']=1-result['counters']['phi_inverted']
         result['phase_alias_binding']=phase_alias
@@ -335,4 +379,5 @@ if __name__ == '__main__':
     p.add_argument('--network-wire-only',action='store_true',help='Read network wire/FIFO state without requiring the older discrete processor SRAM cells')
     p.add_argument('--translated-front',action='store_true',help='Also read the compiled translated processor SRAMs and828+16 owner layout, without changing guest state')
     p.add_argument('--front-control',action='store_true',help='Read private combined caller/publication gate inputs with source binding')
-    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.pid,a.low_ram,a.riot_ram,a.keyboard,a.network,a.network_wire_only,a.translated_front,a.front_control)
+    p.add_argument('--receiver-fifo',action='store_true',help='Read original DskEth receive FIFO and status with physical pin binding')
+    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.pid,a.low_ram,a.riot_ram,a.keyboard,a.network,a.network_wire_only,a.translated_front,a.front_control,a.receiver_fifo)

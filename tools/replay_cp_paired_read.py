@@ -17,6 +17,7 @@ import time
 
 from generate_cp_paired_read import processor,caller
 from generate_native_r_capture import generate as native_cells,expose,expose_caller
+from generate_j19_capture import rewrite as j19_capture
 from review_baseboard_clock_consumer import verify
 from test_external_r_packet import sha
 
@@ -130,14 +131,14 @@ def bench(raw,trace,functions,indices,cp_words=False,initial_path=None,native_vi
     return raw
 
 
-def run(trace,out,engine,mutation,native_visible=False,native_mutation=None):
+def run(trace,out,engine,mutation,native_visible=False,native_mutation=None,j19_epochs=False):
     assert not out.exists()
     t=json.loads((trace/'run-state.json').read_text());verify(trace,t['files'])
     cp_words=t['status']=='PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE'
     assert t['status']=='PASS_ORIGINAL_FULL_PROGRAM_WITH_CP_SOURCE_CLOSURE' or cp_words
     if cp_words:
         assert not t['reproduction_only'] and not t['root_CP_collision_program'] and t['ram_sweep_cases']==0
-        assert mutation is None,'write/forwarding mutations require the real paired-write fixture'
+        assert mutation in [None,'late-tpc-block'],'write/forwarding mutations require the real paired-write fixture'
     for row in t['source_files']:
         assert sha(trace/row['path'])==row['output_sha256']
     records=(trace/'transactions.hex').read_text().splitlines();assert len(records)==(12481 if cp_words else 14884)
@@ -166,7 +167,12 @@ def run(trace,out,engine,mutation,native_visible=False,native_mutation=None):
             assert bridge.count(old)==2;bridge=bridge.replace(old,new)
         else:assert native_mutation is None
     else:assert native_mutation is None
-    if mutation=='drop-forward':
+    if mutation=='late-tpc-block':
+        for family in ['control','capture']:
+            old='module dorado_'+family+'_hold_atomic_step #(parameter integer WAVES=24,parameter integer CP_TPC_BLOCK_EARLY=1)('
+            new=old.replace('CP_TPC_BLOCK_EARLY=1','CP_TPC_BLOCK_EARLY=0')
+            assert candidate.count(old)==1;candidate=candidate.replace(old,new,1)
+    elif mutation=='drop-forward':
         old='.external_file_read(later_read)';new='.external_file_read(original_read)'
         assert candidate.count(old)==1;candidate=candidate.replace(old,new,1)
     elif mutation=='early-ram':
@@ -195,6 +201,7 @@ def run(trace,out,engine,mutation,native_visible=False,native_mutation=None):
         text=(trace/name).read_text()
         if name=='candidate.sv':text=candidate
         elif name=='inputs/tb_r_front_local.sv':continue
+        elif name=='adapters/dorado_local_r_front_step.sv' and j19_epochs:text=j19_capture(text)
         dest.write_text(text);paths.append(dest);rows.append(dict(path=name,output_sha256=sha(dest)))
     for name,text in [('caller.sv',owned),('tb.sv',tb),('forward.sv',(base/'forward.sv').read_text())]:
         dest=out/name;dest.write_text(text);paths.append(dest);rows.append(dict(path=name,output_sha256=sha(dest)))
@@ -207,13 +214,14 @@ def run(trace,out,engine,mutation,native_visible=False,native_mutation=None):
         for name,text in [('native_R.sv',bridge),('native_MC10173.v',cell)]:
             dest=out/name;dest.write_text(text);paths.append(dest);rows.append(dict(path=name,output_sha256=sha(dest)))
         (out/'native_R_manifest.json').write_text(json.dumps(native_record,indent=2)+'\n')
-    for name in [Path(__file__).name,'generate_cp_paired_read.py','generate_native_r_capture.py']:
+    for name in [Path(__file__).name,'generate_cp_paired_read.py','generate_native_r_capture.py','generate_j19_capture.py']:
         shutil.copy2(Path(__file__).with_name(name),out/name)
     state=dict(status='RUNNING',scope=__doc__,source=str(trace),source_state_sha256=sha(trace/'run-state.json'),
                source_trace_sha256=sha(trace/'transactions.hex'),source_initial_sha256=sha(trace/'initial.hex'),
                engine=engine,mutation=mutation,source_files=rows,files={str(p.relative_to(out)):sha(p)for p in out.rglob('*')if p.is_file()},
                CP_word_pair_and_read_fixture=cp_words,initial_owner_recovered_from_actual_first_event=cp_words,
                actual_native_visible_R_cells=native_visible,native_cell_mutation=native_mutation,
+               experimental_j19_ordered_epochs=j19_epochs,
                external_visible_R_predicted_result_register=not native_visible,
                geometry_independent_input_bits=376,geometry_cases=378,dependent_CP_aliases_regenerated=True,
                original_per_event_result_owner_RAM_and_clock_comparisons_retained=True,
@@ -231,7 +239,8 @@ def run(trace,out,engine,mutation,native_visible=False,native_mutation=None):
     if native_mutation:
         passed=state['actions'][0]['returncode']==0 and code!=0 and 'PACKET committed owner mismatch'in text
     elif mutation:
-        marker='PACKET second result mismatch'if mutation=='drop-forward'else'PACKET invalid geometry committed'
+        marker=('PACKET second result mismatch'if mutation=='drop-forward'else
+                'PACKET invalid geometry committed'if mutation=='early-ram'else'PACKET committed owner mismatch')
         passed=state['actions'][0]['returncode']==0 and code!=0 and marker in text
     else:
         summary=re.search(r'^FULL_PROCESSOR_PACKET_PASS (.+)$',text,re.M)
@@ -250,6 +259,7 @@ def run(trace,out,engine,mutation,native_visible=False,native_mutation=None):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--trace',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
-    p.add_argument('--engine',choices=['icarus','verilator'],required=True);p.add_argument('--mutation',choices=['drop-forward','early-ram'])
+    p.add_argument('--engine',choices=['icarus','verilator'],required=True);p.add_argument('--mutation',choices=['drop-forward','early-ram','late-tpc-block'])
     p.add_argument('--native-visible',action='store_true');p.add_argument('--native-mutation',choices=['final-clock','invert-select'])
-    a=p.parse_args();raise SystemExit(run(a.trace.resolve(),a.output.resolve(),a.engine,a.mutation,a.native_visible,a.native_mutation))
+    p.add_argument('--j19-epochs',action='store_true')
+    a=p.parse_args();raise SystemExit(run(a.trace.resolve(),a.output.resolve(),a.engine,a.mutation,a.native_visible,a.native_mutation,a.j19_epochs))

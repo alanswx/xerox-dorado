@@ -1,0 +1,341 @@
+{
+  "status": "REVIEWED_DIRECTED_J19_CAPTURE_AND_TPC_STATE_NEGATIVE",
+  "scope": "Preserve the directed full-processor capture fix and boot FIFO diagnosis.\n\nBounded digital timing-profile evidence only. The j19 pulse is1.35ns in this\nillustrative model. Original MC10231 data sheets specify setup/hold and toggle\nfrequency, but no independent minimum clock LOW width in their tables; this\ndoes not establish physical acceptance of that pulse. Native clocks, all-board\nphase/event closure, unknown arrivals and SAME-fixture timing remain open.\n",
+  "runs": [
+    {
+      "directory": "full-tpc-j19-epochs-icarus-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "2cd55d7c0d8afa334529cc45b8f980cab01b032601b29edc50e01e8e0c7d3068",
+      "observed": 1792930504.7535942
+    },
+    {
+      "directory": "full-tpc-j19-epochs-icarus-v2-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "011170eafb61f0c125a754031360d0b75c483b9ef53b1db850b22d372211ae68",
+      "observed": 1792930504.778799
+    },
+    {
+      "directory": "full-tpc-j19-epochs-late-icarus-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "0ac13191e80379d175ba1d1e358e87eaddfc0c1bb8a424f5bde6af1a9dbc5448",
+      "observed": 1792930504.804118
+    },
+    {
+      "directory": "full-tpc-j19-epochs-late-icarus-v2-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "6f9009be278a33acffa07cb16f77d513cabeca1ccd66a990949a1bc0c2f1d087",
+      "observed": 1792930504.830058
+    },
+    {
+      "directory": "full-tpc-j19-epochs-late-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "713fa6876d2de2cf7a5fad640cff52cc27b37b0414103044548504c6cc2e1804",
+      "observed": 1792930504.860019
+    },
+    {
+      "directory": "full-tpc-j19-epochs-late-verilator-v2-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "bdc0821ed1ae982d02e630159e42b15be78e70d7b4b8cf8fe3fe420f79bf6e66",
+      "observed": 1792930504.887302
+    },
+    {
+      "directory": "full-tpc-j19-epochs-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "f7ebf721c1864870e263179d631973bf50ae2b14874c2ab5acf8d148b59c4c64",
+      "observed": 1792930504.919842
+    },
+    {
+      "directory": "full-tpc-j19-epochs-verilator-v2-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "536c42cf33ab67d875de168d500aa3c16dbad7c201f5dfb5f8e52998691dc875",
+      "observed": 1792930504.950956
+    },
+    {
+      "directory": "full-tpc-memory-Block-arrival-icarus-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "02b37912856467b32b613acb0e9b164d6ef7a803bcc72b3ebc887003387e684c",
+      "observed": 1792930504.981102
+    },
+    {
+      "directory": "full-tpc-memory-Block-arrival-verilator-v3-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "29b9ecbc1e3d468a8ab6c4db00d56325b8fd2f5dc713866a0b40f3adf623a049",
+      "observed": 1792930505.010132
+    },
+    {
+      "directory": "full-tpc-memory-Block-late-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "6818337a56599a2977b97bcdec838641508a57e9289bc87a3ed9589bb7c958aa",
+      "observed": 1792930505.040514
+    },
+    {
+      "directory": "full-tpc-memory-Block-late-verilator-v2-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "1ba8384e4678c053b6a0d560406bde98c94d596eecd7f4c2d8af2f7d87b6db19",
+      "observed": 1792930505.069273
+    },
+    {
+      "directory": "full-tpc-memory-Block-late-verilator-v3-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "50c50a7baa9cd9e9cecd73ef163eb52c6434c8349729bd0a1fd3a296257cd554",
+      "observed": 1792930505.1017652
+    },
+    {
+      "directory": "full-tpc-memory-Block-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "2a2319e91ecbccc6f4bef5d8848af71fa93e8fa24359ad4af1c0e3cd2bae9553",
+      "observed": 1792930505.129958
+    },
+    {
+      "directory": "full-tpc-memory-Block-verilator-v2-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "a8eb65da8027e9cf5650d23da52446530211f2226836c4b71d9e70bb68f80fa7",
+      "observed": 1792930505.1611462
+    },
+    {
+      "directory": "j19-full-icarus-v1-20261025",
+      "status": "RUNNING",
+      "state_sha256": "b5b39617b9dd8c1a782ce935dba6aa52a4b5df5ea8472a64f9028758e45e491e",
+      "observed": 1792930505.1932611,
+      "verified_live": true,
+      "pid": 47431,
+      "ps": "47431 09:29   9:27.64 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/j19-full-icarus-v1-20261025/test.vvp"
+    },
+    {
+      "directory": "j19-full-verilator-v1-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "f69d0a92fef65a0bb2ed948f691fd151f3992a2654ec0835bc748b45a60e0b42",
+      "observed": 1792930505.221886
+    },
+    {
+      "directory": "j19-words-icarus-v1-20261025",
+      "status": "RUNNING",
+      "state_sha256": "fe9987b8c965f78f3c7d25b2b4e574e81bb1a04e83d84fe667677ba30adc659a",
+      "observed": 1792930505.2466612,
+      "verified_live": true,
+      "pid": 47853,
+      "ps": "47853 08:20   8:19.41 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/j19-words-icarus-v1-20261025/test.vvp"
+    },
+    {
+      "directory": "j19-words-verilator-v1-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "fa59213bacdc183926f2a2b0cca865de09304dbb4ec6faa45ac71a61cb9e1166",
+      "observed": 1792930505.274902
+    }
+  ],
+  "pending_replays": [
+    {
+      "directory": "j19-full-icarus-v1-20261025",
+      "status": "RUNNING",
+      "state_sha256": "b5b39617b9dd8c1a782ce935dba6aa52a4b5df5ea8472a64f9028758e45e491e",
+      "observed": 1792930505.1932611,
+      "verified_live": true,
+      "pid": 47431,
+      "ps": "47431 09:29   9:27.64 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/j19-full-icarus-v1-20261025/test.vvp"
+    },
+    {
+      "directory": "j19-words-icarus-v1-20261025",
+      "status": "RUNNING",
+      "state_sha256": "fe9987b8c965f78f3c7d25b2b4e574e81bb1a04e83d84fe667677ba30adc659a",
+      "observed": 1792930505.2466612,
+      "verified_live": true,
+      "pid": 47853,
+      "ps": "47853 08:20   8:19.41 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/j19-words-icarus-v1-20261025/test.vvp"
+    }
+  ],
+  "directed_both_engines": [
+    {
+      "engine": "icarus",
+      "checks": 204,
+      "retained_original_staged_reads": 1,
+      "sole_actual_state_negative_bit": 74,
+      "negative_check": 202
+    },
+    {
+      "engine": "verilator",
+      "checks": 204,
+      "retained_original_staged_reads": 1,
+      "sole_actual_state_negative_bit": 74,
+      "negative_check": 202
+    }
+  ],
+  "positive_traces_byte_identical": true,
+  "stored_bits_checked_per_event": 844,
+  "SRAM_bits_checked_per_event": 9216,
+  "clock_channels_checked": 100,
+  "missed_original_clock_channels": [
+    55,
+    56
+  ],
+  "physical_clock_package": "ProcL j19",
+  "ordered_epochs": [
+    "BEFORE",
+    "changed inputs before root",
+    "after root"
+  ],
+  "new_owner_bits": 0,
+  "new_guest_cycles": 0,
+  "new_RAM_ports": 0,
+  "old_original_case_and_staged_read_retained": true,
+  "source_MIR_Block_input": 261,
+  "actual_TPCBypass_corruption_bit": 74,
+  "illustrative_j19_clock_LOW_ns": 1.35,
+  "compiled_digital_profile_ps": {
+    "gate": 1750,
+    "ordinary_FF": 400,
+    "SE10231": 1250
+  },
+  "digital_profile_is_not_actual_part_characterization": true,
+  "primary_data_sheets": {
+    "Motorola_MECL_DataBook_1978.pdf": "30cf66bb2f0f33e4d6e5f9fea17c2cd3e4e1ae6885411954cd6195d31597765a",
+    "ON_MECL_DataBook_DL122_rev7.pdf": "c5e57113403dd90292ba579f6435825980639bc30959f97d74144348d119d2bb"
+  },
+  "physical_minimum_LOW_width_qualified": false,
+  "first_fixture_failed_final_staged_read_coverage_preserved": true,
+  "first_late_mutation_only_legacy_copy_preserved": true,
+  "generic_word_replay_without_required_phase_does_not_calibrate_TPC_negative": true,
+  "replays": {
+    "full": {
+      "Verilator": "transactions=14884 commits=10423 pairs=4461 candidates=4461 fallbacks=0 paired_writes=119 forwarded_bytes=238 Qs=844 RAM=9216 results=2470 clocks=100",
+      "Icarus": "RUNNING"
+    },
+    "words": {
+      "Verilator": "transactions=12481 commits=12387 pairs=94 candidates=94 fallbacks=0 paired_writes=0 forwarded_bytes=0 Qs=844 RAM=9216 results=2470 clocks=100",
+      "Icarus": "RUNNING"
+    }
+  },
+  "last_boot_packet_analysis": {
+    "status": "REVIEWED_LAST_NATIVE_RX_PACKET_AND_BOOT_REGISTERS",
+    "scope": "Source-bind a native boot register/FIFO read without executing a guest CPU.\n\nDecode current physical RM bytes and the retained receive FIFO. Match a whole\nlast packet/CRC/status before interpreting it. Consumed FIFO slots are stale;\nthis cannot establish how the first packet was handled or a complete RX history.\nInitial.mb provides RM names only, with four runtime anchors; it is not the\nembedded ROM's CIA symbol table. No writes to the running process or medium.\n",
+    "inspection_sha256": "9a3918dac4bc454c8b7176f6744433c49803f7964246e069c01f481eb1859856",
+    "pid": 69736,
+    "host_ticks": 1842227625,
+    "guest_ticks": 1033194122,
+    "source_bindings": {
+      "ProcH-Rev-Ce": {
+        "source": "chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.wl",
+        "sha256": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+        "physical_address_xor": 15
+      },
+      "ProcL-Rev-Ci": {
+        "source": "chm/sil/ProcL-Rev-Ci.dm!1_/ProcL-Rev-Ci.wl",
+        "sha256": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+        "physical_address_xor": 255
+      }
+    },
+    "anchors": {
+      "R400": 256,
+      "BOOTDATAPTR": 512,
+      "LHOST": 34,
+      "BFN": 75
+    },
+    "registers": {
+      "R400": {
+        "address": 16,
+        "value": 256,
+        "octal": "000400"
+      },
+      "BOOTDATAPTR": {
+        "address": 17,
+        "value": 512,
+        "octal": "001000"
+      },
+      "LHOST": {
+        "address": 18,
+        "value": 34,
+        "octal": "000042"
+      },
+      "BFN": {
+        "address": 20,
+        "value": 75,
+        "octal": "000113"
+      },
+      "SEQNO": {
+        "address": 23,
+        "value": 0,
+        "octal": "000000"
+      },
+      "RHOST": {
+        "address": 19,
+        "value": 65280,
+        "octal": "177400"
+      },
+      "RETRIES": {
+        "address": 22,
+        "value": 65524,
+        "octal": "177764"
+      },
+      "EIPTR": {
+        "address": 26,
+        "value": 0,
+        "octal": "000000"
+      },
+      "EICNT": {
+        "address": 27,
+        "value": 1,
+        "octal": "000001"
+      }
+    },
+    "final_packet_words": [
+      8705,
+      512,
+      22,
+      181,
+      1,
+      62,
+      34,
+      1,
+      1,
+      1,
+      0,
+      4,
+      65535
+    ],
+    "whole_packet_CRC_and_zero_EOP_match": [
+      {
+        "start": 10,
+        "CRC_address": 7,
+        "CRC_word": 38980,
+        "EOP_address": 8,
+        "status_word": 0
+      }
+    ],
+    "pointer_write": 9,
+    "pointer_read": 9,
+    "FIFO_empty": 1,
+    "FIFO_full": 0,
+    "first_packet_rejection_reason_established": false,
+    "complete_RX_history": false,
+    "native_or_hardware_boot_qualified": false,
+    "hardware_changed": false,
+    "source_MIR_or_clock_changes": false,
+    "files": {
+      "dorado_r_file_ports.sv": "2b07a3403a4df126759f43092c99b6647766f790487834c76d2c3fbffb160ef2",
+      "analyze_native_boot_read.py": "dffa04e2ba4ecd91719a4dc9d90d512a2ed1ac277aa23879800d0ce61699900e",
+      "mb.c": "86cee4d2070a496294575ddaa5ad6e76e17255dd48b20fca5c8988f01dcfeb92",
+      "registers.c": "a637aa64b500829a44206312ba29bee82eb7a751fb4ae47c8d3beacf6ab2beae",
+      "mb.h": "c6cf90c0717eaf9371af2f8fed939015df47cf900cf33964e689097c1791e853",
+      "register-symbols.log": "51b04750f81bb262b2ed26bb042c9122e652705467c274fb48542b7813b317bf",
+      "control-short-native-receiver-read-v1-20261025/layout-compile.log": "7de340c18e5c9f0402427baef6399811104ea161c3008a6fa7f7fefb903a7f9a",
+      "control-short-native-receiver-read-v1-20261025/lldb.log": "d0f13237a79c86dc3dbbc8bfd8d3861d5496c0380c5e01516e7e77422b2093f6",
+      "control-short-native-receiver-read-v1-20261025/result.json": "9a3918dac4bc454c8b7176f6744433c49803f7964246e069c01f481eb1859856",
+      "control-short-native-receiver-read-v1-20261025/memory.json": "98f29e557aeb26c090f828f140642174724dd7869a3dd7fb0fe93b3fc5b37615",
+      "control-short-native-receiver-read-v1-20261025/layout.cpp": "10c70ae99a52b0cf80849e8d79e0ca53efb3a8a8fc7e0a35f00f59dd17675136",
+      "control-short-native-receiver-read-v1-20261025/inspect_native_baseboard_process.py": "d632c70e6b09293cfe52b7b102a0435230bde1862637a1e97eefe52f4165da75",
+      "control-short-native-receiver-read-v1-20261025/commands.lldb": "d0545e133923d2c79d03b47c221dcb5b599127927131dff7b66979bccbf36cb2",
+      "control-short-native-receiver-read-v1-20261025/layout.json": "2c7bfc6d9151fb8f85a0595e63509d64415938b4c7ce3bcda9cd20d29c0cd421",
+      "control-short-native-receiver-read-v1-20261025/read.py": "8a18de8b317f204bf71b7cbbffa2267ff5568188f450bc016d53317fb16c4f29",
+      "inputs/chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "inputs/chm/sil/ProcL-Rev-Ci.dm!1_/ProcL-Rev-Ci.wl": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60"
+    }
+  },
+  "original_first_packet_loss_reason_established": false,
+  "new_j19_adapter_selected_in_running_native": false,
+  "full_source_arrival_and_unknown_capture_qualified": false,
+  "native_paired_phase_or60ns_qualified": false,
+  "physical_timing_qualified": false,
+  "original_firmware_Cedar_qualified": false,
+  "hardware_changed": false,
+  "new_RBF_ready": false,
+  "full_goal_active": true
+}

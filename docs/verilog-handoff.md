@@ -7,7 +7,63 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST ORIGINAL VISIBLE-R CELL HOOKUP (2026-10-25):
+LATEST DIRECTED CAPTURE REPAIR AND BOOT DECODE (2026-10-25):
+The original four-cell replays are now TERMINAL PASS in BOTH engines: full
+40576 and mixed words40577. `native-R-capture-complete-summary.json` verifies
+the exact source and complete outcomes/100 clocks. Do not restart those jobs.
+
+`j19-capture-and-native-RX-summary.json` retains a newly observable full-graph
+capture case. Normal memory MIR Block input261 is held high, then an ordinary
+phase pair aligns the CP/root crossing with the real capture clock. The old
+adapter misses BOTH ProcL j19 clocks (channels55/56): HIGH -> LOW -> HIGH,
+163414.400..163415.750ns, despite equal endpoint levels. All original assertions
+remain; BOTH engines reproduce the missed edges. Earlier inactive-copy mutation
+and a test that lost the required staged read are retained as insufficient.
+
+`tools/generate_j19_capture.py` is an OPT-IN private adapter experiment. It
+retains BEFORE/changed-input-before-root/after-root clock epochs and captures
+the data preceding the selected j19 edge. No owner, SRAM port or ordinary guest
+cycle is added. The complete original staged-read case runs FIRST, followed by
+the new crossing in the SAME history:204 events, all844 states/9216 RAM bits/
+100 clocks pass in BOTH engines, and the original one-read final gate remains.
+Disabling Block capture in BOTH active/generated and generic copies now changes
+ONLY real TPCBypass bit74 at202 and fails the original state assertion in BOTH
+engines. This closes the bounded nonvacuous full-processor TPC negative gate.
+
+Both full j19 Verilator replays pass unchanged14884/4461 pairs/119 paired writes/
+238 forwarded bytes, and12481/94 pairs/one staged read. SAME Icarus peers are
+live: full47431/session58036, words47853/session19009. Follow these processes.
+This is digital-profile evidence. The modeled j19 LOW interval is1.35ns;
+Motorola1978 p3-126 and ON DL122 pp432-433 specify the part's setup/hold/toggle
+rate, but their tables provide no independent minimum clock LOW-width limit.
+Do not infer acceptance of that pulse from toggle rate or these ideal models.
+Full source/arrival/unknown cases and native timing remain unqualified. The
+j19 adapter is NOT selected in running native40369; preserve its fixed source.
+`j19-capture-profile-readback-summary.json` verifies the actual compiled files:
+G1750ps/ordinary-FF400ps/SE10231-1250ps. These are diagnostic delays, not measured
+part parameters. `native-RX-symbol-source-summary.json` additionally freezes the
+exact Initial.mb bytes and static reader inputs used for the RM name anchors.
+
+Read-only native69736 inspection at host1842227625/guest1033194122 reads the
+actual receive FIFO, not just the host cable buffer. All13 final-reply words
+match at physical slots10..6, CRC38980 at7 gives zero serial residue, and the
+EOP status at8 is zero. Read/write pointers both9, FIFO empty/not full.
+Source-bound translated RM decoding reproduces R400=400B/BootDataPtr1000B/
+LHost42B/BFN113B, but SeqNo0/RHost177400B/Retries-12 persist. This narrows the
+boot investigation to first-packet acceptance/filtering; it does NOT establish
+the first packet's status, all-packet CRC health or the reason for rejection.
+Debugger detached/resumed. `tools/analyze_native_boot_read.py` uses a static
+.mb symbol reader only, not a CPU emulator or guest state import.
+
+Native40369 has reached170M HOST, still within its unchanged six-pass memory
+self-test and250M startup bound; no fault or guest release yet. Native69736
+retains5B HOST and normal retry behavior. NEXT: finish SAME j19 peers, qualify
+other j19 data/clock/arrival cases and native source phases, then incorporate a
+reviewed adapter in a NEW stage. Keep all clock/result/coverage checks, actual
+MIR/Ready/Hold/IFU/Memory and all A–F/60ns/SDRAM/Cedar/Rollback/persistence/stress
+requirements. No new fit, RBF, FPGA load or measured speed gain.
+
+PREVIOUS ORIGINAL VISIBLE-R CELL HOOKUP (2026-10-25):
 `native-R-capture-summary.json` records the actual ProcH/ProcL g06/g07
 MC10173 cells. Their16 Q bits remain the sole visible-R owners. No production
 reset/init or predicted-result register is added. The processor exports the
@@ -18,8 +74,8 @@ Focused and payload-gate tests pass BOTH engines against every original owner,
 RAM and clock assertion. Inverting the original mux select corrupts actual R
 and is detected. Actual-cell Verilator full replay passes14884 subevents/
 10423 commits/4461 pairs/119 paired writes/238 forwarded bytes. Its CP-word
-peer passes12481 events/94 pairs/one staged read. SAME Icarus peers are live:
-full40576, words40577; follow those recorded jobs, do not restart them.
+peer passes12481 events/94 pairs/one staged read. SAME Icarus peers40576/40577
+have now completed and match; the top block records the completed review.
 
 Unbounded binary induction checks the actual16 cells against independent
 sequential latch transfers with arbitrary input frames/commit and uninitialized
