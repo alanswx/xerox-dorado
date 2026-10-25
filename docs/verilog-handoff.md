@@ -7,7 +7,63 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST COMBINED CP READ/PAIR PATH (2026-10-25):
+LATEST ORIGINAL VISIBLE-R CELL HOOKUP (2026-10-25):
+`native-R-capture-summary.json` records the actual ProcH/ProcL g06/g07
+MC10173 cells. Their16 Q bits remain the sole visible-R owners. No production
+reset/init or predicted-result register is added. The processor exports the
+original operand's D/S/C input epochs; a paired transfer selects the last open
+epoch in each half. Pure/control tops and the2470-bit result layout are unchanged.
+
+Focused and payload-gate tests pass BOTH engines against every original owner,
+RAM and clock assertion. Inverting the original mux select corrupts actual R
+and is detected. Actual-cell Verilator full replay passes14884 subevents/
+10423 commits/4461 pairs/119 paired writes/238 forwarded bytes. Its CP-word
+peer passes12481 events/94 pairs/one staged read. SAME Icarus peers are live:
+full40576, words40577; follow those recorded jobs, do not restart them.
+
+Unbounded binary induction checks the actual16 cells against independent
+sequential latch transfers with arbitrary input frames/commit and uninitialized
+Qs. Final-clock-only, last-data and inverted-select mutations produce actual
+visible/expected counterexamples. Scope is the capture INTERFACE, not the whole
+processor or analog arrival timing. A separate Icarus test passes16384 cases
+covering X/Z clocks/select/data/commit. The full replay itself does NOT detect
+the final-clock-only mutation:4358 first-only captures all repeat the held byte
+(first_only_changed=0). Its attempted negative is preserved as a coverage gap;
+the arbitrary-frame formal counterexample is a separate result.
+
+`tools/stage_native_cp_read.py` connects the common caller and those four
+original cells into a PRIVATE194-source full native tree. Original board outputs,
+admin/snapshot ports, all other owners, firmware bytes, PB1 ground, boot presses
+and media are retained. Payload readiness now includes alias/settling/repeated/
+shared-state checks; read preparation remains independent. Native paired mode
+is explicitly OFF until other boards' phase composition is established. This
+single-event startup diagnostic is not a selected performance image.
+
+Private native `native-cp-read-cells-prefix-v1-20261025` elaborates/compiles and
+test40369/session12757 is live with its own250M HOST bound. At host20M it was
+still initializing storage (guest0); that is not an execution stall or boot pass.
+All existing storage/request/response/whole-board assertions remain, plus actual
+16-R hold/commit checks. Full warning lint retains EIGHT UNOPTFLAT diagnostics;
+none qualifies physical timing. Native69736 retains its original5B HOST bound.
+The memory self-test performs SIX complete write/read passes; the unchanged
+baseline's first logged release is200M HOST. Read-only inspection at40069039
+HOST confirms reset-held memory initialization, alias_ok1/unsettled0/repeated0/
+shared_mismatch0. The debugger detached/resumed40369. This250M prefix can test
+first machine advances but cannot reach the normal CoolBoot press sequence;
+do not expect a113B request or Cedar within its bound. Preserve all six passes.
+`tools/inspect_native_baseboard_process.py --front-control --translated-front`
+now binds the compiled caller's owners/gate fields without assuming the old
+discrete RAM hierarchy. The same debugger command resumes the original process.
+
+NEXT: finish SAME actual-R peers and observe native startup past initialization.
+Diagnose any barrier/producer issue without bypassing validity checks. Then
+complete all-board phase/event retention, actual MIR/Ready/Hold/IFU/Memory and
+legal WE-close/address hold, and review SAME-fixture timing before selecting a
+native fit. Original60ns/timers, separate66.7MHz SDRAM and complete A–F/Cedar/
+Rollback/persistence/fresh boots/stress remain. No new RBF, FPGA load or measured
+speed gain. Last hardware measurement remains4.025473M StartCycle ISSUES/s.
+
+COMPLETED COMBINED CP READ/PAIR PATH (2026-10-25):
 `combined-cp-paired-read-summary.json` retains a real combined digital caller.
 `tools/generate_cp_paired_read.py` builds ALL invocations from the corrected CP
 capture source, then installs shared descriptors and actual13-wire CP views.
@@ -32,13 +88,12 @@ single fallback and64-RAM suites pass BOTH engines with byte-identical complete
 traces; collision Verilator128-fixture also passes. Hierarchy has exactly one
 four-bank9216-bit SRAM; the duplicate control detects18432bits.
 
-Five peers were VERIFIED LIVE at review. Do not restart or extend them:
-collision Icarus30462/session38985; full replay33501/session4145; mixed words
-replay34781/session93972; original balanced program34578/session1326; original
-phase3000 program35283/session43009. Review records their actual ps commands.
-Follow SAME handles and require terminal status/source/full-trace equality.
-The64-RAM Icarus30461/session1154 is TERMINAL PASS; the full-word peer30463/
-session62709 is TERMINAL PASS. Those complete results are already archived.
+All five formerly live peers are now TERMINAL PASS: collision Icarus30462,
+full replay33501, mixed words34781, original balanced34578 and phase300035283.
+`combined-cp-paired-read-complete-summary.json` verifies all SEVEN both-engine
+groups, exact candidate/caller/full-trace/initial equality where applicable,
+and complete replay outcomes/100 clocks. Do not restart any of these jobs.
+The older summary preserves the earlier live observation as history.
 
 New timing counterexample, NOT a reason to alter the legal RBase write rule:
 the full original stimulus with actual CP wiring fails at761 in BOTH engines
@@ -62,7 +117,7 @@ preserve legal g15 WE-close before a19 LastNext switching, with address hold,
 while retaining the CP/clock capture contracts. One passing diagnostic delay
 does not qualify native timing or every write window.
 
-NEXT: finish same peers, then connect actual native16-R C/D/Set clocks and real
+NEXT at that milestone: connect actual native16-R C/D/Set clocks and real
 CP/MIR/Ready/Hold/IFU/Memory producers. Carry whole-machine settling/repeated/
 error validity into readiness, and freeze/queue actual device events across
 stalls/retries. Qualify all write-window/arrival/unknown cases and SAME-fixture

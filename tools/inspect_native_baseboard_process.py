@@ -15,7 +15,7 @@ import time
 from test_r_front_forward_view import sha
 
 
-def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network=False, network_wire_only=False, translated_front=False):
+def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network=False, network_wire_only=False, translated_front=False, front_control=False):
     network_wire_only = network_wire_only or translated_front
     network = network or network_wire_only
     assert not out.exists()
@@ -106,7 +106,39 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
         front=prefix+'dut__DOT__m__DOT__'
         for key,name,size in [('lower','r_front_lower_q',72),('upper','r_front_upper_q',32),
                               ('visible_h','r_front_visible_r_ProcH',1),('visible_l','r_front_visible_r_ProcL',1)]:
-            fields['translated_owner_'+key]=(front+name,size)
+            field=front+name
+            if key in ['lower','upper'] and field+';' not in header.read_text():
+                # The new common caller owns the same registers. Compiler
+                # alias elimination may retain its declaration instead of the
+                # read-only backplane wire; bind the unique actual field.
+                matches=re.findall(r'\b('+front+r'\w+__DOT__'+name+r');',header.read_text())
+                assert len(matches)==1,(name,matches)
+                field=matches[0]
+            fields['translated_owner_'+key]=(field,size)
+    control_binding=None
+    if front_control:
+        backplane=source/'inputs/src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v'
+        caller=source/'inputs/src/verilog/rtl/caller.sv'
+        tagged=source/'inputs/src/verilog/rtl/dorado_r_interior_read_tagged_stage.sv'
+        raw=caller.read_text()
+        assert 'assign control_ready=packet_ready && read_ready && payload_ready;' in raw
+        assert 'assign owner_commit=contb_advance && control_ready;' in raw
+        assert '.use_pair(1\'b0)' in backplane.read_text()
+        front=prefix+'dut__DOT__m__DOT__'
+        for key,name,size in [('initialized','storage_initialized',1),('storage_ready','storage_ready',1),
+                              ('control_ready','control_ready',1)]:
+            fields['front_control_'+key]=(prefix+name,size)
+        for key,name,size in [('alias_ok','r_front_alias_ok',1),('unsettled','r_front_unsettled',1),
+                              ('repeated','r_front_repeated',16),('read_needed','r_read_needed',1),
+                              ('entry_ready','r_front_dispatch__DOT__packet__DOT__entry_ready',1),
+                              ('shared_mismatch','r_front_dispatch__DOT__packet__DOT__single_shared_state_mismatch',1),
+                              ('read_phase','r_front_dispatch__DOT__stage__DOT__transaction__DOT__phase',1),
+                              ('descriptor','r_front_dispatch__DOT__stage__DOT__descriptor',12),
+                              ('descriptor_q','r_front_dispatch__DOT__stage__DOT__descriptor_q',12)]:
+            fields['front_control_'+key]=(front+name,size)
+        control_binding=dict(backplane_sha256=sha(backplane),caller_sha256=sha(caller),
+                             tagged_stage_sha256=sha(tagged),native_pair_mode=False,
+                             scope='Raw compiled read/publication-gate inputs at the debugger boundary; no inferred duration or guest writes.')
     ram_pins={}
     board=source/'inputs/src/build/rtl-executive/native16-tx-cable/BaseBd_nominal.v'
     riot_banks={}
@@ -280,6 +312,8 @@ def run(source, out, pid, low_ram=False, riot_ram=False, keyboard=False, network
             stored_owner_bits=828,external_visible_R_bits=16,
             limitation='Raw physical addresses and wire-order bits only. Logical register names/addresses require separate source-bound decoding; no guest execution or state change.')
         result['network_inspection_scope']+=' Original translated processor SRAM/owner bits are also read raw.'
+    if control_binding is not None:
+        result['front_control_source_binding']=control_binding
     if phase_alias is not None:
         result['counters']['phase']=1-result['counters']['phi_inverted']
         result['phase_alias_binding']=phase_alias
@@ -300,4 +334,5 @@ if __name__ == '__main__':
     p.add_argument('--network',action='store_true',help='Read serial receive state/buffer and actual controller FIFO flags without writing guest state')
     p.add_argument('--network-wire-only',action='store_true',help='Read network wire/FIFO state without requiring the older discrete processor SRAM cells')
     p.add_argument('--translated-front',action='store_true',help='Also read the compiled translated processor SRAMs and828+16 owner layout, without changing guest state')
-    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.pid,a.low_ram,a.riot_ram,a.keyboard,a.network,a.network_wire_only,a.translated_front)
+    p.add_argument('--front-control',action='store_true',help='Read private combined caller/publication gate inputs with source binding')
+    a=p.parse_args();run(a.source.resolve(),a.output.resolve(),a.pid,a.low_ram,a.riot_ram,a.keyboard,a.network,a.network_wire_only,a.translated_front,a.front_control)

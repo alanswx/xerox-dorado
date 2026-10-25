@@ -14,7 +14,46 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST combined CP capture/read/paired path (2026-10-25):
+LATEST actual visible-R cells and private native hookup (2026-10-25):
+
+- [x] Retain the actual four ProcH/ProcL g06/g07 cells and16 sole Q owners.
+  Expose original operand D/S/C epochs; compose paired captures per half without
+  copying predicted visible results. No production reset/init;2470 result bits
+  and pure/control tops unchanged.
+- [x] Both-engine focused/payload suites retain all original owner/RAM/clock
+  checks. Wrong mux select corrupts actual R and is detected. Actual-cell full
+  Verilator replay passes14884 events/4461 pairs/119 paired writes/238 forwarded
+  bytes; CP-word replay passes12481 events/94 pairs/one staged read.
+- [x] Inductively prove the16 original native cells' capture-interface transfer
+  for arbitrary binary frames/commit and unconstrained initial Qs. Three mutants
+  produce actual visible/expected witnesses. Icarus passes16384 X/Z cases.
+  These are interface/primitive results, not full-machine/analog proofs.
+- [x] Preserve the full-trace negative coverage limit: final-clock-only passes
+  that legal fixture because all4358 first-only writes repeat the held value.
+  Do not call it a successful full-trace negative; formal arbitrary frames
+  independently distinguish it.
+- [x] Stage a private194-source native tree with the common caller and four
+  original board cells. Preserve firmware/PB1/boot/media/storage/devices and all
+  old monitors. Add actual16-R hold/commit checks. Elaboration and compilation
+  pass; full lint retains eight UNOPTFLAT warnings for review.
+- [ ] Finish SAME actual-cell Icarus jobs: full40576 and words40577. Verilator
+  counterparts are complete. Receipt: `native-R-capture-summary.json`.
+- [ ] Follow native40369/session12757 at its own250M HOST bound past memory
+  initialization (20M HOST, guest0 at review). Keep original69736/5B HOST run.
+  New native paired mode is OFF pending other-board phase composition; this
+  startup diagnostic is not a selected speed candidate or a firmware pass.
+  Six full memory test passes precede release (baseline first logged at200M).
+  Read-only40069039-HOST inspection finds initialization still active and
+  alias/settling/repeated/shared checks clear; debugger detached/resumed.
+  The250M startup bound cannot reach normal CoolBoot inputs or Cedar. Preserve
+  the self-test and use this run to check the first native advances/barrier.
+- [ ] Complete actual producer/event retention across stalls and native paired
+  phase composition, legal WE-close/address hold, MIR/Ready/Hold/IFU/Memory and
+  SAME-fixture timing. Original60ns/timers, physical66.7MHz SDRAM and all A–F
+  acceptance remain. No new RBF/load/measured gain; hardware reference remains
+  4.025473M StartCycle issues/s. FPGA is available for a qualified image.
+
+Completed combined CP capture/read/paired path (2026-10-25):
 
 - [x] Generate paired/single invocations from the SAME corrected CP capture
   source. Preserve sparse fall/forwarding and generic PREFIX history. Keep
@@ -38,10 +77,10 @@ LATEST combined CP capture/read/paired path (2026-10-25):
 - [x] Focused/payload tests, full4096-word single fallback and64 independent
   RAM fixtures pass BOTH engines, with complete traces identical to the prior
   checked processor. Collision128-fixture Verilator passes too.
-- [ ] Finish SAME Icarus peers: collision30462, full replay33501, mixed word
-  replay34781, original balanced34578, original phase300035283. All five are
-  verified live in `combined-cp-paired-read-summary.json`; follow existing
-  handles in the handoff. Do not restart completed word30463/RAM30461 runs.
+- [x] All five SAME Icarus peers completed: collision30462, full replay33501,
+  mixed word34781, original balanced34578, original phase300035283. Complete
+  review verifies all seven both-engine groups, exact full traces/initials and
+  replay outcomes/100 clocks. Do not restart completed jobs.
 - [x] Restore the complete ORIGINAL stimulus with actual CP wiring. The full
   G1750/FF400/phase1250 run fails761 in BOTH engines: g15 LastNext changes0.5ns
   before WE closes, producing an extra RBase entry7 write (Q668..671). Preserve
@@ -58,9 +97,9 @@ LATEST combined CP capture/read/paired path (2026-10-25):
   actual native16-R C/D/Set edges, full payload/repeat/error validity, retained
   producer events, IFU/Memory and every original A–F acceptance requirement.
 
-Receipt: `combined-cp-paired-read-summary.json`, status
-REVIEWED_COMBINED_CP_READ_AND_PAIR_PATH_WITH_PENDING_PEERS. Failed attempts,
-exact source/trace equality, real negatives and verified-live peers are retained.
+Receipt: `combined-cp-paired-read-complete-summary.json`, status
+REVIEWED_COMBINED_CP_READ_AND_PAIR_PATH. Older live observations, failed attempts,
+exact source/trace equality and real negatives are retained.
 No new RBF or measured hardware speed gain. Native69736 remains the original
 5B HOST run; firmware/media/baselines stay unchanged. Goal remains active.
 

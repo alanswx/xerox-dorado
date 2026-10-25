@@ -1,5 +1,25 @@
 # Native timing and capture-order qualification
 
+Latest update,2026-10-25: `combined-cp-paired-read-complete-summary.json`
+closes all seven original combined-path both-engine groups. The five previously
+live peers are terminal PASS, with complete trace/initial equality and full
+replay outcome/clock checks. Earlier live observations below remain historical.
+
+`native-R-capture-summary.json` qualifies the separate actual four-cell
+visible-R capture interface: both-engine focused/payload checks, full and mixed
+word Verilator replays, arbitrary binary induction and16384 Icarus X/Z cases.
+Three formal mutants corrupt actual visible Q; a wrong mux select also fails
+the original processor checks. The final-clock-only mutation is NOT detected by
+the full legal replay (first-only writes repeat held data); preserve that gap.
+Full/mixed Icarus peers40576/40577 remain live at this observation.
+
+The private194-source native hookup retains original firmware, cells and media.
+It compiles with eight retained UNOPTFLAT warnings; startup40369 is live at its
+own250M HOST bound, still in memory initialization at20M. Paired native mode is
+off pending all-board phase composition. This establishes no firmware boot,
+physical timing or hardware-speed pass. MiSTer14 is available again, but no new
+reviewed RBF exists. See the current handoff for authoritative handles/gates.
+
 This receipt preserves the complete v5 native failure and the corrected
 component implementation of the original l06/l07 flag latches. No image was
 assembled or loaded; the qualified hardware core and measured speed are unchanged.

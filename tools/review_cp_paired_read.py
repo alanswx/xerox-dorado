@@ -48,7 +48,7 @@ def observed(d):
     return s,row
 
 
-def review(out):
+def review(out,require_full=False):
     assert not out.exists();out.mkdir(parents=True);runs=[];pending=[]
     directories=[]
     for pattern in ['cp-paired-read-*-20261025','cp-original-program-*-20261025','rbase-edge-*-20261025']:
@@ -109,6 +109,32 @@ def review(out):
         assert s['original_full_stimulus_program']and s['original_final_coverage_assertions_retained']
         assert not original_asserts-event_assertions((d/'inputs/tb_r_front_local.sv').read_text())
     for n in ['transactions.hex','initial.hex']:assert sha(balanced/n)==sha(phase/n)
+    complete_groups=[]
+    for mode in ['all','collisions','ram64']:
+        peers=[BUILD/f'cp-paired-read-{mode}-{e}-v1-20261025'for e in ['icarus','verilator']]
+        terminal=all(read(d/'run-state.json')['status']=='PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK'for d in peers)
+        if terminal:
+            for n in ['candidate.sv','caller.sv','transactions.hex','initial.hex']:
+                assert sha(peers[0]/n)==sha(peers[1]/n)
+            complete_groups.append(mode)
+    for mode in ['replay','words-replay']:
+        version=2 if mode=='replay'else 1
+        peers=[BUILD/f'cp-paired-read-{mode}-{e}-v{version}-20261025'for e in ['icarus','verilator']]
+        if all(read(d/'run-state.json')['status']=='PASS_COMBINED_CP_COHERENT_PACKETS'for d in peers):
+            for n in ['candidate.sv','caller.sv']:assert sha(peers[0]/n)==sha(peers[1]/n)
+            def outcomes(d):
+                text=(d/'test.log').read_text()
+                return re.findall(r'^(?:FULL_PROCESSOR_PACKET_PASS|PACKET_CLOCK|CACHED_PACKET_COVERAGE|CP_PACKET_GEOMETRY_REJECTIONS|CP_PACKET_STAGED_READS|NATIVE_R_PACKET_COVERAGE) .*$',text,re.M)
+            assert outcomes(peers[0])==outcomes(peers[1])
+            complete_groups.append(mode)
+    for profile in ['balanced','phase3000']:
+        v=2 if profile=='balanced'else 1
+        peers=[BUILD/f'cp-original-program-{profile}-{e}-v{v}-20261025'for e in ['icarus','verilator']]
+        if all(read(d/'run-state.json')['status']=='PASS_ORIGINAL_FULL_PROGRAM_WITH_CP_SOURCE_CLOSURE'for d in peers):
+            for n in ['candidate.sv','transactions.hex','initial.hex']:assert sha(peers[0]/n)==sha(peers[1]/n)
+            complete_groups.append('original-'+profile)
+    if require_full:
+        assert not pending and len(complete_groups)==7,(pending,complete_groups)
     a=(balanced/'transactions.hex').read_text().splitlines()
     b=(BUILD/'processor-original-trace-v2-20261024/transactions.hex').read_text().splitlines()
     assert len(a)==len(b)==14884;mask=(1<<(2470+9216))-1
@@ -141,7 +167,8 @@ def review(out):
     target=out/failed.name;target.mkdir()
     for name in ['failure.json','failed-review-script.py']:
         (target/name).write_bytes((failed/name).read_bytes())
-    result=dict(status='REVIEWED_COMBINED_CP_READ_AND_PAIR_PATH_WITH_PENDING_PEERS',scope=__doc__,runs=runs,pending_peers=pending,
+    result=dict(status='REVIEWED_COMBINED_CP_READ_AND_PAIR_PATH'+('_WITH_PENDING_PEERS'if pending else''),scope=__doc__,runs=runs,pending_peers=pending,
+                completed_both_engine_groups=complete_groups,full_component_and_coherent_replay_peers_required=require_full,
                 same_corrected_CP_processors_all_invocations=True,original2470_bit_result_layout_preserved=True,
                 full_coherent_replay_verilator=f['summary'],paired_write_bytes_forwarded=238,
                 CP_word_mixed_pair_and_read_replay_verilator=w['summary'],mixed_history_staged_reads=1,
@@ -165,6 +192,7 @@ def review(out):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output',type=Path,required=True);p.add_argument('--archive',type=Path,required=True)
-    a=p.parse_args();r=review(a.output.resolve())
-    append_archive(a.archive.resolve(),a.output.resolve(),[],label='combined-cp-paired-read',extra_tools=TOOLS)
+    p.add_argument('--require-full',action='store_true');p.add_argument('--label',default='combined-cp-paired-read')
+    a=p.parse_args();r=review(a.output.resolve(),a.require_full)
+    append_archive(a.archive.resolve(),a.output.resolve(),[],label=a.label,extra_tools=TOOLS)
     print(r['status'])

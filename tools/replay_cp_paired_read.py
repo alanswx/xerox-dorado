@@ -16,6 +16,7 @@ import subprocess
 import time
 
 from generate_cp_paired_read import processor,caller
+from generate_native_r_capture import generate as native_cells,expose,expose_caller
 from review_baseboard_clock_consumer import verify
 from test_external_r_packet import sha
 
@@ -23,12 +24,33 @@ ROOT=Path(__file__).resolve().parents[1]
 BUILD=ROOT/'build/rtl-executive'
 
 
-def bench(raw,trace,functions,indices,cp_words=False,initial_path=None):
+def bench(raw,trace,functions,indices,cp_words=False,initial_path=None,native_visible=False):
     original=raw;edits=[]
     def change(a,b):
         nonlocal raw
         assert raw.count(a)==1,a
         raw=raw.replace(a,b,1);edits.append((a,b))
+    if native_visible:
+        change('reg [15:0] visible_r=0;', '''wire [15:0] visible_r;wire [35:0] native_R_frame;wire owner_commit;
+ dorado_native_r_capture visible_cells(host_clk,owner_commit,native_R_frame,visible_r);
+ integer native_first_only=0,native_first_only_changed=0,native_last_open=0;
+''')
+        marker=' wire [843:0] last_held_next=last_result[2469:1626];'
+        change(marker,marker+'''
+ always @(posedge host_clk)if(owner_commit && use_pair)begin
+  for(integer half=0;half<2;half++)begin
+   if(!dut.packet.first_native_R[34+half] && dut.packet.second_native_R[34+half])begin
+    native_first_only++;
+    if(last_held_next[572+8*half+:8]!==visible_r[8*half+:8])native_first_only_changed++;
+   end
+   if(!dut.packet.second_native_R[34+half])native_last_open++;
+  end
+ end
+''')
+        change(' always @(posedge host_clk)if(advance && ready)visible_r<=last_held_next[587:572];',
+               ' // The original four native MC10173 cells own the16 visible-R bits.')
+        change('visible_r=initial_owner[587:572];', '''visible_cells.high.u_g06.q=initial_owner[575:572];visible_cells.high.u_g07.q=initial_owner[579:576];
+  visible_cells.low.u_g06.q=initial_owner[583:580];visible_cells.low.u_g07.q=initial_owner[587:584];''')
     if cp_words:
         change('localparam integer COUNT=14884;','localparam integer COUNT=12481;')
         change('if(pairs<1000 || paired_writes==0 || forwarded_bytes==0)',
@@ -45,11 +67,14 @@ def bench(raw,trace,functions,indices,cp_words=False,initial_path=None):
   endcase
  endfunction
 '''.replace('GEOMETRY','\n'.join(f'   {i}:geometry_bit={v};' for i,v in enumerate(indices)))
+    if native_visible:
+        addition=addition.replace('stage_busy,stage_tag_match,owner_commit;','stage_busy,stage_tag_match;')
     marker=' dorado_r_front_owned_packet dut('
     change(marker,addition+marker)
     marker='first_result,last_result,ready,forwarded,held_q);'
     change(marker,'''first_result,last_result,ready,forwarded,held_q,
-  read_accept,1'b1,read_needed,stage_active,stage_reading,stage_valid,stage_busy,stage_tag_match,owner_commit);''')
+  read_accept,1'b1,read_needed,stage_active,stage_reading,stage_valid,stage_busy,stage_tag_match,owner_commit'''+
+           (',native_R_frame'if native_visible else'')+');')
     # Move only actual SRAM hierarchy, preserving every original memory bit.
     before=raw;raw=raw.replace('dut.packet.files.','dut.files.')
     assert before!=raw;edits.append((before,raw))
@@ -92,7 +117,11 @@ def bench(raw,trace,functions,indices,cp_words=False,initial_path=None):
         target=initial_path if suffix=='initial.hex' and initial_path else trace/suffix
         change('$readmemh("'+old+'"','$readmemh("'+str(target)+'"')
     marker='  $finish;'
-    change(marker,'  $display("CP_PACKET_STAGED_READS count=%0d",staged_reads);\n'+marker)
+    extra='  $display("CP_PACKET_STAGED_READS count=%0d",staged_reads);\n'
+    if native_visible:
+        extra+='''  $display("NATIVE_R_PACKET_COVERAGE first_only=%0d first_only_changed=%0d last_open=%0d",native_first_only,native_first_only_changed,native_last_open);
+'''
+    change(marker,extra+marker)
     restored=raw
     for a,b in reversed(edits):
         assert restored.count(b)==1
@@ -101,7 +130,7 @@ def bench(raw,trace,functions,indices,cp_words=False,initial_path=None):
     return raw
 
 
-def run(trace,out,engine,mutation):
+def run(trace,out,engine,mutation,native_visible=False,native_mutation=None):
     assert not out.exists()
     t=json.loads((trace/'run-state.json').read_text());verify(trace,t['files'])
     cp_words=t['status']=='PASS_ORIGINAL_FULL_PROCESSOR_CP_SOURCE'
@@ -125,6 +154,18 @@ def run(trace,out,engine,mutation):
     assert sha(cp/'manifest.json')==t['CP_manifest_sha256']
     fn=(cp/'functions.sv').read_text();candidate=processor((base/'candidate.sv').read_text(),fn)
     owned=caller((base/'caller.sv').read_text(),fn)
+    native_record=None
+    if native_visible:
+        candidate=expose(candidate);owned=expose_caller(owned)
+        bridge,cell,native_record=native_cells(ROOT)
+        if native_mutation=='final-clock':
+            old='result[34+half]=first[34+half] & last[34+half];';new='result[34+half]=last[34+half];'
+            assert candidate.count(old)==1;candidate=candidate.replace(old,new,1)
+        elif native_mutation=='invert-select':
+            old='wire RbBypassDly=select_b;';new='wire RbBypassDly=!select_b;'
+            assert bridge.count(old)==2;bridge=bridge.replace(old,new)
+        else:assert native_mutation is None
+    else:assert native_mutation is None
     if mutation=='drop-forward':
         old='.external_file_read(later_read)';new='.external_file_read(original_read)'
         assert candidate.count(old)==1;candidate=candidate.replace(old,new,1)
@@ -142,7 +183,7 @@ def run(trace,out,engine,mutation):
     dependent|=set(range(264,282))
     indices=[v for v in range(401)if v not in dependent];assert len(indices)==376
     recovered_path=out/'initial-recovered.hex' if cp_words else None
-    tb=bench((base/'tb.sv').read_text(),trace,fn,indices,cp_words,recovered_path)
+    tb=bench((base/'tb.sv').read_text(),trace,fn,indices,cp_words,recovered_path,native_visible)
     out.mkdir(parents=True);paths=[];rows=[]
     if cp_words:
         recovered_path.write_text(f'{recovered:02515x}\n')
@@ -162,12 +203,18 @@ def run(trace,out,engine,mutation):
     for name in ['dorado_r_interior_read_stage.sv','dorado_r_interior_read_tagged_stage.sv']:
         dest=out/name;shutil.copy2(ROOT/'verilog/rtl'/name,dest);paths.append(dest)
         rows.append(dict(path=name,output_sha256=sha(dest)))
-    for name in [Path(__file__).name,'generate_cp_paired_read.py']:
+    if native_visible:
+        for name,text in [('native_R.sv',bridge),('native_MC10173.v',cell)]:
+            dest=out/name;dest.write_text(text);paths.append(dest);rows.append(dict(path=name,output_sha256=sha(dest)))
+        (out/'native_R_manifest.json').write_text(json.dumps(native_record,indent=2)+'\n')
+    for name in [Path(__file__).name,'generate_cp_paired_read.py','generate_native_r_capture.py']:
         shutil.copy2(Path(__file__).with_name(name),out/name)
     state=dict(status='RUNNING',scope=__doc__,source=str(trace),source_state_sha256=sha(trace/'run-state.json'),
                source_trace_sha256=sha(trace/'transactions.hex'),source_initial_sha256=sha(trace/'initial.hex'),
                engine=engine,mutation=mutation,source_files=rows,files={str(p.relative_to(out)):sha(p)for p in out.rglob('*')if p.is_file()},
                CP_word_pair_and_read_fixture=cp_words,initial_owner_recovered_from_actual_first_event=cp_words,
+               actual_native_visible_R_cells=native_visible,native_cell_mutation=native_mutation,
+               external_visible_R_predicted_result_register=not native_visible,
                geometry_independent_input_bits=376,geometry_cases=378,dependent_CP_aliases_regenerated=True,
                original_per_event_result_owner_RAM_and_clock_comparisons_retained=True,
                native_integrated=False,physical_timing_qualified=False,actions=[],started=time.time())
@@ -181,7 +228,9 @@ def run(trace,out,engine,mutation):
         a.update(returncode=code,finished=time.time(),log_sha256=sha(out/(label+'.log')));save()
         if code:break
     text=(out/'test.log').read_text()if(out/'test.log').exists()else''
-    if mutation:
+    if native_mutation:
+        passed=state['actions'][0]['returncode']==0 and code!=0 and 'PACKET committed owner mismatch'in text
+    elif mutation:
         marker='PACKET second result mismatch'if mutation=='drop-forward'else'PACKET invalid geometry committed'
         passed=state['actions'][0]['returncode']==0 and code!=0 and marker in text
     else:
@@ -191,7 +240,10 @@ def run(trace,out,engine,mutation):
             state.update(summary=summary[1],cache_coverage=re.search(r'^CACHED_PACKET_COVERAGE (.+)$',text,re.M)[1],
                          staged_reads=int(re.search(r'^CP_PACKET_STAGED_READS count=(\d+)$',text,re.M)[1]))
             assert len(re.findall(r'^PACKET_CLOCK channel=\d+ edges=\d+$',text,re.M))==100
-    state.update(status=('PASS_COMBINED_CP_PACKET_COUNTEREXAMPLE'if mutation else'PASS_COMBINED_CP_COHERENT_PACKETS')if passed else'TERMINAL_COMBINED_CP_PACKET_REPLAY_NOT_ESTABLISHED',finished=time.time())
+            if native_visible:
+                m=re.search(r'^NATIVE_R_PACKET_COVERAGE first_only=(\d+) first_only_changed=(\d+) last_open=(\d+)$',text,re.M)
+                assert m;state['native_R_coverage']=dict(zip(['first_only','first_only_changed','last_open'],map(int,m.groups())))
+    state.update(status=('PASS_COMBINED_CP_PACKET_COUNTEREXAMPLE'if mutation or native_mutation else'PASS_COMBINED_CP_COHERENT_PACKETS')if passed else'TERMINAL_COMBINED_CP_PACKET_REPLAY_NOT_ESTABLISHED',finished=time.time())
     save();print(state['status'],flush=True);return 0 if passed else 1
 
 
@@ -199,4 +251,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--trace',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--engine',choices=['icarus','verilator'],required=True);p.add_argument('--mutation',choices=['drop-forward','early-ram'])
-    a=p.parse_args();raise SystemExit(run(a.trace.resolve(),a.output.resolve(),a.engine,a.mutation))
+    p.add_argument('--native-visible',action='store_true');p.add_argument('--native-mutation',choices=['final-clock','invert-select'])
+    a=p.parse_args();raise SystemExit(run(a.trace.resolve(),a.output.resolve(),a.engine,a.mutation,a.native_visible,a.native_mutation))
