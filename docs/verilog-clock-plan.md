@@ -14,13 +14,44 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
+LATEST CP source/capture progress (2026-10-24):
+
+- [x] Bind actual13-wire CP source,20 direct aliases and18 decoded MIR set
+  inputs; retain independent memory MIR data. CPOut8 is native slot344.
+- [x] Prove all401 pins/bus recovery/idempotence against original packages;
+  65536 known/3336 X/Z cases and real selector/enable/stale-data counterexamples.
+- [x] Prove source closure under actual native canonical publication, with
+  unconstrained architectural power-up and all1416 cache bits/interfaces.
+  Retain the older PREFIX key and intermediate mixed CP epochs.
+- [x] Reproduce original e23.B asynchronous Block -> f15.A TPCBypass ordering;
+  add a default-off consumer descriptor. Its disabled behavior passes all363
+  results at5/24waves. Ordinary clocked Block remains old; a bad epoch fails Q42.
+- [x] Full Verilator source-closed suites for three strict delay profiles,
+  29570 checks/4096 words/128 collisions/156Qs/56 clocks/94 flags each; focused
+  corrected case in both engines. This is bounded seeded digital coverage.
+- [x] Complete the SAME corrected full Icarus run:29570 checks, matching
+  Verilator. `cp-source-capture-summary.json` reviews/archives every passing and
+  failing attempt, exact compiled sources and independent reference regeneration.
+  Tied/other arrival orders and arbitrary owner coverage remain unqualified.
+  Icarus94658/session23776 is TERMINAL PASS; do not restart.
+- [ ] Share actual source/capture/after descriptors with R/IFU/Memory, preserving
+  one828-bit owner,402-bit context, original16 visible-R latches and one SRAM.
+  Recheck every interior epoch/Ready/Hold/noncanonical path before native use.
+- [ ] Compare generic/optimized timing on the SAME actual-producer fixture;
+  then require full native timing, original firmware/Cedar and hardware tests.
+
+No new FPGA image or hardware speed. FPGA is available; last measured speed
+remains4.025473M StartCycle issues/s. All A–F and original60ns/timers remain.
+
 LATEST:85-pin budget REJECTED;102 remains best OWNED budget (2026-10-24).
 `phase-supported-control-guard-fit-pending-replay-summary.json` verifies92
 collected members, terminal map/fit/STA/corners exit0/exited handles/source
 readback. Setup-4.747/-4.756/+3.675/+4.209ns; hold min+0.143ns/pulse min+6.113ns;
 zero UCPs,8592ALMs/5574regs/9216MLAB bits. This is worse than102's-2.305ns.
 Retain the phase theorem, reject the implementation as a speed candidate.
-Icarus83062/session23187 is still live/required; do not restart or recollect.
+BOTH full processor replays now pass; final combined review is complete in
+`phase-supported-control-guard-packet-summary.json`. Icarus83062/session23187 is
+TERMINAL PASS; do not restart or recollect.
 
 New worst sources live290/CPAddr_1' and live275/sJCN_3 feed the same serialized
 control/error path. sJCN_3 is original ContA h01 MC10172 decoder pin13, sharing
@@ -66,6 +97,7 @@ before/after X/Z cases pass; bad unknown default changes real results. Receipt:
 Verilator processor replay PASS, all original state/RAM/result/100clock/403geometry/
 reset/cache checks preserved. Sole compiled HDL change remains candidate.sv.
 
+Earlier staging observation (superseded by the completed85-pin review above):
 `phase-supported-control-guard-staging-summary.json` freezes that proof/replay
 and verifies Icarus83062/session23187 live with identical compiled inputs. SAME
 422-input/4943-output15ns fit on misterubuntu, project

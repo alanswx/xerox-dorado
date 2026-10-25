@@ -1,0 +1,325 @@
+{
+  "status": "REVIEWED_CP_SOURCE_PUBLICATION_AND_BOUNDED_CAPTURE",
+  "scope": "Retain source-bound CP projection, publication and bounded capture evidence.\n\nThis qualifies the declared digital arrival experiments only. It does not\nselect a native core, prove arbitrary asynchronous arrival orders, change the\nretained prefix key, or replace original R latch capture and shared ownership.\n",
+  "physical_CP_wires": 13,
+  "direct_CP_aliases": 20,
+  "decoded_MIR_set_inputs": 18,
+  "CPOut8_already_present_at_native_slot": 344,
+  "all_pin_results_compared": 401,
+  "formal_source_variables": 417,
+  "additional_old_CP_counterexample_variables": 13,
+  "formal_port_bits": 430,
+  "formal_negative_real_MIR_differences": {
+    "wrong-selector": [
+      267,
+      268,
+      269,
+      270,
+      271,
+      272,
+      273,
+      274
+    ],
+    "wrong-enable": [
+      264,
+      265,
+      266,
+      281
+    ],
+    "stale-data": [
+      264,
+      265,
+      266,
+      267,
+      268,
+      269,
+      281
+    ]
+  },
+  "known_projection_cases": 65536,
+  "XZ_projection_cases": 3336,
+  "actual_publication_induction_unbounded": true,
+  "architectural_powerup_unconstrained": true,
+  "retained_generic_prefix_key_unchanged": true,
+  "normal_memory_MIR_data_independent": true,
+  "default_off_equivalence_wave_depths": [
+    5,
+    24
+  ],
+  "default_off_compared_bits": 363,
+  "full_suite_per_run": {
+    "checks": 29570,
+    "stable_CP_words": 4096,
+    "root_strobe_collisions": 128,
+    "state_bits": 156,
+    "clock_channels_compared": 56,
+    "flags": 94,
+    "physical_reset_seed": 0
+  },
+  "profiles": {
+    "later_control": {
+      "early": 1,
+      "data_arrival_ps": 5650,
+      "clock_arrival_ps": 8750,
+      "setup_margin_ps": 3100,
+      "strict_order": true,
+      "CP_minus_root_ps": 0,
+      "source_routes": {
+        "BaseBd-Rev-Am": {
+          "j02.3": "BaseBd12.sil+1",
+          "l01.7": "BaseBd12.sil+1",
+          "l01.2": "CLK.ca'"
+        },
+        "ContA-Rev-Cd": {
+          "l01.7": "CLK.ca'",
+          "l01.12": "prepreclk'b",
+          "g13.10": "prepreclk'b",
+          "g13.13": "preclk0'Ca",
+          "d18.7": "preclk0'Ca",
+          "d18.2": "clk0'Cb",
+          "f15.9": "clk0'Cb",
+          "h03.11": "CPStrb'",
+          "h03.14": "ContA02.sil+1",
+          "h01.15": "ContA02.sil+1",
+          "h01.10": "sBLOCK",
+          "e23.13": "sBLOCK",
+          "e23.12": "brMIRa",
+          "e23.15": "Block'",
+          "g15.5": "Block'",
+          "g15.2": "ContA25.sil+5",
+          "f15.7": "ContA25.sil+5",
+          "f15.2": "TPCBypass"
+        }
+      },
+      "scope": "Declared original-gate delay profile only; no native analog setup/hold or clock qualification"
+    },
+    "balanced": {
+      "early": 1,
+      "data_arrival_ps": 4000,
+      "clock_arrival_ps": 5000,
+      "setup_margin_ps": 1000,
+      "strict_order": true,
+      "CP_minus_root_ps": 0,
+      "source_routes": {
+        "BaseBd-Rev-Am": {
+          "j02.3": "BaseBd12.sil+1",
+          "l01.7": "BaseBd12.sil+1",
+          "l01.2": "CLK.ca'"
+        },
+        "ContA-Rev-Cd": {
+          "l01.7": "CLK.ca'",
+          "l01.12": "prepreclk'b",
+          "g13.10": "prepreclk'b",
+          "g13.13": "preclk0'Ca",
+          "d18.7": "preclk0'Ca",
+          "d18.2": "clk0'Cb",
+          "f15.9": "clk0'Cb",
+          "h03.11": "CPStrb'",
+          "h03.14": "ContA02.sil+1",
+          "h01.15": "ContA02.sil+1",
+          "h01.10": "sBLOCK",
+          "e23.13": "sBLOCK",
+          "e23.12": "brMIRa",
+          "e23.15": "Block'",
+          "g15.5": "Block'",
+          "g15.2": "ContA25.sil+5",
+          "f15.7": "ContA25.sil+5",
+          "f15.2": "TPCBypass"
+        }
+      },
+      "scope": "Declared original-gate delay profile only; no native analog setup/hold or clock qualification"
+    },
+    "fast_gates": {
+      "early": 0,
+      "data_arrival_ps": 2250,
+      "clock_arrival_ps": 1250,
+      "setup_margin_ps": -1000,
+      "strict_order": true,
+      "CP_minus_root_ps": 0,
+      "source_routes": {
+        "BaseBd-Rev-Am": {
+          "j02.3": "BaseBd12.sil+1",
+          "l01.7": "BaseBd12.sil+1",
+          "l01.2": "CLK.ca'"
+        },
+        "ContA-Rev-Cd": {
+          "l01.7": "CLK.ca'",
+          "l01.12": "prepreclk'b",
+          "g13.10": "prepreclk'b",
+          "g13.13": "preclk0'Ca",
+          "d18.7": "preclk0'Ca",
+          "d18.2": "clk0'Cb",
+          "f15.9": "clk0'Cb",
+          "h03.11": "CPStrb'",
+          "h03.14": "ContA02.sil+1",
+          "h01.15": "ContA02.sil+1",
+          "h01.10": "sBLOCK",
+          "e23.13": "sBLOCK",
+          "e23.12": "brMIRa",
+          "e23.15": "Block'",
+          "g15.5": "Block'",
+          "g15.2": "ContA25.sil+5",
+          "f15.7": "ContA25.sil+5",
+          "f15.2": "TPCBypass"
+        }
+      },
+      "scope": "Declared original-gate delay profile only; no native analog setup/hold or clock qualification"
+    }
+  },
+  "tied_arrival_profile_qualified": false,
+  "arbitrary_owner_or_arrival_coverage_qualified": false,
+  "historical_metadata_correction": "Earlier fixed runs incorrectly label atomic/terminal unchanged; exact compiled source is the rewritten descriptor version, checked here.",
+  "failed_attempts_preserved": true,
+  "runs": [
+    {
+      "directory": "control-cp-source-icarus-later-v1-20261024",
+      "status": "CONTROL_HOLD_PROBE_FAILED",
+      "engine": "icarus",
+      "profile": "later_control",
+      "full_CP_suite": true,
+      "normal_Block_case": false,
+      "bad_normal_epoch": false,
+      "elaboration_failure": false,
+      "state_sha256": "192f54125b94979b1ef4f167c7cddcdf6ea57dd2a5be3c41a181a9313eba5491"
+    },
+    {
+      "directory": "control-cp-block-icarus-later-v1-20261024",
+      "status": "CONTROL_HOLD_PROBE_FAILED",
+      "engine": "icarus",
+      "profile": "later_control",
+      "full_CP_suite": false,
+      "normal_Block_case": false,
+      "bad_normal_epoch": false,
+      "elaboration_failure": false,
+      "state_sha256": "fc785142c5a74baef8a1daadba9100e86b68f3032514b600fb9015ad36fde0a1"
+    },
+    {
+      "directory": "control-cp-block-icarus-later-fixed-v1-20261024",
+      "status": "CONTROL_HOLD_PROBE_FAILED",
+      "engine": "icarus",
+      "profile": "later_control",
+      "full_CP_suite": false,
+      "normal_Block_case": false,
+      "bad_normal_epoch": false,
+      "elaboration_failure": true,
+      "state_sha256": "1d36a9c1ebfb2f3b13112f45df17bbf36a68615829af2b4ae548ba8f15caf879"
+    },
+    {
+      "directory": "control-cp-block-icarus-later-fixed-v2-20261024",
+      "status": "PASS_CONTROL_HOLD_PROBE",
+      "engine": "icarus",
+      "profile": "later_control",
+      "full_CP_suite": false,
+      "normal_Block_case": false,
+      "bad_normal_epoch": false,
+      "elaboration_failure": false,
+      "state_sha256": "45eb3010277a6d6e75a817078f4a0a1b6e6124cac11c0842b73939300a4c9617"
+    },
+    {
+      "directory": "control-cp-source-icarus-later-fixed-v1-20261024",
+      "status": "PASS_CONTROL_HOLD_PROBE",
+      "engine": "icarus",
+      "profile": "later_control",
+      "full_CP_suite": true,
+      "normal_Block_case": false,
+      "bad_normal_epoch": false,
+      "elaboration_failure": false,
+      "state_sha256": "c0f6dbd6ec4d1838129b9ed69e34ecf74e82017914efddd730432c36065f8cc7"
+    },
+    {
+      "directory": "control-cp-block-verilator-later-v1-20261024",
+      "status": "CONTROL_HOLD_PROBE_FAILED",
+      "engine": "verilator",
+      "profile": "later_control",
+      "full_CP_suite": false,
+      "normal_Block_case": false,
+      "bad_normal_epoch": false,
+      "elaboration_failure": false,
+      "state_sha256": "c1b100c9d895776d817449b05aca1b6dc308c0cce55fc38684fe447696301a3a"
+    },
+    {
+      "directory": "control-cp-block-verilator-later-fixed-v1-20261024",
+      "status": "CONTROL_HOLD_PROBE_FAILED",
+      "engine": "verilator",
+      "profile": "later_control",
+      "full_CP_suite": false,
+      "normal_Block_case": false,
+      "bad_normal_epoch": false,
+      "elaboration_failure": true,
+      "state_sha256": "0888551577008889e66f3417e5f9fe5faf741eb876982731720f58b44eed9f03"
+    },
+    {
+      "directory": "control-cp-block-verilator-later-fixed-v2-20261024",
+      "status": "PASS_CONTROL_HOLD_PROBE",
+      "engine": "verilator",
+      "profile": "later_control",
+      "full_CP_suite": false,
+      "normal_Block_case": false,
+      "bad_normal_epoch": false,
+      "elaboration_failure": false,
+      "state_sha256": "554d000b95926a77daa090e4cfbb597e575a7f171dfc77b558b636a88f328772"
+    },
+    {
+      "directory": "control-cp-source-verilator-later-fixed-v1-20261024",
+      "status": "PASS_CONTROL_HOLD_PROBE",
+      "engine": "verilator",
+      "profile": "later_control",
+      "full_CP_suite": true,
+      "normal_Block_case": false,
+      "bad_normal_epoch": false,
+      "elaboration_failure": false,
+      "state_sha256": "adf2f41f37c32d60abdb78d5bd6bdeb5003ca6ae345f7ed1c345aa28bd2263c9"
+    },
+    {
+      "directory": "control-cp-source-verilator-balanced-fixed-v1-20261024",
+      "status": "PASS_CONTROL_HOLD_PROBE",
+      "engine": "verilator",
+      "profile": "balanced",
+      "full_CP_suite": true,
+      "normal_Block_case": false,
+      "bad_normal_epoch": false,
+      "elaboration_failure": false,
+      "state_sha256": "dd20ff7819c3f629188b4c9f962f92149688d527343490d6b353f9a2b6756a80"
+    },
+    {
+      "directory": "control-cp-source-verilator-fast-fixed-v1-20261024",
+      "status": "PASS_CONTROL_HOLD_PROBE",
+      "engine": "verilator",
+      "profile": "fast_gates",
+      "full_CP_suite": true,
+      "normal_Block_case": false,
+      "bad_normal_epoch": false,
+      "elaboration_failure": false,
+      "state_sha256": "6e0f302b858a2543daa267dd9a40f9f443ec80ad65222eaed5878ba220e5ab2b"
+    },
+    {
+      "directory": "control-normal-block-icarus-later-fixed-v1-20261024",
+      "status": "PASS_CONTROL_HOLD_PROBE",
+      "engine": "icarus",
+      "profile": "later_control",
+      "full_CP_suite": false,
+      "normal_Block_case": true,
+      "bad_normal_epoch": false,
+      "elaboration_failure": false,
+      "state_sha256": "b5640ebdf5e205751dc9becc79740bdd9336fd8ac16f341752debff44626d597"
+    },
+    {
+      "directory": "control-normal-block-icarus-later-bad-v1-20261024",
+      "status": "CONTROL_HOLD_PROBE_FAILED",
+      "engine": "icarus",
+      "profile": "later_control",
+      "full_CP_suite": false,
+      "normal_Block_case": true,
+      "bad_normal_epoch": true,
+      "elaboration_failure": false,
+      "state_sha256": "0718f7a81012ac02213eb62178a0e14694b7b196800bde66fb8c54c8fe121c3b"
+    }
+  ],
+  "native_integrated": false,
+  "shared_R_IFU_Memory_capture_pending": true,
+  "original16_R_latch_ownership_required": true,
+  "physical_15ns_or_60ns_qualified": false,
+  "new_RBF_ready": false,
+  "hardware_changed": false,
+  "full_goal_active": true
+}

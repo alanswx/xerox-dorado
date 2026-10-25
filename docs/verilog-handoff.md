@@ -7,13 +7,55 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
+LATEST CP source/capture work (2026-10-24): original CP producer relationships
+are now explicit:13 physical wires drive20 native aliases and18 MIR set inputs.
+CPOut8 already exists at native slot344; memory MIR data remains independent.
+All401 pins, bus recovery and idempotence pass formal equality against the
+original packages,65536 known combinations and3336 X/Z cases. The formal miter
+has417 source-variable bits plus13 older-CP negative-control bits (430 ports).
+Wrong selector, enable and stale decoded data change real MIR set outputs.
+
+Actual native publication induction proves canonical_valid implies a source-
+closed401-pin before snapshot, comparing1416 cache bits and real interfaces,
+with architectural power-up unconstrained. Raw-decoder/wrong-CPOut8 publication
+controls break real interfaces. The older retained PREFIX key stays unchanged.
+This does not authorize normalizing intermediate mixed before/after CP prefixes.
+
+Closing the original decoders exposed a real capture discrepancy: ContA e23.B
+asynchronous sBLOCK reset reaches f15.A TPCBypass BEFORE its clock in the
+later_control profile. Original data arrival5650ps versus clock8750ps gives
+3100ps strict ordering. Only Q42 differs in the old transfer; both simulators
+reproduce it. A default-off descriptor supplies that asynchronous Block value
+at this consumer while keeping ordinary clocked dBlock in the old snapshot.
+Default-off equivalence passes ALL363 outputs at5 AND24 waves with955 arbitrary
+binary inputs. The ordinary Block check passes; substituting new ordinary data
+instead fails at real Q42. No architectural reset/preload or state masking.
+
+Full source-closed Verilator suites pass later_control, balanced and fast_gates:
+29570 checks each,4096 stable CP words,128 root/strobe collisions,156Qs/56 clock
+channels/94 flags/all18 set paths. These are seeded physical fixtures and declared
+digital delays, not arbitrary owner/arrival coverage or analog setup/hold proof.
+The focused corrected reproduction AND full later_control suite pass BOTH
+engines. Final receipt: `cp-source-capture-summary.json`, status
+REVIEWED_CP_SOURCE_PUBLICATION_AND_BOUNDED_CAPTURE. The original reference was
+regenerated independently and all five source files match every frozen run.
+Failed old-Q42 captures, two pre-test elaboration failures, and the ordinary-
+Block negative control remain archived. Earlier fixed-run metadata incorrectly
+called atomic/terminal unchanged; the review checks the exact rewritten compiled
+source and records that correction. Icarus94658/session23776 is TERMINAL PASS;
+do not restart. Native integration and the one shared R/IFU/Memory capture
+descriptor remain NEXT.
+No new full-core image or measured FPGA speed: last4.025473M StartCycle issues/s.
+All A–F, original16 R latches,60ns/timers, SDRAM and hardware acceptance remain.
+
 LATEST (2026-10-24):85-pin fit REJECTED; retain102 as best OWNED budget.
 `phase-supported-control-guard-fit-pending-replay-summary.json` preserves all92
 collected members, terminal map/fit/STA/corner exit0 and exact source readback.
 Setup -4.747/-4.756/+3.675/+4.209ns; hold minimum+0.143ns/pulse minimum+6.113ns,
 zero UCPs;8592ALMs/5574regs/9216MLAB bits. It is WORSE than102's-2.305ns, so
-do not promote it. Helper proof/XZ/full Verilator pass; full Icarus83062 /
-session23187 remains verified live and required before combined final review.
+do not promote it. Helper proof/XZ and BOTH full processor replays now pass. Final combined review
+is complete: `phase-supported-control-guard-packet-summary.json`. Icarus83062 /
+session23187 is TERMINAL PASS; do not restart.
 All reports were collected ONCE; do not repeat collector/restart simulations.
 
 The actual new worst source pins are live290/CPAddr_1' and live275/sJCN_3.
@@ -66,6 +108,7 @@ tests pass; bad unknown default changes actual outputs. Receipt:
 `phase-supported-fall-guard-direct-pins-summary.json`. No owner/result/clock field
 or generic fallback is masked; the existing exact cache identity invariant stays.
 
+Earlier staging observation (superseded by the completed85-pin review above):
 Full original Verilator processor replay PASS, all14884 transactions/2470results/
 844Qs/9216RAM/100clocks/403geometry/reset/cache coverage unchanged. Receipt:
 `phase-supported-control-guard-staging-summary.json`. Icarus83062/session23187
