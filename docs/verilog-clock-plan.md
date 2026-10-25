@@ -14,7 +14,34 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST saved branch-condition transfer and fresh native diagnostic (2026-10-25):
+LATEST coupled reference and actual flag-capture blocker (2026-10-25):
+
+- [x] Compose the original844-bit processor/control graph with original80-bit
+  flags: monolithic924 vs independently wired844+80 pass BOTH engines through
+  ALL14884 events/9216 SRAM bits/104 clocks/541 functional observations.
+  Close f17 carry/overflow into g18; a wrong carry capture changes actual bit91
+  at17 and rejects. ALU/TIOA's twelve inputs remain controlled boundaries.
+- [x] Repair the replay oracle without masking fields: record raw inputs and
+  actual physical state from an unchanged FULL original program. Its assertions
+  and coverage stay byte-identical and previous transaction/initial files
+  reproduce exactly. Event14's retained dR0000 vs physical632f is an open latch,
+  not evidence of an RTL error. All844 baseline physical fields now compare.
+- [x] Attempt the optimized80-bit transfer with actual processor/control phase
+  producers. BOTH engines reject overflow bit67 at19. Reject the pre-close D
+  trial too: it fixes19 but corrupts bits65/66/67 at23. Root RTL remains unchanged.
+- [ ] Derive/capture early and late f17 data relative to latch closure in the
+  coupled graph. Preserve ALL current state/RAM/event/observation assertions.
+  Then close actual ALU and remaining IFU/Memory/MIR/Ready/Hold consumers and
+  run ONE full-core15ns timing attempt; use its critical paths to guide changes.
+- [ ] Benchmark on MiSTer14 after timing/boot qualification, then choose further
+  memory queue/burst/SDRAM work from measured waits. Full60ns/timers, separate
+  66.7MHz SDRAM and A–F/Cedar/Rollback/persistence/fresh boots/stress stay open.
+  Original native62048/69736 remain live at their own unchanged5B HOST bounds.
+  No new RBF, hardware load or measured speed gain; the full goal remains active.
+
+Receipt: `processor-branch-composition-summary.json` in the native flag archive.
+
+Previous saved branch-condition transfer and fresh native diagnostic (2026-10-25):
 
 - [x] Extract original ProcH e13/f17/g11/h11 plus clock/data/select gates and
   implement the complete80-bit transfer, preserving shared TIOA stages and

@@ -7,7 +7,43 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST SAVED BRANCH-CONDITION COMPONENT AND FRESH NATIVE RUN (2026-10-25):
+LATEST COUPLED PROCESSOR/FLAG REFERENCE AND REAL TRANSFER FAILURE (2026-10-25):
+The monolithic original924-bit circuit and independently wired original844+80
+partition now agree through ALL14884 original producer events in BOTH engines:
+924 physical states,9216 SRAM bits,104 clocks and541 functional observations.
+Actual f17 carry/overflow outputs drive g18 internally. An unchanged original844
+control also matches the independently recorded physical state on every event;
+842 fields remain unchanged when the two g18 inputs are closed. A wrong carry
+input to partition g18 changes actual global bit91 at17 and the state check
+rejects it. Twelve ALU/TIOA inputs remain controlled boundaries, not native ALU
+execution. This is the integrated original reference, not a qualified optimized
+924-bit evaluator, full-core timing result, native replacement or speed gain.
+
+The initial event14 failure was a replay-oracle error: held_next is retained
+owner state, while an open MC10173 exposes live D. Retained dR=0000 and physical
+dR=632f are BOTH correct there. A passive rerun of the original FULL program
+records actual raw inputs and original post-event physical outputs. Every
+original assertion/coverage test remains byte-identical; old transactions and
+initial fixture reproduce byte-for-byte. The new replay compares physical state
+to that physical oracle rather than masking the transparent-latch bits.
+
+The optimized80-bit transfer DOES fail once coupled to these actual processor/
+control phase producers: BOTH engines reject visible overflow bit67 at event19
+(predicted0/original1). A diagnostic pre-close D capture fixes19 but fails23
+at bits65/66/67. That trial is rejected; production RTL is unchanged. The earlier
+4869-event standalone passes still hold within their stated boundary scope.
+
+NEXT: trace/derive actual early/late f17 data and latch-close epochs in this
+coupled graph, implement their capture contract and retain the full comparison.
+Then connect actual ALU and remaining IFU/Memory/MIR/Ready/Hold consumers and
+run a full-core15ns timing build. Do not repeat unrelated component matrices.
+The fixed5B HOST native62048 and69736 remain live and unchanged; no restarts or
+extensions. Full60ns/timers, separate66.7MHz SDRAM and A–F/Cedar/Rollback/
+persistence/fresh boots/stress remain required. FPGA remains available; no load.
+Receipt: `processor-branch-composition-summary.json` in the native flag archive
+(153360 members/12318 unique blobs; complete lossless readback verified).
+
+PREVIOUS SAVED BRANCH-CONDITION COMPONENT AND FRESH NATIVE RUN (2026-10-25):
 The next80-bit family now has an experimental synthesizable transfer,
 `verilog/rtl/dorado_branch_condition_step.sv`, and an independently timed
 original ProcH graph. Preserve e13's64 bits, f17's4, and all6 each of g11/h11,
