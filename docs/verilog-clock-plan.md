@@ -14,7 +14,38 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST explicit early/late flag transfer (2026-10-25):
+LATEST actual ALU/MIR/function-memory closure and full-core fit (2026-10-25):
+
+- [x] Add actual four-slice ALU, operand muxes, both zero-detector contributions,
+  native SignedCarry B-invert0, six-bit function/carry registers and both whole
+  function RAM packages. Preserve the e17/f61 wired carry and old923:0 indices.
+- [x] Close ALUF.0..3 from actual ContB MIR j24/k24. BOTH engines pass15470
+  events/1064 physical states/9216 SRAM bits/108 clocks/964 observations.
+  Original14884 input records remain byte-identical; normal ALUFMRW262B suffix
+  writes ALL16 addresses,64 windows per RAM, with no address/data movement
+  inside the write window. A wrong e12 D changes actual state929 at15 and rejects.
+- [x] Retain optimized-capture failures with real ALU producers. The pre-root
+  projection still fails: Verilator68/flag64 and Icarus15/flag72. Actual operand/
+  control-register arrivals and unknowns remain unqualified; no native selection.
+- [x] Start full-core15ns timing on misterubuntu from the frozen corrected j19/
+  read caller: `/home/alans/mister/Dorado_CPRead15_Diag_v2_20261025`.
+  Builder2865831/map2865840 (exit0)/fit2881841 (verified live). All574 remote
+  inputs verified; no timing exceptions. Preserve V1's syntax rejection.
+  Exact synthesis-cone lowering passes1024 cases/all1128 outputs.
+- [ ] Follow SAME full-core fit and review its real critical paths. At66.666667MHz
+  with current SYSPER4 this diagnostic has120ns nominal instructions; it is NOT
+  the four-sample60ns event-batch core. Shared SDRAM66.7MHz/physical timing and
+  all timers still need qualification. No assembly/programming or speed claim.
+- [ ] Close actual A/B/Q, operand-mux and shifter-register phases as one coupled
+  source frontier; integrate common native capture and the chronological batch.
+  Retain all MIR/Ready/Hold/IFU/Memory/device/write-close gates before benchmarking.
+- [ ] Full A–F/Cedar/Rollback/persistence/three boots/two-hour stress remain.
+  SAME62048/69736 sources and5B HOST limits stay fixed;69736 now TX2 after its
+  normal timeout/retry. Protected media unchanged. Full goal remains active.
+
+Receipt: `processor-alu-and-full15-summary.json` in the native flag archive.
+
+Previous explicit early/late flag transfer (2026-10-25):
 
 - [x] Trace the original coupled f17 data/select/clock pins. In the declared
   balanced digital profile, event19's arithmetic data arrives4ns before close;

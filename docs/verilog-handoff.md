@@ -7,7 +7,59 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST EARLY/LATE FLAG CAPTURE PASSES THE COUPLED PROGRAM (2026-10-25):
+LATEST REAL ALU/MIR COMPOSITION AND FULL-CORE15NS FIT (2026-10-25):
+Two threads now advance together. The complete original ALU reference includes
+the four MC10181 slices, operand muxes, SignedCarry with native B-invert0,
+both-byte nonzero reduction, and ProcL e12/e17 plus the WHOLE e13/e14 function
+RAMs. The two wired aluC0 contributions (e17 and f61) are preserved. ContB's
+actual MIR j24/k24 outputs drive ALUF.0..3; these are no longer independent
+test pins. Original indices923:0 remain; new function storage is1063:924.
+
+BOTH engines pass monolithic vs independently owned flag partition through
+15470 events, ALL1064 physical states/9216 SRAM bits/108 clocks/964 observations.
+The first14884 original raw-input records are byte-identical. A normal-instruction
+suffix sets TaskingOff and issues ALUFMRW (FA2/FB6/FC2=262B), using real MIR
+selector inputs363..366. Both function RAMs see64 write windows across ALL16
+addresses, with zero address/data changes inside a window. Wrong e12 mode D
+changes actual global bit929 at15 and rejects. This is a coupled original-cell
+reference, not guest software execution or a qualified native replacement.
+
+Capture remains open. The old before/after status shortcut fails once real
+ALU/function registers replace the controlled status inputs. A static pre-root
+ALU view gets further, but still rejects (Verilator68/visible bit64; Icarus15/
+bit72). Preserve both failures; source-arrival/unknown/capture contracts are NOT
+qualified by the passing original-reference comparison. Actual A/B/Q, mux-control
+and shifter-register producers remain explicit boundaries. Close their real
+phases together; do not choose a timing profile merely to obtain a pass.
+
+FULL-CORE timing diagnostic is now running on misterubuntu:
+`/home/alans/mister/Dorado_CPRead15_Diag_v2_20261025`, builder2865831,
+map2865840 exited0, fitter2881841 verified live. Follow SAME handles/project;
+do not restart on a polling timeout. Source is the frozen corrected j19/native
+read caller (62048), NOT the new ALU capture prototype. All574 inputs were
+verified remotely. Only the known cone synthesis conversion changes HDL;
+all1128 cone outputs compare over1024 arbitrary973-bit input cases. Original
+state/barrier logic is preserved; no timing exceptions added. V1's rejected
+implicit-generate syntax and exact terminal sources/reports are retained.
+
+This fits the complete MiSTer core at66.666667MHz/15ns. SYSPER remains4:
+eight samples mean120ns nominal ordinary instructions, NOT the future60ns
+event-batch target. SDRAM shares that retuned clock and remains separately
+unqualified; physical timers, memory protocol/DQ timing and firmware still
+require review. Map/fit/STA/reporting only; no assembly, selection or FPGA load.
+
+NEXT: collect/review the SAME full-core fit's actual critical paths while
+closing the operand/control-register phase frontier in the coupled reference.
+Then integrate common native capture/event batches toward60ns, benchmark and
+finish SDRAM/Cedar/Rollback/persistence/three boots/two-hour stress gates. All
+A–F requirements remain. SAME original5B HOST boot runs are live:62048 at450M
+HOST/161,976,003 enabled ticks;69736 at2.71B HOST/1,579,268,122 ticks now TX2
+(normal retry occurred). Zero reported pack/CRC/RX faults; no packet0/Cedar pass.
+Ticks are not microinstructions. Protected pack SHA unchanged. No measured gain.
+Receipt: `processor-alu-and-full15-summary.json`, native flag archive, lossless
+readback verified (158611 members/12502 unique blobs). Full goal stays active.
+
+PREVIOUS EARLY/LATE FLAG CAPTURE PASSES THE COUPLED PROGRAM (2026-10-25):
 `verilog/rtl/dorado_branch_condition_frame_step.sv` now accepts BEFORE, EARLY
 and LATE producer frames. Direct data arriving during an open f17 window is
 captured before closure; registered task/address changes arriving afterward

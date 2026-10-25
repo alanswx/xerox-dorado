@@ -68,20 +68,20 @@ def bindings(source):
                 physical_timing_qualified=False,phase_contract_qualified=False)
 
 
-def alu_producers(source):
+def alu_producers(source,extended=False):
     """Bind the actual native ALU outputs; do not infer their arrival epochs."""
     provenance=json.loads(gzip.decompress((source/'provenance.json.gz').read_bytes()))
     native=source/'inputs';rows={};hashes={}
     for board_name,revision,packages in [
         ('ProcH','Ce',['d08','d13','e61','f61']),
-        ('ProcL','Ci',['d08','e12','e61','f61'])]:
+        ('ProcL','Ci',['d08','e12','e61','f61']+(['e13','e14','e17']if extended else[]))]:
         wl=f'chm/sil/{board_name}-Rev-{revision}.dm!1_/{board_name}-Rev-{revision}.wl'
         path=f'src/fpga/mister/snapshot_native_processor/{board_name}_full_snapshot.sv'
         assert sha(native/path)==provenance['inputs'][path]
         board=load_board(str(ROOT/wl));raw=(native/path).read_text()
         hashes[wl]=sha(ROOT/wl);hashes[path]=sha(native/path)
         for pkg in packages:
-            kind=board.packages[pkg]['type'];model=kind+('_snapshot'if pkg=='e12'else'')
+            kind=board.packages[pkg]['type'];model=kind+('_snapshot'if kind in ['MC10176','F10145A']else'')
             pattern=r'^  cell_'+model+r'(?: #\([^\n]+\))? u_'+pkg+r' \(.*?^  \);'
             matches=re.findall(pattern,raw,re.M|re.S);assert len(matches)==1,(board_name,pkg)
             actual={int(p):net for p,net in re.findall(r'\.p(\d+)\((\w+)\)',matches[0])}
@@ -104,9 +104,16 @@ def alu_producers(source):
     for expression in ['assign aluM = aluM__ProcL;', 'assign aluCout = aluCout__ProcH;',
                        'assign aluOut_eq_0_p_ = aluOut_eq_0_p___ProcH | aluOut_eq_0_p___ProcL;']:
         assert expression in text
-    return dict(packages=rows,source_hashes=hashes,
+    result=dict(packages=rows,source_hashes=hashes,
                 alu_mode_is_a_registered_ProcL_e12_output=True,ALU_function_register_bits=6,
                 ALU_function_clock="ProcL Clock1'Cb (a board-specific derived clock)",
                 global_nonzero_is_wired_OR_of_both_bytes=True,SignedCarry_B_invert=0,
                 fixture_direct_early_mask_is_not_a_native_binding=True,
                 physical_source_arrivals_qualified=False,native_capture_composition_qualified=False)
+    if extended:
+        assert rows['ProcL.e13']['kind']==rows['ProcL.e14']['kind']=='F10145A'
+        assert rows['ProcL.e17']['original_pins'][2]=='aluC0'
+        assert rows['ProcL.f61']['original_pins'][5]=='aluC0'
+        result.update(function_RAM_physical_bits=128,extra_capture_register_bits=12,
+                      carry_input_has_both_e17_and_f61_drivers=True)
+    return result
