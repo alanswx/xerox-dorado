@@ -7,6 +7,56 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
+LATEST STAGED FIX (2026-10-25): the intermediate read now works as a component.
+`single-port-cp-capture-words-summary.json` is the current receipt. Earlier
+caller-audit/staging receipts remain historical. The
+controller is synthesizable RTL; its caller/start/ack/release/freeze/publication
+are STILL driven by the testbench. Native integration is not implied. The older
+staging receipt/run-state flag that conflated controller and caller is preserved
+and explicitly corrected by this audit.
+
+`verilog/rtl/dorado_r_interior_read_stage.sv` time-multiplexes the same SRAM read
+port and buffers18-bit BEFORE/interior values (data AND parity), with two phase
+bits. It waits for the read acknowledgement, survives stalls, resets only its
+auxiliary transaction, and bypasses staging on ordinary need=0 transfers. Formal
+interface contracts pass induction without protocol assumptions or initialized
+data buffers; bad early-ready/stale-capture/ordinary-stall cases fail. The caller
+must still freeze descriptors/owners; that native contract is not proven here.
+
+`tools/generate_cp_interior_read.py` keeps physical BEFORE Q/data intact and
+supplies actual closing data to the original R/flag/parity consumers. No extra
+guest owner or RAM. Original closed-Set priority stays. Disabled generation is
+byte-identical to the prior candidate. First data-only repair failed parity
+Q539; including the SAME read's parity fixes it. Both focused engines pass ALL
+844 states/9216 RAM/100 clocks, including three delayed-ack host clocks with no
+owner/RAM changes. Missing-valid/stale-data variants fail real outputs at194.
+
+The rising-only request was insufficient: continuous CP words failed at242
+while the root remained LOW. Preserve that counterexample. The extended request
+now passes Verilator4096 words/12481 checks,128 fresh CP/root collision fixtures/
+17089 checks with three interior reads, and64 independent memory fixtures/12737
+checks with64 reads. All8x8 high-byte BEFORE/interior edge pairs and independent
+other RAM cells are tested. These are explicit fixture discontinuities, not one
+continuous native replay or arbitrary owner/arrival/unknown-context proof.
+
+CURRENT WORD PEERS COMPLETE: Icarus10990/session11512 passed12481 checks/4096
+words. Candidate HDL, initial owner/RAM and the ENTIRE transaction trace match
+Verilator byte for byte. Do not restart. LIVE at latest review: OLDER rising-only
+collision Icarus10076/session59484 and current64-RAM Icarus12518/session56923.
+Actual `ps` handles verified; do not restart/change bounds. The older collision
+binary differs from the extended one. Finish/archive these, then run the current
+collision peer and remaining arrival/XZ/noncanonical tests. Preserve every original16-R C/D/Set/interior edge,
+828+16 native ownership and the one SRAM. Connect native freeze/barrier/publication
+only after those gates, then continue IFU/Memory and full-device timing. All A–F,
+60ns/timer, SDRAM, firmware/Cedar/Rollback/persistence/stress gates remain.
+
+Original native69736 remains the SAME5B HOST run. New read-only snapshot at
+host1020081560/guest518044505 has Timer100ms26/EndOfDelay30 (prior13/30). Its boot
+wait is advancing; LLDB detached, no guest writes/restart. Protected medium SHA
+unchanged. No firmware/Cedar pass. No new RBF or hardware speed; MiSTer14 remains
+available, last read-only core SMC777. Last measurement is4.025473M StartCycle
+issues/s, not retirements. Guest ticks in native logs are not microinstructions.
+
 LATEST COMPLETE REVIEW + NEXT CORRECTNESS BLOCKER (2026-10-24):
 Both full shared-capture Icarus peers are TERMINAL PASS, with the same14884
 transactions,2470 results,844 owners,9216 RAM bits,100 clocks and cache coverage

@@ -14,6 +14,57 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
+LATEST one-port interior read implementation (2026-10-25):
+
+- [x] Separate current physical BEFORE observations from closing R input and
+  flag data. Service the intermediate selection through the SAME existing SRAM
+  read port, carrying all16 data bits AND both parity bits. No new guest owner,
+  RAM copy, read port or cleared guest state. Disabled generation is byte-exact.
+- [x] Implement `dorado_r_interior_read_stage.sv`:36 auxiliary data bits plus
+  two phase bits. It waits for an acknowledged read, preserves snapshots during
+  stalls, invalidates the transaction on reset, and requires no extra ordinary
+  cycle when need=0. Standalone contracts pass induction with arbitrary binary
+  inputs and36 unconstrained initial data bits; early-ready/stale-data/ordinary-
+  stall controls fail actual interface obligations. This does NOT prove caller
+  context freezing or native publication.
+- [x] Full focused original844-Q/9216-RAM/100-clock check passes in BOTH engines.
+  Three host-clock read stalls change no architectural owner/RAM. Stale-data
+  and missing-valid controls fail the real original operand outputs at194.
+  The first attempt omitted parity and failed original state539; preserve it.
+- [x] Broaden the descriptor beyond coincident root rise: the continuous suite
+  found a real stable-LOW CP selection at242. Keep its failure. The corrected
+  version passes all4096 words/12481 checks in Verilator,128 fresh collision
+  fixtures/17089 checks (three interior reads), and64 independent RAM fixtures/
+  12737 checks (64 reads). RAM fixtures cover8x8 high-byte edge pairs with other
+  cells independently seeded, not arbitrary owners or arbitrary gate histories.
+- [x] SAME current full-word Icarus10990/session11512 is TERMINAL PASS:
+  12481 checks/4096 words. Candidate, initial owner/RAM and the ENTIRE transaction
+  trace are byte-identical to the Verilator peer. Do not restart it.
+- [ ] Finish SAME older rising-only128-collision Icarus10076/session59484 and
+  current64-RAM Icarus12518/session56923, both verified live by actual `ps`.
+  Do not restart or change bounds. The former is a DIFFERENT older candidate;
+  it cannot by itself qualify the extended descriptor. Then run the current
+  collision peer and remaining RAM/arrival/unknown-context checks.
+- [ ] Wire the stage into the real native caller's freeze/publication/barrier,
+  preserving828 stored bits plus16 external visible-R owners. Start/ack/release
+  and owner publication are still TESTBENCH-driven. Earlier metadata confusing
+  the RTL controller with its caller is clarified in the caller-audit receipt;
+  historical state/source files remain unchanged. No native integration yet.
+- [ ] Qualify every original16-R interior edge, actual CP/Ready/MIR/Hold offsets,
+  unknown/noncanonical paths, full-processor nonvacuous TPC capture, IFU/Memory,
+  and SAME-fixture timing before selecting a full-core fit. All A–F stay open.
+
+Current receipt: `single-port-cp-capture-words-summary.json`, requiring the
+terminal full Icarus pass and byte-identical complete word traces. Earlier
+`single-port-cp-capture-caller-audit-summary.json` and
+`single-port-cp-capture-staging-summary.json` retain their historical observations.
+Controller proof and negative cases do not imply native/15ns/60ns qualification.
+No new RBF, FPGA reload or measured speed gain. Native69736 remains the SAME
+original-firmware5B HOST run. Read-only inspection at host1020081560/guest518044505
+finds Timer100ms26/EndOfDelay30, versus13/30 at the prior inspection. The original
+power-up timer is advancing; debugger detached, no guest writes. Guest ticks are
+not microinstructions. Protected medium SHA remains f3bce2a8...802df51.
+
 LATEST shared capture implementation (2026-10-24):
 
 - [x] Expose actual joint CP/root transfer frames as combinational wires:
@@ -80,8 +131,9 @@ LATEST full processor CP/interior RAM diagnosis (2026-10-24):
   Disabling the CP pulse passes too. Matching banks at equal indices still
   failed because the transient STK and RM addresses differ. These controls
   diagnose the missing read; they do not qualify independent bank data.
-- [ ] Implement an explicit interior memory access before closing/publishing
-  the owner. Carry BEFORE, interior port/data, CLOSING capture and AFTER views.
+- [x] Implement a component interior read and BEFORE/interior/CLOSING/AFTER
+  data views (2026-10-25), including parity. The real native caller/publication
+  integration remains open in the latest checklist above.
   Service these from the SAME physical SRAM port; hold the machine edge until
   the interior read and original latch captures complete. Never replace this
   with a guessed flag, new read port/RAM copy or an extra ordinary guest cycle.

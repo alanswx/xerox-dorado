@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import time
 
+from generate_cp_interior_read import rewrite as interior_rewrite,stage_bench,sequential_stage_bench,ram_sweep_bench
 from generate_cp_block_capture import rewrite,route
 from generate_cp_prblock_capture import rewrite as prblock_rewrite,route as prblock_route
 from generate_r_front_cp_source_reference import generate
@@ -201,8 +202,12 @@ def bench(raw,out,repro,collisions=False,ready_zero=False,trace_arrivals=False,n
 
 
 def run(source,original_trace,cp_source,out,engine,block_capture=True,repro=True,collisions=False,ready_zero=False,
-        profile='balanced',trace_arrivals=False,no_cp_pulse=False,prblock_capture=False,equal_bank_data=False,matched_interior_data=False):
+        profile='balanced',trace_arrivals=False,no_cp_pulse=False,prblock_capture=False,equal_bank_data=False,matched_interior_data=False,interior_read=False,interior_mutation=None,interior_sequencer=False,ram_cases=0):
     assert not out.exists()
+    assert not interior_read or (prblock_capture and profile=='later_control')
+    assert interior_read or interior_mutation is None
+    assert not interior_sequencer or interior_read
+    assert not ram_cases or (collisions and interior_sequencer and 1<=ram_cases<=64)
     s=json.loads((source/'run-state.json').read_text());verify(source,s['files'])
     assert s['status']=='PASS_OWNED_FULL_PROCESSOR_PACKETS' and s['mutation'] is None
     t=json.loads((original_trace/'run-state.json').read_text());assert t['status']=='PASS_FULL_ORIGINAL_PROCESSOR_TRANSACTION_TRACE'
@@ -212,7 +217,7 @@ def run(source,original_trace,cp_source,out,engine,block_capture=True,repro=True
     out.mkdir(parents=True)
     (out/'run-state.json').write_text(json.dumps(dict(status='PREPARING',driver_pid=os.getpid(),started=time.time(),
         scope=__doc__,source=str(source),original_trace=str(original_trace),engine=engine),indent=2)+'\n')
-    for name in [Path(__file__).name,'generate_r_front_cp_source_reference.py','generate_shared_control_capture.py','generate_cp_block_capture.py','generate_cp_prblock_capture.py']:
+    for name in [Path(__file__).name,'generate_r_front_cp_source_reference.py','generate_shared_control_capture.py','generate_cp_block_capture.py','generate_cp_prblock_capture.py','generate_cp_interior_read.py']:
         shutil.copy2(Path(__file__).with_name(name),out/name)
     reference=out/'reference';r=generate(ROOT,reference)
     actual_inherited=inherited_timing(original_trace)
@@ -220,13 +225,17 @@ def run(source,original_trace,cp_source,out,engine,block_capture=True,repro=True
     raw=rewrite((source/'candidate.sv').read_text(),block_capture and bool(descriptor['early']))
     pr_descriptor=prblock_route(ROOT,gate,ff)
     if prblock_capture:raw=prblock_rewrite(raw,bool(pr_descriptor['g16_early']),bool(pr_descriptor['address_early']))
+    if interior_read:raw=interior_rewrite(raw)
     candidate=source_top(shared.kernel(raw,share_native=True),fn)+'\n'+shared.control(raw)
     paths=[];rows=[]
     for row in t['source_files']:
         name=row['path'];old=original_trace/name;dest=out/name;dest.parent.mkdir(parents=True,exist_ok=True)
         text=old.read_text()
         if name=='candidate.sv':text=candidate
-        elif name=='inputs/tb_r_front_local.sv':text=bench(text,out,repro,collisions,ready_zero,trace_arrivals,no_cp_pulse,int(phase<gate),equal_bank_data,matched_interior_data)
+        elif name=='inputs/tb_r_front_local.sv':
+            text=bench(text,out,repro,collisions,ready_zero,trace_arrivals,no_cp_pulse,int(phase<gate),equal_bank_data,matched_interior_data)
+            if ram_cases:text=ram_sweep_bench(text,ram_cases)
+            if interior_read:text=(sequential_stage_bench if interior_sequencer else stage_bench)(text,interior_mutation)
         elif name.startswith('adapters/'):
             if old.stem in shared.ADAPTERS:text=shared.adapter(text)
             elif old.stem=='dorado_local_task_capture_step':text=shared.task_adapter(text)
@@ -235,6 +244,10 @@ def run(source,original_trace,cp_source,out,engine,block_capture=True,repro=True
         text=timed_source(name,text,profile)
         dest.write_text(text);paths.append(dest)
         rows.append(dict(path=name,parent_sha256=sha(old),output_sha256=sha(dest),changed=old.read_text()!=text))
+    if interior_sequencer:
+        name='verilog/rtl/dorado_r_interior_read_stage.sv';old=ROOT/name;dest=out/name;dest.parent.mkdir(parents=True,exist_ok=True)
+        dest.write_bytes(old.read_bytes());paths.append(dest)
+        rows.append(dict(path=name,parent_sha256=sha(old),output_sha256=sha(dest),changed=False))
     for board in ['BaseBd-Rev-Am',*[b['board']for b in r['boards']]]:
         for ext in ['wl','lc']:
             name='chm/sil/'+board+'.dm!1_/'+board+'.'+ext;p=out/'source-audit'/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((ROOT/name).read_bytes())
@@ -242,10 +255,13 @@ def run(source,original_trace,cp_source,out,engine,block_capture=True,repro=True
                source=str(source),source_state_sha256=sha(source/'run-state.json'),original_trace=str(original_trace),
                original_trace_state_sha256=sha(original_trace/'run-state.json'),CP_manifest_sha256=sha(cp_source/'manifest.json'),
                block_capture_enabled=block_capture,block_capture_descriptor=descriptor,reproduction_only=repro,
-               root_CP_collision_program=collisions,trace_context_discontinuities=128 if collisions else 0,
+               root_CP_collision_program=collisions,trace_context_discontinuities=ram_cases or (128 if collisions else 0),ram_sweep_cases=ram_cases,
                initial_ready_fixture='0000' if ready_zero else 'ffff',equal_RM_STK_fixture_data=equal_bank_data,matched_intermediate_port_data=matched_interior_data,
                profile=profile,inherited_profile_ps=actual_inherited,passive_g16_arrival_trace=trace_arrivals,CP_strobe_pulsed=not no_cp_pulse,
                PrBlock_capture_enabled=prblock_capture,PrBlock_capture_descriptor=pr_descriptor,
+               staged_interior_read=interior_read,interior_mutation=interior_mutation,
+               interior_read_caller_implemented_in_testbench_only=interior_read,
+               synthesizable_interior_sequencer=interior_sequencer,native_caller_integration_pending=interior_read,
                trace_inputs_normalized_to_actual_CP_source=True,
                shared_cached_and_pure_consumers=True,all_original_event_assertions_retained=True,
                physical_Q_bits=844,physical_RAM_bits=9216,clock_channels=100,
@@ -280,11 +296,14 @@ if __name__=='__main__':
     p.add_argument('--profile',choices=PROFILES,default='balanced')
     p.add_argument('--trace-arrivals',action='store_true');p.add_argument('--no-cp-pulse',action='store_true')
     p.add_argument('--prblock-capture',action='store_true')
+    p.add_argument('--interior-read',action='store_true')
+    p.add_argument('--interior-sequencer',action='store_true')
+    p.add_argument('--interior-mutation',choices=['stale-data','missing-valid'])
     p.add_argument('--equal-bank-data',action='store_true',help='Diagnostic memory control: seed RM and STK with identical data; does not qualify independent bank data')
     p.add_argument('--matched-interior-data',action='store_true',help='Diagnostic control: match the two transient STK cells to the RM cells observed at check194; not general qualification')
-    group=p.add_mutually_exclusive_group();group.add_argument('--all-words',action='store_true');group.add_argument('--collisions',action='store_true')
+    group=p.add_mutually_exclusive_group();group.add_argument('--all-words',action='store_true');group.add_argument('--collisions',action='store_true');group.add_argument('--ram-cases',type=int,default=0)
     a=p.parse_args()
-    try:code=run(a.source.resolve(),a.original_trace.resolve(),a.cp_source.resolve(),a.output.resolve(),a.engine,not a.without_block_capture,not (a.all_words or a.collisions),a.collisions,a.ready_zero,a.profile,a.trace_arrivals,a.no_cp_pulse,a.prblock_capture,a.equal_bank_data,a.matched_interior_data)
+    try:code=run(a.source.resolve(),a.original_trace.resolve(),a.cp_source.resolve(),a.output.resolve(),a.engine,not a.without_block_capture,not (a.all_words or a.collisions or a.ram_cases),bool(a.collisions or a.ram_cases),a.ready_zero,a.profile,a.trace_arrivals,a.no_cp_pulse,a.prblock_capture,a.equal_bank_data,a.matched_interior_data,a.interior_read,a.interior_mutation,a.interior_sequencer,a.ram_cases)
     except Exception as error:
         state_file=a.output/'run-state.json'
         if state_file.exists():
