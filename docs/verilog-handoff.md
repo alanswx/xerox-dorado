@@ -7,7 +7,58 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST REAL ALU/MIR COMPOSITION AND FULL-CORE15NS FIT (2026-10-25):
+LATEST OPERAND/ALU CAPTURE PASS AND FULL-CORE15NS REJECTION (2026-10-25):
+The SAME full-core job is terminal: builder2865831, all nine stages exited0;
+no assembly or hardware load. All574 remote inputs match the frozen stage.
+At15ns/SYSPER4 (120ns nominal), setup FAILS at all four corners: slow100C
+-11.669ns, slow-40C -11.499ns, fast100C -2.940ns, fast-40C -1.306ns.
+Worst path is r_front_lower_q[48] -> asynchronous RM read -> ContA/ContB
+capture/settling checks -> machine_enable -> falling-edge network_step.
+It has20 logic levels/18.579ns data delay against a7.500ns half-cycle.
+Fit uses40,438/41,910 ALMs (96%),2,506,566 memory bits (44%),330/553 RAM
+blocks (60%). This is evidence to shorten the iterative capture path, not
+permission to bypass its guard or relax timing. Detailed source/corner/
+crossing/clock/unconstrained reports are retained; do not restart this fit.
+The existing constrained SDRAM I/O paths have minimum setup0.415ns/hold3.832ns,
+but protocol, refresh/reset/timers and overall66.7MHz operation are NOT qualified.
+
+The actual operand-register frontier is now inside the original coupled graph:
+33 packages/134 additional physical bits, preserving1063:0, total1198. The
+pre-root read-only ALU projection and80-bit flag transfer pass BOTH engines
+through15470 events/ALL1198 states/9216 SRAM bits/147 clocks/964 observations.
+All147 clocks fire; all16 function addresses/64 windows per RAM remain stable.
+The first14884 original input records remain byte-identical. No unknown stored
+state/clock is accepted at the comparison points. These are the declared digital
+ordering and tested stimuli, not arbitrary physical arrival/analog qualification.
+All134 native Q outputs and19 additional projection inputs are bound to frozen
+native sources. Two originally unconnected Q pins remain explicitly represented;
+snapshot payload packing is NOT used as the physical Q layout.
+
+CORRECTION TO THE PREVIOUS ALU RECEIPTS: their claimed both-byte zero reduction
+was incomplete. The constructor followed the other board only when the local
+board had no driver, omitting ProcL d08 from aluOut=0'. It now follows BOTH boards
+even with a local driver and asserts all four d08 output contributions. Earlier
+1064/partial1198 passes do not qualify full16-bit zero detection. Receipts are
+preserved, not rewritten. Dropping only the low-byte contribution now rejects
+actual zero output at7940/observable486 in BOTH engines. Replacing the pre-root
+frame with late values rejects actual flag-family state73 (global917) at15 in
+BOTH engines. The old capture mismatch is resolved in this expanded reference;
+the new capture is still NOT integrated into the native common owner.
+
+NEXT: carry these real operand/ALU/flag phases into common native capture and
+chronological batches, removing the measured deep settling dependency while
+preserving the machine-edge storage barrier and network/machine edge alignment.
+Then refit, qualify66.7MHz SDRAM/timers, boot and benchmark on MiSTer14. Retain
+all MIR/Ready/Hold/IFU/cache/Map/device/write-close gates. Full60ns, original
+Cedar/Rollback/persistence/three fresh boots/two-hour stress remain required;
+complete FPGA snapshots remain deferred. SAME5B HOST simulations remain live:
+62048 at520M HOST/205,697,337 ticks (TX0);69736 at2.80B/1,609,319,144 (TX2).
+No packet0/Cedar pass or measured gain. Protected media unchanged. Full goal active.
+Receipt: `processor-operand-capture-summary.json` in the native flag archive;
+terminal full-core review `native-cp-read-full15-timing-review-v1-20261025`.
+
+PREVIOUS REAL ALU/MIR COMPOSITION AND FULL-CORE15NS FIT (2026-10-25;
+zero-reduction claim superseded by the correction above):
 Two threads now advance together. The complete original ALU reference includes
 the four MC10181 slices, operand muxes, SignedCarry with native B-invert0,
 both-byte nonzero reduction, and ProcL e12/e17 plus the WHOLE e13/e14 function

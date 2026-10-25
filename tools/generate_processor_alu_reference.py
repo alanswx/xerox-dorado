@@ -2,7 +2,8 @@
 """Close the real16-bit ALU/function-memory path in the original processor.
 
 Preserve the existing924-state layout, append both whole function RAM packages
-and both six-bit registers, and retain physical operand-mux producer boundaries.
+and both six-bit registers. Optionally close the supported operand registers,
+appending their physical state without changing existing1063:0 indices.
 Backplane nets resolve all selected board contributions before feeding either
 board. This is an original-cell reference, not a native optimized replacement.
 """
@@ -30,7 +31,7 @@ def original_boards():
     return {r['board'].split('-Rev-')[0]:r for r in m['boards']if r['board'].startswith(('ProcH','ProcL'))}
 
 
-def closure(boards,specs):
+def closure(boards,specs,close_operands=False):
     selected={n:set(s['seq'])|set(s['comb'])for n,s in specs.items()}
     initial={n:set(s)for n,s in selected.items()};added={n:set()for n in boards}
     queue=[('ProcH',n)for n in ['SignedCarry','aluCout',"aluOut=0'",'alu.00']]+[('ProcL','aluM')]
@@ -49,18 +50,39 @@ def closure(boards,specs):
         seen.add((name,net));row=boards[name].nets[net]
         if net.startswith(('GND','VCC','VDD','Vdd')):continue
         drivers=[p for p in row['pins']if p['dir']=='out']
-        if not drivers and row.get('backplane'):
+        if close_operands and net=='DMuxData':
+            # This diagnostic bus includes nine other boards. Native ProcH
+            # explicitly reads the bus without its own contribution. Keep
+            # those two *different* external read boundaries; do not invent
+            # a closed H/L-only wired bus or a self-feedback path.
+            stopped.update((name,net,p['pkg'],boards[name].packages[p['pkg']]['type'])for p in drivers)
+            continue
+        if row.get('backplane'):
             other='ProcL'if name=='ProcH'else'ProcH';r=boards[other].nets.get(net,{})
             if r.get('backplane')and any(p['dir']=='out'for p in r.get('pins',[])):
-                queue.append((other,net));continue
+                queue.append((other,net))
         for driver in drivers:
             pkg=driver['pkg'];kind=boards[name].packages[pkg]['type']
             if pkg in selected[name]:continue
-            if kind in SEQUENTIAL or kind=='SG10139':
+            # The temperature sensor is an analog machine input, not a gate
+            # whose state or transfer can be inferred from this digital graph.
+            if (kind in SEQUENTIAL and (not close_operands or kind not in PIN_Q)) or kind in {'SG10139','LM3911+20K'}:
                 stopped.add((name,net,pkg,kind));continue
             selected[name].add(pkg);added[name].add(pkg)
             queue += [(name,n)for n,r in boards[name].nets.items()if any(p['pkg']==pkg and p['dir']=='in'for p in r['pins'])]
-    for name in specs:specs[name]['comb']=sorted(set(specs[name]['comb'])|added[name])
+    operand_packages={}
+    for name,spec in specs.items():
+        sequential=sorted(p for p in added[name]if boards[name].packages[p]['type']in PIN_Q)
+        operand_packages[name]={}
+        end=max(offset+width for offset,width in spec['seq'].values())
+        for pkg in sequential:
+            kind=boards[name].packages[pkg]['type'];width=PIN_Q[kind][0]
+            spec['seq'][pkg]=(end,width);operand_packages[name][pkg]=(end,width);end+=width
+            taps={'MC10231':['ca','cb'],'SE10231':['ca','cb'],'MC10141':['p4'],
+                  'MC10173':['p7'],'MC10176':['p9'],'MC1668':['p9'],
+                  'F10000':['clk'],'F10145A':['p13']}[kind]
+            spec['clock_taps'] += ['@'+pkg+'.'+tap for tap in taps]
+        spec['comb']=sorted((set(spec['comb'])|added[name])-set(sequential))
     # A local wired net must never silently omit an unselected driver.
     for name,board in boards.items():
         for net,row in board.nets.items():
@@ -69,20 +91,26 @@ def closure(boards,specs):
             if used and drivers&selected[name]:assert drivers<=selected[name],(name,net,drivers-selected[name])
     return dict(added_combinational={n:sorted(s)for n,s in added.items()},
                 remaining_operand_storage_boundaries=sorted(stopped),
+                closed_operand_packages=operand_packages,
                 original_packages={n:sorted(s)for n,s in initial.items()})
 
 
-def generate(out):
+def generate(out,close_operands=False):
     assert not out.exists();out.mkdir(parents=True)
     base=branch_generate(out/'base');timed=out/'timed';shutil.copytree(out/'base/timed',timed)
     old=original_boards();h=base['original_high_board'];low=old['ProcL']
     specs={
         'ProcH':dict(bn=h['board'],module='processor_alu_proch',comb=sorted(set(h['packages'])-set(h['sequential'])),
-                     seq=h['sequential'],bindings={},clock_taps=h['clock_taps'],flag_taps=h['flag_taps']),
+                     seq=dict(h['sequential']),bindings={},clock_taps=list(h['clock_taps']),flag_taps=h['flag_taps']),
         'ProcL':dict(bn=low['board'],module='processor_alu_procl',comb=sorted(set(low['packages'])-set(low['sequential'])),
                      seq={**low['sequential'],**NEW_LOW},bindings={},clock_taps=low['clock_taps']+['@e12.p9','@e13.p13','@e14.p13','@e17.p9'],flag_taps=low['flag_taps'])}
     boards={n:load_board(str(ROOT/'chm/sil'/(r['board']+'.dm!1_')/(r['board']+'.wl')))for n,r in old.items()}
-    support=closure(boards,specs)
+    support=closure(boards,specs,close_operands)
+    high_bits=max(a+b for a,b in specs['ProcH']['seq'].values())
+    low_bits=max(a+b for a,b in specs['ProcL']['seq'].values())
+    physical_bits=1064+(high_bits-360)+(low_bits-548)
+    high_clocks=len(specs['ProcH']['clock_taps']);low_clocks=len(specs['ProcL']['clock_taps'])
+    clock_channels=108+(high_clocks-19)+(low_clocks-41)
     selected={n:set(s['seq'])|set(s['comb'])for n,s in specs.items()}
     # Global nets retain all board drivers, including the two zero-detector
     # contributions and ProcL's e17/f61 wired carry input.
@@ -91,6 +119,7 @@ def generate(out):
         for net,row in board.nets.items():
             drivers=[p for p in row['pins']if p['dir']=='out'and p['pkg']in selected[name]]
             if row.get('backplane')and drivers:global_drivers.setdefault(net,[]).extend((name,p['pkg'],p['pin'])for p in drivers)
+    assert set(global_drivers["aluOut=0'"])=={(n,'d08',p)for n in ['ProcH','ProcL']for p in [2,15]}
     # ALUF is already registered in the original common ContB MIR owner.
     # Do not replace those four real producers with independent test pins.
     control_nodes={net:wire for wire,net in re.findall(r'^ wire (\w+); // ([^\n]+)$',(timed/'contb_mir_reference.sv').read_text(),re.M)}
@@ -110,7 +139,7 @@ def generate(out):
                 bindings[net]=f'bridge[{globals_index[net]}]'
             elif net in old_bindings[name]:bindings[net]=old_bindings[name][net]
             else:
-                token=net if boards[name].nets[net].get('backplane')else name+'.'+net
+                token=net if boards[name].nets[net].get('backplane')and net!='DMuxData'else name+'.'+net
                 if token not in extras:extras[token]=next_pin;next_pin+=1
                 bindings[net]=f'pins[{extras[token]}]'
         spec['bindings']=bindings
@@ -161,12 +190,20 @@ def generate(out):
                 assert '.'+name+'('+name+')'in module[0],(board,net)
                 port_checks.append([board,net,name])
     top=(out/'base/timed/processor_branch_reference.sv').read_text()
-    replacements=[('module processor_branch_reference','module processor_alu_reference'),('[923:0]','[1063:0]'),('[412:0]',f'[{next_pin-1}:0]'),
-        ('[103:0] clocks','[107:0] clocks'),('wire [36:0] cl','wire [40:0] cl'),('wire [407:0] sl,il','wire [547:0] sl,il'),
+    replacements=[('module processor_branch_reference','module processor_alu_reference'),('[923:0]',f'[{physical_bits-1}:0]'),('[412:0]',f'[{next_pin-1}:0]'),
+        ('[103:0] clocks',f'[{clock_channels-1}:0] clocks'),('wire [36:0] cl',f'wire [{low_clocks-1}:0] cl'),('wire [407:0] sl,il',f'wire [{low_bits-1}:0] sl,il'),
         ('processor_branch_proch h(','processor_alu_proch h('),('r_front_ready_procl l(','processor_alu_procl l('),
         ('assign clocks={ch[18:15],','assign clocks={cl[40:37],ch[18:15],'),
         ('output wire [3:0] branch_flags);','output wire [3:0] branch_flags,output wire [15:0] alu_word,output wire [5:0] alu_function,output wire [400:0] legacy_pins);')]
     for before,after in replacements:assert before in top,before;top=top.replace(before,after)
+    if close_operands:
+        assert high_bits>360 and low_bits>548
+        top=top.replace('wire [359:0] sh,ih',f'wire [{high_bits-1}:0] sh,ih',1)
+        marker='wire [18:0] ch';assert top.count(marker)==1
+        top=top.replace(marker,f'wire [{high_clocks-1}:0] ch',1)
+        marker='assign clocks={cl[40:37],ch[18:15],'
+        assert top.count(marker)==1
+        top=top.replace(marker,f'assign clocks={{cl[{low_clocks-1}:41],ch[{high_clocks-1}:19],cl[40:37],ch[18:15],',1)
     for before,after in [('cpu_pins,next_raw','cpu_pins,bridge,next_raw'),('cpu_pins[245:0],next_raw','cpu_pins,bridge,next_raw')]:
         assert top.count(before)==1,(before,top.count(before));top=top.replace(before,after,1)
     declaration=f' wire [{len(globals_index)-1}:0] bridge;\n'
@@ -183,6 +220,12 @@ def generate(out):
         assert terms,net
         extra+=f' assign bridge[{index}]='+ ' | '.join('('+x+')'for x in terms)+';\n'
     extra+=' assign il[547:408]=fixture_state[1063:924];\n assign state_q[1063:924]=sl[547:408];\n'
+    if close_operands:
+        high_extra=high_bits-360
+        extra+=f' assign ih[{high_bits-1}:360]=fixture_state[{1063+high_extra}:1064];\n'
+        extra+=f' assign state_q[{1063+high_extra}:1064]=sh[{high_bits-1}:360];\n'
+        extra+=f' assign il[{low_bits-1}:548]=fixture_state[{physical_bits-1}:{1064+high_extra}];\n'
+        extra+=f' assign state_q[{physical_bits-1}:{1064+high_extra}]=sl[{low_bits-1}:548];\n'
     for bit in range(16):
         board='ProcH'if bit<8 else'ProcL';scope='h'if bit<8 else'l'
         extra+=f' assign alu_word[{15-bit}]={scope}.{nodes[board][f"alu.{bit:02d}"]};\n'
@@ -243,7 +286,13 @@ def generate(out):
             raw=(ROOT/'verilog/cells'/path.name).read_text()
             raw=re.sub(r'(?m)^(\s*assign\s+)',r'\g<1>#(1000) ',raw)
             path.write_text('`timescale 1ps/1ps\n'+raw)
-    result=dict(scope=__doc__,physical_bits=1064,clock_channels=108,bulk_SRAM_bits=9216,
+    operand_layout={}
+    for name,packages in support['closed_operand_packages'].items():
+        for pkg,(offset,width)in packages.items():
+            start = 1064 + offset - 360 if name == 'ProcH' else 1064 + high_bits - 360 + offset - 548
+            operand_layout[name+'.'+pkg]=dict(board=name,package=pkg,kind=boards[name].packages[pkg]['type'],
+                local_offset=offset,global_offset=start,bits=width)
+    result=dict(scope=__doc__,physical_bits=physical_bits,clock_channels=clock_channels,bulk_SRAM_bits=9216,
         original_indices_retained='923:0',new_low_indices='1063:924',new_low_packages=NEW_LOW,
         boundary_pins=next_pin,extra_boundary_pins=extras,global_drivers=global_drivers,
         native_global_port_checks=port_checks,support=support,boards=records,
@@ -252,10 +301,13 @@ def generate(out):
         old_state_source_overrides=legacy,source_native_backplane_sha256=sha(NATIVE/BP),
         original_ALU_function_memory_and_operand_muxes_integrated=True,
         remaining_operand_registers_and_shifter_ROMs_are_boundaries=True,
+        supported_operand_registers_integrated=close_operands,
+        operand_state_layout=operand_layout,
         optimized_capture_qualified=False,native_qualified=False,physical_timing_qualified=False)
     (out/'manifest.json').write_text(json.dumps(result,indent=2)+'\n');return result
 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True)
-    a=p.parse_args();m=generate(a.output.resolve());print('ORIGINAL_ALU_REFERENCE',m['physical_bits'],m['boundary_pins'])
+    p.add_argument('--operands',action='store_true')
+    a=p.parse_args();m=generate(a.output.resolve(),a.operands);print('ORIGINAL_ALU_REFERENCE',m['physical_bits'],m['boundary_pins'])

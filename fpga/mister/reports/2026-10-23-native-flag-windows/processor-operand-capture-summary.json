@@ -1,0 +1,2586 @@
+{
+  "status": "REVIEWED_ORIGINAL_OPERAND_ALU_FLAG_CAPTURE_AND_NATIVE_BINDING",
+  "scope": "Review the coupled original operand/ALU capture and bind its native Q pins.\n\nThe1198-bit original reference and80-bit flag transfer pass both engines.\nThis establishes the tested digital phase composition, not arbitrary physical\narrival timing or native60ns integration. Preserve the earlier missing-low-byte\nzero-reduction receipts as superseded evidence, without rewriting them.\n",
+  "comparison_summary": "ORIGINAL_ALU_COMPOSITION_PASS events=15470 states=1198 RAM=9216 clocks=147 observations=964 functions=11112222c4448889 results=351 new_changed=3efebffffff7fffbfffe7ffffefd3fffcb7324be17ad069c358c51eb40da73c962fbf",
+  "all147_clock_counts": [
+    "ALU_COMPOSITION_CLOCK channel=0 edges=5748",
+    "ALU_COMPOSITION_CLOCK channel=1 edges=2874",
+    "ALU_COMPOSITION_CLOCK channel=2 edges=2874",
+    "ALU_COMPOSITION_CLOCK channel=3 edges=2874",
+    "ALU_COMPOSITION_CLOCK channel=4 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=5 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=6 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=7 edges=4597",
+    "ALU_COMPOSITION_CLOCK channel=8 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=9 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=10 edges=5748",
+    "ALU_COMPOSITION_CLOCK channel=11 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=12 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=13 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=14 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=15 edges=5748",
+    "ALU_COMPOSITION_CLOCK channel=16 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=17 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=18 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=19 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=20 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=21 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=22 edges=166",
+    "ALU_COMPOSITION_CLOCK channel=23 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=24 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=25 edges=2743",
+    "ALU_COMPOSITION_CLOCK channel=26 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=27 edges=2743",
+    "ALU_COMPOSITION_CLOCK channel=28 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=29 edges=32",
+    "ALU_COMPOSITION_CLOCK channel=30 edges=48",
+    "ALU_COMPOSITION_CLOCK channel=31 edges=32",
+    "ALU_COMPOSITION_CLOCK channel=32 edges=48",
+    "ALU_COMPOSITION_CLOCK channel=33 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=34 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=35 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=36 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=37 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=38 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=39 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=40 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=41 edges=5677",
+    "ALU_COMPOSITION_CLOCK channel=42 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=43 edges=32",
+    "ALU_COMPOSITION_CLOCK channel=44 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=45 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=46 edges=257",
+    "ALU_COMPOSITION_CLOCK channel=47 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=48 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=49 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=50 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=51 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=52 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=53 edges=1",
+    "ALU_COMPOSITION_CLOCK channel=54 edges=1",
+    "ALU_COMPOSITION_CLOCK channel=55 edges=1056",
+    "ALU_COMPOSITION_CLOCK channel=56 edges=1056",
+    "ALU_COMPOSITION_CLOCK channel=57 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=58 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=59 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=60 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=61 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=62 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=63 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=64 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=65 edges=498",
+    "ALU_COMPOSITION_CLOCK channel=66 edges=390",
+    "ALU_COMPOSITION_CLOCK channel=67 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=68 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=69 edges=32",
+    "ALU_COMPOSITION_CLOCK channel=70 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=71 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=72 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=73 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=74 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=75 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=76 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=77 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=78 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=79 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=80 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=81 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=82 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=83 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=84 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=85 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=86 edges=32",
+    "ALU_COMPOSITION_CLOCK channel=87 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=88 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=89 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=90 edges=1745",
+    "ALU_COMPOSITION_CLOCK channel=91 edges=65",
+    "ALU_COMPOSITION_CLOCK channel=92 edges=65",
+    "ALU_COMPOSITION_CLOCK channel=93 edges=65",
+    "ALU_COMPOSITION_CLOCK channel=94 edges=5685",
+    "ALU_COMPOSITION_CLOCK channel=95 edges=1",
+    "ALU_COMPOSITION_CLOCK channel=96 edges=2839",
+    "ALU_COMPOSITION_CLOCK channel=97 edges=2839",
+    "ALU_COMPOSITION_CLOCK channel=98 edges=2839",
+    "ALU_COMPOSITION_CLOCK channel=99 edges=2843",
+    "ALU_COMPOSITION_CLOCK channel=100 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=101 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=102 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=103 edges=1743",
+    "ALU_COMPOSITION_CLOCK channel=104 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=105 edges=64",
+    "ALU_COMPOSITION_CLOCK channel=106 edges=64",
+    "ALU_COMPOSITION_CLOCK channel=107 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=108 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=109 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=110 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=111 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=112 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=113 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=114 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=115 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=116 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=117 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=118 edges=2",
+    "ALU_COMPOSITION_CLOCK channel=119 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=120 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=121 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=122 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=123 edges=1746",
+    "ALU_COMPOSITION_CLOCK channel=124 edges=1746",
+    "ALU_COMPOSITION_CLOCK channel=125 edges=2",
+    "ALU_COMPOSITION_CLOCK channel=126 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=127 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=128 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=129 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=130 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=131 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=132 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=133 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=134 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=135 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=136 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=137 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=138 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=139 edges=2823",
+    "ALU_COMPOSITION_CLOCK channel=140 edges=1746",
+    "ALU_COMPOSITION_CLOCK channel=141 edges=1746",
+    "ALU_COMPOSITION_CLOCK channel=142 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=143 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=144 edges=2822",
+    "ALU_COMPOSITION_CLOCK channel=145 edges=3720",
+    "ALU_COMPOSITION_CLOCK channel=146 edges=3720"
+  ],
+  "actual_native_operand_binding": {
+    "packages": {
+      "ProcH.a10": {
+        "board": "ProcH",
+        "package": "a10",
+        "kind": "MC10231",
+        "local_offset": 360,
+        "global_offset": 1064,
+        "bits": 2,
+        "physical_output_pins": {
+          "1064": {
+            "pin": 2,
+            "net": "Amux0",
+            "native_net": "Amux0",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_a10.p2"
+          },
+          "1065": {
+            "pin": 15,
+            "net": "Amux1'",
+            "native_net": "Amux1_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_a10.p15"
+          }
+        },
+        "native_pins": {
+          "2": "Amux0",
+          "3": "MarMuxBEn_p___a10_3",
+          "7": "dAmux0",
+          "9": "Clock1_p_Ac",
+          "10": "dAmux1_p_",
+          "14": "Amux1",
+          "15": "Amux1_p_"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10231_snapshot.v",
+        "native_instance_parameters": "cell_MC10231_snapshot u_a10 ("
+      },
+      "ProcH.a11": {
+        "board": "ProcH",
+        "package": "a11",
+        "kind": "MC10231",
+        "local_offset": 362,
+        "global_offset": 1066,
+        "bits": 2,
+        "physical_output_pins": {
+          "1066": {
+            "pin": 2,
+            "net": "BmuxEn'",
+            "native_net": "BmuxEn_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_a11.p2"
+          },
+          "1067": {
+            "pin": 15,
+            "net": "IOBout",
+            "native_net": "IOBout",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_a11.p15"
+          }
+        },
+        "native_pins": {
+          "2": "BmuxEn_p_",
+          "3": "BmuxIn_p_",
+          "7": "B_u_Ext",
+          "9": "Clock1_p_Ac",
+          "10": "ProcH15_sil_pl_1",
+          "15": "IOBout"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10231_snapshot.v",
+        "native_instance_parameters": "cell_MC10231_snapshot u_a11 ("
+      },
+      "ProcH.a12": {
+        "board": "ProcH",
+        "package": "a12",
+        "kind": "MC10173",
+        "local_offset": 364,
+        "global_offset": 1068,
+        "bits": 4,
+        "physical_output_pins": {
+          "1068": {
+            "pin": 1,
+            "net": "Shc.00",
+            "native_net": "Shc_00",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_a12.p1"
+          },
+          "1069": {
+            "pin": 2,
+            "net": "Shc.01",
+            "native_net": "Shc_01",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_a12.p2"
+          },
+          "1070": {
+            "pin": 15,
+            "net": "Shc.02",
+            "native_net": "Shc_02__drv",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_a12.p15"
+          },
+          "1071": {
+            "pin": 14,
+            "net": "Shc.03",
+            "native_net": "Shc_03__drv",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_a12.p14"
+          }
+        },
+        "native_pins": {
+          "1": "Shc_00",
+          "2": "Shc_01",
+          "4": "Shcr_01",
+          "6": "Shcr_00",
+          "7": "PreSHCP_p_Shc",
+          "9": "FFshift_p_",
+          "10": "BSel_2a",
+          "11": "Shcr_03",
+          "12": "BSel_1a",
+          "13": "Shcr_02",
+          "14": "Shc_03__drv",
+          "15": "Shc_02__drv"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_a12 ("
+      },
+      "ProcH.a13": {
+        "board": "ProcH",
+        "package": "a13",
+        "kind": "MC10173",
+        "local_offset": 368,
+        "global_offset": 1072,
+        "bits": 4,
+        "physical_output_pins": {
+          "1072": {
+            "pin": 1,
+            "net": "Shc.04a",
+            "native_net": "Shc_04a",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_a13.p1"
+          },
+          "1073": {
+            "pin": 2,
+            "net": "Shc.04b",
+            "native_net": "Shc_04b__drv",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_a13.p2"
+          },
+          "1074": {
+            "pin": 15,
+            "net": "Shc.05a",
+            "native_net": "Shc_05a",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_a13.p15"
+          },
+          "1075": {
+            "pin": 14,
+            "net": "Shc.05b",
+            "native_net": "Shc_05b__drv",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_a13.p14"
+          }
+        },
+        "native_pins": {
+          "1": "Shc_04a",
+          "2": "Shc_04b__drv",
+          "3": "FF_4a",
+          "4": "Shcr_04",
+          "5": "FF_4a",
+          "6": "Shcr_04",
+          "7": "PreSHCP_p_Shc",
+          "9": "FFshift_p_",
+          "10": "FF_5a",
+          "11": "Shcr_05",
+          "12": "FF_5a",
+          "13": "Shcr_05",
+          "14": "Shc_05b__drv",
+          "15": "Shc_05a"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_a13 ("
+      },
+      "ProcH.b05": {
+        "board": "ProcH",
+        "package": "b05",
+        "kind": "MC10173",
+        "local_offset": 372,
+        "global_offset": 1076,
+        "bits": 4,
+        "physical_output_pins": {
+          "1076": {
+            "pin": 1,
+            "net": "Ain.00",
+            "native_net": "Ain_00",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b05.p1"
+          },
+          "1077": {
+            "pin": 2,
+            "net": "Ain.01",
+            "native_net": "Ain_01",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b05.p2"
+          },
+          "1078": {
+            "pin": 15,
+            "net": "Ain.02",
+            "native_net": "Ain_02",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b05.p15"
+          },
+          "1079": {
+            "pin": 14,
+            "net": "Ain.03",
+            "native_net": "Ain_03",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b05.p14"
+          }
+        },
+        "native_pins": {
+          "1": "Ain_00",
+          "2": "Ain_01",
+          "3": "Md_01",
+          "5": "Md_00",
+          "7": "PreSHCP_p_A",
+          "9": "ProcH14_sil_pl_1",
+          "10": "Md_03",
+          "12": "Md_02",
+          "14": "Ain_03",
+          "15": "Ain_02"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_b05 ("
+      },
+      "ProcH.b10": {
+        "board": "ProcH",
+        "package": "b10",
+        "kind": "MC10231",
+        "local_offset": 376,
+        "global_offset": 1080,
+        "bits": 2,
+        "physical_output_pins": {
+          "1080": {
+            "pin": 2,
+            "net": "Bmux0",
+            "native_net": "Bmux0",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b10.p2"
+          },
+          "1081": {
+            "pin": 15,
+            "net": "Bmux1",
+            "native_net": "Bmux1",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b10.p15"
+          }
+        },
+        "native_pins": {
+          "2": "Bmux0",
+          "3": "Bmux0_p_",
+          "7": "dBmux0",
+          "9": "Clock1_p_Ac",
+          "10": "dBmux1",
+          "14": "Bmux1_p_",
+          "15": "Bmux1"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10231_snapshot.v",
+        "native_instance_parameters": "cell_MC10231_snapshot u_b10 ("
+      },
+      "ProcH.b11": {
+        "board": "ProcH",
+        "package": "b11",
+        "kind": "MC10141",
+        "local_offset": 378,
+        "global_offset": 1082,
+        "bits": 4,
+        "physical_output_pins": {
+          "1082": {
+            "pin": 14,
+            "net": "ShiftMuxEn'",
+            "native_net": "ShiftMuxEn_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b11.p14"
+          },
+          "1083": {
+            "pin": 15,
+            "net": "MarMuxAEn'",
+            "native_net": "MarMuxAEn_p___b11_15",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b11.p15"
+          },
+          "1084": {
+            "pin": 2,
+            "net": "MarMuxAEn'",
+            "native_net": "MarMuxAEn_p___b11_2",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b11.p2"
+          },
+          "1085": {
+            "pin": 3,
+            "net": "MarMuxBEn'",
+            "native_net": "MarMuxBEn_p___b11_3",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b11.p3"
+          }
+        },
+        "native_pins": {
+          "2": "MarMuxAEn_p___b11_2",
+          "3": "MarMuxBEn_p___b11_3",
+          "4": "Clock1_p_Ac",
+          "6": "ProcH14_sil_pl_2",
+          "9": "ProcH14_sil_pl_2",
+          "11": "dAmux0",
+          "12": "Shift_p_",
+          "14": "ShiftMuxEn_p_",
+          "15": "MarMuxAEn_p___b11_15"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v",
+        "native_instance_parameters": "cell_MC10141_snapshot u_b11 ("
+      },
+      "ProcH.b12": {
+        "board": "ProcH",
+        "package": "b12",
+        "kind": "MC10173",
+        "local_offset": 382,
+        "global_offset": 1086,
+        "bits": 4,
+        "physical_output_pins": {
+          "1086": {
+            "pin": 1,
+            "net": "Shcr.00",
+            "native_net": "Shcr_00",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b12.p1"
+          },
+          "1087": {
+            "pin": 2,
+            "net": "Shcr.01",
+            "native_net": "Shcr_01",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b12.p2"
+          },
+          "1088": {
+            "pin": 15,
+            "net": "Shcr.02",
+            "native_net": "Shcr_02",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b12.p15"
+          },
+          "1089": {
+            "pin": 14,
+            "net": "Shcr.03",
+            "native_net": "Shcr_03",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b12.p14"
+          }
+        },
+        "native_pins": {
+          "1": "Shcr_00",
+          "2": "Shcr_01",
+          "3": "alub_01a",
+          "4": "alua_01",
+          "5": "alub_00a",
+          "6": "alua_00",
+          "7": "ShcWrite_p_",
+          "9": "ProcH18_sil_pl_1",
+          "10": "alub_03a",
+          "11": "alua_03",
+          "12": "alub_02a",
+          "13": "alua_02",
+          "14": "Shcr_03",
+          "15": "Shcr_02"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_b12 ("
+      },
+      "ProcH.b13": {
+        "board": "ProcH",
+        "package": "b13",
+        "kind": "MC10173",
+        "local_offset": 386,
+        "global_offset": 1090,
+        "bits": 4,
+        "physical_output_pins": {
+          "1090": {
+            "pin": 1,
+            "net": "Shc.06a",
+            "native_net": "Shc_06a",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b13.p1"
+          },
+          "1091": {
+            "pin": 2,
+            "net": "Shc.06b",
+            "native_net": "Shc_06b__drv",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b13.p2"
+          },
+          "1092": {
+            "pin": 15,
+            "net": "Shc.07a",
+            "native_net": "Shc_07a",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b13.p15"
+          },
+          "1093": {
+            "pin": 14,
+            "net": "Shc.07b",
+            "native_net": "Shc_07b__drv",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b13.p14"
+          }
+        },
+        "native_pins": {
+          "1": "Shc_06a",
+          "2": "Shc_06b__drv",
+          "3": "FF_6a",
+          "4": "Shcr_06",
+          "5": "FF_6a",
+          "6": "Shcr_06",
+          "7": "PreSHCP_p_Shc",
+          "9": "FFshift_p_",
+          "10": "FF_7a",
+          "11": "Shcr_07",
+          "12": "FF_7a",
+          "13": "Shcr_07",
+          "14": "Shc_07b__drv",
+          "15": "Shc_07a"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_b13 ("
+      },
+      "ProcH.b15": {
+        "board": "ProcH",
+        "package": "b15",
+        "kind": "MC10176",
+        "local_offset": 390,
+        "global_offset": 1094,
+        "bits": 6,
+        "physical_output_pins": {
+          "1094": {
+            "pin": 2,
+            "net": "QshiftR'",
+            "native_net": "QshiftR_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b15.p2"
+          },
+          "1095": {
+            "pin": 3,
+            "net": "QshiftL'",
+            "native_net": "QshiftL_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b15.p3"
+          },
+          "1096": {
+            "pin": 4,
+            "net": null,
+            "native_net": null,
+            "originally_unconnected": true,
+            "native_physical_pin": "b_ProcH.u_b15.p4"
+          },
+          "1097": {
+            "pin": 13,
+            "net": "IOBin'",
+            "native_net": "IOBin_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b15.p13"
+          },
+          "1098": {
+            "pin": 14,
+            "net": "ShcWriteEn'",
+            "native_net": "ShcWriteEn_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b15.p14"
+          },
+          "1099": {
+            "pin": 15,
+            "net": "ProcH18.sil+1",
+            "native_net": "ProcH18_sil_pl_1",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_b15.p15"
+          }
+        },
+        "native_pins": {
+          "2": "QshiftR_p_",
+          "3": "QshiftL_p_",
+          "5": "ProcH17_sil_pl_5",
+          "6": "ProcH17_sil_pl_6",
+          "9": "Clock1_p_Ca",
+          "10": "ProcH16_sil_pl_3",
+          "11": "ProcH18_sil_pl_2",
+          "12": "FC_eq_7_p_",
+          "13": "IOBin_p_",
+          "14": "ShcWriteEn_p_",
+          "15": "ProcH18_sil_pl_1"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+        "native_instance_parameters": "cell_MC10176_snapshot u_b15 ("
+      },
+      "ProcH.c05": {
+        "board": "ProcH",
+        "package": "c05",
+        "kind": "MC10173",
+        "local_offset": 396,
+        "global_offset": 1100,
+        "bits": 4,
+        "physical_output_pins": {
+          "1100": {
+            "pin": 1,
+            "net": "Bin.00",
+            "native_net": "Bin_00",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c05.p1"
+          },
+          "1101": {
+            "pin": 2,
+            "net": "Bin.01",
+            "native_net": "Bin_01",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c05.p2"
+          },
+          "1102": {
+            "pin": 15,
+            "net": "Bin.02",
+            "native_net": "Bin_02",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c05.p15"
+          },
+          "1103": {
+            "pin": 14,
+            "net": "Bin.03",
+            "native_net": "Bin_03",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c05.p14"
+          }
+        },
+        "native_pins": {
+          "1": "Bin_00",
+          "2": "Bin_01",
+          "3": "Md_01",
+          "4": "ProcH03_sil_pl_4",
+          "5": "Md_00",
+          "6": "ProcH02_sil_pl_3",
+          "7": "PreSHCP_p_A",
+          "9": "BSel_0a",
+          "10": "Md_03",
+          "11": "ProcH05_sil_pl_4",
+          "12": "Md_02",
+          "13": "ProcH04_sil_pl_4",
+          "14": "Bin_03",
+          "15": "Bin_02"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_c05 ("
+      },
+      "ProcH.c10": {
+        "board": "ProcH",
+        "package": "c10",
+        "kind": "MC10176",
+        "local_offset": 400,
+        "global_offset": 1104,
+        "bits": 6,
+        "physical_output_pins": {
+          "1104": {
+            "pin": 2,
+            "net": "Pmux0",
+            "native_net": "Pmux0",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c10.p2"
+          },
+          "1105": {
+            "pin": 3,
+            "net": "Pmux1",
+            "native_net": "Pmux1",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c10.p3"
+          },
+          "1106": {
+            "pin": 4,
+            "net": "Pmux2",
+            "native_net": "Pmux2",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c10.p4"
+          },
+          "1107": {
+            "pin": 13,
+            "net": "ProcH16.sil+5",
+            "native_net": "ProcH16_sil_pl_5",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c10.p13"
+          },
+          "1108": {
+            "pin": 14,
+            "net": "LmaskEn'",
+            "native_net": "LmaskEn_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c10.p14"
+          },
+          "1109": {
+            "pin": 15,
+            "net": "AmuxEn'",
+            "native_net": "AmuxEn_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c10.p15"
+          }
+        },
+        "native_pins": {
+          "2": "Pmux0",
+          "3": "Pmux1",
+          "4": "Pmux2",
+          "5": "dPmux0",
+          "6": "dPmux1",
+          "7": "dPmux2",
+          "9": "Clock1_p_Ac",
+          "10": "ProcH16_sil_pl_4",
+          "11": "ProcH16_sil_pl_6",
+          "12": "ProcH14_sil_pl_3",
+          "13": "ProcH16_sil_pl_5",
+          "14": "LmaskEn_p_",
+          "15": "AmuxEn_p_"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+        "native_instance_parameters": "cell_MC10176_snapshot u_c10 ("
+      },
+      "ProcH.c11": {
+        "board": "ProcH",
+        "package": "c11",
+        "kind": "MC10141",
+        "local_offset": 406,
+        "global_offset": 1110,
+        "bits": 4,
+        "physical_output_pins": {
+          "1110": {
+            "pin": 14,
+            "net": "Q.04",
+            "native_net": "Q_04",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c11.p14"
+          },
+          "1111": {
+            "pin": 15,
+            "net": "Q.05",
+            "native_net": "Q_05",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c11.p15"
+          },
+          "1112": {
+            "pin": 2,
+            "net": "Q.06",
+            "native_net": "Q_06",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c11.p2"
+          },
+          "1113": {
+            "pin": 3,
+            "net": "Q.07",
+            "native_net": "Q_07__drv",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c11.p3"
+          }
+        },
+        "native_pins": {
+          "2": "Q_06",
+          "3": "Q_07__drv",
+          "4": "QClock_p_",
+          "5": "Q_08",
+          "6": "alub_07a",
+          "7": "QshiftR_p_",
+          "9": "alub_06a",
+          "10": "QshiftL_p_",
+          "11": "alub_05a",
+          "12": "alub_04a",
+          "13": "Q_03",
+          "14": "Q_04",
+          "15": "Q_05"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v",
+        "native_instance_parameters": "cell_MC10141_snapshot u_c11 ("
+      },
+      "ProcH.c12": {
+        "board": "ProcH",
+        "package": "c12",
+        "kind": "MC10141",
+        "local_offset": 410,
+        "global_offset": 1114,
+        "bits": 4,
+        "physical_output_pins": {
+          "1114": {
+            "pin": 14,
+            "net": "Q.00",
+            "native_net": "Q_00",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c12.p14"
+          },
+          "1115": {
+            "pin": 15,
+            "net": "Q.01",
+            "native_net": "Q_01",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c12.p15"
+          },
+          "1116": {
+            "pin": 2,
+            "net": "Q.02",
+            "native_net": "Q_02",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c12.p2"
+          },
+          "1117": {
+            "pin": 3,
+            "net": "Q.03",
+            "native_net": "Q_03",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c12.p3"
+          }
+        },
+        "native_pins": {
+          "2": "Q_02",
+          "3": "Q_03",
+          "4": "QClock_p_",
+          "5": "Q_04",
+          "6": "alub_03a",
+          "7": "QshiftR_p_",
+          "9": "alub_02a",
+          "10": "QshiftL_p_",
+          "11": "alub_01a",
+          "12": "alub_00a",
+          "13": "ProcH17_sil_pl_1",
+          "14": "Q_00",
+          "15": "Q_01"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v",
+        "native_instance_parameters": "cell_MC10141_snapshot u_c12 ("
+      },
+      "ProcH.c13": {
+        "board": "ProcH",
+        "package": "c13",
+        "kind": "MC10173",
+        "local_offset": 414,
+        "global_offset": 1118,
+        "bits": 4,
+        "physical_output_pins": {
+          "1118": {
+            "pin": 1,
+            "net": "Shcr.04",
+            "native_net": "Shcr_04",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c13.p1"
+          },
+          "1119": {
+            "pin": 2,
+            "net": "Shcr.05",
+            "native_net": "Shcr_05",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c13.p2"
+          },
+          "1120": {
+            "pin": 15,
+            "net": "Shcr.06",
+            "native_net": "Shcr_06",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c13.p15"
+          },
+          "1121": {
+            "pin": 14,
+            "net": "Shcr.07",
+            "native_net": "Shcr_07",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_c13.p14"
+          }
+        },
+        "native_pins": {
+          "1": "Shcr_04",
+          "2": "Shcr_05",
+          "3": "alub_05a",
+          "4": "ShcAlu_1",
+          "5": "alub_04a",
+          "6": "ShcAlu_0",
+          "7": "ShcWrite_p_",
+          "9": "ProcH18_sil_pl_1",
+          "10": "alub_07a",
+          "11": "ShcAlu_3",
+          "12": "alub_06a",
+          "13": "ShcAlu_2",
+          "14": "Shcr_07",
+          "15": "Shcr_06"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_c13 ("
+      },
+      "ProcH.d05": {
+        "board": "ProcH",
+        "package": "d05",
+        "kind": "MC10173",
+        "local_offset": 418,
+        "global_offset": 1122,
+        "bits": 4,
+        "physical_output_pins": {
+          "1122": {
+            "pin": 1,
+            "net": "Ain.04",
+            "native_net": "Ain_04",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_d05.p1"
+          },
+          "1123": {
+            "pin": 2,
+            "net": "Ain.05",
+            "native_net": "Ain_05",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_d05.p2"
+          },
+          "1124": {
+            "pin": 15,
+            "net": "Ain.06",
+            "native_net": "Ain_06",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_d05.p15"
+          },
+          "1125": {
+            "pin": 14,
+            "net": "Ain.07",
+            "native_net": "Ain_07",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_d05.p14"
+          }
+        },
+        "native_pins": {
+          "1": "Ain_04",
+          "2": "Ain_05",
+          "3": "Md_05",
+          "5": "Md_04",
+          "7": "PreSHCP_p_A",
+          "9": "ProcH14_sil_pl_1",
+          "10": "Md_07",
+          "12": "Md_06",
+          "14": "Ain_07",
+          "15": "Ain_06"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_d05 ("
+      },
+      "ProcH.e05": {
+        "board": "ProcH",
+        "package": "e05",
+        "kind": "MC10173",
+        "local_offset": 422,
+        "global_offset": 1126,
+        "bits": 4,
+        "physical_output_pins": {
+          "1126": {
+            "pin": 1,
+            "net": "Bin.04",
+            "native_net": "Bin_04",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_e05.p1"
+          },
+          "1127": {
+            "pin": 2,
+            "net": "Bin.05",
+            "native_net": "Bin_05",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_e05.p2"
+          },
+          "1128": {
+            "pin": 15,
+            "net": "Bin.06",
+            "native_net": "Bin_06",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_e05.p15"
+          },
+          "1129": {
+            "pin": 14,
+            "net": "Bin.07",
+            "native_net": "Bin_07",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_e05.p14"
+          }
+        },
+        "native_pins": {
+          "1": "Bin_04",
+          "2": "Bin_05",
+          "3": "Md_05",
+          "4": "ProcH07_sil_pl_4",
+          "5": "Md_04",
+          "6": "ProcH06_sil_pl_4",
+          "7": "PreSHCP_p_A",
+          "9": "BSel_0a",
+          "10": "Md_07",
+          "11": "ProcH09_sil_pl_4",
+          "12": "Md_06",
+          "13": "ProcH08_sil_pl_4",
+          "14": "Bin_07",
+          "15": "Bin_06"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_e05 ("
+      },
+      "ProcH.f21": {
+        "board": "ProcH",
+        "package": "f21",
+        "kind": "MC10176",
+        "local_offset": 426,
+        "global_offset": 1130,
+        "bits": 6,
+        "physical_output_pins": {
+          "1130": {
+            "pin": 2,
+            "net": "FFdly.3",
+            "native_net": "FFdly_3",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_f21.p2"
+          },
+          "1131": {
+            "pin": 3,
+            "net": "FFdly.4",
+            "native_net": "FFdly_4",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_f21.p3"
+          },
+          "1132": {
+            "pin": 4,
+            "net": "FFdly.5",
+            "native_net": "FFdly_5",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_f21.p4"
+          },
+          "1133": {
+            "pin": 13,
+            "net": "FFdly.6",
+            "native_net": "FFdly_6",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_f21.p13"
+          },
+          "1134": {
+            "pin": 14,
+            "net": "FFdly.7",
+            "native_net": "FFdly_7",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_f21.p14"
+          },
+          "1135": {
+            "pin": 15,
+            "net": "ProcH24.sil+6",
+            "native_net": "ProcH24_sil_pl_6",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcH.u_f21.p15"
+          }
+        },
+        "native_pins": {
+          "2": "FFdly_3",
+          "3": "FFdly_4",
+          "4": "FFdly_5",
+          "5": "FF_3a",
+          "6": "FF_4a",
+          "7": "FF_5a",
+          "9": "Clock1_p_Cd",
+          "10": "FF_6a",
+          "11": "FF_7a",
+          "12": "MemBM34",
+          "13": "FFdly_6",
+          "14": "FFdly_7",
+          "15": "ProcH24_sil_pl_6"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+        "native_instance_parameters": "cell_MC10176_snapshot u_f21 ("
+      },
+      "ProcL.a10": {
+        "board": "ProcL",
+        "package": "a10",
+        "kind": "MC10231",
+        "local_offset": 548,
+        "global_offset": 1136,
+        "bits": 2,
+        "physical_output_pins": {
+          "1136": {
+            "pin": 2,
+            "net": "Amux0",
+            "native_net": "Amux0",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_a10.p2"
+          },
+          "1137": {
+            "pin": 15,
+            "net": "Amux1'",
+            "native_net": "Amux1_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_a10.p15"
+          }
+        },
+        "native_pins": {
+          "2": "Amux0",
+          "3": "MarMuxBEn_p___a10_3",
+          "7": "dAmux0",
+          "9": "Clock1_p_Ac",
+          "10": "dAmux1_p_",
+          "14": "Amux1",
+          "15": "Amux1_p_"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10231_snapshot.v",
+        "native_instance_parameters": "cell_MC10231_snapshot u_a10 ("
+      },
+      "ProcL.a11": {
+        "board": "ProcL",
+        "package": "a11",
+        "kind": "MC10231",
+        "local_offset": 550,
+        "global_offset": 1138,
+        "bits": 2,
+        "physical_output_pins": {
+          "1138": {
+            "pin": 2,
+            "net": "BmuxEn'",
+            "native_net": "BmuxEn_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_a11.p2"
+          },
+          "1139": {
+            "pin": 15,
+            "net": "IOBout",
+            "native_net": "IOBout",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_a11.p15"
+          }
+        },
+        "native_pins": {
+          "2": "BmuxEn_p_",
+          "3": "BmuxIn_p_",
+          "7": "B_u_Ext",
+          "9": "Clock1_p_Ac",
+          "10": "ProcL15_sil_pl_1",
+          "14": "IOBout_p_",
+          "15": "IOBout"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10231_snapshot.v",
+        "native_instance_parameters": "cell_MC10231_snapshot u_a11 ("
+      },
+      "ProcL.b05": {
+        "board": "ProcL",
+        "package": "b05",
+        "kind": "MC10173",
+        "local_offset": 552,
+        "global_offset": 1140,
+        "bits": 4,
+        "physical_output_pins": {
+          "1140": {
+            "pin": 1,
+            "net": "Ain.08",
+            "native_net": "Ain_08",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b05.p1"
+          },
+          "1141": {
+            "pin": 2,
+            "net": "Ain.09",
+            "native_net": "Ain_09",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b05.p2"
+          },
+          "1142": {
+            "pin": 15,
+            "net": "Ain.10",
+            "native_net": "Ain_10",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b05.p15"
+          },
+          "1143": {
+            "pin": 14,
+            "net": "Ain.11",
+            "native_net": "Ain_11",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b05.p14"
+          }
+        },
+        "native_pins": {
+          "1": "Ain_08",
+          "2": "Ain_09",
+          "3": "Md_09",
+          "5": "Md_08",
+          "7": "PreSHCP_p_A",
+          "9": "ProcL14_sil_pl_1",
+          "10": "Md_11",
+          "12": "Md_10",
+          "14": "Ain_11",
+          "15": "Ain_10"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_b05 ("
+      },
+      "ProcL.b10": {
+        "board": "ProcL",
+        "package": "b10",
+        "kind": "MC10231",
+        "local_offset": 556,
+        "global_offset": 1144,
+        "bits": 2,
+        "physical_output_pins": {
+          "1144": {
+            "pin": 2,
+            "net": "Bmux0",
+            "native_net": "Bmux0",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b10.p2"
+          },
+          "1145": {
+            "pin": 15,
+            "net": "Bmux1",
+            "native_net": "Bmux1",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b10.p15"
+          }
+        },
+        "native_pins": {
+          "2": "Bmux0",
+          "3": "Bmux0_p_",
+          "7": "dBmux0",
+          "9": "Clock1_p_Ac",
+          "10": "dBmux1",
+          "14": "Bmux1_p_",
+          "15": "Bmux1"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10231_snapshot.v",
+        "native_instance_parameters": "cell_MC10231_snapshot u_b10 ("
+      },
+      "ProcL.b11": {
+        "board": "ProcL",
+        "package": "b11",
+        "kind": "MC10141",
+        "local_offset": 558,
+        "global_offset": 1146,
+        "bits": 4,
+        "physical_output_pins": {
+          "1146": {
+            "pin": 14,
+            "net": "ShiftMuxEn'",
+            "native_net": "ShiftMuxEn_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b11.p14"
+          },
+          "1147": {
+            "pin": 15,
+            "net": "MarMuxAEn'",
+            "native_net": "MarMuxAEn_p___b11_15",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b11.p15"
+          },
+          "1148": {
+            "pin": 2,
+            "net": "MarMuxAEn'",
+            "native_net": "MarMuxAEn_p___b11_2",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b11.p2"
+          },
+          "1149": {
+            "pin": 3,
+            "net": "MarMuxBEn'",
+            "native_net": "MarMuxBEn_p___b11_3",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b11.p3"
+          }
+        },
+        "native_pins": {
+          "2": "MarMuxAEn_p___b11_2",
+          "3": "MarMuxBEn_p___b11_3",
+          "4": "Clock1_p_Ac",
+          "6": "ProcL14_sil_pl_2",
+          "9": "ProcL14_sil_pl_2",
+          "11": "dAmux0",
+          "12": "Shift_p_",
+          "14": "ShiftMuxEn_p_",
+          "15": "MarMuxAEn_p___b11_15"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v",
+        "native_instance_parameters": "cell_MC10141_snapshot u_b11 ("
+      },
+      "ProcL.b15": {
+        "board": "ProcL",
+        "package": "b15",
+        "kind": "MC10176",
+        "local_offset": 562,
+        "global_offset": 1150,
+        "bits": 6,
+        "physical_output_pins": {
+          "1150": {
+            "pin": 2,
+            "net": "QshiftR'",
+            "native_net": "QshiftR_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b15.p2"
+          },
+          "1151": {
+            "pin": 3,
+            "net": "QshiftL'",
+            "native_net": "QshiftL_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b15.p3"
+          },
+          "1152": {
+            "pin": 4,
+            "net": "LdHoldSim'",
+            "native_net": "LdHoldSim_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b15.p4"
+          },
+          "1153": {
+            "pin": 13,
+            "net": "ProcL17.sil+1",
+            "native_net": "ProcL17_sil_pl_1",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b15.p13"
+          },
+          "1154": {
+            "pin": 14,
+            "net": "FFdly.7",
+            "native_net": "FFdly_7",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b15.p14"
+          },
+          "1155": {
+            "pin": 15,
+            "net": "ProcL18.sil+8",
+            "native_net": "ProcL18_sil_pl_8",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_b15.p15"
+          }
+        },
+        "native_pins": {
+          "2": "QshiftR_p_",
+          "3": "QshiftL_p_",
+          "4": "LdHoldSim_p_",
+          "5": "ProcL17_sil_pl_11",
+          "6": "ProcL17_sil_pl_12",
+          "7": "ProcL26_sil_pl_2",
+          "9": "Clock1_p_Ca",
+          "10": "FB_eq_7_p_",
+          "11": "FF_7",
+          "12": "ProcL18_sil_pl_9",
+          "13": "ProcL17_sil_pl_1",
+          "14": "FFdly_7",
+          "15": "ProcL18_sil_pl_8"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+        "native_instance_parameters": "cell_MC10176_snapshot u_b15 ("
+      },
+      "ProcL.c05": {
+        "board": "ProcL",
+        "package": "c05",
+        "kind": "MC10173",
+        "local_offset": 568,
+        "global_offset": 1156,
+        "bits": 4,
+        "physical_output_pins": {
+          "1156": {
+            "pin": 1,
+            "net": "Bin.08",
+            "native_net": "Bin_08",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c05.p1"
+          },
+          "1157": {
+            "pin": 2,
+            "net": "Bin.09",
+            "native_net": "Bin_09",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c05.p2"
+          },
+          "1158": {
+            "pin": 15,
+            "net": "Bin.10",
+            "native_net": "Bin_10",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c05.p15"
+          },
+          "1159": {
+            "pin": 14,
+            "net": "Bin.11",
+            "native_net": "Bin_11",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c05.p14"
+          }
+        },
+        "native_pins": {
+          "1": "Bin_08",
+          "2": "Bin_09",
+          "3": "Md_09",
+          "4": "ProcL03_sil_pl_4",
+          "5": "Md_08",
+          "6": "ProcL02_sil_pl_4",
+          "7": "PreSHCP_p_A",
+          "9": "BSel_eq_0_p_",
+          "10": "Md_11",
+          "11": "ProcL05_sil_pl_4",
+          "12": "Md_10",
+          "13": "ProcL04_sil_pl_4",
+          "14": "Bin_11",
+          "15": "Bin_10"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_c05 ("
+      },
+      "ProcL.c10": {
+        "board": "ProcL",
+        "package": "c10",
+        "kind": "MC10176",
+        "local_offset": 572,
+        "global_offset": 1160,
+        "bits": 6,
+        "physical_output_pins": {
+          "1160": {
+            "pin": 2,
+            "net": "Pmux0",
+            "native_net": "Pmux0",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c10.p2"
+          },
+          "1161": {
+            "pin": 3,
+            "net": "Pmux1",
+            "native_net": "Pmux1",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c10.p3"
+          },
+          "1162": {
+            "pin": 4,
+            "net": "Pmux2",
+            "native_net": "Pmux2",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c10.p4"
+          },
+          "1163": {
+            "pin": 13,
+            "net": "ProcL16.sil+6",
+            "native_net": "ProcL16_sil_pl_6",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c10.p13"
+          },
+          "1164": {
+            "pin": 14,
+            "net": "LmaskEn'",
+            "native_net": "LmaskEn_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c10.p14"
+          },
+          "1165": {
+            "pin": 15,
+            "net": "AmuxEn'",
+            "native_net": "AmuxEn_p_",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c10.p15"
+          }
+        },
+        "native_pins": {
+          "2": "Pmux0",
+          "3": "Pmux1",
+          "4": "Pmux2",
+          "5": "dPmux0",
+          "6": "dPmux1",
+          "7": "dPmux2",
+          "9": "Clock1_p_Ac",
+          "10": "ProcL16_sil_pl_5",
+          "11": "ProcL16_sil_pl_3",
+          "12": "ProcL14_sil_pl_3",
+          "13": "ProcL16_sil_pl_6",
+          "14": "LmaskEn_p_",
+          "15": "AmuxEn_p_"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+        "native_instance_parameters": "cell_MC10176_snapshot u_c10 ("
+      },
+      "ProcL.c11": {
+        "board": "ProcL",
+        "package": "c11",
+        "kind": "MC10141",
+        "local_offset": 578,
+        "global_offset": 1166,
+        "bits": 4,
+        "physical_output_pins": {
+          "1166": {
+            "pin": 14,
+            "net": "Q.12",
+            "native_net": "Q_12",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c11.p14"
+          },
+          "1167": {
+            "pin": 15,
+            "net": "Q.13",
+            "native_net": "Q_13",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c11.p15"
+          },
+          "1168": {
+            "pin": 2,
+            "net": "Q.14",
+            "native_net": "Q_14",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c11.p2"
+          },
+          "1169": {
+            "pin": 3,
+            "net": "Q.15",
+            "native_net": "Q_15",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c11.p3"
+          }
+        },
+        "native_pins": {
+          "2": "Q_14",
+          "3": "Q_15",
+          "4": "QClock_p_",
+          "5": "ProcL17_sil_pl_2",
+          "6": "alub_15a",
+          "7": "QshiftR_p_",
+          "9": "alub_14a",
+          "10": "QshiftL_p_",
+          "11": "alub_13a",
+          "12": "alub_12a",
+          "13": "Q_11",
+          "14": "Q_12",
+          "15": "Q_13"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v",
+        "native_instance_parameters": "cell_MC10141_snapshot u_c11 ("
+      },
+      "ProcL.c12": {
+        "board": "ProcL",
+        "package": "c12",
+        "kind": "MC10141",
+        "local_offset": 582,
+        "global_offset": 1170,
+        "bits": 4,
+        "physical_output_pins": {
+          "1170": {
+            "pin": 14,
+            "net": "Q.08",
+            "native_net": "Q_08__drv",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c12.p14"
+          },
+          "1171": {
+            "pin": 15,
+            "net": "Q.09",
+            "native_net": "Q_09",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c12.p15"
+          },
+          "1172": {
+            "pin": 2,
+            "net": "Q.10",
+            "native_net": "Q_10",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c12.p2"
+          },
+          "1173": {
+            "pin": 3,
+            "net": "Q.11",
+            "native_net": "Q_11",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_c12.p3"
+          }
+        },
+        "native_pins": {
+          "2": "Q_10",
+          "3": "Q_11",
+          "4": "QClock_p_",
+          "5": "Q_12",
+          "6": "alub_11a",
+          "7": "QshiftR_p_",
+          "9": "alub_10a",
+          "10": "QshiftL_p_",
+          "11": "alub_09a",
+          "12": "alub_08a",
+          "13": "Q_07",
+          "14": "Q_08__drv",
+          "15": "Q_09"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v",
+        "native_instance_parameters": "cell_MC10141_snapshot u_c12 ("
+      },
+      "ProcL.d05": {
+        "board": "ProcL",
+        "package": "d05",
+        "kind": "MC10173",
+        "local_offset": 586,
+        "global_offset": 1174,
+        "bits": 4,
+        "physical_output_pins": {
+          "1174": {
+            "pin": 1,
+            "net": "Ain.12",
+            "native_net": "Ain_12",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_d05.p1"
+          },
+          "1175": {
+            "pin": 2,
+            "net": "Ain.13",
+            "native_net": "Ain_13",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_d05.p2"
+          },
+          "1176": {
+            "pin": 15,
+            "net": "Ain.14",
+            "native_net": "Ain_14",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_d05.p15"
+          },
+          "1177": {
+            "pin": 14,
+            "net": "Ain.15",
+            "native_net": "Ain_15",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_d05.p14"
+          }
+        },
+        "native_pins": {
+          "1": "Ain_12",
+          "2": "Ain_13",
+          "3": "Md_13",
+          "4": "FF_5a",
+          "5": "Md_12",
+          "6": "FF_4a",
+          "7": "PreSHCP_p_A",
+          "9": "ProcL14_sil_pl_1",
+          "10": "Md_15",
+          "11": "FF_7a",
+          "12": "Md_14",
+          "13": "FF_6a",
+          "14": "Ain_15",
+          "15": "Ain_14"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_d05 ("
+      },
+      "ProcL.e05": {
+        "board": "ProcL",
+        "package": "e05",
+        "kind": "MC10173",
+        "local_offset": 590,
+        "global_offset": 1178,
+        "bits": 4,
+        "physical_output_pins": {
+          "1178": {
+            "pin": 1,
+            "net": "Bin.12",
+            "native_net": "Bin_12",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_e05.p1"
+          },
+          "1179": {
+            "pin": 2,
+            "net": "Bin.13",
+            "native_net": "Bin_13",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_e05.p2"
+          },
+          "1180": {
+            "pin": 15,
+            "net": "Bin.14",
+            "native_net": "Bin_14",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_e05.p15"
+          },
+          "1181": {
+            "pin": 14,
+            "net": "Bin.15",
+            "native_net": "Bin_15",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_e05.p14"
+          }
+        },
+        "native_pins": {
+          "1": "Bin_12",
+          "2": "Bin_13",
+          "3": "Md_13",
+          "4": "ProcL07_sil_pl_4",
+          "5": "Md_12",
+          "6": "ProcL06_sil_pl_4",
+          "7": "PreSHCP_p_A",
+          "9": "BSel_eq_0_p_",
+          "10": "Md_15",
+          "11": "ProcL09_sil_pl_3",
+          "12": "Md_14",
+          "13": "ProcL08_sil_pl_4",
+          "14": "Bin_15",
+          "15": "Bin_14"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_e05 ("
+      },
+      "ProcL.f16": {
+        "board": "ProcL",
+        "package": "f16",
+        "kind": "MC10173",
+        "local_offset": 594,
+        "global_offset": 1182,
+        "bits": 4,
+        "physical_output_pins": {
+          "1182": {
+            "pin": 1,
+            "net": "ProcL11.sil+4",
+            "native_net": "ProcL11_sil_pl_4",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_f16.p1"
+          },
+          "1183": {
+            "pin": 2,
+            "net": "MdPerr",
+            "native_net": "MdPerr",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_f16.p2"
+          },
+          "1184": {
+            "pin": 15,
+            "net": "RmPerr",
+            "native_net": "RmPerr",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_f16.p15"
+          },
+          "1185": {
+            "pin": 14,
+            "net": "TmPerr",
+            "native_net": "TmPerr",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_f16.p14"
+          }
+        },
+        "native_pins": {
+          "1": "ProcL11_sil_pl_4",
+          "2": "MdPerr",
+          "3": "ProcL27_sil_pl_5",
+          "4": "ProcL27_sil_pl_5",
+          "6": "ProcL11_sil_pl_6",
+          "7": "SHSelect_p_C",
+          "9": "ProcL11_sil_pl_7",
+          "10": "ProcL27_sil_pl_4",
+          "11": "ProcL27_sil_pl_4",
+          "12": "ProcL27_sil_pl_3",
+          "13": "ProcL27_sil_pl_3",
+          "14": "TmPerr",
+          "15": "RmPerr"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "native_instance_parameters": "cell_MC10173_snapshot u_f16 ("
+      },
+      "ProcL.k22": {
+        "board": "ProcL",
+        "package": "k22",
+        "kind": "MC10176",
+        "local_offset": 598,
+        "global_offset": 1186,
+        "bits": 6,
+        "physical_output_pins": {
+          "1186": {
+            "pin": 2,
+            "net": "DMadr.06",
+            "native_net": "DMadr_06",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_k22.p2"
+          },
+          "1187": {
+            "pin": 3,
+            "net": "DMadr.07",
+            "native_net": "DMadr_07",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_k22.p3"
+          },
+          "1188": {
+            "pin": 4,
+            "net": "DMadr.08",
+            "native_net": "DMadr_08",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_k22.p4"
+          },
+          "1189": {
+            "pin": 13,
+            "net": "DMadr.09",
+            "native_net": "DMadr_09",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_k22.p13"
+          },
+          "1190": {
+            "pin": 14,
+            "net": "DMadr.10",
+            "native_net": "DMadr_10",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_k22.p14"
+          },
+          "1191": {
+            "pin": 15,
+            "net": "DMadr.11",
+            "native_net": "DMadr_11",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_k22.p15"
+          }
+        },
+        "native_pins": {
+          "2": "DMadr_06",
+          "3": "DMadr_07",
+          "4": "DMadr_08",
+          "5": "DMadr_07",
+          "6": "DMadr_08",
+          "7": "DMadr_09",
+          "9": "ProcL28_sil_pl_1",
+          "10": "DMadr_10",
+          "11": "DMadr_11",
+          "12": "DMuxData",
+          "13": "DMadr_09",
+          "14": "DMadr_10",
+          "15": "DMadr_11"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+        "native_instance_parameters": "cell_MC10176_snapshot u_k22 ("
+      },
+      "ProcL.l22": {
+        "board": "ProcL",
+        "package": "l22",
+        "kind": "MC10176",
+        "local_offset": 604,
+        "global_offset": 1192,
+        "bits": 6,
+        "physical_output_pins": {
+          "1192": {
+            "pin": 2,
+            "net": null,
+            "native_net": null,
+            "originally_unconnected": true,
+            "native_physical_pin": "b_ProcL.u_l22.p2"
+          },
+          "1193": {
+            "pin": 3,
+            "net": "DMadr.01",
+            "native_net": "DMadr_01",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_l22.p3"
+          },
+          "1194": {
+            "pin": 4,
+            "net": "DMadr.02",
+            "native_net": "DMadr_02",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_l22.p4"
+          },
+          "1195": {
+            "pin": 13,
+            "net": "DMadr.03",
+            "native_net": "DMadr_03",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_l22.p13"
+          },
+          "1196": {
+            "pin": 14,
+            "net": "DMadr.04",
+            "native_net": "DMadr_04",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_l22.p14"
+          },
+          "1197": {
+            "pin": 15,
+            "net": "DMadr.05",
+            "native_net": "DMadr_05",
+            "originally_unconnected": false,
+            "native_physical_pin": "b_ProcL.u_l22.p15"
+          }
+        },
+        "native_pins": {
+          "3": "DMadr_01",
+          "4": "DMadr_02",
+          "6": "DMadr_02",
+          "7": "DMadr_03",
+          "9": "ProcL28_sil_pl_1",
+          "10": "DMadr_04",
+          "11": "DMadr_05",
+          "12": "DMadr_06",
+          "13": "DMadr_03",
+          "14": "DMadr_04",
+          "15": "DMadr_05"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+        "native_instance_parameters": "cell_MC10176_snapshot u_l22 ("
+      }
+    },
+    "physical_bits": 134,
+    "source_hashes": {
+      "chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "e0ae6dd2e6c0e9e25e2b438256efb13d5e54f0c1e405bffd736a9f88b8beffdd",
+      "src/fpga/mister/snapshot_native/cell_MC10231_snapshot.v": "17bf1e9fd267e3b0325c7c4794d6818eef2f50bd1cf27c7f536b0cbda26048e2",
+      "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+      "src/fpga/mister/snapshot_native_conta/cell_MC10141_snapshot.v": "2ce357063c805920ce1f4583f4d3d22e9fe32a01fbd3782b9ab06c6c85502df0",
+      "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e",
+      "chm/sil/ProcL-Rev-Ci.dm!1_/ProcL-Rev-Ci.wl": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "0a650e7fc26621fe0f0ab11266e96a4d54a4a7cc145156882af1f32e098bb3f3"
+    },
+    "additional_projection_inputs": {
+      "ProcH.Md.00": {
+        "pin": 413,
+        "producers": [
+          {
+            "board": "ProcH",
+            "original_net": "Md.00",
+            "native_net": "Md_00"
+          }
+        ]
+      },
+      "ProcH.Md.01": {
+        "pin": 414,
+        "producers": [
+          {
+            "board": "ProcH",
+            "original_net": "Md.01",
+            "native_net": "Md_01"
+          }
+        ]
+      },
+      "ProcH.Md.02": {
+        "pin": 415,
+        "producers": [
+          {
+            "board": "ProcH",
+            "original_net": "Md.02",
+            "native_net": "Md_02"
+          }
+        ]
+      },
+      "ProcH.Md.03": {
+        "pin": 416,
+        "producers": [
+          {
+            "board": "ProcH",
+            "original_net": "Md.03",
+            "native_net": "Md_03"
+          }
+        ]
+      },
+      "ProcH.Md.04": {
+        "pin": 417,
+        "producers": [
+          {
+            "board": "ProcH",
+            "original_net": "Md.04",
+            "native_net": "Md_04"
+          }
+        ]
+      },
+      "ProcH.Md.05": {
+        "pin": 418,
+        "producers": [
+          {
+            "board": "ProcH",
+            "original_net": "Md.05",
+            "native_net": "Md_05"
+          }
+        ]
+      },
+      "ProcH.Md.06": {
+        "pin": 419,
+        "producers": [
+          {
+            "board": "ProcH",
+            "original_net": "Md.06",
+            "native_net": "Md_06"
+          }
+        ]
+      },
+      "ProcH.Md.07": {
+        "pin": 420,
+        "producers": [
+          {
+            "board": "ProcH",
+            "original_net": "Md.07",
+            "native_net": "Md_07"
+          }
+        ]
+      },
+      "MemBM34": {
+        "pin": 421,
+        "producers": [
+          {
+            "board": "ProcH",
+            "original_net": "MemBM34",
+            "native_net": "MemBM34"
+          }
+        ]
+      },
+      "DMuxClk": {
+        "pin": 422,
+        "producers": [
+          {
+            "board": "ProcL",
+            "original_net": "DMuxClk",
+            "native_net": "DMuxClk"
+          }
+        ]
+      },
+      "ProcL.DMuxData": {
+        "pin": 423,
+        "producers": [
+          {
+            "board": "ProcL",
+            "original_net": "DMuxData",
+            "native_net": "DMuxData"
+          }
+        ]
+      },
+      "ProcL.Md.08": {
+        "pin": 424,
+        "producers": [
+          {
+            "board": "ProcL",
+            "original_net": "Md.08",
+            "native_net": "Md_08"
+          }
+        ]
+      },
+      "ProcL.Md.09": {
+        "pin": 425,
+        "producers": [
+          {
+            "board": "ProcL",
+            "original_net": "Md.09",
+            "native_net": "Md_09"
+          }
+        ]
+      },
+      "ProcL.Md.10": {
+        "pin": 426,
+        "producers": [
+          {
+            "board": "ProcL",
+            "original_net": "Md.10",
+            "native_net": "Md_10"
+          }
+        ]
+      },
+      "ProcL.Md.11": {
+        "pin": 427,
+        "producers": [
+          {
+            "board": "ProcL",
+            "original_net": "Md.11",
+            "native_net": "Md_11"
+          }
+        ]
+      },
+      "ProcL.Md.12": {
+        "pin": 428,
+        "producers": [
+          {
+            "board": "ProcL",
+            "original_net": "Md.12",
+            "native_net": "Md_12"
+          }
+        ]
+      },
+      "ProcL.Md.13": {
+        "pin": 429,
+        "producers": [
+          {
+            "board": "ProcL",
+            "original_net": "Md.13",
+            "native_net": "Md_13"
+          }
+        ]
+      },
+      "ProcL.Md.14": {
+        "pin": 430,
+        "producers": [
+          {
+            "board": "ProcL",
+            "original_net": "Md.14",
+            "native_net": "Md_14"
+          }
+        ]
+      },
+      "ProcL.Md.15": {
+        "pin": 431,
+        "producers": [
+          {
+            "board": "ProcL",
+            "original_net": "Md.15",
+            "native_net": "Md_15"
+          }
+        ]
+      }
+    },
+    "physical_outputs_bound": true,
+    "physical_arrivals_qualified": false,
+    "native_owner_integrated": false,
+    "snapshot_payload_is_not_physical_Q_layout": true
+  },
+  "negative_controls": [
+    {
+      "directory": "processor-operand-zero-negative-icarus-v1-20261025",
+      "mutation": "drop-low-zero",
+      "differences": [
+        [
+          "7940",
+          "486",
+          "1",
+          "0"
+        ]
+      ]
+    },
+    {
+      "directory": "processor-operand-late-negative-icarus-v1-20261025",
+      "mutation": "late-projection",
+      "differences": [
+        [
+          "15",
+          "73",
+          "1",
+          "0"
+        ]
+      ]
+    },
+    {
+      "directory": "processor-operand-zero-negative-verilator-v1-20261025",
+      "mutation": "drop-low-zero",
+      "differences": [
+        [
+          "7940",
+          "486",
+          "1",
+          "0"
+        ]
+      ]
+    },
+    {
+      "directory": "processor-operand-late-negative-verilator-v1-20261025",
+      "mutation": "late-projection",
+      "differences": [
+        [
+          "15",
+          "73",
+          "1",
+          "0"
+        ]
+      ]
+    }
+  ],
+  "low_byte_zero_omission_corrected": true,
+  "superseded_reference_sha256": "0c71d2b283c24d623e053a03d3d3da2b612847c63773d0fcbebbe7e47cb662dd",
+  "prior1064_and_partial1198_receipts_do_not_qualify_full_16bit_zero": true,
+  "full_core_15ns_timing": {
+    "status": "REVIEWED_FULL_CORE_15NS_TIMING_REJECTION",
+    "scope": "Collect and review the SAME full-core15ns timing diagnostic, without assembly.\n\nSource readback and all four operating corners are retained. A successful\nfitter/STA invocation is not a timing pass. No machine state, media, build\ninputs or remote job are changed by this review.\n",
+    "project": "/home/alans/mister/Dorado_CPRead15_Diag_v2_20261025",
+    "source_files_verified": 574,
+    "terminal_state": {
+      "status": "TERMINAL_TIMING_OBSERVED_REVIEW_REQUIRED",
+      "builder_pid": 2865831,
+      "started": 1792945810.717066,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 2865840,
+          "started": 1792945810.7174196,
+          "returncode": 0,
+          "finished": 1792946037.365143
+        },
+        {
+          "stage": "fit",
+          "pid": 2881841,
+          "started": 1792946037.3655748,
+          "returncode": 0,
+          "finished": 1792946944.9742517
+        },
+        {
+          "stage": "sta",
+          "pid": 2946291,
+          "started": 1792946944.9747918,
+          "returncode": 0,
+          "finished": 1792946966.2966738
+        },
+        {
+          "stage": "clocks",
+          "pid": 2947916,
+          "started": 1792946966.297126,
+          "returncode": 0,
+          "finished": 1792946972.9983892
+        },
+        {
+          "stage": "corners",
+          "pid": 2948386,
+          "started": 1792946972.9988086,
+          "returncode": 0,
+          "finished": 1792947102.6686132
+        },
+        {
+          "stage": "control-crossings",
+          "pid": 2960366,
+          "started": 1792947102.6691182,
+          "returncode": 0,
+          "finished": 1792947138.8694863
+        },
+        {
+          "stage": "contb-crossings",
+          "pid": 2964229,
+          "started": 1792947138.8699303,
+          "returncode": 0,
+          "finished": 1792947174.45684
+        },
+        {
+          "stage": "adapter-crossings",
+          "pid": 2967305,
+          "started": 1792947174.4573324,
+          "returncode": 0,
+          "finished": 1792947221.2001905
+        },
+        {
+          "stage": "storage-ready",
+          "pid": 2970806,
+          "started": 1792947221.2006528,
+          "returncode": 0,
+          "finished": 1792947256.434478
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false,
+      "finished": 1792947256.8311718
+    },
+    "nominal_ordinary_ns": 120,
+    "target_ordinary_ns": 60,
+    "frequency_hz": 66666667,
+    "sysper": 4,
+    "all_summary_checks": [
+      [
+        "Setup 'emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk'",
+        "-11.669"
+      ],
+      [
+        "Setup 'dorado_sdram_clk'",
+        "3.343"
+      ],
+      [
+        "Setup 'pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk'",
+        "4.948"
+      ],
+      [
+        "Setup 'spi_sck'",
+        "5.002"
+      ],
+      [
+        "Setup 'FPGA_CLK1_50'",
+        "6.879"
+      ],
+      [
+        "Setup 'FPGA_CLK2_50'",
+        "8.220"
+      ],
+      [
+        "Setup 'pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk'",
+        "15.578"
+      ],
+      [
+        "Hold 'emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk'",
+        "0.074"
+      ],
+      [
+        "Hold 'pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk'",
+        "0.249"
+      ],
+      [
+        "Hold 'FPGA_CLK1_50'",
+        "0.275"
+      ],
+      [
+        "Hold 'pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk'",
+        "0.276"
+      ],
+      [
+        "Hold 'FPGA_CLK2_50'",
+        "0.418"
+      ],
+      [
+        "Hold 'spi_sck'",
+        "0.445"
+      ],
+      [
+        "Hold 'dorado_sdram_clk'",
+        "3.832"
+      ],
+      [
+        "Recovery 'pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk'",
+        "9.461"
+      ],
+      [
+        "Recovery 'emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk'",
+        "10.854"
+      ],
+      [
+        "Recovery 'FPGA_CLK1_50'",
+        "16.928"
+      ],
+      [
+        "Removal 'FPGA_CLK1_50'",
+        "1.368"
+      ],
+      [
+        "Removal 'pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk'",
+        "1.441"
+      ],
+      [
+        "Removal 'emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk'",
+        "2.104"
+      ],
+      [
+        "Minimum Pulse Width 'pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|fpll_0|fpll|vcoph[0]'",
+        "1.122"
+      ],
+      [
+        "Minimum Pulse Width 'pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]'",
+        "1.196"
+      ],
+      [
+        "Minimum Pulse Width 'emu|pll|pll_inst|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]'",
+        "1.500"
+      ],
+      [
+        "Minimum Pulse Width 'sysmem|fpga_interfaces|clocks_resets|h2f_user0_clk'",
+        "3.602"
+      ],
+      [
+        "Minimum Pulse Width 'spi_sck'",
+        "4.212"
+      ],
+      [
+        "Minimum Pulse Width 'pll_hdmi|pll_hdmi_inst|altera_pll_i|cyclonev_pll|counter[0].output_counter|divclk'",
+        "5.331"
+      ],
+      [
+        "Minimum Pulse Width 'emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk'",
+        "6.066"
+      ],
+      [
+        "Minimum Pulse Width 'FPGA_CLK2_50'",
+        "9.212"
+      ],
+      [
+        "Minimum Pulse Width 'FPGA_CLK1_50'",
+        "9.217"
+      ],
+      [
+        "Minimum Pulse Width 'FPGA_CLK3_50'",
+        "9.730"
+      ],
+      [
+        "Minimum Pulse Width 'pll_audio|pll_audio_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk'",
+        "18.919"
+      ]
+    ],
+    "setup_paths_by_corner": {
+      "7_slow_1100mv_-40c": [
+        {
+          "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_owned_packet:r_front_dispatch|r_front_lower_q[48]",
+          "To Node": "emu:emu|network_step",
+          "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+          "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+          "Data Arrival Time": "27.042",
+          "Data Required Time": "15.543",
+          "Slack": "-11.499 (VIOLATED)",
+          "slack_ns": -11.499
+        },
+        {
+          "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_owned_packet:r_front_dispatch|r_front_lower_q[48]",
+          "To Node": "emu:emu|network_step",
+          "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+          "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+          "Data Arrival Time": "27.038",
+          "Data Required Time": "15.543",
+          "Slack": "-11.495 (VIOLATED)",
+          "slack_ns": -11.495
+        },
+        {
+          "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_owned_packet:r_front_dispatch|r_front_lower_q[48]",
+          "To Node": "emu:emu|network_step",
+          "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+          "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+          "Data Arrival Time": "27.035",
+          "Data Required Time": "15.543",
+          "Slack": "-11.492 (VIOLATED)",
+          "slack_ns": -11.492
+        }
+      ],
+      "7_slow_1100mv_100c": [
+        {
+          "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_owned_packet:r_front_dispatch|r_front_lower_q[48]",
+          "To Node": "emu:emu|network_step",
+          "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+          "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+          "Data Arrival Time": "27.205",
+          "Data Required Time": "15.536",
+          "Slack": "-11.669 (VIOLATED)",
+          "slack_ns": -11.669
+        },
+        {
+          "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_owned_packet:r_front_dispatch|r_front_lower_q[48]",
+          "To Node": "emu:emu|network_step",
+          "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+          "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+          "Data Arrival Time": "27.193",
+          "Data Required Time": "15.536",
+          "Slack": "-11.657 (VIOLATED)",
+          "slack_ns": -11.657
+        },
+        {
+          "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_owned_packet:r_front_dispatch|r_front_lower_q[48]",
+          "To Node": "emu:emu|network_step",
+          "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+          "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+          "Data Arrival Time": "27.182",
+          "Data Required Time": "15.536",
+          "Slack": "-11.646 (VIOLATED)",
+          "slack_ns": -11.646
+        }
+      ],
+      "MIN_fast_1100mv_-40c": [
+        {
+          "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_owned_packet:r_front_dispatch|r_front_lower_q[48]",
+          "To Node": "emu:emu|network_step",
+          "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+          "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+          "Data Arrival Time": "12.309",
+          "Data Required Time": "11.003",
+          "Slack": "-1.306 (VIOLATED)",
+          "slack_ns": -1.306
+        },
+        {
+          "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_owned_packet:r_front_dispatch|r_front_lower_q[48]",
+          "To Node": "emu:emu|network_step",
+          "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+          "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+          "Data Arrival Time": "12.306",
+          "Data Required Time": "11.003",
+          "Slack": "-1.303 (VIOLATED)",
+          "slack_ns": -1.303
+        },
+        {
+          "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_owned_packet:r_front_dispatch|r_front_lower_q[48]",
+          "To Node": "emu:emu|network_step",
+          "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+          "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+          "Data Arrival Time": "12.295",
+          "Data Required Time": "11.003",
+          "Slack": "-1.292 (VIOLATED)",
+          "slack_ns": -1.292
+        }
+      ],
+      "MIN_fast_1100mv_100c": [
+        {
+          "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DispY_full_snapshot_experiment:b_DispY|cell_MC10231_snapshot:u_d03|qb",
+          "To Node": "emu:emu|network_step",
+          "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+          "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+          "Data Arrival Time": "13.987",
+          "Data Required Time": "11.047",
+          "Slack": "-2.940 (VIOLATED)",
+          "slack_ns": -2.94
+        },
+        {
+          "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DispY_full_snapshot_experiment:b_DispY|cell_MC10231_snapshot:u_d03|qb",
+          "To Node": "emu:emu|network_step",
+          "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+          "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+          "Data Arrival Time": "13.964",
+          "Data Required Time": "11.047",
+          "Slack": "-2.917 (VIOLATED)",
+          "slack_ns": -2.917
+        },
+        {
+          "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|DispY_full_snapshot_experiment:b_DispY|cell_MC10135_snapshot:u_f01|qa",
+          "To Node": "emu:emu|network_step",
+          "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+          "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+          "Data Arrival Time": "13.954",
+          "Data Required Time": "11.047",
+          "Slack": "-2.907 (VIOLATED)",
+          "slack_ns": -2.907
+        }
+      ]
+    },
+    "worst_setup_path": {
+      "From Node": "emu:emu|dorado_native_machine:u_native|dorado_native_backplane:m|dorado_r_front_owned_packet:r_front_dispatch|r_front_lower_q[48]",
+      "To Node": "emu:emu|network_step",
+      "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+      "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk (INVERTED)",
+      "Data Arrival Time": "27.205",
+      "Data Required Time": "15.536",
+      "Slack": "-11.669 (VIOLATED)",
+      "slack_ns": -11.669
+    },
+    "critical_path": "R address -> asynchronous RM read -> ContA/ContB/direct capture -> event settling check -> machine_enable -> falling-edge network_step",
+    "fit_summary": "Fitter Status : Successful - Sun Oct 25 09:48:53 2026\nQuartus Prime Version : 17.0.2 Build 602 07/19/2017 SJ Lite Edition\nRevision Name : Dorado\nTop-level Entity Name : sys_top\nFamily : Cyclone V\nDevice : 5CSEBA6U23I7\nTiming Models : Final\nLogic utilization (in ALMs) : 40,438 / 41,910 ( 96 % )\nTotal registers : 55105\nTotal pins : 145 / 314 ( 46 % )\nTotal virtual pins : 0\nTotal block memory bits : 2,506,566 / 5,662,720 ( 44 % )\nTotal RAM Blocks : 330 / 553 ( 60 % )\nTotal DSP Blocks : 35 / 112 ( 31 % )\nTotal HSSI RX PCSs : 0\nTotal HSSI PMA RX Deserializers : 0\nTotal HSSI TX PCSs : 0\nTotal HSSI PMA TX Serializers : 0\nTotal PLLs : 3 / 6 ( 50 % )\nTotal DLLs : 0 / 4 ( 0 % )\n",
+    "exact_stage_manifest_sha256": "729cba49cfa58afc7a1a3e53c9af1367406cefde777b56062ad0a12508905640",
+    "collection_sha256": "e1338af5277380582f621e643b47bf6b454d9fe95759025b23a443ec3faf3435",
+    "bundle_sha256": "bc48ed50f5339717287b29d2e48c295cca2cd206ec9294dc27c59304bbb7db66",
+    "full_core_timing_qualified": false,
+    "SDRAM_protocol_or_physical_timing_qualified": false,
+    "assembly_permitted": false,
+    "hardware_changed": false,
+    "measured_speed_gain": false,
+    "full_goal_active": true,
+    "next_action": "Replace the deep iterative capture/settle dependency with qualified chronological producer phases; preserve the machine-edge storage barrier and network/machine edge alignment"
+  },
+  "native_boot_observations": [
+    {
+      "directory": "native-cp-read-j19-boot-v1-20261025",
+      "pid": 62048,
+      "ps": "62048 03:08:30 187:40.16 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "progress": "NATIVE_PROGRESS host=520000000 guest=205697337 initialized=1 init_addr=7fffff cpu=c0fc7000 bb=1f48f69c control=10c keys=1 disk=         1/         0 fault=00000000:00000000 tx=0 crc=0 rx=0",
+      "observed": 1792947903.20712
+    },
+    {
+      "directory": "control-short-native-jumper-boot-v2-20261024",
+      "pid": 69736,
+      "ps": "69736 15:56:56 922:32.31 R    /Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "progress": "NATIVE_PROGRESS host=2800000000 guest=1609319144 initialized=1 init_addr=7fffff cpu=70e4ee4e bb=1e48f85b control=11c keys=0 disk=         1/         0 fault=00000000:00000000 tx=2 crc=0 rx=0",
+      "observed": 1792947903.215128
+    }
+  ],
+  "old_physical_indices_1063_to_0_retained": true,
+  "new_physical_bits": 134,
+  "original_input_prefix_byte_identical": true,
+  "complete_function_RAM_write_windows_checked": true,
+  "controlled_digital_composition_qualified": true,
+  "arbitrary_source_arrivals_or_unknown_inputs_qualified": false,
+  "native_common_owner_or_full60ns_batch_integrated": false,
+  "physical_timing_qualified": false,
+  "firmware_or_speed_qualified": false,
+  "hardware_changed": false,
+  "full_goal_active": true,
+  "next_action": "Integrate the native operand/ALU/flag producer phases into the common chronological capture; remove the deep iterative settle dependency without weakening storage/device barriers, then refit and benchmark"
+}

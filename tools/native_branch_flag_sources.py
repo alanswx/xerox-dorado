@@ -117,3 +117,66 @@ def alu_producers(source,extended=False):
         result.update(function_RAM_physical_bits=128,extra_capture_register_bits=12,
                       carry_input_has_both_e17_and_f61_drivers=True)
     return result
+
+
+def operand_producers(source,reference):
+    """Bind newly closed physical operand Q pins, without claiming arrivals.
+
+    Use physical output pins rather than snapshot payload positions: payloads
+    include extra fabric edge-history/PRECAP state and use different packing.
+    """
+    from generate_r_front_cone import PIN_Q
+    from generate_run_control_reference import model_ports
+    from stage_r_front_ready_native import native_net
+    provenance=json.loads(gzip.decompress((source/'provenance.json.gz').read_bytes()))
+    native=source/'inputs';rows={};hashes={};physical=set()
+    for row in reference['operand_state_layout'].values():
+        name,pkg,kind=row['board'],row['package'],row['kind']
+        revision={'ProcH':'Ce','ProcL':'Ci'}[name]
+        wl=f'chm/sil/{name}-Rev-{revision}.dm!1_/{name}-Rev-{revision}.wl'
+        path=f'src/fpga/mister/snapshot_native_processor/{name}_full_snapshot.sv'
+        assert sha(native/path)==provenance['inputs'][path]
+        board=load_board(str(ROOT/wl));raw=(native/path).read_text()
+        assert board.packages[pkg]['type']==kind
+        matches=re.findall(r'^  cell_'+kind+r'_snapshot(?: #\([^\n]+\))? u_'+pkg+r' \(.*?^  \);',raw,re.M|re.S)
+        assert len(matches)==1,(name,pkg)
+        actual={int(pin):net for pin,net in re.findall(r'\.p(\d+)\((\w+)\)',matches[0])}
+        original={p['pin']:n for n,r in board.nets.items()for p in r['pins']if p['pkg']==pkg}
+        assert set(actual)==set(original),(name,pkg)
+        for pin,net in original.items():
+            expected=vname(net)
+            assert actual[pin]in [expected,expected+'__drv',expected+f'__{pkg}_{pin}'],(name,pkg,pin)
+        cells=[n for n in provenance['used_hdl']if Path(n).stem=='cell_'+kind+'_snapshot']
+        assert len(cells)==1,(name,pkg,cells)
+        cell=cells[0];assert sha(native/cell)==provenance['inputs'][cell]
+        width,outputs=PIN_Q[kind];assert width==row['bits']
+        directions=model_ports(ROOT,kind)
+        pins={}
+        for pin,expression in outputs.items():
+            bit=re.fullmatch(r'state_q\[(\d+)\]',expression)
+            if bit:
+                offset=row['global_offset']+int(bit[1]);assert offset not in physical
+                assert directions[pin]=='output'
+                physical.add(offset);pins[offset]=dict(pin=pin,net=original.get(pin),native_net=actual.get(pin),
+                    originally_unconnected=pin not in original,native_physical_pin=f'b_{name}.u_{pkg}.p{pin}')
+        assert len(pins)==width,(name,pkg,pins)
+        rows[name+'.'+pkg]={**row,'physical_output_pins':pins,'native_pins':actual,
+                           'cell_source':cell,'native_instance_parameters':matches[0].splitlines()[0].strip()}
+        hashes[wl]=sha(ROOT/wl);hashes[path]=sha(native/path);hashes[cell]=sha(native/cell)
+    assert physical==set(range(1064,reference['physical_bits']))
+    input_bindings={}
+    for token,pin in reference['extra_boundary_pins'].items():
+        candidates=[]
+        for name,board in reference['boards'].items():
+            net=token.removeprefix(name+'.')
+            if token.startswith(('ProcH.','ProcL.'))and not token.startswith(name+'.'):continue
+            if board['boundary_bindings'].get(net)!=f'pins[{pin}]':continue
+            path=f'src/fpga/mister/snapshot_native_processor/{name}_full_snapshot.sv'
+            expression=native_net((native/path).read_text(),net)
+            candidates.append(dict(board=name,original_net=net,native_net=expression))
+        assert candidates,(token,pin)
+        input_bindings[token]=dict(pin=pin,producers=candidates)
+    return dict(packages=rows,physical_bits=len(physical),source_hashes=hashes,
+                additional_projection_inputs=input_bindings,
+                physical_outputs_bound=True,physical_arrivals_qualified=False,native_owner_integrated=False,
+                snapshot_payload_is_not_physical_Q_layout=True)

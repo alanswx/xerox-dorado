@@ -50,7 +50,7 @@ def generate(reference,out):
             raw=re.sub(r'\b'+graph+r'\b','alu_projection_'+graph,raw)
         chunks.append(raw)
     path=out/'projection.sv';path.write_text('\n'.join(chunks))
-    manifest=dict(scope=__doc__,source_files=source,stored_state_bits=1064,
+    manifest=dict(scope=__doc__,source_files=source,stored_state_bits=json.loads((reference/'manifest.json').read_text())['physical_bits'],
                   source_manifest_sha256=sha(reference/'manifest.json'),source_gate_wiring_shared=True,
                   projection_sha256=sha(path),state_updates=False,native_qualified=False)
     (out/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n');return manifest

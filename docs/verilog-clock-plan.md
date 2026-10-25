@@ -14,7 +14,44 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST actual ALU/MIR/function-memory closure and full-core fit (2026-10-25):
+LATEST coupled operand capture and measured full-core timing (2026-10-25):
+
+- [x] Collect SAME full-core15ns job, all nine stages exit0 and574 input hashes
+  verified. Reject timing: slow100C -11.669ns, slow-40C -11.499ns, fast100C
+  -2.940ns, fast-40C -1.306ns. Worst path crosses asynchronous RM read and
+  iterative capture/settling to falling-edge network_step:20 logic levels,
+  18.579ns data against7.500ns. Logic96%, block-memory bits44%; no assembly/load.
+- [x] Close33 actual operand/control/shifter packages (134 physical bits) in the
+  coupled original graph, preserving1063:0. BOTH engines pass15470 events,
+  all1198 physical states/9216 SRAM bits/147 clocks/964 observations and the
+  optimized80-bit flag transfer using a pre-root physical-state ALU view.
+  All147 clocks fire. Full original14884 input prefix and function write-window
+  checks remain. Unknown stored state/clock rejects at comparison points.
+- [x] Correct the earlier zero-reference omission: include BOTH d08 boards,
+  assert all four wired contributions. Old1064/partial1198 receipts are preserved
+  but do not qualify full16-bit zero reduction. Removing low-byte zero rejects
+  actual observable486 at7940; a wrong late frame changes actual flag73 at15,
+  in BOTH engines. No reference/checker assertion is waived.
+- [x] Bind all134 additional physical native Q bits (including two unconnected
+  original outputs) and19 projection inputs to actual frozen board/cell sources.
+  Keep physical Q distinct from host-history/PRECAP snapshot payloads.
+- [ ] Integrate these real producers into the native common owner/chronological
+  batch. Replace the measured iterative settle dependency with qualified phase
+  logic; retain storage barrier, aligned network/machine edges and all actual
+  MIR/Ready/Hold/IFU/cache/Map/device/write-close contracts. The passing digital
+  reference does not establish arbitrary physical arrivals or unknown inputs.
+- [ ] Refit the integrated core, qualify SDRAM66.7MHz protocol/DQ/refresh/reset
+  and peripheral timers, then boot/benchmark on MiSTer14. Existing constrained
+  SDRAM I/O minima setup0.415ns/hold3.832ns do not qualify the complete design.
+  Current diagnostic120ns remains separate from the four-tick60ns target.
+- [ ] Full A–F, Cedar/Rollback/cold persistence/three boots/two-hour stress remain;
+  complete FPGA snapshots deferred. SAME62048/69736 simulations and5B HOST bounds
+  stay fixed; protected pack unchanged, no new hardware speed measurement.
+
+Receipt: `processor-operand-capture-summary.json` in the native flag archive.
+
+Previous actual ALU/MIR/function-memory closure and full-core fit (2026-10-25;
+the both-byte zero claim is superseded by the correction above):
 
 - [x] Add actual four-slice ALU, operand muxes, both zero-detector contributions,
   native SignedCarry B-invert0, six-bit function/carry registers and both whole

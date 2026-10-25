@@ -23,7 +23,7 @@ from generate_processor_alu_projection import generate as projection_generate
 ALL_PORTS=PORTS+[('alu_word',16),('alu_function',6),('legacy_pins',401)]
 
 
-def wrapper(split,pins):
+def wrapper(split,pins,state_bits=1064,clock_channels=108):
     name='split_machine'if split else'full_machine'
     core='processor_alu_partition'if split else'processor_alu_reference'
     width=sum(w for n,w in ALL_PORTS)+22
@@ -43,10 +43,11 @@ def wrapper(split,pins):
  assign observations={'''+','.join(n for n,w in ALL_PORTS)+''',raw_data,raw_parity,generated_parity,rwrite};
 endmodule
 '''
+    raw=raw.replace('[1063:0]',f'[{state_bits-1}:0]').replace('[107:0] clocks',f'[{clock_channels-1}:0] clocks')
     return raw,width
 
 
-def bench(count,pins,width,out,branch_pins,transfer,trace=False,projection=False,write_suffix=False,alu_pins=None,trace_range=(14,17)):
+def bench(count,pins,width,out,branch_pins,transfer,trace=False,projection=False,write_suffix=False,alu_pins=None,trace_range=(14,17),state_bits=1064,clock_channels=108):
     raw=f'''`timescale 1ns/1ps
 module tb_alu_composition;
  reg [1647:0] records[0:{count-1}];reg [10059:0] initial_record[0:0];
@@ -108,7 +109,11 @@ module tb_alu_composition;
     $fatal(1,"ALU_COMPOSITION original states disagree event=%0d",i);
    end
    if(am!==bm)$fatal(1,"ALU_COMPOSITION original SRAM mismatch event=%0d",i);
-   if(ao!==bo)$fatal(1,"ALU_COMPOSITION observable mismatch event=%0d",i);
+   if(ao!==bo)begin
+    for(integer k=0;k<{width};k++)if(ao[k]!==bo[k])
+     $display("ALU_COMPOSITION_OBSERVABLE_DIFF event=%0d bit=%0d full=%b split=%b",i,k,ao[k],bo[k]);
+    $fatal(1,"ALU_COMPOSITION observable mismatch event=%0d",i);
+   end
    for(integer c=0;c<108;c++)if(counts_a[c]-old_a[c]!=counts_b[c]-old_b[c])
     $fatal(1,"ALU_COMPOSITION clock mismatch event=%0d channel=%0d",i,c);
    changed|=a^held;functions_seen[full.alu_function]=1;results_seen[full.alu_word]=1;checks++;
@@ -180,6 +185,17 @@ endmodule
         coverage='''  if(counts_a[105]==0 || counts_a[106]==0 || written_addresses!=16'hffff)$fatal(1,"ALU_COMPOSITION incomplete function RAM write windows addresses=%h",written_addresses);
 '''
         raw=raw.replace(marker,coverage+marker,1)
+    if state_bits!=1064 or clock_channels!=108:
+        raw=raw.replace('[1063:0]',f'[{state_bits-1}:0]').replace('[107:0]',f'[{clock_channels-1}:0]')
+        raw=raw.replace('[0:107]',f'[0:{clock_channels-1}]').replace('c<108',f'c<{clock_channels}')
+        raw=raw.replace('k<1064',f'k<{state_bits}').replace("220'b0",f"{state_bits-844}'b0")
+        raw=raw.replace('states=1064 RAM=9216 clocks=108',f'states={state_bits} RAM=9216 clocks={clock_channels}')
+        raw=raw.replace('changed[1063:924]',f'changed[{state_bits-1}:924]')
+        marker='   if(a!==b)begin'
+        assert raw.count(marker)==1
+        raw=raw.replace(marker,'''   if((^a)===1'bx || (^b)===1'bx || (^ac)===1'bx || (^bc)===1'bx)
+    $fatal(1,"ALU_COMPOSITION unknown original state/clock event=%0d",i);
+'''+marker,1)
     return raw
 
 
@@ -226,8 +242,8 @@ def with_write_suffix(lines):
     return [f'{v:0412x}'for v in values],selectors
 
 
-def run(out,engine,transfer,trace=False,projection=False,write_suffix=False,trace_range=(14,17),mutation=None):
-    assert not out.exists();out.mkdir(parents=True);m=generate(out/'reference')
+def run(out,engine,transfer,trace=False,projection=False,write_suffix=False,trace_range=(14,17),mutation=None,operands=False):
+    assert not out.exists();out.mkdir(parents=True);m=generate(out/'reference',operands)
     if mutation=='mode-data':
         timed=out/'reference/timed';path=timed/'processor_alu_procl.sv';raw=path.read_text()
         instance=re.findall(r' original_MC10176 e12\([^\n]+',raw);assert len(instance)==1
@@ -238,6 +254,13 @@ def run(out,engine,transfer,trace=False,projection=False,write_suffix=False,trac
         path=timed/'processor_alu_partition.sv';raw=path.read_text()
         assert raw.count('processor_alu_procl l(')==1
         path.write_text(raw.replace('processor_alu_procl l(','processor_alu_procl_badmode l(',1))
+    elif mutation=='drop-low-zero':
+        path=out/'reference/timed/processor_alu_partition.sv';raw=path.read_text()
+        index=sorted(m['global_drivers']).index("aluOut=0'")
+        pattern=r'^ assign bridge\['+str(index)+r'\]=[^;]+;$'
+        line=re.findall(pattern,raw,re.M);assert len(line)==1
+        bad,count=re.subn(r'\bl\.n\d+_d08_(?:2|15)\b',"1'b0",line[0]);assert count==2
+        path.write_text(raw.replace(line[0],bad,1))
     source=BUILD/'processor-raw-input-recording-v1-20261025';s=json.loads((source/'run-state.json').read_text())
     assert s['status']=='PASS_PASSIVE_RAW_INPUT_RECORDING'
     for n in ['raw-inputs.hex','initial.hex']:shutil.copy2(source/n,out/n)
@@ -246,11 +269,17 @@ def run(out,engine,transfer,trace=False,projection=False,write_suffix=False,trac
     if write_suffix:
         records,selectors=with_write_suffix(records);(out/'raw-inputs.hex').write_text('\n'.join(records)+'\n')
     (out/'selectors.hex').write_text('\n'.join(f'{v:x}'for v in selectors)+'\n')
-    a,width=wrapper(False,m['boundary_pins']);b,_=wrapper(True,m['boundary_pins'])
+    a,width=wrapper(False,m['boundary_pins'],m['physical_bits'],m['clock_channels']);b,_=wrapper(True,m['boundary_pins'],m['physical_bits'],m['clock_channels'])
     (out/'machines.sv').write_text(a+b)
     branch_pins=json.loads((out/'reference/base/branch/manifest.json').read_text())['pin_index']
     alu_pins=m.get('actual_instruction_ALUF_pins')or[m['extra_boundary_pins'][f'ALUF.{i}']for i in range(4)]
-    (out/'tb.sv').write_text(bench(len(records),m['boundary_pins'],width,out,branch_pins,transfer,trace,projection,write_suffix,alu_pins,trace_range))
+    text=bench(len(records),m['boundary_pins'],width,out,branch_pins,transfer,trace,projection,write_suffix,alu_pins,trace_range,m['physical_bits'],m['clock_channels'])
+    if mutation=='late-projection':
+        assert transfer and projection
+        marker='before_pins,projected_pins,full.branch_pins,next_q,events,unsettled);'
+        assert text.count(marker)==1
+        text=text.replace(marker,'before_pins,full.branch_pins,full.branch_pins,next_q,events,unsettled);',1)
+    (out/'tb.sv').write_text(text)
     paths=sorted((out/'reference/timed').iterdir())+[out/'machines.sv',out/'tb.sv']
     if transfer:
         shutil.copy2(ROOT/'verilog/rtl/dorado_branch_condition_frame_step.sv',out/'branch-step.sv')
@@ -262,6 +291,7 @@ def run(out,engine,transfer,trace=False,projection=False,write_suffix=False,trac
     for n in [Path(__file__).name,'generate_processor_alu_reference.py','generate_processor_alu_projection.py']:shutil.copy2(ROOT/'tools'/n,out/n)
     state=dict(status='RUNNING',scope=__doc__,engine=engine,optimized_flag_transfer_checked=transfer,started=time.time(),
         mutation=mutation,
+        supported_operand_registers_integrated=operands,
         passive_ALU_arrival_trace=trace,
         trace_event_range=trace_range,
         explicit_pre_root_ALU_projection=projection,
@@ -290,8 +320,9 @@ if __name__=='__main__':
     p.add_argument('--trace-arrivals',action='store_true')
     p.add_argument('--projection',action='store_true')
     p.add_argument('--write-suffix',action='store_true')
+    p.add_argument('--operands',action='store_true')
     p.add_argument('--trace-events',default='14:17')
-    p.add_argument('--mutation',choices=['mode-data'])
+    p.add_argument('--mutation',choices=['mode-data','drop-low-zero','late-projection'])
     a=p.parse_args();assert not a.projection or a.transfer
     trace_range=tuple(map(int,a.trace_events.split(':')));assert len(trace_range)==2 and 0<=trace_range[0]<=trace_range[1]
-    raise SystemExit(run(a.output.resolve(),a.engine,a.transfer,a.trace_arrivals,a.projection,a.write_suffix,trace_range,a.mutation))
+    raise SystemExit(run(a.output.resolve(),a.engine,a.transfer,a.trace_arrivals,a.projection,a.write_suffix,trace_range,a.mutation,a.operands))
