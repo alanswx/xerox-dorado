@@ -1,0 +1,42 @@
+{
+  "status": "REVIEWED_SUPPORTED_GUARD_HELPER_AND_VERILATOR_STAGED",
+  "scope": "Review the complete fall-guard packet and whole-control support audit.\n\nBoth original processor replays must finish. Check every timing corner and\ncollected source, retaining a timing rejection even when digital checks pass.\nThe independent support audit is evidence for a future guard, not permission\nto alter the present one. No native selection or hardware speed qualification.\n",
+  "guard_pins": 102,
+  "complete_control_result_bits": 363,
+  "independent_before_after_XZ_cases": 7632,
+  "full_Verilator_replay": "transactions=14884 commits=10423 pairs=4461 candidates=4461 fallbacks=0 paired_writes=119 forwarded_bytes=238 Qs=844 RAM=9216 results=2470 clocks=100",
+  "all_original_checks_retained": true,
+  "Icarus": {
+    "status": "VERIFIED_LIVE",
+    "pid": 79804,
+    "ps": "79804 05:10 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/supported-fall-guard-owned-icarus-v1-20261024/test.vvp",
+    "observed": 1792899971.0135858
+  },
+  "build_host": {
+    "builder_pid": 1532999,
+    "status": "RUNNING",
+    "stages": [
+      {
+        "stage": "map",
+        "pid": 1533009,
+        "started": 1792899729.088159,
+        "returncode": 0,
+        "finished": 1792899799.6233613
+      },
+      {
+        "stage": "fit",
+        "pid": 1533848,
+        "started": 1792899799.6237617
+      }
+    ]
+  },
+  "source_readback_exact_except_QSF_version_annotation": true,
+  "identical_422_input_4943_output_15ns_fixture": true,
+  "final_review_requires_both_terminal_replays_and_complete_corner_reports": true,
+  "timing_qualified": false,
+  "variant_selected": false,
+  "native_integrated": false,
+  "hardware_changed": false,
+  "hardware_speed_qualified": false,
+  "full_goal_active": true
+}

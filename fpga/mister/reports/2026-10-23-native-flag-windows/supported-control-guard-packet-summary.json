@@ -1,0 +1,165 @@
+{
+  "status": "REVIEWED_CONTROL_GUARD_PACKET_AND_SUPPORT",
+  "scope": "Review the complete fall-guard packet and whole-control support audit.\n\nBoth original processor replays must finish. Check every timing corner and\ncollected source, retaining a timing rejection even when digital checks pass.\nThe independent support audit is evidence for a future guard, not permission\nto alter the present one. No native selection or hardware speed qualification.\n",
+  "replays": [
+    {
+      "engine": "icarus",
+      "summary": "transactions=14884 commits=10423 pairs=4461 candidates=4461 fallbacks=0 paired_writes=119 forwarded_bytes=238 Qs=844 RAM=9216 results=2470 clocks=100",
+      "state_sha256": "ef0b69459993e92c792d19df0e7b0c55bc86f90feeac6246f4a3ab3d0e1c46af"
+    },
+    {
+      "engine": "verilator",
+      "summary": "transactions=14884 commits=10423 pairs=4461 candidates=4461 fallbacks=0 paired_writes=119 forwarded_bytes=238 Qs=844 RAM=9216 results=2470 clocks=100",
+      "state_sha256": "658af5c0035a23dafad29dc9e294244633cbdba28c5366a40a5ef7b29f5ff59e"
+    }
+  ],
+  "all_original_assertions_and_100_clock_counts_preserved": true,
+  "sole_changed_compiled_SV": "candidate.sv",
+  "timing": {
+    "period_ns": 15,
+    "input_bits": 422,
+    "output_bits": 4943,
+    "corners": [
+      {
+        "corner": "7_slow_1100mv_100c",
+        "setup": {
+          "slack_ns": -2.305,
+          "source": "launch[42]~DUPLICATE",
+          "sink": "result[3883]~reg0",
+          "arrival_ns": 21.093,
+          "required_ns": 18.788,
+          "report_sha256": "7a64779d21d8a8a5a426774183af1da31126a8e75e3775aac7cd96aaa86d0cf4"
+        },
+        "hold": {
+          "slack_ns": 0.344,
+          "source": "dorado_r_front_owned_packet:actual|r_front_lower_q[173]",
+          "sink": "result[2662]~reg0",
+          "arrival_ns": 4.591,
+          "required_ns": 4.247,
+          "report_sha256": "bf81db173fd2e23b20232fbe272f5f5a5ee70a98276b82281e3d9f4ef468f23c"
+        },
+        "evaluator": {
+          "slack_ns": -2.305,
+          "source": "launch[42]~DUPLICATE",
+          "sink": "result[3883]~reg0",
+          "arrival_ns": 21.093,
+          "required_ns": 18.788,
+          "report_sha256": "9bae482674f17657547c0871e75018cd3dfdfd416c546b919f1514f7d1b367f3"
+        },
+        "pulse_width_ns": 6.467
+      },
+      {
+        "corner": "7_slow_1100mv_-40c",
+        "setup": {
+          "slack_ns": -2.09,
+          "source": "launch[42]~DUPLICATE",
+          "sink": "result[3883]~reg0",
+          "arrival_ns": 21.048,
+          "required_ns": 18.958,
+          "report_sha256": "74f65be6a70cba93e0d43dad22117761f6b1b4f11662ae20b7754298e0a79c19"
+        },
+        "hold": {
+          "slack_ns": 0.295,
+          "source": "dorado_r_front_owned_packet:actual|r_front_lower_q[173]",
+          "sink": "result[2662]~reg0",
+          "arrival_ns": 4.713,
+          "required_ns": 4.418,
+          "report_sha256": "a81705705ac24ba39655b66115e4ed1bfb7c2b2264921d7cd4c454346e3584bc"
+        },
+        "evaluator": {
+          "slack_ns": -2.09,
+          "source": "launch[42]~DUPLICATE",
+          "sink": "result[3883]~reg0",
+          "arrival_ns": 21.048,
+          "required_ns": 18.958,
+          "report_sha256": "9f759a0c45ec672458e4b28e41f0768f406845bb8c4efdab5d7ed49e503efa01"
+        },
+        "pulse_width_ns": 6.488
+      },
+      {
+        "corner": "MIN_fast_1100mv_100c",
+        "setup": {
+          "slack_ns": 4.047,
+          "source": "input_stage[397]",
+          "sink": "launch[397]",
+          "arrival_ns": 12.568,
+          "required_ns": 16.615,
+          "report_sha256": "7eb4c79c8efcc6d0b71607775831f614d8c157f1231fd3f935b369ccf0a6618d"
+        },
+        "hold": {
+          "slack_ns": 0.148,
+          "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[224]",
+          "sink": "result[831]~reg0",
+          "arrival_ns": 2.128,
+          "required_ns": 1.98,
+          "report_sha256": "339649661258c80ca43d125b6e71fa56afac8edf21c2c98bfeb01823c74d61d0"
+        },
+        "evaluator": {
+          "slack_ns": 5.647,
+          "source": "launch[41]~DUPLICATE",
+          "sink": "result[3883]~reg0",
+          "arrival_ns": 11.033,
+          "required_ns": 16.68,
+          "report_sha256": "cde7b6c5c05c34e567ea22083d1c69c1dcdbb65ec64be850a4bf71f83843b5dc"
+        },
+        "pulse_width_ns": 6.175
+      },
+      {
+        "corner": "MIN_fast_1100mv_-40c",
+        "setup": {
+          "slack_ns": 4.484,
+          "source": "input_stage[397]",
+          "sink": "launch[397]",
+          "arrival_ns": 12.015,
+          "required_ns": 16.499,
+          "report_sha256": "3d0f89cee3cb43182d036cffc3e1f63b6e9d5472490545d986f62c70747151fc"
+        },
+        "hold": {
+          "slack_ns": 0.132,
+          "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[224]",
+          "sink": "result[831]~reg0",
+          "arrival_ns": 1.989,
+          "required_ns": 1.857,
+          "report_sha256": "9273cc26dfdd2785f7f35c87f25abcdd9c662af4240e472b16b667d2c261228c"
+        },
+        "evaluator": {
+          "slack_ns": 7.034,
+          "source": "launch[41]~DUPLICATE",
+          "sink": "result[3883]~reg0",
+          "arrival_ns": 9.53,
+          "required_ns": 16.564,
+          "report_sha256": "5799a327297a7c919c2151acda65a6256b101fc8621f5a9c023b6a9cf12343dd"
+        },
+        "pulse_width_ns": 6.113
+      }
+    ],
+    "area": {
+      "ALMs": 8717,
+      "registers": 5618,
+      "MLAB_bits": 9216
+    },
+    "pass_15ns": false,
+    "archive_sha256": "424691002063a25317e455d05abeeca89e5660f4ee57646f1b7ea633f4621486",
+    "members": 92
+  },
+  "whole_control_support": {
+    "pins": 108,
+    "ignored_pins": 290,
+    "result_bits": 363,
+    "waves": [
+      5,
+      24
+    ],
+    "miter_input_bits": 1751,
+    "required_CP292_counterexample": true,
+    "conservative_sufficient_support_not_minimal": true
+  },
+  "combined_102_pin_guard_proof_pending": false,
+  "four_state_direct_pin_check_required": true,
+  "source_CP_device_epochs_qualified": false,
+  "variant_selected": false,
+  "native60ns_or_hardware_speed_qualified": false,
+  "hardware_changed": false,
+  "FPGA_user_release_received": true,
+  "full_goal_active": true
+}

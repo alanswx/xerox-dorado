@@ -48,7 +48,7 @@ endmodule
 '''.replace('PORTS',PORTS)
 
 
-def support(net):
+def support(net,ports=('before_pins','after_pins')):
     drivers={}
     for cell in net['cells'].values():
         c=cell['connections'];kind=cell['type']
@@ -67,7 +67,7 @@ def support(net):
         b=pending.pop()
         if not isinstance(b,int) or b in reached:continue
         reached.add(b);pending.extend(drivers.get(b,()))
-    return {name:[i for i,b in enumerate(net['ports'][name]['bits']) if b in reached] for name in ['before_pins','after_pins']}
+    return {name:[i for i,b in enumerate(net['ports'][name]['bits']) if b in reached] for name in ports}
 
 
 def run(source,out,yosys):

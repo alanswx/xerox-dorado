@@ -7,6 +7,122 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
+LATEST (2026-10-24):85-pin fit REJECTED; retain102 as best OWNED budget.
+`phase-supported-control-guard-fit-pending-replay-summary.json` preserves all92
+collected members, terminal map/fit/STA/corner exit0 and exact source readback.
+Setup -4.747/-4.756/+3.675/+4.209ns; hold minimum+0.143ns/pulse minimum+6.113ns,
+zero UCPs;8592ALMs/5574regs/9216MLAB bits. It is WORSE than102's-2.305ns, so
+do not promote it. Helper proof/XZ/full Verilator pass; full Icarus83062 /
+session23187 remains verified live and required before combined final review.
+All reports were collected ONCE; do not repeat collector/restart simulations.
+
+The actual new worst source pins are live290/CPAddr_1' and live275/sJCN_3.
+sJCN_3 is ContA h01 MC10172 pin13,
+decoded from CPOut_4, CPAddr1/2 and its common enable; the same package drives
+other CP-to-MIR data aliases. NEXT STRUCTURAL STEP: bind the original CP
+producer/decoder at BEFORE/CAPTURE/AFTER epochs, including noncanonical debug
+and MIR/Ready/Hold producers. Use one shared control capture descriptor with
+the real R/IFU/Memory consumers, rather than serial repeated control evaluation
+behind another stable-pin mask. Budget generic and optimized versions on the
+SAME source-derived fixture. If rare settling needs extra fabric evaluation,
+hold the machine edge until its exact payload is ready; ordinary phases must
+still reach the original60ns cadence. No false timing cuts, lost clock/error
+bits, reset/preload shortcut, extra ordinary divider or duplicate owner/SRAM.
+
+Fresh native69736 has NOW passed the initial watchdog boundary and issued
+original-ROM CP writes at host423060479/423069656. Second read-only snapshot:
+host428792580/guest148730181, watchdog1115478/phase11, PCF2E4/X2, original
+EndOfDelay10/timer0. Both debugger inspections detached. This is real progress
+beyond reset-clear, not yet a Cedar/firmware pass. Keep the SAME original5B bound.
+Both inspections, compiled node-layout header, runtime PB1 check, actual CP
+writes and unchanged medium/bound are retained in
+`control-guard-native-boot-observation-summary.json`.
+
+102-pin guard fully reviewed digitally;15ns REJECTED:
+`supported-control-guard-packet-summary.json` verifies BOTH original full
+Icarus/Verilator replays and all92 collected fit members/exited processes/
+source readback/corners. Setup -2.305/-2.090/+4.047/+4.484ns; hold minimum
++0.132ns; pulse minimum+6.113ns; zero UCPs. Area8717ALMs/5618regs/9216MLAB bits.
+Worst setup improves4.472ns from the SAME owned specialized-6.777ns fixture,
+but still misses15ns and is unselected. This is no measured hardware speedup.
+The102-pin Icarus run79804/session74804 is TERMINAL PASS; do not restart.
+
+Worst launch42 maps to live26/ContA TWReq_07, still through the stable-pin guard
+and duplicate child CP/root/error capture. `control-fall-phase-support-summary.json`
+proves that the full15-pin task-wake group can change without affecting the
+actual HIGH identity predicate or initial56 clocks, at5 AND24waves with953
+arbitrary inputs. Selector345 omission changes real outputs. The syntactic106-pin
+cone was conservative; semantic projection proves91 sufficient pins for THESE57
+bits. V1 stopped at a too-strict cone-size assertion before projection; it is
+retained, not a failed equivalence. This phase audit alone did not authorize a
+guard change.
+
+The actual85-pin successor (phase support minus the prior six fall-only data
+bits) now independently passes ALL363 control outputs at5/24waves with arbitrary
+changes on ALL398 inputs and the original HIGH identity certificate. Required
+selector/missing-certificate controls fail. The witness changes TWReq_07 AND
+IfuData119 while taking a real Q30 event.4known/7632 independent-before/after X/Z
+tests pass; bad unknown default changes actual outputs. Receipt:
+`phase-supported-fall-guard-direct-pins-summary.json`. No owner/result/clock field
+or generic fallback is masked; the existing exact cache identity invariant stays.
+
+Full original Verilator processor replay PASS, all14884 transactions/2470results/
+844Qs/9216RAM/100clocks/403geometry/reset/cache coverage unchanged. Receipt:
+`phase-supported-control-guard-staging-summary.json`. Icarus83062/session23187
+is VERIFIED LIVE, with identical frozen inputs; do not restart. The SAME422-input/
+4943-output15ns fit is running on misterubuntu:
+`phase-supported-fall-guard-owned-packet-v1-20261024`, builder1567746/map1567755.
+Actual remote source readback passes. NEXT: follow those SAME handles, collect
+terminal reports once, and review BOTH terminal replays/all corners with
+`review_control_guard_packet.py --supported --phase`. No new85-pin timing result,
+native selection/RBF/hardware speed claim. All A–F, native producer/interior
+epochs/sole original16-R capture,60ns/timers and physical66.7MHz SDRAM remain.
+
+Fresh native69736 remains at the original5B bound. Read-only inspection at
+host401,583,766/guest131,736,954 found PCF3B1/X59, reset_n1, watchdog988,029,
+both watchdog phase bits0 and ROM timer0. F3AC..F3B0 is the original zero-page
+clear loop, not Delay. The counter is BELOW the first Q21 phase boundary
+1,048,576; existing isolated startup tests cover repeated resets in this interval.
+Observe the same run through that boundary before diagnosing a boot fault.
+Debugger detached/resumed without guest writes. Medium SHA remains
+f3bce2a8566b3bac3dd793b2016910c71b0c8d7b061b9d48c14261665802df51.
+
+Earlier102-pin staging record (subsequently completed above):
+`supported-fall-guard-summary.json` and `supported-fall-guard-direct-pins-summary.json`
+prove the actual narrowed guard against the original398-pin function at5 AND24
+waves, with arbitrary changes on ALL398 inputs and all363 results compared.
+The independent actual HIGH identity certificate remains required. Omitting
+selector345 or the certificate changes actual outputs. A witness changes the
+formerly critical IfuData119 while the real Q30 event fires, with equal results.
+Only the known-binary stable-pin guard changes; unknown/nonfalling branches,
+owners/clocks/flags/parent geometry/cache keys/one SRAM remain unchanged.
+
+Four-state checks pass4 known/7632 X/Z cases over954 variable bits. V1 uses
+before/delta encoding; V2 strengthens this to INDEPENDENT actual before/after
+pins, including real after-pin Z. Both pass. Bad unknown defaults change real
+results at trial0/bit270; a debug-path difference alone cannot qualify a control.
+The existing cache HIGH-identity invariant binds the identical atomic/terminal
+functions. No arbitrary-ready/architectural-power-up assumption is introduced.
+
+`supported-control-guard-staging-summary.json` retains the full original
+Verilator replay PASS:14884 transactions/10423 commits/4461 pairs,119paired
+writes/238forwarded bytes,2470results/844Qs/9216RAM/100clocks/403geometry/reset,
+and unchanged cache coverage. Frozen compiled HDL differs ONLY in candidate.sv.
+Icarus test79804/session74804 is verified live with the identical frozen inputs;
+do not restart. SAME422-input/4943-output15ns fit on misterubuntu:
+`/home/alans/mister/supported-fall-guard-owned-packet-v1-20261024`, builder1532999,
+map1533009 exit0/fitter1533848 live. Actual build-host source hashes verify,
+allowing only the exact Quartus LAST_QUARTUS_VERSION annotation in QSF.
+
+NEXT: observe those SAME handles; require BOTH terminal full replays and all
+timing corners before final review. `review_control_guard_packet.py --supported`
+also requires the stronger V2 independent-pin test. Staging review explicitly
+does not accept pending Icarus/fit work. No new timing gain/native selection/RBF
+or hardware speed. Keep actual native producer/interior epochs, sole original
+16-R latch capture,60ns/timers, physical66.7MHz SDRAM and ALL A–F acceptance.
+Fresh native test69736 remains live at original5B bound; latest host340M /
+guest93,271,777, actual PB1 pass, CPwrites1/issues0/TX0/faults0. No Cedar pass.
+
 Guard packet review COMPLETE (2026-10-24): `control-guard-packet-summary.json`.
 Both full original14884-transaction Icarus/Verilator replays pass with unchanged
 2470 results/844 owners/9216 RAM/100 clock counts/403 geometry/reset checks.

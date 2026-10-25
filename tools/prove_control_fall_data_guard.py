@@ -22,9 +22,10 @@ from test_r_front_forward_view import sha
 MASK=((1<<398)-1)^(((1<<6)-1)<<348)
 
 
-def candidate(raw,bad_guard=False):
+def candidate(raw,bad_guard=False,mask=MASK):
     old=module(raw,'dorado_control_certified_fall_step');new=old
-    mask=MASK ^ ((1<<345) if bad_guard else 0)
+    assert 0 <= mask < (1<<398)
+    mask=mask ^ ((1<<345) if bad_guard else 0)
     marker=' wire [362:0] full_result,fall_result;'
     extra=f" localparam [397:0] FALL_STABLE_PIN_SUPPORT=398'h{mask:x};\n"
     assert old.count(marker)==1;new=new.replace(marker,extra+marker,1)

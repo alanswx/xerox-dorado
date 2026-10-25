@@ -28,6 +28,9 @@ from prove_cp_prefix_cache import module
 def fall_guard_source(raw,review):
     """Apply only the exact fully reviewed control guard definition."""
     r=json.loads((review/'results.json').read_text())
+    if r['status']=='REVIEWED_SOURCE_BOUND_SUPPORTED_FALL_GUARD':
+        from review_control_supported_fall_guard import apply_source
+        return apply_source(raw,review)
     assert r['status']=='REVIEWED_SOURCE_BOUND_FALL_DATA_GUARD' and r['checked_wave_depths']==[5,24]
     assert r['no_result_or_state_bit_masked'] and r['actual_HIGH_identity_certificate_required']
     proof=review/'fall-data-guard-proof-v1-20261024';p=json.loads((proof/'run-state.json').read_text())
