@@ -14,7 +14,45 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST ordered j19 capture and observable TPCBypass (2026-10-25):
+LATEST separate j19 data epochs and terminal native prefix (2026-10-25):
+
+- [x] Finish SAME v1 Icarus j19 peers47431/full and47853/words: both match
+  Verilator. Retain this as historical bounded evidence; the new underflow
+  fixture rejects the v1 shared-data-epoch rule at actual bit735 in BOTH engines.
+- [x] Load StkP via normal CP/task/MIR FF144B, drive normal RSTK pins, and retain
+  the original staged read FIRST. Corrected StkP255/RSTK3 overflow and StkP0/
+  RSTK8 underflow tests each pass339 events/844 states/9216 RAM bits/100 clocks
+  in BOTH engines. Wrong old-overflow/late-underflow choices each fail ONLY
+  actual bit734/735 at337. Preserve the forced-one accidental pass as a failed
+  negative-control attempt, not a DUT rejection.
+- [x] Bind original j19 clock/enable/data wirelist routes. In the diagnostic
+  G3200/FF1500/SE10231-5000ps profile, clock LOW/setup is1.7ns; underflow D
+  follows the clock by1.5ns. Clock connector identities differ across boards;
+  the named-net fixture is not a physical backplane-route or part qualification.
+- [x] Both corrected v2 Verilator full/mixed replays retain14884/4461 pairs/
+  119 paired writes/238 forwarded bytes and12481/94 pairs/one staged read.
+- [ ] Finish SAME v2 Icarus peers52407/full and52406/words; preserve frozen
+  helper versions when comparing sources. Do not restart them.
+- [x] Retain the original204-event TPCBypass positive/bit74 negative against
+  the current adapter. Both v3 focused engines pass; the mutation fails ONLY
+  actual bit74 at202. These jobs are separate from the full replay peers.
+- [x] Follow native40369 to its own250M HOST terminal bound. Six full memory
+  test passes complete,37,059,037 enabled machine ticks, ready1,159 matched
+  pause snapshots, zero reported pack/CRC/RX faults. Read-only ready-state
+  inspection detached/resumed. Its old source and paired-OFF setting are fixed.
+  This is a startup diagnostic; normal CoolBoot presses/Cedar are not reached.
+- [ ] Qualify remaining source/clock/data arrival and unknown cases, physical
+  pulse acceptance and native phase composition before a NEW reviewed stage.
+  Keep69736/5B HOST, actual MIR/Ready/Hold/IFU/Memory/event/WE-close integration
+  and SAME-fixture timing. Full A–F/60ns/timers, separate66.7MHz SDRAM, original
+  Cedar/Rollback/persistence/fresh boots/stress acceptance remain unchanged.
+  No new RBF/load/measured gain; FPGA is available and still running SMC777.
+
+Receipt: `j19-separate-data-epochs-summary.json` in the native flag archive;
+36 source-bound runs, exact original sink arrivals and terminal native prefix.
+The receipt explicitly retains the two pending v2 Icarus full/mixed outcomes.
+
+Previous ordered j19 capture and observable TPCBypass (2026-10-25):
 
 - [x] Finish SAME original four-cell full/mixed Icarus peers40576/40577. Exact
   complete outcomes, sources and100 clocks match Verilator. Receipt:
@@ -34,7 +72,7 @@ LATEST ordered j19 capture and observable TPCBypass (2026-10-25):
 - [x] Both Verilator full replay profiles pass with the j19 adapter:14884
   subevents/4461 pairs/119 paired writes/238 forwarded bytes; mixed12481/
   94 pairs/one staged read. Original results/state/RAM/100 clocks stay checked.
-- [ ] Finish SAME Icarus j19 peers47431/full and47853/words. Scope/pending
+- [x] Finish SAME Icarus j19 peers47431/full and47853/words. Scope/pending
   identities: `j19-capture-and-native-RX-summary.json` and handoff.
 - [ ] Qualify other j19 data/clock/source-arrival/unknown cases and physical
   pulse acceptance. The1978/ON data-sheet tables specify setup/hold/toggle

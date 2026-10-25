@@ -7,7 +7,61 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST DIRECTED CAPTURE REPAIR AND BOOT DECODE (2026-10-25):
+LATEST SEPARATE J19 DATA EPOCHS AND TERMINAL STARTUP (2026-10-25):
+The earlier j19 full and mixed Icarus peers47431/47853 finished PASS and match
+their Verilator peers. Preserve them as v1 history: a new underflow case rejects
+that version's shared data-epoch rule, despite those full replay passes.
+
+Normal CP/task/MIR instructions load StkP through FF144B; normal RSTK pins then
+exercise the actual j19 inputs. With StkP255/RSTK3, overflow D must use the early
+value. With StkP0/RSTK8, underflow D must retain its preceding value. The old
+adapter fails real state bit735 at337 in BOTH engines; forcing data to one
+accidentally passes that case and is preserved as an insufficient negative.
+
+The corrected OPT-IN adapter keeps legacy endpoint-capture data and handles
+the extra interior pulse separately for each sink. Both corrected cases pass
+339 events in BOTH engines, retaining the original staged read FIRST in the
+SAME history, all844 states/9216 SRAM bits/100 clocks. Selecting old overflow D
+or late underflow D fails ONLY actual bit734 or735, respectively, at337 in BOTH
+engines. No state owner, SRAM port, reset or guest cycle was added.
+
+`generate_j19_capture.route` binds the data paths to the original wirelists:
+common Clock0 at5G, enable fall/overflow D at4G+FF, underflow D at5G+FF. The
+diagnostic profile G3200/FF1500/SE10231-5000ps gives a1.7ns clock LOW/setup
+interval and underflow D1.5ns AFTER the edge. These are explicit independent
+reference delays, not measured part parameters or pulse qualification. Board
+clock connector positions differ (BaseBd C13, ProcL C9); the fixture joins the
+named signal. The source audit does not claim a physical backplane route proof.
+
+Both corrected v2 Verilator replays pass unchanged14884/4461 pairs/119 paired
+writes/238 forwarded bytes and12481/94 pairs/one staged read. SAME v2 Icarus
+peers52407/full and52406/words remain live; do not restart them. The new review
+tool checks historical runs against their own frozen generators, rather than
+silently substituting today's implementation.
+
+Native40369 finished normally at its UNCHANGED250M HOST limit:37,059,037 enabled
+machine ticks, ready1,159 matched pauses/snapshots, zero reported pack/CRC/RX
+faults. It completed all six memory-test passes. A read-only inspection at
+198687918 HOST/5009907 guest found storage/control ready, alias/entry valid,
+and no unsettled/repeated/shared mismatch; debugger detached/resumed. It has
+the PREVIOUS source, native paired mode OFF, and does not include this j19 fix.
+This bound cannot reach the normal CoolBoot presses: no Executive/Cedar pass
+or performance claim follows. Native69736 retains its original5B HOST bound.
+
+The current-adapter v3 TPC gate also passes204 events in BOTH engines; disabling
+the actual Block capture still fails ONLY real bit74 at202. The complete review
+is `fpga/mister/reports/2026-10-23-native-flag-windows/`:
+`j19-separate-data-epochs-summary.json`. It retains36 source-bound test runs,
+both data routes and actual arrival logs, historical failures and the terminal
+native prefix. Two full v2 Icarus outcomes remain pending in that receipt.
+
+NEXT: finish SAME v2 Icarus peers; qualify remaining arrival/unknown/pulse and native phase
+contracts before a NEW integration stage. Preserve all MIR/Ready/Hold/IFU/
+Memory/event/WE-close and A–F/60ns/SDRAM/Cedar/Rollback/persistence/stress gates.
+No new fit/RBF/hardware load or measured gain. MiSTer14 still reports SMC777
+over read-only SSH. The FPGA remains available for a reviewed full-core image.
+
+PREVIOUS DIRECTED CAPTURE REPAIR AND BOOT DECODE (2026-10-25):
 The original four-cell replays are now TERMINAL PASS in BOTH engines: full
 40576 and mixed words40577. `native-R-capture-complete-summary.json` verifies
 the exact source and complete outcomes/100 clocks. Do not restart those jobs.

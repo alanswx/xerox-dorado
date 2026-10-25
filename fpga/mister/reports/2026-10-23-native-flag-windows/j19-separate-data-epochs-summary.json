@@ -1,0 +1,751 @@
+{
+  "status": "REVIEWED_SEPARATE_J19_DATA_EPOCHS_AND_TERMINAL_NATIVE_PREFIX",
+  "scope": "Review separate original j19 data routes and bounded native startup.\n\nPreserve the rejected earlier underflow transfer, its accidentally passing\nforced-one control, both corrected data tests and specific epoch negatives.\nDigital profile evidence does not qualify arbitrary arrivals or FPGA timing.\n",
+  "runs": [
+    {
+      "directory": "j19-full-icarus-v1-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "f1091ac9830878973309538a00fae3d195bad58fcb2ee2ac0ed7eaab82058183",
+      "observed": 1792933130.4633589
+    },
+    {
+      "directory": "j19-full-verilator-v1-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "f69d0a92fef65a0bb2ed948f691fd151f3992a2654ec0835bc748b45a60e0b42",
+      "observed": 1792933130.487326
+    },
+    {
+      "directory": "j19-words-icarus-v1-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "f9d90d6b508f140d87f94c2a28f1ccda3a08d62d4f43d2c88c20542d6a2aed38",
+      "observed": 1792933130.512455
+    },
+    {
+      "directory": "j19-words-verilator-v1-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "fa59213bacdc183926f2a2b0cca865de09304dbb4ec6faa45ac71a61cb9e1166",
+      "observed": 1792933130.538347
+    },
+    {
+      "directory": "j19-full-icarus-v2-20261025",
+      "status": "RUNNING",
+      "state_sha256": "92ed5e0253cd6757cb3f442bc477450ed40da0284a6fe84c80894b056536ac71",
+      "observed": 1792933130.5636961,
+      "verified_live": true,
+      "pid": 52407,
+      "ps": "52407 11:03  11:02.07 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/j19-full-icarus-v2-20261025/test.vvp"
+    },
+    {
+      "directory": "j19-full-verilator-v2-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "a8ef88398b18f317b8bb2f4d1cb85b877dbf067133eae1fd960c7a33abeaf541",
+      "observed": 1792933130.5915039
+    },
+    {
+      "directory": "j19-words-icarus-v2-20261025",
+      "status": "RUNNING",
+      "state_sha256": "015ee8f23731effb6f025ec0b1841fb99f399ef9a2d0867a398478b5f5c2c62c",
+      "observed": 1792933130.616354,
+      "verified_live": true,
+      "pid": 52406,
+      "ps": "52406 11:03  11:02.12 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/j19-words-icarus-v2-20261025/test.vvp"
+    },
+    {
+      "directory": "j19-words-verilator-v2-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "22d5d2bc686daddb83241af331d407e01f522312f50b6a5ac58b8661b689d08c",
+      "observed": 1792933130.6436028
+    },
+    {
+      "directory": "full-tpc-j19-epochs-icarus-v3-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "98d6a998bc50fa949a07622064f1caad54b19a8003cd887cfa6758d40bdd47aa",
+      "observed": 1792933130.670788
+    },
+    {
+      "directory": "full-tpc-j19-epochs-late-icarus-v3-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "964260e73de0565491d558178088bb279d14d35bf6e6bbf65680215783597793",
+      "observed": 1792933130.690921
+    },
+    {
+      "directory": "full-tpc-j19-epochs-verilator-v3-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "fd0f1fcb051e15af3a2b8cdd20c093587424b14f8d2dfbddd63d2f2e85f909c6",
+      "observed": 1792933130.714714
+    },
+    {
+      "directory": "full-tpc-j19-epochs-late-verilator-v3-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "37be3ec1124d1d1a122e24d681fe828280a35475cc5f2b9449cc0ab61363b4d4",
+      "observed": 1792933130.740472
+    },
+    {
+      "directory": "j19-aperture-sp255-rstk3-icarus-v2-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "ccd9ebc2145bf3722825039fd28ec634765943f7f27c37313160424b510fae55",
+      "observed": 1792933130.76627
+    },
+    {
+      "directory": "j19-aperture-sp255-rstk3-old-overflow-icarus-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "510c602f92afe59472e35eb2008f1da3936f41ac71f5b33addbd52c740d31b0e",
+      "observed": 1792933130.788939
+    },
+    {
+      "directory": "j19-aperture-sp255-rstk3-verilator-v2-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "54d0e82a73c333b403c84fa844179778173c1ea8754b4b1562f4a6c2c57eb088",
+      "observed": 1792933130.823571
+    },
+    {
+      "directory": "j19-aperture-sp255-rstk3-old-overflow-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "739e59533be2453c34a718a51d7a03541ea6883ddc95286bca21c5f388721a57",
+      "observed": 1792933130.849016
+    },
+    {
+      "directory": "j19-aperture-sp0-rstk8-icarus-v2-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "f2526c7916c306b55be4a4675e5f4f6da59bb6a2a52defc6ab3979e7282d22e8",
+      "observed": 1792933130.885401
+    },
+    {
+      "directory": "j19-aperture-sp0-rstk8-late-underflow-icarus-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "6058b3d3c7c9c36d576773f3057fd887f6f4d23f68686ab415298ff14cfea6d5",
+      "observed": 1792933130.906442
+    },
+    {
+      "directory": "j19-aperture-sp0-rstk8-verilator-v2-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "0a428b2afad2a2996dea25c8fa02755ebe395ca76fc81b1e220e1d3d212bce9b",
+      "observed": 1792933130.940945
+    },
+    {
+      "directory": "j19-aperture-sp0-rstk8-late-underflow-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "3dc0b081ce6b833fce2976b267e03cef0f7bba20644c3cd22db564cf7bdd6247",
+      "observed": 1792933130.966167
+    },
+    {
+      "directory": "j19-aperture-sp0-rstk8-icarus-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "61198621a77e6a3d163e45b1afbc37e1b3b7776c5bd397cb3ce8523476fa1abb",
+      "observed": 1792933131.001447
+    },
+    {
+      "directory": "j19-aperture-sp0-rstk8-bad-data-icarus-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "5abeb2e18e1d3676666d7ccbbe49055c17caef4f5f939c09c857e7e1a9347d5f",
+      "observed": 1792933131.025482
+    },
+    {
+      "directory": "j19-aperture-sp0-rstk8-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "ec90a97e521c2b564e42b3663db04b3ee479853fe0861c077984910030474526",
+      "observed": 1792933131.051595
+    },
+    {
+      "directory": "j19-aperture-sp0-rstk8-bad-data-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "7484b674b1c949ba583d936bc8a8733c6c5aee117bbc7997ed872834ea8e009e",
+      "observed": 1792933131.077316
+    },
+    {
+      "directory": "j19-rstk0-icarus-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "4ad38e130b993592b242caa1c98df3bff9db03eb7008c0b7b49763e515204d2d",
+      "observed": 1792933131.107059
+    },
+    {
+      "directory": "j19-rstk0-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "3ec76e64d84f41050d441dc2468455023eec524e3207913c30a6516699db1068",
+      "observed": 1792933131.129757
+    },
+    {
+      "directory": "j19-sp255-rstk0-icarus-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "6cae20fa0bcc8a4a20c506d5ed082fad49f75d44777c40bebc5f2a9e1003c47c",
+      "observed": 1792933131.163458
+    },
+    {
+      "directory": "j19-sp255-rstk0-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "32de856c406771bc399a7362c9c6ea393755416adb9f73faf66462a4740bbf3c",
+      "observed": 1792933131.189675
+    },
+    {
+      "directory": "j19-sp255-rstk3-bad-data-icarus-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "3092fc437d8a1041125ced2dda351c18fd8862b4c35b8d8de896995c84162b14",
+      "observed": 1792933131.220043
+    },
+    {
+      "directory": "j19-sp255-rstk3-bad-data-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "657a898c0cca6770e9fc9400c58cfb39ac7bb7ec29bd5dfd10c74fc046edebbc",
+      "observed": 1792933131.246254
+    },
+    {
+      "directory": "j19-sp255-rstk3-icarus-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "5945dfbf2c4c4b4f627b0a524ee85f094d04269456596b3fd99bfc6439ff02d3",
+      "observed": 1792933131.2755551
+    },
+    {
+      "directory": "j19-sp255-rstk3-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "10e720f5fedde7262827c589e5ccd795250425b4181f49b403a56645a4326063",
+      "observed": 1792933131.3011048
+    },
+    {
+      "directory": "j19-aperture-sp255-rstk3-bad-data-icarus-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "804d41dcfa446adaee512a43a2cbbc7895d7fae315a29f647548707b74656367",
+      "observed": 1792933131.33406
+    },
+    {
+      "directory": "j19-aperture-sp255-rstk3-bad-data-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "85b35746f931de52a4ab76e4f4551124cb8bc5ba7c5c45bb9cabbdcde3c182ef",
+      "observed": 1792933131.3595881
+    },
+    {
+      "directory": "j19-aperture-sp255-rstk3-icarus-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "0e888dd853fca9ef5a3b49ed323e61d9a457913530bc55fda302113f8c0320ca",
+      "observed": 1792933131.386909
+    },
+    {
+      "directory": "j19-aperture-sp255-rstk3-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_TPC_CAPTURE_OBSERVED",
+      "state_sha256": "09bb2b50ff25f347058caf9ef09c64b923a7c29ef3e8545ad06efd455041ac8a",
+      "observed": 1792933131.419224
+    }
+  ],
+  "pending_replays": [
+    {
+      "directory": "j19-full-icarus-v2-20261025",
+      "status": "RUNNING",
+      "state_sha256": "92ed5e0253cd6757cb3f442bc477450ed40da0284a6fe84c80894b056536ac71",
+      "observed": 1792933130.5636961,
+      "verified_live": true,
+      "pid": 52407,
+      "ps": "52407 11:03  11:02.07 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/j19-full-icarus-v2-20261025/test.vvp"
+    },
+    {
+      "directory": "j19-words-icarus-v2-20261025",
+      "status": "RUNNING",
+      "state_sha256": "015ee8f23731effb6f025ec0b1841fb99f399ef9a2d0867a398478b5f5c2c62c",
+      "observed": 1792933130.616354,
+      "verified_live": true,
+      "pid": 52406,
+      "ps": "52406 11:03  11:02.12 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/j19-words-icarus-v2-20261025/test.vvp"
+    }
+  ],
+  "replays": [
+    {
+      "version": 1,
+      "mode": "full",
+      "complete_both_engines": true,
+      "summaries": [
+        "transactions=14884 commits=10423 pairs=4461 candidates=4461 fallbacks=0 paired_writes=119 forwarded_bytes=238 Qs=844 RAM=9216 results=2470 clocks=100",
+        "transactions=14884 commits=10423 pairs=4461 candidates=4461 fallbacks=0 paired_writes=119 forwarded_bytes=238 Qs=844 RAM=9216 results=2470 clocks=100"
+      ]
+    },
+    {
+      "version": 1,
+      "mode": "words",
+      "complete_both_engines": true,
+      "summaries": [
+        "transactions=12481 commits=12387 pairs=94 candidates=94 fallbacks=0 paired_writes=0 forwarded_bytes=0 Qs=844 RAM=9216 results=2470 clocks=100",
+        "transactions=12481 commits=12387 pairs=94 candidates=94 fallbacks=0 paired_writes=0 forwarded_bytes=0 Qs=844 RAM=9216 results=2470 clocks=100"
+      ]
+    },
+    {
+      "version": 2,
+      "mode": "full",
+      "complete_both_engines": false,
+      "summaries": [
+        null,
+        "transactions=14884 commits=10423 pairs=4461 candidates=4461 fallbacks=0 paired_writes=119 forwarded_bytes=238 Qs=844 RAM=9216 results=2470 clocks=100"
+      ]
+    },
+    {
+      "version": 2,
+      "mode": "words",
+      "complete_both_engines": false,
+      "summaries": [
+        null,
+        "transactions=12481 commits=12387 pairs=94 candidates=94 fallbacks=0 paired_writes=0 forwarded_bytes=0 Qs=844 RAM=9216 results=2470 clocks=100"
+      ]
+    }
+  ],
+  "directed": [
+    {
+      "engine": "icarus",
+      "stack_pointer": 255,
+      "RSTK": 3,
+      "events": 339,
+      "retained_reads": 1,
+      "negative": "old-overflow",
+      "negative_bit": 734,
+      "negative_check": 337,
+      "original_sink_arrivals": [
+        [
+          "281219.100",
+          "11",
+          "11",
+          "3"
+        ],
+        [
+          "281222.300",
+          "11",
+          "10",
+          "3"
+        ],
+        [
+          "281222.300",
+          "00",
+          "10",
+          "3"
+        ],
+        [
+          "281224.000",
+          "11",
+          "10",
+          "3"
+        ],
+        [
+          "281225.500",
+          "11",
+          "10",
+          "2"
+        ]
+      ]
+    },
+    {
+      "engine": "verilator",
+      "stack_pointer": 255,
+      "RSTK": 3,
+      "events": 339,
+      "retained_reads": 1,
+      "negative": "old-overflow",
+      "negative_bit": 734,
+      "negative_check": 337,
+      "original_sink_arrivals": [
+        [
+          "281219.100",
+          "11",
+          "11",
+          "3"
+        ],
+        [
+          "281222.300",
+          "00",
+          "10",
+          "3"
+        ],
+        [
+          "281224.000",
+          "11",
+          "10",
+          "3"
+        ],
+        [
+          "281225.500",
+          "11",
+          "10",
+          "2"
+        ]
+      ]
+    },
+    {
+      "engine": "icarus",
+      "stack_pointer": 0,
+      "RSTK": 8,
+      "events": 339,
+      "retained_reads": 1,
+      "negative": "late-underflow",
+      "negative_bit": 735,
+      "negative_check": 337,
+      "original_sink_arrivals": [
+        [
+          "281219.100",
+          "11",
+          "11",
+          "3"
+        ],
+        [
+          "281222.300",
+          "00",
+          "11",
+          "3"
+        ],
+        [
+          "281224.000",
+          "11",
+          "11",
+          "3"
+        ],
+        [
+          "281225.500",
+          "11",
+          "01",
+          "3"
+        ],
+        [
+          "281225.500",
+          "11",
+          "01",
+          "3"
+        ]
+      ]
+    },
+    {
+      "engine": "verilator",
+      "stack_pointer": 0,
+      "RSTK": 8,
+      "events": 339,
+      "retained_reads": 1,
+      "negative": "late-underflow",
+      "negative_bit": 735,
+      "negative_check": 337,
+      "original_sink_arrivals": [
+        [
+          "281219.100",
+          "11",
+          "11",
+          "3"
+        ],
+        [
+          "281222.300",
+          "00",
+          "11",
+          "3"
+        ],
+        [
+          "281224.000",
+          "11",
+          "11",
+          "3"
+        ],
+        [
+          "281225.500",
+          "11",
+          "01",
+          "3"
+        ],
+        [
+          "281225.500",
+          "11",
+          "01",
+          "3"
+        ]
+      ]
+    }
+  ],
+  "current_adapter_TPC_gate": [
+    {
+      "engine": "icarus",
+      "checks": 204,
+      "original_reads": 1,
+      "negative_bit": 74,
+      "negative_check": 202
+    },
+    {
+      "engine": "verilator",
+      "checks": 204,
+      "original_reads": 1,
+      "negative_bit": 74,
+      "negative_check": 202
+    }
+  ],
+  "rejected_historical_epoch_rule": [
+    {
+      "engine": "icarus",
+      "earlier_helper_rejected": true,
+      "forced_one_was_not_a_valid_negative": true
+    },
+    {
+      "engine": "verilator",
+      "earlier_helper_rejected": true,
+      "forced_one_was_not_a_valid_negative": true
+    }
+  ],
+  "routes": {
+    "inherited": {
+      "clock_arrival_ps": 8750,
+      "enable_fall_ps": 7400,
+      "overflow_D_arrival_ps": 7400,
+      "underflow_D_arrival_ps": 9150,
+      "clock_LOW_ps": 1350,
+      "overflow_setup_ps": 1350,
+      "underflow_D_after_clock_ps": 400,
+      "diagnostic_epoch_order_valid": true,
+      "source_routes": {
+        "BaseBd-Rev-Am": {
+          "j02.3": "BaseBd12.sil+1",
+          "l01.11": "BaseBd12.sil+1",
+          "l01.13": "CLK.pl'"
+        },
+        "ContA-Rev-Cd": {
+          "h03.11": "CPStrb'",
+          "h03.14": "ContA02.sil+1",
+          "h01.15": "ContA02.sil+1",
+          "h01.10": "sBLOCK",
+          "g16.13": "sBLOCK",
+          "g16.12": "brMIRc",
+          "g16.15": "PrBlock'"
+        },
+        "ProcL-Rev-Ci": {
+          "l01.11": "CLK.pl'",
+          "l01.14": "ppClk'c",
+          "g13.5": "ppClk'c",
+          "g13.3": "PreClock0'D",
+          "j18.5": "PreClock0'D",
+          "j18.4": "Clock0'Dc",
+          "l10.13": "PrBlock'",
+          "l10.14": "StkSela",
+          "l10.15": "StkSel'a",
+          "h19.7": "StkSela",
+          "h19.3": "StkPWriteEn'",
+          "j19.6": "StkPWriteEn'",
+          "j19.11": "StkPWriteEn'",
+          "j19.9": "Clock0'Dc",
+          "j19.7": "ProcL24.sil+10",
+          "j19.10": "ProcL24.sil+11",
+          "j19.2": "OVFLerr'",
+          "j19.15": "UFLerr'",
+          "h17.9": "StkSel'a",
+          "h17.7": "ProcL24.sil+10",
+          "k19.12": "StkSel'a",
+          "k19.9": "ProcL24.sil+1",
+          "k19.11": "ProcL24.sil+1",
+          "k19.6": "ProcL24.sil+1",
+          "j20.11": "ProcL24.sil+1",
+          "j20.12": "ProcL24.sil+1",
+          "j20.15": "ProcL24.sil+11"
+        }
+      },
+      "package_types": {
+        "BaseBd-Rev-Am": {
+          "j02": "MC10210",
+          "l01": "MC10210"
+        },
+        "ContA-Rev-Cd": {
+          "h03": "MC10103",
+          "h01": "MC10172",
+          "g16": "MC10231"
+        },
+        "ProcL-Rev-Ci": {
+          "l01": "SE10210",
+          "g13": "SE10210",
+          "j18": "SE10210",
+          "l10": "MC1660",
+          "h19": "MC10102",
+          "j19": "MC10231",
+          "h17": "MC10105",
+          "k19": "MC10101",
+          "j20": "MC10117"
+        }
+      },
+      "simultaneous_CP_and_root_sources": true,
+      "clock_connector_positions": {
+        "BaseBd-Rev-Am": [
+          "C13"
+        ],
+        "ProcL-Rev-Ci": [
+          "C9"
+        ]
+      },
+      "clock_connection_is_named_net_fixture": true,
+      "physical_clock_backplane_route_qualified": false,
+      "other_data_inputs_stable": true,
+      "physical_pulse_acceptance_qualified": false,
+      "arbitrary_source_arrivals_qualified": false
+    },
+    "aperture": {
+      "clock_arrival_ps": 16000,
+      "enable_fall_ps": 14300,
+      "overflow_D_arrival_ps": 14300,
+      "underflow_D_arrival_ps": 17500,
+      "clock_LOW_ps": 1700,
+      "overflow_setup_ps": 1700,
+      "underflow_D_after_clock_ps": 1500,
+      "diagnostic_epoch_order_valid": true,
+      "source_routes": {
+        "BaseBd-Rev-Am": {
+          "j02.3": "BaseBd12.sil+1",
+          "l01.11": "BaseBd12.sil+1",
+          "l01.13": "CLK.pl'"
+        },
+        "ContA-Rev-Cd": {
+          "h03.11": "CPStrb'",
+          "h03.14": "ContA02.sil+1",
+          "h01.15": "ContA02.sil+1",
+          "h01.10": "sBLOCK",
+          "g16.13": "sBLOCK",
+          "g16.12": "brMIRc",
+          "g16.15": "PrBlock'"
+        },
+        "ProcL-Rev-Ci": {
+          "l01.11": "CLK.pl'",
+          "l01.14": "ppClk'c",
+          "g13.5": "ppClk'c",
+          "g13.3": "PreClock0'D",
+          "j18.5": "PreClock0'D",
+          "j18.4": "Clock0'Dc",
+          "l10.13": "PrBlock'",
+          "l10.14": "StkSela",
+          "l10.15": "StkSel'a",
+          "h19.7": "StkSela",
+          "h19.3": "StkPWriteEn'",
+          "j19.6": "StkPWriteEn'",
+          "j19.11": "StkPWriteEn'",
+          "j19.9": "Clock0'Dc",
+          "j19.7": "ProcL24.sil+10",
+          "j19.10": "ProcL24.sil+11",
+          "j19.2": "OVFLerr'",
+          "j19.15": "UFLerr'",
+          "h17.9": "StkSel'a",
+          "h17.7": "ProcL24.sil+10",
+          "k19.12": "StkSel'a",
+          "k19.9": "ProcL24.sil+1",
+          "k19.11": "ProcL24.sil+1",
+          "k19.6": "ProcL24.sil+1",
+          "j20.11": "ProcL24.sil+1",
+          "j20.12": "ProcL24.sil+1",
+          "j20.15": "ProcL24.sil+11"
+        }
+      },
+      "package_types": {
+        "BaseBd-Rev-Am": {
+          "j02": "MC10210",
+          "l01": "MC10210"
+        },
+        "ContA-Rev-Cd": {
+          "h03": "MC10103",
+          "h01": "MC10172",
+          "g16": "MC10231"
+        },
+        "ProcL-Rev-Ci": {
+          "l01": "SE10210",
+          "g13": "SE10210",
+          "j18": "SE10210",
+          "l10": "MC1660",
+          "h19": "MC10102",
+          "j19": "MC10231",
+          "h17": "MC10105",
+          "k19": "MC10101",
+          "j20": "MC10117"
+        }
+      },
+      "simultaneous_CP_and_root_sources": true,
+      "clock_connector_positions": {
+        "BaseBd-Rev-Am": [
+          "C13"
+        ],
+        "ProcL-Rev-Ci": [
+          "C9"
+        ]
+      },
+      "clock_connection_is_named_net_fixture": true,
+      "physical_clock_backplane_route_qualified": false,
+      "other_data_inputs_stable": true,
+      "physical_pulse_acceptance_qualified": false,
+      "arbitrary_source_arrivals_qualified": false
+    }
+  },
+  "actual_stored_bits_per_event": 844,
+  "SRAM_bits_per_event": 9216,
+  "clock_channels": 100,
+  "original_result_bits": 2470,
+  "new_owner_bits": 0,
+  "new_RAM_ports": 0,
+  "original_staged_read_retained_first": true,
+  "new_j19_adapter_selected_in_native": false,
+  "native_prefix": {
+    "pid": 40369,
+    "host_ticks": 250000000,
+    "enabled_machine_ticks": 37059037,
+    "reason": "HOST_LIMIT",
+    "memory_selftest_passes": 6,
+    "pauses": 159,
+    "normal_boot_presses_reached": false,
+    "firmware_qualified": false
+  },
+  "native_read_only_inspection": {
+    "host_ticks": 198687918,
+    "guest_ticks": 5009907,
+    "boot_samples": 5009907,
+    "step": 1,
+    "phi_inverted": 0,
+    "reset_n": 1,
+    "watchdog_counter": 37573,
+    "watchdog_phase_a": 0,
+    "watchdog_phase_b": 0,
+    "MCD0": 1,
+    "MCD1": 0,
+    "MCD2": 0,
+    "MCD3": 1,
+    "MCD4": 0,
+    "MCD5": 1,
+    "MCD6": 0,
+    "MCD7": 1,
+    "network_cpu_debug": 3506434048,
+    "network_control_debug": 256,
+    "network_rx_ready": 1,
+    "network_rx_line": 0,
+    "network_rx_wr": 0,
+    "network_rx_commit": 0,
+    "network_rx_words": 254,
+    "network_tx_valid": 0,
+    "network_tx_good": 0,
+    "network_tx_bad": 0,
+    "network_tx_dropped": 0,
+    "network_rx_bad": 0,
+    "network_rs": 0,
+    "network_ri": 253,
+    "network_wire_rstate": 0,
+    "network_wire_rlength": 254,
+    "network_wire_rword": 253,
+    "network_wire_rshift": 0,
+    "network_wire_rcrc": 47542,
+    "network_wire_rq": 1,
+    "network_wire_rphase": 20,
+    "network_wire_rbit": 0,
+    "network_wire_rhalf": 0,
+    "network_wire_rgap": 26665,
+    "network_wire_tactive": 0,
+    "network_wire_tcount": 0,
+    "network_controller_RxFifoEmpty": 0,
+    "network_controller_RxFifoFull": 0,
+    "network_controller_RxEOP": 0,
+    "front_control_initialized": 1,
+    "front_control_storage_ready": 1,
+    "front_control_control_ready": 1,
+    "front_control_alias_ok": 1,
+    "front_control_unsettled": 0,
+    "front_control_repeated": 0,
+    "front_control_read_needed": 0,
+    "front_control_entry_ready": 1,
+    "front_control_shared_mismatch": 0,
+    "front_control_read_phase": 0,
+    "front_control_descriptor": 18374702976624234325,
+    "front_control_descriptor_q": 0,
+    "phase": 1
+  },
+  "arbitrary_arrivals_qualified": false,
+  "full_processor_unknowns_qualified": false,
+  "physical_pulse_acceptance_qualified": false,
+  "native_paired_mode_qualified": false,
+  "physical_timing_qualified": false,
+  "original_firmware_Cedar_qualified": false,
+  "new_RBF_ready": false,
+  "hardware_changed": false,
+  "hardware_speed_gain_measured": false,
+  "full_goal_active": true
+}
