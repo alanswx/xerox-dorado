@@ -14,7 +14,36 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST coupled reference and actual flag-capture blocker (2026-10-25):
+LATEST explicit early/late flag transfer (2026-10-25):
+
+- [x] Trace the original coupled f17 data/select/clock pins. In the declared
+  balanced digital profile, event19's arithmetic data arrives4ns before close;
+  event23's changed task-file data arrives1ns after close. These are digital
+  diagnostic delays, not physical arrival/part qualification.
+- [x] Add explicit early/late frames without adding a guest cycle or reset.
+  BOTH engines pass ALL14884 producer events/924 physical states/9216 SRAM
+  bits/104 clocks/541 observations and every80 transfer bit. Two wrong early
+  port bindings change actual stored bits and reject with unchanged references.
+- [x] Prove three passes equal eight for ALL196 binary inputs/85 outputs,
+  without assumptions; one pass changes actual visible flags.
+- [x] Bind actual native ALU producers to original wirelists and frozen HDL.
+  aluM is a REGISTERED ProcL e12 output (six ALU function bits), not a direct
+  native input. Preserve SignedCarry's explicit B-invert0 and both-byte zero
+  reduction. The fixture's13 direct EARLY inputs are not a native phase binding.
+- [ ] Construct actual ALU early/late frames from function/operand state and
+  compose with the native common owner. Retain MIR/Ready/Hold/IFU/Memory/device
+  event gates, then run the full-core15ns timing build and hardware benchmark.
+- [ ] Full60ns/timers, separate66.7MHz SDRAM, original Cedar/Rollback/persistence,
+  three boots and two-hour stress remain. SAME62048/69736 runs/5B HOST limits
+  are unchanged. No new fit/RBF/load/measured speed gain; full goal stays active.
+
+Receipt: `processor-branch-frame-summary.json` in the native flag archive.
+The read-only `processor-branch-frame-timeout-summary.json` additionally binds
+SAME69736's actual ROM RTC430=13/task0.T=13:13-13-1 remains negative. The high
+word has advanced from12; no clock-stall inference. Detach/resume and original
+5B HOST limit are verified. No packet acceptance or firmware/timer-speed pass.
+
+Previous coupled reference and actual flag-capture blocker (2026-10-25):
 
 - [x] Compose the original844-bit processor/control graph with original80-bit
   flags: monolithic924 vs independently wired844+80 pass BOTH engines through

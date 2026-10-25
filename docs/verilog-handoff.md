@@ -7,7 +7,57 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST COUPLED PROCESSOR/FLAG REFERENCE AND REAL TRANSFER FAILURE (2026-10-25):
+LATEST EARLY/LATE FLAG CAPTURE PASSES THE COUPLED PROGRAM (2026-10-25):
+`verilog/rtl/dorado_branch_condition_frame_step.sv` now accepts BEFORE, EARLY
+and LATE producer frames. Direct data arriving during an open f17 window is
+captured before closure; registered task/address changes arriving afterward
+cannot replace it. These are combinational epochs, not extra guest cycles or
+reset state. The earlier standalone module remains unchanged.
+
+The actual original coupled graph explains the two failures: with the declared
+G/FF/latch1000/1000/1000ps digital profile, arithmetic B changes at2401ns before
+f17 closes at2405ns (event19); the task-file output changes at2806ns AFTER
+closure at2805ns (event23). This is illustrative digital ordering, not an
+analog part/backplane arrival qualification.
+
+BOTH engines now pass ALL14884 producer events, every924 physical state,
+9216 SRAM bits,104 clock channels and541 observations, plus the independently
+retained80-bit transfer. Original references/assertions stay intact. Driving
+the early port with all BEFORE data fails actual TIOA bits69/70/74/79 at15;
+driving it with all LATE data fails f17 bits65/66/67 at23. Only the DUT binding
+changes. An all-input binary proof compares three vs eight passes for ALL196
+state/frame/root inputs and85 outputs without assumptions; one pass changes
+actual visible flags. This is not a native/full-core speed qualification.
+
+Actual native ALU producer pins are now bound to the wirelists and frozen HDL:
+four MC10181 slices across both bytes; high-byte d13 SignedCarry explicitly
+uses LEGACY_B_INVERT=0; nonzero is the wired OR of both boards' d08 outputs.
+Crucially, aluM is REGISTERED: ProcL e12 contains six ALU function bits and
+samples its own Clock1'Cb. The fixture's thirteen direct EARLY inputs are
+controlled boundary stimulus, NOT a native binding or proof of ALU arrivals.
+
+NEXT: build early/late frames from the actual ALU function/operand producers,
+including e12's pre/post state, and compose with the native common owner.
+The original ProcL e12 Q order is aluC,aluF0,aluF1,aluF2,aluF3,aluM; its six
+D pins read ALUFdec.0..5 from ProcL e13/e14 F10145A tables. Preserve both whole
+64-bit packages when bringing that function-memory path into the reference.
+Preserve MIR/Ready/Hold/IFU/Memory/device captures and then run the full-core15ns
+timing build. Both existing5B HOST boot jobs are live and unchanged:62048 at
+240M HOST/30,813,408 enabled machine ticks,69736 at2.48B HOST/1,434,969,284 ticks,
+with no reported pack/CRC/RX faults. These ticks are NOT microinstructions;
+neither run is a Cedar pass. No RBF/load/speed gain. Full goal remains active.
+Receipt: `processor-branch-frame-summary.json` in the native flag archive;
+153767 members/12350 unique blobs, complete lossless readback verified.
+
+Read-only timeout follow-up: SAME69736 at HOST2,489,185,199/guest1,440,755,248
+has actual ROM RTC430 (logical RM179)13 decimal and task0.T13. The ROM tests
+RTC430-T-1, giving177777B/negative: this sampled timeout is still not expired.
+The correct high word has advanced again (previously12); there is no evidence
+of a stopped RTC. Inspector detached/resumed normally, source/5B bound unchanged.
+Receipt: `processor-branch-frame-timeout-summary.json`. This does not establish
+packet0 acceptance, timer calibration, firmware success or hardware speed.
+
+PREVIOUS COUPLED PROCESSOR/FLAG REFERENCE AND REAL TRANSFER FAILURE (2026-10-25):
 The monolithic original924-bit circuit and independently wired original844+80
 partition now agree through ALL14884 original producer events in BOTH engines:
 924 physical states,9216 SRAM bits,104 clocks and541 functional observations.

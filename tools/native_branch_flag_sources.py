@@ -66,3 +66,47 @@ def bindings(source):
                 owner_vector_contains_this_family=False,
                 per_task_file_address='Physical slot is logical task XOR15',
                 physical_timing_qualified=False,phase_contract_qualified=False)
+
+
+def alu_producers(source):
+    """Bind the actual native ALU outputs; do not infer their arrival epochs."""
+    provenance=json.loads(gzip.decompress((source/'provenance.json.gz').read_bytes()))
+    native=source/'inputs';rows={};hashes={}
+    for board_name,revision,packages in [
+        ('ProcH','Ce',['d08','d13','e61','f61']),
+        ('ProcL','Ci',['d08','e12','e61','f61'])]:
+        wl=f'chm/sil/{board_name}-Rev-{revision}.dm!1_/{board_name}-Rev-{revision}.wl'
+        path=f'src/fpga/mister/snapshot_native_processor/{board_name}_full_snapshot.sv'
+        assert sha(native/path)==provenance['inputs'][path]
+        board=load_board(str(ROOT/wl));raw=(native/path).read_text()
+        hashes[wl]=sha(ROOT/wl);hashes[path]=sha(native/path)
+        for pkg in packages:
+            kind=board.packages[pkg]['type'];model=kind+('_snapshot'if pkg=='e12'else'')
+            pattern=r'^  cell_'+model+r'(?: #\([^\n]+\))? u_'+pkg+r' \(.*?^  \);'
+            matches=re.findall(pattern,raw,re.M|re.S);assert len(matches)==1,(board_name,pkg)
+            actual={int(p):net for p,net in re.findall(r'\.p(\d+)\((\w+)\)',matches[0])}
+            original={p['pin']:n for n,r in board.nets.items()for p in r['pins']if p['pkg']==pkg}
+            assert set(actual)==set(original),(board_name,pkg)
+            for pin,net in original.items():
+                name=vname(net)
+                assert actual[pin]in[name,name+'__drv',name+f'__{pkg}_{pin}'],(board_name,pkg,pin,actual[pin],name)
+            cells=[name for name in provenance['used_hdl']if Path(name).stem=='cell_'+model]
+            assert len(cells)==1,(board_name,pkg,model,cells)
+            cell=cells[0];assert sha(native/cell)==provenance['inputs'][cell];hashes[cell]=sha(native/cell)
+            rows[board_name+'.'+pkg]=dict(kind=kind,original_pins=original,native_pins=actual,cell_source=cell)
+            if board_name=='ProcH'and pkg=='d13':
+                assert '#(.LEGACY_B_INVERT(0))'in matches[0]
+    mode=rows['ProcL.e12'];assert mode['kind']=='MC10176'
+    assert mode['original_pins'][9]=="Clock1'Cb" and mode['original_pins'][15]=='aluM'
+    assert [mode['original_pins'][p]for p in [5,6,7,10,11,12]]==[f'ALUFdec.{i}'for i in range(6)]
+    bp='src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v'
+    assert sha(native/bp)==provenance['inputs'][bp];text=(native/bp).read_text();hashes[bp]=sha(native/bp)
+    for expression in ['assign aluM = aluM__ProcL;', 'assign aluCout = aluCout__ProcH;',
+                       'assign aluOut_eq_0_p_ = aluOut_eq_0_p___ProcH | aluOut_eq_0_p___ProcL;']:
+        assert expression in text
+    return dict(packages=rows,source_hashes=hashes,
+                alu_mode_is_a_registered_ProcL_e12_output=True,ALU_function_register_bits=6,
+                ALU_function_clock="ProcL Clock1'Cb (a board-specific derived clock)",
+                global_nonzero_is_wired_OR_of_both_bytes=True,SignedCarry_B_invert=0,
+                fixture_direct_early_mask_is_not_a_native_binding=True,
+                physical_source_arrivals_qualified=False,native_capture_composition_qualified=False)

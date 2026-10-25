@@ -2,7 +2,8 @@
 """Prove the branch-family fixed point needs three passes, without assumptions.
 
 All80 old state bits, both38-pin frames and both root levels are arbitrary
-binary inputs. Compare every next-state/event/settling bit with eight passes.
+binary inputs. With --frame, the additional38 early inputs give196 inputs.
+Compare every next-state/event/settling bit with eight passes.
 A one-pass counterexample must change the actual visible flags. This proves
 combinational depth equivalence, not arbitrary-arrival or physical timing.
 """
@@ -29,21 +30,30 @@ endmodule
 '''
 
 
-def run(source,out,yosys):
+def run(source,out,yosys,frame=False):
     assert not out.exists();out.mkdir(parents=True)
     parent=json.loads((source/'run-state.json').read_text());verify(source,parent['files'])
-    assert parent['status']=='PASS_BRANCH_CONDITION_CAPTURE' and parent['mutation'] is None
-    assert parent['reference_manifest']['physical_bits']==80
-    for name,path in [('candidate.sv',source/'candidate.sv'),('cone.sv',source/'reference/cone.sv')]:
+    if frame:
+        assert parent['status']=='PASS_ORIGINAL_PROCESSOR_BRANCH_COMPOSITION' and parent.get('mutation') is None
+        assert parent['explicit_early_frame'] and parent['optimized_branch_transfer_checked']
+        candidate=source/'branch-step.sv';cone=source/'reference/branch/cone.sv'
+        top=TOP.replace('input wire [37:0] pb,pa','input wire [37:0] pb,pe,pa')
+        top=top.replace('dorado_branch_condition_step','dorado_branch_condition_frame_step').replace('q,cb,ca,pb,pa,','q,cb,ca,pb,pe,pa,')
+    else:
+        assert parent['status']=='PASS_BRANCH_CONDITION_CAPTURE' and parent['mutation'] is None
+        assert parent['reference_manifest']['physical_bits']==80
+        candidate=source/'candidate.sv';cone=source/'reference/cone.sv';top=TOP
+    for name,path in [('candidate.sv',candidate),('cone.sv',cone)]:
         shutil.copy2(path,out/name)
     shutil.copy2(Path(__file__),out/Path(__file__).name)
     result=dict(status='RUNNING',scope=__doc__,source=str(source),source_state_sha256=sha(source/'run-state.json'),
-                arbitrary_binary_input_bits=158,compared_result_bits=85,protocol_assumptions=0,
+                arbitrary_binary_input_bits=196 if frame else 158,compared_result_bits=85,protocol_assumptions=0,
+                explicit_early_frame=frame,
                 started=time.time(),actions=[],files={p.name:sha(p) for p in out.iterdir()})
     def save():(out/'run-state.json').write_text(json.dumps(result,indent=2)+'\n')
     save()
     for depth in [3,1]:
-        positive=depth==3;label='depth'+str(depth);(out/(label+'.sv')).write_text(TOP.replace('DEPTH',str(depth)))
+        positive=depth==3;label='depth'+str(depth);(out/(label+'.sv')).write_text(top.replace('DEPTH',str(depth)))
         flag='verify' if positive else'falsify';signal='equal' if positive else'visible_equal'
         script=f'''read_verilog -formal -sv /work/candidate.sv /work/cone.sv /work/{label}.sv
 hierarchy -check -top contract
@@ -73,4 +83,5 @@ sat -timeout 120 -prove {signal} 1 -{flag} -show-ports -dump_json /work/{label}-
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for name in ['source','output','yosys']:p.add_argument('--'+name,type=Path,required=True)
-    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.output.resolve(),a.yosys.resolve()))
+    p.add_argument('--frame',action='store_true',help='Prove the explicit early/late input-frame transfer with196 arbitrary binary inputs')
+    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.output.resolve(),a.yosys.resolve(),a.frame))

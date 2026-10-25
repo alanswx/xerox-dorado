@@ -1,0 +1,1675 @@
+{
+  "status": "REVIEWED_COUPLED_EARLY_LATE_FLAG_CAPTURE",
+  "scope": "Review early/late flag capture with original processor/control producers.\n\nRetain full physical-state, SRAM, event and observable comparisons, two wrong\nframe bindings, the digital arrival witness, and all-input depth equivalence.\nNative ALU arrivals and full-core timing remain unqualified.\n",
+  "summary": "PROCESSOR_BRANCH_COMPOSITION_PASS events=14884 states=924 RAM=9216 clocks=104 observations=541 legacy_fields=842 closed_producer_fields=2 new_changed=ffffd1ffddffddffddff",
+  "all104_clock_counts": [
+    "COMPOSITION_CLOCK channel=0 edges=5488",
+    "COMPOSITION_CLOCK channel=1 edges=2744",
+    "COMPOSITION_CLOCK channel=2 edges=2744",
+    "COMPOSITION_CLOCK channel=3 edges=2744",
+    "COMPOSITION_CLOCK channel=4 edges=5417",
+    "COMPOSITION_CLOCK channel=5 edges=5417",
+    "COMPOSITION_CLOCK channel=6 edges=5417",
+    "COMPOSITION_CLOCK channel=7 edges=4337",
+    "COMPOSITION_CLOCK channel=8 edges=5417",
+    "COMPOSITION_CLOCK channel=9 edges=5417",
+    "COMPOSITION_CLOCK channel=10 edges=5488",
+    "COMPOSITION_CLOCK channel=11 edges=2692",
+    "COMPOSITION_CLOCK channel=12 edges=2692",
+    "COMPOSITION_CLOCK channel=13 edges=2693",
+    "COMPOSITION_CLOCK channel=14 edges=5417",
+    "COMPOSITION_CLOCK channel=15 edges=5488",
+    "COMPOSITION_CLOCK channel=16 edges=2692",
+    "COMPOSITION_CLOCK channel=17 edges=2692",
+    "COMPOSITION_CLOCK channel=18 edges=2693",
+    "COMPOSITION_CLOCK channel=19 edges=2692",
+    "COMPOSITION_CLOCK channel=20 edges=1616",
+    "COMPOSITION_CLOCK channel=21 edges=1616",
+    "COMPOSITION_CLOCK channel=22 edges=166",
+    "COMPOSITION_CLOCK channel=23 edges=5417",
+    "COMPOSITION_CLOCK channel=24 edges=5417",
+    "COMPOSITION_CLOCK channel=25 edges=2613",
+    "COMPOSITION_CLOCK channel=26 edges=2693",
+    "COMPOSITION_CLOCK channel=27 edges=2613",
+    "COMPOSITION_CLOCK channel=28 edges=2693",
+    "COMPOSITION_CLOCK channel=29 edges=32",
+    "COMPOSITION_CLOCK channel=30 edges=48",
+    "COMPOSITION_CLOCK channel=31 edges=32",
+    "COMPOSITION_CLOCK channel=32 edges=48",
+    "COMPOSITION_CLOCK channel=33 edges=2692",
+    "COMPOSITION_CLOCK channel=34 edges=5417",
+    "COMPOSITION_CLOCK channel=35 edges=5417",
+    "COMPOSITION_CLOCK channel=36 edges=5417",
+    "COMPOSITION_CLOCK channel=37 edges=5417",
+    "COMPOSITION_CLOCK channel=38 edges=2692",
+    "COMPOSITION_CLOCK channel=39 edges=5417",
+    "COMPOSITION_CLOCK channel=40 edges=5417",
+    "COMPOSITION_CLOCK channel=41 edges=5417",
+    "COMPOSITION_CLOCK channel=42 edges=1616",
+    "COMPOSITION_CLOCK channel=43 edges=32",
+    "COMPOSITION_CLOCK channel=44 edges=2692",
+    "COMPOSITION_CLOCK channel=45 edges=2692",
+    "COMPOSITION_CLOCK channel=46 edges=257",
+    "COMPOSITION_CLOCK channel=47 edges=2693",
+    "COMPOSITION_CLOCK channel=48 edges=2692",
+    "COMPOSITION_CLOCK channel=49 edges=2692",
+    "COMPOSITION_CLOCK channel=50 edges=2692",
+    "COMPOSITION_CLOCK channel=51 edges=2692",
+    "COMPOSITION_CLOCK channel=52 edges=2692",
+    "COMPOSITION_CLOCK channel=53 edges=1",
+    "COMPOSITION_CLOCK channel=54 edges=1",
+    "COMPOSITION_CLOCK channel=55 edges=1056",
+    "COMPOSITION_CLOCK channel=56 edges=1056",
+    "COMPOSITION_CLOCK channel=57 edges=1616",
+    "COMPOSITION_CLOCK channel=58 edges=1616",
+    "COMPOSITION_CLOCK channel=59 edges=1616",
+    "COMPOSITION_CLOCK channel=60 edges=1616",
+    "COMPOSITION_CLOCK channel=61 edges=1616",
+    "COMPOSITION_CLOCK channel=62 edges=1616",
+    "COMPOSITION_CLOCK channel=63 edges=1616",
+    "COMPOSITION_CLOCK channel=64 edges=1616",
+    "COMPOSITION_CLOCK channel=65 edges=495",
+    "COMPOSITION_CLOCK channel=66 edges=388",
+    "COMPOSITION_CLOCK channel=67 edges=2692",
+    "COMPOSITION_CLOCK channel=68 edges=2692",
+    "COMPOSITION_CLOCK channel=69 edges=32",
+    "COMPOSITION_CLOCK channel=70 edges=1616",
+    "COMPOSITION_CLOCK channel=71 edges=1616",
+    "COMPOSITION_CLOCK channel=72 edges=1616",
+    "COMPOSITION_CLOCK channel=73 edges=1616",
+    "COMPOSITION_CLOCK channel=74 edges=1616",
+    "COMPOSITION_CLOCK channel=75 edges=1616",
+    "COMPOSITION_CLOCK channel=76 edges=1616",
+    "COMPOSITION_CLOCK channel=77 edges=1616",
+    "COMPOSITION_CLOCK channel=78 edges=1616",
+    "COMPOSITION_CLOCK channel=79 edges=1616",
+    "COMPOSITION_CLOCK channel=80 edges=1616",
+    "COMPOSITION_CLOCK channel=81 edges=1616",
+    "COMPOSITION_CLOCK channel=82 edges=1616",
+    "COMPOSITION_CLOCK channel=83 edges=1616",
+    "COMPOSITION_CLOCK channel=84 edges=1616",
+    "COMPOSITION_CLOCK channel=85 edges=1616",
+    "COMPOSITION_CLOCK channel=86 edges=32",
+    "COMPOSITION_CLOCK channel=87 edges=1616",
+    "COMPOSITION_CLOCK channel=88 edges=1616",
+    "COMPOSITION_CLOCK channel=89 edges=1616",
+    "COMPOSITION_CLOCK channel=90 edges=1616",
+    "COMPOSITION_CLOCK channel=91 edges=65",
+    "COMPOSITION_CLOCK channel=92 edges=65",
+    "COMPOSITION_CLOCK channel=93 edges=65",
+    "COMPOSITION_CLOCK channel=94 edges=5425",
+    "COMPOSITION_CLOCK channel=95 edges=1",
+    "COMPOSITION_CLOCK channel=96 edges=2709",
+    "COMPOSITION_CLOCK channel=97 edges=2709",
+    "COMPOSITION_CLOCK channel=98 edges=2709",
+    "COMPOSITION_CLOCK channel=99 edges=2713",
+    "COMPOSITION_CLOCK channel=100 edges=2693",
+    "COMPOSITION_CLOCK channel=101 edges=2693",
+    "COMPOSITION_CLOCK channel=102 edges=2693",
+    "COMPOSITION_CLOCK channel=103 edges=1615"
+  ],
+  "explicit_early_frame": true,
+  "binary_depth": {
+    "inputs": 196,
+    "outputs": 85,
+    "assumptions": 0,
+    "depth": 3,
+    "baseline": 8,
+    "one_pass_changes_visible_flags": true
+  },
+  "wrong_frame_binding_negatives": [
+    {
+      "binding": "old",
+      "actual_state_differences": [
+        [
+          "15",
+          "69",
+          "1",
+          "0"
+        ],
+        [
+          "15",
+          "70",
+          "0",
+          "1"
+        ],
+        [
+          "15",
+          "74",
+          "0",
+          "1"
+        ],
+        [
+          "15",
+          "79",
+          "1",
+          "0"
+        ]
+      ]
+    },
+    {
+      "binding": "late",
+      "actual_state_differences": [
+        [
+          "23",
+          "65",
+          "1",
+          "0"
+        ],
+        [
+          "23",
+          "66",
+          "1",
+          "0"
+        ],
+        [
+          "23",
+          "67",
+          "1",
+          "0"
+        ]
+      ]
+    }
+  ],
+  "original_digital_arrivals": {
+    "profile_ps": [
+      1000,
+      1000,
+      1000
+    ],
+    "arithmetic_data_ns": 2401,
+    "close_ns": 2405,
+    "task_file_close_ns": 2805,
+    "late_task_file_data_ns": 2806
+  },
+  "ALU_source_inventory": {
+    "packages": {
+      "ProcH.d08": {
+        "kind": "MC10109",
+        "original_pins": {
+          "7": "alu.00",
+          "6": "alu.01",
+          "5": "alu.02",
+          "4": "alu.03",
+          "10": "alu.04",
+          "11": "alu.05",
+          "13": "alu.06",
+          "12": "alu.07",
+          "2": "aluOut=0'",
+          "15": "aluOut=0'"
+        },
+        "native_pins": {
+          "2": "aluOut_eq_0_p___d08_2",
+          "4": "alu_03",
+          "5": "alu_02",
+          "6": "alu_01",
+          "7": "alu_00",
+          "10": "alu_04",
+          "11": "alu_05",
+          "12": "alu_07",
+          "13": "alu_06",
+          "15": "aluOut_eq_0_p___d08_15"
+        },
+        "cell_source": "src/verilog/cells/cell_MC10109.v"
+      },
+      "ProcH.d13": {
+        "kind": "MC10170",
+        "original_pins": {
+          "13": "alu.00",
+          "4": "alua.00",
+          "3": "alub.00a",
+          "14": "aluCout",
+          "9": "aluF0",
+          "15": "SignedCarry"
+        },
+        "native_pins": {
+          "3": "alub_00a",
+          "4": "alua_00",
+          "9": "aluF0",
+          "13": "alu_00",
+          "14": "aluCout",
+          "15": "SignedCarry"
+        },
+        "cell_source": "src/verilog/cells/cell_MC10170.v"
+      },
+      "ProcH.e61": {
+        "kind": "MC10181",
+        "original_pins": {
+          "6": "alu.00",
+          "7": "alu.01",
+          "3": "alu.02",
+          "2": "alu.03",
+          "10": "alua.00",
+          "16": "alua.01",
+          "18": "alua.02",
+          "21": "alua.03",
+          "9": "alub.00",
+          "11": "alub.01",
+          "19": "alub.02",
+          "20": "alub.03",
+          "5": "aluCout",
+          "13": "aluF0",
+          "15": "aluF1",
+          "17": "aluF2",
+          "14": "aluF3",
+          "23": "aluM",
+          "22": "ProcH10.sil+4"
+        },
+        "native_pins": {
+          "2": "alu_03",
+          "3": "alu_02",
+          "5": "aluCout__drv",
+          "6": "alu_00",
+          "7": "alu_01",
+          "9": "alub_00",
+          "10": "alua_00",
+          "11": "alub_01",
+          "13": "aluF0",
+          "14": "aluF3",
+          "15": "aluF1",
+          "16": "alua_01",
+          "17": "aluF2",
+          "18": "alua_02",
+          "19": "alub_02",
+          "20": "alub_03",
+          "21": "alua_03",
+          "22": "ProcH10_sil_pl_4",
+          "23": "aluM"
+        },
+        "cell_source": "src/verilog/cells/cell_MC10181.v"
+      },
+      "ProcH.f61": {
+        "kind": "MC10181",
+        "original_pins": {
+          "6": "alu.04",
+          "7": "alu.05",
+          "3": "alu.06",
+          "2": "alu.07",
+          "10": "alua.04",
+          "16": "alua.05",
+          "18": "alua.06",
+          "21": "alua.07",
+          "9": "alub.04",
+          "11": "alub.05",
+          "19": "alub.06",
+          "20": "alub.07",
+          "13": "aluF0",
+          "15": "aluF1",
+          "17": "aluF2",
+          "14": "aluF3",
+          "4": "aluG2",
+          "23": "aluM",
+          "8": "aluP2",
+          "22": "ProcH10.sil+5"
+        },
+        "native_pins": {
+          "2": "alu_07__drv",
+          "3": "alu_06",
+          "4": "aluG2",
+          "6": "alu_04",
+          "7": "alu_05",
+          "8": "aluP2",
+          "9": "alub_04",
+          "10": "alua_04",
+          "11": "alub_05",
+          "13": "aluF0",
+          "14": "aluF3",
+          "15": "aluF1",
+          "16": "alua_05",
+          "17": "aluF2",
+          "18": "alua_06",
+          "19": "alub_06",
+          "20": "alub_07",
+          "21": "alua_07",
+          "22": "ProcH10_sil_pl_5",
+          "23": "aluM"
+        },
+        "cell_source": "src/verilog/cells/cell_MC10181.v"
+      },
+      "ProcL.d08": {
+        "kind": "MC10109",
+        "original_pins": {
+          "7": "alu.08",
+          "6": "alu.09",
+          "5": "alu.10",
+          "4": "alu.11",
+          "10": "alu.12",
+          "11": "alu.13",
+          "13": "alu.14",
+          "12": "alu.15",
+          "2": "aluOut=0'",
+          "15": "aluOut=0'"
+        },
+        "native_pins": {
+          "2": "aluOut_eq_0_p___d08_2",
+          "4": "alu_11",
+          "5": "alu_10",
+          "6": "alu_09",
+          "7": "alu_08",
+          "10": "alu_12",
+          "11": "alu_13",
+          "12": "alu_15",
+          "13": "alu_14",
+          "15": "aluOut_eq_0_p___d08_15"
+        },
+        "cell_source": "src/verilog/cells/cell_MC10109.v"
+      },
+      "ProcL.e12": {
+        "kind": "MC10176",
+        "original_pins": {
+          "2": "aluC",
+          "3": "aluF0",
+          "4": "aluF1",
+          "13": "aluF2",
+          "14": "aluF3",
+          "5": "ALUFdec.0",
+          "6": "ALUFdec.1",
+          "7": "ALUFdec.2",
+          "10": "ALUFdec.3",
+          "11": "ALUFdec.4",
+          "12": "ALUFdec.5",
+          "15": "aluM",
+          "9": "Clock1'Cb"
+        },
+        "native_pins": {
+          "2": "aluC",
+          "3": "aluF0__drv",
+          "4": "aluF1__drv",
+          "5": "ALUFdec_0",
+          "6": "ALUFdec_1",
+          "7": "ALUFdec_2",
+          "9": "Clock1_p_Cb",
+          "10": "ALUFdec_3",
+          "11": "ALUFdec_4",
+          "12": "ALUFdec_5",
+          "13": "aluF2__drv",
+          "14": "aluF3__drv",
+          "15": "aluM__drv"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v"
+      },
+      "ProcL.e61": {
+        "kind": "MC10181",
+        "original_pins": {
+          "6": "alu.08",
+          "7": "alu.09",
+          "3": "alu.10",
+          "2": "alu.11",
+          "10": "alua.08",
+          "16": "alua.09",
+          "18": "alua.10",
+          "21": "alua.11",
+          "9": "alub.08",
+          "11": "alub.09",
+          "19": "alub.10",
+          "20": "alub.11",
+          "22": "aluC0",
+          "13": "aluF0",
+          "15": "aluF1",
+          "17": "aluF2",
+          "14": "aluF3",
+          "4": "aluG1",
+          "23": "aluM",
+          "8": "aluP1"
+        },
+        "native_pins": {
+          "2": "alu_11",
+          "3": "alu_10",
+          "4": "aluG1__drv",
+          "6": "alu_08__drv",
+          "7": "alu_09",
+          "8": "aluP1__drv",
+          "9": "alub_08",
+          "10": "alua_08",
+          "11": "alub_09",
+          "13": "aluF0",
+          "14": "aluF3",
+          "15": "aluF1",
+          "16": "alua_09",
+          "17": "aluF2",
+          "18": "alua_10",
+          "19": "alub_10",
+          "20": "alub_11",
+          "21": "alua_11",
+          "22": "aluC0",
+          "23": "aluM"
+        },
+        "cell_source": "src/verilog/cells/cell_MC10181.v"
+      },
+      "ProcL.f61": {
+        "kind": "MC10181",
+        "original_pins": {
+          "6": "alu.12",
+          "7": "alu.13",
+          "3": "alu.14",
+          "2": "alu.15",
+          "10": "alua.12",
+          "16": "alua.13",
+          "18": "alua.14",
+          "21": "alua.15",
+          "9": "alub.12",
+          "11": "alub.13",
+          "19": "alub.14",
+          "20": "alub.15",
+          "5": "aluC0",
+          "22": "aluCin",
+          "13": "aluF0",
+          "15": "aluF1",
+          "17": "aluF2",
+          "14": "aluF3",
+          "23": "aluM"
+        },
+        "native_pins": {
+          "2": "alu_15__drv",
+          "3": "alu_14",
+          "5": "aluC0__f61_5",
+          "6": "alu_12",
+          "7": "alu_13",
+          "9": "alub_12",
+          "10": "alua_12",
+          "11": "alub_13",
+          "13": "aluF0",
+          "14": "aluF3",
+          "15": "aluF1",
+          "16": "alua_13",
+          "17": "aluF2",
+          "18": "alua_14",
+          "19": "alub_14",
+          "20": "alub_15",
+          "21": "alua_15",
+          "22": "aluCin",
+          "23": "aluM"
+        },
+        "cell_source": "src/verilog/cells/cell_MC10181.v"
+      }
+    },
+    "source_hashes": {
+      "chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "e0ae6dd2e6c0e9e25e2b438256efb13d5e54f0c1e405bffd736a9f88b8beffdd",
+      "src/verilog/cells/cell_MC10109.v": "36173b0fbcb11d1f68dea5b7004ad15c3b1ee1a05989f29ae06259e1d2f1ab34",
+      "src/verilog/cells/cell_MC10170.v": "cdc4648f9cfed6d8c3a891dfa1a415f2d95c4336a7fb9694bc3937558b3fa210",
+      "src/verilog/cells/cell_MC10181.v": "4ccfd9181141d0258fba955b7e6f794482dac84868865729f0e433b538354b23",
+      "chm/sil/ProcL-Rev-Ci.dm!1_/ProcL-Rev-Ci.wl": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+      "src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "0a650e7fc26621fe0f0ab11266e96a4d54a4a7cc145156882af1f32e098bb3f3",
+      "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e",
+      "src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "8e46e169cb3cc83e49a130a2f4e5277972e0dd96ab87ac23e70aea89aa936349"
+    },
+    "alu_mode_is_a_registered_ProcL_e12_output": true,
+    "ALU_function_register_bits": 6,
+    "ALU_function_clock": "ProcL Clock1'Cb (a board-specific derived clock)",
+    "global_nonzero_is_wired_OR_of_both_bytes": true,
+    "SignedCarry_B_invert": 0,
+    "fixture_direct_early_mask_is_not_a_native_binding": true,
+    "physical_source_arrivals_qualified": false,
+    "native_capture_composition_qualified": false
+  },
+  "native_observations": [
+    {
+      "directory": "native-cp-read-j19-boot-v1-20261025",
+      "pid": 62048,
+      "ps": "62048 01:27:05  86:38.02 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792941818.2557828,
+      "host_limit": 5000000000,
+      "progress": "NATIVE_PROGRESS host=250000000 guest=37059037 initialized=1 init_addr=7fffff cpu=d0fff000 bb=1e49f3b1 control=100 keys=1 disk=         1/         0 fault=00000000:00000000 tx=0 crc=0 rx=0"
+    },
+    {
+      "directory": "control-short-native-jumper-boot-v2-20261024",
+      "pid": 69736,
+      "ps": "69736 14:15:31 821:30.18 R    /Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "observed": 1792941818.264669,
+      "host_limit": 5000000000,
+      "progress": "NATIVE_PROGRESS host=2490000000 guest=1441269004 initialized=1 init_addr=7fffff cpu=30c66c66 bb=1e48f84d control=11f keys=0 disk=         1/         0 fault=00000000:00000000 tx=1 crc=0 rx=0"
+    }
+  ],
+  "timeout_observation": {
+    "decoded": {
+      "status": "PASS_ORIGINAL_ROM_WAIT_BINDING",
+      "scope": "Bind a passive native wait observation to its actual EPROM microinstructions.\n\nThe standalone Initial.mb has different placement and an RTC register allocation\nwhich differs from the ROM payload. Use its symbols only after checking the\nactual ROM fields. This is static decoding/readback interpretation, never guest\nexecution, packet acceptance, timer calibration or a complete firmware gate.\n",
+      "blocks": [
+        "# ROM BootBlock c000: payload fe00, origin fc0, 16 hunks",
+        "# ROM BootBlock c00b: payload c016, origin c40, 224 hunks"
+      ],
+      "standalone_symbols": {
+        "WRITEMAP": {
+          "image": 238,
+          "real": 3296
+        },
+        "WRITEMANLP": {
+          "image": 87,
+          "real": 3174
+        },
+        "WRITEMANIFOLD": {
+          "image": 86,
+          "real": 3184
+        },
+        "WRITEALUFTABLE": {
+          "image": 13,
+          "real": 3936
+        },
+        "WRITEALUF": {
+          "image": 8,
+          "real": 3918
+        },
+        "WAITFORSECTOR": {
+          "image": 741,
+          "real": 3632
+        },
+        "WAITFORMAPBUF": {
+          "image": 242,
+          "real": 3312
+        },
+        "UPDATESECTOR": {
+          "image": 750,
+          "real": 3584
+        },
+        "TOFFRET": {
+          "image": 921,
+          "real": 3984
+        },
+        "THTPERSCANLINE": {
+          "image": 376,
+          "real": 3556
+        },
+        "THTLAST": {
+          "image": 381,
+          "real": 3574
+        },
+        "THTINITPC": {
+          "image": 358,
+          "real": 3536
+        },
+        "THTINITAHT": {
+          "image": 362,
+          "real": 3543
+        },
+        "THTINIT1": {
+          "image": 364,
+          "real": 3539
+        },
+        "TERMINALTABLE": {
+          "image": 434,
+          "real": 3280
+        },
+        "TASKINITLOOP": {
+          "image": 70,
+          "real": 3141
+        },
+        "TASKINIT": {
+          "image": 75,
+          "real": 3169
+        },
+        "STORETERMINALLO": {
+          "image": 459,
+          "real": 3299
+        },
+        "STKINITL": {
+          "image": 46,
+          "real": 3146
+        },
+        "SETUPETHERBOOTREQUEST": {
+          "image": 255,
+          "real": 3115
+        },
+        "SETTESTSYN": {
+          "image": 226,
+          "real": 3152
+        },
+        "SETMCR": {
+          "image": 153,
+          "real": 3072
+        },
+        "SETDRIVEANDSUBSECTOR": {
+          "image": 709,
+          "real": 3888
+        },
+        "SETBRFORPAGE": {
+          "image": 234,
+          "real": 3856
+        },
+        "SETBOOTFLAG": {
+          "image": 462,
+          "real": 3305
+        },
+        "SENDTAGWAIT": {
+          "image": 736,
+          "real": 3523
+        },
+        "SENDTAG": {
+          "image": 732,
+          "real": 3520
+        },
+        "SENDDRIVETAG": {
+          "image": 720,
+          "real": 3808
+        },
+        "SEEKWAIT": {
+          "image": 727,
+          "real": 3815
+        },
+        "SEEKDONE": {
+          "image": 731,
+          "real": 3826
+        },
+        "SEEKANDWAITFORREADY": {
+          "image": 725,
+          "real": 3824
+        },
+        "SECTORWAITLOOP": {
+          "image": 743,
+          "real": 3643
+        },
+        "SECTORFOUND": {
+          "image": 749,
+          "real": 3639
+        },
+        "RMINITL": {
+          "image": 29,
+          "real": 3138
+        },
+        "RETN": {
+          "image": 158,
+          "real": 3083
+        },
+        "RESETTAGS": {
+          "image": 245,
+          "real": 3088
+        },
+        "RESETMAPL": {
+          "image": 193,
+          "real": 3094
+        },
+        "RESETFAULTINFO": {
+          "image": 233,
+          "real": 3086
+        },
+        "RESETETHERBOOTTIMER": {
+          "image": 272,
+          "real": 3124
+        },
+        "RESETETHER": {
+          "image": 283,
+          "real": 3424
+        },
+        "RESETDISK": {
+          "image": 469,
+          "real": 3553
+        },
+        "READTERMINALRET": {
+          "image": 428,
+          "real": 3302
+        },
+        "READTERMINAL": {
+          "image": 423,
+          "real": 3264
+        },
+        "READECC": {
+          "image": 766,
+          "real": 3696
+        },
+        "READBOOTKEYS": {
+          "image": 114,
+          "real": 3206
+        },
+        "READ20MUFFS": {
+          "image": 701,
+          "real": 3792
+        },
+        "READ20MLOOP": {
+          "image": 703,
+          "real": 3782
+        },
+        "READ1MUFF": {
+          "image": 697,
+          "real": 3392
+        },
+        "PRESETVACANTL": {
+          "image": 220,
+          "real": 3326
+        },
+        "PRESETVACANTE": {
+          "image": 223,
+          "real": 3323
+        },
+        "PRESETMAPL": {
+          "image": 213,
+          "real": 3310
+        },
+        "PRESETMAPE": {
+          "image": 216,
+          "real": 3315
+        },
+        "PRESETMAP": {
+          "image": 187,
+          "real": 3104
+        },
+        "OUTPUTGETST": {
+          "image": 468,
+          "real": 3328
+        },
+        "NOSTORAGE": {
+          "image": 225,
+          "real": 3239
+        },
+        "NOSECTORTW": {
+          "image": 761,
+          "real": 3590
+        },
+        "MSGMALFORMED": {
+          "image": 463,
+          "real": 3266
+        },
+        "MSGCOMPLETE": {
+          "image": 429,
+          "real": 3268
+        },
+        "MOUSEXY": {
+          "image": 450,
+          "real": 3298
+        },
+        "MICROCODEBOOTFAILED": {
+          "image": 142,
+          "real": 3332
+        },
+        "MAPMODULE": {
+          "image": 212,
+          "real": 3301
+        },
+        "LWRETN": {
+          "image": 157,
+          "real": 3082
+        },
+        "LRTYPETABLE": {
+          "image": 869,
+          "real": 3980
+        },
+        "LRTYPERM": {
+          "image": 902,
+          "real": 3989
+        },
+        "LRTYPEIM": {
+          "image": 873,
+          "real": 4029
+        },
+        "LRTYPEIFUM": {
+          "image": 896,
+          "real": 4025
+        },
+        "LRTYPEEND": {
+          "image": 921,
+          "real": 3984
+        },
+        "LRPREFNEXT": {
+          "image": 894,
+          "real": 4024
+        },
+        "LRNOPREFNEXT": {
+          "image": 895,
+          "real": 3973
+        },
+        "LRLOOPTON": {
+          "image": 864,
+          "real": 3975
+        },
+        "LRLOOPTOFF": {
+          "image": 865,
+          "real": 3974
+        },
+        "LOWRM": {
+          "image": 903,
+          "real": 3990
+        },
+        "LONGWAIT": {
+          "image": 156,
+          "real": 3136
+        },
+        "LOADRAM": {
+          "image": 862,
+          "real": 3968
+        },
+        "LOADIMLH": {
+          "image": 885,
+          "real": 3976
+        },
+        "LOADHRAMRUN": {
+          "image": 417,
+          "real": 3613
+        },
+        "LOADHRAMLOOP": {
+          "image": 406,
+          "real": 3598
+        },
+        "KWAITSECTOR": {
+          "image": 544,
+          "real": 3675
+        },
+        "KSECTORERROR": {
+          "image": 597,
+          "real": 3622
+        },
+        "KSECTORDONE": {
+          "image": 561,
+          "real": 3671
+        },
+        "KSAMEDRIVE": {
+          "image": 504,
+          "real": 3435
+        },
+        "KREADCHECKEND": {
+          "image": 657,
+          "real": 3729
+        },
+        "KREADBADTW": {
+          "image": 662,
+          "real": 3750
+        },
+        "KNOUPDATEDATAPTR": {
+          "image": 584,
+          "real": 3684
+        },
+        "KNOTLASTSECTOR": {
+          "image": 571,
+          "real": 3682
+        },
+        "KNORESTORE": {
+          "image": 537,
+          "real": 3650
+        },
+        "KNOHDWERR": {
+          "image": 670,
+          "real": 3766
+        },
+        "KNOCHECKNEXT": {
+          "image": 650,
+          "real": 3741
+        },
+        "KNOCHECKLOOP": {
+          "image": 648,
+          "real": 3432
+        },
+        "KNEWDRIVE": {
+          "image": 499,
+          "real": 3434
+        },
+        "KIDLELOOP": {
+          "image": 484,
+          "real": 3492
+        },
+        "KIDLECONT": {
+          "image": 488,
+          "real": 3496
+        },
+        "KFORGETCMMD": {
+          "image": 479,
+          "real": 3508
+        },
+        "KDRIVE0": {
+          "image": 511,
+          "real": 3447
+        },
+        "KDONENONZERO": {
+          "image": 570,
+          "real": 3668
+        },
+        "KDIVSUB": {
+          "image": 515,
+          "real": 3390
+        },
+        "KDIVDONE": {
+          "image": 522,
+          "real": 3391
+        },
+        "KDIVADD": {
+          "image": 516,
+          "real": 3386
+        },
+        "KDISABLE": {
+          "image": 482,
+          "real": 3551
+        },
+        "KCONTINUECMMD": {
+          "image": 507,
+          "real": 3450
+        },
+        "KCMMDWRITE": {
+          "image": 619,
+          "real": 3752
+        },
+        "KCMMDTABLE": {
+          "image": 614,
+          "real": 3724
+        },
+        "KCMMDSHIFT": {
+          "image": 660,
+          "real": 3755
+        },
+        "KCMMDREAD": {
+          "image": 629,
+          "real": 3713
+        },
+        "KCMMDNONE": {
+          "image": 618,
+          "real": 3745
+        },
+        "KCMMDINTIME": {
+          "image": 553,
+          "real": 3653
+        },
+        "KCMMDENDBLOCK": {
+          "image": 666,
+          "real": 3753
+        },
+        "KCMMDDONE": {
+          "image": 589,
+          "real": 3703
+        },
+        "KCMMDCHECK": {
+          "image": 636,
+          "real": 3715
+        },
+        "KCMMDCHAIN": {
+          "image": 591,
+          "real": 3455
+        },
+        "KCHECKSEEK": {
+          "image": 528,
+          "real": 3441
+        },
+        "KCHECKNEXT": {
+          "image": 642,
+          "real": 3739
+        },
+        "KCHECKLOOP": {
+          "image": 639,
+          "real": 3742
+        },
+        "KCHECKLAST": {
+          "image": 645,
+          "real": 3730
+        },
+        "KCHECKERROR": {
+          "image": 643,
+          "real": 3738
+        },
+        "KCHECKEND": {
+          "image": 647,
+          "real": 3743
+        },
+        "KCHECKDONE": {
+          "image": 652,
+          "real": 3718
+        },
+        "KCHECKBADTW": {
+          "image": 663,
+          "real": 3736
+        },
+        "KBADSECTOR": {
+          "image": 604,
+          "real": 3634
+        },
+        "JUNKTASKLOOP": {
+          "image": 859,
+          "real": 3251
+        },
+        "JNKINITPC": {
+          "image": 857,
+          "real": 3216
+        },
+        "INITRAMPILOT": {
+          "image": 674,
+          "real": 3776
+        },
+        "INITIALDEBUG": {
+          "image": 0,
+          "real": 3907
+        },
+        "INITIAL1": {
+          "image": 2,
+          "real": 3905
+        },
+        "INITIAL": {
+          "image": 1,
+          "real": 3904
+        },
+        "INITHRAM": {
+          "image": 394,
+          "real": 3616
+        },
+        "IMRHTABLE": {
+          "image": 877,
+          "real": 3992
+        },
+        "IMLHTABLE": {
+          "image": 887,
+          "real": 4017
+        },
+        "ILC": {
+          "image": 926,
+          "real": 0
+        },
+        "IFUMINITL": {
+          "image": 49,
+          "real": 3173
+        },
+        "HRAMTABLE": {
+          "image": 396,
+          "real": 3602
+        },
+        "HIGHRM": {
+          "image": 912,
+          "real": 3991
+        },
+        "GOTBOOTKEY": {
+          "image": 134,
+          "real": 3354
+        },
+        "GETTASKINITPC": {
+          "image": 74,
+          "real": 3168
+        },
+        "FINDMODULE": {
+          "image": 209,
+          "real": 3311
+        },
+        "EWAIT": {
+          "image": 336,
+          "real": 3428
+        },
+        "ETHERMICROCODEBOOT": {
+          "image": 252,
+          "real": 3360
+        },
+        "ETHERBOOTRETURN": {
+          "image": 281,
+          "real": 3129
+        },
+        "ETHERBOOTING": {
+          "image": 125,
+          "real": 3334
+        },
+        "ETHERBOOTDONE": {
+          "image": 280,
+          "real": 3111
+        },
+        "EOTINITPC": {
+          "image": 330,
+          "real": 3408
+        },
+        "EOSTOP": {
+          "image": 347,
+          "real": 3413
+        },
+        "EOIDLE": {
+          "image": 332,
+          "real": 3410
+        },
+        "EOGO": {
+          "image": 338,
+          "real": 3429
+        },
+        "EOABRT": {
+          "image": 348,
+          "real": 3402
+        },
+        "EOABR1": {
+          "image": 350,
+          "real": 3412
+        },
+        "ENDOFSTORAGE": {
+          "image": 217,
+          "real": 3309
+        },
+        "ELODOV": {
+          "image": 353,
+          "real": 3415
+        },
+        "EITINITPC": {
+          "image": 294,
+          "real": 3472
+        },
+        "EINITCOMMON": {
+          "image": 354,
+          "real": 3872
+        },
+        "EILAST": {
+          "image": 296,
+          "real": 3474
+        },
+        "EIIDLE": {
+          "image": 297,
+          "real": 3491
+        },
+        "EIEND": {
+          "image": 305,
+          "real": 3462
+        },
+        "EIDONE": {
+          "image": 326,
+          "real": 3479
+        },
+        "DSKINITPC": {
+          "image": 473,
+          "real": 3552
+        },
+        "DORETURN": {
+          "image": 152,
+          "real": 3073
+        },
+        "DOMUFFOUTPUT": {
+          "image": 707,
+          "real": 3456
+        },
+        "DOHRAMDISP": {
+          "image": 407,
+          "real": 3611
+        },
+        "DOETHERMICROCODEBOOT": {
+          "image": 135,
+          "real": 3363
+        },
+        "DODISKBLOCK": {
+          "image": 606,
+          "real": 3664
+        },
+        "DISPLAYINITCONFIG": {
+          "image": 382,
+          "real": 3232
+        },
+        "DISKMBOOTRET": {
+          "image": 813,
+          "real": 3248
+        },
+        "DISKHARDMICROCODEBOOT": {
+          "image": 790,
+          "real": 3680
+        },
+        "CONFIGTABLE": {
+          "image": 409,
+          "real": 3624
+        },
+        "CLRCACHEFROWL": {
+          "image": 161,
+          "real": 3210
+        },
+        "CLRCACHEFCOLL": {
+          "image": 162,
+          "real": 3202
+        },
+        "CLEARDISK": {
+          "image": 779,
+          "real": 3568
+        },
+        "CLEARCACHEFLAGS": {
+          "image": 159,
+          "real": 3200
+        },
+        "CHECKKEY": {
+          "image": 143,
+          "real": 3344
+        },
+        "CHECKECCLOOP": {
+          "image": 774,
+          "real": 3759
+        },
+        "CHECKECCEND": {
+          "image": 778,
+          "real": 3733
+        },
+        "CHECKECC": {
+          "image": 773,
+          "real": 3712
+        },
+        "CHECKCHECKSUMANDLOAD": {
+          "image": 145,
+          "real": 3376
+        },
+        "BUTTONSKEYSET": {
+          "image": 459,
+          "real": 3299
+        },
+        "BOOTTRANSFERTIMEOUT": {
+          "image": 852,
+          "real": 3870
+        },
+        "BOOTTRANSFERLP": {
+          "image": 823,
+          "real": 3886
+        },
+        "BOOTTRANSFERDONE": {
+          "image": 856,
+          "real": 3875
+        },
+        "BOOTTRANSFER": {
+          "image": 815,
+          "real": 3840
+        },
+        "BOOTSTRAPCHECKSUMERROR": {
+          "image": 5,
+          "real": 3910
+        },
+        "BOOTOTHERERROR": {
+          "image": 848,
+          "real": 3860
+        },
+        "BOOTMEM": {
+          "image": 56,
+          "real": 3172
+        },
+        "BOOTLABELERROR": {
+          "image": 854,
+          "real": 3883
+        },
+        "BOOTFILTER": {
+          "image": 328,
+          "real": 3488
+        },
+        "BOOTEOF": {
+          "image": 855,
+          "real": 3879
+        },
+        "BOOTEMULATOR": {
+          "image": 91,
+          "real": 3218
+        },
+        "BOOTDISKERROR": {
+          "image": 853,
+          "real": 3877
+        },
+        "BLESSBASEBOARD": {
+          "image": 80,
+          "real": 3161
+        },
+        "AWAITETHERBOOTREPLY": {
+          "image": 275,
+          "real": 3119
+        },
+        "AMIDSTBOOT": {
+          "image": 460,
+          "real": 3271
+        },
+        "AFTERHRAMTABLE": {
+          "image": 403,
+          "real": 3600
+        }
+      },
+      "standalone_RM_symbols": {
+        "WAKEUPTIME": 179,
+        "VSYNCCONST": 126,
+        "VISIBLELINECONST": 125,
+        "VIRTUALBANKS": 72,
+        "VCWSHADOWREG": 144,
+        "TVCWSHADOWREG": 112,
+        "TTEMP2": 117,
+        "TTEMP1": 116,
+        "TTEMP0": 115,
+        "TSLCREG": 107,
+        "TSETNEXTWCB": 103,
+        "TSCRATCH": 105,
+        "TREG400C": 114,
+        "TREADERPTRREG": 101,
+        "TOPBORDERCONST": 124,
+        "TNWRDSMINUS1": 102,
+        "TNEXTCOUNT": 98,
+        "TNEXTADDRLO": 99,
+        "TNEXTADDRHI": 100,
+        "TFIELDAREAREG": 113,
+        "TERMINALLO": 121,
+        "TERMINALHI": 120,
+        "TEMP17": 31,
+        "TDCBCHAINREG": 106,
+        "TCURSORYREG": 119,
+        "TCOUNT": 97,
+        "TCHANNELREG": 104,
+        "TBRHIREG": 108,
+        "TADDRESS": 96,
+        "SEQNO": 23,
+        "SECTOR": 85,
+        "RTIMER": 21,
+        "RTCLOCK": 176,
+        "RTCDELTALO": 177,
+        "RTC430": 178,
+        "RNUM": 69,
+        "RLC": 23,
+        "RHOST": 19,
+        "RETRIES": 22,
+        "REG400C": 146,
+        "REALPAGES": 73,
+        "RCONST": 70,
+        "R400": 16,
+        "NWW": 0,
+        "MAXSECTORS": 86,
+        "LRTEMP2": 30,
+        "LRTEMP1": 28,
+        "LRTEMP0": 27,
+        "LRITEM": 29,
+        "LRFLAG": 26,
+        "LMARGCONST": 109,
+        "LHOST": 18,
+        "KTEMP3": 95,
+        "KTEMP2": 94,
+        "KTEMP1": 93,
+        "KTEMP0": 92,
+        "KSTATUS": 90,
+        "KSELECT": 91,
+        "KPTR": 87,
+        "KIOCB": 80,
+        "KHDSEC": 84,
+        "KDATALO": 81,
+        "KDATAHI": 82,
+        "KCYL": 83,
+        "KCMMD": 88,
+        "JUNKTEMP": 191,
+        "IOCB": 18,
+        "HTEMP3": 150,
+        "HTEMP2": 149,
+        "HTEMP1": 148,
+        "HTEMP0": 147,
+        "FLTTEMP": 60,
+        "FLTPOINTERS": 54,
+        "FLTPIPE1": 53,
+        "FLTPIPE0": 52,
+        "FLTMEMPTR": 59,
+        "FLTERRORS": 55,
+        "FLTEMUPC": 61,
+        "FIELDAREAREG": 145,
+        "FAULTVAL": 56,
+        "FAULTMAPVAL": 57,
+        "FAULTINFO": 58,
+        "EVENTUPDATETIMER": 188,
+        "EVENTTEMP1": 190,
+        "EVENTTEMP0": 189,
+        "EVENTBPREV": 187,
+        "EVENTBLO": 186,
+        "EVENTBHI1": 185,
+        "EVENTBHI0": 184,
+        "EVENTAPREV": 183,
+        "EVENTALO": 182,
+        "EVENTAHI1": 181,
+        "EVENTAHI0": 180,
+        "ETEMP4": 30,
+        "ETEMP3": 29,
+        "ETEMP2": 28,
+        "ETEMP1": 27,
+        "ETEMP0": 26,
+        "ETEMP": 26,
+        "EOTIME": 68,
+        "EOTEMP2": 67,
+        "EOTEMP1": 66,
+        "EOPTR": 28,
+        "EOCNT": 29,
+        "EOCB": 64,
+        "EMBLINK": 24,
+        "ELOAD": 25,
+        "EITEMP2": 51,
+        "EITEMP1": 50,
+        "EIPTR": 26,
+        "EICNT": 27,
+        "EICB": 48,
+        "DSKMADDR": 89,
+        "DMBLINK": 19,
+        "DISPLAYCONFIG": 118,
+        "CURSORXCONST": 127,
+        "BTEMP2": 22,
+        "BTEMP1": 21,
+        "BTEMP0": 20,
+        "BSETNEXTWCB": 167,
+        "BSCRATCH": 169,
+        "BREADERPTRREG": 165,
+        "BOOTTIMER": 122,
+        "BOOTSTATE": 123,
+        "BOOTDATAPTR": 17,
+        "BNWRDSMINUS1": 166,
+        "BNEXTCOUNT": 162,
+        "BNEXTADDRLO": 163,
+        "BNEXTADDRHI": 164,
+        "BFN": 20,
+        "BCOUNT": 161,
+        "BCHANNELREG": 168,
+        "BADDRESS": 160,
+        "AUTPC": 71,
+        "ASETNEXTWCB": 135,
+        "ASCRATCH": 137,
+        "AREADERPTRREG": 133,
+        "ANWRDSMINUS1": 134,
+        "ANEXTCOUNT": 130,
+        "ANEXTADDRLO": 131,
+        "ANEXTADDRHI": 132,
+        "ACOUNT": 129,
+        "ACHANNELREG": 136,
+        "AADDRESS": 128
+      },
+      "instruction_bindings": [
+        {
+          "standalone_real": 3119,
+          "ROM_real": 3183,
+          "differing_fields": [],
+          "standalone": {
+            "rstk": 7,
+            "aluf": 8,
+            "bsel": 3,
+            "lc": 0,
+            "asel": 4,
+            "block": 0,
+            "ff": 139,
+            "jcn": 92
+          },
+          "ROM": {
+            "rstk": 7,
+            "aluf": 8,
+            "bsel": 3,
+            "lc": 0,
+            "asel": 4,
+            "block": 0,
+            "ff": 139,
+            "jcn": 92
+          }
+        },
+        {
+          "standalone_real": 3124,
+          "ROM_real": 3188,
+          "differing_fields": [],
+          "standalone": {
+            "rstk": 0,
+            "aluf": 0,
+            "bsel": 1,
+            "lc": 0,
+            "asel": 4,
+            "block": 0,
+            "ff": 139,
+            "jcn": 173
+          },
+          "ROM": {
+            "rstk": 0,
+            "aluf": 0,
+            "bsel": 1,
+            "lc": 0,
+            "asel": 4,
+            "block": 0,
+            "ff": 139,
+            "jcn": 173
+          }
+        },
+        {
+          "standalone_real": 3125,
+          "ROM_real": 3189,
+          "differing_fields": [],
+          "standalone": {
+            "rstk": 0,
+            "aluf": 0,
+            "bsel": 1,
+            "lc": 0,
+            "asel": 4,
+            "block": 0,
+            "ff": 49,
+            "jcn": 174
+          },
+          "ROM": {
+            "rstk": 0,
+            "aluf": 0,
+            "bsel": 1,
+            "lc": 0,
+            "asel": 4,
+            "block": 0,
+            "ff": 49,
+            "jcn": 174
+          }
+        },
+        {
+          "standalone_real": 3121,
+          "ROM_real": 3185,
+          "differing_fields": [],
+          "standalone": {
+            "rstk": 7,
+            "aluf": 10,
+            "bsel": 1,
+            "lc": 1,
+            "asel": 6,
+            "block": 0,
+            "ff": 59,
+            "jcn": 175
+          },
+          "ROM": {
+            "rstk": 7,
+            "aluf": 10,
+            "bsel": 1,
+            "lc": 1,
+            "asel": 6,
+            "block": 0,
+            "ff": 59,
+            "jcn": 175
+          }
+        },
+        {
+          "standalone_real": 3110,
+          "ROM_real": 3174,
+          "differing_fields": [
+            "rstk"
+          ],
+          "standalone": {
+            "rstk": 2,
+            "aluf": 5,
+            "bsel": 2,
+            "lc": 0,
+            "asel": 4,
+            "block": 0,
+            "ff": 129,
+            "jcn": 112
+          },
+          "ROM": {
+            "rstk": 3,
+            "aluf": 5,
+            "bsel": 2,
+            "lc": 0,
+            "asel": 4,
+            "block": 0,
+            "ff": 129,
+            "jcn": 112
+          }
+        },
+        {
+          "standalone_real": 3117,
+          "ROM_real": 3181,
+          "differing_fields": [
+            "rstk"
+          ],
+          "standalone": {
+            "rstk": 2,
+            "aluf": 10,
+            "bsel": 1,
+            "lc": 1,
+            "asel": 4,
+            "block": 0,
+            "ff": 129,
+            "jcn": 177
+          },
+          "ROM": {
+            "rstk": 3,
+            "aluf": 10,
+            "bsel": 1,
+            "lc": 1,
+            "asel": 4,
+            "block": 0,
+            "ff": 129,
+            "jcn": 177
+          }
+        }
+      ],
+      "ROM_relocation": 64,
+      "sequence_address": 23,
+      "sequence_number": 0,
+      "actual_RTC430_address": 179,
+      "standalone_RTC430_address": 178,
+      "RTC430_value": 13,
+      "emulator_task_T_threshold": 13,
+      "timeout_subtraction": 65535,
+      "timeout_subtraction_is_negative": true,
+      "timeout_condition": "ROM subtraction RTC430 - task0.T - 1; interpret sampled flags/branch timing separately",
+      "host_tick": 2489185199,
+      "guest_tick": 1440755248,
+      "readback_sha256": "8b3d0b63aa2d06aae4d91c47ff041a755e5041535788a9648d6d91d2f24ffc7d",
+      "decoder_command": [
+        "cc",
+        "-O2",
+        "-I/Users/alans/dev2/Dorado/build/rtl-executive/native-timeout-after-flag-frame-decoded-20261025/inputs/dorado/include",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/native-timeout-after-flag-frame-decoded-20261025/inputs/initial_rom_symbols.c",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/native-timeout-after-flag-frame-decoded-20261025/inputs/dorado/src/mb.c",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/native-timeout-after-flag-frame-decoded-20261025/inputs/dorado/src/microcode.c",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/native-timeout-after-flag-frame-decoded-20261025/inputs/dorado/src/disasm.c",
+        "-o",
+        "/Users/alans/dev2/Dorado/build/rtl-executive/native-timeout-after-flag-frame-decoded-20261025/symbols"
+      ],
+      "input_hashes": {
+        "dorado/src/mb.c": "86cee4d2070a496294575ddaa5ad6e76e17255dd48b20fca5c8988f01dcfeb92",
+        "dorado/include/mb.h": "c6cf90c0717eaf9371af2f8fed939015df47cf900cf33964e689097c1791e853",
+        "dorado/src/microcode.c": "249722898b43bb6da76dac94d3e48e391829db4213aa55d8956ba3f9ee0c52e2",
+        "dorado/include/microcode.h": "546ac420461bd1dc1368f6a0c44ed37fc3f5aafc563592f24506e8886c78ab1f",
+        "dorado/src/disasm.c": "e3b6ab2fdae3de70eebc31a5872ac28076f82db6a33530a25e915fa1765f8263",
+        "dorado/include/disasm.h": "351782f5a9c91f2e59ac9b64191990651609e9142910849fc06e88c1dfafe128",
+        "initial_rom_symbols.c": "546c2485cb1dac90ced8de2570d8761096392f1d51eb0e69d80d005cc6fc7916",
+        "inspect_initial_rom_wait.py": "1f711196861b283f4acdce5a0c7fe22cf5ba51c0dc90c1a7f5bff3b06c621bf3",
+        "baseboard_rom_im.py": "237179d374c0dd976d02688194b7f553d3051f76ed6d3764ea05678e9c79fe20",
+        "Initial.mb": "b3fd586a653e69447891e66fd95bbc12cab6bb0074f5ae47025b80d15a92ff60",
+        "readback.json": "8b3d0b63aa2d06aae4d91c47ff041a755e5041535788a9648d6d91d2f24ffc7d",
+        "readback-detach.log": "e33ebf0ab273f86faa52701b6f333bd409705b7f7b148f1ba34e003faa49494b",
+        "native-provenance.json.gz": "661cd338f0d695015495d723181f97968ae19b2088b2058dfddf8efe9a01cda1",
+        "native/src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "a35b5b2adcffcac0cc1df01d725a8b109ef6ff197abec8caa1689d489d61c4fe",
+        "native/src/verilog/rtl/dorado_r_file_ports.sv": "2b07a3403a4df126759f43092c99b6647766f790487834c76d2c3fbffb160ef2",
+        "wirelists/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+        "native/src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "c38ad5cecd3e5a29bb4ed9bea3787508566a25b6a377124253573662943bb37e",
+        "wirelists/ProcL-Rev-Ci.wl": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+        "native/src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "ce0e8fa3933fcb4ffb8d6f912f65f5f0d46c30e834c9c8cf246cfbd018be7510",
+        "sil_netlist.py": "c1ac4a8160e45e48f975d9e4126b0786a0917fc35dc72868877d5159a99ffee1",
+        "native/src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+        "native/src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+        "eprom/BaseBd-f60.mem": "25033c349a69496bc82aaa09781733b2b7f3870369e20d54df1ec9a5f4ac0028",
+        "eprom/BaseBd-e60.mem": "c162cd3b6a11c488be5ffcbabec9065a322809a19c6ca8a9d4abd7384aa30d6b",
+        "eprom/BaseBd-c61.mem": "b6a3d3827f8ab2b087f587b9e4ee442aae90c91cd6955e036bbb7d29c2b7cb89",
+        "eprom/BaseBd-b61.mem": "2be73b7a1aa3c4331d00e6e66e154e93c6f155582e69fd23d6281a97beb9fcfa"
+      },
+      "original_ROM_or_guest_state_changed": false,
+      "packet0_root_cause_established": false,
+      "firmware_or_clock_speed_qualified": false,
+      "translated_source_binding": {
+        "source_binding": "Original address pins, native T vectors and exact828+16 owner packing",
+        "source_hashes": {
+          "native/src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v": "a35b5b2adcffcac0cc1df01d725a8b109ef6ff197abec8caa1689d489d61c4fe",
+          "native/src/verilog/rtl/dorado_r_file_ports.sv": "2b07a3403a4df126759f43092c99b6647766f790487834c76d2c3fbffb160ef2",
+          "wirelists/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+          "native/src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "c38ad5cecd3e5a29bb4ed9bea3787508566a25b6a377124253573662943bb37e",
+          "wirelists/ProcL-Rev-Ci.wl": "9bc2260214a6becfdf00d85bafebd22cd01808378af22dced78bad15bd93eb60",
+          "native/src/fpga/mister/snapshot_native_processor/ProcL_full_snapshot.sv": "ce0e8fa3933fcb4ffb8d6f912f65f5f0d46c30e834c9c8cf246cfbd018be7510"
+        }
+      }
+    },
+    "readback_directory": "native-timeout-after-flag-frame-20261025",
+    "detached_and_resumed": true,
+    "interpretation": "Actual RTC430 has advanced to13; 13-13-1 remains negative, so the original timeout is not yet expired"
+  },
+  "fixture_direct_early_mask_is_not_a_native_binding": true,
+  "next_action": "Use actual ALU function/operand producers to construct early and late frames, including registered ProcL e12 mode; integrate the common native owner and then full-core timing",
+  "native_qualified": false,
+  "source_arrivals_and_unknowns_qualified": false,
+  "physical_timing_qualified": false,
+  "firmware_Cedar_or_hardware_speed_qualified": false,
+  "hardware_changed": false,
+  "full_goal_active": true
+}

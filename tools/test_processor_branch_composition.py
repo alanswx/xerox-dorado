@@ -56,7 +56,7 @@ endmodule
     return text,width
 
 
-def bench(count,trace,initial,raw_reference,clock_field,transfer=False):
+def bench(count,trace,initial,raw_reference,clock_field,transfer=False,trace_arrivals=False,early_mask=None,frame_mutation=None):
     lo,hi=clock_field['low'],clock_field['high'];assert hi-lo+1==100
     _,width=wrapper(False)
     _,baseline_width=wrapper(False,True)
@@ -164,10 +164,34 @@ endmodule
     $fatal(1,"COMPOSITION branch transfer clock mismatch event=%0d channel=%0d",i,c);
    transfer_q=transfer_next;
 '''+marker,1)
+        if early_mask is not None:
+            text=text.replace(' dorado_branch_condition_step transfer_candidate(',f''' wire [37:0] transfer_early_pins=(transfer_before_pins & ~38'h{early_mask:x}) | (full.branch_pins & 38'h{early_mask:x});
+ dorado_branch_condition_frame_step transfer_candidate(''',1)
+            marker='full.original.processor_roots[1],transfer_before_pins,full.branch_pins,'
+            assert text.count(marker)==1
+            text=text.replace(marker,'full.original.processor_roots[1],transfer_before_pins,transfer_early_pins,full.branch_pins,',1)
+            if frame_mutation in ['early-all-old','early-all-late']:
+                wrong='transfer_before_pins' if frame_mutation=='early-all-old' else 'full.branch_pins'
+                marker='transfer_before_pins,transfer_early_pins,full.branch_pins,'
+                assert text.count(marker)==1
+                text=text.replace(marker,'transfer_before_pins,'+wrong+',full.branch_pins,',1)
+    if trace_arrivals:
+        probe='''
+ wire [3:0] arrival_A={full.original.h.f17.p10,full.original.h.f17.p12,full.original.h.f17.p3,full.original.h.f17.p5};
+ wire [3:0] arrival_B={full.original.h.f17.p11,full.original.h.f17.p13,full.original.h.f17.p4,full.original.h.f17.p6};
+ wire arrival_C=full.original.h.f17.p7,arrival_S=full.original.h.f17.p9;
+ wire [3:0] arrival_D=arrival_S ? arrival_B:arrival_A;
+ always @(arrival_A or arrival_B or arrival_C or arrival_S or a[911:908] or
+          a[92:91] or full.original.h.g18.p9 or full.branch_pins)
+  if(monitor && checks>=18 && checks<=24)
+   $display("F17_ARRIVAL t=%0.3f event=%0d root=%b C=%b S=%b A=%h B=%h D=%h Q=%h carry_copies=%b g18_C=%b boundary=%h raw_ALU_TIOA=%h",$realtime,checks,root,
+    arrival_C,arrival_S,arrival_A,arrival_B,arrival_D,a[911:908],a[92:91],full.original.h.g18.p9,full.branch_pins,pins[412:401]);
+'''
+        assert text.count('endmodule')==1;text=text.replace('endmodule',probe+'endmodule',1)
     return text
 
 
-def run(out,engine,raw_reference,mutation=None,transfer=False,preclose_latch=False):
+def run(out,engine,raw_reference,mutation=None,transfer=False,preclose_latch=False,trace_arrivals=False,early_frame=False):
     assert not out.exists();out.mkdir(parents=True)
     manifest=generate(out/'reference');source=BUILD/'cp-original-program-balanced-verilator-v2-20261025'
     if mutation=='carry-feedback':
@@ -199,12 +223,17 @@ def run(out,engine,raw_reference,mutation=None,transfer=False,preclose_latch=Fal
     _,fields=layout((source/'candidate.sv').read_text())
     a,width=wrapper(False);b,_=wrapper(True);c,_=wrapper(False,True);(out/'machines.sv').write_text(a+b+c)
     assert len((out/'raw-inputs.hex').read_text().splitlines())==len(lines)
-    (out/'tb.sv').write_text(bench(len(lines),out/'transactions.hex',out/'initial.hex',out/'raw-inputs.hex',fields['clock_events'],transfer))
+    early_mask=None
+    if early_frame:
+        names=set(manifest['extra_producer_pins'])|{'alu.00'}
+        early_mask=sum(1<<manifest['branch_reference']['pin_index'][name]for name in names)
+    (out/'tb.sv').write_text(bench(len(lines),out/'transactions.hex',out/'initial.hex',out/'raw-inputs.hex',fields['clock_events'],transfer,trace_arrivals,early_mask,mutation))
     for name in [Path(__file__).name,'generate_processor_branch_reference.py']:
         shutil.copy2(Path(__file__).with_name(name),out/name)
     paths=[*sorted((out/'reference/timed').glob('*')),out/'machines.sv',out/'tb.sv']
     if transfer:
-        shutil.copy2(ROOT/'verilog/rtl/dorado_branch_condition_step.sv',out/'branch-step.sv')
+        name='dorado_branch_condition_frame_step.sv' if early_frame else 'dorado_branch_condition_step.sv'
+        shutil.copy2(ROOT/'verilog/rtl'/name,out/'branch-step.sv')
         if preclose_latch:
             p=out/'branch-step.sv';raw=p.read_text();marker='   if(wave==0)begin\n'
             assert raw.count(marker)==1
@@ -215,6 +244,8 @@ def run(out,engine,raw_reference,mutation=None,transfer=False,preclose_latch=Fal
     paths=[p for p in paths if p.suffix in ['.sv','.v']]
     state=dict(status='RUNNING',scope=__doc__,engine=engine,mutation=mutation,optimized_branch_transfer_checked=transfer,
                experimental_preclose_latch_capture=preclose_latch,started=time.time(),reference=manifest,
+               passive_flag_arrival_trace=trace_arrivals,
+               explicit_early_frame=early_frame,early_direct_producer_mask=early_mask,
                original_trace_sha256=sha(source/'transactions.hex'),original_initial_sha256=sha(source/'initial.hex'),
                raw_reference=str(raw_reference),raw_reference_state_sha256=sha(raw_reference/'run-state.json'),
                physical_state_oracle='Original circuit post-event outputs, including transparent latches; not held_next retained owner',
@@ -240,8 +271,12 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--engine',choices=['icarus','verilator'],required=True)
     p.add_argument('--raw-reference',type=Path,required=True)
-    p.add_argument('--mutation',choices=['carry-feedback'])
+    p.add_argument('--mutation',choices=['carry-feedback','early-all-old','early-all-late'])
     p.add_argument('--transfer',action='store_true',help='Also compare the optimized80-bit transfer using actual original processor/control producers')
     p.add_argument('--preclose-latch',action='store_true',help='Diagnostic open-window D capture before root closure; does not change production RTL')
+    p.add_argument('--trace-arrivals',action='store_true',help='Passively trace the original f17 pins at events18..24 without changing any checks')
+    p.add_argument('--early-frame',action='store_true',help='Use explicit early direct inputs and old registered producers, then settled late producers')
     a=p.parse_args();assert not a.preclose_latch or a.transfer
-    raise SystemExit(run(a.output.resolve(),a.engine,a.raw_reference.resolve(),a.mutation,a.transfer,a.preclose_latch))
+    assert not a.early_frame or (a.transfer and not a.preclose_latch)
+    assert a.mutation not in ['early-all-old','early-all-late'] or a.early_frame
+    raise SystemExit(run(a.output.resolve(),a.engine,a.raw_reference.resolve(),a.mutation,a.transfer,a.preclose_latch,a.trace_arrivals,a.early_frame))
