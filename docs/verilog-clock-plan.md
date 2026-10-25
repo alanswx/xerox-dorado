@@ -14,6 +14,34 @@ Continue build/simulation work; notify them when a reviewed build is ready
 for hardware testing, and wait until they release MiSTer14 before any load,
 reboot or control. Earlier reload authorization is superseded while it is in use.
 
+Owned packet context PROVEN; timing comparison still PENDING (2026-10-24).
+`owned-packet-context-digital-summary.json` retains the source-bound828 stored
+owners/402 input-snapshot bits/16 external R aliases. All156 control projection
+bits survive publication; unbounded induction compares all1416 cache bits and
+ready/fast/hit with arbitrary binary histories, arbitrary architectural power-up,
+external refresh and the WHOLE final root. Four incorrect publication/refresh
+controls fail real interface equality. Generic PREFIX key matching is unchanged.
+
+4984 published-context and68 external X/Z cases pass40292 comparisons; dropping
+the unknown fallback fails. Initial racing testbench attempts and false initial
+negative calibration are retained/excluded. Both complete Verilator processor
+replays pass14884 transactions/10423 commits/4461 pairs and every original result/
+owner/RAM/100clock/reset/403geometry assertion. The before-root negative explicitly
+injects a contract violation into the snapshot; it is not a legal-history proof.
+Three compiled early-write/forwarding/intermediate-owner corruptions reject.
+
+Next/TODO: finish the SAME two Icarus runs (generic test67390/session34170,
+specialized test67389/session63434, verified live at5m47s). Then stage generic/
+specialized fits with `fit_owned_r_packet.py`, and review complete four-corner
+timing with `review_owned_r_packet.py`. Both fixtures use the SAME422 live inputs,
+4943 outputs, original16 R aliases and single9216-bit SRAM; do not treat the
+old1652-input arbitrary-owner fixture as an equal-domain comparison. No new fit,
+native promotion or measured hardware speed. Bind actual source/CP/device interior
+epochs next, preserving all rotations/debug and original consumers. Complete
+60ns cadence/physical66.7MHz SDRAM/A–F/Cedar/Rollback/persistence/three-boot/stress
+acceptance stays active. The FPGA remains reserved; last measured4.025473M
+StartCycle issues/s is unchanged. FPGA snapshots remain deferred.
+
 Parallel R-fault calculation QUALIFIED digitally; full15ns improves to a
 2.039ns miss, still REJECTED (2026-10-24). `parallel-r-fault-summary.json`
 retains only SINGLE faults[1] computed as two constant-FF209 cofactors of the
@@ -49,11 +77,11 @@ zero UCPs, no recovery/removal endpoints. Evaluator setup
 fixture resources. Previous best setup was-2.538ns. No native selection or
 hardware-speed claim; last hardware rate remains4.025473M StartCycle ISSUES/s.
 
-NEXT: worst path is now canonical_pins151 -> entry fast comparison -> SINGLE
+Prior fit's worst path: canonical_pins151 -> entry fast comparison -> SINGLE
 control/child task transfer -> shared_state_mismatch (last_result954, fitted
 result957),16.321ns/16levels at the cold slow corner. Establish the REAL
 protected publication of closed owners/before-pins/WHOLE final root and then
-prove canonical-match specialization (retain refresh comparison unless its
+prove canonical-match specialization (now proven above; retain refresh unless its
 constant is source-bound). Keep all1416 cache-state/history and all result/
 error/ownership checks. Use generic/specialized fits of the SAME actual owned
 caller, preserving its16 original R aliases rather than inventing duplicate
@@ -692,15 +720,14 @@ no138 or unsupported indices. Receipt `native-selector-terminal-summary.json`
 retains full reports/source/readback. Never restart the completed builder or
 reporters. Original ECC loop/pulse and broader capture timing remain open.
 
-Next/TODO: parallel SINGLE R-fault bit1 passes arbitrary1517-bit binary proof,
-every-input X/Z tests, meaningful bad controls and both complete processor
-replays. Full15ns setup now misses2.039ns (prior2.538ns). Next bind the actual
-common closed-owner/before-pins/final-root publication and prove canonical-only
-match specialization; retain refresh comparison unless source-bound constant.
-Preserve original16R aliases, all1416 cache history bits and every result/guard.
-Do NOT prune prefix key by cache_valid: fast commits may retain the OLD key.
-Compare generic/specialized implementations of the same real owned caller,
-then bind actual source/CP/device interior epochs and complete native cadence.
+Next/TODO: native common owner/pin/FINAL-root publication and canonical-only
+specialization now prove with all1416 cache bits/156 control bits and arbitrary
+binary histories/power-up. Both full Verilator replays, X/Z and corruption gates
+pass; retain refresh comparison, original16 R aliases and generic prefix key.
+Finish the two existing Icarus runs, then compare full15ns generic/specialized
+fits of the SAME422-input/4943-output owned caller. No new timing result yet;
+the previous arbitrary-owner fit still misses2.039ns. Next bind actual source/
+CP/device interior epochs and complete native cadence.
 Do not apply the Q30-only
 control mask to other boards without proof. Bind actual CP producer/input epochs and
 processor source records; keep default rotation0 and ALL other rotations/debug

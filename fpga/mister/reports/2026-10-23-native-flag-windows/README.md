@@ -6,6 +6,25 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`owned-packet-context-digital-summary.json` retains the real native publication
+seam:828 stored owners,402 snapshot bits and16 external R aliases. The156-bit
+projection and all1416 cache bits/ready/fast/hit prove for arbitrary binary
+histories and architectural power-up. Stale owner/pins/FINAL root and dropped
+refresh produce interface counterexamples. Only canonical equality specializes;
+the generic PREFIX key remains unchanged.4984 context/68 external X/Z cases pass
+40292 comparisons; dropping the unknown fallback fails. Preserve the racing
+fixture attempts and exclude their false initial negative calibration.
+
+Both full Verilator processor replays pass14884 transactions/10423 commits/
+4461 pairs/119 paired writes/238 forwarded bytes, every2470-bit result/844Qs/
+9216RAM/100clocks, unchanged cache/reset coverage and403 geometry checks. The
+before-root negative explicitly fault-injects the snapshot outside legal
+publication; no cache-history theorem is claimed for that injected interval.
+Early-write/drop-forward/stale-intermediate mutations reject original asserts.
+Both Icarus full runs and equal-domain422-input/4943-output15ns fits remain
+pending. No new fit, native selection, firmware/cadence or hardware-speed result.
+The user retains the FPGA; complete A–F remains active.
+
 `parallel-r-fault-summary.json` retains the exact parallel SINGLE faults[1]
 calculation, with all11 actual child arguments bound and every other function
 byte unchanged. All1517 arbitrary binary inputs prove, both bad controls reject;

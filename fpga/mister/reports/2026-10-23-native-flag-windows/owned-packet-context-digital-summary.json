@@ -1,0 +1,49 @@
+{
+  "status": "REVIEWED_OWNED_CONTEXT_AND_VERILATOR_PACKETS",
+  "scope": "Review native publication, complete replays and both equal-domain fits.\n\nThis qualifies an owned processor packet component, not native source/device\nepochs, sixty-nanosecond cadence, SDRAM, Cedar or hardware speed. Retain failed\ntestbench attempts and distinguish the old racing false negative calibration.\n",
+  "cache_bits_inductively_compared": 1416,
+  "control_projection_bits": 156,
+  "source_bound_stored_owners": 828,
+  "external_R_aliases": 16,
+  "powerup_owners_unconstrained": true,
+  "prefix_key_unchanged": true,
+  "refresh_comparison_retained": true,
+  "whole_final_root_preserved": true,
+  "binary_proof_cases": 6,
+  "XZ_context_cases": 4984,
+  "XZ_external_cases": 68,
+  "four_state_comparisons": 40292,
+  "historical_racing_false_control_excluded": true,
+  "failed_fixture_attempts_preserved": true,
+  "verilator_full_replays": 2,
+  "original_transactions_per_replay": 14884,
+  "commits": 10423,
+  "pairs": 4461,
+  "paired_writes": 119,
+  "forwarded_bytes": 238,
+  "all_original_assertions_retained": true,
+  "invalid_geometries": 403,
+  "before_root_negative_is_explicit_contract_violation": true,
+  "compiled_negative_controls": [
+    {
+      "mutation": "early-write",
+      "original_assertion": "PACKET invalid geometry committed bit=0"
+    },
+    {
+      "mutation": "drop-forward",
+      "original_assertion": "PACKET second result mismatch record=203"
+    },
+    {
+      "mutation": "stale-intermediate",
+      "original_assertion": "PACKET second result mismatch record=16"
+    }
+  ],
+  "Icarus_full_replays_qualification_pending": true,
+  "equal_domain_422_input_4943_output_fits_pending": true,
+  "variant_selected": false,
+  "hardware_changed": false,
+  "source_CP_device_interior_epochs_qualified": false,
+  "native60ns_or_hardware_speed_qualified": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}

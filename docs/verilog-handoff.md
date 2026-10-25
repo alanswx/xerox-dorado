@@ -6,6 +6,37 @@ Continue Quartus on misterubuntu and simulation on the Mac. Notify the user
 when a concrete build is ready for hardware qualification; wait for allocation.
 The goal remains active. This supersedes earlier permission for immediate reloads.
 
+Owned packet context PROVEN; full timing comparison PENDING (2026-10-24).
+`owned-packet-context-digital-summary.json` binds the native caller's828 stored
+owners,401-pin/one-root snapshots and16 external visible-R aliases. All156
+projected control bits survive publication. Unbounded induction compares all1416
+cache bits and ready/fast/hit for arbitrary binary histories and architectural
+power-up, retaining refresh and the whole packet's FINAL root. Four stale-owner/
+pin/root/refresh controls change real interfaces. The generic PREFIX key stays
+unchanged; cache_valid does not imply its retained old key matches current owners.
+
+Four-state tests pass4984 published-context/68 external cases,40292 comparisons;
+removing the unknown fallback fails. Preserve the first testbench clock-edge
+race and its false initial negative calibration; neither qualifies a control.
+The corrected bench settles inputs before storage edges. Both Verilator full
+replays pass all14884 original transactions,10423 commits/4461 pairs,119 paired
+writes/238 forwarded bytes,2470 result bits/844Qs/9216RAM/100clocks and unchanged
+cache/reset coverage. All403 geometry checks remain; the before-root corruption
+explicitly fault-injects the owned snapshot OUTSIDE legal publication histories.
+Early-write/drop-forward/stale-intermediate controls fail original assertions.
+
+NEXT: observe the SAME Icarus runs `owned-{generic,specialized}-icarus-v2-20261024`
+(sessions34170/63434, tests67390/67389; verified live at5m47s). Do not restart.
+Then use `fit_owned_r_packet.py` for two422-input/4943-output fixtures of the
+SAME owned caller, with identical15ns/2ns-I/O/no exceptions and one SRAM owner.
+`review_owned_r_packet.py` requires both engines and complete four-corner fits.
+The old1652-input arbitrary-context fixture is a different input domain.
+No new fit, native selection, image,60ns cadence or hardware speed is qualified.
+Actual source/CP/device interior epochs, all rotations/debug/consumers,66.7MHz
+SDRAM and complete A–F/Cedar/Rollback/persistence/stress qualification remain.
+The FPGA stays with the user; the last measured rate remains4.025473M StartCycle
+ISSUES/s. Full goal active; snapshots deferred.
+
 Parallel R-fault calculation QUALIFIED digitally; full15ns improves to a
 2.039ns miss, still REJECTED (2026-10-24). `parallel-r-fault-summary.json`
 retains only SINGLE faults[1] computed as two constant-FF209 cofactors of the
@@ -41,11 +72,11 @@ zero UCPs, no recovery/removal endpoints. Evaluator setup
 fixture resources. Previous best setup was-2.538ns. No native selection or
 hardware-speed claim; last hardware rate remains4.025473M StartCycle ISSUES/s.
 
-NEXT: worst path is now canonical_pins151 -> entry fast comparison -> SINGLE
+Prior fit's worst path: canonical_pins151 -> entry fast comparison -> SINGLE
 control/child task transfer -> shared_state_mismatch (last_result954, fitted
 result957),16.321ns/16levels at the cold slow corner. Establish the REAL
 protected publication of closed owners/before-pins/WHOLE final root and then
-prove canonical-match specialization (retain refresh comparison unless its
+prove canonical-match specialization (now proven above; retain refresh unless its
 constant is source-bound). Keep all1416 cache-state/history and all result/
 error/ownership checks. Use generic/specialized fits of the SAME actual owned
 caller, preserving its16 original R aliases rather than inventing duplicate
