@@ -1,0 +1,468 @@
+{
+  "status": "REVIEWED_COMBINED_CP_READ_AND_PAIR_PATH_WITH_PENDING_PEERS",
+  "scope": "Review combined digital paths and the RBase arrival-contract counterexample.\n\nPending simulator peers require a current process observation. Preserve every\nfailure, source model, full trace and exact phase experiment. No native timing,\n60ns cadence, firmware boot or measured hardware improvement is implied.\n",
+  "runs": [
+    {
+      "directory": "cp-paired-read-all-icarus-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK",
+      "state_sha256": "6b9df40b55916ce02103b9e38229d0fec7998f578eadf988d7424cbc85cbd94b",
+      "observed": 1792924818.181088
+    },
+    {
+      "directory": "cp-paired-read-all-verilator-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK",
+      "state_sha256": "94bc5dc87eb23b70144562cc0ebd8606d91edd8fb713e5c8a8080932f6c2b2ea",
+      "observed": 1792924818.235481
+    },
+    {
+      "directory": "cp-paired-read-bad-payload-icarus-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_COUNTEREXAMPLE",
+      "state_sha256": "a116dd3504f9789268e3b5df2b90edc1114c665a45d70b57cc8505106fbfd5d5",
+      "observed": 1792924818.2860641
+    },
+    {
+      "directory": "cp-paired-read-collisions-icarus-v1-20261025",
+      "status": "RUNNING",
+      "state_sha256": "bcc06a9b837d9fe31562a41828103cab99499340234fcceaacc8c6e418ddc345",
+      "observed": 1792924818.30238,
+      "verified_live": true,
+      "pid": 30462,
+      "ps": "30462 35:50  35:47.35 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/cp-paired-read-collisions-icarus-v1-20261025/test.vvp"
+    },
+    {
+      "directory": "cp-paired-read-collisions-verilator-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK",
+      "state_sha256": "a1c137a12f1f248bf857ba1d632d195ee65d29cdeb6ada6211a70e40c9154be8",
+      "observed": 1792924818.355513
+    },
+    {
+      "directory": "cp-paired-read-early-ram-icarus-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_COUNTEREXAMPLE",
+      "state_sha256": "8fe771172060a7edc898f5d4120d1aa827d47dd1443c789a6db4432cc1089d55",
+      "observed": 1792924818.393327
+    },
+    {
+      "directory": "cp-paired-read-full-structure-v1-20261025",
+      "status": "PREFLIGHT_UNLISTED_QUALIFIED_REPLAY_STATUS",
+      "failure_sha256": "6fdfcc5d4ae8d4c4adea93ba91f86cff0350ce9183436f224019c37e212b5380"
+    },
+    {
+      "directory": "cp-paired-read-payload-icarus-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK",
+      "state_sha256": "2b7394c96e9e5e87edfe3e1040695c9bb11bd0bea06a50e62170651dec6c2d00",
+      "observed": 1792924818.408878
+    },
+    {
+      "directory": "cp-paired-read-payload-verilator-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK",
+      "state_sha256": "e90109d2ed11689501a40c7a45fc68c80b39a055fefe396b6d4c4ed3ad01c55c",
+      "observed": 1792924818.4257731
+    },
+    {
+      "directory": "cp-paired-read-ram64-icarus-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK",
+      "state_sha256": "fa4be837e4c671d06524493f77971a2db02e8e77fd3dc19dacc31aec884663ff",
+      "observed": 1792924818.443721
+    },
+    {
+      "directory": "cp-paired-read-ram64-verilator-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK",
+      "state_sha256": "6701ef113b1485453d22106a07dafb175a7e39566fa0e5a1f229f0c5f9baa69e",
+      "observed": 1792924818.4820879
+    },
+    {
+      "directory": "cp-paired-read-replay-drop-forward-icarus-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_COUNTEREXAMPLE",
+      "state_sha256": "65c1f9f83ed81e2ce147939b9ea7c41327183a257edffe13975c9dabb4fdc15f",
+      "observed": 1792924818.514015
+    },
+    {
+      "directory": "cp-paired-read-replay-early-ram-icarus-v1-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_COUNTEREXAMPLE",
+      "state_sha256": "4758e9b481a4670e40f15972c8021d254cf5ac279fa91c963e7078ffc1e871f2",
+      "observed": 1792924818.529645
+    },
+    {
+      "directory": "cp-paired-read-replay-icarus-v2-20261025",
+      "status": "RUNNING",
+      "state_sha256": "68fd1e5d93f6f0f07d2209797e88d08532ec29efd9cf5a5778545468ec55b6f0",
+      "observed": 1792924818.5452778,
+      "verified_live": true,
+      "pid": 33501,
+      "ps": "33501 14:09  14:08.05 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/cp-paired-read-replay-icarus-v2-20261025/test.vvp"
+    },
+    {
+      "directory": "cp-paired-read-replay-verilator-v1-20261025",
+      "status": "PREFLIGHT_MANIFEST_FIELD_ERROR",
+      "failure_sha256": "8324ea0d95d13c4c189583979abd941461830ed090ff88d4f4afce1f36ce5218"
+    },
+    {
+      "directory": "cp-paired-read-replay-verilator-v2-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "38863b25bfd8cc11574061318a3b2643d153a1dc330d0f2deebd3cfe8e78ef9e",
+      "observed": 1792924818.5659058
+    },
+    {
+      "directory": "cp-paired-read-single-icarus-v1-20261025",
+      "status": "TERMINAL_COMBINED_CP_PACKET_NOT_ESTABLISHED",
+      "state_sha256": "4e840f6d68534f5b330d47d3c407a57b1fb9f8d05bb2d7f887f32083c7b08acc",
+      "observed": 1792924818.58412
+    },
+    {
+      "directory": "cp-paired-read-single-icarus-v2-20261025",
+      "status": "TERMINAL_COMBINED_CP_PACKET_NOT_ESTABLISHED",
+      "state_sha256": "3a06c632a5a7b3bbf0570b3e1d684b4df5129663b687a854574c8b154f2fd2e4",
+      "observed": 1792924818.599126
+    },
+    {
+      "directory": "cp-paired-read-single-icarus-v3-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK",
+      "state_sha256": "f058602c2109601e63d60e98b0150ebf1a94cfa3a5fa504c3f14618361c97708",
+      "observed": 1792924818.614402
+    },
+    {
+      "directory": "cp-paired-read-single-verilator-v2-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK",
+      "state_sha256": "b40db1c126dd91db64f195c123b9b46b594a3ab8906025227896e6fde0521525",
+      "observed": 1792924818.6313658
+    },
+    {
+      "directory": "cp-paired-read-single-verilator-v3-20261025",
+      "status": "PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK",
+      "state_sha256": "1b3ffbe9a35bb9622543ae4a3bf3ff0e97c0185afeaf3cd21eca4b7d5f9fbf95",
+      "observed": 1792924818.649396
+    },
+    {
+      "directory": "cp-paired-read-structure-v1-20261025",
+      "status": "PASS_EXTERNAL_PACKET_ONE_SRAM_AND_DUPLICATE_CONTROL",
+      "state_sha256": "848c4d5a0d862fcfe7aa2ba2b84342bf69216e6d35ae65c6a4635c0b5eede8fa",
+      "observed": 1792924818.66554
+    },
+    {
+      "directory": "cp-paired-read-words-replay-icarus-v1-20261025",
+      "status": "RUNNING",
+      "state_sha256": "9b09acc59114f40f4071aa4782eb99c52a4ed651d1878b3cd950fad78020204a",
+      "observed": 1792924818.69648,
+      "verified_live": true,
+      "pid": 34781,
+      "ps": "34781 07:34   7:33.43 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/cp-paired-read-words-replay-icarus-v1-20261025/test.vvp"
+    },
+    {
+      "directory": "cp-paired-read-words-replay-verilator-v1-20261025",
+      "status": "PASS_COMBINED_CP_COHERENT_PACKETS",
+      "state_sha256": "20aafe7a06b76ed671e8bd4f4328c08c9add1de01993d62f76bbeb53dc623519",
+      "observed": 1792924818.727725
+    },
+    {
+      "directory": "cp-original-program-balanced-icarus-v2-20261025",
+      "status": "RUNNING",
+      "state_sha256": "a249b927376df93cb94a772b18a38ca8cc37469c465fa37454bf9170dbb46c84",
+      "observed": 1792924818.783355,
+      "verified_live": true,
+      "pid": 34578,
+      "ps": "34578 08:06   8:05.34 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/cp-original-program-balanced-icarus-v2-20261025/test.vvp"
+    },
+    {
+      "directory": "cp-original-program-balanced-verilator-v1-20261025",
+      "status": "PREFLIGHT_REJECTED_UNQUALIFIED_INTERIOR_PROFILE",
+      "failure_sha256": "0690fdef77bdb80ceb7eafda7d070218f0d315ded3d209b916b8cfc4936c0ba1"
+    },
+    {
+      "directory": "cp-original-program-balanced-verilator-v2-20261025",
+      "status": "PASS_ORIGINAL_FULL_PROGRAM_WITH_CP_SOURCE_CLOSURE",
+      "state_sha256": "7e1579ccd32bf0eec47c806d6038d4e10ab4a2cddb708f30008b9ab119717bbe",
+      "observed": 1792924818.860213
+    },
+    {
+      "directory": "cp-original-program-icarus-arrival-v3-20261025",
+      "status": "TERMINAL_FULL_PROCESSOR_CP_SOURCE_NOT_ESTABLISHED",
+      "state_sha256": "7c78dbfae067f4858e0e488b2feae6878140618ec7e892c06ba5fe7506117b14",
+      "observed": 1792924818.964941
+    },
+    {
+      "directory": "cp-original-program-icarus-trace-v2-20261025",
+      "status": "TERMINAL_FULL_PROCESSOR_CP_SOURCE_NOT_ESTABLISHED",
+      "state_sha256": "2d43699d7d417361280d1aa86b3eba9682126ffeef73687bc5855e98940b5957",
+      "observed": 1792924819.028207
+    },
+    {
+      "directory": "cp-original-program-phase3000-icarus-v1-20261025",
+      "status": "RUNNING",
+      "state_sha256": "2990db2a53c5aaa5b71818db7af9ac5c3391217d1081404cd93e018120f27ed0",
+      "observed": 1792924819.077398,
+      "verified_live": true,
+      "pid": 35283,
+      "ps": "35283 02:15   2:14.11 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/cp-original-program-phase3000-icarus-v1-20261025/test.vvp"
+    },
+    {
+      "directory": "cp-original-program-phase3000-verilator-v1-20261025",
+      "status": "PASS_ORIGINAL_FULL_PROGRAM_WITH_CP_SOURCE_CLOSURE",
+      "state_sha256": "6185f52fe16b468003fef2811af784a42077584035607fa59f910ae2ea1e5667",
+      "observed": 1792924819.149075
+    },
+    {
+      "directory": "cp-original-program-verilator-v1-20261025",
+      "status": "TERMINAL_FULL_PROCESSOR_CP_SOURCE_NOT_ESTABLISHED",
+      "state_sha256": "bf69cc50be49e7f3df1656611bd7a11daef9c35c4ebb282fbccc05e4100af2bd",
+      "observed": 1792924819.2611158
+    },
+    {
+      "directory": "rbase-edge-original-1250-v1-20261025",
+      "status": "OBSERVED_RBASE_SINGLE_EDGE_RESULT",
+      "state_sha256": "856fb0eb805945f8299004100b1184c03a1a29e4f941b548ae6cdb18eefeb711",
+      "observed": 1792924819.3249228
+    },
+    {
+      "directory": "rbase-edge-original-1500-v1-20261025",
+      "status": "OBSERVED_RBASE_SINGLE_EDGE_RESULT",
+      "state_sha256": "7804496ce64e09e829e979833d4e70494e4be265bcd011df88500b133b4853ce",
+      "observed": 1792924819.3521652
+    },
+    {
+      "directory": "rbase-edge-original-1750-v1-20261025",
+      "status": "OBSERVED_RBASE_SINGLE_EDGE_RESULT",
+      "state_sha256": "c20d5d8bb92c7004a5a15981ced0d8e9bd1d1c779fe922aea5b77d88cf23247b",
+      "observed": 1792924819.378836
+    },
+    {
+      "directory": "rbase-edge-original-2250-v1-20261025",
+      "status": "OBSERVED_RBASE_SINGLE_EDGE_RESULT",
+      "state_sha256": "1b9683400e9f4ecf67935c587306d14c80c818d83340245274cba064f8af6fec",
+      "observed": 1792924819.4065468
+    },
+    {
+      "directory": "rbase-edge-original-400-v1-20261025",
+      "status": "OBSERVED_RBASE_SINGLE_EDGE_RESULT",
+      "state_sha256": "64d27dd024615362d362e6fda428c256ef1934199248c9daf96cd1376932472c",
+      "observed": 1792924819.4324338
+    },
+    {
+      "directory": "rbase-edge-original-400-v2-20261025",
+      "status": "OBSERVED_RBASE_SINGLE_EDGE_RESULT",
+      "state_sha256": "aacdb7c13e9c2d37040eed48fb0b89b3713a0001462488b1fe64fcb471d3929c",
+      "observed": 1792924819.454657
+    },
+    {
+      "directory": "rbase-edge-original-400-v3-20261025",
+      "status": "OBSERVED_RBASE_SINGLE_EDGE_RESULT",
+      "state_sha256": "e5003ed5b32063e17eda8bce3ddab65786392f62e06ffbf56ad79f53d9e09ece",
+      "observed": 1792924819.481298
+    },
+    {
+      "directory": "rbase-edge-original-750-v1-20261025",
+      "status": "OBSERVED_RBASE_SINGLE_EDGE_RESULT",
+      "state_sha256": "0751e3c105911df1f2347dde9184566dfe03ad7833cbf5ace709bcf9c8b77c02",
+      "observed": 1792924819.508327
+    },
+    {
+      "directory": "rbase-edge-phase-1750-v1-20261025",
+      "status": "OBSERVED_RBASE_SINGLE_EDGE_RESULT",
+      "state_sha256": "aad76fb85504701ec7f38929dce3f6e6f5722d950f23532b7c33e7a89193f484",
+      "observed": 1792924819.5386019
+    },
+    {
+      "directory": "rbase-edge-phase-2250-v1-20261025",
+      "status": "OBSERVED_RBASE_SINGLE_EDGE_RESULT",
+      "state_sha256": "a914345d688dc5ad312b804a8bbb6257e6562a5806f3d9aad543f2974419df75",
+      "observed": 1792924819.566564
+    },
+    {
+      "directory": "rbase-edge-phase-2750-v1-20261025",
+      "status": "OBSERVED_RBASE_SINGLE_EDGE_RESULT",
+      "state_sha256": "3601ec6861d35e7ea237833d73cef8afac52e88567d23b960241ecf7677bbaa7",
+      "observed": 1792924819.595205
+    },
+    {
+      "directory": "rbase-edge-phase-3000-v1-20261025",
+      "status": "OBSERVED_RBASE_SINGLE_EDGE_RESULT",
+      "state_sha256": "ccdd3b28063813925c09b216ec55c931ace16cffca5e23fc1445642935bea5de",
+      "observed": 1792924819.621422
+    },
+    {
+      "directory": "rbase-edge-phase-3500-v1-20261025",
+      "status": "OBSERVED_RBASE_SINGLE_EDGE_RESULT",
+      "state_sha256": "6f9386011a11b4e6acbfaf1b3020852a013d363dab3511059bf283a2c836b5a1",
+      "observed": 1792924819.647736
+    }
+  ],
+  "pending_peers": [
+    {
+      "directory": "cp-paired-read-collisions-icarus-v1-20261025",
+      "status": "RUNNING",
+      "state_sha256": "bcc06a9b837d9fe31562a41828103cab99499340234fcceaacc8c6e418ddc345",
+      "observed": 1792924818.30238,
+      "verified_live": true,
+      "pid": 30462,
+      "ps": "30462 35:50  35:47.35 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/cp-paired-read-collisions-icarus-v1-20261025/test.vvp"
+    },
+    {
+      "directory": "cp-paired-read-replay-icarus-v2-20261025",
+      "status": "RUNNING",
+      "state_sha256": "68fd1e5d93f6f0f07d2209797e88d08532ec29efd9cf5a5778545468ec55b6f0",
+      "observed": 1792924818.5452778,
+      "verified_live": true,
+      "pid": 33501,
+      "ps": "33501 14:09  14:08.05 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/cp-paired-read-replay-icarus-v2-20261025/test.vvp"
+    },
+    {
+      "directory": "cp-paired-read-words-replay-icarus-v1-20261025",
+      "status": "RUNNING",
+      "state_sha256": "9b09acc59114f40f4071aa4782eb99c52a4ed651d1878b3cd950fad78020204a",
+      "observed": 1792924818.69648,
+      "verified_live": true,
+      "pid": 34781,
+      "ps": "34781 07:34   7:33.43 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/cp-paired-read-words-replay-icarus-v1-20261025/test.vvp"
+    },
+    {
+      "directory": "cp-original-program-balanced-icarus-v2-20261025",
+      "status": "RUNNING",
+      "state_sha256": "a249b927376df93cb94a772b18a38ca8cc37469c465fa37454bf9170dbb46c84",
+      "observed": 1792924818.783355,
+      "verified_live": true,
+      "pid": 34578,
+      "ps": "34578 08:06   8:05.34 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/cp-original-program-balanced-icarus-v2-20261025/test.vvp"
+    },
+    {
+      "directory": "cp-original-program-phase3000-icarus-v1-20261025",
+      "status": "RUNNING",
+      "state_sha256": "2990db2a53c5aaa5b71818db7af9ac5c3391217d1081404cd93e018120f27ed0",
+      "observed": 1792924819.077398,
+      "verified_live": true,
+      "pid": 35283,
+      "ps": "35283 02:15   2:14.11 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/cp-original-program-phase3000-icarus-v1-20261025/test.vvp"
+    }
+  ],
+  "same_corrected_CP_processors_all_invocations": true,
+  "original2470_bit_result_layout_preserved": true,
+  "full_coherent_replay_verilator": "transactions=14884 commits=10423 pairs=4461 candidates=4461 fallbacks=0 paired_writes=119 forwarded_bytes=238 Qs=844 RAM=9216 results=2470 clocks=100",
+  "paired_write_bytes_forwarded": 238,
+  "CP_word_mixed_pair_and_read_replay_verilator": "transactions=12481 commits=12387 pairs=94 candidates=94 fallbacks=0 paired_writes=0 forwarded_bytes=0 Qs=844 RAM=9216 results=2470 clocks=100",
+  "mixed_history_staged_reads": 1,
+  "actual_one_SRAM_bits": 9216,
+  "stored_owner_bits": 828,
+  "external_native_R_bits": 16,
+  "context_bits": 402,
+  "geometry_independent_source_bits": 376,
+  "geometry_cases": 378,
+  "geometry_dependent_aliases_regenerated": true,
+  "original_result_owner_RAM_and_clock_assertions_unmasked": true,
+  "actual_negative_failures": {
+    "drop-forward": [
+      "PACKET_DIFF last bit=1305 actual=0 expected=1",
+      "PACKET_DIFF last bit=1306 actual=0 expected=1",
+      "PACKET_DIFF last bit=1309 actual=1 expected=0",
+      "PACKET_DIFF last bit=1311 actual=1 expected=0",
+      "PACKET_DIFF last bit=1312 actual=1 expected=0",
+      "PACKET_DIFF last bit=1313 actual=1 expected=0",
+      "PACKET_DIFF last bit=1314 actual=1 expected=0",
+      "PACKET_DIFF last bit=1316 actual=1 expected=0",
+      "PACKET_DIFF last bit=1317 actual=1 expected=0",
+      "PACKET_DIFF last bit=1321 actual=1 expected=0",
+      "FATAL: /Users/alans/dev2/Dorado/build/rtl-executive/cp-paired-read-replay-drop-forward-icarus-v1-20261025/tb.sv:585: PACKET second result mismatch record=203"
+    ],
+    "early-ram": [
+      "FATAL: /Users/alans/dev2/Dorado/build/rtl-executive/cp-paired-read-replay-early-ram-icarus-v1-20261025/tb.sv:601: PACKET invalid geometry committed bit=0"
+    ]
+  },
+  "payload_barrier_both_engines": true,
+  "whole_machine_payload_validity_remains_upstream": true,
+  "full_program_faster_control_profile_counterexample": {
+    "check": 761,
+    "state_bits": [
+      668,
+      669,
+      670,
+      671
+    ],
+    "source_bits": [
+      156,
+      157,
+      158,
+      159
+    ],
+    "address_arrives_before_write_close_ns": 0.5,
+    "raw_RAM_writes_unwanted_entry": 7
+  },
+  "RBase_arrival_probes": [
+    {
+      "directory": "rbase-edge-original-1250-v1-20261025",
+      "phase_ps": 1250,
+      "FF_ps": 1250,
+      "single_event_passed": false
+    },
+    {
+      "directory": "rbase-edge-original-1500-v1-20261025",
+      "phase_ps": 1250,
+      "FF_ps": 1500,
+      "single_event_passed": false
+    },
+    {
+      "directory": "rbase-edge-original-1750-v1-20261025",
+      "phase_ps": 1250,
+      "FF_ps": 1750,
+      "single_event_passed": false
+    },
+    {
+      "directory": "rbase-edge-original-2250-v1-20261025",
+      "phase_ps": 1250,
+      "FF_ps": 2250,
+      "single_event_passed": false
+    },
+    {
+      "directory": "rbase-edge-original-400-v3-20261025",
+      "phase_ps": 1250,
+      "FF_ps": 400,
+      "single_event_passed": false
+    },
+    {
+      "directory": "rbase-edge-original-750-v1-20261025",
+      "phase_ps": 1250,
+      "FF_ps": 750,
+      "single_event_passed": false
+    },
+    {
+      "directory": "rbase-edge-phase-1750-v1-20261025",
+      "phase_ps": 1750,
+      "FF_ps": 400,
+      "single_event_passed": true
+    },
+    {
+      "directory": "rbase-edge-phase-2250-v1-20261025",
+      "phase_ps": 2250,
+      "FF_ps": 400,
+      "single_event_passed": true
+    },
+    {
+      "directory": "rbase-edge-phase-2750-v1-20261025",
+      "phase_ps": 2750,
+      "FF_ps": 400,
+      "single_event_passed": true
+    },
+    {
+      "directory": "rbase-edge-phase-3000-v1-20261025",
+      "phase_ps": 3000,
+      "FF_ps": 400,
+      "single_event_passed": true
+    },
+    {
+      "directory": "rbase-edge-phase-3500-v1-20261025",
+      "phase_ps": 3500,
+      "FF_ps": 400,
+      "single_event_passed": true
+    }
+  ],
+  "RBase_legal_closing_rule_unchanged": true,
+  "phase3000_full_trace_identical_to_balanced": true,
+  "full_results_and_RAM_identical_to_prior_original_trace": true,
+  "phase3000_observed_edge_address_hold_ns": 1.25,
+  "phase_delay_sweep_is_not_a_part_spec_or_full_arrival_theorem": true,
+  "native_source_clock_and_visible_R_hookup_pending": true,
+  "CP_device_event_retention_pending": true,
+  "full_IFU_Memory_all_device_and_unknown_arrival_gates_pending": true,
+  "physical15ns_or60ns_qualified": false,
+  "new_RBF_ready": false,
+  "hardware_changed": false,
+  "protected_medium_unchanged": true,
+  "measured_hardware_speed_gain": false,
+  "full_goal_active": true
+}

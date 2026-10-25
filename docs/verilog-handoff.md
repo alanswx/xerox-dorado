@@ -7,7 +7,70 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST PAIRED SRAM BOUNDARY (2026-10-25):
+LATEST COMBINED CP READ/PAIR PATH (2026-10-25):
+`combined-cp-paired-read-summary.json` retains a real combined digital caller.
+`tools/generate_cp_paired_read.py` builds ALL invocations from the corrected CP
+capture source, then installs shared descriptors and actual13-wire CP views.
+Its pure/cached tops are byte-identical to the prior corrected processor.
+Sparse paired fall, forwarding, generic PREFIX keys and all2470 result bits
+remain. Interior descriptors are separate AUX ports. One SRAM and the exact828
+stored bits/402-bit history/16 EXTERNAL R aliases share common publication.
+`payload_ready` gates publication while read preparation remains independent;
+complete native-machine payload validity is still an UPSTREAM requirement.
+
+Verilator full coherent replay:14884 subevents/10423 commits/4461 pairs/
+119 paired writes/238 forwarded bytes. All844 states,9216 RAM bits,2470 results
+and100 clocks pass. Geometry now covers376 independent source bits +two roots
+(378 cases), regenerating the dependent CP aliases/decoders from their real
+wires. This changes the input-domain test, not an output/state comparison.
+A second continuous CP-word replay combines94 ordinary pairs AND one staged
+read in12387 commits/12481 subevents. It has no paired writes; the separate full
+program provides those. Removing forwarding fails real second-event results at
+203; an early SRAM enable corrupts rejected geometry0. Focused and payload-gate
+checks pass BOTH engines, including withholding a completed read. Full4096-word
+single fallback and64-RAM suites pass BOTH engines with byte-identical complete
+traces; collision Verilator128-fixture also passes. Hierarchy has exactly one
+four-bank9216-bit SRAM; the duplicate control detects18432bits.
+
+Five peers were VERIFIED LIVE at review. Do not restart or extend them:
+collision Icarus30462/session38985; full replay33501/session4145; mixed words
+replay34781/session93972; original balanced program34578/session1326; original
+phase3000 program35283/session43009. Review records their actual ps commands.
+Follow SAME handles and require terminal status/source/full-trace equality.
+The64-RAM Icarus30461/session1154 is TERMINAL PASS; the full-word peer30463/
+session62709 is TERMINAL PASS. Those complete results are already archived.
+
+New timing counterexample, NOT a reason to alter the legal RBase write rule:
+the full original stimulus with actual CP wiring fails at761 in BOTH engines
+under G1750/FF400/SE10231-phase1250. g15's address f->7 arrives0.5ns BEFORE WE
+closes, so the unfiltered RAM writes entry7, changing Q668..671/source156..159.
+The closing helper remains unchanged and its legal-waveform primitive stays
+qualified. A restored one-edge fixture reproduces the failure with all844
+physical/closed bits and9216 RAM bits checked; two earlier bad initial-load
+attempts are retained. Changing ordinary FF delay400..2250 does not repair this
+edge. Changing SE10231 phase identifies address-hold=phase-G for THIS edge:
+1750 ties,2250 gives0.5ns,2750 gives1ns,3000 gives1.25ns,3500 gives1.75ns.
+These illustrative delays are NOT part specifications or an arbitrary-arrival
+theorem. Do not copy the illegal extra write into RTL or filter the original RAM.
+
+The full phase3000 Verilator run passes all14884 original events/coverage,
+238 writes/6928 reads/392 epochs. Its ENTIRE trace and initial fixture are
+byte-identical to the balanced CP-source run. All result/RAM bits also match
+the earlier raw-pin original trace. Actual declared/compiled phase3000 is
+explicit; the inherited profile label alone is not evidence. Native clocks must
+preserve legal g15 WE-close before a19 LastNext switching, with address hold,
+while retaining the CP/clock capture contracts. One passing diagnostic delay
+does not qualify native timing or every write window.
+
+NEXT: finish same peers, then connect actual native16-R C/D/Set clocks and real
+CP/MIR/Ready/Hold/IFU/Memory producers. Carry whole-machine settling/repeated/
+error validity into readiness, and freeze/queue actual device events across
+stalls/retries. Qualify all write-window/arrival/unknown cases and SAME-fixture
+timing before a native fit. All A–F,60ns/timers, SDRAM, original firmware Cedar,
+Rollback/persistence and stress gates remain. No new RBF, FPGA load or hardware
+speed gain. Native69736 remains the SAME5B HOST run. Protected medium unchanged.
+
+PREVIOUS PAIRED SRAM BOUNDARY (2026-10-25):
 `external-packet-sram-summary.json` retains the next wiring prerequisite.
 `tools/generate_external_r_packet.py` exports the exact selected FIRST-event
 port from the qualified packet and moves its sole SRAM to the existing caller.

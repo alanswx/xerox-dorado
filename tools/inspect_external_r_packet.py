@@ -3,6 +3,7 @@
 
 The library source list contains an unused SRAM-owning module. Count reachable
 instances and their unpacked arrays rather than occurrences in source text.
+Both the exported packet and the combined tagged-read caller are supported.
 The positive must contain one original four-bank9216-bit SRAM. The deliberate
 duplicate must be detected as two SRAMs/eight banks18432bits. No timing claim.
 """
@@ -57,7 +58,8 @@ def structure(path):
 def run(source, out):
     assert not out.exists()
     p = json.loads((source/'run-state.json').read_text())
-    assert p['status'] == 'PASS_EXTERNAL_FULL_PROCESSOR_PACKETS'
+    assert p['status'] in ['PASS_EXTERNAL_FULL_PROCESSOR_PACKETS','PASS_COMBINED_CP_PACKET_SINGLE_FALLBACK',
+                           'PASS_COMBINED_CP_COHERENT_PACKETS']
     for name, digest in p['files'].items():
         assert sha(source/name) == digest
     paths = [source/r['path'] for r in p['source_files'] if r['path'] != 'tb.sv']
@@ -76,6 +78,9 @@ def run(source, out):
             old = (source/'caller.sv').read_text();raw = old
             header = 'output wire [843:0] r_front_held);'
             new_header = 'output wire [843:0] r_front_held,output wire [17:0] duplicate_probe);'
+            if header not in raw:
+                header='output wire owner_commit);'
+                new_header='output wire owner_commit,output wire [17:0] duplicate_probe);'
             assert raw.count(header) == 1
             raw = raw.replace(header, new_header, 1)
             probe = ''' // Observable duplicate used ONLY to calibrate the structural audit.

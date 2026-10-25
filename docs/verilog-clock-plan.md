@@ -14,7 +14,57 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST paired SRAM sharing prerequisite (2026-10-25):
+LATEST combined CP capture/read/paired path (2026-10-25):
+
+- [x] Generate paired/single invocations from the SAME corrected CP capture
+  source. Preserve sparse fall/forwarding and generic PREFIX history. Keep
+  the37 descriptor outputs outside the original2470-bit result layout.
+- [x] Share one tagged SRAM and exact828+16 publication seam across both
+  paths. Prepare reads independently of requested advance and upstream payload
+  validity. Both engines prove by simulation that invalid payloads cannot
+  publish, including a completed read held behind the barrier. Whole-machine
+  payload validity remains an upstream integration gate, not an assumption
+  that cache readiness covers every device.
+- [x] Verilator coherent full replay:14884 events/10423 commits/4461 pairs,
+  119 paired writes/238 forwarded bytes. All original2470 results/844 states/
+  9216 RAM bits/100 clocks. Test378 coherent geometry mutations (376 independent
+  source bits +two roots), regenerating dependent CP aliases/decoders. Do not
+  treat impossible independent alias changes as physical producer events.
+- [x] Verilator continuous CP-word replay combines94 ordinary pairs and ONE
+  staged read in the SAME12481-event history. Separate full replay supplies
+  nonvacuous paired writes/forwarding. Removing forwarding or allowing early
+  RAM writes fails actual results/memory. One reachable SRAM/four banks is
+  checked; a duplicate control is detected.
+- [x] Focused/payload tests, full4096-word single fallback and64 independent
+  RAM fixtures pass BOTH engines, with complete traces identical to the prior
+  checked processor. Collision128-fixture Verilator passes too.
+- [ ] Finish SAME Icarus peers: collision30462, full replay33501, mixed word
+  replay34781, original balanced34578, original phase300035283. All five are
+  verified live in `combined-cp-paired-read-summary.json`; follow existing
+  handles in the handoff. Do not restart completed word30463/RAM30461 runs.
+- [x] Restore the complete ORIGINAL stimulus with actual CP wiring. The full
+  G1750/FF400/phase1250 run fails761 in BOTH engines: g15 LastNext changes0.5ns
+  before WE closes, producing an extra RBase entry7 write (Q668..671). Preserve
+  this full-program counterexample and one-edge restored reproduction.
+- [x] Isolate the phase contract without changing the legal write helper or
+  original RAM. Ordinary FF400..2250 does not affect this edge; SE10231 phase
+  controls its address hold. Atphase3000 the observed hold is1.25ns. Its full
+ 14884-event Verilator trace/initial fixture are byte-identical to balanced;
+  every result/RAM bit also matches the prior original raw-pin trace. Both
+  full runs retain238 writes/6928 reads/392 capture epochs and all coverage.
+- [ ] Carry legal WE-close/address-hold ordering into the native clock schedule
+  and qualify ALL windows/arrivals. The phase sweep is illustrative, not a part
+  specification or whole-machine timing proof. Preserve CP capture contracts,
+  actual native16-R C/D/Set edges, full payload/repeat/error validity, retained
+  producer events, IFU/Memory and every original A–F acceptance requirement.
+
+Receipt: `combined-cp-paired-read-summary.json`, status
+REVIEWED_COMBINED_CP_READ_AND_PAIR_PATH_WITH_PENDING_PEERS. Failed attempts,
+exact source/trace equality, real negatives and verified-live peers are retained.
+No new RBF or measured hardware speed gain. Native69736 remains the original
+5B HOST run; firmware/media/baselines stay unchanged. Goal remains active.
+
+Previous paired SRAM sharing prerequisite (2026-10-25):
 
 - [x] Export the qualified packet's exact selected FIRST-event SRAM port and
   move its sole physical SRAM into the existing828+16 publication caller.
