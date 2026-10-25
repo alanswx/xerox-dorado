@@ -7,6 +7,45 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
+LATEST COMPLETE REVIEW + NEXT CORRECTNESS BLOCKER (2026-10-24):
+Both full shared-capture Icarus peers are TERMINAL PASS, with the same14884
+transactions,2470 results,844 owners,9216 RAM bits,100 clocks and cache coverage
+as Verilator. `shared-control-capture-complete-summary.json` is the final bounded
+review. The SAME V2/V4 fits remain rejected at15ns; do not restart/recollect.
+
+`full-processor-cp-interior-ram-summary.json` now archives the original full
+processor with real CP decoders and shared cached/pure consumers. Readyffff
+passes4096 continuous CP words/12481 checks and128 fresh collision fixtures;
+focused checks pass both simulators. Those early compiled models are BALANCED
+1ns/1ns/1ns; their faster-FF metadata was wrong. Review derives the actual profile
+from frozen source and retains the original receipts. Continuous words are one
+history;128 reloads are explicit context discontinuities, not one packet trace.
+The inheritedffff disabled-Block test also passes: it is NOT a nonvacuous TPC test.
+
+Ready0000 exposes a strict CP/root capture problem. The opt-in PrBlock descriptor
+fixes low g16 Q537 with1.35ns D margin under1.75ns gate/0.4ns FF. It is still NOT
+qualified. BOTH engines show a real SRAM select a->5->a transient at000f00ff:
+46f4 ->632f ->46f4, with H l07.A taking STK data before it closes. Its Q arrives
+157813.050ns, closing157814.750ns. The endpoint-only model keeps flag0 when the
+original has1 (RM flags3/2); all original assertions detect it at check194.
+Only changing STK_H[0] to RM_H[255] and STK_L[0] to RM_L[15] makes BOTH full
+focused tests pass; every other owner/memory bit is unchanged. This is a diagnostic
+memory control, not an independent-data qualification. Equal-index banks did NOT
+remove the bug. The CP-inactive control passes. Balanced g16 has a timing tie
+and stays unqualified; source timing must not be inferred from its scheduler.
+
+NEXT implement a distinct interior SRAM access/capture epoch from the same one
+port, before owner publication. Preserve BEFORE/interior/CLOSING/AFTER values,
+all16 visible R latch owners and C/D/Set paths. Hold the machine edge for rare
+staging; keep ordinary60ns nominal. Do not synthesize a flag from endpoint data,
+add a parallel RAM copy or mask the checks. Then qualify arbitrary memory and
+CP/root arrival orders, a real full-processor TPC negative, IFU/Memory and native
+publication. All A–F, physical timing/SDRAM and firmware/Cedar/Rollback/persistence/
+stress gates remain. Latest read-only MiSTer14 check still says SMC777; no load.
+Last hardware speed remains4.025473M StartCycle issues/s, not a retirement rate.
+Native69736 continues same5B HOST bound; last log host910M, PCF4D7 in original
+Delay, issues1/TX0/fault0. No boot pass; guest tick count is not instruction count.
+
 V4 FIT NOW TERMINAL (2026-10-24): collected ONCE and independently reviewed in
 `shared-control-capture-fit-pending-replay-summary.json`. ALL92 members, exact
 source readback, exited handles, four setup/hold/pulse corners and zero UCPs
@@ -14,8 +53,8 @@ verify. V4 matches V2: setup-1.499/-1.284/+4.291/+4.675ns; hold minimum+0.122ns;
 8382ALMs/5768regs/9216MLAB bits.0.806ns better than the prior SAME102-pin budget,
 still15ns REJECTED. No assembly, native selection or FPGA speed claim.
 Builder1918004/map1918005/fit1919138/STA1922623/corners1922943 all exited0.
-Do NOT recollect/restart either fit. Only full Icarus peers remain pending for
-the bounded combined review; retain all later source/native/epoch gates.
+Do NOT recollect/restart either fit. BOTH full Icarus peers and the bounded
+combined review are now complete; retain all later source/native/epoch gates.
 
 The worst path is owned CB state -> StopMIRClk/capture/frame -> MIR bit76 ->
 after_child[16] -> original low front gate f22 -> StkWadr state721 -> settled
@@ -52,8 +91,8 @@ that branch. Both original errors and the diagnostic reproduction are preserved.
 V3's function arguments preceded their net declarations, rejected by Icarus
 before simulation; V4 moves the declaration and compiles in BOTH engines.
 
-Follow SAME Icarus tests: V2 pid98473/session92106 (older binary prototype),
-V4 pid99375/session30128 (current full-context version), both verified live.
+SAME Icarus tests V2 pid98473/session92106 (older binary prototype) and V4
+pid99375/session30128 (current full-context version) are BOTH TERMINAL PASS.
 Do not restart/extend them. Current V4 outputs live in
 `shared-control-capture-{verilator,icarus}-v4-20261024`.
 
@@ -69,11 +108,11 @@ matched at staging and final source readback. Remote project:
 V2 map/fit/STA/corners1910562/1911752/1918107/1918439 all exited0; builder1910552
 exited. No assembly/RBF or FPGA reload is permitted by these budget projects.
 
-NEXT: finish these SAME full Icarus runs and require both terminal full replays
-before combined review. V4 reports/corners/source/exited handles are already
-collected and verified; do not repeat collection. Then close actual CP/Ready/MIR/Hold sources in the independent
-844-Q original-graph fixture, integrate the qualified asynchronous Block epoch
-with these shared consumers, and qualify every original16-R interior edge.
+Both SAME full Icarus runs and combined review are complete. V4 reports/corners/
+source/exited handles are already collected and verified; do not repeat collection.
+Actual CP sources are now closed in the844-Q original graph and expose the
+interior RAM capture failure described above. Resolve it, retain actual Ready/
+MIR/Hold, and qualify every original16-R interior edge.
 Continue shared capture through IFU/Memory and native publication; a bounded
 packet replay is not an arbitrary epoch invariant. All A–F, original60ns/timers,
 physical66.7MHz SDRAM, original-firmware Cedar/Rollback/persistence and final

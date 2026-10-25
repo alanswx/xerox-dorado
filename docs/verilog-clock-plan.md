@@ -28,20 +28,22 @@ LATEST shared capture implementation (2026-10-24):
 - [x] Full1941-bit context guard:4 known/15528 independent X/Z fallback cases,
   all139 consumer results; bad guard changes real processor Qs. Preserve the
   V3 Icarus pre-test declaration error and corrected V4 compilation.
-- [ ] Finish SAME Icarus98473/session92106 (V2) and99375/session30128 (V4).
-  Both were verified live; do not restart or change their bounds.
+- [x] BOTH SAME full Icarus runs are TERMINAL PASS:98473/session92106 (V2)
+  and99375/session30128 (V4). Exact results/cache coverage match Verilator.
+  Do not restart or change their bounds.
 - [x] Finish SAME V4 Quartus builder1918004 on misterubuntu, project
   `shared-control-capture-owned-packet-v4-20261024`. ALL92 collected members,
   source readback/exited handles/four corners/zero UCPs verified. All stages0.
   Do not restart/recollect V2 or V4.
-- [ ] Require both terminal full Icarus passes before combined bounded review;
+- [x] Combined bounded review is complete in `shared-control-capture-complete-summary.json`;
   retain every actual-source/interior-epoch/native gate after that review.
 - [ ] Close actual CP/MIR/Ready/Hold sources in the independent844-Q original
   graph; compose the asynchronous Block capture with these shared consumers.
   Qualify original16-R interior epochs, IFU/Memory and native publication.
 
-Receipt: `shared-control-capture-staging-summary.json`, explicitly pending full
-and native gates. Earlier V2 budget:92 verified members; setup
+Current receipt: `shared-control-capture-complete-summary.json`. Earlier staging/
+pending receipts remain historical. The full peers passed; native gates remain.
+Earlier V2 budget:92 verified members; setup
 -1.499/-1.284/+4.291/+4.675ns, hold minimum+0.122ns, zero UCPs,
 8382ALMs/5768regs/9216MLAB bits.0.806ns better than SAME102-pin-2.305ns,
 still15ns REJECTED. Corrected V4 is now terminal with EXACTLY the same slack/
@@ -53,6 +55,49 @@ that full source/window chain in the next closure. No clock/error bit was droppe
 Native69736 timer advances: read-only snapshot at host722090001/guest331921372
 shows Timer100ms13/EndOfDelay30 and original PacifyWatchdog PCF6AA; debugger
 detached. Continue same5B HOST bound; this is not a Cedar/firmware pass.
+
+LATEST full processor CP/interior RAM diagnosis (2026-10-24):
+
+- [x] Close all18 CP set inputs with the original three MC10172 packages in
+  the independent844-Q/9216-RAM/100-clock graph. Both cached and pure lower
+  R consumers share the actual capture frames; normal memory MIR stays separate.
+- [x] Inherited Readyffff passes4096 continuous words/12481 checks and128 fresh
+  root/strobe collisions in Verilator; focused case passes both engines. Preserve
+  all original per-event assertions. These compiled models used1ns/1ns/1ns,
+  despite older metadata incorrectly naming the faster-FF profile. The receipt
+  corrects the metadata from exact compiled files without rewriting history.
+- [x] With Ready0000, identify a real coincident CP/root PrBlock capture. The
+  default-off g16/address descriptor uses strict source routes: at1.75ns gates/
+  0.4ns FF, g16 D9 arrives7.4ns before clock8.75ns. It fixes Q537, but is NOT
+  selected: the complete processor still fails its original operand checks.
+- [x] BOTH engines show transient SRAM select a->5->a at address000f00ff,
+  RM data46f4 -> STK632f -> RM46f4. The open H l07.A captures the STK bit:
+  D157812.650ns, Q157813.050ns, close157814.750ns (1.7ns positive Q margin).
+  Endpoints alone lose real state588 and RM sign flags. This is a strict
+  arrival case, not the balanced g16 data/clock tie (that tie is unqualified).
+- [x] Diagnostic control changes only two STK cells to the corresponding RM
+  data. All844 states/RAM/100-clock assertions then pass in BOTH engines.
+  Disabling the CP pulse passes too. Matching banks at equal indices still
+  failed because the transient STK and RM addresses differ. These controls
+  diagnose the missing read; they do not qualify independent bank data.
+- [ ] Implement an explicit interior memory access before closing/publishing
+  the owner. Carry BEFORE, interior port/data, CLOSING capture and AFTER views.
+  Service these from the SAME physical SRAM port; hold the machine edge until
+  the interior read and original latch captures complete. Never replace this
+  with a guessed flag, new read port/RAM copy or an extra ordinary guest cycle.
+- [ ] Qualify arbitrary data, both root directions, source offsets, all original
+  16 visible-R latches and all clock/data/Set edges. Establish a nonvacuous full
+  processor TPCBypass negative control: the inheritedffff fixture passes with
+  the Block correction disabled, so it does not establish that requirement.
+- [ ] Then continue IFU/Memory/native publication and SAME-fixture timing;
+  full native/60ns/SDRAM/Cedar/Rollback/persistence/stress gates stay open.
+
+Receipt: `full-processor-cp-interior-ram-summary.json`, status
+REVIEWED_BOUNDED_CP_PASSES_AND_REJECTED_ENDPOINT_ONLY_RAM_CAPTURE. All failed
+attempts and actual compiled timing profiles are retained. No new RBF or measured
+hardware gain. MiSTer14 is available; latest read-only check still finds SMC777.
+The original native boot continues its same5B HOST bound (host910M observation:
+original Delay PCF4D7, issues1/TX0/fault0; guest ticks are not microinstructions).
 
 LATEST CP source/capture progress (2026-10-24):
 

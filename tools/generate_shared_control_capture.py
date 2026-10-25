@@ -172,21 +172,22 @@ def adapter(raw):
     return raw
 
 
-def kernel(raw,enabled=True):
+def kernel(raw,enabled=True,share_native=False):
     # Pure/packet processor modules have the same child signature. Leave the
     # original native module unused but compilable with the fallback selected.
     count=0
     for name in ['dorado_r_front_control_step','dorado_r_front_pure_step','dorado_r_front_prefix_step','dorado_r_front_parallel_fault_step']:
         if not re.search(r'^module '+name+r'\b',raw,re.M):continue
         before=module(raw,name);after=before
-        if name in ['dorado_r_front_control_step','dorado_r_front_pure_step']:
+        native_top=name in ['dorado_r_front_control_step','dorado_r_front_pure_step']
+        if native_top and not share_native:
             after,n=calls(after,'dorado_local_r_front_ready_step',"865'b0");assert n==1
         else:
             old=' dorado_control_hold_ordered_step control('
             after=change(after,old,' dorado_capture_hold_ordered_step control(')
             after=change(after,' wire cp_commit=advance && cp_ready;',
                          ' wire cp_commit=advance && cp_ready;\n'+
-                         ' wire [863:0] shared_frames;\n'+KNOWN+' wire [864:0] shared_capture={'+"1'b"+str(int(enabled))+''' && !pair_fall &&
+                         ' wire [863:0] shared_frames;\n'+KNOWN+' wire [864:0] shared_capture={'+"1'b"+str(int(enabled))+('' if native_top else ' && !pair_fall')+''' &&
   shared_inputs_known({held_q,clock_before,clock_after,pins_before,pins_after,
     refresh_before_run_capture,cp_fast,cp_prefix_saved,cp_prefix_cp_saved,cp_after_cp_saved}),shared_frames};
 ''')

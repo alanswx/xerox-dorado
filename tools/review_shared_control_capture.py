@@ -69,7 +69,8 @@ def budget(version=2):
                 worst_setup_improvement_ns=0.806,collected_members=92,collection_sha256=sha(receipt)),[stage,d],receipt
 
 
-def review(out,collected_fit=False):
+def review(out,collected_fit=False,complete=False):
+    assert not complete or collected_fit
     assert not out.exists();v=BUILD/'shared-control-capture-verilator-v4-20261024';s=checked(v)
     frame=BUILD/'shared-control-frame-proof-v1-20261024';f=read(frame/'run-state.json');verify(frame,f['files'])
     assert f['status']=='PASS_SHARED_CONTROL_FRAME_RESULTS_AND_CHRONOLOGY' and [r['waves']for r in f['cases']]==[5,24]
@@ -107,6 +108,9 @@ def review(out,collected_fit=False):
         if version==4:assert r['files']==s['files']
         peers.append(dict(directory=d.name,state_sha256=hashlib.sha256(data).hexdigest(),**observation));dirs.append(d);snapshots[d.name]=data
     fit,fd,receipt=budget();dirs+=fd
+    if complete:
+        assert all(p['status']=='PASS_FULL_PROCESSOR_SHARED_CAPTURE' for p in peers)
+        checked(BUILD/'shared-control-capture-icarus-v4-20261024')
     latest_fit=None;latest_receipt=None
     if collected_fit:
         latest_fit,new_dirs,latest_receipt=budget(4);dirs+=new_dirs
@@ -125,6 +129,7 @@ def review(out,collected_fit=False):
     (out/receipt.name).write_bytes(receipt.read_bytes())
     if latest_receipt:(out/latest_receipt.name).write_bytes(latest_receipt.read_bytes())
     status='REVIEWED_SHARED_CAPTURE_FIT_PENDING_FULL_ICARUS' if collected_fit else 'STAGED_SHARED_CONTROL_CAPTURE_WITH_PENDING_FULL_GATES'
+    if complete:status='REVIEWED_BOUNDED_SHARED_CAPTURE_AND_REJECTED_15NS_FIT'
     result=dict(status=status,scope=__doc__,
                 full_Verilator_transactions=14884,all2470_results=True,all844_owners=True,one9216_bit_SRAM=True,
                 all100_clock_counts=True,geometry_cases=403,cache_coverage=s['cache_coverage'],
@@ -145,7 +150,9 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['output','archive']:p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--collected-fit',action='store_true')
-    a=p.parse_args();r=review(a.output.resolve(),a.collected_fit)
+    p.add_argument('--complete',action='store_true',help='Require both complete full Icarus replays; does not qualify native/source epochs.')
+    a=p.parse_args();r=review(a.output.resolve(),a.collected_fit,a.complete)
     label='shared-control-capture-fit-pending-replay' if a.collected_fit else 'shared-control-capture-staging'
+    if a.complete:label='shared-control-capture-complete'
     append_archive(a.archive.resolve(),a.output.resolve(),[],label=label,extra_tools=TOOLS)
     print(r['status'])
