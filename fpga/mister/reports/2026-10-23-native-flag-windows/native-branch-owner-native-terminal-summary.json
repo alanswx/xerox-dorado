@@ -1,0 +1,37 @@
+{
+  "status": "RETAINED_ORIGINAL_NATIVE_DIAGNOSTIC_TERMINALS",
+  "runs": [
+    {
+      "run": "control-short-native-jumper-boot-v2-20261024",
+      "pid": 69736,
+      "status": "TERMINAL_NATIVE_MEMORY_DIAGNOSTIC",
+      "reason": "QUEUE_SEARCH",
+      "original_bound": 5000000000,
+      "stop": "NATIVE_DIAGNOSTIC_STOP reason=QUEUE_SEARCH host=3522611723 guest=1975226339 cpu=306c16c1",
+      "last_progress": "NATIVE_PROGRESS host=3520000000 guest=1973583412 initialized=1 init_addr=7fffff cpu=30946946 bb=1e48f850 control=11f keys=0 disk=         5/         0 fault=00000000:00000000 tx=2 crc=0 rx=0",
+      "log_sha256": "b0a15c184bcc430237830e1aa4920f67e627d950a11ec0d8b910815d8feca1bb",
+      "state_sha256": "e8ef6f1ec0a2cfcc3decd9538e6ffd640b781d023bdfbb087844704d4f9696e0",
+      "provenance_sha256": "661cd338f0d695015495d723181f97968ae19b2088b2058dfddf8efe9a01cda1",
+      "original_source_files_verified": 568,
+      "firmware_or_desktop_pass": false
+    },
+    {
+      "run": "native-alu-source-boot-prefix-v1-20261025",
+      "pid": 87487,
+      "status": "TERMINAL_NATIVE_MEMORY_DIAGNOSTIC",
+      "reason": "HOST_LIMIT",
+      "original_bound": 600000000,
+      "stop": "NATIVE_DIAGNOSTIC_STOP reason=  HOST_LIMIT host=600000000 guest=255664837 cpu=c0fc7000",
+      "last_progress": "NATIVE_PROGRESS host=600000000 guest=255664837 initialized=1 init_addr=7fffff cpu=c0fc7000 bb=1f4cf6a8 control=10c keys=1 disk=         1/         0 fault=00000000:00000000 tx=0 crc=0 rx=0",
+      "log_sha256": "331eeea9f18d97e1c3f9ea57b18b1991274ab347792e1403c5ac35c4f6f6ee65",
+      "state_sha256": "9f86b29f96d97a86d15e7cb26a17ad3a9fc53f520dad3037035efc53362d2d86",
+      "provenance_sha256": "cf5234fa07804cae844b973e640fa5fa69dd931cbf5dccb297c6e622ededabf0",
+      "original_source_files_verified": 580,
+      "firmware_or_desktop_pass": false
+    }
+  ],
+  "original_processes_sources_inputs_or_bounds_changed": false,
+  "hardware_or_media_changed": false,
+  "no_original_firmware_or_desktop_or_speed_qualification": true,
+  "full_goal_active": true
+}

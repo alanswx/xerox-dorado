@@ -7,7 +7,96 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST STRUCTURAL TASK CAPTURE AND ACTUAL NATIVE HISTORY (2026-10-25):
+LATEST ACTUAL NATIVE FLAG OWNER AND COMPLETED TASK TIMING (2026-10-25):
+The SAME task-parallel builder3827091 is TERMINAL: ALL nine stages exit0,
+574 source hashes verified,327 reports/logs collected. Both full+words programs
+now PASS in BOTH Icarus and Verilator, with every original assertion intact.
+Physical timing still REJECTED at ALL four corners: slow100C -12.971ns,
+slow-40C -12.890ns, fast100C -3.463ns, fast-40C -1.840ns. Minimum hold0.145ns.
+Logic36,263/41,910ALMs (87%,3,645 fewer than the shared-task fit),55,234 registers,
+2,506,566 memory bits,332 RAM blocks. This is useful area reduction, NOT a
+hardware speed gain; timing is worse than the previous -11.281ns worst.
+No assembly/load. Do NOT restart this now-completed Quartus job.
+
+The worst path MOVED. It is now21 levels/19.840ns against7.500ns:
+held global bit598 (r_front_upper_q[10], ProcH RbWadr.6) -> old R address ->
+asynchronous RM-low read -> l07 physical R flags -> ContA DoCBr -> ContB q9 ->
+ordered control root/frames -> task event20 -> child Ready state -> masked
+shared_state_mismatch -> unsettled -> machine_enable -> falling network_step.
+The actual full path and ALL corner/crossing reports remain retained. The next
+structural speed work must address this causal chain and the half-cycle gate.
+
+Two direct-RTL probes test the tempting claim that the Ready comparison is
+redundant under shared capture. The actual prefix caller/dependency graph has
+1,982 original input bits, no assumptions and no sequential logic. An arbitrary
+saved cache payload gives a real Ready mismatch (control projection bit50).
+Replacing the291 saved payload/CP bits with the ACTUAL live prefix function and
+guarding fast mode with identity/no-split STILL gives a mismatch (projection
+bit58, Ready storage bit10). Neither result proves that a normal guest reaches
+that context; both prohibit dropping the comparison for arbitrary owned state.
+The original comparator and all readiness/storage barriers remain UNCHANGED.
+Next: unify the actual Ready/operand capture epoch and prove its relation to
+the shared owner, instead of substituting a constant or guessed settled flag.
+
+Actual flag ownership is now wired in a PRIVATE native stage. New
+`dorado_native_branch_owner.sv` replaces ProcH e13/f17/g11/h11 with ONE owner
+for their EXISTING104 bits:80 physical and24 write-window/PRECAP history.
+It consumes the actual package data, selected mux input and BUFFERED clocks,
+not reconstructed raw roots. Every other board byte/clock buffer is unchanged
+by an inverse source check. No architectural reset/init/extra guest tick.
+Original file read-before-write/administration result/frozen/done/error and FF
+maintenance writes are preserved. A strengthened proof frees190 input bits,
+including the prior file response independently of all104 storage bits, and
+compares ALL175 state/read/admin outputs. No assumptions. Wrong g11 epoch
+changes physical bit68; wrong file-row write changes physical bits0/4.
+
+BOTH engines pass1,024 binary interface commands. Icarus additionally passes
+1,140 independent X/Z substitutions over three contexts:2,167 total checks,
+ALL175 outputs. Older180-input proofs/tests remain historical; their prior
+file-result seed was correlated with the window. The exact same production
+RTL passes the strengthened190-input proof. The first port-initializer frontend
+failure, empty sequential-witness reader failure and reserved-identifier compile
+failures are retained, along with corrected versions.
+
+Complete native ProcH differential replay keeps its actual ALU/data feedback,
+clock buffers, package PROMs and all unchanged cells. Compare ALL929 board
+outputs plus ALL104 flag/history bits for1,059 arbitrary external bits:
+8,215 checks/8,192 guest samples PASS. Actual physical family changes:
+e13=31, f17=251, g11=122, h11=127. Deliberately taking g11/h11's unbuffered
+clock lead corrupts PHYSICAL flag Q at check87. First board run's missing PROMs
+were a coverage gap despite matching zero-filled outputs; preserve it without
+calling it full-board qualification. The corrected run has every original PROM
+and rejects missing readmem files. Binding-reader/review-reader rejections stay.
+
+Stages `native-branch-owner-stage-v1-20261025` and v2 each have581 exact inputs.
+V2 binds the stronger proof and both interface gates; ALL functional HDL/PROM
+bytes are identical to the tested v1, with project-root relocation only in
+config files. Native201 HDL plus2 harness sources elaborate (203 total), with
+9 visible structural warnings, unchanged from the passive observer. This stage
+inherits57.142857MHz/SYSPER4 (140ns nominal); it qualifies ownership at the
+EXISTING native cadence and is not a new faster clock setting. The separate
+failed task timing diagnostic remains66.666667MHz/SYSPER4 (120ns). Neither
+qualifies four15ns/60ns ordinary instructions or SDRAM66.7MHz physical protocol.
+No new Quartus job or native boot was launched for this flag grouping.
+
+NEXT: integrate the actual common Ready/operand epochs on the measured path;
+merge the qualified native flag frontier into that chronology, preserving all
+guards and real clock/data setup. Still required: original60ns/four15ns phases,
+all timers, separately qualified SDRAM66.7MHz/reset/refresh/DQ, pinned speed/wait
+measurements, original interactive Cedar/Checkpoint/Rollback/cold persistence,
+three fresh boots and two-hour stress. Native62048 remains live at its original
+5B HOST bound. SAME69736 has now stopped normally at its original128-visit
+QUEUE_SEARCH diagnostic: HOST3,522,611,723/guest1,975,226,339, disk5 reads/0
+writes, TX2 and zero pack/CRC/RX faults. Its4,096-record final pin ring is retained.
+SAME87487 stops normally at its fixed600M HOST bound: guest255,664,837,
+CPUc0fc7000, disk1/0, TX0 and zero pack/CRC/RX faults. All128 ALU records remain.
+Both compile/test paths exit0, but neither is a firmware/desktop pass. No source,
+limit or process was restarted/extended; protected pack unchanged; hardware
+untouched. Supplemental receipt: `native-branch-owner-native-terminal-summary.json`.
+Full goal ACTIVE; full FPGA snapshots deferred. Receipt:
+`native-branch-owner-summary.json` in the native flag archive.
+
+PREVIOUS STRUCTURAL TASK CAPTURE AND ACTUAL NATIVE HISTORY (2026-10-25):
 The shared-task full-core job3571235 is TERMINAL: ALL nine stages exit0,
 ALL574 source hashes verified and327 reports/logs collected. Reject ALL corners:
 slow100C -11.096ns, slow-40C -11.281ns (the true worst), fast100C -2.589ns,

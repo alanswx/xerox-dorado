@@ -14,7 +14,53 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST structural task capture and native storage/history (2026-10-25):
+LATEST native common flag ownership and completed task fit (2026-10-25):
+
+- [x] Finish SAME task-parallel full/words Icarus. All four full+words replays
+  in both engines PASS, retaining all original results/Q/SRAM/100 clocks and
+  native R/j19/owner/barrier checks.
+- [x] Collect SAME Quartus3827091: ALL9 stages0,574 source hashes/327 reports.
+  Area36,263ALMs/87% (3,645 fewer), but ALL corners fail: slow100C -12.971ns,
+  slow-40C -12.890ns, fast100C -3.463ns, fast-40C -1.840ns. Hold0.145ns. Worst
+  path now21 levels/19.840ns against7.500ns: RbWadr.6 -> RM-low read -> R flags
+  -> DoCBr/ContB -> control frames -> task event20 -> Ready mismatch -> enable.
+  Keep the area result; do not promote it as a hardware speed improvement.
+- [x] Test the actual Ready comparator on1,982 free input bits. Arbitrary saved
+  cache payload has a real Ready counterexample; substituting its actual prefix
+  function/identity/no-split eligibility STILL has one (projection bit58).
+  Preserve comparator/guards and the source-bound witnesses. No runtime fault
+  or unconditional-zero invariant is inferred from these arbitrary contexts.
+- [x] Implement ONE native104-bit e13/f17/g11/h11 owner, consuming exact buffered
+  clocks/data and preserving all file/FF administration and existing history.
+  Prove ALL175 outputs/190 free bits, including independent prior RAM response,
+  no assumptions. Both engines pass1,024 binary commands; Icarus adds1,140 X/Z
+  substitutions (2,167 checks). Wrong epoch/row corrupt physical storage.
+- [x] Wire it into the actual ProcH board with inverse source checks. With
+  original package PROMs, compare929 board outputs+104 flag/history bits for
+  8,215 checks/8,192 guest samples. ALL four flag families change. Wrong clock-
+  buffer bypass corrupts physical Q at87. Preserve missing-PROM coverage gap
+  and prior frontend/reader/compiler rejections without promoting those runs.
+- [x] Stage581 exact inputs; stronger-proof v2 has identical HDL/PROM bytes to
+  the tested v1. Native201 HDL+2 harness sources elaborate with9 visible
+  warnings. This is private ownership integration at existing57.142857MHz/
+  SYSPER4 (140ns); the separate failed15ns fit remains120ns. No FPGA load.
+- [x] Retain SAME69736 terminal QUEUE_SEARCH/4,096-record pin ring at
+  HOST3,522,611,723 and SAME87487 terminal fixed600M HOST/128 ALU records.
+  Both exit0 with zero pack/CRC/RX faults; neither is a Cedar/firmware pass.
+  Original bounds/sources were not extended or restarted. SAME62048 stays
+  live at its original5B HOST bound; follow it without restarting.
+- [ ] Unify actual Ready/operand capture epochs on the measured critical path,
+  retaining the mismatch/storage gates until a stronger relation is proved;
+  integrate the qualified flag frontier into the full common chronology.
+- [ ] Qualify original four15ns/60ns cadence, all timers and separate66.7MHz
+  SDRAM commands/DQ/reset/refresh. Measure pinned progress/stalls, then finish
+  original Cedar/input/Checkpoint/Rollback/persistence/three boots/two-hour
+  stress. Keep original native processes/bounds and protected media unchanged.
+
+Receipt: `native-branch-owner-summary.json`. Full goal ACTIVE; FPGA snapshots
+deferred. Completed Quartus3827091 must be collected once and never restarted.
+
+Previous structural task capture and native storage/history (2026-10-25):
 
 - [x] Collect SAME shared-task fit3571235: ALL9 stages0,574 source hashes and
   327 reports. Reject ALL corners: -11.096/-11.281/-2.589/-1.029ns; worst is
