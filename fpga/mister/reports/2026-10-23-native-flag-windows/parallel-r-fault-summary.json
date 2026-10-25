@@ -1,0 +1,215 @@
+{
+  "status": "REVIEWED_PARALLEL_R_FAULT_FULL_PROCESSOR",
+  "field_only_source_audit": {
+    "status": "PASS_FIELD_ONLY_PARALLEL_FAULT_AND_UNCHANGED_SPLIT_CONES",
+    "base_invocation_substitution": {
+      "status": "PASS_SOURCE_BOUND_SPLIT_INVOCATION_INPUT_SUBSTITUTION",
+      "inputs_checked_per_first_invocation": 15,
+      "all_second_bindings_unchanged": true,
+      "raw_prefix_inputs_unchanged_for_all_histories": true,
+      "ready_guard_unchanged": true,
+      "one_physical_SRAM_owner_and_same_commit_permission": true,
+      "source_or_device_interior_pin_stability_qualified": false,
+      "native_timing_or_speed_qualified": false
+    },
+    "all11_child_inputs_bound_to_actual_invocation": true,
+    "cache_ready_owner_SRAM_input_cones_unchanged": true,
+    "only_single_fault_bit1_changed": true,
+    "new_state_or_guest_cycles": 0,
+    "source_device_timestamps_or_native_timing_qualified": false
+  },
+  "child_qualification": {
+    "binary_proof_state_sha256": "ee29aebbec17d4fe745846cc71f4f7a7cbb77345548034fa2ca54e73c7d9166e",
+    "four_state_sha256": "185c8994abead7cd63394fe694351b3e72e891268c66a7037ebf3f82d1524715",
+    "bad_unknown_sha256": "c0ea58abfc32e33dc0008aa179dbcafbbd62c7866aaed4356980b2c4d82e1edd"
+  },
+  "arbitrary_binary_input_bits": 1517,
+  "protocol_or_state_assumptions_added": false,
+  "four_state_known_checks": 8,
+  "four_state_XZ_checks": 12136,
+  "unknown_selector_checks": 8,
+  "stale_and_inverted_child_controls_have_counterexamples": true,
+  "unused_controller_parser_failure_preserved": true,
+  "original_R_fault_capture_wiring_audited": true,
+  "error_capture_event_kernel_still_unqualified": true,
+  "actual_control_selector_and1416_bit_cache_history_proofs_reused_by_unchanged_cones": true,
+  "full_original_replay_transactions": 14884,
+  "commits": 10423,
+  "pairs": 4461,
+  "all2470_subevent_bits_844_Qs_9216_RAM_100clocks_retained": true,
+  "invalid_geometries": 403,
+  "reset_checks_retained": true,
+  "negative_controls": [
+    {
+      "mutation": "early-write",
+      "engine": "icarus",
+      "original_assertion": "PACKET invalid geometry committed bit=0"
+    },
+    {
+      "mutation": "drop-forward",
+      "engine": "icarus",
+      "original_assertion": "PACKET second result mismatch record=203"
+    },
+    {
+      "mutation": "stale-intermediate",
+      "engine": "icarus",
+      "original_assertion": "PACKET second result mismatch record=16"
+    },
+    {
+      "mutation": "stale-root",
+      "engine": "icarus",
+      "original_assertion": "CACHED_PACKET committed root tag mismatch record=2"
+    },
+    {
+      "mutation": "wrong-fall-cram",
+      "engine": "verilator",
+      "original_assertion": "PACKET coverage incomplete pairs=0 writes=0 forward=0"
+    },
+    {
+      "mutation": "drop-fall-clock",
+      "engine": "verilator",
+      "original_assertion": "PACKET coverage incomplete pairs=70 writes=0 forward=0"
+    },
+    {
+      "mutation": "invert-low",
+      "engine": "verilator",
+      "original_assertion": "PACKET first result mismatch record=129"
+    },
+    {
+      "mutation": "stale-low",
+      "engine": "verilator",
+      "original_assertion": "PACKET first result mismatch record=7734"
+    }
+  ],
+  "component_corners": [
+    {
+      "corner": "7_slow_1100mv_100c",
+      "setup": {
+        "slack_ns": -1.787,
+        "source": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|canonical_pins[151]",
+        "sink": "result[957]~reg0",
+        "arrival_ns": 20.463,
+        "required_ns": 18.676,
+        "report_sha256": "f0bd0394d4c104b7479af8daf94e26cd038f32889dcbb7c2c3d75769d6264c62"
+      },
+      "hold": {
+        "slack_ns": 0.332,
+        "source": "launch[245]",
+        "sink": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|canonical_pins[244]",
+        "arrival_ns": 4.601,
+        "required_ns": 4.269,
+        "report_sha256": "6169e7c6f785e9de56d2032fc7811f75fb8d96be9fb66376990661c59a3ea171"
+      },
+      "evaluator": {
+        "slack_ns": -1.781,
+        "source": "launch[427]~DUPLICATE",
+        "sink": "result[1264]~reg0",
+        "arrival_ns": 20.57,
+        "required_ns": 18.789,
+        "report_sha256": "3d70ead7b5c2fbb503440807a00c50c7b95a78b2e6169f0a2b0199e3c2ab95b5"
+      },
+      "pulse_width_ns": 6.465
+    },
+    {
+      "corner": "7_slow_1100mv_-40c",
+      "setup": {
+        "slack_ns": -2.039,
+        "source": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|canonical_pins[151]",
+        "sink": "result[957]~reg0",
+        "arrival_ns": 20.871,
+        "required_ns": 18.832,
+        "report_sha256": "3331d59809bd442faa8119114a2537ec0710523d198e4921d5bfac696d71e32d"
+      },
+      "hold": {
+        "slack_ns": 0.324,
+        "source": "launch[245]",
+        "sink": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|canonical_pins[244]",
+        "arrival_ns": 4.763,
+        "required_ns": 4.439,
+        "report_sha256": "4b819a95b47dbb82a7a9ab26766534efd2f8ad1a7697269d40eaa5c8ec87a0e4"
+      },
+      "evaluator": {
+        "slack_ns": -1.984,
+        "source": "launch[551]",
+        "sink": "result[957]~reg0",
+        "arrival_ns": 20.816,
+        "required_ns": 18.832,
+        "report_sha256": "05a2470737725e818099d478f1b50ccfdec86bddff48a815d8351cc4d29c916a"
+      },
+      "pulse_width_ns": 6.491
+    },
+    {
+      "corner": "MIN_fast_1100mv_100c",
+      "setup": {
+        "slack_ns": 2.744,
+        "source": "input_stage[880]",
+        "sink": "launch[880]",
+        "arrival_ns": 13.921,
+        "required_ns": 16.665,
+        "report_sha256": "5e1fcbd794484618c5f491e46ebdf8ae8c60eb24039a9a085732f4d7c2d80925"
+      },
+      "hold": {
+        "slack_ns": 0.183,
+        "source": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|cache_valid",
+        "sink": "dorado_r_front_packet_step:actual|dorado_packet_prefix_cache:entry_cache|cache_valid",
+        "arrival_ns": 2.003,
+        "required_ns": 1.82,
+        "report_sha256": "7727456c2505b54ea4fb5349f572d180e31540435181dc6e9a038e666f3ee060"
+      },
+      "evaluator": {
+        "slack_ns": 5.445,
+        "source": "launch[427]~DUPLICATE",
+        "sink": "result[1264]~reg0",
+        "arrival_ns": 11.231,
+        "required_ns": 16.676,
+        "report_sha256": "644efffa13da83eac4fe127c57c327e8539e8673c542e66d04dd333fe18e1732"
+      },
+      "pulse_width_ns": 6.178
+    },
+    {
+      "corner": "MIN_fast_1100mv_-40c",
+      "setup": {
+        "slack_ns": 3.465,
+        "source": "input_stage[880]",
+        "sink": "launch[880]",
+        "arrival_ns": 13.077,
+        "required_ns": 16.542,
+        "report_sha256": "4a20d3509ed8f092d3d32fef56faa31945a5b810bca1c94e9472bc32d0bf030b"
+      },
+      "hold": {
+        "slack_ns": 0.149,
+        "source": "launch[1021]~DUPLICATE",
+        "sink": "result[1845]~reg0",
+        "arrival_ns": 1.973,
+        "required_ns": 1.824,
+        "report_sha256": "ab30dab8f7df74aa9888e44be153486e6d7ce9f18d7da980bff6a87c0ca4e7c8"
+      },
+      "evaluator": {
+        "slack_ns": 7.028,
+        "source": "launch[427]~DUPLICATE",
+        "sink": "result[1264]~reg0",
+        "arrival_ns": 9.531,
+        "required_ns": 16.559,
+        "report_sha256": "634c929a4475befb392365d1c4c3546eb21cd8d3e0ef320f1afb3328c65b3b57"
+      },
+      "pulse_width_ns": 6.114
+    }
+  ],
+  "component_area": {
+    "ALMs": 9771,
+    "registers": 8198,
+    "MLAB_bits": 9216
+  },
+  "component_15ns_pass": false,
+  "best_previous_setup_min_ns": -2.538,
+  "this_setup_min_ns": -2.039,
+  "worst_path_data_delay_ns": 16.321,
+  "remaining_worst_path": "entry canonical-context equality through SINGLE shared-state consistency result",
+  "next_step": "Source-bound common owner/pin/root publication and canonical-match specialization; retain generic prefix key and all checks",
+  "variant_selected": false,
+  "source_and_device_timestamps_qualified": false,
+  "native60ns_or_hardware_speed_qualified": false,
+  "hardware_changed": false,
+  "hardware_requires_user_release": true,
+  "full_goal_active": true
+}

@@ -6,6 +6,28 @@ assembled or loaded; the qualified hardware core and measured speed are unchange
 
 ## Full native timing and clock-rate follow-up
 
+`parallel-r-fault-summary.json` retains the exact parallel SINGLE faults[1]
+calculation, with all11 actual child arguments bound and every other function
+byte unchanged. All1517 arbitrary binary inputs prove, both bad controls reject;
+8 known/12,136 X/Z checks pass, and wrong unknown fallback rejects. Preserve the
+unused enclosing-controller parser failure; V2 only excludes that uninstantiated
+file from parsing, with the frozen real child graph/hierarchy unchanged.
+Unchanged cache/ready/owner/SRAM cones reuse the split context/history proof.
+Both full original processor replays pass every result/Q/RAM/clock/geometry/
+reset assertion and identical coverage. Eight full compiled corruptions reject,
+including new first-result mismatches at129/7734.
+
+Full4943-output15ns setup improves to -1.787/-2.039/+2.744/+3.465ns, still
+REJECTED. Hold/pulse minima +0.149/+6.114ns, zero UCPs,9771ALMs/8198regs/9216MLAB
+bits; all86 collected members/exited handles/hash checks pass. Next bind the
+real common context publication before canonical-match specialization. Keep
+refresh comparison unless proven constant; keep generic PREFIX key comparison:
+cache_valid can survive a fast commit with the OLD key. Preserve all original
+R aliases/history/results/guards. The original H raw-fault/Clock0/k21 pipeline
+and first-stage error consumers are audited; no event migration/timing waiver
+follows. No new native/image/hardware-speed qualification; the FPGA stays with
+the user and the full goal remains active.
+
 `split-processor-packet-summary.json` retains separated paired-first and
 single/fallback functions with one SRAM owner/final commit. Every input of both
 first calls matches under the original geometry; the second/ready guards stay.
@@ -1402,8 +1424,8 @@ This is improved timing, without native selection, firmware or speed qualificati
 
 ## Evidence and remaining work
 
-`manifest.json.gz` now maps84,776 members to9,783 deduplicated compressed blobs;
-lossless readback verifies3,168,738,741 unique raw bytes and117,337,809 compressed
+`manifest.json.gz` now maps85,598 members to9,883 deduplicated compressed blobs;
+lossless readback verifies3,188,930,644 unique raw bytes and118,202,615 compressed
 blob bytes, including the timestamp/fanout follow-up above.
 `summary.json` records the flag gates; `capture-followup-summary.json` records
 the terminal v6 and bounded pointer checks. `address-followup-summary.json`

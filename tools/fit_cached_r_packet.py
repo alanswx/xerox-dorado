@@ -19,23 +19,33 @@ from test_r_front_forward_view import sha
 ROOT=Path(__file__).resolve().parents[1]
 
 
-def prepare(tests,out,equivalence=None):
+def prepare(tests,out,equivalence=None,fault_proof=None,four_state=None,bad_unknown=None):
     assert not out.exists();s=json.loads((tests/'run-state.json').read_text())
     assert s['status']=='PASS_ENTRY_CACHED_FULL_PROCESSOR_PACKETS' and s['mutation'] is None
     assert s['all100_clock_counts_match'] and 'resets=1' in s['cache_coverage']
-    equivalence_hash=None
+    equivalence_hash=None;fault_qualification=None;fault_audit=None
     if s.get('pair_direct',False):
         assert equivalence is not None
         e=json.loads((equivalence/'run-state.json').read_text())
         assert e['status']=='PASS_PAIR_DIRECT_CACHE_READY_AND_PERMISSION_INDUCTION'
         assert e.get('sparse_pair',False)==s.get('sparse_pair',False)
-        assert e.get('split_pair',False)==(s.get('packet_variant')=='split-pair')
+        assert e.get('split_pair',False)==(s.get('packet_variant') in ['split-pair','split-parallel-fault'])
         for n,h in e['files'].items():assert sha(equivalence/n)==h
         for row in e['cases']:
             d=equivalence/row['mode'];assert row['passed'] and row['returncode']==0
             for n,h in row['files'].items():assert sha(d/n)==h
             assert sha(d/'proof.log')==row['log_sha256']
-        assert (tests/'packet.sv').read_text().startswith((equivalence/'new-packet.sv').read_text()+'\n')
+        if s.get('packet_variant')=='split-parallel-fault':
+            from audit_parallel_r_fault import audit,evidence
+            from prove_cp_prefix_cache import module
+            assert fault_proof is not None and four_state is not None and bad_unknown is not None
+            actual=(tests/'packet.sv').read_text();raw=(tests/'candidate.sv').read_text()
+            fault_qualification=evidence(fault_proof,four_state,bad_unknown,tests)
+            fault_audit=audit(raw,actual)
+            assert module(actual,'dorado_r_front_packet_step').replace(' dorado_r_front_parallel_fault_step single(',
+                ' dorado_r_front_prefix_step single(',1)==module((equivalence/'new-packet.sv').read_text(),'dorado_r_front_packet_step')
+        else:
+            assert (tests/'packet.sv').read_text().startswith((equivalence/'new-packet.sv').read_text()+'\n')
         if s.get('sparse_pair',False):
             assert (equivalence/'controlled-stage.sv').read_text() in (tests/'packet.sv').read_text()
         equivalence_hash=sha(equivalence/'run-state.json')
@@ -59,7 +69,7 @@ def prepare(tests,out,equivalence=None):
     for n in ['fit_control_clock.py',Path(__file__).name]:shutil.copy2(ROOT/'tools'/n,out/n)
     r=dict(scope=__doc__,clock_period_ns=15,input_bits=1652,result_bits=4943,subevent_result_bits=2470,
         tests=str(tests),tests_state_sha256=sha(tests/'run-state.json'),pair_direct=s.get('pair_direct',False),sparse_pair=s.get('sparse_pair',False),packet_variant=s.get('packet_variant'),
-        equivalence_state_sha256=equivalence_hash,actual_entry_cache_and_auxiliary_state_retained=True,
+        equivalence_state_sha256=equivalence_hash,fault_qualification=fault_qualification,fault_audit=fault_audit,actual_entry_cache_and_auxiliary_state_retained=True,
         single_physical_RAM_owner_bits=9216,native_canonical_match_specialization_used=False,
         assembly_permitted=False,native_qualified=False,hardware_changed=False,hardware_requires_user_release=True,
         files={str(p.relative_to(out)):sha(p) for p in out.rglob('*') if p.is_file()})
@@ -69,4 +79,6 @@ def prepare(tests,out,equivalence=None):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--tests',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--equivalence',type=Path)
-    a=p.parse_args();prepare(a.tests.resolve(),a.output.resolve(),a.equivalence.resolve() if a.equivalence else None)
+    for n in ['fault-proof','four-state','bad-unknown']:p.add_argument('--'+n,type=Path)
+    a=p.parse_args();prepare(a.tests.resolve(),a.output.resolve(),a.equivalence.resolve() if a.equivalence else None,
+        a.fault_proof.resolve() if a.fault_proof else None,a.four_state.resolve() if a.four_state else None,a.bad_unknown.resolve() if a.bad_unknown else None)

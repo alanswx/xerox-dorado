@@ -6,6 +6,64 @@ Continue Quartus on misterubuntu and simulation on the Mac. Notify the user
 when a concrete build is ready for hardware qualification; wait for allocation.
 The goal remains active. This supersedes earlier permission for immediate reloads.
 
+Parallel R-fault calculation QUALIFIED digitally; full15ns improves to a
+2.039ns miss, still REJECTED (2026-10-24). `parallel-r-fault-summary.json`
+retains only SINGLE faults[1] computed as two constant-FF209 cofactors of the
+actual pure child. Known selector picks the exact matching invocation; X/Z
+returns the unchanged original fault. Every other byte of the function stays
+identical. All11 actual child inputs bind exactly; the fault output is never
+read internally, so owner/cache/ready/SRAM cones remain unchanged. No saved
+state, guest cycle, RAM copy or timing exception is introduced.
+
+All1517 binary child inputs prove with no protocol/state assumptions. Wrong
+polarity and stale pins produce counterexamples. Compiled tests pass8 known
+and12,136 X/Z cases over every input position/four backgrounds, including8
+unknown selectors; inverted fallback rejects at trial0/bit473. Preserve V1's
+Yosys parser failure on the UNUSED enclosing cache's initialized output ports.
+V2 parses the same frozen real child graph with only that uninstantiated file
+excluded; hierarchy-check resolves every actual child module. The child logic
+is unchanged. Source-level field substitution reuses the full split1416-bit
+cache/history and control/selector theorems; it does not specialize an
+uncommitted second event or assume an architectural input history.
+
+Both FULL original14,884-transaction processor replays PASS:10,423 commits/
+4,461 pairs, all2470-bit subevent results/844Qs/9216RAM/100clocks, unchanged
+8885fast/1538staged/1538prep/one-reset coverage and403 invalid geometries.
+All eight compiled corruptions reject: prior six at original assertions plus
+new wrong-polarity/stale-cofactor inputs at first-result records129/7734.
+All fit/map/STA/corner jobs are terminal/exit0;86 collected members/frozen
+inputs/exited handles verify. Archive SHA
+5dc549fbdc7e384d3d196efd29ad4fefeb1507d45305e307232e7753a520a507.
+Same15ns/2ns-I/O, all4943 outputs. Setup -1.787/-2.039/+2.744/+3.465ns;
+hold +0.332/+0.324/+0.183/+0.149ns; pulse+6.465/+6.491/+6.178/+6.114ns;
+zero UCPs, no recovery/removal endpoints. Evaluator setup
+-1.781/-1.984/+5.445/+7.028ns. Area9771ALMs/8198regs/9216MLAB bits includes
+fixture resources. Previous best setup was-2.538ns. No native selection or
+hardware-speed claim; last hardware rate remains4.025473M StartCycle ISSUES/s.
+
+NEXT: worst path is now canonical_pins151 -> entry fast comparison -> SINGLE
+control/child task transfer -> shared_state_mismatch (last_result954, fitted
+result957),16.321ns/16levels at the cold slow corner. Establish the REAL
+protected publication of closed owners/before-pins/WHOLE final root and then
+prove canonical-match specialization (retain refresh comparison unless its
+constant is source-bound). Keep all1416 cache-state/history and all result/
+error/ownership checks. Use generic/specialized fits of the SAME actual owned
+caller, preserving its16 original R aliases rather than inventing duplicate
+architectural storage. Do not claim the arbitrary-input generic fixture has
+that ownership contract. Retain the generic PREFIX KEY comparison: cache_valid
+can survive a fast commit while cache_key still names the OLD context, so it
+does NOT imply current owners equal the saved key. No tag pruning on that
+assumption. Refit/replay before source/CP/device interior epoch integration,
+all rotations/debug/consumers and the complete native60ns tests.
+
+Original H error wiring is also audited from Xerox's wire list: raw g21.p2
+R fault -> k21.D2/Q2 -> next Clock0 k21.D3/RmPerr. The FIRST-stage Q2/Q4 also
+feed l23; preserve all6 existing k21 bits and the pre-edge data/old-Q feedback.
+This is a capture-contract record, not an event-kernel migration or a timing
+waiver. Full A–F/66.7MHz SDRAM/Main/daemon/Cedar/Rollback/persistence/three-boot/
+two-hour hardware objective stays active; FPGA snapshots deferred. No FPGA
+endpoint was touched. The user keeps it until explicit release.
+
 Split paired/single processor QUALIFIED digitally; full15ns improved,
 still REJECTED (2026-10-24). `split-processor-packet-summary.json` retains
 three combinational invocations with one physical SRAM owner/final commit.
@@ -40,19 +98,8 @@ zero UCPs, no recovery/removal endpoints. Evaluator setup
 fixture resources. This is substantial component timing progress, not a
 native60ns pass or hardware-speed gain. All split fits/replays are terminal.
 
-NEXT: the worst path now stays in SINGLE fallback: saved-prefix task/priority
--> FF decode/after_child209 -> pre/settled operand views -> R bypass/l07 ->
-first_result1410 (faults[1], fitted result3883). Keep the entire fault result.
-Test a parallel two-cofactor calculation of that one diagnostic bit selected
-by late FF decode, with exact binary/four-state equivalence, meaningful bad
-controls, full original replay and all4943 timing endpoints. Add no saved state
-or guest cycles and do not waive the remaining path. Then qualify actual common
-closed-owner/root/before-pin publication and entry-only context pruning, source/
-CP/device interior epochs, all rotations/debug fallbacks and remaining consumers
-before complete native60ns testing. The full A–F/66.7MHz SDRAM/Main/daemon/Cedar/
-Rollback/persistence/three-boot/two-hour objective remains active; snapshots
-remain deferred. Last hardware rate4.025473M StartCycle ISSUES/s is unchanged.
-No native selection/image/hardware access. The user still keeps the FPGA.
+That R-fault optimization is now qualified above. Its new worst path is the
+canonical-context match, with full15ns setup still missing2.039ns.
 
 Sparse FIRST control fall completed; full timing still REJECTED (2026-10-24).
 `sparse-first-packet-summary.json` preserves the opt-in specialization. The
