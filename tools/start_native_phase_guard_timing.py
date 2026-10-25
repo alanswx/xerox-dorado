@@ -26,7 +26,9 @@ def start(stage,out):
     check='from pathlib import Path\np=Path('+repr(project)+')\nassert not p.exists(), "Observe existing project; do not restart"\n'
     subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10','misterubuntu','python3','-'],input=check,text=True,check=True)
     manifest_sha=sha(stage/'r-front-control-native.json')
-    names=sorted(r['source_hashes'])+['r-front-control-native.json','build_r_front_ready_native.py','stage_native_phase_guard_timing.py']
+    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py']if(stage/n).is_file()]
+    assert stagers,'Missing the executed staging helper'
+    names=sorted(r['source_hashes'])+['r-front-control-native.json','build_r_front_ready_native.py',*stagers]
     bundle=out/'stage.tgz'
     with tarfile.open(bundle,'w:gz')as archive:
         for n in names:archive.add(stage/n,arcname=n,recursive=False)

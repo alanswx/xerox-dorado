@@ -18,7 +18,7 @@ from review_baseboard_clock_consumer import verify
 from test_external_r_packet import sha
 
 
-def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proof=None,address_proof=None):
+def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proof=None,address_proof=None,parallel_proof=None):
     assert not out.exists();out.mkdir(parents=True)
     s=json.loads((source/'run-state.json').read_text());verify(source,s['files'])
     assert s['status']=='PASS_COMBINED_CP_COHERENT_PACKETS'and s['experimental_j19_ordered_epochs']
@@ -38,6 +38,14 @@ def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proo
         assert sha(source/'adapters/dorado_local_task_capture_step.sv')==t['source_task_sha256']
         task_after=task_transform(task_before)
         assert task_after==(task_proof/'native-task-after.sv').read_text()
+    if parallel_proof:
+        from qualify_native_task_parallel import transform as parallel_transform
+        assert task_proof and task_after is not None
+        t=json.loads((parallel_proof/'run-state.json').read_text());verify(parallel_proof,t['files'])
+        assert t['status']=='PASS_ACTUAL_NATIVE_TASK_PARALLEL_CAPTURE'and all(a['passed']for a in t['actions'])
+        assert sha(task_proof/'native-task-after.sv')==t['source_task_sha256']
+        task_after=parallel_transform(task_after)
+        assert task_after==(parallel_proof/'native-task-after.sv').read_text()
     processor_after=None
     if processor_proof:
         from qualify_native_processor_terminal import transform as processor_transform
@@ -92,7 +100,8 @@ def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proo
     helpers=out/'executed-tools';helpers.mkdir()
     for n in [Path(__file__).name,'qualify_native_phase_fall_guard.py',*(['qualify_native_task_terminal.py']if task_proof else[]),
               *(['qualify_native_processor_terminal.py']if processor_proof else[]),
-              *(['qualify_native_address_task_owner.py','prove_native_address_task_owner.py']if address_proof else[])]:
+              *(['qualify_native_address_task_owner.py','prove_native_address_task_owner.py']if address_proof else[]),
+              *(['qualify_native_task_parallel.py']if parallel_proof else[])]:
         shutil.copy2(Path(__file__).with_name(n),helpers/n)
     state=dict(status='RUNNING',scope=__doc__,source=str(source),engine=engine,started=time.time(),
         proof=str(proof),proof_state_sha256=sha(proof/'run-state.json'),source_state_sha256=sha(source/'run-state.json'),
@@ -101,13 +110,16 @@ def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proo
         only_functional_change=('native shared fall-stability support102->85; direct sparse frames'if p.get('sparse_shared_capture_frames')else'native shared fall-stability support102->85')+
                               ('; shared task consumer16->7 waves and proved terminal closure'if task_proof else'')+
                               ('; separate processor phase16->5 waves and proved terminal closure'if processor_proof else'')+
-                              ('; one shared child task result supplies address/operand consumers'if address_proof else''),
+                              ('; one shared child task result supplies address/operand consumers'if address_proof else'')+
+                              ('; separate task clock resolution and parallel last-capture selection'if parallel_proof else''),
         task_terminal_proof=str(task_proof)if task_proof else None,
         task_terminal_proof_state_sha256=sha(task_proof/'run-state.json')if task_proof else None,
         processor_terminal_proof=str(processor_proof)if processor_proof else None,
         processor_terminal_proof_state_sha256=sha(processor_proof/'run-state.json')if processor_proof else None,
         address_task_owner_proof=str(address_proof)if address_proof else None,
         address_task_owner_proof_state_sha256=sha(address_proof/'run-state.json')if address_proof else None,
+        task_parallel_proof=str(parallel_proof)if parallel_proof else None,
+        task_parallel_proof_state_sha256=sha(parallel_proof/'run-state.json')if parallel_proof else None,
         sparse_shared_capture_frames=p.get('sparse_shared_capture_frames',False),wrong_shared_start_frame=wrong_frame,
         native_cells_j19_single_SRAM_and_commit_barriers_retained=True,source_files=rows,actions=[],
         files={str(p.relative_to(out)):sha(p)for p in out.rglob('*')if p.is_file()})
@@ -144,7 +156,9 @@ if __name__=='__main__':
     p.add_argument('--task-proof',type=Path)
     p.add_argument('--processor-proof',type=Path)
     p.add_argument('--address-proof',type=Path)
+    p.add_argument('--parallel-proof',type=Path)
     a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.proof.resolve(),a.output.resolve(),a.engine,a.wrong_frame,
                                         a.task_proof.resolve()if a.task_proof else None,
                                         a.processor_proof.resolve()if a.processor_proof else None,
-                                        a.address_proof.resolve()if a.address_proof else None))
+                                        a.address_proof.resolve()if a.address_proof else None,
+                                        a.parallel_proof.resolve()if a.parallel_proof else None))

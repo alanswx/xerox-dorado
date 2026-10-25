@@ -7,7 +7,83 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST ACTUAL SHARED TASK OWNER AND FULL-CORE REJECTION (2026-10-25):
+LATEST STRUCTURAL TASK CAPTURE AND ACTUAL NATIVE HISTORY (2026-10-25):
+The shared-task full-core job3571235 is TERMINAL: ALL nine stages exit0,
+ALL574 source hashes verified and327 reports/logs collected. Reject ALL corners:
+slow100C -11.096ns, slow-40C -11.281ns (the true worst), fast100C -2.589ns,
+fast-40C -1.029ns. Hold minimum0.165ns;39,908/41,910ALMs (95%),55,173 registers,
+2,506,566 memory bits and331 RAM blocks. This improves the previous -13.075ns
+worst but still fails timing. The slow100C path is17 levels/18.012ns against a
+7.500ns half-cycle: MemC d15.qa -> asynchronous d12 cache-tag RAM -> dMiss1/
+Hold pin386 -> control frames -> task repeated-event check -> control_ready ->
+machine_enable -> falling network_step. No assembly, hardware load or speed gain.
+Previous processor full Icarus612 and shared-owner full2624/words2625 are now
+ALL TERMINAL PASS, so those changes pass full+words in BOTH engines.
+
+The next candidate changes that task consumer structurally. Its seven-wave
+evaluator carried88 state bits; only TWO StartCycle bits feed local clock
+resolution, while controller/task Q comes from four shared capture frames.
+Resolve those clocks/events separately, then select each register's last capture
+with parallel reductions. ALL139 state/event/repeat/unsettled outputs prove
+identical for ALL678 arbitrary binary inputs, no assumptions. Nondefault wave
+parameters and the complete original unknown fallback remain. A deliberately
+wrong same-event data epoch changes real processor state bit55, not only a
+diagnostic. Four-state4071 checks/139 outputs PASS; the bad unknown shortcut
+changes real state/events. BOTH complete Verilator programs PASS with every
+original2470-bit result/844 Q/9216 SRAM/100 clocks, native16 R cells, j19 epochs,
+one SRAM owner and all assertions retained. Sparse coverage stays514/full and
+1/words, expanded0: no guest-cycle reduction is inferred.
+
+NEW single timing-only builder3827091; map3827096 exits0 and SAME fit3842526
+is verified live (the earlier archived observation is during mapping):
+`/home/alans/mister/Dorado_CPRead15_TaskParallel_20261025`.
+Local stage `native-task-parallel-full15-stage-v1-20261025` has574 exact inputs;
+only `dorado_local_task_capture_step.sv` changes relative to the shared-task fit.
+Constraints, PLL66.666667MHz/SYSPER4, timers and all machine/storage/network
+barriers remain. Native196-source elaboration PASSES with10 visible UNOPTFLAT
+warnings (previous7); no physical-loop closure is inferred from elaboration.
+Follow SAME Icarus full9410/words9409, verified live, rather than treating them
+as passes. Follow SAME Quartus job; do not restart from a timeout. No assembly.
+
+The passive native ALU diagnostic now produced all128 records. Comparing only
+the80 physical flag bits finds127 matches and ONE real file-bit mismatch at
+index0/HOST423060512: e13 bit0 changes but the original level-write predictor
+does not. This is a missing native implementation-history boundary in the
+probe, not evidence of a running guest bug. The native F10145A commits on
+WRITE' closing from its EXISTING10-bit {ce_lat,d_lat,a_lat,we_d} window. g11/
+h11 also retain EXISTING seven-bit {ck_d,d_pre} histories apiece (PRECAP=1).
+The exact native frontier therefore has104 bits:80 physical plus24 history.
+
+New stateless helpers preserve those exact protocols; they add no owner/reset/
+clock. All74 file/history outputs prove against the actual cell for85 arbitrary
+inputs; wrong closing address/data change actual RAM. The first proof frontend
+rejection remains retained. Enumerating all1024 initial histories finds unique
+0x220 compatible with the128 observed RAM states; independently retained helper
+history then replays ALL128 in BOTH engines, ending0x221. That initial history
+is INFERRED, not directly sampled. Zero-history trial fails the real RAM at
+record0. The complete104-bit transfer also proves against all four native cells
+for138 arbitrary raw state/mux/data/clock/advance inputs; wrong g11 data epoch
+changes physical Q. Actual native clock-buffer/data arrivals and common-owner
+integration are STILL REQUIRED. These helpers remain UNSELECTED.
+
+All128 samples precede active flag coverage: candidate clock events[0,0,0,0],
+f17/g11/h11 unexercised. Do not call this a native phase-contract or Cedar pass.
+Read-only LLDB observed active original flags on SAME69736 and detached/resumed;
+one boundary is not chronological proof. Original62048/69736/87487 remain at
+fixed5B/5B/600M HOST bounds, unchanged. Do not extend87487 to turn this narrow
+prefix into a boot gate. Protected pack hash unchanged; hardware untouched.
+
+NEXT: collect the SAME parallel-task fit's all-device/corner paths and terminal
+Icarus results, then use measured timing to choose the next structural change.
+Still required: actual flag/operand producer chronology/common ownership,
+four15ns/60ns phases and all timers; separate SDRAM66.7MHz command/DQ/reset/
+refresh qualification; pinned progress/wait measurements and full A–F original
+interactive Cedar/Rollback/persistence/three fresh boots/two-hour stress.
+Diagnostic cadence remains120ns; no selected hardware speed gain. Full goal
+ACTIVE, full FPGA snapshots deferred. Receipt: `native-task-parallel-summary.json`
+in `fpga/mister/reports/2026-10-23-native-flag-windows`.
+
+PREVIOUS ACTUAL SHARED TASK OWNER AND FULL-CORE REJECTION (2026-10-25):
 SAME task-terminal job3440305 is TERMINAL: all nine stages exit0, all574 source
 hashes verified,327 reports/logs collected. REJECT timing at ALL four corners:
 slow100C -13.075ns, slow-40C -13.071ns, fast100C -3.454ns, fast-40C -1.779ns.

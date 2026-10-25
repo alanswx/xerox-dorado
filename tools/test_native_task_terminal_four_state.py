@@ -53,8 +53,9 @@ def run(proof,out,bad=False):
     assert not out.exists();out.mkdir(parents=True)
     s=json.loads((proof/'run-state.json').read_text());verify(proof,s['files'])
     processor=s['status']=='PASS_ACTUAL_NATIVE_PROCESSOR_TERMINAL_CLOSURE'
-    assert s['status']in ['PASS_ACTUAL_NATIVE_TASK_TERMINAL_CLOSURE','PASS_ACTUAL_NATIVE_PROCESSOR_TERMINAL_CLOSURE']and all(a['passed']for a in s['actions'])
-    witness=proof/('one-wave-counterexample'if processor else'four-wave-counterexample')
+    parallel=s['status']=='PASS_ACTUAL_NATIVE_TASK_PARALLEL_CAPTURE'
+    assert s['status']in ['PASS_ACTUAL_NATIVE_TASK_TERMINAL_CLOSURE','PASS_ACTUAL_NATIVE_PROCESSOR_TERMINAL_CLOSURE','PASS_ACTUAL_NATIVE_TASK_PARALLEL_CAPTURE']and all(a['passed']for a in s['actions'])
+    witness=proof/('one-wave-counterexample'if processor else'wrong-data-epoch'if parallel else'four-wave-counterexample')
     sig={x['name']:x for x in json.loads((witness/'counterexample.json').read_text())['signal']}
     def value(n):
         row=sig[n];return int(row['data'][0],2)if'data'in row else int(row['wave'][0],2)
@@ -62,11 +63,11 @@ def run(proof,out,bad=False):
     fields=[('q',64),('cb',1),('ca',1),('pb',28),('pa',28)]if processor else[('stop_tasks',1),('canonical',2),('q',88),('cb',1),('ca',1),('pb',76),('pa',76),('frames',433)]
     for n,width in fields:
         seed=(seed<<width)|value(n)
-    for n in ['original.sv','actual.sv','top.sv']:shutil.copy2(proof/('five-wave-complete-result'if processor else'seven-wave-complete-result')/n,out/n)
+    for n in ['original.sv','actual.sv','top.sv']:shutil.copy2(proof/('five-wave-complete-result'if processor else'complete-result'if parallel else'seven-wave-complete-result')/n,out/n)
     if bad:
         p=out/'actual.sv';text=p.read_text();token='default:begin end'
         assert text.count(token)==1
-        result="{short_result[108:1],1'b0}"if processor else"{q,events,repeated,1'b0}"
+        result="{short_result[108:1],1'b0}"if processor else'parallel_result'if parallel else"{q,events,repeated,1'b0}"
         p.write_text(text.replace(token,'default:{state_next,clock_events,repeated_events,unsettled}='+result+';',1))
     template=TB
     if processor:
@@ -95,7 +96,7 @@ def run(proof,out,bad=False):
     passed=state['actions'][0]['returncode']==0 and (code!=0 and any(
         f'output={k} 'in log for k in range(1,outputs))if bad else
         code==0 and f'NATIVE_TASK_TERMINAL_XZ_PASS known=3 unknown={6*bits} checks={6*bits+3} outputs={outputs}'in log)
-    prefix='PASS_NATIVE_PROCESSOR_TERMINAL_'if processor else'PASS_NATIVE_TASK_TERMINAL_'
+    prefix='PASS_NATIVE_PROCESSOR_TERMINAL_'if processor else'PASS_NATIVE_TASK_PARALLEL_'if parallel else'PASS_NATIVE_TASK_TERMINAL_'
     state.update(status=(prefix+('UNKNOWN_COUNTEREXAMPLE'if bad else'XZ'))if passed else
                  'TERMINAL_NATIVE_TASK_TERMINAL_XZ_NOT_ESTABLISHED',returncode=code,finished=time.time())
     save();print(state['status'],flush=True);return 0 if passed else 1

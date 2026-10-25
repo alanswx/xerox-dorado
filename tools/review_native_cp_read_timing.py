@@ -21,6 +21,8 @@ ROOT=Path(__file__).resolve().parents[1]
 PROJECT='/home/alans/mister/Dorado_CPRead15_Diag_v2_20261025'
 GUARD_PROJECT='/home/alans/mister/Dorado_CPRead15_PhaseGuard85_20261025'
 TASK_PROJECT='/home/alans/mister/Dorado_CPRead15_TaskTerminal_20261025'
+SHARED_PROJECT='/home/alans/mister/Dorado_CPRead15_SharedTask_20261025'
+PARALLEL_PROJECT='/home/alans/mister/Dorado_CPRead15_TaskParallel_20261025'
 
 QUERY=r'''from pathlib import Path
 import hashlib,io,json,sys,tarfile,time
@@ -64,14 +66,19 @@ def review(stage,out):
     assert not out.exists();out.mkdir(parents=True)
     source=json.loads((stage/'r-front-control-native.json').read_text())
     project=source['project']
-    assert project in [PROJECT,GUARD_PROJECT,TASK_PROJECT] and source['frequency_hz']==66666667 and source['sysper']==4
-    guarded=project in [GUARD_PROJECT,TASK_PROJECT]
-    task=project==TASK_PROJECT
+    assert project in [PROJECT,GUARD_PROJECT,TASK_PROJECT,SHARED_PROJECT,PARALLEL_PROJECT] and source['frequency_hz']==66666667 and source['sysper']==4
+    guarded=project!=PROJECT
+    task=project in [TASK_PROJECT,SHARED_PROJECT,PARALLEL_PROJECT]
+    shared=project in [SHARED_PROJECT,PARALLEL_PROJECT]
+    parallel=project==PARALLEL_PROJECT
     if guarded:
         assert source['status']=='PREPARED_FULL_NATIVE_15NS_PHASE_GUARD_DIAGNOSTIC'
         assert source['phase_guard_new_pins']==85 and source['all795_control_and_shared_frame_bits_proved']
     if task:assert source['task_terminal_proof_state_sha256']and source['sparse_shared_capture_frames']
-    query=QUERY.replace('Path(PROJECT)','Path('+repr(project)+')',1).replace('BUILDER_PID',str(3440305 if task else 3301754 if guarded else 2865831))
+    if shared:assert source['processor_terminal_proof_state_sha256']and source['address_task_owner_proof_state_sha256']and len(source['functional_HDL_changes'])==4
+    if parallel:assert source['task_parallel_proof_state_sha256']and source['incremental_functional_HDL_changes']==['src/verilog/rtl/dorado_local_task_capture_step.sv']
+    builder={PROJECT:2865831,GUARD_PROJECT:3301754,TASK_PROJECT:3440305,SHARED_PROJECT:3571235,PARALLEL_PROJECT:3827091}[project]
+    query=QUERY.replace('Path(PROJECT)','Path('+repr(project)+')',1).replace('BUILDER_PID',str(builder))
     (out/'collection-query.py').write_text(query)
     bundle=out/'terminal.tgz'
     with bundle.open('xb')as f:
@@ -109,10 +116,12 @@ def review(stage,out):
         project=project,source_files_verified=len(source['source_hashes']),terminal_state=observation['run_state'],
         nominal_ordinary_ns=120,target_ordinary_ns=60,frequency_hz=66666667,sysper=4,
         all_summary_checks=checks,setup_paths_by_corner=corners,worst_setup_path=worst,
-        critical_path=('Task-terminal candidate: inspect preserved full path; '+worst['From Node']+' -> '+worst['To Node']if task else
+        critical_path=(('Parallel-task candidate: 'if parallel else'Shared-task-owner candidate: 'if shared else'Task-terminal candidate: ')+'inspect preserved full path; '+worst['From Node']+' -> '+worst['To Node']if task else
                       'MemC a15 address -> asynchronous cache-tag b20 -> miss/Hold pin386 -> shared control frames -> processor T-path settling -> machine_enable -> falling-edge network_step'if guarded else
                        'R address -> asynchronous RM read -> ContA/ContB/direct capture -> event settling check -> machine_enable -> falling-edge network_step'),
         phase_guard_only=guarded and not task,task_terminal_and_sparse_frames=task,
+        shared_address_task_owner=shared,
+        parallel_task_capture=parallel,
         all_summary_slacks_nonnegative=all(float(x)>=0 for _,x in checks),
         fit_summary=fit,exact_stage_manifest_sha256=sha(stage/'r-front-control-native.json'),
         collection_sha256=sha(terminal/'collection.json'),bundle_sha256=sha(bundle),

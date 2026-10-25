@@ -14,7 +14,50 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST shared actual task result and measured full-core timing (2026-10-25):
+LATEST structural task capture and native storage/history (2026-10-25):
+
+- [x] Collect SAME shared-task fit3571235: ALL9 stages0,574 source hashes and
+  327 reports. Reject ALL corners: -11.096/-11.281/-2.589/-1.029ns; worst is
+  slow-40C, not slow100C. Area39,908ALMs/95%, hold0.165ns. Critical path remains
+  cache-tag miss/Hold -> control frames -> task repeated -> machine/network
+  enable; slow100C18.012ns/17 levels against7.500ns. No measured hardware gain.
+- [x] Finish previous processor full and shared-owner full+words Icarus: ALL
+  PASS. Those candidates now pass BOTH complete programs in BOTH engines.
+- [x] Replace the task consumer's88-bit settling recurrence with two-bit
+  StartCycle clock resolution followed by parallel last-capture selection.
+  Prove ALL139 results/678 arbitrary inputs without assumptions; retain full
+  unknown fallback/nondefault parameters. Wrong same-event data epoch changes
+  real state bit55. Four-state4071 checks and real unknown-shortcut rejection
+  PASS. Both complete Verilator programs retain every original assertion,
+  2470-bit result/844 Q/9216 SRAM/100 clocks/native16 R/j19/one SRAM owner.
+- [x] Stage574 exact inputs, one incremental HDL change, unchanged clocks/
+  constraints/timers/barriers. Native196-source elaboration passes with10
+  visible structural warnings (previous7). Start one timing-only job3827091:
+  `/home/alans/mister/Dorado_CPRead15_TaskParallel_20261025`. Map3827096 exits0;
+  SAME fit3842526 is verified live after the archived mapping observation.
+- [x] Analyze128 actual native ALU records:127 matches/one actual e13 RAM-bit
+  mismatch. Diagnose missing EXISTING native write-close10-bit history plus
+  two seven-bit PRECAP histories. Prove exact74-bit file/window transfer and
+  complete104-bit native flag/history transfer against actual cells. Both
+  engines replay128 file records with unique INFERRED initial history0x220;
+  missing-history/wrong-address/data/epoch trials corrupt actual storage.
+  Preserve first frontend rejection and original80-bit predictor mismatch.
+- [ ] Follow SAME Icarus9410/full and9409/words and SAME Quartus3827091. Collect
+  all physical paths/corners before selecting this candidate; elaboration is
+  not physical-loop closure. No assembly or hardware load yet.
+- [ ] Close actual clock/data arrivals and integrate native flag/operand
+  producers into the common chronological owner. Current128 prefix has NO
+  candidate flag-clock events and does not exercise f17/g11/h11; no phase-
+  contract/boot pass. Keep62048/69736/87487 and5B/5B/600M bounds unchanged.
+- [ ] Reach four15ns/60ns ordinary instructions (diagnostic still120ns), qualify
+  all timers and SDRAM66.7MHz command/DQ/reset/refresh, then measure pinned
+  progress/waits and complete A–F original Cedar/input/Rollback/persistence/
+  three fresh boots/two-hour stress. Full FPGA snapshots remain deferred.
+
+Receipt: `native-task-parallel-summary.json`. Hardware/protected media untouched,
+full goal ACTIVE. The next speed decision depends on this new measured fit.
+
+Previous shared actual task result and measured full-core timing (2026-10-25):
 
 - [x] Finish task-terminal/sparse full+words replays in BOTH engines, with
   every original result/Q/SRAM/100-clock assertion and native R/j19/owner check.
