@@ -1,0 +1,381 @@
+{
+  "status": "REVIEWED_SHARED_CAPTURE_FIT_PENDING_FULL_ICARUS",
+  "scope": "Archive shared capture progress without accepting pending native/full gates.\n\nKeep the wrong retained-prefix capture, declaration failure, architectural\ncounterexample, complete passing fixtures and verified live peers. Review the\nearlier binary budget independently; its timing miss rejects15ns even while\nthe corrected full-context variant and Icarus runs are still being observed.\n",
+  "full_Verilator_transactions": 14884,
+  "all2470_results": true,
+  "all844_owners": true,
+  "one9216_bit_SRAM": true,
+  "all100_clock_counts": true,
+  "geometry_cases": 403,
+  "cache_coverage": "fast=8885 staged=1538 prepare_edges=1538 resets=1",
+  "binary_frame_equivalence_inputs": 955,
+  "frame_output_results": 363,
+  "frame_depths": [
+    5,
+    24
+  ],
+  "full_context_bits": 1941,
+  "XZ_cases": 15528,
+  "bad_guard_changes_actual_processor_Q": true,
+  "wrong_start_changes_actual_architectural_bits": [
+    1303,
+    1405,
+    1406,
+    1410,
+    1414,
+    1419,
+    1420,
+    1538,
+    1543,
+    1658,
+    1660,
+    1663,
+    1674,
+    1715,
+    1719,
+    1720,
+    1721,
+    1722,
+    1724,
+    1725,
+    2198,
+    2199,
+    2200,
+    2201,
+    2203,
+    2206,
+    2207,
+    2211,
+    2212
+  ],
+  "peers": [
+    {
+      "directory": "shared-control-capture-icarus-v2-20261024",
+      "state_sha256": "b628ec2f29c60b91f1d28ce207e0b5b60d62ccad5a00b587a57d05b2a6fa228d",
+      "status": "PASS_FULL_PROCESSOR_SHARED_CAPTURE",
+      "observed": 1792907329.359457
+    },
+    {
+      "directory": "shared-control-capture-icarus-v4-20261024",
+      "state_sha256": "b2dc8feb6e6af17737ee7f04cfe6b6195dbaa51488e172886d4473f88d9fe0bb",
+      "status": "VERIFIED_LIVE_FULL_ICARUS",
+      "pid": 99375,
+      "ps": "99375 14:14 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/shared-control-capture-icarus-v4-20261024/test.vvp",
+      "observed": 1792907329.3698502,
+      "terminal_pass_required": true
+    }
+  ],
+  "historical": [
+    {
+      "directory": "shared-control-capture-verilator-v1-20261024",
+      "status": "TERMINAL_SHARED_CAPTURE_NOT_ESTABLISHED",
+      "state_sha256": "6323e7052e6afd6263f603180a077fdbed57fd3bf7fb04f0df2623b5550ad14e"
+    },
+    {
+      "directory": "shared-control-capture-verilator-diagnostic-v1-20261024",
+      "status": "TERMINAL_SHARED_CAPTURE_NOT_ESTABLISHED",
+      "state_sha256": "3ef690238e0e3ad29eb2eca76ebb68347792cfcebfe0dc841edf43cecc25272a"
+    },
+    {
+      "directory": "shared-control-capture-disabled-verilator-v1-20261024",
+      "status": "PASS_FULL_PROCESSOR_SHARED_CAPTURE",
+      "state_sha256": "5b3056be08bf29d0a4c304f1cbc93ced96d2816e98d165a3e91cc2ec3bec0b7d"
+    },
+    {
+      "directory": "shared-control-capture-verilator-v2-20261024",
+      "status": "PASS_FULL_PROCESSOR_SHARED_CAPTURE",
+      "state_sha256": "95e71c7a5e5a0482f90417029749673d3ca436522fb44a421bb5b82b4838f161"
+    },
+    {
+      "directory": "shared-control-capture-wrong-start-verilator-v2-20261024",
+      "status": "TERMINAL_SHARED_CAPTURE_NOT_ESTABLISHED",
+      "state_sha256": "5635ce1ab022db7392903c72d05697a3d496667b4337c73f2087c29ae7f6cce9"
+    },
+    {
+      "directory": "shared-control-capture-verilator-v3-20261024",
+      "status": "PASS_FULL_PROCESSOR_SHARED_CAPTURE",
+      "state_sha256": "111459c9f86b817c200029689cd22f76d9905a8a31d6efe6bb58a436a6caa8a3"
+    },
+    {
+      "directory": "shared-control-capture-icarus-v3-20261024",
+      "status": "TERMINAL_SHARED_CAPTURE_NOT_ESTABLISHED",
+      "state_sha256": "b65ff9826424b96c15c0505634061e9c17c49f0c1901e48dda09a2f7f9935ef4"
+    }
+  ],
+  "earlier_fit": {
+    "status": "REJECTED_15NS_EARLIER_BINARY_COMPONENT",
+    "corners": [
+      {
+        "condition": "7_slow_1100mv_100c",
+        "setup": {
+          "slack_ns": -1.499,
+          "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[233]",
+          "sink": "result[1415]~reg0",
+          "arrival_ns": 20.168,
+          "required_ns": 18.669,
+          "report_sha256": "a4502f6f66ca17d1472015a7a77d89d48d5fcff3571f1b3292f5a854f46cb94f"
+        },
+        "hold": {
+          "slack_ns": 0.311,
+          "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[17]",
+          "sink": "dorado_r_front_owned_packet:actual|dorado_r_front_packet_step:packet|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_v8o1:auto_generated|lutrama67~OBSERVABLEPORTAADDRESSREGOUT4",
+          "arrival_ns": 4.457,
+          "required_ns": 4.146,
+          "report_sha256": "ca88392f12f88e4043bafd9f633e7eda87c236ed3b07981e60f7c25e132546c5"
+        },
+        "evaluator": {
+          "slack_ns": -1.351,
+          "source": "launch[289]~DUPLICATE",
+          "sink": "result[1415]~reg0",
+          "arrival_ns": 20.02,
+          "required_ns": 18.669,
+          "report_sha256": "46fb4b7384edcda437b4cfd004e35da9dfaef7c579d9dfff40e105ed4e47a3d9"
+        },
+        "pulse_width_ns": 6.463
+      },
+      {
+        "condition": "7_slow_1100mv_-40c",
+        "setup": {
+          "slack_ns": -1.284,
+          "source": "dorado_r_front_owned_packet:actual|r_front_lower_q[67]",
+          "sink": "result[1415]~reg0",
+          "arrival_ns": 20.103,
+          "required_ns": 18.819,
+          "report_sha256": "005319debb47b55bbed370664e2d3b6b661205c1da4631440f00b2ea15f47daa"
+        },
+        "hold": {
+          "slack_ns": 0.281,
+          "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[17]",
+          "sink": "dorado_r_front_owned_packet:actual|dorado_r_front_packet_step:packet|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_v8o1:auto_generated|lutrama67~OBSERVABLEPORTAADDRESSREGOUT4",
+          "arrival_ns": 4.587,
+          "required_ns": 4.306,
+          "report_sha256": "ce15ffa0795ee24415b16af277d80908af31c6417b9bd020d2038c9bffcd4c02"
+        },
+        "evaluator": {
+          "slack_ns": -1.276,
+          "source": "launch[289]~DUPLICATE",
+          "sink": "result[1415]~reg0",
+          "arrival_ns": 20.095,
+          "required_ns": 18.819,
+          "report_sha256": "0e9b3b1bdd43c96afc7d81769605f6845168566cc673a00ac70754fb68c8d62a"
+        },
+        "pulse_width_ns": 6.48
+      },
+      {
+        "condition": "MIN_fast_1100mv_100c",
+        "setup": {
+          "slack_ns": 4.291,
+          "source": "input_stage[133]",
+          "sink": "launch[133]",
+          "arrival_ns": 12.326,
+          "required_ns": 16.617,
+          "report_sha256": "9f0138aaad2f635edfd50cd1e423f2dbd843b1527776def82966ed05c9c644b9"
+        },
+        "hold": {
+          "slack_ns": 0.173,
+          "source": "launch[331]",
+          "sink": "dorado_r_front_owned_packet:actual|r_front_before[315]",
+          "arrival_ns": 2.143,
+          "required_ns": 1.97,
+          "report_sha256": "4fb1dd38e004baa8201002ea1a5916c885642294603a067fee79ac06abbc544f"
+        },
+        "evaluator": {
+          "slack_ns": 5.743,
+          "source": "launch[418]~DUPLICATE",
+          "sink": "result[1962]~reg0",
+          "arrival_ns": 10.878,
+          "required_ns": 16.621,
+          "report_sha256": "dca37bd298b3817095c8d7199917489cec4a6850fe038699891a110aa0eda07c"
+        },
+        "pulse_width_ns": 6.174
+      },
+      {
+        "condition": "MIN_fast_1100mv_-40c",
+        "setup": {
+          "slack_ns": 4.675,
+          "source": "input_stage[133]",
+          "sink": "launch[133]",
+          "arrival_ns": 11.828,
+          "required_ns": 16.503,
+          "report_sha256": "82e41307b53bfaab3fd3a1a983a4923ec955d0f097ef217cd9d70f9dc3e0f999"
+        },
+        "hold": {
+          "slack_ns": 0.122,
+          "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[239]",
+          "sink": "result[846]~reg0",
+          "arrival_ns": 1.985,
+          "required_ns": 1.863,
+          "report_sha256": "a2712fb9367f5f49ab7626ec00eff00635dbbeeecefaec00fac8e25b81edea39"
+        },
+        "evaluator": {
+          "slack_ns": 7.248,
+          "source": "launch[418]~DUPLICATE",
+          "sink": "result[1962]~reg0",
+          "arrival_ns": 9.258,
+          "required_ns": 16.506,
+          "report_sha256": "c684dfdef5342635c6ebc4e8a4070fe0943b59d4f04509df8c28e72810e0a923"
+        },
+        "pulse_width_ns": 6.11
+      }
+    ],
+    "area": {
+      "ALMs": 8382,
+      "registers": 5768,
+      "MLAB_bits": 9216
+    },
+    "full_context_XZ_revision_fitted": false,
+    "prior_102_pin_worst_setup_ns": -2.305,
+    "worst_setup_improvement_ns": 0.806,
+    "collected_members": 92,
+    "collection_sha256": "12e854369523719fa3b883457e1252538bca53875b3555a2e1f005efea12190e"
+  },
+  "latest_fit_pending": false,
+  "latest_fit": {
+    "status": "REJECTED_15NS_CORRECTED_COMPONENT",
+    "corners": [
+      {
+        "condition": "7_slow_1100mv_100c",
+        "setup": {
+          "slack_ns": -1.499,
+          "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[233]",
+          "sink": "result[1415]~reg0",
+          "arrival_ns": 20.168,
+          "required_ns": 18.669,
+          "report_sha256": "a4502f6f66ca17d1472015a7a77d89d48d5fcff3571f1b3292f5a854f46cb94f"
+        },
+        "hold": {
+          "slack_ns": 0.311,
+          "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[17]",
+          "sink": "dorado_r_front_owned_packet:actual|dorado_r_front_packet_step:packet|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_v8o1:auto_generated|lutrama67~OBSERVABLEPORTAADDRESSREGOUT4",
+          "arrival_ns": 4.457,
+          "required_ns": 4.146,
+          "report_sha256": "ca88392f12f88e4043bafd9f633e7eda87c236ed3b07981e60f7c25e132546c5"
+        },
+        "evaluator": {
+          "slack_ns": -1.351,
+          "source": "launch[289]~DUPLICATE",
+          "sink": "result[1415]~reg0",
+          "arrival_ns": 20.02,
+          "required_ns": 18.669,
+          "report_sha256": "46fb4b7384edcda437b4cfd004e35da9dfaef7c579d9dfff40e105ed4e47a3d9"
+        },
+        "pulse_width_ns": 6.463
+      },
+      {
+        "condition": "7_slow_1100mv_-40c",
+        "setup": {
+          "slack_ns": -1.284,
+          "source": "dorado_r_front_owned_packet:actual|r_front_lower_q[67]",
+          "sink": "result[1415]~reg0",
+          "arrival_ns": 20.103,
+          "required_ns": 18.819,
+          "report_sha256": "005319debb47b55bbed370664e2d3b6b661205c1da4631440f00b2ea15f47daa"
+        },
+        "hold": {
+          "slack_ns": 0.281,
+          "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[17]",
+          "sink": "dorado_r_front_owned_packet:actual|dorado_r_front_packet_step:packet|dorado_r_file_ports:files|altdpram:rm_h_rtl_0|dpram_v8o1:auto_generated|lutrama67~OBSERVABLEPORTAADDRESSREGOUT4",
+          "arrival_ns": 4.587,
+          "required_ns": 4.306,
+          "report_sha256": "ce15ffa0795ee24415b16af277d80908af31c6417b9bd020d2038c9bffcd4c02"
+        },
+        "evaluator": {
+          "slack_ns": -1.276,
+          "source": "launch[289]~DUPLICATE",
+          "sink": "result[1415]~reg0",
+          "arrival_ns": 20.095,
+          "required_ns": 18.819,
+          "report_sha256": "0e9b3b1bdd43c96afc7d81769605f6845168566cc673a00ac70754fb68c8d62a"
+        },
+        "pulse_width_ns": 6.48
+      },
+      {
+        "condition": "MIN_fast_1100mv_100c",
+        "setup": {
+          "slack_ns": 4.291,
+          "source": "input_stage[133]",
+          "sink": "launch[133]",
+          "arrival_ns": 12.326,
+          "required_ns": 16.617,
+          "report_sha256": "9f0138aaad2f635edfd50cd1e423f2dbd843b1527776def82966ed05c9c644b9"
+        },
+        "hold": {
+          "slack_ns": 0.173,
+          "source": "launch[331]",
+          "sink": "dorado_r_front_owned_packet:actual|r_front_before[315]",
+          "arrival_ns": 2.143,
+          "required_ns": 1.97,
+          "report_sha256": "4fb1dd38e004baa8201002ea1a5916c885642294603a067fee79ac06abbc544f"
+        },
+        "evaluator": {
+          "slack_ns": 5.743,
+          "source": "launch[418]~DUPLICATE",
+          "sink": "result[1962]~reg0",
+          "arrival_ns": 10.878,
+          "required_ns": 16.621,
+          "report_sha256": "dca37bd298b3817095c8d7199917489cec4a6850fe038699891a110aa0eda07c"
+        },
+        "pulse_width_ns": 6.174
+      },
+      {
+        "condition": "MIN_fast_1100mv_-40c",
+        "setup": {
+          "slack_ns": 4.675,
+          "source": "input_stage[133]",
+          "sink": "launch[133]",
+          "arrival_ns": 11.828,
+          "required_ns": 16.503,
+          "report_sha256": "82e41307b53bfaab3fd3a1a983a4923ec955d0f097ef217cd9d70f9dc3e0f999"
+        },
+        "hold": {
+          "slack_ns": 0.122,
+          "source": "dorado_r_front_owned_packet:actual|r_front_upper_q[239]",
+          "sink": "result[846]~reg0",
+          "arrival_ns": 1.985,
+          "required_ns": 1.863,
+          "report_sha256": "a2712fb9367f5f49ab7626ec00eff00635dbbeeecefaec00fac8e25b81edea39"
+        },
+        "evaluator": {
+          "slack_ns": 7.248,
+          "source": "launch[418]~DUPLICATE",
+          "sink": "result[1962]~reg0",
+          "arrival_ns": 9.258,
+          "required_ns": 16.506,
+          "report_sha256": "c684dfdef5342635c6ebc4e8a4070fe0943b59d4f04509df8c28e72810e0a923"
+        },
+        "pulse_width_ns": 6.11
+      }
+    ],
+    "area": {
+      "ALMs": 8382,
+      "registers": 5768,
+      "MLAB_bits": 9216
+    },
+    "full_context_XZ_revision_fitted": true,
+    "prior_102_pin_worst_setup_ns": -2.305,
+    "worst_setup_improvement_ns": 0.806,
+    "collected_members": 92,
+    "collection_sha256": "26b47893fae2f61d5f1fa8ee679508daac5d68821e3dd6d6a8ab865b67154f9a"
+  },
+  "latest_fit_project": "/home/alans/mister/shared-control-capture-owned-packet-v4-20261024",
+  "latest_builder_pid": 1918004,
+  "older_fit_collected_once": true,
+  "old_payload_fast_branch_error_preserved": true,
+  "native_same_process_read": {
+    "pid": 69736,
+    "host": 722090001,
+    "guest": 331921372,
+    "timer100ms": 13,
+    "EndOfDelay": 30,
+    "debugger_detached": true
+  },
+  "actual_CP_source_and_consumer_arrivals_pending": true,
+  "original16_R_latch_epoch_qualification_pending": true,
+  "sparse_pair_first_and_unknown_use_original_consumers": true,
+  "extra_architectural_state": 0,
+  "native_integrated": false,
+  "hardware_changed": false,
+  "FPGA_available": true,
+  "new_RBF_ready": false,
+  "full_goal_active": true
+}

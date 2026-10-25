@@ -7,6 +7,22 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
+V4 FIT NOW TERMINAL (2026-10-24): collected ONCE and independently reviewed in
+`shared-control-capture-fit-pending-replay-summary.json`. ALL92 members, exact
+source readback, exited handles, four setup/hold/pulse corners and zero UCPs
+verify. V4 matches V2: setup-1.499/-1.284/+4.291/+4.675ns; hold minimum+0.122ns;
+8382ALMs/5768regs/9216MLAB bits.0.806ns better than the prior SAME102-pin budget,
+still15ns REJECTED. No assembly, native selection or FPGA speed claim.
+Builder1918004/map1918005/fit1919138/STA1922623/corners1922943 all exited0.
+Do NOT recollect/restart either fit. Only full Icarus peers remain pending for
+the bounded combined review; retain all later source/native/epoch gates.
+
+The worst path is owned CB state -> StopMIRClk/capture/frame -> MIR bit76 ->
+after_child[16] -> original low front gate f22 -> StkWadr state721 -> settled
+view -> RbBypass -> result1415/parity_ok[2]. Keep this complete producer and
+transparent-window chain when closing actual sources; naming its parity endpoint
+alone does not establish which stage is safe to shorten.
+
 LATEST shared control capture prototype (2026-10-24):
 `shared-control-capture-staging-summary.json` retains the passing full Verilator
 fixture, formal frame checks, X/Z fallback, failed attempts, verified live peers
@@ -46,16 +62,16 @@ four corners: setup -1.499/-1.284/+4.291/+4.675ns; minimum hold+0.122ns,
 zero UCPs,8382ALMs/5768regs/9216MLAB bits. Worst slack improves0.806ns from
 SAME102-pin fixture-2.305ns, but15ns is still REJECTED. New worst result1415 is
 parity_ok[2], launched from an owned register rather than the old CP pin guard.
-This fit does not qualify V4's strengthened X/Z selector. A separate SAME422-input/
-4943-output V4 fit is running on misterubuntu at
-`/home/alans/mister/shared-control-capture-owned-packet-v4-20261024`, builder1918004
-(map1918005 at last verified observation).42 actual remote inputs matched.
+The separate SAME422-input/4943-output V4 fit has now completed and matches
+these numbers exactly; see the terminal review above.42 actual remote inputs
+matched at staging and final source readback. Remote project:
+`/home/alans/mister/shared-control-capture-owned-packet-v4-20261024`.
 V2 map/fit/STA/corners1910562/1911752/1918107/1918439 all exited0; builder1910552
 exited. No assembly/RBF or FPGA reload is permitted by these budget projects.
 
-NEXT: finish these SAME full Icarus runs and the V4 fit; collect V4 reports ONCE,
-require all corners/source/exited handles and both terminal full replays before
-combined review. Then close actual CP/Ready/MIR/Hold sources in the independent
+NEXT: finish these SAME full Icarus runs and require both terminal full replays
+before combined review. V4 reports/corners/source/exited handles are already
+collected and verified; do not repeat collection. Then close actual CP/Ready/MIR/Hold sources in the independent
 844-Q original-graph fixture, integrate the qualified asynchronous Block epoch
 with these shared consumers, and qualify every original16-R interior edge.
 Continue shared capture through IFU/Memory and native publication; a bounded

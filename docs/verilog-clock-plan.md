@@ -30,9 +30,12 @@ LATEST shared capture implementation (2026-10-24):
   V3 Icarus pre-test declaration error and corrected V4 compilation.
 - [ ] Finish SAME Icarus98473/session92106 (V2) and99375/session30128 (V4).
   Both were verified live; do not restart or change their bounds.
-- [ ] Finish SAME V4 Quartus builder1918004 on misterubuntu, project
-  `shared-control-capture-owned-packet-v4-20261024`.42 actual inputs verified.
-  Collect terminal reports once; review all corners and both complete replays.
+- [x] Finish SAME V4 Quartus builder1918004 on misterubuntu, project
+  `shared-control-capture-owned-packet-v4-20261024`. ALL92 collected members,
+  source readback/exited handles/four corners/zero UCPs verified. All stages0.
+  Do not restart/recollect V2 or V4.
+- [ ] Require both terminal full Icarus passes before combined bounded review;
+  retain every actual-source/interior-epoch/native gate after that review.
 - [ ] Close actual CP/MIR/Ready/Hold sources in the independent844-Q original
   graph; compose the asynchronous Block capture with these shared consumers.
   Qualify original16-R interior epochs, IFU/Memory and native publication.
@@ -41,9 +44,11 @@ Receipt: `shared-control-capture-staging-summary.json`, explicitly pending full
 and native gates. Earlier V2 budget:92 verified members; setup
 -1.499/-1.284/+4.291/+4.675ns, hold minimum+0.122ns, zero UCPs,
 8382ALMs/5768regs/9216MLAB bits.0.806ns better than SAME102-pin-2.305ns,
-still15ns REJECTED. V4 selector changes need their own fit; no measured FPGA gain.
-Latest worst result1415 is parity_ok[2], from owned state. No clock/error bit
-was dropped to obtain the gain. FPGA is available; all A–F acceptance remains.
+still15ns REJECTED. Corrected V4 is now terminal with EXACTLY the same slack/
+area figures, reviewed in `shared-control-capture-fit-pending-replay-summary.json`.
+No measured FPGA gain. Worst owned-state path traverses StopMIRClk/capture/frame,
+new MIR -> after_child[16] -> front StkWadr721 -> RbBypass -> parity_ok[2]. Preserve
+that full source/window chain in the next closure. No clock/error bit was dropped. FPGA is available; all A–F acceptance remains.
 
 Native69736 timer advances: read-only snapshot at host722090001/guest331921372
 shows Timer100ms13/EndOfDelay30 and original PacifyWatchdog PCF6AA; debugger

@@ -31,9 +31,10 @@ TOOLS=['generate_shared_control_capture.py','test_shared_control_capture.py','pr
 def read(p):return json.loads(p.read_text())
 
 
-def budget():
-    stage=BUILD/'shared-control-capture-owned-fit-stage-v2-20261024';p=read(stage/'provenance.json');verify(stage,p['files'])
-    d=BUILD/'shared-control-capture-owned-terminal-v2-20261024';receipt=BUILD/(d.name+'.tgz.json');r=read(receipt)
+def budget(version=2):
+    assert version in [2,4]
+    stage=BUILD/f'shared-control-capture-owned-fit-stage-v{version}-20261024';p=read(stage/'provenance.json');verify(stage,p['files'])
+    d=BUILD/f'shared-control-capture-owned-terminal-v{version}-20261024';receipt=BUILD/(d.name+'.tgz.json');r=read(receipt)
     assert sha(BUILD/(d.name+'.tgz'))==r['archive_sha256'] and len(r['members'])==92
     for row in r['members']:
         f=d/row['path'];assert sha(f)==row['sha256'] and f.stat().st_size==row['bytes']
@@ -63,12 +64,12 @@ def budget():
               MLAB_bits=int(re.search(r'Total MLAB memory bits\s*;\s*([0-9,]+)',report)[1].replace(',','')))
     assert area['MLAB_bits']==9216
     assert [c['setup']['slack_ns']for c in corners]==[-1.499,-1.284,4.291,4.675]
-    return dict(status='REJECTED_15NS_EARLIER_BINARY_COMPONENT',corners=corners,area=area,
-                full_context_XZ_revision_fitted=False,prior_102_pin_worst_setup_ns=-2.305,
+    return dict(status='REJECTED_15NS_CORRECTED_COMPONENT' if version==4 else 'REJECTED_15NS_EARLIER_BINARY_COMPONENT',corners=corners,area=area,
+                full_context_XZ_revision_fitted=version==4,prior_102_pin_worst_setup_ns=-2.305,
                 worst_setup_improvement_ns=0.806,collected_members=92,collection_sha256=sha(receipt)),[stage,d],receipt
 
 
-def review(out):
+def review(out,collected_fit=False):
     assert not out.exists();v=BUILD/'shared-control-capture-verilator-v4-20261024';s=checked(v)
     frame=BUILD/'shared-control-frame-proof-v1-20261024';f=read(frame/'run-state.json');verify(frame,f['files'])
     assert f['status']=='PASS_SHARED_CONTROL_FRAME_RESULTS_AND_CHRONOLOGY' and [r['waves']for r in f['cases']]==[5,24]
@@ -101,30 +102,36 @@ def review(out):
             observation=dict(status='VERIFIED_LIVE_FULL_ICARUS',pid=a['pid'],ps=ps,observed=time.time(),terminal_pass_required=True)
         else:
             assert r['status']=='PASS_FULL_PROCESSOR_SHARED_CAPTURE' and r['actions'][-1]['returncode']==0
+            assert r['all100_clock_counts_match'] and r['summary']==s['summary'] and r['cache_coverage']==s['cache_coverage']
             observation=dict(status=r['status'],observed=time.time())
         if version==4:assert r['files']==s['files']
         peers.append(dict(directory=d.name,state_sha256=hashlib.sha256(data).hexdigest(),**observation));dirs.append(d);snapshots[d.name]=data
     fit,fd,receipt=budget();dirs+=fd
+    latest_fit=None;latest_receipt=None
+    if collected_fit:
+        latest_fit,new_dirs,latest_receipt=budget(4);dirs+=new_dirs
     latest=BUILD/'shared-control-capture-owned-fit-stage-v4-20261024';p=read(latest/'provenance.json');verify(latest,p['files'])
     assert p['full_context_XZ_fallback'] and p['tests_state_sha256']==sha(v/'run-state.json') and not p['assembly_permitted'];dirs.append(latest)
     native=BUILD/'control-short-native-jumper-read-v3-20261024';n=read(native/'result.json')
     assert n['read_only_guest_inspection'] and n['pid']==69736 and 'detached' in (native/'lldb.log').read_text().lower()
     assert n['riot_ram']['timer100ms_word']==13 and n['riot_ram']['EndOfDelay_word']==30;dirs.append(native)
     out.mkdir(parents=True)
-    for d in dirs:
+    for d in dict.fromkeys(dirs):
         retain(d,out/d.name)
         if d.name in snapshots:(out/d.name/'run-state.json').write_bytes(snapshots[d.name])
     for name in ['shared-control-capture-remote-observation-v1-20261024.json',
                  'shared-control-capture-owned-remote-launch-v2-20261024.json','shared-control-capture-owned-remote-launch-v4-20261024.json']:
         (out/name).write_bytes((BUILD/name).read_bytes())
     (out/receipt.name).write_bytes(receipt.read_bytes())
-    result=dict(status='STAGED_SHARED_CONTROL_CAPTURE_WITH_PENDING_FULL_GATES',scope=__doc__,
+    if latest_receipt:(out/latest_receipt.name).write_bytes(latest_receipt.read_bytes())
+    status='REVIEWED_SHARED_CAPTURE_FIT_PENDING_FULL_ICARUS' if collected_fit else 'STAGED_SHARED_CONTROL_CAPTURE_WITH_PENDING_FULL_GATES'
+    result=dict(status=status,scope=__doc__,
                 full_Verilator_transactions=14884,all2470_results=True,all844_owners=True,one9216_bit_SRAM=True,
                 all100_clock_counts=True,geometry_cases=403,cache_coverage=s['cache_coverage'],
                 binary_frame_equivalence_inputs=955,frame_output_results=363,frame_depths=[5,24],
                 full_context_bits=1941,XZ_cases=15528,bad_guard_changes_actual_processor_Q=True,
                 wrong_start_changes_actual_architectural_bits=actual_bits,peers=peers,historical=historical,earlier_fit=fit,
-                latest_fit_pending=True,latest_fit_project='/home/alans/mister/shared-control-capture-owned-packet-v4-20261024',
+                latest_fit_pending=not collected_fit,latest_fit=latest_fit,latest_fit_project='/home/alans/mister/shared-control-capture-owned-packet-v4-20261024',
                 latest_builder_pid=1918004,older_fit_collected_once=True,old_payload_fast_branch_error_preserved=True,
                 native_same_process_read=dict(pid=69736,host=n['counters']['host_ticks'],guest=n['counters']['guest_ticks'],
                                              timer100ms=13,EndOfDelay=30,debugger_detached=True),
@@ -137,5 +144,8 @@ def review(out):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['output','archive']:p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();r=review(a.output.resolve());append_archive(a.archive.resolve(),a.output.resolve(),[],label='shared-control-capture-staging',extra_tools=TOOLS)
+    p.add_argument('--collected-fit',action='store_true')
+    a=p.parse_args();r=review(a.output.resolve(),a.collected_fit)
+    label='shared-control-capture-fit-pending-replay' if a.collected_fit else 'shared-control-capture-staging'
+    append_archive(a.archive.resolve(),a.output.resolve(),[],label=label,extra_tools=TOOLS)
     print(r['status'])
