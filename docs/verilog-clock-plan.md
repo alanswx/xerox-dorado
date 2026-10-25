@@ -14,7 +14,38 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST complete j19 peers and ROM-bound clock/flag seam (2026-10-25):
+LATEST saved branch-condition transfer and fresh native diagnostic (2026-10-25):
+
+- [x] Extract original ProcH e13/f17/g11/h11 plus clock/data/select gates and
+  implement the complete80-bit transfer, preserving shared TIOA stages and
+  separate g18 arithmetic copies. Keep ALU/old-owner/phase producer boundaries.
+- [x] BOTH engines pass4869 events in all three declared digital profiles.
+  Every80 bits/four clocks,16 task slots,512 arithmetic/logical/freeze boundary
+  operations,136 restored carry-ones, all80 bits changed,37 disabled-clock
+  sources and385 stable write windows. Independent controlled ALU status inputs
+  are not native ALU or original-microinstruction execution qualification.
+- [x] Wrong mux select, task address and write-after-close corrupt actual
+  stored bits in BOTH engines. All original reference/checker code remains.
+- [x] Prove three passes equal eight on ALL158 binary inputs/85 outputs,
+  without assumptions; one pass changes actual visible flags. Select three
+  combinational passes in the prototype. Preserve the initial249-undriven-pin
+  proof rejection; lower exact physical port connections without waiving checks.
+- [x] Prepare/compile a NEW full-firmware diagnostic from the corrected j19/
+  read-capture path. `native-cp-read-j19-boot-v1-20261025`, test62048/session15762,
+  own fixed5B HOST bound,194 production HDL inputs, original firmware/six-pass
+  self-test/normal boot/media/device/hold checks. Eight lint warnings retained;
+  paired mode OFF; new branch80 not yet integrated. This is not a native fit.
+- [ ] Compose the80-bit family with actual ALU/g18/CurrLast/phase producers
+  and the common owner. Qualify task-switch/carry, source-arrival and unknown
+  cases; retain j19 pulse and MIR/Ready/Hold/IFU/Memory/all-event gates. Observe
+  SAME native62048 and69736 with their own unchanged bounds; no restart/extension.
+- [ ] Complete SAME-fixture physical timing,60ns/timers, separate66.7MHz SDRAM,
+  original Cedar/Rollback/persistence, three fresh boots and all A–F/stress gates.
+  No new RBF/load/measured hardware gain. Full goal remains active.
+
+Receipt: `branch-condition-capture-summary.json` in the native flag archive.
+
+Previous complete j19 peers and ROM-bound clock/flag seam (2026-10-25):
 
 - [x] Finish SAME v2 Icarus full52407 and words52406. BOTH engines pass both
   full/mixed profiles; every original result/state/RAM/clock comparison stays.

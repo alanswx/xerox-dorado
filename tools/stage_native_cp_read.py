@@ -76,7 +76,8 @@ def backplane(raw,fields):
     return raw
 
 
-def prepare(baseline,component,out):
+def prepare(baseline,component,out,host_limit=250000000):
+    assert isinstance(host_limit,int) and host_limit>0
     assert not out.exists()
     p=json.loads(gzip.decompress((baseline/'provenance.json.gz').read_bytes()));verify(baseline/'inputs',p['inputs'])
     c=json.loads((component/'run-state.json').read_text());verify(component,c['files'])
@@ -138,18 +139,21 @@ def prepare(baseline,component,out):
     host=(inputs/'harness/host.cpp').read_text();assert 'fopen(medium,"rb")'in host and 'fwrite('not in host
     for n in p['inputs']:
         if '/proms/eprom/'in n:assert sha(inputs/n)==p['inputs'][n]
-    (out/'host-cycle-limit.txt').write_text('250000000\n');(out/'window-control.txt').write_text('0 2\n')
+    (out/'host-cycle-limit.txt').write_text(str(host_limit)+'\n');(out/'window-control.txt').write_text('0 2\n')
     for name in [Path(__file__).name,'generate_native_r_capture.py']:
         shutil.copy2(Path(__file__).with_name(name),inputs/name)
     record={**p,'status':'PREPARED_PRIVATE_NATIVE_CP_READ_AND_ORIGINAL_R_CELLS','scope':__doc__,
             'prepared':time.time(),'inputs':{str(f.relative_to(inputs)):sha(f)for f in inputs.rglob('*')if f.is_file()},
             'used_hdl':used,'baseline_run':str(baseline),'component':str(component),'component_state_sha256':sha(component/'run-state.json'),
             'native_R_proof_sha256':sha(proof),'native_R_four_state_sha256':sha(four),
-            'changes':changes,'host_limit':250000000,'window_control_path':str(out/'window-control.txt'),
+            'changes':changes,'host_limit':host_limit,'window_control_path':str(out/'window-control.txt'),
             'window_initial_control':'0 2\n','original_ROM_bytes_unchanged':True,
             'actual_four_native_R_cells_retained':True,'one_SRAM_owner':True,'paired_mode_enabled':False,
             'paired_mode_requires_other_board_phase_composition':True,'payload_gate_includes_native_alias_settling_repeat_and_shared_checks':True,
             'full_device_event_retention_qualified':False,'firmware_qualified':False,'physical_timing_qualified':False,
+            'experimental_j19_ordered_epochs':c.get('experimental_j19_ordered_epochs',False),
+            'j19_full_source_arrival_and_unknown_qualification':False,
+            'new_branch_condition_family_integrated':False,
             'assembly_permitted':False,'hardware_changed':False,'original_run_limits_changed':False,'full_goal_active':True}
     (out/'provenance.json.gz').write_bytes(gzip.compress((json.dumps(record,indent=2)+'\n').encode(),mtime=0))
     print(record['status'],len(used),'HDL sources',flush=True)
@@ -158,4 +162,5 @@ def prepare(baseline,component,out):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['baseline','component','output']:p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();prepare(a.baseline.resolve(),a.component.resolve(),a.output.resolve())
+    p.add_argument('--host-limit',type=int,default=250000000,help='Fixed bound for a NEW diagnostic; never alters an existing run')
+    a=p.parse_args();prepare(a.baseline.resolve(),a.component.resolve(),a.output.resolve(),a.host_limit)

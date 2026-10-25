@@ -1,0 +1,548 @@
+{
+  "status": "REVIEWED_BRANCH_CONDITION_COMPONENT_AND_NEW_NATIVE_BOOT_DIAGNOSTIC",
+  "scope": "Preserve bounded branch-family qualification and a fresh native boot diagnostic.\n\nSeparate all-input binary depth equivalence, delayed original-storage tests,\nthe rejected hierarchical-port proof attempt, and native observations. Actual\nALU/common-owner composition, unknown inputs, source arrivals and physical\ntiming remain open. Neither a native fit nor hardware speed is selected.\n",
+  "runs": [
+    {
+      "directory": "branch-condition-aperture-icarus-v1-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "f3b5c253d4da1e4cd49caeda7e75229451b14c004efcf40a5ab5e7554d434d2e",
+      "observed": 1792936705.5572228
+    },
+    {
+      "directory": "branch-condition-aperture-icarus-v3-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "0eb3d6210141b1b39183483706dd2a41513b7d3a488179fd1861ab18297186ca",
+      "observed": 1792936705.562818
+    },
+    {
+      "directory": "branch-condition-aperture-icarus-v4-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "eac18c970b40f6c095d7d76da601f330551cd094f83abb2eb2784c34224d888d",
+      "observed": 1792936705.567919
+    },
+    {
+      "directory": "branch-condition-aperture-verilator-v1-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "bf8635d9d28075b707f9d8bbe8f2c1e562f650eb6a55a6e3cf095a78ea2b924d",
+      "observed": 1792936705.573436
+    },
+    {
+      "directory": "branch-condition-aperture-verilator-v3-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "2e01c47b4b993f732d6fd601e475c6cf94531b656db4dd5f91e708344a34d6e9",
+      "observed": 1792936705.579038
+    },
+    {
+      "directory": "branch-condition-aperture-verilator-v4-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "9d0a892bfbb19941a3c976f927e8339214badde9caacea08b36095a4835f3119",
+      "observed": 1792936705.584568
+    },
+    {
+      "directory": "branch-condition-balanced-icarus-v1-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "0cda663a64fa1dd477725d4d3719ca2acc15dce66e1736612e14c3e3b6c9d665",
+      "observed": 1792936705.590632
+    },
+    {
+      "directory": "branch-condition-balanced-icarus-v3-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "8c5ec684664b09d1d583c2e039111af42f859f605166809fc38cd6960b9f08f5",
+      "observed": 1792936705.595415
+    },
+    {
+      "directory": "branch-condition-balanced-icarus-v4-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "0969fdb13d63adc1764369771e704c2887a5daeb407dfec620814e2295d8295d",
+      "observed": 1792936705.600084
+    },
+    {
+      "directory": "branch-condition-balanced-verilator-v1-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "ef1f62132d51286e8a65eb4b6fcb7d0d8e79be338ad85c67420a657a524e0e0f",
+      "observed": 1792936705.6053278
+    },
+    {
+      "directory": "branch-condition-balanced-verilator-v3-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "f487ba27ed89eb9a31e6f3d85e0fd332c69f1d41d6e72774488fb385e0c283b2",
+      "observed": 1792936705.6101382
+    },
+    {
+      "directory": "branch-condition-balanced-verilator-v4-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "3e9ea76085e287f0840efc87c9c2952816000294ef246bae8f1ef546ec712e68",
+      "observed": 1792936705.616263
+    },
+    {
+      "directory": "branch-condition-early-flag-select-icarus-v1-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "8f29eb892705490a1b1f6890dfeb58b2b874de1f8718515658cf89f2a30482a9",
+      "observed": 1792936705.630322
+    },
+    {
+      "directory": "branch-condition-early-flag-select-icarus-v3-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "61c558c78661a680d1bb49ba50cd29b87d47a4979ea28df957c6407e7784b69e",
+      "observed": 1792936705.634634
+    },
+    {
+      "directory": "branch-condition-early-flag-select-icarus-v4-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "36cc6f6cb8b152ac5ace9d23b61444e6990a9bf465c0099626a9cde938ec0a94",
+      "observed": 1792936705.639155
+    },
+    {
+      "directory": "branch-condition-early-flag-select-verilator-v1-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "c368f9d986f53edf62eca7d0173e2988df6272460ea79b789ea21d2804baf7e5",
+      "observed": 1792936705.644043
+    },
+    {
+      "directory": "branch-condition-early-flag-select-verilator-v3-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "ed9bbda48c9c03b22845f5dd9d02556d6b0e1f702255c191efe7e90c391e92e7",
+      "observed": 1792936705.650507
+    },
+    {
+      "directory": "branch-condition-early-flag-select-verilator-v4-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "c1747ac5b93a83dd902e2d60adc9240cd0a1b004b4db6906ceb0dd9294efa795",
+      "observed": 1792936705.656469
+    },
+    {
+      "directory": "branch-condition-early-icarus-v1-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "b8d136bf23b9fc6d71fad355c4527d495776fe53cbc00fc462e471591112807a",
+      "observed": 1792936705.661391
+    },
+    {
+      "directory": "branch-condition-early-icarus-v2-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "3ab73e48c01c050f59baae01dcd4f37e858625a8da2de39dad755f22616afcee",
+      "observed": 1792936705.665609
+    },
+    {
+      "directory": "branch-condition-early-icarus-v3-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "bd4275e6be4c63218af87b71603240533b210eac403993c88740da029d710f86",
+      "observed": 1792936705.670006
+    },
+    {
+      "directory": "branch-condition-early-icarus-v4-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "6e6a884dacde3b6bca55fe40088474acb61ea7c9e9c298fe7e72f95c051b64d5",
+      "observed": 1792936705.6741178
+    },
+    {
+      "directory": "branch-condition-early-task-address-icarus-v1-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "57a1cde7b996df81de02fe76f1cacd9337f8ac836301cff9289accb3a6293fcc",
+      "observed": 1792936705.6791492
+    },
+    {
+      "directory": "branch-condition-early-task-address-icarus-v3-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "d856aa358493cd8d6dc6b8ea7f53f0d74f905977d435d37e43018935624658c6",
+      "observed": 1792936705.683784
+    },
+    {
+      "directory": "branch-condition-early-task-address-icarus-v4-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "48251ce0ce948b2c2a72763e625e5900f1a19426c0b4dce0676ebac871c11f1b",
+      "observed": 1792936705.6884081
+    },
+    {
+      "directory": "branch-condition-early-task-address-verilator-v1-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "59ff29d2c3288f705c474db99dc04056d808055ab42f557a4eef2c8072b12f0f",
+      "observed": 1792936705.693568
+    },
+    {
+      "directory": "branch-condition-early-task-address-verilator-v3-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "90021c27a2393e2eed1201da5bf2fee8aad8ed873270a756bd2690b6bc929dcf",
+      "observed": 1792936705.698865
+    },
+    {
+      "directory": "branch-condition-early-task-address-verilator-v4-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "d9220685f12283e2d9d49221588133251232774283db83b48c4107be5bbe6a27",
+      "observed": 1792936705.70502
+    },
+    {
+      "directory": "branch-condition-early-verilator-v1-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "c82eea6d33eac1e7275b366fc51940afc581c396e184ef360274932c34db8da2",
+      "observed": 1792936705.709731
+    },
+    {
+      "directory": "branch-condition-early-verilator-v3-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "ac57b58e58706ee768e047f986b27d986dd7a7251b2072aee2949d6a7928bb1b",
+      "observed": 1792936705.714473
+    },
+    {
+      "directory": "branch-condition-early-verilator-v4-20261025",
+      "status": "PASS_BRANCH_CONDITION_CAPTURE",
+      "state_sha256": "09b70be759e9e132e6af34f885ede52a7f82448fd4c30ed0963fe5de5db77b6b",
+      "observed": 1792936705.720012
+    },
+    {
+      "directory": "branch-condition-early-write-after-close-icarus-v1-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "fb8eacdc13de808a3682e104592658479fc5384a8858a31831631b6bef78b2f4",
+      "observed": 1792936705.725549
+    },
+    {
+      "directory": "branch-condition-early-write-after-close-icarus-v3-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "4a1344ef56b79a4e7200624ca18d5750f6df7275a5b0729c332d8f15ca7fb756",
+      "observed": 1792936705.730017
+    },
+    {
+      "directory": "branch-condition-early-write-after-close-icarus-v4-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "419874bce97bcb7d5eec43f69dc919c3ad50dfe04a0f4f43583e0d210adfe002",
+      "observed": 1792936705.734515
+    },
+    {
+      "directory": "branch-condition-early-write-after-close-verilator-v1-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "546f45dc24a34649bade9a6bf588b21468300997a4df21305a00374686ee4f14",
+      "observed": 1792936705.739559
+    },
+    {
+      "directory": "branch-condition-early-write-after-close-verilator-v3-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "db8cb7414138bd5226a1a266603f3b6cb8a64151ad1bf0a387001f314ba9852e",
+      "observed": 1792936705.744715
+    },
+    {
+      "directory": "branch-condition-early-write-after-close-verilator-v4-20261025",
+      "status": "PASS_BRANCH_CAPTURE_COUNTEREXAMPLE",
+      "state_sha256": "0b926b3422ea69e316da768b9f8f1d0efec48472bff8034d71f964ca8bca76b0",
+      "observed": 1792936705.750887
+    }
+  ],
+  "positive_both_engine_groups": [
+    {
+      "profile": "balanced",
+      "events": 4869,
+      "stored_bits": 80,
+      "write_windows": 385,
+      "exact_both_engine_results": true,
+      "outcomes": [
+        "BRANCH_CLOCK channel=0 edges=1604",
+        "BRANCH_CLOCK channel=1 edges=1604",
+        "BRANCH_CLOCK channel=2 edges=1604",
+        "BRANCH_CLOCK channel=3 edges=385",
+        "BRANCH_CAPTURE_PASS checks=4869 Qs=80 file_bits=64 tasks=16 operations=512 logical=128 freeze=128 carry_ones=136 changed=ffffffffffffffffffff"
+      ]
+    },
+    {
+      "profile": "early",
+      "events": 4869,
+      "stored_bits": 80,
+      "write_windows": 385,
+      "exact_both_engine_results": true,
+      "outcomes": [
+        "BRANCH_CLOCK channel=0 edges=1604",
+        "BRANCH_CLOCK channel=1 edges=1604",
+        "BRANCH_CLOCK channel=2 edges=1604",
+        "BRANCH_CLOCK channel=3 edges=385",
+        "BRANCH_CAPTURE_PASS checks=4869 Qs=80 file_bits=64 tasks=16 operations=512 logical=128 freeze=128 carry_ones=136 changed=ffffffffffffffffffff"
+      ]
+    },
+    {
+      "profile": "aperture",
+      "events": 4869,
+      "stored_bits": 80,
+      "write_windows": 385,
+      "exact_both_engine_results": true,
+      "outcomes": [
+        "BRANCH_CLOCK channel=0 edges=1604",
+        "BRANCH_CLOCK channel=1 edges=1604",
+        "BRANCH_CLOCK channel=2 edges=1604",
+        "BRANCH_CLOCK channel=3 edges=385",
+        "BRANCH_CAPTURE_PASS checks=4869 Qs=80 file_bits=64 tasks=16 operations=512 logical=128 freeze=128 carry_ones=136 changed=ffffffffffffffffffff"
+      ]
+    }
+  ],
+  "actual_state_negatives": [
+    {
+      "mutation": "flag-select",
+      "actual_state_differences": [
+        [
+          "1",
+          "64",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "66",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "67",
+          "0",
+          "1"
+        ]
+      ]
+    },
+    {
+      "mutation": "task-address",
+      "actual_state_differences": [
+        [
+          "55",
+          "56",
+          "1",
+          "0"
+        ],
+        [
+          "55",
+          "59",
+          "0",
+          "1"
+        ],
+        [
+          "55",
+          "63",
+          "1",
+          "0"
+        ]
+      ]
+    },
+    {
+      "mutation": "write-after-close",
+      "actual_state_differences": [
+        [
+          "55",
+          "63",
+          "1",
+          "0"
+        ]
+      ]
+    }
+  ],
+  "binary_depth": {
+    "input_bits": 158,
+    "result_bits": 85,
+    "assumptions": 0,
+    "passes": 3,
+    "baseline": 8,
+    "one_pass_changes_actual_visible_flags": true
+  },
+  "native_source_binding": {
+    "scope": "Bind original ProcH per-task branch flags and their compiled storage cells.\n\nThese 80 bits remain outside the 844-bit processor/control owner vector.\nThis source inventory does not qualify capture phases or interpret a sampled\ncarry as the carry of a particular instruction.\n",
+    "packages": {
+      "e13": {
+        "kind": "F10145A",
+        "stored_bits": 64,
+        "original_pins": {
+          "13": "BCWrite'",
+          "10": "CurrLast.0'",
+          "9": "CurrLast.1'",
+          "7": "CurrLast.2'",
+          "6": "CurrLast.3'",
+          "14": "ProcH11.sil+11",
+          "4": "ProcH11.sil+16",
+          "11": "ProcH11.sil+17",
+          "12": "ProcH11.sil+18",
+          "2": "ProcH11.sil+5",
+          "5": "ProcH11.sil+6",
+          "1": "ProcH11.sil+7",
+          "15": "ProcH11.sil+8"
+        },
+        "native_pins": {
+          "1": "ProcH11_sil_pl_7",
+          "2": "ProcH11_sil_pl_5",
+          "4": "ProcH11_sil_pl_16",
+          "5": "ProcH11_sil_pl_6",
+          "6": "CurrLast_3_p_",
+          "7": "CurrLast_2_p_",
+          "9": "CurrLast_1_p_",
+          "10": "CurrLast_0_p_",
+          "11": "ProcH11_sil_pl_17",
+          "12": "ProcH11_sil_pl_18",
+          "13": "BCWrite_p_",
+          "14": "ProcH11_sil_pl_11",
+          "15": "ProcH11_sil_pl_8"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv",
+        "cell_sha256": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0"
+      },
+      "f17": {
+        "kind": "MC10173",
+        "stored_bits": 4,
+        "original_pins": {
+          "15": "ALUCarry",
+          "6": "aluOut=0'",
+          "7": "Clock1'Cb",
+          "14": "Overflow'",
+          "10": "ProcH11.sil+11",
+          "11": "ProcH11.sil+2",
+          "13": "ProcH11.sil+3",
+          "4": "ProcH11.sil+4",
+          "5": "ProcH11.sil+5",
+          "3": "ProcH11.sil+7",
+          "12": "ProcH11.sil+8",
+          "9": "ProcH11.sil+9",
+          "1": "ResEqZero'",
+          "2": "ResLtZero'"
+        },
+        "native_pins": {
+          "1": "ResEqZero_p___drv",
+          "2": "ResLtZero_p___drv",
+          "3": "ProcH11_sil_pl_7",
+          "4": "ProcH11_sil_pl_4",
+          "5": "ProcH11_sil_pl_5",
+          "6": "aluOut_eq_0_p_",
+          "7": "Clock1_p_Cb",
+          "9": "ProcH11_sil_pl_9",
+          "10": "ProcH11_sil_pl_11",
+          "11": "ProcH11_sil_pl_2",
+          "12": "ProcH11_sil_pl_8",
+          "13": "ProcH11_sil_pl_3",
+          "14": "Overflow_p___drv",
+          "15": "ALUCarry__drv"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v",
+        "cell_sha256": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc"
+      },
+      "g11": {
+        "kind": "MC10176",
+        "stored_bits": 6,
+        "original_pins": {
+          "11": "aluOut=0'",
+          "9": "Clock1'Da",
+          "15": "ProcH11.sil+16",
+          "12": "ProcH11.sil+4",
+          "14": "ProcH11.sil+6",
+          "5": "TIOA.0",
+          "6": "TIOA.1",
+          "7": "TIOA.2",
+          "10": "TIOA.3",
+          "2": "TIOAdly.0",
+          "3": "TIOAdly.1",
+          "4": "TIOAdly.2",
+          "13": "TIOAdly.3"
+        },
+        "native_pins": {
+          "2": "TIOAdly_0",
+          "3": "TIOAdly_1",
+          "4": "TIOAdly_2",
+          "5": "TIOA_0",
+          "6": "TIOA_1",
+          "7": "TIOA_2",
+          "9": "Clock1_p_Da",
+          "10": "TIOA_3",
+          "11": "aluOut_eq_0_p_",
+          "12": "ProcH11_sil_pl_4",
+          "13": "TIOAdly_3",
+          "14": "ProcH11_sil_pl_6",
+          "15": "ProcH11_sil_pl_16"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+        "cell_sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+      },
+      "h11": {
+        "kind": "MC10176",
+        "stored_bits": 6,
+        "original_pins": {
+          "9": "Clock1'Da",
+          "14": "ProcH11.sil+17",
+          "15": "ProcH11.sil+18",
+          "12": "ProcH11.sil+2",
+          "11": "ProcH11.sil+3",
+          "5": "TIOA.4",
+          "6": "TIOA.5",
+          "7": "TIOA.6",
+          "10": "TIOA.7",
+          "2": "TIOAdly.4",
+          "3": "TIOAdly.5",
+          "4": "TIOAdly.6",
+          "13": "TIOAdly.7"
+        },
+        "native_pins": {
+          "2": "TIOAdly_4",
+          "3": "TIOAdly_5",
+          "4": "TIOAdly_6",
+          "5": "TIOA_4",
+          "6": "TIOA_5",
+          "7": "TIOA_6",
+          "9": "Clock1_p_Da",
+          "10": "TIOA_7",
+          "11": "ProcH11_sil_pl_3",
+          "12": "ProcH11_sil_pl_2",
+          "13": "TIOAdly_7",
+          "14": "ProcH11_sil_pl_17",
+          "15": "ProcH11_sil_pl_18"
+        },
+        "cell_source": "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v",
+        "cell_sha256": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+      }
+    },
+    "source_hashes": {
+      "chm/sil/ProcH-Rev-Ce.dm!1_/ProcH-Rev-Ce.wl": "959739a3bd088b334d4e7478e2828ae1e3f1c9f5dd560998c48f65d3129c7b23",
+      "src/fpga/mister/snapshot_native_processor/ProcH_full_snapshot.sv": "c38ad5cecd3e5a29bb4ed9bea3787508566a25b6a377124253573662943bb37e",
+      "src/fpga/mister/snapshot_native_conta/cell_F10145A_snapshot.sv": "e128278cfbc2631fc3b42bfb8ec5e695bbb934ede9d7b57cd2953baa5b8d0cf0",
+      "src/fpga/mister/snapshot_native_conta/cell_MC10173_snapshot.v": "0c8e57452c9255c5195ca4c0139b09e2ed8cf4f04bb5f8d8185f1960e795fabc",
+      "src/fpga/mister/snapshot_native/cell_MC10176_snapshot.v": "8ddfee8a71b8728d05b1d0abccb42c54fff8e7c0b70f7ff269ad55dcaae3651e"
+    },
+    "physical_bits": 80,
+    "existing_g18_carry_bit": 91,
+    "existing_g18_overflow_bit": 92,
+    "owner_vector_contains_this_family": false,
+    "per_task_file_address": "Physical slot is logical task XOR15",
+    "physical_timing_qualified": false,
+    "phase_contract_qualified": false
+  },
+  "native_observations": [
+    {
+      "directory": "native-cp-read-j19-boot-v1-20261025",
+      "pid": 62048,
+      "observed": 1792936705.8525178,
+      "ps": "62048 01:52   1:51.51 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "host_limit": 5000000000,
+      "progress": [
+        "NATIVE_INPUT_PROGRESS host=0 guest=0 raw=000 queued=0 event=000 matrix=ffff/ffff/ffff/ffff",
+        "NATIVE_TRAFFIC_PROGRESS host=0 issues=0 admitted=0 completed=0 reads=0 writes=0 BFN=00000000000",
+        "NATIVE_PROGRESS host=0 guest=0 initialized=0 init_addr=000000 cpu=d0fff000 bb=3e450000 control=100 keys=0 disk=         0/         0 fault=00000000:00000000 tx=0 crc=0 rx=0",
+        "NATIVE_HPS_REQUEST host=5 lba=0 blocks=31 write=0",
+        "NATIVE_INPUT_RESET_PASS host=6 guest=0 matrix=ffff/ffff/ffff/ffff terminal=81ffff80",
+        "NATIVE_HPS_ACK host=179372"
+      ]
+    },
+    {
+      "directory": "control-short-native-jumper-boot-v2-20261024",
+      "pid": 69736,
+      "observed": 1792936705.8565729,
+      "ps": "69736 12:50:18 736:45.74 R    /Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/control-short-native-jumper-boot-v2-20261024/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "host_limit": 5000000000,
+      "progress": [
+        "NATIVE_CP_PROGRESS host=2250000000 pc6502=f287 writes=2380 NoDispatch_changes=951 unmasked_changes=0 root_collisions=470",
+        "NATIVE_INPUT_PROGRESS host=2250000000 guest=1290076997 raw=021 queued=0 event=021 matrix=ffff/ffff/ffff/ffff",
+        "NATIVE_TRAFFIC_PROGRESS host=2250000000 issues=83483607 admitted=155232272 completed=155232272 reads=155133424 writes=98848 BFN=00000000113",
+        "NATIVE_CP_PAUSE host=2250000000 guest=1290076997 ready=1 commits=1290076998 pauses=26728 snapshots=26728 pending=1 replies=0 held_req=50169192331 held_rsp=0",
+        "NATIVE844_BASEBOARD host=2250000000 guest=1290076997 phi_rises=9675601 sync_rises=2893023 PC=f287 bus=01fa reset=1 phi=0 sync=0",
+        "NATIVE_PROGRESS host=2250000000 guest=1290076997 initialized=1 init_addr=7fffff cpu=30c75e26 bb=1e4801fa control=11f keys=0 disk=         1/         0 fault=00000000:00000000 tx=1 crc=0 rx=0"
+      ]
+    }
+  ],
+  "primitive_input_port_lowering_failure_preserved": true,
+  "test_ALU_status_inputs_are_controlled_not_native_ALU_execution": true,
+  "complete_80_bit_family_changed_in_tests": true,
+  "original_844_layout_changed": false,
+  "new_branch_family_native_integrated": false,
+  "native_paired_phases_qualified": false,
+  "new_native_is_fresh_diagnostic_not_fit_selection": true,
+  "source_arrival_and_unknown_qualification": false,
+  "physical_timing_qualified": false,
+  "firmware_Cedar_or_speed_qualified": false,
+  "hardware_changed": false,
+  "full_goal_active": true
+}

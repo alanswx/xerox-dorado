@@ -7,7 +7,55 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST COMPLETE J19 REPLAYS AND ROM-BOUND CLOCK READ (2026-10-25):
+LATEST SAVED BRANCH-CONDITION COMPONENT AND FRESH NATIVE RUN (2026-10-25):
+The next80-bit family now has an experimental synthesizable transfer,
+`verilog/rtl/dorado_branch_condition_step.sv`, and an independently timed
+original ProcH graph. Preserve e13's64 bits, f17's4, and all6 each of g11/h11,
+including shared TIOA delay bits. Existing g18 copies remain separate. The
+reference includes the real ProcH clock fanout, e14/e19/g20 data/select logic
+and the original LOW write window. ALU status, existing owners and phase-enable
+producers remain explicit boundaries; this is not yet a native replacement.
+
+BOTH engines pass4869 events in each of three declared digital profiles:
+G/FF/latch1000/1000/1000,1750/400/1000,3200/1500/1000ps. Every80-bit state and
+four clock channels compares. Coverage:16 task slots,512 boundary-level arithmetic/
+logical/freeze operations,136 restored carry-ones, all80 bits changed,37 sources
+changed while clocks are disabled, and385 write windows with stable address/data.
+These are controlled ALU status inputs, not execution of original ALU microcode.
+Wrong flag select, task address or write-after-close changes real stored bits
+and is detected by the original state check in BOTH engines, with identical
+witnesses and unchanged reference/checker. Keep all limitations explicit.
+
+Formal comparison proves three combinational passes equal eight for ALL158
+binary state/frame/root input bits and ALL85 result/state/event/settling bits,
+without protocol assumptions. One pass changes actual visible f17 flags. Default
+is now three passes; this introduces no guest clock or pipeline owner. The
+first proof attempt correctly rejected249 undriven hierarchical pin references.
+The synthesizable cone now substitutes their exact connected local wires;
+the timed oracle keeps its original observations. Preserve the rejected attempt;
+do not waive driver checks or call unknown/arrival/physical timing qualified.
+
+Fresh diagnostic `native-cp-read-j19-boot-v1-20261025` compiles and test62048/
+session15762 is live, driver61672 (see run-state for authoritative identities).
+Its OWN fixed5B HOST bound permits normal CoolBoot/113 traffic beyond the old
+250M startup prefix. Exact194 production HDL inputs include the checked j19
+and read/capture fixes. Original firmware, six memory-test passes, PB1/button/
+PS2/media/storage/device sources and hold/commit/request/response checks remain.
+Lint passes with all eight UNOPTFLAT warnings retained. Actual16 native R cells
+remain sole owners; one bulk SRAM; paired mode OFF. The new branch80 prototype
+is NOT integrated in this run. It is an unqualified full-firmware diagnostic,
+not a selected fit or boot pass. At10M HOST it is in memory initialization,
+guest0 and no reported fault. Original69736 retains its own source/5B bound.
+
+NEXT: close actual ALU/g18/CurrLast/phase boundaries with the existing common
+owner and qualify task-switch/carry/source-arrival and unknown cases; preserve
+the j19 pulse/arrival gates and every MIR/Ready/Hold/IFU/Memory/event/WE-close
+consumer. Follow62048 and69736 rather than restarting them. SAME-fixture physical
+timing,60ns/timer calibration, separate66.7MHz SDRAM and ALL A–F/original Cedar/
+Rollback/persistence/fresh boots/stress acceptance remain. No RBF/load/measured
+gain. Receipt: `branch-condition-capture-summary.json` in the native flag archive.
+
+PREVIOUS COMPLETE J19 REPLAYS AND ROM-BOUND CLOCK READ (2026-10-25):
 SAME corrected Icarus peers52407/full and52406/words finished PASS. Both-engine
 full/mixed outcomes and all100 clocks match; no replay peer remains pending.
 The review additionally verifies exact v1/v2 stimuli, initial fixtures and ALL
