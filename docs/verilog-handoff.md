@@ -7,7 +7,65 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST ACTUAL NATIVE FLAG OWNER AND COMPLETED TASK TIMING (2026-10-25):
+LATEST COMPLETE-PREFIX PARALLEL READY COMPARISON (2026-10-25):
+The measured21-level path includes child Ready capture followed by its masked
+comparison. New stateless `dorado_ready_compare_step.sv` computes FOUR capture
+cases (Notify/PreEmpting combinations), hold and clear comparisons in parallel.
+The late actual capture event/selectors choose a scalar comparison. Four kept
+one-bit capture results preserve this factoring for synthesis. No Ready owner,
+physical update, clock, SRAM, memory barrier or architectural pipeline changes.
+The complete original comparison is retained whenever ANY relevant bit is X/Z.
+
+This is NOT removal of shared_state_mismatch. The earlier real counterexamples
+remain valid and the new implementation preserves their nonzero results. The
+child's original Ready update is byte-identical after stripping only the new
+auxiliary target/result ports and helper. All four positional caller interfaces
+and two named early-fault consumers are connected; only the ordinary prefix uses
+the new comparison. Other consumers ignore the added result.
+
+Direct RTL proof compares ALL2,969 public prefix outputs for ALL1,982 arbitrary
+binary inputs, including invalid cache payloads, memory data, flags and pair
+mode. No assumptions. Physical Q, held-next Q, all events/repeats, unsettled,
+shared mismatch, source/Ready flags and native R frame remain exact. A wrong
+PreEmpting selector changes the ACTUAL shared_state_mismatch output. Its first
+witness does not change stored Q/events; do not call it a physical-state failure.
+Four-state qualification compares all2,969 outputs for11,895 checks:3 binary
+contexts plus11,892 independent X/Z substitutions. PASS, preserving unknowns.
+
+BOTH complete Verilator programs PASS against original fixtures/references,
+all assertions/2,470-bit results/844 Q/9,216 SRAM/100 clocks, native16 R cells,
+j19 epochs and one SRAM owner. Full14,884 events/10,423 commits/4,461 pairs;
+words12,481/12,387/94;119 paired writes/238 forwarded bytes in full, one staged
+read in words. No input/initial/geometry/publication check was relaxed.
+SAME Icarus17225/full and17226/words remain verified live at the review, NOT
+passing. Follow those existing jobs without restarting from expired handles.
+
+NEW single timing-only builder4042975: map4042978 exits0 and SAME fit4058493 is
+verified live: `/home/alans/mister/Dorado_CPRead15_ReadyCompare_20261025`.
+Local stage `native-ready-compare-full15-stage-v1-20261025` has575 exact inputs,
+one more than its completed task-parallel parent. Only control/Ready implementation
+files plus the new stateless helper change. Every other HDL/ROM/device/clock/
+timer/gate byte is unchanged; SDC changes only project-root relocation. Native
+elaboration passes197 sources with10 visible structural warnings, unchanged
+from the task-parallel parent. Elaboration is not physical-loop/timing closure.
+No assembly/load, new timing exception or measured hardware speed gain.
+
+NEXT: collect ALL terminal physical/corner/crossing reports from this SAME fit
+and finish the SAME Icarus peers before selection. This diagnostic remains
+66.666667MHz/SYSPER4,120ns ordinary before holds; original four15ns/60ns remains
+open. Use the measured path to place R reads and Ready/control captures into
+explicit original t0/t1/t3 phases, preserving tags, read-before-write, write-close
+history and MIR/Ready/Hold. Shorter comparison logic alone does not establish
+the target cadence. The qualified native104-bit flag frontier remains a separate
+private integration stage and must join that chronology without bypassing its
+buffered clocks. SDRAM66.7MHz protocol/reset/refresh/DQ, all timers, pinned speed/
+wait measurements, original interactive Cedar/Checkpoint/Rollback/persistence,
+three fresh boots and two-hour stress still required. Native62048 remains at
+its original5B bound;69736/87487 are terminal historical diagnostics. Protected
+media and FPGA untouched. Full goal ACTIVE; full FPGA snapshots deferred.
+Receipt: `native-ready-compare-summary.json` in the native flag archive.
+
+PREVIOUS ACTUAL NATIVE FLAG OWNER AND COMPLETED TASK TIMING (2026-10-25):
 The SAME task-parallel builder3827091 is TERMINAL: ALL nine stages exit0,
 574 source hashes verified,327 reports/logs collected. Both full+words programs
 now PASS in BOTH Icarus and Verilator, with every original assertion intact.

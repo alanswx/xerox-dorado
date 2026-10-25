@@ -14,7 +14,42 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-LATEST native common flag ownership and completed task fit (2026-10-25):
+LATEST complete-prefix parallel Ready comparison (2026-10-25):
+
+- [x] Replace serial capture-then-compare on the measured path with four
+  parallel Notify/PreEmpting capture comparisons plus hold/clear comparisons.
+  Late actual clocks/selectors choose a scalar result. Preserve physical Ready
+  update, all other Q/events and the full X/Z fallback. The mismatch guard stays.
+- [x] Prove ALL2,969 public prefix outputs for ALL1,982 binary inputs, including
+  invalid cache payloads/memory data/pair mode, without assumptions. Wrong
+  PreEmpting selector corrupts shared_state_mismatch; first witness changes
+  no stored Q/event, so do not promote it as that stronger counterexample.
+- [x] Pass11,895 four-state checks on all2,969 outputs. Both complete Verilator
+  programs retain all original inputs/initial/reference/assertions,2,470-bit
+  results/844 Q/9,216 SRAM/100 clocks, native16 R/j19/one SRAM owner and the
+  original read/write/geometry gates. No original Ready counterexample is waived.
+- [x] Stage575 exact inputs: three incremental HDL changes and no clock/timer/
+  barrier/ROM/SDC-policy changes. Native197-source elaboration passes with10
+  visible structural warnings. Start ONE timing-only4042975 at
+  `/home/alans/mister/Dorado_CPRead15_ReadyCompare_20261025`; map4042978 exits0,
+  SAME fit4058493 is verified live. No assembly/load or hardware gain claimed.
+- [ ] Follow SAME Icarus17225/full and17226/words and SAME full-core fit. Collect
+  all four corners/crossings and inspect the new path before selecting a build.
+- [ ] Place R reads and Ready/control captures into explicit original t0/t1/t3
+  phases to remove remaining serial dependencies and the half-cycle deadline,
+  preserving address/data tags, read-before-write and all MIR/Ready/Hold/storage
+  gates. Merge the qualified native104-bit flag frontier into that chronology;
+  retain actual clock buffers/data setup. Current diagnostic is still120ns,
+  not four15ns/60ns. A faster comparison alone cannot qualify the original cadence.
+- [ ] Finish separate66.7MHz SDRAM command/DQ/reset/refresh and timer calibration,
+  pinned progress/waits and original Cedar/input/Checkpoint/Rollback/persistence/
+  three fresh boots/two-hour stress. Native62048 stays at5B;69736/87487 remain
+  terminal historical diagnostics. Protected media/hardware untouched.
+
+Receipt: `native-ready-compare-summary.json`. Full goal ACTIVE; FPGA snapshots
+deferred. Observe existing jobs; no restarts from expired observation handles.
+
+Previous native common flag ownership and completed task fit (2026-10-25):
 
 - [x] Finish SAME task-parallel full/words Icarus. All four full+words replays
   in both engines PASS, retaining all original results/Q/SRAM/100 clocks and

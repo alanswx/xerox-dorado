@@ -22,11 +22,12 @@ def start(stage,out):
     r=json.loads((stage/'r-front-control-native.json').read_text());verify(stage,r['source_hashes'])
     assert r['status']=='PREPARED_FULL_NATIVE_15NS_PHASE_GUARD_DIAGNOSTIC'and not r['assembly_permitted']
     project=r['project'];assert Path(project).parent==Path('/home/alans/mister')
-    assert len(r['source_hashes'])==574
+    source_count=575 if r.get('ready_compare_proof_state_sha256')else 574
+    assert len(r['source_hashes'])==source_count
     check='from pathlib import Path\np=Path('+repr(project)+')\nassert not p.exists(), "Observe existing project; do not restart"\n'
     subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10','misterubuntu','python3','-'],input=check,text=True,check=True)
     manifest_sha=sha(stage/'r-front-control-native.json')
-    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py']if(stage/n).is_file()]
+    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py','stage_native_ready_compare.py']if(stage/n).is_file()]
     assert stagers,'Missing the executed staging helper'
     names=sorted(r['source_hashes'])+['r-front-control-native.json','build_r_front_ready_native.py',*stagers]
     bundle=out/'stage.tgz'
@@ -48,7 +49,7 @@ manifest=p/'r-front-control-native.json'
 assert hashlib.sha256(manifest.read_bytes()).hexdigest()==MANIFEST_SHA
 r=json.loads(manifest.read_text());assert r['project']==str(p)and not r['assembly_permitted']
 actual={n:hashlib.sha256((p/n).read_bytes()).hexdigest()for n in r['source_hashes']}
-assert actual==r['source_hashes']and len(actual)==574
+assert actual==r['source_hashes']and len(actual)==SOURCE_COUNT
 assert not(p/'run-state.json').exists()
 with(p/'builder.log').open('xb')as log:
  child=subprocess.Popen(['python3',str(p/'build_r_front_ready_native.py'),'--project',str(p),'--manifest','r-front-control-native.json'],
@@ -64,13 +65,13 @@ result={'project':str(p),'builder_pid':child.pid,'builder_ps':process.stdout.str
         'run_state':json.loads((p/'run-state.json').read_text())if(p/'run-state.json').exists()else None}
 print(json.dumps(result))
 '''
-    replacements={'PROJECT':repr(project),'BUNDLE':repr(remote_bundle),'BUNDLE_SHA':repr(sha(bundle)),'MANIFEST_SHA':repr(manifest_sha)}
-    script=re.sub(r'\b(?:PROJECT|BUNDLE_SHA|BUNDLE|MANIFEST_SHA)\b',lambda m:replacements[m[0]],script)
+    replacements={'PROJECT':repr(project),'BUNDLE':repr(remote_bundle),'BUNDLE_SHA':repr(sha(bundle)),'MANIFEST_SHA':repr(manifest_sha),'SOURCE_COUNT':str(source_count)}
+    script=re.sub(r'\b(?:PROJECT|BUNDLE_SHA|BUNDLE|MANIFEST_SHA|SOURCE_COUNT)\b',lambda m:replacements[m[0]],script)
     (out/'launch.py').write_text(script)
     launch=subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10','misterubuntu','python3','-'],input=script,text=True,capture_output=True)
     (out/'launch.stdout').write_text(launch.stdout);(out/'launch.stderr').write_text(launch.stderr)
     assert launch.returncode==0,(launch.stdout,launch.stderr)
-    result=json.loads(launch.stdout);assert result['verified_source_count']==574
+    result=json.loads(launch.stdout);assert result['verified_source_count']==source_count
     (out/'launch-observation.json').write_text(json.dumps(result,indent=2)+'\n')
     print('NEW_FULL_CORE_PHASE_GUARD_TIMING_JOB',result['builder_pid'],result['project'])
     return result

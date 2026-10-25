@@ -18,7 +18,7 @@ from review_baseboard_clock_consumer import verify
 from test_external_r_packet import sha
 
 
-def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proof=None,address_proof=None,parallel_proof=None):
+def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proof=None,address_proof=None,parallel_proof=None,ready_proof=None):
     assert not out.exists();out.mkdir(parents=True)
     s=json.loads((source/'run-state.json').read_text());verify(source,s['files'])
     assert s['status']=='PASS_COMBINED_CP_COHERENT_PACKETS'and s['experimental_j19_ordered_epochs']
@@ -64,6 +64,19 @@ def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proo
         assert sha(path)==t['source_address_sha256']
         address_after=address_transform(path.read_text())
         assert address_after==(address_proof/'native-address-after.sv').read_text()
+    ready_after=None;ready_helper=None
+    if ready_proof:
+        from qualify_native_ready_compare import control_transform,child_transform,HELPER
+        assert parallel_proof and not wrong_frame
+        t=json.loads((ready_proof/'run-state.json').read_text());verify(ready_proof,t['files'])
+        assert t['status']=='PASS_ACTUAL_NATIVE_READY_COMPARISON'and all(a['passed']for a in t['actions'])
+        assert sha(proof/'native-control-after.sv')==t['source_control_sha256']
+        path=source/'adapters/dorado_local_r_front_ready_step.sv';assert sha(path)==t['source_ready_sha256']
+        after=control_transform(after);ready_after=child_transform(path.read_text())
+        assert after==(ready_proof/'native-control-after.sv').read_text()
+        assert ready_after==(ready_proof/'native-ready-after.sv').read_text()
+        ready_helper=Path(__file__).resolve().parents[1]/HELPER
+        assert sha(ready_helper)==t['helper_sha256']
     if wrong_frame:
         assert p['sparse_shared_capture_frames']
         token='fall_before=state_q[47:0],fall_after='
@@ -77,6 +90,7 @@ def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proo
         elif n=='adapters/dorado_local_task_capture_step.sv'and task_after is not None:text=task_after
         elif n=='inputs/verilog/rtl/dorado_processor_capture_step.sv'and processor_after is not None:text=processor_after
         elif n=='adapters/dorado_local_r_address_step.sv'and address_after is not None:text=address_after
+        elif n=='adapters/dorado_local_r_front_ready_step.sv'and ready_after is not None:text=ready_after
         elif n=='tb.sv':
             original=text;text=text.replace(str(source),str(out))
             scope='dut.packet.single.control.direct_arrival'
@@ -91,6 +105,9 @@ def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proo
             assert text.count('endmodule')==1;text=text.replace('endmodule',monitor+'endmodule',1)
             assert text.replace(monitor,'',1).replace(str(out),str(source))==original
         q.write_text(text);paths.append(q);rows.append(dict(path=n,parent_sha256=row['output_sha256'],output_sha256=sha(q)))
+    if ready_helper:
+        n='adapters/dorado_ready_compare_step.sv';q=out/n;shutil.copy2(ready_helper,q);paths.append(q)
+        rows.append(dict(path=n,parent_sha256=None,output_sha256=sha(q)))
     # Freeze non-compiled fixture files, including the recovered mixed-case
     # initial owner. Other trace paths remain the original immutable inputs.
     for n in s['files']:
@@ -101,7 +118,8 @@ def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proo
     for n in [Path(__file__).name,'qualify_native_phase_fall_guard.py',*(['qualify_native_task_terminal.py']if task_proof else[]),
               *(['qualify_native_processor_terminal.py']if processor_proof else[]),
               *(['qualify_native_address_task_owner.py','prove_native_address_task_owner.py']if address_proof else[]),
-              *(['qualify_native_task_parallel.py']if parallel_proof else[])]:
+              *(['qualify_native_task_parallel.py']if parallel_proof else[]),
+              *(['qualify_native_ready_compare.py']if ready_proof else[])]:
         shutil.copy2(Path(__file__).with_name(n),helpers/n)
     state=dict(status='RUNNING',scope=__doc__,source=str(source),engine=engine,started=time.time(),
         proof=str(proof),proof_state_sha256=sha(proof/'run-state.json'),source_state_sha256=sha(source/'run-state.json'),
@@ -111,7 +129,8 @@ def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proo
                               ('; shared task consumer16->7 waves and proved terminal closure'if task_proof else'')+
                               ('; separate processor phase16->5 waves and proved terminal closure'if processor_proof else'')+
                               ('; one shared child task result supplies address/operand consumers'if address_proof else'')+
-                              ('; separate task clock resolution and parallel last-capture selection'if parallel_proof else''),
+                              ('; separate task clock resolution and parallel last-capture selection'if parallel_proof else'')+
+                              ('; parallel Ready capture comparisons with every original mismatch bit retained'if ready_proof else''),
         task_terminal_proof=str(task_proof)if task_proof else None,
         task_terminal_proof_state_sha256=sha(task_proof/'run-state.json')if task_proof else None,
         processor_terminal_proof=str(processor_proof)if processor_proof else None,
@@ -120,6 +139,8 @@ def run(source,proof,out,engine,wrong_frame=False,task_proof=None,processor_proo
         address_task_owner_proof_state_sha256=sha(address_proof/'run-state.json')if address_proof else None,
         task_parallel_proof=str(parallel_proof)if parallel_proof else None,
         task_parallel_proof_state_sha256=sha(parallel_proof/'run-state.json')if parallel_proof else None,
+        ready_compare_proof=str(ready_proof)if ready_proof else None,
+        ready_compare_proof_state_sha256=sha(ready_proof/'run-state.json')if ready_proof else None,
         sparse_shared_capture_frames=p.get('sparse_shared_capture_frames',False),wrong_shared_start_frame=wrong_frame,
         native_cells_j19_single_SRAM_and_commit_barriers_retained=True,source_files=rows,actions=[],
         files={str(p.relative_to(out)):sha(p)for p in out.rglob('*')if p.is_file()})
@@ -157,8 +178,10 @@ if __name__=='__main__':
     p.add_argument('--processor-proof',type=Path)
     p.add_argument('--address-proof',type=Path)
     p.add_argument('--parallel-proof',type=Path)
+    p.add_argument('--ready-proof',type=Path)
     a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.proof.resolve(),a.output.resolve(),a.engine,a.wrong_frame,
                                         a.task_proof.resolve()if a.task_proof else None,
                                         a.processor_proof.resolve()if a.processor_proof else None,
                                         a.address_proof.resolve()if a.address_proof else None,
-                                        a.parallel_proof.resolve()if a.parallel_proof else None))
+                                        a.parallel_proof.resolve()if a.parallel_proof else None,
+                                        a.ready_proof.resolve()if a.ready_proof else None))
