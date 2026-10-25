@@ -46,7 +46,8 @@ def generated_candidate(enabled):
     return source_top(shared.kernel(raw,share_native=True),(BUILD/'native-cp-source-v1-20261024/functions.sv').read_text())+'\n'+shared.control(raw)
 
 
-def review(out,require_words=False):
+def review(out,require_words=False,require_full=False):
+    assert not require_full or require_words
     assert not out.exists();out.mkdir(parents=True)
     ref=out/'independent-reference';r=generate(ROOT,ref)
     assert (r['physical_bits'],r['ram_bits'],r['clock_channels'])==(844,9216,100)
@@ -144,6 +145,11 @@ def review(out,require_words=False):
         _,_,il=positive(all_peer.name,'checks=12481 words=4096 Qs=844 RAM=9216 clocks=100 sets=3ffff')
         for name in ['candidate.sv','initial.hex','transactions.hex']:
             assert sha(all_peer/name)==sha(a/name),name
+    if require_full:
+        for mode,marker in [('collisions','checks=17089 collisions=128'),('ram64','checks=12737 RAM_cases=64')]:
+            peer,_,_=positive(f'cp-interior-stage-{mode}-icarus-v2-20261025',marker)
+            other=BUILD/f'cp-interior-stage-{mode}-verilator-v2-20261025'
+            for name in ['candidate.sv','initial.hex','transactions.hex']:assert sha(peer/name)==sha(other/name)
     old_i=BUILD/'cp-interior-stage-collisions-icarus-v1-20261024';old_v=BUILD/'cp-interior-stage-collisions-verilator-v1-20261024'
     older_collision_terminal=read(old_i/'run-state.json')['status']==PASS
     if older_collision_terminal:
@@ -156,7 +162,8 @@ def review(out,require_words=False):
     for d in dirs:
         retain(d,out/d.name)
         if d.name in snapshots:(out/d.name/'run-state.json').write_bytes(snapshots[d.name])
-    result=dict(status='REVIEWED_SINGLE_PORT_CP_WORDS_WITH_PENDING_NATIVE_EPOCH_GATES'if require_words else'STAGED_SINGLE_PORT_CP_CAPTURE_WITH_PENDING_GATES',scope=__doc__,
+    result=dict(status='REVIEWED_SINGLE_PORT_CP_SUITES_WITH_PENDING_NATIVE_EPOCH_GATES'if require_full else'REVIEWED_SINGLE_PORT_CP_WORDS_WITH_PENDING_NATIVE_EPOCH_GATES'if require_words else'STAGED_SINGLE_PORT_CP_CAPTURE_WITH_PENDING_GATES',scope=__doc__,
+                all_three_current_Icarus_Verilator_full_traces_byte_identical=require_full,
                 current_Icarus_Verilator_full_word_trace_byte_identical=require_words,
                 older_rising_collision_peer_terminal=older_collision_terminal,
                 older_rising_collision_trace_byte_identical=older_collision_terminal,
@@ -191,7 +198,7 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['output','archive']:p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--label',default='single-port-cp-capture-staging')
-    p.add_argument('--require-words',action='store_true')
-    a=p.parse_args();r=review(a.output.resolve(),a.require_words)
+    p.add_argument('--require-words',action='store_true');p.add_argument('--require-full',action='store_true')
+    a=p.parse_args();r=review(a.output.resolve(),a.require_words,a.require_full)
     append_archive(a.archive.resolve(),a.output.resolve(),[],label=a.label,extra_tools=TOOLS)
     print(r['status'])

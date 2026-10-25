@@ -21,6 +21,9 @@ from generate_cp_block_capture import rewrite,route
 from generate_cp_prblock_capture import rewrite as prblock_rewrite,route as prblock_route
 from generate_r_front_cp_source_reference import generate
 import generate_shared_control_capture as shared
+from test_cp_interior_tags import tagged_bench
+from test_cp_read_owner import bench as owner_bench
+from generate_cp_read_caller import generate as owner_caller
 from prove_cp_prefix_cache import module
 from review_baseboard_clock_consumer import verify
 from test_r_front_forward_view import sha
@@ -202,11 +205,16 @@ def bench(raw,out,repro,collisions=False,ready_zero=False,trace_arrivals=False,n
 
 
 def run(source,original_trace,cp_source,out,engine,block_capture=True,repro=True,collisions=False,ready_zero=False,
-        profile='balanced',trace_arrivals=False,no_cp_pulse=False,prblock_capture=False,equal_bank_data=False,matched_interior_data=False,interior_read=False,interior_mutation=None,interior_sequencer=False,ram_cases=0):
+        profile='balanced',trace_arrivals=False,no_cp_pulse=False,prblock_capture=False,equal_bank_data=False,matched_interior_data=False,interior_read=False,interior_mutation=None,interior_sequencer=False,ram_cases=0,interior_tags=False,tag_probe=False,tag_mutation=None,read_owner=False,owner_probe=False,owner_mutation=None):
     assert not out.exists()
     assert not interior_read or (prblock_capture and profile=='later_control')
     assert interior_read or interior_mutation is None
     assert not interior_sequencer or interior_read
+    assert not interior_tags or interior_sequencer
+    assert not tag_probe or (interior_tags and repro)
+    assert not tag_mutation or interior_tags
+    assert not read_owner or (interior_tags and not tag_probe)
+    assert read_owner or not (owner_probe or owner_mutation)
     assert not ram_cases or (collisions and interior_sequencer and 1<=ram_cases<=64)
     s=json.loads((source/'run-state.json').read_text());verify(source,s['files'])
     assert s['status']=='PASS_OWNED_FULL_PROCESSOR_PACKETS' and s['mutation'] is None
@@ -217,7 +225,7 @@ def run(source,original_trace,cp_source,out,engine,block_capture=True,repro=True
     out.mkdir(parents=True)
     (out/'run-state.json').write_text(json.dumps(dict(status='PREPARING',driver_pid=os.getpid(),started=time.time(),
         scope=__doc__,source=str(source),original_trace=str(original_trace),engine=engine),indent=2)+'\n')
-    for name in [Path(__file__).name,'generate_r_front_cp_source_reference.py','generate_shared_control_capture.py','generate_cp_block_capture.py','generate_cp_prblock_capture.py','generate_cp_interior_read.py']:
+    for name in [Path(__file__).name,'generate_r_front_cp_source_reference.py','generate_shared_control_capture.py','generate_cp_block_capture.py','generate_cp_prblock_capture.py','generate_cp_interior_read.py','test_cp_interior_tags.py','test_cp_read_owner.py','generate_cp_read_caller.py']:
         shutil.copy2(Path(__file__).with_name(name),out/name)
     reference=out/'reference';r=generate(ROOT,reference)
     actual_inherited=inherited_timing(original_trace)
@@ -235,7 +243,10 @@ def run(source,original_trace,cp_source,out,engine,block_capture=True,repro=True
         elif name=='inputs/tb_r_front_local.sv':
             text=bench(text,out,repro,collisions,ready_zero,trace_arrivals,no_cp_pulse,int(phase<gate),equal_bank_data,matched_interior_data)
             if ram_cases:text=ram_sweep_bench(text,ram_cases)
-            if interior_read:text=(sequential_stage_bench if interior_sequencer else stage_bench)(text,interior_mutation)
+            if read_owner:text=owner_bench(text,owner_probe)
+            else:
+                if interior_read:text=(sequential_stage_bench if interior_sequencer else stage_bench)(text,interior_mutation)
+                if interior_tags:text=tagged_bench(text,tag_probe)
         elif name.startswith('adapters/'):
             if old.stem in shared.ADAPTERS:text=shared.adapter(text)
             elif old.stem=='dorado_local_task_capture_step':text=shared.task_adapter(text)
@@ -248,6 +259,25 @@ def run(source,original_trace,cp_source,out,engine,block_capture=True,repro=True
         name='verilog/rtl/dorado_r_interior_read_stage.sv';old=ROOT/name;dest=out/name;dest.parent.mkdir(parents=True,exist_ok=True)
         dest.write_bytes(old.read_bytes());paths.append(dest)
         rows.append(dict(path=name,parent_sha256=sha(old),output_sha256=sha(dest),changed=False))
+    if interior_tags:
+        name='verilog/rtl/dorado_r_interior_read_tagged_stage.sv';old=ROOT/name;dest=out/name;dest.parent.mkdir(parents=True,exist_ok=True)
+        raw=old.read_text()
+        if tag_mutation=='ignore-ready':
+            a='assign ready=raw_ready && tag_match && !reset;';b='assign ready=raw_ready && !reset;'
+            assert raw.count(a)==1;raw=raw.replace(a,b,1)
+        dest.write_text(raw);paths.append(dest)
+        rows.append(dict(path=name,parent_sha256=sha(old),output_sha256=sha(dest),changed=bool(tag_mutation)))
+    if read_owner:
+        name='dorado_cp_read_caller.sv';dest=out/name
+        raw=owner_caller((source/'caller.sv').read_text(),fn)
+        if owner_mutation=='early-owner':
+            a='if(contb_advance && control_ready)begin';b='if(contb_advance && prefix_ready)begin'
+            assert raw.count(a)==1;raw=raw.replace(a,b,1)
+        elif owner_mutation=='early-ram':
+            a='files(storage_clk,owner_commit,';b='files(storage_clk,contb_advance,'
+            assert raw.count(a)==1;raw=raw.replace(a,b,1)
+        dest.write_text(raw);paths.append(dest)
+        rows.append(dict(path=name,parent_sha256=None,output_sha256=sha(dest),generated=True,changed=bool(owner_mutation)))
     for board in ['BaseBd-Rev-Am',*[b['board']for b in r['boards']]]:
         for ext in ['wl','lc']:
             name='chm/sil/'+board+'.dm!1_/'+board+'.'+ext;p=out/'source-audit'/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((ROOT/name).read_bytes())
@@ -260,8 +290,13 @@ def run(source,original_trace,cp_source,out,engine,block_capture=True,repro=True
                profile=profile,inherited_profile_ps=actual_inherited,passive_g16_arrival_trace=trace_arrivals,CP_strobe_pulsed=not no_cp_pulse,
                PrBlock_capture_enabled=prblock_capture,PrBlock_capture_descriptor=pr_descriptor,
                staged_interior_read=interior_read,interior_mutation=interior_mutation,
-               interior_read_caller_implemented_in_testbench_only=interior_read,
+               interior_read_caller_implemented_in_testbench_only=interior_read and not read_owner,
+               native_machine_driver_still_testbench=True,
                synthesizable_interior_sequencer=interior_sequencer,native_caller_integration_pending=interior_read,
+               descriptor_tags=interior_tags,descriptor_change_probe=tag_probe,descriptor_mutation=tag_mutation,
+               synthesized_read_owner=read_owner,untrusted_write_probe=owner_probe,owner_mutation=owner_mutation,
+               caller_publication_in_RTL=read_owner,external16_visible_R_testbench_model=read_owner,ordinary_paired_path_integrated=False,
+               caller_fixture_wire_settle_ns=1 if read_owner else 0,
                trace_inputs_normalized_to_actual_CP_source=True,
                shared_cached_and_pure_consumers=True,all_original_event_assertions_retained=True,
                physical_Q_bits=844,physical_RAM_bits=9216,clock_channels=100,
@@ -298,12 +333,16 @@ if __name__=='__main__':
     p.add_argument('--prblock-capture',action='store_true')
     p.add_argument('--interior-read',action='store_true')
     p.add_argument('--interior-sequencer',action='store_true')
+    p.add_argument('--interior-tags',action='store_true');p.add_argument('--tag-probe',action='store_true')
+    p.add_argument('--tag-mutation',choices=['ignore-ready'])
+    p.add_argument('--read-owner',action='store_true');p.add_argument('--owner-probe',action='store_true')
+    p.add_argument('--owner-mutation',choices=['early-owner','early-ram'])
     p.add_argument('--interior-mutation',choices=['stale-data','missing-valid'])
     p.add_argument('--equal-bank-data',action='store_true',help='Diagnostic memory control: seed RM and STK with identical data; does not qualify independent bank data')
     p.add_argument('--matched-interior-data',action='store_true',help='Diagnostic control: match the two transient STK cells to the RM cells observed at check194; not general qualification')
     group=p.add_mutually_exclusive_group();group.add_argument('--all-words',action='store_true');group.add_argument('--collisions',action='store_true');group.add_argument('--ram-cases',type=int,default=0)
     a=p.parse_args()
-    try:code=run(a.source.resolve(),a.original_trace.resolve(),a.cp_source.resolve(),a.output.resolve(),a.engine,not a.without_block_capture,not (a.all_words or a.collisions or a.ram_cases),bool(a.collisions or a.ram_cases),a.ready_zero,a.profile,a.trace_arrivals,a.no_cp_pulse,a.prblock_capture,a.equal_bank_data,a.matched_interior_data,a.interior_read,a.interior_mutation,a.interior_sequencer,a.ram_cases)
+    try:code=run(a.source.resolve(),a.original_trace.resolve(),a.cp_source.resolve(),a.output.resolve(),a.engine,not a.without_block_capture,not (a.all_words or a.collisions or a.ram_cases),bool(a.collisions or a.ram_cases),a.ready_zero,a.profile,a.trace_arrivals,a.no_cp_pulse,a.prblock_capture,a.equal_bank_data,a.matched_interior_data,a.interior_read,a.interior_mutation,a.interior_sequencer,a.ram_cases,a.interior_tags,a.tag_probe,a.tag_mutation,a.read_owner,a.owner_probe,a.owner_mutation)
     except Exception as error:
         state_file=a.output/'run-state.json'
         if state_file.exists():

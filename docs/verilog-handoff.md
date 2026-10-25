@@ -7,6 +7,68 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
+LATEST TAGGED CALLER REVIEW (2026-10-25):
+`tagged-read-caller-summary.json` retains the synthesized read/publication caller,
+complete processor suites, unbounded SRAM/publication proofs and real corruption
+witnesses. The prior stage suites also completed in both engines; see
+`single-port-cp-capture-complete-summary.json`. No tests remain running from that
+prior component milestone. Native hierarchy/clock/visible-R and paired-path
+integration are STILL open; no new RBF or measured speed gain.
+
+New files: `verilog/rtl/dorado_r_interior_read_tagged_stage.sv` and
+`tools/generate_cp_read_caller.py`. Tags cover all72 before/interior address and
+bank-select bits, invalidating ready/valid immediately on a mismatch. Both
+engines pass144 deliberate changes in the full processor fixture, and formal
+mutations break real ready/valid. The caller reuses the exact original828-bit
+publication block plus16 EXTERNAL visible-R aliases and402-bit history. One
+common ready/advance gate controls state/context, cache commit and the sole
+physical SRAM. Automatic read preparation does not depend on requested advance.
+Advance is held HIGH and write requests are asserted during test stalls; the
+actual RTL barrier protects memory/owners, rather than a testbench convention.
+
+Both full engines pass:4096 CP words/12481 checks;128 fresh collision fixtures/
+17089 checks;64 independent RAM fixtures/12737 checks. ALL844 states,9216 RAM
+bits and100 clocks retain the original per-event assertions. Every complete
+transaction trace matches its peer AND the preceding staged processor. Formal
+proof of the actual synthesized caller+four256x9 SRAMs is inductive over arbitrary
+binary inputs and uninitialized guest owners/context/memory/tags/data buffers.
+It checks all828 stored bits,402 context bits,9216 SRAM bits and exact BEFORE/
+capture reads at their tagged words. The processor next payload is ABSTRACT;
+this does not prove arbitrary whole-processor/native source timing.
+
+A bad publication guard changes real Q785/838; formal counterexamples corrupt
+stored processor state and SRAM bits846/848/851/852/854 without a legal commit.
+The SRAM-enable simulation negative rejects even before an unready first write.
+Earlier formal attempts (WASM exception and a verified CPU-limit stop) remain
+failed historical evidence. The final word-array proof and negatives all pass.
+Formal probe ports are read-only analysis wiring, not new hardware read ports.
+
+Fixture recording fix: the old caller headers/boundaries sampled the held WIRE
+before delta settling. Actual first transaction owners and full original checks
+are correct. Keep every original record; separate `initial-recovered.hex` and
+boundary receipts recover those owners from the real first transaction and
+validate against the independently checked cold fixture/RAM. A1ns TEST-FIXTURE
+settle fixes future records, tested in both engines plus a reload. DUT unchanged.
+The inherited caller-testbench metadata flag is not used as proof; the actual
+source now implements publication in RTL. Whole-machine stimulus and the original
+16 visible-R cell models are still testbench abstractions.
+
+NEXT: connect the real native16 visible-R cells/phase clocks and preserve the
+ordinary paired packet path with ONE SRAM. This caller is a single-event staged
+path, not a selected replacement for the paired implementation. Join complete
+payload/settling/repeated-clock/error validity into whole-machine readiness;
+prefix-cache readiness alone is not that condition. Ensure every CP/device event
+is frozen or queued while a proposal waits; do not discard it on tag retry.
+Then finish producer/capture/after closure for CP/MIR/Ready/Hold/IFU/Memory, all
+original16-R interior edges, X/Z/noncanonical fallback, nonvacuous TPC capture,
+SAME-fixture timing, full-device timing and all A–F boot/persistence/stress gates.
+
+Original native69736 remains the SAME5B HOST run. Logs now show many more CP
+writes and StartCycle issues after the timer wait. Those are not a boot pass or
+a retirement rate. Protected firmware/media/baselines remain unchanged; last
+hardware measurement is still4.025473M StartCycle issues/s. MiSTer14 is available;
+last read-only core was SMC777. Do not select a new image before native gates.
+
 LATEST STAGED FIX (2026-10-25): the intermediate read now works as a component.
 `single-port-cp-capture-words-summary.json` is the current receipt. Earlier
 caller-audit/staging receipts remain historical. The
@@ -50,9 +112,10 @@ Icarus10076/session59484 is now TERMINAL PASS too:128 fixtures/17089 checks,
 byte-identical full trace to its OLDER Verilator peer. This differs from the
 extended current candidate; preserve that distinction. The additional receipt is
 `single-port-cp-capture-old-collision-terminal-summary.json`.
-LIVE at latest review: CURRENT collision Icarus13697/session43106 and64-RAM
-Icarus12518/session56923. Actual `ps` handles verified; do not restart/change
-bounds. Finish/archive these and remaining arrival/XZ/noncanonical tests. Preserve every original16-R C/D/Set/interior edge,
+These CURRENT peers are now TERMINAL PASS: collision13697/session43106 and
+64-RAM12518/session56923. Their entire traces match Verilator, reviewed in
+`single-port-cp-capture-complete-summary.json`. Do not restart. Remaining native/
+arrival/XZ/noncanonical gates are unchanged. Preserve every original16-R C/D/Set/interior edge,
 828+16 native ownership and the one SRAM. Connect native freeze/barrier/publication
 only after those gates, then continue IFU/Memory and full-device timing. All A–F,
 60ns/timer, SDRAM, firmware/Cedar/Rollback/persistence/stress gates remain.

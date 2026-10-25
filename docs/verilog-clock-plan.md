@@ -14,6 +14,65 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
+LATEST tagged read/publication caller (2026-10-25):
+
+- [x] Complete the prior current word/collision/RAM suites in BOTH engines.
+  All three complete transaction traces, candidate HDL and initial fixtures
+  match byte for byte. Receipt: `single-port-cp-capture-complete-summary.json`.
+- [x] Add72-bit address/select tags to the read stage. A changed descriptor
+  suppresses ready/valid before the next clock, discards the auxiliary request
+  and permits retry. All72 bits are changed during READ and DONE in BOTH full
+  processor fixtures (144 probes each). Six formal mutations fail actual ready
+  or valid, not just a diagnostic tag comparison. No protocol assumptions.
+- [x] Generate `dorado_cp_read_caller` from the actual828+16 native publication
+  seam. The SAME ready/advance guard controls the828 stored bits,401-pin/root
+  history, SRAM writes and cache commit. Prepare the read independently of
+  requested advance so the ready barrier cannot prevent its own preparation.
+  Physical RAM remains four256x9 banks with one read port per bank. Tags/data/
+  phase add110 AUXILIARY bits; no guest owner or memory copy is added.
+- [x] Keep advance HIGH during pending reads and attempt writes. The RTL
+  barrier holds owner/context/RAM, then publishes on the accepted edge. Full
+  original844-Q/9216-RAM/100-clock suites pass in BOTH engines:4096 words/12481
+  checks,128 collision fixtures/17089 checks,64 RAM fixtures/12737 checks.
+  Complete traces also match the prior staged processor byte for byte.
+- [x] Prove the actual caller+SRAM inductively with arbitrary owner/context/
+  tag/buffer/SRAM power-up and binary inputs, without protocol assumptions.
+  All828 owner bits,402 context bits and9216 SRAM bits are checked. BEFORE and
+  capture snapshots equal the corresponding current SRAM words when valid,
+  despite descriptor changes and read stalls. Processor next payload is an
+  ABSTRACT INPUT; this is not unbounded processor or native-clock equivalence.
+- [x] Remove the commit guard: simulation changes real Q785/838 prematurely.
+  Formal negatives corrupt stored processor state and five real SRAM bits.
+  Keep the earlier WASM exception and CPU-limit stop as failed proof attempts;
+  the corrected word-array oracle completed all proofs and negatives.
+- [x] Fix initial-fixture recording: a wire was sampled before delta settling.
+  Preserve old headers/boundaries; recover owner values from actual first
+  transaction records and validate against the checked cold fixture/RAM.
+  A1ns settle in the TEST FIXTURE fixes initial and reload records, validated
+  in both engines and a fresh reload. No DUT or historical file was patched.
+- [ ] Connect actual native source/clock/visible-R cells. The original16 visible
+  owners are external; their current test model captures the expected visible
+  values on commit. Do not replace the actual cells with that model.
+- [ ] Preserve the ordinary paired packet path through the same SRAM and common
+  publication/cache barrier. The new caller currently covers ONE EVENT only;
+  it is not a replacement speed candidate for the qualified paired path.
+- [ ] Route complete payload/settling/clock-repeat/error validity through the
+  whole-machine ready barrier; prefix-cache readiness alone is not full-machine
+  readiness. Freeze or queue every producer event while a proposal is pending;
+  descriptor invalidation must not discard real CP/device events.
+- [ ] Complete actual CP/MIR/Ready/Hold/IFU/Memory capture epochs, every original
+  16-R interior edge, unknown/noncanonical fallback, full-processor nonvacuous
+  TPC capture and SAME-fixture timing. Keep all A–F, original60ns/timers, physical
+  SDRAM, firmware/Cedar/Rollback/persistence/stress acceptance intact.
+
+Receipt: `tagged-read-caller-summary.json`, status
+REVIEWED_TAGGED_READ_CALLER_AND_PUBLICATION_BARRIER. Source binding, every failed
+attempt, exact proof inputs, actual corruption witnesses, original fixture files
+and separate recovered records are retained. Native hierarchy is NOT integrated;
+no new RBF or hardware speed. Original native69736 remains the same5B HOST test.
+It has progressed past the earlier timer wait into many more CP writes/StartCycle
+issues, still without a Cedar/boot qualification. Guest ticks are not instructions.
+
 LATEST one-port interior read implementation (2026-10-25):
 
 - [x] Separate current physical BEFORE observations from closing R input and
@@ -44,19 +103,16 @@ LATEST one-port interior read implementation (2026-10-25):
   128 fixtures/17089 checks, entire trace byte-identical to its OLDER Verilator
   peer. Preserve the source-version distinction; do not restart it. Receipt:
   `single-port-cp-capture-old-collision-terminal-summary.json`.
-- [ ] Finish SAME CURRENT collision Icarus13697/session43106 and current64-RAM
-  Icarus12518/session56923, both verified live by actual `ps` in that receipt.
-  Do not restart or change bounds. Then require the remaining arrival/unknown-
-  context/owner gates before native use.
+- [x] CURRENT collision Icarus13697/session43106 and64-RAM12518/session56923
+  are both TERMINAL PASS. Both complete traces match their Verilator peers;
+  `single-port-cp-capture-complete-summary.json` reviews them. Do not restart.
+  Remaining arrival/unknown-context/native-owner gates stay open.
 - [ ] Wire the stage into the real native caller's freeze/publication/barrier,
-  preserving828 stored bits plus16 external visible-R owners. Start/ack/release
-  and owner publication are still TESTBENCH-driven. Earlier metadata confusing
-  the RTL controller with its caller is clarified in the caller-audit receipt;
-  historical state/source files remain unchanged. No native integration yet. Next native-caller step: inspect whether its live port
-  descriptors can change during a pending read. The current controller REQUIRES
-  them frozen. Qualify descriptor tagging/invalidation and the one-owner RAM
-  write barrier before allowing a stale buffered read to publish; do not assume
-  that a held processor owner also freezes every live source pin.
+  preserving828 stored bits plus16 external visible-R owners. The NEW caller
+  now prepares reads and publishes state in RTL with tagged descriptors and the
+  shared SRAM write barrier. Actual native cells/clocks and the paired path
+  remain open in the latest checklist. Earlier testbench-only staging receipts
+  stay historical; do not assume a held owner freezes every live source pin.
 - [ ] Qualify every original16-R interior edge, actual CP/Ready/MIR/Hold offsets,
   unknown/noncanonical paths, full-processor nonvacuous TPC capture, IFU/Memory,
   and SAME-fixture timing before selecting a full-core fit. All A–F stay open.
