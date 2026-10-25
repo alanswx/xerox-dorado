@@ -69,6 +69,7 @@ def review(stage,out,launch=None):
     project=source['project']
     native_single=source.get('actual_native_single_comparison_connected',False)
     registered=source.get('registered_R_read_buffer_connected',False)
+    memc=source.get('registered_MemC_tag_reads_connected',False)
     new_ready=bool(native_single and source.get('ready_compare_proof_state_sha256'))
     launch_state=None
     if launch:
@@ -86,14 +87,15 @@ def review(stage,out,launch=None):
         assert source['status']=='PREPARED_FULL_NATIVE_15NS_PHASE_GUARD_DIAGNOSTIC'
         assert source['phase_guard_new_pins']==85 and source['all795_control_and_shared_frame_bits_proved']
     if task:assert source['task_terminal_proof_state_sha256']and source['sparse_shared_capture_frames']
-    if shared:assert source['processor_terminal_proof_state_sha256']and source['address_task_owner_proof_state_sha256']and len(source['functional_HDL_changes'])==(9 if registered else 6 if ready else 4)
+    if shared:assert source['processor_terminal_proof_state_sha256']and source['address_task_owner_proof_state_sha256']and len(source['functional_HDL_changes'])==(12 if memc else 9 if registered else 6 if ready else 4)
     if parallel:
         assert source['task_parallel_proof_state_sha256']
         if not ready:assert source['incremental_functional_HDL_changes']==['src/verilog/rtl/dorado_local_task_capture_step.sv']
     if ready:assert source['ready_compare_proof_state_sha256']and source['all2969_prefix_outputs_retained']and source['shared_state_mismatch_guard_retained']and len(source['incremental_functional_HDL_changes'])==3
     builder=launch_state['builder_pid'] if launch_state else {PROJECT:2865831,GUARD_PROJECT:3301754,TASK_PROJECT:3440305,SHARED_PROJECT:3571235,PARALLEL_PROJECT:3827091,READY_PROJECT:4042975}[project]
     if registered:assert source['R_read_buffer_proof_state_sha256']and source['single_SRAM_owner_and_write_edge_unchanged']
-    query=QUERY.replace('Path(PROJECT)','Path('+repr(project)+')',1).replace('BUILDER_PID',str(builder)).replace('SOURCE_COUNT','576'if registered else'575'if ready else'574')
+    if memc:assert registered and source['MemC_tag_read_proof_state_sha256']and len(source['MemC_tag_read_packages'])==21 and source['all21_address_matches_gate_whole_machine_publication']
+    query=QUERY.replace('Path(PROJECT)','Path('+repr(project)+')',1).replace('BUILDER_PID',str(builder)).replace('SOURCE_COUNT','577'if memc else'576'if registered else'575'if ready else'574')
     (out/'collection-query.py').write_text(query)
     bundle=out/'terminal.tgz'
     with bundle.open('xb')as f:
@@ -139,6 +141,7 @@ def review(stage,out,launch=None):
         parallel_task_capture=parallel,
         parallel_ready_comparison=ready,
         registered_R_read_buffer=registered,
+        registered_MemC_tag_reads=memc,
         actual_native_single_comparison_connected=source.get('actual_native_single_comparison_connected',False),
         ready_v1_targeting_limitation='Paired prefix only; ordinary native single comparison unchanged'if ready and not source.get('actual_native_single_comparison_connected')else None,
         all_summary_slacks_nonnegative=all(float(x)>=0 for _,x in checks),

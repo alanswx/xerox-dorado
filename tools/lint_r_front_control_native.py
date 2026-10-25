@@ -27,7 +27,9 @@ def run(stage,native_run,out,baseline_only=False,structural=False,report_unoptfl
     if record['status']=='PREPARED_FULL_NATIVE_15NS_PHASE_GUARD_DIAGNOSTIC':
         registered=record.get('registered_R_read_buffer_connected',False)
         if registered:assert record['R_read_buffer_proof_state_sha256']and record['single_SRAM_owner_and_write_edge_unchanged']
-        count=576 if registered else 575 if record.get('ready_compare_proof_state_sha256')else 574
+        memc=record.get('registered_MemC_tag_reads_connected',False)
+        if memc:assert registered and record['MemC_tag_read_proof_state_sha256']and len(record['MemC_tag_read_packages'])==21 and record['all21_address_matches_gate_whole_machine_publication']
+        count=577 if memc else 576 if registered else 575 if record.get('ready_compare_proof_state_sha256')else 574
         assert record['frequency_hz']==66666667 and record['sysper']==4 and len(record['source_hashes'])==count
         assert record['all795_control_and_shared_frame_bits_proved']and record['no_new_timing_exceptions']
     for n,h in record['source_hashes'].items():assert sha(stage/n)==h,n

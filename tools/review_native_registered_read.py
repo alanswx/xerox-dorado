@@ -6,6 +6,8 @@ the same pending simulators and source-bound timing jobs; never restart them.
 No new60ns schedule, hardware speed gain or Cedar boot is implied.
 """
 import argparse
+import gzip
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -40,7 +42,7 @@ def proof_check(d,status):
     return p
 
 
-def review(out):
+def review(out,startup=None,timings=()):
     assert not out.exists();out.mkdir(parents=True)
     retained=[]
     def keep(d):
@@ -93,8 +95,8 @@ def review(out):
         assert s['status']=='PASS_ACTUAL_NATIVE_PHASE_GUARD_PROCESSOR_REPLAY';keep(d)
     builds=[]
     for stage_name,lint_name,launch_name,count,warnings,builder in [
-        ('native-ready-compare-full15-stage-v2-20261025','native-ready-compare-full15-lint-v3-20261025','native-ready-compare-full15-launch-v3-20261025',575,10,4184852),
-        ('native-r-read-buffer-full15-stage-v1-20261025','native-r-read-buffer-full15-lint-v1-20261025','native-r-read-buffer-full15-launch-v1-20261025',576,6,11306)]:
+        ('native-ready-compare-full15-stage-v2-20261025','native-ready-compare-full15-lint-v4-20261025','native-ready-compare-full15-launch-v3-20261025',575,10,4184852),
+        ('native-r-read-buffer-full15-stage-v1-20261025','native-r-read-buffer-full15-lint-v2-20261025','native-r-read-buffer-full15-launch-v1-20261025',576,6,11306)]:
         d=BUILD/stage_name;s=read(d/'r-front-control-native.json');verify(d,s['source_hashes'])
         assert len(s['source_hashes'])==count and s['actual_native_single_comparison_connected']and not s['assembly_permitted']
         assert s['frequency_hz']==66666667 and s['sysper']==4 and s['nominal_ordinary_ns']==120
@@ -118,6 +120,8 @@ def review(out):
         l=read(BUILD/lint_name/'run-state.json')
         assert l['status']=='PASS_NATIVE_PROCESSOR_CONTROL_ELABORATION'and l['structural_warnings_visible']and l['source_files']==count-378
         assert l['stage_manifest_sha256']==sha(d/'r-front-control-native.json')
+        assert l['stage_clock_macro_checked_against_QSF']
+        assert [v for v in l['effective_defines']if v.startswith('DORADO_HOST_CLOCK_HZ=')]==['DORADO_HOST_CLOCK_HZ=66666667']
         assert len(re.findall(r'^%Warning-UNOPTFLAT:',(BUILD/lint_name/'lint.log').read_text(),re.M))==warnings
         la=read(BUILD/launch_name/'launch-observation.json')
         assert la['builder_pid']==builder and la['manifest_sha256']==sha(d/'r-front-control-native.json')and la['verified_source_count']==count
@@ -145,6 +149,44 @@ print(json.dumps(row))
         builds.append(dict(stage=stage_name,builder_pid=builder,source_count=count,structural_warnings=warnings,
                            observation=stage_name+'-observation.json',state=remote['state'],verified_live=remote.get('verified_live',False)))
         keep(d);keep(BUILD/lint_name);keep(BUILD/launch_name)
+    timing_results=[]
+    for timing in timings:
+        t=read(timing/'results.json');c=read(timing/'terminal/collection.json')
+        verify(timing/'terminal',c['collected_hashes'])
+        assert sha(timing/'terminal.tgz')==t['bundle_sha256']
+        assert t['actual_native_single_comparison_connected']and len(t['setup_paths_by_corner'])==4
+        assert not t['assembly_permitted']and not t['measured_speed_gain']
+        assert t['terminal_state']['builder_pid']in [4184852,11306]
+        assert all(s['returncode']==0 for s in t['terminal_state']['stages'])and len(t['terminal_state']['stages'])==9
+        stage=BUILD/('native-r-read-buffer-full15-stage-v1-20261025'if t['registered_R_read_buffer']else'native-ready-compare-full15-stage-v2-20261025')
+        assert t['exact_stage_manifest_sha256']==sha(stage/'r-front-control-native.json')
+        assert c['source_readback']==read(stage/'r-front-control-native.json')['source_hashes']
+        timing_results.append(t);keep(timing)
+    startup_observation=None
+    if startup:
+        pr=read(startup/'run-state.json');pv=json.loads(gzip.decompress((startup/'provenance.json.gz').read_bytes()))
+        verify(startup/'inputs',pv['inputs'])
+        stage=Path(pv['stage']);m=read(stage/'r-front-control-native.json')
+        assert pv['stage_manifest_sha256']==sha(stage/'r-front-control-native.json')and m['registered_R_read_buffer_connected']
+        from prepare_registered_read_native import MONITOR,memc_monitor
+        extra=MONITOR+memc_monitor(m)+'\n'
+        for n,h in m['source_hashes'].items():
+            raw=(startup/'inputs'/n).read_bytes()
+            if n=='harness/tb_native_cedar.sv':
+                assert raw.count(extra.encode())==1;raw=raw.replace(extra.encode(),b'',1)
+            assert hashlib.sha256(raw).hexdigest()==h,n
+        baseline=Path(pv['baseline_run']);old=json.loads(gzip.decompress((baseline/'provenance.json.gz').read_bytes()));verify(baseline/'inputs',old['inputs'])
+        assert pv['every_original_harness_assertion_and_boot_input_retained']and pv['registered_read_passive_monitor']
+        assert(startup/'inputs/harness/tb_native_cedar.sv').read_text().replace(MONITOR+memc_monitor(m)+'\n','',1)==(baseline/'inputs/harness/tb_native_cedar.sv').read_text()
+        assert sha(startup/'inputs/harness/host.cpp')==old['inputs']['harness/host.cpp']
+        assert pv['normal_baseboard_boot_presses']==3 and pv['host_clock_hz']==66666667
+        assert pv['host_limit']==int((startup/'host-cycle-limit.txt').read_text())==300000000
+        assert '-DDORADO_HOST_CLOCK_HZ=66666667'in next(a['command']for a in pr['actions']if a['stage']=='compile')
+        assert all(a['returncode']==0 for a in pr['actions']if a['stage']!='test')
+        _,startup_observation=observed(startup)
+        if pr['status']=='RUNNING':assert startup_observation['verified_live']
+        else:assert pr['status']=='TERMINAL_NATIVE_MEMORY_DIAGNOSTIC'
+        keep(startup)
     native=BUILD/'native-cp-read-j19-boot-v1-20261025';n=read(native/'run-state.json')
     assert int((native/'host-cycle-limit.txt').read_text())==5000000000
     native_observation=dict(observed=time.time(),state=n)
@@ -162,6 +204,7 @@ print(json.dumps(row))
         ready_four_state_checks_per_family=11895,registered_read_unconstrained_RAM_bits=9216,assumptions=0,
         registered_read_positive_induction_and_four_wrong_data_negatives_pass=True,
         replays=replays,pending_verified_live_Icarus=pending,builds=builds,
+        terminal_timing_results=timing_results,original_ROM_registered_read_startup=startup_observation,
         previous_ready_v1_fit_limitation=v['ready_v1_targeting_limitation'],previous_ready_v1_worst_slack_ns=-12.971,
         original_corrected_read_boot=native_observation,retained_directories=retained,
         nominal_diagnostic_ordinary_ns=120,target_ordinary_ns=60,original60ns_phase_schedule_qualified=False,
@@ -172,6 +215,8 @@ print(json.dumps(row))
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);p.add_argument('--archive',type=Path)
-    a=p.parse_args();r=review(a.output.resolve())
-    if a.archive:append_archive(a.archive.resolve(),a.output.resolve(),[],label='native-registered-read',extra_tools=TOOLS)
+    p.add_argument('--startup',type=Path);p.add_argument('--timing',type=Path,action='append',default=[])
+    p.add_argument('--label',default='native-registered-read')
+    a=p.parse_args();r=review(a.output.resolve(),a.startup.resolve()if a.startup else None,[p.resolve()for p in a.timing])
+    if a.archive:append_archive(a.archive.resolve(),a.output.resolve(),[],label=a.label,extra_tools=TOOLS+(['prepare_registered_read_native.py']if a.startup else[]))
     print(r['status'],flush=True)

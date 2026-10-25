@@ -14,7 +14,52 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-Current registered read milestone (2026-10-25):
+Current completed timing and MemC read pipeline (2026-10-25):
+
+- [x] Finish SAME R-read full/words Icarus22806/22813. BOTH programs PASS in
+  BOTH engines, retaining every original reference/assertion/state/RAM/clock
+  result and native16 R/j19/paired write/forward/interior-read check.
+- [x] Collect SAME Ready4184852 and R-read11306: ALL9 stages0 in each,
+  all575/576 hashes,327 reports each. ALL four corners fail. Ready slacks
+  slow100/-40/fast100/-40 = -12.296/-12.224/-3.452/-1.695ns; hold+.236ns.
+  R-read = -11.837/-11.900/-2.913/-1.344ns; hold+.244ns. Area36,271/36,369ALMs;
+  55,208/55,304 registers; unchanged2,506,566 memory bits/332 blocks. No load.
+- [x] Inspect actual paths. Ready: MemC c15 -> cache-tag SRAM -> Hold ->
+  control settling -> enable,18 levels/18.834ns. R-read: upper_q135/global723
+  -> front address/bypass -> l06 branch flags -> DoCBr -> control/selector
+  preview -> capture -> control_ready -> enable,16 levels/18.546ns against
+  7.500ns, worst slow-40C. Do not mistake slow100C for the worst corner.
+- [x] Implement/prove the MemC SRAM read register against the ACTUAL MB7071H
+  owner. Original RAM/write/admin transfers unchanged; no guest reset. Induct
+  with all1,024 RAM bits arbitrary, no assumptions. Three wrong-data negatives
+  detect forwarding/address/output faults. Both complete cell replays PASS:
+  8,708 checks/all RAM/admin state,6,155 matching reads,2,553 misses,1,024 guest
+  writes and1,024 administrative trials. Retain frontend/test-reader failures.
+- [x] Connect all21 actual MemC tag SRAMs and their matches to whole-machine
+  publication. Preserve all original gates and all other clock/timer/ROM/SDC
+  bytes. Stage577 inputs; actual66.666667MHz199-source elaboration PASS with
+  six structural warnings. ONE timing builder122249 at
+  `Dorado_CPRead15_MemCRegisteredRead_20261025`; map122252 exits0, SAME fitter
+  138734 verified live. This stage is not physical/loop/firmware qualification.
+- [x] Start two independent EARLY original-ROM/physical-SDRAM checks with
+  immutable300M host bounds: R-read24433 and MemC26169. Actual source clocks
+  66.666667MHz, baseline pause/request-response/input checks retained, passive
+  buffer/21-cell checks added. Pending, not passing; not CoolBoot/Cedar tests.
+  Original62048 stays at5B; no baseline input or medium changed.
+- [ ] Follow SAME MemC122249 and startup24433/26169. Collect all terminal
+  corners/crossings before selection. Phase the remaining l06/DoCBr/selector/
+  capture dependency within the original overlapping pipeline, retaining
+  actual flag/Ready/Hold, bypass, IM/TPC extension and all storage barriers.
+- [ ] Complete60ns and physical SDRAM/timers; measure pinned useful progress/
+  waits and finish original Cedar/input/Checkpoint/Rollback/persistence/three
+  fresh boots/two-hour stress. Fits still120ns nominal; no new hardware gain.
+  FPGA/protected media unchanged. Full goal ACTIVE; FPGA snapshots deferred.
+
+Receipt: `native-memc-tag-read-summary.json`. First review's unstripped passive
+monitor rejection is retained; corrected reader verifies exact baseline harness
+after removing only the added monitor. No original assertion was removed.
+
+Previous registered read milestone (2026-10-25):
 
 - [x] Correct the actual native single Ready path as well as paired prefix.
   Independent full-interface proofs:2,969 outputs/1,982 inputs/no assumptions;

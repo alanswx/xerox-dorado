@@ -7,7 +7,71 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-CURRENT REGISTERED RM/STK READ INTEGRATION (2026-10-25):
+CURRENT TERMINAL READ TIMING AND MEMC READ PIPELINE (2026-10-25):
+The SAME Ready4184852 and RM/STK-read11306 builds are TERMINAL. ALL9 stages
+exit0 in each; all575/576 input hashes and327 reports per build are verified.
+Both full+words replays now PASS in BOTH Icarus and Verilator. No expired
+handle was restarted and no original fixture/assertion was relaxed.
+
+Full-core timing still REJECTED at ALL four corners:
+
+| Candidate | slow100C | slow-40C | fast100C | fast-40C | Minimum hold |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Correct actual-single Ready | -12.296ns | -12.224ns | -3.452ns | -1.695ns | +0.236ns |
+| Registered RM/STK read | -11.837ns | -11.900ns | -2.913ns | -1.344ns | +0.244ns |
+
+Ready uses36,271ALMs/55,208 registers; R-read36,369ALMs/55,304 registers.
+Both retain2,506,566 memory bits/332 RAM blocks. Ready's worst path starts at
+MemC c15 -> asynchronous cache-tag read -> Hold -> control settling -> enable,
+18 levels/18.834ns. R-read's worst is now slow-40C, upper_q[135]/global723 ->
+front address/bypass -> l06 physical branch flags -> DoCBr -> control/selector
+preview -> processor capture -> control_ready -> machine_enable/network_step,
+16 levels/18.546ns against7.500ns. This is a modest timing improvement, NOT a
+hardware speed gain. Future work must phase those remaining control/flag
+dependencies; the memory read register alone cannot meet the target.
+
+The next measured memory boundary is implemented in a PRIVATE native stage.
+`dorado_memc_read_buffer.sv` retains each original MB7071H RAM, write and
+administration update byte-for-byte; guest data uses an auxiliary tagged read
+register. Own writes forward after the edge; administrative reads retain their
+original raw port. Induction leaves all1,024 initial RAM bits per cell arbitrary,
+with no assumptions; missing forwarding/wrong address/wrong output negatives
+expose actual wrong ready data. Both engines replay the COMPLETE original cell:
+8,708 checks,6,155 matching reads/2,553 unready observations,1,024 explicit guest
+writes and1,024 administrative trials, comparing ALL RAM/admin state. First
+ANSI-initializer frontend and reserved-test-identifier rejections are retained.
+
+Actual QSF-selected MemC board has21 such SRAM cells. All21 are connected to
+the new read type; their address matches additionally gate whole-machine
+publication, keeping all original storage/settling/alias gates. Stage
+`native-memc-read-buffer-full15-stage-v1-20261025` has577 exact inputs, only
+MemC/backplane/new read cell changed. Every other clock/timer/ROM/SDC policy
+byte is preserved. Correct66.666667MHz elaboration PASS:199 sources, six visible
+structural warnings (not loop/timing closure). ONE timing builder122249 runs at
+`/home/alans/mister/Dorado_CPRead15_MemCRegisteredRead_20261025`; map122252 exits0,
+SAME fitter138734 verified live. Observe it, do not restart.
+
+Two new original-ROM/physical-SDRAM startup diagnostics run at66.666667MHz:
+R-read24433 and MemC-read26169, each with an immutable300M host bound. Every
+original pause/publication/request-response/input check and boot stimulus is
+retained; added checks inspect actual buffered data and all21 cache cells.
+These are EARLY power-on startup checks, not CoolBoot/Cedar evidence. They
+are pending, not passing. Original62048 stays at its original5B bound. All
+guest disk writes remain private vectors; the protected medium hash is exact.
+The first review-helper rejection (unstripped passive harness monitor) is
+retained with its exact helper; corrected review strips only that monitor and
+verifies the complete original harness. No test/source assertion was waived.
+
+NEXT: follow SAME MemC fit/startup processes; use the resulting full paths to
+complete original t0/t1/t3 control/flag/Ready/Hold chronology. Current fits remain
+120ns nominal; original60ns cadence, actual peripheral rates,66.7MHz SDRAM
+physical/reset/refresh, pinned speed/waits, original Cedar/input/Checkpoint/
+Rollback/persistence, three fresh boots and two-hour stress remain open.
+No assembly/load or new hardware speed claim. FPGA/protected media untouched.
+Full goal ACTIVE; FPGA snapshots deferred. Receipt:
+`native-memc-tag-read-summary.json` in the native flag archive.
+
+PREVIOUS REGISTERED RM/STK READ INTEGRATION (2026-10-25):
 The Ready targeting correction is implemented. V2 proves BOTH actual native
 `parallel_fault_step single` and paired `prefix_step` interfaces: all2,969
 outputs/1,982 arbitrary binary inputs, no assumptions. Both families pass11,895
