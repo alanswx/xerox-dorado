@@ -106,10 +106,19 @@ def start(stage,out,clock_enable_audit=None,baseboard=None,baseboard_negative=No
             complete_functional_and_timing_qualification=False,diagnostic_fit_only=True)
         if grant:ce_preflight['shared_publication_grant_proof_sha256']=sha(publication_grant_proof/'run-state.json')
         if riot:ce_preflight['RIOT_block_ram_receipts']=r['RIOT_block_ram_receipts']
+    return launch_pinned_stage(stage,out,r,ce_preflight)
+
+
+def launch_pinned_stage(stage,out,r,ce_preflight=None):
+    """Upload/start only after the caller's source-bound candidate preflight."""
+    verify(stage,r['source_hashes'])
+    assert out.is_dir()and not r['assembly_permitted']
+    project=r['project'];source_count=len(r['source_hashes'])
+    assert Path(project).parent==Path('/home/alans/mister')
     check='from pathlib import Path\np=Path('+repr(project)+')\nassert not p.exists(), "Observe existing project; do not restart"\n'
     subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10','misterubuntu','python3','-'],input=check,text=True,check=True)
     manifest_sha=sha(stage/'r-front-control-native.json')
-    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py','stage_native_ready_compare.py','stage_native_r_read_buffer.py','integrate_r_read_buffer.py','stage_native_memc_read_buffer.py','qualify_memc_read_buffer.py','stage_native_operand_buffer.py','integrate_native_operand_buffer.py','stage_native_clock_enables.py','stage_compact_native_operand_buffer.py','stage_native_publication_grant.py','stage_native_riot_blockram.py']if(stage/n).is_file()]
+    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py','stage_native_ready_compare.py','stage_native_r_read_buffer.py','integrate_r_read_buffer.py','stage_native_memc_read_buffer.py','qualify_memc_read_buffer.py','stage_native_operand_buffer.py','integrate_native_operand_buffer.py','stage_native_clock_enables.py','stage_compact_native_operand_buffer.py','stage_native_publication_grant.py','stage_native_riot_blockram.py','stage_native_hold_buffer.py']if(stage/n).is_file()]
     assert stagers,'Missing the executed staging helper'
     names=sorted(r['source_hashes'])+['r-front-control-native.json','build_r_front_ready_native.py',*stagers]
     bundle=out/'stage.tgz'

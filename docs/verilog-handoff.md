@@ -7,6 +7,60 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
+LATEST PREPARED HOLD IMPLEMENTATION / LIVE JOBS (2026-10-25):
+ONE new isolated timing builder1458513/map1458518 is RUNNING at
+`/home/alans/mister/Dorado_CPRead15_PreparedHold_20261025`, all581 remote source
+hashes checked. Actual mapper/builder handles verified. ONE new native simulator
+65832 is RUNNING at `native-prepared-hold-startup-v1-20261025`, immutable1.5B
+host bound, original3 boot presses/ROMs/physical SDRAM/HPS/Pup/assertions. Reset
+and first HPS ACK207944 PASS. No assembly/load or measured speed promotion.
+Existing55173/38212/62048 remain frozen on their own sources/limits.
+
+Candidate `native-prepared-hold-stage-v1-20261025` connects a132-context host
+preparation register for raw MemC pin386. Reuse only when complete source context
+matches; mismatch adds a whole-machine publication barrier. Unknown producer/
+context uses the original raw signal. Original architectural Hold capture and
+all storage/readiness/alias/validation guards remain. Exported raw MemC pins
+remain exact. Only MemC context export/native CE backplane/new helper change;
+all clocks/timers/SDRAM/ROMs/RIOT sources unchanged. Native lint/XML PASS with
+unchanged warnings:3,813 old sequential processes exact, ONE host-only process
+added,12,787 ->12,788 instances. No new guest state or clock.
+
+All six previously external Hold inputs resolve through actual native bindings
+to control state/two MemX flip-flops. Cross-board audit238 nets/152 conservative
+boundaries/no unresolved inputs; local132-value cut keeps actual cache read/
+select outputs. Per-output source extraction uses14 unchanged primitive types
+with explicit physical unused-input pulldowns. This is a source-complete cut,
+not a minimal tag or a proof of earlier-phase stability.
+
+Source-bound buffer induction PASS with no assumptions and actual wrong-tag/
+wrong-payload counterexamples. Icarus7,726 checks/532 X/Z fallbacks and Verilator
+7,193 binary checks PASS; both physical wrong-data mutations fail as required.
+Publication proof composes that induction with full-interface congruence for
+ALL2,970 outputs; wrong native pin385 binding rejects. Complete269-bit host
+prefix is independent of unready after-Hold386; wrong before-CP control rejects.
+Thus paused host prefix preparation is covered separately from guest publication.
+Original combined sequential proof hit a Wasm resource failure, retained as
+failure; successful composition does not label it a pass. First two-state
+fixture's X/Z coverage failure is retained; X/Z checks remain in Icarus.
+
+New native simulation retains2,810 guest pause vectors; explicitly excludes only
+new host preparation valid/tag/value from guest-freeze observations. It asserts
+prepared==raw on EVERY publication and reports preparation waits/overlap with
+other ready frontiers. Compile and early reset/ACK pass are not boot qualification.
+Recipe: `prepare_common_clock_native_startup.py` now supports this source-bound
+audit; old-stage reconstruction remains unchanged. Receipt:
+`native-prepared-hold-summary.json`, including all source/proof/failure/lint/
+startup/launch artifacts and live process observations.
+
+NEXT: observe SAME1458513/65832; collect complete fit/corner/crossing/SDRAM reports
+and measure added preparation waits/useful progress against parent. Do not
+select merely because it fits: reject if added stalls erase gains. The schedule
+is still120ns nominal before preparation/holds. Integrate actual60ns overlap,
+event/capture phases and timer calibration, then every original hardware/Cedar/
+input/Checkpoint/Rollback/persistence/three-fresh-boots/two-hour gate. Complete
+FPGA snapshots remain deferred. FPGA/protected media unchanged; full goal ACTIVE.
+
 LATEST HOLD-PRODUCER CUT INVESTIGATION (2026-10-25):
 The complete actual native single function depends on late MemC after-pin386:
 source-bound SAT on all1,978 free binary inputs, with actual advance/pair_fall/

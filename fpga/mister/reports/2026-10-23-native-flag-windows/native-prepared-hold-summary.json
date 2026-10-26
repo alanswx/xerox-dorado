@@ -1,0 +1,108 @@
+{
+  "status": "REVIEWED_NATIVE_PREPARED_HOLD_IMPLEMENTATION_AND_STARTED_JOBS",
+  "previous_goal_turn": "progress: native-bound Hold counterexamples/producer audit, committed and pushed54153481e",
+  "stage_manifest_sha256": "d81fba530ad3d014b7f7f0bd99a25a800a4d892bdcc7e658125ef3dd4f5485eb",
+  "source_files_verified": 581,
+  "prepared_context_bits": 132,
+  "source_function_induction_assumptions": 0,
+  "complete_publication_outputs": 2970,
+  "host_preparation_prefix_independence_bits": 269,
+  "complete_publication_and_prefix_assumptions": 0,
+  "both_simulators_and_actual_wrong_tag_wrong_payload_wrong_native_pin_negatives_pass": true,
+  "four_state_fallback_tested_in_Icarus": true,
+  "original_unwired_physical_pulldowns_explicit": [
+    {
+      "instance": "u_e17",
+      "module": "cell_MC1660",
+      "pin": "p4"
+    },
+    {
+      "instance": "u_k18",
+      "module": "cell_MC10195",
+      "pin": "p9"
+    },
+    {
+      "instance": "u_l01",
+      "module": "cell_SE10210",
+      "pin": "p10"
+    },
+    {
+      "instance": "u_l01",
+      "module": "cell_SE10210",
+      "pin": "p9"
+    },
+    {
+      "instance": "u_l19",
+      "module": "cell_MC10100",
+      "pin": "p13"
+    },
+    {
+      "instance": "u_l20",
+      "module": "cell_MC10101",
+      "pin": "p4"
+    }
+  ],
+  "original_sequential_processes_unchanged": 3813,
+  "additional_host_preparation_processes": 1,
+  "original_clock_SDRAM_ROM_RIOT_readiness_barriers_retained": true,
+  "rejected_combined_sequential_formal_tool_failure_retained": true,
+  "composed_induction_and_full_interface_congruence_pass": true,
+  "first_two_state_fixture_four_state_coverage_failure_retained": true,
+  "native_simulation": {
+    "pid": 65832,
+    "process": "65832 05:21 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-prepared-hold-startup-v1-20261025/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-prepared-hold-startup-v1-20261025/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-prepared-hold-startup-v1-20261025/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+    "verified_live_at": 1792985363.3903081,
+    "host_limit": 1500000000,
+    "original_boot_presses": 3,
+    "pause_checked_vectors": 2810,
+    "input_reset_pass": true,
+    "first_HPS_ack_pass": true,
+    "every_published_Hold_compared_to_raw": true,
+    "preparation_waits_instrumented": true,
+    "firmware_qualified": false
+  },
+  "same_timing_fit": {
+    "observed": 1792985363.0659192,
+    "source_files_verified": 581,
+    "state": {
+      "status": "RUNNING",
+      "builder_pid": 1458513,
+      "started": 1792985018.894479,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 1458518,
+          "started": 1792985018.894863,
+          "returncode": 0,
+          "finished": 1792985243.6880512
+        },
+        {
+          "stage": "fit",
+          "pid": 1474815,
+          "started": 1792985243.6885695
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "processes": [
+      {
+        "pid": 1458513,
+        "returncode": 0,
+        "process": "1458513       05:44 Ss   python3 /home/alans/mister/Dorado_CPRead15_PreparedHold_20261025/build_r_front_ready_native.py --project /home/alans/mister/Dorado_CPRead15_PreparedHold_20261025 --manifest r-front-control-native.json"
+      },
+      {
+        "pid": 1474815,
+        "returncode": 0,
+        "process": "1474815       01:59 Rl   quartus_fit --read_settings_files=on --write_settings_files=off Dorado"
+      }
+    ]
+  },
+  "assembly_or_FPGA_load_permitted": false,
+  "new_hardware_speed_gain_measured": false,
+  "nominal_ordinary_ns": 120,
+  "target_ordinary_ns": 60,
+  "preparation_overhead_or_60ns_schedule_qualified": false,
+  "full_goal_active": true,
+  "next_action": "Observe the same timing builder and immutable native simulation. Collect routing/all-corner/crossing/SDRAM reports, compare preparation waits/useful progress with parent, and reject selection if added stalls erase gains. Integrate true60ns overlapping capture/event phases and calibrated timers; finish all original Cedar/input/Checkpoint/Rollback/persistence/three-boot/two-hour gates. No FPGA snapshot work."
+}

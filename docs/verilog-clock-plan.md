@@ -14,6 +14,57 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
+Prepared Hold implementation and live candidate (2026-10-25):
+
+- [x] Resolve all six remaining board crossings. Their sources reduce to
+  original control-state bits and two MemX flip-flops. Full cross-board walk:
+  238 combinational nets/152 conservative boundaries, with no unresolved native
+  inputs. The smaller local MemC cut remains132 values, including live cache
+  read/select outputs; it is a complete cut, not a minimal or early-stable tag.
+- [x] Implement `dorado_memc_hold_buffer.sv`: prepare actual raw pin386 on a
+  host edge and reuse it only for an identical132-value source context. A
+  mismatch adds a publication barrier; unknown producer/context retains the
+  actual raw signal. No architectural Hold register/capture edge is replaced.
+- [x] Extract actual native producer from unchanged14 primitive types, with
+  original unused MECL pulldowns explicit. Source-bound buffer induction PASS,
+  no input assumptions; wrong-tag and wrong-payload proofs find real failures.
+  Icarus7,726 checks includes532 X/Z fallbacks; Verilator7,193 binary checks;
+  both actual wrong-tag/payload simulator mutations reject stale/wrong data.
+- [x] Prove every2,970 public single-step output agrees at a permitted
+  publication, composing producer/buffer induction with unrestricted full
+  interface congruence. Wrong native pin385 binding is rejected. Prove all269
+  host-prepared prefix bits independent of unready after-Hold386, with a real
+  before-CP mutation negative. No input assumptions in either theorem.
+  Combined sequential proof hit a Wasm resource failure; failed run retained,
+  not counted as a pass. Four-state-only fixture cases run in Icarus; the first
+  two-state coverage failure is retained separately, production RTL unchanged.
+- [x] Connect isolated581-source candidate: one MemC context export, native
+  caller pin386 preparation and an additional context-ready barrier. Raw pins
+  and EVERY original readiness/storage/alias/validation guard remain. Actual
+  optimized native lint/XML PASS, warnings unchanged. All3,813 old sequential
+  processes identical; only ONE host preparation process/instance added.
+- [x] Launch ONE timing-only builder1458513/map1458518 in
+  `/home/alans/mister/Dorado_CPRead15_PreparedHold_20261025`;581 remote hashes
+  verify, both handles live at review. No assembly/image/FPGA load. Never
+  restart this job because a polling call expires.
+- [x] Freeze/start exact original-ROM candidate simulation65832 at immutable
+  1.5B host bound/66.7MHz, original3 boot presses, physical SDRAM/HPS/Pup and
+  every old assertion. All2,810 guest pause vectors retained; new host-only
+  preparation state may advance while guest-paused. EVERY publication compares
+  prepared pin386 to raw. Count total preparation waits and overlap with other
+  ready frontiers. Input reset/first HPS ACK207944 PASS; not firmware proof.
+- [ ] Observe SAME1458513 and65832. Collect routing/all-corner/crossing/SDRAM
+  reports. Measure additional preparation waits and useful progress against the
+  parent. Reject selection if preparation costs erase the gain. This is still
+  the120ns nominal schedule before holds/preparation; original60ns overlapping
+  capture phases/timers remain required, along with hardware/Cedar/input/
+  Checkpoint/Rollback/persistence/three-boots/two-hour stress. Existing55173/
+  38212/62048 remain unchanged. No measured hardware speed gain yet.
+
+Receipt: `native-prepared-hold-summary.json`. This implements a host preparation
+cut; it does not establish earlier original t1 availability or60ns throughput.
+Both candidate timing and added host wait cost must be assessed before selection.
+
 Latest producer-cut investigation (2026-10-25):
 
 - [x] Probe the complete actual native single-step function with only late

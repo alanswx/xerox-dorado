@@ -20,6 +20,34 @@ from review_baseboard_clock_consumer import verify
 from test_external_r_packet import sha
 
 
+def hold_monitor(m):
+    if not m.get('prepared_MemC_Hold_staged'):return ''
+    return '''
+// Host preparation may advance while guest state is paused. Count its waits
+// separately; other-frontier-ready is not a claim about raw validation.
+longint unsigned hold_prepare_waits=0,hold_prepare_other_frontiers_ready=0;
+longint unsigned hold_prepare_publications=0;
+always @(posedge host_clk)if(!reset)begin
+ if(!dut.m.memc_hold_ready)begin
+  hold_prepare_waits++;
+  if(dut.m.memc_reads_ready && dut.m.r_front_dispatch.packet_ready &&
+     dut.m.r_front_dispatch.read_ready &&
+     (dut.m.r_front_dispatch.stage_active || dut.m.r_front_dispatch.buffer_ready) &&
+     dut.m.r_front_dispatch.operand_view_ready)
+   hold_prepare_other_frontiers_ready++;
+ end
+ if(step)begin
+  if(dut.m.memc_hold_ready!==1'b1 || dut.m.memc_prepared_hold!==dut.m.r_front_live[386])
+   $fatal(1,"NATIVE_PREPARED_HOLD wrong publication host=%0d",host_ticks);
+  hold_prepare_publications++;
+ end
+ if(host_ticks%10000000==0)
+  $display("NATIVE_PREPARED_HOLD host=%0d waits=%0d other_frontiers_ready=%0d publications=%0d",host_ticks,hold_prepare_waits,hold_prepare_other_frontiers_ready,hold_prepare_publications);
+end
+final $display("NATIVE_PREPARED_HOLD_FINAL waits=%0d other_frontiers_ready=%0d publications=%0d",hold_prepare_waits,hold_prepare_other_frontiers_ready,hold_prepare_publications);
+'''
+
+
 def observer(inventory,xml_source,riot_xml=None):
     inv=json.loads((inventory/'results.json').read_text());xml=ET.parse(xml_source/'native.xml').getroot()
     assert inv['native_XML_sha256']==sha(xml_source/'native.xml')
@@ -152,11 +180,15 @@ def prepare(stage,baseline,inventory,xml_source,audit,out,limit,actual_lint=None
     assert m['clock_enable_conversion_staged']and m['frequency_hz']==66666667 and m['sysper']==4
     assert not m['assembly_permitted']
     riot=m.get('native_RIOT_block_ram_staged',False)
+    prepared_hold=m.get('prepared_MemC_Hold_staged',False)
     a=json.loads((audit/'results.json').read_text())
-    assert a['status']==('PASS_NATIVE_RIOT_BLOCK_RAM_STRUCTURAL_AUDIT'if riot else'PASS_NATIVE_COMMON_CLOCK_ENABLE_STRUCTURAL_AUDIT')
+    assert a['status']==('PASS_NATIVE_PREPARED_HOLD_STRUCTURAL_AUDIT'if prepared_hold else'PASS_NATIVE_RIOT_BLOCK_RAM_STRUCTURAL_AUDIT'if riot else'PASS_NATIVE_COMMON_CLOCK_ENABLE_STRUCTURAL_AUDIT')
     assert a['stage_manifest_sha256']==sha(stage/'r-front-control-native.json')
     if riot:
-        assert actual_lint and a['instances_after']==12787 and a['process_counts']['new_processes']==3813
+        assert actual_lint
+        if prepared_hold:
+            assert a['instances_after']==12788 and a['unchanged_original_sequential_processes']==3813 and a['added_host_preparation_processes']==1
+        else:assert a['instances_after']==12787 and a['process_counts']['new_processes']==3813
         l=json.loads((actual_lint/'run-state.json').read_text());verify(actual_lint,l['files'])
         assert l['status']=='ELABORATED_NATIVE_COMMON_CLOCK_ENABLE_EXPERIMENT'
         assert l['stage_manifest_sha256']==sha(stage/'r-front-control-native.json')and all(x['returncode']==0 for x in l['actions'])
@@ -171,7 +203,7 @@ def prepare(stage,baseline,inventory,xml_source,audit,out,limit,actual_lint=None
         dest=inputs/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(stage/name,dest)
     tb=inputs/'harness/tb_native_cedar.sv';original=tb.read_text();raw,changes=retime(original)
     extra,signals,arrays=observer(inventory,xml_source,actual_lint if riot else None)
-    checks=MONITOR+memc_monitor(m)+operand_monitor(m)+extra
+    checks=MONITOR+memc_monitor(m)+operand_monitor(m)+extra+hold_monitor(m)
     assert raw.count('endmodule')==1;raw=raw.replace('endmodule',checks+'\nendmodule',1);tb.write_text(raw)
     # Originals, memory model and all host services remain exact.
     for name,h in p['inputs'].items():
@@ -194,6 +226,9 @@ def prepare(stage,baseline,inventory,xml_source,audit,out,limit,actual_lint=None
         'old_harness_fatal_assertions_retained':original.count('$fatal('),
         'pause_checked_scalar_vectors':signals,'array_scope_not_in_scalar_image':arrays,
         'native_RIOT_block_ram_connected':riot,
+        'native_prepared_MemC_Hold_connected':prepared_hold,
+        'prepared_Hold_host_state_not_guest_pause_state':['dut.m.hold_frontier.valid','dut.m.hold_frontier.saved_context','dut.m.hold_frontier.saved_hold']if prepared_hold else [],
+        'prepared_Hold_every_publication_matches_raw_asserted':prepared_hold,
         'actual_RIOT_pause_XML_sha256':sha(actual_lint/'native.xml')if riot else None,
         'inputs':{str(q.relative_to(inputs)):sha(q)for q in inputs.rglob('*')if q.is_file()},
         'used_hdl':used,'defines':defines,'host_clock_hz':66666667,'host_limit':limit,
