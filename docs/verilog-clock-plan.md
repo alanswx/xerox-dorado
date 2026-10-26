@@ -14,7 +14,56 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-Current common-clock enable conversion (2026-10-25):
+Current native runtime/routing followup (2026-10-25):
+
+- [x] Collect SAME458549 routing rejection: map0/fit3, all578 source hashes.
+  Placement succeeds but routing congestion fails at40,486ALMs/97%,54,462
+  registers/330 RAM blocks, unchanged memory bits. No timing pass or image.
+  network_step has7,764 ordinary-route destinations; DskEth's one loop is
+  unchanged from the preceding fit. Preserve terminal reports; do not restart.
+- [x] Stage the IDENTICAL HDL with one physical global-routing assignment for
+  network_step. ONE new builder576472 at ClockEnableGlobal_20261025 passes map
+  but ALSO terminates fit3/routing congestion:40,436ALMs/96%,54,462 registers,
+  330 RAM blocks, unchanged memory bits. All578 hashes/reports collected.
+  Quartus confirms8,023 destinations routed
+  on global CLKCTRL_G3. No transfer/clock/timer/ROM/SDC policy change.
+- [x] Pass10 staged peripheral cases in BOTH simulators: stopped reset from
+  both initial levels, exact keyboard/chord and mouse serial messages, host
+  disk service/watchdogs while guest advance0. Keep every fixture assertion.
+  Retain initial Icarus declaration-order rejection and its test-only adapter.
+- [x] Prepare/compile a full original-ROM common-clock native run with all
+  baseline data/state/device assertions, accepted-rising-edge observers and
+  pause checks of all2,785 converted scalar/vector fields. SAME38212 runs at
+  immutable1.5B host bound; input reset and first HPS transfer pass, physical
+  memory initialization ongoing. Not Cedar/firmware qualification. Retain the
+  initial observer $bits compile rejection and corrected static-width binding.
+- [x] Diagnose the old full-Icarus zero-preparation result: invalid unused
+  interior-read payload alone stays X because this program has no interior
+  reads. Keep that fallback result. New test-only nonzero invalid-auxiliary
+  fixture changes no guest owner/RAM/ROM/reference. BOTH complete full replays
+  PASS with all old architectural results and2,700 prep edges in both engines.
+- [x] Propose465-bit operand tag from909 by binary support; prove every ready
+  actual844-bit view inductively with no assumptions, plus genuine wrong-tag/
+  flag negatives. Pass all11,895 X/Z checks and raw-fallback negative. Both
+  Verilator programs retain exact architectural results; prep events fall
+  2700->2353 and43->8. This is not a measured hardware gain.
+- [ ] Finish SAME compact-tag Icarus41621/full and41620/words, then source-bound
+  native integration. Root helper, global fit and full native run STILL use909
+  bits; do not attribute the compact candidate to those runs.
+- [ ] Both fits are terminal rejections; do not restart either. Factor the
+  remaining readiness/enable logic (ordinary-route storage_ready3815,
+  shared_state_mismatch3691, decomposed step3292), proving any duplicate
+  publication-check factoring against the actual whole-machine grant/4-state
+  behavior. Keep generic callers' independent barriers. Follow native38212.
+  Review all-device/SDRAM timing before assembly/load. Then60ns phases (still120ns
+  diagnostic nominal), calibrated peripheral/SDRAM behavior, pinned hardware
+  gains and full Cedar/input/Checkpoint/Rollback/persistence/three-boot/stress
+  gates. Preserve all baselines/media. Goal ACTIVE; FPGA snapshots deferred.
+
+Receipt: `native-common-clock-runtime-summary.json`. Remaining jobs are pending,
+not passing; full timing/firmware/hardware-speed qualification stays open.
+
+Previous common-clock enable conversion (2026-10-25):
 
 - [x] Collect SAME PreparedOperand290188: all9 stages0/578 source hashes.
   Setup slow100/-40/fast100/-40 = -10.044/-10.242/-1.758/-.421ns. Area39,467

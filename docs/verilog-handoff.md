@@ -7,7 +7,90 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-CURRENT COMMON-CLOCK ENABLE CONVERSION (2026-10-25):
+CURRENT NATIVE RUNTIME AND ROUTING FOLLOWUP (2026-10-25):
+SAME common-clock458549 is TERMINAL_FAILED: map0,fit3. Placement succeeded,
+but routing terminated due to congestion at40,486/41,910ALMs (97%),54,462
+registers,unchanged2,506,566 memory bits/330 RAM blocks. All578 source hashes
+and terminal reports are collected. No STA/all-corner results exist for this
+failed fit. The actual advance net network_step has7,764 ordinary-route
+destinations. The single DskEth EccComputeErr_p_ combinational loop is also in
+the preceding PreparedOperand fit; it was not introduced by this conversion.
+
+New isolated `native-clock-enable-global-stage-v1-20261025` has IDENTICAL HDL
+to that tested common-clock core. Only project relocation and one QSF physical
+assignment change: GLOBAL_SIGNAL ON for emu|network_step. No timing exceptions,
+transfer equations, source clocks, ROMs, timers or guest inputs change. Builder
+576472 at `/home/alans/mister/Dorado_CPRead15_ClockEnableGlobal_20261025` is now
+TERMINAL_FAILED too: map0/fit3, routing congestion at40,436ALMs/96%,54,462
+registers and330 RAM blocks, unchanged memory bits. Its reports/all578 hashes
+are collected separately. Quartus CONFIRMS
+network_step~CLKENA0 uses global CLKCTRL_G3 for8,023 destinations. This is an
+applied routing assignment, not a timing pass. Do not restart this completed job.
+Remaining ordinary-route fanouts include storage_ready3815,
+shared_state_mismatch3691 and decomposed network_step~571 at3292. Global
+distribution alone is insufficient; reduce the remaining readiness/enable
+logic and routing demand. A next structural candidate is to factor the
+duplicate caller publication check behind the already-qualified whole-machine
+grant, proving the actual wiring/4-state absorption first and keeping generic
+callers' independent readiness checks. No genuine readiness guard may be lost.
+Both this build and the running native simulation still use the909-bit tag.
+
+Ten actual staged peripheral cases PASS in Icarus/Verilator: stopped input
+reset at both initial levels, exact keyboard/chord serial packets, exact mouse
+buttons/motion/release packets, and HPS3-second service/4-second watchdogs at
+three scaled host rates while guest advance stays zero. Every original fixture
+assertion remains. Icarus's forward-declaration rejection is retained; a test-
+only copy hoists five constant-initialized declaration rows per HPS module,
+and BOTH engines run that identical copy. Production/staged RTL is unchanged.
+
+New full original-ROM common-clock run:
+`native-common-clock-startup-v2-20261025`, SAME38212, immutable1,500,000,000 host
+bound. Compilation passed; original input-reset checks and first HPS transfer
+passed. It is still in physical memory initialization, not a firmware/Cedar
+pass. All old device/data/state assertions remain; observers sample accepted
+rising-edge steps before using them at falling edges. The physical clock's
+level is no longer guest permission. Added pause comparisons cover ALL2,785
+converted scalar/vector state fields;38 arrays are explicitly outside that
+scalar image (including dual-clock HPS RAM), with original SRAM and separate
+BaseBoard/storage checks retained. The first harness compile rejected a
+hierarchical $bits parameter; a statically inventoried width plus runtime width
+check fixed that observer only. Existing native jobs/limits/media stay intact.
+
+The older full-Icarus coverage gap is explained and closed with a separate
+known-input fixture. A32-record passive diagnosis finds ONLY interior_read_data
+unknown: the full program never requests an interior read, so that invalid
+auxiliary payload stays X and conservatively selects raw fallback forever.
+Keep that original four-state result. A test-only nonzero invalid-payload
+fixture (18'h2a155) changes no guest owner/RAM/ROM/reference. The complete full
+program now passes in BOTH Icarus and Verilator with2,700 preparation edges and every
+original2,470 result/844Q/9,216 SRAM/100 clock/native-R/j19/write check intact.
+The older source/driver and its zero-preparation rejection remain historical.
+
+Private compact-tag candidate: binary Boolean support reduces the same logical
+1,264-bit descriptor from909 to465 implemented bits (400 held-owner bits plus
+the same65 before-root/pin/data bits). Graph support alone is NOT selection:
+actual native-function induction proves every ready844-bit view, no assumptions;
+wrong owner-tag and branch-flag negatives expose real wrong data. All11,895 X/Z
+checks PASS, all2,969 old raw outputs and844 fallback bits exact; missing raw
+fallback negative rejects. Verilator full/words programs pass with identical
+architectural results, while auxiliary preparation edges fall2700->2353 and
+43->8. These are fixture event counts, NOT hardware speed measurements. SAME
+Icarus41621/full and41620/words are verified live, still pending. Root helper,
+native startup and global fit remain on the previous909-bit implementation.
+
+NEXT: both clock-enable fits are terminal rejections, with no all-corner pass.
+Follow SAME38212 and compact-tag Icarus peers. Integrate/select the
+compact descriptor only after its remaining replays and source-bound staging.
+Then finish original overlapping60ns phases (existing diagnostic still120ns
+nominal before holds/preparation), calibrated timers/SDRAM, pinned measured
+hardware progress and original Cedar/input/Checkpoint/Rollback/persistence/
+three fresh boots/two-hour stress. FPGA and protected medium unchanged; full
+goal ACTIVE, snapshots deferred. Receipt `native-common-clock-runtime-summary.json`
+retains failed tooling attempts, actual routing reports, tests and proof scopes.
+Global-control routing guidance:
+https://docs.altera.com/r/docs/683323/18.1/quartus-prime-standard-edition-user-guide-design-recommendations/use-global-clock-network-resources
+
+PREVIOUS COMMON-CLOCK ENABLE CONVERSION (2026-10-25):
 SAME PreparedOperand290188 is TERMINAL: all9 stages0,578 source hashes and all
 four corners collected. Setup slow100/-40/fast100/-40 =
 -10.044/-10.242/-1.758/-.421ns. Area39,467ALMs/94%,56,399 registers; memory

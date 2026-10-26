@@ -1,0 +1,77 @@
+{
+  "status": "RETAINED_SECOND_COMMON_CLOCK_ROUTING_REJECTION",
+  "terminal_fit": {
+    "status": "COLLECTED_TERMINAL_NATIVE_CLOCK_ENABLE_ROUTING_REJECTION",
+    "stage": "/Users/alans/dev2/Dorado/build/rtl-executive/native-clock-enable-global-stage-v1-20261025",
+    "stage_manifest_sha256": "92d01f75fd1b2f6ddf0a21cb1ee319b41bd73f9a7622d81216448f7878fc50f8",
+    "source_files_verified": 578,
+    "terminal_state": {
+      "status": "TERMINAL_FAILED",
+      "builder_pid": 576472,
+      "started": 1792972588.237806,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 576476,
+          "started": 1792972588.2381368,
+          "returncode": 0,
+          "finished": 1792972819.011563
+        },
+        {
+          "stage": "fit",
+          "pid": 592893,
+          "started": 1792972819.012056,
+          "returncode": 3,
+          "finished": 1792973679.7591496
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false,
+      "finished": 1792973679.7593613
+    },
+    "collection_sha256": "d21f6ab72041e8c8e44a616571da89e306b941fe5dd9ab68ef7ae22f64bd80af",
+    "bundle_sha256": "c879cf5ac864bf038886e3019ac95194300d8a1b66d69fbcd666a703c369bdb7",
+    "fit_summary": "Fitter Status : Failed - Sun Oct 25 17:14:37 2026\nQuartus Prime Version : 17.0.2 Build 602 07/19/2017 SJ Lite Edition\nRevision Name : Dorado\nTop-level Entity Name : sys_top\nFamily : Cyclone V\nDevice : 5CSEBA6U23I7\nTiming Models : Final\nLogic utilization (in ALMs) : 40,436 / 41,910 ( 96 % )\nTotal registers : 54462\nTotal pins : 145 / 314 ( 46 % )\nTotal virtual pins : 0\nTotal block memory bits : 2,506,566 / 5,662,720 ( 44 % )\nTotal RAM Blocks : 330 / 553 ( 60 % )\nTotal DSP Blocks : 35 / 112 ( 31 % )\nTotal HSSI RX PCSs : 0\nTotal HSSI PMA RX Deserializers : 0\nTotal HSSI TX PCSs : 0\nTotal HSSI PMA TX Serializers : 0\nTotal PLLs : 3 / 6 ( 50 % )\nTotal DLLs : 0 / 4 ( 0 % )\n",
+    "routing_congestion": true,
+    "all_device_timing_available": false,
+    "physical_timing_or_firmware_or_hardware_speed_qualified": false,
+    "hardware_changed": false
+  },
+  "global_advance_assignment_confirmed": true,
+  "global_destinations": 8023,
+  "remaining_non_global_fanouts": {
+    "storage_ready": 3815,
+    "shared_state_mismatch": 3691,
+    "network_step_decomposition": 3292
+  },
+  "pending_observations": [
+    {
+      "run": "native-common-clock-startup-v2-20261025",
+      "status": "RUNNING",
+      "observed": 1792974116.0330229,
+      "pid": 38212,
+      "verified_live": true,
+      "process": "38212 38:29  38:27.07 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-common-clock-startup-v2-20261025/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-common-clock-startup-v2-20261025/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-common-clock-startup-v2-20261025/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root"
+    },
+    {
+      "run": "native-operand-binary-mask-full-icarus-v1-20261025",
+      "status": "RUNNING",
+      "observed": 1792974116.039458,
+      "pid": 41621,
+      "verified_live": true,
+      "process": "41621 14:25  14:23.99 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/native-operand-binary-mask-full-icarus-v1-20261025/test.vvp"
+    },
+    {
+      "run": "native-operand-binary-mask-words-icarus-v1-20261025",
+      "status": "RUNNING",
+      "observed": 1792974116.0431979,
+      "pid": 41620,
+      "verified_live": true,
+      "process": "41620 14:25  14:24.00 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/native-operand-binary-mask-words-icarus-v1-20261025/test.vvp"
+    }
+  ],
+  "no_full_timing_or_hardware_speed_or_firmware_pass": true,
+  "FPGA_and_protected_media_unchanged": true,
+  "full_goal_active": true,
+  "next_action": "Both fits are terminal; do not restart. Finish compact-tag peers and source-bound integration. Prove actual single-grant publication factoring without dropping any true readiness condition; then fit/qualify all timing and original60ns phases."
+}

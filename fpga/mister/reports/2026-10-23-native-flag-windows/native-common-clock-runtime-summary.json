@@ -1,0 +1,226 @@
+{
+  "status": "REVIEWED_COMMON_CLOCK_NATIVE_RUNTIME_AND_ROUTING_FOLLOWUP",
+  "scope": "Retain native runtime gates, terminal routing attribution and compact-tag proof.\n\nKeep the running original-ROM job and separate global-routing fit pending.\nThe465-bit descriptor remains private; formal/XZ/Verilator checks do not\nsubstitute for its outstanding Icarus replays or full hardware qualification.\n",
+  "terminal_fit": {
+    "status": "COLLECTED_TERMINAL_NATIVE_CLOCK_ENABLE_ROUTING_REJECTION",
+    "stage": "/Users/alans/dev2/Dorado/build/rtl-executive/native-clock-enable-stage-v4-20261025",
+    "stage_manifest_sha256": "665da68e19fa84a5e2c82433dd5901ec7ad2d72eae0bb294dee5f7d315d21dd8",
+    "source_files_verified": 578,
+    "terminal_state": {
+      "status": "TERMINAL_FAILED",
+      "builder_pid": 458549,
+      "started": 1792970917.7454796,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 458552,
+          "started": 1792970917.7458668,
+          "returncode": 0,
+          "finished": 1792971147.3902361
+        },
+        {
+          "stage": "fit",
+          "pid": 474666,
+          "started": 1792971147.3907151,
+          "returncode": 3,
+          "finished": 1792972118.986486
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false,
+      "finished": 1792972118.986672
+    },
+    "collection_sha256": "7c8c9e0e8a6deec3006f87d2b4fdecbf0b5230408ebd346afa94c989ebfe434e",
+    "bundle_sha256": "aba885cf733343d2c9771edb2307544b46f381d1714a7021150b44dbb94c2ecf",
+    "fit_summary": "Fitter Status : Failed - Sun Oct 25 16:48:36 2026\nQuartus Prime Version : 17.0.2 Build 602 07/19/2017 SJ Lite Edition\nRevision Name : Dorado\nTop-level Entity Name : sys_top\nFamily : Cyclone V\nDevice : 5CSEBA6U23I7\nTiming Models : Final\nLogic utilization (in ALMs) : 40,486 / 41,910 ( 97 % )\nTotal registers : 54462\nTotal pins : 145 / 314 ( 46 % )\nTotal virtual pins : 0\nTotal block memory bits : 2,506,566 / 5,662,720 ( 44 % )\nTotal RAM Blocks : 330 / 553 ( 60 % )\nTotal DSP Blocks : 35 / 112 ( 31 % )\nTotal HSSI RX PCSs : 0\nTotal HSSI PMA RX Deserializers : 0\nTotal HSSI TX PCSs : 0\nTotal HSSI PMA TX Serializers : 0\nTotal PLLs : 3 / 6 ( 50 % )\nTotal DLLs : 0 / 4 ( 0 % )\n",
+    "routing_congestion": true,
+    "all_device_timing_available": false,
+    "physical_timing_or_firmware_or_hardware_speed_qualified": false,
+    "hardware_changed": false
+  },
+  "peripheral_cases": [
+    {
+      "label": "icarus-reset-low",
+      "returncode": 0,
+      "passed": true,
+      "expected_PASS_markers": 1
+    },
+    {
+      "label": "icarus-reset-high",
+      "returncode": 0,
+      "passed": true,
+      "expected_PASS_markers": 1
+    },
+    {
+      "label": "icarus-keyboard",
+      "returncode": 0,
+      "passed": true,
+      "expected_PASS_markers": 1
+    },
+    {
+      "label": "icarus-mouse",
+      "returncode": 0,
+      "passed": true,
+      "expected_PASS_markers": 1
+    },
+    {
+      "label": "icarus-host-disk",
+      "returncode": 0,
+      "passed": true,
+      "expected_PASS_markers": 3
+    },
+    {
+      "label": "verilator-reset-low",
+      "returncode": 0,
+      "passed": true,
+      "expected_PASS_markers": 1
+    },
+    {
+      "label": "verilator-reset-high",
+      "returncode": 0,
+      "passed": true,
+      "expected_PASS_markers": 1
+    },
+    {
+      "label": "verilator-keyboard",
+      "returncode": 0,
+      "passed": true,
+      "expected_PASS_markers": 1
+    },
+    {
+      "label": "verilator-mouse",
+      "returncode": 0,
+      "passed": true,
+      "expected_PASS_markers": 1
+    },
+    {
+      "label": "verilator-host-disk",
+      "returncode": 0,
+      "passed": true,
+      "expected_PASS_markers": 3
+    }
+  ],
+  "known_auxiliary_payload_full_replays": [
+    {
+      "engine": "icarus",
+      "state_sha256": "34b8290d86832f6b304a3e2ea3bff77bbdeb565476ee9646cf4e98cc487dfb1e",
+      "preparation_edges": 2700
+    },
+    {
+      "engine": "verilator",
+      "state_sha256": "1044062e1a1d0b3f1e60043c68c1d367a698dfab1b538c2a69a6d065962878d5",
+      "preparation_edges": 2700
+    }
+  ],
+  "native_startup": {
+    "bound": 1500000000,
+    "paused_vectors": 2785,
+    "observation": {
+      "pid": 38212,
+      "process": "38212 27:14  27:13.41 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-common-clock-startup-v2-20261025/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-common-clock-startup-v2-20261025/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-common-clock-startup-v2-20261025/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+      "verified_live": true,
+      "observed": 1792973441.891541
+    },
+    "firmware_qualified": false
+  },
+  "compact_descriptor": {
+    "candidate_only": true,
+    "tag_bits_before": 909,
+    "tag_bits_after": 465,
+    "all844_view_bits_inductively_proved": true,
+    "assumptions": 0,
+    "negative_controls": 2,
+    "XZ_checks": 11895,
+    "replays": [
+      {
+        "engine": "verilator",
+        "mode": "full",
+        "observation": {
+          "status": "PASS_PREPARED_OPERAND_COMPLETE_NATIVE_CALLER",
+          "preparation_edges": 2353
+        }
+      },
+      {
+        "engine": "verilator",
+        "mode": "words",
+        "observation": {
+          "status": "PASS_PREPARED_OPERAND_COMPLETE_NATIVE_CALLER",
+          "preparation_edges": 8
+        }
+      },
+      {
+        "engine": "icarus",
+        "mode": "full",
+        "observation": {
+          "pid": 41621,
+          "process": "41621 03:10   3:10.39 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/native-operand-binary-mask-full-icarus-v1-20261025/test.vvp",
+          "verified_live": true,
+          "observed": 1792973441.98177
+        }
+      },
+      {
+        "engine": "icarus",
+        "mode": "words",
+        "observation": {
+          "pid": 41620,
+          "process": "41620 03:10   3:10.40 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/native-operand-binary-mask-words-icarus-v1-20261025/test.vvp",
+          "verified_live": true,
+          "observed": 1792973441.988209
+        }
+      }
+    ],
+    "Verilator_preparation_edges_before": [
+      2700,
+      43
+    ],
+    "Verilator_preparation_edges_after": [
+      2353,
+      8
+    ]
+  },
+  "same_global_routing_build": {
+    "observed": 1792973442.4403074,
+    "run_state": {
+      "status": "RUNNING",
+      "builder_pid": 576472,
+      "started": 1792972588.237806,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 576476,
+          "started": 1792972588.2381368,
+          "returncode": 0,
+          "finished": 1792972819.011563
+        },
+        {
+          "stage": "fit",
+          "pid": 592893,
+          "started": 1792972819.012056
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "processes": [
+      {
+        "pid": 576472,
+        "returncode": 0,
+        "process": "576472       14:14 00:00:00 Ss   python3 /home/alans/mister/Dorado_CPRead15_ClockEnableGlobal_20261025/build_r_front_ready_native.py --project /home/alans/mister/Dorado_CPRead15_ClockEnableGlobal_20261025 --manifest r-front-control-native.json"
+      },
+      {
+        "pid": 592893,
+        "returncode": 0,
+        "process": "592893       10:23 00:17:57 Rl   quartus_fit --read_settings_files=on --write_settings_files=off Dorado"
+      }
+    ],
+    "global_advance_report": [
+      "    Info (11162): emu:emu|network_step~CLKENA0 with 8023 fanout uses global clock CLKCTRL_G3"
+    ],
+    "source_files_verified": 578
+  },
+  "FPGA_and_protected_media_changed": false,
+  "hardware_gain_measured": false,
+  "original60ns_cadence_or_complete_goal_qualified": false,
+  "full_goal_active": true,
+  "next_action": "Observe SAME global576472, native38212, and compact-tag Icarus peers. Collect terminal all-corner/SDRAM reports. Select compact tag only after its remaining replays and source-bound integration; then original60ns phases and full hardware/Cedar/input/Rollback gates."
+}

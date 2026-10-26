@@ -46,7 +46,7 @@ PREPARE='''
 '''
 
 
-def bench(raw,source,out):
+def bench(raw,source,out,known_idle_payload=False):
     original=raw;after=raw.replace(str(source),str(out));edits=[]
     def change(a,b):
         nonlocal after
@@ -57,27 +57,39 @@ def bench(raw,source,out):
     a=' task automatic prepare_entry;';change(a,PREPARE+a)
     a='   prepare_physical_read;';change(a,a+'prepare_operand_view;')
     a='#2;prepare_physical_read;#2;';change(a,'#2;prepare_physical_read;prepare_operand_view;#2;')
+    if known_idle_payload:
+        # This auxiliary payload is ignored until capture_valid. The full
+        # trace never requests an interior read, so a four-state simulator
+        # otherwise keeps it X forever and takes the conservative raw bypass.
+        # A separate explicit fixture exercises the FPGA's binary preparation
+        # path without changing any guest owner, SRAM or original reference.
+        a=' task automatic prepare_entry;'
+        change(a,''' initial begin
+  dut.stage.transaction.capture_data=18'h2a155;
+  $display("OPERAND_TEST_IDLE_PAYLOAD_PROFILE value=2a155 auxiliary_only=1");
+ end
+'''+a)
     restored=after
     for a,b in reversed(edits):restored=restored.replace(b,a,1)
     assert restored.replace(str(out),str(source))==original
     return after
 
 
-def run(source,proof,out,engine):
+def run(source,proof,out,engine,known_idle_payload=False,buffer_helper=None):
     assert not out.exists();out.mkdir(parents=True)
     s=json.loads((source/'run-state.json').read_text());verify(source,s['files'])
     assert s['status']=='PASS_REGISTERED_READ_COMPLETE_NATIVE_CALLER'and s['original_assertions_and_reference_unchanged']
     p=json.loads((proof/'run-state.json').read_text());verify(proof,p['files'])
     assert p['status']=='PASS_ACTUAL_NATIVE_PREPARED_OPERAND_VIEW'and p['assumptions']==0
     assert p['epoch_host_clock_independence_proved']
-    helper=ROOT/HELPER;assert sha(helper)==p['helper_sha256']
+    helper=buffer_helper or ROOT/HELPER;assert sha(helper)==p['helper_sha256']
     paths=[];rows=[]
     for row in s['source_files']:
         n=row['path'];assert sha(source/n)==row['output_sha256']
         q=out/n;q.parent.mkdir(parents=True,exist_ok=True);raw=(source/n).read_text();text=raw
         if n=='candidate.sv':text=control(raw)
         elif n=='caller.sv':text=caller(raw)
-        elif n=='tb.sv':text=bench(raw,source,out)
+        elif n=='tb.sv':text=bench(raw,source,out,known_idle_payload)
         q.write_text(text);paths.append(q);rows.append(dict(path=n,parent_sha256=row['output_sha256'],output_sha256=sha(q)))
     n='adapters/dorado_native_operand_buffer.sv';q=out/n;shutil.copy2(helper,q);paths.append(q)
     rows.append(dict(path=n,parent_sha256=None,output_sha256=sha(q)))
@@ -91,6 +103,9 @@ def run(source,proof,out,engine):
     state=dict(status='RUNNING',scope=__doc__,started=time.time(),engine=engine,source=str(source),
         source_state_sha256=sha(source/'run-state.json'),operand_proof_state_sha256=sha(proof/'run-state.json'),
         original_assertions_and_reference_unchanged=True,native_cells_j19_single_SRAM_and_commit_barriers_retained=True,
+        known_invalid_interior_payload_fixture=known_idle_payload,
+        known_invalid_interior_payload_value='2a155'if known_idle_payload else None,
+        buffer_helper_source=str(helper),buffer_helper_sha256=sha(helper),
         source_files=rows,actions=[],files={str(q.relative_to(out)):sha(q)for q in out.rglob('*')if q.is_file()})
     def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
     cmds=([['iverilog','-g2012','-s','tb_r_front_packet','-o',str(out/'test.vvp'),*map(str,paths)],['vvp','-i',str(out/'test.vvp')]]if engine=='icarus'else
@@ -119,4 +134,6 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['source','proof','output']:p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--engine',choices=['icarus','verilator'],required=True)
-    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.proof.resolve(),a.output.resolve(),a.engine))
+    p.add_argument('--known-idle-payload',action='store_true')
+    p.add_argument('--buffer-helper',type=Path)
+    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.proof.resolve(),a.output.resolve(),a.engine,a.known_idle_payload,a.buffer_helper))

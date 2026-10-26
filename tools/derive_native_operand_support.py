@@ -52,7 +52,7 @@ def support(module):
     return found,len(seen)
 
 
-def run(epoch,out,yosys):
+def run(epoch,out,yosys,binary=False):
     assert not out.exists();out.mkdir(parents=True)
     e=json.loads((epoch/'run-state.json').read_text());verify(epoch,e['files'])
     assert e['status']=='PASS_ACTUAL_NATIVE_PRE_EVENT_OPERAND_VIEW'and e['host_clock_varies_independently']
@@ -71,12 +71,14 @@ proc
 flatten
 opt
 check -assert
+{('techmap; opt; abc -g simple; opt_clean; check -assert'if binary else'')}
 write_json /work/netlist.json
 '''
     (out/'support.ys').write_text(script)
     env=os.environ.copy();env['YOWASP_CACHE_DIR']=str(out.parent/'formal-tool-cache');env['YOWASP_MOUNT']='/work='+str(out)
     cmd=[str(yosys),'-Q','-T','-s','/work/support.ys']
-    state=dict(status='RUNNING',started=time.time(),epoch_state_sha256=sha(epoch/'run-state.json'),command=cmd)
+    state=dict(status='RUNNING',started=time.time(),epoch_state_sha256=sha(epoch/'run-state.json'),command=cmd,
+               binary_context_support=binary,requires_native_function_induction=True)
     def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
     with(out/'support.log').open('x')as log:
         p=subprocess.Popen(cmd,stdout=log,stderr=log,env=env);state['pid']=p.pid;save();code=p.wait()
@@ -92,4 +94,5 @@ write_json /work/netlist.json
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['epoch','output','yosys']:p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();run(a.epoch.resolve(),a.output.resolve(),a.yosys.resolve())
+    p.add_argument('--binary-support',action='store_true')
+    a=p.parse_args();run(a.epoch.resolve(),a.output.resolve(),a.yosys.resolve(),a.binary_support)

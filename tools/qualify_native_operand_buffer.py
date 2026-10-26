@@ -54,20 +54,32 @@ endmodule
 '''.replace('CURRENT',instance('current','held','root','pins','data','current_function')).replace('SAVED',instance('saved','tag[1263:420]','tag[419]','tag[418:18]','tag[17:0]','saved_function'))
 
 
-def run(epoch,out,yosys):
+def run(epoch,out,yosys,candidate_helper=None,support=None):
     assert not out.exists();out.mkdir(parents=True)
     e=json.loads((epoch/'run-state.json').read_text());verify(epoch,e['files'])
     assert e['status']=='PASS_ACTUAL_NATIVE_PRE_EVENT_OPERAND_VIEW'and e['assumptions']==0
     assert e['host_clock_varies_independently']and e['native_constant_inputs']=={'advance':0,'pair_fall':0}
     assert all(a['passed']and a['returncode']==0 for a in e['actions'])
     source=epoch/'pre-event-view';verify(source,e['actions'][0]['files'])
-    candidate=(ROOT/HELPER).read_text();(out/Path(HELPER).name).write_text(candidate)
+    helper=candidate_helper or ROOT/HELPER
+    candidate=helper.read_text();(out/Path(HELPER).name).write_text(candidate)
     masks=re.findall(r"OPERAND_TAG_SUPPORT=1264'h([0-9a-f]+);",candidate)
     assert len(masks)==1
-    mask=int(masks[0],16);assert mask.bit_count()==909
+    mask=int(masks[0],16)
+    if candidate_helper:
+        assert support
+        proposed=json.loads((support/'run-state.json').read_text());verify(support,proposed['files'])
+        assert proposed['status']=='DERIVED_NATIVE_OPERAND_SUPPORT_REQUIRES_PROOF'and proposed['binary_context_support']
+        assert proposed['epoch_state_sha256']==sha(epoch/'run-state.json')and proposed['mask_hex']==masks[0]
+        assert mask.bit_count()==proposed['support_bits']
+        pattern=r"OPERAND_TAG_SUPPORT=1264'h[0-9a-f]+;"
+        assert re.sub(pattern,'MASK',candidate)==re.sub(pattern,'MASK',(ROOT/HELPER).read_text())
+    else:assert mask.bit_count()==909
     shutil.copy2(Path(__file__),out/Path(__file__).name)
     state=dict(status='RUNNING',started=time.time(),scope=__doc__,epoch_proof_state_sha256=sha(epoch/'run-state.json'),
-        helper_sha256=sha(ROOT/HELPER),tag_bits=1264,buffered_physical_bits=88,compared_physical_bits=844,assumptions=0,
+        helper_sha256=sha(helper),helper_source=str(helper),original_helper_sha256=sha(ROOT/HELPER),
+        support_state_sha256=sha(support/'run-state.json')if support else None,
+        tag_bits=1264,buffered_physical_bits=88,compared_physical_bits=844,assumptions=0,
         epoch_host_clock_independence_proved=True,
         tag_support_bits=mask.bit_count(),tag_support_hex=masks[0],
         files={p.name:sha(p)for p in out.iterdir()},actions=[])
@@ -114,4 +126,5 @@ check -assert
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['epoch','output','yosys']:p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();raise SystemExit(run(a.epoch.resolve(),a.output.resolve(),a.yosys.resolve()))
+    for n in ['candidate-helper','support']:p.add_argument('--'+n,type=Path)
+    a=p.parse_args();raise SystemExit(run(a.epoch.resolve(),a.output.resolve(),a.yosys.resolve(),a.candidate_helper,a.support))

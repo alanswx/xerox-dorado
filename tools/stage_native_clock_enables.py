@@ -62,7 +62,7 @@ def close(ts,start,left='(',right=')'):
     raise AssertionError(('unclosed',ts[start]))
 
 
-def prepare(stage,audit,xml_source,out,project):
+def prepare(stage,audit,xml_source,out,project,global_advance=False):
     assert not out.exists()and project.parent==Path('/home/alans/mister')
     parent=json.loads((stage/'r-front-control-native.json').read_text());verify(stage,parent['source_hashes'])
     inventory=json.loads((audit/'results.json').read_text())
@@ -234,6 +234,8 @@ def prepare(stage,audit,xml_source,out,project):
             output[n]=b
     assert 'Missing native ready/step state'in output['core/audit-storage-ready.tcl'].decode()
     output['core/audit-storage-ready.tcl']=READY_AUDIT.encode()
+    if global_advance:
+        output['core/Dorado.qsf']+=b'\n# Route the synchronous advance control over a dedicated global network.\nset_instance_assignment -name GLOBAL_SIGNAL ON -to "emu|network_step"\n'
     out.mkdir(parents=True)
     for n,b in output.items():
         p=out/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b)
@@ -243,6 +245,8 @@ def prepare(stage,audit,xml_source,out,project):
         'parent_project':parent['project'],'parent_manifest_sha256':sha(stage/'r-front-control-native.json'),
         'clock_enable_inventory_sha256':sha(audit/'results.json'),'clock_enable_XML_sha256':sha(xml_source/'native.xml'),
         'clock_enable_conversion_staged':True,'clock_enable_conversion_qualified':False,
+        'physical_global_advance_assignment':global_advance,
+        'physical_control_routing_reference':'https://docs.altera.com/r/docs/683323/18.1/quartus-prime-standard-edition-user-guide-design-recommendations/use-global-clock-network-resources',
         'converted_module_types':sorted(selected_types),'converted_virtual_process_instances':inventory['process_class_counts']['VIRTUAL_CLOCK_ENABLE_REQUIRED'],
         'converted_unique_processes':len(process_locations),'host_clock_processes_unchanged':True,
         'async_reset_branches_unchanged':True,'negative_guest_clock_processes':0,
@@ -258,4 +262,5 @@ def prepare(stage,audit,xml_source,out,project):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['stage','audit','xml-source','output','project']:p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();prepare(a.stage.resolve(),a.audit.resolve(),a.xml_source.resolve(),a.output.resolve(),a.project)
+    p.add_argument('--global-advance',action='store_true')
+    a=p.parse_args();prepare(a.stage.resolve(),a.audit.resolve(),a.xml_source.resolve(),a.output.resolve(),a.project,a.global_advance)

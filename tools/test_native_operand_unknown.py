@@ -22,7 +22,7 @@ from test_external_r_packet import sha
 ROOT=Path(__file__).resolve().parents[1]
 
 
-def run(epoch,ready_proof,out,bad=False):
+def run(epoch,ready_proof,out,bad=False,buffer_helper=None,buffer_proof=None):
     assert not out.exists();out.mkdir(parents=True)
     e=json.loads((epoch/'run-state.json').read_text());verify(epoch,e['files'])
     assert e['status']=='PASS_ACTUAL_NATIVE_PRE_EVENT_OPERAND_VIEW'and e['host_clock_varies_independently']
@@ -36,7 +36,14 @@ def run(epoch,ready_proof,out,bad=False):
         if f.name not in ['top.sv',SINGLE+'.sv']:shutil.copy2(f,out/f.name)
     (out/(SINGLE+'.sv')).write_text(changed)
     (out/'reference.sv').write_text(original.replace('module '+SINGLE+' #','module original_operand_single #',1))
-    raw=(ROOT/HELPER).read_text()
+    helper=buffer_helper or ROOT/HELPER
+    if buffer_helper:
+        assert buffer_proof
+        b=json.loads((buffer_proof/'run-state.json').read_text());verify(buffer_proof,b['files'])
+        assert b['status']=='PASS_ACTUAL_NATIVE_PREPARED_OPERAND_VIEW'and b['assumptions']==0
+        assert b['helper_sha256']==sha(helper)and b['epoch_proof_state_sha256']==sha(epoch/'run-state.json')
+        assert all(a['passed']and a['returncode']==0 for a in b['actions'])
+    raw=helper.read_text()
     if bad:
         a='assign physical_view=(use_pair || !context_known) ? raw_view:prepared_view;'
         assert raw.count(a)==1;raw=raw.replace(a,'assign physical_view=use_pair ? raw_view:prepared_view;',1)
@@ -93,7 +100,8 @@ endmodule
 '''
     (out/'top.sv').write_text(top);(out/'tb.sv').write_text(tb);shutil.copy2(Path(__file__),out/Path(__file__).name)
     state=dict(status='RUNNING',started=time.time(),scope=__doc__,epoch_state_sha256=sha(epoch/'run-state.json'),
-        ready_seed_proof_sha256=sha(ready_proof/'run-state.json'),helper_sha256=sha(ROOT/HELPER),broken_unknown_fallback=bad,
+        ready_seed_proof_sha256=sha(ready_proof/'run-state.json'),helper_sha256=sha(helper),
+        buffer_proof_state_sha256=sha(buffer_proof/'run-state.json')if buffer_proof else None,broken_unknown_fallback=bad,
         files={q.name:sha(q)for q in out.iterdir()},actions=[])
     def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
     paths=sorted(str(q)for q in out.glob('*.sv'));save();code=1
@@ -114,4 +122,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['epoch','ready-proof','output']:p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--break-unknown',action='store_true')
-    a=p.parse_args();raise SystemExit(run(a.epoch.resolve(),a.ready_proof.resolve(),a.output.resolve(),a.break_unknown))
+    for n in ['buffer-helper','buffer-proof']:p.add_argument('--'+n,type=Path)
+    a=p.parse_args();raise SystemExit(run(a.epoch.resolve(),a.ready_proof.resolve(),a.output.resolve(),a.break_unknown,a.buffer_helper,a.buffer_proof))
