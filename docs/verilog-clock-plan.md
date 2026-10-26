@@ -14,7 +14,34 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-Current native runtime/routing followup (2026-10-25):
+Current selected compact descriptor / native fit (2026-10-25):
+
+- [x] Finish BOTH compact-tag programs in BOTH engines. Full Icarus41621 PASS:
+  14,884 transactions/10,423 commits/4,461 pairs/119 paired writes/238 forwarded
+  bytes,2,353 prep edges, all original results exact. Words Icarus41620 PASS:
+  12,481 transactions/12,387 commits/94 pairs/one staged read,3 prep edges
+  (Verilator8 due to initially binary invalid payload). No test restart.
+- [x] Select465-bit descriptor after actual844-bit-view induction/no assumptions,
+  genuine wrong-data negatives, all11,895 X/Z checks/fallback negative and four
+  full replays. Root RTL changes only the support mask; guest state/RAM/
+  capture/reset rules remain intact. Save prior909-bit source and gate receipt.
+- [x] Stage ONE HDL-file/constant change on the global-routing native core,
+  all578 source hashes verified. Actual CE lint/XML/ancestry PASS. Reject use
+  of the old generic lint entry for CE stages to avoid crediting unused tops.
+- [x] Start ONE new timing builder743068 at CompactOperand_20261025, no assembly
+  or load. Both prior909-bit fits458549/576472 stay terminal routing failures.
+- [ ] Observe SAME743068 through fit and all terminal corner/crossing/SDRAM
+  reports; observe original-ROM38212 at its unchanged1.5B host bound/frozen909
+  source. If congestion remains, prove/factor duplicate publication checks
+  behind the actual global grant while keeping every genuine readiness guard.
+- [ ] Finish original overlapping60ns phases (still120ns diagnostic nominal),
+  calibrated timers/SDRAM, pinned measured hardware gains and all original
+  Cedar/input/Checkpoint/Rollback/persistence/three-boot/two-hour gates. FPGA
+  and protected media unchanged. Goal ACTIVE; complete FPGA snapshots deferred.
+
+Receipt: `native-compact-operand-integration-summary.json`.
+
+Previous native runtime/routing followup (2026-10-25):
 
 - [x] Collect SAME458549 routing rejection: map0/fit3, all578 source hashes.
   Placement succeeds but routing congestion fails at40,486ALMs/97%,54,462
@@ -47,7 +74,9 @@ Current native runtime/routing followup (2026-10-25):
   flag negatives. Pass all11,895 X/Z checks and raw-fallback negative. Both
   Verilator programs retain exact architectural results; prep events fall
   2700->2353 and43->8. This is not a measured hardware gain.
-- [ ] Finish SAME compact-tag Icarus41621/full and41620/words, then source-bound
+- [x] Finish SAME compact-tag words Icarus41620: PASS,3 preparation edges,
+  exact original12,481 transactions/12,387 commits/94 pairs/one staged read.
+- [ ] Finish SAME compact-tag Icarus41621/full, then source-bound
   native integration. Root helper, global fit and full native run STILL use909
   bits; do not attribute the compact candidate to those runs.
 - [ ] Both fits are terminal rejections; do not restart either. Factor the

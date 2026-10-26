@@ -27,7 +27,13 @@ def start(stage,out,clock_enable_audit=None,baseboard=None,baseboard_negative=No
     memc=r.get('registered_MemC_tag_reads_connected',False)
     if memc:assert registered and r['MemC_tag_read_proof_state_sha256']and len(r['MemC_tag_read_packages'])==21 and r['all21_address_matches_gate_whole_machine_publication']
     operand=r.get('prepared_native_operand_view_connected',False)
-    if operand:assert memc and r['operand_buffer_proof_state_sha256']and r['operand_view_bits_registered']==88 and r['operand_view_tag_support_bits']==909
+    compact=r.get('compact_operand_tag_qualified',False)
+    if operand:assert memc and r['operand_buffer_proof_state_sha256']and r['operand_view_bits_registered']==88 and r['operand_view_tag_support_bits']==(465 if compact else 909)
+    compact_proof=None
+    if compact:
+        pd=Path(r['operand_buffer_proof']);compact_proof=json.loads((pd/'run-state.json').read_text());verify(pd,compact_proof['files'])
+        assert compact_proof['status']=='PASS_ACTUAL_NATIVE_PREPARED_OPERAND_VIEW'and compact_proof['tag_support_bits']==465
+        assert sha(pd/'run-state.json')==r['operand_buffer_proof_state_sha256']
     source_count=578 if operand else 577 if memc else 576 if registered else 575 if r.get('ready_compare_proof_state_sha256')else 574
     assert len(r['source_hashes'])==source_count
     ce_preflight=None
@@ -41,14 +47,19 @@ def start(stage,out,clock_enable_audit=None,baseboard=None,baseboard_negative=No
             assert b['status']==status and all(x.get('returncode')==0 for x in b['actions']if x['label']=='compile')
             tested=Path(b['stage']);bm=json.loads((tested/'r-front-control-native.json').read_text());verify(tested,bm['source_hashes'])
             assert sha(tested/'r-front-control-native.json')==b['stage_manifest_sha256']
-            assert {n:h for n,h in bm['source_hashes'].items()if Path(n).suffix in ['.v','.sv']}=={n:h for n,h in r['source_hashes'].items()if Path(n).suffix in ['.v','.sv']}
+            differences={n for n,h in bm['source_hashes'].items()if Path(n).suffix in ['.v','.sv']and r['source_hashes'].get(n)!=h}
+            if compact:
+                helper='src/verilog/rtl/dorado_native_operand_buffer.sv'
+                assert differences=={helper}
+                assert bm['source_hashes'][helper]==compact_proof['original_helper_sha256']and r['source_hashes'][helper]==compact_proof['helper_sha256']
+            else:assert not differences
         ce_preflight=dict(structural_audit_sha256=sha(clock_enable_audit/'results.json'),
             baseboard_test_state_sha256=sha(baseboard/'run-state.json'),negative_state_sha256=sha(baseboard_negative/'run-state.json'),
             complete_functional_and_timing_qualification=False,diagnostic_fit_only=True)
     check='from pathlib import Path\np=Path('+repr(project)+')\nassert not p.exists(), "Observe existing project; do not restart"\n'
     subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10','misterubuntu','python3','-'],input=check,text=True,check=True)
     manifest_sha=sha(stage/'r-front-control-native.json')
-    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py','stage_native_ready_compare.py','stage_native_r_read_buffer.py','integrate_r_read_buffer.py','stage_native_memc_read_buffer.py','qualify_memc_read_buffer.py','stage_native_operand_buffer.py','integrate_native_operand_buffer.py','stage_native_clock_enables.py']if(stage/n).is_file()]
+    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py','stage_native_ready_compare.py','stage_native_r_read_buffer.py','integrate_r_read_buffer.py','stage_native_memc_read_buffer.py','qualify_memc_read_buffer.py','stage_native_operand_buffer.py','integrate_native_operand_buffer.py','stage_native_clock_enables.py','stage_compact_native_operand_buffer.py']if(stage/n).is_file()]
     assert stagers,'Missing the executed staging helper'
     names=sorted(r['source_hashes'])+['r-front-control-native.json','build_r_front_ready_native.py',*stagers]
     bundle=out/'stage.tgz'

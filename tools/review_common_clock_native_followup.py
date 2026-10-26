@@ -106,9 +106,10 @@ def review(out):
         assert a['passed']and a['returncode']==0;verify(proof/a['label'],a['files'])
         assert sha(proof/a['label']/'proof.log')==a['log_sha256']
     candidate=BUILD/'native-operand-binary-mask-candidate-v1-20261025/dorado_native_operand_buffer.sv'
-    assert sha(candidate)==q['helper_sha256']and sha(ROOT/'verilog/rtl/dorado_native_operand_buffer.sv')==q['original_helper_sha256']
+    original_helper=stage/'src/verilog/rtl/dorado_native_operand_buffer.sv'
+    assert sha(candidate)==q['helper_sha256']and sha(original_helper)==q['original_helper_sha256']
     mask_pattern=r"OPERAND_TAG_SUPPORT=1264'h[0-9a-f]+;"
-    assert re.sub(mask_pattern,'MASK',candidate.read_text())==re.sub(mask_pattern,'MASK',(ROOT/'verilog/rtl/dorado_native_operand_buffer.sv').read_text())
+    assert re.sub(mask_pattern,'MASK',candidate.read_text())==re.sub(mask_pattern,'MASK',original_helper.read_text())
     replays=[]
     for engine in ['verilator','icarus']:
         for mode in ['full','words']:
@@ -117,7 +118,7 @@ def review(out):
             if s['status']=='RUNNING':observation=live(s)
             else:
                 assert s['status']=='PASS_PREPARED_OPERAND_COMPLETE_NATIVE_CALLER'
-                assert s['operand_prepare_edges']==(2353 if mode=='full'else 8)
+                assert s['operand_prepare_edges']==(2353 if mode=='full'else 8 if engine=='verilator'else 3)
                 observation=dict(status=s['status'],preparation_edges=s['operand_prepare_edges'])
             replays.append(dict(engine=engine,mode=mode,observation=observation))
     for name,status in [('native-operand-binary-mask-xz-v1-20261025','PASS_NATIVE_OPERAND_UNKNOWN_FALLBACK'),

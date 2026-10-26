@@ -7,7 +7,48 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-CURRENT NATIVE RUNTIME AND ROUTING FOLLOWUP (2026-10-25):
+CURRENT SELECTED COMPACT DESCRIPTOR / NEW NATIVE FIT (2026-10-25):
+Both compact-tag complete programs have now PASSED in BOTH engines. Full
+Icarus41621 matches all14,884 transactions/10,423 commits/4,461 pairs/119 paired
+writes/238 forwarded bytes and2,353 prep edges, exactly the Verilator result.
+Words Icarus41620 matches12,481 transactions/12,387 commits/94 pairs/one staged
+read, with3 prep edges (Verilator8; its invalid pre-read auxiliary payload is
+binary from power-on). All original2,470 result bits/844Qs/9,216 SRAM bits/100
+clocks/native16R/j19 assertions remain. The earlier expected-live observation
+found the full peer had completed successfully; no run was restarted.
+
+After actual-function induction, both wrong-data negatives,11,895 X/Z checks,
+missing-fallback negative and all four complete replays, the465-bit descriptor
+is SELECTED in `verilog/rtl/dorado_native_operand_buffer.sv`. Only its support
+mask changes; no guest owner/RAM/reset/capture equation changes. Logical tag
+width remains1,264. The400 needed held-owner bits plus65 before-root/pin/data
+bits preserve all844 actual physical output bits. The other current owner
+bits still feed the reconstructed physical view directly. This selection
+does not imply a native timing/firmware/hardware-speed pass.
+
+New `native-compact-operand-stage-v1-20261025` differs from the failed global
+candidate in ONE HDL file/constant, plus project relocation. Preserve its
+global advance assignment and all Ready/Hold/alias/settling/storage gates.
+All578 sources verified; actual common-clock lint/XML and full ancestry audit
+PASS,1,823 guest guards/1,975 host process bodies retained. The old generic
+lint entry now rejects common-clock stages so an unused original wrapper
+cannot accidentally receive credit for elaborating the real CE variant.
+
+ONE new timing-only builder743068 at
+`/home/alans/mister/Dorado_CPRead15_CompactOperand_20261025`; source inputs
+frozen. Observe this SAME job and its saved children. The prior909-bit fits
+458549 and576472 remain terminal routing rejections; never restart them.
+Original-ROM common-clock38212 still runs its immutable1.5B host bound using
+the frozen909-bit source, not the newly selected helper. FPGA/protected medium
+unchanged. This diagnostic remains120ns nominal before holds/preparation;
+original60ns phases, calibrated peripherals/SDRAM, pinned measured gains and
+full Cedar/input/Checkpoint/Rollback/persistence/three-boots/two-hour stress
+remain open. If routing still fails, prove/factor duplicate publication gates
+behind the actual global grant while retaining every real readiness condition.
+Full goal ACTIVE, snapshots deferred. Latest receipt:
+`native-compact-operand-integration-summary.json`.
+
+PREVIOUS NATIVE RUNTIME AND ROUTING FOLLOWUP (2026-10-25):
 SAME common-clock458549 is TERMINAL_FAILED: map0,fit3. Placement succeeded,
 but routing terminated due to congestion at40,486/41,910ALMs (97%),54,462
 registers,unchanged2,506,566 memory bits/330 RAM blocks. All578 source hashes
@@ -75,7 +116,9 @@ checks PASS, all2,969 old raw outputs and844 fallback bits exact; missing raw
 fallback negative rejects. Verilator full/words programs pass with identical
 architectural results, while auxiliary preparation edges fall2700->2353 and
 43->8. These are fixture event counts, NOT hardware speed measurements. SAME
-Icarus41621/full and41620/words are verified live, still pending. Root helper,
+Icarus41620/words has now PASSED (3 preparation edges; its initial invalid
+interior payload remains unknown until the real read). SAME41621/full remains
+verified live, pending. Root helper,
 native startup and global fit remain on the previous909-bit implementation.
 
 NEXT: both clock-enable fits are terminal rejections, with no all-corner pass.

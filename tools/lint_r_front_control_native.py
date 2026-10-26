@@ -22,6 +22,7 @@ def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def run(stage,native_run,out,baseline_only=False,structural=False,report_unoptflat=False,optimization=None):
     out.mkdir(parents=True,exist_ok=False)
     record=json.loads((stage/'r-front-control-native.json').read_text())
+    assert not record.get('clock_enable_conversion_staged'), 'Use lint_native_clock_enables.py to elaborate the actual common-clock variant'
     assert record['status']in ['STAGED_PROCESSOR_CONTROL_NATIVE_EXPERIMENT',
                               'PREPARED_FULL_NATIVE_15NS_PHASE_GUARD_DIAGNOSTIC']and not record['assembly_permitted']
     if record['status']=='PREPARED_FULL_NATIVE_15NS_PHASE_GUARD_DIAGNOSTIC':

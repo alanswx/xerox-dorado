@@ -72,6 +72,7 @@ def review(stage,out,launch=None):
     memc=source.get('registered_MemC_tag_reads_connected',False)
     operand=source.get('prepared_native_operand_view_connected',False)
     clock_enable=source.get('clock_enable_conversion_staged',False)
+    compact=source.get('compact_operand_tag_qualified',False)
     new_ready=bool(native_single and source.get('ready_compare_proof_state_sha256'))
     launch_state=None
     if launch:
@@ -98,11 +99,11 @@ def review(stage,out,launch=None):
     if parallel:
         assert source['task_parallel_proof_state_sha256']
         if not ready:assert source['incremental_functional_HDL_changes']==['src/verilog/rtl/dorado_local_task_capture_step.sv']
-    if ready:assert source['ready_compare_proof_state_sha256']and source['all2969_prefix_outputs_retained']and source['shared_state_mismatch_guard_retained']and len(source['incremental_functional_HDL_changes'])==(35 if clock_enable else 4 if operand else 3)
+    if ready:assert source['ready_compare_proof_state_sha256']and source['all2969_prefix_outputs_retained']and source['shared_state_mismatch_guard_retained']and len(source['incremental_functional_HDL_changes'])==(1 if compact else 35 if clock_enable else 4 if operand else 3)
     builder=launch_state['builder_pid'] if launch_state else {PROJECT:2865831,GUARD_PROJECT:3301754,TASK_PROJECT:3440305,SHARED_PROJECT:3571235,PARALLEL_PROJECT:3827091,READY_PROJECT:4042975}[project]
     if registered:assert source['R_read_buffer_proof_state_sha256']and source['single_SRAM_owner_and_write_edge_unchanged']
     if memc:assert registered and source['MemC_tag_read_proof_state_sha256']and len(source['MemC_tag_read_packages'])==21 and source['all21_address_matches_gate_whole_machine_publication']
-    if operand:assert memc and source['operand_buffer_proof_state_sha256']and source['operand_view_bits_registered']==88 and source['operand_view_tag_support_bits']==909
+    if operand:assert memc and source['operand_buffer_proof_state_sha256']and source['operand_view_bits_registered']==88 and source['operand_view_tag_support_bits']==(465 if compact else 909)
     query=QUERY.replace('Path(PROJECT)','Path('+repr(project)+')',1).replace('BUILDER_PID',str(builder)).replace('SOURCE_COUNT','578'if operand else'577'if memc else'576'if registered else'575'if ready else'574')
     (out/'collection-query.py').write_text(query)
     bundle=out/'terminal.tgz'
@@ -152,6 +153,7 @@ def review(stage,out,launch=None):
         registered_MemC_tag_reads=memc,
         prepared_native_operand_view=operand,
         common_clock_guest_enables=clock_enable,
+        compact_operand_descriptor=compact,
         clock_enable_diagnostic_preflight=launch_state.get('clock_enable_diagnostic_preflight')if launch_state else None,
         actual_native_single_comparison_connected=source.get('actual_native_single_comparison_connected',False),
         ready_v1_targeting_limitation='Paired prefix only; ordinary native single comparison unchanged'if ready and not source.get('actual_native_single_comparison_connected')else None,

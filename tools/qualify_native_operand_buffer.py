@@ -74,7 +74,7 @@ def run(epoch,out,yosys,candidate_helper=None,support=None):
         assert mask.bit_count()==proposed['support_bits']
         pattern=r"OPERAND_TAG_SUPPORT=1264'h[0-9a-f]+;"
         assert re.sub(pattern,'MASK',candidate)==re.sub(pattern,'MASK',(ROOT/HELPER).read_text())
-    else:assert mask.bit_count()==909
+    else:assert 0<mask.bit_count()<=1264
     shutil.copy2(Path(__file__),out/Path(__file__).name)
     state=dict(status='RUNNING',started=time.time(),scope=__doc__,epoch_proof_state_sha256=sha(epoch/'run-state.json'),
         helper_sha256=sha(helper),helper_source=str(helper),original_helper_sha256=sha(ROOT/HELPER),

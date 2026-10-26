@@ -1,0 +1,84 @@
+{
+  "status": "REVIEWED_SELECTED_COMPACT_NATIVE_OPERAND_INTEGRATION",
+  "stage_manifest_sha256": "0223d63bc05129b58be12fb7b9b89bcb1acb958651f12bf0d099cc401c84bdae",
+  "selected_helper_sha256": "9bbaac5d1b34d2669ff5a189e6d754e893c9b9b16dbe04e30bc420078fce66ae",
+  "saved_tag_bits": 465,
+  "previous_saved_tag_bits": 909,
+  "logical_tag_bits": 1264,
+  "actual_native_view_bits_proved": 844,
+  "assumptions": 0,
+  "XZ_checks": 11895,
+  "all_four_replays": [
+    {
+      "engine": "icarus",
+      "mode": "full",
+      "preparation_edges": 2353,
+      "state_sha256": "0beaa347cb58d425a986b26ad75a34471889ab60e5b9f567366852283f16e499"
+    },
+    {
+      "engine": "icarus",
+      "mode": "words",
+      "preparation_edges": 3,
+      "state_sha256": "0ed97ffbecf2e40efa3d24d3117af689e62fdaca3f9f24f1c6e47eebea883545"
+    },
+    {
+      "engine": "verilator",
+      "mode": "full",
+      "preparation_edges": 2353,
+      "state_sha256": "a07a6743ebcdf71ddfc6b59141506a19b971030bb0fc2c81ca7ba63e93668318"
+    },
+    {
+      "engine": "verilator",
+      "mode": "words",
+      "preparation_edges": 8,
+      "state_sha256": "9862ffb898df7d79d3ae0dd94b4a0f7e80af92b4116983f4a935b0860a66cd96"
+    }
+  ],
+  "changed_HDL_sources": [
+    "src/verilog/rtl/dorado_native_operand_buffer.sv"
+  ],
+  "nominal_ordinary_ns": 120,
+  "target_ordinary_ns": 60,
+  "actual_common_clock_lint_and_ancestry_pass": true,
+  "same_new_native_fit": {
+    "observed": 1792975415.684851,
+    "run_state": {
+      "status": "RUNNING",
+      "builder_pid": 743068,
+      "started": 1792974955.846875,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 743071,
+          "started": 1792974955.847276,
+          "returncode": 0,
+          "finished": 1792975183.8271396
+        },
+        {
+          "stage": "fit",
+          "pid": 759460,
+          "started": 1792975183.827667
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "processes": [
+      {
+        "pid": 743068,
+        "returncode": 0,
+        "process": "743068       07:39 00:00:00 Ss   python3 /home/alans/mister/Dorado_CPRead15_CompactOperand_20261025/build_r_front_ready_native.py --project /home/alans/mister/Dorado_CPRead15_CompactOperand_20261025 --manifest r-front-control-native.json"
+      },
+      {
+        "pid": 759460,
+        "returncode": 0,
+        "process": "759460       03:51 00:06:11 Rl   quartus_fit --read_settings_files=on --write_settings_files=off Dorado"
+      }
+    ],
+    "source_files_verified": 578
+  },
+  "firmware_or_physical_timing_or_hardware_speed_qualified": false,
+  "FPGA_or_protected_media_changed": false,
+  "full_goal_active": true,
+  "next_action": "Observe SAME743068 and native38212. Collect all terminal fit/corner/SDRAM reports; if congestion remains, prove/factor duplicate publication gating behind the actual global grant without losing readiness conditions. Then original60ns phases and full hardware qualification."
+}

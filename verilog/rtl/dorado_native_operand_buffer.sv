@@ -11,7 +11,7 @@ module dorado_native_operand_buffer(
  input wire [17:0] before_data,input wire [843:0] raw_view,
  output wire ready,output wire [843:0] physical_view,
  output reg valid=1'b0,output reg [1263:0] saved_tag,output reg [87:0] saved_fields);
- localparam [1263:0] OPERAND_TAG_SUPPORT=1264'hfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff800000000000000000000000000000000000000000000000000000003c00002800001ff803fffffffc0000000000000000000ffff;
+ localparam [1263:0] OPERAND_TAG_SUPPORT=1264'h2000000000000003fffc000000000000000000f400003fc0ff0000ffffffff0000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa20ff000000f900d500003500800000000000000000000000000000000000000000000000000000003c00002800001ff803fffffffc0000000000000000000ffff;
  wire [1263:0] current_tag={held_q,before_root,before_pins,before_data} & OPERAND_TAG_SUPPORT;
  wire [843:0] prepared_view={held_q[843:596],saved_fields[87:80],held_q[587:572],
    saved_fields[79:48],held_q[539:404],saved_fields[47:16],held_q[371:116],

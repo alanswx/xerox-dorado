@@ -15,8 +15,10 @@ def run(stage,baseline_lint,out):
     m=json.loads((stage/'r-front-control-native.json').read_text());verify(stage,m['source_hashes'])
     assert m['clock_enable_conversion_staged']and not m['assembly_permitted']
     old=json.loads((baseline_lint/'run-state.json').read_text())
-    assert old['stage_manifest_sha256']==m['parent_manifest_sha256']and old['status']=='PASS_NATIVE_PROCESSOR_CONTROL_ELABORATION'
-    command=[s.replace(m['parent_stage'],str(stage))for s in old['command']]
+    baseline_manifest=m.get('clock_enable_lint_source_manifest_sha256',m['parent_manifest_sha256'])
+    baseline_stage=m.get('clock_enable_lint_source_stage',m['parent_stage'])
+    assert old['stage_manifest_sha256']==baseline_manifest and old['status']=='PASS_NATIVE_PROCESSOR_CONTROL_ELABORATION'
+    command=[s.replace(baseline_stage,str(stage))for s in old['command']]
     harness=Path(command[-1]);assert harness.name=='tb_native_cedar.sv'
     raw=harness.read_text();changes=[
       ('dorado_native_machine #','dorado_native_machine_ce #'),
