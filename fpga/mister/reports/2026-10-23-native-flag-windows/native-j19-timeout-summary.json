@@ -1,0 +1,58 @@
+{
+  "status": "REVIEWED_ORIGINAL_ROM_BOOT_TIMEOUT_ADVANCING_WITHOUT_RETRY_YET",
+  "previous_goal_turn": "progress: measured native post-initialization Hold cost and pushed abf9346bf",
+  "pid": 62048,
+  "process_after_detach": "62048 15:33:14 915:15.66 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-cp-read-j19-boot-v1-20261025/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+  "observed": 1792992587.8212302,
+  "host_ticks": [
+    1776575029,
+    2344358550
+  ],
+  "enabled_machine_ticks": [
+    992399792,
+    1350084200
+  ],
+  "actual_ROM_RTC430_address": 179,
+  "standalone_Initial_mb_RTC430_address": 178,
+  "RTC430_values": [
+    12,
+    13
+  ],
+  "unchanged_task0_timeout_threshold": 13,
+  "timeout_subtractions": [
+    65534,
+    65535
+  ],
+  "next_timeout_word": 14,
+  "sequence_number": 0,
+  "remote_host": 65280,
+  "transmitted_packets": [
+    1,
+    1
+  ],
+  "last_complete_received_packet_words": [
+    8705,
+    512,
+    22,
+    181,
+    1,
+    62,
+    34,
+    1,
+    1,
+    1,
+    0,
+    4,
+    65535
+  ],
+  "last_packet_crc_and_status_verified": true,
+  "FIFO_empty": true,
+  "actual_clock_is_not_frozen": true,
+  "clock_rate_calibrated": false,
+  "first_packet_rejection_cause_established": false,
+  "static_decoder_caller_owner_binding_fixed_without_changing_interpretation": true,
+  "raw_reads_and_native_sources_limits_and_media_unchanged": true,
+  "firmware_or_hardware_speed_qualified": false,
+  "full_goal_active": true,
+  "next_action": "Observe this same original-ROM run through its real timeout/retry; do not accelerate or inject timer/network/CPU state. Continue actual CPU/capture integration and review same1865964/1876118 terminal timing before selecting another native fit."
+}

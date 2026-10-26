@@ -53,6 +53,23 @@ timer calibration, hardware speed measurement and all Cedar/input/Checkpoint/
 Rollback/persistence/three-boots/two-hour gates remain. Full goal ACTIVE;
 no measured hardware speed gain and no complete FPGA snapshot work selected.
 
+ORIGINAL-ROM TIMEOUT OBSERVATION (2026-10-25):
+SAME62048 read-only debugger snapshot at2,344,358,550 host ticks detached and
+resumed unchanged. Actual EPROM binding (not standalone.mb placement) gives
+RTC430 RM179:12 ->13 since the prior1,776,575,029-host snapshot; task0.T=13.
+RTC430-T-1 is still negative (fffe ->ffff); timeout first expires at14. The
+clock is advancing. No rate calibration, early retry or timer change implied.
+Last13-word reply still matches FIFO/CRC/zero EOP; pointers9/9/empty, SeqNo0,
+RHost177400B, one TX. Packet0 rejection cause remains unknown. Keep5B input/
+limit/source/medium unchanged and observe the original retry when it occurs.
+
+`inspect_initial_rom_wait.py` now verifies the actual caller-held owner and
+three port bindings/two backplane aliases before applying the same physical
+register mapping. Two old reader-location failures remain archived, along with
+both successful EPROM operand decodes and debugger detach logs in
+`native-j19-timeout-summary.json`. This is read-only boot diagnosis, not a
+firmware,60ns or hardware speed qualification.
+
 POST-INITIALIZATION NATIVE HOLD OBSERVATION (2026-10-25):
 SAME65832 now has a complete initialized200M ->210M host interval:4,756,450
 publications,ZERO Hold-preparation waits or Hold-only-frontier waits. Exact six

@@ -60,6 +60,24 @@ actual live-job observations. Existing original-ROM simulations65832/55173/
 38212/62048 retain their sources/limits; no new long startup run for this purely
 combinational, fully equivalent change. Complete FPGA snapshots remain deferred.
 
+Original-ROM boot timeout follow-up (2026-10-25):
+
+- [x] Read-only inspection of SAME62048 at2,344,358,550 host ticks, detached/
+  resumed unchanged. Compare prior1,776,575,029-host snapshot against the actual
+  compiled EPROM operands: RTC430 is RM179 (standalone Initial.mb names178).
+  Actual timeout word12 ->13; task0.T threshold remains13. Both subtractions
+  RTC430-T-1 remain negative (fffe ->ffff); the next expiration word is14.
+  The clock is advancing, not frozen; this is not a rate calibration.
+- [x] Last13-word reply/CRC/zero-status matches the physical FIFO, empty at
+  pointers9/9. SeqNo0/RHost177400B and one TX remain unchanged. This does not
+  reveal how packet0 was rejected. Do not change the timer/medium/firmware or
+  restart the existing5B run to force a retry.
+- [x] Static decoder now binds the held owner in the actual common caller,
+  verifying its instance/ports, backplane aliases and unchanged physical
+  packing. Two old reader-location failures retained before correction; no
+  register interpretation or ROM assertion relaxed. Receipt:
+  `native-j19-timeout-summary.json` retains both snapshots and EPROM bindings.
+
 Native post-initialization Hold measurement (2026-10-25):
 
 - [x] SAME65832 reached initialized startup. On the complete200M ->210M host

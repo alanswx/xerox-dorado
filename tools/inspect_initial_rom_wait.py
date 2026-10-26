@@ -26,7 +26,22 @@ def translated_registers(source,observed):
     """Bind raw translated RM/T storage to the original physical address pins."""
     inputs=source/'inputs';paths={};masks={}
     bp='src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v'
-    assert 'assign r_front_held={r_front_upper_q,r_front_visible_r_ProcL,r_front_visible_r_ProcH,r_front_lower_q};' in (inputs/bp).read_text()
+    packing='assign r_front_held={r_front_upper_q,r_front_visible_r_ProcL,r_front_visible_r_ProcH,r_front_lower_q};'
+    native=(inputs/bp).read_text()
+    if packing not in native:
+        # Later native stages move the same owner into the common caller.
+        # Bind its actual instance/ports and the read-only backplane aliases
+        # before using the existing physical layout; never infer by its name.
+        caller='src/verilog/rtl/caller.sv';owner=(inputs/caller).read_text()
+        assert owner.count(packing)==1
+        assert 'reg [571:0] r_front_lower_q;reg [255:0] r_front_upper_q;'in owner
+        assert 'wire [571:0] r_front_lower_q=r_front_held[571:0];'in native
+        assert 'wire [255:0] r_front_upper_q=r_front_held[843:588];'in native
+        matches=re.findall(r'dorado_r_front_owned_packet r_front_dispatch\s*\((.*?)\);',native,re.S)
+        assert len(matches)==1
+        for name in ['r_front_held','r_front_visible_r_ProcH','r_front_visible_r_ProcL']:
+            assert '.'+name+'('+name+')'in matches[0]
+        paths['native/'+caller]=inputs/caller
     paths['native/'+bp]=inputs/bp
     port='src/verilog/rtl/dorado_r_file_ports.sv'
     assert 'assign read_data={ql[7:0],qh[7:0]};' in (inputs/port).read_text()
