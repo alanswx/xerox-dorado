@@ -14,7 +14,69 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-Current shared publication grant / routing work (2026-10-25):
+Current RIOT block RAM integration / native fit (2026-10-25):
+
+- [x] Finish BOTH Icarus shared-grant replays: all four complete programs now
+  PASS with original assertions/results and exact preparation coverage. Collect
+  SAME860426 terminal map0/fit3: routing congestion,40,418ALMs/96%,54,143
+  registers, unchanged memory. All578 source hashes retained. No physical gain;
+  keep it separate and use compact40036-ALM parent for the next RAM change.
+- [x] Attribute the prior compact fit's five complete RIOTs to3,448.9ALMs;
+  each uses~1,076..1,090 registers, including1,024 RAM bits. Bulk reset of
+  these five arrays contributes to BaseBoard j08.qa's6,049-load reset net.
+- [x] Implement `dorado_riot_ram.sv`: synchronous RAM with per-byte reset
+  validity, unchanged old-data reads and virtual-clock advance. Hidden backing
+  memory is never cleared or initialized by the helper. Both engines PASS;
+  Icarus41,285 cases includes X/Z/pre-reset/unknown-address/data checks.
+  Two Verilator wrong-data negatives reject missing reset mask/new-data reads.
+- [x] Prove all1,024 logical RAM bits after an accepted reset and registered
+  reads with reset history by induction, no input assumptions; hidden backing
+  arbitrary. Both corruption proofs find counterexamples. Explicit reset/read
+  scope is not a claim about arbitrary pre-reset binary power-up equivalence.
+- [x] Isolated actual Quartus mapping PASS: M10K/OLD_DATA,1,024 memory bits,
+  129 registers. This is component inference, not native area/timing/speed.
+- [x] Prepare complete native RIOT replacement from the exact old source,
+  retaining non-RAM rules and same-edge registered bus publication. Native
+  init_7800=0 only; original generic models remain intact. Both engines compare
+  all ports/timers/IRQs/directions/edge latch/all128 logical bytes:60,387 binary
+  Verilator cases and93,155 Icarus cases including all4^7 control combinations
+  at known/unknown addresses. Test-only array-reset lowering is reversible and
+  identical in both engines; production reference bytes unchanged.
+- [x] Original-ROM whole BaseBoard differential PASS:465,811 host/349,348
+  active/116,463 paused, all208 scalar checks/69 outputs/37 logical RAM checks,
+  original256-store/256-DEX reset loop and MidasSetup return. Only the five
+  candidate RAM comparisons use the new logical representation; no check or
+  reference is removed. No fabricated guest initialization or new guest edge.
+- [x] Stage actual native580-source core: change only converted MCS6532 child
+  type and add two qualified modules. All other HDL/ROM/clocks/timers/SDC policy
+  preserved. Native lint/XML PASS with unchanged warnings. Composed audit:
+  12,787 instances/3,813 sequential processes; exactly five RIOTs replaced,
+  five RAM children added,3,788 other processes identical. Every original chip
+  input binding retained; all new state uses original clock/advance.
+- [x] Start ONE timing-only builder1029546 at
+  `/home/alans/mister/Dorado_CPRead15_RiotBlockRAM_20261025`, all580 source
+  hashes verified. Launcher requires RAM induction/component/BaseBoard receipts
+  and actual hierarchy audit. Assembly/load remains prohibited.
+- [ ] Observe SAME1029546, collect terminal routing or all nine successful
+  report stages, verify actual five M10K mappings and native area/all-corner/
+  crossing/SDRAM timing. Neither the isolated129-register result nor board
+  equivalence establishes full-core fitting or a measured hardware gain.
+- [ ] Continue original frozen38212/62048, not restarted or modified. Read-only
+  62048 inspection at1,776,575,029 host confirms the final13-word reply/CRC/zero
+  EOP/pointers9/9, but SEQNO0 remains unacknowledged. It does not establish first
+  packet rejection cause or boot success. Protected medium hash unchanged.
+- [ ] Finish original overlapping60ns phases (still120ns nominal before
+  preparation/stalls), calibrated timers/SDRAM, pinned hardware gains and all
+  original Cedar/input/Checkpoint/Rollback/persistence/three-boots/two-hour gates.
+  FPGA unchanged; full goal ACTIVE; complete FPGA snapshots deferred.
+
+Receipt: `native-riot-blockram-integration-summary.json`. First formal attempt
+rejected unsupported `$check` cells; corrected lowering preserves assertions.
+First BaseBoard adapter rejected a check-count assumption (scalar checks occur
+both per edge and at finish); corrected adapter preserves both copies. Failed
+artifacts are retained and no live job was restarted or given changed limits.
+
+Previous shared publication grant / routing work (2026-10-25):
 
 - [x] Collect SAME compact builder743068: map0/fit3, terminal routing
   congestion. All578 source hashes verified;40,036/41,910ALMs (96%),54,146

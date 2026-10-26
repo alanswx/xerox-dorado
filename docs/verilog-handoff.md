@@ -7,7 +7,75 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-CURRENT SHARED PUBLICATION GRANT / ROUTING WORK (2026-10-25):
+CURRENT RIOT BLOCK RAM INTEGRATION / NATIVE FIT (2026-10-25):
+All four shared-grant full/words Icarus/Verilator replays PASS. Its SAME860426
+fit has TERMINATED map0/fit3, routing congestion at40,418ALMs/96%,54,143
+registers/unchanged memory; all578 source hashes/reports collected. No speed
+gain or new image. Do not restart it. Next candidate uses the smaller compact
+parent (40,036ALMs) to keep the unsuccessful grant experiment separate.
+
+Measured resource attribution: five complete RIOTs occupy3,448.9ALMs; each
+uses~1,076..1,090 registers, including its1,024-bit reset-cleared RAM. Their
+reset contributes heavily to BaseBoard j08.qa's6,049 ordinary-route loads.
+`dorado_riot_ram.sv` uses a128-bit validity mask and synchronous RAM, retaining
+reset-visible zeros/old-data read-before-write without clearing hidden payload.
+Component tests PASS in Icarus/Verilator, including pre-reset X/unknown control/
+address/data cases and two real wrong-data negatives. Formal induction proves
+all1,024 logical RAM bits AFTER an accepted reset and registered reads with
+reset history, no input assumptions/arbitrary hidden backing. Do not widen
+this explicit scope to arbitrary pre-reset binary state equivalence.
+
+Actual isolated Quartus mapping:1,024 bits in M10K, OLD_DATA mixed-port behavior,
+129 registers. This is not the full native resource result. Complete generated
+RIOT candidate retains all non-RAM logic and registered read publication with
+no extra guest edge, native init_7800=0 only. Both complete-chip engines PASS:
+Verilator60,387 cycles; Icarus93,155 including all4^7 control combinations at
+known/unknown addresses. All ports/timers/IRQs/directions/oldPA7/all128 logical
+RAM bytes compared. Test-only aggregate-reset lowering is exact/reversible and
+used identically in both engines; original vendor model remains unchanged.
+
+Original-ROM whole-BaseBoard comparison PASS:465,811 host/349,348 active/
+116,463 paused;208 scalar states/69 outputs/37 logical RAM arrays; original
+256 stores/DEX/reset loop/MidasSetup return retained. Candidate comparison
+substitutes the new logical byte representation for exactly five physical
+arrays; every original check/reference remains. No fabricated guest state.
+
+`native-riot-blockram-stage-v1-20261025` now CONNECTS this candidate to actual
+native RTL: ONE existing HDL file (converted MCS6532 child type) plus two new
+qualified modules; all other HDL/ROM/clock/timer/SDC bytes preserved apart
+from project relocation.580 source hashes verified. Actual native lint/XML
+PASS with unchanged warnings. Composed ancestry audit PASS:12,787 instances/
+3,813 sequential processes, five new RAM children,3,788 other processes exact.
+All original chip inputs unchanged; every new process shares original clock
+and virtual advance. Actual five native init_7800 parameters are literal0.
+
+ONE new timing-only builder1029546 at
+`/home/alans/mister/Dorado_CPRead15_RiotBlockRAM_20261025`; no assembly/load.
+Observe SAME builder/children. On terminal all9 stages0 use
+`review_native_cp_read_timing.py` with this stage and
+`native-riot-blockram-launch-v1-20261025`; on map0/fit3 use
+`collect_native_clock_enable_fit.py`. Both readers now support580 sources.
+Verify ALL five actual M10Ks and native area/all-corner/crossing/SDRAM reports
+before promoting. No full-core timing,60ns,Cedar or hardware gain is claimed.
+
+Native38212/62048 remain frozen909-bit/old-RIOT programs at their original
+1.5B/5B bounds. Do not attribute new tag/RAM changes to them. Read-only62048
+inspection at1,776,575,029 host/992,399,792 guest confirms the consumed final
+13-word reply/CRC/zero EOP/pointers9/9, while anchored boot registers still
+showSEQNO0/BFN113. First-packet rejection cause/boot success remain unknown.
+No inputs, guest state, firmware, disk file or limits changed. Protected pack
+hash f3bce2a8...51 unchanged. Debugger detached/resumed the same process.
+
+Next: collect SAME1029546, verify actual RAM mappings/area/full timing, then
+continue original overlapping60ns phases (development nominal still120ns
+before holds/preparation), calibrated timers/SDRAM, pinned hardware gains and
+all original Cedar/input/Checkpoint/Rollback/persistence/three-boots/two-hour
+gates. FPGA unchanged. Full goal ACTIVE; complete FPGA snapshots deferred.
+First proof frontend/check-count adapter rejections retained; corrected tools
+preserve all assertions/checks and never restarted a live job. Latest receipt:
+`native-riot-blockram-integration-summary.json`.
+
+PREVIOUS SHARED PUBLICATION GRANT / ROUTING WORK (2026-10-25):
 Compact builder743068 has now TERMINATED: map0/fit3, routing congestion.
 All578 sources and terminal reports collected.40,036ALMs/96%,54,146 registers,
 330 RAM blocks/unchanged memory bits. This saves400ALMs/316 registers from the

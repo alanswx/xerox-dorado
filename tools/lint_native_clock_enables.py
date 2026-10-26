@@ -19,6 +19,10 @@ def run(stage,baseline_lint,out):
     baseline_stage=m.get('clock_enable_lint_source_stage',m['parent_stage'])
     assert old['stage_manifest_sha256']==baseline_manifest and old['status']=='PASS_NATIVE_PROCESSOR_CONTROL_ELABORATION'
     command=[s.replace(baseline_stage,str(stage))for s in old['command']]
+    extra=m.get('additional_native_lint_sources',[])
+    for name in extra:
+        assert name in m['source_hashes'] and str(stage/name) not in command
+    command[-1:-1]=[str(stage/name)for name in extra]
     harness=Path(command[-1]);assert harness.name=='tb_native_cedar.sv'
     raw=harness.read_text();changes=[
       ('dorado_native_machine #','dorado_native_machine_ce #'),

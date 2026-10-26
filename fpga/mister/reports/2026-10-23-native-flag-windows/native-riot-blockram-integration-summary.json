@@ -1,0 +1,139 @@
+{
+  "status": "REVIEWED_NATIVE_RIOT_BLOCK_RAM_INTEGRATION",
+  "previous_goal_turn": "progress: proved/staged shared grant, launched fit and pushed milestone",
+  "preceding_grant_fit": {
+    "status": "COLLECTED_TERMINAL_NATIVE_CLOCK_ENABLE_ROUTING_REJECTION",
+    "stage": "/Users/alans/dev2/Dorado/build/rtl-executive/native-publication-grant-stage-v2-20261025",
+    "stage_manifest_sha256": "4fafe23ccefce836898f7249b23f5c93b3a50cfafc2ecc84ea535f4d6ad58d26",
+    "source_files_verified": 578,
+    "terminal_state": {
+      "status": "TERMINAL_FAILED",
+      "builder_pid": 860426,
+      "started": 1792976600.292734,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 860429,
+          "started": 1792976600.293093,
+          "returncode": 0,
+          "finished": 1792976849.1433005
+        },
+        {
+          "stage": "fit",
+          "pid": 878509,
+          "started": 1792976849.1437993,
+          "returncode": 3,
+          "finished": 1792977784.8814776
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false,
+      "finished": 1792977784.8817556
+    },
+    "collection_sha256": "0d4f14293fbb7b44064966d16dc6cfd888e02b6a1e6340e3d7a9564e7bd7fc8c",
+    "bundle_sha256": "6360e616d4e8c547df9ae1099f8f6d44cc5aff851432c7b7326ebb4f8e261edc",
+    "fit_summary": "Fitter Status : Failed - Sun Oct 25 18:23:02 2026\nQuartus Prime Version : 17.0.2 Build 602 07/19/2017 SJ Lite Edition\nRevision Name : Dorado\nTop-level Entity Name : sys_top\nFamily : Cyclone V\nDevice : 5CSEBA6U23I7\nTiming Models : Final\nLogic utilization (in ALMs) : 40,418 / 41,910 ( 96 % )\nTotal registers : 54143\nTotal pins : 145 / 314 ( 46 % )\nTotal virtual pins : 0\nTotal block memory bits : 2,506,566 / 5,662,720 ( 44 % )\nTotal RAM Blocks : 330 / 553 ( 60 % )\nTotal DSP Blocks : 35 / 112 ( 31 % )\nTotal HSSI RX PCSs : 0\nTotal HSSI PMA RX Deserializers : 0\nTotal HSSI TX PCSs : 0\nTotal HSSI PMA TX Serializers : 0\nTotal PLLs : 3 / 6 ( 50 % )\nTotal DLLs : 0 / 4 ( 0 % )\n",
+    "routing_congestion": true,
+    "all_device_timing_available": false,
+    "physical_timing_or_firmware_or_hardware_speed_qualified": false,
+    "hardware_changed": false
+  },
+  "all_four_grant_replays": [
+    {
+      "engine": "icarus",
+      "mode": "full",
+      "state_sha256": "12d6c6903c9e9b165ee11926007b2f3163c179742197eaa1b2ed6bb832c47285"
+    },
+    {
+      "engine": "icarus",
+      "mode": "words",
+      "state_sha256": "580f0d4a3abfb0522ef746a2c6cca3374538c657b0c79bb686b7b976e806e234"
+    },
+    {
+      "engine": "verilator",
+      "mode": "full",
+      "state_sha256": "07f1aa6b4093c7cbcf12fa96419f8f65149029d2ddd83df3573e7c6502d43235"
+    },
+    {
+      "engine": "verilator",
+      "mode": "words",
+      "state_sha256": "b19d6032732399e6324f2ad798ecd3f71b5d1536223f6767ba2c25aa90ed56c9"
+    }
+  ],
+  "RIOT_gates": {
+    "riot-blockram-tests-v1-20261025": {
+      "state_sha256": "200d48c165e41e752d0cac925e2bf380e253dbb35a2362e281abed1a25ac1fb1",
+      "status": "PASS_RESET_MASKED_RIOT_BLOCK_RAM_COMPONENT"
+    },
+    "riot-blockram-proof-v2-20261025": {
+      "state_sha256": "d7d71c4ecec9221f733ba74ecb483a199a508c988223825cb5928176c6f4e3e2",
+      "status": "PASS_RESET_HISTORY_RIOT_RAM_INDUCTION"
+    },
+    "riot-blockram-component-tests-v1-20261025": {
+      "state_sha256": "0f798c12884ba8580c2548bf9fdd58089d11b0f8d1b737dccff90b9cc0881f12",
+      "status": "PASS_COMPLETE_NATIVE_RIOT_BLOCK_RAM_COMPONENT"
+    },
+    "riot-blockram-baseboard-v2-20261025": {
+      "state_sha256": "1fbb5ddbda80e5290015ebff2c810c5870ca82c89f1b593698d7d980cfca834b",
+      "status": "PASS_ORIGINAL_ROM_BASEBOARD_RIOT_BLOCK_RAM"
+    }
+  },
+  "isolated_RAM_mapping": {
+    "registers": 129,
+    "memory_bits": 1024,
+    "type": "M10K",
+    "read_during_write": "OLD_DATA"
+  },
+  "whole_BaseBoard_metrics": [
+    "CLOCK_ENABLE_BASEBOARD_PASS host=465811 active=349348 paused=116463 state_vectors=208 outputs=69 RAM_arrays=37"
+  ],
+  "native_stage_manifest_sha256": "0b30542776f770d062a6414c2fff17362893d44818c70b228ca8c1a1909dfd3a",
+  "actual_native_instances": 12787,
+  "actual_native_sequential_processes": 3813,
+  "same_new_native_fit": {
+    "observed": 1792979104.618944,
+    "run_state": {
+      "status": "RUNNING",
+      "builder_pid": 1029546,
+      "started": 1792978917.2159305,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 1029549,
+          "started": 1792978917.2165933
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "processes": [
+      {
+        "pid": 1029546,
+        "returncode": 0,
+        "process": "1029546       03:07 00:00:00 Ss   python3 /home/alans/mister/Dorado_CPRead15_RiotBlockRAM_20261025/build_r_front_ready_native.py --project /home/alans/mister/Dorado_CPRead15_RiotBlockRAM_20261025 --manifest r-front-control-native.json"
+      },
+      {
+        "pid": 1029549,
+        "returncode": 0,
+        "process": "1029549       03:07 00:02:33 Rl   quartus_map --read_settings_files=on --write_settings_files=off Dorado"
+      }
+    ],
+    "source_files_verified": 580
+  },
+  "newer_boot_observation": {
+    "pid": 62048,
+    "host_ticks": 1776575029,
+    "guest_ticks": 992399792,
+    "last_reply_CRC_and_EOP_match": true,
+    "sequence_number": 0,
+    "first_packet_rejection_reason_established": false,
+    "firmware_qualified": false
+  },
+  "proof_scope": "All1024 logical RAM bits after an accepted reset and registered reads with reset history; inputs/backing arbitrary, no assumptions. Four-state tests cover pre-reset X/unknown controls.",
+  "nominal_ordinary_ns": 120,
+  "target_ordinary_ns": 60,
+  "physical_timing_or_hardware_speed_or_Cedar_qualified": false,
+  "FPGA_or_protected_media_changed": false,
+  "full_goal_active": true,
+  "next_action": "Observe SAME1029546 through terminal reports; verify all five actual RAM mappings, area and all-corner/crossing/SDRAM timing. Continue original frozen native38212/62048 without changes. Then original60ns phases, calibrated timers/SDRAM, pinned hardware gains and original Cedar/Rollback/persistence/three-boot/stress gates; snapshots deferred."
+}
