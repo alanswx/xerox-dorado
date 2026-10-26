@@ -60,6 +60,23 @@ actual live-job observations. Existing original-ROM simulations65832/55173/
 38212/62048 retain their sources/limits; no new long startup run for this purely
 combinational, fully equivalent change. Complete FPGA snapshots remain deferred.
 
+Native post-initialization Hold measurement (2026-10-25):
+
+- [x] SAME65832 reached initialized startup. On the complete200M ->210M host
+  interval,4,756,450 publications and ZERO additional Hold-preparation waits
+  (also zero Hold-only-frontier waits). Six recorded progress/traffic/CP lines
+  exactly match parent55173 at the same host endpoints. Both frozen input banks
+  and original medium hash verified; neither run/limit/input was changed.
+- [ ] Re-measure after actual CPU execution: this interval has ZERO StartCycle
+  issues, no Dorado disk writes and no Ethernet boot. It is real native early
+  BaseBoard startup evidence, not CPU-runtime overhead or hardware speed proof.
+- [x] Probe the actual132-bit Hold function's optimized binary netlist cone.
+  All132 inputs remain in structural support, so no reduced tag is proposed.
+  This is not a Boolean-minimality/reachable-context/earlier-stability theorem.
+  No RTL, source descriptor, guard or clock changed. Receipt:
+  `native-hold-postinit-summary.json` retains exact interval lines/provenance,
+  complete source/function/netlist/commands and the support analysis.
+
 Prepared-Hold terminal result and caller-history checks (2026-10-25):
 
 - [x] SAME1458513 completed ALL9 stages0,581 remote hashes verified, no

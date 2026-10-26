@@ -1,0 +1,65 @@
+{
+  "status": "REVIEWED_NATIVE_HOLD_POSTINIT_WAITS_AND_UNREDUCED_STRUCTURAL_SUPPORT",
+  "previous_goal_turn": "progress: completed synthesis report collection and pushed dda642f58; same fitter retained",
+  "native_interval": {
+    "status": "OBSERVED_NATIVE_HOLD_POSTINITIALIZATION_INTERVAL_WITHOUT_ADDED_PREPARATION_WAITS",
+    "previous_goal_turn": "progress: collected and pushed completed synthesis evidence; same build still running",
+    "host_interval": [
+      200000000,
+      210000000
+    ],
+    "host_ticks": 10000000,
+    "Hold_preparation_wait_delta": 0,
+    "Hold_only_frontier_wait_delta": 0,
+    "publications": 4756450,
+    "parent_visible_progress_traffic_and_CP_metrics_exactly_match": true,
+    "visible_log_lines_compared": 6,
+    "initialization_excluded": true,
+    "source_inputs_verified": true,
+    "runs": [
+      {
+        "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/native-riot-blockram-startup-v1-20261025",
+        "captured_at": 1792991612.422218,
+        "complete_log_prefix_bytes": 1836229,
+        "complete_log_prefix_sha256": "26220662862796dbc79829f40c592c0949b727fcb7db745bbd6e2e7dd7ac7c6e",
+        "verified_input_files": 581,
+        "provenance_sha256": "37f306abd34895b070e2eb7f3f29c93d2c074c93d63a22e0dbab618179b54b29"
+      },
+      {
+        "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/native-prepared-hold-startup-v1-20261025",
+        "captured_at": 1792991612.558508,
+        "complete_log_prefix_bytes": 1822762,
+        "complete_log_prefix_sha256": "bd71ff744f6889636589dd61a7cc856f5e09954e7dbce9999705938b5cad50dd",
+        "verified_input_files": 582,
+        "provenance_sha256": "96fb4ef4df57afef492b807f9799c7df43fc93b227856aeec06c81e86220cbbd"
+      }
+    ],
+    "StartCycle_issues": 0,
+    "scope": "Early original-ROM BaseBoard startup interval only. No executed Dorado instruction workload, Cedar, whole-state equivalence, runtime Hold overhead or hardware speed qualification.",
+    "inputs_or_limits_changed": false,
+    "new_hardware_speed_gain_measured": false,
+    "full_goal_active": true,
+    "files": {
+      "native-prepared-hold-startup-v1-20261025.log": "137be1919b20fe8c2de8b8027a9cc2333604cedbf634c3f9d0eb8e86b4f0e205",
+      "native-riot-blockram-startup-v1-20261025-provenance.json.gz": "37f306abd34895b070e2eb7f3f29c93d2c074c93d63a22e0dbab618179b54b29",
+      "native-prepared-hold-startup-v1-20261025-provenance.json.gz": "96fb4ef4df57afef492b807f9799c7df43fc93b227856aeec06c81e86220cbbd",
+      "native-riot-blockram-startup-v1-20261025.log": "63b620eeb8dec51c8ed40b1c674b837e687b543f4f62082f646a9d25874b2ce8"
+    }
+  },
+  "producer_support": {
+    "status": "DERIVED_HOLD_BINARY_SUPPORT_REQUIRES_PROOF",
+    "support_bits": 132,
+    "descriptor_bits": 132,
+    "mask_hex": "fffffffffffffffffffffffffffffffff",
+    "proposed_reduced_tag": false,
+    "Boolean_minimality_or_per_bit_influence_proved": false,
+    "scope": "Optimized source-bound netlist cone retains all132 inputs. This does not prove each bit essential, a reachable-context invariant or earlier-phase stability. No buffer mask/source/guard changed."
+  },
+  "source_function_receipt_sha256": "cf2fb99c0f40097f2230b90b35f75ad533ddaeeda17bb94dfa6218cf3c4dacbd",
+  "all_original_ROM_runs_sources_and_limits_preserved": true,
+  "nominal_ordinary_ns": 120,
+  "target_ordinary_ns": 60,
+  "no_new_hardware_speed_gain": true,
+  "full_goal_active": true,
+  "next_action": "Observe same1865964/1876118 routing and88929/88928 Icarus. Review actual CPU/SDRAM paths before selecting. Continue authoritative original capture-phase integration; do not infer CPU-runtime Hold cost from pre-issue startup."
+}

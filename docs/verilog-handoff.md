@@ -53,6 +53,22 @@ timer calibration, hardware speed measurement and all Cedar/input/Checkpoint/
 Rollback/persistence/three-boots/two-hour gates remain. Full goal ACTIVE;
 no measured hardware speed gain and no complete FPGA snapshot work selected.
 
+POST-INITIALIZATION NATIVE HOLD OBSERVATION (2026-10-25):
+SAME65832 now has a complete initialized200M ->210M host interval:4,756,450
+publications,ZERO Hold-preparation waits or Hold-only-frontier waits. Exact six
+visible progress/traffic/CP lines match parent55173; both frozen input banks
+and protected medium hash verified. This is still original BaseBoard startup:
+StartCycle issues0, no CPU workload/Cedar or hardware speed conclusion. Recheck
+after execution; do not extrapolate zero early-startup overhead to runtime.
+
+An optimized source-bound netlist support probe retains all132 Hold inputs.
+No compact tag is proposed or RTL changed; this does not prove Boolean
+minimality, reachable-state invariants or stability before original t1.
+Receipt `native-hold-postinit-summary.json` retains original interval lines/
+provenance and full producer/netlist/probe commands. Quartus SAME1876118 has
+completed placement and is routing; no terminal timing reports yet. Existing
+Icarus88929/88928 remain on their original traces/limits.
+
 LATEST TERMINAL PREPARED-HOLD RESULT (2026-10-25):
 SAME1458513 is TERMINAL:ALL9 report stages0,581 source hashes verified. Routes
 at35,380ALMs/84%,50,995 placed registers/335 RAM blocks/2,511,686 memory bits.
