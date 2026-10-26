@@ -7,6 +7,46 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
+LATEST READY COMPARISON / LIVE TIMING CANDIDATE (2026-10-25):
+ONE new diagnostic Quartus builder1865964/map1865968 is RUNNING at
+`/home/alans/mister/Dorado_CPRead15_ReadyMode_20261025`;582 remote source hashes
+verified. Observe the same handles; never restart for a polling timeout. No
+assembly/RBF/FPGA load. Terminal prepared-Hold1458513 remains rejected below.
+
+The new helper compares retain/clear/frozen-load Ready outcomes in parallel,
+then selects the exact original result. Only native single-step comparison
+logic changes; every architectural Ready/Hold/capture/guard remains. No new
+state or host/guest edge. Full unrestricted native proof passes:1,982 binary
+inputs,2,970 public outputs,zero assumptions, plus real mutation negatives.
+Source body/comparison proofs and dual-engine tests pass; Icarus includes2,618
+individual X/Z input injections. The first native proof found a real integration
+exception: certified sparse falling transfers retain Ready, even in arbitrary
+caller contexts where generic transfers clear it. Corrected helper uses the
+existing exact sparse predicate. Both simulators replay the original failure
+and corrected agreement over all2,970 outputs. Two earlier fixture-startup
+failures are retained: explicit X-to-witness stimulus fixes the Icarus observer
+initialization without dropping any checked output.
+
+Isolated stage `native-ready-mode-stage-v1-20261025`; native lint/XML/audit PASS.
+All3,814 existing sequential processes exact,zero new sequential processes,
+17 added combinational instances. One additional copied integer-parameter width
+warning is explicitly accounted for; no other new warning. Actual HDL union51,
+incremental delta2. Both complete Verilator caller histories pass with every
+original assertion/reference/result and Hold-preparation count unchanged.
+Icarus88929(full)/88928(words) verified RUNNING, original traces/limits intact.
+These remain synthetic producer fixtures, not native firmware/speed evidence.
+
+Next: collect SAME1865964 terminal CPU/SDRAM/crossing reports and assess the
+limiting MIR/Ready/grant path. Receipt `native-ready-mode-summary.json` retains
+all failures/proofs/tests/sources/live observations. Terminal collectors now
+accept582 sources and the new preflight. No new long original-ROM run for a
+pure combinational equivalent;65832/55173/38212/62048 keep their frozen inputs
+and limits. Initialization waits must still be separated from CPU overhead.
+Current nominal ordinary interval120ns before stalls; original60ns overlap,
+timer calibration, hardware speed measurement and all Cedar/input/Checkpoint/
+Rollback/persistence/three-boots/two-hour gates remain. Full goal ACTIVE;
+no measured hardware speed gain and no complete FPGA snapshot work selected.
+
 LATEST TERMINAL PREPARED-HOLD RESULT (2026-10-25):
 SAME1458513 is TERMINAL:ALL9 report stages0,581 source hashes verified. Routes
 at35,380ALMs/84%,50,995 placed registers/335 RAM blocks/2,511,686 memory bits.

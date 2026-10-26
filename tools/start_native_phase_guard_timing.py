@@ -118,7 +118,7 @@ def launch_pinned_stage(stage,out,r,ce_preflight=None):
     check='from pathlib import Path\np=Path('+repr(project)+')\nassert not p.exists(), "Observe existing project; do not restart"\n'
     subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10','misterubuntu','python3','-'],input=check,text=True,check=True)
     manifest_sha=sha(stage/'r-front-control-native.json')
-    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py','stage_native_ready_compare.py','stage_native_r_read_buffer.py','integrate_r_read_buffer.py','stage_native_memc_read_buffer.py','qualify_memc_read_buffer.py','stage_native_operand_buffer.py','integrate_native_operand_buffer.py','stage_native_clock_enables.py','stage_compact_native_operand_buffer.py','stage_native_publication_grant.py','stage_native_riot_blockram.py','stage_native_hold_buffer.py']if(stage/n).is_file()]
+    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py','stage_native_ready_compare.py','stage_native_r_read_buffer.py','integrate_r_read_buffer.py','stage_native_memc_read_buffer.py','qualify_memc_read_buffer.py','stage_native_operand_buffer.py','integrate_native_operand_buffer.py','stage_native_clock_enables.py','stage_compact_native_operand_buffer.py','stage_native_publication_grant.py','stage_native_riot_blockram.py','stage_native_hold_buffer.py','stage_native_ready_mode.py']if(stage/n).is_file()]
     assert stagers,'Missing the executed staging helper'
     names=sorted(r['source_hashes'])+['r-front-control-native.json','build_r_front_ready_native.py',*stagers]
     bundle=out/'stage.tgz'

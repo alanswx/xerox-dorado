@@ -14,6 +14,47 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
+Parallel Ready-target timing candidate (2026-10-25, latest):
+
+- [x] Replace only the native single-step Ready comparison computation. Compare
+  retain/clear/frozen-load outcomes early and select the result with the exact
+  original control decision. Preserve architectural Ready/Hold, every guard,
+  capture edge and caller. No added state or host/guest cycles.
+- [x] Source-bound four-wave body/comparison proofs and genuine wrong-choice/
+  wrong-data negatives pass. Complete native equivalence: all2,970 outputs,
+  all1,982 arbitrary binary inputs, zero assumptions. Icarus/Verilator component
+  tests pass, including all2,618 individual X/Z injections in Icarus.
+- [x] Keep the first native counterexample: the certified sparse falling path
+  retains Ready where the generic body may clear it. Use the existing exact
+  sparse eligibility predicate; exclude no arbitrary state. Both simulators
+  reproduce the original failure and corrected agreement over all2,970 bits.
+- [x] Stage582 sources at `native-ready-mode-stage-v1-20261025`; optimized native
+  lint/XML and structural audit pass. All3,814 old sequential processes exact,
+  zero new sequential processes,17 added combinational instances. One additional
+  width warning is the copied original integer-parameter truth test; no other
+  new warning. Actual cumulative HDL union51, latest HDL delta2.
+- [x] Both complete Verilator caller histories retain all old assertions,
+  references, transactions, owner/RAM/clock results and Hold-preparation counts.
+- [ ] Observe SAME Icarus88929(full)/88928(words), immutable traces/limits.
+  Their pending results are not counted as passing caller tests.
+- [x] Launch ONE timing-only Quartus builder1865964/map1865968 in
+  `/home/alans/mister/Dorado_CPRead15_ReadyMode_20261025`;582 remote hashes
+  verified. No assembly/image/FPGA load. Keep failed1458513 terminal.
+- [ ] Collect this same job's routing and all CPU/SDRAM corner reports; evaluate
+  whether the parallel comparison shortened the limiting MIR-to-grant path.
+  Do not restart for a polling timeout or select a timing-failing candidate.
+- [ ] Then finish actual60ns overlapping capture phases/timer calibration,
+  post-initialization storage/preparation attribution and measured hardware
+  instruction progress, followed by every original Cedar/input/Checkpoint/
+  Rollback/persistence/three-boots/two-hour gate. Current nominal interval120ns
+  before holds/preparation; no new hardware speed gain measured.
+
+Receipt: `native-ready-mode-summary.json`, including the generic sparse failure,
+the two fixture-startup failures, corrected proofs/tests, isolated sources and
+actual live-job observations. Existing original-ROM simulations65832/55173/
+38212/62048 retain their sources/limits; no new long startup run for this purely
+combinational, fully equivalent change. Complete FPGA snapshots remain deferred.
+
 Prepared-Hold terminal result and caller-history checks (2026-10-25):
 
 - [x] SAME1458513 completed ALL9 stages0,581 remote hashes verified, no
