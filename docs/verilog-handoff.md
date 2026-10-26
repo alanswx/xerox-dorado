@@ -7,6 +7,37 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
+LATEST HOLD-PRODUCER CUT INVESTIGATION (2026-10-25):
+The complete actual native single function depends on late MemC after-pin386:
+source-bound SAT on all1,978 free binary inputs, with actual advance/pair_fall/
+cp_reset/refresh tied0, finds witnesses for both all102 validation bits and the
+aggregate permission. BOTH Icarus and Verilator reproduce both witnesses. The
+permission witness clears unsettled/shared-mismatch bits100/101, changing wait
+to advance. Arbitrary component inputs/prefixes are not claimed reachable by
+firmware; this rejects an unrestricted dependency deletion, not every possible
+state-qualified optimization. First broader run's refresh1 witness is retained
+with its limitation; the native-bound rerun is authoritative. No guard changed.
+
+Actual gate-output dependency audit closes native MemC feedback and traces179
+combinational nets to132 conservative state/complex/input boundaries,82 packages.
+Hold resolves to held bits840/841/842. Six residual board inputs: EcWantsA and
+STfree' from MemX; CLKEnable'b from ContA; ASEL.0 from ContB; <-MD/<-MDI from
+ProcL. Cache helper outputs include live select gating and cannot yet be assumed
+stable just because their read data is registered. Address ALU and other complex
+outputs remain boundaries. Latest graph rerun checks cycles before visited-node
+reuse; it produces the identical179/132 graph. This is source tracing, not proof
+of a valid preparation epoch or minimal tag.
+
+NEXT: expand those external producers and cache selects into stable source
+owners/read words, prove availability/invalidation before original t1, then
+integrate a producer/capture cut in the actual60ns overlapping schedule. The
+manual's Hold suspends current work while finishing the previous instruction;
+retain higher-priority task service and CIA/TPC/MIR Next Lies suppression. A
+blind late-Ready register or another serialized120ns schedule does not meet the
+goal. Receipts: native-late-hold-permission-summary.json and
+native-late-hold-permission-v2-summary.json. No new fit/load or hardware speed
+gain. Existing55173/38212/62048 were verified live, unchanged limits/sources.
+
 CURRENT ROUTED CORE / SETUP PATH / ORIGINAL-ROM AND SDRAM CLOCK CHECKS
 (2026-10-25):
 SAME1029546 mapping collected with all580 remote sources verified. All FIVE

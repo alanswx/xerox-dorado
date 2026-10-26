@@ -14,6 +14,38 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
+Latest producer-cut investigation (2026-10-25):
+
+- [x] Probe the complete actual native single-step function with only late
+  MemC after-pin386 forced low. All 1,978 remaining binary inputs are free;
+  actual advance/pair_fall/cp_reset/refresh bindings are zero, source checked.
+  Both the complete 102-bit validation and its aggregate permission depend on
+  this input. Icarus and Verilator replay both SAT witnesses exactly. The
+  permission witness changes validation bits100/101 from set to clear and
+  changes permission0 ->1. These arbitrary component states are not a firmware
+  reachability proof; they reject an unrestricted constant projection only.
+  The first broader witness used refresh1 and is retained separately, never
+  presented as the native-bound result. No guard was removed or RTL selected.
+- [x] Trace the actual MemC producer using per-output primitive equations and
+  native board feedback:179 combinational nets,132 conservative boundaries,
+  82 packages touched. Own Hold resolves through original held bits840/841/842.
+  Six inputs remain from other boards: MemX EcWantsA/STfree', ContA CLKEnable'b,
+  ContB ASEL.0, and ProcL <-MD/<-MDI. Sequential/complex outputs, including the
+  cache-read helpers and address ALUs, remain explicit boundaries; this is not
+  a minimal preparation descriptor or a proof of earlier input stability.
+- [ ] Expand those six producers and cache-output select gating into stable
+  owner/read-word sources. Establish availability and write/address-change
+  invalidation before the original t1 capture. Then integrate and prove the
+  producer/capture cut within original60ns overlap, including older-instruction
+  completion, higher-priority task service and Next Lies. Do not serialize the
+  instruction into another120ns schedule or register late Ready without context.
+
+Receipts: `native-late-hold-permission-summary.json` and
+`native-late-hold-permission-v2-summary.json`; the latter also rechecks the
+producer graph with cycle detection before memoized-node reuse. All original
+sources/checks and the broader first experiment remain archived. No FPGA load,
+new timing fit, or measured hardware speed gain follows from this investigation.
+
 Current routed native core / setup path / original-ROM and SDRAM clock checks
 (2026-10-25):
 
