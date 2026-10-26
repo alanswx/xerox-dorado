@@ -39,7 +39,9 @@ def run(stage,component,proof,out,yosys):
     (out/'native-control-after.txt').write_text(candidate)
     bank['reference_single']=original.replace('module '+SINGLE+' #','module reference_single #',1)
     bank[SINGLE]=module(candidate,SINGLE)
-    for name,file in [('dorado_ready_mode_body','mode-body.sv'),('dorado_ready_target_compare','compare.sv')]:bank[name]=module((component/file).read_text(),name)
+    extra=[('dorado_ready_mode_body','mode-body.sv'),('dorado_ready_target_compare','compare.sv')]
+    if(component/'binary-compare.sv').exists():extra.append(('dorado_ready_compare_binary_step','binary-compare.sv'))
+    for name,file in extra:bank[name]=module((component/file).read_text(),name)
     chosen=set()
     def collect(name):
         if name in chosen:return

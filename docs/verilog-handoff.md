@@ -7,7 +7,46 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST READY TIMING / UNUSED-SELECTOR REFINEMENT (2026-10-25):
+LATEST READYBINARY TERMINAL RESULT / NEXT CONTROL CUT (2026-10-25):
+SAME1930755 is TERMINAL, ALL9 stages0/582 hashes verified. CPU setup FAILS:
+slow100/-40=-8.909/-8.635ns; fast100/-40=+2.364/+3.529ns. Worst is0.569ns worse
+than ReadyMode v1. Routes at36,478ALMs/87%,51,027 placed registers/335 RAM/
+2,511,686 memory bits. Synthesis50,494 ->50,493 registers, separate from placed
+counts. Hold min+0.077ns. Four-corner SDRAM input setup/hold minima+0.323/+4.263ns,
+output+3.248/+3.858ns. No assembly/selection/load, no new hardware speed gain.
+Keep completed1930755 and1865964 terminal; no successor fit has been launched.
+
+New limiting path22.862ns/16 levels/17.178ns routing(75%): held799 (actual
+ContB ASEL_0a) -> LC selector sparse eligibility -> control shared frame670 ->
+processor T capture-event logic -> network_step/G3(8,464 loads) -> MemC b12
+RAM enable. Previous serial Ready path is absent from this worst path; its
+removal alone did not close timing. Actual report:
+`native-ready-mode-timing-review-v2-20261025/terminal/core/`
+`native59-setup-7_slow_1100mv_100c.rpt`.
+
+Optional direct-inner Ready comparison is component/proof-qualified in
+`native-ready-mode-{component,proof,tests,native-proof}-v6-20261025` plus witness
+v6. Copies exact original parallel capture cases, retains enclosing X/Z and
+disabled/paired fallback. Complete2,970 outputs/all1,982 binary inputs/zero
+assumptions, actual negative controls and both simulators pass. NOT staged,
+fitted or selected because this is not the current limiting path. The first
+v5 generator rejected an ambiguous port match; dependent preflights also failed
+before RTL execution. All retained. Root generator keeps both experiments
+opt-in; the maintained default is unchanged. Receipt `native-ready-direct-summary.json`.
+
+NEXT: establish actual IM/CP/MIR/LC availability and shared capture epochs in
+original t0/t1/t3. LC fields are existing held806/809/808, not a new owner.
+Place a source-proved control frontier early enough to break selector AND
+downstream event/whole-machine-permission paths. Retain actual Hold, completion
+of the older instruction, special IM/TPC cycles, forwarding and every storage
+barrier. Prove/measure preparation overlap before fitting. Registering only
+the final grant or serializing another preparation interval is insufficient.
+Original120ns nominal schedule still present;60ns/timers and every original
+hardware/Cedar/input/Checkpoint/Rollback/persistence/three-boots/two-hour gate
+remain. Full goal ACTIVE. Existing original-ROM runs/limits/media unchanged;
+FPGA snapshots deferred.
+
+EARLIER READY TIMING / UNUSED-SELECTOR REFINEMENT (2026-10-25, now terminal):
 SAME1865964 is TERMINAL, ALL9 stages0/582 source hashes verified. CPU timing
 still FAILS: slow100/-40=-8.340/-7.703ns, fast100/-40=+1.779/+3.331ns. Routes
 at36,053ALMs/86%,51,129 placed registers/335 RAM/2,511,686 memory bits. Worst

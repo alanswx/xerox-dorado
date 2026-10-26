@@ -55,7 +55,9 @@ def prepare(parent,component,proof,native,tests,witness,out,project):
     assert candidate==(component/'native-control-after.txt').read_text()==(native/'native-control-after.txt').read_text()
     positive=native/'complete-native-interface'
     assert module(candidate,SINGLE)==(positive/(SINGLE+'.sv')).read_text()
-    for mod,file in [('dorado_ready_mode_body','mode-body.sv'),('dorado_ready_target_compare','compare.sv')]:
+    extra=[('dorado_ready_mode_body','mode-body.sv'),('dorado_ready_target_compare','compare.sv')]
+    if(component/'binary-compare.sv').exists():extra.append(('dorado_ready_compare_binary_step','binary-compare.sv'))
+    for mod,file in extra:
         assert module((component/file).read_text(),mod)==(positive/(mod+'.sv')).read_text()
     out.mkdir(parents=True)
     for name in m['source_hashes']:
@@ -67,7 +69,8 @@ def prepare(parent,component,proof,native,tests,witness,out,project):
             raw+=('\n# Source-proved parallel Ready target comparison; no capture/clock changes.\nset_global_assignment -name SYSTEMVERILOG_FILE "'+str(project/TARGET)+'"\n').encode()
         path=out/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
     helper=out/TARGET;helper.parent.mkdir(parents=True,exist_ok=True)
-    helper.write_text(body+'\n'+(component/'compare.sv').read_text())
+    helper.write_text(body+'\n'+(component/'compare.sv').read_text()+
+        ('\n'+(component/'binary-compare.sv').read_text()if(component/'binary-compare.sv').exists()else''))
     changed={n for n in m['source_hashes']if(out/n).read_bytes().replace(str(project).encode(),m['project'].encode())!=(parent/n).read_bytes()}
     assert changed=={CONTROL,'core/Dorado.qsf'},changed
     receipts={key:dict(directory=str(d),state_sha256=sha(d/f))for key,d,f in [

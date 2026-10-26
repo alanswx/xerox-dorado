@@ -26,7 +26,8 @@ def audit(stage,parent_lint,lint,out):
     assert(stage/CONTROL).read_text()==native_transform((parent/CONTROL).read_text(),(parent/READY).read_text())
     c=m['parallel_Ready_target_receipts']['component'];component=Path(c['directory'])
     assert sha(component/'results.json')==c['state_sha256']
-    assert(stage/TARGET).read_text()==transform((parent/CONTROL).read_text())[1]+'\n'+(component/'compare.sv').read_text()
+    assert(stage/TARGET).read_text()==transform((parent/CONTROL).read_text())[1]+'\n'+(component/'compare.sv').read_text()+(
+        '\n'+(component/'binary-compare.sv').read_text()if(component/'binary-compare.sv').exists()else'')
     for d,manifest in [(parent_lint,m['parent_manifest_sha256']),(lint,sha(stage/'r-front-control-native.json'))]:
         r=json.loads((d/'run-state.json').read_text());verify(d,r['files'])
         assert r['status']=='ELABORATED_NATIVE_COMMON_CLOCK_ENABLE_EXPERIMENT' and r['stage_manifest_sha256']==manifest

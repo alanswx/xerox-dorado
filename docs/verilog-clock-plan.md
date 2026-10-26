@@ -14,7 +14,48 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-Ready timing review and next isolated build (2026-10-25, latest):
+ReadyBinary terminal result and structural next step (2026-10-25, latest):
+
+- [x] SAME1930755 is TERMINAL: all nine stages0,582 remote source hashes
+  verified, no assembly/load. CPU setup still FAILS: slow100/-40=-8.909/-8.635ns;
+  fast100/-40=+2.364/+3.529ns. Worse by0.569ns than routed ReadyMode v1.
+  Fitted36,478ALMs/87%,51,027 placed registers,335 RAM/2,511,686 memory bits.
+  Synthesis registers50,494 ->50,493; no architectural process changed.
+- [x] Hold minimum+0.077ns. Four-corner SDRAM input setup/hold minima
+  +0.323/+4.263ns; output+3.248/+3.858ns. Retain complete reports; no full timing
+  or hardware speed qualification follows from the positive memory checks.
+- [x] The previous serial Ready path is absent from the new worst path, but
+  another control dependency dominates: held799 = ContB ASEL_0a -> LC selector
+  preview/sparse eligibility -> shared capture frame670 -> processor T capture
+  event logic -> network_step/G3(8,464 loads) -> MemC b12 RAM enable. Worst
+  data22.862ns/16 levels,17.178ns routing(75%). Increasing SDRAM clock will not
+  repair this control-to-permission path. Keep both completed jobs terminal.
+- [x] Prepare an OPTIONAL direct-inner Ready comparison, preserving the exact
+  original parallel capture cases and the enclosing X/Z/disabled/paired guard.
+  Source body/comparison/fallback-independence proofs and real negatives pass;
+  complete native2,970-output/1,982-input proof has zero assumptions. Both
+  simulators' component/XZ and full-witness tests pass. Initial v5 generator
+  rejected an ambiguous port edit before RTL execution; corrected v6 and all
+  failures retained. This variant is NOT staged, fitted or selected: Ready
+  comparison no longer limits the observed path, so no Ready-only fit is queued.
+- [ ] Trace actual IM/CP -> MIR/LC producer availability and shared capture
+  epochs at original t0/t1/t3. LC selector fields are held806/809/808 (LC0/1/2),
+  not independent new task state. Define an earlier valid producer frontier
+  that breaks BOTH the selector and downstream event-to-permission dependency.
+- [ ] Prove source/tag/phase validity and original older-instruction completion
+  under Hold, special IM/TPC cycles and write forwarding. Prepare within the
+  existing interval and measure overlap; merely registering the final grant or
+  adding another serialized preparation interval is not the60ns design.
+- [ ] Integrate/prove/measure that structural cut, then refit the full core and
+  qualify actual60ns cadence/timers and all original hardware/Cedar/input/
+  Checkpoint/Rollback/persistence/three-boots/two-hour gates. Nominal interval
+  still120ns before waits. No new measured FPGA speed gain or FPGA snapshots.
+
+Receipt `native-ready-direct-summary.json` retains terminal timing, mapping,
+exact original producer bindings, optional direct-inner sources/proofs/tests
+and failed preflights. Existing original-ROM simulations/media/limits unchanged.
+
+Ready timing review and unused-selector build (2026-10-25, now terminal above):
 
 - [x] SAME1865964 is terminal, all nine stages0 and582 remote hashes verified.
   Routes at36,053 ALMs/86%,51,129 placed registers,335 RAM blocks and unchanged
@@ -42,11 +83,8 @@ Ready timing review and next isolated build (2026-10-25, latest):
 - [x] Launch ONE builder1930755 at
   `/home/alans/mister/Dorado_CPRead15_ReadyBinary_20261025`,582 remote hashes
   verified; stage/lint/audit v2. Keep completed1865964 terminal. No assembly/load.
-- [ ] Observe SAME1930755, collect every CPU/SDRAM corner and inspect actual
-  path/resource changes. Preserve genuine readiness/storage barriers. Then
-  complete original60ns overlap/timers, pinned hardware progress and all original
-  Cedar/input/Checkpoint/Rollback/persistence/three-boots/two-hour gates. Current
-  nominal interval remains120ns before waits; FPGA snapshots remain deferred.
+- [x] Collect SAME1930755 CPU/SDRAM/crossing reports; reject timing above.
+  Never restart this completed job or select its timing-failing image.
 
 Receipt `native-ready-binary-summary.json` retains terminal reports, source
 readback, the optional experiment, all proofs/tests, isolated sources and actual

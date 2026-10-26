@@ -124,7 +124,30 @@ def native_transform(raw,ready_raw):
     return raw.replace(before,after,1)
 
 
-def prepare(stage,out,constant_unused_selector=False):
+def binary_compare(raw):
+    """Use the exact original parallel cases inside an already-known context."""
+    before=module(raw,'dorado_ready_compare_step');after=before;edits=[]
+    def change(a,b):
+        nonlocal after
+        assert after.count(a)==1,a
+        after=after.replace(a,b,1);edits.append((a,b))
+    change('module dorado_ready_compare_step(', 'module dorado_ready_compare_binary_step(')
+    change('input wire [15:0] state_q,target,original_capture,','input wire [15:0] state_q,target,')
+    change('output reg mismatch);','output wire mismatch);')
+    start=after.index(' always @*begin');end=after.rindex('endmodule')
+    original=after[start:end]
+    change(original,''' // The enclosing target comparator handles every X/Z input. This inner
+ // result is selected only for a known binary context; no old capture needed.
+ assign mismatch=data[15] ? clear_mismatch :
+  event_eligible ? capture_mismatch[data[14:13]] : hold_mismatch;
+''')
+    restored=after
+    for a,b in reversed(edits):restored=restored.replace(b,a,1)
+    assert restored==before
+    return after,edits
+
+
+def prepare(stage,out,constant_unused_selector=False,binary_inner=False):
     assert not out.exists();out.mkdir(parents=True)
     m=json.loads((stage/'r-front-control-native.json').read_text());verify(stage,m['source_hashes'])
     before,after,edits=transform((stage/CONTROL).read_text())
@@ -142,6 +165,15 @@ def prepare(stage,out,constant_unused_selector=False):
         # not selected merely because its equivalence proof passes.
         a='    default:mismatch=original_mismatch;';assert helper.count(a)==1
         helper=helper.replace(a,"    default:mismatch=1'b0;",1)
+    binary_edits=[]
+    if binary_inner:
+        assert constant_unused_selector
+        assert helper.count('dorado_ready_compare_step ')==3
+        helper=helper.replace('dorado_ready_compare_step ','dorado_ready_compare_binary_step ')
+        a=',original_capture,\n  child_data';assert helper.count(a)==3
+        helper=helper.replace(a,',\n  child_data')
+        binary,binary_edits=binary_compare((stage/'src/verilog/rtl/dorado_ready_compare_step.sv').read_text())
+        (out/'binary-compare.sv').write_text(binary)
     (out/'compare.sv').write_text(helper)
     (out/'original-sparse-reference.txt').write_text(sparse+fall)
     (out/'native-control-after.txt').write_text(native_transform((stage/CONTROL).read_text(),(stage/READY).read_text()))
@@ -154,6 +186,7 @@ def prepare(stage,out,constant_unused_selector=False):
                 fall_stable_pin_support=support,original_sparse_Ready_identity_source_verified=True,
                 comparison_guard_retained=True,files={p.name:sha(p)for p in out.iterdir()if p.is_file()},
                 constant_unused_selector_experiment=constant_unused_selector,
+                binary_inner_comparison_experiment=binary_inner,binary_inner_reversible_edits=binary_edits,
                 native_equivalence_timing_or_speed_qualified=False)
     (out/'results.json').write_text(json.dumps(result,indent=2)+'\n');print(result['status'],flush=True)
 
@@ -162,4 +195,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['stage','output']:p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--constant-unused-selector',action='store_true')
-    a=p.parse_args();prepare(a.stage.resolve(),a.output.resolve(),a.constant_unused_selector)
+    p.add_argument('--binary-inner',action='store_true')
+    a=p.parse_args();prepare(a.stage.resolve(),a.output.resolve(),a.constant_unused_selector,a.binary_inner)
