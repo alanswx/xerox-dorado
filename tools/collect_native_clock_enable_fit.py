@@ -16,7 +16,7 @@ def collect(stage,launch,out):
     m=json.loads((stage/'r-front-control-native.json').read_text());verify(stage,m['source_hashes'])
     l=json.loads((launch/'launch-observation.json').read_text())
     assert l['project']==m['project']and l['manifest_sha256']==sha(stage/'r-front-control-native.json')
-    source_count=580 if m.get('native_RIOT_block_ram_staged')else 578
+    source_count=581 if m.get('prepared_MemC_Hold_staged')else 580 if m.get('native_RIOT_block_ram_staged')else 578
     assert m['clock_enable_conversion_staged']and len(m['source_hashes'])==source_count
     query='''from pathlib import Path
 import hashlib,io,json,sys,tarfile,time

@@ -1,0 +1,78 @@
+{
+  "status": "REVIEWED_VERILATOR_CALLER_REPLAYS_WITH_ICARUS_PENDING",
+  "previous_goal_turn": "progress: implemented/proved/staged prepared Hold, launched exact jobs and pushedf38a55ac0",
+  "stage_manifest_sha256": "d81fba530ad3d014b7f7f0bd99a25a800a4d892bdcc7e658125ef3dd4f5485eb",
+  "replays": [
+    {
+      "mode": "full",
+      "engine": "verilator",
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/native-prepared-hold-full-verilator-v2-20261025",
+      "driver_status": "PASS_PREPARED_HOLD_COMPLETE_CALLER_REPLAY",
+      "driver_state_sha256": "755cd683ecd65a0b4a10bd169c8e79ea8f35876a33efdf45a95617a08032a3bb",
+      "status": "REVIEWED_COMPLETE_CALLER_REPLAY_PASS",
+      "publications": 10423,
+      "hold0_publications": 5248,
+      "hold1_publications": 5175,
+      "extra_hold_task_edges": 0,
+      "all_original_outcomes_and_assertions_pass": true,
+      "corrected_overstrict_coverage_verdict": false
+    },
+    {
+      "mode": "full",
+      "engine": "icarus",
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/native-prepared-hold-full-icarus-v2-20261025",
+      "driver_status": "RUNNING",
+      "driver_state_sha256": "97264bddad9dcb1aad997b15618fa0165ee80bac73deab37e3b40fd402fc3f59",
+      "status": "VERIFIED_RUNNING_PENDING",
+      "pid": 67570,
+      "process": "67570 08:54   8:51.09 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/native-prepared-hold-full-icarus-v2-20261025/test.vvp",
+      "observed": 1792986782.614618
+    },
+    {
+      "mode": "words",
+      "engine": "verilator",
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/native-prepared-hold-words-verilator-v2-20261025",
+      "driver_status": "TERMINAL_PREPARED_HOLD_REPLAY_NOT_ESTABLISHED",
+      "driver_state_sha256": "fe9dff4d335e67bf672139a62917b3b50fd85c9e2072357bf7b2809b7dccc87a",
+      "status": "REVIEWED_COMPLETE_CALLER_REPLAY_PASS",
+      "publications": 12387,
+      "hold0_publications": 0,
+      "hold1_publications": 12387,
+      "extra_hold_task_edges": 0,
+      "all_original_outcomes_and_assertions_pass": true,
+      "corrected_overstrict_coverage_verdict": true
+    },
+    {
+      "mode": "words",
+      "engine": "icarus",
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/native-prepared-hold-words-icarus-v2-20261025",
+      "driver_status": "RUNNING",
+      "driver_state_sha256": "3dffe68d303a1f85c15d6741134233d8c23e69ea62837866a79289314b0ace62",
+      "status": "VERIFIED_RUNNING_PENDING",
+      "pid": 67569,
+      "process": "67569 08:54   8:51.15 R    vvp -i /Users/alans/dev2/Dorado/build/rtl-executive/native-prepared-hold-words-icarus-v2-20261025/test.vvp",
+      "observed": 1792986782.685169
+    }
+  ],
+  "both_Hold_values_exercised_across_completed_suite": true,
+  "synthetic_context_scope": "Two actual-function SAT-selected contexts reproduce recorded Hold386. This qualifies caller/host preparation history, not native132-value timing, firmware boot or useful speed.",
+  "words_only_trace_contains_only_Hold1_not_missing_publications": true,
+  "old_overstrict_driver_verdict_and_all_original_inputs_and_assertions_retained": true,
+  "completed_synthesis": {
+    "builder_pid": 1458513,
+    "registers_before": 50362,
+    "registers_after": 50494,
+    "additional_registers": 132,
+    "memory_bits_unchanged": 2511686,
+    "five_original_RIOT_M10Ks_retained": true,
+    "placement_or_timing_not_established": true
+  },
+  "synthesis_observation_sha256": "5c842ef4e711592161b563fed9734f61e8fdf3e8a1adb5795c6322e3e05dafe6",
+  "initialization_wait_counter_caveat": "Native hold_prepare_waits counts !hold_ready even during storage_reset/memory initialization. Use post-initialization interval deltas; do not report the initialization total as CPU preparation overhead.",
+  "same_native_simulation_pid": 65832,
+  "native_simulation_inputs_or_limits_changed": false,
+  "terminal_collectors_support_581_sources": true,
+  "full_goal_active": true,
+  "new_hardware_speed_gain_measured": false,
+  "next_action": "Observe same1458513 fitter and65832 native simulation, plus the original Icarus replay handles. Collect terminal reports without restarting. Evaluate post-initialization preparation cost before selecting; actual60ns phases and all original hardware/Cedar/Rollback/persistence/stress requirements remain."
+}

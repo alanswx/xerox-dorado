@@ -7,6 +7,62 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
+LATEST TERMINAL PREPARED-HOLD RESULT (2026-10-25):
+SAME1458513 is TERMINAL:ALL9 report stages0,581 source hashes verified. Routes
+at35,380ALMs/84%,50,995 placed registers/335 RAM blocks/2,511,686 memory bits.
+CPU setup FAILS:-10.251ns slow100/-9.922ns slow-40; fast100/+1.394,fast-40/+3.288.
+Minimum hold+0.067ns. SDRAM four-corner input setup/hold minima+0.339/+4.259ns;
+output+3.233/+3.855ns.0 illegal/unconstrained clocks,3 input/50 output ports
+unconstrained overall. No full timing/assembly/load. NOT selected as faster.
+Do not restart the terminal builder. Its component correctness proofs remain
+valid; the standalone Hold preparation cut was insufficient for CPU timing.
+
+New limiting path25.536ns/18 levels,18.032ns routing(71%): caller upperQ179=
+held767, original ContA FF.0 MIR field -> FA_eq0/DoCBr -> ContB dRSTK ->
+selector sparse eligibility -> joint control state154/Ready target50 ->
+child Ready comparison -> global G3 grant(8,499 loads) -> MemX a13 RAM WE.
+Actual full path: `native-prepared-hold-timing-review-v1-20261025/terminal/core/
+native59-setup-7_slow_1100mv_100c.rpt`. This replaces the previous Hold386 path
+as the observed worst path. Next work must separate MIR/control/capture phases
+and qualify authoritative Ready/Hold against original source, including the
+duplicate Ready validation in the grant cone; retain genuine storage/readiness
+barriers. Another unqualified late buffer does not establish original60ns.
+
+Completed same-job mapping retained separately:50,362 ->50,494 synthesis
+registers (+132), unchanged memory bits, actual five RIOT M10Ks retained. Do
+not compare synthesis counts to placement counts. Full terminal readers now
+support581 sources/new launch preflight and derive50-file functional HDL union;
+the pinned manifest retains its parent's historical change lists unchanged.
+
+New full-caller Verilator checks reproduce every old assertion/reference and
+original clock/results/owner/RAM outcome. Full14,884 transactions/10,423
+publications(5,248 Hold0/5,175 Hold1); words12,481/12,387(all Hold1), including
+the original interior read. Two SAT-selected synthetic producer contexts match
+recorded raw Hold; zero extra Hold-task preparation edges in these fixtures
+means existing host preparation overlapped them. It does NOT establish native
+132-value context overhead or timing/boot/speed. Original delayed oracle gates
+stay byte-identical; added fixture gates have reversible namespacing. The first
+adapter rejected conflicting oracle/production module names before compilation;
+artifact retained. The words driver later rejected a both-values coverage
+requirement although every old assertion passed; independent review requires
+all original outcomes and the complete publication count instead. Original
+verdict retained, no trace or assertion rewritten, both Hold values covered
+across the suite. SAME Icarus67570(full)/67569(words) have now completed, both
+compile/test0 and every original outcome matches. ALL FOUR replays qualify
+with identical publication counts; the words Icarus driver has the same
+overstrict both-values verdict, retained separately from its passing simulation.
+
+Native65832 still has immutable1.5B original-ROM startup inputs/limit. Its
+hold_prepare_waits includes storage reset/memory initialization, so use interval
+deltas after initialization; the early cumulative total is NOT CPU overhead.
+Original55173/38212/62048 unchanged. Receipts:
+`native-prepared-hold-replays-summary.json`, final all-four
+`native-prepared-hold-replays-v2-summary.json` and
+`native-prepared-hold-terminal-timing-summary.json`, all raw reports preserved.
+FPGA/protected media unchanged; no measured hardware speed gain; full goal
+ACTIVE including original60ns phases/timers, native/hardware/Cedar/input/
+Checkpoint/Rollback/persistence/three-fresh-boots/two-hour stress.
+
 LATEST PREPARED HOLD IMPLEMENTATION / LIVE JOBS (2026-10-25):
 ONE new isolated timing builder1458513/map1458518 is RUNNING at
 `/home/alans/mister/Dorado_CPRead15_PreparedHold_20261025`, all581 remote source

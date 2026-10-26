@@ -14,6 +14,55 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
+Prepared-Hold terminal result and caller-history checks (2026-10-25):
+
+- [x] SAME1458513 completed ALL9 stages0,581 remote hashes verified, no
+  assembly. It routes at35,380ALMs/84%,50,995 placed registers,335 RAM blocks.
+  Synthesis-to-synthesis50,362 ->50,494 registers (+132), memory unchanged
+  2,511,686 bits; all five RIOT M10Ks retained. Placed and synthesis counts
+  are separate. This candidate is NOT selected as a faster core.
+- [x] CPU setup still FAILS: slow100/-40=-10.251/-9.922ns; fast100/-40=
+  +1.394/+3.288ns. Minimum hold+0.067ns. SDRAM all four reported corners pass:
+  input setup/hold minima+0.339/+4.259ns, output+3.233/+3.855ns.0 illegal/
+  unconstrained clocks;3 input/50 output ports remain unconstrained overall.
+- [x] New worst path is25.536ns/18 logic levels,18.032ns interconnect (71%):
+  held767 (ContA MIR FF.0), FA decode/DoCBr, ContB dRSTK, sparse-selector
+  eligibility, joint control/Ready target, duplicate Ready comparison, global
+  G3 grant (8,499 sinks), MemX RAM write enable. Preparing conditional-Hold
+  alone did not close the control/validation/distribution path. Retain this
+  terminal job and component proofs; do not restart, assemble or load it.
+- [x] Both complete Verilator caller replays reproduce every original result,
+  owner/RAM check, clock count and reference: full14,884 transactions/10,423
+  publications (5,248 Hold0/5,175 Hold1); words12,481/12,387 (all Hold1), with
+  its staged interior read. No original assertion/reference changed. Extra
+  Hold-preparation task edges0 in these fixtures: existing preparation overlaps
+  them. These are TWO SAT-selected synthetic memory contexts matching recorded
+  raw pin386; this is not native132-context timing/overhead or boot evidence.
+  The words driver's initial both-values coverage requirement was overstrict;
+  independent review checks exact original outcomes and every publication,
+  retaining its original verdict. Both values are covered across the suite.
+- [x] SAME Icarus replay67570(full)/67569(words) completed both engines0,
+  original bounds/assertions unchanged. Independent review qualifies ALL FOUR
+  caller replays with the same publication totals as Verilator. Both words
+  drivers retained the original overstrict coverage verdict; their actual
+  simulations passed every assertion and complete publication-count check.
+- [ ] Native65832 remains on its immutable1.5B
+  startup run; no input/limit change. Its wait counter includes storage reset/
+  memory initialization: use post-initialization interval deltas, never the
+  initial cumulative total as CPU preparation cost.55173/38212/62048 unchanged.
+- [ ] Split actual MIR/control/capture phases and qualify authoritative Ready/
+  Hold updates against original source. Inspect the duplicate Ready validation
+  now on the limiting grant path. Preserve genuine readiness/storage barriers;
+  adding another late register is not a60ns schedule. Finish actual60ns overlap,
+  timer calibration and every original hardware/Cedar/input/Checkpoint/
+  Rollback/persistence/three-boots/two-hour gate. No measured speed gain yet.
+
+Receipts: `native-prepared-hold-replays-summary.json`, final all-four
+`native-prepared-hold-replays-v2-summary.json` and
+`native-prepared-hold-terminal-timing-summary.json`. Terminal readers now accept
+the581-source candidate and derive the50-file HDL union separately from its
+parent's historical change lists, without editing the pinned manifest.
+
 Prepared Hold implementation and live candidate (2026-10-25):
 
 - [x] Resolve all six remaining board crossings. Their sources reduce to

@@ -1,0 +1,72 @@
+{
+  "status": "REJECTED_PREPARED_HOLD_CORE_TIMING_WITH_MIR_READY_PATH_IDENTIFIED",
+  "stage_manifest_sha256": "d81fba530ad3d014b7f7f0bd99a25a800a4d892bdcc7e658125ef3dd4f5485eb",
+  "source_review_sha256": "fdae7e027c225a2f42b7d89175750e500e8fbdc4d81853972d2fb87343670ec6",
+  "source_files_verified": 581,
+  "terminal_builder_pid": 1458513,
+  "all_nine_report_stages_zero": true,
+  "fitted_ALMs": 35380,
+  "fitted_percent": 84,
+  "fitted_registers": 50995,
+  "RAM_blocks": 335,
+  "memory_bits": 2511686,
+  "setup_slacks_by_corner_ns": {
+    "7_slow_1100mv_-40c": -9.922,
+    "7_slow_1100mv_100c": -10.251,
+    "MIN_fast_1100mv_-40c": 3.288,
+    "MIN_fast_1100mv_100c": 1.394
+  },
+  "worst_path": {
+    "From Node": "emu:emu|dorado_native_machine_ce:u_native|dorado_native_backplane_ce:m|dorado_r_front_owned_packet:r_front_dispatch|r_front_upper_q[179]",
+    "To Node": "emu:emu|dorado_native_machine_ce:u_native|dorado_native_backplane_ce:m|MemX_full_snapshot_experiment:b_MemX|cell_MosRam_snapshot:u_a13|altsyncram:mem_rtl_0|altsyncram_u9q1:auto_generated|ram_block1a0~porta_we_reg",
+    "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+    "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+    "Data Arrival Time": "34.122",
+    "Data Required Time": "23.871",
+    "Slack": "-10.251 (VIOLATED)",
+    "slack_ns": -10.251
+  },
+  "worst_data_delay_ns": 25.536,
+  "worst_logic_levels": 18,
+  "worst_interconnect_ns": 18.032,
+  "worst_interconnect_percent": 71,
+  "source_owner_held_bit": 767,
+  "source_owner_name": "ContA FF.0 (MIR field)",
+  "critical_cone": "MIR FF.0 -> FA decode/DoCBr -> ContB dRSTK -> selector sparse eligibility -> joint control/MiscHold/Ready target -> duplicate Ready comparison -> global G3 execution grant -> MemX RAM write enable",
+  "hold_and_SDRAM_corner_checks": {
+    "native59-hold-*.rpt": {
+      "corners": 4,
+      "minimum_slack_ns": 0.067
+    },
+    "native59-sdram-input-setup-*.rpt": {
+      "corners": 4,
+      "minimum_slack_ns": 0.339
+    },
+    "native59-sdram-input-hold-*.rpt": {
+      "corners": 4,
+      "minimum_slack_ns": 4.259
+    },
+    "native59-sdram-output-setup-*.rpt": {
+      "corners": 4,
+      "minimum_slack_ns": 3.233
+    },
+    "native59-sdram-output-hold-*.rpt": {
+      "corners": 4,
+      "minimum_slack_ns": 3.855
+    }
+  },
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "unconstrained_input_ports": 3,
+  "unconstrained_output_ports": 50,
+  "all_IO_or_full_timing_qualified": false,
+  "prepared_Hold_component_proofs_not_invalidated_by_timing": true,
+  "standalone_Hold_cut_not_sufficient_for_CPU_timing": true,
+  "candidate_selected_for_faster_core": false,
+  "assembly_or_FPGA_load_permitted": false,
+  "new_hardware_speed_gain_measured": false,
+  "nominal_ordinary_ns": 120,
+  "target_ordinary_ns": 60,
+  "full_goal_active": true,
+  "next_action": "Keep this completed job terminal. Split actual MIR/control/capture phases and qualify authoritative Ready/Hold updates against the original source. Inspect the duplicate Ready validation in the execution-enable cone; do not bypass actual readiness/storage barriers. Avoid stacking another unqualified late-Ready buffer or calling serialized120ns success. Finish pending caller/native runs and post-initialization wait attribution, then original60ns clocks, hardware/Cedar/Rollback/persistence/three-boots/stress."
+}

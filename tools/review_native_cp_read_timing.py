@@ -75,6 +75,7 @@ def review(stage,out,launch=None):
     compact=source.get('compact_operand_tag_qualified',False)
     grant=source.get('shared_publication_grant_staged',False)
     riot=source.get('native_RIOT_block_ram_staged',False)
+    prepared_hold=source.get('prepared_MemC_Hold_staged',False)
     new_ready=bool(native_single and source.get('ready_compare_proof_state_sha256'))
     launch_state=None
     if launch:
@@ -84,11 +85,16 @@ def review(stage,out,launch=None):
         assert not launch_state['assembly_permitted']
         if clock_enable:
             preflight=launch_state['clock_enable_diagnostic_preflight']
-            assert preflight['diagnostic_fit_only']and not preflight['complete_functional_and_timing_qualification']
+            assert preflight['diagnostic_fit_only']
+            if prepared_hold:
+                assert preflight['prepared_Hold_publication_sha256']and preflight['structural_audit_sha256']and preflight['parent_audit_sha256']
+                assert preflight['preparation_waits_and60ns_schedule_still_need_measurement']
+                assert source['prepared_MemC_Hold_induction_sha256']and len(source['prepared_MemC_Hold_context_layout'])==132
+            else:assert not preflight['complete_functional_and_timing_qualification']
             assert len(source['converted_module_types'])==33 and source['converted_unique_processes']==58
             assert source['converted_virtual_process_instances']==1823 and source['host_clock_processes_unchanged']
             if grant:assert preflight['shared_publication_grant_proof_sha256']
-            if riot:assert preflight['RIOT_block_ram_receipts']==source['RIOT_block_ram_receipts']
+            if riot and not prepared_hold:assert preflight['RIOT_block_ram_receipts']==source['RIOT_block_ram_receipts']
     assert (project in [PROJECT,GUARD_PROJECT,TASK_PROJECT,SHARED_PROJECT,PARALLEL_PROJECT,READY_PROJECT] or (new_ready and launch_state)) and source['frequency_hz']==66666667 and source['sysper']==4
     guarded=project!=PROJECT
     task=project in [TASK_PROJECT,SHARED_PROJECT,PARALLEL_PROJECT,READY_PROJECT] or new_ready
@@ -104,11 +110,19 @@ def review(stage,out,launch=None):
         assert source['task_parallel_proof_state_sha256']
         if not ready:assert source['incremental_functional_HDL_changes']==['src/verilog/rtl/dorado_local_task_capture_step.sv']
     if ready:assert source['ready_compare_proof_state_sha256']and source['all2969_prefix_outputs_retained']and source['shared_state_mismatch_guard_retained']and len(source['incremental_functional_HDL_changes'])==(3 if riot else 2 if grant else 1 if compact else 35 if clock_enable else 4 if operand else 3)
+    # The running Hold manifest retains its parent's historical change lists.
+    # Derive the actual union and latest delta without changing pinned inputs.
+    hold_delta={'src/fpga/mister/snapshot_native_memc/MemC_full_snapshot.sv',
+                'src/build/rtl-executive/native16-tx-cable/dorado_native_backplane.v',
+                'src/verilog/rtl/dorado_memc_hold_buffer.sv'}if prepared_hold else set()
+    functional_union=set(source.get('functional_HDL_changes',[]))|hold_delta
+    if prepared_hold:
+        assert len(functional_union)==50 and hold_delta<=set(source['source_hashes'])
     builder=launch_state['builder_pid'] if launch_state else {PROJECT:2865831,GUARD_PROJECT:3301754,TASK_PROJECT:3440305,SHARED_PROJECT:3571235,PARALLEL_PROJECT:3827091,READY_PROJECT:4042975}[project]
     if registered:assert source['R_read_buffer_proof_state_sha256']and source['single_SRAM_owner_and_write_edge_unchanged']
     if memc:assert registered and source['MemC_tag_read_proof_state_sha256']and len(source['MemC_tag_read_packages'])==21 and source['all21_address_matches_gate_whole_machine_publication']
     if operand:assert memc and source['operand_buffer_proof_state_sha256']and source['operand_view_bits_registered']==88 and source['operand_view_tag_support_bits']==(465 if compact else 909)
-    query=QUERY.replace('Path(PROJECT)','Path('+repr(project)+')',1).replace('BUILDER_PID',str(builder)).replace('SOURCE_COUNT','580'if riot else'578'if operand else'577'if memc else'576'if registered else'575'if ready else'574')
+    query=QUERY.replace('Path(PROJECT)','Path('+repr(project)+')',1).replace('BUILDER_PID',str(builder)).replace('SOURCE_COUNT','581'if prepared_hold else'580'if riot else'578'if operand else'577'if memc else'576'if registered else'575'if ready else'574')
     (out/'collection-query.py').write_text(query)
     bundle=out/'terminal.tgz'
     with bundle.open('xb')as f:
@@ -146,7 +160,7 @@ def review(stage,out,launch=None):
         project=project,source_files_verified=len(source['source_hashes']),terminal_state=observation['run_state'],
         nominal_ordinary_ns=120,target_ordinary_ns=60,frequency_hz=66666667,sysper=4,
         all_summary_checks=checks,setup_paths_by_corner=corners,worst_setup_path=worst,
-        critical_path=(('Prepared native operand-view candidate: 'if operand else'MemC registered-read candidate: 'if memc else'RM/STK registered-read candidate: 'if registered else'Ready-comparison candidate: 'if ready else'Parallel-task candidate: 'if parallel else'Shared-task-owner candidate: 'if shared else'Task-terminal candidate: ')+'inspect preserved full path; '+worst['From Node']+' -> '+worst['To Node']if task else
+        critical_path=(('Prepared native MemC Hold candidate: 'if prepared_hold else'Prepared native operand-view candidate: 'if operand else'MemC registered-read candidate: 'if memc else'RM/STK registered-read candidate: 'if registered else'Ready-comparison candidate: 'if ready else'Parallel-task candidate: 'if parallel else'Shared-task-owner candidate: 'if shared else'Task-terminal candidate: ')+'inspect preserved full path; '+worst['From Node']+' -> '+worst['To Node']if task else
                       'MemC a15 address -> asynchronous cache-tag b20 -> miss/Hold pin386 -> shared control frames -> processor T-path settling -> machine_enable -> falling-edge network_step'if guarded else
                        'R address -> asynchronous RM read -> ContA/ContB/direct capture -> event settling check -> machine_enable -> falling-edge network_step'),
         phase_guard_only=guarded and not task,task_terminal_and_sparse_frames=task,
@@ -159,6 +173,9 @@ def review(stage,out,launch=None):
         common_clock_guest_enables=clock_enable,
         compact_operand_descriptor=compact,
         native_RIOT_block_RAM=riot,
+        prepared_MemC_Hold=prepared_hold,
+        functional_HDL_source_union_count=len(functional_union),
+        prepared_Hold_incremental_HDL=sorted(hold_delta),
         clock_enable_diagnostic_preflight=launch_state.get('clock_enable_diagnostic_preflight')if launch_state else None,
         actual_native_single_comparison_connected=source.get('actual_native_single_comparison_connected',False),
         ready_v1_targeting_limitation='Paired prefix only; ordinary native single comparison unchanged'if ready and not source.get('actual_native_single_comparison_connected')else None,
