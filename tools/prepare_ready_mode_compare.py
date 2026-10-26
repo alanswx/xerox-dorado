@@ -124,7 +124,7 @@ def native_transform(raw,ready_raw):
     return raw.replace(before,after,1)
 
 
-def prepare(stage,out):
+def prepare(stage,out,constant_unused_selector=False):
     assert not out.exists();out.mkdir(parents=True)
     m=json.loads((stage/'r-front-control-native.json').read_text());verify(stage,m['source_hashes'])
     before,after,edits=transform((stage/CONTROL).read_text())
@@ -135,7 +135,14 @@ def prepare(stage,out):
     assert 'assign state_next={state_q[155:31],next_cram,state_q[29:0]};'in fall
     assert 'using_sparse=entry_canonical && clock_before && !clock_after && ((pins_before & FALL_STABLE_PIN_SUPPORT)==(pins_after & FALL_STABLE_PIN_SUPPORT));'in sparse
     (out/'original-body.sv').write_text(before);(out/'mode-body.sv').write_text(after)
-    (out/'compare.sv').write_text(HELPER.replace('SPARSE_SUPPORT',support))
+    helper=HELPER.replace('SPARSE_SUPPORT',support)
+    if constant_unused_selector:
+        # Source proofs establish mode3 impossible. This optional experiment
+        # asks whether making its constant explicit changes synthesis; it is
+        # not selected merely because its equivalence proof passes.
+        a='    default:mismatch=original_mismatch;';assert helper.count(a)==1
+        helper=helper.replace(a,"    default:mismatch=1'b0;",1)
+    (out/'compare.sv').write_text(helper)
     (out/'original-sparse-reference.txt').write_text(sparse+fall)
     (out/'native-control-after.txt').write_text(native_transform((stage/CONTROL).read_text(),(stage/READY).read_text()))
     shutil.copy2(stage/'src/verilog/rtl/dorado_ready_compare_step.sv',out/'ready-compare.sv')
@@ -146,6 +153,7 @@ def prepare(stage,out):
                 exact_reversible_body_edits=edits,additional_guest_or_host_cycles=0,architectural_outputs_changed=False,
                 fall_stable_pin_support=support,original_sparse_Ready_identity_source_verified=True,
                 comparison_guard_retained=True,files={p.name:sha(p)for p in out.iterdir()if p.is_file()},
+                constant_unused_selector_experiment=constant_unused_selector,
                 native_equivalence_timing_or_speed_qualified=False)
     (out/'results.json').write_text(json.dumps(result,indent=2)+'\n');print(result['status'],flush=True)
 
@@ -153,4 +161,5 @@ def prepare(stage,out):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['stage','output']:p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();prepare(a.stage.resolve(),a.output.resolve())
+    p.add_argument('--constant-unused-selector',action='store_true')
+    a=p.parse_args();prepare(a.stage.resolve(),a.output.resolve(),a.constant_unused_selector)

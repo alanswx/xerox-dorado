@@ -14,7 +14,49 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-Parallel Ready-target timing candidate (2026-10-25, latest):
+Ready timing review and next isolated build (2026-10-25, latest):
+
+- [x] SAME1865964 is terminal, all nine stages0 and582 remote hashes verified.
+  Routes at36,053 ALMs/86%,51,129 placed registers,335 RAM blocks and unchanged
+  2,511,686 memory bits. CPU setup still FAILS: slow100/-40=-8.340/-7.703ns;
+  fast100/-40=+1.779/+3.331ns. Worst setup improves1.911ns versus prepared Hold,
+  but no image is assembled/selected/loaded and no hardware gain is measured.
+- [x] Hold minimum+0.081ns. Four-corner SDRAM input setup/hold minima
+  +0.420/+4.282ns, output+3.288/+3.848ns. Zero illegal/unconstrained clocks;
+  three input/fifty output ports remain unconstrained overall. Not full timing.
+- [x] Limiting path still contains original child Ready comparison despite the
+  new parallel selector: MIR held767 -> original control/root capture -> Ready
+  target -> child comparison -> new selector -> owner_commit -> held647.
+  Worst data22.810ns/18 levels,16.736ns routing(73%). Preserve full reports.
+- [x] Prepare exactly ONE HDL-file refinement relative to routed v1: change
+  impossible binary Ready selector mode3 to a constant. Original body proves
+  only retain/clear/load (0/1/2) possible. Preserve the actual X/Z and disabled/
+  paired fallback, architectural Ready/Hold, every barrier and capture edge.
+  All2,970 outputs match for1,982 arbitrary binary inputs without assumptions;
+  positive/real-negative/component X/Z and both full-witness simulators pass.
+- [x] Native lint/XML/audit pass: all3,814 old sequential processes exact,
+  zero new state or host/guest cycles. Both Yosys variants already remove the
+  serial-fallback support (352 input bits;1,603/1,614 primitive cells), so that
+  experiment establishes no Yosys gain. Actual Quartus kept the old path; only
+  a new vendor fit can assess whether the explicit constant helps there.
+- [x] Launch ONE builder1930755 at
+  `/home/alans/mister/Dorado_CPRead15_ReadyBinary_20261025`,582 remote hashes
+  verified; stage/lint/audit v2. Keep completed1865964 terminal. No assembly/load.
+- [ ] Observe SAME1930755, collect every CPU/SDRAM corner and inspect actual
+  path/resource changes. Preserve genuine readiness/storage barriers. Then
+  complete original60ns overlap/timers, pinned hardware progress and all original
+  Cedar/input/Checkpoint/Rollback/persistence/three-boots/two-hour gates. Current
+  nominal interval remains120ns before waits; FPGA snapshots remain deferred.
+
+Receipt `native-ready-binary-summary.json` retains terminal reports, source
+readback, the optional experiment, all proofs/tests, isolated sources and actual
+new process observation. All four actual v1 caller traces qualify in
+`native-ready-mode-replays-summary.json`; v2 inherits their binary behavior by
+unrestricted complete single-step equivalence and unchanged sequential/caller
+code. Its own X/Z component and2,970-bit witness tests ran; complete v2 caller
+histories have not been rerun. Original-ROM jobs/limits/media remain unchanged.
+
+Parallel Ready-target candidate (2026-10-25, routed v1; terminal status above):
 
 - [x] Replace only the native single-step Ready comparison computation. Compare
   retain/clear/frozen-load outcomes early and select the result with the exact
@@ -35,8 +77,11 @@ Parallel Ready-target timing candidate (2026-10-25, latest):
   new warning. Actual cumulative HDL union51, latest HDL delta2.
 - [x] Both complete Verilator caller histories retain all old assertions,
   references, transactions, owner/RAM/clock results and Hold-preparation counts.
-- [ ] Observe SAME Icarus88929(full)/88928(words), immutable traces/limits.
-  Their pending results are not counted as passing caller tests.
+- [x] SAME Icarus88929(full)/88928(words) completed0. ALL FOUR caller replays
+  pass with exact original outcomes/assertions/owner/RAM/clocks and Hold counts:
+  full10,423 publications (5,248 Hold0/5,175 Hold1); words12,387 (all Hold1).
+  Extra Hold-task preparation edges0 in both engines/programs. Synthetic
+  producer-fixture scope retained. Final receipt `native-ready-mode-replays-summary.json`.
 - [x] Launch ONE timing-only Quartus builder1865964/map1865968 in
   `/home/alans/mister/Dorado_CPRead15_ReadyMode_20261025`;582 remote hashes
   verified. No assembly/image/FPGA load. Keep failed1458513 terminal.
@@ -45,9 +90,8 @@ Parallel Ready-target timing candidate (2026-10-25, latest):
   No added register/memory cost. SAME fitter1876118 verified live; no placed
   timing or useful speed conclusion follows from synthesis. Retain mapping
   separately in `native-ready-mode-mapping-summary.json`.
-- [ ] Collect this same job's routing and all CPU/SDRAM corner reports; evaluate
-  whether the parallel comparison shortened the limiting MIR-to-grant path.
-  Do not restart for a polling timeout or select a timing-failing candidate.
+- [x] Collect SAME1865964 routing/all-corner reports: timing rejected above.
+  Never restart this completed job or select the timing-failing candidate.
 - [ ] Then finish actual60ns overlapping capture phases/timer calibration,
   post-initialization storage/preparation attribution and measured hardware
   instruction progress, followed by every original Cedar/input/Checkpoint/

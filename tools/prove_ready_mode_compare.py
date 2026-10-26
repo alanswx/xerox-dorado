@@ -51,26 +51,34 @@ COMPARE='''module ready_compare_contract(input wire [155:0] q,input wire cb,ca,
 endmodule
 '''
 
+INDEPENDENT=COMPARE.replace(' assign equivalent=actual==expected;', ''' wire other;
+ dorado_ready_target_compare opposite_fallback(q,cb,ca,pb,pa,refresh,fast,prefix,pre_cp,post_cp,
+  current_ready,original_capture,data,event_in,enable,!expected,other);
+ assign equivalent=(actual==expected) && (!enable || actual==other);''')
 
-def run(source,out,yosys):
+
+def run(source,out,yosys,binary_independence=False):
     assert not out.exists();out.mkdir(parents=True)
     r=json.loads((source/'results.json').read_text());verify(source,r['files'])
     assert r['status']=='PREPARED_SOURCE_BOUND_READY_MODE_COMPARISON'
     shutil.copy2(Path(__file__),out/Path(__file__).name)
     state=dict(status='RUNNING',scope=__doc__,started=time.time(),source_receipt_sha256=sha(source/'results.json'),
                source_control_sha256=r['source_control_sha256'],assumptions=0,original_body_outputs_compared=807,
-               source_atomic_waves=4,additional_guest_or_host_cycles=0,actions=[])
+               source_atomic_waves=4,additional_guest_or_host_cycles=0,
+               enabled_binary_serial_fallback_independence_checked=binary_independence,actions=[])
     def save():(out/'run-state.json').write_text(json.dumps(state,indent=2)+'\n')
     save()
-    for label,top,mutation in [('body-and-choice',BODY,None),('comparison',COMPARE,None),
+    cases=[('body-and-choice',BODY,None),('comparison',COMPARE,None),
         ('wrong-clear-choice',BODY,("if(q[73])ready_mode=2'd1","if(q[73])ready_mode=2'd2")),
-        ('wrong-load-data',BODY,("22'b1<<18,ca_pins(state_q,pins_after)","22'b0,ca_pins(state_q,pins_after)"))]:
+        ('wrong-load-data',BODY,("22'b1<<18,ca_pins(state_q,pins_after)","22'b0,ca_pins(state_q,pins_after)"))]
+    if binary_independence:cases.append(('binary-fallback-independence',INDEPENDENT,None))
+    for label,top,mutation in cases:
         d=out/label;d.mkdir()
         for path in source.glob('*.sv'):shutil.copy2(path,d/path.name)
         if mutation:
             raw=(d/'mode-body.sv').read_text();assert raw.count(mutation[0])==1
             (d/'mode-body.sv').write_text(raw.replace(*mutation,1))
-        (d/'top.sv').write_text(top.replace('SPARSE_SUPPORT',r['fall_stable_pin_support']));name='ready_compare_contract'if top==COMPARE else'ready_mode_contract'
+        (d/'top.sv').write_text(top.replace('SPARSE_SUPPORT',r['fall_stable_pin_support']));name='ready_mode_contract'if top==BODY else'ready_compare_contract'
         (d/'proof.ys').write_text(f'''read_verilog -sv -defer {' '.join('/work/'+p.name for p in sorted(d.glob('*.sv')))}
 hierarchy -check -top {name}
 proc
@@ -88,7 +96,7 @@ sat -timeout 120 -prove equivalent 1 -{'falsify'if mutation else'verify'} -show-
         a.update(returncode=code,passed=code==0 and marker in(d/'proof.log').read_text(),finished=time.time(),log_sha256=sha(d/'proof.log'));save()
         print(label,a['passed'],flush=True)
         if not a['passed']:break
-    passed=len(state['actions'])==4 and all(a['passed']for a in state['actions'])
+    passed=len(state['actions'])==len(cases) and all(a['passed']for a in state['actions'])
     state.update(status='PASS_SOURCE_BOUND_READY_MODE_AND_COMPARISON'if passed else'TERMINAL_READY_MODE_NOT_ESTABLISHED',finished=time.time(),
                  native_equivalence_or_physical_timing_or_speed_qualified=False)
     save();return 0 if passed else 1
@@ -97,4 +105,5 @@ sat -timeout 120 -prove equivalent 1 -{'falsify'if mutation else'verify'} -show-
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['source','output','yosys']:p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.output.resolve(),a.yosys.resolve()))
+    p.add_argument('--binary-independence',action='store_true')
+    a=p.parse_args();raise SystemExit(run(a.source.resolve(),a.output.resolve(),a.yosys.resolve(),a.binary_independence))

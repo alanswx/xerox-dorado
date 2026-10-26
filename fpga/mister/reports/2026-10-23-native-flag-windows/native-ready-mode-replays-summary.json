@@ -1,0 +1,130 @@
+{
+  "status": "REVIEWED_ALL_FOUR_NATIVE_READY_MODE_CALLER_REPLAYS_AND_SAME_JOB",
+  "all_four_caller_replays_complete": true,
+  "stage_manifest_sha256": "8fd36e875ce75adf154f8c9fbf1e72d2b1394862caeed8d51930c9175ad4ac8b",
+  "source_files_verified": 582,
+  "qualification_statuses": {
+    "component": "PREPARED_SOURCE_BOUND_READY_MODE_COMPARISON",
+    "proof": "PASS_SOURCE_BOUND_READY_MODE_AND_COMPARISON",
+    "native": "PASS_COMPLETE_NATIVE_READY_MODE_COMPARISON",
+    "tests": "PASS_DUAL_ENGINE_READY_MODE_COMPARISON_AND_XZ_FALLBACK",
+    "witness": "PASS_DUAL_ENGINE_READY_SPARSE_WITNESS_AND_FIX"
+  },
+  "unrestricted_binary_input_bits": 1982,
+  "public_outputs_proved_identical": 2970,
+  "assumptions": 0,
+  "unchanged_sequential_processes": 3814,
+  "added_sequential_processes": 0,
+  "added_combinational_instances": 17,
+  "additional_host_or_guest_cycles": 0,
+  "original_all_readiness_and_storage_barriers_retained": true,
+  "actual_native_capture_and_caller_history_unchanged": true,
+  "lint_warning_explanation": "One copied original integer-parameter truth test in the exact control body; no other new warning.",
+  "lint_warning_delta": {
+    "WIDTHTRUNC": 1
+  },
+  "sparse_counterexample": "Generic body clears Ready where the existing certified sparse falling path retains it. Preserve exact sparse eligibility and Ready identity; no arbitrary state excluded.",
+  "witness_fixture_failures": "First two Icarus fixtures initialized stimulus at declaration time and left a combinational known-input observer X. Explicit X-to-witness transition fixes fixture startup; all2970 reference bits still checked.",
+  "retained_historical_runs": [
+    "native-ready-mode-component-v1-20261025",
+    "native-ready-mode-proof-v1-20261025",
+    "native-ready-mode-tests-v1-20261025",
+    "native-ready-mode-native-proof-v1-20261025",
+    "native-ready-mode-witness-replay-v1-20261025",
+    "native-ready-mode-witness-replay-v2-20261025"
+  ],
+  "replays": [
+    {
+      "mode": "full",
+      "engine": "verilator",
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/native-ready-mode-full-verilator-v1-20261025",
+      "state_sha256": "da81e41e6e2ee93c601dd9b138a5b5fb0b5296f9a67b5bb541fd10819f9a1c60",
+      "status": "PASS_READY_MODE_COMPLETE_CALLER_REPLAY",
+      "original_results_and_hold_preparation_metrics_identical": true,
+      "metrics": [
+        [
+          "0",
+          "5248",
+          "5175"
+        ]
+      ]
+    },
+    {
+      "mode": "full",
+      "engine": "icarus",
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/native-ready-mode-full-icarus-v1-20261025",
+      "state_sha256": "0189af5e8a685650ded141cb32378bcf873be06b2fc734eb18642f24c7f5b77c",
+      "status": "PASS_READY_MODE_COMPLETE_CALLER_REPLAY",
+      "original_results_and_hold_preparation_metrics_identical": true,
+      "metrics": [
+        [
+          "0",
+          "5248",
+          "5175"
+        ]
+      ]
+    },
+    {
+      "mode": "words",
+      "engine": "verilator",
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/native-ready-mode-words-verilator-v1-20261025",
+      "state_sha256": "3c97ac571ca439b45720665bd7de95efc99e53174b34f3834768428d36027f8f",
+      "status": "PASS_READY_MODE_COMPLETE_CALLER_REPLAY",
+      "original_results_and_hold_preparation_metrics_identical": true,
+      "metrics": [
+        [
+          "0",
+          "0",
+          "12387"
+        ]
+      ]
+    },
+    {
+      "mode": "words",
+      "engine": "icarus",
+      "directory": "/Users/alans/dev2/Dorado/build/rtl-executive/native-ready-mode-words-icarus-v1-20261025",
+      "state_sha256": "5fe5c164f12fb29a04c4785ed3760ccc02065a02db1fb648c4291e45c3556d5c",
+      "status": "PASS_READY_MODE_COMPLETE_CALLER_REPLAY",
+      "original_results_and_hold_preparation_metrics_identical": true,
+      "metrics": [
+        [
+          "0",
+          "0",
+          "12387"
+        ]
+      ]
+    }
+  ],
+  "same_timing_job": {
+    "observed": 1792992850.4252808,
+    "run_state": {
+      "status": "RUNNING",
+      "builder_pid": 1865964,
+      "started": 1792990572.9834273,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 1865968,
+          "started": 1792990572.9837997,
+          "returncode": 0,
+          "finished": 1792990865.967526
+        },
+        {
+          "stage": "fit",
+          "pid": 1876118,
+          "started": 1792990865.9680836
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "processes": "1865964       37:57 00:00:00 Ss   python3 /home/alans/mister/Dorado_CPRead15_ReadyMode_20261025/build_r_front_ready_native.py --project /home/alans/mister/Dorado_CPRead15_ReadyMode_20261025 --manifest r-front-control-native.json\n1876118       33:04 00:42:21 Sl   quartus_fit --read_settings_files=on --write_settings_files=off Dorado",
+    "no_restart_or_assembly": true
+  },
+  "assembly_or_hardware_changed": false,
+  "nominal_ordinary_ns": 120,
+  "target_ordinary_ns": 60,
+  "new_hardware_speed_gain_measured": false,
+  "full_goal_active": true,
+  "next_action": "Observe same Quartus and Icarus processes without restart. Review all CPU/SDRAM corners and routing; reject unless physically qualified. Complete original60ns phase integration and hardware/Cedar/Checkpoint/Rollback/persistence/three-boots/two-hour gates; FPGA snapshots remain deferred."
+}

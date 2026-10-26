@@ -1,0 +1,95 @@
+{
+  "status": "REJECTED_READY_MODE_TIMING_AND_LAUNCHED_PROVED_UNUSED_SELECTOR_REFINEMENT",
+  "previous_goal_turn": "progress: original-ROM timeout diagnosis and9a5777a03 pushed",
+  "terminal_builder": 1865964,
+  "terminal_all_nine_stages_zero": true,
+  "terminal_source_files_verified": 582,
+  "terminal_functional_HDL_union": 51,
+  "setup_slacks_by_corner_ns": {
+    "7_slow_1100mv_-40c": -7.703,
+    "7_slow_1100mv_100c": -8.34,
+    "MIN_fast_1100mv_-40c": 3.331,
+    "MIN_fast_1100mv_100c": 1.779
+  },
+  "previous_worst_setup_ns": -10.251,
+  "latest_worst_setup_ns": -8.34,
+  "setup_improvement_ns": 1.911,
+  "ALMs": 36053,
+  "placed_registers": 51129,
+  "RAM_blocks": 335,
+  "memory_bits": 2511686,
+  "worst_path": {
+    "data_ns": 22.81,
+    "logic_levels": 18,
+    "interconnect_ns": 16.736,
+    "interconnect_percent": 73,
+    "launch": "r_front_upper_q[179] (held767, original MIR FF.0)",
+    "destination": "r_front_upper_q[59] (held647)",
+    "cone": "MIR -> original control/root capture -> Ready target -> original child Ready comparator -> new Ready selector -> owner_commit -> owner D"
+  },
+  "hold_min_ns": 0.081,
+  "SDRAM_input_setup_min_ns": 0.42,
+  "SDRAM_input_hold_min_ns": 4.282,
+  "SDRAM_output_setup_min_ns": 3.288,
+  "SDRAM_output_hold_min_ns": 3.848,
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "unconstrained_input_ports": 3,
+  "unconstrained_output_ports": 50,
+  "full_timing_or_all_IO_qualified": false,
+  "all_four_actual_v1_caller_replays_complete": true,
+  "all_four_receipt_sha256": "63125a9e5a9e2a16e45ed7ea0476316db45a6bb0945a9ccd4740a2d0db24c4e3",
+  "proposed_change": "Only make impossible binary selector mode3 return a constant. The original fallback remains for X/Z and disabled/paired paths. Full source body proves mode3 never produced.",
+  "new_stage_manifest_sha256": "126317d8fedaa6fab917507cfa71f6c6858ccf5e88f0b7b4d1de8206daf7b3a4",
+  "new_source_delta_from_routed_v1": [
+    "src/verilog/rtl/dorado_ready_target_compare.sv"
+  ],
+  "new_full_interface_outputs_proved": 2970,
+  "new_unrestricted_binary_inputs": 1982,
+  "assumptions": 0,
+  "new_component_XZ_and_full_witness_both_engines_pass": true,
+  "unchanged_original_sequential_processes": 3814,
+  "new_sequential_processes": 0,
+  "new_host_or_guest_cycles": 0,
+  "native_v2_complete_caller_traces_rerun": false,
+  "new_binary_caller_equivalence_scope": "Unrestricted complete native single-step equivalence plus unchanged caller/sequential code composes with completed v1 histories. Actual v2 X/Z component and full2970-bit witness tests run separately.",
+  "Yosys_support_observation": [
+    {
+      "version": 2,
+      "serial_fallback_in_optimized_support": false,
+      "support_bits": 352,
+      "combinational_cells": 1603
+    },
+    {
+      "version": 3,
+      "serial_fallback_in_optimized_support": false,
+      "support_bits": 352,
+      "combinational_cells": 1614
+    }
+  ],
+  "reason_for_Quartus_test": "Yosys already removes the serial-fallback dependency in both variants (v2/v3 1603/1614 primitive cells), but actual routed Quartus path still includes it. No Yosys or speed gain is claimed; test the actual vendor path.",
+  "new_job": {
+    "observed": 1792993821.457244,
+    "state": {
+      "status": "RUNNING",
+      "builder_pid": 1930755,
+      "started": 1792993701.214697,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 1930756,
+          "started": 1792993701.2151172
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "processes": "1930755       02:00 00:00:00 Ss   python3 /home/alans/mister/Dorado_CPRead15_ReadyBinary_20261025/build_r_front_ready_native.py --project /home/alans/mister/Dorado_CPRead15_ReadyBinary_20261025 --manifest r-front-control-native.json\n1930756       02:00 00:01:49 Sl   quartus_map --read_settings_files=on --write_settings_files=off Dorado"
+  },
+  "assembly_or_hardware_changed": false,
+  "new_hardware_speed_gain_measured": false,
+  "nominal_ordinary_ns": 120,
+  "target_ordinary_ns": 60,
+  "full_goal_active": true,
+  "next_action": "Observe same1930755, never restart completed1865964. Review all-corner native paths/SDRAM before assembly or selection. Preserve genuine Ready/Hold/storage barriers; finish original60ns phases/timers and every original firmware/Cedar/input/Checkpoint/Rollback/persistence/three-boots/two-hour gate. FPGA snapshots remain deferred."
+}

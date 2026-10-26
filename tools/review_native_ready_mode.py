@@ -79,8 +79,9 @@ print(json.dumps({'observed':time.time(),'run_state':s,'processes':ps.stdout.str
     out.mkdir(parents=True)
     for d in dirs:retain(d,out/'retained'/d.name)
     (out/'same-job-observation.json').write_text(json.dumps(job,indent=2)+'\n')
-    result=dict(status='REVIEWED_NATIVE_READY_MODE_QUALIFICATION_AND_SAME_JOB',
-        previous_goal_turn='no progress: status response only; this turn integrates/proves/audits the candidate and launches one timing job',
+    complete=all(v['status']=='PASS_READY_MODE_COMPLETE_CALLER_REPLAY'for v in replays)
+    result=dict(status='REVIEWED_ALL_FOUR_NATIVE_READY_MODE_CALLER_REPLAYS_AND_SAME_JOB'if complete else'REVIEWED_NATIVE_READY_MODE_QUALIFICATION_AND_SAME_JOB',
+        all_four_caller_replays_complete=complete,
         stage_manifest_sha256=sha(stage/'r-front-control-native.json'),source_files_verified=582,
         qualification_statuses=receipts,unrestricted_binary_input_bits=1982,public_outputs_proved_identical=2970,assumptions=0,
         unchanged_sequential_processes=3814,added_sequential_processes=0,added_combinational_instances=len(a['added_combinational_instances']),
@@ -91,14 +92,16 @@ print(json.dumps({'observed':time.time(),'run_state':s,'processes':ps.stdout.str
         witness_fixture_failures='First two Icarus fixtures initialized stimulus at declaration time and left a combinational known-input observer X. Explicit X-to-witness transition fixes fixture startup; all2970 reference bits still checked.',
         retained_historical_runs=historical,replays=replays,same_timing_job=job,
         assembly_or_hardware_changed=False,nominal_ordinary_ns=120,target_ordinary_ns=60,new_hardware_speed_gain_measured=False,
-        full_goal_active=True,next_action='Observe same Quartus and Icarus processes without restart. Review all CPU/SDRAM corners and routing; reject unless physically qualified. Complete original60ns phase integration and hardware/Cedar/Checkpoint/Rollback/persistence/three-boots/two-hour gates; FPGA snapshots remain deferred.')
+        full_goal_active=True,next_action=('All four caller replays complete; retain them. Observe the same Quartus job without restart. 'if complete else'Observe same Quartus and Icarus processes without restart. ')+
+        'Review all CPU/SDRAM corners and routing; reject unless physically qualified. Complete original60ns phase integration and hardware/Cedar/Checkpoint/Rollback/persistence/three-boots/two-hour gates; FPGA snapshots remain deferred.')
     (out/'results.json').write_text(json.dumps(result,indent=2)+'\n');return result
 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);p.add_argument('--archive',type=Path)
+    p.add_argument('--archive-label',default='native-ready-mode')
     a=p.parse_args();r=review(a.output.resolve())
-    if a.archive:append_archive(a.archive.resolve(),a.output.resolve(),[],label='native-ready-mode',extra_tools=[
+    if a.archive:append_archive(a.archive.resolve(),a.output.resolve(),[],label=a.archive_label,extra_tools=[
         Path(__file__).name,'prepare_ready_mode_compare.py','prove_ready_mode_compare.py','qualify_ready_mode_native.py',
         'test_ready_mode_compare.py','replay_ready_mode_counterexample.py','stage_native_ready_mode.py','audit_native_ready_mode.py',
         'replay_native_ready_mode.py','start_native_ready_mode_timing.py','start_native_phase_guard_timing.py',

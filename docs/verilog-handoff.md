@@ -7,7 +7,46 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-LATEST READY COMPARISON / LIVE TIMING CANDIDATE (2026-10-25):
+LATEST READY TIMING / UNUSED-SELECTOR REFINEMENT (2026-10-25):
+SAME1865964 is TERMINAL, ALL9 stages0/582 source hashes verified. CPU timing
+still FAILS: slow100/-40=-8.340/-7.703ns, fast100/-40=+1.779/+3.331ns. Routes
+at36,053ALMs/86%,51,129 placed registers/335 RAM/2,511,686 memory bits. Worst
+setup improves1.911ns versus prepared Hold, but no assembly/selection/load.
+Hold minimum+0.081ns; four-corner SDRAM input setup/hold minima+0.420/+4.282ns,
+output+3.288/+3.848ns.0 illegal/unconstrained clocks;3 input/50 output ports
+unconstrained overall. No full timing or measured hardware speed gain.
+
+Worst path22.810ns/18 levels/16.736ns routing(73%): MIR held767 -> original
+control/root capture -> Ready target -> ORIGINAL child Ready comparison ->
+new Ready selector -> owner_commit -> held647 (upperQ59). Raw report:
+`native-ready-mode-timing-review-v1-20261025/terminal/core/`
+`native59-setup-7_slow_1100mv_100c.rpt`. Actual Quartus retains that serial
+fallback path, although Yosys optimizes its support away in both variants.
+
+ONE new timing-only builder1930755 is live at
+`/home/alans/mister/Dorado_CPRead15_ReadyBinary_20261025`, all582 remote hashes
+verified. Stage/lint/audit `native-ready-mode-*-v2-20261025`. Only HDL delta from
+routed v1 is its helper's impossible binary selector mode3 -> constant. The
+body proves mode0/1/2 only; original four-state/disabled/paired fallback remains.
+Complete native proof: all2,970 outputs/all1,982 binary inputs,zero assumptions.
+Component/XZ and full2970-bit witness pass both simulators; actual negative
+controls reject. Native lint/XML/audit:3,814 existing processes exact,zero new
+sequential processes or host/guest cycles. Root generator keeps the original
+default and exposes this refinement as an opt-in experiment.
+
+Yosys primitive cells1,603 ->1,614, both352 support bits and no serial-fallback
+input: no claimed Yosys benefit. The routed Quartus dependency justifies testing
+the actual vendor result. Keep1930755 inputs immutable; do not restart terminal
+1865964. Receipt `native-ready-binary-summary.json` retains all reports/proofs/
+sources/tests/observations. ALL FOUR actual v1 caller histories pass in
+`native-ready-mode-replays-summary.json`; binary equivalence plus unchanged
+caller/sequential code composes to v2, whose own component/XZ/full-witness tests
+ran. Full v2 caller histories have not been rerun. All original-ROM jobs/limits,
+protected artifacts and media remain unchanged. Full goal ACTIVE,120ns nominal
+before waits; original60ns/timers and every hardware/Cedar/input/Checkpoint/
+Rollback/persistence/three-boots/two-hour gate remain. No full FPGA snapshot.
+
+EARLIER READY COMPARISON / TIMING CANDIDATE (2026-10-25, now terminal above):
 ONE new diagnostic Quartus builder1865964/map1865968 is RUNNING at
 `/home/alans/mister/Dorado_CPRead15_ReadyMode_20261025`;582 remote source hashes
 verified. Observe the same handles; never restart for a polling timeout. No
@@ -39,8 +78,12 @@ All3,814 existing sequential processes exact,zero new sequential processes,
 warning is explicitly accounted for; no other new warning. Actual HDL union51,
 incremental delta2. Both complete Verilator caller histories pass with every
 original assertion/reference/result and Hold-preparation count unchanged.
-Icarus88929(full)/88928(words) verified RUNNING, original traces/limits intact.
-These remain synthetic producer fixtures, not native firmware/speed evidence.
+SAME Icarus88929(full)/88928(words) have now completed0. ALL FOUR caller
+replays pass: every original outcome/assertion/owner/RAM/clock and Hold count
+matches. Both engines: full10,423 publications(5,248 Hold0/5,175 Hold1),
+words12,387(all Hold1), zero extra Hold-task preparation edges. Final receipt
+`native-ready-mode-replays-summary.json`. These remain synthetic producer
+fixtures, not native firmware/speed evidence; no old trace or bound changed.
 
 Next: collect SAME1865964 terminal CPU/SDRAM/crossing reports and assess the
 limiting MIR/Ready/grant path. Receipt `native-ready-mode-summary.json` retains
