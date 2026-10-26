@@ -7,7 +7,56 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-CURRENT SELECTED COMPACT DESCRIPTOR / NEW NATIVE FIT (2026-10-25):
+CURRENT SHARED PUBLICATION GRANT / ROUTING WORK (2026-10-25):
+Compact builder743068 has now TERMINATED: map0/fit3, routing congestion.
+All578 sources and terminal reports collected.40,036ALMs/96%,54,146 registers,
+330 RAM blocks/unchanged memory bits. This saves400ALMs/316 registers from the
+global909 fit, but does not fit or establish a speed gain. Never restart it.
+
+New `native-publication-grant-stage-v2-20261025` factors the duplicate caller
+publication check behind the actual shell's reset/pack/storage/control-qualified
+advance. Only the caller and converted native backplane HDL change; generic
+caller parameter defaults0 and keeps its independent Ready gate. Native opts
+in with1. All guest publication RHSs, RAM/write edges, other readiness checks,
+clocks, timers and SDC policy remain unchanged. Exact reverse-source checks
+and actual shell/wrapper/backplane/caller bindings compose the safety theorem.
+
+Proofs v1/v2 PASS: arbitrary binary enables/all1,230 owner-before bits,
+no assumptions;1,280 four-state native/1,280 generic cases. V2 additionally
+frees standalone advance independently, including X/Z/advance1 while Ready0.
+Missing-Ready negative publishes wrong data in simulation and formal proof.
+Actual optimized native lint/XML PASS, all12,782 instances/3,798 sequential
+processes audited against compact parent: exactly one proved guard change.
+Actual caller parameter1. Six structural UNOPTFLAT warnings unchanged; one
+new integer-parameter conditional-width warning is explicitly accounted for
+using its elaborated literal1, with no runtime data truncation.
+
+BOTH complete Verilator replays PASS with original references/assertions/
+results and preparation coverage. SAME Icarus tests48406/full and48963/words
+are still running. Observe their exact handles. ONE new source-verified
+timing-only builder860426 is running at
+`/home/alans/mister/Dorado_CPRead15_PublicationGrant_v2_20261025`.
+No assembly/load permitted. Collect its terminal reports with the existing
+reader (or routing-rejection collector); never restart on an observation timeout.
+Launcher requires the source-bound grant proof and composed hierarchy audit.
+
+Older prepared-view30666 has finished at its immutable300M host bound:
+HOST_LIMIT/exit0,52,022,494 guest edges/CPwrites1/zero STARTCYCLE issues/zero
+pack/CRC/RX faults. Early startup only. Common-clock38212 remains at frozen909
+helper/1.5B host bound, and original62048 at5B. Neither uses the new tag/grant.
+First macro-check staging rejection retained; corrected v2 matches actual bare
+QSF defines. The failed stage was never launched. No existing run was restarted.
+
+Next: finish SAME Icarus48406/48963 and fit860426, inspect actual terminal
+routing/all-corner/crossing/SDRAM evidence, then choose the next structural
+change. Original60ns overlapping phases are still open (120ns development
+nominal before holds/preparation), along with calibrated timers/SDRAM, pinned
+hardware gains and full original Cedar/input/Checkpoint/Rollback/persistence/
+three-fresh-boots/two-hour stress. FPGA/protected media unchanged. Goal ACTIVE;
+complete FPGA snapshots deferred. Latest receipt:
+`native-shared-publication-grant-summary.json`.
+
+PREVIOUS SELECTED COMPACT DESCRIPTOR / NEW NATIVE FIT (2026-10-25):
 Both compact-tag complete programs have now PASSED in BOTH engines. Full
 Icarus41621 matches all14,884 transactions/10,423 commits/4,461 pairs/119 paired
 writes/238 forwarded bytes and2,353 prep edges, exactly the Verilator result.

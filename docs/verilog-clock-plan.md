@@ -14,7 +14,56 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-Current selected compact descriptor / native fit (2026-10-25):
+Current shared publication grant / routing work (2026-10-25):
+
+- [x] Collect SAME compact builder743068: map0/fit3, terminal routing
+  congestion. All578 source hashes verified;40,036/41,910ALMs (96%),54,146
+  registers, unchanged2,506,566 memory bits/330 RAM blocks. Compact tags save
+  400ALMs/316 registers from the global909 fit, but do not produce an image.
+  No STA/all-corner pass. Never restart the completed builder.
+- [x] Stage the duplicate publication-check factoring in
+  `native-publication-grant-stage-v2-20261025`. Only caller and converted
+  native backplane HDL change. Standalone parameter defaults0 and retains its
+  independent Ready barrier. Only actual native backplane opts into the
+  shell's reset/pack/storage/control-qualified advance. Every publication RHS,
+  RAM/write edge, original guard, clock, timer and SDC policy remains intact.
+- [x] Bind the actual shell -> native wrapper -> backplane -> caller wiring;
+  prove enable/all1,230 affected owner-before bits for arbitrary binary data,
+  no assumptions. Pass1,280 four-state native and1,280 standalone cases,
+  including independently free standalone advance/X/Z in proofv2. Omitting
+  Ready genuinely publishes wrong data in both formal and simulated negatives.
+- [x] Actual optimized lint/XML and full parent-composition audit PASS:
+  all12,782 instance identities/3,798 sequential processes retained, exactly
+  one proved guard substitution; actual caller parameter1. Six existing
+  UNOPTFLAT warnings unchanged. One extra width diagnostic is explicitly
+  accounted for: the integer parameter's conditional test is literal1 at
+  elaboration, with no runtime data truncation.
+- [x] BOTH full/words Verilator replays PASS with all original references,
+  assertions/results/preparation coverage. Same Icarus tests48406/full and
+  48963/words are running; observe their existing handles, never restart.
+- [x] Start ONE new timing-only builder860426 at
+  `/home/alans/mister/Dorado_CPRead15_PublicationGrant_v2_20261025`; all578
+  sources verified. Source-bound proof and actual hierarchy audit required by
+  launcher. No assembly/load permitted. Observe SAME builder through terminal
+  reports before selecting further physical or RTL changes.
+- [x] Observe older prepared-view30666 terminal at immutable300M host bound,
+  HOST_LIMIT/exit0:52,022,494 guest edges, CPwrites1, zero STARTCYCLE issues,
+  zero pack/CRC/RX faults. Early startup only, not firmware/Cedar qualification.
+- [ ] Finish SAME Icarus48406/48963 and fit860426; collect source-bound
+  terminal routing or all-corner/SDRAM/crossing reports. Continue original-ROM
+  common-clock38212 at frozen909-bit source/1.5B host bound and original62048
+  at5B. Do not attribute new465-bit/grant changes to those frozen runs.
+- [ ] Finish overlapping60ns phases (still120ns nominal before preparation/
+  stalls), calibrated peripherals/SDRAM, pinned measured hardware gains and
+  original Cedar/input/Checkpoint/Rollback/persistence/three-boots/two-hour
+  gates. FPGA/protected media unchanged; complete FPGA snapshots deferred.
+
+Receipt: `native-shared-publication-grant-summary.json`. Full goal ACTIVE.
+First stage's macro-value check rejected the bare QSF defines; its files are
+retained. Corrected v2 checks the actual bare define lines. No rejected stage
+was launched, and existing jobs/limits/inputs were not changed.
+
+Previous selected compact descriptor / native fit (2026-10-25):
 
 - [x] Finish BOTH compact-tag programs in BOTH engines. Full Icarus41621 PASS:
   14,884 transactions/10,423 commits/4,461 pairs/119 paired writes/238 forwarded

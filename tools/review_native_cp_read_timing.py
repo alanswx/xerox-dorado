@@ -73,6 +73,7 @@ def review(stage,out,launch=None):
     operand=source.get('prepared_native_operand_view_connected',False)
     clock_enable=source.get('clock_enable_conversion_staged',False)
     compact=source.get('compact_operand_tag_qualified',False)
+    grant=source.get('shared_publication_grant_staged',False)
     new_ready=bool(native_single and source.get('ready_compare_proof_state_sha256'))
     launch_state=None
     if launch:
@@ -85,6 +86,7 @@ def review(stage,out,launch=None):
             assert preflight['diagnostic_fit_only']and not preflight['complete_functional_and_timing_qualification']
             assert len(source['converted_module_types'])==33 and source['converted_unique_processes']==58
             assert source['converted_virtual_process_instances']==1823 and source['host_clock_processes_unchanged']
+            if grant:assert preflight['shared_publication_grant_proof_sha256']
     assert (project in [PROJECT,GUARD_PROJECT,TASK_PROJECT,SHARED_PROJECT,PARALLEL_PROJECT,READY_PROJECT] or (new_ready and launch_state)) and source['frequency_hz']==66666667 and source['sysper']==4
     guarded=project!=PROJECT
     task=project in [TASK_PROJECT,SHARED_PROJECT,PARALLEL_PROJECT,READY_PROJECT] or new_ready
@@ -99,7 +101,7 @@ def review(stage,out,launch=None):
     if parallel:
         assert source['task_parallel_proof_state_sha256']
         if not ready:assert source['incremental_functional_HDL_changes']==['src/verilog/rtl/dorado_local_task_capture_step.sv']
-    if ready:assert source['ready_compare_proof_state_sha256']and source['all2969_prefix_outputs_retained']and source['shared_state_mismatch_guard_retained']and len(source['incremental_functional_HDL_changes'])==(1 if compact else 35 if clock_enable else 4 if operand else 3)
+    if ready:assert source['ready_compare_proof_state_sha256']and source['all2969_prefix_outputs_retained']and source['shared_state_mismatch_guard_retained']and len(source['incremental_functional_HDL_changes'])==(2 if grant else 1 if compact else 35 if clock_enable else 4 if operand else 3)
     builder=launch_state['builder_pid'] if launch_state else {PROJECT:2865831,GUARD_PROJECT:3301754,TASK_PROJECT:3440305,SHARED_PROJECT:3571235,PARALLEL_PROJECT:3827091,READY_PROJECT:4042975}[project]
     if registered:assert source['R_read_buffer_proof_state_sha256']and source['single_SRAM_owner_and_write_edge_unchanged']
     if memc:assert registered and source['MemC_tag_read_proof_state_sha256']and len(source['MemC_tag_read_packages'])==21 and source['all21_address_matches_gate_whole_machine_publication']

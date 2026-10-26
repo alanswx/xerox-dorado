@@ -17,7 +17,7 @@ from review_baseboard_clock_consumer import verify
 from test_external_r_packet import sha
 
 
-def start(stage,out,clock_enable_audit=None,baseboard=None,baseboard_negative=None):
+def start(stage,out,clock_enable_audit=None,baseboard=None,baseboard_negative=None,publication_grant_proof=None):
     assert not out.exists();out.mkdir(parents=True)
     r=json.loads((stage/'r-front-control-native.json').read_text());verify(stage,r['source_hashes'])
     assert r['status']=='PREPARED_FULL_NATIVE_15NS_PHASE_GUARD_DIAGNOSTIC'and not r['assembly_permitted']
@@ -37,17 +37,37 @@ def start(stage,out,clock_enable_audit=None,baseboard=None,baseboard_negative=No
     source_count=578 if operand else 577 if memc else 576 if registered else 575 if r.get('ready_compare_proof_state_sha256')else 574
     assert len(r['source_hashes'])==source_count
     ce_preflight=None
+    grant=r.get('shared_publication_grant_staged',False)
+    grant_proof=None
+    comparison_sources=r['source_hashes']
+    if grant:
+        assert publication_grant_proof
+        grant_proof=json.loads((publication_grant_proof/'run-state.json').read_text())
+        verify(publication_grant_proof,grant_proof['files'])
+        assert grant_proof['status']=='PASS_NATIVE_SHARED_PUBLICATION_GRANT'
+        assert grant_proof['stage_manifest_sha256']==sha(stage/'r-front-control-native.json')
+        assert grant_proof['parent_manifest_sha256']==r['parent_manifest_sha256']
+        from stage_native_publication_grant import CALLER,BACKPLANE,binding,caller,backplane
+        binding(stage)
+        parent=Path(r['parent_stage']);pm=json.loads((parent/'r-front-control-native.json').read_text());verify(parent,pm['source_hashes'])
+        assert sha(parent/'r-front-control-native.json')==r['parent_manifest_sha256']
+        assert (stage/CALLER).read_text()==caller((parent/CALLER).read_text())
+        assert (stage/BACKPLANE).read_text()==backplane((parent/BACKPLANE).read_text())
+        assert {n for n,h in pm['source_hashes'].items()if Path(n).suffix in ['.v','.sv']and r['source_hashes'][n]!=h}=={CALLER,BACKPLANE}
+        comparison_sources=pm['source_hashes']
     if r.get('clock_enable_conversion_staged'):
         assert clock_enable_audit and baseboard and baseboard_negative
         a=json.loads((clock_enable_audit/'results.json').read_text())
-        assert a['status']=='PASS_NATIVE_COMMON_CLOCK_ENABLE_STRUCTURAL_AUDIT'and a['stage_manifest_sha256']==sha(stage/'r-front-control-native.json')
-        assert a['process_counts']['removed_guards']==1823 and a['process_counts']['HOST_CLOCK_RETAINS_EXISTING_POLICY']==1975
+        assert a['status']==('PASS_NATIVE_SHARED_GRANT_STRUCTURAL_AUDIT'if grant else'PASS_NATIVE_COMMON_CLOCK_ENABLE_STRUCTURAL_AUDIT')and a['stage_manifest_sha256']==sha(stage/'r-front-control-native.json')
+        counts=a['parent_process_counts']if grant else a['process_counts']
+        assert counts['removed_guards']==1823 and counts['HOST_CLOCK_RETAINS_EXISTING_POLICY']==1975
+        if grant:assert a['proof_state_sha256']==sha(publication_grant_proof/'run-state.json')and a['actual_caller_parameter']==1 and len(a['proved_guard_changes'])==1
         for d,status in [(baseboard,'PASS_ORIGINAL_ROM_BASEBOARD_COMMON_CLOCK_EQUIVALENCE'),(baseboard_negative,'PASS_MISSING_CLOCK_ENABLE_COUNTEREXAMPLE')]:
             b=json.loads((d/'run-state.json').read_text());verify(d,b['files'])
             assert b['status']==status and all(x.get('returncode')==0 for x in b['actions']if x['label']=='compile')
             tested=Path(b['stage']);bm=json.loads((tested/'r-front-control-native.json').read_text());verify(tested,bm['source_hashes'])
             assert sha(tested/'r-front-control-native.json')==b['stage_manifest_sha256']
-            differences={n for n,h in bm['source_hashes'].items()if Path(n).suffix in ['.v','.sv']and r['source_hashes'].get(n)!=h}
+            differences={n for n,h in bm['source_hashes'].items()if Path(n).suffix in ['.v','.sv']and comparison_sources.get(n)!=h}
             if compact:
                 helper='src/verilog/rtl/dorado_native_operand_buffer.sv'
                 assert differences=={helper}
@@ -56,10 +76,11 @@ def start(stage,out,clock_enable_audit=None,baseboard=None,baseboard_negative=No
         ce_preflight=dict(structural_audit_sha256=sha(clock_enable_audit/'results.json'),
             baseboard_test_state_sha256=sha(baseboard/'run-state.json'),negative_state_sha256=sha(baseboard_negative/'run-state.json'),
             complete_functional_and_timing_qualification=False,diagnostic_fit_only=True)
+        if grant:ce_preflight['shared_publication_grant_proof_sha256']=sha(publication_grant_proof/'run-state.json')
     check='from pathlib import Path\np=Path('+repr(project)+')\nassert not p.exists(), "Observe existing project; do not restart"\n'
     subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=10','misterubuntu','python3','-'],input=check,text=True,check=True)
     manifest_sha=sha(stage/'r-front-control-native.json')
-    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py','stage_native_ready_compare.py','stage_native_r_read_buffer.py','integrate_r_read_buffer.py','stage_native_memc_read_buffer.py','qualify_memc_read_buffer.py','stage_native_operand_buffer.py','integrate_native_operand_buffer.py','stage_native_clock_enables.py','stage_compact_native_operand_buffer.py']if(stage/n).is_file()]
+    stagers=[n for n in ['stage_native_phase_guard_timing.py','stage_native_task_parallel.py','stage_native_ready_compare.py','stage_native_r_read_buffer.py','integrate_r_read_buffer.py','stage_native_memc_read_buffer.py','qualify_memc_read_buffer.py','stage_native_operand_buffer.py','integrate_native_operand_buffer.py','stage_native_clock_enables.py','stage_compact_native_operand_buffer.py','stage_native_publication_grant.py']if(stage/n).is_file()]
     assert stagers,'Missing the executed staging helper'
     names=sorted(r['source_hashes'])+['r-front-control-native.json','build_r_front_ready_native.py',*stagers]
     bundle=out/'stage.tgz'
@@ -113,5 +134,5 @@ print(json.dumps(result))
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--stage',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
-    for n in ['clock-enable-audit','baseboard','baseboard-negative']:p.add_argument('--'+n,type=Path)
-    a=p.parse_args();start(a.stage.resolve(),a.output.resolve(),a.clock_enable_audit,a.baseboard,a.baseboard_negative)
+    for n in ['clock-enable-audit','baseboard','baseboard-negative','publication-grant-proof']:p.add_argument('--'+n,type=Path)
+    a=p.parse_args();start(a.stage.resolve(),a.output.resolve(),a.clock_enable_audit,a.baseboard,a.baseboard_negative,a.publication_grant_proof)
