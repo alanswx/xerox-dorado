@@ -1,0 +1,61 @@
+{
+  "status": "COLLECTED_READY_MODE_NATIVE_MAPPING_AND_SAME_JOB_STATE",
+  "stage_manifest_sha256": "8fd36e875ce75adf154f8c9fbf1e72d2b1394862caeed8d51930c9175ad4ac8b",
+  "source_files_verified": 582,
+  "same_builder": {
+    "status": "RUNNING",
+    "builder_pid": 1865964,
+    "started": 1792990572.9834273,
+    "stages": [
+      {
+        "stage": "map",
+        "pid": 1865968,
+        "started": 1792990572.9837997,
+        "returncode": 0,
+        "finished": 1792990865.967526
+      },
+      {
+        "stage": "fit",
+        "pid": 1876118,
+        "started": 1792990865.9680836
+      }
+    ],
+    "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+    "assembly_permitted": false
+  },
+  "processes": [
+    {
+      "pid": 1865964,
+      "returncode": 0,
+      "process": "1865964       06:28 Ss   python3 /home/alans/mister/Dorado_CPRead15_ReadyMode_20261025/build_r_front_ready_native.py --project /home/alans/mister/Dorado_CPRead15_ReadyMode_20261025 --manifest r-front-control-native.json"
+    },
+    {
+      "pid": 1876118,
+      "returncode": 0,
+      "process": "1876118       01:35 Rl   quartus_fit --read_settings_files=on --write_settings_files=off Dorado"
+    }
+  ],
+  "observed": 1792990960.989677,
+  "synthesis_registers_before": 50494,
+  "synthesis_registers_after": 50494,
+  "synthesis_register_delta": 0,
+  "memory_bits_before": 2511686,
+  "memory_bits_after": 2511686,
+  "original_five_RIOT_M10K_instances": [
+    "emu:emu|dorado_native_machine_ce:u_native|dorado_native_backplane_ce:m|BaseBd_m_Rev_m_Am_nominal_ce:b_BaseBd|cell_MCS6532_ce:u_c62|dorado_riot_blockram_ce:u_riot|dorado_riot_ram:native_ram|altsyncram:backing_rtl_0|altsyncram_ltr1:auto_generated|ALTSYNCRAM",
+    "emu:emu|dorado_native_machine_ce:u_native|dorado_native_backplane_ce:m|BaseBd_m_Rev_m_Am_nominal_ce:b_BaseBd|cell_MCS6532_ce:u_f62|dorado_riot_blockram_ce:u_riot|dorado_riot_ram:native_ram|altsyncram:backing_rtl_0|altsyncram_ltr1:auto_generated|ALTSYNCRAM",
+    "emu:emu|dorado_native_machine_ce:u_native|dorado_native_backplane_ce:m|BaseBd_m_Rev_m_Am_nominal_ce:b_BaseBd|cell_MCS6532_ce:u_f63|dorado_riot_blockram_ce:u_riot|dorado_riot_ram:native_ram|altsyncram:backing_rtl_0|altsyncram_ltr1:auto_generated|ALTSYNCRAM",
+    "emu:emu|dorado_native_machine_ce:u_native|dorado_native_backplane_ce:m|BaseBd_m_Rev_m_Am_nominal_ce:b_BaseBd|cell_MCS6532_ce:u_i62|dorado_riot_blockram_ce:u_riot|dorado_riot_ram:native_ram|altsyncram:backing_rtl_0|altsyncram_ltr1:auto_generated|ALTSYNCRAM",
+    "emu:emu|dorado_native_machine_ce:u_native|dorado_native_backplane_ce:m|BaseBd_m_Rev_m_Am_nominal_ce:b_BaseBd|cell_MCS6532_ce:u_l62|dorado_riot_blockram_ce:u_riot|dorado_riot_ram:native_ram|altsyncram:backing_rtl_0|altsyncram_ltr1:auto_generated|ALTSYNCRAM"
+  ],
+  "placement_timing_or_speed_qualified": false,
+  "files": {
+    "collection-query.py": "62a32366098926d7ea062cfbfc670ffee5b17043c4e0fd9a9fa34706671a8c42",
+    "observation.json": "fc79d50e17b63078c3582b0ffcdbb8d576ac66aa07cf53f3d348ac1eecb66d70",
+    "parent-map.summary": "410b45ceb8422eaa6292f55b8824b3927d5f1e1e0458522c21e7dc73789a4b90",
+    "completed-map/run-state.json": "5862ea640993f8f7760026c5911ea6257885cfe1b8963fa25f14a6e167d807e1",
+    "completed-map/map.log": "f890690a4e742450d3637180ef1d3338ca11f089ade90095e17acd1e213dbc48",
+    "completed-map/core/output_files/Dorado.map.summary": "3a89af15e200239de985f7f99dfb2fcfb66b97fc85d4379259187f551bd1cc0c",
+    "completed-map/core/output_files/Dorado.map.rpt": "693c919420188c2159adcb79087e2650275097741a9cc222a712923d5b6a0a21"
+  }
+}

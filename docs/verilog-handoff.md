@@ -13,6 +13,12 @@ ONE new diagnostic Quartus builder1865964/map1865968 is RUNNING at
 verified. Observe the same handles; never restart for a polling timeout. No
 assembly/RBF/FPGA load. Terminal prepared-Hold1458513 remains rejected below.
 
+Same map1865968 has now completed0; SAME fitter1876118 is verified live.
+Synthesis-to-synthesis registers50,494 ->50,494; memory2,511,686 bits unchanged,
+all five RIOTs still M10Ks. This does not establish placed area/timing or speed.
+Completed mapping and same-job observation are retained separately in
+`native-ready-mode-mapping-summary.json`. No source/limit/job was restarted.
+
 The new helper compares retain/clear/frozen-load Ready outcomes in parallel,
 then selects the exact original result. Only native single-step comparison
 logic changes; every architectural Ready/Hold/capture/guard remains. No new

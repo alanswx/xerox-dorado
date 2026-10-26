@@ -40,6 +40,11 @@ Parallel Ready-target timing candidate (2026-10-25, latest):
 - [x] Launch ONE timing-only Quartus builder1865964/map1865968 in
   `/home/alans/mister/Dorado_CPRead15_ReadyMode_20261025`;582 remote hashes
   verified. No assembly/image/FPGA load. Keep failed1458513 terminal.
+- [x] SAME map1865968 completed0. Compare synthesis to synthesis:50,494 ->
+  50,494 registers, unchanged2,511,686 memory bits and all five RIOT M10Ks.
+  No added register/memory cost. SAME fitter1876118 verified live; no placed
+  timing or useful speed conclusion follows from synthesis. Retain mapping
+  separately in `native-ready-mode-mapping-summary.json`.
 - [ ] Collect this same job's routing and all CPU/SDRAM corner reports; evaluate
   whether the parallel comparison shortened the limiting MIR-to-grant path.
   Do not restart for a polling timeout or select a timing-failing candidate.
