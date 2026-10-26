@@ -1,0 +1,197 @@
+{
+  "status": "REVIEWED_NATIVE_CONTROL_PHASE_CUT_LOGICAL_CONTRACT",
+  "records": [
+    {
+      "directory": "native-control-phase-cut-v1-20261025",
+      "status": "PASS_CERTIFIED_CONTROL_CAPTURE_WITH_CHANGING_IM_DATA",
+      "receipt_sha256": "f538335a3479b97c741459e195102bcf7732c5977898719b1d73b4910a6c59d7",
+      "cases": [
+        {
+          "label": "certified-data-change",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "label": "missing-CP-selector",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "label": "without-certificate",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "label": "cover-dBSEL-change",
+          "passed": true,
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "native-control-phase-closure-v1-20261025",
+      "status": "PASS_ORIGINAL_CONTROL_PRODUCER_PHASE_CLOSURE",
+      "receipt_sha256": "372ac19aa347c740ab7bc04bbd18a66b320bc33c60d71efc3ae90e837c39132a",
+      "cases": [
+        {
+          "label": "actual-producer",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "label": "stale-published-owner",
+          "passed": true,
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "native-control-phase-cache-v1-20261025",
+      "status": "PASS_ACTUAL_NATIVE_CONTROL_PHASE_CERTIFICATE_INDUCTION",
+      "receipt_sha256": "b3003ebea84c36077146174b9cb248d8d6033215e9899bc620c71f3940f3b85b",
+      "cases": [
+        {
+          "label": "actual-native-certificate",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "label": "stale-published-ASEL",
+          "passed": true,
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "native-control-phase-cache-v2-20261025",
+      "status": "PASS_ACTUAL_NATIVE_CONTROL_PHASE_CERTIFICATE_INDUCTION",
+      "receipt_sha256": "1a715f36352cb63fbb796b4b75c49fc21739363f87dbaa0691dd3dd1beb96547",
+      "cases": [
+        {
+          "label": "actual-native-certificate",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "label": "stale-published-ASEL",
+          "passed": true,
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "native-control-phase-cache-v3-20261025",
+      "status": "PASS_ACTUAL_NATIVE_CONTROL_PHASE_CERTIFICATE_INDUCTION",
+      "receipt_sha256": "558b2699b8e6d49c1215aaf671b5ced50abc9791b4ddf97f1b1acc5a0d144fce",
+      "cases": [
+        {
+          "label": "actual-native-certificate",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "label": "stale-published-ASEL",
+          "passed": true,
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "directory": "native-control-phase-native-v1-20261026",
+      "status": "TERMINAL_NATIVE_CONTROL_PHASE_CUT_NOT_ESTABLISHED",
+      "receipt_sha256": "6c16c7a5cf10bf3614c742583e7abeba8a70d8cf73dc2cb416a1f93457ad0dff",
+      "cases": [
+        {
+          "label": "actual-caller-owner-projection",
+          "passed": false,
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": "native-control-phase-native-v2-20261026",
+      "status": "TERMINAL_NATIVE_CONTROL_PHASE_CUT_NOT_ESTABLISHED",
+      "receipt_sha256": "fb7d80b702a27078bfeada57be389ff5bac2453aaab3d6d6792d11a7c729fbe0",
+      "cases": [
+        {
+          "label": "actual-caller-owner-projection",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "label": "complete-native-contract",
+          "passed": false,
+          "returncode": 1
+        }
+      ]
+    },
+    {
+      "directory": "native-control-phase-native-v3-20261026",
+      "status": "PASS_COMPLETE_NATIVE_CONTROL_PHASE_CUT_CONTRACT",
+      "receipt_sha256": "3359ec7990e7ac6fe4576de5efb2200a69062df3fa2d76801ad247b9a724e586",
+      "cases": [
+        {
+          "label": "actual-caller-owner-projection",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "label": "complete-native-contract",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "label": "without-entry-certificate",
+          "passed": true,
+          "returncode": 0
+        }
+      ]
+    }
+  ],
+  "authoritative_cache_scope": "v3 includes actual LC projection; earlier cache scopes retained",
+  "native_interface_bits": 2970,
+  "arbitrary_binary_inputs": 1982,
+  "explicit_entry_contract": "entry_fast implies exact original identity of actual joint_q/source_before/root",
+  "SAT_assumptions": 0,
+  "native_cache_unbounded_induction": true,
+  "caller_owner_projection": true,
+  "excluded_IM_data_inputs": 36,
+  "capture_stability_inputs_before": 85,
+  "capture_stability_inputs_after": 49,
+  "missing_certificate_counterexample": {
+    "certificate": false,
+    "contract_valid": false,
+    "changed_public_output_bits": [
+      76,
+      77,
+      78,
+      1361,
+      1362,
+      1449,
+      1450,
+      1451,
+      1555,
+      1556,
+      1558
+    ]
+  },
+  "earlier_harness_findings": [
+    "v1 cache has redundant identical CP functions; v2/v3 unique",
+    "native v1 missing actual captured operand field widths in older projection builder",
+    "native v2 WASM exception with duplicated complete graph; no equivalence verdict",
+    "native v3 shares 69 unchanged modules and duplicates 7 affected modules",
+    "first review misread scalar WaveJSON values before archive mutation; corrected decoding uses scalar wave values"
+  ],
+  "preserved_scope_limits": [
+    "native default wave parameters only; restore unsupported-parameter mask fallbacks before generalizing/staging",
+    "dual simulator complete caller and X/Z checks remain",
+    "no isolated native stage, lint/audit, full-core fit or hardware load",
+    "120ns nominal remains; original60ns/timers and complete Cedar/persistence/endurance goal remain"
+  ],
+  "extra_host_or_guest_cycles": 0,
+  "selected": false,
+  "physical_timing_qualified": false,
+  "hardware_changed": false,
+  "speedup_measured": false,
+  "full_goal_active": true
+}

@@ -1,5 +1,21 @@
 # Verilog from Sil: handoff
 
+CURRENT RESUME POINT (2026-10-26): read
+[the concise speed handoff](verilog-speed-handoff-2026-10-26.md) first.
+The original settled-HIGH certificate now proves that 36 IM data inputs can
+change across the falling root with all 795 control/frame bits unchanged.
+Producer closure and actual native cache induction (including LC projection)
+pass, with real unsafe-case negatives. Complete native qualification PASSES in
+`native-control-phase-native-v3-20261026`: corrected caller owner projection,
+all 2,970 outputs under the computed entry contract and a missing-certificate
+counterexample. The capture guard compares 49 inputs instead of 85. Review
+the combined proof scopes; this is not equivalence for false entry claims.
+Next preserve unsupported-parameter fallbacks, run complete dual-simulator/XZ
+checks, stage/lint/audit and fit the full core. No new native stage,
+Quartus job, image load or measured hardware speed gain follows yet. The
+current schedule remains 120 ns before stalls; original 60 ns integration
+and the complete goal remain active. Older "live" statements below are historical.
+
 FPGA AVAILABILITY (latest user instruction,2026-10-24): "you can use the fpga".
 MiSTer14 is released for Dorado testing again. Read-only SSH confirms it is
 reachable and running SMC777; no reload/reboot/control was performed. There is

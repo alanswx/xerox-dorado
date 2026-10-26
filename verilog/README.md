@@ -1,5 +1,11 @@
 # Dorado RTL, generated from PARC's own design data
 
+For the October 26, 2026 MiSTer speed work, start with the
+[speed handoff](../docs/verilog-speed-handoff-2026-10-26.md) and
+[clock plan](../docs/verilog-clock-plan.md). New control-phase proofs target the
+actual routed bottleneck; no new timing-qualified FPGA image or measured speed
+gain has been selected. The original 60 ns schedule remains an active goal.
+
 The Verilog here is **generated**, not written: `chm/sil/` holds the output of
 Xerox's own Sil design-automation tools for all sixteen Dorado boards -- the
 input the machine was actually built from -- and `tools/sil_*.py` turn it into

@@ -9,6 +9,37 @@ for measurements and the [handoff](verilog-handoff.md) for deployed artifacts.
 
 ## Active delivery plan and goal (revised 2026-10-20)
 
+Current continuation (2026-10-26):
+
+- [x] Prove the original settled-HIGH certificate permits 36 IM data inputs
+  to change across the falling root, preserving all 795 control/frame bits,
+  including 432 shared frame bits. Retain CP-selector and missing-certificate
+  counterexamples and a cover exercising changed dBSEL.2 with the real CRam event.
+- [x] Prove producer closure and unbounded actual packet-cache identity with
+  unconstrained owner/history power-up and arbitrary input histories. The v3
+  proof includes the actual Hold-independent LC projection; stale ASEL fails.
+- [x] Correct the older projection harness to declare the actual captured
+  operand fields at their real widths. Current caller owner projection passes;
+  preserve the first failed harness and earlier cache-proof scopes.
+- [x] Collect complete native 2,970-output equivalence under the computed
+  entry contract and its missing-certificate negative, in
+  `native-control-phase-native-v3-20261026`. V1's projection declaration and
+  v2's WASM compiler exception are retained; neither is an RTL failure verdict.
+- [ ] Preserve unsupported-parameter mask fallbacks before generalizing or
+  staging this private native-default candidate. The qualified capture guard
+  compares 49 inputs instead of 85; false entry-certificate claims remain unsafe.
+- [ ] Pass dual-simulator complete caller/XZ checks, isolated stage lint and
+  source/process audit before one full-core fit. Keep all architectural capture,
+  CP maintenance, Hold/Ready and storage barriers; add no serialized wait.
+- [ ] Review all-corner CPU/SDRAM/crossing results, then complete original
+  60 ns overlap/timers and every hardware/software/persistence/endurance gate.
+  Current nominal interval remains 120 ns; no new FPGA speed gain is measured.
+
+See [the concise handoff](verilog-speed-handoff-2026-10-26.md) for evidence,
+exact run directories, preserved simulations and the next actions. The active
+experiment removes a specific unnecessary falling-edge IM-data dependency;
+it does not make the complete capture-phase integration below unnecessary.
+
 Hardware allocation update (latest user instruction,2026-10-24): "you can use
 the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
