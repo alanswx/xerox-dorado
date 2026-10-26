@@ -1,0 +1,79 @@
+{
+  "status": "REVIEWED_NATIVE_RIOT_RAM_MAPPING_AND_STARTED_ORIGINAL_ROM_RUNTIME",
+  "previous_goal_turn": "progress: proved/tested RAM implementation, staged/audited native hierarchy, launched same native fit and pushed312eaccff",
+  "prior_integration_receipt_sha256": "f06cc082182b88fc5447931e2f55241c4f141edbc24c52d17e8158f2147053c4",
+  "stage_manifest_sha256": "0b30542776f770d062a6414c2fff17362893d44818c70b228ca8c1a1909dfd3a",
+  "same_native_fit": {
+    "observed": 1792979890.833751,
+    "run_state": {
+      "status": "RUNNING",
+      "builder_pid": 1029546,
+      "started": 1792978917.2159305,
+      "stages": [
+        {
+          "stage": "map",
+          "pid": 1029549,
+          "started": 1792978917.2165933,
+          "returncode": 0,
+          "finished": 1792979142.0302155
+        },
+        {
+          "stage": "fit",
+          "pid": 1045451,
+          "started": 1792979142.0307603
+        }
+      ],
+      "builder_sha256": "7eaa4c5885bc577d84d6c51d50e620039b4f75dac1231c5e6ebf8c4d09783aa4",
+      "assembly_permitted": false
+    },
+    "processes": [
+      {
+        "pid": 1029546,
+        "returncode": 0,
+        "process": "1029546       16:13 00:00:00 Ss   python3 /home/alans/mister/Dorado_CPRead15_RiotBlockRAM_20261025/build_r_front_ready_native.py --project /home/alans/mister/Dorado_CPRead15_RiotBlockRAM_20261025 --manifest r-front-control-native.json"
+      },
+      {
+        "pid": 1045451,
+        "returncode": 0,
+        "process": "1045451       12:28 00:20:12 Sl   quartus_fit --read_settings_files=on --write_settings_files=off Dorado"
+      }
+    ],
+    "source_files_verified": 580,
+    "hashes": {
+      "map.log": "9c53d7acb96bc41a379dd6d75f710d5fc6d4dd75465bde5de639839b3e1cd4fe",
+      "core/output_files/Dorado.map.rpt": "26fc89ed1f587c1e95e03e3e6e70332b50a74e0058f6101cc0685c1b24172768",
+      "core/output_files/Dorado.map.summary": "e73c1689d8c39faa2c546253f9572801c5f2c526ea6608d978e95c1b9d6dbd42",
+      "run-state.json": "808d7a4583e40c47a34b14968bd6a42147a3ef1ff3bf2790277cf93230137bfa"
+    }
+  },
+  "mapped_RIOT_M10K_instances": [
+    "emu:emu|dorado_native_machine_ce:u_native|dorado_native_backplane_ce:m|BaseBd_m_Rev_m_Am_nominal_ce:b_BaseBd|cell_MCS6532_ce:u_c62|dorado_riot_blockram_ce:u_riot|dorado_riot_ram:native_ram|altsyncram:backing_rtl_0|altsyncram_ltr1:auto_generated|ALTSYNCRAM",
+    "emu:emu|dorado_native_machine_ce:u_native|dorado_native_backplane_ce:m|BaseBd_m_Rev_m_Am_nominal_ce:b_BaseBd|cell_MCS6532_ce:u_f62|dorado_riot_blockram_ce:u_riot|dorado_riot_ram:native_ram|altsyncram:backing_rtl_0|altsyncram_ltr1:auto_generated|ALTSYNCRAM",
+    "emu:emu|dorado_native_machine_ce:u_native|dorado_native_backplane_ce:m|BaseBd_m_Rev_m_Am_nominal_ce:b_BaseBd|cell_MCS6532_ce:u_f63|dorado_riot_blockram_ce:u_riot|dorado_riot_ram:native_ram|altsyncram:backing_rtl_0|altsyncram_ltr1:auto_generated|ALTSYNCRAM",
+    "emu:emu|dorado_native_machine_ce:u_native|dorado_native_backplane_ce:m|BaseBd_m_Rev_m_Am_nominal_ce:b_BaseBd|cell_MCS6532_ce:u_i62|dorado_riot_blockram_ce:u_riot|dorado_riot_ram:native_ram|altsyncram:backing_rtl_0|altsyncram_ltr1:auto_generated|ALTSYNCRAM",
+    "emu:emu|dorado_native_machine_ce:u_native|dorado_native_backplane_ce:m|BaseBd_m_Rev_m_Am_nominal_ce:b_BaseBd|cell_MCS6532_ce:u_l62|dorado_riot_blockram_ce:u_riot|dorado_riot_ram:native_ram|altsyncram:backing_rtl_0|altsyncram_ltr1:auto_generated|ALTSYNCRAM"
+  ],
+  "synthesis_registers_before": 54835,
+  "synthesis_registers_after": 50362,
+  "synthesis_register_reduction": 4473,
+  "additional_native_memory_bits": 5120,
+  "complete_native_placement_routing_or_timing_qualified": false,
+  "startup": {
+    "pid": 55173,
+    "process": "55173 05:20   5:18.91 R    /Users/alans/dev2/Dorado/build/rtl-executive/native-riot-blockram-startup-v1-20261025/obj/native-cedar +limit-file=/Users/alans/dev2/Dorado/build/rtl-executive/native-riot-blockram-startup-v1-20261025/host-cycle-limit.txt +window-control=/Users/alans/dev2/Dorado/build/rtl-executive/native-riot-blockram-startup-v1-20261025/window-control.txt +boot-presses=3 +medium=/Users/alans/dev2/Dorado/build/rtl-executive/cedar-work-native-hints.pack +aemu=/Users/alans/dev2/Dorado/dorado/worlds/aemu.eb +cedar=/Users/alans/dev2/Dorado/chm/dorado/CedarDorado.eb!6 +alto=/Users/alans/dev2/Dorado/chm/bootfiles/NETEXEC.BOOT!8 +stp=/Users/alans/dev2/Dorado/chm/cedar/stp-root",
+    "verified_live_at": 1792979895.141804,
+    "host_limit": 1500000000,
+    "pause_checked_vectors": 2810,
+    "original_boot_presses": 3,
+    "input_reset_pass": true,
+    "first_HPS_ack_pass": true,
+    "firmware_qualified": false
+  },
+  "original_ROM_host_services_SDRAM_and_all_original_assertions_retained": true,
+  "nominal_ordinary_ns": 120,
+  "target_ordinary_ns": 60,
+  "new_hardware_speed_gain_measured": false,
+  "FPGA_or_protected_media_changed": false,
+  "full_goal_active": true,
+  "next_action": "Observe SAME1029546 and runtime55173 at unchanged1.5B bound; collect terminal routing or all-corner/crossing/SDRAM reports. Then actual60ns chronological capture/timers/SDRAM and pinned hardware/Cedar/Rollback/persistence/three-boot/stress gates. Existing38212/62048 stay frozen; complete snapshots deferred."
+}

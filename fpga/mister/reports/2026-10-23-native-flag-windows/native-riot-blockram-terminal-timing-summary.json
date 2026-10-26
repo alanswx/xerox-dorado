@@ -1,0 +1,72 @@
+{
+  "status": "REVIEWED_ROUTED_NATIVE_CE_CORE_WITH_REAL_SETUP_FAILURE",
+  "source_review_sha256": "4cab1f8b42c27dbbd63891dc88510634caf8c17b84deebd46c7f14a4d16ac221",
+  "stage_manifest_sha256": "0b30542776f770d062a6414c2fff17362893d44818c70b228ca8c1a1909dfd3a",
+  "builder_pid": 1029546,
+  "terminal_all_nine_stages_zero": true,
+  "fitted_ALMs": 35880,
+  "fitted_percent": 86,
+  "fitted_registers": 50770,
+  "RAM_blocks": 335,
+  "memory_bits": 2511686,
+  "setup_slacks_by_corner_ns": {
+    "7_slow_1100mv_-40c": -8.734,
+    "7_slow_1100mv_100c": -9.117,
+    "MIN_fast_1100mv_-40c": 3.563,
+    "MIN_fast_1100mv_100c": 1.996
+  },
+  "worst_setup_path": {
+    "From Node": "emu:emu|dorado_native_machine_ce:u_native|dorado_native_backplane_ce:m|dorado_r_front_owned_packet:r_front_dispatch|r_front_upper_q[254]",
+    "To Node": "emu:emu|dorado_ethernet_wire:u_network_wire|rstate[0]",
+    "Launch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+    "Latch Clock": "emu|pll|pll_inst|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk",
+    "Data Arrival Time": "32.155",
+    "Data Required Time": "23.038",
+    "Slack": "-9.117 (VIOLATED)",
+    "slack_ns": -9.117
+  },
+  "worst_data_delay_ns": 23.551,
+  "worst_logic_levels": 15,
+  "worst_data_interconnect_ns": 17.39,
+  "worst_interconnect_percent": 74,
+  "remaining_path": "Held request owner -> MemC NewRef/dVA/cache conditional Hold producer(pin386) -> control capture/derived phase -> ready/grant -> global G3 distribution -> Ethernet receiver state synchronous load",
+  "hold_and_SDRAM_corner_checks": {
+    "native59-hold-*.rpt": {
+      "files": 4,
+      "path_count": 12,
+      "minimum_slack_ns": 0.085
+    },
+    "native59-sdram-input-setup-*.rpt": {
+      "files": 4,
+      "path_count": 48,
+      "minimum_slack_ns": 0.442
+    },
+    "native59-sdram-input-hold-*.rpt": {
+      "files": 4,
+      "path_count": 48,
+      "minimum_slack_ns": 4.263
+    },
+    "native59-sdram-output-setup-*.rpt": {
+      "files": 4,
+      "path_count": 188,
+      "minimum_slack_ns": 3.248
+    },
+    "native59-sdram-output-hold-*.rpt": {
+      "files": 4,
+      "path_count": 188,
+      "minimum_slack_ns": 3.856
+    }
+  },
+  "illegal_clocks": 0,
+  "unconstrained_clocks": 0,
+  "unconstrained_inputs": 3,
+  "unconstrained_outputs": 50,
+  "all_IO_or_full_timing_qualified": false,
+  "conditional_Hold_source_sha256": "1347047d051f3d80236af2d534ed13f9e9fee7b6dbe9c4d3cc92811a9129e90c",
+  "nominal_ordinary_ns": 120,
+  "target_ordinary_ns": 60,
+  "assembly_or_load_permitted": false,
+  "new_hardware_speed_gain_measured": false,
+  "full_goal_active": true,
+  "next_action": "Trace actual MemC conditional-Hold/cache-compare producer and control capture phases; prepare/capture stable producer values before their original consumer edge. Prove real MIR/Ready/Hold/previous-instruction completion and X/Z fallback. Do not bypass readiness, add blanket exceptions, lower the target clock or merely retime Ethernet without its source path. Then same-source fit/full native/physical SDRAM and all hardware/Cedar/Rollback/persistence/three-boot/stress requirements."
+}

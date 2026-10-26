@@ -7,7 +7,65 @@ no newly qualified full-core RBF ready to load. Build on misterubuntu and
 simulate on the Mac until that gate passes. The goal remains active. This
 supersedes older reservation statements below; archived receipts stay historical.
 
-CURRENT RIOT BLOCK RAM INTEGRATION / NATIVE FIT (2026-10-25):
+CURRENT ROUTED CORE / SETUP PATH / ORIGINAL-ROM AND SDRAM CLOCK CHECKS
+(2026-10-25):
+SAME1029546 mapping collected with all580 remote sources verified. All FIVE
+actual RIOT arrays are distinct128x8 simple-dual-port M10Ks. Mapping-to-mapping
+comparison with compact parent:54,835 ->50,362 registers (4,473 fewer),
+2,506,566 ->2,511,686 memory bits (+5,120). These are synthesis counts. SAME
+builder1029546 is now TERMINAL:ALL9 stages0/all580 hashes verified. Routing
+SUCCEEDS at35,880ALMs/86%,50,770 registers/335 RAM blocks. CPU setup remains
+REJECTED: slow100/-40=-9.117/-8.734ns;fast100/-40=+1.996/+3.563ns. Minimum
+hold+0.085ns. No assembly/load/speed promotion. Never restart the completed job.
+
+Four-corner SDRAM input setup/hold minima+0.442/+4.263ns; output setup/hold
++3.248/+3.856ns.0 illegal/unconstrained clocks, but3 input/50 output ports remain
+unconstrained in the overall design; no all-I/O/full-timing claim. Worst real
+CPU data path23.551ns/15 logic levels,17.390ns interconnect (74%): held request
+owner -> MemC NewRef/dVA/cache conditional-Hold producer(pin386) -> control
+state154/direct-arrival65 -> capture phase/clock view -> ready/grant -> globalG3
+-> Ethernet receiver rstate synchronous load. The terminal receipt preserves
+all source/path/corner reports; this is not an Ethernet-only delay problem.
+
+New exact RAM-based original-ROM native run55173 is RUNNING at frozen1.5B host
+bound/66.666667MHz. Three normal boot presses, original ROMs, HPS/Pup service,
+independent physical SDRAM model and every old harness assertion retained.
+New passive pause image includes all25 new RIOT mode/read/validity fields,
+for2,810 checked vectors. Old d_out/non-RAM observations remain; five excluded
+array names now point at physical backing storage. Separate full logical RAM,
+component induction and original-ROM BaseBoard checks remain required/pass.
+Harness is reconstructed exactly from original+reversible observer edits;
+actual XML supplies the new fields and widths. Input reset and first HPS ACK
+at207944 PASS. It is still initializing memory, not qualifying Cedar/firmware.
+Older38212/62048 remain on their prior frozen sources/limits; do not attribute
+new RAM/tag changes to them or change any existing run's bound.
+
+New physical pin tests use EXACT staged BL8 source and actual native flags:
+RESPONSE_OVERLAP/CAPTURE_READ_WORD/EARLY_READ_RESPONSE=1, four lines.50MHz/0ns,
+66.666667MHz/0ns and66.666667MHz/6ns offset ALL PASS1,197 checks/636 reads/
+561 writes/88 physical reads/562 physical writes/557 cache hits, retaining ALL
+original reset-per-beat/pending-write/response-hold/two-rank-refresh/pin-map/
+tOH-glitch assertions. Pin fixture has26-bit addresses to cover both ranks;
+native23-bit connection is exercised by the separate full native simulation.
+Two genuine negatives reject: early sampling reads0000 vs a57b; wrong50MHz
+counter binding at66.7MHz issues PRECHARGE at150.075us before the required
+200us model initialization delay. Both compile, then fail for data/protocol.
+No native controller or frozen job input was changed for those checks.
+
+Next: trace the actual MemC conditional-Hold/cache-compare producer's original
+t0/t1/t3 ownership, and prepare stable inputs in an earlier valid phase. Prove
+MIR/Ready/Hold/older-instruction completion and X/Z fallback; retain genuine
+readiness/storage barriers. No blanket exceptions, clock reduction or blind
+late-Ready register. Full CPU timing still forbids assembly/load; no hardware
+or Cedar speed gain is claimed. Continue55173 at its existing1.5B bound. Original60ns
+overlapping phases (still120ns nominal before holds/preparation), calibrated
+timers/SDRAM, pinned hardware progress/waits, Cedar/input/Checkpoint/Rollback/
+persistence/three-fresh-boots/two-hour stress remain open. FPGA/protected media
+unchanged. Full goal ACTIVE, complete FPGA snapshots deferred. Latest receipts:
+`native-riot-blockram-runtime-summary.json`, `native-sdram-66mhz-pin-summary.json`,
+`native-riot-blockram-terminal-timing-summary.json`.
+
+PREVIOUS RIOT BLOCK RAM INTEGRATION / NATIVE FIT (2026-10-25):
 All four shared-grant full/words Icarus/Verilator replays PASS. Its SAME860426
 fit has TERMINATED map0/fit3, routing congestion at40,418ALMs/96%,54,143
 registers/unchanged memory; all578 source hashes/reports collected. No speed

@@ -14,7 +14,69 @@ the fpga". MiSTer14 is available again; read-only SSH finds SMC777 running.
 No reload/reboot/control performed, and no new full-core image is qualified.
 This supersedes earlier reservation statements below, not historical receipts.
 
-Current RIOT block RAM integration / native fit (2026-10-25):
+Current routed native core / setup path / original-ROM and SDRAM clock checks
+(2026-10-25):
+
+- [x] Collect completed mapping from SAME1029546 while fitter1045451 remains
+  live. All580 remote source hashes verify. All FIVE actual RIOT memories are
+  distinct128x8 simple-dual-port M10Ks. Compare mapping with compact-parent
+  mapping:54,835 ->50,362 registers (4,473 fewer),2,506,566 ->2,511,686 memory
+  bits (+5,120). These are synthesis counts, not placed ALMs or hardware speed.
+- [x] Freeze/start exact RAM-based original-ROM native simulation55173 at an
+  immutable1.5B host bound/66.666667MHz. All normal3 boot presses, original
+  ROMs, HPS/Pup service, physical SDRAM model and old assertions retained.
+  Reconstruct the harness exactly from baseline+reversible observer edits.
+  Actual new RIOT state adds25 vectors (mode, read latch and byte validity),
+  yielding2,810 pause-checked vectors. All old non-RAM fields remain checked;
+  five excluded physical-array names now identify backing RAM. Old separate
+  logical RAM/whole-BaseBoard/induction checks remain authoritative.
+- [x] SAME55173 compiles/starts; initial input reset and first HPS ACK at
+  host207944 PASS. Memory initialization ongoing, not firmware/Cedar proof.
+  Existing38212/62048 remain unchanged/frozen older sources and bounds.
+- [x] Pin-test the EXACT staged BL8 source with native overlap/capture/early
+  options1, four cache lines:50MHz/0ns,66.666667MHz/0ns and66.666667MHz/6ns clock
+  offset ALL PASS1,197 checks/636 reads/561 writes/88 physical reads/562
+  physical writes/557 hits. Every original assertion retained: reset during
+  each burst beat, pending writes/reset, held responses, both-rank refresh,
+  mapping and original tOH glitch checks.26-bit fixture covers both physical
+  ranks; actual native23-bit connection is exercised separately by55173.
+- [x] Genuine pin negatives: premature CAS sampling returns0000 instead of
+  a57b; binding50MHz counts to a66.7MHz clock issues PRECHARGE at150.075us,
+  violating the model's200us power-up requirement. Both compile then fail
+  from actual data/protocol behavior; no assertion/reference was weakened.
+- [x] SAME1029546 is now TERMINAL with ALL9 report stages0/all580 sources
+  verified. The core ROUTES:35,880ALMs/86%,50,770 registers,335 RAM blocks.
+  CPU setup still FAILS:slow100/-40=-9.117/-8.734ns; fast100/-40=+1.996/+3.563ns.
+  Minimum hold+0.085ns. No assembly/load or measured hardware gain. Never restart
+  the completed builder. The RAM change solved congestion, not CPU setup.
+- [x] Four-corner SDRAM path reports pass: input setup/hold minima+0.442/+4.263ns,
+  output setup/hold+3.248/+3.856ns. No illegal/unconstrained clocks.3 input/50
+  output ports remain unconstrained in the overall design, so no all-I/O pass
+  is claimed. Pin-model/STA results still need eventual hardware verification.
+- [x] Attribute worst CPU path:23.551ns/15 levels,17.390ns interconnect (74%).
+  Held request -> MemC NewRef/dVA -> conditional-Hold producer pin386 -> control
+  state154/direct-arrival65 -> derived capture phase/clock view -> ready/grant
+  -> globalG3 -> Ethernet rstate synchronous load. The receiver is the endpoint;
+  treating this as an Ethernet-only bug would miss its source dependency.
+- [ ] Trace the actual conditional-Hold/cache-compare producer's original
+  t0/t1/t3 ownership and move stable preparation into an earlier valid phase.
+  Prove real MIR/Ready/Hold and older-instruction completion plus X/Z fallback;
+  keep every genuine readiness/storage barrier. No blanket timing exceptions,
+  target-clock reduction or unqualified late-Ready register. Follow55173 at its
+  unchanged1.5B bound; retain the independent38212/62048 frozen runs.
+- [ ] Finish actual original60ns overlapping capture phases (still120ns nominal
+  before preparation/stalls), timer calibration, full66.7MHz interface timing/
+  hardware verification, pinned useful-progress gains and all original Cedar/
+  input/Checkpoint/Rollback/persistence/three-boot/two-hour gates. FPGA and
+  protected media unchanged. Full goal ACTIVE; complete snapshots deferred.
+
+Receipts: `native-riot-blockram-runtime-summary.json` and
+`native-sdram-66mhz-pin-summary.json`, plus terminal
+`native-riot-blockram-terminal-timing-summary.json`. Broader-address pin coverage and early
+startup are explicitly separate from native CDC/PCB-flight/four-corner timing,
+full firmware boot and measured instruction speed.
+
+Previous RIOT block RAM integration / native fit (2026-10-25):
 
 - [x] Finish BOTH Icarus shared-grant replays: all four complete programs now
   PASS with original assertions/results and exact preparation coverage. Collect

@@ -1,0 +1,61 @@
+{
+  "status": "REVIEWED_NATIVE_SOURCE_66MHZ_SDRAM_PIN_PROTOCOL",
+  "stage_manifest_sha256": "0b30542776f770d062a6414c2fff17362893d44818c70b228ca8c1a1909dfd3a",
+  "native_backend_sha256": "22f617b61f7153dfcb879c1b287bff65276e076ecadc9a4c7f83aa220f16227d",
+  "source_tests_state_sha256": "fe270d8c07270dabde826473fc2f655894a4426c2b5317fc194c128129e87d02",
+  "cases": [
+    {
+      "name": "clock50",
+      "clock_hz": 50000000,
+      "clock_delay_ns": 0,
+      "negative": null,
+      "returncode": 0,
+      "metrics": [
+        "STORAGE-SDRAM-BURST PASS use_burst=1 lines=4 checks=1197 reads=636 writes=561 physical_reads=88 physical_writes=562 cache_hits=557"
+      ]
+    },
+    {
+      "name": "clock66",
+      "clock_hz": 66666667,
+      "clock_delay_ns": 0,
+      "negative": null,
+      "returncode": 0,
+      "metrics": [
+        "STORAGE-SDRAM-BURST PASS use_burst=1 lines=4 checks=1197 reads=636 writes=561 physical_reads=88 physical_writes=562 cache_hits=557"
+      ]
+    },
+    {
+      "name": "clock66-skew6",
+      "clock_hz": 66666667,
+      "clock_delay_ns": 6,
+      "negative": null,
+      "returncode": 0,
+      "metrics": [
+        "STORAGE-SDRAM-BURST PASS use_burst=1 lines=4 checks=1197 reads=636 writes=561 physical_reads=88 physical_writes=562 cache_hits=557"
+      ]
+    },
+    {
+      "name": "clock66-early-capture",
+      "clock_hz": 66666667,
+      "clock_delay_ns": 6,
+      "negative": "early",
+      "returncode": 1,
+      "metrics": []
+    },
+    {
+      "name": "clock66-wrong-frequency-binding",
+      "clock_hz": 66666667,
+      "clock_delay_ns": 0,
+      "negative": "frequency",
+      "returncode": 1,
+      "metrics": []
+    }
+  ],
+  "all_original_pin_bench_assertions_retained": 18,
+  "protocol_checks": "200us power-up, both ranks/banks, corrected CAS2 sampling, reset during every burst beat, writes/reset, held responses, refresh under backpressure, pin mapping and original tOH glitch check",
+  "address_width_scope": "Exact frozen native controller source/options,26-bit pin fixture covers both physical ranks; native23-bit connection is also exercised by the separate full native startup.",
+  "full_native_CDC_or_board_flight_or_four_corner_IO_timing_or_hardware_qualified": false,
+  "full60ns_capture_or_Cedar_or_measured_hardware_gain_qualified": false,
+  "FPGA_or_existing_runs_or_protected_media_changed": false,
+  "full_goal_active": true
+}

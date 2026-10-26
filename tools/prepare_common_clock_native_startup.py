@@ -20,7 +20,7 @@ from review_baseboard_clock_consumer import verify
 from test_external_r_packet import sha
 
 
-def observer(inventory,xml_source):
+def observer(inventory,xml_source,riot_xml=None):
     inv=json.loads((inventory/'results.json').read_text());xml=ET.parse(xml_source/'native.xml').getroot()
     assert inv['native_XML_sha256']==sha(xml_source/'native.xml')
     modules={m.get('name'):m for m in xml.findall('.//module')}
@@ -53,6 +53,36 @@ def observer(inventory,xml_source):
                 assert dtype.tag in ['basicdtype','packarraydtype'],(path,dtype.tag)
                 signals.append(path);total_bits+=width(dtype)
     assert len(signals)==2785 and len(arrays)==38
+    if riot_xml:
+        actual=ET.parse(riot_xml/'native.xml').getroot()
+        actual_modules={m.get('name'):m for m in actual.findall('.//module')}
+        actual_types={t.get('id'):t for t in actual.findall('.//typetable/*')}
+        # The same five chip paths retain every old non-RAM state and output.
+        # Add ALL new implementation state, not just the old d_out observation.
+        chips=[c for c in actual.findall('.//cells//cell')if
+               actual_modules[c.get('submodname')].get('origName')=='dorado_riot_blockram_ce']
+        assert len(chips)==5
+        old_types=types
+        for chip in chips:
+            path=chip.get('hier');assert path.startswith(root+'.')
+            prefix='dut'+path[len(root):]
+            assert prefix+'.d_out'in signals and prefix+'.riot_ram'in arrays
+            arrays[arrays.index(prefix+'.riot_ram')]=prefix+'.native_ram.backing'
+            cm=actual_modules[chip.get('submodname')]
+            children=[c for c in chip.findall('cell')if c.get('hier')==path+'.native_ram'];assert len(children)==1
+            rm=actual_modules[children[0].get('submodname')];assert rm.get('origName')=='dorado_riot_ram'
+            for owner,names,base in [(cm,['ram_selected','other_d_out'],prefix),
+                                     (rm,['written','read_payload','read_written'],prefix+'.native_ram')]:
+                for name in names:
+                    variables=[v for v in owner.findall('var')if v.get('name')==name];assert len(variables)==1
+                    dtype=actual_types[variables[0].get('dtype_id')]
+                    assert dtype.tag in ['basicdtype','packarraydtype']
+                    types=actual_types
+                    bits=width(dtype)
+                    types=old_types
+                    assert base+'.'+name not in signals
+                    signals.append(base+'.'+name);total_bits+=bits
+        assert len(signals)==2810 and len(arrays)==38
     image='{'+',\n'.join(signals)+'}'
     extra=f'''
 // Passive snapshot of EVERY converted scalar/vector state. The HPS buffer
@@ -116,13 +146,21 @@ def retime(raw):
     return raw,changes
 
 
-def prepare(stage,baseline,inventory,xml_source,audit,out,limit):
+def prepare(stage,baseline,inventory,xml_source,audit,out,limit,actual_lint=None):
     assert not out.exists()and 300000000<=limit<=5000000000
     m=json.loads((stage/'r-front-control-native.json').read_text());verify(stage,m['source_hashes'])
     assert m['clock_enable_conversion_staged']and m['frequency_hz']==66666667 and m['sysper']==4
     assert not m['assembly_permitted']
-    a=json.loads((audit/'results.json').read_text());assert a['status']=='PASS_NATIVE_COMMON_CLOCK_ENABLE_STRUCTURAL_AUDIT'
+    riot=m.get('native_RIOT_block_ram_staged',False)
+    a=json.loads((audit/'results.json').read_text())
+    assert a['status']==('PASS_NATIVE_RIOT_BLOCK_RAM_STRUCTURAL_AUDIT'if riot else'PASS_NATIVE_COMMON_CLOCK_ENABLE_STRUCTURAL_AUDIT')
     assert a['stage_manifest_sha256']==sha(stage/'r-front-control-native.json')
+    if riot:
+        assert actual_lint and a['instances_after']==12787 and a['process_counts']['new_processes']==3813
+        l=json.loads((actual_lint/'run-state.json').read_text());verify(actual_lint,l['files'])
+        assert l['status']=='ELABORATED_NATIVE_COMMON_CLOCK_ENABLE_EXPERIMENT'
+        assert l['stage_manifest_sha256']==sha(stage/'r-front-control-native.json')and all(x['returncode']==0 for x in l['actions'])
+    else:assert actual_lint is None
     assert sha(inventory/'results.json')==m['clock_enable_inventory_sha256']
     p=json.loads(gzip.decompress((baseline/'provenance.json.gz').read_bytes()));verify(baseline/'inputs',p['inputs'])
     assert p['normal_baseboard_boot_presses']==3 and p['skip_disk_wait_jumper_fitted']
@@ -132,7 +170,7 @@ def prepare(stage,baseline,inventory,xml_source,audit,out,limit):
     for name in m['source_hashes']:
         dest=inputs/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(stage/name,dest)
     tb=inputs/'harness/tb_native_cedar.sv';original=tb.read_text();raw,changes=retime(original)
-    extra,signals,arrays=observer(inventory,xml_source)
+    extra,signals,arrays=observer(inventory,xml_source,actual_lint if riot else None)
     checks=MONITOR+memc_monitor(m)+operand_monitor(m)+extra
     assert raw.count('endmodule')==1;raw=raw.replace('endmodule',checks+'\nendmodule',1);tb.write_text(raw)
     # Originals, memory model and all host services remain exact.
@@ -144,7 +182,7 @@ def prepare(stage,baseline,inventory,xml_source,audit,out,limit):
     assert macros==['DORADO_HOST_CLOCK_HZ=66666667']
     defines=[d for d in p['defines']if not d.startswith('DORADO_HOST_CLOCK_HZ=')]+macros
     used=list(p['used_hdl'])
-    for name in m['extra_RTL_sources']:
+    for name in m['extra_RTL_sources']+m.get('additional_native_lint_sources',[]):
         if name not in used:used.append(name)
     shutil.copy2(Path(__file__),inputs/Path(__file__).name)
     (out/'host-cycle-limit.txt').write_text(str(limit)+'\n');(out/'window-control.txt').write_text('0 2\n')
@@ -155,6 +193,8 @@ def prepare(stage,baseline,inventory,xml_source,audit,out,limit):
         'accepted_rising_edge_observers':True,'harness_reversible_retiming_edits':changes,
         'old_harness_fatal_assertions_retained':original.count('$fatal('),
         'pause_checked_scalar_vectors':signals,'array_scope_not_in_scalar_image':arrays,
+        'native_RIOT_block_ram_connected':riot,
+        'actual_RIOT_pause_XML_sha256':sha(actual_lint/'native.xml')if riot else None,
         'inputs':{str(q.relative_to(inputs)):sha(q)for q in inputs.rglob('*')if q.is_file()},
         'used_hdl':used,'defines':defines,'host_clock_hz':66666667,'host_limit':limit,
         'window_control_path':str(out/'window-control.txt'),'window_initial_control':'0 2\n',
@@ -170,4 +210,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ['stage','baseline','inventory','xml-source','audit','output']:p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--limit',type=int,default=1500000000)
-    a=p.parse_args();prepare(a.stage.resolve(),a.baseline.resolve(),a.inventory.resolve(),a.xml_source.resolve(),a.audit.resolve(),a.output.resolve(),a.limit)
+    p.add_argument('--actual-lint',type=Path)
+    a=p.parse_args();prepare(a.stage.resolve(),a.baseline.resolve(),a.inventory.resolve(),a.xml_source.resolve(),a.audit.resolve(),a.output.resolve(),a.limit,a.actual_lint.resolve()if a.actual_lint else None)
