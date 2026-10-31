@@ -232,7 +232,15 @@ module dorado_rtl_top
         .disk_sector_write_req   (disk_sector_write_req),
         .fb_rd_addr              (fb_rd_addr),
         .fb_rd_data              (fb_rd_data),
-        .io_busy                 (io_busy)
+        .io_busy                 (io_busy),
+        .rx_wr_en                (1'b0),
+        .rx_wr_addr              (12'd0),
+        .rx_wr_data              (16'd0),
+        .rx_wr_att               (1'b0),
+        .rx_load                 (1'b0),
+        .rx_load_count           (13'd0),
+        .eth_tx_rd_addr          (10'd0),
+        .eth_tx_rd_data          ()
     );
 
 endmodule

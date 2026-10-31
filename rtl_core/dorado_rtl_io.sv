@@ -93,10 +93,40 @@ module dorado_rtl_io
     output logic [7:0]     fb_rd_data,
 
     // High while the I/O side cannot accept the next microinstruction's
-    // strobes (the CPU waits in C_FETCH).
-    output logic           io_busy
+    // strobes (the CPU waits in C_FETCH): the tick itself, the clock after it
+    // (registered read data settles), a framebuffer job, a receive skip.
+    output logic           io_busy,
+
+    // Receive buffer fill (from the boot server): words, then rx_load with
+    // the count restarts the controller's read position at 0.
+    input  logic           rx_wr_en,
+    input  logic [11:0]    rx_wr_addr,
+    input  logic [15:0]    rx_wr_data,
+    input  logic           rx_wr_att,
+    input  logic           rx_load,
+    input  logic [12:0]    rx_load_count,
+
+    // Transmit buffer readout (the packet announced by eth_tx_packet_stb)
+    input  logic [9:0]     eth_tx_rd_addr,
+    output logic [15:0]    eth_tx_rd_data
 );
-    assign io_busy = 1'b0;
+    // Framebuffer render jobs (main block -> engine)
+    logic        rj_start;
+    logic        rj_cursor;
+    logic        rj_ch;
+    logic [9:0]  rj_y;
+    logic [10:0] rj_width;
+    logic [3:0]  rj_start_off;
+    logic [7:0]  rj_wcount;
+    logic [15:0] rj_cx;
+    logic [15:0] rj_cbits;
+    logic        r_busy;             // a framebuffer/copy job is queued or running
+    logic        wc_start;           // munch copy job (main block -> engine)
+    logic        wc_ch;
+    logic [6:0]  wc_base;
+    logic [4:0]  wc_n;
+    assign io_busy = clk_en || rj_start || wc_start || r_busy || eth_skip_busy;
+    // r_busy: a framebuffer/copy job is queued or running (set below)
     // =========================================================================
     // 1. Constants & Device Address Definitions
     // =========================================================================
@@ -145,6 +175,14 @@ module dorado_rtl_io
     // 2. Display Controller (DDC) & Terminal State
     // =========================================================================
     logic [7:0]  fb [0:DISPLAY_FB_BYTES-1];
+    logic [16:0] fb_addr_a;
+    logic        fb_we_a;
+    logic [7:0]  fb_wd_a;
+    logic [7:0]  fb_q_a;
+    always_ff @(posedge clk) begin
+        if (fb_we_a) fb[fb_addr_a] <= fb_wd_a;
+        fb_q_a <= fb[fb_addr_a];
+    end
     always_ff @(posedge clk) fb_rd_data <= fb[fb_rd_addr];
     logic [15:0] ddc_statics;
     logic [15:0] ddc_riob;
@@ -188,11 +226,13 @@ module dorado_rtl_io
     logic [15:0] ddc_cur_ptr        [0:1];
     logic [15:0] ddc_cur_scan       [0:1];
     logic [15:0] ddc_cur_word_count [0:1];
-    logic [15:0] ddc_cur_words      [0:1][0:127];
+    // Words gathered for the line each channel is drawing: block RAM
+    // {channel, index}, filled by the munch-copy engine, read by the renderer.
+    logic [15:0] ddc_cur_words      [0:255];
 
     // Display FIFOs (64 words each for channel A and B)
-    logic [15:0] ddc_fifo_a [0:63];
-    logic [15:0] ddc_fifo_b [0:63];
+    // The raster FIFOs' contents are never read; only their head/tail
+    // positions (which gate DWT wakeups) are modelled.
     int          ddc_fifo_a_head, ddc_fifo_a_tail;
     int          ddc_fifo_b_head, ddc_fifo_b_tail;
 
@@ -238,6 +278,11 @@ module dorado_rtl_io
     int          eth_tx_count;
     logic [15:0] eth_rx_words     [0:4095];
     logic        eth_rx_attention [0:4095];
+    logic [15:0] eth_rx_q;      // eth_rx_words[eth_rx_pos], one clock late
+    logic        eth_rx_att_q;
+    logic        eth_skip_busy; // WaitForBOP skip in progress
+    logic        eth_skip_phase;
+    int          eth_skip_count;
     int          eth_rx_count;
     int          eth_rx_pos;
 
@@ -337,17 +382,6 @@ module dorado_rtl_io
     // 5. Helper Functions & Tasks
     // =========================================================================
 
-    // Set pixel in 1024x808 1-bpp framebuffer
-    task automatic ddc_set_pixel(input int x, input int y, input logic pix);
-        int byte_idx;
-        int bit_idx;
-        if (x < 0 || x >= DISPLAY_W || y < 0 || y >= DISPLAY_H) return;
-        byte_idx = y * DISPLAY_ROW_BYTES + (x >> 3);
-        bit_idx  = 7 - (x & 7);
-        if (pix) fb[byte_idx] = fb[byte_idx] | (8'd1 << bit_idx);
-        else     fb[byte_idx] = fb[byte_idx] & ~(8'd1 << bit_idx);
-    endtask
-
     function automatic int ddc_decode_width_pixels_fn(input logic [15:0] raw);
         int pixels;
         pixels = int'((32'd0 - {20'd0, raw[11:0]}) & 32'h0FFF) - 255;
@@ -383,45 +417,6 @@ module dorado_rtl_io
         ddc_cur_ptr[c]        = ddc_pend_ptr[c];
         ddc_cur_scan[c]       = ddc_pend_scan[c];
         ddc_cur_word_count[c] = 16'd0;
-    endtask
-
-    task automatic ddc_render_line_task(input int ch);
-        int c, width_pixels, y, x, visible_words, start_off, line_pixels, remaining;
-        logic [15:0] word;
-        c = ch & 1;
-        if (!ddc_cur_valid[c] || ddc_cur_word_count[c] == 16'd0) return;
-
-        width_pixels = ddc_decode_width_pixels_fn(ddc_cur_width[c]);
-        if (width_pixels <= 0) return;
-
-        y = ddc_cur_abs_y[c] ? int'(ddc_cur_y[c])
-                             : (int'(ddc_cur_line[c]) * 2 + int'(ddc_cur_odd[c]));
-        if (y < 0 || y >= DISPLAY_H) return;
-
-        x             = 0;
-        visible_words = (width_pixels + 15) / 16;
-        start_off     = int'(ddc_cur_ptr[c] & 16'o17);
-        line_pixels   = 0;
-        ddc_lines_rendered = ddc_lines_rendered + 64'd1;
-
-        for (int px = 0; px < width_pixels && px < DISPLAY_W; px++) begin
-            ddc_set_pixel(px, y, 1'b0);
-        end
-
-        for (int i = 0; i < visible_words && x < DISPLAY_W; i++) begin
-            int src;
-            src  = start_off + i;
-            word = (src < int'(ddc_cur_word_count[c]) && src < 128) ? ddc_cur_words[c][src] : 16'd0;
-            remaining = width_pixels - (i * 16);
-            if (remaining > 16) remaining = 16;
-            for (int b = 0; b < remaining && x < DISPLAY_W; b++, x++) begin
-                logic bit_val;
-                bit_val = word[15 - b];
-                ddc_set_pixel(x, y, bit_val);
-                if (bit_val) line_pixels++;
-            end
-        end
-        ddc_pixels_rendered = ddc_pixels_rendered + 64'(line_pixels);
     endtask
 
     function automatic int ddc_fifo_free_fn(input int subtask);
@@ -496,9 +491,7 @@ module dorado_rtl_io
     task automatic ddc_advance_terminal_bit_task();
         if (ddc_boot_button_scanlines > 32'd0) begin
             ddc_boot_button_scanlines = ddc_boot_button_scanlines - 32'd1;
-            return;
-        end
-
+        end else begin
         if (ddc_term_msg_bit == 8'd0) begin
             ddc_term_msg_active = 1'b1;
             if (ddc_kbd_pending != 5'd0) begin
@@ -541,11 +534,13 @@ module dorado_rtl_io
             ddc_term_msg_active = 1'b0;
             ddc_term_messages   = ddc_term_messages + 64'd1;
         end
+        end
     endtask
 
     // =========================================================================
     // 6. Disk Controller Helper Functions & Tasks
     // =========================================================================
+`ifndef DORADO_NO_DISK
     function automatic logic disk_muff_word_bit_fn(
         input logic [7:0]  addr,
         input logic [7:0]  base,
@@ -962,6 +957,7 @@ module dorado_rtl_io
     // =========================================================================
     // 7. Combinational Read, Write-Check, IOAtten', and DMux Multiplexers
     // =========================================================================
+`endif
     function automatic logic is_display_task_fn(input logic [3:0] t);
         return (t == TASK_DHT || t == TASK_AHT || t == TASK_AWT || t == TASK_DWT);
     endfunction
@@ -1024,10 +1020,11 @@ module dorado_rtl_io
                     io_read_data       = 16'hFFFF;
                 end else begin
                     io_read_bad_parity = 1'b0;
-                    io_read_data       = eth_rx_words[eth_rx_pos & 4095];
+                    io_read_data       = eth_rx_q;
                 end
             end
         end
+`ifndef DORADO_NO_DISK
         // 3. Disk (Trident)
         else if (io_read_task == TASK_DSK &&
                  (io_read_tioa >= TIOA_DISKCONTROL && io_read_tioa <= TIOA_DISKTAG)) begin
@@ -1043,6 +1040,7 @@ module dorado_rtl_io
                 io_read_data       = disk_muffler_bit_fn(disk_muff_addr) ? 16'h0001 : 16'h0000;
             end
         end
+`endif
     end
 
     // Combinational IOAtten' (sampled at instruction issue when ctask != 0)
@@ -1050,7 +1048,7 @@ module dorado_rtl_io
         io_atten = 1'b0;
         if (io_read_task == TASK_EIT && io_read_tioa == TIOA_ETH_DATA) begin
             if (eth_rx_hold == 32'd0 && eth_rx_pos < eth_rx_count &&
-                eth_rx_attention[eth_rx_pos & 4095]) begin
+                eth_rx_att_q) begin
                 io_atten = 1'b1;
             end
         end
@@ -1060,20 +1058,201 @@ module dorado_rtl_io
     always_comb begin
         dmux_ext_handled = 1'b0;
         dmux_ext_val     = 16'h0000;
+`ifndef DORADO_NO_DISK
         if (dmux_cur_addr >= 12'o2000 && dmux_cur_addr <= 12'o2037) begin
             dmux_ext_handled = 1'b1;
             dmux_ext_val     = disk_muffler_bit_fn(8'(dmux_cur_addr - 12'o2000)) ? 16'h8000 : 16'h0000;
         end
+`endif
     end
 
     // Combinational Fast I/O input munch (for DM_REF_IOSTORE on TASK_DSK)
     always_comb begin
         for (int i = 0; i < 16; i++) begin
+            fastio_in_munch[i] = 16'd0;
+`ifndef DORADO_NO_DISK
             if (fastio_task == TASK_DSK && i < disk_fifo_count) begin
                 fastio_in_munch[i] = disk_fifo[(disk_fifo_tail + i) % DISK_FIFO_WORDS];
-            end else begin
-                fastio_in_munch[i] = 16'd0;
             end
+`endif
+        end
+    end
+
+    always_ff @(posedge clk) begin
+        if (rx_wr_en) begin
+            eth_rx_words[rx_wr_addr]     <= rx_wr_data;
+            eth_rx_attention[rx_wr_addr] <= rx_wr_att;
+        end
+        eth_rx_q     <= eth_rx_words[eth_rx_pos[11:0]];
+        eth_rx_att_q <= eth_rx_attention[eth_rx_pos[11:0]];
+    end
+
+    always_ff @(posedge clk) begin
+        eth_tx_rd_data <= eth_tx_words[eth_tx_rd_addr];
+    end
+
+
+    // =========================================================================
+    // Framebuffer render engine. The main block posts at most one job per
+    // tick (a gathered display line, or one cursor row); this writes it into
+    // the framebuffer block RAM a byte at a time while io_busy holds the CPU,
+    // which keeps the framebuffer a two-port RAM (this port and scan-out).
+    // Line: pixels x < width take the word bits MSB first from
+    // ddc_cur_words[ch][start_off + x/16] (0 past the gathered words); pixels
+    // at or beyond width are left as they were (C model ddc_render_line).
+    // Cursor: the 16 row bits are ORed in at x (C model's cursor overlay).
+    // =========================================================================
+    typedef enum logic [2:0] {
+        R_IDLE, R_WADDR, R_WWAIT, R_SCAN, R_RMW_WAIT, R_RMW_WRITE, R_COPY
+    } rstate_t;
+    rstate_t     r_st;
+    logic        r_rpend, r_wpend;    // render / copy job waiting
+    logic        r_cur;               // current job is a cursor row
+    logic [7:0]  r_bx, r_bx_last;     // byte column (cursor: which of 3 bytes)
+    logic        r_full_last;         // line: last byte is a whole byte
+    logic [7:0]  r_val, r_mask;
+    logic [16:0] r_addr;
+    logic        r_we;
+    logic [7:0]  r_wd;
+    logic [23:0] r_cfield;            // cursor row bits aligned to bytes
+    logic signed [8:0] r_cbx;         // cursor first byte column
+    logic [4:0]  r_wj;                // copy index
+
+    // Line buffer port: the copy engine writes, the renderer reads.
+    logic [7:0]  cw_addr;
+    logic        cw_we;
+    logic [15:0] cw_wd;
+    logic [15:0] cw_q;
+    always_ff @(posedge clk) begin
+        if (cw_we) ddc_cur_words[cw_addr] <= cw_wd;
+        cw_q <= ddc_cur_words[cw_addr];
+    end
+
+    assign r_busy = r_rpend || r_wpend || (r_st != R_IDLE);
+
+    always_comb begin
+        logic [7:0] src;
+        fb_addr_a = r_addr;
+        fb_we_a   = r_we;
+        fb_wd_a   = r_wd;
+        src       = {4'd0, rj_start_off} + {1'b0, r_bx[7:1]};
+        cw_we     = (r_st == R_COPY);
+        cw_addr   = (r_st == R_COPY) ? {wc_ch, wc_base + {2'd0, r_wj}} : {rj_ch, src[6:0]};
+        cw_wd     = fastio_out_munch[r_wj[3:0]];
+    end
+
+    function automatic logic [3:0] popcount8(input logic [7:0] v);
+        logic [3:0] n;
+        n = 4'd0;
+        for (int i = 0; i < 8; i++) n = n + {3'd0, v[i]};
+        return n;
+    endfunction
+
+    // Byte r_bx of the line, from the word just read (cw_q).
+    function automatic logic [7:0] line_byte();
+        logic [7:0]  src;
+        logic [15:0] word;
+        src  = {4'd0, rj_start_off} + {1'b0, r_bx[7:1]};
+        word = (src < rj_wcount && src < 8'd128) ? cw_q : 16'd0;
+        return r_bx[0] ? word[7:0] : word[15:8];
+    endfunction
+
+    always_ff @(posedge clk) begin
+        r_we <= 1'b0;
+        if (rst) begin
+            r_st                <= R_IDLE;
+            r_rpend             <= 1'b0;
+            r_wpend             <= 1'b0;
+            ddc_pixels_rendered <= 64'd0;
+        end else begin
+            // The tick that posts a job also posts at most one copy; the
+            // render (posted by a write strobe, which the C model handles
+            // before the munch) goes first.
+            if (rj_start) r_rpend <= 1'b1;
+            if (wc_start) r_wpend <= 1'b1;
+            case (r_st)
+            R_IDLE: begin
+                if (r_rpend) begin
+                    r_rpend <= 1'b0;
+                    r_cur   <= rj_cursor;
+                    r_bx    <= 8'd0;
+                    if (!rj_cursor) begin
+                        r_bx_last   <= 8'((rj_width - 11'd1) >> 3);
+                        r_full_last <= (rj_width[2:0] == 3'd0);
+                        r_st        <= R_WADDR;
+                    end else begin
+                        // first byte column = floor(x / 8); field = bits >> (x mod 8)
+                        r_cbx    <= 9'($signed(rj_cx) >>> 3);
+                        r_cfield <= {rj_cbits, 8'd0} >> rj_cx[2:0];
+                        r_st     <= R_SCAN;
+                    end
+                end else if (r_wpend) begin
+                    r_wpend <= 1'b0;
+                    r_wj    <= 5'd0;
+                    r_st    <= R_COPY;
+                end
+            end
+            R_COPY: begin
+                if (r_wj == wc_n - 5'd1) r_st <= R_IDLE;
+                else                     r_wj <= r_wj + 5'd1;
+            end
+            R_WADDR: r_st <= R_WWAIT;          // cw_addr = word of r_bx
+            R_WWAIT: r_st <= R_SCAN;
+            R_SCAN: begin
+                if (!r_cur) begin
+                    logic [7:0] v, m;
+                    v = line_byte();
+                    if (r_bx == r_bx_last && !r_full_last)
+                        m = 8'hFF << (4'd8 - {1'b0, rj_width[2:0]});
+                    else
+                        m = 8'hFF;
+                    r_addr <= {rj_y, 7'd0} + {9'd0, r_bx};
+                    ddc_pixels_rendered <= ddc_pixels_rendered + 64'(popcount8(v & m));
+                    if (m == 8'hFF) begin
+                        r_we <= 1'b1;
+                        r_wd <= v;
+                        if (r_bx == r_bx_last) r_st <= R_IDLE;
+                        else begin
+                            r_bx <= r_bx + 8'd1;
+                            // the odd byte of a word needs no new read
+                            r_st <= r_bx[0] ? R_WADDR : R_SCAN;
+                        end
+                    end else begin
+                        r_val  <= v;
+                        r_mask <= m;
+                        r_st   <= R_RMW_WAIT;
+                    end
+                end else begin
+                    logic signed [9:0] col;
+                    logic [7:0]        m;
+                    col = 10'(r_cbx) + 10'(r_bx);
+                    m   = (r_bx == 8'd0) ? r_cfield[23:16] :
+                          (r_bx == 8'd1) ? r_cfield[15:8]  : r_cfield[7:0];
+                    if (col >= 0 && col < DISPLAY_ROW_BYTES && m != 8'd0) begin
+                        r_addr <= {rj_y, 7'd0} + {7'd0, col};
+                        r_val  <= 8'hFF;
+                        r_mask <= m;
+                        r_st   <= R_RMW_WAIT;
+                    end else if (r_bx == 8'd2) begin
+                        r_st <= R_IDLE;
+                    end else begin
+                        r_bx <= r_bx + 8'd1;
+                    end
+                end
+            end
+            R_RMW_WAIT: r_st <= R_RMW_WRITE;   // fb_q_a <- fb[r_addr]
+            R_RMW_WRITE: begin
+                r_we <= 1'b1;
+                r_wd <= (fb_q_a & ~r_mask) | (r_val & r_mask);
+                if ((!r_cur && r_bx == r_bx_last) || (r_cur && r_bx == 8'd2)) begin
+                    r_st <= R_IDLE;
+                end else begin
+                    r_bx <= r_bx + 8'd1;
+                    r_st <= r_cur ? R_SCAN : R_WADDR;
+                end
+            end
+            default: r_st <= R_IDLE;
+            endcase
         end
     end
 
@@ -1085,7 +1264,23 @@ module dorado_rtl_io
     //    until that clock has passed, so its I/O reads see the result.
     // =========================================================================
     always @(posedge clk) begin
+        rj_start = 1'b0;
+        wc_start = 1'b0;
         if (rst) begin
+            wc_ch          = 1'b0;
+            wc_base        = 7'd0;
+            wc_n           = 5'd0;
+            eth_skip_busy  = 1'b0;
+            eth_skip_phase = 1'b0;
+            eth_skip_count = 0;
+            rj_cursor      = 1'b0;
+            rj_ch          = 1'b0;
+            rj_y           = 10'd0;
+            rj_width       = 11'd0;
+            rj_start_off   = 4'd0;
+            rj_wcount      = 8'd0;
+            rj_cx          = 16'd0;
+            rj_cbits       = 16'd0;
             // Display reset
             ddc_statics             = 16'h0003; // STATICS_ALL_SHUTUP
             ddc_riob                = 16'd0;
@@ -1100,7 +1295,6 @@ module dorado_rtl_io
             ddc_scan_line           = 32'd0;
             ddc_scan_pixel          = 32'd0;
             ddc_frame_count         = 64'd0;
-            ddc_pixels_rendered     = 64'd0;
             ddc_lines_rendered      = 64'd0;
             for (int c = 0; c < 2; c++) begin
                 ddc_next_wcb_flag[c]    = 1'b0;
@@ -1156,6 +1350,7 @@ module dorado_rtl_io
             eth_tx_packet_stb       = 1'b0;
             eth_tx_packet_words     = 11'd0;
 
+`ifndef DORADO_NO_DISK
             // Disk reset
             disk_selected_drive     = 2'd0;
             for (int i = 0; i < 4; i++) begin
@@ -1222,10 +1417,27 @@ module dorado_rtl_io
             disk_sector_read_req       = 1'b0;
             disk_sector_write_req      = 1'b0;
 
+`endif
             ext_wakeup_req             = 16'd0;
             ext_subtask_we             = 1'b0;
             ext_subtask_task           = 4'd0;
             ext_subtask_val            = 2'd0;
+        end else if (eth_skip_busy) begin
+            // WaitForBOP walk: phase 0 waits for eth_rx_att_q at eth_rx_pos.
+            if (!eth_skip_phase) begin
+                eth_skip_phase = 1'b1;
+            end else begin
+                eth_skip_phase = 1'b0;
+                eth_rx_pos     = eth_rx_pos + 1;
+                eth_skip_count = eth_skip_count + 1;
+                if (eth_rx_att_q || eth_rx_pos >= eth_rx_count) begin
+                    eth_rx_hold   = 32'(eth_skip_count * 170) - 32'd1;
+                    eth_skip_busy = 1'b0;
+                end
+            end
+        end else if (rx_load) begin
+            eth_rx_pos   = 0;
+            eth_rx_count = int'(rx_load_count);
         end else if (clk_en) begin
             eth_tx_packet_stb     = 1'b0;
             disk_sector_read_req  = 1'b0;
@@ -1265,6 +1477,7 @@ module dorado_rtl_io
                         eth_rx_pos = eth_rx_pos + 1;
                     end
                 end
+`ifndef DORADO_NO_DISK
                 // 3. Disk FIFO pop
                 else if (io_read_stb_task == TASK_DSK && io_read_stb_tioa == TIOA_DISKDATA) begin
                     if (disk_fifo_count > 0) begin
@@ -1277,6 +1490,7 @@ module dorado_rtl_io
                         disk_update_fifo_tws_task();
                     end
                 end
+`endif
             end
 
             // -----------------------------------------------------------------
@@ -1362,7 +1576,25 @@ module dorado_rtl_io
                             ddc_wcb_draw_y[ch]       = 16'(draw_y);
                             ddc_start_line_task(ch, draw_y);
                         end else begin
-                            ddc_render_line_task(ch);
+                            // Render the line this channel has gathered: post a
+                            // job to the framebuffer engine (it writes while
+                            // io_busy holds the CPU). Matches the C model's
+                            // ddc_render_line guards.
+                            int width_pixels, y;
+                            width_pixels = ddc_decode_width_pixels_fn(ddc_cur_width[ch]);
+                            y = ddc_cur_abs_y[ch] ? int'(ddc_cur_y[ch])
+                                                  : (int'(ddc_cur_line[ch]) * 2 + int'(ddc_cur_odd[ch]));
+                            if (ddc_cur_valid[ch] && ddc_cur_word_count[ch] != 16'd0 &&
+                                width_pixels > 0 && y >= 0 && y < DISPLAY_H) begin
+                                ddc_lines_rendered = ddc_lines_rendered + 64'd1;
+                                rj_start     = 1'b1;
+                                rj_cursor    = 1'b0;
+                                rj_ch        = ch[0];
+                                rj_y         = 10'(y);
+                                rj_width     = 11'(width_pixels);
+                                rj_start_off = ddc_cur_ptr[ch][3:0];
+                                rj_wcount    = ddc_cur_word_count[ch][7:0];
+                            end
                             ddc_current_wcb_flag[ch] = 1'b0;
                         end
                     end else if (io_write_tioa == TIOA_RAST_TASKCMD) begin
@@ -1420,10 +1652,12 @@ module dorado_rtl_io
                                     int x, y;
                                     x = 3741 - int'(ddc_nlcb_cursor_x); // CURSOR_X_BIAS = 07235
                                     y = (int'(ddc_nlcb_line) - 1) * 2 + int'(ddc_nlcb_field_odd);
-                                    for (int b2 = 0; b2 < 16; b2++) begin
-                                        if (row_bits[15 - b2]) begin
-                                            ddc_set_pixel(x + b2, y, 1'b1);
-                                        end
+                                    if (y >= 0 && y < DISPLAY_H && x > -16 && x < DISPLAY_W) begin
+                                        rj_start  = 1'b1;
+                                        rj_cursor = 1'b1;
+                                        rj_y      = 10'(y);
+                                        rj_cx     = 16'(x);
+                                        rj_cbits  = row_bits;
                                     end
                                 end
                                 ddc_nlcb_cursor_lo = 8'd0;
@@ -1463,18 +1697,19 @@ module dorado_rtl_io
                         on = io_write_data[10]; // RXON (0x0400)
                         if (on && !io_write_data[9] && eth_rx_on) begin // !RXBOPN (0x0200): WaitForBOP
                             if (eth_rx_hold == 32'd0) begin
-                                int skipped;
-                                skipped = 0;
-                                while (eth_rx_pos < eth_rx_count &&
-                                       !eth_rx_attention[eth_rx_pos & 4095]) begin
-                                    eth_rx_pos = eth_rx_pos + 1;
-                                    skipped    = skipped + 1;
-                                end
+                                // Skip to just past the next attention word.
+                                // The walk runs one word per two clocks after
+                                // this tick (io_busy holds the CPU); hold = 170
+                                // per word skipped, minus this tick's
+                                // decrement. Hold 2 meanwhile, so this tick's
+                                // wakeup check sees a held receiver exactly
+                                // as it would after the walk.
                                 if (eth_rx_pos < eth_rx_count) begin
-                                    eth_rx_pos = eth_rx_pos + 1;
-                                    skipped    = skipped + 1;
+                                    eth_skip_busy  = 1'b1;
+                                    eth_skip_phase = 1'b0;
+                                    eth_skip_count = 0;
+                                    eth_rx_hold    = 32'd2;
                                 end
-                                eth_rx_hold = 32'(skipped * 170);
                             end
                         end
                         eth_rx_on = on;
@@ -1489,6 +1724,7 @@ module dorado_rtl_io
                         eth_tx_count               = eth_tx_count + 1;
                     end
                 end
+`ifndef DORADO_NO_DISK
                 // 3. Disk (Trident)
                 else if (io_write_task == TASK_DSK) begin
                     case (io_write_tioa)
@@ -1682,6 +1918,7 @@ module dorado_rtl_io
                         default: ;
                     endcase
                 end
+`endif
             end
 
             // -----------------------------------------------------------------
@@ -1692,30 +1929,33 @@ module dorado_rtl_io
                     if (fastio_kind == DM_REF_IOFETCH) begin
                         int ch;
                         ch = fastio_subtask[1] ? 1 : 0;
-                        for (int i = 0; i < 16; i++) begin
-                            if (ddc_current_wcb_flag[ch]) begin
-                                if (ddc_cur_valid[ch] && ddc_cur_word_count[ch] < 16'd128) begin
-                                    ddc_cur_words[ch][ddc_cur_word_count[ch][6:0]] = fastio_out_munch[i];
-                                    ddc_cur_word_count[ch] = ddc_cur_word_count[ch] + 16'd1;
-                                end
-                            end else begin
-                                if (fastio_subtask == 2'd0) begin
-                                    int next_h;
-                                    next_h = (ddc_fifo_a_head + 1) % 64;
-                                    if (next_h == ddc_fifo_a_tail) break;
-                                    ddc_fifo_a[ddc_fifo_a_head] = fastio_out_munch[i];
-                                    ddc_fifo_a_head             = next_h;
-                                end else begin
-                                    int next_h;
-                                    next_h = (ddc_fifo_b_head + 1) % 64;
-                                    if (next_h == ddc_fifo_b_tail) break;
-                                    ddc_fifo_b[ddc_fifo_b_head] = fastio_out_munch[i];
-                                    ddc_fifo_b_head             = next_h;
-                                end
+                        if (ddc_current_wcb_flag[ch]) begin
+                            // Append the munch to the line (128 words max):
+                            // the copy engine moves it a word per clock.
+                            if (ddc_cur_valid[ch] && ddc_cur_word_count[ch] < 16'd128) begin
+                                logic [7:0] room;
+                                room     = 8'd128 - ddc_cur_word_count[ch][7:0];
+                                wc_start = 1'b1;
+                                wc_ch    = ch[0];
+                                wc_base  = ddc_cur_word_count[ch][6:0];
+                                wc_n     = (room < 8'd16) ? room[4:0] : 5'd16;
+                                ddc_cur_word_count[ch] = ddc_cur_word_count[ch] + {11'd0, wc_n};
                             end
+                        end else begin
+                            // Raster FIFO: advance by the munch, or as far
+                            // as the free space (a full FIFO drops the rest).
+                            int head, tail, room;
+                            head = (fastio_subtask == 2'd0) ? ddc_fifo_a_head : ddc_fifo_b_head;
+                            tail = (fastio_subtask == 2'd0) ? ddc_fifo_a_tail : ddc_fifo_b_tail;
+                            room = (tail - head - 1) & 63;
+                            if (room > 16) room = 16;
+                            if (fastio_subtask == 2'd0) ddc_fifo_a_head = (head + room) & 63;
+                            else                        ddc_fifo_b_head = (head + room) & 63;
                         end
                     end
-                end else if (fastio_task == TASK_DSK) begin
+                end
+`ifndef DORADO_NO_DISK
+                else if (fastio_task == TASK_DSK) begin
                     if (fastio_kind == DM_REF_IOFETCH) begin
                         for (int i = 0; i < 16; i++) begin
                             if (disk_fifo_count >= DISK_FIFO_WORDS) break;
@@ -1735,6 +1975,7 @@ module dorado_rtl_io
                         disk_update_fifo_tws_task();
                     end
                 end
+`endif
             end
 
             // -----------------------------------------------------------------
@@ -1829,6 +2070,7 @@ module dorado_rtl_io
                 end
             end
 
+`ifndef DORADO_NO_DISK
             // 3. Disk Rotation Timer & Wakeups
             begin
                 logic [1:0] drv;
@@ -1874,6 +2116,7 @@ module dorado_rtl_io
                     ext_wakeup_req[TASK_DSK] = 1'b1;
                 end
             end
+`endif
         end
     end
 

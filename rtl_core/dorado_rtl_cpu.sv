@@ -255,16 +255,18 @@ module dorado_rtl_cpu
     // Sequencer state
     // -------------------------------------------------------------------------
     typedef enum logic [4:0] {
-        C_FETCH, C_EXEC, C_PREF, C_NEXT,
+        C_FETCH, C_DEC, C_EXEC, C_PREF, C_NEXTRD, C_NEXT, C_SCHED,
         C_IFU_OPW, C_IFU_DECW, C_IFU_DEC, C_IFU_AW, C_IFU_BETA, C_IFU_BW, C_IFU_END,
         C_FINISH,
-        M_MAPA, M_MAPV, M_BOOK, M_WRA, M_WRV, M_WB, M_FILL, M_RD, M_WR,
+        M_ROW, M_MAPA, M_MAPV, M_BOOK, M_WRA, M_WRV, M_WB, M_FILL, M_RD, M_WR,
         M_IOC, M_IOS, M_IOW
     } cstate_t;
     cstate_t st;
     cstate_t m_ret;
 
     // Block-RAM read data
+    logic [15:0] rm_q, stk_q;      // RM/STK at the address read last clock
+    logic        rmq_is_stk;
     logic [15:0] im_q0, im_q1, im_q2;
     logic        im_q_pres, im_q_brk;
     logic [15:0] ifum_q_hi, ifum_q_lo;
@@ -287,6 +289,7 @@ module dorado_rtl_cpu
     logic [15:0]    x_lh, x_rh, x_ifaddr, x_pc_after;
     logic           x_im_wr;
     logic [15:0]    x_im_wd0, x_im_wd1, x_im_wd2;
+    logic           x_sched_block, x_sched_freeze;
     logic           x_ifum_wr, x_ifum_hi;
     logic [9:0]     x_ifum_waddr;
     logic [15:0]    x_ifum_wd;
@@ -415,6 +418,18 @@ module dorado_rtl_cpu
     logic [15:0]    word_data;
     logic [15:0]    munch_in [0:15];
     logic [4:0]     mcnt;
+
+    // ---- The cache row of the reference in flight (loaded in M_ROW, written
+    //      back in M_BOOK): every bookkeeping access is to this one row.
+    logic [17:0]    rw_tag   [0:DM_CACHE_WAYS-1];
+    logic           rw_valid [0:DM_CACHE_WAYS-1];
+    logic           rw_dirty [0:DM_CACHE_WAYS-1];
+    logic           rw_wp    [0:DM_CACHE_WAYS-1];
+    logic           rw_vacant[0:DM_CACHE_WAYS-1];
+    logic           rw_bl    [0:DM_CACHE_WAYS-1];
+    logic [1:0]     rw_lru   [0:DM_CACHE_WAYS-1];
+    logic           bk_hit;       // the reference hits the row (computed once)
+    int             bk_hitway;
 
     // ---- Block-RAM read data -----------------------------------------------
     logic [15:0]    map_rp_q;
@@ -552,10 +567,10 @@ module dorado_rtl_cpu
         v = (16'(way & 3) << PIPE5_COLUMN_SHIFT);
         if (way < 0 || way >= DM_CACHE_WAYS) v = 16'd0;
         else if (!mcr_discf()) begin
-            if (cache_dirty[row_idx][way])        v |= PIPE5_DIRTY;
-            if (cache_vacant[row_idx][way])       v |= PIPE5_VACANT;
-            if (cache_wp[row_idx][way])           v |= PIPE5_WP;
-            if (cache_being_loaded[row_idx][way]) v |= PIPE5_BEING_LOAD;
+            if (rw_dirty[way])  v |= PIPE5_DIRTY;
+            if (rw_vacant[way]) v |= PIPE5_VACANT;
+            if (rw_wp[way])     v |= PIPE5_WP;
+            if (rw_bl[way])     v |= PIPE5_BEING_LOAD;
         end
         return v;
     endfunction
@@ -581,20 +596,13 @@ module dorado_rtl_cpu
         return DM_FAULT_NONE;
     endfunction
 
-    // First (lowest-numbered) way that hits.
-    function automatic logic cache_lookup(
-        input  logic [27:0] va,
-        output int          out_way
-    );
-        logic [5:0]  r;
-        logic [17:0] t;
-        logic        hit;
-        r       = va_cache_row(va);
-        t       = va_cache_tag(va);
+    // First (lowest-numbered) way of the row that hits tag t.
+    function automatic logic row_lookup(input logic [17:0] t, output int out_way);
+        logic hit;
         hit     = 1'b0;
         out_way = -1;
         for (int w = DM_CACHE_WAYS - 1; w >= 0; w--) begin
-            if (cache_valid[r][w] && !cache_vacant[r][w] && cache_tag[r][w] == t) begin
+            if (rw_valid[w] && !rw_vacant[w] && rw_tag[w] == t) begin
                 out_way = w;
                 hit     = 1'b1;
             end
@@ -602,13 +610,18 @@ module dorado_rtl_cpu
         return hit;
     endfunction
 
+    // The reference's own lookup, computed once in M_BOOK (the bookkeeping
+    // asks it several times, always before changing the row).
+    function automatic logic cache_lookup(input logic [27:0] va, output int out_way);
+        out_way = bk_hitway;
+        return bk_hit;
+    endfunction
+
     function automatic int cache_pick_victim(input logic [27:0] va);
-        logic [5:0] r;
-        int         v;
-        r = va_cache_row(va);
-        v = int'(cache_lru[r][DM_CACHE_WAYS - 1]);
+        int v;
+        v = int'(rw_lru[DM_CACHE_WAYS - 1]);
         for (int w = DM_CACHE_WAYS - 1; w >= 0; w--) begin
-            if (!cache_valid[r][w]) v = w;
+            if (!rw_valid[w]) v = w;
         end
         if (mcr_usemcrv()) v = int'(mcr_victim());
         return v;
@@ -773,13 +786,13 @@ module dorado_rtl_cpu
         int seen;
         seen = -1;
         for (int i = DM_CACHE_WAYS - 1; i >= 0; i--) begin
-            if (int'(cache_lru[row_idx][i]) == way) seen = i;
+            if (int'(rw_lru[i]) == way) seen = i;
         end
         if (seen >= 0) begin
             for (int i = DM_CACHE_WAYS - 1; i > 0; i--) begin
-                if (i <= seen) cache_lru[row_idx][i] = cache_lru[row_idx][i - 1];
+                if (i <= seen) rw_lru[i] = rw_lru[i - 1];
             end
-            cache_lru[row_idx][0] = 2'(way);
+            rw_lru[0] = 2'(way);
         end
     endtask
 
@@ -829,8 +842,8 @@ module dorado_rtl_cpu
         logic [31:0]    phys;
         dm_fault_kind_t f;
         out_fault = DM_FAULT_NONE;
-        if (cache_valid[row_idx][way] && cache_dirty[row_idx][way]) begin
-            va_base = {cache_tag[row_idx][way], row_idx, 4'b0000};
+        if (rw_valid[way] && rw_dirty[way]) begin
+            va_base = {rw_tag[way], row_idx, 4'b0000};
             f = va_translate_e(va_base, 1'b1, mV_rp, mV_wp, mV_dirty, phys);
             if (f == DM_FAULT_NONE) begin
                 op_wb   = 1'b1;
@@ -839,7 +852,7 @@ module dorado_rtl_cpu
                 wb_phys = phys;
                 map_set_v_ref_dirty();
             end
-            cache_dirty[row_idx][way] = 1'b0;
+            rw_dirty[way] = 1'b0;
             out_fault = f;
         end
     endtask
@@ -866,12 +879,12 @@ module dorado_rtl_cpu
         f = va_translate_e(va_munch_base(va), 1'b0, mA_rp, mA_wp, mA_dirty, phys);
         if (f == DM_FAULT_NONE) begin
             r = va_cache_row(va);
-            cache_tag[r][way]          = va_cache_tag(va);
-            cache_valid[r][way]        = 1'b1;
-            cache_dirty[r][way]        = 1'b0;
-            cache_wp[r][way]           = mA_wp;
-            cache_vacant[r][way]       = 1'b0;
-            cache_being_loaded[r][way] = 1'b0;
+            rw_tag[way]          = va_cache_tag(va);
+            rw_valid[way]        = 1'b1;
+            rw_dirty[way]        = 1'b0;
+            rw_wp[way]           = mA_wp;
+            rw_vacant[way]       = 1'b0;
+            rw_bl[way] = 1'b0;
             op_fill   = 1'b1;
             fill_row  = r;
             fill_way  = 2'(way);
@@ -966,7 +979,7 @@ module dorado_rtl_cpu
             kind != DM_REF_DUMMYREF && kind != DM_REF_NONE) begin
             logic [27:0] pipe_va_victim;
             way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
-            pipe_va_victim = cache_valid[r][way] ? {cache_tag[r][way], r, 4'b0000} : 28'd0;
+            pipe_va_victim = rw_valid[way] ? {rw_tag[way], r, 4'b0000} : 28'd0;
             pipe_push(srn, kind, pipe_va_victim, rp_pre, flags_pre, task_id, subtask_id);
             cache_select(va, way, srn);
             dvavic_done = 1'b1;
@@ -993,7 +1006,7 @@ module dorado_rtl_cpu
                         f = va_translate_e(va, 1'b0, mA_rp, mA_wp, mA_dirty, phys);
                         if (f == DM_FAULT_NONE) begin
                             victim       = cache_pick_victim(va);
-                            dirty_victim = cache_dirty[r][victim];
+                            dirty_victim = rw_dirty[victim];
                             last_ref_latency = dirty_victim ? 24 : 16;
                             if (use_asrn && dirty_victim) asrn_advance_count = 2;
                             cache_writeback_line(r, victim, wbf);
@@ -1014,7 +1027,7 @@ module dorado_rtl_cpu
                         if (f == DM_FAULT_NONE && (mcr_fdmiss() || !cache_lookup(va, dummy_way))) begin
                             last_ref_miss = 1'b1;
                             victim        = cache_pick_victim(va);
-                            dirty_victim  = cache_dirty[r][victim];
+                            dirty_victim  = rw_dirty[victim];
                             if (use_asrn) asrn_advance_count = dirty_victim ? 2 : 1;
                             cache_writeback_line(r, victim, wbf);
                             record_writeback_fault(wbf, srn);
@@ -1034,8 +1047,8 @@ module dorado_rtl_cpu
                     if (mcr_noref()) begin
                         if (mcr_usemcrv() && mcr_fdmiss()) begin
                             way = int'(mcr_victim());
-                            cache_tag[r][way]   = va_cache_tag(va);
-                            cache_valid[r][way] = 1'b1;
+                            rw_tag[way]   = va_cache_tag(va);
+                            rw_valid[way] = 1'b1;
                         end else if (!mcr_fdmiss() && cache_lookup(va, way)) begin
                             // comparator-only
                         end else begin
@@ -1043,13 +1056,13 @@ module dorado_rtl_cpu
                         end
                         cache_select(va, way, srn);
                     end else if (!mcr_fdmiss() && cache_lookup(va, way)) begin
-                        if (cache_wp[r][way]) begin
+                        if (rw_wp[way]) begin
                             cache_touch_lru(r, way);
                             cache_select(va, way, srn);
                         end else begin
                             queue_word_write(r, way, va, b_val);
-                            cache_dirty[r][way]  = 1'b1;
-                            cache_vacant[r][way] = 1'b0;
+                            rw_dirty[way]  = 1'b1;
+                            rw_vacant[way] = 1'b0;
                             cache_touch_lru(r, way);
                             cache_select(va, way, srn);
                         end
@@ -1059,14 +1072,14 @@ module dorado_rtl_cpu
                         if (f == DM_FAULT_NONE) begin
                             last_ref_miss = 1'b1;
                             way           = cache_pick_victim(va);
-                            dirty_victim  = cache_dirty[r][way];
+                            dirty_victim  = rw_dirty[way];
                             if (use_asrn && dirty_victim) asrn_advance_count = 2;
                             cache_writeback_line(r, way, wbf);
                             record_writeback_fault(wbf, srn);
                             cache_fill(va, way);
                             queue_word_write(r, way, va, b_val);
-                            cache_dirty[r][way]  = 1'b1;
-                            cache_vacant[r][way] = 1'b0;
+                            rw_dirty[way]  = 1'b1;
+                            rw_vacant[way] = 1'b0;
                             cache_touch_lru(r, way);
                             cache_select(va, way, srn);
                         end
@@ -1108,9 +1121,9 @@ module dorado_rtl_cpu
                         f = va_translate_e(va, 1'b1, mA_rp, mA_wp, mA_dirty, phys);
                         if (f == DM_FAULT_NONE) begin
                             if (cache_lookup(va, way)) begin
-                                cache_valid[r][way]  = 1'b0;
-                                cache_dirty[r][way]  = 1'b0;
-                                cache_vacant[r][way] = 1'b1;
+                                rw_valid[way]  = 1'b0;
+                                rw_dirty[way]  = 1'b0;
+                                rw_vacant[way] = 1'b1;
                             end
                             map_set_ref_a(1'b1);
                             map_set_dirty_a(1'b1);
@@ -1145,8 +1158,8 @@ module dorado_rtl_cpu
                         cache_writeback_line(r, way, wbf);
                         record_writeback_fault(wbf, srn);
                         if (use_asrn) asrn_advance_count = 1;
-                        cache_valid[r][way]  = 1'b0;
-                        cache_vacant[r][way] = 1'b1;
+                        rw_valid[way]  = 1'b0;
+                        rw_vacant[way] = 1'b1;
                         cache_select(va, way, srn);
                     end else begin
                         way = cache_pick_victim(va);
@@ -1316,7 +1329,7 @@ module dorado_rtl_cpu
 
         cur_task_md     = get_task_md();
         ridx            = rm_address_fn(cur_u, ctask, RBase, task_subtask[ctask], StkP);
-        cur_rm_stk_read = rm_stk_read_fn(ridx);
+        cur_rm_stk_read = rmq_is_stk ? stk_q : rm_q;   // read in C_DEC
         cur_id_peek     = ifu_id_at_fn(ifu_idcnt);
     end
 
@@ -1814,7 +1827,7 @@ module dorado_rtl_cpu
         int          rm_a;
         logic [15:0] rv;
         rm_a = rm_address_fn(u, ctask, RBase, task_subtask[ctask], StkP);
-        rv   = rm_stk_read_fn(rm_a);
+        rv   = rmq_is_stk ? stk_q : rm_q;                // read in C_NEXTRD
         case (cond)
             3'd0: out_r = alu_zero;
             3'd1: out_r = alu_lt0;
@@ -1959,7 +1972,7 @@ module dorado_rtl_cpu
         m_task    = task_id;
         m_subtask = subtask_id;
         m_ret     = ret;
-        st        = M_MAPA;
+        st        = M_ROW;
     endtask
 
     // IFU byte fetch at byte PC `pc` (HM section 6: opcode bytes come from the
@@ -2022,7 +2035,7 @@ module dorado_rtl_cpu
     always_comb begin
         // IM: the instruction at real_PC during C_FETCH; the word at Link
         // (for Read IM / Write IM) afterwards.
-        im_addr = (st == C_FETCH) ? real_PC[11:0]
+        im_addr = (st == C_FETCH || st == C_DEC) ? real_PC[11:0]
                 : (st == C_EXEC)  ? Link[11:0]
                 :                   link_at_issue[11:0];
         im_we   = (st == C_FINISH) && x_im_wr;
@@ -2110,6 +2123,30 @@ module dorado_rtl_cpu
         im_q_brk   <= im_breakpoint[im_addr];
     end
 
+    // RM/STK: read at the decode-time address in C_DEC, at the branch-
+    // condition address in C_NEXTRD; written by the LC writeback in C_FINISH.
+    int          rms_raddr, rms_waddr;
+    logic        rms_we;
+    logic [15:0] rms_wd;
+    always_comb begin
+        if (st == C_NEXTRD)
+            rms_raddr = rm_address_fn(x_u, ctask, x_rbase_at_issue, task_subtask[ctask], StkP);
+        else
+            rms_raddr = rm_address_fn(cur_u, ctask, RBase, task_subtask[ctask], StkP);
+        rms_waddr = lc_write_address_fn(x_u, ctask, x_rbase_at_issue, task_subtask[ctask], StkP);
+        rms_we    = (st == C_FINISH) && !halted &&
+                    (x_u.lc == 3'd2 || x_u.lc == 3'd4 || x_u.lc == 3'd5 ||
+                     x_u.lc == 3'd6 || x_u.lc == 3'd7);
+        rms_wd    = (x_u.lc == 3'd4 || x_u.lc == 3'd5) ? x_md_at_issue : x_pd;
+    end
+    always_ff @(posedge clk) begin
+        if (rms_we && rms_waddr >= 256)  STK[rms_waddr[7:0]] <= rms_wd;
+        if (rms_we && rms_waddr < 256)   RM[rms_waddr[7:0]]  <= rms_wd;
+        rm_q       <= RM[rms_raddr[7:0]];
+        stk_q      <= STK[rms_raddr[7:0]];
+        rmq_is_stk <= (rms_raddr >= 256);
+    end
+
     always_ff @(posedge clk) begin
         if (ifum_we_hi) ifum_hi[ifum_addr_p] <= ifum_wd;
         if (ifum_we_lo) ifum_lo[ifum_addr_p] <= ifum_wd;
@@ -2162,8 +2199,11 @@ module dorado_rtl_cpu
             // -----------------------------------------------------------------
             C_FETCH: begin
                 // IM, IFUM and the Map entry at Mar are being read this clock.
-                if (!io_busy) st = C_EXEC;
+                if (!io_busy) st = C_DEC;
             end
+
+            // RM/STK are being read at the decode-time address this clock.
+            C_DEC: st = C_EXEC;
 
             // -----------------------------------------------------------------
             C_EXEC: begin
@@ -2225,11 +2265,10 @@ module dorado_rtl_cpu
                     if (hold_asserted) evc_events |= EVC_EV_HOLD;
 
                     if (holdsim_hold && !mcr_dishold()) begin
-                        logic [15:0] dummy_pc;
-                        if (x_from_im) junk_timer_tick_task();
-                        task_schedule_task(real_PC, 1'b0, 1'b1, dummy_pc);
-                        cycles    = cycles + 64'd1;
-                        step_done = 1'b1;
+                        x_np           = real_PC;
+                        x_sched_block  = 1'b0;
+                        x_sched_freeze = 1'b1;
+                        st             = C_SCHED;
                     end else begin
                         // Stack underflow/overflow pre-check (cpu.c:5531)
                         x_stk_underflow = 1'b0;
@@ -2251,22 +2290,14 @@ module dorado_rtl_cpu
                         end
 
                         if (stk_err) begin
-                            logic [15:0] keep_pc;
                             stk_und            = x_stk_underflow;
                             stk_ovf            = x_stk_overflow;
                             wakeup_pending[15] = 1'b1;
                             prev_PC            = real_PC;
-                            if (x_from_im) junk_timer_tick_task();
-                            task_schedule_task(real_PC, 1'b0, 1'b0, keep_pc);
-                            real_PC = keep_pc;
-                            if (x_from_im) begin
-                                cycles = cycles + 64'd1;
-                                memory_tick();
-                            end
-                            if (ifu_active && ifu_warmup > 8'd0) begin
-                                ifu_warmup = ifu_warmup - 8'd1;
-                            end
-                            step_done = 1'b1;
+                            x_np               = real_PC;
+                            x_sched_block      = 1'b0;
+                            x_sched_freeze     = 1'b0;
+                            st                 = C_SCHED;
                         end else begin
                             // -------------------------------------------------
                             // 1. Issue-Time Snapshots
@@ -2584,7 +2615,7 @@ module dorado_rtl_cpu
                             x_b   = b;
                             x_alu = alu;
                             x_pd  = pd;
-                            st    = C_NEXT;
+                            st    = C_NEXTRD;
 
                             // -------------------------------------------------
                             // 4. Processor Memory Reference (ASEL = 0..3)
@@ -2656,8 +2687,11 @@ module dorado_rtl_cpu
                 if (recorded_fault && x_kind != DM_REF_IFETCH && !mcr_nowake()) begin
                     wakeup_pending[15] = 1'b1;
                 end
-                st = C_NEXT;
+                st = C_NEXTRD;
             end
+
+            // RM/STK are being read at the branch-condition address this clock.
+            C_NEXTRD: st = C_NEXT;
 
             // -----------------------------------------------------------------
             // 5. Next-PC & IFUJump Evaluation (next_pc)
@@ -2717,8 +2751,7 @@ module dorado_rtl_cpu
                     if (jcn == 8'o045 && u.ff == 8'o147) begin
                         // LoadRam End-item exit
                         logic [15:0] flag;
-                        flag = rm_stk_read_fn(rm_address_fn(u, ctask, RBase,
-                                                            task_subtask[ctask], StkP));
+                        flag = rmq_is_stk ? stk_q : rm_q;        // read in C_NEXTRD
                         if (!flag[0]) np = {4'd0, Link[11:0]};
                         else          np = (real_PC & ~(16'(CPU_PAGE_SIZE - 1))) | 16'o021;
                     end else if (jcn[7:4] == 4'd0) begin
@@ -2983,42 +3016,19 @@ module dorado_rtl_cpu
                 RBase = (ifu_dispatch_rbase >= 0) ? 8'(ifu_dispatch_rbase) : x_rbase_after_ff;
 
                 if (!halted) begin
-                    int          rm_w;
                     logic [7:0]  rbase_next_instr;
                     logic [15:0] pd;
-                    logic [15:0] chosen;
                     pd               = x_pd;
                     rbase_next_instr = RBase;
                     RBase            = x_rbase_at_issue;
-                    rm_w             = lc_write_address_fn(u, ctask, RBase,
-                                                           task_subtask[ctask], StkP);
+                    // RM/STK writes go through the block-RAM port (rms_*).
                     case (u.lc)
-                        3'd0: ;
                         3'd1: T = pd;
-                        3'd2: begin
-                            if (rm_w >= 256) STK[rm_w & 255] = pd;
-                            else             RM[rm_w & 255]  = pd;
-                            T = x_md_at_issue;
-                        end
+                        3'd2: T = x_md_at_issue;
                         3'd3: T = x_md_at_issue;
-                        3'd4: begin
-                            if (rm_w >= 256) STK[rm_w & 255] = x_md_at_issue;
-                            else             RM[rm_w & 255]  = x_md_at_issue;
-                        end
-                        3'd5: begin
-                            T = ff_is_t_gets_md(u) ? x_md_at_issue : pd;
-                            if (rm_w >= 256) STK[rm_w & 255] = x_md_at_issue;
-                            else             RM[rm_w & 255]  = x_md_at_issue;
-                        end
-                        3'd6: begin
-                            if (rm_w >= 256) STK[rm_w & 255] = pd;
-                            else             RM[rm_w & 255]  = pd;
-                        end
-                        3'd7: begin
-                            T = pd;
-                            if (rm_w >= 256) STK[rm_w & 255] = pd;
-                            else             RM[rm_w & 255]  = pd;
-                        end
+                        3'd5: T = ff_is_t_gets_md(u) ? x_md_at_issue : pd;
+                        3'd7: T = pd;
+                        default: ;
                     endcase
                     RBase = rbase_next_instr;
 
@@ -3044,20 +3054,33 @@ module dorado_rtl_cpu
                         alu_overflow = x_new_ovf;
                     end
 
-                    prev_PC = real_PC;
-                    if (x_from_im) junk_timer_tick_task();
+                    prev_PC        = real_PC;
+                    x_sched_block  = u.block && ctask != 4'd0;
+                    x_sched_freeze = 1'b0;
+                    st             = C_SCHED;
+                end else begin
+                    step_done = 1'b1;
+                    st        = C_FETCH;
+                end
+            end
 
-                    task_schedule_task(x_np, (u.block && ctask != 4'd0), 1'b0, chosen);
+            // -----------------------------------------------------------------
+            // 8. End-of-instruction task scheduling and ticks (shared by the
+            //    normal path, the stack-error path and the HOLDSIM hold).
+            // -----------------------------------------------------------------
+            C_SCHED: begin
+                logic [15:0] chosen;
+                if (x_from_im) junk_timer_tick_task();
+                task_schedule_task(x_np, x_sched_block, x_sched_freeze, chosen);
+                if (x_sched_freeze) begin
+                    cycles = cycles + 64'd1;         // hold: PC and memory timers stand still
+                end else begin
                     real_PC = chosen;
-
                     if (x_from_im) begin
                         cycles = cycles + 64'd1;
                         memory_tick();
                     end
-
-                    if (ifu_active && ifu_warmup > 8'd0) begin
-                        ifu_warmup = ifu_warmup - 8'd1;
-                    end
+                    if (ifu_active && ifu_warmup > 8'd0) ifu_warmup = ifu_warmup - 8'd1;
                 end
                 step_done = 1'b1;
                 st        = C_FETCH;
@@ -3066,15 +3089,31 @@ module dorado_rtl_cpu
             // -----------------------------------------------------------------
             // Memory engine
             // -----------------------------------------------------------------
+            M_ROW: begin
+                // Load the reference's cache row.
+                logic [5:0] r;
+                r = va_cache_row(m_va);
+                for (int w = 0; w < DM_CACHE_WAYS; w++) begin
+                    rw_tag[w]    = cache_tag[r][w];
+                    rw_valid[w]  = cache_valid[r][w];
+                    rw_dirty[w]  = cache_dirty[r][w];
+                    rw_wp[w]     = cache_wp[r][w];
+                    rw_vacant[w] = cache_vacant[r][w];
+                    rw_bl[w]     = cache_being_loaded[r][w];
+                    rw_lru[w]    = cache_lru[r][w];
+                end
+                st = M_MAPA;
+            end
             M_MAPA: begin
                 // Map entry for the reference's page is read this clock.
                 logic [5:0] r;
                 int         hw;
                 r       = va_cache_row(m_va);
                 m_idx_a = map_index(m_va);
-                if (m_kind == DM_REF_FLUSH && cache_lookup(m_va, hw)) m_wbway = hw;
-                else                                                  m_wbway = cache_pick_victim(m_va);
-                m_idx_v = map_index({cache_tag[r][m_wbway], r, 4'b0000});
+                bk_hit  = row_lookup(va_cache_tag(m_va), bk_hitway);
+                if (m_kind == DM_REF_FLUSH && bk_hit) m_wbway = bk_hitway;
+                else                                  m_wbway = cache_pick_victim(m_va);
+                m_idx_v = map_index({rw_tag[m_wbway], r, 4'b0000});
                 st      = M_MAPV;
             end
             M_MAPV: begin
@@ -3089,6 +3128,19 @@ module dorado_rtl_cpu
                     mV_rp = map_rp_q; mV_wp = map_wp_q; mV_dirty = map_dirty_q; mV_ref = map_ref_q;
                 end
                 mem_book_task();
+                begin
+                    logic [5:0] r;
+                    r = va_cache_row(m_va);
+                    for (int w = 0; w < DM_CACHE_WAYS; w++) begin
+                        cache_tag[r][w]          = rw_tag[w];
+                        cache_valid[r][w]        = rw_valid[w];
+                        cache_dirty[r][w]        = rw_dirty[w];
+                        cache_wp[r][w]           = rw_wp[w];
+                        cache_vacant[r][w]       = rw_vacant[w];
+                        cache_being_loaded[r][w] = rw_bl[w];
+                        cache_lru[r][w]          = rw_lru[w];
+                    end
+                end
                 mem_advance(0);
             end
             M_WRA: mem_advance(1);

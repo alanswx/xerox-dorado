@@ -1,3 +1,4 @@
+#include <string>
 // =============================================================================
 // sim_cosim.cpp — Lock-Step Verilator Cosimulation Harness for dorado_rtl_top
 // =============================================================================
@@ -70,6 +71,9 @@ static void rtl_step(Vdorado_rtl_top *top) {
         top->clk = 0;
         top->eval();
         rtl_fabric_clocks++;
+        static const bool fsm_trace = getenv("RTL_FSM_TRACE") != nullptr;
+        if (fsm_trace) fprintf(stderr, "  clk st=%d pc=0%o step_done=%d\n", (int)R_CPU(st),
+                               (unsigned)R_CPU(real_PC), (int)top->step_done);
         if (top->step_done || top->dbg_halted) return;
     }
     fprintf(stderr, "[RTL] no step_done after 4096 clocks (pc=0%o)\n",
@@ -1072,6 +1076,16 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
             R_IO(eth_rx_pos) = 0;
             R_IO(eth_rx_count) = n;
             eth.rx_pos = eth.rx_count;
+            // RTL_RX_LOG=<file>: every receive batch delivered, for checking
+            // the RTL boot server against the C one.
+            static FILE *rx_log = getenv("RTL_RX_LOG") ? fopen(getenv("RTL_RX_LOG"), "w") : nullptr;
+            if (rx_log) {
+                fprintf(rx_log, "RX cyc=%llu n=%d:", (unsigned long long)R_CPU(cycles), n);
+                for (int i = 0; i < n; i++)
+                    fprintf(rx_log, " %06o%s", R_IO(eth_rx_words)[i], R_IO(eth_rx_attention)[i] ? "*" : "");
+                fprintf(rx_log, "\n");
+                fflush(rx_log);
+            }
         }
     };
 
@@ -1217,6 +1231,13 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
                 pkt[i] = R_IO(eth_tx_words)[i];
             }
             eth.rx_on = R_IO(eth_rx_on);
+            static FILE *tx_log = getenv("RTL_RX_LOG") ? fopen((std::string(getenv("RTL_RX_LOG")) + ".tx").c_str(), "w") : nullptr;
+            if (tx_log) {
+                fprintf(tx_log, "TX cyc=%llu n=%d:", (unsigned long long)R_CPU(cycles), nwords);
+                for (int i = 0; i < nwords; i++) fprintf(tx_log, " %06o", pkt[i]);
+                fprintf(tx_log, "\n");
+                fflush(tx_log);
+            }
             dorado_ethernet_direct_transmit(&eth, pkt, (size_t)nwords);
             sync_eth_rx_to_rtl();
         }
