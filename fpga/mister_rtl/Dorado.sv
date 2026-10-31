@@ -148,6 +148,7 @@ localparam CONF_STR = {
 wire   [1:0] buttons;
 wire [127:0] status;
 wire  [10:0] ps2_key;
+wire  [24:0] ps2_mouse;
 
 hps_io #(.CONF_STR(CONF_STR)) hps_io
 (
@@ -158,7 +159,8 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.buttons(buttons),
 	.status(status),
 	.status_menumask(16'd0),
-	.ps2_key(ps2_key)
+	.ps2_key(ps2_key),
+	.ps2_mouse(ps2_mouse)
 );
 
 ///////////////////////   CLOCKS   ///////////////////////////////
@@ -182,6 +184,44 @@ end
 wire reset = (reset_cnt != 0);
 
 ///////////////////////   DORADO   ///////////////////////////////
+
+// PS/2 keyboard -> the four Alto keyboard words 177034B-177037B (active low).
+// dorado_keyboard holds the 61-key matrix; key-matrix-check compares it
+// against dorado/src/display.c.
+wire [15:0] key_word0, key_word1, key_word2, key_word3;
+dorado_keyboard keyboard
+(
+	.sys_clk  (clk_sys),
+	.reset    (reset),
+	.ps2_key  (ps2_key),
+	.key_word0(key_word0),
+	.key_word1(key_word1),
+	.key_word2(key_word2),
+	.key_word3(key_word3)
+);
+
+// PS/2 mouse -> the Alto mouse: an absolute MOUSELOC position (VA 424/425)
+// kept inside the Alto's 606x808 display, and the buttons for UTILIN
+// (bit 2 Red = left, bit 1 Blue = right, bit 0 Yellow = middle; machine.c).
+// PS/2 packet: byte 0 status (0 L, 1 R, 2 M, 4 X sign, 5 Y sign), 1 X, 2 Y;
+// PS/2 Y counts up, the Alto's down.
+reg         mouse_present = 1'b0;
+reg   [2:0] mouse_buttons = 3'd0;
+reg  [15:0] mouse_x = 16'd303, mouse_y = 16'd404;
+reg         mouse_stb_q = 1'b0;
+wire signed [9:0] ms_dx = {ps2_mouse[4], ps2_mouse[4], ps2_mouse[15:8]};
+wire signed [9:0] ms_dy = {ps2_mouse[5], ps2_mouse[5], ps2_mouse[23:16]};
+wire signed [17:0] ms_nx = $signed({2'b00, mouse_x}) + ms_dx;
+wire signed [17:0] ms_ny = $signed({2'b00, mouse_y}) - ms_dy;
+always @(posedge clk_sys) begin
+	mouse_stb_q <= ps2_mouse[24];
+	if (ps2_mouse[24] != mouse_stb_q) begin
+		mouse_present <= 1'b1;
+		mouse_buttons <= {ps2_mouse[0], ps2_mouse[1], ps2_mouse[2]};
+		mouse_x <= (ms_nx < 0) ? 16'd0 : (ms_nx > 605) ? 16'd605 : ms_nx[15:0];
+		mouse_y <= (ms_ny < 0) ? 16'd0 : (ms_ny > 807) ? 16'd807 : ms_ny[15:0];
+	end
+end
 
 wire [19:0] fb_rd_addr;
 wire        fb_rd_data;
@@ -209,6 +249,11 @@ dorado_rtl_top #(
 	.bootsrv_en         (1'b1),
 	.assist_en          (1'b1),
 	.display_wake_gate  (1'b0),
+	.kbd_words          ({key_word3, key_word2, key_word1, key_word0}),
+	.mouse_buttons      (mouse_buttons),
+	.mouse_present      (mouse_present),
+	.mouse_x            (mouse_x),
+	.mouse_y            (mouse_y),
 	.io_attached        (1'b0),
 	.io_read_data       (16'd0),
 	.io_read_bad_parity (1'b0),

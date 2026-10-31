@@ -36,6 +36,16 @@ module dorado_rtl_top
     //     keyboard words, display gate) instead of the testbench
     input  logic        assist_en,
     input  logic        display_wake_gate,
+    // Live keyboard, the four Alto keyboard words 177034B-177037B, active
+    // low (Alto HW Manual: depressed = 0): word i = kbd_words[16*i +: 16].
+    input  logic [63:0] kbd_words,
+    // Mouse: buttons (1 = down; bit 2 Red/left, 1 Blue/right, 0 Yellow/middle, as
+    // machine_seed_utilin), present once the host has seen a mouse, and the
+    // Alto MOUSELOC position.
+    input  logic [2:0]  mouse_buttons,
+    input  logic        mouse_present,
+    input  logic [15:0] mouse_x,
+    input  logic [15:0] mouse_y,
 
     // External Slow I/O override (used when io_bridge_en=0)
     input  logic        io_attached,
@@ -132,7 +142,8 @@ module dorado_rtl_top
 
     logic [15:0]    kbd_words_default [0:4];
     always_comb begin
-        for (int i = 0; i < 5; i++) kbd_words_default[i] = 16'hFFFF;
+        for (int i = 0; i < 4; i++) kbd_words_default[i] = kbd_words[16 * i +: 16];
+        kbd_words_default[4] = 16'hFFFF;
         for (int i = 0; i < 16; i++) begin
             cpu_fastio_in_munch[i] = io_bridge_en ? fastio_in_munch[i] : 16'd0;
         end
@@ -221,6 +232,11 @@ module dorado_rtl_top
         .ifu_active        (dbg_ifu_active),
         .eftp_started      (srv_eftp_max_seq != 16'd0),
         .next_wcb_any      (io_next_wcb_any),
+        .live_kbd          (kbd_words),
+        .live_buttons      (mouse_buttons),
+        .mouse_present     (mouse_present),
+        .mouse_x           (mouse_x),
+        .mouse_y           (mouse_y),
         .ap_hold           (ap_hold),
         .ap_req            (ap_req),
         .ap_we             (ap_we),

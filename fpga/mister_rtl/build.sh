@@ -28,6 +28,7 @@ for f in dorado_rtl_pkg.sv dorado_rtl_alu_shifter.sv dorado_rtl_cpu.sv dorado_rt
          dorado_rtl_bootsrv.sv dorado_rtl_assist.sv dorado_rtl_top.sv; do
     cp "$CORE/$f" "$OUT/rtl/"
 done
+cp "$CORE/../verilog/cells/dorado_keyboard.v" "$OUT/rtl/"
 rm -rf "$OUT/init" "$OUT/roms"
 cp -r "$CORE/init" "$CORE/roms" "$OUT/"
 
@@ -40,6 +41,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_io.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_bootsrv.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_assist.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_top.sv
+set_global_assignment -name VERILOG_FILE rtl/dorado_keyboard.v
 set_global_assignment -name SDC_FILE Dorado.sdc
 set_global_assignment -name SYSTEMVERILOG_FILE Dorado.sv
 set_global_assignment -name VERILOG_MACRO "DORADO_INIT=1"

@@ -11,12 +11,18 @@
 //     execute EBoot (02005/02006): AC0-AC3 (STK[1..4]) = 0, the Alto I/O page
 //     VA 177000-177777 = 177777 (no device answers), and 177740-177757 =
 //     177760.
-//  2. Keyboard words: every 256 microinstructions while the IFU is idle (the
-//     microcode boot, before the Alto program runs), the four Alto keyboard
-//     words at VA 177034-177037 are written into storage and any resident
-//     cache line, with BS held down (word 0 = 177776) until the EFTP transfer
-//     starts, so AEmu's Start.mc chooses the Ethernet boot (EBoot). The
-//     controller's own word 0 is set the same way.
+//  2. Keyboard words: while the IFU is idle, the four Alto keyboard words at
+//     VA 177034-177037 are written into storage and any resident cache line
+//     -- every 256 microinstructions, and at the first idle moment after the
+//     live keyboard changes. Until the EFTP transfer starts BS is held down
+//     (word 0 = 177776) so AEmu's Start.mc chooses the Ethernet boot (EBoot),
+//     and the controller's own word 0 is set the same way. Once the cold-Alto
+//     init has run and EFTP has started, the words are the live keyboard
+//     (live_kbd), as machine.c's machine_seed_alto_live_io writes them: the
+//     DDC back-channel that would carry them is not modelled (gap E2). With
+//     them go UTILIN (177030-177033, ~buttons, active low) and, once a
+//     mouse is present, the Alto mouse position MOUSELOC (VA 424/425) --
+//     machine_seed_utilin / machine_seed_mouse.
 //  3. Display wakeups are enabled (display_wake_gate) once the Alto display
 //     list head DASTART (VA 420) is non-zero or a line is pending; sampled
 //     with (2).
@@ -38,6 +44,11 @@ module dorado_rtl_assist (
     input  logic        ifu_active,
     input  logic        eftp_started,
     input  logic        next_wcb_any,
+    input  logic [63:0] live_kbd,         // word i = live_kbd[16*i +: 16], active low
+    input  logic [2:0]  live_buttons,     // mouse buttons, 1 = down (UTILIN bits 2..0)
+    input  logic        mouse_present,
+    input  logic [15:0] mouse_x,
+    input  logic [15:0] mouse_y,
 
     // CPU assist port
     output logic        ap_hold,
@@ -63,10 +74,21 @@ module dorado_rtl_assist (
     logic        do_kbd;              // the current visit also does (2)/(3)
     logic [8:0]  n;                   // word counter within a phase
     logic        busy_req;            // a request is outstanding
+    logic [63:0] kbd_written;         // the words last written in A_KBD
+    logic [34:0] ms_written;          // {present, buttons, x, y} last written
+
+    wire         live_on   = cold_done && eftp_started;
+    wire [63:0]  kbd_now   = live_on ? live_kbd
+                                     : {48'hFFFF_FFFF_FFFF, eftp_started ? 16'hFFFF : 16'hFFFE};
+    wire [15:0]  kbd_word  = kbd_now[16 * n[1:0] +: 16];
+    wire [15:0]  utilin    = ~{13'd0, live_on ? live_buttons : 3'd0};
+    wire [34:0]  ms_now    = {mouse_present, live_buttons, mouse_x, mouse_y};
+    wire         live_chg  = live_on && (live_kbd != kbd_written || ms_now != ms_written);
 
     wire cond_cold = !cold_done && ctask == 4'd0 &&
                      (real_pc == 12'o2005 || real_pc == 12'o2006);
-    wire cond_kbd  = (cycles[7:0] == 8'd0) && !ifu_active;
+    wire cond_kbd  = !ifu_active &&
+                     ((cycles[7:0] == 8'd0) || live_chg);
     wire fresh     = !evaluated || cycles != last_cycles;
     wire need      = en && cpu_between && fresh && (cond_cold || cond_kbd);
 
@@ -95,6 +117,8 @@ module dorado_rtl_assist (
             do_kbd            <= 1'b0;
             n                 <= 9'd0;
             busy_req          <= 1'b0;
+            kbd_written       <= {64{1'b1}};
+            ms_written        <= {1'b0, 3'd0, 32'd0};
             ap_req            <= 1'b0;
             ap_we             <= 1'b0;
             ap_stk            <= 1'b0;
@@ -150,16 +174,24 @@ module dorado_rtl_assist (
             end
             A_KBD: begin                         // keyboard words, storage + cache
                 if (n == 9'd0 && !busy_req) begin
-                    kbd0_poke <= 1'b1;
-                    kbd0_val  <= eftp_started ? 16'hFFFF : 16'hFFFE;
+                    kbd0_poke   <= !live_on;
+                    kbd0_val    <= kbd_now[15:0];
+                    kbd_written <= kbd_now;
+                    ms_written  <= ms_now;
                 end
                 if (!busy_req || ap_done) begin
-                    if (n == 9'd4) begin
+                    // n 0-3 keyboard, 4-7 UTILIN, 8-9 MOUSELOC (live, mouse present)
+                    if (n == 9'd10 || (n == 9'd8 && !(live_on && mouse_present))) begin
                         n  <= 9'd0;
                         st <= A_DASTART;
                     end else begin
-                        issue(1'b1, 1'b0, 1'b1, 28'o177034 + {26'd0, n[1:0]},
-                              (n == 9'd0) ? (eftp_started ? 16'hFFFF : 16'hFFFE) : 16'hFFFF);
+                        if (n < 9'd4)
+                            issue(1'b1, 1'b0, 1'b1, 28'o177034 + {26'd0, n[1:0]}, kbd_word);
+                        else if (n < 9'd8)
+                            issue(1'b1, 1'b0, 1'b1, 28'o177030 + {26'd0, n[1:0]}, utilin);
+                        else
+                            issue(1'b1, 1'b0, 1'b1, (n == 9'd8) ? 28'o424 : 28'o425,
+                                  (n == 9'd8) ? mouse_x : mouse_y);
                         n <= n + 9'd1;
                     end
                 end

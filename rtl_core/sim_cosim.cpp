@@ -96,6 +96,8 @@ static void sync_c_to_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top) {
     top->bb_mir_iw2 = 0;
     top->io_bridge_en = 0;
     top->display_wake_gate = 0;
+    top->kbd_words = ~0ULL;
+    top->mouse_buttons = 0; top->mouse_present = 0; top->mouse_x = 0; top->mouse_y = 0;
     top->eth_local_host = 042;
     top->io_attached = 0;
     top->io_read_data = 0;
@@ -1049,6 +1051,8 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
     // Enable the internal RTL I/O bridge!
     top->io_bridge_en = 1;
     top->display_wake_gate = 0;
+    top->kbd_words = ~0ULL;
+    top->mouse_buttons = 0; top->mouse_present = 0; top->mouse_x = 0; top->mouse_y = 0;
     top->eth_local_host = 042;
     top->eval();
 
