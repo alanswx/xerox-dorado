@@ -1,0 +1,4 @@
+`verilator_config
+public_flat_rw -module "dorado_rtl_cpu" -var "*"
+public_flat_rw -module "dorado_rtl_mem" -var "*"
+public_flat_rw -module "dorado_rtl_io" -var "*"
