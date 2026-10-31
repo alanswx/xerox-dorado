@@ -1,7 +1,7 @@
 #!/bin/sh
 # Assemble the rtl_core MiSTer project from the framework template.
 #
-#   fpga/mister_rtl/build.sh [TEMPLATE_DIR] [OUT_DIR]
+#   [CLK_MHZ=40] fpga/mister_rtl/build.sh [TEMPLATE_DIR] [OUT_DIR]
 #
 # Needs rtl_core/init/ (make -C rtl_core init) and rtl_core/roms/ (built by
 # the rtl_core Makefile). Then: cd OUT_DIR && quartus_sh --flow compile Dorado
@@ -20,8 +20,9 @@ BOOT_WORDS=$(cat "$CORE/roms/bootfile.len")
 mkdir -p "$OUT/rtl"
 cp -r "$TEMPLATE/sys" "$OUT/"
 cp -r "$TEMPLATE/rtl/pll" "$TEMPLATE/rtl/pll.v" "$TEMPLATE/rtl/pll.qip" "$OUT/rtl/"
-# 40 MHz system clock
-sed -i 's/output_clock_frequency0("[^"]*")/output_clock_frequency0("40.000000 MHz")/' "$OUT/rtl/pll/pll_0002.v"
+# System clock (the CPU, I/O and video all run on it)
+CLK_MHZ=${CLK_MHZ:-40}
+sed -i "s/output_clock_frequency0(\"[^\"]*\")/output_clock_frequency0(\"$CLK_MHZ.000000 MHz\")/" "$OUT/rtl/pll/pll_0002.v"
 cp "$TEMPLATE/mycore.sdc" "$OUT/Dorado.sdc"
 cp "$HERE/Dorado.sv" "$OUT/"
 for f in dorado_rtl_pkg.sv dorado_rtl_alu_shifter.sv dorado_rtl_cpu.sv dorado_rtl_io.sv \

@@ -452,6 +452,7 @@ module dorado_rtl_cpu
     logic [1:0]     rw_lru   [0:DM_CACHE_WAYS-1];
     logic           bk_hit;       // the reference hits the row (computed once)
     int             bk_hitway;
+    logic           rd_spec;       // the hit word was read speculatively in the booking clock
 
     // ---- Block-RAM read data -----------------------------------------------
     logic [15:0]    map_rp_q;
@@ -674,6 +675,7 @@ module dorado_rtl_cpu
     // State Mutation Tasks
     // -------------------------------------------------------------------------
     task automatic reset_memory();
+        rd_spec = 1'b0;
         // The Map, cache data and storage are block RAMs: they are not
         // cleared here (cache lines are invalidated by their valid bits; the
         // Map and storage take their contents from initialisation or the
@@ -1246,7 +1248,8 @@ module dorado_rtl_cpu
     // -------------------------------------------------------------------------
     // Combinational Instruction Fetch & Shifter / ALU Instantiations
     // -------------------------------------------------------------------------
-    dorado_uinstr_t cur_u;
+    dorado_uinstr_t cur_u;         // decoded from the IM read data (RM/STK read address)
+    dorado_uinstr_t ex_u;          // the same, registered for C_EXEC (ALU, shifter, FF)
     logic [15:0]    cur_task_md;
     logic [15:0]    cur_rm_stk_read;
     logic [15:0]    cur_id_peek;
@@ -1355,8 +1358,13 @@ module dorado_rtl_cpu
         cur_id_peek     = ifu_id_at_fn(ifu_idcnt);
     end
 
+    // ex_u holds the instruction C_EXEC executes: captured by the sequencer
+    // while it is read (C_FETCH, C_DEC), so the IM read data does not feed
+    // the ALU directly.
+    logic ex_pres, ex_brk;
+
     dorado_rtl_shifter u_shifter (
-        .u             (cur_u),
+        .u             (ex_u),
         .t_in          (T),
         .r_in          (cur_rm_stk_read),
         .id_peek       (cur_id_peek),
@@ -1536,14 +1544,14 @@ module dorado_rtl_cpu
         b_overridden = 1'b0;
 
         // 1. Check FF override for B bus (FA=1, FB=6/7)
-        if (ff_full_function_ok(cur_u) && ff_fa(cur_u.ff) == 2'd1) begin
-            if (ff_fb(cur_u.ff) == 3'd6) begin
+        if (ff_full_function_ok(ex_u) && ff_fa(ex_u.ff) == 2'd1) begin
+            if (ff_fb(ex_u.ff) == 3'd6) begin
                 logic [3:0]  psrn;
                 logic [27:0] pva;
                 psrn         = proc_srn;
                 pva          = pipe_va[psrn];
                 b_overridden = 1'b1;
-                case (ff_fc(cur_u.ff))
+                case (ff_fc(ex_u.ff))
                     3'd0: b_val = ~get_fault_info();
                     3'd1: b_val = {4'd0, pva[27:16]};
                     3'd2: b_val = pva[15:0];
@@ -1553,11 +1561,11 @@ module dorado_rtl_cpu
                     3'd6: b_val = ~get_config_word();
                     3'd7: b_val = get_pipe5_at(psrn);
                 endcase
-            end else if (ff_fb(cur_u.ff) == 3'd7) begin
+            end else if (ff_fb(ex_u.ff) == 3'd7) begin
                 logic [9:0] ifum_addr;
                 ifum_addr    = {ifu_insset, ifu_opcode};
                 b_overridden = 1'b1;
-                case (ff_fc(cur_u.ff))
+                case (ff_fc(ex_u.ff))
                     3'd0: b_val = ~ifu_pcx;
                     3'd1: b_val = ~(gen_io_mode ? event_cnt_b : event_cnt_a);
                     3'd2: b_val = ~ifum_q_hi;
@@ -1572,31 +1580,31 @@ module dorado_rtl_cpu
 
         // Standard BSEL if not overridden by FF
         if (!b_overridden) begin
-            if (cur_u.asel == 3'd7 && cur_u.bsel[2]) begin
+            if (ex_u.asel == 3'd7 && ex_u.bsel[2]) begin
                 b_val = Q;
             end else begin
-                case (cur_u.bsel)
+                case (ex_u.bsel)
                     3'd0: b_val = cur_task_md;
                     3'd1: b_val = cur_rm_stk_read;
                     3'd2: b_val = T;
                     3'd3: b_val = Q;
-                    3'd4: b_val = {8'h00, cur_u.ff};
-                    3'd5: b_val = {8'hFF, cur_u.ff};
-                    3'd6: b_val = {cur_u.ff, 8'h00};
-                    3'd7: b_val = {cur_u.ff, 8'hFF};
+                    3'd4: b_val = {8'h00, ex_u.ff};
+                    3'd5: b_val = {8'hFF, ex_u.ff};
+                    3'd6: b_val = {ex_u.ff, 8'h00};
+                    3'd7: b_val = {ex_u.ff, 8'hFF};
                 endcase
             end
         end
 
         // 2. A-bus primary selection (HM Table 8a/8b)
         idcnt_after_a = ifu_idcnt;
-        case (cur_u.asel)
+        case (ex_u.asel)
             3'd0, 3'd1, 3'd4: a_val = cur_rm_stk_read;
             3'd2, 3'd3: begin
-                if (!ff_decode_ok(cur_u)) begin
+                if (!ff_decode_ok(ex_u)) begin
                     a_val = T;
                 end else begin
-                    case (cur_u.ff[7:6])
+                    case (ex_u.ff[7:6])
                         2'd0: a_val = cur_task_md;
                         2'd1: begin
                             a_val         = ifu_id_at_fn(ifu_idcnt);
@@ -1618,15 +1626,15 @@ module dorado_rtl_cpu
         // 3. FF A-source override (FA=0, FB=0..2)
         a_overridden       = 1'b0;
         a_is_rmstk_default = 1'b0;
-        if (ff_decode_ok(cur_u) && cur_u.asel != 3'd7) begin
+        if (ff_decode_ok(ex_u) && ex_u.asel != 3'd7) begin
             logic [5:0] f6;
             logic       f6_valid;
-            f6       = cur_u.ff[5:0];
-            f6_valid = (cur_u.asel <= 3'd1) ||
-                       (ff_full_function_ok(cur_u) && ff_fa(cur_u.ff) == 2'd0);
+            f6       = ex_u.ff[5:0];
+            f6_valid = (ex_u.asel <= 3'd1) ||
+                       (ff_full_function_ok(ex_u) && ff_fa(ex_u.ff) == 2'd0);
             if (f6_valid) begin
                 if (f6[5:3] <= 3'd1) begin
-                    a_val        = {12'd0, cur_u.ff[3:0]};
+                    a_val        = {12'd0, ex_u.ff[3:0]};
                     a_overridden = 1'b1;
                 end else if (f6[5:3] == 3'd2) begin
                     case (f6[2:0])
@@ -1638,29 +1646,29 @@ module dorado_rtl_cpu
                 end
             end
         end
-        if (!a_overridden && (cur_u.asel == 3'd0 || cur_u.asel == 3'd1)) begin
+        if (!a_overridden && (ex_u.asel == 3'd0 || ex_u.asel == 3'd1)) begin
             a_is_rmstk_default = 1'b1;
         end
 
         // 4. TisId / RisId bus substitutions
         id_peek_post_a = ifu_id_at_fn(idcnt_after_a);
-        if (ff_is_t_is_id(cur_u)) begin
-            if (cur_u.bsel == 3'd2) b_val = id_peek_post_a;
-            if (cur_u.asel == 3'd6) a_val = id_peek_post_a;
-        end else if (ff_is_r_is_id(cur_u)) begin
-            if (cur_u.bsel == 3'd1) b_val = id_peek_post_a;
-            if (cur_u.asel == 3'd4 || a_is_rmstk_default) a_val = id_peek_post_a;
+        if (ff_is_t_is_id(ex_u)) begin
+            if (ex_u.bsel == 3'd2) b_val = id_peek_post_a;
+            if (ex_u.asel == 3'd6) a_val = id_peek_post_a;
+        end else if (ff_is_r_is_id(ex_u)) begin
+            if (ex_u.bsel == 3'd1) b_val = id_peek_post_a;
+            if (ex_u.asel == 3'd4 || a_is_rmstk_default) a_val = id_peek_post_a;
         end
 
         // 5. ALUFM lookup & Carry modifiers (XorCarry, XorSavedCarry, Carry20)
-        aluf_idx         = (cur_u.asel == 3'd7) ? (4'd14 + {3'd0, cur_u.aluf[0]}) : cur_u.aluf;
+        aluf_idx         = (ex_u.asel == 3'd7) ? (4'd14 + {3'd0, ex_u.aluf[0]}) : ex_u.aluf;
         comb_alufm_entry = alufm_present[aluf_idx] ? alufm[aluf_idx] : 6'd0;
-        comb_carry20     = ff_is_table11a(cur_u, 8'o026, 8'o077);
+        comb_carry20     = ff_is_table11a(ex_u, 8'o026, 8'o077);
 
-        if (ff_is_table11a(cur_u, 8'o025, 8'o077)) begin
+        if (ff_is_table11a(ex_u, 8'o025, 8'o077)) begin
             // XorSavedCarry
             comb_alufm_entry[5] ^= alu_carry;
-        end else if (ff_is_table11a(cur_u, 8'o024, 8'o077)) begin
+        end else if (ff_is_table11a(ex_u, 8'o024, 8'o077)) begin
             // XorCarry
             comb_alufm_entry[5] ^= 1'b1;
         end
@@ -1841,6 +1849,19 @@ module dorado_rtl_cpu
         end
     endtask
 
+    // C_NEXT reads RM/STK (read in C_NEXTRD) only for the branch conditions
+    // R<0 and R odd (HM Table 13, conditions 4 and 5) and for the LoadRam
+    // End-item exit; every other microinstruction skips C_NEXTRD. A
+    // conservative superset of next_pc's uses: any JCN conditional or FF
+    // branch condition naming 4 or 5.
+    function automatic logic next_reads_rm_fn(input dorado_uinstr_t u);
+        logic jcn_cond, ff_cond;
+        jcn_cond = (u.jcn[7] == 1'b0) && (u.jcn[7:4] != 4'd0) &&
+                   (u.jcn[2:1] == 2'b10);
+        ff_cond  = (u.bsel < 3'd4) && (u.ff[2:1] == 2'b10);
+        return jcn_cond || ff_cond || (u.jcn == 8'o045 && u.ff == 8'o147);
+    endfunction
+
     task automatic eval_branch_condition_task(
         input  dorado_uinstr_t u,
         input  logic [2:0]     cond,
@@ -1994,7 +2015,7 @@ module dorado_rtl_cpu
         m_task    = task_id;
         m_subtask = subtask_id;
         m_ret     = ret;
-        st        = M_ROW;
+        st        = M_MAPA;
     endtask
 
     // IFU byte fetch at byte PC `pc` (HM section 6: opcode bytes come from the
@@ -2084,8 +2105,12 @@ module dorado_rtl_cpu
     always_comb begin
         // IM: the instruction at real_PC during C_FETCH; the word at Link
         // (for Read IM / Write IM) afterwards.
+        // In C_FINISH (unless it commits a Write IM) the read is at the
+        // next PC the instruction chose, ahead of scheduling: if the
+        // scheduler keeps it, C_FETCH already has the instruction (spec_hit).
         im_addr = (st == C_FETCH || st == C_DEC) ? real_PC[11:0]
                 : (st == C_EXEC)  ? Link[11:0]
+                : (st == C_FINISH && !x_im_wr) ? x_np[11:0]
                 :                   link_at_issue[11:0];
         im_we   = (st == C_FINISH) && x_im_wr;
         im_wd0  = x_im_wd0;
@@ -2135,6 +2160,8 @@ module dorado_rtl_cpu
                 cache_wd = word_data;
             end
             M_IOC:  cache_addr_p = cache_addr(io_row, io_way, mcnt[3:0]);
+            // speculative read of the hit word, for M_RD
+            M_MAPV, M_BOOK: cache_addr_p = cache_addr(va_cache_row(m_va), bk_hitway, m_va[3:0]);
             A_DO:   begin
                 cache_addr_p = cache_addr(m_va[9:4], ap_way, m_va[3:0]);
                 cache_we     = ap_we && ap_cache && ap_hit;
@@ -2191,7 +2218,8 @@ module dorado_rtl_cpu
         if (st == C_NEXTRD)
             rms_raddr = rm_address_fn(x_u, ctask, x_rbase_at_issue, task_subtask[ctask], StkP);
         else
-            rms_raddr = rm_address_fn(cur_u, ctask, RBase, task_subtask[ctask], StkP);
+            rms_raddr = rm_address_fn((st == C_FETCH || st == C_DEC) ? cur_u : ex_u,
+                                      ctask, RBase, task_subtask[ctask], StkP);
         rms_waddr = lc_write_address_fn(x_u, ctask, x_rbase_at_issue, task_subtask[ctask], StkP);
         rms_we    = (st == C_FINISH) && !halted &&
                     (x_u.lc == 3'd2 || x_u.lc == 3'd4 || x_u.lc == 3'd5 ||
@@ -2250,6 +2278,7 @@ module dorado_rtl_cpu
     // completed microinstruction (the cosimulation and I/O tick on it).
     // =========================================================================
     logic ap_done_q;
+    logic spec_hit;                // IM (read in C_FINISH) holds the instruction at real_PC
     assign cpu_between    = (st == C_FETCH);
     assign dbg_ifu_active = ifu_active;
     always @(posedge clk) begin
@@ -2262,6 +2291,7 @@ module dorado_rtl_cpu
             reset_memory();
             ap_done  = 1'b0;
             ap_done_q = 1'b0;
+            spec_hit = 1'b0;
             ap_rd    = 16'd0;
             x_assist = 1'b0;
             st      = C_FETCH;
@@ -2272,22 +2302,36 @@ module dorado_rtl_cpu
             // -----------------------------------------------------------------
             C_FETCH: begin
                 // IM, IFUM and the Map entry at Mar are being read this clock.
+                ex_u    = cur_u;
+                ex_pres = im_q_pres;
+                ex_brk  = im_q_brk;
                 ap_done = 1'b0;
                 if (ap_req && !ap_done_q) begin
+                    spec_hit = 1'b0;             // the assist uses the ports
                     if (ap_stk) begin
                         ap_done = 1'b1;          // the STK port writes this clock
                     end else begin
                         x_assist = 1'b1;
                         m_va     = ap_va;
-                        st       = M_ROW;
+                        st       = M_MAPA;
                     end
-                end else if (!io_busy && !ap_hold) begin
-                    st = C_DEC;
+                end else if (!ap_hold) begin
+                    // With the instruction already read (spec_hit), RM/STK are
+                    // read at its address this clock and C_DEC is not needed.
+                    st       = spec_hit ? C_EXEC : C_DEC;
+                    spec_hit = 1'b0;
                 end
             end
 
             // RM/STK are being read at the decode-time address this clock.
-            C_DEC: st = C_EXEC;
+            // The I/O module ticks on step_done during C_FETCH; its engines
+            // (io_busy) must be idle before C_EXEC reads I/O state.
+            C_DEC: begin
+                ex_u    = cur_u;
+                ex_pres = im_q_pres;
+                ex_brk  = im_q_brk;
+                if (!io_busy) st = C_EXEC;
+            end
 
             // -----------------------------------------------------------------
             C_EXEC: begin
@@ -2295,6 +2339,9 @@ module dorado_rtl_cpu
                 logic           step_valid;
                 logic           to_finish;
 
+                // The I/O module ticked on step_done during C_FETCH; its
+                // engines must be idle before this instruction runs.
+                if (!io_busy) begin
                 io_read_stb       = 1'b0;
                 io_write_stb      = 1'b0;
                 fastio_stb        = 1'b0;
@@ -2303,8 +2350,8 @@ module dorado_rtl_cpu
                 if (ext_subtask_we) begin
                     task_subtask[ext_subtask_task] = ext_subtask_val;
                 end
-                u          = cur_u;
-                x_u        = cur_u;
+                u          = ex_u;
+                x_u        = ex_u;
                 x_from_im  = 1'b1;
                 step_valid = 1'b1;
                 to_finish  = 1'b0;
@@ -2321,11 +2368,11 @@ module dorado_rtl_cpu
                 end
 
                 if (step_valid && x_from_im) begin
-                    if (real_PC >= IM_SIZE || !im_q_pres) begin
+                    if (real_PC >= IM_SIZE || !ex_pres) begin
                         halted      = 1'b1;
                         halt_reason = 4'd2; // CPU_HALT_NO_CODE
                         step_valid  = 1'b0;
-                    end else if (im_q_brk) begin
+                    end else if (ex_brk) begin
                         halted      = 1'b1;
                         halt_reason = 4'd7; // CPU_HALT_BREAKPOINT
                         step_valid  = 1'b0;
@@ -2699,7 +2746,7 @@ module dorado_rtl_cpu
                             x_b   = b;
                             x_alu = alu;
                             x_pd  = pd;
-                            st    = C_NEXTRD;
+                            st    = next_reads_rm_fn(u) ? C_NEXTRD : C_NEXT;
 
                             // -------------------------------------------------
                             // 4. Processor Memory Reference (ASEL = 0..3)
@@ -2750,6 +2797,7 @@ module dorado_rtl_cpu
                         end
                     end
                 end
+                end // !io_busy
             end
 
             // -----------------------------------------------------------------
@@ -2771,7 +2819,7 @@ module dorado_rtl_cpu
                 if (recorded_fault && x_kind != DM_REF_IFETCH && !mcr_nowake()) begin
                     wakeup_pending[15] = 1'b1;
                 end
-                st = C_NEXTRD;
+                st = next_reads_rm_fn(x_u) ? C_NEXTRD : C_NEXT;
             end
 
             // RM/STK are being read at the branch-condition address this clock.
@@ -3094,89 +3142,96 @@ module dorado_rtl_cpu
             // -----------------------------------------------------------------
             // 6-8. LC writeback, StkP, flags, scheduling (Write IM commits now)
             // -----------------------------------------------------------------
-            C_FINISH: begin
-                dorado_uinstr_t u;
-                u     = x_u;
-                RBase = (ifu_dispatch_rbase >= 0) ? 8'(ifu_dispatch_rbase) : x_rbase_after_ff;
+            // C_FINISH runs the end-of-instruction scheduling in the same
+            // clock; C_SCHED alone serves the stack-error and HOLDSIM paths.
+            C_FINISH, C_SCHED: begin
+                logic do_sched, spec_ok;
+                do_sched = 1'b1;
+                spec_ok  = (st == C_FINISH) && !x_im_wr;
+                if (st == C_FINISH) begin
+                    dorado_uinstr_t u;
+                    u     = x_u;
+                    RBase = (ifu_dispatch_rbase >= 0) ? 8'(ifu_dispatch_rbase) : x_rbase_after_ff;
 
-                if (!halted) begin
-                    logic [7:0]  rbase_next_instr;
-                    logic [15:0] pd;
-                    pd               = x_pd;
-                    rbase_next_instr = RBase;
-                    RBase            = x_rbase_at_issue;
-                    // RM/STK writes go through the block-RAM port (rms_*).
-                    case (u.lc)
-                        3'd1: T = pd;
-                        3'd2: T = x_md_at_issue;
-                        3'd3: T = x_md_at_issue;
-                        3'd5: T = ff_is_t_gets_md(u) ? x_md_at_issue : pd;
-                        3'd7: T = pd;
-                        default: ;
-                    endcase
-                    RBase = rbase_next_instr;
+                    if (!halted) begin
+                        logic [7:0]  rbase_next_instr;
+                        logic [15:0] pd;
+                        pd               = x_pd;
+                        rbase_next_instr = RBase;
+                        RBase            = x_rbase_at_issue;
+                        // RM/STK writes go through the block-RAM port (rms_*).
+                        case (u.lc)
+                            3'd1: T = pd;
+                            3'd2: T = x_md_at_issue;
+                            3'd3: T = x_md_at_issue;
+                            3'd5: T = ff_is_t_gets_md(u) ? x_md_at_issue : pd;
+                            3'd7: T = pd;
+                            default: ;
+                        endcase
+                        RBase = rbase_next_instr;
 
-                    if (u.block && ctask == 4'd0) begin
-                        logic [7:0] d8;
-                        d8 = ff_is_dont_modify_stkp(u) ? 8'd0 : stk_signed_delta(u.rstk);
-                        if (d8 != 8'd0 || (u.rstk[3] && !ff_is_dont_modify_stkp(u))) begin
-                            stk_und = x_stk_underflow;
-                            stk_ovf = x_stk_overflow;
-                            StkP    = {StkP[7:6], 6'(StkP[5:0] + d8[5:0])};
+                        if (u.block && ctask == 4'd0) begin
+                            logic [7:0] d8;
+                            d8 = ff_is_dont_modify_stkp(u) ? 8'd0 : stk_signed_delta(u.rstk);
+                            if (d8 != 8'd0 || (u.rstk[3] && !ff_is_dont_modify_stkp(u))) begin
+                                stk_und = x_stk_underflow;
+                                stk_ovf = x_stk_overflow;
+                                StkP    = {StkP[7:6], 6'(StkP[5:0] + d8[5:0])};
+                            end
                         end
-                    end
-                    if (ifu_save_stkp_pending) begin
-                        ifu_saved_stkp        = StkP;
-                        ifu_save_stkp_pending = 1'b0;
-                    end
+                        if (ifu_save_stkp_pending) begin
+                            ifu_saved_stkp        = StkP;
+                            ifu_save_stkp_pending = 1'b0;
+                        end
 
-                    if (!(ff_full_function_ok(u) && ff_fa(u.ff) == 2'd0 &&
-                          ff_fb(u.ff) == 3'd7 && ff_fc(u.ff) == 3'd6)) begin
-                        alu_zero     = x_new_alu_zero;
-                        alu_lt0      = x_new_alu_lt0;
-                        alu_carry    = x_new_carry;
-                        alu_overflow = x_new_ovf;
-                    end
+                        if (!(ff_full_function_ok(u) && ff_fa(u.ff) == 2'd0 &&
+                              ff_fb(u.ff) == 3'd7 && ff_fc(u.ff) == 3'd6)) begin
+                            alu_zero     = x_new_alu_zero;
+                            alu_lt0      = x_new_alu_lt0;
+                            alu_carry    = x_new_carry;
+                            alu_overflow = x_new_ovf;
+                        end
 
-                    prev_PC        = real_PC;
-                    x_sched_block  = u.block && ctask != 4'd0;
-                    x_sched_freeze = 1'b0;
-                    st             = C_SCHED;
-                end else begin
+                        prev_PC        = real_PC;
+                        x_sched_block  = u.block && ctask != 4'd0;
+                        x_sched_freeze = 1'b0;
+                    end else begin
+                        do_sched  = 1'b0;
+                        step_done = 1'b1;
+                        st        = C_FETCH;
+                    end
+                end
+
+                // 8. End-of-instruction task scheduling and ticks.
+                if (do_sched) begin
+                    logic [15:0] chosen;
+                    if (x_from_im) junk_timer_tick_task();
+                    task_schedule_task(x_np, x_sched_block, x_sched_freeze, chosen);
+                    if (x_sched_freeze) begin
+                        cycles = cycles + 64'd1;         // hold: PC and memory timers stand still
+                    end else begin
+                        real_PC  = chosen;
+                        spec_hit = spec_ok && (chosen == x_np);
+                        if (x_from_im) begin
+                            cycles = cycles + 64'd1;
+                            memory_tick();
+                        end
+                        if (ifu_active && ifu_warmup > 8'd0) ifu_warmup = ifu_warmup - 8'd1;
+                    end
                     step_done = 1'b1;
                     st        = C_FETCH;
                 end
             end
 
             // -----------------------------------------------------------------
-            // 8. End-of-instruction task scheduling and ticks (shared by the
-            //    normal path, the stack-error path and the HOLDSIM hold).
-            // -----------------------------------------------------------------
-            C_SCHED: begin
-                logic [15:0] chosen;
-                if (x_from_im) junk_timer_tick_task();
-                task_schedule_task(x_np, x_sched_block, x_sched_freeze, chosen);
-                if (x_sched_freeze) begin
-                    cycles = cycles + 64'd1;         // hold: PC and memory timers stand still
-                end else begin
-                    real_PC = chosen;
-                    if (x_from_im) begin
-                        cycles = cycles + 64'd1;
-                        memory_tick();
-                    end
-                    if (ifu_active && ifu_warmup > 8'd0) ifu_warmup = ifu_warmup - 8'd1;
-                end
-                step_done = 1'b1;
-                st        = C_FETCH;
-            end
-
-            // -----------------------------------------------------------------
             // Memory engine
             // -----------------------------------------------------------------
-            M_ROW: begin
-                // Load the reference's cache row.
+            M_ROW, M_MAPA: begin
+                // Map entry for the reference's page is read this clock, and
+                // the reference's cache row is loaded into the row registers.
                 logic [5:0] r;
-                r = va_cache_row(m_va);
+                int         hw;
+                r       = va_cache_row(m_va);
                 for (int w = 0; w < DM_CACHE_WAYS; w++) begin
                     rw_tag[w]    = cache_tag[r][w];
                     rw_valid[w]  = cache_valid[r][w];
@@ -3186,13 +3241,6 @@ module dorado_rtl_cpu
                     rw_bl[w]     = cache_being_loaded[r][w];
                     rw_lru[w]    = cache_lru[r][w];
                 end
-                st = M_MAPA;
-            end
-            M_MAPA: begin
-                // Map entry for the reference's page is read this clock.
-                logic [5:0] r;
-                int         hw;
-                r       = va_cache_row(m_va);
                 m_idx_a = map_index(m_va);
                 if (x_assist) begin
                     // the harness tests valid and tag only
@@ -3211,14 +3259,51 @@ module dorado_rtl_cpu
                 m_idx_v = map_index({rw_tag[m_wbway], r, 4'b0000});
                 st      = M_MAPV;
             end
-            M_MAPV: begin
-                // Map entry for the possible writeback page is read this clock.
-                mA_rp = map_rp_q; mA_wp = map_wp_q; mA_dirty = map_dirty_q; mA_ref = map_ref_q;
-                if (x_assist) begin
-                    ap_phys = ({16'd0, map_rp_q} << PAGE_SHIFT) + {24'd0, m_va[7:0]};
-                    st      = A_DO;
+            M_MAPV, M_BOOK: begin
+                // M_MAPV: the reference page's Map entry arrives (mA) while the
+                // possible writeback page's entry is read. That entry (mV) is
+                // used only to write back a valid dirty victim, or by a Map
+                // reference; otherwise the bookkeeping runs in this clock and
+                // M_BOOK is skipped (with mV standing in as mA, unused).
+                logic do_book;
+                do_book = 1'b1;
+                if (st == M_MAPV) begin
+                    mA_rp = map_rp_q; mA_wp = map_wp_q; mA_dirty = map_dirty_q; mA_ref = map_ref_q;
+                    if (x_assist) begin
+                        ap_phys = ({16'd0, map_rp_q} << PAGE_SHIFT) + {24'd0, m_va[7:0]};
+                        st      = A_DO;
+                        do_book = 1'b0;
+                    end else if ((rw_valid[m_wbway] && rw_dirty[m_wbway]) ||
+                                 m_kind == DM_REF_MAP || m_kind == DM_REF_FLUSH) begin
+                        st      = M_BOOK;
+                        do_book = 1'b0;
+                    end else begin
+                        mV_rp = mA_rp; mV_wp = mA_wp; mV_dirty = mA_dirty; mV_ref = mA_ref;
+                    end
+                end else if (m_idx_v == m_idx_a) begin
+                    mV_rp = mA_rp; mV_wp = mA_wp; mV_dirty = mA_dirty; mV_ref = mA_ref;
                 end else begin
-                    st      = M_BOOK;
+                    mV_rp = map_rp_q; mV_wp = map_wp_q; mV_dirty = map_dirty_q; mV_ref = map_ref_q;
+                end
+                if (do_book) begin
+                    mem_book_task();
+                    begin
+                        logic [5:0] r;
+                        r = va_cache_row(m_va);
+                        for (int w = 0; w < DM_CACHE_WAYS; w++) begin
+                            cache_tag[r][w]          = rw_tag[w];
+                            cache_valid[r][w]        = rw_valid[w];
+                            cache_dirty[r][w]        = rw_dirty[w];
+                            cache_wp[r][w]           = rw_wp[w];
+                            cache_vacant[r][w]       = rw_vacant[w];
+                            cache_being_loaded[r][w] = rw_bl[w];
+                            cache_lru[r][w]          = rw_lru[w];
+                        end
+                    end
+                    mem_advance(0);
+                    // The cache data was read at the hit way this clock
+                    // (spec address below); M_RD can take it at once.
+                    rd_spec = (st == M_RD);
                 end
             end
             // Assist: storage (and cache) word written or read this clock.
@@ -3228,28 +3313,6 @@ module dorado_rtl_cpu
                 ap_done  = 1'b1;
                 x_assist = 1'b0;
                 st       = C_FETCH;
-            end
-            M_BOOK: begin
-                if (m_idx_v == m_idx_a) begin
-                    mV_rp = mA_rp; mV_wp = mA_wp; mV_dirty = mA_dirty; mV_ref = mA_ref;
-                end else begin
-                    mV_rp = map_rp_q; mV_wp = map_wp_q; mV_dirty = map_dirty_q; mV_ref = map_ref_q;
-                end
-                mem_book_task();
-                begin
-                    logic [5:0] r;
-                    r = va_cache_row(m_va);
-                    for (int w = 0; w < DM_CACHE_WAYS; w++) begin
-                        cache_tag[r][w]          = rw_tag[w];
-                        cache_valid[r][w]        = rw_valid[w];
-                        cache_dirty[r][w]        = rw_dirty[w];
-                        cache_wp[r][w]           = rw_wp[w];
-                        cache_vacant[r][w]       = rw_vacant[w];
-                        cache_being_loaded[r][w] = rw_bl[w];
-                        cache_lru[r][w]          = rw_lru[w];
-                    end
-                end
-                mem_advance(0);
             end
             M_WRA: mem_advance(1);
             M_WRV: mem_advance(2);
@@ -3264,7 +3327,10 @@ module dorado_rtl_cpu
                 else               mcnt = mcnt + 5'd1;
             end
             M_RD: begin
-                if (mcnt == 5'd1) begin
+                if (mcnt == 5'd1 ||
+                    (rd_spec && word_row == va_cache_row(m_va) && word_way == bk_hitway &&
+                     word_off == m_va[3:0])) begin
+                    rd_spec = 1'b0;
                     md = cache_q;
                     mem_advance(5);
                 end else begin

@@ -165,7 +165,7 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 
 ///////////////////////   CLOCKS   ///////////////////////////////
 
-wire clk_sys;   // 40 MHz
+wire clk_sys;   // CLK_MHZ (build.sh), 40 MHz by default
 pll pll
 (
 	.refclk(CLK_50M),
