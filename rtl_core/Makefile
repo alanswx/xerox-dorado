@@ -16,6 +16,8 @@ SV_SRCS := \
 	dorado_rtl_alu_shifter.sv \
 	dorado_rtl_cpu.sv \
 	dorado_rtl_io.sv \
+	dorado_rtl_bootsrv.sv \
+	dorado_rtl_assist.sv \
 	dorado_rtl_top.sv
 
 C_REF_SRCS := \
@@ -48,7 +50,26 @@ VERILATOR_FLAGS := \
 	--top-module dorado_rtl_top \
 	-CFLAGS "$(CXXFLAGS)"
 
-.PHONY: all test clean lint
+.PHONY: all test clean lint fpga-sim init
+
+# The FPGA configuration in simulation: power-up images from init/, the
+# in-FPGA boot server and loader assists, no C model (sim_fpga.cpp).
+FPGA_OBJ := obj_fpga
+init/start.txt: $(OBJ_DIR)/Vdorado_rtl_top
+	mkdir -p init
+	RTL_DUMP_INIT=init RTL_BOOT_ONLY=1 ./$(OBJ_DIR)/Vdorado_rtl_top > /dev/null || true
+
+init: init/start.txt
+
+$(FPGA_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_fpga.cpp roms/bootfile.hex
+	$(VERILATOR) --cc --exe --build -j 4 -O3 --x-assign fast --x-initial fast --noassert \
+	  -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-BLKSEQ \
+	  -GSTORAGE_WORDS=65536 -GRESET_PC=$$(sed -n 's/^real_PC=0\([0-7]*\).*/16\x27o\1/p' init/start.txt) \
+	  -DDORADO_INIT -DDORADO_NO_DISK --top-module dorado_rtl_top -Mdir $(FPGA_OBJ) \
+	  -CFLAGS "$(CXXFLAGS)" $(SV_SRCS) sim_fpga.cpp -o Vdorado_rtl_top
+
+fpga-sim: init/start.txt $(FPGA_OBJ)/Vdorado_rtl_top
+	./$(FPGA_OBJ)/Vdorado_rtl_top 80000000 fpga-sim.pbm
 
 all: $(OBJ_DIR)/Vdorado_rtl_top
 
@@ -56,7 +77,10 @@ $(C_BUILD)/%.o: $(DORADO_DIR)/src/%.c
 	@mkdir -p $(C_BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/Vdorado_rtl_top: $(SV_SRCS) sim_cosim.cpp $(C_REF_OBJS)
+roms/bootfile.hex roms/bol.hex: tools/make_boot_roms.py
+	python3 tools/make_boot_roms.py roms
+
+$(OBJ_DIR)/Vdorado_rtl_top: $(SV_SRCS) sim_cosim.cpp $(C_REF_OBJS) roms/bootfile.hex
 	$(VERILATOR) $(VERILATOR_FLAGS) $(SV_SRCS) sim_cosim.cpp $(abspath $(C_REF_OBJS)) -o Vdorado_rtl_top
 
 lint:
@@ -66,4 +90,4 @@ test: $(OBJ_DIR)/Vdorado_rtl_top
 	./$(OBJ_DIR)/Vdorado_rtl_top
 
 clean:
-	rm -rf $(OBJ_DIR)
+	rm -rf $(OBJ_DIR) $(FPGA_OBJ)

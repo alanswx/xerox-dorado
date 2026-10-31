@@ -10,7 +10,9 @@ The original gate-level Sil-derived FPGA core on `mister14` was limited to **~28
 2. **SDRAM Stalls:** 128 individual 1-bit memory wrappers in `dorado_storage_arb.sv` stalled `machine_clk` on 31.93% of host cycles.
 3. **Synthesis Overhead:** 90% ALM utilization (~38,000 ALMs, 52,000 FFs) prevented efficient synthesis and caused routing failures in Quartus.
 
-The new RTL core in [`rtl_core/`](file:///Users/alans/dev2/Dorado/rtl_core/) is built as clean, idiomatic SystemVerilog directly from the schematic-audited C emulator reference ([`cpu.c`](file:///Users/alans/dev2/Dorado/dorado/src/cpu.c), [`memory.c`](file:///Users/alans/dev2/Dorado/dorado/src/memory.c), [`io.c`](file:///Users/alans/dev2/Dorado/dorado/src/io.c), [`display.c`](file:///Users/alans/dev2/Dorado/dorado/src/display.c), [`ethernet.c`](file:///Users/alans/dev2/Dorado/dorado/src/ethernet.c)). It executes **1 microinstruction per clock cycle** at full 16.67 MHz (1.0x real time) and supports Turbo clocking (33.3 MHz 2.0x, 66.7 MHz 4.0x) within an estimated ~5,000 ALMs (~12% FPGA area).
+The new RTL core in [`rtl_core/`](file:///Users/alans/dev2/Dorado/rtl_core/) is built as clean SystemVerilog directly from the schematic-audited C emulator reference ([`cpu.c`](file:///Users/alans/dev2/Dorado/dorado/src/cpu.c), [`memory.c`](file:///Users/alans/dev2/Dorado/dorado/src/memory.c), [`display.c`](file:///Users/alans/dev2/Dorado/dorado/src/display.c), [`ethernet.c`](file:///Users/alans/dev2/Dorado/dorado/src/ethernet.c)).
+
+**Correction (2026-10-30).** This section used to say the core runs one microinstruction per clock at 16.67 MHz in ~5,000 ALMs. That was never measured, and the first Quartus run showed the one-clock form could not be built at all (hierarchical task calls into the memory module; cache-line moves of 16 words in zero time against a 64K-word array). The core is now **sequenced**: a microinstruction is a short series of fabric clocks (fetch, decode, execute, optional memory/IFU states, finish, schedule), about **10.6 clocks per microinstruction** on the Galaxian boot. The first fit is **10,624 ALMs (25%)** with Fmax **50.8 MHz**, i.e. about 0.3x a real Dorado at the 40 MHz the MiSTer build uses. See section 6.
 
 ---
 
@@ -20,15 +22,18 @@ All files are located in [`rtl_core/`](file:///Users/alans/dev2/Dorado/rtl_core/
 
 | File | Purpose | Key Subsystems & Grounding |
 | :--- | :--- | :--- |
-| [`dorado_rtl_pkg.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_pkg.sv) | Architectural Package | `dorado_uinstr_t`, `dm_ref_kind_t`, `dm_fault_kind_t`, `decode_model1`, `decode_mir`, `ff_fa/fb/fc`. |
-| [`dorado_rtl_alu_shifter.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_alu_shifter.sv) | ALU & Barrel Shifter | 32 ALUFM ops, Carry20, Overflow, 32-bit left cycle, `LMask`/`RMask`, `WF<-A`/`RF<-A` field decoders, post-ALU Pd-mux. |
-| [`dorado_rtl_mem.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_mem.sv) | Memory Subsystem | `BR[0:31]` 28-bit base registers, 64K Map RAM, 4-way 4K-word virtual cache, `Pipe0..5`, `FaultInfo'`, `Config'`, `MCR`, `DMux`. |
-| [`dorado_rtl_cpu.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_cpu.sv) | CPU, IFU, Tasking | `IM` (4096x36), `IFUM` (1024x33), `RM` (256x16), `STK` (256x16), 16-way task scheduler, IFU prefetch & IFUJump, JCN engine. |
-| [`dorado_rtl_io.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_io.sv) | I/O Controller Subsystem | Slow I/O router, Fast I/O munch router, DDC display controller (WCB/NLCB/Cursor/Rasterizer), Ethernet (TX/RX), Trident Disk. |
-| [`dorado_rtl_top.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_top.sv) | Top-Level Core Wrapper | Interconnects CPU, Memory, and I/O bridge with selectable internal/external I/O modes (`io_bridge_en`). |
-| [`sim_cosim.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_cosim.cpp) | Verilator Cosimulation Testbench | 11 lock-step microcode tests against C emulator + full world boot test (Suite 6). |
-| [`Makefile`](file:///Users/alans/dev2/Dorado/rtl_core/Makefile) | Build System | Targets: `make`, `make test`, `make lint`, `make clean`. |
-| [`verilator.vlt`](file:///Users/alans/dev2/Dorado/rtl_core/verilator.vlt) | Verilator Lint Rules | Clean warning suppressions for unused bit ranges and parameters. |
+| [`dorado_rtl_pkg.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_pkg.sv) | Architectural Package | `dorado_uinstr_t`, `dm_ref_kind_t`, `dm_fault_kind_t`, FF decoders. |
+| [`dorado_rtl_alu_shifter.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_alu_shifter.sv) | ALU & Barrel Shifter | ALUFM ops, Carry20, Overflow, shifter masks, Pd-mux. |
+| [`dorado_rtl_cpu.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_cpu.sv) | CPU, IFU, Tasking, **Memory** | Sequencer (`C_*` states), memory engine (`M_*` states, merged from the former `dorado_rtl_mem.sv`), BR/Map/cache/Pipe/MCR (HM section 5). Block RAMs: IM, IFUM, RM, STK, Map, cache data, storage. Loader-assist port (`ap_*`). |
+| [`dorado_rtl_io.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_io.sv) | I/O Controllers | Ticked once per microinstruction by `step_done`. DDC display (framebuffer render engine, line buffer + munch-copy engine), terminal, Ethernet (receive buffer with registered read, WaitForBOP skip engine), Trident disk (`ifndef DORADO_NO_DISK`). |
+| [`dorado_rtl_bootsrv.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_bootsrv.sv) | In-FPGA boot server | Breath of Life, Mayday -> EFTP of the boot file in ROM, Ack-paced (ethernet.c's lock-step EFTP). |
+| [`dorado_rtl_assist.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_assist.sv) | Loader assists | Cold-Alto init at EBoot, keyboard words (BS held until EFTP), display gate from DASTART -- what the Suite 6 harness does by poking arrays. |
+| [`dorado_rtl_top.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_top.sv) | Top-Level Core | CPU + I/O + boot server + assist; `bootsrv_en`/`assist_en` select the FPGA configuration. |
+| [`sim_cosim.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_cosim.cpp) | Cosimulation harness | Lock-step suites against the C emulator + Suite 6 boot; `RTL_DUMP_INIT`, `RTL_RX_LOG`. Steps the RTL by `step_done`. |
+| [`sim_fpga.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_fpga.cpp) | FPGA-configuration testbench | No C model, no pokes: power-up images, RTL boot server, RTL assist (`make fpga-sim`). |
+| [`tools/make_boot_roms.py`](file:///Users/alans/dev2/Dorado/rtl_core/tools/make_boot_roms.py) | ROM generator | `roms/bol.hex` from ethernet.c's `eth_bol_loader`, `roms/bootfile.hex` from the boot file. |
+| [`Makefile`](file:///Users/alans/dev2/Dorado/rtl_core/Makefile) | Build | `make`, `make test`, `make init`, `make fpga-sim`, `make lint`. |
+| [`../fpga/mister_rtl/`](file:///Users/alans/dev2/Dorado/fpga/mister_rtl/) | MiSTer wrapper | `Dorado.sv` (emu: 40 MHz, 1024x808 scan-out) and `build.sh` (assembles the project from Template_MiSTer). |
 
 ---
 
@@ -133,46 +138,79 @@ read one instruction ahead.
 
 ## 5. Next Steps to Resume
 
-1. **Match the C emulator's display presentation.** Find where `display.c` /
-   `machine.c` apply the Alto left margin and the unused-area fill, port them
-   into the DDC in `dorado_rtl_io.sv`, and gate Suite 6 on a
-   framebuffer comparison against C at a matched game state, not a pixel count.
-2. **Lengthen the lock-step coverage.** Run the C model in lock-step through
-   the whole Suite 6 boot, not just the 10K-cycle windows: that is the cheapest
-   way to find the next bug of the "trap vector" kind. The I/O side (C
-   `machine.c` vs `dorado_rtl_io.sv`) is the open question, since Suite 6 drives
-   only the RTL.
-3. **More worlds.** NetExec and the other Alto games (`make run-netexec` and
-   friends in `dorado/Makefile`), then the Cedar/Pilot path.
-4. **MiSTer FPGA integration (`fpga/mister/`):**
-   - Add an `EXT_STORAGE` parameter to [`dorado_rtl_mem.sv`](../rtl_core/dorado_rtl_mem.sv):
-     replace the local BRAM `storage` array with a 16-word burst interface to
-     HPS DDR3 / SDRAM.
-   - Wire [`dorado_rtl_top.sv`](../rtl_core/dorado_rtl_top.sv) into
-     [`fpga/mister/Dorado.sv`](../fpga/mister/Dorado.sv).
-   - **Quartus synthesis was tried on 2026-10-30, and the core does not
-     elaborate.** Quartus 17.0 Lite on misterubuntu
-     (`~/mister/DoradoRtlCoreSynth`, a bare synth-only project, all pins
-     virtual) stops in Analysis & Synthesis. The ~5,000 ALM figure was never
-     measured and cannot be until the core is restructured:
-     - `dorado_rtl_cpu` calls tasks and writes variables inside `u_mem` by
-       hierarchical name (38 sites: `u_mem.memory_ref_task(...)`,
-       `u_mem.proc_srn = ...`). Error 10207 at `get_task_md`.
-     - CPU and memory are one `always @(posedge clk)` block whose blocking
-       tasks fill or write back a 16-word cache line against `storage` in zero
-       time. Even past the hierarchy errors, `storage`, `cache_data`, the Map,
-       IM and RM are accessed many times per cycle and will not infer block RAM.
-     - `dorado_rtl_io` alone fails on an out-of-range constant index
-       (`ddc_kbd_pending[5]`, line 460), which Verilator tolerates.
-     - The Ethernet receive buffer `eth_rx_words` has no writer in RTL. Suite 6
-       fills it from the C server through Verilator's public access, so the
-       core has no receive path on hardware. The same applies to the IM, IFUM,
-       RM and Map preload, which `sync_c_to_rtl` performs.
-     Getting to hardware means a synthesizable rewrite: real module ports,
-     arrays in block RAM with at most two accesses per fabric clock, cache
-     misses as multi-cycle holds (HM §5), several fabric clocks per
-     microinstruction, an RTL Ethernet receive path plus a boot-server source,
-     and a microcode preload. Keep `make test` lock-step as the oracle
-     throughout.
-   - Build on `misterubuntu`, deploy to the MiSTer, and measure the issue rate
-     with the hardware counters.
+1. **Keyboard and mouse.** `Dorado.sv` ties the keyboard words to all-up and
+   the mouse to zero, so Galaxian runs its attract mode only. Map `ps2_key`
+   to the Alto keyboard words (`display.c`'s matrix; `verilog/rtl/dorado_keyboard.v`
+   already has a checked PS/2 mapping) into `dorado_rtl_io`'s `kbd_words_in`.
+2. **Block RAM is at 98% (541/553).** Anything new needs room. Candidates:
+   storage and the Map to SDRAM/DDR (storage 1 Mbit, Map 1.2 Mbit), the boot
+   file ROM (458 Kbit) to the HPS (load it with the OSD), or a narrower
+   framebuffer for Alto worlds (606 px wide).
+3. **Speed.** 10.7 fabric clocks per microinstruction at 40 MHz is about
+   0.22x a real Dorado. The memory engine spends extra states on every
+   reference (M_ROW, M_MAPA, M_MAPV, M_BOOK, M_WRA/M_WRV even when nothing
+   changes); C_DEC/C_NEXTRD add two clocks to every instruction. Fmax of the
+   bare core was 50.8 MHz.
+4. **Match C's display presentation** (left margin, white surround) and gate
+   on a framebuffer comparison rather than a pixel count.
+5. **Lock-step the whole boot**, not only 10K-cycle windows; then more worlds
+   (NetExec, other Alto games, Cedar -- which needs the disk model back on the
+   FPGA, currently `ifndef DORADO_NO_DISK`).
+
+## 6. The FPGA build (2026-10-30: Galaxian on MiSTer14)
+
+![Galaxian on the FPGA](images/rtl-core-mister14-galaxian-2026-10-30.png)
+
+HDMI capture from MiSTer14 (via MiSTerKVMS), about 40 s after loading the
+core: AEmu preloaded, Ethernet boot from the in-FPGA server, Galaxian
+animating (two captures differ in ~10K pixels).
+
+**How a microinstruction runs.** `C_FETCH` (IM read; waits while `io_busy`,
+the boot server's `stall` or the assist's `ap_hold`) -> `C_DEC` (RM/STK read)
+-> `C_EXEC` (buses, ALU, FF) -> memory engine if ASEL makes a reference
+(`M_ROW` cache row to registers, `M_MAPA`/`M_MAPV` Map reads, `M_BOOK` all the
+bookkeeping in one clock, then queued data moves `M_WB`/`M_FILL`/`M_RD`/`M_WR`/
+`M_IOC`/`M_IOS`/`M_IOW`) -> `C_PREF` -> `C_NEXTRD` (RM read for the branch
+condition) -> `C_NEXT` (next PC; IFUJump runs the byte fetches through the
+memory engine in `C_IFU_*`) -> `C_FINISH` (LC writeback, flags) -> `C_SCHED`
+(task switch) and `step_done`. The I/O controllers tick once on `step_done`.
+None of this changes what the microcode sees: every lock-step suite passes at
+0 mismatches with cache data and storage compared too.
+
+**What the FPGA has that the harness used to do.**
+- `dorado_rtl_bootsrv`: Breath of Life, Mayday, Ack-paced EFTP of
+  `Galaxian.boot!1` from ROM. The packet log (`RTL_RX_LOG`) of the C server
+  has exactly 1 BoL + 113 EFTP + 1 dally End, and the RTL server reproduces
+  it.
+- `dorado_rtl_assist`: cold-Alto init at EBoot, keyboard words with BS held
+  until EFTP starts, display gate from DASTART. (The Suite 6 harness read
+  DASTART from Map page 0; VA 420 is on page 1. The RTL reads it correctly.)
+- Power-up images in `rtl_core/init/` from `make -C rtl_core init`
+  (`RTL_DUMP_INIT`): IM, IFUM, RM, ALUFM, Map. Reset PC 01076.
+
+**Reproduce.**
+```sh
+make -C rtl_core init fpga-sim          # pure-RTL boot: PASS, 113 EFTP, fb_px 3259
+# on misterubuntu, from a copy of rtl_core/ and fpga/mister_rtl/:
+sh fpga/mister_rtl/build.sh ~/mister/Template_MiSTer ~/mister/DoradoRtlCore
+cd ~/mister/DoradoRtlCore && quartus_sh --flow compile Dorado
+scp output_files/Dorado.rbf mister14:/media/fat/_Development/DoradoRtlCore_20261030.rbf
+ssh mister14 'echo load_core /media/fat/_Development/DoradoRtlCore_20261030.rbf > /dev/MiSTer_cmd'
+```
+(`misterkvms-cli load-core` connects as root without the MiSTer key here;
+the `mister14` SSH alias has it.)
+
+**Fit (Quartus 17.0 Lite, 5CSEBA6U23I7, with the MiSTer framework).**
+
+| | ALMs | RAM blocks | timing |
+|---|---|---|---|
+| bare core, one-clock form | 55,344 (132%) | -- | did not fit |
+| bare core, sequenced + reductions | 10,624 (25%) | 522 | Fmax 50.8 MHz |
+| MiSTer build | 17,348 (41%) | 541/553 (98%) | core 40 MHz, slack +4.48 ns |
+
+Lessons from the fit: Quartus silently turns an array into registers when it
+does not like the access pattern (RM, STK, the Ethernet buffers, the line
+buffer -- 18K ALMs of registers until `ramstyle = "M10K"` was added); a
+framebuffer with a read-modify-write port and a scan-out port was built as two
+full copies (the fix was one bit per address, write-only from the renderer);
+`$countones` is not synthesizable in Quartus 17.

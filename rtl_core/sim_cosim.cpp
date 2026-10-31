@@ -1052,6 +1052,40 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
     top->eth_local_host = 042;
     top->eval();
 
+    // RTL_DUMP_INIT=<dir>: write the synced start state as $readmemh images
+    // for the FPGA build (dorado_rtl_cpu `ifdef DORADO_INIT), then continue.
+    if (const char *dir = getenv("RTL_DUMP_INIT")) {
+        auto dump = [&](const char *name, auto get, int n, int digits) {
+            std::string path = std::string(dir) + "/" + name;
+            FILE *f = fopen(path.c_str(), "w");
+            if (!f) { perror(path.c_str()); return; }
+            for (int i = 0; i < n; i++) fprintf(f, "%0*x\n", digits, (unsigned)get(i));
+            fclose(f);
+        };
+        dump("im_iw0.hex",     [&](int i){ return R_CPU(im_iw0)[i]; }, IM_SIZE, 4);
+        dump("im_iw1.hex",     [&](int i){ return R_CPU(im_iw1)[i]; }, IM_SIZE, 4);
+        dump("im_iw2.hex",     [&](int i){ return R_CPU(im_iw2)[i]; }, IM_SIZE, 4);
+        dump("im_present.hex", [&](int i){ return R_CPU(im_present)[i]; }, IM_SIZE, 1);
+        dump("ifum_lo.hex",    [&](int i){ return R_CPU(ifum_lo)[i]; }, IFUM_SIZE, 4);
+        dump("ifum_hi.hex",    [&](int i){ return R_CPU(ifum_hi)[i]; }, IFUM_SIZE, 4);
+        dump("ifum_present.hex",[&](int i){ return R_CPU(ifum_present)[i]; }, IFUM_SIZE, 1);
+        dump("rm.hex",         [&](int i){ return R_CPU(RM)[i]; }, RM_SIZE, 4);
+        dump("stk.hex",        [&](int i){ return R_CPU(STK)[i]; }, STK_SIZE, 4);
+        dump("alufm.hex",      [&](int i){ return R_CPU(alufm)[i]; }, ALUFM_SIZE, 2);
+        dump("alufm_present.hex",[&](int i){ return R_CPU(alufm_present)[i]; }, ALUFM_SIZE, 1);
+        dump("map_rp.hex",     [&](int i){ return R_MEM(map_rp)[i]; }, DM_MAP_ENTRIES, 4);
+        dump("map_wp.hex",     [&](int i){ return R_MEM(map_wp)[i]; }, DM_MAP_ENTRIES, 1);
+        dump("map_dirty.hex",  [&](int i){ return R_MEM(map_dirty)[i]; }, DM_MAP_ENTRIES, 1);
+        dump("map_ref.hex",    [&](int i){ return R_MEM(map_ref)[i]; }, DM_MAP_ENTRIES, 1);
+        std::string path = std::string(dir) + "/start.txt";
+        FILE *f = fopen(path.c_str(), "w");
+        fprintf(f, "real_PC=0%o cycles=%llu ctask=%u ready=0x%x tasking_on=%u\n",
+                (unsigned)R_CPU(real_PC), (unsigned long long)R_CPU(cycles),
+                (unsigned)R_CPU(ctask), (unsigned)R_CPU(ready), (unsigned)R_CPU(tasking_on));
+        fclose(f);
+        printf("  [INIT] start state written to %s (real_PC=0%o)\n", dir, (unsigned)R_CPU(real_PC));
+    }
+
     // Hold BS key (word 0, bit 15 -> 0xFFFE) so AEmu's Start.mc selects EBoot
     R_IO(ddc_kbd_words)[0] = 0xFFFE;
     R_IO(ddc_kbd_words)[1] = 0xFFFF;
@@ -1276,19 +1310,17 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
 
     // Count non-zero pixels in RTL framebuffer u_io.fb
     int fb_pixels = 0;
-    for (int i = 0; i < (1024 * 808) / 8; i++) {
-        uint8_t b = R_IO(fb)[i];
-        while (b) {
-            fb_pixels += (b & 1);
-            b >>= 1;
-        }
-    }
+    for (int i = 0; i < 1024 * 808; i++) fb_pixels += R_IO(fb)[i] & 1;
 
     // RTL_FB_OUT=path.pbm: write the 1024x808 framebuffer (MSB = leftmost pixel).
     if (const char *fbp = getenv("RTL_FB_OUT")) {
         if (FILE *pf = fopen(fbp, "wb")) {
             fprintf(pf, "P4\n1024 808\n");
-            for (int i = 0; i < (1024 * 808) / 8; i++) fputc(R_IO(fb)[i], pf);
+            for (int i = 0; i < (1024 * 808) / 8; i++) {
+                int byte = 0;
+                for (int k = 0; k < 8; k++) byte = (byte << 1) | (R_IO(fb)[i * 8 + k] & 1);
+                fputc(byte, pf);
+            }
             fclose(pf);
         }
     }

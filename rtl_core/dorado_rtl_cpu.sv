@@ -13,7 +13,8 @@
 module dorado_rtl_cpu
     import dorado_rtl_pkg::*;
 #(
-    parameter int STORAGE_WORDS = 4 * 1024 * 1024
+    parameter int          STORAGE_WORDS = 4 * 1024 * 1024,
+    parameter logic [15:0] RESET_PC      = 16'd0      // FPGA: the preloaded world's start
 ) (
     input  logic           clk,
     input  logic           rst,
@@ -78,7 +79,24 @@ module dorado_rtl_cpu
 
     // Sequencing
     output logic           step_done,  // one clock after each microinstruction
-    input  logic           io_busy     // I/O not ready for the next microinstruction
+    input  logic           io_busy,    // I/O not ready for the next microinstruction
+
+    // Loader assist port (dorado_rtl_assist): while ap_hold is high the CPU
+    // stays between microinstructions, and services one ap_req at a time:
+    // a word written to (or read from) storage at the mapped VA, optionally
+    // also into a resident cache line, or a word written to STK. This is what
+    // the cosimulation harness does by poking arrays; see dorado_rtl_assist.
+    input  logic           ap_hold,
+    input  logic           ap_req,
+    input  logic           ap_we,
+    input  logic           ap_stk,
+    input  logic           ap_cache,
+    input  logic [27:0]    ap_va,
+    input  logic [15:0]    ap_wd,
+    output logic           ap_done,
+    output logic [15:0]    ap_rd,
+    output logic           cpu_between,  // in C_FETCH: assist conditions are current
+    output logic           dbg_ifu_active
 );
     // -------------------------------------------------------------------------
     // Constants
@@ -101,18 +119,18 @@ module dorado_rtl_cpu
     // -------------------------------------------------------------------------
     // Control Store (IM), IFUM, RM, STK, ALUFM
     // -------------------------------------------------------------------------
-    logic [15:0] im_iw0        [0:IM_SIZE-1];
-    logic [15:0] im_iw1        [0:IM_SIZE-1];
-    logic [15:0] im_iw2        [0:IM_SIZE-1];
-    logic        im_present    [0:IM_SIZE-1];
-    logic        im_breakpoint [0:IM_SIZE-1];
+    (* ramstyle = "M10K" *) logic [15:0] im_iw0        [0:IM_SIZE-1];
+    (* ramstyle = "M10K" *) logic [15:0] im_iw1        [0:IM_SIZE-1];
+    (* ramstyle = "M10K" *) logic [15:0] im_iw2        [0:IM_SIZE-1];
+    (* ramstyle = "M10K" *) logic        im_present    [0:IM_SIZE-1];
+    (* ramstyle = "M10K" *) logic        im_breakpoint [0:IM_SIZE-1];
 
-    logic [15:0] ifum_lo       [0:IFUM_SIZE-1];
-    logic [15:0] ifum_hi       [0:IFUM_SIZE-1];
-    logic        ifum_present  [0:IFUM_SIZE-1];
+    (* ramstyle = "M10K" *) logic [15:0] ifum_lo       [0:IFUM_SIZE-1];
+    (* ramstyle = "M10K" *) logic [15:0] ifum_hi       [0:IFUM_SIZE-1];
+    (* ramstyle = "M10K" *) logic        ifum_present  [0:IFUM_SIZE-1];
 
-    logic [15:0] RM            [0:RM_SIZE-1];
-    logic [15:0] STK           [0:STK_SIZE-1];
+    (* ramstyle = "M10K" *) logic [15:0] RM            [0:RM_SIZE-1];
+    (* ramstyle = "M10K" *) logic [15:0] STK           [0:STK_SIZE-1];
 
     logic [5:0]  alufm         [0:ALUFM_SIZE-1];
     logic        alufm_present [0:ALUFM_SIZE-1];
@@ -258,7 +276,7 @@ module dorado_rtl_cpu
         C_FETCH, C_DEC, C_EXEC, C_PREF, C_NEXTRD, C_NEXT, C_SCHED,
         C_IFU_OPW, C_IFU_DECW, C_IFU_DEC, C_IFU_AW, C_IFU_BETA, C_IFU_BW, C_IFU_END,
         C_FINISH,
-        M_ROW, M_MAPA, M_MAPV, M_BOOK, M_WRA, M_WRV, M_WB, M_FILL, M_RD, M_WR,
+        M_ROW, M_MAPA, M_MAPV, M_BOOK, A_DO, A_WAIT, M_WRA, M_WRV, M_WB, M_FILL, M_RD, M_WR,
         M_IOC, M_IOS, M_IOW
     } cstate_t;
     cstate_t st;
@@ -290,6 +308,10 @@ module dorado_rtl_cpu
     logic           x_im_wr;
     logic [15:0]    x_im_wd0, x_im_wd1, x_im_wd2;
     logic           x_sched_block, x_sched_freeze;
+    logic           x_assist;      // the M_ROW/M_MAPA/M_MAPV pass serves an assist request
+    logic           ap_hit;
+    logic [1:0]     ap_way;
+    logic [31:0]    ap_phys;
     logic           x_ifum_wr, x_ifum_hi;
     logic [9:0]     x_ifum_waddr;
     logic [15:0]    x_ifum_wd;
@@ -328,10 +350,10 @@ module dorado_rtl_cpu
     logic [27:0] br [0:DM_BR_COUNT-1];
 
     // Map: block RAM, one port (see map_* port signals below)
-    logic [15:0] map_rp    [0:DM_MAP_ENTRIES-1];
-    logic        map_wp    [0:DM_MAP_ENTRIES-1];
-    logic        map_dirty [0:DM_MAP_ENTRIES-1];
-    logic        map_ref   [0:DM_MAP_ENTRIES-1];
+    (* ramstyle = "M10K" *) logic [15:0] map_rp    [0:DM_MAP_ENTRIES-1];
+    (* ramstyle = "M10K" *) logic        map_wp    [0:DM_MAP_ENTRIES-1];
+    (* ramstyle = "M10K" *) logic        map_dirty [0:DM_MAP_ENTRIES-1];
+    (* ramstyle = "M10K" *) logic        map_ref   [0:DM_MAP_ENTRIES-1];
 
     // Cache tags/flags/LRU: registers. Cache data: block RAM indexed
     // {row, way, word}.
@@ -342,7 +364,7 @@ module dorado_rtl_cpu
     logic        cache_vacant       [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
     logic        cache_being_loaded [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
     logic [1:0]  cache_lru          [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
-    logic [15:0] cache_data         [0:CACHE_WORDS-1];
+    (* ramstyle = "M10K" *) logic [15:0] cache_data         [0:CACHE_WORDS-1];
 
     dm_ref_kind_t pipe_kind          [0:DM_PIPE_DEPTH-1];
     logic [3:0]   pipe_task          [0:DM_PIPE_DEPTH-1];
@@ -390,7 +412,7 @@ module dorado_rtl_cpu
     int             last_ref_latency;
 
     // Backing store: block RAM, one port
-    logic [15:0]    storage [0:STORAGE_WORDS-1];
+    (* ramstyle = "M10K" *) logic [15:0]    storage [0:STORAGE_WORDS-1];
 
     // ---- Memory-engine request (set when a reference is launched) ----------
     dm_ref_kind_t   m_kind;
@@ -1651,7 +1673,7 @@ module dorado_rtl_cpu
     // Internal Execution Tasks (invoked on posedge clk)
     // -------------------------------------------------------------------------
     task automatic reset_cpu();
-        real_PC               = 16'd0;
+        real_PC               = RESET_PC;
         prev_PC               = 16'd0;
         T                     = 16'd0;
         Q                     = 16'd0;
@@ -2008,6 +2030,33 @@ module dorado_rtl_cpu
     endtask
 
     // =========================================================================
+    // Power-up contents for the FPGA (DORADO_INIT): the state the cosimulation
+    // loads from the C model before Suite 6 -- the world's IM, IFUM and RM,
+    // the standard ALUFM, the Map (tools: RTL_DUMP_INIT in sim_cosim.cpp).
+    // Storage and cache data power up zero.
+    // =========================================================================
+`ifdef DORADO_INIT
+    initial begin
+        $readmemh("init/im_iw0.hex", im_iw0);
+        $readmemh("init/im_iw1.hex", im_iw1);
+        $readmemh("init/im_iw2.hex", im_iw2);
+        $readmemh("init/im_present.hex", im_present);
+        for (int i = 0; i < IM_SIZE; i++) im_breakpoint[i] = 1'b0;
+        $readmemh("init/ifum_lo.hex", ifum_lo);
+        $readmemh("init/ifum_hi.hex", ifum_hi);
+        $readmemh("init/ifum_present.hex", ifum_present);
+        $readmemh("init/rm.hex", RM);
+        $readmemh("init/stk.hex", STK);
+        $readmemh("init/alufm.hex", alufm);
+        $readmemh("init/alufm_present.hex", alufm_present);
+        $readmemh("init/map_rp.hex", map_rp);
+        $readmemh("init/map_wp.hex", map_wp);
+        $readmemh("init/map_dirty.hex", map_dirty);
+        $readmemh("init/map_ref.hex", map_ref);
+    end
+`endif
+
+    // =========================================================================
     // Block RAMs. Each has one port, addressed combinationally from the state
     // register; read data appears one clock later.
     // =========================================================================
@@ -2086,6 +2135,11 @@ module dorado_rtl_cpu
                 cache_wd = word_data;
             end
             M_IOC:  cache_addr_p = cache_addr(io_row, io_way, mcnt[3:0]);
+            A_DO:   begin
+                cache_addr_p = cache_addr(m_va[9:4], ap_way, m_va[3:0]);
+                cache_we     = ap_we && ap_cache && ap_hit;
+                cache_wd     = ap_wd;
+            end
             default: ;
         endcase
 
@@ -2104,6 +2158,11 @@ module dorado_rtl_cpu
                 stor_addr = io_base + {27'd0, mcnt};
                 stor_we   = 1'b1;
                 stor_wd   = munch_in[mcnt[3:0]];
+            end
+            A_DO:   begin
+                stor_addr = ap_phys;
+                stor_we   = ap_we && (ap_phys < STORAGE_WORDS);
+                stor_wd   = ap_wd;
             end
             default: ;
         endcase
@@ -2138,6 +2197,11 @@ module dorado_rtl_cpu
                     (x_u.lc == 3'd2 || x_u.lc == 3'd4 || x_u.lc == 3'd5 ||
                      x_u.lc == 3'd6 || x_u.lc == 3'd7);
         rms_wd    = (x_u.lc == 3'd4 || x_u.lc == 3'd5) ? x_md_at_issue : x_pd;
+        if (st == C_FETCH && ap_req && ap_stk && !ap_done_q) begin
+            rms_waddr = 256 + int'(ap_va[7:0]);
+            rms_we    = 1'b1;
+            rms_wd    = ap_wd;
+        end
     end
     always_ff @(posedge clk) begin
         if (rms_we && rms_waddr >= 256)  STK[rms_waddr[7:0]] <= rms_wd;
@@ -2185,12 +2249,21 @@ module dorado_rtl_cpu
     // memory/IFU states, C_FINISH; step_done pulses for one clock after each
     // completed microinstruction (the cosimulation and I/O tick on it).
     // =========================================================================
+    logic ap_done_q;
+    assign cpu_between    = (st == C_FETCH);
+    assign dbg_ifu_active = ifu_active;
     always @(posedge clk) begin
         x_ifum_wr = 1'b0;
         step_done = 1'b0;
+        ap_done_q = ap_done;
+        if (st != C_FETCH && st != A_WAIT) ap_done = 1'b0;
         if (rst) begin
             reset_cpu();
             reset_memory();
+            ap_done  = 1'b0;
+            ap_done_q = 1'b0;
+            ap_rd    = 16'd0;
+            x_assist = 1'b0;
             st      = C_FETCH;
             m_ret   = C_FETCH;
             x_im_wr = 1'b0;
@@ -2199,7 +2272,18 @@ module dorado_rtl_cpu
             // -----------------------------------------------------------------
             C_FETCH: begin
                 // IM, IFUM and the Map entry at Mar are being read this clock.
-                if (!io_busy) st = C_DEC;
+                ap_done = 1'b0;
+                if (ap_req && !ap_done_q) begin
+                    if (ap_stk) begin
+                        ap_done = 1'b1;          // the STK port writes this clock
+                    end else begin
+                        x_assist = 1'b1;
+                        m_va     = ap_va;
+                        st       = M_ROW;
+                    end
+                end else if (!io_busy && !ap_hold) begin
+                    st = C_DEC;
+                end
             end
 
             // RM/STK are being read at the decode-time address this clock.
@@ -3110,6 +3194,17 @@ module dorado_rtl_cpu
                 int         hw;
                 r       = va_cache_row(m_va);
                 m_idx_a = map_index(m_va);
+                if (x_assist) begin
+                    // the harness tests valid and tag only
+                    ap_hit = 1'b0;
+                    ap_way = 2'd0;
+                    for (int w = DM_CACHE_WAYS - 1; w >= 0; w--) begin
+                        if (rw_valid[w] && rw_tag[w] == va_cache_tag(m_va)) begin
+                            ap_hit = 1'b1;
+                            ap_way = 2'(w);
+                        end
+                    end
+                end
                 bk_hit  = row_lookup(va_cache_tag(m_va), bk_hitway);
                 if (m_kind == DM_REF_FLUSH && bk_hit) m_wbway = bk_hitway;
                 else                                  m_wbway = cache_pick_victim(m_va);
@@ -3119,7 +3214,20 @@ module dorado_rtl_cpu
             M_MAPV: begin
                 // Map entry for the possible writeback page is read this clock.
                 mA_rp = map_rp_q; mA_wp = map_wp_q; mA_dirty = map_dirty_q; mA_ref = map_ref_q;
-                st    = M_BOOK;
+                if (x_assist) begin
+                    ap_phys = ({16'd0, map_rp_q} << PAGE_SHIFT) + {24'd0, m_va[7:0]};
+                    st      = A_DO;
+                end else begin
+                    st      = M_BOOK;
+                end
+            end
+            // Assist: storage (and cache) word written or read this clock.
+            A_DO: st = A_WAIT;
+            A_WAIT: begin
+                ap_rd    = ap_hit ? cache_q : (ap_phys < STORAGE_WORDS ? storage_q : 16'd0);
+                ap_done  = 1'b1;
+                x_assist = 1'b0;
+                st       = C_FETCH;
             end
             M_BOOK: begin
                 if (m_idx_v == m_idx_a) begin

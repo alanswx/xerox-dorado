@@ -10,7 +10,11 @@
 module dorado_rtl_top
     import dorado_rtl_pkg::*;
 #(
-    parameter int STORAGE_WORDS = 4 * 1024 * 1024
+    parameter int STORAGE_WORDS = 4 * 1024 * 1024,
+    parameter logic [15:0] RESET_PC = 16'd0,
+    parameter int BOOT_WORDS    = 28619,
+    parameter     BOOT_HEX      = "roms/bootfile.hex",
+    parameter     BOL_HEX       = "roms/bol.hex"
 ) (
     input  logic        clk,
     input  logic        rst,
@@ -26,6 +30,11 @@ module dorado_rtl_top
 
     // Mode select: 1 = use internal dorado_rtl_io bridge; 0 = external/disconnected
     input  logic        io_bridge_en,
+    // 1 = the in-FPGA boot server (dorado_rtl_bootsrv) answers the Ethernet
+    input  logic        bootsrv_en,
+    // 1 = dorado_rtl_assist performs the loader assists (cold-Alto init,
+    //     keyboard words, display gate) instead of the testbench
+    input  logic        assist_en,
     input  logic        display_wake_gate,
 
     // External Slow I/O override (used when io_bridge_en=0)
@@ -53,8 +62,8 @@ module dorado_rtl_top
     output logic        disk_sector_write_req,
 
     // Video scan-out of the DDC framebuffer (1024x808, 1 bpp, MSB = leftmost)
-    input  logic [16:0] fb_rd_addr,
-    output logic [7:0]  fb_rd_data,
+    input  logic [19:0] fb_rd_addr,      // y * 1024 + x
+    output logic        fb_rd_data,      // 1 = pixel set
 
     // Observability outputs
     output logic [11:0] dbg_real_pc,
@@ -70,6 +79,22 @@ module dorado_rtl_top
     output logic        step_done      // pulses one clock after each microinstruction
 );
     logic           io_busy;
+    logic           srv_stall;
+    logic           srv_rx_wr_en, srv_rx_wr_att, srv_rx_load;
+    logic [11:0]    srv_rx_wr_addr;
+    logic [15:0]    srv_rx_wr_data;
+    logic [12:0]    srv_rx_load_count;
+    logic [9:0]     srv_tx_rd_addr;
+    logic [15:0]    io_tx_rd_data;
+    logic           io_rx_on, io_rx_drained;
+    logic [15:0]    srv_eftp_max_seq, srv_bol_sent;
+    logic           ap_hold, ap_req, ap_we, ap_stk, ap_cache, ap_done;
+    logic [27:0]    ap_va;
+    logic [15:0]    ap_wd, ap_rd;
+    logic           cpu_between, dbg_ifu_active;
+    logic           kbd0_poke;
+    logic [15:0]    kbd0_val;
+    logic           assist_display_gate, io_next_wcb_any;
     dorado_uinstr_t bb_mir_uinstr;
     assign bb_mir_uinstr = unpack_uinstr(bb_mir_iw0, bb_mir_iw1, bb_mir_iw2);
 
@@ -114,7 +139,8 @@ module dorado_rtl_top
     end
 
     dorado_rtl_cpu #(
-        .STORAGE_WORDS (STORAGE_WORDS)
+        .STORAGE_WORDS (STORAGE_WORDS),
+        .RESET_PC      (RESET_PC)
     ) u_cpu (
         .clk                (clk),
         .rst                (rst),
@@ -170,7 +196,43 @@ module dorado_rtl_top
         .dbg_halted         (dbg_halted),
         .dbg_halt_reason    (dbg_halt_reason),
         .step_done          (step_done),
-        .io_busy            (io_bridge_en && io_busy)
+        .io_busy            (io_bridge_en && (io_busy || srv_stall)),
+        .ap_hold            (ap_hold),
+        .ap_req             (ap_req),
+        .ap_we              (ap_we),
+        .ap_stk             (ap_stk),
+        .ap_cache           (ap_cache),
+        .ap_va              (ap_va),
+        .ap_wd              (ap_wd),
+        .ap_done            (ap_done),
+        .ap_rd              (ap_rd),
+        .cpu_between        (cpu_between),
+        .dbg_ifu_active     (dbg_ifu_active)
+    );
+
+    dorado_rtl_assist u_assist (
+        .clk               (clk),
+        .rst               (rst),
+        .en                (assist_en && io_bridge_en),
+        .cpu_between       (cpu_between),
+        .cycles            (dbg_cycles),
+        .real_pc           (dbg_real_pc),
+        .ctask             (dbg_ctask),
+        .ifu_active        (dbg_ifu_active),
+        .eftp_started      (srv_eftp_max_seq != 16'd0),
+        .next_wcb_any      (io_next_wcb_any),
+        .ap_hold           (ap_hold),
+        .ap_req            (ap_req),
+        .ap_we             (ap_we),
+        .ap_stk            (ap_stk),
+        .ap_cache          (ap_cache),
+        .ap_va             (ap_va),
+        .ap_wd             (ap_wd),
+        .ap_done           (ap_done),
+        .ap_rd             (ap_rd),
+        .kbd0_poke         (kbd0_poke),
+        .kbd0_val          (kbd0_val),
+        .display_wake_gate (assist_display_gate)
     );
 
     dorado_rtl_io u_io (
@@ -214,7 +276,7 @@ module dorado_rtl_top
         .ext_subtask_task        (ext_subtask_task),
         .ext_subtask_val         (ext_subtask_val),
 
-        .display_wake_gate       (display_wake_gate),
+        .display_wake_gate       (assist_en ? assist_display_gate : display_wake_gate),
         .kbd_words_in            (kbd_words_default),
         .mouse_dx_in             (16'sd0),
         .mouse_dy_in             (16'sd0),
@@ -233,14 +295,46 @@ module dorado_rtl_top
         .fb_rd_addr              (fb_rd_addr),
         .fb_rd_data              (fb_rd_data),
         .io_busy                 (io_busy),
-        .rx_wr_en                (1'b0),
-        .rx_wr_addr              (12'd0),
-        .rx_wr_data              (16'd0),
-        .rx_wr_att               (1'b0),
-        .rx_load                 (1'b0),
-        .rx_load_count           (13'd0),
-        .eth_tx_rd_addr          (10'd0),
-        .eth_tx_rd_data          ()
+        .rx_wr_en                (srv_rx_wr_en),
+        .rx_wr_addr              (srv_rx_wr_addr),
+        .rx_wr_data              (srv_rx_wr_data),
+        .rx_wr_att               (srv_rx_wr_att),
+        .rx_load                 (srv_rx_load),
+        .rx_load_count           (srv_rx_load_count),
+        .eth_tx_rd_addr          (srv_tx_rd_addr),
+        .eth_tx_rd_data          (io_tx_rd_data),
+        .eth_rx_on_out           (io_rx_on),
+        .eth_rx_drained          (io_rx_drained),
+        .kbd0_poke               (kbd0_poke),
+        .kbd0_val                (kbd0_val),
+        .next_wcb_any            (io_next_wcb_any)
+    );
+
+    dorado_rtl_bootsrv #(
+        .BOOT_WORDS (BOOT_WORDS),
+        .BOOT_HEX   (BOOT_HEX),
+        .BOL_HEX    (BOL_HEX)
+    ) u_bootsrv (
+        .clk            (clk),
+        .rst            (rst),
+        .en             (bootsrv_en && io_bridge_en),
+        .cycles         (dbg_cycles),
+        .local_host     (eth_local_host),
+        .tx_packet_stb  (eth_tx_packet_stb),
+        .tx_rd_addr     (srv_tx_rd_addr),
+        .tx_rd_data     (io_tx_rd_data),
+        .rx_on          (io_rx_on),
+        .rx_drained     (io_rx_drained),
+        .io_busy        (io_busy),
+        .rx_wr_en       (srv_rx_wr_en),
+        .rx_wr_addr     (srv_rx_wr_addr),
+        .rx_wr_data     (srv_rx_wr_data),
+        .rx_wr_att      (srv_rx_wr_att),
+        .rx_load        (srv_rx_load),
+        .rx_load_count  (srv_rx_load_count),
+        .stall          (srv_stall),
+        .eftp_max_seq   (srv_eftp_max_seq),
+        .bol_sent       (srv_bol_sent)
     );
 
 endmodule

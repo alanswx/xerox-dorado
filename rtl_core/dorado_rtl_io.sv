@@ -89,8 +89,8 @@ module dorado_rtl_io
 
     // Video scan-out: registered read of the 1-bpp framebuffer on clk,
     // independent of clk_en (a second port, so the DDC write is unaffected).
-    input  logic [16:0]    fb_rd_addr,
-    output logic [7:0]     fb_rd_data,
+    input  logic [19:0]    fb_rd_addr,      // y * 1024 + x
+    output logic           fb_rd_data,
 
     // High while the I/O side cannot accept the next microinstruction's
     // strobes (the CPU waits in C_FETCH): the tick itself, the clock after it
@@ -108,8 +108,21 @@ module dorado_rtl_io
 
     // Transmit buffer readout (the packet announced by eth_tx_packet_stb)
     input  logic [9:0]     eth_tx_rd_addr,
-    output logic [15:0]    eth_tx_rd_data
+    output logic [15:0]    eth_tx_rd_data,
+
+    // Receiver state for the boot server
+    output logic           eth_rx_on_out,
+    output logic           eth_rx_drained,
+
+    // Loader assist (dorado_rtl_assist): set keyboard word 0 directly;
+    // whether a display line is pending (feeds its display gate)
+    input  logic           kbd0_poke,
+    input  logic [15:0]    kbd0_val,
+    output logic           next_wcb_any
 );
+    assign next_wcb_any = ddc_next_wcb_flag[0] || ddc_next_wcb_flag[1];
+    assign eth_rx_on_out  = eth_rx_on;
+    assign eth_rx_drained = (eth_rx_pos >= eth_rx_count);
     // Framebuffer render jobs (main block -> engine)
     logic        rj_start;
     logic        rj_cursor;
@@ -174,14 +187,15 @@ module dorado_rtl_io
     // =========================================================================
     // 2. Display Controller (DDC) & Terminal State
     // =========================================================================
-    logic [7:0]  fb [0:DISPLAY_FB_BYTES-1];
-    logic [16:0] fb_addr_a;
+    // One bit per pixel, address y*1024 + x: the render engine only ever
+    // writes single pixels, so the framebuffer is a simple two-port RAM (one
+    // write port, the scan-out read port) with no read-modify-write.
+    (* ramstyle = "M10K" *) logic fb [0:DISPLAY_W*DISPLAY_H-1];
+    logic [19:0] fb_addr_a;
     logic        fb_we_a;
-    logic [7:0]  fb_wd_a;
-    logic [7:0]  fb_q_a;
+    logic        fb_wd_a;
     always_ff @(posedge clk) begin
         if (fb_we_a) fb[fb_addr_a] <= fb_wd_a;
-        fb_q_a <= fb[fb_addr_a];
     end
     always_ff @(posedge clk) fb_rd_data <= fb[fb_rd_addr];
     logic [15:0] ddc_statics;
@@ -228,7 +242,7 @@ module dorado_rtl_io
     logic [15:0] ddc_cur_word_count [0:1];
     // Words gathered for the line each channel is drawing: block RAM
     // {channel, index}, filled by the munch-copy engine, read by the renderer.
-    logic [15:0] ddc_cur_words      [0:255];
+    (* ramstyle = "M10K" *) logic [15:0] ddc_cur_words [0:255];
 
     // Display FIFOs (64 words each for channel A and B)
     // The raster FIFOs' contents are never read; only their head/tail
@@ -274,10 +288,10 @@ module dorado_rtl_io
     logic [31:0] eth_rx_wire_timer;
     logic [15:0] eth_world_rx_words;
 
-    logic [15:0] eth_tx_words     [0:1023];
+    (* ramstyle = "M10K" *) logic [15:0] eth_tx_words [0:1023];
     int          eth_tx_count;
-    logic [15:0] eth_rx_words     [0:4095];
-    logic        eth_rx_attention [0:4095];
+    (* ramstyle = "M10K" *) logic [15:0] eth_rx_words     [0:4095];
+    (* ramstyle = "M10K" *) logic        eth_rx_attention [0:4095];
     logic [15:0] eth_rx_q;      // eth_rx_words[eth_rx_pos], one clock late
     logic        eth_rx_att_q;
     logic        eth_skip_busy; // WaitForBOP skip in progress
@@ -1102,21 +1116,15 @@ module dorado_rtl_io
     // at or beyond width are left as they were (C model ddc_render_line).
     // Cursor: the 16 row bits are ORed in at x (C model's cursor overlay).
     // =========================================================================
-    typedef enum logic [2:0] {
-        R_IDLE, R_WADDR, R_WWAIT, R_SCAN, R_RMW_WAIT, R_RMW_WRITE, R_COPY
-    } rstate_t;
+    typedef enum logic [2:0] { R_IDLE, R_WADDR, R_WWAIT, R_PIX, R_CUR, R_COPY } rstate_t;
     rstate_t     r_st;
     logic        r_rpend, r_wpend;    // render / copy job waiting
-    logic        r_cur;               // current job is a cursor row
-    logic [7:0]  r_bx, r_bx_last;     // byte column (cursor: which of 3 bytes)
-    logic        r_full_last;         // line: last byte is a whole byte
-    logic [7:0]  r_val, r_mask;
-    logic [16:0] r_addr;
-    logic        r_we;
-    logic [7:0]  r_wd;
-    logic [23:0] r_cfield;            // cursor row bits aligned to bytes
-    logic signed [8:0] r_cbx;         // cursor first byte column
+    logic [10:0] r_x;                 // pixel being written
+    logic [15:0] r_word;              // line word holding pixel r_x
+    logic [4:0]  r_b;                 // cursor bit
     logic [4:0]  r_wj;                // copy index
+    logic [19:0] r_addr;
+    logic        r_we, r_wd;
 
     // Line buffer port: the copy engine writes, the renderer reads.
     logic [7:0]  cw_addr;
@@ -1135,27 +1143,11 @@ module dorado_rtl_io
         fb_addr_a = r_addr;
         fb_we_a   = r_we;
         fb_wd_a   = r_wd;
-        src       = {4'd0, rj_start_off} + {1'b0, r_bx[7:1]};
+        src       = {4'd0, rj_start_off} + {1'b0, r_x[10:4]};
         cw_we     = (r_st == R_COPY);
         cw_addr   = (r_st == R_COPY) ? {wc_ch, wc_base + {2'd0, r_wj}} : {rj_ch, src[6:0]};
         cw_wd     = fastio_out_munch[r_wj[3:0]];
     end
-
-    function automatic logic [3:0] popcount8(input logic [7:0] v);
-        logic [3:0] n;
-        n = 4'd0;
-        for (int i = 0; i < 8; i++) n = n + {3'd0, v[i]};
-        return n;
-    endfunction
-
-    // Byte r_bx of the line, from the word just read (cw_q).
-    function automatic logic [7:0] line_byte();
-        logic [7:0]  src;
-        logic [15:0] word;
-        src  = {4'd0, rj_start_off} + {1'b0, r_bx[7:1]};
-        word = (src < rj_wcount && src < 8'd128) ? cw_q : 16'd0;
-        return r_bx[0] ? word[7:0] : word[15:8];
-    endfunction
 
     always_ff @(posedge clk) begin
         r_we <= 1'b0;
@@ -1165,27 +1157,18 @@ module dorado_rtl_io
             r_wpend             <= 1'b0;
             ddc_pixels_rendered <= 64'd0;
         end else begin
-            // The tick that posts a job also posts at most one copy; the
-            // render (posted by a write strobe, which the C model handles
-            // before the munch) goes first.
+            // A tick posts at most one render and one copy; the render (from
+            // a write strobe, which the C model handles before the munch)
+            // goes first.
             if (rj_start) r_rpend <= 1'b1;
             if (wc_start) r_wpend <= 1'b1;
             case (r_st)
             R_IDLE: begin
                 if (r_rpend) begin
                     r_rpend <= 1'b0;
-                    r_cur   <= rj_cursor;
-                    r_bx    <= 8'd0;
-                    if (!rj_cursor) begin
-                        r_bx_last   <= 8'((rj_width - 11'd1) >> 3);
-                        r_full_last <= (rj_width[2:0] == 3'd0);
-                        r_st        <= R_WADDR;
-                    end else begin
-                        // first byte column = floor(x / 8); field = bits >> (x mod 8)
-                        r_cbx    <= 9'($signed(rj_cx) >>> 3);
-                        r_cfield <= {rj_cbits, 8'd0} >> rj_cx[2:0];
-                        r_st     <= R_SCAN;
-                    end
+                    r_x     <= 11'd0;
+                    r_b     <= 5'd0;
+                    r_st    <= rj_cursor ? R_CUR : R_WADDR;
                 end else if (r_wpend) begin
                     r_wpend <= 1'b0;
                     r_wj    <= 5'd0;
@@ -1196,60 +1179,38 @@ module dorado_rtl_io
                 if (r_wj == wc_n - 5'd1) r_st <= R_IDLE;
                 else                     r_wj <= r_wj + 5'd1;
             end
-            R_WADDR: r_st <= R_WWAIT;          // cw_addr = word of r_bx
-            R_WWAIT: r_st <= R_SCAN;
-            R_SCAN: begin
-                if (!r_cur) begin
-                    logic [7:0] v, m;
-                    v = line_byte();
-                    if (r_bx == r_bx_last && !r_full_last)
-                        m = 8'hFF << (4'd8 - {1'b0, rj_width[2:0]});
-                    else
-                        m = 8'hFF;
-                    r_addr <= {rj_y, 7'd0} + {9'd0, r_bx};
-                    ddc_pixels_rendered <= ddc_pixels_rendered + 64'(popcount8(v & m));
-                    if (m == 8'hFF) begin
-                        r_we <= 1'b1;
-                        r_wd <= v;
-                        if (r_bx == r_bx_last) r_st <= R_IDLE;
-                        else begin
-                            r_bx <= r_bx + 8'd1;
-                            // the odd byte of a word needs no new read
-                            r_st <= r_bx[0] ? R_WADDR : R_SCAN;
-                        end
-                    end else begin
-                        r_val  <= v;
-                        r_mask <= m;
-                        r_st   <= R_RMW_WAIT;
-                    end
-                end else begin
-                    logic signed [9:0] col;
-                    logic [7:0]        m;
-                    col = 10'(r_cbx) + 10'(r_bx);
-                    m   = (r_bx == 8'd0) ? r_cfield[23:16] :
-                          (r_bx == 8'd1) ? r_cfield[15:8]  : r_cfield[7:0];
-                    if (col >= 0 && col < DISPLAY_ROW_BYTES && m != 8'd0) begin
-                        r_addr <= {rj_y, 7'd0} + {7'd0, col};
-                        r_val  <= 8'hFF;
-                        r_mask <= m;
-                        r_st   <= R_RMW_WAIT;
-                    end else if (r_bx == 8'd2) begin
-                        r_st <= R_IDLE;
-                    end else begin
-                        r_bx <= r_bx + 8'd1;
-                    end
+            R_WADDR: r_st <= R_WWAIT;          // cw_addr = word holding r_x
+            R_WWAIT: begin
+                logic [7:0] src;
+                src    = {4'd0, rj_start_off} + {1'b0, r_x[10:4]};
+                r_word <= (src < rj_wcount && src < 8'd128) ? cw_q : 16'd0;
+                r_st   <= R_PIX;
+            end
+            R_PIX: begin
+                // line: pixels x < width take the word bits, MSB first
+                logic px;
+                px     = r_word[4'd15 - r_x[3:0]];
+                r_we   <= 1'b1;
+                r_wd   <= px;
+                r_addr <= {rj_y, r_x[9:0]};
+                if (px) ddc_pixels_rendered <= ddc_pixels_rendered + 64'd1;
+                if (r_x == rj_width - 11'd1)  r_st <= R_IDLE;
+                else begin
+                    r_x <= r_x + 11'd1;
+                    if (r_x[3:0] == 4'd15) r_st <= R_WADDR;
                 end
             end
-            R_RMW_WAIT: r_st <= R_RMW_WRITE;   // fb_q_a <- fb[r_addr]
-            R_RMW_WRITE: begin
-                r_we <= 1'b1;
-                r_wd <= (fb_q_a & ~r_mask) | (r_val & r_mask);
-                if ((!r_cur && r_bx == r_bx_last) || (r_cur && r_bx == 8'd2)) begin
-                    r_st <= R_IDLE;
-                end else begin
-                    r_bx <= r_bx + 8'd1;
-                    r_st <= r_cur ? R_SCAN : R_WADDR;
+            R_CUR: begin
+                // cursor: OR the 16 row bits in at x (never clears)
+                logic signed [16:0] x;
+                x = $signed({rj_cx[15], rj_cx}) + $signed({12'd0, r_b});
+                if (rj_cbits[4'd15 - r_b[3:0]] && x >= 0 && x < DISPLAY_W) begin
+                    r_we   <= 1'b1;
+                    r_wd   <= 1'b1;
+                    r_addr <= {rj_y, x[9:0]};
                 end
+                if (r_b == 5'd15) r_st <= R_IDLE;
+                else              r_b  <= r_b + 5'd1;
             end
             default: r_st <= R_IDLE;
             endcase
@@ -1266,6 +1227,7 @@ module dorado_rtl_io
     always @(posedge clk) begin
         rj_start = 1'b0;
         wc_start = 1'b0;
+        if (kbd0_poke && !rst) ddc_kbd_words[0] = kbd0_val;
         if (rst) begin
             wc_ch          = 1'b0;
             wc_base        = 7'd0;
