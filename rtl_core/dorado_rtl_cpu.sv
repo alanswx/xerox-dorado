@@ -285,6 +285,14 @@ module dorado_rtl_cpu
     logic           alu_overflow_out;
     logic           alu_is_arith_out;
 
+    // IFU trap address (HM Table 14, p.33): the trap vectors for instruction
+    // set i live at {~i[1:0], base[5:2], n[1:0]}, i.e. ~InsSet lands in TNIA
+    // bits 7:6 -- for the Alto set 0 that is 0300-0377 (AEmuReschedule = 0314).
+    // Mirrors cpu.c ifu_trap_addr().
+    function automatic logic [15:0] ifu_trap_addr_fn(input logic [5:0] base, input logic [1:0] n);
+        return {8'd0, ~ifu_insset, base[5:2], n};
+    endfunction
+
     // Pure helper for current task's Md
     function automatic logic [15:0] get_task_md();
         if (task_md_valid[ctask]) return task_md[ctask];
@@ -1606,7 +1614,7 @@ module dorado_rtl_cpu
                                         n_slot = jcn[4:3];
                                         if (!ifu_active || ifu_warmup > 8'd0) begin
                                             evc_events |= EVC_EV_IFUNOTREADY;
-                                            np = {8'd0, ~ifu_insset, 4'd0} | 16'o034 | {14'd0, n_slot};
+                                            np = ifu_trap_addr_fn(6'o34, n_slot);
                                             if (!ff_loads_link_fn(u)) Link = real_PC + 16'd1;
                                         end else begin
                                             logic        resched_trap, cond_true, fetch_faulted, test_feed;
@@ -1640,7 +1648,7 @@ module dorado_rtl_cpu
                                             end
 
                                             if (fetch_faulted) begin
-                                                np = {8'd0, ~ifu_insset, 4'd0} | {14'd0, n_slot};
+                                                np = ifu_trap_addr_fn(6'o00, n_slot);
                                                 if (!ff_loads_link_fn(u)) Link = real_PC + 16'd1;
                                             end else begin
                                                 ifu_opcode = opcode;
@@ -1691,7 +1699,7 @@ module dorado_rtl_cpu
                                                     end
 
                                                     if (op_faulted) begin
-                                                        np   = {8'd0, ~ifu_insset, 4'd0} | {14'd0, n_slot};
+                                                        np   = ifu_trap_addr_fn(6'o00, n_slot);
                                                         Link = real_PC + 16'd1;
                                                     end else begin
                                                         logic emu_or_ft;
@@ -1729,7 +1737,7 @@ module dorado_rtl_cpu
                                                         n_eff = n_slot | {1'b0, cond_true};
                                                         tnia  = (ifaddr << 2) | {14'd0, n_eff};
                                                         if (resched_trap) begin
-                                                            tnia = {8'd0, ~ifu_insset, 4'd0} | 16'o014 | {14'd0, n_slot};
+                                                            tnia = ifu_trap_addr_fn(6'o14, n_slot);
                                                         end
                                                         np   = {4'd0, tnia[11:0]};
                                                         Link = real_PC + 16'd1;

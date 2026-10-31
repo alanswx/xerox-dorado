@@ -53,20 +53,46 @@ Results (3.3–3.5 MHz in Verilator on Apple Silicon):
   - `DSemu.mb!1` (10,000 cycles, 0 mismatches) (**PASS**)
   - `CedarDorado.eb!6` (10,000 cycles, 0 mismatches) (**PASS**)
 
-### B. Full World Boot Simulation (Suite 6: Major Milestone Reached)
-Suite 6 (`test_rtl_io_boot` in [`sim_cosim.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_cosim.cpp)) tests booting `../dorado/worlds/aemu.eb` with the bootfile `../chm/bootfiles/Galaxian.boot!1` served by the C Ethernet server.
+### B. Full World Boot Simulation (Suite 6: PASS -- Galaxian on screen, 2026-10-30)
+Suite 6 (`test_rtl_io_boot` in [`sim_cosim.cpp`](../rtl_core/sim_cosim.cpp)) boots
+`dorado/worlds/aemu.eb` and serves `chm/bootfiles/Galaxian.boot!1` from the C
+Ethernet server. In 80 M microinstructions (25 s of Verilator at 3.2 MHz):
 
-**What is working:**
-1. `aemu.eb` executes `RestartEmulator`, initializes base registers (`SetupBRs`), initializes all 16 tasks (`InitTasks`), and detects the boot chord (BS key held down) at `ABoot` to branch to `EBoot` (`02006`).
-2. `EBoot` arms the receiver (`TurnOnRx`), clears post location `EPLoc` (`VM 0600`), and waits for the Breath-of-Life packet.
-3. The RTL Ethernet controller in [`dorado_rtl_io.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_io.sv) receives the Breath-of-Life packet and wakes Task 7 (`EIT`).
-4. `EIT` reads the packet, passes the address filter, executes the input loop (`02424` / `02417`), stores the 254-word bootloader into memory at `M[1..254]`, stores completion status `000377` (`InDone`) into `EPLoc` (`VM 0600`), and blocks.
-5. Task 0 (`EMU`) wakes from `EBLoo1`, reads `EPLoc == 000377`, fetches `M[2]`, verifies that `M[2] == 000602` (`typeBreathOfLife`), and executes `T_ 3C, Branch[Start]`.
-6. The Alto Nova emulator starts executing the Breath-of-Life bootloader at Alto PC 3!
-7. The Nova code runs under the IFU: **248,123 IFU dispatches** executed!
-8. The Nova bootloader arms `EOT` (Task 6) to broadcast a Mayday Pup packet. Task 6 runs through `EOGo`, executes the transmission loop, and completes with `ECBR(600) = 002377` (`CmdAbort/CountZero` status).
+1. AEmu's `ABoot` takes the Ethernet boot, `EIT` accepts the Breath-of-Life
+   packet, and the Nova bootloader runs from Alto PC 3.
+2. The bootloader relocates itself (three BLTs), sends Mayday, and receives
+   the whole file over EFTP: `eftp_seq=113` = 112 data packets + End for the
+   57,238-byte file.
+3. Galaxian starts, installs its display list, and the RTL DDC paints it:
+   title, player labels, score, alien formation, ship and starfield
+   (`docs/images/rtl-core-galaxian-2026-10-30.png`; 25,350 scan lines,
+   3,297 lit pixels).
 
----
+Pass now requires the FULL file over EFTP and >= 1000 lit framebuffer pixels
+(it used to accept any one rendered scan line).
+
+**Not yet equal to the C emulator's picture.** C presents the 606-pixel Alto
+raster at x~144 inside a white surround; the RTL paints it from x~10 on black.
+That is the display presentation layer (left margin / unused-area fill), not
+CPU behaviour. C's "121,549 px" counts the white surround, so do not compare
+the two pixel counts.
+
+### Harness switches (all off by default)
+| env var | effect |
+|---|---|
+| `RTL_BOOT_ONLY=N` | skip suites 1-5; run only the Suite 6 boot for N cycles |
+| `RTL_IFUDISP_TRACE=1` | one `RTLDISP` line per IFU dispatch: Alto opcode VA, opcode, AC0..3 |
+| `RTL_MEMDUMP=<octal VA>` | dump VA 0..0777 (through the cache) at the first dispatch of that Alto PC |
+| `RTL_UTRACE=<octal VA>` | 40 microinstructions (task, PC, T, ref VA, Md, ACs) after that dispatch |
+| `RTL_FB_OUT=x.pbm` | write the 1024x808 framebuffer at the end |
+
+The C side of the same comparison is `DORADO_IFUDISP_TRACE=1 ./build/dorado
+--eb worlds/aemu.eb --eftp '../chm/bootfiles/Galaxian.boot!1'`, plus
+`DORADO_TRACE_GATE=lo,hi DORADO_PCDIS=0,7777` (bb.cycles, ~3.7 per uinstr) for
+microinstructions. Compare (opva, opcode) streams, collapsing consecutive
+duplicates (a reschedule trap dispatches the same opcode twice). Do NOT compare
+C's `aacs` dispatch by dispatch: C samples them mid-instruction, and they can
+read one instruction ahead.
 
 ## 4. Key Bugs Uncovered & Resolved
 
@@ -84,16 +110,48 @@ Suite 6 (`test_rtl_io_boot` in [`sim_cosim.cpp`](file:///Users/alans/dev2/Dorado
 
 ---
 
+### 3. IFU trap vectors at the wrong address (the EFTP "CountZero" stall)
+- **Symptom:** the Mayday transmit posted `ECBR(600) = 002377` (`CountZero`) and
+  no packet left the machine.
+- **Cause:** every IFU trap address -- NotReady (`*34`), the two fault traps
+  (`*0`) and the reschedule trap (`*14`) -- was built as
+  `{8'd0, ~ifu_insset, 4'd0} | base | n`, putting `~InsSet` at TNIA bits 5:4.
+  It belongs at bits 7:6 (`cpu.c ifu_trap_addr`: `(~insset & 3) << 6`), so for
+  the Alto set the reschedule trap went to `074` instead of AEmuReschedule at
+  `0314`. The first reschedule (here, as the loader's `LDA 2, 151(PC)` at PC 034
+  dispatched) ran unrelated microcode and woke the fault task. AC2 came back
+  0 instead of 777, the loader built its output control block from that, and EOT
+  found a zero word count.
+- **Fix:** one helper, `ifu_trap_addr_fn(base, n)` in `dorado_rtl_cpu.sv`, used
+  at all four sites.
+- **Why the lock-step suites missed it:** their windows (2K-10K cycles) never
+  raise a reschedule or IFU trap. **A lock-step window that never reaches a
+  mechanism says nothing about it.**
+- **Also noted:** the harness's own memory read `R_MEM(br)` is indexed by the
+  microcode's OCTAL BR number (`BR[Code, 37]` = `br[037]`, `ECBR` = `br[031]`).
+  The end-of-run "BR31=" line prints ECBR, which is correct as an octal label.
+
 ## 5. Next Steps to Resume
 
-1. **Complete EFTP Bootfile Download in `test_rtl_io_boot`:**
-   - In [`sim_cosim.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_cosim.cpp), inspect why the Mayday Pup packet transmitted by the Nova bootloader at `ifu_disp = 248123` posted status `002377` in `ECBR(600)`.
-   - Check if `top->eth_tx_packet_stb` fired and whether `dorado_ethernet_direct_transmit` was called to advance the server's EFTP state machine.
-   - Once EFTP transfers the packets, `Galaxian.boot!1` loads into memory, jumps to the game entrypoint, and initializes the DCB chain (`VM 0420 != 0`).
-   - `top->display_wake_gate` will assert, enabling scanline rendering (`ddc_lines_rendered > 0`, `fb_px > 0`).
-
-2. **MiSTer FPGA Integration (`fpga/mister/`):**
-   - Add `EXT_STORAGE` parameter to [`dorado_rtl_mem.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_mem.sv): on FPGA, replace the local BRAM `storage` array with a 16-word burst interface to MiSTer HPS DDR3 memory.
-   - Wire [`dorado_rtl_top.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_top.sv) into [`fpga/mister/Dorado.sv`](file:///Users/alans/dev2/Dorado/fpga/mister/Dorado.sv).
-   - Use the build server `misterubuntu` to compile the `.rbf` bitstream via Quartus.
-   - Deploy to MiSTer `10.0.2.14` and measure microinstruction issue rate using the hardware performance counters.
+1. **Match the C emulator's display presentation.** Find where `display.c` /
+   `machine.c` apply the Alto left margin and the unused-area fill, port them
+   into the DDC in `dorado_rtl_io.sv`, and gate Suite 6 on a
+   framebuffer comparison against C at a matched game state, not a pixel count.
+2. **Lengthen the lock-step coverage.** Run the C model in lock-step through
+   the whole Suite 6 boot, not just the 10K-cycle windows: that is the cheapest
+   way to find the next bug of the "trap vector" kind. The I/O side (C
+   `machine.c` vs `dorado_rtl_io.sv`) is the open question, since Suite 6 drives
+   only the RTL.
+3. **More worlds.** NetExec and the other Alto games (`make run-netexec` and
+   friends in `dorado/Makefile`), then the Cedar/Pilot path.
+4. **MiSTer FPGA integration (`fpga/mister/`):**
+   - Add an `EXT_STORAGE` parameter to [`dorado_rtl_mem.sv`](../rtl_core/dorado_rtl_mem.sv):
+     replace the local BRAM `storage` array with a 16-word burst interface to
+     HPS DDR3 / SDRAM.
+   - Wire [`dorado_rtl_top.sv`](../rtl_core/dorado_rtl_top.sv) into
+     [`fpga/mister/Dorado.sv`](../fpga/mister/Dorado.sv).
+   - **Run a Quartus synthesis early**, even before storage is external: the
+     ~5,000 ALM figure is an estimate, and the I/O module's `negedge clk` (from
+     bug 2) is a two-edge design that may cost timing on the FPGA.
+   - Build on `misterubuntu`, deploy to the MiSTer, and measure the issue rate
+     with the hardware counters.

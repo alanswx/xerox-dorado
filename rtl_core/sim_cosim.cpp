@@ -910,7 +910,11 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
         printf("  [SKIP] %s not found\n", boot_file_path);
         return true;
     }
+    fseek(bf, 0, SEEK_END);
+    long boot_bytes = ftell(bf);
     fclose(bf);
+    // EFTP carries the file in 512-byte data packets, then an End packet.
+    const unsigned eftp_expected_seq = (unsigned)((boot_bytes + 511) / 512) + 1;
 
     if (fseek(fp, 512, SEEK_SET) != 0) {
         fclose(fp);
@@ -1029,10 +1033,24 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
     };
 
     bool cold_ac_done = false;
+    const bool trace_disp = getenv("RTL_IFUDISP_TRACE") != nullptr;
     uint32_t next_bol_cycle = 100000;
     uint64_t eit_cycles = 0;
     uint16_t eit_pcs[128];
     int eit_pc_n = 0;
+    auto read_rtl_va = [&](uint32_t va) -> uint16_t {
+        uint32_t row = (va >> 4) & 0x3Fu;
+        uint32_t tag = va >> 10;
+        uint32_t off = va & 0xFu;
+        for (int w = 0; w < 4; w++) {
+            if (R_MEM(cache_valid)[row][w] && R_MEM(cache_tag)[row][w] == tag)
+                return R_MEM(cache_data)[row][w][off];
+        }
+        uint32_t vp = (va >> 8) & 0xFFFFu;
+        uint32_t rp = R_MEM(map_rp)[vp];
+        uint32_t pa = (rp << 8) | (va & 0xFFu);
+        return (pa < COSIM_STORAGE_WORDS) ? R_MEM(storage)[pa] : 0;
+    };
     auto t0 = std::chrono::steady_clock::now();
 
     for (int cyc = 0; cyc < max_cycles; cyc++) {
@@ -1109,10 +1127,46 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
         }
 
         // Step RTL by 1 clock cycle
+        uint64_t pre_disp = R_CPU(ifu_dispatch_count);
+        uint32_t pre_br31 = R_MEM(br)[037];  // BR[Code, 37] -- the IFU code base
+        uint16_t pre_ac[4] = { R_CPU(STK)[1], R_CPU(STK)[2], R_CPU(STK)[3], R_CPU(STK)[4] };
         top->clk = 1;
         top->eval();
         top->clk = 0;
         top->eval();
+
+        // RTL_IFUDISP_TRACE=1: one line per IFU dispatch, comparable with the
+        // C emulator's DORADO_IFUDISP_TRACE (pcx, opcode, Alto AC0..3 = STK[1..4]).
+        // RTL_MEMDUMP=<octal opva>: dump VA 0..0777 at the first dispatch of that
+        // Alto PC (memory as the CPU sees it, i.e. through the cache).
+        static const long memdump_pc = getenv("RTL_MEMDUMP") ? strtol(getenv("RTL_MEMDUMP"), nullptr, 8) : -1;
+        static bool memdump_done = false;
+        if (memdump_pc >= 0 && !memdump_done && R_CPU(ifu_dispatch_count) != pre_disp &&
+            ((pre_br31 + (uint16_t)(R_CPU(ifu_pcx) >> 1)) & 0x0FFFFFFFu) == (uint32_t)memdump_pc) {
+            memdump_done = true;
+            for (uint32_t va = 0; va < 01000; va++)
+                fprintf(stderr, "RTLMEM %04o %06o\n", va, read_rtl_va(va));
+        }
+        // RTL_UTRACE=<octal opva>: after the first dispatch of that Alto PC, print
+        // 40 microinstructions (task, real PC, T, last ref VA, Md, AC0..3).
+        static const long utrace_pc = getenv("RTL_UTRACE") ? strtol(getenv("RTL_UTRACE"), nullptr, 8) : -1;
+        static int utrace_left = -1;
+        if (utrace_pc >= 0 && utrace_left < 0 && R_CPU(ifu_dispatch_count) != pre_disp &&
+            ((pre_br31 + (uint16_t)(R_CPU(ifu_pcx) >> 1)) & 0x0FFFFFFFu) == (uint32_t)utrace_pc)
+            utrace_left = 40;
+        if (utrace_left > 0) {
+            utrace_left--;
+            fprintf(stderr, "UTRACE cyc=%d task=%o pc_before=0%04o pc_now=0%04o T=%06o va=%07o md=%06o ac=%06o,%06o,%06o,%06o\n",
+                    cyc, ctask, pre_pc, R_CPU(real_PC), R_CPU(T), R_MEM(last_ref_va), R_MEM(md),
+                    R_CPU(STK)[1], R_CPU(STK)[2], R_CPU(STK)[3], R_CPU(STK)[4]);
+        }
+        if (trace_disp && R_CPU(ifu_dispatch_count) != pre_disp) {
+            uint32_t opva = (pre_br31 + (uint16_t)(R_CPU(ifu_pcx) >> 1)) & 0x0FFFFFFFu;
+            fprintf(stderr, "RTLDISP n=%llu cyc=%d opva=%07o br31=%07o op=%03o aacs=%06o,%06o,%06o,%06o\n",
+                    (unsigned long long)R_CPU(ifu_dispatch_count), cyc,
+                    opva, R_MEM(br)[037], R_CPU(ifu_opcode),
+                    pre_ac[0], pre_ac[1], pre_ac[2], pre_ac[3]);
+        }
 
         // Check if RTL Ethernet Controller transmitted a packet
         if (top->eth_tx_packet_stb) {
@@ -1169,6 +1223,15 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
         }
     }
 
+    // RTL_FB_OUT=path.pbm: write the 1024x808 framebuffer (MSB = leftmost pixel).
+    if (const char *fbp = getenv("RTL_FB_OUT")) {
+        if (FILE *pf = fopen(fbp, "wb")) {
+            fprintf(pf, "P4\n1024 808\n");
+            for (int i = 0; i < (1024 * 808) / 8; i++) fputc(R_IO(fb)[i], pf);
+            fclose(pf);
+        }
+    }
+
     printf("  [BOOT] %s + %s (%d cycles in %.2fs = %.2f MHz):\n",
            eb_path, boot_file_path, max_cycles, elapsed_s, mhz);
     printf("         cold_ac=%d eftp_seq=%u eth_tx=%llu eth_rx=%llu ifu_disp=%llu ddc_lines=%llu ddc_px=%llu fb_px=%d\n",
@@ -1186,19 +1249,6 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
            R_CPU(task_tpc)[7], R_CPU(task_tpc)[6]);
     printf("         BR31=0%07o BR32=0%07o BR33=0%07o BR36=0%07o\n",
            R_MEM(br)[031], R_MEM(br)[032], R_MEM(br)[033], R_MEM(br)[036]);
-    auto read_rtl_va = [&](uint32_t va) -> uint16_t {
-        uint32_t row = (va >> 4) & 0x3Fu;
-        uint32_t tag = va >> 10;
-        uint32_t off = va & 0xFu;
-        for (int w = 0; w < 4; w++) {
-            if (R_MEM(cache_valid)[row][w] && R_MEM(cache_tag)[row][w] == tag)
-                return R_MEM(cache_data)[row][w][off];
-        }
-        uint32_t vp = (va >> 8) & 0xFFFFu;
-        uint32_t rp = R_MEM(map_rp)[vp];
-        uint32_t pa = (rp << 8) | (va & 0xFFu);
-        return (pa < COSIM_STORAGE_WORDS) ? R_MEM(storage)[pa] : 0;
-    };
     printf("         ECBR(600..610): %06o %06o %06o %06o %06o %06o %06o %06o %06o | M[1..4]: %06o %06o %06o %06o\n",
            read_rtl_va(0600), read_rtl_va(0601), read_rtl_va(0602), read_rtl_va(0603),
            read_rtl_va(0604), read_rtl_va(0605), read_rtl_va(0606), read_rtl_va(0607),
@@ -1210,8 +1260,12 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
     dorado_ethernet_free(&eth);
     dorado_memory_free(mem); free(mem); free(cpu); free(mc);
 
-    if (!cold_ac_done || eth.eftp_max_seq == 0 || ddc_lines == 0) {
-        fprintf(stderr, "  [FAIL] Suite 6: RTL I/O boot did not complete EFTP or render display lines!\n");
+    // Pass = the whole boot file arrived over EFTP AND the loaded program painted
+    // a screen. 1000 lit pixels is well under Galaxian's title + formation and
+    // well over any stray scanline.
+    if (!cold_ac_done || eth.eftp_max_seq < eftp_expected_seq || ddc_lines == 0 || fb_pixels < 1000) {
+        fprintf(stderr, "  [FAIL] Suite 6: RTL I/O boot: eftp_seq=%u (want >= %u), ddc_lines=%llu, fb_px=%d (want >= 1000)\n",
+                eth.eftp_max_seq, eftp_expected_seq, (unsigned long long)ddc_lines, fb_pixels);
         return false;
     }
     printf("  [PASS] Suite 6: Full RTL I/O Bridge Boot (EBoot + EFTP + Display DDC Rendering)\n");
@@ -1225,6 +1279,13 @@ int main(int argc, char **argv) {
     printf("====================================================================\n");
     printf(" Dorado Clean 1-Cycle RTL — Verilator Lock-Step Cosimulation Suite\n");
     printf("====================================================================\n");
+
+    // RTL_BOOT_ONLY=N: skip suites 1-5 and run only the Suite 6 boot, for N cycles.
+    if (const char *b = getenv("RTL_BOOT_ONLY")) {
+        int n = atoi(b);
+        return test_rtl_io_boot(top, "../dorado/worlds/aemu.eb", "../chm/bootfiles/Galaxian.boot!1",
+                                n > 0 ? n : 15000000) ? 0 : 1;
+    }
 
     if (!test_alu_shifter_rm_stk(top)) return 1;
     if (!test_memory_subsystem(top))   return 1;
@@ -1241,7 +1302,7 @@ int main(int argc, char **argv) {
 
     benchmark_rtl_speed(top, "../chm/dorado/AEmu.mb!2", 01076, 1000000);
 
-    if (!test_rtl_io_boot(top, "../dorado/worlds/aemu.eb", "../chm/bootfiles/Galaxian.boot!1", 15000000)) return 1;
+    if (!test_rtl_io_boot(top, "../dorado/worlds/aemu.eb", "../chm/bootfiles/Galaxian.boot!1", 80000000)) return 1;
 
     printf("====================================================================\n");
     printf(" ALL RTL LOCK-STEP COSIMULATION TESTS PASSED!\n");

@@ -102,14 +102,16 @@ On MiSTer (`Dorado.sv`), `clk_sys` will run at **66.667 MHz** (or **83.333 MHz**
     5. Trident Disk Controller (TIOA 010..014, Format RAM, FIFO, DMux 02000..02037).
   - Clean linting across all 8 SystemVerilog modules (`make lint`: 0 warnings, 0 errors).
 
-- **Step 3 (In Progress 2026-10-30 — World Boot Bring-up in Verilator):**
-  - Integrated `top->io_bridge_en` into `sim_cosim.cpp` (Suite 6 `test_rtl_io_boot` with `aemu.eb` + `Galaxian.boot!1`).
-  - **Milestone Reached:** EBoot successfully received, verified, and accepted the Ethernet Breath-of-Life packet! It jumped to location 3 (`Start`), entered the Nova emulator loop, executed **248,123 IFU dispatches**, and initiated the Mayday boot broadcast over `EOT` (Task 6).
-  - Key bugs uncovered & resolved:
-    - *Base Register Indexing:* When `EmuBRHiReg == 0`, `SetupBRs` initializes `EIBR` (`BR32`) and `EOBR` (`BR33`) with `BRHi = 0xFFF` for negative indexing; added virtual page mapping for `0xFF00..0xFFFF`.
-    - *Slow I/O Read Latching:* In `T_ Input, Block`, `ctask` switches to 0 on the same posedge; latched `io_read_stb_task` / `io_read_stb_subtask` / `io_read_stb_tioa` in `dorado_rtl_cpu.sv` and clocked `dorado_rtl_io.sv` on `negedge clk`.
+- **Step 3 (Done 2026-10-30 — World Boot Bring-up in Verilator):**
+  - Suite 6 boots `aemu.eb`, takes the Breath-of-Life loader, receives all of
+    `Galaxian.boot!1` over EFTP (113 packets), and Galaxian paints its screen
+    through the RTL DDC (`docs/images/rtl-core-galaxian-2026-10-30.png`).
+  - Bugs fixed: BR negative indexing (testbench map), slow-I/O read latching,
+    and the IFU trap vectors (`~InsSet` at TNIA[7:6], not [5:4]); details in
+    `docs/clean-rtl-handoff.md` section 4.
 
-- **Step 4 (Next — Complete EFTP Download, Display Rendering & MiSTer Synthesis):**
-  - Complete the EFTP Mayday -> Data handshake in `test_rtl_io_boot` to download `Galaxian.boot!1` into RAM and verify active framebuffer pixel rendering (`ddc_lines > 0`, `fb_px > 0`).
+- **Step 4 (Next — Display Presentation, Longer Lock-Step & MiSTer Synthesis):**
+  - Match C's Alto raster placement in the DDC, and gate on a framebuffer comparison.
+  - Lock-step the C model through the whole boot, not 10K-cycle windows.
   - Add `EXT_STORAGE` burst interface to `dorado_rtl_mem.sv` for MiSTer HPS DDR3 / SDRAM backing.
   - Wire `dorado_rtl_top.sv` into `fpga/mister/Dorado.sv`, build the `.rbf` bitstream on `misterubuntu`, and deploy to MiSTer `10.0.2.14` with OSD speed switches (1.0x authentic 16.67 MHz, 2.0x, 4.0x Turbo).
