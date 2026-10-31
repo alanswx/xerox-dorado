@@ -113,7 +113,7 @@ assign USER_OUT = '1;
 assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
 assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
-assign {DDRAM_CLK, DDRAM_BURSTCNT, DDRAM_ADDR, DDRAM_DIN, DDRAM_BE, DDRAM_RD, DDRAM_WE} = '0;
+assign DDRAM_CLK = clk_sys;   // storage (dorado_rtl_storage_ddr) runs on the core clock
 
 assign VGA_SL = 0;
 assign VGA_F1 = 0;
@@ -141,6 +141,7 @@ localparam CONF_STR = {
 	"Dorado;;",
 	"-;",
 	"T[0],Reset;",
+	"O[1],Debug overlay,Off,On;",
 	"R[0],Reset and close OSD;",
 	"V,v",`BUILD_DATE
 };
@@ -165,7 +166,7 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 
 ///////////////////////   CLOCKS   ///////////////////////////////
 
-wire clk_sys;   // CLK_MHZ (build.sh), 40 MHz by default
+wire clk_sys;   // CLK_MHZ (build.sh), 50 MHz by default
 pll pll
 (
 	.refclk(CLK_50M),
@@ -223,6 +224,7 @@ always @(posedge clk_sys) begin
 	end
 end
 
+wire [127:0] dbg_vec;
 wire [19:0] fb_rd_addr;
 wire        fb_rd_data;
 wire [63:0] cycles;
@@ -233,7 +235,8 @@ dorado_rtl_top #(
 	.RESET_PC      (`DORADO_RESET_PC),
 	.BOOT_WORDS    (`DORADO_BOOT_WORDS),
 	.BOOT_HEX      ("roms/bootfile.hex"),
-	.BOL_HEX       ("roms/bol.hex")
+	.BOL_HEX       ("roms/bol.hex"),
+	.EXT_STORAGE   (1'b1)
 ) dorado
 (
 	.clk                (clk_sys),
@@ -273,6 +276,15 @@ dorado_rtl_top #(
 	.disk_cur_sector_out(),
 	.disk_sector_read_req(),
 	.disk_sector_write_req(),
+	.DDRAM_BUSY         (DDRAM_BUSY),
+	.DDRAM_BURSTCNT     (DDRAM_BURSTCNT),
+	.DDRAM_ADDR         (DDRAM_ADDR),
+	.DDRAM_DOUT         (DDRAM_DOUT),
+	.DDRAM_DOUT_READY   (DDRAM_DOUT_READY),
+	.DDRAM_RD           (DDRAM_RD),
+	.DDRAM_DIN          (DDRAM_DIN),
+	.DDRAM_BE           (DDRAM_BE),
+	.DDRAM_WE           (DDRAM_WE),
 	.fb_rd_addr         (fb_rd_addr),
 	.fb_rd_data         (fb_rd_data),
 	.dbg_real_pc        (),
@@ -285,12 +297,13 @@ dorado_rtl_top #(
 	.dbg_cycles         (cycles),
 	.dbg_halted         (halted),
 	.dbg_halt_reason    (),
-	.step_done          ()
+	.step_done          (),
+	.dbg_vec            (dbg_vec)
 );
 
 ///////////////////////   VIDEO   ////////////////////////////////
-// 1024 x 808 visible, one pixel per clk_sys (40 MHz): 1344 x 838 total,
-// about 35.5 frames/s. The MiSTer scaler converts it for HDMI.
+// 1024 x 808 visible, one pixel per clk_sys: 1344 x 838 total, about 44
+// frames/s at 50 MHz. The MiSTer scaler converts it for HDMI.
 
 localparam H_VIS = 1024, H_FP = 24, H_SYNC = 136, H_TOT = 1344;
 localparam V_VIS = 808,  V_FP = 3,  V_SYNC = 6,   V_TOT = 838;
@@ -310,6 +323,23 @@ end
 assign fb_rd_addr = {vc, hc[9:0]};
 reg        de1, hs1, vs1, de2, hs2, vs2;
 reg  [7:0] pix2;
+
+// Debug overlay (OSD "Debug overlay", status[1]): dbg_vec as four rows of
+// 32 bit-blocks, 8x8 pixels, MSB at the left, at x 640-895, y 8-39. A set bit is a solid block; every block has
+// a black left edge so the positions can be counted from a capture.
+// Rows: [127:96] DDR engine state/flags and read commands, [95:64] read and
+// write beat counts, [63:32] CPU state, PC, task, [31:0] cycle count.
+wire       ov_area = (hc >= 640) && (hc < 896) && (vc >= 8) && (vc < 40);
+wire [1:0] ov_row  = 2'((vc - 10'd8) >> 3);
+wire [4:0] ov_bit  = 5'd31 - 5'((hc - 11'd640) >> 3);
+wire       ov_on   = dbg_vec[{2'd3 - ov_row, ov_bit}];
+reg        ov1, ov2, ovb1, ovb2;
+always @(posedge clk_sys) begin
+	ov1  <= ov_area && status[1];
+	ovb1 <= ov_on || (hc[2:0] == 3'd0);
+	ov2  <= ov1;
+	ovb2 <= ovb1;
+end
 always @(posedge clk_sys) begin
 	de1  <= (hc < H_VIS) && (vc < V_VIS);
 	hs1  <= (hc >= H_VIS + H_FP) && (hc < H_VIS + H_FP + H_SYNC);
@@ -320,15 +350,16 @@ always @(posedge clk_sys) begin
 	// a set bit is black, as the C emulator's display shows it
 	pix2 <= fb_rd_data ? 8'h00 : 8'hFF;
 end
+wire [7:0] pix_out = ov2 ? (ovb2 ? 8'h00 : 8'hFF) : pix2;
 
 assign CLK_VIDEO = clk_sys;
 assign CE_PIXEL  = 1'b1;
 assign VGA_DE    = de2;
 assign VGA_HS    = hs2;
 assign VGA_VS    = vs2;
-assign VGA_R     = de2 ? pix2 : 8'd0;
-assign VGA_G     = de2 ? pix2 : 8'd0;
-assign VGA_B     = de2 ? pix2 : 8'd0;
+assign VGA_R     = de2 ? pix_out : 8'd0;
+assign VGA_G     = de2 ? pix_out : 8'd0;
+assign VGA_B     = de2 ? pix_out : 8'd0;
 
 // LED: lit while the machine runs (blinks on the microinstruction count).
 assign LED_USER = !halted && cycles[22];

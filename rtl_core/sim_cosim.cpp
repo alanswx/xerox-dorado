@@ -40,6 +40,7 @@ static constexpr uint32_t COSIM_STORAGE_WORDS = 65536;
 
 #define R_CPU(field) (top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__##field)
 #define R_MEM(field) (top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__##field)
+#define R_STOR(field) (top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__g_storage__DOT__u_stor__DOT__##field)
 #define CACHE_IDX(r, w, k) ((((r) * 4) + (w)) * 16 + (k))
 #define R_IO(field)  (top->rootp->dorado_rtl_top__DOT__u_io__DOT__##field)
 
@@ -328,7 +329,7 @@ static void sync_c_to_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top) {
         uint32_t limit = c_mem->storage_words < COSIM_STORAGE_WORDS
                        ? (uint32_t)c_mem->storage_words : COSIM_STORAGE_WORDS;
         for (uint32_t i = 0; i < limit; i++) {
-            R_MEM(storage)[i] = c_mem->storage[i];
+            R_STOR(storage)[i] = c_mem->storage[i];
         }
     }
     top->eval();
@@ -438,10 +439,10 @@ static bool step_and_compare(dorado_cpu *c_cpu, Vdorado_rtl_top *top,
             uint32_t lim = c_mem->storage_words < COSIM_STORAGE_WORDS
                          ? (uint32_t)c_mem->storage_words : COSIM_STORAGE_WORDS;
             for (uint32_t i = 0; i < lim; i++) {
-                if (c_mem->storage[i] != R_MEM(storage)[i]) {
+                if (c_mem->storage[i] != R_STOR(storage)[i]) {
                     char name[32];
                     snprintf(name, sizeof(name), "storage[0%o]", i);
-                    fail(name, c_mem->storage[i], R_MEM(storage)[i]);
+                    fail(name, c_mem->storage[i], R_STOR(storage)[i]);
                     break;
                 }
             }
@@ -1144,7 +1145,7 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
         uint32_t vp = (va >> 8) & 0xFFFFu;
         uint32_t rp = R_MEM(map_rp)[vp];
         uint32_t pa = (rp << 8) | (va & 0xFFu);
-        return (pa < COSIM_STORAGE_WORDS) ? R_MEM(storage)[pa] : 0;
+        return (pa < COSIM_STORAGE_WORDS) ? R_STOR(storage)[pa] : 0;
     };
     auto t0 = std::chrono::steady_clock::now();
 
@@ -1171,13 +1172,13 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
                 uint32_t vp = (va >> 8) & 0xFFFFu;
                 uint32_t rp = R_MEM(map_rp)[vp];
                 uint32_t pa = (rp << 8) | (va & 0xFFu);
-                if (pa < COSIM_STORAGE_WORDS) R_MEM(storage)[pa] = 0177777u;
+                if (pa < COSIM_STORAGE_WORDS) R_STOR(storage)[pa] = 0177777u;
             }
             for (uint32_t va = 0177740u; va <= 0177757u; va++) {
                 uint32_t vp = (va >> 8) & 0xFFFFu;
                 uint32_t rp = R_MEM(map_rp)[vp];
                 uint32_t pa = (rp << 8) | (va & 0xFFu);
-                if (pa < COSIM_STORAGE_WORDS) R_MEM(storage)[pa] = 0177760u;
+                if (pa < COSIM_STORAGE_WORDS) R_STOR(storage)[pa] = 0177760u;
             }
             cold_ac_done = true;
         }
@@ -1195,7 +1196,7 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
                 uint32_t rp = R_MEM(map_rp)[vp];
                 uint32_t pa = (rp << 8) | (va & 0xFFu);
                 if (pa < COSIM_STORAGE_WORDS) {
-                    R_MEM(storage)[pa] = R_IO(ddc_kbd_words)[k];
+                    R_STOR(storage)[pa] = R_IO(ddc_kbd_words)[k];
                     // Also update cache if resident!
                     uint32_t row = (va >> 4) & 0x3Fu;
                     uint32_t tag = va >> 10;
@@ -1211,7 +1212,7 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
             uint32_t vp0 = 0;
             uint32_t rp0 = R_MEM(map_rp)[vp0];
             uint32_t pa_dastart = (rp0 << 8) | (0420u & 0xFFu);
-            uint16_t dastart = (pa_dastart < COSIM_STORAGE_WORDS) ? R_MEM(storage)[pa_dastart] : 0;
+            uint16_t dastart = (pa_dastart < COSIM_STORAGE_WORDS) ? R_STOR(storage)[pa_dastart] : 0;
             uint32_t row_da = (0420u >> 4) & 0x3Fu;
             for (int w = 0; w < 4; w++) {
                 if (R_MEM(cache_valid)[row_da][w] && R_MEM(cache_tag)[row_da][w] == 0) {

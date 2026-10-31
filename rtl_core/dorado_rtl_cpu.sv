@@ -14,7 +14,8 @@ module dorado_rtl_cpu
     import dorado_rtl_pkg::*;
 #(
     parameter int          STORAGE_WORDS = 4 * 1024 * 1024,
-    parameter logic [15:0] RESET_PC      = 16'd0      // FPGA: the preloaded world's start
+    parameter logic [15:0] RESET_PC      = 16'd0,     // FPGA: the preloaded world's start
+    parameter bit          EXT_STORAGE   = 1'b0       // 1: storage is served outside (sto_*)
 ) (
     input  logic           clk,
     input  logic           rst,
@@ -96,7 +97,18 @@ module dorado_rtl_cpu
     output logic           ap_done,
     output logic [15:0]    ap_rd,
     output logic           cpu_between,  // in C_FETCH: assist conditions are current
-    output logic           dbg_ifu_active
+    output logic           dbg_ifu_active,
+    output logic [4:0]     dbg_st,
+
+    // Storage munch port (dorado_rtl_storage): served by the internal block
+    // RAM unless EXT_STORAGE, when the sto_* ports go out (MiSTer: DDR3).
+    output logic           sto_req,
+    output logic           sto_we,
+    output logic [31:0]    sto_addr,
+    output logic [15:0]    sto_mask,
+    output logic [255:0]   sto_wline,
+    input  logic           sto_ack_ext,
+    input  logic [255:0]   sto_rline_ext
 );
     // -------------------------------------------------------------------------
     // Constants
@@ -277,7 +289,7 @@ module dorado_rtl_cpu
         C_IFU_OPW, C_IFU_DECW, C_IFU_DEC, C_IFU_AW, C_IFU_BETA, C_IFU_BW, C_IFU_END,
         C_FINISH,
         M_ROW, M_MAPA, M_MAPV, M_BOOK, A_DO, A_WAIT, M_WRA, M_WRV, M_WB, M_FILL, M_RD, M_WR,
-        M_IOC, M_IOS, M_IOW
+        M_IOC, M_IOS, M_IOW, M_STR, M_STW
     } cstate_t;
     cstate_t st;
     cstate_t m_ret;
@@ -411,8 +423,13 @@ module dorado_rtl_cpu
     logic           last_ref_miss;
     int             last_ref_latency;
 
-    // Backing store: block RAM, one port
-    (* ramstyle = "M10K" *) logic [15:0]    storage [0:STORAGE_WORDS-1];
+    // Backing store: the munch port (sto_*), with the munch in flight
+    logic           sto_ack;
+    logic [255:0]   sto_rline;
+    logic           line_ok;       // sto_rline holds the munch the state asked for
+    cstate_t        sto_ret;       // state to resume when the storage op is acked
+    int             sto_stage;     // mem_advance stage after a storage write
+    logic [15:0]    ap_cq;         // assist: the cache word read in A_DO
 
     // ---- Memory-engine request (set when a reference is launched) ----------
     dm_ref_kind_t   m_kind;
@@ -458,7 +475,6 @@ module dorado_rtl_cpu
     logic [15:0]    map_rp_q;
     logic           map_wp_q, map_dirty_q, map_ref_q;
     logic [15:0]    cache_q;
-    logic [15:0]    storage_q;
 
     // -------------------------------------------------------------------------
     // MCR Predicates (matching memory.c:702-893)
@@ -2098,9 +2114,6 @@ module dorado_rtl_cpu
     logic        cache_we;
     logic [15:0] cache_wd;
 
-    logic [31:0] stor_addr;
-    logic        stor_we;
-    logic [15:0] stor_wd;
 
     always_comb begin
         // IM: the instruction at real_PC during C_FETCH; the word at Link
@@ -2147,13 +2160,13 @@ module dorado_rtl_cpu
 
         // Cache data
         cache_we     = 1'b0;
-        cache_wd     = storage_q;
+        cache_wd     = sto_rline[16 * mcnt[3:0] +: 16];
         cache_addr_p = cache_addr(word_row, word_way, word_off);
         case (st)
             M_WB:   cache_addr_p = cache_addr(wb_row, wb_way, mcnt[3:0]);
             M_FILL: begin
-                cache_addr_p = cache_addr(fill_row, fill_way, 4'(mcnt - 5'd1));
-                cache_we     = (mcnt != 5'd0);
+                cache_addr_p = cache_addr(fill_row, fill_way, mcnt[3:0]);
+                cache_we     = line_ok;
             end
             M_WR:   begin
                 cache_we = 1'b1;
@@ -2166,30 +2179,6 @@ module dorado_rtl_cpu
                 cache_addr_p = cache_addr(m_va[9:4], ap_way, m_va[3:0]);
                 cache_we     = ap_we && ap_cache && ap_hit;
                 cache_wd     = ap_wd;
-            end
-            default: ;
-        endcase
-
-        // Storage
-        stor_we   = 1'b0;
-        stor_wd   = cache_q;
-        stor_addr = io_base;
-        case (st)
-            M_WB:   begin
-                stor_addr = wb_phys + {27'd0, mcnt} - 32'd1;
-                stor_we   = (mcnt != 5'd0);
-            end
-            M_FILL: stor_addr = fill_phys + {27'd0, mcnt};
-            M_IOS:  stor_addr = io_base + {27'd0, mcnt};
-            M_IOW:  begin
-                stor_addr = io_base + {27'd0, mcnt};
-                stor_we   = 1'b1;
-                stor_wd   = munch_in[mcnt[3:0]];
-            end
-            A_DO:   begin
-                stor_addr = ap_phys;
-                stor_we   = ap_we && (ap_phys < STORAGE_WORDS);
-                stor_wd   = ap_wd;
             end
             default: ;
         endcase
@@ -2266,11 +2255,24 @@ module dorado_rtl_cpu
         cache_q <= cache_data[cache_addr_p];
     end
 
-    localparam int STOR_AW = $clog2(STORAGE_WORDS);
-    always_ff @(posedge clk) begin
-        if (stor_we) storage[stor_addr[STOR_AW-1:0]] <= stor_wd;
-        storage_q <= storage[stor_addr[STOR_AW-1:0]];
-    end
+    generate
+        if (EXT_STORAGE) begin : g_ext_storage
+            assign sto_ack   = sto_ack_ext;
+            assign sto_rline = sto_rline_ext;
+        end else begin : g_storage
+            dorado_rtl_storage #(.STORAGE_WORDS(STORAGE_WORDS)) u_stor (
+                .clk   (clk),
+                .rst   (rst),
+                .req   (sto_req),
+                .we    (sto_we),
+                .addr  (sto_addr),
+                .mask  (sto_mask),
+                .wline (sto_wline),
+                .ack   (sto_ack),
+                .rline (sto_rline)
+            );
+        end
+    endgenerate
 
     // =========================================================================
     // Main sequencer. One microinstruction is C_FETCH, C_EXEC, optional
@@ -2281,6 +2283,7 @@ module dorado_rtl_cpu
     logic spec_hit;                // IM (read in C_FINISH) holds the instruction at real_PC
     assign cpu_between    = (st == C_FETCH);
     assign dbg_ifu_active = ifu_active;
+    assign dbg_st         = st;
     always @(posedge clk) begin
         x_ifum_wr = 1'b0;
         step_done = 1'b0;
@@ -2292,6 +2295,11 @@ module dorado_rtl_cpu
             ap_done  = 1'b0;
             ap_done_q = 1'b0;
             spec_hit = 1'b0;
+            sto_req  = 1'b0;
+            sto_we   = 1'b0;
+            sto_addr = 32'd0;
+            sto_mask = 16'd0;
+            line_ok  = 1'b0;
             ap_rd    = 16'd0;
             x_assist = 1'b0;
             st      = C_FETCH;
@@ -3306,25 +3314,80 @@ module dorado_rtl_cpu
                     rd_spec = (st == M_RD);
                 end
             end
-            // Assist: storage (and cache) word written or read this clock.
-            A_DO: st = A_WAIT;
+            // Assist: the cache word is written or read this clock, and the
+            // storage word goes to the munch port (one word of the mask).
+            A_DO: begin
+                if (ap_phys < STORAGE_WORDS) begin
+                    sto_req   = 1'b1;
+                    sto_we    = ap_we;
+                    sto_addr  = ap_phys;
+                    sto_mask  = 16'd1 << ap_phys[3:0];
+                    sto_wline = {16{ap_wd}};
+                end
+                st = A_WAIT;
+            end
             A_WAIT: begin
-                ap_rd    = ap_hit ? cache_q : (ap_phys < STORAGE_WORDS ? storage_q : 16'd0);
-                ap_done  = 1'b1;
-                x_assist = 1'b0;
-                st       = C_FETCH;
+                if (!line_ok) begin
+                    ap_cq   = cache_q;           // read in A_DO
+                    line_ok = 1'b1;
+                end
+                if (!sto_req || sto_ack) begin
+                    sto_req  = 1'b0;
+                    line_ok  = 1'b0;
+                    ap_rd    = ap_hit ? ap_cq
+                             : (ap_phys < STORAGE_WORDS ? sto_rline[16 * ap_phys[3:0] +: 16] : 16'd0);
+                    ap_done  = 1'b1;
+                    x_assist = 1'b0;
+                    st       = C_FETCH;
+                end
+            end
+            // A storage read in flight: resume sto_ret with the munch in sto_rline.
+            M_STR: begin
+                if (sto_ack) begin
+                    sto_req = 1'b0;
+                    line_ok = 1'b1;
+                    st      = sto_ret;
+                end
+            end
+            // A storage write in flight: then continue after stage sto_stage.
+            M_STW: begin
+                if (sto_ack) begin
+                    sto_req = 1'b0;
+                    if (sto_stage == 9) fastio_stb = 1'b1;
+                    mem_advance(sto_stage);
+                end
             end
             M_WRA: mem_advance(1);
             M_WRV: mem_advance(2);
             M_WB: begin
-                // cache line -> storage, one word per clock (read leads write)
-                if (mcnt == 5'd16) mem_advance(3);
-                else               mcnt = mcnt + 5'd1;
+                // cache line -> munch, one word per clock (the read leads),
+                // then one storage write
+                if (mcnt != 5'd0) sto_wline[16 * (mcnt - 5'd1) +: 16] = cache_q;
+                if (mcnt == 5'd16) begin
+                    sto_req   = 1'b1;
+                    sto_we    = 1'b1;
+                    sto_addr  = wb_phys;
+                    sto_mask  = 16'hFFFF;
+                    sto_stage = 3;
+                    st        = M_STW;
+                end else begin
+                    mcnt = mcnt + 5'd1;
+                end
             end
             M_FILL: begin
-                // storage -> cache line
-                if (mcnt == 5'd16) mem_advance(4);
-                else               mcnt = mcnt + 5'd1;
+                // one storage read, then munch -> cache line, one word per clock
+                if (!line_ok) begin
+                    sto_req  = 1'b1;
+                    sto_we   = 1'b0;
+                    sto_addr = fill_phys;
+                    sto_ret  = M_FILL;
+                    st       = M_STR;
+                end else if (mcnt == 5'd15) begin
+                    line_ok = 1'b0;
+                    mem_advance(4);
+                end else begin
+                    mcnt = mcnt + 5'd1;
+                end
             end
             M_RD: begin
                 if (mcnt == 5'd1 ||
@@ -3338,24 +3401,37 @@ module dorado_rtl_cpu
                 end
             end
             M_WR: mem_advance(6);
-            M_IOC, M_IOS: begin
-                if (mcnt != 5'd0) begin
-                    fastio_out_munch[4'(mcnt - 5'd1)] = (st == M_IOC) ? cache_q : storage_q;
-                end
+            M_IOC: begin
+                if (mcnt != 5'd0) fastio_out_munch[4'(mcnt - 5'd1)] = cache_q;
                 if (mcnt == 5'd16) begin
                     fastio_stb = 1'b1;
-                    mem_advance((st == M_IOC) ? 7 : 8);
+                    mem_advance(7);
                 end else begin
                     mcnt = mcnt + 5'd1;
                 end
             end
-            M_IOW: begin
-                if (mcnt == 5'd15) begin
-                    fastio_stb = 1'b1;
-                    mem_advance(9);
+            M_IOS: begin
+                if (!line_ok) begin
+                    sto_req  = 1'b1;
+                    sto_we   = 1'b0;
+                    sto_addr = io_base;
+                    sto_ret  = M_IOS;
+                    st       = M_STR;
                 end else begin
-                    mcnt = mcnt + 5'd1;
+                    for (int i = 0; i < 16; i++) fastio_out_munch[i] = sto_rline[16 * i +: 16];
+                    line_ok    = 1'b0;
+                    fastio_stb = 1'b1;
+                    mem_advance(8);
                 end
+            end
+            M_IOW: begin
+                for (int i = 0; i < 16; i++) sto_wline[16 * i +: 16] = munch_in[i];
+                sto_req   = 1'b1;
+                sto_we    = 1'b1;
+                sto_addr  = io_base;
+                sto_mask  = 16'hFFFF;
+                sto_stage = 9;
+                st        = M_STW;
             end
             default: st = C_FETCH;
             endcase

@@ -3,3 +3,5 @@ roms/
 init/
 obj_fpga/
 fpga-sim.pbm
+obj_fpga_ddr/
+fpga-sim-ddr.pbm

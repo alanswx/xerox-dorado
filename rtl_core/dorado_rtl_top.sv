@@ -14,7 +14,8 @@ module dorado_rtl_top
     parameter logic [15:0] RESET_PC = 16'd0,
     parameter int BOOT_WORDS    = 28619,
     parameter     BOOT_HEX      = "roms/bootfile.hex",
-    parameter     BOL_HEX       = "roms/bol.hex"
+    parameter     BOL_HEX       = "roms/bol.hex",
+    parameter bit EXT_STORAGE   = 1'b0           // 1: storage on the sto_* port (MiSTer: DDR3)
 ) (
     input  logic        clk,
     input  logic        rst,
@@ -86,7 +87,23 @@ module dorado_rtl_top
     output logic [63:0] dbg_cycles,
     output logic        dbg_halted,
     output logic [3:0]  dbg_halt_reason,
-    output logic        step_done      // pulses one clock after each microinstruction
+    output logic        step_done,     // pulses one clock after each microinstruction
+    // Board-level debug: {DDR engine (see dorado_rtl_storage_ddr), CPU state,
+    // real PC, task, low cycle count}
+    output logic [127:0] dbg_vec,
+
+    // Storage in DDR3 when EXT_STORAGE (dorado_rtl_storage_ddr): the MiSTer
+    // framework's DDRAM port. The core is held in reset until the storage
+    // region has been cleared.
+    input  logic         DDRAM_BUSY,
+    output logic [7:0]   DDRAM_BURSTCNT,
+    output logic [28:0]  DDRAM_ADDR,
+    input  logic [63:0]  DDRAM_DOUT,
+    input  logic         DDRAM_DOUT_READY,
+    output logic         DDRAM_RD,
+    output logic [63:0]  DDRAM_DIN,
+    output logic [7:0]   DDRAM_BE,
+    output logic         DDRAM_WE
 );
     logic           io_busy;
     logic           srv_stall;
@@ -149,12 +166,65 @@ module dorado_rtl_top
         end
     end
 
+    // ---------------------------------------------------------------------
+    // Storage: block RAM inside the CPU, or DDR3 (EXT_STORAGE)
+    // ---------------------------------------------------------------------
+    logic         sto_req, sto_we, sto_ack;
+    logic [31:0]  sto_addr;
+    logic [15:0]  sto_mask;
+    logic [255:0] sto_wline, sto_rline;
+    logic         sto_ready;
+    logic         core_rst;
+    logic [63:0]  ddr_dbg;
+    logic [4:0]   cpu_st;
+    assign dbg_vec = {ddr_dbg, 3'd0, cpu_st, 4'd0, dbg_real_pc, 4'd0, dbg_ctask, dbg_cycles[31:0]};
+
+    generate
+        if (EXT_STORAGE) begin : g_ddr
+            dorado_rtl_storage_ddr #(.STORAGE_WORDS(STORAGE_WORDS)) u_ddr (
+                .clk              (clk),
+                .rst              (rst),
+                .ready            (sto_ready),
+                .req              (sto_req),
+                .we               (sto_we),
+                .addr             (sto_addr),
+                .mask             (sto_mask),
+                .wline            (sto_wline),
+                .ack              (sto_ack),
+                .rline            (sto_rline),
+                .dbg              (ddr_dbg),
+                .DDRAM_BUSY       (DDRAM_BUSY),
+                .DDRAM_BURSTCNT   (DDRAM_BURSTCNT),
+                .DDRAM_ADDR       (DDRAM_ADDR),
+                .DDRAM_DOUT       (DDRAM_DOUT),
+                .DDRAM_DOUT_READY (DDRAM_DOUT_READY),
+                .DDRAM_RD         (DDRAM_RD),
+                .DDRAM_DIN        (DDRAM_DIN),
+                .DDRAM_BE         (DDRAM_BE),
+                .DDRAM_WE         (DDRAM_WE)
+            );
+        end else begin : g_no_ddr
+            assign ddr_dbg        = 64'd0;
+            assign sto_ready      = 1'b1;
+            assign sto_ack        = 1'b0;
+            assign sto_rline      = '0;
+            assign DDRAM_BURSTCNT = 8'd0;
+            assign DDRAM_ADDR     = 29'd0;
+            assign DDRAM_RD       = 1'b0;
+            assign DDRAM_DIN      = 64'd0;
+            assign DDRAM_BE       = 8'd0;
+            assign DDRAM_WE       = 1'b0;
+        end
+    endgenerate
+    assign core_rst = rst || !sto_ready;
+
     dorado_rtl_cpu #(
         .STORAGE_WORDS (STORAGE_WORDS),
-        .RESET_PC      (RESET_PC)
+        .RESET_PC      (RESET_PC),
+        .EXT_STORAGE   (EXT_STORAGE)
     ) u_cpu (
         .clk                (clk),
-        .rst                (rst),
+        .rst                (core_rst),
         .clk_en             (clk_en),
         .bb_present         (bb_present),
         .bb_running         (bb_running),
@@ -218,12 +288,20 @@ module dorado_rtl_top
         .ap_done            (ap_done),
         .ap_rd              (ap_rd),
         .cpu_between        (cpu_between),
-        .dbg_ifu_active     (dbg_ifu_active)
+        .dbg_ifu_active     (dbg_ifu_active),
+        .dbg_st             (cpu_st),
+        .sto_req            (sto_req),
+        .sto_we             (sto_we),
+        .sto_addr           (sto_addr),
+        .sto_mask           (sto_mask),
+        .sto_wline          (sto_wline),
+        .sto_ack_ext        (sto_ack),
+        .sto_rline_ext      (sto_rline)
     );
 
     dorado_rtl_assist u_assist (
         .clk               (clk),
-        .rst               (rst),
+        .rst               (core_rst),
         .en                (assist_en && io_bridge_en),
         .cpu_between       (cpu_between),
         .cycles            (dbg_cycles),
@@ -253,7 +331,7 @@ module dorado_rtl_top
 
     dorado_rtl_io u_io (
         .clk                     (clk),
-        .rst                     (rst),
+        .rst                     (core_rst),
         .clk_en                  (clk_en && io_bridge_en && step_done),
         .cycles                  (dbg_cycles),
 
@@ -332,7 +410,7 @@ module dorado_rtl_top
         .BOL_HEX    (BOL_HEX)
     ) u_bootsrv (
         .clk            (clk),
-        .rst            (rst),
+        .rst            (core_rst),
         .en             (bootsrv_en && io_bridge_en),
         .cycles         (dbg_cycles),
         .local_host     (eth_local_host),

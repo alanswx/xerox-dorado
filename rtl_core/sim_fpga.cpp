@@ -27,6 +27,61 @@
 
 struct key_ev { long long start, len; int word, bit; };
 
+#ifdef SIM_DDR
+// The MiSTer DDRAM port (Avalon-MM, 64-bit beats) in front of a byte array:
+// BUSY asserted pseudo-randomly, reads answered after a latency, one beat
+// per clock -- enough variety to exercise dorado_rtl_storage_ddr's handshake.
+#include <deque>
+#include <vector>
+struct ddr_model {
+    std::vector<uint64_t> mem = std::vector<uint64_t>(1u << 24);   // 128 MB window
+    struct rd { uint64_t due; uint32_t addr; int n; };
+    std::deque<rd> reads;
+    uint32_t w_addr = 0; int w_left = 0;
+    uint64_t t = 0, rng = 12345, beats_rd = 0, beats_wr = 0;
+    bool cur_busy = false, cur_ready = false;
+    static uint32_t idx(uint32_t a) { return (a - 0x6000000u) & ((1u << 24) - 1); }
+    // Drive the inputs the RTL samples at the coming edge.
+    void drive(Vdorado_rtl_top *top) {
+        rng = rng * 6364136223846793005ULL + 1442695040888963407ULL;
+        cur_busy = ((rng >> 33) % 4) == 0;
+        top->DDRAM_BUSY = cur_busy;
+        cur_ready = !reads.empty() && reads.front().due <= t;
+        top->DDRAM_DOUT_READY = cur_ready;
+        if (cur_ready) top->DDRAM_DOUT = mem[idx(reads.front().addr)];
+    }
+    // Take what the RTL presented at this edge.
+    void edge(Vdorado_rtl_top *top) {
+        if (cur_ready) {
+            beats_rd++;
+            rd &r = reads.front();
+            r.addr++; r.due = t + 1;
+            if (--r.n == 0) reads.pop_front();
+        }
+        if (!cur_busy && (top->DDRAM_RD || top->DDRAM_WE) && top->DDRAM_BURSTCNT != 1) {
+            fprintf(stderr, "[DDR] burst of %d at %llu (bursts fail on the MiSTer port)\n",
+                    top->DDRAM_BURSTCNT, (unsigned long long)t);
+            exit(2);
+        }
+        if (!cur_busy && top->DDRAM_RD && top->DDRAM_BE != 0xFF) {
+            fprintf(stderr, "[DDR] read with BE=%02x at %llu\n", top->DDRAM_BE, (unsigned long long)t);
+            exit(2);
+        }
+        if (!cur_busy && top->DDRAM_RD)
+            reads.push_back({t + 12, (uint32_t)top->DDRAM_ADDR, (int)top->DDRAM_BURSTCNT});
+        if (!cur_busy && top->DDRAM_WE) {
+            if (w_left == 0) { w_addr = top->DDRAM_ADDR; w_left = top->DDRAM_BURSTCNT; }
+            uint64_t &m = mem[idx(w_addr)];
+            for (int b = 0; b < 8; b++)
+                if (top->DDRAM_BE & (1u << b))
+                    m = (m & ~(0xFFULL << (8 * b))) | (top->DDRAM_DIN & (0xFFULL << (8 * b)));
+            w_addr++; w_left--; beats_wr++;
+        }
+        t++;
+    }
+};
+#endif
+
 int main(int argc, char **argv) {
     Verilated::commandArgs(argc, argv);
     long long want = argc > 1 ? atoll(argv[1]) : 80000000LL;
@@ -52,7 +107,12 @@ int main(int argc, char **argv) {
             ks = c + 1;
         }
     }
+#ifdef SIM_DDR
+    ddr_model ddr;
+    for (int i = 0; i < 4; i++) { ddr.drive(top); top->clk = !top->clk; top->eval(); if (top->clk) ddr.edge(top); }
+#else
     for (int i = 0; i < 4; i++) { top->clk = !top->clk; top->eval(); }
+#endif
     top->rst = 0;
 
     auto t0 = std::chrono::steady_clock::now();
@@ -62,13 +122,21 @@ int main(int argc, char **argv) {
     static const char *stname[] = {"C_FETCH","C_DEC","C_EXEC","C_PREF","C_NEXTRD","C_NEXT","C_SCHED",
         "C_IFU_OPW","C_IFU_DECW","C_IFU_DEC","C_IFU_AW","C_IFU_BETA","C_IFU_BW","C_IFU_END","C_FINISH",
         "M_ROW","M_MAPA","M_MAPV","M_BOOK","A_DO","A_WAIT","M_WRA","M_WRV","M_WB","M_FILL","M_RD","M_WR",
-        "M_IOC","M_IOS","M_IOW"};
+        "M_IOC","M_IOS","M_IOW","M_STR","M_STW"};
     unsigned long long hist[32] = {0}, fetch_wait = 0, hist_clocks = 0, hist_steps = 0;
     const bool want_hist = getenv("SIM_HIST") != nullptr;
     unsigned long long idle_steps = 0, run_steps = 0, max_gap = 0, gap = 0;
     while ((long long)top->dbg_cycles < want && !top->dbg_halted) {
+#ifdef SIM_DDR
+        ddr.drive(top);
+        top->clk = 0; top->eval();
+        ddr.edge(top);
         top->clk = 1; top->eval();
         top->clk = 0; top->eval();
+#else
+        top->clk = 1; top->eval();
+        top->clk = 0; top->eval();
+#endif
         clocks++;
         if (want_hist && R_SRV(eftp_max_seq) >= 113) {
             unsigned st = R_CPU(st) & 31;
@@ -115,10 +183,14 @@ int main(int argc, char **argv) {
     if (want_hist && hist_steps) {
         printf("  state histogram after boot (%llu clocks, %llu steps, %.2f clocks/step):\n",
                hist_clocks, hist_steps, (double)hist_clocks / hist_steps);
-        for (int i = 0; i < 30; i++) if (hist[i])
+        for (int i = 0; i < 32; i++) if (hist[i])
             printf("    %-11s %6.3f per step\n", stname[i], (double)hist[i] / hist_steps);
         printf("    (FETCH clocks with io_busy: %.3f per step)\n", (double)fetch_wait / hist_steps);
     }
+#ifdef SIM_DDR
+    printf("           DDR: %llu beats read, %llu written\n",
+           (unsigned long long)ddr.beats_rd, (unsigned long long)ddr.beats_wr);
+#endif
     printf("           BR:");
     for (int i = 0; i < 32; i++) if (R_CPU(br)[i]) printf(" [%o]=%o", i, (unsigned)R_CPU(br)[i]);
     printf("\n");

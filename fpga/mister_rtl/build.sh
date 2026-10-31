@@ -1,7 +1,7 @@
 #!/bin/sh
 # Assemble the rtl_core MiSTer project from the framework template.
 #
-#   [CLK_MHZ=40] fpga/mister_rtl/build.sh [TEMPLATE_DIR] [OUT_DIR]
+#   [CLK_MHZ=50] fpga/mister_rtl/build.sh [TEMPLATE_DIR] [OUT_DIR]
 #
 # Needs rtl_core/init/ (make -C rtl_core init) and rtl_core/roms/ (built by
 # the rtl_core Makefile). Then: cd OUT_DIR && quartus_sh --flow compile Dorado
@@ -21,11 +21,12 @@ mkdir -p "$OUT/rtl"
 cp -r "$TEMPLATE/sys" "$OUT/"
 cp -r "$TEMPLATE/rtl/pll" "$TEMPLATE/rtl/pll.v" "$TEMPLATE/rtl/pll.qip" "$OUT/rtl/"
 # System clock (the CPU, I/O and video all run on it)
-CLK_MHZ=${CLK_MHZ:-40}
+CLK_MHZ=${CLK_MHZ:-50}
 sed -i "s/output_clock_frequency0(\"[^\"]*\")/output_clock_frequency0(\"$CLK_MHZ.000000 MHz\")/" "$OUT/rtl/pll/pll_0002.v"
 cp "$TEMPLATE/mycore.sdc" "$OUT/Dorado.sdc"
 cp "$HERE/Dorado.sv" "$OUT/"
-for f in dorado_rtl_pkg.sv dorado_rtl_alu_shifter.sv dorado_rtl_cpu.sv dorado_rtl_io.sv \
+for f in dorado_rtl_pkg.sv dorado_rtl_alu_shifter.sv dorado_rtl_storage.sv dorado_rtl_storage_ddr.sv \
+         dorado_rtl_cpu.sv dorado_rtl_io.sv \
          dorado_rtl_bootsrv.sv dorado_rtl_assist.sv dorado_rtl_top.sv; do
     cp "$CORE/$f" "$OUT/rtl/"
 done
@@ -37,6 +38,8 @@ cat > "$OUT/files.qip" <<QIP
 set_global_assignment -name QIP_FILE rtl/pll.qip
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_pkg.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_alu_shifter.sv
+set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_storage.sv
+set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_storage_ddr.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_cpu.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_io.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_bootsrv.sv

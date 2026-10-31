@@ -32,8 +32,10 @@ All files are located in [`rtl_core/`](file:///Users/alans/dev2/Dorado/rtl_core/
 | [`sim_cosim.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_cosim.cpp) | Cosimulation harness | Lock-step suites against the C emulator + Suite 6 boot; `RTL_DUMP_INIT`, `RTL_RX_LOG`. Steps the RTL by `step_done`. |
 | [`sim_fpga.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_fpga.cpp) | FPGA-configuration testbench | No C model, no pokes: power-up images, RTL boot server, RTL assist (`make fpga-sim`). |
 | [`tools/make_boot_roms.py`](file:///Users/alans/dev2/Dorado/rtl_core/tools/make_boot_roms.py) | ROM generator | `roms/bol.hex` from ethernet.c's `eth_bol_loader`, `roms/bootfile.hex` from the boot file. |
-| [`Makefile`](file:///Users/alans/dev2/Dorado/rtl_core/Makefile) | Build | `make`, `make test`, `make init`, `make fpga-sim`, `make lint`. |
-| [`../fpga/mister_rtl/`](file:///Users/alans/dev2/Dorado/fpga/mister_rtl/) | MiSTer wrapper | `Dorado.sv` (emu: 40 MHz, 1024x808 scan-out) and `build.sh` (assembles the project from Template_MiSTer). |
+| [`Makefile`](file:///Users/alans/dev2/Dorado/rtl_core/Makefile) | Build | `make`, `make test`, `make init`, `make fpga-sim`, `make fpga-sim-ddr`, `make lint`. |
+| [`dorado_rtl_storage.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_storage.sv) | Storage (block RAM) | The munch port: one aligned 16-word munch per request, word mask on writes (HM section 5). |
+| [`dorado_rtl_storage_ddr.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_storage_ddr.sv) | Storage (DDR3) | The same port on the MiSTer DDRAM interface (`EXT_STORAGE`): 4-beat burst reads, single-beat writes, region cleared after reset. |
+| [`../fpga/mister_rtl/`](file:///Users/alans/dev2/Dorado/fpga/mister_rtl/) | MiSTer wrapper | `Dorado.sv` (emu: 50 MHz, 1024x808 scan-out, PS/2 keyboard and mouse, storage in DDR3) and `build.sh` (assembles the project from Template_MiSTer; `CLK_MHZ`). |
 
 ---
 
@@ -138,24 +140,21 @@ read one instruction ahead.
 
 ## 5. Next Steps to Resume
 
-1. **Keyboard and mouse.** `Dorado.sv` ties the keyboard words to all-up and
-   the mouse to zero, so Galaxian runs its attract mode only. Map `ps2_key`
-   to the Alto keyboard words (`display.c`'s matrix; `verilog/rtl/dorado_keyboard.v`
-   already has a checked PS/2 mapping) into `dorado_rtl_io`'s `kbd_words_in`.
-2. **Block RAM is at 98% (541/553).** Anything new needs room. Candidates:
-   storage and the Map to SDRAM/DDR (storage 1 Mbit, Map 1.2 Mbit), the boot
-   file ROM (458 Kbit) to the HPS (load it with the OSD), or a narrower
-   framebuffer for Alto worlds (606 px wide).
-3. **Speed.** 10.7 fabric clocks per microinstruction at 40 MHz is about
-   0.22x a real Dorado. The memory engine spends extra states on every
-   reference (M_ROW, M_MAPA, M_MAPV, M_BOOK, M_WRA/M_WRV even when nothing
-   changes); C_DEC/C_NEXTRD add two clocks to every instruction. Fmax of the
-   bare core was 50.8 MHz.
-4. **Match C's display presentation** (left margin, white surround) and gate
+Keyboard, the first speed pass and storage in DDR3 are done (section 7).
+What is next is Cedar (section 8). Smaller items still open:
+
+1. **Match C's display presentation** (left margin, white surround) and gate
    on a framebuffer comparison rather than a pixel count.
-5. **Lock-step the whole boot**, not only 10K-cycle windows; then more worlds
-   (NetExec, other Alto games, Cedar -- which needs the disk model back on the
-   FPGA, currently `ifndef DORADO_NO_DISK`).
+2. **Lock-step the whole boot**, not only 10K-cycle windows.
+3. **Reset does not restore the preloaded memories** (IM, IFUM, RM, Map take
+   their contents only at configuration). Reload the core to restart.
+4. **More speed.** 6.1 fabric clocks per microinstruction at 50 MHz is 0.49x
+   a real Dorado. What is left per microinstruction (section 7): FETCH, EXEC,
+   NEXT and FINISH (4 clocks), memory references (~0.85), the IFUJump
+   sequence (~0.64). Overlapping C_FETCH with the previous C_FINISH for
+   good, and an opcode-byte buffer in the IFU, are the next two.
+5. **Galaxian's S key** reads the high-score file over the network; the
+   in-FPGA boot server cannot serve it, so the game waits for ever.
 
 ## 6. The FPGA build (2026-10-30: Galaxian on MiSTer14)
 
@@ -214,3 +213,113 @@ buffer -- 18K ALMs of registers until `ramstyle = "M10K"` was added); a
 framebuffer with a read-modify-write port and a scan-out port was built as two
 full copies (the fix was one bit per address, write-only from the renderer);
 `$countones` is not synthesizable in Quartus 17.
+
+## 7. Keyboard, speed, storage in DDR3 (2026-10-31)
+
+**Keyboard and mouse.** `dorado_rtl_assist` carries live input once the
+cold-Alto init has run and EFTP has started, the way `machine.c`'s
+`machine_seed_alto_live_io` does (the DDC back-channel that would carry it
+is gap E2): keyboard words 177034-177037, UTILIN 177030-177033 (~buttons:
+Red/left bit 2, Blue/right bit 1, Yellow/middle bit 0) and, once a mouse
+has moved, MOUSELOC 424/425. They are written while the IFU is idle (17% of
+microinstructions after boot; the longest busy run is ~10K), every 256
+microinstructions and at the first idle moment after a change. `Dorado.sv`
+maps `ps2_key` through `verilog/cells/dorado_keyboard.v` and keeps an
+absolute mouse position. Galaxian's keys, from a C sweep of every key: **A**
+moves the ship, **Return** fires, **1**/**Q** start a game, **S** reads the
+high-score file over the network (the in-FPGA server cannot serve it; the
+game then waits). On MiSTer14 holding A moves the ship and Return fires.
+
+**Speed: 10.6 -> 6.1 fabric clocks per microinstruction, 40 -> 50 MHz.**
+Measured with `SIM_HIST=1 ./obj_fpga/Vdorado_rtl_top` (per-state clocks
+per microinstruction after the Galaxian boot):
+
+| change | clocks/step |
+|---|---|
+| start | 10.61 |
+| `io_busy` waited on in C_DEC/C_EXEC, not C_FETCH (the I/O tick overlaps the IM read) | 9.6 |
+| C_NEXTRD only for branch conditions 4/5 (R<0, R odd, HM Table 13) and the LoadRam End exit | 8.82 |
+| M_ROW folded into M_MAPA; M_BOOK skipped when the victim's Map entry is not needed; hit word read speculatively, M_RD one clock | 8.05 |
+| C_SCHED merged into C_FINISH | 7.05 |
+| IM read in C_FINISH at the chosen next PC; on a hit C_FETCH reads RM and goes to C_EXEC | 6.06 |
+
+The decoded instruction is registered (`ex_u`) before C_EXEC, which took the
+IM read data off the critical path (IM -> decode -> ALUFM -> ALU -> `x_pd`,
+14 levels). The MiSTer build meets **50 MHz** (slack +1.69 ns): 8.25M
+microinstructions/s, **0.49x a real Dorado** (was 0.22x). Every lock-step
+suite still passes at 0 mismatches and Suite 6 is unchanged.
+
+**Storage on a munch port, in DDR3 on the MiSTer.** The CPU now reaches
+storage only through one port that moves an aligned 16-word munch (word mask
+on writes): cache fill and writeback, fast-I/O munches, and the assist's
+single words. `dorado_rtl_storage` serves it from block RAM (the cosim and
+the default); with `EXT_STORAGE=1` `dorado_rtl_storage_ddr` serves it from
+the MiSTer DDRAM port at byte 0x3000_0000, 16-bit words little-endian, so
+the HPS can read and write storage directly (`devmem 0x30000000 64`).
+`make -C rtl_core fpga-sim-ddr` runs the FPGA configuration against a model
+of that port (random BUSY, 12-clock read latency); its framebuffer is
+byte-identical to the block-RAM run. Block RAM falls from 541 to 413 of 553.
+
+**Galaxian runs on MiSTer14 with storage in DDR3** (A moves, Return fires;
+~7.4M microinstructions/s, the DDR reads cost a little against block RAM).
+Every access is a single beat, as the Sorgelig cores' DDRAM clients do: a
+munch read is four pipelined one-beat reads, a write one beat per 64-bit
+group that has a word to write; reads carry BE = 0xFF. The sim model refuses
+anything else. How that was arrived at is worth knowing:
+
+- The first build used 4-beat bursts. A burst write came out **shifted two
+  beats** (beat k at beat k-2, read back with `devmem 0x3001FC28 64`).
+- After that, **reads were accepted and never answered** -- three one-beat
+  reads taken, then BUSY high for ever, zero beats back -- through several
+  rebuilds and core reloads, while single-beat writes still landed. The
+  burst had left the HPS SDRAM controller's FPGA port stuck, and **reloading
+  a core does not reset it; rebooting the MiSTer does.** After a reboot the
+  same core ran. Bursts have not been retried since; if a DDR core ever
+  hangs on its first read, reboot before believing anything.
+- What found it: a debug overlay (OSD "Debug overlay", off by default) that
+  draws `dbg_vec` -- the DDR engine's state, BUSY/RD/WE/DOUT_READY and its
+  read-command, read-beat and write-beat counts, the CPU state, PC and cycle
+  count -- as bit blocks at x 640-895, y 8-39 of the picture, decoded from
+  an HDMI capture. Each hardware question costs a 25-minute build; reading
+  the machine's own state off the screen answered three of them at once.
+
+## 8. Cedar: the plan
+
+Cedar on the C emulator leans on host-side services far more than the Alto
+world does, and every one of them reads or writes guest memory from the
+host:
+
+- the germ/Pilot disk-IOCB bridge (`machine_germ_complete_disk_iocb`: PDI
+  pages copied into guest memory), which stays live after boot -- Cedar's
+  own Checkpoint writes went through it;
+- the Ethernet transmit/receive bridges and the in-process STP/Leaf/Pup
+  servers (Cedar 6.1 streams its 34 loadees from the file server on every
+  boot);
+- a host-injected 60 Hz Pilot timer (`machine_pilot_timer_channel`);
+- the Cedar keyboard and display vertical-field naked notify
+  (`machine_cedar_io`).
+
+And Cedar's storage is 4M words (8 MB; the desktop checkpoint is 9.5 MB).
+
+So the plan is the same split the old core used, with the RTL doing the
+machine and the HPS doing the host:
+
+1. **Storage in DDR3** -- done (section 7). Next: `STORAGE_WORDS` = 4M for
+   a Cedar build (the clear is 1M beats, ~40 ms).
+2. **A host port.** Every host write in `machine.c` goes through
+   `machine_store_va` or its sibling in `memory.c`: translate through the
+   Map, write storage, update any resident cache line with the same tag.
+   That is exactly the assist port's `A_DO`. Host reads
+   (`dorado_visible_word_at_va`) are the coherent read the port also does.
+   Widen the assist port (raw-VA write for a vacant Map entry; CPU-state
+   peeks such as `pre_pc`) and put a mailbox on it the HPS can drive.
+3. **The services on the HPS.** Build the host half of `machine.c` (germ
+   bridges, Pilot timer, Cedar I/O, STP server) for ARM against that
+   mailbox, with the PDI and the served tree on the SD card.
+4. **Verify in Verilator first:** restore the C emulator's Cedar desktop
+   checkpoint into both models, run them in lock-step with the C machine's
+   host writes replayed into the RTL through the same port (needs a
+   one-microinstruction `dorado_machine_step` and a host-write hook in
+   `machine.c`), and compare.
+5. **Then a checkpoint on the FPGA:** storage image loaded into DDR by the
+   HPS, CPU/Map/cache state through the host port, the desktop on HDMI.
