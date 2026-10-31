@@ -85,8 +85,18 @@ module dorado_rtl_io
     output logic [5:0]     disk_cur_head_out,
     output logic [6:0]     disk_cur_sector_out,
     output logic           disk_sector_read_req,
-    output logic           disk_sector_write_req
+    output logic           disk_sector_write_req,
+
+    // Video scan-out: registered read of the 1-bpp framebuffer on clk,
+    // independent of clk_en (a second port, so the DDC write is unaffected).
+    input  logic [16:0]    fb_rd_addr,
+    output logic [7:0]     fb_rd_data,
+
+    // High while the I/O side cannot accept the next microinstruction's
+    // strobes (the CPU waits in C_FETCH).
+    output logic           io_busy
 );
+    assign io_busy = 1'b0;
     // =========================================================================
     // 1. Constants & Device Address Definitions
     // =========================================================================
@@ -135,6 +145,7 @@ module dorado_rtl_io
     // 2. Display Controller (DDC) & Terminal State
     // =========================================================================
     logic [7:0]  fb [0:DISPLAY_FB_BYTES-1];
+    always_ff @(posedge clk) fb_rd_data <= fb[fb_rd_addr];
     logic [15:0] ddc_statics;
     logic [15:0] ddc_riob;
     logic [3:0]  ddc_terminal_task;
@@ -450,9 +461,9 @@ module dorado_rtl_io
         if (ddc_term_msg_bit == 8'd0) begin
             if (ddc_kbd_pending != 5'd0) begin
                 int w;
+                // lowest-numbered pending keyboard word
                 w = 0;
-                while (w < 5 && !ddc_kbd_pending[w]) w++;
-                if (w >= 5) w = 0;
+                for (int k = 4; k >= 0; k--) if (ddc_kbd_pending[k]) w = k;
                 m_type = (w < 4) ? 8'(w + 1) : 8'd5;
                 m_body = ddc_kbd_words[w];
             end else if (ddc_mouse_pending) begin
@@ -492,9 +503,9 @@ module dorado_rtl_io
             ddc_term_msg_active = 1'b1;
             if (ddc_kbd_pending != 5'd0) begin
                 int w;
+                // lowest-numbered pending keyboard word
                 w = 0;
-                while (w < 5 && !ddc_kbd_pending[w]) w++;
-                if (w >= 5) w = 0;
+                for (int k = 4; k >= 0; k--) if (ddc_kbd_pending[k]) w = k;
                 ddc_kbd_pending[w] = 1'b0;
                 ddc_term_msg_word  = 8'(w);
                 ddc_term_msg_type  = (w < 4) ? 8'(w + 1) : 8'd5;
@@ -1067,11 +1078,13 @@ module dorado_rtl_io
     end
 
     // =========================================================================
-    // 8. Main Synchronous State Machine (clocked on negedge clk so CPU's
-    //    posedge clk outputs io_read_stb / io_write_stb / fastio_stb are
-    //    processed in the second half of the same microinstruction cycle)
+    // 8. Main Synchronous State Machine. clk_en is the CPU's step_done: the
+    //    controllers advance exactly once per microinstruction, in the clock
+    //    after it completes, consuming the strobes (io_read_stb, io_write_stb,
+    //    fastio_stb) it left. The CPU does not start the next microinstruction
+    //    until that clock has passed, so its I/O reads see the result.
     // =========================================================================
-    always @(negedge clk) begin
+    always @(posedge clk) begin
         if (rst) begin
             // Display reset
             ddc_statics             = 16'h0003; // STATICS_ALL_SHUTUP

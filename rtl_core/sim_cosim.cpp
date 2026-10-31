@@ -38,7 +38,8 @@ extern "C" {
 static constexpr uint32_t COSIM_STORAGE_WORDS = 65536;
 
 #define R_CPU(field) (top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__##field)
-#define R_MEM(field) (top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__u_mem__DOT__##field)
+#define R_MEM(field) (top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__##field)
+#define CACHE_IDX(r, w, k) ((((r) * 4) + (w)) * 16 + (k))
 #define R_IO(field)  (top->rootp->dorado_rtl_top__DOT__u_io__DOT__##field)
 
 static void pack_uinstr_words(dorado_uinstr *u) {
@@ -58,6 +59,23 @@ static void pack_uinstr_words(dorado_uinstr *u) {
 // -----------------------------------------------------------------------------
 // Synchronize C reference state -> Verilated RTL state
 // -----------------------------------------------------------------------------
+
+// One microinstruction of the RTL: clock until step_done (or a halt). The RTL
+// takes several fabric clocks per microinstruction; the C model takes one call.
+static uint64_t rtl_fabric_clocks = 0;
+static void rtl_step(Vdorado_rtl_top *top) {
+    for (int i = 0; i < 4096; i++) {
+        top->clk = 1;
+        top->eval();
+        top->clk = 0;
+        top->eval();
+        rtl_fabric_clocks++;
+        if (top->step_done || top->dbg_halted) return;
+    }
+    fprintf(stderr, "[RTL] no step_done after 4096 clocks (pc=0%o)\n",
+            (unsigned)top->dbg_real_pc);
+}
+
 static void sync_c_to_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top) {
     const dorado_memory *c_mem = c_cpu->mem;
     const dorado_microcode *mc = c_cpu->mc;
@@ -254,7 +272,7 @@ static void sync_c_to_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top) {
                 R_MEM(cache_being_loaded)[r][w] = c_mem->cache[r].ways[w].being_loaded ? 1 : 0;
                 R_MEM(cache_lru)[r][w] = c_mem->cache[r].lru[w] & 3;
                 for (int k = 0; k < DM_CACHE_LINE_W; k++) {
-                    R_MEM(cache_data)[r][w][k] = c_mem->cache[r].ways[w].data[k];
+                    R_MEM(cache_data)[CACHE_IDX(r, w, k)] = c_mem->cache[r].ways[w].data[k];
                 }
             }
         }
@@ -322,10 +340,7 @@ static bool step_and_compare(dorado_cpu *c_cpu, Vdorado_rtl_top *top,
     dorado_cpu_step(c_cpu);
 
     // 2. Step RTL by 1 clock edge
-    top->clk = 1;
-    top->eval();
-    top->clk = 0;
-    top->eval();
+    rtl_step(top);
 
     const dorado_memory *c_mem = c_cpu->mem;
 
@@ -394,6 +409,37 @@ static bool step_and_compare(dorado_cpu *c_cpu, Vdorado_rtl_top *top,
         if (c_mem->mcr != R_MEM(mcr)) fail("mem.mcr", c_mem->mcr, R_MEM(mcr));
         if (c_mem->proc_srn != R_MEM(proc_srn)) fail("mem.proc_srn", c_mem->proc_srn, R_MEM(proc_srn));
         if (c_mem->asrn     != R_MEM(asrn))     fail("mem.asrn",     c_mem->asrn,     R_MEM(asrn));
+        // Data paths (the RTL moves lines over several clocks): every valid
+        // cache line every step, all of storage every 256 steps.
+        for (int r = 0; r < DM_CACHE_ROWS && ok; r++) {
+            for (int w = 0; w < DM_CACHE_WAYS && ok; w++) {
+                if (!c_mem->cache[r].ways[w].valid) continue;
+                if (c_mem->cache[r].ways[w].tag != R_MEM(cache_tag)[r][w]) {
+                    fail("cache_tag", c_mem->cache[r].ways[w].tag, R_MEM(cache_tag)[r][w]);
+                    break;
+                }
+                for (int k = 0; k < DM_CACHE_LINE_W; k++) {
+                    if (c_mem->cache[r].ways[w].data[k] != R_MEM(cache_data)[CACHE_IDX(r, w, k)]) {
+                        char name[48];
+                        snprintf(name, sizeof(name), "cache_data[%d][%d][%d]", r, w, k);
+                        fail(name, c_mem->cache[r].ways[w].data[k], R_MEM(cache_data)[CACHE_IDX(r, w, k)]);
+                        break;
+                    }
+                }
+            }
+        }
+        if ((step_idx & 255) == 255) {
+            uint32_t lim = c_mem->storage_words < COSIM_STORAGE_WORDS
+                         ? (uint32_t)c_mem->storage_words : COSIM_STORAGE_WORDS;
+            for (uint32_t i = 0; i < lim; i++) {
+                if (c_mem->storage[i] != R_MEM(storage)[i]) {
+                    char name[32];
+                    snprintf(name, sizeof(name), "storage[0%o]", i);
+                    fail(name, c_mem->storage[i], R_MEM(storage)[i]);
+                    break;
+                }
+            }
+        }
         for (int i = 0; i < DM_BR_COUNT; i++) {
             if (c_mem->br[i] != R_MEM(br)[i]) {
                 char name[32];
@@ -783,10 +829,7 @@ static void benchmark_rtl_speed(Vdorado_rtl_top *top, const char *mb_path,
 
     auto t0 = std::chrono::steady_clock::now();
     for (int i = 0; i < bench_cycles; i++) {
-        top->clk = 1;
-        top->eval();
-        top->clk = 0;
-        top->eval();
+        rtl_step(top);
     }
     auto t1 = std::chrono::steady_clock::now();
     double elapsed_s = std::chrono::duration<double>(t1 - t0).count();
@@ -1044,7 +1087,7 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
         uint32_t off = va & 0xFu;
         for (int w = 0; w < 4; w++) {
             if (R_MEM(cache_valid)[row][w] && R_MEM(cache_tag)[row][w] == tag)
-                return R_MEM(cache_data)[row][w][off];
+                return R_MEM(cache_data)[CACHE_IDX(row, w, off)];
         }
         uint32_t vp = (va >> 8) & 0xFFFFu;
         uint32_t rp = R_MEM(map_rp)[vp];
@@ -1107,7 +1150,7 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
                     uint32_t off = va & 0xFu;
                     for (int w = 0; w < 4; w++) {
                         if (R_MEM(cache_valid)[row][w] && R_MEM(cache_tag)[row][w] == tag) {
-                            R_MEM(cache_data)[row][w][off] = R_IO(ddc_kbd_words)[k];
+                            R_MEM(cache_data)[CACHE_IDX(row, w, off)] = R_IO(ddc_kbd_words)[k];
                         }
                     }
                 }
@@ -1120,7 +1163,7 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
             uint32_t row_da = (0420u >> 4) & 0x3Fu;
             for (int w = 0; w < 4; w++) {
                 if (R_MEM(cache_valid)[row_da][w] && R_MEM(cache_tag)[row_da][w] == 0) {
-                    dastart = R_MEM(cache_data)[row_da][w][0420u & 0xFu];
+                    dastart = R_MEM(cache_data)[CACHE_IDX(row_da, w, 0420u & 0xFu)];
                 }
             }
             top->display_wake_gate = (dastart != 0 || R_IO(ddc_next_wcb_flag)[0] || R_IO(ddc_next_wcb_flag)[1]) ? 1 : 0;
@@ -1130,10 +1173,7 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
         uint64_t pre_disp = R_CPU(ifu_dispatch_count);
         uint32_t pre_br31 = R_MEM(br)[037];  // BR[Code, 37] -- the IFU code base
         uint16_t pre_ac[4] = { R_CPU(STK)[1], R_CPU(STK)[2], R_CPU(STK)[3], R_CPU(STK)[4] };
-        top->clk = 1;
-        top->eval();
-        top->clk = 0;
-        top->eval();
+        rtl_step(top);
 
         // RTL_IFUDISP_TRACE=1: one line per IFU dispatch, comparable with the
         // C emulator's DORADO_IFUDISP_TRACE (pcx, opcode, Alto AC0..3 = STK[1..4]).

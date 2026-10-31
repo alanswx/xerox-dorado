@@ -2,9 +2,11 @@
 // dorado_rtl_cpu.sv — Xerox Dorado 1-Clock-Per-Microinstruction CPU & IFU Core
 // =============================================================================
 // Derived from the schematic-audited C reference (dorado/src/cpu.c).
-// Executes one complete 60 ns Dorado microinstruction per clock edge when
-// clk_en=1 and !hold. Instantiates dorado_rtl_alu, dorado_rtl_shifter, and
-// dorado_rtl_mem.
+// Executes one Dorado microinstruction as a short sequence of fabric clocks:
+// C_FETCH (IM read), C_EXEC (buses, ALU, FF), optional memory-engine and IFU
+// states, C_FINISH (LC writeback, scheduling). step_done pulses once per
+// microinstruction. The large memories (IM, IFUM, Map, cache data, storage)
+// are single-port block RAMs so the core synthesizes for an FPGA.
 // =============================================================================
 
 /* verilator lint_off BLKSEQ */
@@ -72,7 +74,11 @@ module dorado_rtl_cpu
     output logic [7:0]     dbg_stkp,
     output logic [63:0]    dbg_cycles,
     output logic           dbg_halted,
-    output logic [3:0]     dbg_halt_reason
+    output logic [3:0]     dbg_halt_reason,
+
+    // Sequencing
+    output logic           step_done,  // one clock after each microinstruction
+    input  logic           io_busy     // I/O not ready for the next microinstruction
 );
     // -------------------------------------------------------------------------
     // Constants
@@ -246,24 +252,961 @@ module dorado_rtl_cpu
     assign io_read_tioa    = TIOA;
 
     // -------------------------------------------------------------------------
-    // Memory Subsystem Instance
+    // Sequencer state
     // -------------------------------------------------------------------------
-    dorado_rtl_mem #(
-        .STORAGE_WORDS (STORAGE_WORDS)
-    ) u_mem (
-        .clk              (clk),
-        .rst              (rst),
-        .fastio_stb       (fastio_stb),
-        .fastio_kind      (fastio_kind),
-        .fastio_task      (fastio_task),
-        .fastio_subtask   (fastio_subtask),
-        .fastio_va        (fastio_va),
-        .fastio_out_munch (fastio_out_munch),
-        .fastio_in_munch  (fastio_in_munch),
-        .dmux_ext_handled (dmux_ext_handled),
-        .dmux_ext_val     (dmux_ext_val),
-        .dmux_cur_addr    (dmux_cur_addr)
+    typedef enum logic [4:0] {
+        C_FETCH, C_EXEC, C_PREF, C_NEXT,
+        C_IFU_OPW, C_IFU_DECW, C_IFU_DEC, C_IFU_AW, C_IFU_BETA, C_IFU_BW, C_IFU_END,
+        C_FINISH,
+        M_MAPA, M_MAPV, M_BOOK, M_WRA, M_WRV, M_WB, M_FILL, M_RD, M_WR,
+        M_IOC, M_IOS, M_IOW
+    } cstate_t;
+    cstate_t st;
+    cstate_t m_ret;
+
+    // Block-RAM read data
+    logic [15:0] im_q0, im_q1, im_q2;
+    logic        im_q_pres, im_q_brk;
+    logic [15:0] ifum_q_hi, ifum_q_lo;
+    logic        ifum_q_pres;
+
+    // State of the microinstruction in flight, carried between states
+    dorado_uinstr_t x_u;
+    logic           x_from_im;
+    logic [15:0]    x_a, x_b, x_alu, x_pd, x_np;
+    logic [15:0]    x_md_at_issue;
+    logic [7:0]     x_rbase_at_issue, x_rbase_after_ff;
+    logic [4:0]     x_membase_at_issue;
+    logic           x_stk_underflow, x_stk_overflow;
+    logic           x_alu_live_carry, x_new_carry, x_new_ovf, x_new_alu_zero, x_new_alu_lt0;
+    logic [15:0]    x_ifetch_id;
+    logic [3:0]     x_fcnt_before;
+    dm_ref_kind_t   x_kind;
+    logic           x_ff_cond_or, x_cond_true, x_resched_trap, x_test_feed, x_op_faulted;
+    logic [1:0]     x_n_slot;
+    logic [15:0]    x_lh, x_rh, x_ifaddr, x_pc_after;
+    logic           x_im_wr;
+    logic [15:0]    x_im_wd0, x_im_wd1, x_im_wd2;
+    logic           x_ifum_wr, x_ifum_hi;
+    logic [9:0]     x_ifum_waddr;
+    logic [15:0]    x_ifum_wd;
+
+
+    // =========================================================================
+    // Memory Subsystem (BR, Map, Cache, Pipe, MSA) -- merged from
+    // dorado_rtl_mem.sv so that one clocked block owns every register.
+    // Derived from dorado/src/memory.c. HM section 5.
+    //
+    // The bookkeeping state (tags, flags, LRU, Pipe, FaultInfo, BR, MCR) lives
+    // in registers and is updated in one clock by mem_book_task(). The large
+    // arrays -- the Map (64K entries), cache data (4K words) and storage --
+    // are single-port block RAMs, and the line moves the C model does in zero
+    // time (writeback, fill, munch transfer) are sequenced over several clocks
+    // by the M_* states while the microinstruction waits. That is invisible to
+    // the microcode: it changes how many fabric clocks a microinstruction
+    // takes, not what it computes.
+    // =========================================================================
+    localparam logic [15:0] PIPE5_MAPBUF_BUSY  = 16'h8000;
+    localparam logic [15:0] PIPE5_DIRTY        = 16'h0080;
+    localparam logic [15:0] PIPE5_VACANT       = 16'h0040;
+    localparam logic [15:0] PIPE5_WP           = 16'h0020;
+    localparam logic [15:0] PIPE5_BEING_LOAD   = 16'h0010;
+    localparam int          PIPE5_COLUMN_SHIFT = 8;
+
+    localparam logic [7:0]  PIPE4_ERR_MAP_TROUBLE = 8'h01;
+    localparam logic [7:0]  PIPE4_ERR_MEM_ERROR   = 8'h02;
+    localparam logic [7:0]  PIPE4_ERR_EC_FAULT    = 8'h04;
+
+    localparam int CHIP_TYPE  = 3;   // 64K chips
+    localparam int PAGE_SHIFT = 8;   // 256 words/page
+    localparam int MAP_IC_K   = 64;  // 64K map entries
+    localparam int CACHE_WORDS = DM_CACHE_ROWS * DM_CACHE_WAYS * DM_CACHE_LINE_W;
+
+    logic [27:0] br [0:DM_BR_COUNT-1];
+
+    // Map: block RAM, one port (see map_* port signals below)
+    logic [15:0] map_rp    [0:DM_MAP_ENTRIES-1];
+    logic        map_wp    [0:DM_MAP_ENTRIES-1];
+    logic        map_dirty [0:DM_MAP_ENTRIES-1];
+    logic        map_ref   [0:DM_MAP_ENTRIES-1];
+
+    // Cache tags/flags/LRU: registers. Cache data: block RAM indexed
+    // {row, way, word}.
+    logic [17:0] cache_tag          [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
+    logic        cache_valid        [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
+    logic        cache_dirty        [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
+    logic        cache_wp           [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
+    logic        cache_vacant       [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
+    logic        cache_being_loaded [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
+    logic [1:0]  cache_lru          [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
+    logic [15:0] cache_data         [0:CACHE_WORDS-1];
+
+    dm_ref_kind_t pipe_kind          [0:DM_PIPE_DEPTH-1];
+    logic [3:0]   pipe_task          [0:DM_PIPE_DEPTH-1];
+    logic [1:0]   pipe_subtask       [0:DM_PIPE_DEPTH-1];
+    logic [1:0]   pipe_ref_type      [0:DM_PIPE_DEPTH-1];
+    logic [27:0]  pipe_va            [0:DM_PIPE_DEPTH-1];
+    logic [15:0]  pipe_map_rp_pre    [0:DM_PIPE_DEPTH-1];
+    logic [2:0]   pipe_map_flags_pre [0:DM_PIPE_DEPTH-1];
+    logic         pipe_mapbuf_busy   [0:DM_PIPE_DEPTH-1];
+    logic [15:0]  pipe_cache_flags   [0:DM_PIPE_DEPTH-1];
+    logic [7:0]   pipe_pipe4_errors  [0:DM_PIPE_DEPTH-1];
+    logic [7:0]   pipe_pipe4_syndrome[0:DM_PIPE_DEPTH-1];
+    logic [1:0]   pipe_pipe4_quadword[0:DM_PIPE_DEPTH-1];
+    int           pipe_head;
+
+    logic [3:0]     proc_srn;
+    logic [3:0]     asrn;
+    logic [3:0]     fault_count;
+    logic [3:0]     fault_first_srn;
+    logic           fault_emulator;
+    dm_fault_kind_t last_fault;
+    logic [27:0]    last_fault_va;
+    logic [3:0]     last_fault_task;
+    logic [1:0]     last_fault_subtask;
+    dm_ref_kind_t   last_fault_ref_kind;
+
+    logic [27:0]    mar;
+    logic [15:0]    md;
+    logic [15:0]    dbuf;
+    logic [15:0]    mcr;
+    logic [11:0]    dmux_addr;
+    logic           dmux_pending;
+
+    int             mapbuf_busy_slot;
+    int             mapbuf_busy_cycles;
+    int             last_cache_row;
+    int             last_cache_way;
+
+    dm_ref_kind_t   last_ref_kind;
+    logic [27:0]    last_ref_va;
+    logic [15:0]    last_ref_b;
+    logic [3:0]     last_ref_task;
+    logic [1:0]     last_ref_subtask;
+    logic           last_ref_miss;
+    int             last_ref_latency;
+
+    // Backing store: block RAM, one port
+    logic [15:0]    storage [0:STORAGE_WORDS-1];
+
+    // ---- Memory-engine request (set when a reference is launched) ----------
+    dm_ref_kind_t   m_kind;
+    logic [27:0]    m_va;
+    logic [15:0]    m_b;
+    logic [7:0]     m_tioa;
+    logic [3:0]     m_task;
+    logic [1:0]     m_subtask;
+    dm_fault_kind_t m_fault;
+    logic           m_byte_sel;   // IFU byte-fetch: which byte of the word
+
+    // ---- Map entries read for the reference in flight ---------------------
+    logic [15:0]    m_idx_a, m_idx_v;
+    int             m_wbway;
+    logic [15:0]    mA_rp, mV_rp;
+    logic           mA_wp, mA_dirty, mA_ref, mA_chg;
+    logic           mV_wp, mV_dirty, mV_ref, mV_chg;
+
+    // ---- Data operations queued by mem_book_task ---------------------------
+    logic           op_wb, op_fill, op_rd, op_wr, op_ioc, op_ios, op_iow;
+    logic [5:0]     wb_row, fill_row, word_row, io_row;
+    logic [1:0]     wb_way, fill_way, word_way, io_way;
+    logic [31:0]    wb_phys, fill_phys, io_base;
+    logic [3:0]     word_off;
+    logic [15:0]    word_data;
+    logic [15:0]    munch_in [0:15];
+    logic [4:0]     mcnt;
+
+    // ---- Block-RAM read data -----------------------------------------------
+    logic [15:0]    map_rp_q;
+    logic           map_wp_q, map_dirty_q, map_ref_q;
+    logic [15:0]    cache_q;
+    logic [15:0]    storage_q;
+
+    // -------------------------------------------------------------------------
+    // MCR Predicates (matching memory.c:702-893)
+    // -------------------------------------------------------------------------
+    function automatic logic mcr_is_initial_nowake();
+        return (mcr == 16'hFEE7);
+    endfunction
+    function automatic logic mcr_dvavic();
+        return mcr_is_initial_nowake() ? 1'b0 : mcr[15];
+    endfunction
+    function automatic logic mcr_fdmiss();
+        return mcr_is_initial_nowake() ? 1'b0 : mcr[14];
+    endfunction
+    function automatic logic mcr_usemcrv();
+        return mcr_is_initial_nowake() ? 1'b0 : mcr[13];
+    endfunction
+    function automatic logic [1:0] mcr_victim();
+        return mcr[12:11];
+    endfunction
+    function automatic logic mcr_disbr();
+        return mcr_is_initial_nowake() ? 1'b0 : mcr[8];
+    endfunction
+    function automatic logic mcr_discf();
+        return mcr_is_initial_nowake() ? 1'b0 : mcr[7];
+    endfunction
+    function automatic logic mcr_dishold();
+        return mcr_is_initial_nowake() ? 1'b0 : mcr[6];
+    endfunction
+    function automatic logic mcr_noref();
+        return mcr_is_initial_nowake() ? 1'b0 : mcr[5];
+    endfunction
+    function automatic logic mcr_nowake();
+        return mcr[0];
+    endfunction
+
+    // -------------------------------------------------------------------------
+    // Address & Map Helpers
+    // -------------------------------------------------------------------------
+    function automatic logic [15:0] map_index(input logic [27:0] va);
+        return va[23:8];
+    endfunction
+    function automatic logic [5:0] va_cache_row(input logic [27:0] va);
+        return va[9:4];
+    endfunction
+    function automatic logic [17:0] va_cache_tag(input logic [27:0] va);
+        return va[27:10];
+    endfunction
+    function automatic logic [27:0] va_munch_base(input logic [27:0] va);
+        return {va[27:4], 4'b0000};
+    endfunction
+    function automatic logic [11:0] cache_addr(input logic [5:0] r, input logic [1:0] w,
+                                               input logic [3:0] i);
+        return {r, w, i};
+    endfunction
+
+    function automatic logic [1:0] pipe2_ref_type_fn(input dm_ref_kind_t k);
+        case (k)
+            DM_REF_FETCH, DM_REF_IFETCH, DM_REF_LONGFETCH,
+            DM_REF_PREFETCH, DM_REF_IOFETCH: return 2'd1;
+            DM_REF_STORE, DM_REF_IOSTORE:    return 2'd2;
+            DM_REF_MAP, DM_REF_RMAP,
+            DM_REF_DUMMYREF, DM_REF_FLUSH:   return 2'd3;
+            default:                         return 2'd0;
+        endcase
+    endfunction
+
+    // -------------------------------------------------------------------------
+    // Readback Queries (FaultInfo, Config, Pipe0..5, ReadMap)
+    // -------------------------------------------------------------------------
+    function automatic logic [15:0] get_fault_info();
+        logic [2:0] cnt;
+        cnt = 3'(fault_count - 4'd1);
+        return {proc_srn, asrn, fault_emulator, cnt, fault_first_srn};
+    endfunction
+
+    function automatic logic [15:0] get_config_word();
+        // 1 module of 64K chips -> module_mask = 0200, chip_type = 3
+        return ({4'd0, asrn, 8'd0} | 16'o0200 | (16'(CHIP_TYPE) << 2));
+    endfunction
+
+    function automatic logic [15:0] get_pipe2_at(input logic [3:0] srn);
+        logic [2:0]  nfaults;
+        logic [15:0] ht;
+        nfaults = 3'(fault_count - 4'd1);
+        ht = {pipe_ref_type[srn], pipe_subtask[srn], pipe_task[srn],
+              fault_emulator, nfaults, 4'd0};
+        if (fault_count != 4'd0) ht |= {12'd0, fault_first_srn};
+        return ~ht;
+    endfunction
+
+    function automatic logic [15:0] get_pipe4_at(input logic [3:0] srn);
+        logic [15:0] ht, raw;
+        logic [7:0]  e;
+        logic [2:0]  mf;
+        ht = 16'd0;
+        e  = pipe_pipe4_errors[srn];
+        mf = pipe_map_flags_pre[srn]; // bit0=wp, bit1=dirty, bit2=ref
+        if (mf[2]) ht |= 16'h8000;
+        if (mf[0]) ht |= 16'h2000;
+        if (mf[1]) ht |= 16'h1000;
+        if ((e & PIPE4_ERR_MEM_ERROR) != 8'd0) ht |= 16'h0800;
+        if ((e & PIPE4_ERR_EC_FAULT) != 8'd0)  ht |= 16'h0400;
+        ht |= {6'd0, pipe_pipe4_quadword[srn], pipe_pipe4_syndrome[srn]};
+        raw = 16'o170361 ^ ht;
+        if ((e & PIPE4_ERR_MAP_TROUBLE) != 8'd0) raw |= 16'h4000;
+        else                                     raw &= ~16'h4000;
+        return raw;
+    endfunction
+
+    function automatic logic [15:0] get_pipe5_at(input logic [3:0] srn);
+        logic [15:0] v;
+        v = pipe_cache_flags[srn];
+        if (pipe_mapbuf_busy[srn]) v |= PIPE5_MAPBUF_BUSY;
+        return v;
+    endfunction
+
+    // The Map entry at map_index(mar) is read into map_*_q during C_FETCH.
+    function automatic logic [15:0] get_read_map();
+        return {map_wp_q, map_dirty_q, map_ref_q, map_rp_q[12:0]};
+    endfunction
+
+    function automatic logic [15:0] cache_line_pipe5_flags(
+        input logic [27:0] va,
+        input int          way
     );
+        logic [5:0]  row_idx;
+        logic [15:0] v;
+        row_idx = va_cache_row(va);
+        v = (16'(way & 3) << PIPE5_COLUMN_SHIFT);
+        if (way < 0 || way >= DM_CACHE_WAYS) v = 16'd0;
+        else if (!mcr_discf()) begin
+            if (cache_dirty[row_idx][way])        v |= PIPE5_DIRTY;
+            if (cache_vacant[row_idx][way])       v |= PIPE5_VACANT;
+            if (cache_wp[row_idx][way])           v |= PIPE5_WP;
+            if (cache_being_loaded[row_idx][way]) v |= PIPE5_BEING_LOAD;
+        end
+        return v;
+    endfunction
+
+    // -------------------------------------------------------------------------
+    // VA Translation (against an explicit Map entry) & Cache Lookup
+    // -------------------------------------------------------------------------
+    function automatic dm_fault_kind_t va_translate_e(
+        input  logic [27:0] va,
+        input  logic        is_write,
+        input  logic [15:0] rp,
+        input  logic        wp,
+        input  logic        dirty,
+        output logic [31:0] out_phys
+    );
+        logic [31:0] phys;
+        phys     = ({16'd0, rp} << PAGE_SHIFT) + {24'd0, va[7:0]};
+        out_phys = 32'd0;
+        if (wp && dirty)               return DM_FAULT_PAGE;
+        if (is_write && wp)            return DM_FAULT_WRITE_PROTECT;
+        if (phys >= STORAGE_WORDS)     return DM_FAULT_STORAGE_ERROR;
+        out_phys = phys;
+        return DM_FAULT_NONE;
+    endfunction
+
+    // First (lowest-numbered) way that hits.
+    function automatic logic cache_lookup(
+        input  logic [27:0] va,
+        output int          out_way
+    );
+        logic [5:0]  r;
+        logic [17:0] t;
+        logic        hit;
+        r       = va_cache_row(va);
+        t       = va_cache_tag(va);
+        hit     = 1'b0;
+        out_way = -1;
+        for (int w = DM_CACHE_WAYS - 1; w >= 0; w--) begin
+            if (cache_valid[r][w] && !cache_vacant[r][w] && cache_tag[r][w] == t) begin
+                out_way = w;
+                hit     = 1'b1;
+            end
+        end
+        return hit;
+    endfunction
+
+    function automatic int cache_pick_victim(input logic [27:0] va);
+        logic [5:0] r;
+        int         v;
+        r = va_cache_row(va);
+        v = int'(cache_lru[r][DM_CACHE_WAYS - 1]);
+        for (int w = DM_CACHE_WAYS - 1; w >= 0; w--) begin
+            if (!cache_valid[r][w]) v = w;
+        end
+        if (mcr_usemcrv()) v = int'(mcr_victim());
+        return v;
+    endfunction
+
+    // -------------------------------------------------------------------------
+    // Map-entry copies for the reference in flight. Every Map access a
+    // reference makes is to its own page (index a) or to the page of the line
+    // it writes back (index v); when they coincide both copies are kept equal
+    // and only copy A is written back.
+    // -------------------------------------------------------------------------
+    task automatic map_set_ref_a(input logic val);
+        mA_ref = val; mA_chg = 1'b1;
+        if (m_idx_v == m_idx_a) mV_ref = val;
+    endtask
+    task automatic map_set_dirty_a(input logic val);
+        mA_dirty = val; mA_chg = 1'b1;
+        if (m_idx_v == m_idx_a) mV_dirty = val;
+    endtask
+    task automatic map_set_v_ref_dirty();
+        mV_ref = 1'b1; mV_dirty = 1'b1; mV_chg = 1'b1;
+        if (m_idx_v == m_idx_a) begin
+            mA_ref = 1'b1; mA_dirty = 1'b1; mA_chg = 1'b1;
+        end
+    endtask
+
+    // -------------------------------------------------------------------------
+    // State Mutation Tasks
+    // -------------------------------------------------------------------------
+    task automatic reset_memory();
+        // The Map, cache data and storage are block RAMs: they are not
+        // cleared here (cache lines are invalidated by their valid bits; the
+        // Map and storage take their contents from initialisation or the
+        // loader).
+        for (int i = 0; i < DM_BR_COUNT; i++) br[i] = 28'd0;
+        for (int r = 0; r < DM_CACHE_ROWS; r++) begin
+            for (int w = 0; w < DM_CACHE_WAYS; w++) begin
+                cache_tag[r][w]          = 18'd0;
+                cache_valid[r][w]        = 1'b0;
+                cache_dirty[r][w]        = 1'b0;
+                cache_wp[r][w]           = 1'b0;
+                cache_vacant[r][w]       = 1'b0;
+                cache_being_loaded[r][w] = 1'b0;
+                cache_lru[r][w]          = 2'(w);
+            end
+        end
+        for (int s = 0; s < DM_PIPE_DEPTH; s++) begin
+            pipe_kind[s]           = DM_REF_NONE;
+            pipe_task[s]           = 4'd0;
+            pipe_subtask[s]        = 2'd0;
+            pipe_ref_type[s]       = 2'd0;
+            pipe_va[s]             = 28'd0;
+            pipe_map_rp_pre[s]     = 16'd0;
+            pipe_map_flags_pre[s]  = 3'd0;
+            pipe_mapbuf_busy[s]    = 1'b0;
+            pipe_cache_flags[s]    = 16'd0;
+            pipe_pipe4_errors[s]   = 8'd0;
+            pipe_pipe4_syndrome[s] = 8'd0;
+            pipe_pipe4_quadword[s] = 2'd0;
+        end
+        pipe_head           = 0;
+        proc_srn            = 4'd0;
+        asrn                = 4'd2;
+        fault_count         = 4'd0;
+        fault_first_srn     = 4'd0;
+        fault_emulator      = 1'b0;
+        last_fault          = DM_FAULT_NONE;
+        last_fault_va       = 28'd0;
+        last_fault_task     = 4'd0;
+        last_fault_subtask  = 2'd0;
+        last_fault_ref_kind = DM_REF_NONE;
+        mar                 = 28'd0;
+        md                  = 16'd0;
+        dbuf                = 16'd0;
+        mcr                 = 16'd0;
+        dmux_addr           = 12'd0;
+        dmux_pending        = 1'b0;
+        mapbuf_busy_slot    = -1;
+        mapbuf_busy_cycles  = 0;
+        last_cache_row      = -1;
+        last_cache_way      = -1;
+        last_ref_kind       = DM_REF_NONE;
+        last_ref_va         = 28'd0;
+        last_ref_b          = 16'd0;
+        last_ref_task       = 4'd0;
+        last_ref_subtask    = 2'd0;
+        last_ref_miss       = 1'b0;
+        last_ref_latency    = 0;
+        fastio_stb          = 1'b0;
+        fastio_kind         = DM_REF_NONE;
+        fastio_task         = 4'd0;
+        fastio_subtask      = 2'd0;
+        fastio_va           = 28'd0;
+        for (int i = 0; i < 16; i++) begin
+            fastio_out_munch[i] = 16'd0;
+            munch_in[i]         = 16'd0;
+        end
+        m_kind = DM_REF_NONE; m_va = 28'd0; m_b = 16'd0; m_tioa = 8'd0;
+        m_task = 4'd0; m_subtask = 2'd0; m_fault = DM_FAULT_NONE; m_byte_sel = 1'b0;
+        m_idx_a = 16'd0; m_idx_v = 16'd0; m_wbway = 0;
+        mA_rp = 16'd0; mA_wp = 1'b0; mA_dirty = 1'b0; mA_ref = 1'b0; mA_chg = 1'b0;
+        mV_rp = 16'd0; mV_wp = 1'b0; mV_dirty = 1'b0; mV_ref = 1'b0; mV_chg = 1'b0;
+        op_wb = 1'b0; op_fill = 1'b0; op_rd = 1'b0; op_wr = 1'b0;
+        op_ioc = 1'b0; op_ios = 1'b0; op_iow = 1'b0;
+        wb_row = 6'd0; fill_row = 6'd0; word_row = 6'd0; io_row = 6'd0;
+        wb_way = 2'd0; fill_way = 2'd0; word_way = 2'd0; io_way = 2'd0;
+        wb_phys = 32'd0; fill_phys = 32'd0; io_base = 32'd0;
+        word_off = 4'd0; word_data = 16'd0; mcnt = 5'd0;
+    endtask
+
+    task automatic fault_clear();
+        fault_count         = 4'd0;
+        fault_first_srn     = 4'd0;
+        fault_emulator      = 1'b0;
+        last_fault          = DM_FAULT_NONE;
+        last_fault_va       = 28'd0;
+        last_fault_task     = 4'd0;
+        last_fault_subtask  = 2'd0;
+        last_fault_ref_kind = DM_REF_NONE;
+        last_ref_kind       = DM_REF_NONE;
+        last_ref_va         = 28'd0;
+        last_ref_b          = 16'd0;
+        last_ref_task       = 4'd0;
+        last_ref_subtask    = 2'd0;
+    endtask
+
+    task automatic dmux_strobe(input logic [15:0] b_val);
+        if (!dmux_pending) begin
+            dmux_addr    = b_val[11:0];
+            dmux_pending = 1'b1;
+        end
+    endtask
+
+    task automatic dmux_read(output logic [15:0] val);
+        dmux_pending = 1'b0;
+        if (dmux_ext_handled) begin
+            val = dmux_ext_val;
+        end else begin
+            case (dmux_addr)
+                12'o1510: val = (MAP_IC_K == 16)  ? 16'h8000 : 16'h0000;
+                12'o1511: val = (MAP_IC_K == 64)  ? 16'h8000 : 16'h0000;
+                12'o1512: val = (MAP_IC_K == 256) ? 16'h8000 : 16'h0000;
+                default:  val = 16'h0000;
+            endcase
+        end
+    endtask
+
+    task automatic cflags_load(input logic [15:0] a_val);
+        logic [15:0] flags;
+        flags = ~a_val;
+        if (!mcr_discf() &&
+            last_cache_row >= 0 && last_cache_row < DM_CACHE_ROWS &&
+            last_cache_way >= 0 && last_cache_way < DM_CACHE_WAYS) begin
+            cache_dirty[last_cache_row][last_cache_way]        = (flags & PIPE5_DIRTY)      != 0;
+            cache_vacant[last_cache_row][last_cache_way]       = (flags & PIPE5_VACANT)     != 0;
+            cache_wp[last_cache_row][last_cache_way]           = (flags & PIPE5_WP)         != 0;
+            cache_being_loaded[last_cache_row][last_cache_way] = (flags & PIPE5_BEING_LOAD) != 0;
+        end
+    endtask
+
+    task automatic cache_touch_lru(input logic [5:0] row_idx, input int way);
+        int seen;
+        seen = -1;
+        for (int i = DM_CACHE_WAYS - 1; i >= 0; i--) begin
+            if (int'(cache_lru[row_idx][i]) == way) seen = i;
+        end
+        if (seen >= 0) begin
+            for (int i = DM_CACHE_WAYS - 1; i > 0; i--) begin
+                if (i <= seen) cache_lru[row_idx][i] = cache_lru[row_idx][i - 1];
+            end
+            cache_lru[row_idx][0] = 2'(way);
+        end
+    endtask
+
+    task automatic cache_select(input logic [27:0] va, input int way, input logic [3:0] srn);
+        last_cache_row = int'(va_cache_row(va));
+        last_cache_way = way;
+        pipe_cache_flags[srn] = cache_line_pipe5_flags(va, way);
+    endtask
+
+    task automatic pipe_push(
+        input logic [3:0]   srn,
+        input dm_ref_kind_t kind,
+        input logic [27:0]  va,
+        input logic [15:0]  rp_pre,
+        input logic [2:0]   flags_pre,
+        input logic [3:0]   task_id,
+        input logic [1:0]   subtask_id
+    );
+        if (!(fault_count > 4'd0 &&
+              (kind == DM_REF_IFETCH || kind == DM_REF_PREFETCH) &&
+              srn == fault_first_srn &&
+              srn == proc_srn)) begin
+            pipe_kind[srn]           = kind;
+            pipe_task[srn]           = task_id;
+            pipe_subtask[srn]        = subtask_id;
+            pipe_ref_type[srn]       = pipe2_ref_type_fn(kind);
+            pipe_va[srn]             = va;
+            pipe_map_rp_pre[srn]     = rp_pre;
+            pipe_map_flags_pre[srn]  = flags_pre;
+            pipe_mapbuf_busy[srn]    = 1'b0;
+            pipe_cache_flags[srn]    = 16'd0;
+            pipe_pipe4_errors[srn]   = 8'd0;
+            pipe_pipe4_syndrome[srn] = 8'd0;
+            pipe_pipe4_quadword[srn] = 2'd0;
+            pipe_head                = (int'(srn) + 1) % DM_PIPE_DEPTH;
+        end
+    endtask
+
+    // Write back line (row_idx, way) if valid & dirty: queue the data move,
+    // mark the Map entry of its page referenced+dirty.
+    task automatic cache_writeback_line(
+        input  logic [5:0]     row_idx,
+        input  int             way,
+        output dm_fault_kind_t out_fault
+    );
+        logic [27:0]    va_base;
+        logic [31:0]    phys;
+        dm_fault_kind_t f;
+        out_fault = DM_FAULT_NONE;
+        if (cache_valid[row_idx][way] && cache_dirty[row_idx][way]) begin
+            va_base = {cache_tag[row_idx][way], row_idx, 4'b0000};
+            f = va_translate_e(va_base, 1'b1, mV_rp, mV_wp, mV_dirty, phys);
+            if (f == DM_FAULT_NONE) begin
+                op_wb   = 1'b1;
+                wb_row  = row_idx;
+                wb_way  = 2'(way);
+                wb_phys = phys;
+                map_set_v_ref_dirty();
+            end
+            cache_dirty[row_idx][way] = 1'b0;
+            out_fault = f;
+        end
+    endtask
+
+    task automatic record_writeback_fault(
+        input dm_fault_kind_t f,
+        input logic [3:0]     srn
+    );
+        if (f != DM_FAULT_NONE) begin
+            if (fault_count == 4'd0) begin
+                fault_first_srn = srn;
+                fault_emulator  = 1'b1;
+            end
+            if (fault_count < 4'hF) fault_count = fault_count + 4'd1;
+            last_fault = f;
+            pipe_pipe4_errors[srn] |= PIPE4_ERR_MAP_TROUBLE;
+        end
+    endtask
+
+    task automatic cache_fill(input logic [27:0] va, input int way);
+        logic [5:0]     r;
+        logic [31:0]    phys;
+        dm_fault_kind_t f;
+        f = va_translate_e(va_munch_base(va), 1'b0, mA_rp, mA_wp, mA_dirty, phys);
+        if (f == DM_FAULT_NONE) begin
+            r = va_cache_row(va);
+            cache_tag[r][way]          = va_cache_tag(va);
+            cache_valid[r][way]        = 1'b1;
+            cache_dirty[r][way]        = 1'b0;
+            cache_wp[r][way]           = mA_wp;
+            cache_vacant[r][way]       = 1'b0;
+            cache_being_loaded[r][way] = 1'b0;
+            op_fill   = 1'b1;
+            fill_row  = r;
+            fill_way  = 2'(way);
+            fill_phys = phys;
+            map_set_ref_a(1'b1);
+            cache_touch_lru(r, way);
+        end
+    endtask
+
+    task automatic queue_word_read(input logic [5:0] r, input int way, input logic [27:0] va);
+        op_rd    = 1'b1;
+        word_row = r;
+        word_way = 2'(way);
+        word_off = va[3:0];
+    endtask
+
+    task automatic queue_word_write(input logic [5:0] r, input int way, input logic [27:0] va,
+                                    input logic [15:0] val);
+        op_wr     = 1'b1;
+        word_row  = r;
+        word_way  = 2'(way);
+        word_off  = va[3:0];
+        word_data = val;
+    endtask
+
+    // -------------------------------------------------------------------------
+    // Memory-reference bookkeeping (matching dorado_memory_ref_task). Runs in
+    // one clock on the request in m_* and the Map entries in mA_*/mV_*; the
+    // word/line data moves it implies are queued in op_* for the M_* states.
+    // -------------------------------------------------------------------------
+    task automatic mem_book_task();
+        dm_ref_kind_t   kind;
+        logic [27:0]    va;
+        logic [15:0]    b_val;
+        logic [7:0]     tioa_val;
+        logic [3:0]     task_id;
+        logic [1:0]     subtask_id;
+        logic [15:0]    rp_pre;
+        logic [2:0]     flags_pre;
+        logic           io_task_uses_asrn, use_asrn;
+        logic [3:0]     srn;
+        int             way, victim, asrn_advance_count;
+        logic [31:0]    phys;
+        dm_fault_kind_t f, wbf;
+        logic [5:0]     r;
+        logic           dvavic_done;
+        logic           dirty_victim;
+        int             dummy_way;
+
+        kind       = m_kind;
+        va         = m_va;
+        b_val      = m_b;
+        tioa_val   = m_tioa;
+        task_id    = m_task;
+        subtask_id = m_subtask;
+
+        op_wb = 1'b0; op_fill = 1'b0; op_rd = 1'b0; op_wr = 1'b0;
+        op_ioc = 1'b0; op_ios = 1'b0; op_iow = 1'b0;
+        mA_chg = 1'b0; mV_chg = 1'b0;
+
+        last_ref_kind    = kind;
+        last_ref_va      = va;
+        last_ref_b       = b_val;
+        last_ref_task    = task_id;
+        last_ref_subtask = subtask_id;
+        last_ref_miss    = 1'b0;
+
+        mar       = va;
+        rp_pre    = mA_rp;
+        flags_pre = {mA_ref, mA_dirty, mA_wp};
+
+        io_task_uses_asrn = (task_id != 4'd0 && task_id != 4'o17);
+        use_asrn = io_task_uses_asrn ||
+                   (kind == DM_REF_IOFETCH) || (kind == DM_REF_IOSTORE) ||
+                   (kind == DM_REF_IFETCH);
+
+        if (kind == DM_REF_PREFETCH) begin
+            if (!mcr_noref() && (mcr_fdmiss() || !cache_lookup(va, dummy_way))) begin
+                use_asrn = 1'b1;
+            end
+        end
+
+        srn = use_asrn ? asrn : proc_srn;
+        r   = va_cache_row(va);
+        way = 0;
+        f   = DM_FAULT_NONE;
+        asrn_advance_count = 0;
+        dvavic_done = 1'b0;
+
+        if (mcr_dvavic() &&
+            kind != DM_REF_MAP && kind != DM_REF_RMAP &&
+            kind != DM_REF_DUMMYREF && kind != DM_REF_NONE) begin
+            logic [27:0] pipe_va_victim;
+            way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
+            pipe_va_victim = cache_valid[r][way] ? {cache_tag[r][way], r, 4'b0000} : 28'd0;
+            pipe_push(srn, kind, pipe_va_victim, rp_pre, flags_pre, task_id, subtask_id);
+            cache_select(va, way, srn);
+            dvavic_done = 1'b1;
+        end
+
+        if (!dvavic_done) begin
+            pipe_push(srn, kind, va, rp_pre, flags_pre, task_id, subtask_id);
+
+            case (kind)
+                DM_REF_FETCH, DM_REF_IFETCH, DM_REF_LONGFETCH: begin
+                    last_ref_latency = 3;
+                    if (mcr_noref()) begin
+                        if (!(!mcr_fdmiss() && cache_lookup(va, way))) begin
+                            way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
+                        end
+                        cache_select(va, way, srn);
+                    end else if (!mcr_fdmiss() && cache_lookup(va, way)) begin
+                        queue_word_read(r, way, va);
+                        cache_touch_lru(r, way);
+                        cache_select(va, way, srn);
+                    end else begin
+                        last_ref_miss = 1'b1;
+                        if (use_asrn) asrn_advance_count = 1;
+                        f = va_translate_e(va, 1'b0, mA_rp, mA_wp, mA_dirty, phys);
+                        if (f == DM_FAULT_NONE) begin
+                            victim       = cache_pick_victim(va);
+                            dirty_victim = cache_dirty[r][victim];
+                            last_ref_latency = dirty_victim ? 24 : 16;
+                            if (use_asrn && dirty_victim) asrn_advance_count = 2;
+                            cache_writeback_line(r, victim, wbf);
+                            record_writeback_fault(wbf, srn);
+                            cache_fill(va, victim);
+                            queue_word_read(r, victim, va);
+                            cache_select(va, victim, srn);
+                        end
+                    end
+                end
+
+                DM_REF_PREFETCH: begin
+                    if (!mcr_noref()) begin
+                        f = va_translate_e(va, 1'b0, mA_rp, mA_wp, mA_dirty, phys);
+                        if (f == DM_FAULT_NONE || f == DM_FAULT_STORAGE_ERROR) begin
+                            map_set_ref_a(1'b1);
+                        end
+                        if (f == DM_FAULT_NONE && (mcr_fdmiss() || !cache_lookup(va, dummy_way))) begin
+                            last_ref_miss = 1'b1;
+                            victim        = cache_pick_victim(va);
+                            dirty_victim  = cache_dirty[r][victim];
+                            if (use_asrn) asrn_advance_count = dirty_victim ? 2 : 1;
+                            cache_writeback_line(r, victim, wbf);
+                            record_writeback_fault(wbf, srn);
+                            cache_fill(va, victim);
+                            cache_select(va, victim, srn);
+                        end else if (f == DM_FAULT_STORAGE_ERROR ||
+                                     f == DM_FAULT_PAGE ||
+                                     f == DM_FAULT_WRITE_PROTECT) begin
+                            if (use_asrn) asrn_advance_count = 1;
+                        end
+                    end
+                    f = DM_FAULT_NONE;
+                end
+
+                DM_REF_STORE: begin
+                    dbuf = b_val;
+                    if (mcr_noref()) begin
+                        if (mcr_usemcrv() && mcr_fdmiss()) begin
+                            way = int'(mcr_victim());
+                            cache_tag[r][way]   = va_cache_tag(va);
+                            cache_valid[r][way] = 1'b1;
+                        end else if (!mcr_fdmiss() && cache_lookup(va, way)) begin
+                            // comparator-only
+                        end else begin
+                            way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
+                        end
+                        cache_select(va, way, srn);
+                    end else if (!mcr_fdmiss() && cache_lookup(va, way)) begin
+                        if (cache_wp[r][way]) begin
+                            cache_touch_lru(r, way);
+                            cache_select(va, way, srn);
+                        end else begin
+                            queue_word_write(r, way, va, b_val);
+                            cache_dirty[r][way]  = 1'b1;
+                            cache_vacant[r][way] = 1'b0;
+                            cache_touch_lru(r, way);
+                            cache_select(va, way, srn);
+                        end
+                    end else begin
+                        f = va_translate_e(va, 1'b1, mA_rp, mA_wp, mA_dirty, phys);
+                        if (use_asrn) asrn_advance_count = 1;
+                        if (f == DM_FAULT_NONE) begin
+                            last_ref_miss = 1'b1;
+                            way           = cache_pick_victim(va);
+                            dirty_victim  = cache_dirty[r][way];
+                            if (use_asrn && dirty_victim) asrn_advance_count = 2;
+                            cache_writeback_line(r, way, wbf);
+                            record_writeback_fault(wbf, srn);
+                            cache_fill(va, way);
+                            queue_word_write(r, way, va, b_val);
+                            cache_dirty[r][way]  = 1'b1;
+                            cache_vacant[r][way] = 1'b0;
+                            cache_touch_lru(r, way);
+                            cache_select(va, way, srn);
+                        end
+                    end
+                end
+
+                DM_REF_IOFETCH: begin
+                    if (mcr_noref()) begin
+                        way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
+                        cache_select(va, way, srn);
+                    end else begin
+                        f = va_translate_e(va, 1'b0, mA_rp, mA_wp, mA_dirty, phys);
+                        if (f == DM_FAULT_NONE) begin
+                            map_set_ref_a(1'b1);
+                            if (use_asrn) asrn_advance_count = 1;
+                            if (cache_lookup(va, way)) begin
+                                op_ioc = 1'b1;
+                                io_row = r;
+                                io_way = 2'(way);
+                                cache_touch_lru(r, way);
+                                cache_select(va, way, srn);
+                            end else begin
+                                op_ios  = 1'b1;
+                                io_base = phys & ~32'hF;
+                            end
+                            fastio_kind    = DM_REF_IOFETCH;
+                            fastio_task    = task_id;
+                            fastio_subtask = subtask_id;
+                            fastio_va      = va_munch_base(va);
+                        end
+                    end
+                end
+
+                DM_REF_IOSTORE: begin
+                    if (mcr_noref()) begin
+                        way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
+                        cache_select(va, way, srn);
+                    end else begin
+                        f = va_translate_e(va, 1'b1, mA_rp, mA_wp, mA_dirty, phys);
+                        if (f == DM_FAULT_NONE) begin
+                            if (cache_lookup(va, way)) begin
+                                cache_valid[r][way]  = 1'b0;
+                                cache_dirty[r][way]  = 1'b0;
+                                cache_vacant[r][way] = 1'b1;
+                            end
+                            map_set_ref_a(1'b1);
+                            map_set_dirty_a(1'b1);
+                            if (use_asrn) asrn_advance_count = 1;
+                            op_iow  = 1'b1;
+                            io_base = phys & ~32'hF;
+                            for (int i = 0; i < 16; i++) munch_in[i] = fastio_in_munch[i];
+                            fastio_kind    = DM_REF_IOSTORE;
+                            fastio_task    = task_id;
+                            fastio_subtask = subtask_id;
+                            fastio_va      = va_munch_base(va);
+                        end
+                    end
+                end
+
+                DM_REF_MAP: begin
+                    mA_rp    = b_val;
+                    mA_wp    = tioa_val[7];
+                    mA_dirty = tioa_val[6];
+                    mA_ref   = 1'b0;
+                    mA_chg   = 1'b1;
+                    if (m_idx_v == m_idx_a) begin
+                        mV_rp = b_val; mV_wp = tioa_val[7]; mV_dirty = tioa_val[6]; mV_ref = 1'b0;
+                    end
+                    pipe_mapbuf_busy[srn]   = 1'b1;
+                    mapbuf_busy_slot        = int'(srn);
+                    mapbuf_busy_cycles      = 9;
+                end
+
+                DM_REF_FLUSH: begin
+                    if (cache_lookup(va, way)) begin
+                        cache_writeback_line(r, way, wbf);
+                        record_writeback_fault(wbf, srn);
+                        if (use_asrn) asrn_advance_count = 1;
+                        cache_valid[r][way]  = 1'b0;
+                        cache_vacant[r][way] = 1'b1;
+                        cache_select(va, way, srn);
+                    end else begin
+                        way = cache_pick_victim(va);
+                        cache_select(va, way, srn);
+                    end
+                end
+
+                DM_REF_DUMMYREF: begin
+                    if (!mcr_dvavic() && mcr_usemcrv() && mcr_fdmiss()) begin
+                        way = int'(mcr_victim());
+                    end else if (cache_lookup(va, way)) begin
+                        // comparator hit
+                    end else begin
+                        way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
+                    end
+                    cache_select(va, way, srn);
+                end
+
+                default: ; // DM_REF_RMAP: the Pipe entry already holds rp_pre/flags_pre
+            endcase
+
+            if (f != DM_FAULT_NONE) begin
+                if (f == DM_FAULT_PAGE || f == DM_FAULT_WRITE_PROTECT) begin
+                    pipe_pipe4_errors[srn] |= PIPE4_ERR_MAP_TROUBLE;
+                end
+                last_fault          = f;
+                last_fault_va       = va;
+                last_fault_task     = task_id;
+                last_fault_subtask  = subtask_id;
+                last_fault_ref_kind = kind;
+                if (kind != DM_REF_IFETCH) begin
+                    if (fault_count == 4'd0) fault_first_srn = srn;
+                    if (task_id == 4'd0) fault_emulator = 1'b1;
+                    if (fault_count < 4'hF) fault_count = fault_count + 4'd1;
+                end
+            end
+
+            if (use_asrn) begin
+                for (int i = 0; i < 2; i++) begin
+                    if (i < asrn_advance_count) begin
+                        if (asrn == 4'd15) asrn = 4'd2;
+                        else               asrn = asrn + 4'd1;
+                    end
+                end
+            end
+        end
+
+        m_fault = f;
+    endtask
+
+    task automatic memory_tick();
+        if (mapbuf_busy_cycles > 0) begin
+            mapbuf_busy_cycles = mapbuf_busy_cycles - 1;
+            if (mapbuf_busy_cycles == 0 && mapbuf_busy_slot >= 0) begin
+                pipe_mapbuf_busy[mapbuf_busy_slot & 15] = 1'b0;
+                mapbuf_busy_slot = -1;
+            end
+        end
+    endtask
+
 
     // -------------------------------------------------------------------------
     // Combinational Instruction Fetch & Shifter / ALU Instantiations
@@ -293,10 +1236,10 @@ module dorado_rtl_cpu
         return {8'd0, ~ifu_insset, base[5:2], n};
     endfunction
 
-    // Pure helper for current task's Md
+    // Current task's Md
     function automatic logic [15:0] get_task_md();
         if (task_md_valid[ctask]) return task_md[ctask];
-        return u_mem.md;
+        return md;
     endfunction
 
     // Pure helper for IFU operand byte at index cnt
@@ -368,15 +1311,8 @@ module dorado_rtl_cpu
 
     always_comb begin
         int ridx;
-        if (bb_present && bb_ss_inject) begin
-            cur_u = bb_mir_uinstr;
-        end else if (real_PC < IM_SIZE) begin
-            cur_u = unpack_uinstr(im_iw0[real_PC[11:0]],
-                                  im_iw1[real_PC[11:0]],
-                                  im_iw2[real_PC[11:0]]);
-        end else begin
-            cur_u = '0;
-        end
+        if (bb_present && bb_ss_inject) cur_u = bb_mir_uinstr;
+        else                            cur_u = unpack_uinstr(im_q0, im_q1, im_q2);
 
         cur_task_md     = get_task_md();
         ridx            = rm_address_fn(cur_u, ctask, RBase, task_subtask[ctask], StkP);
@@ -525,12 +1461,12 @@ module dorado_rtl_cpu
     endfunction
 
     function automatic logic [3:0] task_bnt_fn(input logic [15:0] avail_in);
-        logic [15:0] avail;
-        avail = avail_in | 16'h0001;
-        for (int i = 15; i > 0; i--) begin
-            if (avail[i]) return 4'(i);
+        logic [3:0] r;
+        r = 4'd0;
+        for (int i = 1; i < 16; i++) begin
+            if (avail_in[i]) r = 4'(i);
         end
-        return 4'd0;
+        return r;
     endfunction
 
     function automatic logic event_counter_hit_fn(
@@ -569,18 +1505,18 @@ module dorado_rtl_cpu
             if (ff_fb(cur_u.ff) == 3'd6) begin
                 logic [3:0]  psrn;
                 logic [27:0] pva;
-                psrn         = u_mem.proc_srn;
-                pva          = u_mem.pipe_va[psrn];
+                psrn         = proc_srn;
+                pva          = pipe_va[psrn];
                 b_overridden = 1'b1;
                 case (ff_fc(cur_u.ff))
-                    3'd0: b_val = ~u_mem.get_fault_info();
+                    3'd0: b_val = ~get_fault_info();
                     3'd1: b_val = {4'd0, pva[27:16]};
                     3'd2: b_val = pva[15:0];
-                    3'd3: b_val = u_mem.get_pipe2_at(psrn);
-                    3'd4: b_val = ~u_mem.pipe_map_rp_pre[psrn];
-                    3'd5: b_val = u_mem.get_pipe4_at(psrn);
-                    3'd6: b_val = ~u_mem.get_config_word();
-                    3'd7: b_val = u_mem.get_pipe5_at(psrn);
+                    3'd3: b_val = get_pipe2_at(psrn);
+                    3'd4: b_val = ~pipe_map_rp_pre[psrn];
+                    3'd5: b_val = get_pipe4_at(psrn);
+                    3'd6: b_val = ~get_config_word();
+                    3'd7: b_val = get_pipe5_at(psrn);
                 endcase
             end else if (ff_fb(cur_u.ff) == 3'd7) begin
                 logic [9:0] ifum_addr;
@@ -589,10 +1525,10 @@ module dorado_rtl_cpu
                 case (ff_fc(cur_u.ff))
                     3'd0: b_val = ~ifu_pcx;
                     3'd1: b_val = ~(gen_io_mode ? event_cnt_b : event_cnt_a);
-                    3'd2: b_val = ~ifum_hi[ifum_addr];
-                    3'd3: b_val = ~({ifu_idcnt[2:0], ifu_insset, ifum_lo[ifum_addr][10:0]});
+                    3'd2: b_val = ~ifum_q_hi;
+                    3'd3: b_val = ~({ifu_idcnt[2:0], ifu_insset, ifum_q_lo[10:0]});
                     3'd4: b_val = ~event_cnt_b;
-                    3'd5: b_val = u_mem.dbuf;
+                    3'd5: b_val = dbuf;
                     3'd6: b_val = ~cpreg;
                     3'd7: b_val = b_link_read_valid ? b_link_read : Link;
                 endcase
@@ -829,31 +1765,31 @@ module dorado_rtl_cpu
     endtask
 
     task automatic junk_timer_tick_task();
-        if (!junk_tw_enabled) return;
-        if (junk_tw_countdown == 16'd0) begin
-            junk_tw_countdown = DORADO_JUNK_TICK_CYCLES;
-        end
-        junk_tw_countdown = junk_tw_countdown - 16'd1;
-        if (junk_tw_countdown == 16'd0) begin
-            wakeup_pending[DORADO_JUNK_TASK] = 1'b1;
-            junk_tw_countdown = DORADO_JUNK_TICK_CYCLES;
+        if (junk_tw_enabled) begin
+            if (junk_tw_countdown == 16'd0) junk_tw_countdown = DORADO_JUNK_TICK_CYCLES;
+            junk_tw_countdown = junk_tw_countdown - 16'd1;
+            if (junk_tw_countdown == 16'd0) begin
+                wakeup_pending[DORADO_JUNK_TASK] = 1'b1;
+                junk_tw_countdown = DORADO_JUNK_TICK_CYCLES;
+            end
         end
     endtask
 
     task automatic ifu_test_tick_task();
         logic loads_fg;
-        if (!ifu_test_pending) return;
-        ifu_test_pending = 1'b0;
-        loads_fg = (real_PC[11:0] == 12'o5042) ||
-                   (real_PC[11:0] == 12'o5052) ||
-                   (real_PC[11:0] == 12'o5056);
-        if ((ifu_test & IFUTEST_EN) != 16'd0 && ((ifu_test[15:8] != 8'd0) || loads_fg)) begin
-            if (ifu_test_count >= 4'd8) begin
-                for (int i = 0; i < 7; i++) ifu_test_queue[i] = ifu_test_queue[i + 1];
-                ifu_test_queue[7] = ifu_test[15:8];
-            end else begin
-                ifu_test_queue[ifu_test_count[2:0]] = ifu_test[15:8];
-                ifu_test_count = ifu_test_count + 4'd1;
+        if (ifu_test_pending) begin
+            ifu_test_pending = 1'b0;
+            loads_fg = (real_PC[11:0] == 12'o5042) ||
+                       (real_PC[11:0] == 12'o5052) ||
+                       (real_PC[11:0] == 12'o5056);
+            if ((ifu_test & IFUTEST_EN) != 16'd0 && ((ifu_test[15:8] != 8'd0) || loads_fg)) begin
+                if (ifu_test_count >= 4'd8) begin
+                    for (int i = 0; i < 7; i++) ifu_test_queue[i] = ifu_test_queue[i + 1];
+                    ifu_test_queue[7] = ifu_test[15:8];
+                end else begin
+                    ifu_test_queue[ifu_test_count[2:0]] = ifu_test[15:8];
+                    ifu_test_count = ifu_test_count + 4'd1;
+                end
             end
         end
     endtask
@@ -861,40 +1797,13 @@ module dorado_rtl_cpu
     task automatic ifu_test_pop_byte_task(output logic [7:0] out_byte);
         if (ifu_test_count == 4'd0) begin
             out_byte = 8'd0;
-            return;
+        end else begin
+            out_byte = ifu_test_queue[0];
+            ifu_test_count = ifu_test_count - 4'd1;
+            for (int i = 0; i < 7; i++) begin
+                if (i < int'(ifu_test_count)) ifu_test_queue[i] = ifu_test_queue[i + 1];
+            end
         end
-        out_byte = ifu_test_queue[0];
-        ifu_test_count = ifu_test_count - 4'd1;
-        for (int i = 0; i < 7; i++) begin
-            if (i < int'(ifu_test_count)) ifu_test_queue[i] = ifu_test_queue[i + 1];
-        end
-    endtask
-
-    task automatic ifu_fetch_byte_task(
-        input  logic [15:0] pc,
-        output logic [7:0]  out_byte,
-        output logic        out_faulted
-    );
-        logic [15:0]    word_off;
-        logic           byte_sel;
-        logic [27:0]    br31, va;
-        dm_fault_kind_t f;
-        logic [15:0]    word;
-        logic           high_byte;
-
-        out_faulted = 1'b0;
-        word_off    = {1'b0, pc[15:1]};
-        byte_sel    = pc[0];
-        br31        = u_mem.br[31];
-        va          = (br31 + {12'd0, word_off}) & 28'h0FFFFFFF;
-
-        u_mem.memory_ref_task(DM_REF_IFETCH, va, 16'd0, 8'd0, 4'd0, 2'd0, f);
-        if (u_mem.last_ref_miss) evc_events |= EVC_EV_MISS;
-        if (f != DM_FAULT_NONE) out_faulted = 1'b1;
-
-        word      = u_mem.md;
-        high_byte = (ifu_insset < 2'd2) ? (byte_sel == 1'b0) : (byte_sel == 1'b1);
-        out_byte  = high_byte ? word[15:8] : word[7:0];
     endtask
 
     task automatic eval_branch_condition_task(
@@ -985,938 +1894,1245 @@ module dorado_rtl_cpu
             if (tasking_resume_delay == 8'd0) tasking_on = 1'b1;
         end
 
-        if (freeze) begin
-            chosen_pc = next_pc_in;
-            return;
+        chosen_pc = next_pc_in;
+        if (!freeze) begin
+            if (block_in_non_emul) begin
+                ready[ctask]          = 1'b0;
+                wakeup_pending[ctask] = 1'b0;
+            end
+
+            if (tasking_on) begin
+                avail         = ready | wakeup_pending;
+                bnt           = task_bnt_fn(avail);
+                should_switch = (bnt > ctask) || block_in_non_emul;
+
+                if (block_in_non_emul && bnt == ctask) begin
+                    bnt = task_bnt_fn((ready | wakeup_pending) & ~(16'd1 << ctask));
+                end
+
+                if (should_switch && bnt != ctask) begin
+                    // Save current task state
+                    task_t[ctask]            = T;
+                    task_tpc[ctask]          = next_pc_in;
+                    task_link[ctask]         = Link;
+                    task_membase[ctask]      = MemBase;
+                    task_rbase[ctask]        = RBase;
+                    task_tioa[ctask]         = TIOA;
+                    task_alu_zero[ctask]     = alu_zero;
+                    task_alu_lt0[ctask]      = alu_lt0;
+                    task_alu_carry[ctask]    = alu_carry;
+                    task_alu_overflow[ctask] = alu_overflow;
+
+                    // Acknowledge wakeup & load BNT state
+                    wakeup_pending[bnt]      = 1'b0;
+                    ready[bnt]               = 1'b1;
+                    ctask                    = bnt;
+                    T                        = task_t[bnt];
+                    chosen_pc                = task_tpc[bnt];
+                    Link                     = task_link[bnt];
+                    MemBase                  = task_membase[bnt];
+                    RBase                    = task_rbase[bnt];
+                    TIOA                     = task_tioa[bnt];
+                    alu_zero                 = task_alu_zero[bnt];
+                    alu_lt0                  = task_alu_lt0[bnt];
+                    alu_carry                = task_alu_carry[bnt];
+                    alu_overflow             = task_alu_overflow[bnt];
+                end
+            end
         end
-
-        if (block_in_non_emul) begin
-            ready[ctask]          = 1'b0;
-            wakeup_pending[ctask] = 1'b0;
-        end
-
-        if (!tasking_on) begin
-            chosen_pc = next_pc_in;
-            return;
-        end
-
-        avail         = ready | wakeup_pending;
-        bnt           = task_bnt_fn(avail);
-        should_switch = (bnt > ctask) || block_in_non_emul;
-
-        if (block_in_non_emul && bnt == ctask) begin
-            logic [15:0] avail2;
-            avail2 = (ready | wakeup_pending) & ~(16'd1 << ctask);
-            bnt    = task_bnt_fn(avail2);
-        end
-
-        if (!should_switch || bnt == ctask) begin
-            chosen_pc = next_pc_in;
-            return;
-        end
-
-        // Save current task state
-        task_t[ctask]            = T;
-        task_tpc[ctask]          = next_pc_in;
-        task_link[ctask]         = Link;
-        task_membase[ctask]      = MemBase;
-        task_rbase[ctask]        = RBase;
-        task_tioa[ctask]         = TIOA;
-        task_alu_zero[ctask]     = alu_zero;
-        task_alu_lt0[ctask]      = alu_lt0;
-        task_alu_carry[ctask]    = alu_carry;
-        task_alu_overflow[ctask] = alu_overflow;
-
-        // Acknowledge wakeup & load BNT state
-        wakeup_pending[bnt]      = 1'b0;
-        ready[bnt]               = 1'b1;
-        ctask                    = bnt;
-        T                        = task_t[bnt];
-        chosen_pc                = task_tpc[bnt];
-        Link                     = task_link[bnt];
-        MemBase                  = task_membase[bnt];
-        RBase                    = task_rbase[bnt];
-        TIOA                     = task_tioa[bnt];
-        alu_zero                 = task_alu_zero[bnt];
-        alu_lt0                  = task_alu_lt0[bnt];
-        alu_carry                = task_alu_carry[bnt];
-        alu_overflow             = task_alu_overflow[bnt];
     endtask
 
-    // -------------------------------------------------------------------------
-    // Main Synchronous 1-Tick-Per-Microinstruction Execution Block
-    // -------------------------------------------------------------------------
+    // Launch a memory reference: the M_* states run it and return to `ret`.
+    task automatic mem_launch(
+        input dm_ref_kind_t kind,
+        input logic [27:0]  va,
+        input logic [15:0]  b_val,
+        input logic [7:0]   tioa_val,
+        input logic [3:0]   task_id,
+        input logic [1:0]   subtask_id,
+        input cstate_t      ret
+    );
+        m_kind    = kind;
+        m_va      = va;
+        m_b       = b_val;
+        m_tioa    = tioa_val;
+        m_task    = task_id;
+        m_subtask = subtask_id;
+        m_ret     = ret;
+        st        = M_MAPA;
+    endtask
+
+    // IFU byte fetch at byte PC `pc` (HM section 6: opcode bytes come from the
+    // code base register, BR 37 octal).
+    task automatic ifu_launch_fetch(input logic [15:0] pc, input cstate_t ret);
+        logic [27:0] va;
+        va         = (br[31] + {13'd0, pc[15:1]}) & 28'h0FFFFFFF;
+        m_byte_sel = pc[0];
+        mem_launch(DM_REF_IFETCH, va, 16'd0, 8'd0, 4'd0, 2'd0, ret);
+    endtask
+
+    // Result of the IFU byte fetch that just returned.
+    function automatic logic [7:0] ifu_fetched_byte();
+        logic high_byte;
+        high_byte = (ifu_insset < 2'd2) ? (m_byte_sel == 1'b0) : (m_byte_sel == 1'b1);
+        return high_byte ? md[15:8] : md[7:0];
+    endfunction
+
+    // After mem_book_task: go to the first data operation still to do, or
+    // back to the requesting state.
+    task automatic mem_advance(input int done_stage);
+        mcnt = 5'd0;
+        if      (done_stage < 1 && mA_chg)                        st = M_WRA;
+        else if (done_stage < 2 && mV_chg && m_idx_v != m_idx_a)  st = M_WRV;
+        else if (done_stage < 3 && op_wb)                         st = M_WB;
+        else if (done_stage < 4 && op_fill)                       st = M_FILL;
+        else if (done_stage < 5 && op_rd)                         st = M_RD;
+        else if (done_stage < 6 && op_wr)                         st = M_WR;
+        else if (done_stage < 7 && op_ioc)                        st = M_IOC;
+        else if (done_stage < 8 && op_ios)                        st = M_IOS;
+        else if (done_stage < 9 && op_iow)                        st = M_IOW;
+        else                                                      st = m_ret;
+    endtask
+
+    // =========================================================================
+    // Block RAMs. Each has one port, addressed combinationally from the state
+    // register; read data appears one clock later.
+    // =========================================================================
+    logic [11:0] im_addr;
+    logic        im_we;
+    logic [15:0] im_wd0, im_wd1, im_wd2;
+
+    logic [9:0]  ifum_addr_p;
+    logic        ifum_we_hi, ifum_we_lo;
+    logic [15:0] ifum_wd;
+
+    logic [15:0] map_addr;
+    logic        map_we;
+    logic [15:0] map_wd_rp;
+    logic        map_wd_wp, map_wd_dirty, map_wd_ref;
+
+    logic [11:0] cache_addr_p;
+    logic        cache_we;
+    logic [15:0] cache_wd;
+
+    logic [31:0] stor_addr;
+    logic        stor_we;
+    logic [15:0] stor_wd;
+
+    always_comb begin
+        // IM: the instruction at real_PC during C_FETCH; the word at Link
+        // (for Read IM / Write IM) afterwards.
+        im_addr = (st == C_FETCH) ? real_PC[11:0]
+                : (st == C_EXEC)  ? Link[11:0]
+                :                   link_at_issue[11:0];
+        im_we   = (st == C_FINISH) && x_im_wr;
+        im_wd0  = x_im_wd0;
+        im_wd1  = x_im_wd1;
+        im_wd2  = x_im_wd2;
+
+        // IFUM: always the entry for the current {InsSet, opcode}, except
+        // in the clock that commits an IFUMRH/IFUMLH write.
+        ifum_addr_p = x_ifum_wr ? x_ifum_waddr : {ifu_insset, ifu_opcode};
+        ifum_we_hi  = x_ifum_wr && x_ifum_hi;
+        ifum_we_lo  = x_ifum_wr && !x_ifum_hi;
+        ifum_wd     = x_ifum_wd;
+
+        // Map
+        map_we       = 1'b0;
+        map_wd_rp    = mA_rp;
+        map_wd_wp    = mA_wp;
+        map_wd_dirty = mA_dirty;
+        map_wd_ref   = mA_ref;
+        case (st)
+            M_MAPA:  map_addr = map_index(m_va);
+            M_MAPV:  map_addr = m_idx_v;
+            M_WRA:   begin map_addr = m_idx_a; map_we = 1'b1; end
+            M_WRV:   begin
+                map_addr     = m_idx_v;
+                map_we       = 1'b1;
+                map_wd_rp    = mV_rp;
+                map_wd_wp    = mV_wp;
+                map_wd_dirty = mV_dirty;
+                map_wd_ref   = mV_ref;
+            end
+            default: map_addr = map_index(mar);
+        endcase
+
+        // Cache data
+        cache_we     = 1'b0;
+        cache_wd     = storage_q;
+        cache_addr_p = cache_addr(word_row, word_way, word_off);
+        case (st)
+            M_WB:   cache_addr_p = cache_addr(wb_row, wb_way, mcnt[3:0]);
+            M_FILL: begin
+                cache_addr_p = cache_addr(fill_row, fill_way, 4'(mcnt - 5'd1));
+                cache_we     = (mcnt != 5'd0);
+            end
+            M_WR:   begin
+                cache_we = 1'b1;
+                cache_wd = word_data;
+            end
+            M_IOC:  cache_addr_p = cache_addr(io_row, io_way, mcnt[3:0]);
+            default: ;
+        endcase
+
+        // Storage
+        stor_we   = 1'b0;
+        stor_wd   = cache_q;
+        stor_addr = io_base;
+        case (st)
+            M_WB:   begin
+                stor_addr = wb_phys + {27'd0, mcnt} - 32'd1;
+                stor_we   = (mcnt != 5'd0);
+            end
+            M_FILL: stor_addr = fill_phys + {27'd0, mcnt};
+            M_IOS:  stor_addr = io_base + {27'd0, mcnt};
+            M_IOW:  begin
+                stor_addr = io_base + {27'd0, mcnt};
+                stor_we   = 1'b1;
+                stor_wd   = munch_in[mcnt[3:0]];
+            end
+            default: ;
+        endcase
+    end
+
+    always_ff @(posedge clk) begin
+        if (im_we) begin
+            im_iw0[im_addr]     <= im_wd0;
+            im_iw1[im_addr]     <= im_wd1;
+            im_iw2[im_addr]     <= im_wd2;
+            im_present[im_addr] <= 1'b1;
+        end
+        im_q0      <= im_iw0[im_addr];
+        im_q1      <= im_iw1[im_addr];
+        im_q2      <= im_iw2[im_addr];
+        im_q_pres  <= im_present[im_addr];
+        im_q_brk   <= im_breakpoint[im_addr];
+    end
+
+    always_ff @(posedge clk) begin
+        if (ifum_we_hi) ifum_hi[ifum_addr_p] <= ifum_wd;
+        if (ifum_we_lo) ifum_lo[ifum_addr_p] <= ifum_wd;
+        if (ifum_we_hi || ifum_we_lo) ifum_present[ifum_addr_p] <= 1'b1;
+        ifum_q_hi   <= ifum_hi[ifum_addr_p];
+        ifum_q_lo   <= ifum_lo[ifum_addr_p];
+        ifum_q_pres <= ifum_present[ifum_addr_p];
+    end
+
+    always_ff @(posedge clk) begin
+        if (map_we) begin
+            map_rp[map_addr]    <= map_wd_rp;
+            map_wp[map_addr]    <= map_wd_wp;
+            map_dirty[map_addr] <= map_wd_dirty;
+            map_ref[map_addr]   <= map_wd_ref;
+        end
+        map_rp_q    <= map_rp[map_addr];
+        map_wp_q    <= map_wp[map_addr];
+        map_dirty_q <= map_dirty[map_addr];
+        map_ref_q   <= map_ref[map_addr];
+    end
+
+    always_ff @(posedge clk) begin
+        if (cache_we) cache_data[cache_addr_p] <= cache_wd;
+        cache_q <= cache_data[cache_addr_p];
+    end
+
+    localparam int STOR_AW = $clog2(STORAGE_WORDS);
+    always_ff @(posedge clk) begin
+        if (stor_we) storage[stor_addr[STOR_AW-1:0]] <= stor_wd;
+        storage_q <= storage[stor_addr[STOR_AW-1:0]];
+    end
+
+    // =========================================================================
+    // Main sequencer. One microinstruction is C_FETCH, C_EXEC, optional
+    // memory/IFU states, C_FINISH; step_done pulses for one clock after each
+    // completed microinstruction (the cosimulation and I/O tick on it).
+    // =========================================================================
     always @(posedge clk) begin
+        x_ifum_wr = 1'b0;
+        step_done = 1'b0;
         if (rst) begin
             reset_cpu();
-            u_mem.reset_memory();
+            reset_memory();
+            st      = C_FETCH;
+            m_ret   = C_FETCH;
+            x_im_wr = 1'b0;
         end else if (clk_en && !halted) begin
-            dorado_uinstr_t u;
-            logic           from_im;
-            logic           step_valid;
-
-            io_read_stb       = 1'b0;
-            io_write_stb      = 1'b0;
-            u_mem.fastio_stb  = 1'b0;
-            wakeup_pending   |= ext_wakeup_req;
-            if (ext_subtask_we) begin
-                task_subtask[ext_subtask_task] = ext_subtask_val;
+            case (st)
+            // -----------------------------------------------------------------
+            C_FETCH: begin
+                // IM, IFUM and the Map entry at Mar are being read this clock.
+                if (!io_busy) st = C_EXEC;
             end
-            u                 = cur_u;
-            from_im           = 1'b1;
-            step_valid        = 1'b1;
 
-            if (bb_present) begin
-                if (bb_ss_inject) begin
-                    from_im = 1'b0;
-                end else if (!bb_running) begin
-                    cycles     = cycles + 64'd1;
-                    step_valid = 1'b0;
+            // -----------------------------------------------------------------
+            C_EXEC: begin
+                dorado_uinstr_t u;
+                logic           step_valid;
+                logic           to_finish;
+
+                io_read_stb       = 1'b0;
+                io_write_stb      = 1'b0;
+                fastio_stb        = 1'b0;
+                x_im_wr           = 1'b0;
+                wakeup_pending   |= ext_wakeup_req;
+                if (ext_subtask_we) begin
+                    task_subtask[ext_subtask_task] = ext_subtask_val;
                 end
-            end
+                u          = cur_u;
+                x_u        = cur_u;
+                x_from_im  = 1'b1;
+                step_valid = 1'b1;
+                to_finish  = 1'b0;
+                st         = C_FETCH;
 
-            if (step_valid && from_im) begin
-                if (real_PC >= IM_SIZE || !im_present[real_PC[11:0]]) begin
-                    halted      = 1'b1;
-                    halt_reason = 4'd2; // CPU_HALT_NO_CODE
-                    step_valid  = 1'b0;
-                end else if (im_breakpoint[real_PC[11:0]]) begin
-                    halted      = 1'b1;
-                    halt_reason = 4'd7; // CPU_HALT_BREAKPOINT
-                    step_valid  = 1'b0;
-                end
-            end
-
-            if (step_valid) begin
-                logic        md_not_ready, hold_asserted;
-                logic        stk_underflow, stk_overflow, stk_err;
-                int          stk_delta, stk_off, stk_new_off;
-                logic [15:0] md_at_issue;
-                logic [7:0]  rbase_at_issue, rbase_after_ff, rbase_next_instr;
-                logic [4:0]  membase_at_issue;
-                logic [15:0] a, b, alu, pd, np;
-                logic [15:0] ifetch_id;
-                logic        alu_live_carry, new_carry, new_ovf, new_alu_zero, new_alu_lt0;
-                logic        shift_active_cur;
-                logic [1:0]  fa;
-                logic [2:0]  fb, fc;
-                logic        ff_exec_ok;
-
-                // Hold check
-                md_not_ready  = from_im && uinstr_reads_md_fn(u) &&
-                                (cycles < task_md_ready[ctask]);
-                hold_asserted = md_not_ready || holdsim_hold;
-                if (hold_asserted) evc_events |= EVC_EV_HOLD;
-
-                if (holdsim_hold && !u_mem.mcr_dishold()) begin
-                    logic [15:0] dummy_pc;
-                    if (from_im) junk_timer_tick_task();
-                    task_schedule_task(real_PC, 1'b0, 1'b1, dummy_pc);
-                    cycles = cycles + 64'd1;
-                end else begin
-                    // Stack underflow/overflow pre-check (cpu.c:5531)
-                    stk_underflow = 1'b0;
-                    stk_overflow  = 1'b0;
-                    stk_err       = 1'b0;
-                    if (u.block && ctask == 4'd0) begin
-                        stk_delta = int'(signed'(stk_signed_delta(u.rstk)));
-                        if (stk_delta != 0 || (u.rstk[3] && !ff_is_dont_modify_stkp(u))) begin
-                            stk_off     = int'(StkP[5:0]);
-                            stk_new_off = stk_off + stk_delta;
-                            if (stk_new_off < 0)    stk_underflow = 1'b1;
-                            if (stk_new_off > 8'o77) stk_overflow  = 1'b1;
-                            if (u.rstk[3] && !ff_is_dont_modify_stkp(u) &&
-                                ((stk_new_off & 63) == 0) && stk_new_off >= 0) begin
-                                stk_underflow = 1'b1;
-                            end
-                            stk_err = stk_underflow || stk_overflow;
-                        end
+                if (bb_present) begin
+                    if (bb_ss_inject) begin
+                        x_from_im = 1'b0;
+                    end else if (!bb_running) begin
+                        cycles     = cycles + 64'd1;
+                        step_valid = 1'b0;
+                        step_done  = 1'b1;
                     end
+                end
 
-                    if (stk_err) begin
-                        stk_und            = stk_underflow;
-                        stk_ovf            = stk_overflow;
-                        wakeup_pending[15] = 1'b1;
-                        prev_PC            = real_PC;
-                        if (from_im) junk_timer_tick_task();
-                        task_schedule_task(real_PC, 1'b0, 1'b0, real_PC);
-                        if (from_im) begin
-                            cycles = cycles + 64'd1;
-                            u_mem.memory_tick();
-                        end
-                        if (ifu_active && ifu_warmup > 8'd0) begin
-                            ifu_warmup = ifu_warmup - 8'd1;
-                        end
+                if (step_valid && x_from_im) begin
+                    if (real_PC >= IM_SIZE || !im_q_pres) begin
+                        halted      = 1'b1;
+                        halt_reason = 4'd2; // CPU_HALT_NO_CODE
+                        step_valid  = 1'b0;
+                    end else if (im_q_brk) begin
+                        halted      = 1'b1;
+                        halt_reason = 4'd7; // CPU_HALT_BREAKPOINT
+                        step_valid  = 1'b0;
+                    end
+                end
+
+                if (step_valid) begin
+                    logic        md_not_ready, hold_asserted;
+                    logic        stk_err;
+                    int          stk_delta, stk_off, stk_new_off;
+                    logic [15:0] a, b, alu, pd;
+                    logic        shift_active_cur;
+                    logic [1:0]  fa;
+                    logic [2:0]  fb, fc;
+                    logic        ff_exec_ok;
+
+                    // Hold check
+                    md_not_ready  = x_from_im && uinstr_reads_md_fn(u) &&
+                                    (cycles < task_md_ready[ctask]);
+                    hold_asserted = md_not_ready || holdsim_hold;
+                    if (hold_asserted) evc_events |= EVC_EV_HOLD;
+
+                    if (holdsim_hold && !mcr_dishold()) begin
+                        logic [15:0] dummy_pc;
+                        if (x_from_im) junk_timer_tick_task();
+                        task_schedule_task(real_PC, 1'b0, 1'b1, dummy_pc);
+                        cycles    = cycles + 64'd1;
+                        step_done = 1'b1;
                     end else begin
-                        // -----------------------------------------------------
-                        // 1. Issue-Time Snapshots
-                        // -----------------------------------------------------
-                        link_at_issue = Link;
-                        if (b_link_read_valid) begin
-                            if (b_link_read_age) b_link_read_valid = 1'b0;
-                            else                 b_link_read_age   = 1'b1;
-                        end
-                        dispatch_or          = task_dispatch[ctask];
-                        task_dispatch[ctask] = 16'd0;
-                        md_at_issue          = cur_task_md;
-                        rbase_at_issue       = RBase;
-                        membase_at_issue     = MemBase[4:0];
-                        io_atten_at_issue    = (io_attached && ctask != 4'd0) ? io_atten_in : 1'b0;
-
-                        // -----------------------------------------------------
-                        // 2. Capture Combinational Bus & ALU Results + Side Effects
-                        // -----------------------------------------------------
-                        a                = comb_alu_a;
-                        b                = comb_alu_b;
-                        alu              = alu_result;
-                        shift_active_cur = (u.asel == 3'd7);
-
-                        // Apply ff_override_b side effects (FaultInfo clear, Link<-B, Q<-B)
-                        if (ff_full_function_ok(u) && ff_fa(u.ff) == 2'd1) begin
-                            if (ff_fb(u.ff) == 3'd6) begin
-                                if (ff_fc(u.ff) == 3'd0) u_mem.fault_clear();
-                                if (u.bsel == 3'd3) Q = b;
-                            end else if (ff_fb(u.ff) == 3'd7) begin
-                                if (ff_fc(u.ff) == 3'd6) Link = b;
-                                if (ff_fc(u.ff) == 3'd7) b_link_read_valid = 1'b0;
-                                if (u.bsel == 3'd3) Q = b;
+                        // Stack underflow/overflow pre-check (cpu.c:5531)
+                        x_stk_underflow = 1'b0;
+                        x_stk_overflow  = 1'b0;
+                        stk_err         = 1'b0;
+                        if (u.block && ctask == 4'd0) begin
+                            stk_delta = int'(signed'(stk_signed_delta(u.rstk)));
+                            if (stk_delta != 0 || (u.rstk[3] && !ff_is_dont_modify_stkp(u))) begin
+                                stk_off     = int'(StkP[5:0]);
+                                stk_new_off = stk_off + stk_delta;
+                                if (stk_new_off < 0)     x_stk_underflow = 1'b1;
+                                if (stk_new_off > 8'o77) x_stk_overflow  = 1'b1;
+                                if (u.rstk[3] && !ff_is_dont_modify_stkp(u) &&
+                                    ((stk_new_off & 63) == 0) && stk_new_off >= 0) begin
+                                    x_stk_underflow = 1'b1;
+                                end
+                                stk_err = x_stk_underflow || x_stk_overflow;
                             end
                         end
 
-                        // Advance IFU idcnt if A bus consumed Id
-                        if (u.asel == 3'd5 ||
-                            ((u.asel == 3'd2 || u.asel == 3'd3) &&
-                             ff_decode_ok(u) && u.ff[7:6] == 2'd1)) begin
-                            ifu_idcnt = ifu_idcnt + 8'd1;
-                        end
-                        ifetch_id = ifu_id_at_fn(ifu_idcnt);
-
-                        alu_live_carry = alu_is_arith_out ? alu_carry_out : 1'b0;
-                        new_carry      = alu_is_arith_out ? alu_carry_out : alu_carry;
-                        new_ovf        = alu_is_arith_out ? alu_overflow_out : alu_overflow;
-                        new_alu_zero   = (alu == 16'd0);
-                        new_alu_lt0    = alu[15];
-
-                        // -----------------------------------------------------
-                        // 3. FF Post-ALU Side Effects (ff_apply_post)
-                        // -----------------------------------------------------
-                        pd         = alu;
-                        fa         = ff_fa(u.ff);
-                        fb         = ff_fb(u.ff);
-                        fc         = ff_fc(u.ff);
-                        ff_exec_ok = ff_full_function_ok(u);
-
-                        if (!ff_exec_ok && ff_decode_ok(u) && u.asel <= 3'd3) begin
-                            fa         = 2'd0;
-                            fb         = u.ff[5:3];
-                            fc         = u.ff[2:0];
-                            ff_exec_ok = 1'b1;
-                        end
-
-                        // Special long-call Output<-B form (cpu.c:1892)
-                        if (u.asel == 3'd4 && u.bsel == 3'd1 && u.lc == 3'd6 &&
-                            u.aluf == 4'o13 && u.ff == 8'o327 && u.jcn == 8'o017 &&
-                            io_attached && io_has_write_in) begin
-                            io_write_stb     = 1'b1;
-                            io_write_task    = ctask;
-                            io_write_subtask = task_subtask[ctask];
-                            io_write_tioa    = TIOA;
-                            io_write_data    = b;
-                        end
-
-                        if (ff_exec_ok) begin
-                            if (fa == 2'd0) begin
-                                if (fb == 3'd3) begin
-                                    case (fc)
-                                        3'd1: pd = u_mem.get_read_map();
-                                        3'd2: begin
-                                            pd            = io_attached ? io_read_data : 16'hFFFF;
-                                            io_bad_parity = io_attached ? io_read_bad_parity : 1'b1;
-                                            if (io_attached) begin
-                                                io_read_stb         = 1'b1;
-                                                io_read_stb_task    = ctask;
-                                                io_read_stb_subtask = task_subtask[ctask];
-                                                io_read_stb_tioa    = TIOA;
-                                            end
-                                        end
-                                        3'd3: begin
-                                            pd            = io_attached ? io_read_data : 16'hFFFF;
-                                            if (io_attached) begin
-                                                io_read_stb         = 1'b1;
-                                                io_read_stb_task    = ctask;
-                                                io_read_stb_subtask = task_subtask[ctask];
-                                                io_read_stb_tioa    = TIOA;
-                                            end
-                                        end
-                                        3'd4, 3'd5: ifu_idcnt = ifu_idcnt + 8'd1; // RisId / TisId
-                                        3'd6: begin
-                                            if (io_attached) begin
-                                                io_write_stb     = 1'b1;
-                                                io_write_task    = ctask;
-                                                io_write_subtask = task_subtask[ctask];
-                                                io_write_tioa    = TIOA;
-                                                io_write_data    = b;
-                                            end
-                                        end
-                                        3'd7: MemBase = MemBase ^ 8'h01; // FlipMemBase
-                                        default: ;
-                                    endcase
-                                end else if (fb == 3'd7) begin
-                                    case (fc)
-                                        3'd0: begin // BigBDispatch <- B
-                                            Link                 = b;
-                                            task_dispatch[ctask] = {8'd0, b[7:0]};
-                                        end
-                                        3'd1: begin // BDispatch <- B
-                                            Link                 = b;
-                                            task_dispatch[ctask] = {13'd0, b[2:0]};
-                                        end
-                                        3'd2: begin // Multiply
-                                            task_dispatch[ctask] |= (Q & 16'h0002);
-                                            Q  = {alu[0], Q[15:1]};
-                                            pd = {alu_live_carry, alu[15:1]};
-                                        end
-                                        3'd3: Q = b;
-                                        default: ;
-                                    endcase
-                                end
-                            end else if (fa == 2'd1) begin
-                                if (fb == 3'd0) begin
-                                    case (fc)
-                                        3'd0: begin // PCF <- B
-                                            ifu_pcf    = b;
-                                            ifu_idcnt  = 8'd0;
-                                            ifu_active = 1'b1;
-                                            ifu_warmup = 8'd5;
-                                        end
-                                        3'd1: begin // IFUTest <- B
-                                            ifu_test         = b;
-                                            ifu_test_pending = 1'b1;
-                                            if (b[0]) junk_timer_enable_task(1'b0);
-                                        end
-                                        3'd2: ifu_test_tick_task(); // IFUTick
-                                        3'd3: reschedule_pending = 8'd1; // RescheduleNow
-                                        3'd4: junk_timer_enable_task(b[0]); // AckJunkTW <- B
-                                        3'd5: MemBase = {3'd0, b[12:8]};
-                                        3'd6: RBase   = {4'd0, b[3:0]};
-                                        3'd7: begin
-                                            MemBase = {3'd0, b[12:8]};
-                                            RBase   = {4'd0, b[3:0]};
-                                        end
-                                    endcase
-                                end else if (fb == 3'd2) begin
-                                    case (fc)
-                                        3'd2: u_mem.cflags_load(a);
-                                        3'd3: u_mem.br_lo_load(MemBase[4:0], a);
-                                        3'd4: u_mem.br_hi_load(MemBase[4:0], a);
-                                        3'd6: u_mem.mcr_load(a, b);
-                                        3'd7: u_mem.proc_srn = b[3:0];
-                                        default: ;
-                                    endcase
-                                end else if (fb == 3'd3) begin
-                                    case (fc)
-                                        3'd0: begin // InsSetorEvent <- B
-                                            if (b[15]) begin
-                                                ifu_insset = b[9:8];
-                                            end else begin
-                                                event_cnt_ctrl_hi = b[11:8];
-                                                event_cnt_ctrl_lo = b[7:0];
-                                                gen_io_mode       = ((b & 16'h0C00) == 16'd0);
-                                                evc_a_enable      = b[11];
-                                                evc_a_event       = b[7:5];
-                                                evc_a_tasksall    = b[4];
-                                                evc_b_enable      = b[10];
-                                                evc_b_event       = b[3:1];
-                                                evc_b_tasksall    = b[0];
-                                            end
-                                        end
-                                        3'd1: event_cnt_b = b;
-                                        3'd2: begin
-                                            reschedule_pending = 8'd2;
-                                            reschedule_cond    = 1'b1;
-                                        end
-                                        3'd3: begin
-                                            reschedule_pending = 8'd0;
-                                            reschedule_cond    = 1'b0;
-                                        end
-                                        3'd4: begin // IFUMRH <- B
-                                            logic [9:0] ia;
-                                            ia               = {ifu_insset, ifu_opcode};
-                                            ifum_hi[ia]      = b;
-                                            ifum_present[ia] = 1'b1;
-                                        end
-                                        3'd5: begin // IFUMLH <- B
-                                            logic [9:0] ia;
-                                            ia               = {ifu_insset, ifu_opcode};
-                                            ifum_lo[ia]      = b;
-                                            ifum_present[ia] = 1'b1;
-                                        end
-                                        3'd6: begin // IFUReset
-                                            ifu_active       = 1'b0;
-                                            ifu_warmup       = 8'd0;
-                                            ifu_pcf          = 16'd0;
-                                            ifu_test         = 16'd1;
-                                            ifu_test_pending = 1'b0;
-                                            ifu_test_count   = 4'd0;
-                                            brk_pending      = 1'b0;
-                                            brk_opcode       = 8'd0;
-                                        end
-                                        3'd7: begin // BrkIns <- B
-                                            ifu_opcode  = b[15:8];
-                                            brk_opcode  = b[15:8];
-                                            brk_pending = 1'b1;
-                                        end
-                                    endcase
-                                end else if (fb == 3'd4) begin
-                                    case (fc)
-                                        3'd0: u_mem.dmux_use_dmd();
-                                        3'd1: u_mem.dmux_strobe(b);
-                                        3'd2: begin
-                                            tasking_on           = 1'b0;
-                                            tasking_resume_delay = 8'd0;
-                                        end
-                                        3'd3: tasking_resume_delay = 8'd2;
-                                        3'd4: StkP = b[7:0];
-                                        3'd5: StkP = ifu_saved_stkp;
-                                        3'd6: Cnt  = b;
-                                        3'd7: Link = b;
-                                    endcase
-                                end else if (fb == 3'd5) begin
-                                    case (fc)
-                                        3'd0: Q    = Q << 1;
-                                        3'd1: Q    = Q >> 1;
-                                        3'd2: TIOA = b[15:8];
-                                        3'd4: begin // Hold&TaskSim <- B
-                                            tasksim                             = b[14:8];
-                                            holdsim                             = {b[7:1], 1'b0};
-                                            tasksim_fired                       = 1'b0;
-                                            tasksim_loaded                      = 1'b1;
-                                            holdsim_loaded                      = 1'b1;
-                                            wakeup_pending[DORADO_TASKSIM_TASK] = 1'b0;
-                                            wakeup_pipe[0][DORADO_TASKSIM_TASK] = 1'b0;
-                                            wakeup_pipe[1][DORADO_TASKSIM_TASK] = 1'b0;
-                                        end
-                                        3'd5: ShC = field_desc_to_shc(a, 1'b1);
-                                        3'd6: ShC = field_desc_to_shc(a, 1'b0);
-                                        3'd7: ShC = b;
-                                        default: ;
-                                    endcase
-                                end
-                            end else if (fa == 2'd2) begin
-                                if (fb <= 3'd1) begin
-                                    RBase = {4'd0, u.ff[3:0]};
-                                end else if (fb == 3'd4) begin
-                                    TIOA = {TIOA[7:3], u.ff[2:0]};
-                                end else if (fb == 3'd5) begin
-                                    if (fc <= 3'd3) begin
-                                        MemBase = {4'd0, MemBX, u.ff[1:0]};
-                                    end
-                                end else if (fb == 3'd6) begin
-                                    case (fc)
-                                        3'd2, 3'd3: begin // ALUFMRW / ALUFMEM
-                                            if (u_mem.dmux_pending) begin
-                                                u_mem.dmux_read(pd);
-                                            end else begin
-                                                logic [3:0] idx;
-                                                idx = u.aluf;
-                                                pd  = alufm_present[idx] ? {10'd0, alufm[idx]} : 16'd0;
-                                                if (fc == 3'd2) begin
-                                                    alufm[idx]         = {b[7], b[4:0]};
-                                                    alufm_present[idx] = 1'b1;
-                                                end
-                                            end
-                                        end
-                                        3'd4: pd = Cnt;
-                                        3'd5: pd = {1'b0, MemBX, MemBase[4:0], stk_ovf, stk_und, 2'b00, RBase[3:0]};
-                                        3'd6: pd = {TIOA, StkP};
-                                        3'd7: pd = ShC;
-                                        default: ;
-                                    endcase
-                                end else if (fb == 3'd7) begin
-                                    case (fc)
-                                        3'd0: pd = alu >> 1;
-                                        3'd1: pd = (alu >> 1) | (alu << 15);
-                                        3'd2: pd = {alu_live_carry, alu[15:1]};
-                                        3'd3: pd = {alu[15], alu[15:1]};
-                                        3'd4: pd = alu << 1;
-                                        3'd5: pd = (alu << 1) | (alu >> 15);
-                                        3'd6: begin // Divide
-                                            logic q0;
-                                            q0 = Q[15];
-                                            Q  = {Q[14:0], alu_live_carry};
-                                            pd = {alu[14:0], q0};
-                                        end
-                                        3'd7: begin // CDivide
-                                            logic q0;
-                                            q0 = Q[15];
-                                            Q  = {Q[14:0], ~alu_live_carry};
-                                            pd = {alu[14:0], q0};
-                                        end
-                                    endcase
-                                end
-                            end else if (fa == 2'd3) begin
-                                if (fb <= 3'd3) begin
-                                    MemBase = {3'd0, u.ff[4:0]};
-                                end else if (fb == 3'd4 || fb == 3'd5) begin
-                                    Cnt = (u.ff[3:0] == 4'd0) ? 16'd16 : {12'd0, u.ff[3:0]};
-                                end else if (fb == 3'd6 || fb == 3'd7) begin
-                                    wakeup_pipe[0][u.ff[3:0]] = 1'b1;
-                                end
-                            end
-                        end
-
-                        // Barrel-shifter Pd-mux stage (post-ALU)
-                        if (shift_active_cur) begin
-                            pd = (pd & ~shifter_out_mask) | (shifter_out_fill & shifter_out_mask);
-                        end
-
-                        // -----------------------------------------------------
-                        // 4. Processor Memory Reference (ASEL = 0..3)
-                        // -----------------------------------------------------
-                        if (u.asel <= 3'd3 && !jcn_is_write_im_fn(u)) begin
-                            logic           io_task;
-                            dm_ref_kind_t   kind;
-                            logic           skip_to_done;
-
-                            io_task      = (ctask != 4'd0);
-                            kind         = decode_ref_kind_fn(u, io_task);
-                            skip_to_done = 1'b0;
-
-                            if (kind != DM_REF_NONE) begin
-                                if (kind == DM_REF_IOSTORE && io_attached && io_has_write_in) begin
-                                    io_write_stb     = 1'b1;
-                                    io_write_task    = ctask;
-                                    io_write_subtask = task_subtask[ctask];
-                                    io_write_tioa    = TIOA;
-                                    io_write_data    = b;
-                                    if (ctask != 4'd0) skip_to_done = 1'b1;
-                                end
-
-                                if (!skip_to_done) begin
-                                    logic [4:0]     mb_eff;
-                                    logic [27:0]    br_val, disp, va;
-                                    logic [3:0]     fcnt_before;
-                                    dm_fault_kind_t ref_fault;
-                                    logic           recorded_fault;
-
-                                    mb_eff = membase_at_issue;
-                                    if (ctask != 4'd0) begin
-                                        mb_eff |= {2'b00, task_subtask[ctask], 1'b0};
-                                    end
-                                    br_val = u_mem.mcr_disbr() ? 28'd0 : u_mem.br[mb_eff];
-                                    if (kind == DM_REF_IFETCH) begin
-                                        br_val = {br_val[27:8], ifetch_id[7:0]};
-                                    end
-                                    disp = (kind == DM_REF_LONGFETCH)
-                                         ? {b[11:0], a}
-                                         : {12'd0, a};
-                                    va = (br_val + disp) & 28'h0FFFFFFF;
-
-                                    fcnt_before = u_mem.fault_count;
-                                    u_mem.memory_ref_task(kind, va, b, TIOA, ctask,
-                                                          task_subtask[ctask], ref_fault);
-                                    recorded_fault = (ref_fault != DM_FAULT_NONE) ||
-                                                     (u_mem.fault_count != fcnt_before);
-                                    evc_events |= EVC_EV_PROCREF;
-                                    if (u_mem.last_ref_miss) evc_events |= EVC_EV_MISS;
-
-                                    if (ref_fault == DM_FAULT_NONE &&
-                                        (kind == DM_REF_FETCH || kind == DM_REF_IFETCH ||
-                                         kind == DM_REF_LONGFETCH)) begin
-                                        task_md[ctask]       = u_mem.md;
-                                        task_md_valid[ctask] = 1'b1;
-                                        task_md_ready[ctask] = cycles + 64'(u_mem.last_ref_latency);
-                                    end
-
-                                    if (recorded_fault && kind != DM_REF_IFETCH &&
-                                        !u_mem.mcr_nowake()) begin
-                                        wakeup_pending[15] = 1'b1;
-                                    end
-                                end
-                            end
-                        end
-
-                        // -----------------------------------------------------
-                        // 5. Next-PC & IFUJump Evaluation (next_pc)
-                        // -----------------------------------------------------
-                        np                 = real_PC + 16'd1;
-                        rbase_after_ff     = RBase;
-                        RBase              = rbase_at_issue;
-                        ifu_dispatch_rbase = -1;
-
-                        begin
-                            logic [7:0] jcn;
-                            logic       top1;
-                            logic [1:0] top2;
-                            logic       ff_cond_or;
-                            logic       is_long;
-
-                            jcn        = u.jcn;
-                            top1       = jcn[7];
-                            top2       = jcn[7:6];
-                            ff_cond_or = 1'b0;
-                            is_long    = (jcn[7:4] == 4'd0);
-
-                            if (u.bsel < 3'd4 && !is_long) begin
-                                if (u.asel <= 3'd3) begin
-                                    if ((u.ff[5:0] & 6'o70) == 6'o60) begin
-                                        eval_branch_condition_task(u, u.ff[2:0], ff_cond_or);
-                                    end
-                                end else if (ff_fa(u.ff) == 2'd0 && ff_fb(u.ff) == 3'd6) begin
-                                    eval_branch_condition_task(u, u.ff[2:0], ff_cond_or);
-                                end
-                            end
-
-                            if (top1 == 1'b1) begin
-                                logic [15:0] page_addr;
-                                page_addr = {10'd0, jcn[5:0]};
-                                if (top2 == 2'd2) begin
-                                    // Local Jump/Call
-                                    logic [15:0] page;
-                                    page = real_PC & ~(16'(CPU_PAGE_SIZE - 1));
-                                    np   = page | page_addr | {15'd0, ff_cond_or} | dispatch_or;
-                                    if (page_addr[3:0] == 4'd0 && !ff_loads_link_fn(u)) begin
-                                        Link = real_PC + 16'd1;
-                                    end
-                                end else begin
-                                    // Global Call
-                                    logic [15:0] quadrant;
-                                    quadrant = real_PC & ~(16'(CPU_QUADRANT_SIZE - 1));
-                                    np       = quadrant | (page_addr * 16'(CPU_PAGE_SIZE)) |
-                                               {15'd0, ff_cond_or} | dispatch_or;
-                                    if (!ff_loads_link_fn(u)) Link = real_PC + 16'd1;
-                                end
-                            end else begin
-                                logic [2:0] low3;
-                                low3 = jcn[2:0];
-
-                                if (jcn == 8'o045 && u.ff == 8'o147) begin
-                                    // LoadRam End-item exit
-                                    int          rm_a;
-                                    logic [15:0] flag;
-                                    rm_a = rm_address_fn(u, ctask, RBase, task_subtask[ctask], StkP);
-                                    flag = rm_stk_read_fn(rm_a);
-                                    if (!flag[0]) np = {4'd0, Link[11:0]};
-                                    else          np = (real_PC & ~(16'(CPU_PAGE_SIZE - 1))) | 16'o021;
-                                end else if (jcn[7:4] == 4'd0) begin
-                                    // Long Jump/Call
-                                    logic [15:0] quadrant, addr12;
-                                    quadrant = real_PC & ~(16'(CPU_QUADRANT_SIZE - 1));
-                                    addr12   = {4'd0, u.ff, jcn[3:0]};
-                                    np       = quadrant | addr12 | dispatch_or;
-                                    if (jcn[3:0] == 4'd0 && !ff_loads_link_fn(u)) begin
-                                        Link = real_PC + 16'd1;
-                                    end
-                                end else if (low3 == 3'd7) begin
-                                    if (jcn[7:5] == 3'd1) begin
-                                        // IFUJump (0 0 1 n n 1 1 1)
-                                        logic [1:0] n_slot;
-                                        n_slot = jcn[4:3];
-                                        if (!ifu_active || ifu_warmup > 8'd0) begin
-                                            evc_events |= EVC_EV_IFUNOTREADY;
-                                            np = ifu_trap_addr_fn(6'o34, n_slot);
-                                            if (!ff_loads_link_fn(u)) Link = real_PC + 16'd1;
-                                        end else begin
-                                            logic        resched_trap, cond_true, fetch_faulted, test_feed;
-                                            logic [7:0]  opcode;
-                                            logic [9:0]  ifum_addr;
-                                            logic [15:0] lh, rh, ifaddr, pc_after;
-
-                                            resched_trap = 1'b0;
-                                            if (reschedule_pending > 8'd0) begin
-                                                reschedule_pending = reschedule_pending - 8'd1;
-                                                if (reschedule_pending == 8'd0) resched_trap = 1'b1;
-                                            end
-
-                                            cond_true = 1'b0;
-                                            if (u.bsel < 3'd4 && ff_fa(u.ff) == 2'd0 && ff_fb(u.ff) == 3'd6) begin
-                                                eval_branch_condition_task(u, u.ff[2:0], cond_true);
-                                            end
-
-                                            ifu_pcx       = ifu_pcf;
-                                            fetch_faulted = 1'b0;
-                                            test_feed     = (ifu_test_count > 4'd0);
-
-                                            if (brk_pending) begin
-                                                opcode      = brk_opcode;
-                                                brk_pending = 1'b0;
-                                                test_feed   = 1'b0;
-                                            end else if (test_feed) begin
-                                                ifu_test_pop_byte_task(opcode);
-                                            end else begin
-                                                ifu_fetch_byte_task(ifu_pcf, opcode, fetch_faulted);
-                                            end
-
-                                            if (fetch_faulted) begin
-                                                np = ifu_trap_addr_fn(6'o00, n_slot);
-                                                if (!ff_loads_link_fn(u)) Link = real_PC + 16'd1;
-                                            end else begin
-                                                ifu_opcode = opcode;
-                                                ifum_addr  = {ifu_insset, opcode};
-                                                if (!ifum_present[ifum_addr]) begin
-                                                    halted      = 1'b1;
-                                                    halt_reason = 4'd11; // CPU_HALT_IFU_NO_ENTRY
-                                                end else begin
-                                                    logic op_faulted;
-                                                    lh = ifum_hi[ifum_addr];
-                                                    rh = ifum_lo[ifum_addr];
-
-                                                    // ifu_decode_lh
-                                                    ifu_sign       = lh[15];
-                                                    ifu_length     = {6'd0, ~lh[11:10]};
-                                                    ifu_type_pause = ~lh[5];
-                                                    ifu_type_jump  = ~lh[4];
-                                                    ifu_n          = lh[3:0];
-                                                    if (lh[8] == 1'b0) begin
-                                                        MemBase = {4'd0, MemBX, lh[7:6]};
-                                                    end else begin
-                                                        MemBase = 8'o034 + {6'd0, lh[7:6]};
-                                                    end
-                                                    RBase              = {7'd0, ~lh[9]};
-                                                    ifu_dispatch_rbase = int'(RBase);
-
-                                                    // ifu_decode_rh
-                                                    ifu_packed_a = rh[10];
-                                                    ifaddr       = {6'd0, ~rh[9:0]};
-
-                                                    pc_after   = ifu_pcf + 16'd1;
-                                                    op_faulted = 1'b0;
-                                                    if (ifu_length >= 8'd2) begin
-                                                        if (test_feed && ifu_test_count > 4'd0) begin
-                                                            ifu_test_pop_byte_task(ifu_alpha);
-                                                        end else begin
-                                                            ifu_fetch_byte_task(pc_after, ifu_alpha, op_faulted);
-                                                        end
-                                                        pc_after = pc_after + 16'd1;
-                                                    end
-                                                    if (ifu_length >= 8'd3 && !op_faulted) begin
-                                                        if (test_feed && ifu_test_count > 4'd0) begin
-                                                            ifu_test_pop_byte_task(ifu_beta);
-                                                        end else begin
-                                                            ifu_fetch_byte_task(pc_after, ifu_beta, op_faulted);
-                                                        end
-                                                        pc_after = pc_after + 16'd1;
-                                                    end
-
-                                                    if (op_faulted) begin
-                                                        np   = ifu_trap_addr_fn(6'o00, n_slot);
-                                                        Link = real_PC + 16'd1;
-                                                    end else begin
-                                                        logic emu_or_ft;
-                                                        logic [1:0] n_eff;
-                                                        logic [15:0] tnia;
-                                                        emu_or_ft = (ctask == 4'd0) || (ctask == 4'o17);
-                                                        if (evc_b_enable && (evc_b_tasksall || emu_or_ft) &&
-                                                            evc_b_event == 3'd2) begin
-                                                            event_cnt_b = event_cnt_b + 16'd3;
-                                                        end
-                                                        evc_events |= EVC_EV_IFUJUMP;
-
-                                                        if (cond_true) begin
-                                                            // Hold pipeline
-                                                        end else if (ifu_type_pause) begin
-                                                            ifu_active = 1'b0;
-                                                        end else if (ifu_type_jump) begin
-                                                            logic signed [15:0] disp;
-                                                            if (ifu_length == 8'd1) begin
-                                                                logic [5:0] s6;
-                                                                s6   = {ifu_sign, ifu_packed_a, ifu_n};
-                                                                disp = {{10{s6[5]}}, s6};
-                                                            end else begin
-                                                                disp = {ifu_sign ? {8{ifu_alpha[7]}} : 8'd0, ifu_alpha};
-                                                            end
-                                                            ifu_pcf = ifu_pcx + 16'(disp);
-                                                        end else begin
-                                                            ifu_pcf = pc_after;
-                                                        end
-
-                                                        ifu_idcnt             = 8'd0;
-                                                        ifu_save_stkp_pending = 1'b1;
-                                                        ifu_dispatch_count    = ifu_dispatch_count + 64'd1;
-
-                                                        n_eff = n_slot | {1'b0, cond_true};
-                                                        tnia  = (ifaddr << 2) | {14'd0, n_eff};
-                                                        if (resched_trap) begin
-                                                            tnia = ifu_trap_addr_fn(6'o14, n_slot);
-                                                        end
-                                                        np   = {4'd0, tnia[11:0]};
-                                                        Link = real_PC + 16'd1;
-                                                    end
-                                                end
-                                            end
-                                        end
-                                    end else if (jcn[6] == 1'b1) begin
-                                        // Return / Read TPC / Write TPC / Read IM / Write IM
-                                        case (jcn[5:3])
-                                            3'd0: begin // Return
-                                                np = {4'd0, link_at_issue[11:0]} |
-                                                     {15'd0, ff_cond_or} | dispatch_or;
-                                                if (!ff_loads_link_fn(u)) Link = real_PC + 16'd1;
-                                            end
-                                            3'd4: begin // RdTPC <- B
-                                                logic [3:0]  t_sel;
-                                                logic [15:0] tpc;
-                                                t_sel             = b[3:0];
-                                                tpc               = (t_sel == ctask) ? real_PC : task_tpc[t_sel];
-                                                Link              = real_PC + 16'd1;
-                                                b_link_read       = ~tpc;
-                                                b_link_read_valid = 1'b1;
-                                                b_link_read_age   = 1'b0;
-                                                np                = real_PC + 16'd1;
-                                            end
-                                            3'd5: begin // LdTPC <- B
-                                                logic [3:0] t_sel;
-                                                t_sel = b[3:0];
-                                                task_dispatch[t_sel] = 16'd0;
-                                                if (t_sel != ctask) task_tpc[t_sel] = Link;
-                                                Link = real_PC + 16'd1;
-                                                np   = real_PC + 16'd1;
-                                            end
-                                            3'd6: begin // Read IM
-                                                logic [11:0] im_addr;
-                                                logic [1:0]  sel;
-                                                logic [15:0] lane;
-                                                im_addr = link_at_issue[11:0];
-                                                sel     = u.rstk[1:0];
-                                                case (sel)
-                                                    2'd0: lane = {7'd0, im_iw2[im_addr][15], im_iw0[im_addr][15:8]};
-                                                    2'd1: lane = {8'd0, im_iw0[im_addr][7:0]};
-                                                    2'd2: lane = {7'd0, im_iw1[im_addr][15], im_iw1[im_addr][14:7]};
-                                                    2'd3: lane = {8'd0, im_iw1[im_addr][6:0], im_iw2[im_addr][14]};
-                                                endcase
-                                                b_link_read       = ~lane;
-                                                b_link_read_valid = 1'b1;
-                                                b_link_read_age   = 1'b0;
-                                                Link              = real_PC + 16'd1;
-                                                np                = real_PC + 16'd1;
-                                            end
-                                            3'd7: begin // Write IM
-                                                logic [11:0] im_addr;
-                                                logic        half_lh, secondary;
-                                                im_addr   = link_at_issue[11:0];
-                                                half_lh   = u.rstk[0];
-                                                secondary = u.rstk[1];
-                                                if (half_lh) begin
-                                                    im_iw0[im_addr]     = b;
-                                                    im_iw2[im_addr][15] = secondary;
-                                                end else begin
-                                                    im_iw1[im_addr]     = {secondary, b[15:1]};
-                                                    im_iw2[im_addr][14] = b[0];
-                                                end
-                                                im_present[im_addr] = 1'b1;
-                                                Link                = real_PC + 16'd1;
-                                                np                  = real_PC + 16'd1;
-                                            end
-                                            default: begin
-                                                halted      = 1'b1;
-                                                halt_reason = 4'd4; // CPU_HALT_UNSUPPORTED_JCN
-                                            end
-                                        endcase
-                                    end else begin
-                                        halted      = 1'b1;
-                                        halt_reason = 4'd4;
-                                    end
-                                end else begin
-                                    // Conditional Jump/Call
-                                    logic        cond_val;
-                                    logic [15:0] page, offset;
-                                    eval_branch_condition_task(u, low3, cond_val);
-                                    offset = {10'd0, jcn[6:5], 1'b0, jcn[4:3], cond_val};
-                                    page   = real_PC & ~(16'(CPU_PAGE_SIZE - 1));
-                                    np     = page | offset | dispatch_or;
-                                    if (jcn[4:3] == 2'd0 && !ff_loads_link_fn(u)) begin
-                                        Link = real_PC + 16'd1;
-                                    end
-                                end
-                            end
-                        end
-
-                        RBase = (ifu_dispatch_rbase >= 0) ? 8'(ifu_dispatch_rbase) : rbase_after_ff;
-
-                        if (!halted) begin
-                            // -------------------------------------------------
-                            // 6. LC Writeback (apply_lc) using rbase_at_issue
-                            // -------------------------------------------------
-                            int rm_w;
-                            rbase_next_instr = RBase;
-                            RBase            = rbase_at_issue;
-                            rm_w             = lc_write_address_fn(u, ctask, RBase,
-                                                                   task_subtask[ctask], StkP);
-                            case (u.lc)
-                                3'd0: ;
-                                3'd1: T = pd;
-                                3'd2: begin
-                                    if (rm_w >= 256) STK[rm_w & 255] = pd;
-                                    else             RM[rm_w & 255]  = pd;
-                                    T = md_at_issue;
-                                end
-                                3'd3: T = md_at_issue;
-                                3'd4: begin
-                                    if (rm_w >= 256) STK[rm_w & 255] = md_at_issue;
-                                    else             RM[rm_w & 255]  = md_at_issue;
-                                end
-                                3'd5: begin
-                                    T = ff_is_t_gets_md(u) ? md_at_issue : pd;
-                                    if (rm_w >= 256) STK[rm_w & 255] = md_at_issue;
-                                    else             RM[rm_w & 255]  = md_at_issue;
-                                end
-                                3'd6: begin
-                                    if (rm_w >= 256) STK[rm_w & 255] = pd;
-                                    else             RM[rm_w & 255]  = pd;
-                                end
-                                3'd7: begin
-                                    T = pd;
-                                    if (rm_w >= 256) STK[rm_w & 255] = pd;
-                                    else             RM[rm_w & 255]  = pd;
-                                end
-                            endcase
-                            RBase = rbase_next_instr;
-
-                            // -------------------------------------------------
-                            // 7. Post-Instruction StkP Update & FreezeBC Commit
-                            // -------------------------------------------------
-                            if (u.block && ctask == 4'd0) begin
-                                logic [7:0] d8;
-                                d8 = ff_is_dont_modify_stkp(u) ? 8'd0 : stk_signed_delta(u.rstk);
-                                if (d8 != 8'd0 || (u.rstk[3] && !ff_is_dont_modify_stkp(u))) begin
-                                    stk_und = stk_underflow;
-                                    stk_ovf = stk_overflow;
-                                    StkP    = {StkP[7:6], 6'(StkP[5:0] + d8[5:0])};
-                                end
-                            end
-                            if (ifu_save_stkp_pending) begin
-                                ifu_saved_stkp        = StkP;
-                                ifu_save_stkp_pending = 1'b0;
-                            end
-
-                            if (!(ff_full_function_ok(u) && ff_fa(u.ff) == 2'd0 &&
-                                  ff_fb(u.ff) == 3'd7 && ff_fc(u.ff) == 3'd6)) begin
-                                alu_zero     = new_alu_zero;
-                                alu_lt0      = new_alu_lt0;
-                                alu_carry    = new_carry;
-                                alu_overflow = new_ovf;
-                            end
-
-                            // -------------------------------------------------
-                            // 8. End-of-Instruction Task Scheduling & Ticks
-                            // -------------------------------------------------
-                            prev_PC = real_PC;
-                            if (from_im) junk_timer_tick_task();
-
-                            task_schedule_task(np, (u.block && ctask != 4'd0), 1'b0, real_PC);
-
-                            if (from_im) begin
+                        if (stk_err) begin
+                            logic [15:0] keep_pc;
+                            stk_und            = x_stk_underflow;
+                            stk_ovf            = x_stk_overflow;
+                            wakeup_pending[15] = 1'b1;
+                            prev_PC            = real_PC;
+                            if (x_from_im) junk_timer_tick_task();
+                            task_schedule_task(real_PC, 1'b0, 1'b0, keep_pc);
+                            real_PC = keep_pc;
+                            if (x_from_im) begin
                                 cycles = cycles + 64'd1;
-                                u_mem.memory_tick();
+                                memory_tick();
                             end
-
                             if (ifu_active && ifu_warmup > 8'd0) begin
                                 ifu_warmup = ifu_warmup - 8'd1;
                             end
+                            step_done = 1'b1;
+                        end else begin
+                            // -------------------------------------------------
+                            // 1. Issue-Time Snapshots
+                            // -------------------------------------------------
+                            link_at_issue = Link;
+                            if (b_link_read_valid) begin
+                                if (b_link_read_age) b_link_read_valid = 1'b0;
+                                else                 b_link_read_age   = 1'b1;
+                            end
+                            dispatch_or          = task_dispatch[ctask];
+                            task_dispatch[ctask] = 16'd0;
+                            x_md_at_issue        = cur_task_md;
+                            x_rbase_at_issue     = RBase;
+                            x_membase_at_issue   = MemBase[4:0];
+                            io_atten_at_issue    = (io_attached && ctask != 4'd0) ? io_atten_in : 1'b0;
+
+                            // -------------------------------------------------
+                            // 2. Combinational Bus & ALU Results + Side Effects
+                            // -------------------------------------------------
+                            a                = comb_alu_a;
+                            b                = comb_alu_b;
+                            alu              = alu_result;
+                            shift_active_cur = (u.asel == 3'd7);
+
+                            if (ff_full_function_ok(u) && ff_fa(u.ff) == 2'd1) begin
+                                if (ff_fb(u.ff) == 3'd6) begin
+                                    if (ff_fc(u.ff) == 3'd0) fault_clear();
+                                    if (u.bsel == 3'd3) Q = b;
+                                end else if (ff_fb(u.ff) == 3'd7) begin
+                                    if (ff_fc(u.ff) == 3'd6) Link = b;
+                                    if (ff_fc(u.ff) == 3'd7) b_link_read_valid = 1'b0;
+                                    if (u.bsel == 3'd3) Q = b;
+                                end
+                            end
+
+                            if (u.asel == 3'd5 ||
+                                ((u.asel == 3'd2 || u.asel == 3'd3) &&
+                                 ff_decode_ok(u) && u.ff[7:6] == 2'd1)) begin
+                                ifu_idcnt = ifu_idcnt + 8'd1;
+                            end
+                            x_ifetch_id = ifu_id_at_fn(ifu_idcnt);
+
+                            x_alu_live_carry = alu_is_arith_out ? alu_carry_out : 1'b0;
+                            x_new_carry      = alu_is_arith_out ? alu_carry_out : alu_carry;
+                            x_new_ovf        = alu_is_arith_out ? alu_overflow_out : alu_overflow;
+                            x_new_alu_zero   = (alu == 16'd0);
+                            x_new_alu_lt0    = alu[15];
+
+                            // -------------------------------------------------
+                            // 3. FF Post-ALU Side Effects (ff_apply_post)
+                            // -------------------------------------------------
+                            pd         = alu;
+                            fa         = ff_fa(u.ff);
+                            fb         = ff_fb(u.ff);
+                            fc         = ff_fc(u.ff);
+                            ff_exec_ok = ff_full_function_ok(u);
+
+                            if (!ff_exec_ok && ff_decode_ok(u) && u.asel <= 3'd3) begin
+                                fa         = 2'd0;
+                                fb         = u.ff[5:3];
+                                fc         = u.ff[2:0];
+                                ff_exec_ok = 1'b1;
+                            end
+
+                            // Special long-call Output<-B form (cpu.c:1892)
+                            if (u.asel == 3'd4 && u.bsel == 3'd1 && u.lc == 3'd6 &&
+                                u.aluf == 4'o13 && u.ff == 8'o327 && u.jcn == 8'o017 &&
+                                io_attached && io_has_write_in) begin
+                                io_write_stb     = 1'b1;
+                                io_write_task    = ctask;
+                                io_write_subtask = task_subtask[ctask];
+                                io_write_tioa    = TIOA;
+                                io_write_data    = b;
+                            end
+
+                            if (ff_exec_ok) begin
+                                if (fa == 2'd0) begin
+                                    if (fb == 3'd3) begin
+                                        case (fc)
+                                            3'd1: pd = get_read_map();
+                                            3'd2: begin
+                                                pd            = io_attached ? io_read_data : 16'hFFFF;
+                                                io_bad_parity = io_attached ? io_read_bad_parity : 1'b1;
+                                                if (io_attached) begin
+                                                    io_read_stb         = 1'b1;
+                                                    io_read_stb_task    = ctask;
+                                                    io_read_stb_subtask = task_subtask[ctask];
+                                                    io_read_stb_tioa    = TIOA;
+                                                end
+                                            end
+                                            3'd3: begin
+                                                pd            = io_attached ? io_read_data : 16'hFFFF;
+                                                if (io_attached) begin
+                                                    io_read_stb         = 1'b1;
+                                                    io_read_stb_task    = ctask;
+                                                    io_read_stb_subtask = task_subtask[ctask];
+                                                    io_read_stb_tioa    = TIOA;
+                                                end
+                                            end
+                                            3'd4, 3'd5: ifu_idcnt = ifu_idcnt + 8'd1; // RisId / TisId
+                                            3'd6: begin
+                                                if (io_attached) begin
+                                                    io_write_stb     = 1'b1;
+                                                    io_write_task    = ctask;
+                                                    io_write_subtask = task_subtask[ctask];
+                                                    io_write_tioa    = TIOA;
+                                                    io_write_data    = b;
+                                                end
+                                            end
+                                            3'd7: MemBase = MemBase ^ 8'h01; // FlipMemBase
+                                            default: ;
+                                        endcase
+                                    end else if (fb == 3'd7) begin
+                                        case (fc)
+                                            3'd0: begin // BigBDispatch <- B
+                                                Link                 = b;
+                                                task_dispatch[ctask] = {8'd0, b[7:0]};
+                                            end
+                                            3'd1: begin // BDispatch <- B
+                                                Link                 = b;
+                                                task_dispatch[ctask] = {13'd0, b[2:0]};
+                                            end
+                                            3'd2: begin // Multiply
+                                                task_dispatch[ctask] |= (Q & 16'h0002);
+                                                Q  = {alu[0], Q[15:1]};
+                                                pd = {x_alu_live_carry, alu[15:1]};
+                                            end
+                                            3'd3: Q = b;
+                                            default: ;
+                                        endcase
+                                    end
+                                end else if (fa == 2'd1) begin
+                                    if (fb == 3'd0) begin
+                                        case (fc)
+                                            3'd0: begin // PCF <- B
+                                                ifu_pcf    = b;
+                                                ifu_idcnt  = 8'd0;
+                                                ifu_active = 1'b1;
+                                                ifu_warmup = 8'd5;
+                                            end
+                                            3'd1: begin // IFUTest <- B
+                                                ifu_test         = b;
+                                                ifu_test_pending = 1'b1;
+                                                if (b[0]) junk_timer_enable_task(1'b0);
+                                            end
+                                            3'd2: ifu_test_tick_task(); // IFUTick
+                                            3'd3: reschedule_pending = 8'd1; // RescheduleNow
+                                            3'd4: junk_timer_enable_task(b[0]); // AckJunkTW <- B
+                                            3'd5: MemBase = {3'd0, b[12:8]};
+                                            3'd6: RBase   = {4'd0, b[3:0]};
+                                            3'd7: begin
+                                                MemBase = {3'd0, b[12:8]};
+                                                RBase   = {4'd0, b[3:0]};
+                                            end
+                                        endcase
+                                    end else if (fb == 3'd2) begin
+                                        case (fc)
+                                            3'd2: cflags_load(a);
+                                            3'd3: if (!mcr_disbr()) br[MemBase[4:0]][15:0]  = a;
+                                            3'd4: if (!mcr_disbr()) br[MemBase[4:0]][27:16] = a[11:0];
+                                            3'd6: mcr = (a & 16'hFFE0) | (b & 16'h0007);
+                                            3'd7: proc_srn = b[3:0];
+                                            default: ;
+                                        endcase
+                                    end else if (fb == 3'd3) begin
+                                        case (fc)
+                                            3'd0: begin // InsSetorEvent <- B
+                                                if (b[15]) begin
+                                                    ifu_insset = b[9:8];
+                                                end else begin
+                                                    event_cnt_ctrl_hi = b[11:8];
+                                                    event_cnt_ctrl_lo = b[7:0];
+                                                    gen_io_mode       = ((b & 16'h0C00) == 16'd0);
+                                                    evc_a_enable      = b[11];
+                                                    evc_a_event       = b[7:5];
+                                                    evc_a_tasksall    = b[4];
+                                                    evc_b_enable      = b[10];
+                                                    evc_b_event       = b[3:1];
+                                                    evc_b_tasksall    = b[0];
+                                                end
+                                            end
+                                            3'd1: event_cnt_b = b;
+                                            3'd2: begin
+                                                reschedule_pending = 8'd2;
+                                                reschedule_cond    = 1'b1;
+                                            end
+                                            3'd3: begin
+                                                reschedule_pending = 8'd0;
+                                                reschedule_cond    = 1'b0;
+                                            end
+                                            3'd4, 3'd5: begin // IFUMRH / IFUMLH <- B
+                                                x_ifum_wr    = 1'b1;
+                                                x_ifum_hi    = (fc == 3'd4);
+                                                x_ifum_waddr = {ifu_insset, ifu_opcode};
+                                                x_ifum_wd    = b;
+                                            end
+                                            3'd6: begin // IFUReset
+                                                ifu_active       = 1'b0;
+                                                ifu_warmup       = 8'd0;
+                                                ifu_pcf          = 16'd0;
+                                                ifu_test         = 16'd1;
+                                                ifu_test_pending = 1'b0;
+                                                ifu_test_count   = 4'd0;
+                                                brk_pending      = 1'b0;
+                                                brk_opcode       = 8'd0;
+                                            end
+                                            3'd7: begin // BrkIns <- B
+                                                ifu_opcode  = b[15:8];
+                                                brk_opcode  = b[15:8];
+                                                brk_pending = 1'b1;
+                                            end
+                                        endcase
+                                    end else if (fb == 3'd4) begin
+                                        case (fc)
+                                            3'd0: dmux_pending = 1'b0; // UseDMD
+                                            3'd1: dmux_strobe(b);
+                                            3'd2: begin
+                                                tasking_on           = 1'b0;
+                                                tasking_resume_delay = 8'd0;
+                                            end
+                                            3'd3: tasking_resume_delay = 8'd2;
+                                            3'd4: StkP = b[7:0];
+                                            3'd5: StkP = ifu_saved_stkp;
+                                            3'd6: Cnt  = b;
+                                            3'd7: Link = b;
+                                        endcase
+                                    end else if (fb == 3'd5) begin
+                                        case (fc)
+                                            3'd0: Q    = Q << 1;
+                                            3'd1: Q    = Q >> 1;
+                                            3'd2: TIOA = b[15:8];
+                                            3'd4: begin // Hold&TaskSim <- B
+                                                tasksim                             = b[14:8];
+                                                holdsim                             = {b[7:1], 1'b0};
+                                                tasksim_fired                       = 1'b0;
+                                                tasksim_loaded                      = 1'b1;
+                                                holdsim_loaded                      = 1'b1;
+                                                wakeup_pending[DORADO_TASKSIM_TASK] = 1'b0;
+                                                wakeup_pipe[0][DORADO_TASKSIM_TASK] = 1'b0;
+                                                wakeup_pipe[1][DORADO_TASKSIM_TASK] = 1'b0;
+                                            end
+                                            3'd5: ShC = field_desc_to_shc(a, 1'b1);
+                                            3'd6: ShC = field_desc_to_shc(a, 1'b0);
+                                            3'd7: ShC = b;
+                                            default: ;
+                                        endcase
+                                    end
+                                end else if (fa == 2'd2) begin
+                                    if (fb <= 3'd1) begin
+                                        RBase = {4'd0, u.ff[3:0]};
+                                    end else if (fb == 3'd4) begin
+                                        TIOA = {TIOA[7:3], u.ff[2:0]};
+                                    end else if (fb == 3'd5) begin
+                                        if (fc <= 3'd3) begin
+                                            MemBase = {4'd0, MemBX, u.ff[1:0]};
+                                        end
+                                    end else if (fb == 3'd6) begin
+                                        case (fc)
+                                            3'd2, 3'd3: begin // ALUFMRW / ALUFMEM
+                                                if (dmux_pending) begin
+                                                    dmux_read(pd);
+                                                end else begin
+                                                    pd = alufm_present[u.aluf] ? {10'd0, alufm[u.aluf]} : 16'd0;
+                                                    if (fc == 3'd2) begin
+                                                        alufm[u.aluf]         = {b[7], b[4:0]};
+                                                        alufm_present[u.aluf] = 1'b1;
+                                                    end
+                                                end
+                                            end
+                                            3'd4: pd = Cnt;
+                                            3'd5: pd = {1'b0, MemBX, MemBase[4:0], stk_ovf, stk_und, 2'b00, RBase[3:0]};
+                                            3'd6: pd = {TIOA, StkP};
+                                            3'd7: pd = ShC;
+                                            default: ;
+                                        endcase
+                                    end else if (fb == 3'd7) begin
+                                        case (fc)
+                                            3'd0: pd = alu >> 1;
+                                            3'd1: pd = (alu >> 1) | (alu << 15);
+                                            3'd2: pd = {x_alu_live_carry, alu[15:1]};
+                                            3'd3: pd = {alu[15], alu[15:1]};
+                                            3'd4: pd = alu << 1;
+                                            3'd5: pd = (alu << 1) | (alu >> 15);
+                                            3'd6: begin // Divide
+                                                logic q0;
+                                                q0 = Q[15];
+                                                Q  = {Q[14:0], x_alu_live_carry};
+                                                pd = {alu[14:0], q0};
+                                            end
+                                            3'd7: begin // CDivide
+                                                logic q0;
+                                                q0 = Q[15];
+                                                Q  = {Q[14:0], ~x_alu_live_carry};
+                                                pd = {alu[14:0], q0};
+                                            end
+                                        endcase
+                                    end
+                                end else if (fa == 2'd3) begin
+                                    if (fb <= 3'd3) begin
+                                        MemBase = {3'd0, u.ff[4:0]};
+                                    end else if (fb == 3'd4 || fb == 3'd5) begin
+                                        Cnt = (u.ff[3:0] == 4'd0) ? 16'd16 : {12'd0, u.ff[3:0]};
+                                    end else if (fb == 3'd6 || fb == 3'd7) begin
+                                        wakeup_pipe[0][u.ff[3:0]] = 1'b1;
+                                    end
+                                end
+                            end
+
+                            // Barrel-shifter Pd-mux stage (post-ALU)
+                            if (shift_active_cur) begin
+                                pd = (pd & ~shifter_out_mask) | (shifter_out_fill & shifter_out_mask);
+                            end
+
+                            x_a   = a;
+                            x_b   = b;
+                            x_alu = alu;
+                            x_pd  = pd;
+                            st    = C_NEXT;
+
+                            // -------------------------------------------------
+                            // 4. Processor Memory Reference (ASEL = 0..3)
+                            // -------------------------------------------------
+                            if (u.asel <= 3'd3 && !jcn_is_write_im_fn(u)) begin
+                                logic           io_task;
+                                dm_ref_kind_t   kind;
+                                logic           skip_to_done;
+
+                                io_task      = (ctask != 4'd0);
+                                kind         = decode_ref_kind_fn(u, io_task);
+                                skip_to_done = 1'b0;
+
+                                if (kind != DM_REF_NONE) begin
+                                    if (kind == DM_REF_IOSTORE && io_attached && io_has_write_in) begin
+                                        io_write_stb     = 1'b1;
+                                        io_write_task    = ctask;
+                                        io_write_subtask = task_subtask[ctask];
+                                        io_write_tioa    = TIOA;
+                                        io_write_data    = b;
+                                        if (ctask != 4'd0) skip_to_done = 1'b1;
+                                    end
+
+                                    if (!skip_to_done) begin
+                                        logic [4:0]  mb_eff;
+                                        logic [27:0] br_val, disp, va;
+
+                                        mb_eff = x_membase_at_issue;
+                                        if (ctask != 4'd0) begin
+                                            mb_eff |= {2'b00, task_subtask[ctask], 1'b0};
+                                        end
+                                        br_val = mcr_disbr() ? 28'd0 : br[mb_eff];
+                                        if (kind == DM_REF_IFETCH) begin
+                                            br_val = {br_val[27:8], x_ifetch_id[7:0]};
+                                        end
+                                        disp = (kind == DM_REF_LONGFETCH)
+                                             ? {b[11:0], a}
+                                             : {12'd0, a};
+                                        va = (br_val + disp) & 28'h0FFFFFFF;
+
+                                        x_fcnt_before = fault_count;
+                                        x_kind        = kind;
+                                        mem_launch(kind, va, b, TIOA, ctask,
+                                                   task_subtask[ctask], C_PREF);
+                                    end
+                                end
+                            end
                         end
                     end
                 end
             end
+
+            // -----------------------------------------------------------------
+            C_PREF: begin
+                logic recorded_fault;
+                recorded_fault = (m_fault != DM_FAULT_NONE) ||
+                                 (fault_count != x_fcnt_before);
+                evc_events |= EVC_EV_PROCREF;
+                if (last_ref_miss) evc_events |= EVC_EV_MISS;
+
+                if (m_fault == DM_FAULT_NONE &&
+                    (x_kind == DM_REF_FETCH || x_kind == DM_REF_IFETCH ||
+                     x_kind == DM_REF_LONGFETCH)) begin
+                    task_md[ctask]       = md;
+                    task_md_valid[ctask] = 1'b1;
+                    task_md_ready[ctask] = cycles + 64'(last_ref_latency);
+                end
+
+                if (recorded_fault && x_kind != DM_REF_IFETCH && !mcr_nowake()) begin
+                    wakeup_pending[15] = 1'b1;
+                end
+                st = C_NEXT;
+            end
+
+            // -----------------------------------------------------------------
+            // 5. Next-PC & IFUJump Evaluation (next_pc)
+            // -----------------------------------------------------------------
+            C_NEXT: begin
+                dorado_uinstr_t u;
+                logic [7:0]  jcn;
+                logic        top1;
+                logic [1:0]  top2;
+                logic        is_long;
+                logic [15:0] np;
+
+                u                  = x_u;
+                np                 = real_PC + 16'd1;
+                x_rbase_after_ff   = RBase;
+                RBase              = x_rbase_at_issue;
+                ifu_dispatch_rbase = -1;
+                st                 = C_FINISH;
+
+                jcn        = u.jcn;
+                top1       = jcn[7];
+                top2       = jcn[7:6];
+                x_ff_cond_or = 1'b0;
+                is_long    = (jcn[7:4] == 4'd0);
+
+                if (u.bsel < 3'd4 && !is_long) begin
+                    if (u.asel <= 3'd3) begin
+                        if ((u.ff[5:0] & 6'o70) == 6'o60) begin
+                            eval_branch_condition_task(u, u.ff[2:0], x_ff_cond_or);
+                        end
+                    end else if (ff_fa(u.ff) == 2'd0 && ff_fb(u.ff) == 3'd6) begin
+                        eval_branch_condition_task(u, u.ff[2:0], x_ff_cond_or);
+                    end
+                end
+
+                if (top1 == 1'b1) begin
+                    logic [15:0] page_addr;
+                    page_addr = {10'd0, jcn[5:0]};
+                    if (top2 == 2'd2) begin
+                        // Local Jump/Call
+                        np = (real_PC & ~(16'(CPU_PAGE_SIZE - 1))) | page_addr |
+                             {15'd0, x_ff_cond_or} | dispatch_or;
+                        if (page_addr[3:0] == 4'd0 && !ff_loads_link_fn(u)) begin
+                            Link = real_PC + 16'd1;
+                        end
+                    end else begin
+                        // Global Call
+                        np = (real_PC & ~(16'(CPU_QUADRANT_SIZE - 1))) |
+                             (page_addr * 16'(CPU_PAGE_SIZE)) |
+                             {15'd0, x_ff_cond_or} | dispatch_or;
+                        if (!ff_loads_link_fn(u)) Link = real_PC + 16'd1;
+                    end
+                end else begin
+                    logic [2:0] low3;
+                    low3 = jcn[2:0];
+
+                    if (jcn == 8'o045 && u.ff == 8'o147) begin
+                        // LoadRam End-item exit
+                        logic [15:0] flag;
+                        flag = rm_stk_read_fn(rm_address_fn(u, ctask, RBase,
+                                                            task_subtask[ctask], StkP));
+                        if (!flag[0]) np = {4'd0, Link[11:0]};
+                        else          np = (real_PC & ~(16'(CPU_PAGE_SIZE - 1))) | 16'o021;
+                    end else if (jcn[7:4] == 4'd0) begin
+                        // Long Jump/Call
+                        np = (real_PC & ~(16'(CPU_QUADRANT_SIZE - 1))) |
+                             {4'd0, u.ff, jcn[3:0]} | dispatch_or;
+                        if (jcn[3:0] == 4'd0 && !ff_loads_link_fn(u)) begin
+                            Link = real_PC + 16'd1;
+                        end
+                    end else if (low3 == 3'd7) begin
+                        if (jcn[7:5] == 3'd1) begin
+                            // IFUJump (0 0 1 n n 1 1 1)
+                            x_n_slot = jcn[4:3];
+                            if (!ifu_active || ifu_warmup > 8'd0) begin
+                                evc_events |= EVC_EV_IFUNOTREADY;
+                                np = ifu_trap_addr_fn(6'o34, x_n_slot);
+                                if (!ff_loads_link_fn(u)) Link = real_PC + 16'd1;
+                            end else begin
+                                x_resched_trap = 1'b0;
+                                if (reschedule_pending > 8'd0) begin
+                                    reschedule_pending = reschedule_pending - 8'd1;
+                                    if (reschedule_pending == 8'd0) x_resched_trap = 1'b1;
+                                end
+
+                                x_cond_true = 1'b0;
+                                if (u.bsel < 3'd4 && ff_fa(u.ff) == 2'd0 && ff_fb(u.ff) == 3'd6) begin
+                                    eval_branch_condition_task(u, u.ff[2:0], x_cond_true);
+                                end
+
+                                ifu_pcx     = ifu_pcf;
+                                x_test_feed = (ifu_test_count > 4'd0);
+
+                                if (brk_pending) begin
+                                    ifu_opcode  = brk_opcode;
+                                    brk_pending = 1'b0;
+                                    x_test_feed = 1'b0;
+                                    st          = C_IFU_DECW;
+                                end else if (x_test_feed) begin
+                                    ifu_test_pop_byte_task(ifu_opcode);
+                                    st          = C_IFU_DECW;
+                                end else begin
+                                    ifu_launch_fetch(ifu_pcf, C_IFU_OPW);
+                                end
+                            end
+                        end else if (jcn[6] == 1'b1) begin
+                            // Return / Read TPC / Write TPC / Read IM / Write IM
+                            case (jcn[5:3])
+                                3'd0: begin // Return
+                                    np = {4'd0, link_at_issue[11:0]} |
+                                         {15'd0, x_ff_cond_or} | dispatch_or;
+                                    if (!ff_loads_link_fn(u)) Link = real_PC + 16'd1;
+                                end
+                                3'd4: begin // RdTPC <- B
+                                    logic [3:0]  t_sel;
+                                    logic [15:0] tpc;
+                                    t_sel             = x_b[3:0];
+                                    tpc               = (t_sel == ctask) ? real_PC : task_tpc[t_sel];
+                                    Link              = real_PC + 16'd1;
+                                    b_link_read       = ~tpc;
+                                    b_link_read_valid = 1'b1;
+                                    b_link_read_age   = 1'b0;
+                                    np                = real_PC + 16'd1;
+                                end
+                                3'd5: begin // LdTPC <- B
+                                    logic [3:0] t_sel;
+                                    t_sel = x_b[3:0];
+                                    task_dispatch[t_sel] = 16'd0;
+                                    if (t_sel != ctask) task_tpc[t_sel] = Link;
+                                    Link = real_PC + 16'd1;
+                                    np   = real_PC + 16'd1;
+                                end
+                                3'd6: begin // Read IM (word at link_at_issue in im_q*)
+                                    logic [15:0] lane;
+                                    case (u.rstk[1:0])
+                                        2'd0: lane = {7'd0, im_q2[15], im_q0[15:8]};
+                                        2'd1: lane = {8'd0, im_q0[7:0]};
+                                        2'd2: lane = {7'd0, im_q1[15], im_q1[14:7]};
+                                        2'd3: lane = {8'd0, im_q1[6:0], im_q2[14]};
+                                    endcase
+                                    b_link_read       = ~lane;
+                                    b_link_read_valid = 1'b1;
+                                    b_link_read_age   = 1'b0;
+                                    Link              = real_PC + 16'd1;
+                                    np                = real_PC + 16'd1;
+                                end
+                                3'd7: begin // Write IM (committed in C_FINISH)
+                                    logic secondary;
+                                    secondary = u.rstk[1];
+                                    x_im_wr   = 1'b1;
+                                    x_im_wd0  = im_q0;
+                                    x_im_wd1  = im_q1;
+                                    x_im_wd2  = im_q2;
+                                    if (u.rstk[0]) begin
+                                        x_im_wd0     = x_b;
+                                        x_im_wd2[15] = secondary;
+                                    end else begin
+                                        x_im_wd1     = {secondary, x_b[15:1]};
+                                        x_im_wd2[14] = x_b[0];
+                                    end
+                                    Link = real_PC + 16'd1;
+                                    np   = real_PC + 16'd1;
+                                end
+                                default: begin
+                                    halted      = 1'b1;
+                                    halt_reason = 4'd4; // CPU_HALT_UNSUPPORTED_JCN
+                                end
+                            endcase
+                        end else begin
+                            halted      = 1'b1;
+                            halt_reason = 4'd4;
+                        end
+                    end else begin
+                        // Conditional Jump/Call
+                        logic cond_val;
+                        eval_branch_condition_task(u, low3, cond_val);
+                        np = (real_PC & ~(16'(CPU_PAGE_SIZE - 1))) |
+                             {10'd0, jcn[6:5], 1'b0, jcn[4:3], cond_val} | dispatch_or;
+                        if (jcn[4:3] == 2'd0 && !ff_loads_link_fn(u)) begin
+                            Link = real_PC + 16'd1;
+                        end
+                    end
+                end
+                x_np = np;
+            end
+
+            // -----------------------------------------------------------------
+            // IFUJump: opcode fetch returned
+            // -----------------------------------------------------------------
+            C_IFU_OPW: begin
+                if (last_ref_miss) evc_events |= EVC_EV_MISS;
+                if (m_fault != DM_FAULT_NONE) begin
+                    x_np = ifu_trap_addr_fn(6'o00, x_n_slot);
+                    if (!ff_loads_link_fn(x_u)) Link = real_PC + 16'd1;
+                    st = C_FINISH;
+                end else begin
+                    ifu_opcode = ifu_fetched_byte();
+                    st         = C_IFU_DECW;
+                end
+            end
+
+            // IFUM is being read at {InsSet, opcode} this clock.
+            C_IFU_DECW: st = C_IFU_DEC;
+
+            C_IFU_DEC: begin
+                if (!ifum_q_pres) begin
+                    halted      = 1'b1;
+                    halt_reason = 4'd11; // CPU_HALT_IFU_NO_ENTRY
+                    st          = C_FINISH;
+                end else begin
+                    x_lh = ifum_q_hi;
+                    x_rh = ifum_q_lo;
+
+                    // ifu_decode_lh
+                    ifu_sign       = x_lh[15];
+                    ifu_length     = {6'd0, ~x_lh[11:10]};
+                    ifu_type_pause = ~x_lh[5];
+                    ifu_type_jump  = ~x_lh[4];
+                    ifu_n          = x_lh[3:0];
+                    if (x_lh[8] == 1'b0) MemBase = {4'd0, MemBX, x_lh[7:6]};
+                    else                 MemBase = 8'o034 + {6'd0, x_lh[7:6]};
+                    RBase              = {7'd0, ~x_lh[9]};
+                    ifu_dispatch_rbase = int'(RBase);
+
+                    // ifu_decode_rh
+                    ifu_packed_a = x_rh[10];
+                    x_ifaddr     = {6'd0, ~x_rh[9:0]};
+
+                    x_pc_after   = ifu_pcf + 16'd1;
+                    x_op_faulted = 1'b0;
+                    st           = C_IFU_BETA;
+                    if (ifu_length >= 8'd2) begin
+                        if (x_test_feed && ifu_test_count > 4'd0) begin
+                            ifu_test_pop_byte_task(ifu_alpha);
+                            x_pc_after = x_pc_after + 16'd1;
+                        end else begin
+                            ifu_launch_fetch(x_pc_after, C_IFU_AW);
+                        end
+                    end
+                end
+            end
+
+            C_IFU_AW: begin
+                if (last_ref_miss) evc_events |= EVC_EV_MISS;
+                if (m_fault != DM_FAULT_NONE) x_op_faulted = 1'b1;
+                ifu_alpha  = ifu_fetched_byte();
+                x_pc_after = x_pc_after + 16'd1;
+                st         = C_IFU_BETA;
+            end
+
+            C_IFU_BETA: begin
+                st = C_IFU_END;
+                if (ifu_length >= 8'd3 && !x_op_faulted) begin
+                    if (x_test_feed && ifu_test_count > 4'd0) begin
+                        ifu_test_pop_byte_task(ifu_beta);
+                        x_pc_after = x_pc_after + 16'd1;
+                    end else begin
+                        ifu_launch_fetch(x_pc_after, C_IFU_BW);
+                    end
+                end
+            end
+
+            C_IFU_BW: begin
+                if (last_ref_miss) evc_events |= EVC_EV_MISS;
+                if (m_fault != DM_FAULT_NONE) x_op_faulted = 1'b1;
+                ifu_beta   = ifu_fetched_byte();
+                x_pc_after = x_pc_after + 16'd1;
+                st         = C_IFU_END;
+            end
+
+            C_IFU_END: begin
+                if (x_op_faulted) begin
+                    x_np = ifu_trap_addr_fn(6'o00, x_n_slot);
+                    Link = real_PC + 16'd1;
+                end else begin
+                    logic        emu_or_ft;
+                    logic [1:0]  n_eff;
+                    logic [15:0] tnia;
+                    emu_or_ft = (ctask == 4'd0) || (ctask == 4'o17);
+                    if (evc_b_enable && (evc_b_tasksall || emu_or_ft) &&
+                        evc_b_event == 3'd2) begin
+                        event_cnt_b = event_cnt_b + 16'd3;
+                    end
+                    evc_events |= EVC_EV_IFUJUMP;
+
+                    if (x_cond_true) begin
+                        // Hold pipeline
+                    end else if (ifu_type_pause) begin
+                        ifu_active = 1'b0;
+                    end else if (ifu_type_jump) begin
+                        logic signed [15:0] disp;
+                        if (ifu_length == 8'd1) begin
+                            logic [5:0] s6;
+                            s6   = {ifu_sign, ifu_packed_a, ifu_n};
+                            disp = {{10{s6[5]}}, s6};
+                        end else begin
+                            disp = {ifu_sign ? {8{ifu_alpha[7]}} : 8'd0, ifu_alpha};
+                        end
+                        ifu_pcf = ifu_pcx + 16'(disp);
+                    end else begin
+                        ifu_pcf = x_pc_after;
+                    end
+
+                    ifu_idcnt             = 8'd0;
+                    ifu_save_stkp_pending = 1'b1;
+                    ifu_dispatch_count    = ifu_dispatch_count + 64'd1;
+
+                    n_eff = x_n_slot | {1'b0, x_cond_true};
+                    tnia  = (x_ifaddr << 2) | {14'd0, n_eff};
+                    if (x_resched_trap) tnia = ifu_trap_addr_fn(6'o14, x_n_slot);
+                    x_np = {4'd0, tnia[11:0]};
+                    Link = real_PC + 16'd1;
+                end
+                st = C_FINISH;
+            end
+
+            // -----------------------------------------------------------------
+            // 6-8. LC writeback, StkP, flags, scheduling (Write IM commits now)
+            // -----------------------------------------------------------------
+            C_FINISH: begin
+                dorado_uinstr_t u;
+                u     = x_u;
+                RBase = (ifu_dispatch_rbase >= 0) ? 8'(ifu_dispatch_rbase) : x_rbase_after_ff;
+
+                if (!halted) begin
+                    int          rm_w;
+                    logic [7:0]  rbase_next_instr;
+                    logic [15:0] pd;
+                    logic [15:0] chosen;
+                    pd               = x_pd;
+                    rbase_next_instr = RBase;
+                    RBase            = x_rbase_at_issue;
+                    rm_w             = lc_write_address_fn(u, ctask, RBase,
+                                                           task_subtask[ctask], StkP);
+                    case (u.lc)
+                        3'd0: ;
+                        3'd1: T = pd;
+                        3'd2: begin
+                            if (rm_w >= 256) STK[rm_w & 255] = pd;
+                            else             RM[rm_w & 255]  = pd;
+                            T = x_md_at_issue;
+                        end
+                        3'd3: T = x_md_at_issue;
+                        3'd4: begin
+                            if (rm_w >= 256) STK[rm_w & 255] = x_md_at_issue;
+                            else             RM[rm_w & 255]  = x_md_at_issue;
+                        end
+                        3'd5: begin
+                            T = ff_is_t_gets_md(u) ? x_md_at_issue : pd;
+                            if (rm_w >= 256) STK[rm_w & 255] = x_md_at_issue;
+                            else             RM[rm_w & 255]  = x_md_at_issue;
+                        end
+                        3'd6: begin
+                            if (rm_w >= 256) STK[rm_w & 255] = pd;
+                            else             RM[rm_w & 255]  = pd;
+                        end
+                        3'd7: begin
+                            T = pd;
+                            if (rm_w >= 256) STK[rm_w & 255] = pd;
+                            else             RM[rm_w & 255]  = pd;
+                        end
+                    endcase
+                    RBase = rbase_next_instr;
+
+                    if (u.block && ctask == 4'd0) begin
+                        logic [7:0] d8;
+                        d8 = ff_is_dont_modify_stkp(u) ? 8'd0 : stk_signed_delta(u.rstk);
+                        if (d8 != 8'd0 || (u.rstk[3] && !ff_is_dont_modify_stkp(u))) begin
+                            stk_und = x_stk_underflow;
+                            stk_ovf = x_stk_overflow;
+                            StkP    = {StkP[7:6], 6'(StkP[5:0] + d8[5:0])};
+                        end
+                    end
+                    if (ifu_save_stkp_pending) begin
+                        ifu_saved_stkp        = StkP;
+                        ifu_save_stkp_pending = 1'b0;
+                    end
+
+                    if (!(ff_full_function_ok(u) && ff_fa(u.ff) == 2'd0 &&
+                          ff_fb(u.ff) == 3'd7 && ff_fc(u.ff) == 3'd6)) begin
+                        alu_zero     = x_new_alu_zero;
+                        alu_lt0      = x_new_alu_lt0;
+                        alu_carry    = x_new_carry;
+                        alu_overflow = x_new_ovf;
+                    end
+
+                    prev_PC = real_PC;
+                    if (x_from_im) junk_timer_tick_task();
+
+                    task_schedule_task(x_np, (u.block && ctask != 4'd0), 1'b0, chosen);
+                    real_PC = chosen;
+
+                    if (x_from_im) begin
+                        cycles = cycles + 64'd1;
+                        memory_tick();
+                    end
+
+                    if (ifu_active && ifu_warmup > 8'd0) begin
+                        ifu_warmup = ifu_warmup - 8'd1;
+                    end
+                end
+                step_done = 1'b1;
+                st        = C_FETCH;
+            end
+
+            // -----------------------------------------------------------------
+            // Memory engine
+            // -----------------------------------------------------------------
+            M_MAPA: begin
+                // Map entry for the reference's page is read this clock.
+                logic [5:0] r;
+                int         hw;
+                r       = va_cache_row(m_va);
+                m_idx_a = map_index(m_va);
+                if (m_kind == DM_REF_FLUSH && cache_lookup(m_va, hw)) m_wbway = hw;
+                else                                                  m_wbway = cache_pick_victim(m_va);
+                m_idx_v = map_index({cache_tag[r][m_wbway], r, 4'b0000});
+                st      = M_MAPV;
+            end
+            M_MAPV: begin
+                // Map entry for the possible writeback page is read this clock.
+                mA_rp = map_rp_q; mA_wp = map_wp_q; mA_dirty = map_dirty_q; mA_ref = map_ref_q;
+                st    = M_BOOK;
+            end
+            M_BOOK: begin
+                if (m_idx_v == m_idx_a) begin
+                    mV_rp = mA_rp; mV_wp = mA_wp; mV_dirty = mA_dirty; mV_ref = mA_ref;
+                end else begin
+                    mV_rp = map_rp_q; mV_wp = map_wp_q; mV_dirty = map_dirty_q; mV_ref = map_ref_q;
+                end
+                mem_book_task();
+                mem_advance(0);
+            end
+            M_WRA: mem_advance(1);
+            M_WRV: mem_advance(2);
+            M_WB: begin
+                // cache line -> storage, one word per clock (read leads write)
+                if (mcnt == 5'd16) mem_advance(3);
+                else               mcnt = mcnt + 5'd1;
+            end
+            M_FILL: begin
+                // storage -> cache line
+                if (mcnt == 5'd16) mem_advance(4);
+                else               mcnt = mcnt + 5'd1;
+            end
+            M_RD: begin
+                if (mcnt == 5'd1) begin
+                    md = cache_q;
+                    mem_advance(5);
+                end else begin
+                    mcnt = mcnt + 5'd1;
+                end
+            end
+            M_WR: mem_advance(6);
+            M_IOC, M_IOS: begin
+                if (mcnt != 5'd0) begin
+                    fastio_out_munch[4'(mcnt - 5'd1)] = (st == M_IOC) ? cache_q : storage_q;
+                end
+                if (mcnt == 5'd16) begin
+                    fastio_stb = 1'b1;
+                    mem_advance((st == M_IOC) ? 7 : 8);
+                end else begin
+                    mcnt = mcnt + 5'd1;
+                end
+            end
+            M_IOW: begin
+                if (mcnt == 5'd15) begin
+                    fastio_stb = 1'b1;
+                    mem_advance(9);
+                end else begin
+                    mcnt = mcnt + 5'd1;
+                end
+            end
+            default: st = C_FETCH;
+            endcase
         end
     end
 

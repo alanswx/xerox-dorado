@@ -52,6 +52,10 @@ module dorado_rtl_top
     output logic        disk_sector_read_req,
     output logic        disk_sector_write_req,
 
+    // Video scan-out of the DDC framebuffer (1024x808, 1 bpp, MSB = leftmost)
+    input  logic [16:0] fb_rd_addr,
+    output logic [7:0]  fb_rd_data,
+
     // Observability outputs
     output logic [11:0] dbg_real_pc,
     output logic [3:0]  dbg_ctask,
@@ -62,8 +66,10 @@ module dorado_rtl_top
     output logic [7:0]  dbg_stkp,
     output logic [63:0] dbg_cycles,
     output logic        dbg_halted,
-    output logic [3:0]  dbg_halt_reason
+    output logic [3:0]  dbg_halt_reason,
+    output logic        step_done      // pulses one clock after each microinstruction
 );
+    logic           io_busy;
     dorado_uinstr_t bb_mir_uinstr;
     assign bb_mir_uinstr = unpack_uinstr(bb_mir_iw0, bb_mir_iw1, bb_mir_iw2);
 
@@ -162,13 +168,15 @@ module dorado_rtl_top
         .dbg_stkp           (dbg_stkp),
         .dbg_cycles         (dbg_cycles),
         .dbg_halted         (dbg_halted),
-        .dbg_halt_reason    (dbg_halt_reason)
+        .dbg_halt_reason    (dbg_halt_reason),
+        .step_done          (step_done),
+        .io_busy            (io_bridge_en && io_busy)
     );
 
     dorado_rtl_io u_io (
         .clk                     (clk),
         .rst                     (rst),
-        .clk_en                  (clk_en && io_bridge_en && !dbg_halted),
+        .clk_en                  (clk_en && io_bridge_en && step_done),
         .cycles                  (dbg_cycles),
 
         .io_read_task            (cpu_io_read_task),
@@ -221,7 +229,10 @@ module dorado_rtl_top
         .disk_cur_head_out       (disk_cur_head_out),
         .disk_cur_sector_out     (disk_cur_sector_out),
         .disk_sector_read_req    (disk_sector_read_req),
-        .disk_sector_write_req   (disk_sector_write_req)
+        .disk_sector_write_req   (disk_sector_write_req),
+        .fb_rd_addr              (fb_rd_addr),
+        .fb_rd_data              (fb_rd_data),
+        .io_busy                 (io_busy)
     );
 
 endmodule

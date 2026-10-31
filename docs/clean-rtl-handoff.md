@@ -150,8 +150,29 @@ read one instruction ahead.
      HPS DDR3 / SDRAM.
    - Wire [`dorado_rtl_top.sv`](../rtl_core/dorado_rtl_top.sv) into
      [`fpga/mister/Dorado.sv`](../fpga/mister/Dorado.sv).
-   - **Run a Quartus synthesis early**, even before storage is external: the
-     ~5,000 ALM figure is an estimate, and the I/O module's `negedge clk` (from
-     bug 2) is a two-edge design that may cost timing on the FPGA.
+   - **Quartus synthesis was tried on 2026-10-30, and the core does not
+     elaborate.** Quartus 17.0 Lite on misterubuntu
+     (`~/mister/DoradoRtlCoreSynth`, a bare synth-only project, all pins
+     virtual) stops in Analysis & Synthesis. The ~5,000 ALM figure was never
+     measured and cannot be until the core is restructured:
+     - `dorado_rtl_cpu` calls tasks and writes variables inside `u_mem` by
+       hierarchical name (38 sites: `u_mem.memory_ref_task(...)`,
+       `u_mem.proc_srn = ...`). Error 10207 at `get_task_md`.
+     - CPU and memory are one `always @(posedge clk)` block whose blocking
+       tasks fill or write back a 16-word cache line against `storage` in zero
+       time. Even past the hierarchy errors, `storage`, `cache_data`, the Map,
+       IM and RM are accessed many times per cycle and will not infer block RAM.
+     - `dorado_rtl_io` alone fails on an out-of-range constant index
+       (`ddc_kbd_pending[5]`, line 460), which Verilator tolerates.
+     - The Ethernet receive buffer `eth_rx_words` has no writer in RTL. Suite 6
+       fills it from the C server through Verilator's public access, so the
+       core has no receive path on hardware. The same applies to the IM, IFUM,
+       RM and Map preload, which `sync_c_to_rtl` performs.
+     Getting to hardware means a synthesizable rewrite: real module ports,
+     arrays in block RAM with at most two accesses per fabric clock, cache
+     misses as multi-cycle holds (HM §5), several fabric clocks per
+     microinstruction, an RTL Ethernet receive path plus a boot-server source,
+     and a microcode preload. Keep `make test` lock-step as the oracle
+     throughout.
    - Build on `misterubuntu`, deploy to the MiSTer, and measure the issue rate
      with the hardware counters.

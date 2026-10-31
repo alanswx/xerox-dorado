@@ -14,7 +14,6 @@ SV_SRCS := \
 	verilator.vlt \
 	dorado_rtl_pkg.sv \
 	dorado_rtl_alu_shifter.sv \
-	dorado_rtl_mem.sv \
 	dorado_rtl_cpu.sv \
 	dorado_rtl_io.sv \
 	dorado_rtl_top.sv
