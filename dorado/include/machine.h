@@ -163,6 +163,22 @@ int dorado_machine_booted(const dorado_machine *m);
 /* 1 when the EFTP-served image is a Mesa/Pilot outload (see machine.c). */
 int dorado_machine_boot_is_mesa_outload(const dorado_machine *m);
 
+/* Lock-step hooks for the RTL harness (rtl_core/sim_cedar.cpp), which
+ * runs the RTL CPU beside this machine and needs to see every
+ * microinstruction and every host-side write. NULL everywhere else, where
+ * each costs one test per microinstruction. The step hook is called with
+ * after=0 just before dorado_cpu_step (after the host services for that
+ * step have run) and with after=1 just after it; a nonzero return stops
+ * dorado_machine_run_until. */
+typedef int (*dorado_machine_step_hook_fn)(dorado_machine *m, int after);
+extern dorado_machine_step_hook_fn dorado_machine_step_hook;
+/* The machine's parts, for that harness. */
+struct dorado_memory;
+struct dorado_io;
+void *dorado_machine_cpu(dorado_machine *m);               /* dorado_cpu * */
+struct dorado_memory *dorado_machine_memory(dorado_machine *m);
+struct dorado_io *dorado_machine_io(dorado_machine *m);
+
 /* The display device (for framebuffer access / snapshot). */
 dorado_display *dorado_machine_display(dorado_machine *m);
 

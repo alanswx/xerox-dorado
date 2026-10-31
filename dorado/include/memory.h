@@ -498,6 +498,12 @@ int      dorado_cache_lookup(const dorado_memory *mem, uint32_t va,
                              int *out_way);
 uint16_t dorado_visible_word_at_va(const dorado_memory *mem, uint32_t va);
 
+/* Called after every host-side (not microcode) write into storage or the
+ * cache at `va`: machine.c's coherent stores, dorado_storage_store_at_va,
+ * dorado_poke_va and dorado_memory_host_io_write. For the RTL lock-step
+ * harness, which mirrors the write into the RTL; NULL otherwise. */
+extern void (*dorado_host_write_hook)(struct dorado_memory *mem, uint32_t va);
+
 /* Inject one word supplied by an emulated memory-mapped I/O device into the
  * virtually addressed cache without writing its mapped backing page. */
 void dorado_memory_host_io_write(dorado_memory *mem, uint32_t va,

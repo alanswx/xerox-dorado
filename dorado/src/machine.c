@@ -1045,6 +1045,7 @@ static void machine_store_va(dorado_memory *mem, uint32_t va, uint16_t value)
         dorado_cache_line *line = &mem->cache[row].ways[way];
         if (line->valid && line->tag == tag) line->data[off] = value;
     }
+    if (dorado_host_write_hook) dorado_host_write_hook(mem, va);
 }
 
 static int alto_rda_to_vda(uint16_t rda, int cylinders, int sectors, int *vda)
@@ -3103,6 +3104,12 @@ void dorado_machine_destroy(dorado_machine *m)
     free(m);
 }
 
+dorado_machine_step_hook_fn dorado_machine_step_hook = NULL;
+
+void *dorado_machine_cpu(dorado_machine *m) { return &m->cpu; }
+struct dorado_memory *dorado_machine_memory(dorado_machine *m) { return &m->mem; }
+struct dorado_io *dorado_machine_io(dorado_machine *m) { return &m->io; }
+
 uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
 {
     if (!m) return 0;
@@ -4173,7 +4180,9 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         machine_cedar_io(m, bb, disp);
 
         uint64_t ifu_dispatch_before = cpu->ifu_dispatch_count;
+        if (dorado_machine_step_hook && dorado_machine_step_hook(m, 0)) break;
         if (dorado_cpu_step(cpu)) break;
+        if (dorado_machine_step_hook && dorado_machine_step_hook(m, 1)) break;
         if (m->ether_loaded_world_cycle &&
             cpu->ifu_dispatch_count != ifu_dispatch_before &&
             dorado_trace_flag("DORADO_MACHINE_PCHIST")) {

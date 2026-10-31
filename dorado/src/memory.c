@@ -1173,6 +1173,8 @@ int dorado_cache_lookup(const dorado_memory *mem, uint32_t va, int *out_way)
     return 0;
 }
 
+void (*dorado_host_write_hook)(struct dorado_memory *mem, uint32_t va) = NULL;
+
 uint16_t dorado_storage_at_va(const dorado_memory *mem, uint32_t va)
 {
     size_t phys;
@@ -1202,6 +1204,7 @@ int dorado_storage_store_at_va(dorado_memory *mem, uint32_t va, uint16_t val)
             row->ways[w].vacant = 0;
         }
     }
+    if (dorado_host_write_hook) dorado_host_write_hook(mem, va);
     return 0;
 }
 
@@ -1242,6 +1245,7 @@ void dorado_poke_va(dorado_memory *mem, uint32_t va, uint16_t value)
         dorado_cache_line *line = &mem->cache[row].ways[way];
         if (line->valid && line->tag == tag) line->data[off] = value;
     }
+    if (dorado_host_write_hook) dorado_host_write_hook(mem, va);
 }
 
 /* Pick a way for a new fill in the row containing `va`. Prefer an
@@ -1411,6 +1415,7 @@ void dorado_memory_host_io_write(dorado_memory *mem, uint32_t va,
          * alias during a later eviction. */
         line->dirty = 0;
     }
+    if (dorado_host_write_hook) dorado_host_write_hook(mem, va);
 }
 
 /* Invalidate any cache entry for the munch containing `va`. Used by

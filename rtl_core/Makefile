@@ -52,7 +52,7 @@ VERILATOR_FLAGS := \
 	--top-module dorado_rtl_top \
 	-CFLAGS "$(CXXFLAGS)"
 
-.PHONY: all test clean lint fpga-sim fpga-sim-ddr init
+.PHONY: all test clean lint fpga-sim fpga-sim-ddr init cedar
 
 # The FPGA configuration in simulation: power-up images from init/, the
 # in-FPGA boot server and loader assists, no C model (sim_fpga.cpp).
@@ -86,6 +86,23 @@ fpga-sim-ddr: init/start.txt $(FPGA_DDR_OBJ)/Vdorado_rtl_top
 fpga-sim: init/start.txt $(FPGA_OBJ)/Vdorado_rtl_top
 	./$(FPGA_OBJ)/Vdorado_rtl_top 80000000 fpga-sim.pbm
 
+# The Cedar checkpoint lock-step harness (sim_cedar.cpp): the whole C machine
+# (host services included) beside the RTL, 4M words of storage.
+CEDAR_OBJ    := obj_cedar
+CEDAR_C_SRCS := $(C_REF_SRCS) $(DORADO_DIR)/src/machine.c $(DORADO_DIR)/src/typetext.c
+CEDAR_C_OBJS := $(patsubst $(DORADO_DIR)/src/%.c,$(C_BUILD)/%.o,$(CEDAR_C_SRCS))
+CEDAR_STEPS  ?= 2000000
+
+$(CEDAR_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_cedar.cpp cosim_sync.h $(CEDAR_C_OBJS) roms/bootfile.hex
+	$(VERILATOR) --cc --exe --build -j 4 -O3 --x-assign fast --x-initial fast --noassert \
+	  -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-BLKSEQ \
+	  -GSTORAGE_WORDS=4194304 --top-module dorado_rtl_top -Mdir $(CEDAR_OBJ) \
+	  -CFLAGS "$(CXXFLAGS) -DCOSIM_STORAGE_WORDS=4194304u" \
+	  $(SV_SRCS) sim_cedar.cpp $(abspath $(CEDAR_C_OBJS)) -o Vdorado_rtl_top
+
+cedar: $(CEDAR_OBJ)/Vdorado_rtl_top
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./$(CEDAR_OBJ)/Vdorado_rtl_top $(CEDAR_STEPS)
+
 all: $(OBJ_DIR)/Vdorado_rtl_top
 
 $(C_BUILD)/%.o: $(DORADO_DIR)/src/%.c
@@ -95,7 +112,7 @@ $(C_BUILD)/%.o: $(DORADO_DIR)/src/%.c
 roms/bootfile.hex roms/bol.hex: tools/make_boot_roms.py
 	python3 tools/make_boot_roms.py roms
 
-$(OBJ_DIR)/Vdorado_rtl_top: $(SV_SRCS) sim_cosim.cpp $(C_REF_OBJS) roms/bootfile.hex
+$(OBJ_DIR)/Vdorado_rtl_top: $(SV_SRCS) sim_cosim.cpp cosim_sync.h $(C_REF_OBJS) roms/bootfile.hex
 	$(VERILATOR) $(VERILATOR_FLAGS) $(SV_SRCS) sim_cosim.cpp $(abspath $(C_REF_OBJS)) -o Vdorado_rtl_top
 
 lint:
@@ -105,4 +122,4 @@ test: $(OBJ_DIR)/Vdorado_rtl_top
 	./$(OBJ_DIR)/Vdorado_rtl_top
 
 clean:
-	rm -rf $(OBJ_DIR) $(FPGA_OBJ) $(FPGA_DDR_OBJ)
+	rm -rf $(OBJ_DIR) $(FPGA_OBJ) $(FPGA_DDR_OBJ) $(CEDAR_OBJ)

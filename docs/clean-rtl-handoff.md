@@ -30,11 +30,13 @@ All files are located in [`rtl_core/`](file:///Users/alans/dev2/Dorado/rtl_core/
 | [`dorado_rtl_assist.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_assist.sv) | Loader assists | Cold-Alto init at EBoot, keyboard words (BS held until EFTP), display gate from DASTART -- what the Suite 6 harness does by poking arrays. |
 | [`dorado_rtl_top.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_top.sv) | Top-Level Core | CPU + I/O + boot server + assist; `bootsrv_en`/`assist_en` select the FPGA configuration. |
 | [`sim_cosim.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_cosim.cpp) | Cosimulation harness | Lock-step suites against the C emulator + Suite 6 boot; `RTL_DUMP_INIT`, `RTL_RX_LOG`. Steps the RTL by `step_done`. |
+| [`sim_cedar.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_cedar.cpp) | Cedar checkpoint harness | The whole C machine (host services included) beside the RTL from the Cedar desktop checkpoint, 4M words of storage (`make cedar`; section 8.1). |
+| [`cosim_sync.h`](file:///Users/alans/dev2/Dorado/rtl_core/cosim_sync.h) | Shared cosim code | C-to-RTL state copy (`sync_c_to_rtl`), `rtl_step`, `compare_c_rtl`; used by both harnesses. |
 | [`sim_fpga.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_fpga.cpp) | FPGA-configuration testbench | No C model, no pokes: power-up images, RTL boot server, RTL assist (`make fpga-sim`). |
 | [`tools/make_boot_roms.py`](file:///Users/alans/dev2/Dorado/rtl_core/tools/make_boot_roms.py) | ROM generator | `roms/bol.hex` from ethernet.c's `eth_bol_loader`, `roms/bootfile.hex` from the boot file. |
-| [`Makefile`](file:///Users/alans/dev2/Dorado/rtl_core/Makefile) | Build | `make`, `make test`, `make init`, `make fpga-sim`, `make fpga-sim-ddr`, `make lint`. |
+| [`Makefile`](file:///Users/alans/dev2/Dorado/rtl_core/Makefile) | Build | `make`, `make test`, `make init`, `make fpga-sim`, `make fpga-sim-ddr`, `make cedar`, `make lint`. |
 | [`dorado_rtl_storage.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_storage.sv) | Storage (block RAM) | The munch port: one aligned 16-word munch per request, word mask on writes (HM section 5). |
-| [`dorado_rtl_storage_ddr.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_storage_ddr.sv) | Storage (DDR3) | The same port on the MiSTer DDRAM interface (`EXT_STORAGE`): 4-beat burst reads, single-beat writes, region cleared after reset. |
+| [`dorado_rtl_storage_ddr.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_storage_ddr.sv) | Storage (DDR3) | The same port on the MiSTer DDRAM interface (`EXT_STORAGE`): single-beat reads (four pipelined) and writes, region cleared after reset. |
 | [`../fpga/mister_rtl/`](file:///Users/alans/dev2/Dorado/fpga/mister_rtl/) | MiSTer wrapper | `Dorado.sv` (emu: 50 MHz, 1024x808 scan-out, PS/2 keyboard and mouse, storage in DDR3) and `build.sh` (assembles the project from Template_MiSTer; `CLK_MHZ`). |
 
 ---
@@ -323,3 +325,95 @@ machine and the HPS doing the host:
    `machine.c`), and compare.
 5. **Then a checkpoint on the FPGA:** storage image loaded into DDR by the
    HPS, CPU/Map/cache state through the host port, the desktop on HDMI.
+
+### 8.1 Step 4 done: the RTL runs the Cedar desktop in lock-step (2026-10-31)
+
+`make -C rtl_core cedar` (or `obj_cedar/Vdorado_rtl_top STEPS [snap] [pdi]`)
+restores `dorado/build/good-packs/cedar-desktop.snap` into a complete C
+`dorado_machine`, copies its state into the RTL (`sync_c_to_rtl`, now in
+`cosim_sync.h` and shared with `sim_cosim.cpp`), and runs the two one
+microinstruction at a time. The RTL is built with 4M words of storage, the
+machine's whole storage, and is compared against all of it at the end.
+
+The split is the FPGA one: the RTL is the Dorado and the C machine supplies
+everything outside it.
+
+- **Slow I/O.** The harness wraps every device in the C I/O registry and
+  records what each answered this microinstruction (Input data and parity,
+  IOAtten). It hands those answers to the RTL CPU on its external I/O port
+  (`io_bridge_en = 0`, `io_attached = 1`), with `io_has_write` from the
+  registry.
+- **Host writes into memory** reach the RTL through `dorado_host_write_hook`
+  (`memory.h`), which is called by `machine_store_va`,
+  `dorado_storage_store_at_va`, `dorado_poke_va` and
+  `dorado_memory_host_io_write`. The harness copies the munch's storage and
+  its cache row.
+- **Host register pokes.** `dorado_machine_step_hook` (`machine.h`) runs just
+  before and just after `dorado_cpu_step`. Before the step, any CPU register
+  that differs from the RTL can only have been changed by the host since the
+  last compare. The harness copies it and counts it.
+
+Both hooks are NULL in every frontend: one test per microinstruction. `make
+test` (C) and `make -C rtl_core test` still pass.
+
+Results, all with zero mismatches:
+
+| run | microinstructions | what happened |
+|---|---|---|
+| idle desktop | 20,000,000 | only the 60 Hz timer and field notify |
+| `CEDAR_LS=1`, to cycle 37.0B | 270,702,933 | click the CommandTool, type `List [Cedar]<Cedar6.1>VersionMap>*`, NetDir lookup and STP enumerate over the in-process server (83 trace lines, the same as the C machine alone), listing drawn |
+
+At the end, the second run's screen (`CEDAR_PGM`) is byte-identical to the
+C machine run alone (`CEDAR_C_ONLY=1`), and so is storage, all 4M words.
+Harness speed is 217K microinstructions/s, at 7.9 fabric clocks each.
+
+**What the host did, which is what the FPGA host port must carry.** Over the
+listing run:
+
+- 8,615 words written over 987 steps, all coherent stores at a VA (storage
+  plus any cache line holding it).
+- 1,985 ORs into RM[0] (NWW) and 987 settings of `reschedule_pending`. This is
+  the "naked notify" (`RM[0] |= mask; reschedule_pending = 1`) that every
+  host service uses to interrupt Pilot: the 60 Hz timer
+  (`machine_pilot_timer_channel`), the Cedar field notify
+  (`machine_cedar_io`), and the germ disk and Ethernet bridges (machine.c
+  1290, 1368, 2028, 2075).
+- 2,989 task wakeups, the Ethernet tasks woken by the C device model.
+
+Nothing else: no STK, Map, BR or other register was touched. So the host port
+is four operations, applied between microinstructions:
+
+1. a coherent store at a VA;
+2. a coherent read at a VA;
+3. a notify (`RM[0] |= mask`, `reschedule_pending = 1`);
+4. task wakeups.
+
+Plus the slow-I/O device answers, for whichever devices stay on the HPS. The
+assist port's `A_DO` is already (1).
+
+**Cedar's display is not drawn by the Dorado's display microcode** in the C
+emulator: `dorado_machine_render_display_list` walks the CSB at VA 420B, its
+DCB chain and the long bitmap in VM from the host. Cedar's display tasks
+never run here, and `wakeup_pending` was never poked for them. On the FPGA
+that means either:
+
+- a scanner that walks the same structures in DDR (the Map translates the
+  bitmap's pages; dirty cache lines are the coherence question); or
+- getting Cedar's own display tasks running against the RTL's DDC, which is
+  the authentic route (dorado/CLAUDE.md "Live display + interrupts for
+  Cedar").
+
+Next, in order:
+
+1. The host port in the RTL: the four operations above on a mailbox the HPS
+   can drive.
+2. The C host services built for ARM against it: `machine.c`'s host half
+   (germ bridges, timer, Cedar I/O, Ethernet/STP).
+3. The Cedar display.
+4. Then the checkpoint on MiSTer.
+
+Gotcha: script the input exactly as `dorado.c` does. That means 2M-cycle
+frames, one typing-queue pump per frame, and the click run inline. A first
+version pumped every 400K cycles; Cedar never issued the command, and that
+looked like an RTL bug. It was not.
+
