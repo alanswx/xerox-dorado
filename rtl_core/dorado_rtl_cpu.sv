@@ -87,8 +87,12 @@ module dorado_rtl_cpu
     // a word written to (or read from) storage at the mapped VA, optionally
     // also into a resident cache line, or a word written to STK. This is what
     // the cosimulation harness does by poking arrays; see dorado_rtl_assist.
+    // ap_op selects the host-port operations (AP_* in dorado_rtl_pkg) that
+    // stand for the C machine's host services (Cedar on the HPS); 0 is the
+    // assist's own storage/STK access described above.
     input  logic           ap_hold,
     input  logic           ap_req,
+    input  logic [2:0]     ap_op,
     input  logic           ap_we,
     input  logic           ap_stk,
     input  logic           ap_cache,
@@ -324,6 +328,7 @@ module dorado_rtl_cpu
     logic           ap_hit;
     logic [1:0]     ap_way;
     logic [31:0]    ap_phys;
+    logic           x_rmor;        // an AP_RM_OR request is in A_WAIT
     logic           x_ifum_wr, x_ifum_hi;
     logic [9:0]     x_ifum_waddr;
     logic [15:0]    x_ifum_wd;
@@ -2209,6 +2214,8 @@ module dorado_rtl_cpu
         else
             rms_raddr = rm_address_fn((st == C_FETCH || st == C_DEC) ? cur_u : ex_u,
                                       ctask, RBase, task_subtask[ctask], StkP);
+        if (st == C_FETCH && ap_req && ap_op == AP_RM_OR)
+            rms_raddr = int'(ap_va[7:0]);
         rms_waddr = lc_write_address_fn(x_u, ctask, x_rbase_at_issue, task_subtask[ctask], StkP);
         rms_we    = (st == C_FINISH) && !halted &&
                     (x_u.lc == 3'd2 || x_u.lc == 3'd4 || x_u.lc == 3'd5 ||
@@ -2218,6 +2225,11 @@ module dorado_rtl_cpu
             rms_waddr = 256 + int'(ap_va[7:0]);
             rms_we    = 1'b1;
             rms_wd    = ap_wd;
+        end
+        if (st == A_WAIT && x_rmor) begin           // RM[a] |= wd, read in C_FETCH
+            rms_waddr = int'(ap_va[7:0]);
+            rms_we    = 1'b1;
+            rms_wd    = rm_q | ap_wd;
         end
     end
     always_ff @(posedge clk) begin
@@ -2302,6 +2314,7 @@ module dorado_rtl_cpu
             line_ok  = 1'b0;
             ap_rd    = 16'd0;
             x_assist = 1'b0;
+            x_rmor   = 1'b0;
             st      = C_FETCH;
             m_ret   = C_FETCH;
             x_im_wr = 1'b0;
@@ -2318,6 +2331,15 @@ module dorado_rtl_cpu
                     spec_hit = 1'b0;             // the assist uses the ports
                     if (ap_stk) begin
                         ap_done = 1'b1;          // the STK port writes this clock
+                    end else if (ap_op == AP_WAKEUP_OR) begin
+                        wakeup_pending = wakeup_pending | ap_wd;   // dorado_cpu_wakeup
+                        ap_done = 1'b1;
+                    end else if (ap_op == AP_RESCHED) begin
+                        reschedule_pending = ap_wd[7:0];
+                        ap_done = 1'b1;
+                    end else if (ap_op == AP_RM_OR) begin
+                        x_rmor = 1'b1;           // RM read this clock, written in A_WAIT
+                        st     = A_WAIT;
                     end else begin
                         x_assist = 1'b1;
                         m_va     = ap_va;
@@ -3279,6 +3301,10 @@ module dorado_rtl_cpu
                     mA_rp = map_rp_q; mA_wp = map_wp_q; mA_dirty = map_dirty_q; mA_ref = map_ref_q;
                     if (x_assist) begin
                         ap_phys = ({16'd0, map_rp_q} << PAGE_SHIFT) + {24'd0, m_va[7:0]};
+                        // machine_store_va: a vacant entry has no translation,
+                        // so the word goes to storage[va] (pre-map planting)
+                        if (ap_op == AP_STORE && map_wp_q && map_dirty_q)
+                            ap_phys = {4'd0, m_va};
                         st      = A_DO;
                         do_book = 1'b0;
                     end else if ((rw_valid[m_wbway] && rw_dirty[m_wbway]) ||
@@ -3317,6 +3343,11 @@ module dorado_rtl_cpu
             // Assist: the cache word is written or read this clock, and the
             // storage word goes to the munch port (one word of the mask).
             A_DO: begin
+                // dorado_storage_store_at_va drops the resident line instead
+                if (ap_op == AP_STORE_INV && ap_hit) begin
+                    cache_valid[m_va[9:4]][ap_way]  = 1'b0;
+                    cache_vacant[m_va[9:4]][ap_way] = 1'b0;
+                end
                 if (ap_phys < STORAGE_WORDS) begin
                     sto_req   = 1'b1;
                     sto_we    = ap_we;
@@ -3327,6 +3358,12 @@ module dorado_rtl_cpu
                 st = A_WAIT;
             end
             A_WAIT: begin
+                if (x_rmor) begin
+                    ap_rd   = rm_q;
+                    ap_done = 1'b1;
+                    x_rmor  = 1'b0;
+                    st      = C_FETCH;
+                end else begin
                 if (!line_ok) begin
                     ap_cq   = cache_q;           // read in A_DO
                     line_ok = 1'b1;
@@ -3339,6 +3376,7 @@ module dorado_rtl_cpu
                     ap_done  = 1'b1;
                     x_assist = 1'b0;
                     st       = C_FETCH;
+                end
                 end
             end
             // A storage read in flight: resume sto_ret with the munch in sto_rline.

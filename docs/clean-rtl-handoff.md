@@ -417,3 +417,70 @@ frames, one typing-queue pump per frame, and the click run inline. A first
 version pumped every 400K cycles; Cedar never issued the command, and that
 looked like an RTL bug. It was not.
 
+
+### 8.2 Step 1 done: the host port, driven by the C machine (2026-10-31)
+
+The CPU's assist port now takes an operation code, `ap_op`. The codes are
+`AP_*` in `dorado_rtl_pkg.sv`, and each one mirrors a C routine. The port is
+served between microinstructions, while the hold input keeps the CPU in
+`C_FETCH`:
+
+| `ap_op` | operation | C routine |
+|---|---|---|
+| `AP_ASSIST` (0) | the loader assist's own storage/STK access (section 6) | -- |
+| `AP_STORE` (1) | storage at the mapped VA, or `storage[va]` if the Map entry is vacant, plus any resident cache line (`ap_cache=1`) | `machine_store_va`, `dorado_poke_va` |
+| `AP_STORE_INV` (2) | storage at the mapped VA; the resident line is dropped (valid and vacant cleared) | `dorado_storage_store_at_va` |
+| `AP_RM_OR` (4) | `RM[va[7:0]] |= wd`: the RM is read in `C_FETCH` and written in `A_WAIT`, and `ap_rd` returns the old value | the naked notify's NWW half |
+| `AP_WAKEUP_OR` (5) | `wakeup_pending |= wd` | `dorado_cpu_wakeup` |
+| `AP_RESCHED` (6) | `reschedule_pending = wd[7:0]` | the naked notify's other half |
+
+A read is `AP_ASSIST` with `ap_we=0, ap_cache=1`: the resident line if there
+is one, otherwise storage. `dorado_memory_host_io_write`, the Lisp
+device-window fill, has no port operation. Cedar never uses it.
+
+`dorado_rtl_top` brings the port out as `hp_hold/hp_req/hp_op/hp_we/hp_cache/
+hp_va/hp_wd -> hp_done/hp_rd`, plus `hp_between`. When the loader assist is
+enabled (`assist_en && io_bridge_en`, the Galaxian configuration), the assist
+owns the port. The MiSTer wrapper ties `hp_*` off for now.
+
+**Verification.** `sim_cedar.cpp` drives every host change through `hp_*`;
+`CEDAR_BACKDOOR=1` restores the section 8.1 array copies. A host write is
+classified by what the C machine did to the cache. A line that was resident
+in the RTL but is gone from the C cache means `AP_STORE_INV`; anything else
+means `AP_STORE`. Each VA is written once, with the final value. The harness
+counts any change the port cannot express (a bit cleared in RM or in
+`wakeup_pending`, a line the C filled, STK/`ready`/junk) and backdoor-copies
+it.
+
+`CEDAR_LS=1` to cycle 37.0B gave 270,702,933 microinstructions with zero
+mismatches. The screen is the same 168,631 px as before, and all 4M words of
+storage match the C machine. The port carried 14,576 operations:
+
+- 8,615 `AP_STORE` and 0 `AP_STORE_INV`;
+- 1,985 `AP_RM_OR`;
+- 2,989 `AP_WAKEUP_OR`;
+- 987 `AP_RESCHED`.
+
+Nothing was inexpressible. They cost 215,691 fabric clocks in all (about 15
+per operation, 0.01% of the run). `make -C rtl_core test` and `fpga-sim` still
+pass.
+
+Bug on the way: the RM read address for `AP_RM_OR` was first gated on
+`ap_done_q`, which the combinational read logic sees one clock late. So
+back-to-back operations read the wrong register.
+
+**Next: the transport.** The four operations above are all the host needs
+for memory. The open question is how the HPS drives them, and where the
+slow-I/O answers come from:
+
+- **Ethernet registers.** These answer in the microinstruction that reads
+  them, so they cannot cross the HPS link. On the FPGA they come from
+  `dorado_rtl_io`'s Ethernet controller (`io_bridge_en=1`), which the
+  Galaxian boot server already feeds. The STP/Pup server then runs on the
+  HPS and exchanges packets with it, not register answers.
+- **Wakeups.** `AP_WAKEUP_OR` was the C device model waking the Ethernet
+  tasks. With the RTL controller, those wakeups are its own.
+- **Host-port traffic.** It is tiny: about 15K operations per 4.5 s of guest
+  time. It fits a command ring in DDR3 that the FPGA polls, or the
+  framework's UIO channel. Germ disk IOCBs and the Cedar field notify need
+  no microinstruction-level latency.

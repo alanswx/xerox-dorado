@@ -48,6 +48,21 @@ module dorado_rtl_top
     input  logic [15:0] mouse_x,
     input  logic [15:0] mouse_y,
 
+    // Host port: the C machine's host services (Cedar's disk, network, timer
+    // and keyboard on the HPS) reach the core here, one operation at a time
+    // between microinstructions, while hp_hold keeps the CPU there. hp_op is
+    // an AP_* code (dorado_rtl_pkg). Used when the loader assist is off.
+    input  logic        hp_hold,
+    input  logic        hp_req,
+    input  logic [2:0]  hp_op,
+    input  logic        hp_we,
+    input  logic        hp_cache,
+    input  logic [27:0] hp_va,
+    input  logic [15:0] hp_wd,
+    output logic        hp_done,
+    output logic [15:0] hp_rd,
+    output logic        hp_between,    // the CPU is between microinstructions
+
     // External Slow I/O override (used when io_bridge_en=0)
     input  logic        io_attached,
     input  logic [15:0] io_read_data,
@@ -116,8 +131,24 @@ module dorado_rtl_top
     logic           io_rx_on, io_rx_drained;
     logic [15:0]    srv_eftp_max_seq, srv_bol_sent;
     logic           ap_hold, ap_req, ap_we, ap_stk, ap_cache, ap_done;
+    logic [2:0]     ap_op;
     logic [27:0]    ap_va;
     logic [15:0]    ap_wd, ap_rd;
+    logic           as_hold, as_req, as_we, as_stk, as_cache;
+    logic [27:0]    as_va;
+    logic [15:0]    as_wd;
+    wire            assist_on = assist_en && io_bridge_en;
+    assign ap_hold  = assist_on ? as_hold  : hp_hold;
+    assign ap_req   = assist_on ? as_req   : hp_req;
+    assign ap_op    = assist_on ? AP_ASSIST : hp_op;
+    assign ap_we    = assist_on ? as_we    : hp_we;
+    assign ap_stk   = assist_on ? as_stk   : 1'b0;
+    assign ap_cache = assist_on ? as_cache : hp_cache;
+    assign ap_va    = assist_on ? as_va    : hp_va;
+    assign ap_wd    = assist_on ? as_wd    : hp_wd;
+    assign hp_done  = !assist_on && ap_done;
+    assign hp_rd    = ap_rd;
+    assign hp_between = cpu_between;
     logic           cpu_between, dbg_ifu_active;
     logic           kbd0_poke;
     logic [15:0]    kbd0_val;
@@ -280,6 +311,7 @@ module dorado_rtl_top
         .io_busy            (io_bridge_en && (io_busy || srv_stall)),
         .ap_hold            (ap_hold),
         .ap_req             (ap_req),
+        .ap_op              (ap_op),
         .ap_we              (ap_we),
         .ap_stk             (ap_stk),
         .ap_cache           (ap_cache),
@@ -302,7 +334,7 @@ module dorado_rtl_top
     dorado_rtl_assist u_assist (
         .clk               (clk),
         .rst               (core_rst),
-        .en                (assist_en && io_bridge_en),
+        .en                (assist_on),
         .cpu_between       (cpu_between),
         .cycles            (dbg_cycles),
         .real_pc           (dbg_real_pc),
@@ -315,13 +347,13 @@ module dorado_rtl_top
         .mouse_present     (mouse_present),
         .mouse_x           (mouse_x),
         .mouse_y           (mouse_y),
-        .ap_hold           (ap_hold),
-        .ap_req            (ap_req),
-        .ap_we             (ap_we),
-        .ap_stk            (ap_stk),
-        .ap_cache          (ap_cache),
-        .ap_va             (ap_va),
-        .ap_wd             (ap_wd),
+        .ap_hold           (as_hold),
+        .ap_req            (as_req),
+        .ap_we             (as_we),
+        .ap_stk            (as_stk),
+        .ap_cache          (as_cache),
+        .ap_va             (as_va),
+        .ap_wd             (as_wd),
         .ap_done           (ap_done),
         .ap_rd             (ap_rd),
         .kbd0_poke         (kbd0_poke),

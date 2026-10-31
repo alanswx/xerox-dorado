@@ -190,11 +190,121 @@ static void copy_host_pokes() {
     }
 }
 
+static bool     failed = false;
+
+// ---- the host port ------------------------------------------------------------
+// By default the host's changes reach the RTL through its host port (hp_*,
+// the AP_* operations in dorado_rtl_pkg), as the HPS will drive it on the
+// MiSTer; CEDAR_BACKDOOR=1 copies them into the arrays instead. Each C
+// store routine has its own cache effect, so a write is classified by what
+// it did: a resident line that the C dropped was dorado_storage_store_at_va
+// (AP_STORE_INV); otherwise machine_store_va / dorado_poke_va (AP_STORE). A
+// line the C filled (dorado_memory_host_io_write) has no port operation.
+enum { AP_STORE = 1, AP_STORE_INV = 2, AP_RM_OR = 4, AP_WAKEUP_OR = 5, AP_RESCHED = 6 };
+struct port_stats {
+    uint64_t ops = 0, clocks = 0, store = 0, store_inv = 0, rm_or = 0, wakeup = 0, resched = 0;
+    uint64_t unported = 0;          // changes the port cannot express (backdoor-copied)
+};
+static port_stats pst;
+static bool use_backdoor = false;
+
+static uint16_t hp_op(int op, uint32_t va, uint16_t wd, int cache) {
+    top->hp_req = 1;
+    top->hp_op = op;
+    top->hp_we = 1;
+    top->hp_cache = cache;
+    top->hp_va = va & 0x0FFFFFFFu;
+    top->hp_wd = wd;
+    for (int i = 0; i < 4096; i++) {
+        top->clk = 1; top->eval(); top->clk = 0; top->eval();
+        pst.clocks++;
+        if (top->hp_done) {
+            top->hp_req = 0;
+            pst.ops++;
+            return top->hp_rd;
+        }
+    }
+    fprintf(stderr, "[cedar] host port: op %d va 0%o never done\n", op, va);
+    failed = true;
+    top->hp_req = 0;
+    return 0;
+}
+
+static int c_way(uint32_t va) {
+    int r = (int)((va >> 4) & DM_CACHE_ROW_MASK);
+    for (int w = 0; w < DM_CACHE_WAYS; w++) {
+        const dorado_cache_line *l = &MEM->cache[r].ways[w];
+        if (l->valid && l->tag == (va >> 10)) return w;
+    }
+    return -1;
+}
+static int rtl_way(uint32_t va) {
+    int r = (int)((va >> 4) & DM_CACHE_ROW_MASK);
+    for (int w = 0; w < DM_CACHE_WAYS; w++)
+        if (R_MEM(cache_valid)[r][w] && R_MEM(cache_tag)[r][w] == ((va >> 10) & 0x3FFFFu)) return w;
+    return -1;
+}
+
+static void port_host_write(uint32_t va) {
+    int cw = c_way(va), rw = rtl_way(va);
+    if (cw >= 0 && rw < 0) {               // the C filled a line: not a port operation
+        pst.unported++;
+        mirror_host_write(va);
+        return;
+    }
+    const dorado_map_entry *e = dorado_map_get(MEM, dorado_map_index(va));
+    size_t phys = (e->wp && e->dirty)
+                ? (size_t)va
+                : (size_t)e->rp * DM_PAGE_SIZE + (va & (DM_PAGE_SIZE - 1));
+    uint16_t v = cw >= 0 ? MEM->cache[(va >> 4) & DM_CACHE_ROW_MASK].ways[cw].data[va & 15]
+                         : (phys < MEM->storage_words ? MEM->storage[phys] : 0);
+    if (rw >= 0 && cw < 0) {
+        hp_op(AP_STORE_INV, va, v, 0);
+        pst.store_inv++;
+    } else {
+        hp_op(AP_STORE, va, v, 1);
+        pst.store++;
+    }
+}
+
+static void port_host_pokes() {
+    for (int i = 0; i < RM_SIZE; i++) {
+        uint16_t r = R_CPU(RM)[i], c = C->RM[i];
+        if (r == c) continue;
+        ps.rm++;
+        ps.rm_by_addr[i]++;
+        if (r & ~c) { R_CPU(RM)[i] = c; pst.unported++; continue; }   // a bit cleared
+        hp_op(AP_RM_OR, (uint32_t)i, (uint16_t)(c & ~r), 0);
+        pst.rm_or++;
+    }
+    for (int i = 0; i < STK_SIZE; i++) {
+        if (R_CPU(STK)[i] != C->STK[i]) { R_CPU(STK)[i] = C->STK[i]; ps.stk++; pst.unported++; }
+    }
+    if (R_CPU(wakeup_pending) != C->wakeup_pending) {
+        uint16_t r = R_CPU(wakeup_pending), c = C->wakeup_pending;
+        ps.wakeup++;
+        if (r & ~c) { R_CPU(wakeup_pending) = c; pst.unported++; }
+        else { hp_op(AP_WAKEUP_OR, 0, (uint16_t)(c & ~r), 0); pst.wakeup++; }
+    }
+    if (R_CPU(reschedule_pending) != C->reschedule_pending) {
+        ps.resched++;
+        hp_op(AP_RESCHED, 0, (uint16_t)C->reschedule_pending, 0);
+        pst.resched++;
+    }
+    if (R_CPU(ready) != C->ready) { R_CPU(ready) = C->ready; ps.ready++; pst.unported++; }
+    if (R_CPU(junk_tw_enabled) != (C->junk_tw_enabled ? 1 : 0) ||
+        R_CPU(junk_tw_countdown) != C->junk_tw_countdown) {
+        R_CPU(junk_tw_enabled) = C->junk_tw_enabled ? 1 : 0;
+        R_CPU(junk_tw_countdown) = C->junk_tw_countdown;
+        ps.junk++;
+        pst.unported++;
+    }
+}
+
 // ---- the step hook -----------------------------------------------------------
 static uint64_t steps = 0, max_steps = 0;
 static uint16_t pc_before;
 static uint8_t  task_before, tioa_before;
-static bool     failed = false;
 static uint64_t rtl_storage_check_every = 0;
 
 static int step_hook(dorado_machine *, int after) {
@@ -202,10 +312,29 @@ static int step_hook(dorado_machine *, int after) {
         if (!host_writes.empty()) {
             ps.host_write_steps++;
             ps.host_write_words += host_writes.size();
-            for (uint32_t va : host_writes) mirror_host_write(va);
+            if (use_backdoor) {
+                for (uint32_t va : host_writes) mirror_host_write(va);
+            } else {
+                // once per VA (the final value is what the C left)
+                std::vector<uint32_t> seen;
+                top->hp_hold = 1;
+                for (uint32_t va : host_writes) {
+                    bool dup = false;
+                    for (uint32_t s2 : seen) if (s2 == va) { dup = true; break; }
+                    if (dup) continue;
+                    seen.push_back(va);
+                    port_host_write(va);
+                }
+            }
             host_writes.clear();
         }
-        copy_host_pokes();
+        if (use_backdoor) {
+            copy_host_pokes();
+        } else {
+            top->hp_hold = 1;
+            port_host_pokes();
+            top->hp_hold = 0;
+        }
         pc_before = C->real_PC;
         task_before = C->ctask;
         tioa_before = (uint8_t)C->TIOA;
@@ -276,6 +405,7 @@ int main(int argc, char **argv) {
     top = new Vdorado_rtl_top;
     sync_c_to_rtl(C, top);
     top->io_bridge_en = 0;
+    use_backdoor = getenv("CEDAR_BACKDOOR") != nullptr;
     if (!compare_c_rtl(C, top, 0, "cedar-sync", C->real_PC, C->ctask)) {
         fprintf(stderr, "[cedar] state differs right after the copy\n");
         return 1;
@@ -351,6 +481,13 @@ int main(int argc, char **argv) {
            (unsigned long long)ps.rm, (unsigned long long)ps.stk,
            (unsigned long long)ps.wakeup, (unsigned long long)ps.ready,
            (unsigned long long)ps.resched, (unsigned long long)ps.junk);
+    if (!use_backdoor)
+        printf("[cedar] host port: %llu operations in %llu fabric clocks -- store %llu, store+invalidate %llu, "
+               "RM or %llu, wakeup %llu, reschedule %llu; not expressible %llu\n",
+               (unsigned long long)pst.ops, (unsigned long long)pst.clocks,
+               (unsigned long long)pst.store, (unsigned long long)pst.store_inv,
+               (unsigned long long)pst.rm_or, (unsigned long long)pst.wakeup,
+               (unsigned long long)pst.resched, (unsigned long long)pst.unported);
     for (auto &kv : ps.rm_by_addr)
         printf("         RM[0%03o] poked %llu times\n", kv.first, (unsigned long long)kv.second);
     if (!failed && !c_only) {

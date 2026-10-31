@@ -218,4 +218,16 @@ package dorado_rtl_pkg;
         endcase
     endfunction
 
+    // Host-port operations (dorado_rtl_cpu ap_op): the C machine's host
+    // services, done between microinstructions. Each mirrors one C routine.
+    localparam logic [2:0] AP_ASSIST    = 3'd0; // loader assist (ap_we/ap_stk/ap_cache)
+    localparam logic [2:0] AP_STORE     = 3'd1; // machine_store_va / dorado_poke_va: storage
+                                                // (storage[va] if the entry is vacant) and
+                                                // any resident line (drive ap_cache=1)
+    localparam logic [2:0] AP_STORE_INV = 3'd2; // dorado_storage_store_at_va: storage, and
+                                                // the resident line is dropped
+    localparam logic [2:0] AP_RM_OR     = 3'd4; // RM[ap_va[7:0]] |= ap_wd (naked notify)
+    localparam logic [2:0] AP_WAKEUP_OR = 3'd5; // wakeup_pending |= ap_wd (dorado_cpu_wakeup)
+    localparam logic [2:0] AP_RESCHED   = 3'd6; // reschedule_pending = ap_wd[7:0]
+
 endpackage
