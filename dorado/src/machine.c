@@ -558,6 +558,7 @@ static void machine_boot_switches_parse(const char *text)
  * steps and polls less often. Defaults keep the native behaviour. */
 unsigned dorado_machine_skip_quantum = 1;
 int dorado_machine_host_only = 0;
+int dorado_machine_display_microcode = 0;
 uint64_t dorado_machine_germ_poll_interval = GERM_POLL_INTERVAL;
 static uint64_t machine_germ_last_poll;
 /* Fields to hold each buffered key transition before applying the next.
@@ -2514,7 +2515,7 @@ static void machine_cedar_io(dorado_machine *m, dorado_baseboard *bb,
                              dorado_display *disp)
 {
     if (m->alto_ether_boot || !m->germ_word_count || !m->germ_data_done ||
-        !m->ether_loaded_world_cycle)
+        !m->ether_loaded_world_cycle || dorado_machine_display_microcode)
         return;
 
     /* Cheap field-cadence gate first: the body (VM reads/writes) runs only

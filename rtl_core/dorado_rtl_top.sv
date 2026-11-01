@@ -42,6 +42,7 @@ module dorado_rtl_top
     //     keyboard words, display gate) instead of the testbench
     input  logic        assist_en,
     input  logic        display_wake_gate,
+    input  logic [5:0]  display_top_lines,   // see dorado_rtl_io
     // Live keyboard, the four Alto keyboard words 177034B-177037B, active
     // low (Alto HW Manual: depressed = 0): word i = kbd_words[16*i +: 16].
     input  logic [63:0] kbd_words,
@@ -52,6 +53,14 @@ module dorado_rtl_top
     input  logic        mouse_present,
     input  logic [15:0] mouse_x,
     input  logic [15:0] mouse_y,
+    // Mouse motion for the terminal back channel (HM Table 24 message 06B):
+    // signed deltas, X right and Y down positive, one pulse of
+    // mouse_delta_stb per report. The display microcode turns them into the
+    // guest's mouse position (Cedar's DisplayAux); the Alto worlds take the
+    // absolute position above instead and leave this idle.
+    input  logic signed [15:0] mouse_dx,
+    input  logic signed [15:0] mouse_dy,
+    input  logic        mouse_delta_stb,
 
     // Host port: the C machine's host services (Cedar's disk, network, timer
     // and keyboard on the HPS) reach the core here, one operation at a time
@@ -247,7 +256,11 @@ module dorado_rtl_top
     logic [15:0]    kbd_words_default [0:4];
     always_comb begin
         for (int i = 0; i < 4; i++) kbd_words_default[i] = kbd_words[16 * i +: 16];
-        kbd_words_default[4] = 16'hFFFF;
+        // Word 4 is the terminal's mouse/keyset message (HM Table 24, 05B),
+        // active low, bit 2 Red/left, 1 Blue/right, 0 Yellow/middle: as the
+        // C model drives it from the mouse (dorado_machine_set_mouse), so the
+        // display microcode, a second writer of 177033B, agrees with the host.
+        kbd_words_default[4] = ~{13'd0, mouse_buttons};
         for (int i = 0; i < 16; i++) begin
             cpu_fastio_in_munch[i] = io_bridge_en ? fastio_in_munch[i] : 16'd0;
         end
@@ -476,6 +489,30 @@ module dorado_rtl_top
         .display_wake_gate (assist_display_gate)
     );
 
+    // Mouse motion arrives as one-clock reports; the I/O block takes input
+    // once per microinstruction (its clk_en tick), so motion is summed here
+    // until that tick consumes it.
+    logic signed [15:0] ms_acc_dx, ms_acc_dy;
+    logic               ms_acc_pend;
+    wire                io_tick = clk_en && io_bridge_en && step_done;
+    always_ff @(posedge clk) begin
+        if (core_rst) begin
+            ms_acc_dx   <= '0;
+            ms_acc_dy   <= '0;
+            ms_acc_pend <= 1'b0;
+        end else begin
+            if (io_tick && ms_acc_pend) begin
+                ms_acc_dx   <= mouse_delta_stb ? mouse_dx : 16'sd0;
+                ms_acc_dy   <= mouse_delta_stb ? mouse_dy : 16'sd0;
+                ms_acc_pend <= mouse_delta_stb;
+            end else if (mouse_delta_stb) begin
+                ms_acc_dx   <= ms_acc_dx + mouse_dx;
+                ms_acc_dy   <= ms_acc_dy + mouse_dy;
+                ms_acc_pend <= 1'b1;
+            end
+        end
+    end
+
     dorado_rtl_io u_io (
         .clk                     (clk),
         .rst                     (core_rst),
@@ -518,10 +555,11 @@ module dorado_rtl_top
         .ext_subtask_val         (ext_subtask_val),
 
         .display_wake_gate       (assist_en ? assist_display_gate : display_wake_gate),
+        .display_top_lines       (display_top_lines),
         .kbd_words_in            (kbd_words_default),
-        .mouse_dx_in             (16'sd0),
-        .mouse_dy_in             (16'sd0),
-        .mouse_delta_stb         (1'b0),
+        .mouse_dx_in             (ms_acc_dx),
+        .mouse_dy_in             (ms_acc_dy),
+        .mouse_delta_stb         (ms_acc_pend),
 
         .eth_local_host          (eth_local_host),
         .eth_tx_packet_stb       (eth_tx_packet_stb),

@@ -224,13 +224,21 @@ reg         mouse_present = 1'b0;
 reg   [2:0] mouse_buttons = 3'd0;
 reg  [15:0] mouse_x = 16'(MOUSE_W / 2), mouse_y = 16'd404;
 reg         mouse_stb_q = 1'b0;
+reg  signed [15:0] mouse_dx = 16'sd0, mouse_dy = 16'sd0;   // the last report's motion
+reg         mouse_delta_stb = 1'b0;
 wire signed [9:0] ms_dx = {ps2_mouse[4], ps2_mouse[4], ps2_mouse[15:8]};
 wire signed [9:0] ms_dy = {ps2_mouse[5], ps2_mouse[5], ps2_mouse[23:16]};
 wire signed [17:0] ms_nx = $signed({2'b00, mouse_x}) + ms_dx;
 wire signed [17:0] ms_ny = $signed({2'b00, mouse_y}) - ms_dy;
 always @(posedge clk_sys) begin
 	mouse_stb_q <= ps2_mouse[24];
+	mouse_delta_stb <= 1'b0;
 	if (ps2_mouse[24] != mouse_stb_q) begin
+		// Cedar takes motion through the terminal (its display microcode);
+		// the Alto world takes the absolute position below
+		mouse_dx        <= {{6{ms_dx[9]}}, ms_dx};
+		mouse_dy        <= -{{6{ms_dy[9]}}, ms_dy};
+		mouse_delta_stb <= CEDAR;
 		mouse_present <= 1'b1;
 		mouse_buttons <= {ps2_mouse[0], ps2_mouse[1], ps2_mouse[2]};
 		mouse_x <= (ms_nx < 0) ? 16'd0 : (ms_nx > MOUSE_W - 1) ? 16'(MOUSE_W - 1) : ms_nx[15:0];
@@ -266,12 +274,16 @@ dorado_rtl_top #(
 	.io_bridge_en       (1'b1),
 	.bootsrv_en         (!CEDAR),
 	.assist_en          (!CEDAR),
-	.display_wake_gate  (1'b0),
+	.display_wake_gate  (CEDAR),        // Cedar's display microcode drives the DDC
+	.display_top_lines  (CEDAR ? 6'd22 : 6'd0),
 	.kbd_words          ({key_word3, key_word2, key_word1, key_word0}),
 	.mouse_buttons      (mouse_buttons),
 	.mouse_present      (mouse_present),
 	.mouse_x            (mouse_x),
 	.mouse_y            (mouse_y),
+	.mouse_dx           (mouse_dx),
+	.mouse_dy           (mouse_dy),
+	.mouse_delta_stb    (mouse_delta_stb),
 	.hx_rx_wr_en        (1'b0),
 	.hx_rx_wr_addr      (12'd0),
 	.hx_rx_wr_data      (16'd0),

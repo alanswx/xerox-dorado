@@ -417,6 +417,77 @@ static void split_ethernet() {
     }
 }
 
+// The C display controller's state (what Cedar's boot microcode loaded into
+// the DDC: HRam, NLCB, the terminal task, raster control, the line
+// sequencer), into the RTL's -- or, with ck_f open, into checkpoint_io.svh.
+static FILE *ck_f;
+static void ds_emit(const char *n, int i, uint64_t v) {
+    if (i < 0) fprintf(ck_f, "            %s = 64'h%llx;\n", n, (unsigned long long)v);
+    else       fprintf(ck_f, "            %s[%d] = 64'h%llx;\n", n, i, (unsigned long long)v);
+}
+#define DS(n, v)     do { if (ck_f) ds_emit(#n, -1, (uint64_t)(v)); else R_IO(n) = (v); } while (0)
+#define DSA(n, i, v) do { if (ck_f) ds_emit(#n, (i), (uint64_t)(v)); else R_IO(n)[i] = (v); } while (0)
+static void sync_display() {
+    const dorado_display *d = dorado_machine_display(M);
+    DS(ddc_statics, d->statics);
+    DS(ddc_riob, d->riob);
+    DS(ddc_terminal_task, d->terminal_task & 15);
+    DS(ddc_ram_keep, d->ram_keep ? 1 : 0);
+    DS(ddc_ram_addr, d->ram_addr);
+    for (int i = 0; i < 512; i++) DSA(ddc_hram, i, d->hram[i] & 7);
+    for (int i = 0; i < 16; i++) DSA(ddc_nlcb, i, d->nlcb[0][i]);
+    DS(ddc_nlcb_line, d->nlcb_line);
+    DS(ddc_nlcb_field_odd, d->nlcb_field_odd ? 1 : 0);
+    DS(ddc_nlcb_cursor_x, d->nlcb_cursor_x);
+    DS(ddc_nlcb_cursor_lo, d->nlcb_cursor_lo);
+    DS(ddc_scan_line, d->scan_line);
+    DS(ddc_scan_pixel, d->scan_pixel);
+    DS(ddc_frame_count, d->frame_count);
+    for (int c = 0; c < 2; c++) {
+        DSA(ddc_next_wcb_flag, c, d->next_wcb_flag[c] ? 1 : 0);
+        DSA(ddc_current_wcb_flag, c, d->current_wcb_flag[c] ? 1 : 0);
+        DSA(ddc_wcb_draw_x, c, d->wcb_draw_x[c]);
+        DSA(ddc_wcb_draw_y, c, d->wcb_draw_y[c]);
+        const dorado_display_ddc_line *pl = &d->ddc_pending_line[c], *cl = &d->ddc_current_line[c];
+        DSA(ddc_pend_valid, c, pl->valid ? 1 : 0);
+        DSA(ddc_pend_odd, c, pl->odd ? 1 : 0);
+        DSA(ddc_pend_line, c, pl->line);
+        DSA(ddc_pend_lmarg, c, pl->lmarg);
+        DSA(ddc_pend_width, c, pl->width);
+        DSA(ddc_pend_ptr, c, pl->ptr);
+        DSA(ddc_pend_scan, c, pl->scan);
+        DSA(ddc_cur_valid, c, 0);            // the half-gathered line's words are not carried
+        DSA(ddc_cur_odd, c, cl->odd ? 1 : 0);
+        DSA(ddc_cur_abs_y, c, cl->absolute_y ? 1 : 0);
+        DSA(ddc_cur_y, c, cl->y);
+        DSA(ddc_cur_line, c, cl->line);
+        DSA(ddc_cur_lmarg, c, cl->lmarg);
+        DSA(ddc_cur_width, c, cl->width);
+        DSA(ddc_cur_ptr, c, cl->ptr);
+        DSA(ddc_cur_scan, c, cl->scan);
+        DSA(ddc_cur_word_count, c, 0);
+    }
+    DS(ddc_fifo_a_head, d->fifo_a_head);
+    DS(ddc_fifo_a_tail, d->fifo_a_tail);
+    DS(ddc_fifo_b_head, d->fifo_b_head);
+    DS(ddc_fifo_b_tail, d->fifo_b_tail);
+    DS(ddc_raster_taskcmd, d->raster_taskcmd);
+    DS(ddc_raster_lt_enabled, d->raster_lt_enabled ? 1 : 0);
+    DS(ddc_raster_next_channel, d->raster_next_channel & 3);
+    for (int c = 0; c < 4; c++) {
+        DSA(ddc_raster_next_wt_flag, c, d->raster_next_wt_flag[c] ? 1 : 0);
+        DSA(ddc_raster_current_wt_flag, c, d->raster_current_wt_flag[c] ? 1 : 0);
+    }
+    DS(ddc_boot_button_scanlines, d->boot_button_scanlines);
+    for (int i = 0; i < 5; i++) DSA(ddc_kbd_words, i, d->keyboard_words[i]);
+    if (!ck_f)
+        printf("[cedar] display: terminal task 0%o, statics 0%o, raster lt %d, frame %llu\n",
+               d->terminal_task, d->statics, d->raster_lt_enabled,
+               (unsigned long long)d->frame_count);
+}
+#undef DS
+#undef DSA
+
 // The C Ethernet device's state at the checkpoint, into the RTL's.
 static void split_sync_ethernet() {
     dorado_ethernet *eth = dorado_machine_ethernet(M);
@@ -492,7 +563,6 @@ static int split_hook(dorado_machine *, int after) {
 // $readmemh images, and every register sync_c_to_rtl sets -- plus the
 // Ethernet device's -- as assignments the reset tasks include. Storage is not
 // written: the HPS program restores the same snapshot and loads it into DDR.
-static FILE *ck_f;
 static void ck_emit(const char *name, int i, int j, uint64_t v) {
     // the enum-typed registers take a cast
     const char *ty = "64";
@@ -697,6 +767,7 @@ static void dump_checkpoint(const char *dir) {
     DI(eth_rx_hold); DI(eth_rx_wire_timer); DI(eth_world_rx_words);
     DI(eth_rx_count); DI(eth_rx_pos);
 #undef DI
+    sync_display();
     fclose(ck_f);
     dump("eth_rx_words.hex",     [&](int i){ return R_IO(eth_rx_words)[i]; }, 4096, 4);
     dump("eth_rx_attention.hex", [&](int i){ return R_IO(eth_rx_attention)[i]; }, 4096, 1);
@@ -707,6 +778,7 @@ static void dump_checkpoint(const char *dir) {
             (unsigned)R_CPU(real_PC), (unsigned long long)R_CPU(cycles),
             (unsigned)R_CPU(ctask), (unsigned)R_CPU(ready), (unsigned)R_CPU(tasking_on));
     fclose(f);
+    ck_f = nullptr;
     printf("[cedar] checkpoint for the FPGA written to %s (real_PC=0%o, cycles %llu)\n",
            dir, (unsigned)R_CPU(real_PC), (unsigned long long)R_CPU(cycles));
 }
@@ -825,9 +897,13 @@ int main(int argc, char **argv) {
         top->io_bridge_en = 1;
         top->bootsrv_en = 0;
         top->assist_en = 0;
-        top->display_wake_gate = 0;
+        // CEDAR_DISPLAY=1: wake the display tasks, so Cedar's own display
+        // microcode draws through the RTL's display controller
+        top->display_wake_gate = getenv("CEDAR_DISPLAY") ? 1 : 0;
+        top->display_top_lines = 22;
         top->eth_local_host = dorado_machine_ethernet(M)->local_host;
         split_sync_ethernet();
+        sync_display();
         split_refresh_regs();
         if (const char *dir = getenv("CEDAR_DUMP_INIT")) {
             dump_checkpoint(dir);
@@ -925,6 +1001,24 @@ int main(int argc, char **argv) {
                 break;
             }
         }
+    }
+    if (const char *rtl = getenv("CEDAR_PGM_RTL")) {   // the RTL display controller's framebuffer
+        FILE *f = fopen(rtl, "wb");
+        int px = 0;
+        if (f) {
+            fprintf(f, "P5\n1024 808\n255\n");
+            for (int i = 0; i < 1024 * 808; i++) {
+                int b = R_IO(fb)[i] & 1;
+                px += b;
+                fputc(b ? 0 : 255, f);
+            }
+            fclose(f);
+        }
+        printf("[cedar] RTL display controller: %d pixels -> %s\n", px, rtl);
+    }
+    if (const char *raw = getenv("CEDAR_PGM_RAW")) {   // what the display controller drew
+        dorado_display_snapshot_pgm(dorado_machine_display(M), raw);
+        printf("[cedar] display controller framebuffer -> %s\n", raw);
     }
     if (const char *pgm = getenv("CEDAR_PGM")) {
         int px = dorado_machine_render_display_list(M);

@@ -69,6 +69,11 @@ module dorado_rtl_io
 
     // External Display / Terminal Controls
     input  logic           display_wake_gate, // 1 when world display list is active
+    // Frame lines between vertical sync and the first visible line, dropped
+    // from the framebuffer (the NLCB line count includes the top border,
+    // which a monitor never shows). 0 for the Alto worlds; 22 measured for
+    // Cedar's LF display (its first DCB line lands on frame line 22).
+    input  logic [5:0]     display_top_lines,
     input  logic [15:0]    kbd_words_in [0:4],
     input  logic signed [15:0] mouse_dx_in,
     input  logic signed [15:0] mouse_dy_in,
@@ -261,6 +266,11 @@ module dorado_rtl_io
     logic [31:0] ddc_boot_button_scanlines;
     logic [15:0] ddc_kbd_words      [0:4];
     logic [4:0]  ddc_kbd_pending;
+    // the pending words in the order they changed (display.c display_kbd_order):
+    // the terminal reports transitions as they happen, so a Shift pressed
+    // before a letter reaches the guest first
+    logic [2:0]  ddc_kbd_order [0:4];
+    logic [2:0]  ddc_kbd_order_n;
     int          ddc_mouse_dx;
     int          ddc_mouse_dy;
     logic        ddc_mouse_pending;
@@ -476,9 +486,7 @@ module dorado_rtl_io
         if (ddc_term_msg_bit == 8'd0) begin
             if (ddc_kbd_pending != 5'd0) begin
                 int w;
-                // lowest-numbered pending keyboard word
-                w = 0;
-                for (int k = 4; k >= 0; k--) if (ddc_kbd_pending[k]) w = k;
+                w = int'(ddc_kbd_order[0]);         // the oldest transition
                 m_type = (w < 4) ? 8'(w + 1) : 8'd5;
                 m_body = ddc_kbd_words[w];
             end else if (ddc_mouse_pending) begin
@@ -516,9 +524,9 @@ module dorado_rtl_io
             ddc_term_msg_active = 1'b1;
             if (ddc_kbd_pending != 5'd0) begin
                 int w;
-                // lowest-numbered pending keyboard word
-                w = 0;
-                for (int k = 4; k >= 0; k--) if (ddc_kbd_pending[k]) w = k;
+                w = int'(ddc_kbd_order[0]);         // the oldest transition
+                for (int k = 0; k < 4; k++) ddc_kbd_order[k] = ddc_kbd_order[k + 1];
+                ddc_kbd_order_n = ddc_kbd_order_n - 3'd1;
                 ddc_kbd_pending[w] = 1'b0;
                 ddc_term_msg_word  = 8'(w);
                 ddc_term_msg_type  = (w < 4) ? 8'(w + 1) : 8'd5;
@@ -1022,7 +1030,10 @@ module dorado_rtl_io
             if (io_read_tioa == TIOA_TSTATUS) begin
                 io_read_data = ddc_peek_terminal_bit_fn(io_read_task);
             end else if (io_read_tioa == TIOA_DDCSTATUS) begin
-                io_read_data = 16'h0000;
+                // DispY Status bit 0 carries the terminal's serial data when
+                // DispY controls the terminal (DisplayAux.mc DisplayInitConfig);
+                // Cedar's ReadTerminal reads it here. 0 for the emulator task.
+                io_read_data = ddc_peek_terminal_bit_fn(io_read_task);
             end else begin
                 io_read_data = 16'h0000;
             end
@@ -1287,6 +1298,8 @@ module dorado_rtl_io
             ddc_boot_button_scanlines = 32'd0;
             for (int i = 0; i < 5; i++) ddc_kbd_words[i] = 16'hFFFF;
             ddc_kbd_pending         = 5'd0;
+            ddc_kbd_order_n         = 3'd0;
+            for (int k = 0; k < 5; k++) ddc_kbd_order[k] = 3'd0;
             ddc_mouse_dx            = 0;
             ddc_mouse_dy            = 0;
             ddc_mouse_pending       = 1'b0;
@@ -1422,7 +1435,11 @@ module dorado_rtl_io
             for (int i = 0; i < 5; i++) begin
                 if (kbd_words_in[i] != ddc_kbd_words[i]) begin
                     ddc_kbd_words[i]   = kbd_words_in[i];
-                    ddc_kbd_pending[i] = 1'b1;
+                    if (!ddc_kbd_pending[i]) begin
+                        ddc_kbd_pending[i] = 1'b1;
+                        ddc_kbd_order[ddc_kbd_order_n] = 3'(i);
+                        ddc_kbd_order_n = ddc_kbd_order_n + 3'd1;
+                    end
                 end
             end
             if (mouse_delta_stb && (mouse_dx_in != 16'sd0 || mouse_dy_in != 16'sd0)) begin
@@ -1437,7 +1454,7 @@ module dorado_rtl_io
             if (io_read_stb) begin
                 // 1. Display TSTATUS serial bit advance
                 if ((io_read_stb_task == TASK_DHT || io_read_stb_task == TASK_AHT) &&
-                    io_read_stb_tioa == TIOA_TSTATUS) begin
+                    (io_read_stb_tioa == TIOA_TSTATUS || io_read_stb_tioa == TIOA_DDCSTATUS)) begin
                     ddc_advance_terminal_bit_task();
                 end
                 // 2. Ethernet RX word pop
@@ -1553,8 +1570,9 @@ module dorado_rtl_io
                             // ddc_render_line guards.
                             int width_pixels, y;
                             width_pixels = ddc_decode_width_pixels_fn(ddc_cur_width[ch]);
-                            y = ddc_cur_abs_y[ch] ? int'(ddc_cur_y[ch])
-                                                  : (int'(ddc_cur_line[ch]) * 2 + int'(ddc_cur_odd[ch]));
+                            y = (ddc_cur_abs_y[ch] ? int'(ddc_cur_y[ch])
+                                                   : (int'(ddc_cur_line[ch]) * 2 + int'(ddc_cur_odd[ch])))
+                                - int'(display_top_lines);
                             if (ddc_cur_valid[ch] && ddc_cur_word_count[ch] != 16'd0 &&
                                 width_pixels > 0 && y >= 0 && y < DISPLAY_H) begin
                                 ddc_lines_rendered = ddc_lines_rendered + 64'd1;
@@ -1622,7 +1640,8 @@ module dorado_rtl_io
                                 if (row_bits != 16'd0) begin
                                     int x, y;
                                     x = 3741 - int'(ddc_nlcb_cursor_x); // CURSOR_X_BIAS = 07235
-                                    y = (int'(ddc_nlcb_line) - 1) * 2 + int'(ddc_nlcb_field_odd);
+                                    y = (int'(ddc_nlcb_line) - 1) * 2 + int'(ddc_nlcb_field_odd)
+                                        - int'(display_top_lines);
                                     if (y >= 0 && y < DISPLAY_H && x > -16 && x < DISPLAY_W) begin
                                         rj_start  = 1'b1;
                                         rj_cursor = 1'b1;

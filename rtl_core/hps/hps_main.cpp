@@ -25,6 +25,7 @@
 
 extern "C" {
 #include "machine.h"
+#include "memory.h"
 #include "typetext.h"
 }
 
@@ -155,6 +156,15 @@ int main(int argc, char **argv) {
             printf("[hps] host loop: %.1f ms of guest time behind the FPGA\n",
                    S->host_target > S->host_bb_cycles
                        ? (S->host_target - S->host_bb_cycles) / 3.7 * 60e-6 : 0.0);
+            {
+                dorado_memory *mem = dorado_machine_memory(M);
+                printf("[hps] KeyBits 177033..37:");
+                for (unsigned a = 0177033; a <= 0177037; a++)
+                    printf(" %06o", dorado_visible_word_at_va(mem, a));
+                printf("  mouse 424/425: %d %d  cursor 426/427: %d %d\n",
+                       (short)dorado_visible_word_at_va(mem, 0424), (short)dorado_visible_word_at_va(mem, 0425),
+                       (short)dorado_visible_word_at_va(mem, 0426), (short)dorado_visible_word_at_va(mem, 0427));
+            }
             int px = hps_snapshot_pgm("/tmp/dorado.pgm");
             printf("[hps] screen: %d pixels -> /tmp/dorado.pgm\n", px);
             tl = now_s();

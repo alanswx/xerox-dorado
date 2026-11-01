@@ -625,3 +625,84 @@ ssh mister14 'mkdir -p /tmp/dorado && tar -C /tmp/dorado -xzf /media/fat/dorado/
 # wasm32 copy (web-assets/), the .pdi the native one
 # screen every 10 s in /tmp/dorado.pgm (and on SIGUSR1)
 ```
+
+### 8.4 The screen and the keyboard, Cedar's own way (2026-10-31)
+
+On MiSTer14 Cedar now draws its own screen on HDMI and takes the MiSTer's
+keyboard and mouse, both through Cedar's own display microcode on the RTL.
+The host renders and pokes nothing.
+`docs/images/rtl-core-mister14-cedar-hdmi-typing-2026-10-31.png` is an HDMI
+capture after typing at the CommandTool (`echo Hello from The MisTer`,
+answered) through MiSTerKVMS.
+
+**The screen.** In the C emulator Cedar's display tasks never ran, because
+the wake gate never opened for a germ world and the C machine drew the DCB
+chain itself. Forcing the wakeups in C (`DORADO_FORCE_DISPLAY_WAKE`) showed
+Cedar's display microcode drawing the whole desktop through the DDC model,
+162,058 px. So the RTL Cedar core sets `display_wake_gate`. The checkpoint
+now also carries the C display controller's state (HRam, NLCB, terminal task,
+raster control, line sequencer: `sync_display` in sim_cedar.cpp, 603
+assignments in `checkpoint_io.svh`). Without it nothing woke. One offset: the
+NLCB line count includes the top border, and Cedar's first visible line
+lands on frame line 22, measured as the exact row match against the host
+render over 600 rows. `display_top_lines` (22 for Cedar, 0 for the Alto)
+drops those lines.
+
+**The keyboard and mouse.** Cedar's `ReadTerminal` (DisplayAux.mc) reads
+the terminal's serial bit from **DispY Status (TIOA 370B) bit 0**, not
+TStatus (360B): "Input from Status register returns: Bit 0 = keyboard data
+bit ... Bit 15 = muffler data bit". Both models returned only the muffler
+there, so no keyboard message ever arrived. The RTL now serves the
+serializer on that register for the terminal task (DHT/AHT). The C model
+serves it only on request (`dorado_display_terminal_on_status` /
+`DORADO_TERMINAL_ON_STATUS=1`), because every C world's display task reads
+that register. The Alto ones take their keyboard from the host, and the
+serializer's in-flight message lives in statics a snapshot does not carry,
+so `test_snapshot` diverged. In the Alto RTL core the terminal now delivers
+the same words the loader assist writes, and Galaxian still draws 3,259 px.
+
+Three more pieces of the same path:
+
+- The terminal reports changed words **in the order they changed**
+  (`display_kbd_order` / `ddc_kbd_order`, in both models). Lowest-word-first
+  could deliver a letter before its Shift.
+- Terminal word 4 (mouse buttons) carries `~mouse_buttons` in the RTL, as
+  `dorado_machine_set_mouse` does in C.
+- Mouse motion is message 06B, signed deltas. The wrapper sends PS/2 motion
+  as `mouse_dx/dy/mouse_delta_stb` (Cedar build only; the Alto uses the
+  absolute position). `dorado_rtl_top` sums it until the I/O tick takes it,
+  because a one-clock report is otherwise missed. Cedar's pointer starts at
+  (0,0).
+
+`dorado_machine_display_microcode` (machine.h) tells `machine_cedar_io` to do
+nothing: the display microcode posts the field interrupt (DisplayMain.mc,
+the mask at 421B) and stores the keyboard and mouse. dorado-hps sets it
+unless `-c`/`-t` script the input the host's way.
+
+Bugs on the way:
+
+- dorado-hps decoded the status block's mouse fields from bits 27/26:24.
+  They are 25/24:22.
+- dorado-hps must be stopped before its binary is replaced ("text file busy"
+  makes `scp` fail and the old one keeps running).
+
+**Known: capitals typed through MiSTerKVMS sometimes lose their Shift**,
+consistently for letters in keyboard words 0-2 and never in word 3, where
+Right Shift sits. MiSTerKVMS sends the modifier and the key together, so
+both words change in the same tick and go out in index order. A person
+presses Shift first; not yet confirmed with a real keyboard.
+
+**Speed, measured** (rehearsal, HPS_HIST=1): 9.1 fabric clocks per
+microinstruction:
+
+- **5.0** for the basic sequence (FETCH, EXEC, NEXT, FINISH, and DEC, which
+  is actually waiting);
+- **1.9** for memory references (MAPA/MAPV/BOOK/RD);
+- **1.4** for the IFU states;
+- **1.06 clocks per microinstruction are the CPU held (`io_busy`) while the
+  DDC line renderer writes the framebuffer one pixel per clock.** At Cedar's
+  1024-pixel width that is 12% of all clocks; the pixel writes need not hold
+  the CPU.
+
+The speculative IM read does work (FETCH->EXEC 0.98 per microinstruction).
+On MiSTer14: 5.6M microinstructions/s = 0.34x with the display running.

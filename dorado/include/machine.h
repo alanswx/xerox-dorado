@@ -183,6 +183,13 @@ extern unsigned dorado_machine_skip_quantum;
  * own CPU -- the Alto display-active scan, a DCB-chain walk every scan line
  * -- are skipped, since each guest read there is an FPGA round trip. */
 extern int dorado_machine_host_only;
+/* Nonzero when Cedar's own display microcode runs (on the FPGA): it posts
+ * the vertical field interrupt itself (DisplayMain.mc, the mask at 421B)
+ * and takes the keyboard and mouse from the terminal back channel
+ * (DisplayAux.mc ReadTerminal), so machine_cedar_io, which stands in for
+ * both, does nothing -- a second writer of KeyBits disagrees with the first
+ * and the guest sees a letter without its Shift. */
+extern int dorado_machine_display_microcode;
 extern uint64_t dorado_machine_germ_poll_interval;
 typedef int (*dorado_machine_step_hook_fn)(dorado_machine *m, int after);
 extern dorado_machine_step_hook_fn dorado_machine_step_hook;

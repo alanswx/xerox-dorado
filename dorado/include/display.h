@@ -453,4 +453,11 @@ void dorado_display_dump_tioa_use(const dorado_display *d);
  */
 int dorado_display_render_fifo(dorado_display *d, int subtask, int *dst_y);
 
+/* Serve the terminal back channel's serial bit on DispY Status (TIOA 370B)
+ * bit 0, as the hardware does when DispY controls the terminal, so the
+ * display microcode's ReadTerminal delivers the keyboard and mouse. Off by
+ * default in the C emulator (see display.c); 1 forces on, 0 off, -1 (the
+ * initial value) takes DORADO_TERMINAL_ON_STATUS from the environment. */
+extern int dorado_display_terminal_on_status;
+
 #endif

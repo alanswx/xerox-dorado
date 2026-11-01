@@ -133,10 +133,11 @@ void read_status() {
         dorado_display *d = dorado_machine_display(M);
         for (int i = 0; i < 4; i++)
             dorado_display_keyboard_set_word(d, i, (uint16_t)(b9 >> (16 * i)));
-        int present = (b10 >> 27) & 1;
+        // beat 10: {x[63:48], y[47:32], 6'0, present[25], buttons[24:22], 4'0, ...}
+        int present = (b10 >> 25) & 1;
         if (present)
             dorado_machine_set_mouse(M, (int)(b10 >> 48), (int)((b10 >> 32) & 0xFFFF),
-                                     (int)((b10 >> 24) & 7));
+                                     (int)((b10 >> 22) & 7));
     }
 }
 
@@ -257,6 +258,11 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
 
     dorado_machine_skip_quantum = CFG.quantum;
     dorado_machine_host_only = 1;
+    // live input: Cedar's display microcode on the FPGA posts the field
+    // interrupt and takes the keyboard and mouse from the terminal back
+    // channel, so the host stays out of both (scripted input, -c/-t, still
+    // goes the host's way)
+    dorado_machine_display_microcode = CFG.keyboard;
     if (CFG.germ_poll) dorado_machine_germ_poll_interval = CFG.germ_poll;
     dorado_host_read_hook = read_hook;
     dorado_host_write_hook = write_hook;

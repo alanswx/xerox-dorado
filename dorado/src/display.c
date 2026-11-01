@@ -24,13 +24,21 @@ static uint16_t display_mouse_body;
  *
  * So keyboard transitions OUTRANK motion. `display_kbd_pending` is a bitmask
  * of words whose value changed since they were last put on the wire, and
+ * `display_kbd_order` holds those words in the order they changed: the
+ * terminal reports transitions as they happen, so a Shift pressed before a
+ * letter reaches the guest first (lowest-word-first reported the letter
+ * before the Shift whenever both were pending, and the guest typed it
+ * unshifted). And
  * `display_msg_*` latch the message being clocked out so a key that changes
  * mid-message cannot tear it.
  *
  * File-scope statics rather than dorado_display members on purpose: the
  * display struct is snapshotted whole, and a new member breaks every baked
  * checkpoint (dorado/CLAUDE.md). */
+int dorado_display_terminal_on_status = -1;   /* -1: DORADO_TERMINAL_ON_STATUS decides */
 static uint8_t  display_kbd_pending;     /* bit N = word N has a transition */
+static uint8_t  display_kbd_order[DORADO_DISPLAY_KEY_WORDS]; /* pending words, oldest first */
+static uint8_t  display_kbd_order_n;
 static uint8_t  display_msg_active;      /* a latched message is in flight   */
 static uint8_t  display_msg_type;        /* its Table 24 message type        */
 static uint16_t display_msg_body;        /* its 16-bit body, latched         */
@@ -44,8 +52,11 @@ static void display_kbd_mark(const dorado_display *d, int word,
                              uint16_t before)
 {
     if (!d || word < 0 || word >= DORADO_DISPLAY_KEY_WORDS) return;
-    if (d->keyboard_words[word] != before)
+    if (d->keyboard_words[word] != before &&
+        !(display_kbd_pending & (1u << word))) {
         display_kbd_pending |= (uint8_t)(1u << word);
+        display_kbd_order[display_kbd_order_n++] = (uint8_t)word;
+    }
 }
 
 static int display_trace_limit(const char *name, unsigned default_limit,
@@ -192,6 +203,7 @@ void dorado_display_init(dorado_display *d)
     display_mouse_pending = 0;
     display_mouse_body = 0;
     display_kbd_pending = 0;
+    display_kbd_order_n = 0;
     display_msg_active = 0;
     display_msg_type = 0;
     display_msg_body = 0;
@@ -210,6 +222,7 @@ void dorado_display_init(dorado_display *d)
      * the keyboard yet, and leaving those set would make the very first five
      * messages keyboard refreshes and delay the first mouse report. */
     display_kbd_pending = 0;
+    display_kbd_order_n = 0;
 }
 
 /* ─── Slow-IO catch-all callbacks ────────────────────────────────── */
@@ -399,13 +412,11 @@ static uint16_t display_terminal_keyboard_bit(dorado_display *d)
     if (d->terminal_msg_bit == 0) {
         display_msg_active = 1;
         if (display_kbd_pending) {
-            /* Keyboard/button transition wins. Lowest pending word first so
-             * a burst is reported in a stable order. */
-            int word = 0;
-            while (word < DORADO_DISPLAY_KEY_WORDS &&
-                   !(display_kbd_pending & (1u << word)))
-                word++;
-            if (word >= DORADO_DISPLAY_KEY_WORDS) word = 0;
+            /* Keyboard/button transition wins, the oldest first. */
+            int word = display_kbd_order[0];
+            for (int i = 1; i < display_kbd_order_n; i++)
+                display_kbd_order[i - 1] = display_kbd_order[i];
+            display_kbd_order_n--;
             display_kbd_pending &= (uint8_t)~(1u << word);
             d->terminal_msg_word = (uint8_t)word;
             display_msg_type = (uint8_t)((word < 4) ? (word + 1) : 5);
@@ -858,6 +869,33 @@ static uint16_t display_input(void *ctx, int task, int subtask,
     }
     if (tioa == DORADO_DISPLAY_TIOA_DDCSTATUS) {
         uint16_t status = display_ddc_status();
+        if (dorado_display_terminal_on_status < 0)
+            dorado_display_terminal_on_status =
+                getenv("DORADO_TERMINAL_ON_STATUS") ? 1 : 0;
+        /* DispY's Status register also carries the terminal's serial data
+         * in bit 0 when DispY controls the terminal: DisplayAux.mc
+         * DisplayInitConfig, "Input from Status register returns: Bit 0 =
+         * keyboard data bit ... Bit 15 = muffler data bit". Cedar's
+         * ReadTerminal reads it here, from the terminal task (DHT), one bit
+         * per scan line; the emulator task's configuration probe of the
+         * same register must not consume terminal bits.
+         *
+         * OPT-IN here (dorado_display_terminal_on_status): every world's
+         * display task reads this register, Alto ones included, and they
+         * have always taken their keyboard from the host instead. Turning it
+         * on for all would change them, and the serializer's in-flight
+         * message lives in file-scope statics a snapshot does not carry (a
+         * member would change the snapshot ABI), so a restore mid-message
+         * diverges. The FPGA core (rtl_core dorado_rtl_io) does serve it. */
+        if (d && dorado_display_terminal_on_status &&
+            (task == DORADO_DISPLAY_TASK_DHT || task == DORADO_DISPLAY_TASK_AHT)) {
+            if (d->boot_button_scanlines > 0) {
+                d->boot_button_scanlines--;
+                status |= 0x8000u;       /* boot-button jam on IOB.00 */
+            } else {
+                status |= display_terminal_keyboard_bit(d);
+            }
+        }
         if (dorado_trace_flag("DORADO_DDCSTATUS_TRACE")) {
             static unsigned n = 0;
             if (n++ < 256) {
