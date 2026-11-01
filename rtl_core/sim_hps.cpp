@@ -43,9 +43,8 @@ static bool     hist_on;
 static uint64_t hist[32];              // fabric clocks per CPU state
 static uint64_t trans[32][32], same[32];  // state changes; clocks a state repeated
 static const char *stname[] = {"C_FETCH","C_DEC","C_EXEC","C_PREF","C_NEXTRD","C_NEXT","C_SCHED",
-    "C_IFU_OPW","C_IFU_DECW","C_IFU_DEC","C_IFU_AW","C_IFU_BETA","C_IFU_BW","C_IFU_END","C_FINISH",
-    "M_ROW","M_MAPA","M_MAPV","M_BOOK","A_DO","A_WAIT","M_WRA","M_WRV","M_WB","M_FILL","M_RD","M_WR",
-    "M_IOC","M_IOS","M_IOW","M_STR","M_STW"};
+    "C_IFU_W","C_IFU_DECW","C_IFU_DEC","C_IFU_AW","C_IFU_BETA","C_IFU_BW","C_IFU_END","C_FINISH","C_APW",
+    "?","?","?","?","?","?","?","?","?","?","?","?","?","?","?","?"};
 
 static void clock_n(int n) {
     for (int i = 0; i < n; i++) {

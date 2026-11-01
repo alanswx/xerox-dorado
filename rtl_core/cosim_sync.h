@@ -8,7 +8,10 @@
 #pragma once
 
 #define R_CPU(field) (top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__##field)
-#define R_MEM(field) (top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__##field)
+#define R_MEM(field) (top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__u_mem__DOT__##field)
+// the cache data: one RAM per way, indexed {row, word}
+#define R_CW(w)      ((w) == 0 ? R_MEM(cache_w0) : (w) == 1 ? R_MEM(cache_w1) : (w) == 2 ? R_MEM(cache_w2) : R_MEM(cache_w3))
+#define CW_IDX(r, k) ((r) * 16 + (k))
 #define R_STOR(field) (top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__g_storage__DOT__u_stor__DOT__##field)
 #define CACHE_IDX(r, w, k) ((((r) * 4) + (w)) * 16 + (k))
 #define R_IO(field)  (top->rootp->dorado_rtl_top__DOT__u_io__DOT__##field)
@@ -244,7 +247,7 @@ static void sync_c_to_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top) {
     // Copy Memory state if attached
     if (c_mem) {
         for (int i = 0; i < DM_BR_COUNT; i++) {
-            R_MEM(br)[i] = c_mem->br[i] & 0x0FFFFFFFu;
+            R_CPU(br)[i] = c_mem->br[i] & 0x0FFFFFFFu;
         }
         for (int i = 0; i < DM_MAP_ENTRIES; i++) {
             R_MEM(map_rp)[i] = c_mem->map[i].rp;
@@ -262,7 +265,7 @@ static void sync_c_to_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top) {
                 R_MEM(cache_being_loaded)[r][w] = c_mem->cache[r].ways[w].being_loaded ? 1 : 0;
                 R_MEM(cache_lru)[r][w] = c_mem->cache[r].lru[w] & 3;
                 for (int k = 0; k < DM_CACHE_LINE_W; k++) {
-                    R_MEM(cache_data)[CACHE_IDX(r, w, k)] = c_mem->cache[r].ways[w].data[k];
+                    R_CW(w)[CW_IDX(r, k)] = c_mem->cache[r].ways[w].data[k];
                 }
             }
         }
@@ -274,14 +277,14 @@ static void sync_c_to_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top) {
             R_MEM(pipe_va)[s] = c_mem->pipe[s].va & 0x0FFFFFFFu;
             R_MEM(pipe_map_rp_pre)[s] = c_mem->pipe[s].map_rp_pre;
             R_MEM(pipe_map_flags_pre)[s] = c_mem->pipe[s].map_flags_pre & 7;
-            R_MEM(pipe_mapbuf_busy)[s] = c_mem->pipe[s].mapbuf_busy ? 1 : 0;
+            R_CPU(pipe_mapbuf_busy)[s] = c_mem->pipe[s].mapbuf_busy ? 1 : 0;
             R_MEM(pipe_cache_flags)[s] = c_mem->pipe[s].cache_flags;
             R_MEM(pipe_pipe4_errors)[s] = c_mem->pipe[s].pipe4_errors;
             R_MEM(pipe_pipe4_syndrome)[s] = c_mem->pipe[s].pipe4_syndrome;
             R_MEM(pipe_pipe4_quadword)[s] = c_mem->pipe[s].pipe4_quadword & 3;
         }
         R_MEM(pipe_head) = c_mem->pipe_head;
-        R_MEM(proc_srn) = c_mem->proc_srn & 0xF;
+        R_CPU(proc_srn) = c_mem->proc_srn & 0xF;
         R_MEM(asrn) = c_mem->asrn & 0xF;
         R_MEM(fault_count) = c_mem->fault_count & 0xF;
         R_MEM(fault_first_srn) = c_mem->fault_first_srn & 0xF;
@@ -292,13 +295,13 @@ static void sync_c_to_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top) {
         R_MEM(last_fault_subtask) = c_mem->last_fault_subtask & 3;
         R_MEM(last_fault_ref_kind) = (uint8_t)c_mem->last_fault_ref_kind;
         R_MEM(mar) = c_mem->mar & 0x0FFFFFFFu;
-        R_MEM(md) = c_mem->md;
+        R_MEM(md_q) = c_mem->md;
         R_MEM(dbuf) = c_mem->dbuf;
-        R_MEM(mcr) = c_mem->mcr;
-        R_MEM(dmux_addr) = c_mem->dmux_addr & 0xFFF;
-        R_MEM(dmux_pending) = c_mem->dmux_pending ? 1 : 0;
-        R_MEM(mapbuf_busy_slot) = c_mem->mapbuf_busy_slot;
-        R_MEM(mapbuf_busy_cycles) = c_mem->mapbuf_busy_cycles;
+        R_CPU(mcr) = c_mem->mcr;
+        R_CPU(dmux_addr) = c_mem->dmux_addr & 0xFFF;
+        R_CPU(dmux_pending) = c_mem->dmux_pending ? 1 : 0;
+        R_CPU(mapbuf_busy_slot) = c_mem->mapbuf_busy_slot;
+        R_CPU(mapbuf_busy_cycles) = c_mem->mapbuf_busy_cycles;
         R_MEM(last_cache_row) = c_mem->last_cache_row;
         R_MEM(last_cache_way) = c_mem->last_cache_way;
         R_MEM(last_ref_kind) = (uint8_t)c_mem->last_ref_kind;
@@ -386,10 +389,10 @@ static bool compare_c_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top,
     }
 
     if (c_mem) {
-        if (c_mem->md  != R_MEM(md))  fail("mem.md",  c_mem->md,  R_MEM(md));
+        if (c_mem->md  != R_MEM(md_q))  fail("mem.md",  c_mem->md,  R_MEM(md_q));
         if (c_mem->mar != R_MEM(mar)) fail("mem.mar", c_mem->mar, R_MEM(mar));
-        if (c_mem->mcr != R_MEM(mcr)) fail("mem.mcr", c_mem->mcr, R_MEM(mcr));
-        if (c_mem->proc_srn != R_MEM(proc_srn)) fail("mem.proc_srn", c_mem->proc_srn, R_MEM(proc_srn));
+        if (c_mem->mcr != R_CPU(mcr)) fail("mem.mcr", c_mem->mcr, R_CPU(mcr));
+        if (c_mem->proc_srn != R_CPU(proc_srn)) fail("mem.proc_srn", c_mem->proc_srn, R_CPU(proc_srn));
         if (c_mem->asrn     != R_MEM(asrn))     fail("mem.asrn",     c_mem->asrn,     R_MEM(asrn));
         // Data paths (the RTL moves lines over several clocks): every valid
         // cache line every step, all of storage every 256 steps.
@@ -401,10 +404,10 @@ static bool compare_c_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top,
                     break;
                 }
                 for (int k = 0; k < DM_CACHE_LINE_W; k++) {
-                    if (c_mem->cache[r].ways[w].data[k] != R_MEM(cache_data)[CACHE_IDX(r, w, k)]) {
+                    if (c_mem->cache[r].ways[w].data[k] != R_CW(w)[CW_IDX(r, k)]) {
                         char name[48];
                         snprintf(name, sizeof(name), "cache_data[%d][%d][%d]", r, w, k);
-                        fail(name, c_mem->cache[r].ways[w].data[k], R_MEM(cache_data)[CACHE_IDX(r, w, k)]);
+                        fail(name, c_mem->cache[r].ways[w].data[k], R_CW(w)[CW_IDX(r, k)]);
                         break;
                     }
                 }
@@ -423,10 +426,10 @@ static bool compare_c_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top,
             }
         }
         for (int i = 0; i < DM_BR_COUNT; i++) {
-            if (c_mem->br[i] != R_MEM(br)[i]) {
+            if (c_mem->br[i] != R_CPU(br)[i]) {
                 char name[32];
                 snprintf(name, sizeof(name), "mem.br[%d]", i);
-                fail(name, c_mem->br[i], R_MEM(br)[i]);
+                fail(name, c_mem->br[i], R_CPU(br)[i]);
             }
         }
     }

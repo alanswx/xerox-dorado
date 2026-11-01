@@ -9,14 +9,15 @@
 
 static inline void census_report(Vdorado_rtl_top *top) {
 #define C(n) ((double)top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__cen_##n)
+#define CM(n) ((double)top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__u_mem__DOT__cen_##n)
     double n = C(retired);
     if (n <= 0) return;
     double per = 100.0 / n;
     printf("[census] %.0f retired, %.1f%% by the emulator task; per 100 instructions:\n", n, per * C(task0));
     printf("         references: Fetch/Store/LongFetch %.1f (Store %.1f), other %.1f; misses %.2f (%.1f per 1000); "
            "IFU fetches %.1f, misses %.2f\n",
-           per * C(ref_fs), per * C(store), per * C(ref_other), per * C(miss),
-           1000.0 * C(miss) / (C(ref_fs) + C(ref_other) + 1e-9), per * C(ifu_fetch), per * C(ifu_miss));
+           per * C(ref_fs), per * C(store), per * C(ref_other), per * CM(miss),
+           1000.0 * CM(miss) / (C(ref_fs) + C(ref_other) + 1e-9), per * C(ifu_fetch), per * CM(ifu_miss));
     printf("         <-Md: %.1f -- the instruction after the reference: immediate %.2f, deferred %.2f; "
            "two after: immediate %.2f, deferred %.2f; later %.1f\n",
            per * C(md), per * C(md_imm1), per * C(md_def1), per * C(md_imm2), per * C(md_def2), per * C(md_3p));
@@ -53,4 +54,5 @@ static inline void census_report(Vdorado_rtl_top *top) {
     printf("[census] predicted clocks per instruction: %.2f (Dorado-timed memory, IFU keeping up) to %.2f (2-clock memory, IFU bound)\n",
            1 + (md1 + rest) / n, 1 + (md2 + ifu + rest) / n);
 #undef C
+#undef CM
 }

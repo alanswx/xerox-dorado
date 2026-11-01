@@ -259,6 +259,46 @@ serial path, about -0.7 clocks (4.98 -> ~4.3).
 Gate: `make test`, Cedar lock-step 3 M and 270 M, Galaxian fpga-sim, Quartus
 timing and area.
 
+**Done (2026-11-01): `rtl_core/dorado_rtl_mem.sv`.** The Map, cache, Pipe,
+FaultInfo, munch transfers and storage port are a module beside the
+sequencer, with the C model's bookkeeping (`mem_book_task`) moved in
+verbatim. The interface:
+
+- `spec_req/spec_va`: the address a reference *this* clock would use, a
+  combinational copy of exec's VA (and the IFU byte's, in the launching
+  states). The section reads the Map entry, loads the cache row and reads
+  all four ways' words at it, before the processor has committed.
+- `req_*`: the reference, held until `accepted`. If its address is the one
+  read ahead, it is booked in the accept clock; a hit is complete then
+  (`done_now`, `md`). Otherwise the reads happen in the accept clock and the
+  booking the clock after.
+- `done`: a level from completion to the next accept. A reference that does
+  not complete in its booking clock shows its result for one clock
+  (`S_DONE`) before the section takes another request, so a request already
+  waiting cannot hide it.
+- The processor keeps the Md register file, the fault wakeup and the
+  MapBuf-busy count (the C model ties it to the instruction count); the
+  section reports each booking as it happens (`book_now`, `book_srn`,
+  `book_push`, `book_is_map`) so the count follows the C model's
+  `pipe_push`-then-`Map<-` order exactly.
+
+The sequencer issues a reference and goes on to C_NEXT; C_FINISH waits only
+if the reference has not completed; the I/O tick fires in the clock
+C_FINISH retires, not the clocks it waits in (the first Galaxian run caught
+that: the display got no lines). Two same-instruction orderings had to be
+kept: FaultClear before the reference (`x_fcnt_before` sees the clear) and
+CFlags<- before the reference (the row read ahead is patched).
+
+| | before | after |
+|---|---|---|
+| Cedar rehearsal (3 M, `sim_hps`) | 4.98 | **4.30** |
+| Cedar lock-step (3 M) | 4.75 | **4.04** |
+| Galaxian fpga-sim (80 M) | 4.30 | **3.99** |
+
+What remains in the rehearsal: C_FETCH 1.06, C_NEXT 1.00, C_FINISH 1.10
+(0.10 of it waiting for munch transfers and misses), IFU dispatch 0.88
+(C_IFU_W 0.45, C_IFU_DEC 0.26, C_IFU_AW 0.17).
+
 ### Phase 2: the IFU as its own prefetcher (1-2 weeks)
 
 `dorado_rtl_ifu.sv`: driven by PCF, fetches instruction words through the

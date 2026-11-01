@@ -32,7 +32,7 @@ CLK_MHZ=${CLK_MHZ:-50}
 sed -i "s/output_clock_frequency0(\"[^\"]*\")/output_clock_frequency0(\"$CLK_MHZ.000000 MHz\")/" "$OUT/rtl/pll/pll_0002.v"
 cp "$TEMPLATE/mycore.sdc" "$OUT/Dorado.sdc"
 cp "$HERE/Dorado.sv" "$OUT/"
-for f in dorado_rtl_pkg.sv dorado_rtl_alu_shifter.sv dorado_rtl_storage.sv dorado_rtl_storage_ddr.sv \
+for f in dorado_rtl_pkg.sv dorado_rtl_alu_shifter.sv dorado_rtl_storage.sv dorado_rtl_storage_ddr.sv dorado_rtl_mem.sv \
          dorado_rtl_cpu.sv dorado_rtl_io.sv \
          dorado_rtl_bootsrv.sv dorado_rtl_assist.sv dorado_rtl_mailbox.sv dorado_rtl_top.sv; do
     cp "$CORE/$f" "$OUT/rtl/"
@@ -48,6 +48,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_pkg.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_alu_shifter.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_storage.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_storage_ddr.sv
+set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_mem.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_cpu.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_io.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/dorado_rtl_bootsrv.sv

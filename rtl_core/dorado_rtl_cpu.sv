@@ -331,10 +331,8 @@ module dorado_rtl_cpu
     // -------------------------------------------------------------------------
     typedef enum logic [4:0] {
         C_FETCH, C_DEC, C_EXEC, C_PREF, C_NEXTRD, C_NEXT, C_SCHED,
-        C_IFU_OPW, C_IFU_DECW, C_IFU_DEC, C_IFU_AW, C_IFU_BETA, C_IFU_BW, C_IFU_END,
-        C_FINISH,
-        M_ROW, M_MAPA, M_MAPV, M_BOOK, A_DO, A_WAIT, M_WRA, M_WRV, M_WB, M_FILL, M_RD, M_WR,
-        M_IOC, M_IOS, M_IOW, M_STR, M_STW
+        C_IFU_W, C_IFU_DECW, C_IFU_DEC, C_IFU_AW, C_IFU_BETA, C_IFU_BW, C_IFU_END,
+        C_FINISH, C_APW
     } cstate_t;
     cstate_t st;
     cstate_t m_ret;
@@ -370,159 +368,69 @@ module dorado_rtl_cpu
     logic           x_im_wr;
     logic [15:0]    x_im_wd0, x_im_wd1, x_im_wd2;
     logic           x_sched_block, x_sched_freeze;
-    logic           x_assist;      // the M_ROW/M_MAPA/M_MAPV pass serves an assist request
-    logic           ap_hit;
-    logic [1:0]     ap_way;
-    logic [31:0]    ap_phys;
-    logic           x_rmor;        // an AP_RM_OR request is in A_WAIT
+    logic           x_rmor;        // an AP_RM_OR request is in C_APW
     logic           x_ifum_wr, x_ifum_hi;
     logic [9:0]     x_ifum_waddr;
     logic [15:0]    x_ifum_wd;
 
 
     // =========================================================================
-    // Memory Subsystem (BR, Map, Cache, Pipe, MSA) -- merged from
-    // dorado_rtl_mem.sv so that one clocked block owns every register.
-    // Derived from dorado/src/memory.c. HM section 5.
-    //
-    // The bookkeeping state (tags, flags, LRU, Pipe, FaultInfo, BR, MCR) lives
-    // in registers and is updated in one clock by mem_book_task(). The large
-    // arrays -- the Map (64K entries), cache data (4K words) and storage --
-    // are single-port block RAMs, and the line moves the C model does in zero
-    // time (writeback, fill, munch transfer) are sequenced over several clocks
-    // by the M_* states while the microinstruction waits. That is invisible to
-    // the microcode: it changes how many fabric clocks a microinstruction
-    // takes, not what it computes.
+    // The memory section is dorado_rtl_mem (u_mem, below): Map, cache, Pipe,
+    // FaultInfo, the munch transfers and the storage port. The processor
+    // keeps what the C model keeps beside the processor's step: the base
+    // registers, MCR and ProcSRN (which the section reads), the DMux
+    // readback, the MapBuf-busy count (tied to the instruction count), and
+    // the per-task Md file.
     // =========================================================================
     localparam logic [15:0] PIPE5_MAPBUF_BUSY  = 16'h8000;
-    localparam logic [15:0] PIPE5_DIRTY        = 16'h0080;
-    localparam logic [15:0] PIPE5_VACANT       = 16'h0040;
-    localparam logic [15:0] PIPE5_WP           = 16'h0020;
-    localparam logic [15:0] PIPE5_BEING_LOAD   = 16'h0010;
-    localparam int          PIPE5_COLUMN_SHIFT = 8;
-
-    localparam logic [7:0]  PIPE4_ERR_MAP_TROUBLE = 8'h01;
-    localparam logic [7:0]  PIPE4_ERR_MEM_ERROR   = 8'h02;
-    localparam logic [7:0]  PIPE4_ERR_EC_FAULT    = 8'h04;
-
-    localparam int CHIP_TYPE  = 3;   // 64K chips
-    localparam int PAGE_SHIFT = 8;   // 256 words/page
     localparam int MAP_IC_K   = 64;  // 64K map entries
-    localparam int CACHE_WORDS = DM_CACHE_ROWS * DM_CACHE_WAYS * DM_CACHE_LINE_W;
 
-    logic [27:0] br [0:DM_BR_COUNT-1];
-
-    // Map: block RAM, one port (see map_* port signals below)
-    (* ramstyle = "M10K" *) logic [15:0] map_rp    [0:DM_MAP_ENTRIES-1];
-    (* ramstyle = "M10K" *) logic        map_wp    [0:DM_MAP_ENTRIES-1];
-    (* ramstyle = "M10K" *) logic        map_dirty [0:DM_MAP_ENTRIES-1];
-    (* ramstyle = "M10K" *) logic        map_ref   [0:DM_MAP_ENTRIES-1];
-
-    // Cache tags/flags/LRU: registers. Cache data: block RAM indexed
-    // {row, way, word}.
-    logic [17:0] cache_tag          [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
-    logic        cache_valid        [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
-    logic        cache_dirty        [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
-    logic        cache_wp           [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
-    logic        cache_vacant       [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
-    logic        cache_being_loaded [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
-    logic [1:0]  cache_lru          [0:DM_CACHE_ROWS-1][0:DM_CACHE_WAYS-1];
-    (* ramstyle = "M10K" *) logic [15:0] cache_data         [0:CACHE_WORDS-1];
-
-    dm_ref_kind_t pipe_kind          [0:DM_PIPE_DEPTH-1];
-    logic [3:0]   pipe_task          [0:DM_PIPE_DEPTH-1];
-    logic [1:0]   pipe_subtask       [0:DM_PIPE_DEPTH-1];
-    logic [1:0]   pipe_ref_type      [0:DM_PIPE_DEPTH-1];
-    logic [27:0]  pipe_va            [0:DM_PIPE_DEPTH-1];
-    logic [15:0]  pipe_map_rp_pre    [0:DM_PIPE_DEPTH-1];
-    logic [2:0]   pipe_map_flags_pre [0:DM_PIPE_DEPTH-1];
-    logic         pipe_mapbuf_busy   [0:DM_PIPE_DEPTH-1];
-    logic [15:0]  pipe_cache_flags   [0:DM_PIPE_DEPTH-1];
-    logic [7:0]   pipe_pipe4_errors  [0:DM_PIPE_DEPTH-1];
-    logic [7:0]   pipe_pipe4_syndrome[0:DM_PIPE_DEPTH-1];
-    logic [1:0]   pipe_pipe4_quadword[0:DM_PIPE_DEPTH-1];
-    int           pipe_head;
-
+    logic [27:0]    br [0:DM_BR_COUNT-1];
     logic [3:0]     proc_srn;
-    logic [3:0]     asrn;
-    logic [3:0]     fault_count;
-    logic [3:0]     fault_first_srn;
-    logic           fault_emulator;
-    dm_fault_kind_t last_fault;
-    logic [27:0]    last_fault_va;
-    logic [3:0]     last_fault_task;
-    logic [1:0]     last_fault_subtask;
-    dm_ref_kind_t   last_fault_ref_kind;
-
-    logic [27:0]    mar;
-    logic [15:0]    md;
-    logic [15:0]    dbuf;
     logic [15:0]    mcr;
     logic [11:0]    dmux_addr;
     logic           dmux_pending;
-
     int             mapbuf_busy_slot;
     int             mapbuf_busy_cycles;
-    int             last_cache_row;
-    int             last_cache_way;
+    logic           pipe_mapbuf_busy [0:DM_PIPE_DEPTH-1];
 
-    dm_ref_kind_t   last_ref_kind;
-    logic [27:0]    last_ref_va;
-    logic [15:0]    last_ref_b;
-    logic [3:0]     last_ref_task;
-    logic [1:0]     last_ref_subtask;
-    logic           last_ref_miss;
-    int             last_ref_latency;
-
-    // Backing store: the munch port (sto_*), with the munch in flight
+    // ---- the section's ports (u_mem) ----------------------------------------
+    logic           mem_spec_req;          // comb: the address a reference this clock would use
+    logic [27:0]    mem_spec_va;
+    logic           mem_req;               // the reference issued, until accepted
+    dm_ref_kind_t   mem_req_kind;
+    logic [27:0]    mem_req_va;
+    logic [15:0]    mem_req_b;
+    logic [7:0]     mem_req_tioa;
+    logic [3:0]     mem_req_task;
+    logic [1:0]     mem_req_subtask;
+    logic           mem_accepted, mem_idle, mem_done, mem_done_now;
+    logic           mem_fin;               // comb: the reference issued has completed
+    dm_fault_kind_t mem_res_fault;
+    logic           mem_res_miss;
+    logic [7:0]     mem_res_latency;
+    logic [15:0]    md;                    // the section's Md, this clock's (the IFU takes it)
+    logic [15:0]    md_r;                  // ...registered (the execute logic takes it)
+    dm_fault_kind_t mem_res_fault_r;
+    logic           mem_book_now, mem_book_push, mem_book_is_map;
+    logic [3:0]     mem_book_srn;
+    logic           mem_ap_req, mem_ap_done;
+    logic [15:0]    mem_ap_rd;
+    logic           mem_fault_clear_stb, mem_cflags_stb;
+    logic [15:0]    mem_cflags_val;
+    logic [3:0]     fault_count;
+    logic [15:0]    mem_fault_info, mem_config_word, mem_read_map, dbuf;
+    logic [27:0]    mem_pipe_va;
+    logic [15:0]    mem_pipe_rp, mem_pipe2, mem_pipe4, mem_pipe5;
+    logic           mem_fastio_set;
+    logic           fastio_stb_r;          // the strobe held for the I/O module's tick
+    logic [4:0]     mem_dbg_st;
+    // the munch port (sto_*): the section's, served by g_storage or outside
     logic           sto_ack;
     logic [255:0]   sto_rline;
-    logic           line_ok;       // sto_rline holds the munch the state asked for
-    cstate_t        sto_ret;       // state to resume when the storage op is acked
-    int             sto_stage;     // mem_advance stage after a storage write
-    logic [15:0]    ap_cq;         // assist: the cache word read in A_DO
 
-    // ---- Memory-engine request (set when a reference is launched) ----------
-    dm_ref_kind_t   m_kind;
-    logic [27:0]    m_va;
-    logic [15:0]    m_b;
-    logic [7:0]     m_tioa;
-    logic [3:0]     m_task;
-    logic [1:0]     m_subtask;
-    dm_fault_kind_t m_fault;
     logic           m_byte_sel;   // IFU byte-fetch: which byte of the word
-
-    // ---- Map entries read for the reference in flight ---------------------
-    logic [15:0]    m_idx_a, m_idx_v;
-    int             m_wbway;
-    logic [15:0]    mA_rp, mV_rp;
-    logic           mA_wp, mA_dirty, mA_ref, mA_chg;
-    logic           mV_wp, mV_dirty, mV_ref, mV_chg;
-
-    // ---- Data operations queued by mem_book_task ---------------------------
-    logic           op_wb, op_fill, op_rd, op_wr, op_ioc, op_ios, op_iow;
-    logic [5:0]     wb_row, fill_row, word_row, io_row;
-    logic [1:0]     wb_way, fill_way, word_way, io_way;
-    logic [31:0]    wb_phys, fill_phys, io_base;
-    logic [3:0]     word_off;
-    logic [15:0]    word_data;
-    logic [15:0]    munch_in [0:15];
-    logic [4:0]     mcnt;
-
-    // ---- The cache row of the reference in flight (loaded in M_ROW, written
-    //      back in M_BOOK): every bookkeeping access is to this one row.
-    logic [17:0]    rw_tag   [0:DM_CACHE_WAYS-1];
-    logic           rw_valid [0:DM_CACHE_WAYS-1];
-    logic           rw_dirty [0:DM_CACHE_WAYS-1];
-    logic           rw_wp    [0:DM_CACHE_WAYS-1];
-    logic           rw_vacant[0:DM_CACHE_WAYS-1];
-    logic           rw_bl    [0:DM_CACHE_WAYS-1];
-    logic [1:0]     rw_lru   [0:DM_CACHE_WAYS-1];
-    logic           bk_hit;       // the reference hits the row (computed once)
-    int             bk_hitway;
-    logic           rd_spec;       // the hit word was read speculatively in the booking clock
-    logic           md_from_q;     // Md takes cache_q (that read) at the start of this clock
-    logic           x_pref_pending; // a processor reference returned: its C_PREF work is due
+    logic           x_pref_pending; // a processor reference was issued: its C_PREF work is due when it completes
     // Read-ahead (C_NEXT -> C_FINISH -> C_FETCH executes): see pred_* below.
     logic           pred_ok;        // C_NEXT: the next PC is predicted (comb)
     logic [15:0]    pred_np;
@@ -537,314 +445,49 @@ module dorado_rtl_cpu
     logic [15:0]    pe_trap0;
     logic           fexec;          // C_FETCH executes the read-ahead instruction this clock
     logic           do_exec;        // exec_task runs this clock
-    logic           x_rowload;      // mem_row_task runs this clock (after the case)
     logic [7:0]     fx_stkp;        // StkP and subtask the condition read (below) used
     logic [1:0]     fx_sub;
 
-    // ---- Block-RAM read data -----------------------------------------------
-    logic [15:0]    map_rp_q;
-    logic           map_wp_q, map_dirty_q, map_ref_q;
-    logic [15:0]    cache_q;
 
     // -------------------------------------------------------------------------
-    // MCR Predicates (matching memory.c:702-893)
+    // MCR tests the processor makes (the section has its own, on the same mcr)
     // -------------------------------------------------------------------------
     function automatic logic mcr_is_initial_nowake();
         return (mcr == 16'hFEE7);
     endfunction
-    function automatic logic mcr_dvavic();
-        return mcr_is_initial_nowake() ? 1'b0 : mcr[15];
-    endfunction
-    function automatic logic mcr_fdmiss();
-        return mcr_is_initial_nowake() ? 1'b0 : mcr[14];
-    endfunction
-    function automatic logic mcr_usemcrv();
-        return mcr_is_initial_nowake() ? 1'b0 : mcr[13];
-    endfunction
-    function automatic logic [1:0] mcr_victim();
-        return mcr[12:11];
-    endfunction
     function automatic logic mcr_disbr();
         return mcr_is_initial_nowake() ? 1'b0 : mcr[8];
     endfunction
-    function automatic logic mcr_discf();
-        return mcr_is_initial_nowake() ? 1'b0 : mcr[7];
-    endfunction
     function automatic logic mcr_dishold();
         return mcr_is_initial_nowake() ? 1'b0 : mcr[6];
-    endfunction
-    function automatic logic mcr_noref();
-        return mcr_is_initial_nowake() ? 1'b0 : mcr[5];
     endfunction
     function automatic logic mcr_nowake();
         return mcr[0];
     endfunction
 
     // -------------------------------------------------------------------------
-    // Address & Map Helpers
-    // -------------------------------------------------------------------------
-    function automatic logic [15:0] map_index(input logic [27:0] va);
-        return va[23:8];
-    endfunction
-    function automatic logic [5:0] va_cache_row(input logic [27:0] va);
-        return va[9:4];
-    endfunction
-    function automatic logic [17:0] va_cache_tag(input logic [27:0] va);
-        return va[27:10];
-    endfunction
-    function automatic logic [27:0] va_munch_base(input logic [27:0] va);
-        return {va[27:4], 4'b0000};
-    endfunction
-    function automatic logic [11:0] cache_addr(input logic [5:0] r, input logic [1:0] w,
-                                               input logic [3:0] i);
-        return {r, w, i};
-    endfunction
-
-    function automatic logic [1:0] pipe2_ref_type_fn(input dm_ref_kind_t k);
-        case (k)
-            DM_REF_FETCH, DM_REF_IFETCH, DM_REF_LONGFETCH,
-            DM_REF_PREFETCH, DM_REF_IOFETCH: return 2'd1;
-            DM_REF_STORE, DM_REF_IOSTORE:    return 2'd2;
-            DM_REF_MAP, DM_REF_RMAP,
-            DM_REF_DUMMYREF, DM_REF_FLUSH:   return 2'd3;
-            default:                         return 2'd0;
-        endcase
-    endfunction
-
-    // -------------------------------------------------------------------------
-    // Readback Queries (FaultInfo, Config, Pipe0..5, ReadMap)
-    // -------------------------------------------------------------------------
-    function automatic logic [15:0] get_fault_info();
-        logic [2:0] cnt;
-        cnt = 3'(fault_count - 4'd1);
-        return {proc_srn, asrn, fault_emulator, cnt, fault_first_srn};
-    endfunction
-
-    function automatic logic [15:0] get_config_word();
-        // 1 module of 64K chips -> module_mask = 0200, chip_type = 3
-        return ({4'd0, asrn, 8'd0} | 16'o0200 | (16'(CHIP_TYPE) << 2));
-    endfunction
-
-    function automatic logic [15:0] get_pipe2_at(input logic [3:0] srn);
-        logic [2:0]  nfaults;
-        logic [15:0] ht;
-        nfaults = 3'(fault_count - 4'd1);
-        ht = {pipe_ref_type[srn], pipe_subtask[srn], pipe_task[srn],
-              fault_emulator, nfaults, 4'd0};
-        if (fault_count != 4'd0) ht |= {12'd0, fault_first_srn};
-        return ~ht;
-    endfunction
-
-    function automatic logic [15:0] get_pipe4_at(input logic [3:0] srn);
-        logic [15:0] ht, raw;
-        logic [7:0]  e;
-        logic [2:0]  mf;
-        ht = 16'd0;
-        e  = pipe_pipe4_errors[srn];
-        mf = pipe_map_flags_pre[srn]; // bit0=wp, bit1=dirty, bit2=ref
-        if (mf[2]) ht |= 16'h8000;
-        if (mf[0]) ht |= 16'h2000;
-        if (mf[1]) ht |= 16'h1000;
-        if ((e & PIPE4_ERR_MEM_ERROR) != 8'd0) ht |= 16'h0800;
-        if ((e & PIPE4_ERR_EC_FAULT) != 8'd0)  ht |= 16'h0400;
-        ht |= {6'd0, pipe_pipe4_quadword[srn], pipe_pipe4_syndrome[srn]};
-        raw = 16'o170361 ^ ht;
-        if ((e & PIPE4_ERR_MAP_TROUBLE) != 8'd0) raw |= 16'h4000;
-        else                                     raw &= ~16'h4000;
-        return raw;
-    endfunction
-
-    function automatic logic [15:0] get_pipe5_at(input logic [3:0] srn);
-        logic [15:0] v;
-        v = pipe_cache_flags[srn];
-        if (pipe_mapbuf_busy[srn]) v |= PIPE5_MAPBUF_BUSY;
-        return v;
-    endfunction
-
-    // The Map entry at map_index(mar) is read into map_*_q during C_FETCH.
-    function automatic logic [15:0] get_read_map();
-        return {map_wp_q, map_dirty_q, map_ref_q, map_rp_q[12:0]};
-    endfunction
-
-    function automatic logic [15:0] cache_line_pipe5_flags(
-        input logic [27:0] va,
-        input int          way
-    );
-        logic [5:0]  row_idx;
-        logic [15:0] v;
-        row_idx = va_cache_row(va);
-        v = (16'(way & 3) << PIPE5_COLUMN_SHIFT);
-        if (way < 0 || way >= DM_CACHE_WAYS) v = 16'd0;
-        else if (!mcr_discf()) begin
-            if (rw_dirty[way])  v |= PIPE5_DIRTY;
-            if (rw_vacant[way]) v |= PIPE5_VACANT;
-            if (rw_wp[way])     v |= PIPE5_WP;
-            if (rw_bl[way])     v |= PIPE5_BEING_LOAD;
-        end
-        return v;
-    endfunction
-
-    // -------------------------------------------------------------------------
-    // VA Translation (against an explicit Map entry) & Cache Lookup
-    // -------------------------------------------------------------------------
-    function automatic dm_fault_kind_t va_translate_e(
-        input  logic [27:0] va,
-        input  logic        is_write,
-        input  logic [15:0] rp,
-        input  logic        wp,
-        input  logic        dirty,
-        output logic [31:0] out_phys
-    );
-        logic [31:0] phys;
-        phys     = ({16'd0, rp} << PAGE_SHIFT) + {24'd0, va[7:0]};
-        out_phys = 32'd0;
-        if (wp && dirty)               return DM_FAULT_PAGE;
-        if (is_write && wp)            return DM_FAULT_WRITE_PROTECT;
-        if (phys >= STORAGE_WORDS)     return DM_FAULT_STORAGE_ERROR;
-        out_phys = phys;
-        return DM_FAULT_NONE;
-    endfunction
-
-    // First (lowest-numbered) way of the row that hits tag t.
-    function automatic logic row_lookup(input logic [17:0] t, output int out_way);
-        logic hit;
-        hit     = 1'b0;
-        out_way = -1;
-        for (int w = DM_CACHE_WAYS - 1; w >= 0; w--) begin
-            if (rw_valid[w] && !rw_vacant[w] && rw_tag[w] == t) begin
-                out_way = w;
-                hit     = 1'b1;
-            end
-        end
-        return hit;
-    endfunction
-
-    // The reference's own lookup, computed once in M_BOOK (the bookkeeping
-    // asks it several times, always before changing the row).
-    function automatic logic cache_lookup(input logic [27:0] va, output int out_way);
-        out_way = bk_hitway;
-        return bk_hit;
-    endfunction
-
-    function automatic int cache_pick_victim(input logic [27:0] va);
-        int v;
-        v = int'(rw_lru[DM_CACHE_WAYS - 1]);
-        for (int w = DM_CACHE_WAYS - 1; w >= 0; w--) begin
-            if (!rw_valid[w]) v = w;
-        end
-        if (mcr_usemcrv()) v = int'(mcr_victim());
-        return v;
-    endfunction
-
-    // -------------------------------------------------------------------------
-    // Map-entry copies for the reference in flight. Every Map access a
-    // reference makes is to its own page (index a) or to the page of the line
-    // it writes back (index v); when they coincide both copies are kept equal
-    // and only copy A is written back.
-    // -------------------------------------------------------------------------
-    task automatic map_set_ref_a(input logic val);
-        mA_ref = val; mA_chg = 1'b1;
-        if (m_idx_v == m_idx_a) mV_ref = val;
-    endtask
-    task automatic map_set_dirty_a(input logic val);
-        mA_dirty = val; mA_chg = 1'b1;
-        if (m_idx_v == m_idx_a) mV_dirty = val;
-    endtask
-    task automatic map_set_v_ref_dirty();
-        mV_ref = 1'b1; mV_dirty = 1'b1; mV_chg = 1'b1;
-        if (m_idx_v == m_idx_a) begin
-            mA_ref = 1'b1; mA_dirty = 1'b1; mA_chg = 1'b1;
-        end
-    endtask
-
-    // -------------------------------------------------------------------------
     // State Mutation Tasks
     // -------------------------------------------------------------------------
     task automatic reset_memory();
-        rd_spec = 1'b0;
-        md_from_q = 1'b0;
         x_pref_pending = 1'b0;
         x_pred_fresh = 1'b0;
         x_pred_np = 16'd0;
         rm_pre_ok = 1'b0;
-        // The Map, cache data and storage are block RAMs: they are not
-        // cleared here (cache lines are invalidated by their valid bits; the
-        // Map and storage take their contents from initialisation or the
-        // loader).
         for (int i = 0; i < DM_BR_COUNT; i++) br[i] = 28'd0;
-        for (int r = 0; r < DM_CACHE_ROWS; r++) begin
-            for (int w = 0; w < DM_CACHE_WAYS; w++) begin
-                cache_tag[r][w]          = 18'd0;
-                cache_valid[r][w]        = 1'b0;
-                cache_dirty[r][w]        = 1'b0;
-                cache_wp[r][w]           = 1'b0;
-                cache_vacant[r][w]       = 1'b0;
-                cache_being_loaded[r][w] = 1'b0;
-                cache_lru[r][w]          = 2'(w);
-            end
-        end
-        for (int s = 0; s < DM_PIPE_DEPTH; s++) begin
-            pipe_kind[s]           = DM_REF_NONE;
-            pipe_task[s]           = 4'd0;
-            pipe_subtask[s]        = 2'd0;
-            pipe_ref_type[s]       = 2'd0;
-            pipe_va[s]             = 28'd0;
-            pipe_map_rp_pre[s]     = 16'd0;
-            pipe_map_flags_pre[s]  = 3'd0;
-            pipe_mapbuf_busy[s]    = 1'b0;
-            pipe_cache_flags[s]    = 16'd0;
-            pipe_pipe4_errors[s]   = 8'd0;
-            pipe_pipe4_syndrome[s] = 8'd0;
-            pipe_pipe4_quadword[s] = 2'd0;
-        end
-        pipe_head           = 0;
+        for (int i = 0; i < DM_PIPE_DEPTH; i++) pipe_mapbuf_busy[i] = 1'b0;
         proc_srn            = 4'd0;
-        asrn                = 4'd2;
-        fault_count         = 4'd0;
-        fault_first_srn     = 4'd0;
-        fault_emulator      = 1'b0;
-        last_fault          = DM_FAULT_NONE;
-        last_fault_va       = 28'd0;
-        last_fault_task     = 4'd0;
-        last_fault_subtask  = 2'd0;
-        last_fault_ref_kind = DM_REF_NONE;
-        mar                 = 28'd0;
-        md                  = 16'd0;
-        dbuf                = 16'd0;
         mcr                 = 16'd0;
         dmux_addr           = 12'd0;
         dmux_pending        = 1'b0;
         mapbuf_busy_slot    = -1;
         mapbuf_busy_cycles  = 0;
-        last_cache_row      = -1;
-        last_cache_way      = -1;
-        last_ref_kind       = DM_REF_NONE;
-        last_ref_va         = 28'd0;
-        last_ref_b          = 16'd0;
-        last_ref_task       = 4'd0;
-        last_ref_subtask    = 2'd0;
-        last_ref_miss       = 1'b0;
-        last_ref_latency    = 0;
-        fastio_stb          = 1'b0;
-        fastio_kind         = DM_REF_NONE;
-        fastio_task         = 4'd0;
-        fastio_subtask      = 2'd0;
-        fastio_va           = 28'd0;
-        for (int i = 0; i < 16; i++) begin
-            fastio_out_munch[i] = 16'd0;
-            munch_in[i]         = 16'd0;
-        end
-        m_kind = DM_REF_NONE; m_va = 28'd0; m_b = 16'd0; m_tioa = 8'd0;
-        m_task = 4'd0; m_subtask = 2'd0; m_fault = DM_FAULT_NONE; m_byte_sel = 1'b0;
-        m_idx_a = 16'd0; m_idx_v = 16'd0; m_wbway = 0;
-        mA_rp = 16'd0; mA_wp = 1'b0; mA_dirty = 1'b0; mA_ref = 1'b0; mA_chg = 1'b0;
-        mV_rp = 16'd0; mV_wp = 1'b0; mV_dirty = 1'b0; mV_ref = 1'b0; mV_chg = 1'b0;
-        op_wb = 1'b0; op_fill = 1'b0; op_rd = 1'b0; op_wr = 1'b0;
-        op_ioc = 1'b0; op_ios = 1'b0; op_iow = 1'b0;
-        wb_row = 6'd0; fill_row = 6'd0; word_row = 6'd0; io_row = 6'd0;
-        wb_way = 2'd0; fill_way = 2'd0; word_way = 2'd0; io_way = 2'd0;
-        wb_phys = 32'd0; fill_phys = 32'd0; io_base = 32'd0;
-        word_off = 4'd0; word_data = 16'd0; mcnt = 5'd0;
+        fastio_stb_r        = 1'b0;
+        mem_req             = 1'b0;
+        mem_req_kind = DM_REF_NONE; mem_req_va = 28'd0; mem_req_b = 16'd0; mem_req_tioa = 8'd0;
+        mem_req_task = 4'd0; mem_req_subtask = 2'd0;
+        mem_ap_req          = 1'b0;
+        mem_fault_clear_stb = 1'b0; mem_cflags_stb = 1'b0; mem_cflags_val = 16'd0;
+        m_byte_sel          = 1'b0;
 `ifdef DORADO_CHECKPOINT
         // A checkpoint build powers up in a saved machine state (reset_cpu
         // runs first, so this covers both): sim_cedar.cpp CEDAR_DUMP_INIT.
@@ -852,21 +495,6 @@ module dorado_rtl_cpu
 `endif
     endtask
 
-    task automatic fault_clear();
-        fault_count         = 4'd0;
-        fault_first_srn     = 4'd0;
-        fault_emulator      = 1'b0;
-        last_fault          = DM_FAULT_NONE;
-        last_fault_va       = 28'd0;
-        last_fault_task     = 4'd0;
-        last_fault_subtask  = 2'd0;
-        last_fault_ref_kind = DM_REF_NONE;
-        last_ref_kind       = DM_REF_NONE;
-        last_ref_va         = 28'd0;
-        last_ref_b          = 16'd0;
-        last_ref_task       = 4'd0;
-        last_ref_subtask    = 2'd0;
-    endtask
 
     task automatic dmux_strobe(input logic [15:0] b_val);
         if (!dmux_pending) begin
@@ -889,452 +517,6 @@ module dorado_rtl_cpu
         end
     endtask
 
-    task automatic cflags_load(input logic [15:0] a_val);
-        logic [15:0] flags;
-        flags = ~a_val;
-        if (!mcr_discf() &&
-            last_cache_row >= 0 && last_cache_row < DM_CACHE_ROWS &&
-            last_cache_way >= 0 && last_cache_way < DM_CACHE_WAYS) begin
-            cache_dirty[last_cache_row][last_cache_way]        = (flags & PIPE5_DIRTY)      != 0;
-            cache_vacant[last_cache_row][last_cache_way]       = (flags & PIPE5_VACANT)     != 0;
-            cache_wp[last_cache_row][last_cache_way]           = (flags & PIPE5_WP)         != 0;
-            cache_being_loaded[last_cache_row][last_cache_way] = (flags & PIPE5_BEING_LOAD) != 0;
-        end
-    endtask
-
-    task automatic cache_touch_lru(input logic [5:0] row_idx, input int way);
-        int seen;
-        seen = -1;
-        for (int i = DM_CACHE_WAYS - 1; i >= 0; i--) begin
-            if (int'(rw_lru[i]) == way) seen = i;
-        end
-        if (seen >= 0) begin
-            for (int i = DM_CACHE_WAYS - 1; i > 0; i--) begin
-                if (i <= seen) rw_lru[i] = rw_lru[i - 1];
-            end
-            rw_lru[0] = 2'(way);
-        end
-    endtask
-
-    task automatic cache_select(input logic [27:0] va, input int way, input logic [3:0] srn);
-        last_cache_row = int'(va_cache_row(va));
-        last_cache_way = way;
-        pipe_cache_flags[srn] = cache_line_pipe5_flags(va, way);
-    endtask
-
-    task automatic pipe_push(
-        input logic [3:0]   srn,
-        input dm_ref_kind_t kind,
-        input logic [27:0]  va,
-        input logic [15:0]  rp_pre,
-        input logic [2:0]   flags_pre,
-        input logic [3:0]   task_id,
-        input logic [1:0]   subtask_id
-    );
-        if (!(fault_count > 4'd0 &&
-              (kind == DM_REF_IFETCH || kind == DM_REF_PREFETCH) &&
-              srn == fault_first_srn &&
-              srn == proc_srn)) begin
-            pipe_kind[srn]           = kind;
-            pipe_task[srn]           = task_id;
-            pipe_subtask[srn]        = subtask_id;
-            pipe_ref_type[srn]       = pipe2_ref_type_fn(kind);
-            pipe_va[srn]             = va;
-            pipe_map_rp_pre[srn]     = rp_pre;
-            pipe_map_flags_pre[srn]  = flags_pre;
-            pipe_mapbuf_busy[srn]    = 1'b0;
-            pipe_cache_flags[srn]    = 16'd0;
-            pipe_pipe4_errors[srn]   = 8'd0;
-            pipe_pipe4_syndrome[srn] = 8'd0;
-            pipe_pipe4_quadword[srn] = 2'd0;
-            pipe_head                = (int'(srn) + 1) % DM_PIPE_DEPTH;
-        end
-    endtask
-
-    // Write back line (row_idx, way) if valid & dirty: queue the data move,
-    // mark the Map entry of its page referenced+dirty.
-    task automatic cache_writeback_line(
-        input  logic [5:0]     row_idx,
-        input  int             way,
-        output dm_fault_kind_t out_fault
-    );
-        logic [27:0]    va_base;
-        logic [31:0]    phys;
-        dm_fault_kind_t f;
-        out_fault = DM_FAULT_NONE;
-        if (rw_valid[way] && rw_dirty[way]) begin
-            va_base = {rw_tag[way], row_idx, 4'b0000};
-            f = va_translate_e(va_base, 1'b1, mV_rp, mV_wp, mV_dirty, phys);
-            if (f == DM_FAULT_NONE) begin
-                op_wb   = 1'b1;
-                wb_row  = row_idx;
-                wb_way  = 2'(way);
-                wb_phys = phys;
-                map_set_v_ref_dirty();
-            end
-            rw_dirty[way] = 1'b0;
-            out_fault = f;
-        end
-    endtask
-
-    task automatic record_writeback_fault(
-        input dm_fault_kind_t f,
-        input logic [3:0]     srn
-    );
-        if (f != DM_FAULT_NONE) begin
-            if (fault_count == 4'd0) begin
-                fault_first_srn = srn;
-                fault_emulator  = 1'b1;
-            end
-            if (fault_count < 4'hF) fault_count = fault_count + 4'd1;
-            last_fault = f;
-            pipe_pipe4_errors[srn] |= PIPE4_ERR_MAP_TROUBLE;
-        end
-    endtask
-
-    task automatic cache_fill(input logic [27:0] va, input int way);
-        logic [5:0]     r;
-        logic [31:0]    phys;
-        dm_fault_kind_t f;
-        f = va_translate_e(va_munch_base(va), 1'b0, mA_rp, mA_wp, mA_dirty, phys);
-        if (f == DM_FAULT_NONE) begin
-            r = va_cache_row(va);
-            rw_tag[way]          = va_cache_tag(va);
-            rw_valid[way]        = 1'b1;
-            rw_dirty[way]        = 1'b0;
-            rw_wp[way]           = mA_wp;
-            rw_vacant[way]       = 1'b0;
-            rw_bl[way] = 1'b0;
-            op_fill   = 1'b1;
-            fill_row  = r;
-            fill_way  = 2'(way);
-            fill_phys = phys;
-            map_set_ref_a(1'b1);
-            cache_touch_lru(r, way);
-        end
-    endtask
-
-    task automatic queue_word_read(input logic [5:0] r, input int way, input logic [27:0] va);
-        op_rd    = 1'b1;
-        word_row = r;
-        word_way = 2'(way);
-        word_off = va[3:0];
-    endtask
-
-    task automatic queue_word_write(input logic [5:0] r, input int way, input logic [27:0] va,
-                                    input logic [15:0] val);
-        op_wr     = 1'b1;
-        word_row  = r;
-        word_way  = 2'(way);
-        word_off  = va[3:0];
-        word_data = val;
-    endtask
-
-    // -------------------------------------------------------------------------
-    // Memory-reference bookkeeping (matching dorado_memory_ref_task). Runs in
-    // one clock on the request in m_* and the Map entries in mA_*/mV_*; the
-    // word/line data moves it implies are queued in op_* for the M_* states.
-    // -------------------------------------------------------------------------
-    task automatic mem_book_task();
-        dm_ref_kind_t   kind;
-        logic [27:0]    va;
-        logic [15:0]    b_val;
-        logic [7:0]     tioa_val;
-        logic [3:0]     task_id;
-        logic [1:0]     subtask_id;
-        logic [15:0]    rp_pre;
-        logic [2:0]     flags_pre;
-        logic           io_task_uses_asrn, use_asrn;
-        logic [3:0]     srn;
-        int             way, victim, asrn_advance_count;
-        logic [31:0]    phys;
-        dm_fault_kind_t f, wbf;
-        logic [5:0]     r;
-        logic           dvavic_done;
-        logic           dirty_victim;
-        int             dummy_way;
-
-        kind       = m_kind;
-        va         = m_va;
-        b_val      = m_b;
-        tioa_val   = m_tioa;
-        task_id    = m_task;
-        subtask_id = m_subtask;
-
-        op_wb = 1'b0; op_fill = 1'b0; op_rd = 1'b0; op_wr = 1'b0;
-        op_ioc = 1'b0; op_ios = 1'b0; op_iow = 1'b0;
-        mA_chg = 1'b0; mV_chg = 1'b0;
-
-        last_ref_kind    = kind;
-        last_ref_va      = va;
-        last_ref_b       = b_val;
-        last_ref_task    = task_id;
-        last_ref_subtask = subtask_id;
-        last_ref_miss    = 1'b0;
-
-        mar       = va;
-        rp_pre    = mA_rp;
-        flags_pre = {mA_ref, mA_dirty, mA_wp};
-
-        io_task_uses_asrn = (task_id != 4'd0 && task_id != 4'o17);
-        use_asrn = io_task_uses_asrn ||
-                   (kind == DM_REF_IOFETCH) || (kind == DM_REF_IOSTORE) ||
-                   (kind == DM_REF_IFETCH);
-
-        if (kind == DM_REF_PREFETCH) begin
-            if (!mcr_noref() && (mcr_fdmiss() || !cache_lookup(va, dummy_way))) begin
-                use_asrn = 1'b1;
-            end
-        end
-
-        srn = use_asrn ? asrn : proc_srn;
-        r   = va_cache_row(va);
-        way = 0;
-        f   = DM_FAULT_NONE;
-        asrn_advance_count = 0;
-        dvavic_done = 1'b0;
-
-        if (mcr_dvavic() &&
-            kind != DM_REF_MAP && kind != DM_REF_RMAP &&
-            kind != DM_REF_DUMMYREF && kind != DM_REF_NONE) begin
-            logic [27:0] pipe_va_victim;
-            way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
-            pipe_va_victim = rw_valid[way] ? {rw_tag[way], r, 4'b0000} : 28'd0;
-            pipe_push(srn, kind, pipe_va_victim, rp_pre, flags_pre, task_id, subtask_id);
-            cache_select(va, way, srn);
-            dvavic_done = 1'b1;
-        end
-
-        if (!dvavic_done) begin
-            pipe_push(srn, kind, va, rp_pre, flags_pre, task_id, subtask_id);
-
-            case (kind)
-                DM_REF_FETCH, DM_REF_IFETCH, DM_REF_LONGFETCH: begin
-                    last_ref_latency = 3;
-                    if (mcr_noref()) begin
-                        if (!(!mcr_fdmiss() && cache_lookup(va, way))) begin
-                            way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
-                        end
-                        cache_select(va, way, srn);
-                    end else if (!mcr_fdmiss() && cache_lookup(va, way)) begin
-                        queue_word_read(r, way, va);
-                        cache_touch_lru(r, way);
-                        cache_select(va, way, srn);
-                    end else begin
-                        last_ref_miss = 1'b1;
-                        if (m_kind == DM_REF_IFETCH) cen_ifu_miss = cen_ifu_miss + 64'd1;
-                        else                         cen_miss     = cen_miss + 64'd1;
-                        if (use_asrn) asrn_advance_count = 1;
-                        f = va_translate_e(va, 1'b0, mA_rp, mA_wp, mA_dirty, phys);
-                        if (f == DM_FAULT_NONE) begin
-                            victim       = cache_pick_victim(va);
-                            dirty_victim = rw_dirty[victim];
-                            last_ref_latency = dirty_victim ? 24 : 16;
-                            if (use_asrn && dirty_victim) asrn_advance_count = 2;
-                            cache_writeback_line(r, victim, wbf);
-                            record_writeback_fault(wbf, srn);
-                            cache_fill(va, victim);
-                            queue_word_read(r, victim, va);
-                            cache_select(va, victim, srn);
-                        end
-                    end
-                end
-
-                DM_REF_PREFETCH: begin
-                    if (!mcr_noref()) begin
-                        f = va_translate_e(va, 1'b0, mA_rp, mA_wp, mA_dirty, phys);
-                        if (f == DM_FAULT_NONE || f == DM_FAULT_STORAGE_ERROR) begin
-                            map_set_ref_a(1'b1);
-                        end
-                        if (f == DM_FAULT_NONE && (mcr_fdmiss() || !cache_lookup(va, dummy_way))) begin
-                            last_ref_miss = 1'b1;
-                        if (m_kind == DM_REF_IFETCH) cen_ifu_miss = cen_ifu_miss + 64'd1;
-                        else                         cen_miss     = cen_miss + 64'd1;
-                            victim        = cache_pick_victim(va);
-                            dirty_victim  = rw_dirty[victim];
-                            if (use_asrn) asrn_advance_count = dirty_victim ? 2 : 1;
-                            cache_writeback_line(r, victim, wbf);
-                            record_writeback_fault(wbf, srn);
-                            cache_fill(va, victim);
-                            cache_select(va, victim, srn);
-                        end else if (f == DM_FAULT_STORAGE_ERROR ||
-                                     f == DM_FAULT_PAGE ||
-                                     f == DM_FAULT_WRITE_PROTECT) begin
-                            if (use_asrn) asrn_advance_count = 1;
-                        end
-                    end
-                    f = DM_FAULT_NONE;
-                end
-
-                DM_REF_STORE: begin
-                    dbuf = b_val;
-                    if (mcr_noref()) begin
-                        if (mcr_usemcrv() && mcr_fdmiss()) begin
-                            way = int'(mcr_victim());
-                            rw_tag[way]   = va_cache_tag(va);
-                            rw_valid[way] = 1'b1;
-                        end else if (!mcr_fdmiss() && cache_lookup(va, way)) begin
-                            // comparator-only
-                        end else begin
-                            way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
-                        end
-                        cache_select(va, way, srn);
-                    end else if (!mcr_fdmiss() && cache_lookup(va, way)) begin
-                        if (rw_wp[way]) begin
-                            cache_touch_lru(r, way);
-                            cache_select(va, way, srn);
-                        end else begin
-                            queue_word_write(r, way, va, b_val);
-                            rw_dirty[way]  = 1'b1;
-                            rw_vacant[way] = 1'b0;
-                            cache_touch_lru(r, way);
-                            cache_select(va, way, srn);
-                        end
-                    end else begin
-                        f = va_translate_e(va, 1'b1, mA_rp, mA_wp, mA_dirty, phys);
-                        if (use_asrn) asrn_advance_count = 1;
-                        if (f == DM_FAULT_NONE) begin
-                            last_ref_miss = 1'b1;
-                        if (m_kind == DM_REF_IFETCH) cen_ifu_miss = cen_ifu_miss + 64'd1;
-                        else                         cen_miss     = cen_miss + 64'd1;
-                            way           = cache_pick_victim(va);
-                            dirty_victim  = rw_dirty[way];
-                            if (use_asrn && dirty_victim) asrn_advance_count = 2;
-                            cache_writeback_line(r, way, wbf);
-                            record_writeback_fault(wbf, srn);
-                            cache_fill(va, way);
-                            queue_word_write(r, way, va, b_val);
-                            rw_dirty[way]  = 1'b1;
-                            rw_vacant[way] = 1'b0;
-                            cache_touch_lru(r, way);
-                            cache_select(va, way, srn);
-                        end
-                    end
-                end
-
-                DM_REF_IOFETCH: begin
-                    if (mcr_noref()) begin
-                        way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
-                        cache_select(va, way, srn);
-                    end else begin
-                        f = va_translate_e(va, 1'b0, mA_rp, mA_wp, mA_dirty, phys);
-                        if (f == DM_FAULT_NONE) begin
-                            map_set_ref_a(1'b1);
-                            if (use_asrn) asrn_advance_count = 1;
-                            if (cache_lookup(va, way)) begin
-                                op_ioc = 1'b1;
-                                io_row = r;
-                                io_way = 2'(way);
-                                cache_touch_lru(r, way);
-                                cache_select(va, way, srn);
-                            end else begin
-                                op_ios  = 1'b1;
-                                io_base = phys & ~32'hF;
-                            end
-                            fastio_kind    = DM_REF_IOFETCH;
-                            fastio_task    = task_id;
-                            fastio_subtask = subtask_id;
-                            fastio_va      = va_munch_base(va);
-                        end
-                    end
-                end
-
-                DM_REF_IOSTORE: begin
-                    if (mcr_noref()) begin
-                        way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
-                        cache_select(va, way, srn);
-                    end else begin
-                        f = va_translate_e(va, 1'b1, mA_rp, mA_wp, mA_dirty, phys);
-                        if (f == DM_FAULT_NONE) begin
-                            if (cache_lookup(va, way)) begin
-                                rw_valid[way]  = 1'b0;
-                                rw_dirty[way]  = 1'b0;
-                                rw_vacant[way] = 1'b1;
-                            end
-                            map_set_ref_a(1'b1);
-                            map_set_dirty_a(1'b1);
-                            if (use_asrn) asrn_advance_count = 1;
-                            op_iow  = 1'b1;
-                            io_base = phys & ~32'hF;
-                            for (int i = 0; i < 16; i++) munch_in[i] = fastio_in_munch[i];
-                            fastio_kind    = DM_REF_IOSTORE;
-                            fastio_task    = task_id;
-                            fastio_subtask = subtask_id;
-                            fastio_va      = va_munch_base(va);
-                        end
-                    end
-                end
-
-                DM_REF_MAP: begin
-                    mA_rp    = b_val;
-                    mA_wp    = tioa_val[7];
-                    mA_dirty = tioa_val[6];
-                    mA_ref   = 1'b0;
-                    mA_chg   = 1'b1;
-                    if (m_idx_v == m_idx_a) begin
-                        mV_rp = b_val; mV_wp = tioa_val[7]; mV_dirty = tioa_val[6]; mV_ref = 1'b0;
-                    end
-                    pipe_mapbuf_busy[srn]   = 1'b1;
-                    mapbuf_busy_slot        = int'(srn);
-                    mapbuf_busy_cycles      = 9;
-                end
-
-                DM_REF_FLUSH: begin
-                    if (cache_lookup(va, way)) begin
-                        cache_writeback_line(r, way, wbf);
-                        record_writeback_fault(wbf, srn);
-                        if (use_asrn) asrn_advance_count = 1;
-                        rw_valid[way]  = 1'b0;
-                        rw_vacant[way] = 1'b1;
-                        cache_select(va, way, srn);
-                    end else begin
-                        way = cache_pick_victim(va);
-                        cache_select(va, way, srn);
-                    end
-                end
-
-                DM_REF_DUMMYREF: begin
-                    if (!mcr_dvavic() && mcr_usemcrv() && mcr_fdmiss()) begin
-                        way = int'(mcr_victim());
-                    end else if (cache_lookup(va, way)) begin
-                        // comparator hit
-                    end else begin
-                        way = mcr_usemcrv() ? int'(mcr_victim()) : cache_pick_victim(va);
-                    end
-                    cache_select(va, way, srn);
-                end
-
-                default: ; // DM_REF_RMAP: the Pipe entry already holds rp_pre/flags_pre
-            endcase
-
-            if (f != DM_FAULT_NONE) begin
-                if (f == DM_FAULT_PAGE || f == DM_FAULT_WRITE_PROTECT) begin
-                    pipe_pipe4_errors[srn] |= PIPE4_ERR_MAP_TROUBLE;
-                end
-                last_fault          = f;
-                last_fault_va       = va;
-                last_fault_task     = task_id;
-                last_fault_subtask  = subtask_id;
-                last_fault_ref_kind = kind;
-                if (kind != DM_REF_IFETCH) begin
-                    if (fault_count == 4'd0) fault_first_srn = srn;
-                    if (task_id == 4'd0) fault_emulator = 1'b1;
-                    if (fault_count < 4'hF) fault_count = fault_count + 4'd1;
-                end
-            end
-
-            if (use_asrn) begin
-                for (int i = 0; i < 2; i++) begin
-                    if (i < asrn_advance_count) begin
-                        if (asrn == 4'd15) asrn = 4'd2;
-                        else               asrn = asrn + 4'd1;
-                    end
-                end
-            end
-        end
-
-        m_fault = f;
-    endtask
 
     task automatic memory_tick();
         if (mapbuf_busy_cycles > 0) begin
@@ -1383,7 +565,7 @@ module dorado_rtl_cpu
     // Current task's Md
     function automatic logic [15:0] get_task_md();
         if (task_md_valid[ctask]) return task_md[ctask];
-        return md;
+        return md_r;                     // never a word completing this clock
     endfunction
 
     // Pure helper for IFU operand byte at index cnt
@@ -1655,17 +837,17 @@ module dorado_rtl_cpu
                 logic [3:0]  psrn;
                 logic [27:0] pva;
                 psrn         = proc_srn;
-                pva          = pipe_va[psrn];
+                pva          = mem_pipe_va;             // the section's Pipe entry at ProcSRN
                 b_overridden = 1'b1;
                 case (ff_fc(ex_u.ff))
-                    3'd0: b_val = ~get_fault_info();
+                    3'd0: b_val = ~mem_fault_info;
                     3'd1: b_val = {4'd0, pva[27:16]};
                     3'd2: b_val = pva[15:0];
-                    3'd3: b_val = get_pipe2_at(psrn);
-                    3'd4: b_val = ~pipe_map_rp_pre[psrn];
-                    3'd5: b_val = get_pipe4_at(psrn);
-                    3'd6: b_val = ~get_config_word();
-                    3'd7: b_val = get_pipe5_at(psrn);
+                    3'd3: b_val = mem_pipe2;
+                    3'd4: b_val = ~mem_pipe_rp;
+                    3'd5: b_val = mem_pipe4;
+                    3'd6: b_val = ~mem_config_word;
+                    3'd7: b_val = mem_pipe5 | (pipe_mapbuf_busy[psrn] ? PIPE5_MAPBUF_BUSY : 16'd0);
                 endcase
             end else if (ff_fb(ex_u.ff) == 3'd7) begin
                 logic [9:0] ifum_addr;
@@ -2116,44 +1298,41 @@ module dorado_rtl_cpu
     endtask
 
     // Launch a memory reference: the M_* states run it and return to `ret`.
+    // A reference: presented to the memory section (mem_req_*, held until
+    // accepted). Its address was read ahead in this clock (mem_spec_*, the
+    // combinational copy of this VA), so a hit completes next clock.
     task automatic mem_launch(
         input dm_ref_kind_t kind,
         input logic [27:0]  va,
         input logic [15:0]  b_val,
         input logic [7:0]   tioa_val,
         input logic [3:0]   task_id,
-        input logic [1:0]   subtask_id,
-        input cstate_t      ret
+        input logic [1:0]   subtask_id
     );
-        m_kind    = kind;
-        m_va      = va;
-        m_b       = b_val;
-        m_tioa    = tioa_val;
-        m_task    = task_id;
-        m_subtask = subtask_id;
-        m_ret     = ret;
-        st        = M_MAPA;
+        mem_req         = 1'b1;
+        mem_req_kind    = kind;
+        mem_req_va      = va;
+        mem_req_b       = b_val;
+        mem_req_tioa    = tioa_val;
+        mem_req_task    = task_id;
+        mem_req_subtask = subtask_id;
     endtask
 
-    // M_MAPA's work: the Map entry for the reference's page is read this
-    // clock (map_addr), and the reference's cache row is loaded into the row
-    // registers. The IFU's own fetches do it in the clock that launches them
-    // (ifu_launch_fetch), their address being known from registers.
-    // After a processor memory reference (formerly the state C_PREF): Md for
-    // the task, and the fault wakeup.
+    // When a processor memory reference completes (formerly the state
+    // C_PREF): Md for the task, and the fault wakeup.
     task automatic mem_pref_task();
         logic recorded_fault;
-        recorded_fault = (m_fault != DM_FAULT_NONE) ||
+        recorded_fault = (mem_res_fault != DM_FAULT_NONE) ||
                          (fault_count != x_fcnt_before);
         evc_events |= EVC_EV_PROCREF;
-        if (last_ref_miss) evc_events |= EVC_EV_MISS;
+        if (mem_res_miss) evc_events |= EVC_EV_MISS;
 
-        if (m_fault == DM_FAULT_NONE &&
+        if (mem_res_fault == DM_FAULT_NONE &&
             (x_kind == DM_REF_FETCH || x_kind == DM_REF_IFETCH ||
              x_kind == DM_REF_LONGFETCH)) begin
             task_md[ctask]       = md;
             task_md_valid[ctask] = 1'b1;
-            task_md_ready[ctask] = cycles + 64'(last_ref_latency);
+            task_md_ready[ctask] = cycles + 64'(mem_res_latency);
         end
 
         if (recorded_fault && x_kind != DM_REF_IFETCH && !mcr_nowake()) begin
@@ -2161,61 +1340,23 @@ module dorado_rtl_cpu
         end
     endtask
 
-    // A Fetch/IFetch/LongFetch that will hit (mem_book_task's own test, with
-    // none of the MCR test modes that change it): no victim, no writeback.
-    function automatic logic fetch_hit_fn();
-        int w;
-        return (m_kind == DM_REF_FETCH || m_kind == DM_REF_IFETCH ||
-                m_kind == DM_REF_LONGFETCH) &&
-               !mcr_noref() && !mcr_fdmiss() && !mcr_dvavic() && cache_lookup(m_va, w);
-    endfunction
-
-    task automatic mem_row_task();
-        logic [5:0] r;
-        r       = va_cache_row(m_va);
-        for (int w = 0; w < DM_CACHE_WAYS; w++) begin
-            rw_tag[w]    = cache_tag[r][w];
-            rw_valid[w]  = cache_valid[r][w];
-            rw_dirty[w]  = cache_dirty[r][w];
-            rw_wp[w]     = cache_wp[r][w];
-            rw_vacant[w] = cache_vacant[r][w];
-            rw_bl[w]     = cache_being_loaded[r][w];
-            rw_lru[w]    = cache_lru[r][w];
-        end
-        m_idx_a = map_index(m_va);
-        if (x_assist) begin
-            // the harness tests valid and tag only
-            ap_hit = 1'b0;
-            ap_way = 2'd0;
-            for (int w = DM_CACHE_WAYS - 1; w >= 0; w--) begin
-                if (rw_valid[w] && rw_tag[w] == va_cache_tag(m_va)) begin
-                    ap_hit = 1'b1;
-                    ap_way = 2'(w);
-                end
-            end
-        end
-        bk_hit  = row_lookup(va_cache_tag(m_va), bk_hitway);
-        if (m_kind == DM_REF_FLUSH && bk_hit) m_wbway = bk_hitway;
-        else                                  m_wbway = cache_pick_victim(m_va);
-        m_idx_v = map_index({rw_tag[m_wbway], r, 4'b0000});
-        st      = M_MAPV;
-    endtask
-
     // IFU byte fetch at byte PC `pc` (HM section 6: opcode bytes come from the
     // code base register, BR 37 octal).
     function automatic logic [27:0] ifu_va_fn(input logic [15:0] pc);
         return (br[31] + {13'd0, pc[15:1]}) & 28'h0FFFFFFF;
     endfunction
-    // The launching state (C_NEXT, C_IFU_DEC, C_IFU_BETA) presents the Map
-    // address for this pc (map_addr below), so M_MAPA's work is done here.
+    // An IFU byte fetch: the reference goes to the section and the sequencer
+    // waits in C_IFU_W, then continues in ret (for the opcode, C_IFU_DEC:
+    // C_IFU_W reads IFUM for the byte as it arrives). The launching state
+    // presented the address ahead (mem_spec_*).
     task automatic ifu_launch_fetch(input logic [15:0] pc, input cstate_t ret);
         m_byte_sel = pc[0];
         cen_ifu_fetch = cen_ifu_fetch + 64'd1;
-        mem_launch(DM_REF_IFETCH, ifu_va_fn(pc), 16'd0, 8'd0, 4'd0, 2'd0, ret);
-        x_rowload = 1'b1;                    // mem_row_task, once, after the case
+        mem_launch(DM_REF_IFETCH, ifu_va_fn(pc), 16'd0, 8'd0, 4'd0, 2'd0);
+        m_ret = ret;
+        st    = C_IFU_W;
     endtask
 
-    // Result of the IFU byte fetch that just returned.
     function automatic logic [7:0] ifu_byte_of(input logic [15:0] w);
         logic high_byte;
         high_byte = (ifu_insset < 2'd2) ? (m_byte_sel == 1'b0) : (m_byte_sel == 1'b1);
@@ -2225,21 +1366,6 @@ module dorado_rtl_cpu
         return ifu_byte_of(md);
     endfunction
 
-    // After mem_book_task: go to the first data operation still to do, or
-    // back to the requesting state.
-    task automatic mem_advance(input int done_stage);
-        mcnt = 5'd0;
-        if      (done_stage < 1 && mA_chg)                        st = M_WRA;
-        else if (done_stage < 2 && mV_chg && m_idx_v != m_idx_a)  st = M_WRV;
-        else if (done_stage < 3 && op_wb)                         st = M_WB;
-        else if (done_stage < 4 && op_fill)                       st = M_FILL;
-        else if (done_stage < 5 && op_rd)                         st = M_RD;
-        else if (done_stage < 6 && op_wr)                         st = M_WR;
-        else if (done_stage < 7 && op_ioc)                        st = M_IOC;
-        else if (done_stage < 8 && op_ios)                        st = M_IOS;
-        else if (done_stage < 9 && op_iow)                        st = M_IOW;
-        else                                                      st = m_ret;
-    endtask
 
     // =========================================================================
     // Power-up contents for the FPGA (DORADO_INIT): the state the cosimulation
@@ -2261,13 +1387,6 @@ module dorado_rtl_cpu
         $readmemh("init/stk.hex", STK);
         $readmemh("init/alufm.hex", alufm);
         $readmemh("init/alufm_present.hex", alufm_present);
-        $readmemh("init/map_rp.hex", map_rp);
-        $readmemh("init/map_wp.hex", map_wp);
-        $readmemh("init/map_dirty.hex", map_dirty);
-        $readmemh("init/map_ref.hex", map_ref);
-`ifdef DORADO_CHECKPOINT
-        $readmemh("init/cache_data.hex", cache_data);
-`endif
     end
 `endif
 
@@ -2283,14 +1402,6 @@ module dorado_rtl_cpu
     logic        ifum_we_hi, ifum_we_lo;
     logic [15:0] ifum_wd;
 
-    logic [15:0] map_addr;
-    logic        map_we;
-    logic [15:0] map_wd_rp;
-    logic        map_wd_wp, map_wd_dirty, map_wd_ref;
-
-    logic [11:0] cache_addr_p;
-    logic        cache_we;
-    logic [15:0] cache_wd;
 
 
     always_comb begin
@@ -2312,66 +1423,14 @@ module dorado_rtl_cpu
 
         // IFUM: always the entry for the current {InsSet, opcode}, except
         // in the clock that commits an IFUMRH/IFUMLH write.
-        // In C_IFU_OPW the entry is read for the opcode arriving this clock
-        // (Md, or the hit word itself when it is taken now: md_from_q), so
-        // C_IFU_DEC can follow directly.
+        // In C_IFU_W the entry is read for the opcode arriving this clock
+        // (the section's Md), so C_IFU_DEC can follow directly.
         ifum_addr_p = x_ifum_wr ? x_ifum_waddr
-                    : (st == C_IFU_OPW) ? {ifu_insset, ifu_byte_of(md_from_q ? cache_q : md)}
+                    : (st == C_IFU_W && m_ret == C_IFU_DEC) ? {ifu_insset, ifu_byte_of(md)}
                     : {ifu_insset, ifu_opcode};
         ifum_we_hi  = x_ifum_wr && x_ifum_hi;
         ifum_we_lo  = x_ifum_wr && !x_ifum_hi;
         ifum_wd     = x_ifum_wd;
-
-        // Map
-        map_we       = 1'b0;
-        map_wd_rp    = mA_rp;
-        map_wd_wp    = mA_wp;
-        map_wd_dirty = mA_dirty;
-        map_wd_ref   = mA_ref;
-        case (st)
-            M_MAPA:  map_addr = map_index(m_va);
-            // the IFU fetch these states may launch (ifu_launch_fetch)
-            C_NEXT:     map_addr = map_index(ifu_va_fn(ifu_pcf));
-            C_IFU_DEC:  map_addr = map_index(ifu_va_fn(ifu_pcf + 16'd1));
-            C_IFU_BETA: map_addr = map_index(ifu_va_fn(x_pc_after));
-            C_IFU_AW:   map_addr = map_index(ifu_va_fn(x_pc_after + 16'd1));
-            M_MAPV:  map_addr = m_idx_v;
-            M_WRA:   begin map_addr = m_idx_a; map_we = 1'b1; end
-            M_WRV:   begin
-                map_addr     = m_idx_v;
-                map_we       = 1'b1;
-                map_wd_rp    = mV_rp;
-                map_wd_wp    = mV_wp;
-                map_wd_dirty = mV_dirty;
-                map_wd_ref   = mV_ref;
-            end
-            default: map_addr = map_index(mar);
-        endcase
-
-        // Cache data
-        cache_we     = 1'b0;
-        cache_wd     = sto_rline[16 * mcnt[3:0] +: 16];
-        cache_addr_p = cache_addr(word_row, word_way, word_off);
-        case (st)
-            M_WB:   cache_addr_p = cache_addr(wb_row, wb_way, mcnt[3:0]);
-            M_FILL: begin
-                cache_addr_p = cache_addr(fill_row, fill_way, mcnt[3:0]);
-                cache_we     = line_ok;
-            end
-            M_WR:   begin
-                cache_we = 1'b1;
-                cache_wd = word_data;
-            end
-            M_IOC:  cache_addr_p = cache_addr(io_row, io_way, mcnt[3:0]);
-            // speculative read of the hit word, for M_RD
-            M_MAPV, M_BOOK: cache_addr_p = cache_addr(va_cache_row(m_va), bk_hitway, m_va[3:0]);
-            A_DO:   begin
-                cache_addr_p = cache_addr(m_va[9:4], ap_way, m_va[3:0]);
-                cache_we     = ap_we && ap_cache && ap_hit;
-                cache_wd     = ap_wd;
-            end
-            default: ;
-        endcase
     end
 
     always_ff @(posedge clk) begin
@@ -2476,7 +1535,7 @@ module dorado_rtl_cpu
         // the states that now end a dispatch themselves
         pe_tnia_d = ({6'd0, ~ifum_q_lo[9:0]} << 2) | {14'd0, x_n_slot | {1'b0, x_cond_true}};
         if (x_resched_trap) pe_tnia_d = ifu_trap_addr_fn(6'o14, x_n_slot);
-        pe_flt    = x_op_faulted || (m_fault != DM_FAULT_NONE);
+        pe_flt    = x_op_faulted || (mem_res_fault_r != DM_FAULT_NONE);   // the fetch completed a clock ago
         pe_trap0  = ifu_trap_addr_fn(6'o00, x_n_slot);
         if (st == C_IFU_DEC && ifum_q_pres && {6'd0, ~ifum_q_hi[11:10]} < 8'd2) begin
             pred_ok = 1'b1;                          // one-byte opcode
@@ -2531,7 +1590,7 @@ module dorado_rtl_cpu
             rms_we    = 1'b1;
             rms_wd    = ap_wd;
         end
-        if (st == A_WAIT && x_rmor) begin           // RM[a] |= wd, read in C_FETCH
+        if (st == C_APW && x_rmor) begin            // RM[a] |= wd, read in C_FETCH
             rms_waddr = int'(ap_va[7:0]);
             rms_we    = 1'b1;
             rms_wd    = rm_q | ap_wd;
@@ -2560,23 +1619,113 @@ module dorado_rtl_cpu
         ifum_q_pres <= ifum_present[ifum_addr_p];
     end
 
-    always_ff @(posedge clk) begin
-        if (map_we) begin
-            map_rp[map_addr]    <= map_wd_rp;
-            map_wp[map_addr]    <= map_wd_wp;
-            map_dirty[map_addr] <= map_wd_dirty;
-            map_ref[map_addr]   <= map_wd_ref;
-        end
-        map_rp_q    <= map_rp[map_addr];
-        map_wp_q    <= map_wp[map_addr];
-        map_dirty_q <= map_dirty[map_addr];
-        map_ref_q   <= map_ref[map_addr];
-    end
 
-    always_ff @(posedge clk) begin
-        if (cache_we) cache_data[cache_addr_p] <= cache_wd;
-        cache_q <= cache_data[cache_addr_p];
+    // =========================================================================
+    // The memory section
+    // =========================================================================
+    dorado_rtl_mem #(.STORAGE_WORDS(STORAGE_WORDS)) u_mem (
+        .clk              (clk),
+        .rst              (rst),
+        .clk_en           (clk_en),
+        .spec_req         (mem_spec_req),
+        .spec_va          (mem_spec_va),
+        .req              (mem_req),
+        .req_kind         (mem_req_kind),
+        .req_va           (mem_req_va),
+        .req_b            (mem_req_b),
+        .req_tioa         (mem_req_tioa),
+        .req_task         (mem_req_task),
+        .req_subtask      (mem_req_subtask),
+        .accepted         (mem_accepted),
+        .idle             (mem_idle),
+        .done             (mem_done),
+        .done_now         (mem_done_now),
+        .res_fault        (mem_res_fault),
+        .res_miss         (mem_res_miss),
+        .res_latency      (mem_res_latency),
+        .md               (md),
+        .md_r             (md_r),
+        .res_fault_r      (mem_res_fault_r),
+        .book_now         (mem_book_now),
+        .book_srn         (mem_book_srn),
+        .book_push        (mem_book_push),
+        .book_is_map      (mem_book_is_map),
+        .ap_req           (mem_ap_req),
+        .ap_op            (ap_op),
+        .ap_we            (ap_we),
+        .ap_cache         (ap_cache),
+        .ap_va            (ap_va),
+        .ap_wd            (ap_wd),
+        .ap_done          (mem_ap_done),
+        .ap_rd            (mem_ap_rd),
+        .mcr              (mcr),
+        .proc_srn         (proc_srn),
+        .fault_clear_stb  (mem_fault_clear_stb),
+        .cflags_stb       (mem_cflags_stb),
+        .cflags_val       (mem_cflags_val),
+        .fault_count      (fault_count),
+        .fault_info       (mem_fault_info),
+        .config_word      (mem_config_word),
+        .read_map         (mem_read_map),
+        .dbuf             (dbuf),
+        .pipe_va_p        (mem_pipe_va),
+        .pipe_rp_p        (mem_pipe_rp),
+        .pipe2_p          (mem_pipe2),
+        .pipe4_p          (mem_pipe4),
+        .pipe5_p          (mem_pipe5),
+        .fastio_set       (mem_fastio_set),
+        .fastio_kind      (fastio_kind),
+        .fastio_task      (fastio_task),
+        .fastio_subtask   (fastio_subtask),
+        .fastio_va        (fastio_va),
+        .fastio_out_munch (fastio_out_munch),
+        .fastio_in_munch  (fastio_in_munch),
+        .sto_req          (sto_req),
+        .sto_we           (sto_we),
+        .sto_addr         (sto_addr),
+        .sto_mask         (sto_mask),
+        .sto_wline        (sto_wline),
+        .sto_ack          (sto_ack),
+        .sto_rline        (sto_rline),
+        .dbg_st           (mem_dbg_st)
+    );
+
+    // The address of the reference this clock may issue, for the section to
+    // read ahead (mem_spec_*): the processor's (exec_task's own VA, from the
+    // same operands and base register), or the IFU byte the launching state
+    // may fetch. A wrong or absent one costs the clock it would have saved.
+    always_comb begin
+        logic [4:0]   mb_eff;
+        logic [27:0]  br_val, disp;
+        dm_ref_kind_t kind;
+        logic         idinc;
+        kind   = decode_ref_kind_fn(ex_u, ctask != 4'd0);
+        mb_eff = MemBase[4:0];
+        if (ctask != 4'd0) mb_eff |= {2'b00, task_subtask[ctask], 1'b0};
+        br_val = mcr_disbr() ? 28'd0 : br[mb_eff];
+        idinc  = (ex_u.asel == 3'd5) ||
+                 ((ex_u.asel == 3'd2 || ex_u.asel == 3'd3) && ff_decode_ok(ex_u) && ex_u.ff[7:6] == 2'd1);
+        if (kind == DM_REF_IFETCH) br_val = {br_val[27:8], (idinc ? id_r1[7:0] : id_r0[7:0])};
+        disp   = (kind == DM_REF_LONGFETCH) ? {comb_alu_b[11:0], comb_alu_a} : {12'd0, comb_alu_a};
+        mem_spec_va  = (br_val + disp) & 28'h0FFFFFFF;
+        case (st)
+            C_NEXT:     mem_spec_va = ifu_va_fn(ifu_pcf);
+            C_IFU_DEC:  mem_spec_va = ifu_va_fn(ifu_pcf + 16'd1);
+            C_IFU_BETA: mem_spec_va = ifu_va_fn(x_pc_after);
+            C_IFU_AW:   mem_spec_va = ifu_va_fn(x_pc_after + 16'd1);
+            default: ;
+        endcase
     end
+    // (apart from the address: the address depends on Md, which the section
+    // computes from the request, and a block computing both would look like
+    // a loop to Verilator)
+    assign mem_spec_req = (st == C_NEXT || st == C_IFU_DEC || st == C_IFU_BETA || st == C_IFU_AW) ||
+                          ((st == C_EXEC || fexec) && ex_u.asel <= 3'd3 && !jcn_is_write_im_fn(ex_u) &&
+                           decode_ref_kind_fn(ex_u, ctask != 4'd0) != DM_REF_NONE);
+    // the reference issued (mem_req) has completed: not before it is
+    // accepted, and in the accept clock only if it completes then
+    assign mem_fin = mem_done && (!mem_req || mem_accepted);
+    assign fastio_stb = fastio_stb_r || mem_fastio_set;
 
     generate
         if (EXT_STORAGE) begin : g_ext_storage
@@ -2729,7 +1878,7 @@ module dorado_rtl_cpu
         if (!io_busy) begin
         io_read_stb       = 1'b0;
         io_write_stb      = 1'b0;
-        fastio_stb        = 1'b0;
+        fastio_stb_r      = 1'b0;
         x_im_wr           = 1'b0;
         wakeup_pending   |= ext_wakeup_req;
         if (ext_subtask_we) begin
@@ -2840,7 +1989,7 @@ module dorado_rtl_cpu
 
                     if (ff_full_function_ok(u) && ff_fa(u.ff) == 2'd1) begin
                         if (ff_fb(u.ff) == 3'd6) begin
-                            if (ff_fc(u.ff) == 3'd0) fault_clear();
+                            if (ff_fc(u.ff) == 3'd0) mem_fault_clear_stb = 1'b1;
                             if (u.bsel == 3'd3) Q = b;
                         end else if (ff_fb(u.ff) == 3'd7) begin
                             if (ff_fc(u.ff) == 3'd6) Link = b;
@@ -2893,7 +2042,7 @@ module dorado_rtl_cpu
                         if (fa == 2'd0) begin
                             if (fb == 3'd3) begin
                                 case (fc)
-                                    3'd1: pd = get_read_map();
+                                    3'd1: pd = mem_read_map;
                                     3'd2: begin
                                         pd            = io_attached ? io_read_data : 16'hFFFF;
                                         io_bad_parity = io_attached ? io_read_bad_parity : 1'b1;
@@ -2972,7 +2121,7 @@ module dorado_rtl_cpu
                                 endcase
                             end else if (fb == 3'd2) begin
                                 case (fc)
-                                    3'd2: cflags_load(a);
+                                    3'd2: begin mem_cflags_stb = 1'b1; mem_cflags_val = a; end
                                     3'd3: if (!mcr_disbr()) br[MemBase[4:0]][15:0]  = a;
                                     3'd4: if (!mcr_disbr()) br[MemBase[4:0]][27:16] = a[11:0];
                                     3'd6: mcr = (a & 16'hFFE0) | (b & 16'h0007);
@@ -3173,14 +2322,12 @@ module dorado_rtl_cpu
                                      : {12'd0, a};
                                 va = (br_val + disp) & 28'h0FFFFFFF;
 
-                                x_fcnt_before = fault_count;
+                                x_fcnt_before = mem_fault_clear_stb ? 4'd0 : fault_count;
                                 x_kind        = kind;
                                 // returns straight to C_NEXT(RD); C_PREF's
                                 // bookkeeping runs at the top of that clock
                                 x_pref_pending = 1'b1;
-                                mem_launch(kind, va, b, TIOA, ctask,
-                                           task_subtask[ctask],
-                                           next_reads_rm_fn(u) ? C_NEXTRD : C_NEXT);
+                                mem_launch(kind, va, b, TIOA, ctask, task_subtask[ctask]);
                             end
                         end
                     end
@@ -3198,7 +2345,10 @@ module dorado_rtl_cpu
     logic ap_done_q;
     logic spec_hit;                // IM (read in C_FINISH) holds the instruction at real_PC
     assign cpu_between    = (st == C_FETCH);
-    assign io_tick_early  = clk_en && !halted && (st == C_FINISH || st == C_SCHED);
+    // the clock the instruction completes: C_FINISH, unless it is waiting
+    // for its memory reference (x_pref_pending until mem_fin)
+    assign io_tick_early  = clk_en && !halted &&
+                            ((st == C_FINISH && !(x_pref_pending && !mem_fin)) || st == C_SCHED);
     assign dbg_ifu_active = ifu_active;
     assign dbg_st         = st;
     always @(posedge clk) begin
@@ -3210,37 +2360,42 @@ module dorado_rtl_cpu
         x_ifum_wr = 1'b0;
         step_done = 1'b0;
         ap_done_q = ap_done;
-        if (st != C_FETCH && st != A_WAIT) ap_done = 1'b0;
+        if (st != C_FETCH && st != C_APW) ap_done = 1'b0;
         if (rst) begin
             reset_cpu();
             reset_memory();
             ap_done  = 1'b0;
             ap_done_q = 1'b0;
             spec_hit = 1'b0;
-            sto_req  = 1'b0;
-            sto_we   = 1'b0;
-            sto_addr = 32'd0;
-            sto_mask = 16'd0;
-            line_ok  = 1'b0;
             ap_rd    = 16'd0;
-            x_assist = 1'b0;
             x_rmor   = 1'b0;
             st      = C_FETCH;
             m_ret   = C_FETCH;
             x_im_wr = 1'b0;
         end else if (clk_en && !halted) begin
-            do_exec   = (st == C_EXEC) || fexec;
-            x_rowload = 1'b0;
+            do_exec = (st == C_EXEC) || fexec;
             if ((st == C_DEC || st == C_FETCH) && io_busy) cen_iobusy = cen_iobusy + 64'd1;
             if (st == C_FETCH && ap_req && !ap_done_q)      cen_apwait = cen_apwait + 64'd1;
-            if (md_from_q) begin
-                md        = cache_q;             // the hit word read in the booking clock
-                md_from_q = 1'b0;
+            // The memory section this clock: the request it took, the
+            // booking it did (the MapBuf count follows the C model's pipe_push
+            // and Map<- order), the reference it completed (C_PREF's work),
+            // the munch it moved.
+            if (mem_accepted) mem_req = 1'b0;
+            mem_fault_clear_stb = 1'b0;
+            mem_cflags_stb      = 1'b0;
+            if (mem_book_now) begin
+                if (mem_book_push) pipe_mapbuf_busy[mem_book_srn] = 1'b0;
+                if (mem_book_is_map) begin
+                    pipe_mapbuf_busy[mem_book_srn] = 1'b1;
+                    mapbuf_busy_slot   = int'(mem_book_srn);
+                    mapbuf_busy_cycles = 9;
+                end
             end
-            if (x_pref_pending && (st == C_NEXT || st == C_NEXTRD)) begin
+            if (x_pref_pending && mem_fin) begin
                 mem_pref_task();
                 x_pref_pending = 1'b0;
             end
+            if (mem_fastio_set) fastio_stb_r = 1'b1;
             case (st)
             // -----------------------------------------------------------------
             C_FETCH: begin
@@ -3261,12 +2416,11 @@ module dorado_rtl_cpu
                         reschedule_pending = ap_wd[7:0];
                         ap_done = 1'b1;
                     end else if (ap_op == AP_RM_OR) begin
-                        x_rmor = 1'b1;           // RM read this clock, written in A_WAIT
-                        st     = A_WAIT;
+                        x_rmor = 1'b1;           // RM read this clock, written in C_APW
+                        st     = C_APW;
                     end else begin
-                        x_assist = 1'b1;
-                        m_va     = ap_va;
-                        st       = M_MAPA;
+                        mem_ap_req = 1'b1;       // the memory section serves it
+                        st         = C_APW;
                     end
                 end else if (!ap_hold) begin
                     if (fexec) begin
@@ -3410,7 +2564,7 @@ module dorado_rtl_cpu
                                     ifu_test_pop_byte_task(ifu_opcode);
                                     st          = C_IFU_DECW;
                                 end else begin
-                                    ifu_launch_fetch(ifu_pcf, C_IFU_OPW);
+                                    ifu_launch_fetch(ifu_pcf, C_IFU_DEC);
                                 end
                             end
                         end else if (jcn[6] == 1'b1) begin
@@ -3501,15 +2655,22 @@ module dorado_rtl_cpu
             // -----------------------------------------------------------------
             // IFUJump: opcode fetch returned
             // -----------------------------------------------------------------
-            C_IFU_OPW: begin
-                if (last_ref_miss) evc_events |= EVC_EV_MISS;
-                if (m_fault != DM_FAULT_NONE) begin
-                    x_np = ifu_trap_addr_fn(6'o00, x_n_slot);
-                    if (!ff_loads_link_fn(x_u)) Link = real_PC + 16'd1;
-                    st = C_FINISH;
-                end else begin
-                    ifu_opcode = ifu_fetched_byte();
-                    st         = C_IFU_DEC;          // IFUM was read for it this clock
+            // The IFU's byte is in the section (mem_fin: this clock or
+            // earlier). The opcode (m_ret == C_IFU_DEC): IFUM is being read
+            // for it this clock; alpha and beta: their states take it.
+            C_IFU_W: begin
+                if (mem_fin) begin
+                    if (mem_res_miss) evc_events |= EVC_EV_MISS;
+                    if (m_ret != C_IFU_DEC) begin
+                        st = m_ret;
+                    end else if (mem_res_fault != DM_FAULT_NONE) begin
+                        x_np = ifu_trap_addr_fn(6'o00, x_n_slot);
+                        if (!ff_loads_link_fn(x_u)) Link = real_PC + 16'd1;
+                        st = C_FINISH;
+                    end else begin
+                        ifu_opcode = ifu_fetched_byte();
+                        st         = C_IFU_DEC;
+                    end
                 end
             end
 
@@ -3562,8 +2723,7 @@ module dorado_rtl_cpu
             end
 
             C_IFU_AW: begin
-                if (last_ref_miss) evc_events |= EVC_EV_MISS;
-                if (m_fault != DM_FAULT_NONE) x_op_faulted = 1'b1;
+                if (mem_res_fault != DM_FAULT_NONE) x_op_faulted = 1'b1;
                 ifu_alpha  = ifu_fetched_byte();
                 x_pc_after = x_pc_after + 16'd1;
                 // C_IFU_BETA's work, in this clock (map_addr reads for x_pc_after)
@@ -3597,8 +2757,7 @@ module dorado_rtl_cpu
             end
 
             C_IFU_BW: begin
-                if (last_ref_miss) evc_events |= EVC_EV_MISS;
-                if (m_fault != DM_FAULT_NONE) x_op_faulted = 1'b1;
+                if (mem_res_fault != DM_FAULT_NONE) x_op_faulted = 1'b1;
                 ifu_beta   = ifu_fetched_byte();
                 x_pc_after = x_pc_after + 16'd1;
                 ifu_end_task();                          // end the dispatch now
@@ -3622,6 +2781,9 @@ module dorado_rtl_cpu
             C_FINISH, C_SCHED: begin
                 logic do_sched, spec_ok, pre;
                 logic [3:0] ct0;
+              if (st == C_FINISH && x_pref_pending) begin
+                x_pred_fresh = 1'b0;             // the reference is in flight: wait
+              end else begin
                 do_sched = 1'b1;
                 spec_ok  = (st == C_FINISH) && !x_im_wr;
                 ct0      = ctask;
@@ -3712,219 +2874,31 @@ module dorado_rtl_cpu
                     st        = C_FETCH;
                 end
                 x_pred_fresh = 1'b0;
+              end
             end
 
-            // -----------------------------------------------------------------
-            // Memory engine
-            // -----------------------------------------------------------------
-            M_ROW, M_MAPA: x_rowload = 1'b1;     // mem_row_task, after the case
-            M_MAPV, M_BOOK: begin
-                // M_MAPV: the reference page's Map entry arrives (mA) while the
-                // possible writeback page's entry is read. That entry (mV) is
-                // used only to write back a valid dirty victim, or by a Map
-                // reference; otherwise the bookkeeping runs in this clock and
-                // M_BOOK is skipped (with mV standing in as mA, unused).
-                logic do_book;
-                do_book = 1'b1;
-                if (st == M_MAPV) begin
-                    mA_rp = map_rp_q; mA_wp = map_wp_q; mA_dirty = map_dirty_q; mA_ref = map_ref_q;
-                    if (x_assist) begin
-                        ap_phys = ({16'd0, map_rp_q} << PAGE_SHIFT) + {24'd0, m_va[7:0]};
-                        // machine_store_va: a vacant entry has no translation,
-                        // so the word goes to storage[va] (pre-map planting)
-                        if (ap_op == AP_STORE && map_wp_q && map_dirty_q)
-                            ap_phys = {4'd0, m_va};
-                        st      = A_DO;
-                        do_book = 1'b0;
-                    end else if ((rw_valid[m_wbway] && rw_dirty[m_wbway] && !fetch_hit_fn()) ||
-                                 m_kind == DM_REF_MAP || m_kind == DM_REF_FLUSH) begin
-                        // the victim's Map entry is read in M_BOOK -- needed
-                        // only for a writeback, which a fetch that hits never does
-                        st      = M_BOOK;
-                        do_book = 1'b0;
-                    end else begin
-                        mV_rp = mA_rp; mV_wp = mA_wp; mV_dirty = mA_dirty; mV_ref = mA_ref;
-                    end
-                end else if (m_idx_v == m_idx_a) begin
-                    mV_rp = mA_rp; mV_wp = mA_wp; mV_dirty = mA_dirty; mV_ref = mA_ref;
-                end else begin
-                    mV_rp = map_rp_q; mV_wp = map_wp_q; mV_dirty = map_dirty_q; mV_ref = map_ref_q;
-                end
-                if (do_book) begin
-                    mem_book_task();
-                    begin
-                        logic [5:0] r;
-                        r = va_cache_row(m_va);
-                        for (int w = 0; w < DM_CACHE_WAYS; w++) begin
-                            cache_tag[r][w]          = rw_tag[w];
-                            cache_valid[r][w]        = rw_valid[w];
-                            cache_dirty[r][w]        = rw_dirty[w];
-                            cache_wp[r][w]           = rw_wp[w];
-                            cache_vacant[r][w]       = rw_vacant[w];
-                            cache_being_loaded[r][w] = rw_bl[w];
-                            cache_lru[r][w]          = rw_lru[w];
-                        end
-                    end
-                    mem_advance(0);
-                    // The cache data was read at the hit way this clock
-                    // (spec address below); M_RD can take it at once.
-                    rd_spec = (st == M_RD);
-                    // And when nothing follows the read (a plain Fetch hit)
-                    // M_RD is skipped: the reference returns now and Md takes
-                    // cache_q at the start of the next clock (md_from_q).
-                    if (rd_spec && word_row == va_cache_row(m_va) && word_way == bk_hitway &&
-                        word_off == m_va[3:0] && !op_wr && !op_ioc && !op_ios && !op_iow) begin
-                        rd_spec   = 1'b0;
-                        md_from_q = 1'b1;
-                        mcnt      = 5'd0;
-                        st        = m_ret;
-                    end
-                end
-            end
-            // Assist: the cache word is written or read this clock, and the
-            // storage word goes to the munch port (one word of the mask).
-            A_DO: begin
-                // dorado_storage_store_at_va drops the resident line instead
-                if (ap_op == AP_STORE_INV && ap_hit) begin
-                    cache_valid[m_va[9:4]][ap_way]  = 1'b0;
-                    cache_vacant[m_va[9:4]][ap_way] = 1'b0;
-                end
-                if (ap_phys < STORAGE_WORDS) begin
-                    sto_req   = 1'b1;
-                    sto_we    = ap_we;
-                    sto_addr  = ap_phys;
-                    sto_mask  = 16'd1 << ap_phys[3:0];
-                    sto_wline = {16{ap_wd}};
-                end
-                st = A_WAIT;
-            end
-            A_WAIT: begin
+            // The assist: an RM/STK word (read this clock, x_rmor) or the
+            // section's word (mem_ap_done)
+            C_APW: begin
                 if (x_rmor) begin
                     ap_rd   = rm_q;
                     ap_done = 1'b1;
                     x_rmor  = 1'b0;
                     st      = C_FETCH;
-                end else begin
-                if (!line_ok) begin
-                    ap_cq   = cache_q;           // read in A_DO
-                    line_ok = 1'b1;
-                end
-                if (!sto_req || sto_ack) begin
-                    sto_req  = 1'b0;
-                    line_ok  = 1'b0;
-                    ap_rd    = ap_hit ? ap_cq
-                             : (ap_phys < STORAGE_WORDS ? sto_rline[16 * ap_phys[3:0] +: 16] : 16'd0);
-                    ap_done  = 1'b1;
-                    x_assist = 1'b0;
-                    st       = C_FETCH;
-                end
+                end else if (mem_ap_done) begin
+                    mem_ap_req = 1'b0;
+                    ap_rd      = mem_ap_rd;
+                    ap_done    = 1'b1;
+                    st         = C_FETCH;
                 end
             end
-            // A storage read in flight: resume sto_ret with the munch in sto_rline.
-            M_STR: begin
-                if (sto_ack) begin
-                    sto_req = 1'b0;
-                    line_ok = 1'b1;
-                    st      = sto_ret;
-                end
-            end
-            // A storage write in flight: then continue after stage sto_stage.
-            M_STW: begin
-                if (sto_ack) begin
-                    sto_req = 1'b0;
-                    if (sto_stage == 9) fastio_stb = 1'b1;
-                    mem_advance(sto_stage);
-                end
-            end
-            M_WRA: mem_advance(1);
-            M_WRV: mem_advance(2);
-            M_WB: begin
-                // cache line -> munch, one word per clock (the read leads),
-                // then one storage write
-                if (mcnt != 5'd0) sto_wline[16 * (mcnt - 5'd1) +: 16] = cache_q;
-                if (mcnt == 5'd16) begin
-                    sto_req   = 1'b1;
-                    sto_we    = 1'b1;
-                    sto_addr  = wb_phys;
-                    sto_mask  = 16'hFFFF;
-                    sto_stage = 3;
-                    st        = M_STW;
-                end else begin
-                    mcnt = mcnt + 5'd1;
-                end
-            end
-            M_FILL: begin
-                // one storage read, then munch -> cache line, one word per clock
-                if (!line_ok) begin
-                    sto_req  = 1'b1;
-                    sto_we   = 1'b0;
-                    sto_addr = fill_phys;
-                    sto_ret  = M_FILL;
-                    st       = M_STR;
-                end else if (mcnt == 5'd15) begin
-                    line_ok = 1'b0;
-                    mem_advance(4);
-                end else begin
-                    mcnt = mcnt + 5'd1;
-                end
-            end
-            M_RD: begin
-                if (mcnt == 5'd1 ||
-                    (rd_spec && word_row == va_cache_row(m_va) && word_way == bk_hitway &&
-                     word_off == m_va[3:0])) begin
-                    rd_spec = 1'b0;
-                    md = cache_q;
-                    mem_advance(5);
-                end else begin
-                    mcnt = mcnt + 5'd1;
-                end
-            end
-            M_WR: mem_advance(6);
-            M_IOC: begin
-                if (mcnt != 5'd0) fastio_out_munch[4'(mcnt - 5'd1)] = cache_q;
-                if (mcnt == 5'd16) begin
-                    fastio_stb = 1'b1;
-                    mem_advance(7);
-                end else begin
-                    mcnt = mcnt + 5'd1;
-                end
-            end
-            M_IOS: begin
-                if (!line_ok) begin
-                    sto_req  = 1'b1;
-                    sto_we   = 1'b0;
-                    sto_addr = io_base;
-                    sto_ret  = M_IOS;
-                    st       = M_STR;
-                end else begin
-                    for (int i = 0; i < 16; i++) fastio_out_munch[i] = sto_rline[16 * i +: 16];
-                    line_ok    = 1'b0;
-                    fastio_stb = 1'b1;
-                    mem_advance(8);
-                end
-            end
-            M_IOW: begin
-                for (int i = 0; i < 16; i++) sto_wline[16 * i +: 16] = munch_in[i];
-                sto_req   = 1'b1;
-                sto_we    = 1'b1;
-                sto_addr  = io_base;
-                sto_mask  = 16'hFFFF;
-                sto_stage = 9;
-                st        = M_STW;
-            end
+
             default: st = C_FETCH;
             endcase
 
             // One instance of the execution logic, for C_EXEC and for a
             // C_FETCH that executes (fexec): calling it from both case items
             // built the whole datapath twice.
-            // One instance of M_MAPA's row load, for M_MAPA itself and for the
-            // states that launch an IFU fetch (ifu_launch_fetch).
-            if (x_rowload) begin
-                mem_row_task();
-                x_rowload = 1'b0;
-            end
-
             if (do_exec) begin
                 exec_task();
                 // fexec read the branch-condition register this clock (unless

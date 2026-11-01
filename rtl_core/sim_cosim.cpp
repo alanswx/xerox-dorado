@@ -719,7 +719,7 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
         uint32_t off = va & 0xFu;
         for (int w = 0; w < 4; w++) {
             if (R_MEM(cache_valid)[row][w] && R_MEM(cache_tag)[row][w] == tag)
-                return R_MEM(cache_data)[CACHE_IDX(row, w, off)];
+                return R_CW(w)[CW_IDX(row, off)];
         }
         uint32_t vp = (va >> 8) & 0xFFFFu;
         uint32_t rp = R_MEM(map_rp)[vp];
@@ -782,7 +782,7 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
                     uint32_t off = va & 0xFu;
                     for (int w = 0; w < 4; w++) {
                         if (R_MEM(cache_valid)[row][w] && R_MEM(cache_tag)[row][w] == tag) {
-                            R_MEM(cache_data)[CACHE_IDX(row, w, off)] = R_IO(ddc_kbd_words)[k];
+                            R_CW(w)[CW_IDX(row, off)] = R_IO(ddc_kbd_words)[k];
                         }
                     }
                 }
@@ -795,7 +795,7 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
             uint32_t row_da = (0420u >> 4) & 0x3Fu;
             for (int w = 0; w < 4; w++) {
                 if (R_MEM(cache_valid)[row_da][w] && R_MEM(cache_tag)[row_da][w] == 0) {
-                    dastart = R_MEM(cache_data)[CACHE_IDX(row_da, w, 0420u & 0xFu)];
+                    dastart = R_CW(w)[CW_IDX(row_da, 0420u & 0xFu)];
                 }
             }
             top->display_wake_gate = (dastart != 0 || R_IO(ddc_next_wcb_flag)[0] || R_IO(ddc_next_wcb_flag)[1]) ? 1 : 0;
@@ -803,7 +803,7 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
 
         // Step RTL by 1 clock cycle
         uint64_t pre_disp = R_CPU(ifu_dispatch_count);
-        uint32_t pre_br31 = R_MEM(br)[037];  // BR[Code, 37] -- the IFU code base
+        uint32_t pre_br31 = R_CPU(br)[037];  // BR[Code, 37] -- the IFU code base
         uint16_t pre_ac[4] = { R_CPU(STK)[1], R_CPU(STK)[2], R_CPU(STK)[3], R_CPU(STK)[4] };
         rtl_step(top);
 
@@ -829,14 +829,14 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
         if (utrace_left > 0) {
             utrace_left--;
             fprintf(stderr, "UTRACE cyc=%d task=%o pc_before=0%04o pc_now=0%04o T=%06o va=%07o md=%06o ac=%06o,%06o,%06o,%06o\n",
-                    cyc, ctask, pre_pc, R_CPU(real_PC), R_CPU(T), R_MEM(last_ref_va), R_MEM(md),
+                    cyc, ctask, pre_pc, R_CPU(real_PC), R_CPU(T), R_MEM(last_ref_va), R_MEM(md_q),
                     R_CPU(STK)[1], R_CPU(STK)[2], R_CPU(STK)[3], R_CPU(STK)[4]);
         }
         if (trace_disp && R_CPU(ifu_dispatch_count) != pre_disp) {
             uint32_t opva = (pre_br31 + (uint16_t)(R_CPU(ifu_pcx) >> 1)) & 0x0FFFFFFFu;
             fprintf(stderr, "RTLDISP n=%llu cyc=%d opva=%07o br31=%07o op=%03o aacs=%06o,%06o,%06o,%06o\n",
                     (unsigned long long)R_CPU(ifu_dispatch_count), cyc,
-                    opva, R_MEM(br)[037], R_CPU(ifu_opcode),
+                    opva, R_CPU(br)[037], R_CPU(ifu_opcode),
                     pre_ac[0], pre_ac[1], pre_ac[2], pre_ac[3]);
         }
 
@@ -925,7 +925,7 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
            R_IO(eth_world_rx_words), R_IO(eth_no_wakeups),
            R_CPU(task_tpc)[7], R_CPU(task_tpc)[6]);
     printf("         BR31=0%07o BR32=0%07o BR33=0%07o BR36=0%07o\n",
-           R_MEM(br)[031], R_MEM(br)[032], R_MEM(br)[033], R_MEM(br)[036]);
+           R_CPU(br)[031], R_CPU(br)[032], R_CPU(br)[033], R_CPU(br)[036]);
     printf("         ECBR(600..610): %06o %06o %06o %06o %06o %06o %06o %06o %06o | M[1..4]: %06o %06o %06o %06o\n",
            read_rtl_va(0600), read_rtl_va(0601), read_rtl_va(0602), read_rtl_va(0603),
            read_rtl_va(0604), read_rtl_va(0605), read_rtl_va(0606), read_rtl_va(0607),

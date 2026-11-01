@@ -15,6 +15,7 @@ SV_SRCS := \
 	dorado_rtl_pkg.sv \
 	dorado_rtl_alu_shifter.sv \
 	dorado_rtl_storage.sv \
+	dorado_rtl_mem.sv \
 	dorado_rtl_storage_ddr.sv \
 	dorado_rtl_cpu.sv \
 	dorado_rtl_io.sv \
@@ -110,7 +111,7 @@ cedar: $(CEDAR_OBJ)/Vdorado_rtl_top
 HPS_OBJ   := obj_hps
 HPS_STEPS ?= 2000000
 
-$(HPS_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.cpp hps/hps_host.h $(CEDAR_C_OBJS) init_cedar/checkpoint_cpu.svh
+$(HPS_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.cpp hps/hps_host.h $(CEDAR_C_OBJS) init_cedar/checkpoint_cpu.svh init_cedar/checkpoint_mem.svh
 	$(VERILATOR) --cc --exe --build -j 4 -O3 --x-assign fast --x-initial fast --noassert \
 	  -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-BLKSEQ \
 	  -GSTORAGE_WORDS=4194304 -GEXT_STORAGE=1 -GHPS_MAILBOX=1 \
