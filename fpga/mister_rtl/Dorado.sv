@@ -343,6 +343,7 @@ dorado_rtl_top #(
 	.dbg_halted         (halted),
 	.dbg_halt_reason    (),
 	.step_done          (),
+	.cmp_done           (),
 	.dbg_vec            (dbg_vec)
 );
 

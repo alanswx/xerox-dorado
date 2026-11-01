@@ -32,6 +32,15 @@ static inline void census_report(Vdorado_rtl_top *top) {
            "NotReady traps %.2f per 100 instr\n",
            100.0 * ln[1] / j, 100.0 * ln[2] / j, 100.0 * ln[3] / j, 100.0 * C(ifu_odd) / j,
            100.0 * C(ifu_jump) / j, per * C(ifu_notready));
+    {
+        const auto &nf = top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__cen_nf;
+        printf("         prefetch: dispatches from the buffer %.1f%% of IFUJumps; not: request pending %.1f%%, PC moved %.1f%%, "
+               "no entry %.1f%%, no word0 %.1f%%, no byte1 %.1f%%, no byte2 %.1f%%, hazard %.1f%%, other %.1f%%\n",
+               100.0 * C(ifu_fast) / j, 100.0 * nf[0] / j, 100.0 * nf[1] / j, 100.0 * nf[2] / j, 100.0 * nf[3] / j,
+               100.0 * nf[4] / j, 100.0 * nf[5] / j, 100.0 * nf[6] / j, 100.0 * nf[7] / j);
+        printf("         peeks %.1f per 100 instr (retries %.1f, misses %.2f); clocks waiting for the byte references %.2f per 100 instr\n",
+               per * C(peek), per * C(peek_retry), per * C(peek_miss), per * C(bk_wait));
+    }
     printf("         PCF<-B restarts %.2f; conditional branches %.1f; Read/Write IM %.2f; I/O instructions %.1f; BLOCKs %.1f; "
            "task switches %.1f; holds %.2f; clocks waiting: I/O engines %.2f, host port %.2f\n",
            per * C(pcf), per * C(cond), per * C(imrw), per * C(io), per * C(block), per * C(switch), per * C(hold),

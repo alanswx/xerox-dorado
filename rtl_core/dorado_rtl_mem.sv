@@ -38,7 +38,33 @@ module dorado_rtl_mem
     input  logic [7:0]     req_tioa,
     input  logic [3:0]     req_task,
     input  logic [1:0]     req_subtask,
+    input  logic [1:0]     req_tag,       // who asked (echoed in res_tag)
     output logic           accepted,      // req is taken this clock
+    output logic [1:0]     res_tag,
+    output logic [1:0]     res_way,       // the way a hit was in (with done_now)
+    // A second port: the IFU's peeks -- the word at a VA if it is in the
+    // cache, with no side effect at all (no booking, no Md, no Map read).
+    // Served when the first port has nothing; always complete in the clock
+    // after accept (peek_done: peek_hit with md and res_way, or a miss).
+    input  logic           spec2_req,
+    input  logic [27:0]    spec2_va,
+    input  logic           req2,
+    input  logic [27:0]    req2_va,
+    output logic           accepted2,
+    output logic           peek_done,     // the peek is taken this clock, and:
+    output logic           peek_hit,      //   the word is on md (res_way its way)
+    output logic           peek_retry,    //   its address was not read ahead: ask again
+    // The snoop for a prefetched word: a line in this row changes this clock
+    // (valid, vacant or tag -- any booking there but a plain hit, a CFlags<-,
+    // the assist), and a word is written this clock.
+    output logic           snoop_row_stb,
+    output logic [5:0]     snoop_row,
+    output logic           snoop_wr,
+    output logic [9:0]     snoop_wr_addr, // {row, word}
+    output logic [1:0]     snoop_wr_way,
+    output logic [5:0]     ref_row,       // the row of the reference in flight (registered)
+    output logic           inflight,      // a reference is being processed (not idle, done or the assist)
+    output logic [1:0]     inflight_tag,
     output logic           idle,          // nothing in flight (registered)
     output logic           done,          // the accepted reference is complete: a level
                                           // from completion until the next accept, or
@@ -200,6 +226,8 @@ module dorado_rtl_mem
     logic [1:0]     m_subtask;
     dm_fault_kind_t m_fault;
     logic           m_assist;      // the request is the assist's
+    logic           m_peek;        // the request is a peek (second port)
+    logic [1:0]     m_tag;
 
     // ---- Map entries read for the reference in flight ---------------------
     logic [15:0]    m_idx_a, m_idx_v;
@@ -237,6 +265,7 @@ module dorado_rtl_mem
     // ---- the speculative address read ----------------------------------------
     logic           spec_done_q;   // last clock read the row, Map entry and words
     logic [27:0]    spec_va_q;     // ...at this address
+    logic           spec_peek_q;   // ...for the second port (no Map entry)
 
     // ---- Block-RAM ports ------------------------------------------------------
     logic [15:0]    map_addr;
@@ -505,6 +534,7 @@ module dorado_rtl_mem
         end
         m_kind = DM_REF_NONE; m_va = 28'd0; m_b = 16'd0; m_tioa = 8'd0;
         m_task = 4'd0; m_subtask = 2'd0; m_fault = DM_FAULT_NONE; m_assist = 1'b0;
+        m_peek = 1'b0; m_tag = 2'd0;
         m_idx_a = 16'd0; m_idx_v = 16'd0; m_wbway = 0;
         mA_rp = 16'd0; mA_wp = 1'b0; mA_dirty = 1'b0; mA_ref = 1'b0; mA_chg = 1'b0;
         mV_rp = 16'd0; mV_wp = 1'b0; mV_dirty = 1'b0; mV_ref = 1'b0; mV_chg = 1'b0;
@@ -519,7 +549,7 @@ module dorado_rtl_mem
             rw_vacant[w] = 1'b0; rw_bl[w] = 1'b0; rw_lru[w] = 2'(w);
         end
         ap_hit = 1'b0; ap_way = 2'd0; ap_phys = 32'd0; ap_cq = 16'd0; ap_rd = 16'd0;
-        spec_done_q = 1'b0; spec_va_q = 28'd0;
+        spec_done_q = 1'b0; spec_va_q = 28'd0; spec_peek_q = 1'b0;
         res_valid = 1'b0; line_ok = 1'b0; sto_ret = S_IDLE; sto_stage = 0;
         cen_miss = 64'd0; cen_ifu_miss = 64'd0;
 `ifdef DORADO_CHECKPOINT
@@ -1024,21 +1054,6 @@ module dorado_rtl_mem
         end
     endtask
 
-    // The row load: the cache row of a VA into the row registers.
-    task automatic load_row(input logic [27:0] va);
-        logic [5:0] r;
-        r = va_cache_row(va);
-        for (int w = 0; w < DM_CACHE_WAYS; w++) begin
-            rw_tag[w]    = cache_tag[r][w];
-            rw_valid[w]  = cache_valid[r][w];
-            rw_dirty[w]  = cache_dirty[r][w];
-            rw_wp[w]     = cache_wp[r][w];
-            rw_vacant[w] = cache_vacant[r][w];
-            rw_bl[w]     = cache_being_loaded[r][w];
-            rw_lru[w]    = cache_lru[r][w];
-        end
-    endtask
-
     // The row registers back into the arrays.
     task automatic store_row();
         logic [5:0] r;
@@ -1059,11 +1074,25 @@ module dorado_rtl_mem
     // c_*: the reference being booked -- the request itself when it is
     // booked in its accept clock (its address read ahead), else m_*.
     // =========================================================================
+    logic           ld_en;         // the row at ld_va is loaded this clock (one site)
+    logic [27:0]    ld_va;
+    logic [17:0]    nr_tag   [0:DM_CACHE_WAYS-1];   // that row, as the arrays stood at the start of the clock
+    logic           nr_valid [0:DM_CACHE_WAYS-1];
+    logic           nr_dirty [0:DM_CACHE_WAYS-1];
+    logic           nr_wp    [0:DM_CACHE_WAYS-1];
+    logic           nr_vacant[0:DM_CACHE_WAYS-1];
+    logic           nr_bl    [0:DM_CACHE_WAYS-1];
+    logic [1:0]     nr_lru   [0:DM_CACHE_WAYS-1];
     logic           accept_now;    // req is taken this clock
     logic           spec_ok;       // ...and its address was read last clock
+    logic           accept2_now;   // a peek is taken this clock
+    logic           spec2_ok;
     logic           ap_accept;     // the assist is taken this clock
     logic           spec_take;     // the speculative read runs this clock
+    logic           spec_take2;    // ...for the second port
     logic           b1_now;        // the first booking clock is this one
+    logic           c_peek;        // ...of a peek
+    logic [1:0]     c_tag;
     dm_ref_kind_t   c_kind;
     logic [27:0]    c_va;
     logic [15:0]    c_b;
@@ -1083,15 +1112,22 @@ module dorado_rtl_mem
 
     always_comb begin
         int w;
-        accept_now = (ms == S_IDLE) && req;
-        spec_ok    = spec_done_q && (spec_va_q == req_va);
-        ap_accept  = (ms == S_IDLE) && !req && ap_req;
-        b1_now     = (accept_now && spec_ok) || (ms == S_BOOK1);
+        accept_now  = (ms == S_IDLE) && req;
+        spec_ok     = spec_done_q && !spec_peek_q && (spec_va_q == req_va);
+        accept2_now = (ms == S_IDLE) && !req && !ap_req && req2;
+        spec2_ok    = spec_done_q && spec_peek_q && (spec_va_q == req2_va);
+        ap_accept   = (ms == S_IDLE) && !req && ap_req;
+        b1_now      = (accept_now && spec_ok) || (accept2_now && spec2_ok) || (ms == S_BOOK1);
 
-        if (ms == S_IDLE) begin
+        if (accept2_now) begin
+            c_kind = DM_REF_IFETCH; c_va = req2_va; c_b = 16'd0; c_task = 4'd0;
+            c_peek = 1'b1; c_tag = 2'd0;
+        end else if (ms == S_IDLE) begin
             c_kind = req_kind; c_va = req_va; c_b = req_b; c_task = req_task;
+            c_peek = 1'b0; c_tag = req_tag;
         end else begin
             c_kind = m_kind; c_va = m_va; c_b = m_b; c_task = m_task;
+            c_peek = m_peek; c_tag = m_tag;
         end
 
         bk_hit  = row_lookup(va_cache_tag(c_va), bk_hitway);
@@ -1104,8 +1140,8 @@ module dorado_rtl_mem
                        !mcr_noref() && !mcr_fdmiss() && !mcr_dvavic() && bk_hit;
         c_need_book2 = (rw_valid[c_wbway] && rw_dirty[c_wbway] && !c_hit_no_wb) ||
                        c_kind == DM_REF_MAP || c_kind == DM_REF_FLUSH;
-        c_fetch_hit  = b1_now && !c_need_book2 && c_hit_no_wb && c_kind != DM_REF_STORE;
-        c_store_hit  = b1_now && !c_need_book2 && c_hit_no_wb && c_kind == DM_REF_STORE;
+        c_fetch_hit  = b1_now && !c_need_book2 && c_hit_no_wb && c_kind != DM_REF_STORE && !c_peek;
+        c_store_hit  = b1_now && !c_need_book2 && c_hit_no_wb && c_kind == DM_REF_STORE && !c_peek;
         c_store_write = c_store_hit && !rw_wp[bk_hitway[1:0]];
 
         // the Pipe entry the booking uses (mem_book_task's own rule)
@@ -1117,6 +1153,13 @@ module dorado_rtl_mem
 
         md_now   = cw_q[bk_hitway[1:0]];
         done_now = c_fetch_hit || c_store_hit;
+        // a peek: the word if the line is here (as a Fetch would see it), else
+        // nothing; complete in its accept clock either way (never in the
+        // section's booking state, so a reference never waits behind one),
+        // and no booking
+        peek_done  = accept2_now;
+        peek_hit   = accept2_now && spec2_ok && c_hit_no_wb;
+        peek_retry = accept2_now && !spec2_ok;
 
         c_ap_hit = 1'b0;
         c_ap_way = 2'd0;
@@ -1128,7 +1171,7 @@ module dorado_rtl_mem
         end
 
         // the booking clock: the first one when no second is needed, else that
-        book_now    = (b1_now && !c_need_book2) || (ms == S_BOOK2);
+        book_now    = ((b1_now && !c_need_book2) || (ms == S_BOOK2)) && !c_peek;
         book_srn    = c_srn;
         book_push   = pipe_push_ok(c_srn, c_kind);
         book_is_map = (c_kind == DM_REF_MAP);
@@ -1137,16 +1180,48 @@ module dorado_rtl_mem
     // (apart, so the decisions above do not read spec_req: nothing of theirs
     // depends on it, and Verilator would otherwise see a loop through the
     // processor's own speculative address)
-    assign spec_take   = (ms == S_IDLE) && !req && !ap_req && spec_req;
+    // ...and in the clock a hit completes (the Map port and the row are free
+    // then, and the words' port unless a store writes), so references can
+    // follow each other every clock. The second port's read-ahead has no Map
+    // read; it yields to the first's.
+    assign spec_take   = spec_req && !ap_req &&
+                         ((ms == S_IDLE && !req) ||
+                          (b1_now && done_now && !c_store_write) ||
+                          (b1_now && c_peek));
+    assign spec_take2  = spec2_req && !spec_req && !ap_req &&
+                         ((ms == S_IDLE && !req && !req2) ||
+                          (b1_now && done_now && !c_store_write) ||
+                          (b1_now && c_peek));
+    // The one row load of the clock, from the arrays as they stood at its
+    // start (no bypass): when the row is the one a booking this clock writes
+    // back, the row registers already hold it, as booked, and are kept.
+    assign ld_va = spec_take ? spec_va : spec_take2 ? spec2_va : accept_now ? req_va : ap_va;
+    assign ld_en = (spec_take || spec_take2 || (accept_now && !spec_ok) || ap_accept) &&
+                   !(book_now && va_cache_row(ld_va) == va_cache_row(c_va));
 
     // ---- outputs --------------------------------------------------------------
     assign accepted    = accept_now;
+    assign accepted2   = accept2_now;
+    assign res_tag     = done_now ? c_tag : m_tag;
+    assign res_way     = bk_hitway[1:0];
+    assign ref_row     = va_cache_row(m_va);
+    assign inflight    = !(ms == S_IDLE || ms == S_DONE || ms == S_ABOOK || ms == S_AWAIT || ms == S_ADONE);
+    assign inflight_tag = m_tag;
+    // the snoop: any booking in the row but a plain hit (misses change a
+    // tag, Flush/IOStore/CFlags<- the flags, the assist a valid bit)
+    assign snoop_row_stb = (book_now && !(c_fetch_hit || c_store_hit)) ||
+                           (ms == S_ABOOK) || cflags_stb;
+    assign snoop_row     = cflags_stb ? 6'(last_cache_row) :
+                           (ms == S_ABOOK) ? va_cache_row(m_va) : va_cache_row(c_va);
+    assign snoop_wr      = |cw_we;
+    assign snoop_wr_addr = cw_addr;
+    assign snoop_wr_way  = cw_we[1] ? 2'd1 : cw_we[2] ? 2'd2 : cw_we[3] ? 2'd3 : 2'd0;
     assign idle        = (ms == S_IDLE);
     assign done        = (res_valid && !accept_now) || done_now;
     assign res_fault   = done_now ? DM_FAULT_NONE : m_fault;
     assign res_miss    = done_now ? 1'b0 : last_ref_miss;
     assign res_latency = done_now ? 8'd3 : 8'(last_ref_latency);
-    assign md          = done_now ? md_now : md_q;
+    assign md          = (done_now || peek_hit) ? md_now : md_q;   // a peek's word too
     assign md_r        = md_q;
     assign res_fault_r = m_fault;
     assign fault_info  = get_fault_info();
@@ -1171,10 +1246,10 @@ module dorado_rtl_mem
         map_wd_dirty = mA_dirty;
         map_wd_ref   = mA_ref;
         map_addr     = map_index(mar);
-        if (b1_now)                    map_addr = c_idx_v;
+        if (spec_take)                 map_addr = map_index(spec_va);
+        else if (b1_now && !c_peek)    map_addr = c_idx_v;
         else if (ms == S_IDLE) begin
-            if (spec_take)             map_addr = map_index(spec_va);
-            else if (accept_now)       map_addr = map_index(req_va);
+            if (accept_now)            map_addr = map_index(req_va);
             else if (ap_accept)        map_addr = map_index(ap_va);
         end else if (ms == S_WRA) begin
             map_addr = m_idx_a; map_we = 1'b1;
@@ -1194,10 +1269,12 @@ module dorado_rtl_mem
         cw_wd   = sto_rline[16 * mcnt[3:0] +: 16];
         cw_addr = {va_cache_row(m_va), m_va[3:0]};
         if (ms == S_IDLE) begin
-            if (spec_take)        cw_addr = {va_cache_row(spec_va), spec_va[3:0]};
-            else if (accept_now)  cw_addr = {va_cache_row(req_va), req_va[3:0]};
+            if (accept_now)       cw_addr = {va_cache_row(req_va), req_va[3:0]};
+            else if (accept2_now) cw_addr = {va_cache_row(req2_va), req2_va[3:0]};
             else if (ap_accept)   cw_addr = {va_cache_row(ap_va), ap_va[3:0]};
         end
+        if (spec_take)            cw_addr = {va_cache_row(spec_va), spec_va[3:0]};
+        else if (spec_take2)      cw_addr = {va_cache_row(spec2_va), spec2_va[3:0]};
         if (c_store_write) begin
             cw_addr = {va_cache_row(c_va), c_va[3:0]};
             cw_we[bk_hitway[1:0]] = 1'b1;
@@ -1271,6 +1348,10 @@ module dorado_rtl_mem
     // reads the victim's entry (mV) this clock and books in the next.
     // =========================================================================
     task automatic book1_task();
+        if (c_peek) begin
+            ms = S_IDLE;                 // nothing changes; the word is on md (peek_hit)
+            return;
+        end
         mA_rp = map_rp_q; mA_wp = map_wp_q; mA_dirty = map_dirty_q; mA_ref = map_ref_q;
         m_idx_a = map_index(m_va);
         m_wbway = c_wbway;
@@ -1313,6 +1394,19 @@ module dorado_rtl_mem
         end else if (clk_en) begin
             if (fault_clear_stb) fault_clear_task();
             if (cflags_stb)      cflags_load(cflags_val);
+            begin                            // the row to load, as the arrays stand now
+                logic [5:0] r;
+                r = va_cache_row(ld_va);
+                for (int w = 0; w < DM_CACHE_WAYS; w++) begin
+                    nr_tag[w]    = cache_tag[r][w];
+                    nr_valid[w]  = cache_valid[r][w];
+                    nr_dirty[w]  = cache_dirty[r][w];
+                    nr_wp[w]     = cache_wp[r][w];
+                    nr_vacant[w] = cache_vacant[r][w];
+                    nr_bl[w]     = cache_being_loaded[r][w];
+                    nr_lru[w]    = cache_lru[r][w];
+                end
+            end
 
             spec_done_q = 1'b0;
             case (ms)
@@ -1326,22 +1420,20 @@ module dorado_rtl_mem
                     m_task    = req_task;
                     m_subtask = req_subtask;
                     m_assist  = 1'b0;
+                    m_peek    = 1'b0;
+                    m_tag     = req_tag;
                     if (spec_ok) begin
                         book1_task();        // the address was read last clock
                     end else begin
-                        load_row(req_va);    // read now; book next clock
-                        ms = S_BOOK1;
+                        ms = S_BOOK1;        // the row loads now (ld_en); book next clock
                     end
                 end else if (ap_accept) begin
                     m_va     = ap_va;
                     m_assist = 1'b1;
-                    load_row(ap_va);
-                    ms = S_ABOOK;
-                end else if (spec_take) begin
-                    load_row(spec_va);
-                    spec_done_q = 1'b1;
-                    spec_va_q   = spec_va;
+                    ms = S_ABOOK;            // the row loads now (ld_en)
                 end
+                // a peek (accept2_now) changes nothing: its answer is on the
+                // outputs this clock
             end
 
             S_BOOK1: book1_task();
@@ -1486,6 +1578,27 @@ module dorado_rtl_mem
             S_ADONE: ms = S_IDLE;
             default: ms = S_IDLE;
             endcase
+
+            if (ld_en) begin                 // the clock's one row load
+                for (int w = 0; w < DM_CACHE_WAYS; w++) begin
+                    rw_tag[w]    = nr_tag[w];
+                    rw_valid[w]  = nr_valid[w];
+                    rw_dirty[w]  = nr_dirty[w];
+                    rw_wp[w]     = nr_wp[w];
+                    rw_vacant[w] = nr_vacant[w];
+                    rw_bl[w]     = nr_bl[w];
+                    rw_lru[w]    = nr_lru[w];
+                end
+            end
+            if (spec_take) begin
+                spec_done_q = 1'b1;
+                spec_va_q   = spec_va;
+                spec_peek_q = 1'b0;
+            end else if (spec_take2) begin
+                spec_done_q = 1'b1;
+                spec_va_q   = spec2_va;
+                spec_peek_q = 1'b1;
+            end
         end
     end
 endmodule

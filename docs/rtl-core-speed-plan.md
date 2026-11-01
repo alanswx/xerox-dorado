@@ -318,6 +318,110 @@ respectable fallback if Phase 3 is not pursued.
 
 Gate: as Phase 1.
 
+**Done (2026-11-01), differently from the sketch above, and better: 4.30 ->
+3.40.** The C model fetches each IFU byte on demand at the dispatch, as a
+reference with side effects (a Pipe entry at ASRN, the line's LRU, Md,
+faults on a miss), and the lock-step compares all of that; so a prefetcher
+cannot simply fetch ahead. What it can do is move the *data* and the IFUM
+decode ahead, and leave the references to the dispatch:
+
+- **Peeks.** A second request port on the memory section
+  (`req2`/`spec2`): the word at a VA if the line is resident, with no side
+  effect at all (no booking, no Md, no Map read), served when the first
+  port has nothing, complete in its accept clock (or `peek_retry` when its
+  address was not read ahead: never a clock in the section's booking
+  state). The prefetch buffer in the processor (`pf_*`) fetches the two
+  words covering `pcf..pcf+2` this way after every dispatch, and reads the
+  opcode's IFUM entry through a second IFUM port.
+- **The buffer is a cache of the cache**, so it is invalidated by the
+  section's snoop: any booking in the word's row but a plain hit (a miss
+  changes a tag; Flush, IOStore and CFlags<- the flags; the assist a valid
+  bit), and any word write (`cw_we`). A reference in flight to the row in
+  the dispatch clock itself blocks the fast path for that clock
+  (`pf_hazard`), since its change would come too late to see. The buffer
+  restarts when PCF or InsSet moves, and is dropped when IFUM is written.
+  A word the buffer holds is therefore what the dispatch's own fetch would
+  return; a peek that misses is simply not resident, and the dispatch's
+  real fetch fills it.
+- **The dispatch in C_NEXT** (`nx_fast`): opcode, entry (and its length),
+  alpha and beta from the buffer; C_IFU_DEC's decode (`ifu_decode_task`)
+  and `ifu_end_task` run in that clock; the IM prediction knows the target
+  from `pf_rh`. Then **the bookkeeping queue** books the C model's
+  references, one per byte, in order, after the instruction's own
+  reference and before the next instruction's (`ifu_bk_busy` holds the
+  execute): each is a normal IFETCH through the first port, read ahead in
+  the clock the previous one is taken, so they go at one per clock. Only
+  when the MCR has none of its test modes on (`fdmiss`, `noref`, `dvavic`,
+  `usemcrv` change what a fetch returns); the slow path (C_IFU_W, DEC, AW,
+  BW) remains for everything else, including IFUTest feeds and
+  breakpoints.
+- Requests carry a tag the section echoes (`TAG_PROC`, `TAG_IFU`,
+  `TAG_BK`), so a result is consumed by its owner and a completion is never
+  hidden behind a queued request; an IFU launch while a request is still
+  waiting is deferred to C_IFU_W.
+
+- **The compare point moves.** The byte references are booked after the
+  IFUJump instruction retires (the processor's next instruction is held
+  until they are), so at `step_done` the Pipe, LRU and Md are not yet what
+  the C model has at that instruction's end. `cmp_done` is the strobe the
+  lock-step waits for: `step_done`, or the clock the last owed reference is
+  booked -- never later than the next instruction's execute. The I/O tick
+  stays on `step_done`. The pipelined core will need exactly this.
+- Two bytes in one word are one reference: the C model makes the same
+  reference twice (same Pipe entry, same LRU touch, same Md), so the second
+  booking is omitted exactly. An even-aligned two-byte opcode then owes
+  nothing after the dispatch.
+- For the one-instruction handlers (22% of Cedar's dispatches: the next
+  IFUJump is three clocks after the last), the entry is taken from IFUM's
+  second port as it arrives and word1 from the section as it arrives, and
+  word1's peek goes out in the clock word0's is taken.
+
+| | Phase 1 | Phase 2 |
+|---|---|---|
+| Cedar rehearsal (3 M, `sim_hps`) | 4.30 | **3.51** |
+| Cedar lock-step (3 M) | 4.04 | **3.22** |
+| Galaxian fpga-sim (80 M) | 3.99 | **3.68** |
+| dispatches from the buffer | - | 99.8% |
+| Quartus ALMs | 59% | 61% (`u_mem` 8.8K, `u_cpu` 7.6K) |
+| 48 MHz slack | +0.14 ns | -0.99 ns (46 MHz closes) |
+
+The area took one detour worth recording: the first build came out at 79%,
+with `u_mem` at 16.6K ALMs. Two causes, both in the pipelined read-ahead:
+a row loaded in the clock a booking writes the same arrays back made
+Quartus build a 96-bit bypass for all 64 rows; and `load_row` called at
+four sites with four addresses was four 64:1 muxes of 96 bits. Now there
+is one row load per clock at one site, from the arrays as they stood at the
+start of the clock, and when the read-ahead's row is the one being booked
+the row registers already hold it and are kept. 16.6K became 8.8K.
+
+The -0.99 ns path is a false one, structural: the tag compare -> `res_tag`
+-> `mem_fin` -> the fault wakeup -> the task scheduler (C_FINISH) -> `ctask`
+-> the BR read -> the VA adder -> `mem_req_va` (an execute clock). The
+scheduler and the execute never run in the same clock, but Quartus cannot
+know it. The cut is to consume a reference's result from registers one
+clock after it completes (a hit completes in C_NEXT; C_FINISH consumes it
+from registers and retires in the same clock, so nothing stalls), with the
+booking strobe registered likewise. That is the next commit; it also
+prepares the NEXT+FINISH merge, where every such path gets a clock longer.
+
+Rehearsal profile: C_FETCH 1.14 (0.14 waiting: byte references 0.09, I/O
+engines, the host port), C_DEC 0.13 (0.11 waiting for the I/O engines),
+C_EXEC 0.10, C_NEXT 1.00, C_FINISH 1.10 (0.10 waiting for a reference:
+munch transfers, misses, Map writes). The sequencer's floor is three
+clocks; 0.5 is waiting, and the NEXT+FINISH merge is next.
+
+Mistakes on the way worth keeping: C_NEXT's trailing `x_np = np` overwrote
+the dispatch's next PC (the suite's Galaxian boot caught it); the peek's
+"issue" decision was taken in the clocked block *after* it had cleared
+`mem_req`, while the read-ahead was decided combinationally from the
+register, so every peek retried (one combinational decision now feeds
+both); a peek's word went out on `md` only with `done_now`, which excludes
+peeks, so word1 came back as the last *booked* word -- and the first 3M
+run had "passed" with the fast path never taken, so the first real
+dispatch was the first test of it. The lock-step at 3M, with the
+dispatch-outcome census beside it, is the loop that found all of these in
+minutes each.
+
 ### Phase 3: the pipelined processor (3-5 weeks)
 
 `dorado_rtl_cpu_pipe.sv`, selected by a top-level parameter so the FSM core

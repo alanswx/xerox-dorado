@@ -81,6 +81,8 @@ module dorado_rtl_cpu
 
     // Sequencing
     output logic           step_done,  // one clock after each microinstruction
+    output logic           cmp_done,   // ...and the byte references its dispatch owes are booked:
+                                       // the lock-step's compare point (the next instruction is held until then)
     // The clock in which a microinstruction completes through C_FINISH or
     // C_SCHED: the I/O module ticks in it (dorado_rtl_top), so its results
     // are in place when the next one executes, even in the next clock.
@@ -298,6 +300,12 @@ module dorado_rtl_cpu
     logic [63:0] cen_ifu_jump /* verilator public_flat_rd */;   // jump opcodes (the IFU restarts)
     logic [63:0] cen_ifu_notready /* verilator public_flat_rd */;
     logic [63:0] cen_pcf      /* verilator public_flat_rd */;   // PCF<-B: the IFU restarts
+    logic [63:0] cen_ifu_fast /* verilator public_flat_rd */;   // dispatches from the prefetch buffer
+    logic [63:0] cen_nf [0:7] /* verilator public_flat_rd */;   // ...not, because: 0 pending req, 1 pcf/insset, 2 entry, 3 word0, 4 byte1, 5 byte2, 6 hazard, 7 mcr/other
+    logic [63:0] cen_bk_wait  /* verilator public_flat_rd */;   // clocks the sequencer waits for the byte references
+    logic [63:0] cen_peek     /* verilator public_flat_rd */;   // peeks issued
+    logic [63:0] cen_peek_retry /* verilator public_flat_rd */;
+    logic [63:0] cen_peek_miss  /* verilator public_flat_rd */;
     logic [63:0] cen_cond     /* verilator public_flat_rd */;   // conditional branches
     logic [63:0] cen_imrw     /* verilator public_flat_rd */;   // Read IM / Write IM
     logic [63:0] cen_io       /* verilator public_flat_rd */;   // slow or fast I/O instructions
@@ -424,6 +432,68 @@ module dorado_rtl_cpu
     logic [15:0]    mem_pipe_rp, mem_pipe2, mem_pipe4, mem_pipe5;
     logic           mem_fastio_set;
     logic           fastio_stb_r;          // the strobe held for the I/O module's tick
+    // who a request is from: the section echoes it with the result
+    localparam logic [1:0] TAG_PROC = 2'd0;  // the processor's reference (mem_pref_task)
+    localparam logic [1:0] TAG_IFU  = 2'd1;  // an IFU byte fetch the sequencer waits for (C_IFU_W)
+    localparam logic [1:0] TAG_BK   = 2'd2;  // a dispatched byte's reference, booked after the fact
+    logic [1:0]     mem_req_tag, mem_res_tag;
+    logic [1:0]     mem_res_way;
+    // the second port: the prefetch buffer's peeks
+    logic           mem_spec2_req, mem_req2, mem_accepted2, mem_peek_done, mem_peek_hit, mem_peek_retry;
+    // an IFU byte fetch launched while a request was still waiting: issued
+    // from C_IFU_W once the section has taken that one
+    logic           ifu_dl_valid;
+    logic [27:0]    ifu_dl_va;
+    logic [27:0]    mem_spec2_va, mem_req2_va;
+    logic           mem_snoop_row_stb, mem_snoop_wr;
+    logic [5:0]     mem_snoop_row, mem_ref_row;
+    logic           mem_inflight;
+    logic [1:0]     mem_inflight_tag;
+    logic           cmp_wait;      // an instruction retired; its compare point is pending
+    logic [9:0]     mem_snoop_wr_addr;
+    logic [1:0]     mem_snoop_wr_way;
+
+    // ---- the IFU prefetch buffer -----------------------------------------------
+    // The words holding the bytes at ifu_pcf, pcf+1 and pcf+2 (the next
+    // opcode and its operands) and the opcode's IFUM entry, fetched ahead
+    // with peeks: lookups with no side effect, so the C model's references
+    // (one per byte, with their Pipe, LRU and Md effects) are still made at
+    // the dispatch, by the bookkeeping queue, in their order. A word is
+    // dropped if its line or the word changes (the section's snoop), and
+    // the buffer restarts when PCF or InsSet changes.
+    logic [15:0]    pf_pcf;        // the opcode PC the buffer is for
+    logic [1:0]     pf_insset;
+    logic           pf_v0, pf_v1;  // the word at pcf, and the next word
+    logic [15:0]    pf_w0, pf_w1;
+    logic [27:0]    pf_va0, pf_va1;
+    logic [5:0]     pf_row0, pf_row1;
+    logic [1:0]     pf_way0, pf_way1;
+    logic [3:0]     pf_word0, pf_word1;
+    logic           pf_ev, pf_pres;        // the IFUM entry for the opcode byte
+    logic [15:0]    pf_lh, pf_rh;
+    logic [2:0]     pf_st;         // 0 need word0, 1 its peek out, 2 need word1, 3 its peek out, 4 complete, 5 not resident
+    logic           pf_ifum_wait;  // IFUM port 2 was addressed last clock
+    logic           pf_w0_new;     // word0 was captured this clock (its byte addresses IFUM next clock)
+    logic           pf_issue_c;    // comb: a peek is issued this clock (its address read ahead)
+    logic           pf_issue1_c;   // comb: word1's, as word0's answers
+    logic           pf_restart;    // the buffer restarted this clock
+    logic [2:0]     pf_st0;        // pf_st at the start of the clock
+    logic [9:0]     ifum_addr2;
+    logic [15:0]    ifum_q2_hi, ifum_q2_lo;
+    logic           ifum_q2_pres;
+    // what the buffer offers the IFUJump in C_NEXT (comb)
+    logic           nx_fast;       // dispatch from the buffer this clock
+    logic [15:0]    pf_lh_c, pf_rh_c;      // the entry: held, or arriving this clock
+    logic           pf_ev_c, pf_pres_c;
+    logic [15:0]    pf_w1_c;               // word1: held, or arriving this clock
+    logic           pf_v1_c;
+    logic [7:0]     pf_len;
+    logic [7:0]     pf_b0, pf_b1, pf_b2;
+    logic           pf_b1_ok, pf_b2_ok, pf_hazard;
+    // the bookkeeping queue: the dispatched bytes' references still to book
+    logic [1:0]     bk_n;
+    logic [15:0]    bk_pc;
+    logic           ifu_bk_busy;   // comb: the processor's next reference waits for them
     logic [4:0]     mem_dbg_st;
     // the munch port (sto_*): the section's, served by g_storage or outside
     logic           sto_ack;
@@ -443,6 +513,9 @@ module dorado_rtl_cpu
     logic [15:0]    pe_tnia, pe_tnia_r, pe_tnia_d;
     logic           pe_flt;
     logic [15:0]    pe_trap0;
+    logic           pe_cond_f;
+    logic [1:0]     pe_neff_f;
+    logic [15:0]    pe_trap14;
     logic           fexec;          // C_FETCH executes the read-ahead instruction this clock
     logic           do_exec;        // exec_task runs this clock
     logic [7:0]     fx_stkp;        // StkP and subtask the condition read (below) used
@@ -486,6 +559,12 @@ module dorado_rtl_cpu
         mem_req_kind = DM_REF_NONE; mem_req_va = 28'd0; mem_req_b = 16'd0; mem_req_tioa = 8'd0;
         mem_req_task = 4'd0; mem_req_subtask = 2'd0;
         mem_ap_req          = 1'b0;
+        mem_req_tag = TAG_PROC; mem_req2 = 1'b0; mem_req2_va = 28'd0;
+        bk_n = 2'd0; bk_pc = 16'd0; ifu_dl_valid = 1'b0; ifu_dl_va = 28'd0; cmp_wait = 1'b0;
+        pf_pcf = 16'hFFFF; pf_insset = 2'd0; pf_v0 = 1'b0; pf_v1 = 1'b0; pf_ev = 1'b0; pf_pres = 1'b0;
+        pf_w0 = 16'd0; pf_w1 = 16'd0; pf_va0 = 28'd0; pf_va1 = 28'd0; pf_row0 = 6'd0; pf_row1 = 6'd0;
+        pf_way0 = 2'd0; pf_way1 = 2'd0; pf_word0 = 4'd0; pf_word1 = 4'd0; pf_lh = 16'd0; pf_rh = 16'd0;
+        pf_st = 3'd0; pf_ifum_wait = 1'b0; pf_w0_new = 1'b0; pf_restart = 1'b0; pf_st0 = 3'd0;
         mem_fault_clear_stb = 1'b0; mem_cflags_stb = 1'b0; mem_cflags_val = 16'd0;
         m_byte_sel          = 1'b0;
 `ifdef DORADO_CHECKPOINT
@@ -1049,7 +1128,9 @@ module dorado_rtl_cpu
         cen_md = 64'd0; cen_md_imm1 = 64'd0; cen_md_def1 = 64'd0; cen_md_imm2 = 64'd0;
         cen_md_def2 = 64'd0; cen_md_3p = 64'd0; cen_ifujump = 64'd0; cen_ifu_odd = 64'd0;
         cen_ifu_jump = 64'd0; cen_ifu_notready = 64'd0; cen_cond = 64'd0; cen_imrw = 64'd0;
-        cen_io = 64'd0; cen_block = 64'd0; cen_pcf = 64'd0; cen_switch = 64'd0; cen_hold = 64'd0;
+        cen_io = 64'd0; cen_block = 64'd0; cen_pcf = 64'd0; cen_ifu_fast = 64'd0; cen_bk_wait = 64'd0;
+        cen_peek = 64'd0; cen_peek_retry = 64'd0; cen_peek_miss = 64'd0;
+        for (int i = 0; i < 8; i++) cen_nf[i] = 64'd0; cen_switch = 64'd0; cen_hold = 64'd0;
         cen_iobusy = 64'd0; cen_apwait = 64'd0; cen_last_ifuj_at = 64'd0;
         for (int i = 0; i < 7; i++) cen_ifu_hl[i] = 64'd0;
         for (int i = 0; i < 4; i++) cen_ifu_len[i] = 64'd0;
@@ -1307,9 +1388,11 @@ module dorado_rtl_cpu
         input logic [15:0]  b_val,
         input logic [7:0]   tioa_val,
         input logic [3:0]   task_id,
-        input logic [1:0]   subtask_id
+        input logic [1:0]   subtask_id,
+        input logic [1:0]   tag
     );
         mem_req         = 1'b1;
+        mem_req_tag     = tag;
         mem_req_kind    = kind;
         mem_req_va      = va;
         mem_req_b       = b_val;
@@ -1352,11 +1435,23 @@ module dorado_rtl_cpu
     task automatic ifu_launch_fetch(input logic [15:0] pc, input cstate_t ret);
         m_byte_sel = pc[0];
         cen_ifu_fetch = cen_ifu_fetch + 64'd1;
-        mem_launch(DM_REF_IFETCH, ifu_va_fn(pc), 16'd0, 8'd0, 4'd0, 2'd0);
+        if (mem_req && !mem_accepted) begin
+            // a request is still waiting (a dispatched byte's that missed):
+            // C_IFU_W issues this one once it is taken
+            ifu_dl_valid = 1'b1;
+            ifu_dl_va    = ifu_va_fn(pc);
+        end else begin
+            mem_launch(DM_REF_IFETCH, ifu_va_fn(pc), 16'd0, 8'd0, 4'd0, 2'd0, TAG_IFU);
+        end
         m_ret = ret;
         st    = C_IFU_W;
     endtask
 
+    function automatic logic [7:0] byte_at_fn(input logic [15:0] w, input logic sel);
+        logic high_byte;
+        high_byte = (ifu_insset < 2'd2) ? (sel == 1'b0) : (sel == 1'b1);
+        return high_byte ? w[15:8] : w[7:0];
+    endfunction
     function automatic logic [7:0] ifu_byte_of(input logic [15:0] w);
         logic high_byte;
         high_byte = (ifu_insset < 2'd2) ? (m_byte_sel == 1'b0) : (m_byte_sel == 1'b1);
@@ -1541,6 +1636,14 @@ module dorado_rtl_cpu
             pred_ok = 1'b1;                          // one-byte opcode
             pred_np = {4'd0, pe_tnia_d[11:0]};
         end
+        // C_NEXT dispatching from the prefetch buffer: the entry's address
+        pe_cond_f = (u.bsel < 3'd4 && ff_fa(u.ff) == 2'd0 && ff_fb(u.ff) == 3'd6) ? cond_pure_fn(u, u.ff[2:0]) : 1'b0;
+        pe_neff_f = jcn[4:3] | {1'b0, pe_cond_f};
+        pe_trap14 = ifu_trap_addr_fn(6'o14, jcn[4:3]);
+        if (st == C_NEXT && nx_fast && !is_long && jcn[2:0] == 3'd7 && jcn[7:5] == 3'd1) begin
+            pred_ok = 1'b1;
+            pred_np = (reschedule_pending == 8'd1) ? {4'd0, pe_trap14[11:0]} : {4'd0, ~pf_rh_c[9:0], pe_neff_f};
+        end
         if ((st == C_IFU_AW && (!(ifu_length >= 8'd3 && !pe_flt) ||
                                 (x_test_feed && ifu_test_count > 4'd0))) ||
             st == C_IFU_BW) begin
@@ -1549,7 +1652,7 @@ module dorado_rtl_cpu
         end
 
         fexec = READAHEAD && (st == C_FETCH) && !(ap_req && !ap_done_q) && !ap_hold &&
-                spec_hit && rm_pre_ok && !io_busy && !jcn_reads_im_at_link_fn(cur_u);
+                spec_hit && rm_pre_ok && !io_busy && !ifu_bk_busy && !jcn_reads_im_at_link_fn(cur_u);
 
         // what C_FINISH leaves in RBase and StkP (no task switch)
         fin_rbase = (ifu_dispatch_rbase >= 0) ? 8'(ifu_dispatch_rbase) : x_rbase_after_ff;
@@ -1617,7 +1720,14 @@ module dorado_rtl_cpu
         ifum_q_hi   <= ifum_hi[ifum_addr_p];
         ifum_q_lo   <= ifum_lo[ifum_addr_p];
         ifum_q_pres <= ifum_present[ifum_addr_p];
+        // the prefetch buffer's read of the next opcode's entry
+        ifum_q2_hi   <= ifum_hi[ifum_addr2];
+        ifum_q2_lo   <= ifum_lo[ifum_addr2];
+        ifum_q2_pres <= ifum_present[ifum_addr2];
     end
+    // the opcode byte: from the word arriving this clock (a peek's answer),
+    // else the one held
+    assign ifum_addr2 = {ifu_insset, byte_at_fn((mem_peek_done && mem_peek_hit && pf_st == 3'd1) ? md : pf_w0, pf_pcf[0])};
 
 
     // =========================================================================
@@ -1636,7 +1746,26 @@ module dorado_rtl_cpu
         .req_tioa         (mem_req_tioa),
         .req_task         (mem_req_task),
         .req_subtask      (mem_req_subtask),
+        .req_tag          (mem_req_tag),
         .accepted         (mem_accepted),
+        .res_tag          (mem_res_tag),
+        .res_way          (mem_res_way),
+        .spec2_req        (mem_spec2_req),
+        .spec2_va         (mem_spec2_va),
+        .req2             (mem_req2),
+        .req2_va          (mem_req2_va),
+        .accepted2        (mem_accepted2),
+        .peek_done        (mem_peek_done),
+        .peek_hit         (mem_peek_hit),
+        .peek_retry       (mem_peek_retry),
+        .snoop_row_stb    (mem_snoop_row_stb),
+        .snoop_row        (mem_snoop_row),
+        .snoop_wr         (mem_snoop_wr),
+        .snoop_wr_addr    (mem_snoop_wr_addr),
+        .snoop_wr_way     (mem_snoop_wr_way),
+        .ref_row          (mem_ref_row),
+        .inflight         (mem_inflight),
+        .inflight_tag     (mem_inflight_tag),
         .idle             (mem_idle),
         .done             (mem_done),
         .done_now         (mem_done_now),
@@ -1715,16 +1844,68 @@ module dorado_rtl_cpu
             C_IFU_AW:   mem_spec_va = ifu_va_fn(x_pc_after + 16'd1);
             default: ;
         endcase
+        if (ifu_dl_valid && (!mem_req || mem_accepted)) mem_spec_va = ifu_dl_va;
+        if (bk_n != 2'd0 && (!mem_req || mem_accepted)) mem_spec_va = ifu_va_fn(bk_pc);   // the next byte's reference
+    end
+
+    // What the prefetch buffer offers an IFUJump in C_NEXT: the opcode byte,
+    // its entry (length from it, as C_IFU_DEC decodes), the operand bytes if
+    // the entry wants them, all at the addresses the IFU would fetch now; no
+    // MCR test mode that changes what a fetch returns; no reference this
+    // clock to the buffer's rows (a change there would come too late to see).
+    always_comb begin
+        logic mcr_mode;
+        mcr_mode  = (mcr == 16'hFEE7) ? 1'b0 : (mcr[15] | mcr[14] | mcr[13] | mcr[5]);
+        // the entry read last clock arrives on IFUM's second port now
+        pf_ev_c   = pf_ev || (pf_ifum_wait && !pf_w0_new);
+        pf_lh_c   = pf_ev ? pf_lh : ifum_q2_hi;
+        pf_rh_c   = pf_ev ? pf_rh : ifum_q2_lo;
+        pf_pres_c = pf_ev ? pf_pres : ifum_q2_pres;
+        pf_v1_c   = pf_v1;               // (not the peek answering now: the hit test would reach the dispatch)
+        pf_w1_c   = pf_w1;
+        pf_len    = {6'd0, ~pf_lh_c[11:10]};
+        pf_b0     = byte_at_fn(pf_w0, pf_pcf[0]);
+        pf_b1     = pf_pcf[0] ? byte_at_fn(pf_w1_c, 1'b0) : byte_at_fn(pf_w0, 1'b1);
+        pf_b2     = byte_at_fn(pf_w1_c, pf_pcf[0]);
+        pf_b1_ok  = pf_pcf[0] ? (pf_v1_c && pf_va1 == ifu_va_fn(pf_pcf + 16'd1)) : pf_v0;
+        pf_b2_ok  = pf_v1_c && (pf_va1 == ifu_va_fn(pf_pcf + 16'd2));
+        pf_hazard = (mem_accepted && (mem_req_va[9:4] == pf_row0 || mem_req_va[9:4] == pf_row1)) ||
+                    (!mem_idle && (mem_ref_row == pf_row0 || mem_ref_row == pf_row1)) ||
+                    mem_cflags_stb;
+        nx_fast   = ifu_active && ifu_warmup == 8'd0 && !brk_pending && ifu_test_count == 4'd0 &&
+                    !(mem_req && !mem_accepted) &&
+                    pf_pcf == ifu_pcf && pf_insset == ifu_insset && pf_ev_c && pf_pres_c &&
+                    pf_v0 && pf_va0 == ifu_va_fn(ifu_pcf) && !mcr_mode && !pf_hazard &&
+                    (pf_len < 8'd2 || pf_b1_ok) && (pf_len < 8'd3 || pf_b2_ok);
     end
     // (apart from the address: the address depends on Md, which the section
     // computes from the request, and a block computing both would look like
     // a loop to Verilator)
-    assign mem_spec_req = (st == C_NEXT || st == C_IFU_DEC || st == C_IFU_BETA || st == C_IFU_AW) ||
+    assign mem_spec_req = (bk_n != 2'd0 && (!mem_req || mem_accepted)) ||
+                          (ifu_dl_valid && (!mem_req || mem_accepted)) ||
+                          (st == C_NEXT && x_u.jcn[7:5] == 3'd1 && x_u.jcn[2:0] == 3'd7) ||
+                          (st == C_IFU_DEC || st == C_IFU_BETA || st == C_IFU_AW) ||
                           ((st == C_EXEC || fexec) && ex_u.asel <= 3'd3 && !jcn_is_write_im_fn(ex_u) &&
                            decode_ref_kind_fn(ex_u, ctask != 4'd0) != DM_REF_NONE);
+    // the peek the buffer issues this clock: decided here, from the registers,
+    // so the clocked issue and the read-ahead agree
+    // (a peek may be issued in the clock the last byte reference is taken:
+    // the next opcode's word is then here a clock sooner)
+    assign pf_issue_c    = !mem_req2 && (bk_n == 2'd0) && !(mem_inflight && mem_inflight_tag == TAG_BK) &&
+                           (!mem_req || (mem_accepted && mem_req_tag == TAG_BK)) && !mem_spec_req &&
+                           (pf_st == 3'd0 || pf_st == 3'd2);
+    // ...and word1's, in the clock word0's is taken (its address read ahead then)
+    assign pf_issue1_c   = mem_peek_done && mem_peek_hit && pf_st == 3'd1 && !mem_spec_req;
+    assign mem_spec2_req = pf_issue_c || pf_issue1_c;
+    assign mem_spec2_va  = (pf_st == 3'd0) ? ifu_va_fn(pf_pcf) : ((ifu_va_fn(pf_pcf) + 28'd1) & 28'h0FFFFFFF);
     // the reference issued (mem_req) has completed: not before it is
     // accepted, and in the accept clock only if it completes then
-    assign mem_fin = mem_done && (!mem_req || mem_accepted);
+    assign mem_fin = mem_done && (mem_res_tag == TAG_PROC);
+    // the dispatched bytes' references are booked before the processor's next
+    // instruction executes (or the assist runs, or the lock-step compares)
+    assign ifu_bk_busy = (bk_n != 2'd0) || (mem_req && mem_req_tag == TAG_BK) ||
+                         (mem_inflight && mem_inflight_tag == TAG_BK);
+    assign cmp_done    = cmp_wait && !ifu_bk_busy;
     assign fastio_stb = fastio_stb_r || mem_fastio_set;
 
     generate
@@ -1813,6 +1994,22 @@ module dorado_rtl_cpu
         if (ifu_type_jump && !x_cond_true && !ifu_type_pause) cen_ifu_jump = cen_ifu_jump + 64'd1;
     endtask
 
+    // The opcode's IFUM entry (x_lh, x_rh) decoded: C_IFU_DEC, and the
+    // dispatch from the prefetch buffer (ifu_decode_lh / ifu_decode_rh).
+    task automatic ifu_decode_task();
+        ifu_sign       = x_lh[15];
+        ifu_length     = {6'd0, ~x_lh[11:10]};
+        ifu_type_pause = ~x_lh[5];
+        ifu_type_jump  = ~x_lh[4];
+        ifu_n          = x_lh[3:0];
+        if (x_lh[8] == 1'b0) MemBase = {4'd0, MemBX, x_lh[7:6]};
+        else                 MemBase = 8'o034 + {6'd0, x_lh[7:6]};
+        RBase              = {7'd0, ~x_lh[9]};
+        ifu_dispatch_rbase = int'(RBase);
+        ifu_packed_a = x_rh[10];
+        x_ifaddr     = {6'd0, ~x_rh[9:0]};
+    endtask
+
     // The end of an IFUJump dispatch (formerly the state C_IFU_END): the
     // dispatch address, PCF, and the IFU bookkeeping. Called by whichever
     // state finishes the dispatch (C_IFU_DEC, _AW, _BW, _END).
@@ -1898,6 +2095,7 @@ module dorado_rtl_cpu
                 cycles     = cycles + 64'd1;
                 step_valid = 1'b0;
                 step_done  = 1'b1;
+                cmp_wait   = 1'b1;
             end
         end
 
@@ -2327,7 +2525,7 @@ module dorado_rtl_cpu
                                 // returns straight to C_NEXT(RD); C_PREF's
                                 // bookkeeping runs at the top of that clock
                                 x_pref_pending = 1'b1;
-                                mem_launch(kind, va, b, TIOA, ctask, task_subtask[ctask]);
+                                mem_launch(kind, va, b, TIOA, ctask, task_subtask[ctask], TAG_PROC);
                             end
                         end
                     end
@@ -2380,9 +2578,65 @@ module dorado_rtl_cpu
             // booking it did (the MapBuf count follows the C model's pipe_push
             // and Map<- order), the reference it completed (C_PREF's work),
             // the munch it moved.
+            pf_st0 = pf_st;
+            if (cmp_wait && !ifu_bk_busy) cmp_wait = 1'b0;   // cmp_done was seen after last clock
             if (mem_accepted) mem_req = 1'b0;
+            if (mem_accepted2) mem_req2 = 1'b0;
             mem_fault_clear_stb = 1'b0;
             mem_cflags_stb      = 1'b0;
+            // the next dispatched byte's reference (its address read ahead this clock)
+            if (bk_n != 2'd0 && !mem_req) begin
+                mem_launch(DM_REF_IFETCH, ifu_va_fn(bk_pc), 16'd0, 8'd0, 4'd0, 2'd0, TAG_BK);
+                cen_ifu_fetch = cen_ifu_fetch + 64'd1;
+                if (!bk_pc[0] && bk_n >= 2'd2) begin   // the next byte shares the word
+                    bk_pc = bk_pc + 16'd2;
+                    bk_n  = bk_n - 2'd2;
+                end else begin
+                    bk_pc = bk_pc + 16'd1;
+                    bk_n  = bk_n - 2'd1;
+                end
+            end
+            // the prefetch buffer: a peek's answer, and the lines it holds changing
+            if (mem_peek_done) begin
+                mem_req2 = 1'b0;
+                if (mem_peek_retry) begin
+                    cen_peek_retry = cen_peek_retry + 64'd1;
+                    if (pf_st == 3'd1) pf_st = 3'd0;
+                    if (pf_st == 3'd3) pf_st = 3'd2;
+                end else if (pf_st == 3'd1) begin
+                    if (mem_peek_hit) begin
+                        pf_w0 = md; pf_va0 = mem_req2_va; pf_row0 = mem_req2_va[9:4];
+                        pf_way0 = mem_res_way; pf_word0 = mem_req2_va[3:0];
+                        pf_v0 = 1'b1; pf_st = 3'd2;
+                        pf_ifum_wait = 1'b1;     // IFUM is addressed from it this clock (ifum_addr2)
+                        pf_w0_new    = 1'b1;     // ...so the entry arrives next clock, not this one
+                        if (pf_issue1_c) begin   // word1's peek, now
+                            mem_req2    = 1'b1;
+                            mem_req2_va = (mem_req2_va + 28'd1) & 28'h0FFFFFFF;
+                            pf_st       = 3'd3;
+                            cen_peek    = cen_peek + 64'd1;
+                        end
+                    end else begin
+                        pf_st = 3'd5;            // not resident: the dispatch's own fetch fills it
+                        cen_peek_miss = cen_peek_miss + 64'd1;
+                    end
+                end else if (pf_st == 3'd3) begin
+                    if (mem_peek_hit) begin
+                        pf_w1 = md; pf_va1 = mem_req2_va; pf_row1 = mem_req2_va[9:4];
+                        pf_way1 = mem_res_way; pf_word1 = mem_req2_va[3:0];
+                        pf_v1 = 1'b1;
+                    end
+                    pf_st = 3'd4;
+                end
+            end
+            if (mem_snoop_row_stb) begin
+                if (pf_v0 && mem_snoop_row == pf_row0) pf_v0 = 1'b0;
+                if (pf_v1 && mem_snoop_row == pf_row1) pf_v1 = 1'b0;
+            end
+            if (mem_snoop_wr) begin
+                if (pf_v0 && mem_snoop_wr_addr == {pf_row0, pf_word0} && mem_snoop_wr_way == pf_way0) pf_v0 = 1'b0;
+                if (pf_v1 && mem_snoop_wr_addr == {pf_row1, pf_word1} && mem_snoop_wr_way == pf_way1) pf_v1 = 1'b0;
+            end
             if (mem_book_now) begin
                 if (mem_book_push) pipe_mapbuf_busy[mem_book_srn] = 1'b0;
                 if (mem_book_is_map) begin
@@ -2404,7 +2658,7 @@ module dorado_rtl_cpu
                 ex_pres = im_q_pres;
                 ex_brk  = im_q_brk;
                 ap_done = 1'b0;
-                if (ap_req && !ap_done_q) begin
+                if (ap_req && !ap_done_q && !ifu_bk_busy) begin
                     spec_hit  = 1'b0;            // the assist uses the ports
                     rm_pre_ok = 1'b0;            // and may change RM/STK
                     if (ap_stk) begin
@@ -2430,6 +2684,11 @@ module dorado_rtl_cpu
                         rm_pre_ok = 1'b0;
                         fx_stkp   = StkP;
                         fx_sub    = task_subtask[ctask];
+                    end else if (ifu_bk_busy) begin
+                        // the dispatched bytes' references book first (the
+                        // read-ahead stands: the operand is re-read at the
+                        // same address)
+                        cen_bk_wait = cen_bk_wait + 64'd1;
                     end else begin
                         // With the instruction already read (spec_hit), RM/STK
                         // are read at its address this clock and C_DEC is not
@@ -2448,7 +2707,8 @@ module dorado_rtl_cpu
                 ex_u    = cur_u;
                 ex_pres = im_q_pres;
                 ex_brk  = im_q_brk;
-                if (!io_busy) st = C_EXEC;
+                if (!io_busy && !ifu_bk_busy) st = C_EXEC;
+                else if (!io_busy) cen_bk_wait = cen_bk_wait + 64'd1;
             end
 
             // -----------------------------------------------------------------
@@ -2563,7 +2823,46 @@ module dorado_rtl_cpu
                                 end else if (x_test_feed) begin
                                     ifu_test_pop_byte_task(ifu_opcode);
                                     st          = C_IFU_DECW;
+                                end else if (nx_fast) begin
+                                    cen_ifu_fast = cen_ifu_fast + 64'd1;
+                                    // The prefetch buffer has the opcode, its
+                                    // entry and its operands: dispatch now. The
+                                    // bytes' references (the C model's) are
+                                    // booked after, in order: the first now, the
+                                    // rest from the queue.
+                                    ifu_opcode = pf_b0;
+                                    x_lh = pf_lh_c;
+                                    x_rh = pf_rh_c;
+                                    ifu_decode_task();
+                                    x_pc_after   = ifu_pcf + 16'(ifu_length);
+                                    x_op_faulted = 1'b0;
+                                    if (ifu_length >= 8'd2) ifu_alpha = pf_b1;
+                                    if (ifu_length >= 8'd3) ifu_beta  = pf_b2;
+                                    // one reference per WORD: two bytes in one word
+                                    // make the same reference twice in the C model
+                                    // (the same Pipe entry, LRU touch and Md), so
+                                    // the second is the first
+                                    mem_launch(DM_REF_IFETCH, ifu_va_fn(ifu_pcf), 16'd0, 8'd0, 4'd0, 2'd0, TAG_BK);
+                                    cen_ifu_fetch = cen_ifu_fetch + 64'd1;
+                                    if (!ifu_pcf[0] && ifu_length >= 8'd2) begin   // byte 1 shares the word
+                                        bk_pc = ifu_pcf + 16'd2;
+                                        bk_n  = 2'(ifu_length - 8'd2);
+                                    end else begin
+                                        bk_pc = ifu_pcf + 16'd1;
+                                        bk_n  = 2'(ifu_length - 8'd1);
+                                    end
+                                    ifu_end_task();          // sets x_np and Link
+                                    np = x_np;               // (C_NEXT's x_np = np below)
+                                    st = C_FINISH;
                                 end else begin
+                                    if (mem_req && !mem_accepted)                      cen_nf[0] = cen_nf[0] + 64'd1;
+                                    else if (pf_pcf != ifu_pcf || pf_insset != ifu_insset) cen_nf[1] = cen_nf[1] + 64'd1;
+                                    else if (!pf_v0 || pf_va0 != ifu_va_fn(ifu_pcf))   cen_nf[3] = cen_nf[3] + 64'd1;
+                                    else if (!pf_ev_c || !pf_pres_c)                   cen_nf[2] = cen_nf[2] + 64'd1;
+                                    else if (pf_len >= 8'd2 && !pf_b1_ok)              cen_nf[4] = cen_nf[4] + 64'd1;
+                                    else if (pf_len >= 8'd3 && !pf_b2_ok)              cen_nf[5] = cen_nf[5] + 64'd1;
+                                    else if (pf_hazard)                                cen_nf[6] = cen_nf[6] + 64'd1;
+                                    else                                               cen_nf[7] = cen_nf[7] + 64'd1;
                                     ifu_launch_fetch(ifu_pcf, C_IFU_DEC);
                                 end
                             end
@@ -2659,7 +2958,11 @@ module dorado_rtl_cpu
             // earlier). The opcode (m_ret == C_IFU_DEC): IFUM is being read
             // for it this clock; alpha and beta: their states take it.
             C_IFU_W: begin
-                if (mem_fin) begin
+                if (ifu_dl_valid && !mem_req) begin          // the deferred launch
+                    mem_launch(DM_REF_IFETCH, ifu_dl_va, 16'd0, 8'd0, 4'd0, 2'd0, TAG_IFU);
+                    ifu_dl_valid = 1'b0;
+                end else if (!ifu_dl_valid && mem_done && mem_res_tag == TAG_IFU &&
+                             !(mem_req && !mem_accepted)) begin
                     if (mem_res_miss) evc_events |= EVC_EV_MISS;
                     if (m_ret != C_IFU_DEC) begin
                         st = m_ret;
@@ -2685,21 +2988,7 @@ module dorado_rtl_cpu
                 end else begin
                     x_lh = ifum_q_hi;
                     x_rh = ifum_q_lo;
-
-                    // ifu_decode_lh
-                    ifu_sign       = x_lh[15];
-                    ifu_length     = {6'd0, ~x_lh[11:10]};
-                    ifu_type_pause = ~x_lh[5];
-                    ifu_type_jump  = ~x_lh[4];
-                    ifu_n          = x_lh[3:0];
-                    if (x_lh[8] == 1'b0) MemBase = {4'd0, MemBX, x_lh[7:6]};
-                    else                 MemBase = 8'o034 + {6'd0, x_lh[7:6]};
-                    RBase              = {7'd0, ~x_lh[9]};
-                    ifu_dispatch_rbase = int'(RBase);
-
-                    // ifu_decode_rh
-                    ifu_packed_a = x_rh[10];
-                    x_ifaddr     = {6'd0, ~x_rh[9:0]};
+                    ifu_decode_task();
 
                     x_pc_after   = ifu_pcf + 16'd1;
                     x_op_faulted = 1'b0;
@@ -2844,6 +3133,7 @@ module dorado_rtl_cpu
                     end else begin
                         do_sched  = 1'b0;
                         step_done = 1'b1;
+                        cmp_wait  = 1'b1;
                         st        = C_FETCH;
                     end
                 end
@@ -2871,6 +3161,7 @@ module dorado_rtl_cpu
                         if (ifu_active && ifu_warmup > 8'd0) ifu_warmup = ifu_warmup - 8'd1;
                     end
                     step_done = 1'b1;
+                    cmp_wait  = 1'b1;
                     st        = C_FETCH;
                 end
                 x_pred_fresh = 1'b0;
@@ -2899,6 +3190,39 @@ module dorado_rtl_cpu
             // One instance of the execution logic, for C_EXEC and for a
             // C_FETCH that executes (fexec): calling it from both case items
             // built the whole datapath twice.
+            // The prefetch buffer: for ifu_pcf (restarting when it moves), two
+            // words by peeks when nothing else wants the section, then the
+            // opcode's IFUM entry through the second port.
+            pf_restart = 1'b0;
+            if (pf_pcf != ifu_pcf || pf_insset != ifu_insset) begin
+                pf_pcf    = ifu_pcf;
+                pf_insset = ifu_insset;
+                pf_v0 = 1'b0; pf_v1 = 1'b0; pf_ev = 1'b0; pf_ifum_wait = 1'b0;
+                pf_st = 3'd0;
+                pf_restart = 1'b1;
+            end
+            if (!pf_v0 && (pf_st == 3'd2 || pf_st == 3'd4)) begin   // word0 dropped: start over
+                pf_st = 3'd0; pf_ev = 1'b0; pf_v1 = 1'b0; pf_ifum_wait = 1'b0;
+            end else if (!pf_v1 && pf_st == 3'd4) begin
+                pf_st = 3'd2;                                       // word1 dropped: again
+            end
+            // the peek decided above (pf_issue_c), unless this clock moved the
+            // buffer on (restart, or a word dropped)
+            if (pf_issue_c && !pf_restart && pf_st == pf_st0) begin
+                mem_req2    = 1'b1;
+                mem_req2_va = mem_spec2_va;
+                pf_st       = (pf_st == 3'd0) ? 3'd1 : 3'd3;
+                cen_peek    = cen_peek + 64'd1;
+            end
+            if (pf_ifum_wait && !pf_w0_new) begin
+                pf_lh = ifum_q2_hi; pf_rh = ifum_q2_lo; pf_pres = ifum_q2_pres;
+                pf_ev = 1'b1; pf_ifum_wait = 1'b0;
+            end else if (pf_v0 && !pf_ev && !pf_ifum_wait) begin
+                pf_ifum_wait = 1'b1;                                // addressed this clock (ifum_addr2, from the held word)
+            end
+            pf_w0_new = 1'b0;
+            if (x_ifum_wr) begin pf_ev = 1'b0; pf_ifum_wait = 1'b0; end
+
             if (do_exec) begin
                 exec_task();
                 // fexec read the branch-condition register this clock (unless

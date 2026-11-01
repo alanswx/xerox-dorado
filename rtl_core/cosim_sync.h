@@ -61,9 +61,14 @@ static void rtl_step(Vdorado_rtl_top *top) {
                                (unsigned)(R_CPU(ex_u)[0] >> 16), (unsigned)(R_CPU(ex_u)[0] & 0xFFFF),
                                (unsigned)((R_CPU(x_u)[1] >> 18) & 0xFF),
                                (unsigned)R_CPU(im_q0), (unsigned)R_CPU(im_q1), (unsigned)R_CPU(im_q2));
-        if (top->step_done || top->dbg_halted) return;
+        if (fsm_trace) fprintf(stderr, "      pf: pcf=0%o(ifu 0%o) st=%d v0=%d v1=%d ev=%d pres=%d w0=%06o w1=%06o lh=%06o rh=%06o va0=%o nx_fast=%d bk_n=%d req=%d/%d req2=%d\n",
+            (unsigned)R_CPU(pf_pcf), (unsigned)R_CPU(ifu_pcf), (int)R_CPU(pf_st), (int)R_CPU(pf_v0), (int)R_CPU(pf_v1),
+            (int)R_CPU(pf_ev), (int)R_CPU(pf_pres), (unsigned)R_CPU(pf_w0), (unsigned)R_CPU(pf_w1),
+            (unsigned)R_CPU(pf_lh), (unsigned)R_CPU(pf_rh), (unsigned)R_CPU(pf_va0), (int)R_CPU(nx_fast),
+            (int)R_CPU(bk_n), (int)R_CPU(mem_req), (int)R_CPU(mem_req_tag), (int)R_CPU(mem_req2));
+        if (top->cmp_done || top->dbg_halted) return;   // the instruction and what its dispatch owes
     }
-    fprintf(stderr, "[RTL] no step_done after 4096 clocks (pc=0%o)\n",
+    fprintf(stderr, "[RTL] no cmp_done after 4096 clocks (pc=0%o)\n",
             (unsigned)top->dbg_real_pc);
 }
 

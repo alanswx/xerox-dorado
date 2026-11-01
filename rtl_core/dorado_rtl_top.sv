@@ -130,6 +130,7 @@ module dorado_rtl_top
     output logic        dbg_halted,
     output logic [3:0]  dbg_halt_reason,
     output logic        step_done,     // pulses one clock after each microinstruction
+    output logic        cmp_done,      // ...and its dispatch's byte references are booked: the compare point
     // Board-level debug: {DDR engine (see dorado_rtl_storage_ddr), CPU state,
     // real PC, task, low cycle count}
     output logic [127:0] dbg_vec,
@@ -436,6 +437,7 @@ module dorado_rtl_top
         .dbg_halted         (dbg_halted),
         .dbg_halt_reason    (dbg_halt_reason),
         .step_done          (step_done),
+        .cmp_done           (cmp_done),
         .io_tick_early      (io_tick_early),
         .io_busy            (io_bridge_en && (io_busy || srv_stall)),
         .ap_hold            (ap_hold),
