@@ -728,3 +728,80 @@ The clock: 55 MHz fails timing by 0.40 ns. Every one of the 12 worst paths
 runs `ifu_idcnt` -> `x_pd` (the IFU operand `A<-Id` through the ALU into Pd
 in one clock). Registering that operand ahead of C_EXEC is the next timing
 fix; the core stays at 50 MHz (+1.7 ns).
+
+### 8.5 Toward 1x: the sequencer (2026-11-01)
+
+Timing-only sequencer changes (commit 6c325d125). Each was checked with
+`make -C rtl_core test` and the Cedar lock-step; the full 270.7M listing run
+passes.
+
+| | clocks per microinstruction |
+|---|---|
+| start (after the background renderer) | 8.15 |
+| Fetch hit returns at once, Md from `cache_q` (no M_RD) | 7.61 |
+| IFU fetches do M_MAPA's work in the launching state | 7.17 |
+| IFU dispatch: OPW reads IFUM, AW does BETA | 6.64 |
+| C_PREF folded into the return | 6.6 |
+| read-ahead: C_FETCH executes (fexec) | 5.83 |
+| ...also after an IFUJump | 5.57 |
+| branch-condition RM read in the fexec clock (no C_NEXTRD) | 5.47 |
+| fetch hits skip M_BOOK; the dispatch-ending state does C_IFU_END | **4.98** |
+
+Galaxian: 6.38 -> 4.30. **MiSTer14: 0.38x -> 0.59x (9.85M/s)** at 48 MHz
+(+0.87 ns). At 50 MHz it misses by 0.016 ns on a Map RAM -> `m_wbway` path.
+Area 58% (was 47%).
+
+**The read-ahead, which is the subtle part.** C_NEXT (or the state that ends
+an IFU dispatch) reads IM at `pred_np`. That is a pure, combinational
+prediction of the next PC (`cond_pure_fn` is the branch test without the Cnt
+side effect). C_FINISH, if that read is fresh, latches `ex_u` from it and
+reads its RM/STK operand at `fin_rbase`/`fin_stkp`, the RBase and StkP
+C_FINISH leaves. `rms_byp` gives that read write-first behaviour beside the
+RAM; written inside the RAM, it stopped being block RAM, +8K ALMs.
+`rm_pre_ok` holds only if:
+
+- the prediction was the PC chosen;
+- the task is the same;
+- RBase and StkP are what the read used.
+
+C_FETCH then executes in the same clock (`fexec`), unless a host-port
+operation came first, I/O is busy, or the instruction is Read IM / Write IM.
+Those two need C_EXEC's IM read at Link: a Write IM executed in FETCH
+merged its half with the wrong word and corrupted IM, which is how the
+Initial.mb lock-step caught it.
+
+Three implementation rules learned the hard way:
+
+- **Call a big task from one place.** `exec_task` and `mem_row_task` each
+  inlined once per call site; two call sites took the core to 79% and 75%.
+  They run after the `case` now, under `do_exec` / `x_rowload`.
+- **Don't register a value at the end of the clocked block.** Its input is
+  then the whole clock's logic (`id_r1` at -1.77 ns). `id_r0/id_r1` are
+  computed at the top, from the start-of-clock IFU state, one clock behind,
+  which is right because the clock before any execute never changes the IFU.
+- **Quartus rejects `fn(...)[11:0]`.** Verilator accepts it.
+
+**Where the 4.98 goes.**
+
+| item | clocks per microinstruction |
+|---|---|
+| FETCH (with fexec) | 1.07 |
+| NEXT | 1.0 |
+| FINISH | 1.0 |
+| IFU OPW / DEC / AW | 0.69 |
+| MAPV, one per reference | 0.59 |
+| MAPA (CPU references) | 0.16 |
+| fallbacks: DEC / EXEC / NEXTRD | 0.27 |
+
+**Next, in order of payoff:**
+
+1. **Merge NEXT into FINISH** (about -0.74). The read-ahead would move to
+   the execute clock, predicted from `ex_u`. The risk is timing: the merged
+   clock chains the next-PC logic into the scheduler.
+2. **IFU prefetch.** Fetch the next opcode while the current one's
+   microcode runs, so OPW/DEC mostly vanish.
+3. **The 50 MHz path, then more clock.**
+
+1x is 16.67M/s: about 3 clocks per microinstruction at 50 MHz, or 4 at
+67 MHz. Items 1 and 2 reach about 4 clocks, so 1x also needs the clock
+near 67 MHz.
