@@ -398,11 +398,26 @@ The -0.99 ns path is a false one, structural: the tag compare -> `res_tag`
 -> `mem_fin` -> the fault wakeup -> the task scheduler (C_FINISH) -> `ctask`
 -> the BR read -> the VA adder -> `mem_req_va` (an execute clock). The
 scheduler and the execute never run in the same clock, but Quartus cannot
-know it. The cut is to consume a reference's result from registers one
-clock after it completes (a hit completes in C_NEXT; C_FINISH consumes it
-from registers and retires in the same clock, so nothing stalls), with the
-booking strobe registered likewise. That is the next commit; it also
-prepares the NEXT+FINISH merge, where every such path gets a clock longer.
+know it. **Cut (the following commit):** the processor consumes its
+reference's result from registers only (`res_valid_r`, `res_tag_r`,
+`md_r`...), one clock after a hit completes -- the hit completes in
+C_NEXT, C_FINISH consumes it from registers at the top of its clock and
+retires in the same clock, so nothing stalls; a pending request of the
+processor's own tag means the result shown is an older one. The booking
+strobe stays combinational but is applied at the *end* of the sequencer's
+clock, after the execute, so nothing reads it in the clock it happens
+(neither the scheduler nor the execute runs in a booking's clock anyway,
+and a tick before the booking leaves the MapBuf count's final state the
+same). Result: **48 MHz +0.84 ns, 62% ALMs**, and the worst paths are
+MiSTer's scaler. Two false starts recorded for the next person: a
+registered booking strobe made the execute wait a clock for it (3.22 ->
+3.49), and gating only the compare on it let the compare run one clock
+late, after the next execute (an `alu_zero` mismatch at step 23,951).
+
+The mailbox's status beat 8 now carries a free-running 24-bit fabric
+clock count above the 40-bit cycle count, and `dorado-hps` prints
+"clocks each" in its 20-second report: the clocks per microinstruction on
+the real board, which the rehearsal can only estimate.
 
 Rehearsal profile: C_FETCH 1.14 (0.14 waiting: byte references 0.09, I/O
 engines, the host port), C_DEC 0.13 (0.11 waiting for the I/O engines),

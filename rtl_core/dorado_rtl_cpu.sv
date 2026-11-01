@@ -420,6 +420,9 @@ module dorado_rtl_cpu
     logic [15:0]    md;                    // the section's Md, this clock's (the IFU takes it)
     logic [15:0]    md_r;                  // ...registered (the execute logic takes it)
     dm_fault_kind_t mem_res_fault_r;
+    logic           mem_res_valid_r, mem_res_miss_r;
+    logic [1:0]     mem_res_tag_r, mem_book_tag;
+    logic [7:0]     mem_res_latency_r;
     logic           mem_book_now, mem_book_push, mem_book_is_map;
     logic [3:0]     mem_book_srn;
     logic           mem_ap_req, mem_ap_done;
@@ -1405,17 +1408,17 @@ module dorado_rtl_cpu
     // C_PREF): Md for the task, and the fault wakeup.
     task automatic mem_pref_task();
         logic recorded_fault;
-        recorded_fault = (mem_res_fault != DM_FAULT_NONE) ||
+        recorded_fault = (mem_res_fault_r != DM_FAULT_NONE) ||
                          (fault_count != x_fcnt_before);
         evc_events |= EVC_EV_PROCREF;
-        if (mem_res_miss) evc_events |= EVC_EV_MISS;
+        if (mem_res_miss_r) evc_events |= EVC_EV_MISS;
 
-        if (mem_res_fault == DM_FAULT_NONE &&
+        if (mem_res_fault_r == DM_FAULT_NONE &&
             (x_kind == DM_REF_FETCH || x_kind == DM_REF_IFETCH ||
              x_kind == DM_REF_LONGFETCH)) begin
-            task_md[ctask]       = md;
+            task_md[ctask]       = md_r;
             task_md_valid[ctask] = 1'b1;
-            task_md_ready[ctask] = cycles + 64'(mem_res_latency);
+            task_md_ready[ctask] = cycles + 64'(mem_res_latency_r);
         end
 
         if (recorded_fault && x_kind != DM_REF_IFETCH && !mcr_nowake()) begin
@@ -1775,10 +1778,15 @@ module dorado_rtl_cpu
         .md               (md),
         .md_r             (md_r),
         .res_fault_r      (mem_res_fault_r),
+        .res_valid_r      (mem_res_valid_r),
+        .res_tag_r        (mem_res_tag_r),
+        .res_miss_r       (mem_res_miss_r),
+        .res_latency_r    (mem_res_latency_r),
         .book_now         (mem_book_now),
         .book_srn         (mem_book_srn),
         .book_push        (mem_book_push),
         .book_is_map      (mem_book_is_map),
+        .book_tag         (mem_book_tag),
         .ap_req           (mem_ap_req),
         .ap_op            (ap_op),
         .ap_we            (ap_we),
@@ -1900,9 +1908,13 @@ module dorado_rtl_cpu
     assign mem_spec2_va  = (pf_st == 3'd0) ? ifu_va_fn(pf_pcf) : ((ifu_va_fn(pf_pcf) + 28'd1) & 28'h0FFFFFFF);
     // the reference issued (mem_req) has completed: not before it is
     // accepted, and in the accept clock only if it completes then
-    assign mem_fin = mem_done && (mem_res_tag == TAG_PROC);
+    // (registers only: a hit completes in C_NEXT and is consumed in C_FINISH,
+    // which retires in the same clock; a pending request of the processor's
+    // own means the result shown is an older one)
+    assign mem_fin = mem_res_valid_r && (mem_res_tag_r == TAG_PROC) &&
+                     !(mem_req && mem_req_tag == TAG_PROC);
     // the dispatched bytes' references are booked before the processor's next
-    // instruction executes (or the assist runs, or the lock-step compares)
+    // instruction executes (or the assist runs, or the lock-step compares);
     assign ifu_bk_busy = (bk_n != 2'd0) || (mem_req && mem_req_tag == TAG_BK) ||
                          (mem_inflight && mem_inflight_tag == TAG_BK);
     assign cmp_done    = cmp_wait && !ifu_bk_busy;
@@ -2579,7 +2591,7 @@ module dorado_rtl_cpu
             // and Map<- order), the reference it completed (C_PREF's work),
             // the munch it moved.
             pf_st0 = pf_st;
-            if (cmp_wait && !ifu_bk_busy) cmp_wait = 1'b0;   // cmp_done was seen after last clock
+            if (cmp_done) cmp_wait = 1'b0;                   // it was seen after last clock
             if (mem_accepted) mem_req = 1'b0;
             if (mem_accepted2) mem_req2 = 1'b0;
             mem_fault_clear_stb = 1'b0;
@@ -2636,14 +2648,6 @@ module dorado_rtl_cpu
             if (mem_snoop_wr) begin
                 if (pf_v0 && mem_snoop_wr_addr == {pf_row0, pf_word0} && mem_snoop_wr_way == pf_way0) pf_v0 = 1'b0;
                 if (pf_v1 && mem_snoop_wr_addr == {pf_row1, pf_word1} && mem_snoop_wr_way == pf_way1) pf_v1 = 1'b0;
-            end
-            if (mem_book_now) begin
-                if (mem_book_push) pipe_mapbuf_busy[mem_book_srn] = 1'b0;
-                if (mem_book_is_map) begin
-                    pipe_mapbuf_busy[mem_book_srn] = 1'b1;
-                    mapbuf_busy_slot   = int'(mem_book_srn);
-                    mapbuf_busy_cycles = 9;
-                end
             end
             if (x_pref_pending && mem_fin) begin
                 mem_pref_task();
@@ -3229,6 +3233,20 @@ module dorado_rtl_cpu
                 // the instruction moved StkP or the subtask)
                 if (fexec && st == C_NEXTRD && StkP == fx_stkp && task_subtask[ctask] == fx_sub)
                     st = C_NEXT;
+            end
+
+            // The section's booking this clock, into the MapBuf count, after
+            // the sequencer's work and the execute (so nothing of either reads
+            // the section's hit test in the same clock; neither runs in a
+            // booking's clock anyway, and a tick before the booking leaves the
+            // count's final state the same).
+            if (mem_book_now) begin
+                if (mem_book_push) pipe_mapbuf_busy[mem_book_srn] = 1'b0;
+                if (mem_book_is_map) begin
+                    pipe_mapbuf_busy[mem_book_srn] = 1'b1;
+                    mapbuf_busy_slot   = int'(mem_book_srn);
+                    mapbuf_busy_cycles = 9;
+                end
             end
         end
     end

@@ -31,6 +31,8 @@ struct hps_config {
 struct hps_stats {
     uint64_t ops, reads, stores, rm_or, resched, rx_packets, tx_packets, tx_unsupported, unported;
     uint64_t rtl_cycles, host_bb_cycles, host_target;   // host_target: where the FPGA is, in BaseBoard cycles
+    uint64_t rtl_clocks;              // fabric clocks (status beat 8, top 24 bits, unwrapped)
+    uint32_t last_clk24;
 };
 
 // Restore the snapshot, load storage, start the core. 0 on success.

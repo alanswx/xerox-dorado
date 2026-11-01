@@ -73,16 +73,26 @@ module dorado_rtl_mem
     output dm_fault_kind_t res_fault,
     output logic           res_miss,
     output logic [7:0]     res_latency,
+    // the result as registers, one clock after a hit completes (the
+    // processor consumes its own from these: the hit test must not reach
+    // the scheduler in one clock)
+    output logic           res_valid_r,   // complete, until the next accept
+    output logic [1:0]     res_tag_r,
+    output logic           res_miss_r,
+    output logic [7:0]     res_latency_r,
     output logic [15:0]    md,            // the fetched word (with done_now, this clock's)
     output logic [15:0]    md_r,          // ...as registered: for the execute logic, which
                                           // never runs in a completing clock (timing)
     output dm_fault_kind_t res_fault_r,   // the registered fault, likewise
 
-    // ---- the booking, as it happens (for the processor's MapBuf count) ----
+    // ---- the booking, as it happens (for the processor's MapBuf count,
+    //      which it updates at the end of the clock: nothing reads these
+    //      combinationally)
     output logic           book_now,      // a reference is booked this clock
     output logic [3:0]     book_srn,      // ...into this Pipe entry
     output logic           book_push,     // ...which is (re)written (pipe_push)
     output logic           book_is_map,   // ...by a Map<-
+    output logic [1:0]     book_tag,      // ...for this requester
 
     // ---- the assist (host port): a word read or written at a VA ----------
     input  logic           ap_req,
@@ -1107,6 +1117,9 @@ module dorado_rtl_mem
     logic           c_use_asrn;
     logic [3:0]     c_srn;
     logic [15:0]    md_now;
+    logic           bk_now_c, bk_push_c, bk_map_c;   // the booking this clock (comb)
+    logic [3:0]     bk_srn_c;
+    logic [1:0]     bk_tag_c;
     logic           c_ap_hit;      // the assist's own test: valid and tag only
     logic [1:0]     c_ap_way;
 
@@ -1171,10 +1184,11 @@ module dorado_rtl_mem
         end
 
         // the booking clock: the first one when no second is needed, else that
-        book_now    = ((b1_now && !c_need_book2) || (ms == S_BOOK2)) && !c_peek;
-        book_srn    = c_srn;
-        book_push   = pipe_push_ok(c_srn, c_kind);
-        book_is_map = (c_kind == DM_REF_MAP);
+        bk_now_c  = ((b1_now && !c_need_book2) || (ms == S_BOOK2)) && !c_peek;
+        bk_srn_c  = c_srn;
+        bk_push_c = pipe_push_ok(c_srn, c_kind);
+        bk_map_c  = (c_kind == DM_REF_MAP);
+        bk_tag_c  = c_tag;
     end
 
     // (apart, so the decisions above do not read spec_req: nothing of theirs
@@ -1197,7 +1211,7 @@ module dorado_rtl_mem
     // back, the row registers already hold it, as booked, and are kept.
     assign ld_va = spec_take ? spec_va : spec_take2 ? spec2_va : accept_now ? req_va : ap_va;
     assign ld_en = (spec_take || spec_take2 || (accept_now && !spec_ok) || ap_accept) &&
-                   !(book_now && va_cache_row(ld_va) == va_cache_row(c_va));
+                   !(bk_now_c && va_cache_row(ld_va) == va_cache_row(c_va));
 
     // ---- outputs --------------------------------------------------------------
     assign accepted    = accept_now;
@@ -1209,7 +1223,7 @@ module dorado_rtl_mem
     assign inflight_tag = m_tag;
     // the snoop: any booking in the row but a plain hit (misses change a
     // tag, Flush/IOStore/CFlags<- the flags, the assist a valid bit)
-    assign snoop_row_stb = (book_now && !(c_fetch_hit || c_store_hit)) ||
+    assign snoop_row_stb = (bk_now_c && !(c_fetch_hit || c_store_hit)) ||
                            (ms == S_ABOOK) || cflags_stb;
     assign snoop_row     = cflags_stb ? 6'(last_cache_row) :
                            (ms == S_ABOOK) ? va_cache_row(m_va) : va_cache_row(c_va);
@@ -1224,6 +1238,15 @@ module dorado_rtl_mem
     assign md          = (done_now || peek_hit) ? md_now : md_q;   // a peek's word too
     assign md_r        = md_q;
     assign res_fault_r = m_fault;
+    assign book_now    = bk_now_c;
+    assign book_srn    = bk_srn_c;
+    assign book_push   = bk_push_c;
+    assign book_is_map = bk_map_c;
+    assign book_tag    = bk_tag_c;
+    assign res_valid_r   = res_valid;
+    assign res_tag_r     = m_tag;
+    assign res_miss_r    = last_ref_miss;
+    assign res_latency_r = 8'(last_ref_latency);
     assign fault_info  = get_fault_info();
     assign config_word = get_config_word();
     assign read_map    = {map_wp_q, map_dirty_q, map_ref_q, map_rp_q[12:0]};

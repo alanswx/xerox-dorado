@@ -115,6 +115,7 @@ module dorado_rtl_mailbox #(
     logic        burst;            // the last poll found a command
     logic [15:0] poll_t;
     logic [15:0] status_t;
+    logic [23:0] clk_cnt;          // free-running: the host measures fabric clocks per microinstruction
     logic [15:0] status_n;
     logic [15:0] tx_count;
     logic [15:0] rxload_count;     // receive fills done (status: freshness of rx_drained)
@@ -162,6 +163,7 @@ module dorado_rtl_mailbox #(
         if (aux_ack) aux_req <= 1'b0;
         if (poll_t != 16'd0)   poll_t   <= poll_t - 16'd1;
         if (status_t != 16'd0) status_t <= status_t - 16'd1;
+        clk_cnt <= clk_cnt + 24'd1;
         if (rst) begin
             st       <= M_CLR;
             go       <= 1'b0;
@@ -224,7 +226,7 @@ module dorado_rtl_mailbox #(
             end
             M_STATUS: if (!aux_req || aux_ack) begin
                 case (sbeat)
-                2'd0: beat_wr(B_STATUS,          cycles);
+                2'd0: beat_wr(B_STATUS,          {clk_cnt, cycles[39:0]});
                 2'd1: beat_wr(B_STATUS + 29'd1,  kbd_words);
                 2'd2: beat_wr(B_STATUS + 29'd2,  {mouse_x, mouse_y, 6'd0, mouse_present,
                                                   mouse_buttons, 4'd0, rx_drained, rx_on, status_n});

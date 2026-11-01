@@ -125,7 +125,12 @@ void read_status() {
     barrier();
     uint64_t b8 = T.mb[B_STATUS], b9 = T.mb[B_STATUS + 1];
     uint64_t b10 = T.mb[B_STATUS + 2], b11 = T.mb[B_STATUS + 3];
-    S.rtl_cycles = b8;
+    S.rtl_cycles = b8 & 0xFFFFFFFFFFull;
+    {
+        uint32_t c = (uint32_t)(b8 >> 40) & 0xFFFFFFu;
+        S.rtl_clocks += (c - S.last_clk24) & 0xFFFFFFu;
+        S.last_clk24 = c;
+    }
     status_drained = (b10 >> 17) & 1;
     status_tx      = (uint16_t)(b11 >> 16);
     status_rxloads = (uint16_t)(b11 >> 32);
@@ -248,6 +253,7 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
     while ((uint16_t)T.mb[B_STATUS + 2] == 0) T.wait(T.ctx);    // the first status
     read_status();
     cyc0 = S.rtl_cycles;
+    S.rtl_clocks = 0;
     bb0 = dorado_machine_cycles(M);
     shipped_gen = dorado_ethernet_rx_generation;   // the checkpoint's packet is in the image
     shipped = ETH->rx_count > 0;

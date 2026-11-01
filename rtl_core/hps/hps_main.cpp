@@ -113,6 +113,7 @@ int main(int argc, char **argv) {
     const hps_stats *S = hps_get_stats();
     double t0 = now_s(), tl = t0;
     uint64_t c0 = S->rtl_cycles, cl = c0;
+    uint64_t kl = S->rtl_clocks;
     dorado_machine *M = (dorado_machine *)hps_machine();
     static dorado_typequeue tq;
     int click = 0;
@@ -148,9 +149,11 @@ int main(int argc, char **argv) {
         }
         if (tn - tl >= every || want_pgm) {
             double mips = (S->rtl_cycles - cl) / (tn - tl) / 1e6;
-            printf("[hps] %.0f s: %llu microinstructions (%.2f M/s = %.2fx a Dorado); "
+            double cpi  = (double)(S->rtl_clocks - kl) / (double)(S->rtl_cycles > cl ? S->rtl_cycles - cl : 1);
+            kl = S->rtl_clocks;
+            printf("[hps] %.0f s: %llu microinstructions (%.2f M/s = %.2fx a Dorado, %.2f clocks each); "
                    "%llu ops, %llu reads, %llu packets in, %llu out\n",
-                   tn - t0, (unsigned long long)(S->rtl_cycles - c0), mips, mips / 16.67,
+                   tn - t0, (unsigned long long)(S->rtl_cycles - c0), mips, mips / 16.67, cpi,
                    (unsigned long long)S->ops, (unsigned long long)S->reads,
                    (unsigned long long)S->rx_packets, (unsigned long long)S->tx_packets);
             printf("[hps] host loop: %.1f ms of guest time behind the FPGA\n",
