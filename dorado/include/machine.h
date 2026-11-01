@@ -169,7 +169,21 @@ int dorado_machine_boot_is_mesa_outload(const dorado_machine *m);
  * each costs one test per microinstruction. The step hook is called with
  * after=0 just before dorado_cpu_step (after the host services for that
  * step have run) and with after=1 just after it; a nonzero return stops
- * dorado_machine_run_until. */
+ * dorado_machine_run_until -- except that DORADO_STEP_HOOK_SKIP from the
+ * after=0 call skips this machine's CPU step and goes on to the after=1
+ * call. That is the split harness's mode: the RTL is the CPU and this
+ * machine supplies only its host services and devices. */
+#define DORADO_STEP_HOOK_SKIP 2
+/* A skipped step accounts this many microinstructions (default 1), and the
+ * germ IOCB poll runs every this many BaseBoard cycles (default 64): see
+ * machine.c. Set by the HPS host, where guest-memory reads are slow. */
+extern unsigned dorado_machine_skip_quantum;
+/* Nonzero when this machine's CPU is not the one running (the RTL split
+ * harness, the HPS host): probes whose only use is to wake this machine's
+ * own CPU -- the Alto display-active scan, a DCB-chain walk every scan line
+ * -- are skipped, since each guest read there is an FPGA round trip. */
+extern int dorado_machine_host_only;
+extern uint64_t dorado_machine_germ_poll_interval;
 typedef int (*dorado_machine_step_hook_fn)(dorado_machine *m, int after);
 extern dorado_machine_step_hook_fn dorado_machine_step_hook;
 /* The machine's parts, for that harness. */
@@ -181,6 +195,7 @@ struct dorado_io *dorado_machine_io(dorado_machine *m);
 
 /* The display device (for framebuffer access / snapshot). */
 dorado_display *dorado_machine_display(dorado_machine *m);
+struct dorado_ethernet *dorado_machine_ethernet(dorado_machine *m);
 
 /* Print a one-line Ethernet/EFTP/display state summary to stderr. */
 void dorado_machine_debug(dorado_machine *m);

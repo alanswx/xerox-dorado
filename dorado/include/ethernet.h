@@ -353,4 +353,10 @@ int dorado_ethernet_breath_of_life(dorado_ethernet *eth);
  * for one before its contexts run. */
 int dorado_ethernet_time_broadcast(dorado_ethernet *eth);
 
+/* See ethernet.c: incremented each time the receive queue is restarted. */
+extern unsigned long dorado_ethernet_rx_generation;
+
+/* The guest has read the last word of the queued packet (see ethernet.c). */
+void dorado_ethernet_rx_consumed(dorado_ethernet *eth);
+
 #endif

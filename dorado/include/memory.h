@@ -501,8 +501,24 @@ uint16_t dorado_visible_word_at_va(const dorado_memory *mem, uint32_t va);
 /* Called after every host-side (not microcode) write into storage or the
  * cache at `va`: machine.c's coherent stores, dorado_storage_store_at_va,
  * dorado_poke_va and dorado_memory_host_io_write. For the RTL lock-step
- * harness, which mirrors the write into the RTL; NULL otherwise. */
-extern void (*dorado_host_write_hook)(struct dorado_memory *mem, uint32_t va);
+ * harness, which mirrors the write into the RTL; NULL otherwise. `kind`
+ * says what the routine did to the cache (each has its own effect), and
+ * `value` is the word written. */
+enum {
+    DORADO_HOST_WRITE_UPDATE = 0,     /* machine_store_va, dorado_poke_va: any
+                                         resident line updated in place */
+    DORADO_HOST_WRITE_INVALIDATE = 1, /* dorado_storage_store_at_va: the
+                                         resident line dropped */
+    DORADO_HOST_WRITE_FILL = 2        /* dorado_memory_host_io_write: the
+                                         line filled and the word set in it */
+};
+extern void (*dorado_host_write_hook)(struct dorado_memory *mem, uint32_t va,
+                                      uint16_t value, int kind);
+
+/* When set, dorado_visible_word_at_va (the host's coherent read) is
+ * answered by this instead of the cache and storage here: the RTL split
+ * harness, whose memory is the RTL's. NULL otherwise. */
+extern uint16_t (*dorado_host_read_hook)(const struct dorado_memory *mem, uint32_t va);
 
 /* Inject one word supplied by an emulated memory-mapped I/O device into the
  * virtually addressed cache without writing its mapped backing page. */

@@ -775,6 +775,11 @@ module dorado_rtl_cpu
         wb_way = 2'd0; fill_way = 2'd0; word_way = 2'd0; io_way = 2'd0;
         wb_phys = 32'd0; fill_phys = 32'd0; io_base = 32'd0;
         word_off = 4'd0; word_data = 16'd0; mcnt = 5'd0;
+`ifdef DORADO_CHECKPOINT
+        // A checkpoint build powers up in a saved machine state (reset_cpu
+        // runs first, so this covers both): sim_cedar.cpp CEDAR_DUMP_INIT.
+`include "checkpoint_cpu.svh"
+`endif
     endtask
 
     task automatic fault_clear();
@@ -2095,6 +2100,9 @@ module dorado_rtl_cpu
         $readmemh("init/map_wp.hex", map_wp);
         $readmemh("init/map_dirty.hex", map_dirty);
         $readmemh("init/map_ref.hex", map_ref);
+`ifdef DORADO_CHECKPOINT
+        $readmemh("init/cache_data.hex", cache_data);
+`endif
     end
 `endif
 

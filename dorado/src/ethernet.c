@@ -180,8 +180,15 @@ static void eth_trace(const dorado_ethernet *eth, const char *op,
             eth->rx_pos, eth->rx_count);
 }
 
+/* Bumped whenever the receive queue is restarted for a new packet (every
+ * queueing path begins with eth_clear_rx), so the RTL split harness can tell
+ * a newly queued packet from the one it already handed to the RTL. A
+ * file-scope static, not a member: a member would change the snapshot ABI. */
+unsigned long dorado_ethernet_rx_generation;
+
 static void eth_clear_rx(dorado_ethernet *eth)
 {
+    dorado_ethernet_rx_generation++;
     /* Debug: a reply the Alto has not finished reading (rx_pos < rx_count)
      * being dropped here means the single shared rx buffer clobbered a
      * pending socket reply before NetExec consumed it. */
@@ -4380,6 +4387,23 @@ int dorado_ethernet_time_broadcast(dorado_ethernet *eth)
     return 1;
 }
 
+/* The guest has read the last word of the queued packet. Called by eth_read
+ * here, and by the RTL split harness and the HPS host, whose receiver is the
+ * RTL's, when it reports the packet drained. */
+void dorado_ethernet_rx_consumed(dorado_ethernet *eth)
+{
+    if (!eth->ftp_enabled || !eth->ftp_open || eth_wire_model()) return;
+    if (ftp_trace() && eth->rx_count >= 6) {
+        fprintf(stderr, "FTP_RX_CONSUMED type=0o%o id=%08x words=%zu\n",
+                eth->rx_words[3], pup_id32(eth->rx_words[4],
+                                            eth->rx_words[5]),
+                eth->rx_count);
+    }
+    /* Let the EIT tail execute its source-defined WaitForBOP before the
+     * fake server makes the next BSP segment visible. */
+    eth->rx_hold = DORADO_ETH_STP_INTERPACKET_TICKS;
+}
+
 static uint16_t eth_read(void *ctx, int task, int subtask,
                          uint8_t tioa, int *bad)
 {
@@ -4430,18 +4454,7 @@ static uint16_t eth_read(void *ctx, int task, int subtask,
         eth->rx_count > 3 && eth->rx_words[3] == DORADO_PUP_TYPE_BOOTDIR_REPLY)
         fprintf(stderr, "[bootdir] 260b reply CONSUMED by the Alto "
                 "(%zu words read)\n", eth->rx_count);
-    if (eth->rx_pos == eth->rx_count && eth->ftp_enabled && eth->ftp_open &&
-        !eth_wire_model()) {
-        if (ftp_trace() && eth->rx_count >= 6) {
-            fprintf(stderr, "FTP_RX_CONSUMED type=0o%o id=%08x words=%zu\n",
-                    eth->rx_words[3], pup_id32(eth->rx_words[4],
-                                                eth->rx_words[5]),
-                    eth->rx_count);
-        }
-        /* Let the EIT tail execute its source-defined WaitForBOP before the
-         * fake server makes the next BSP segment visible. */
-        eth->rx_hold = DORADO_ETH_STP_INTERPACKET_TICKS;
-    }
+    if (eth->rx_pos == eth->rx_count) dorado_ethernet_rx_consumed(eth);
     eth_trace(eth, "read", task, tioa, word);
     return word;
 }

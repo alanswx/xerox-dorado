@@ -473,6 +473,37 @@ extern int dorado_mem_trace_ac3;
 #define BB_IDLE_AFTER_UOPS   40000000ull  /* boot is ~9 M microinstructions */
 #define BB_IDLE_TOUCH_WINDOW 16000000ull  /* stay awake after a CPReg access */
 static uint64_t bb_idle_last_touch_uop;
+
+/* The BaseBoard's share of one microinstruction from IM. Suppress the idle
+ * BaseBoard once boot is well behind us and the Dorado has not touched CPReg
+ * recently; advance the master clock at the rate real stepping averages. See
+ * BB_IDLE_AFTER_UOPS above for why this is safe and what must stay true.
+ * DORADO_BB_ALWAYS_STEP=1 restores unconditional stepping for bisecting. */
+static void baseboard_tick_uop(dorado_cpu *cpu)
+{
+    if (!cpu->baseboard || cpu->baseboard_cycles_per_uop <= 0) return;
+    static int bb_idle_disabled = -1;
+    if (bb_idle_disabled < 0)
+        bb_idle_disabled = getenv("DORADO_BB_ALWAYS_STEP") ? 1 : 0;
+    if (!bb_idle_disabled &&
+        cpu->cycles > BB_IDLE_AFTER_UOPS &&
+        cpu->cycles - bb_idle_last_touch_uop > BB_IDLE_TOUCH_WINDOW) {
+        /* 3.70 cycles per microinstruction, carried in hundredths
+         * so the clock does not drift against the real average. */
+        static unsigned acc = 0;
+        acc += 370;
+        cpu->baseboard->cycles += acc / 100u;
+        acc %= 100u;
+    } else {
+        baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
+    }
+}
+
+void dorado_cpu_skip_step(dorado_cpu *cpu)
+{
+    cpu->cycles++;
+    baseboard_tick_uop(cpu);
+}
 #define DORADO_TASKSIM_TASK       012   /* HM §3.12 TASKSIM wakeup target: task 0o12
                                          * (=10 dec), backplane-jumpered; the kernel
                                          * TestTW + Postamble "Task12" simulator */
@@ -6662,29 +6693,7 @@ memory_ref_done: ;
     if (from_im) {
         cpu->cycles++;
         if (cpu->mem) dorado_memory_tick(cpu->mem);
-        if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0) {
-            /* Suppress the idle BaseBoard once boot is well behind us and
-             * the Dorado has not touched CPReg recently; advance the master
-             * clock at the rate real stepping averages. See
-             * BB_IDLE_AFTER_UOPS above for why this is safe and what must
-             * stay true. DORADO_BB_ALWAYS_STEP=1 restores unconditional
-             * stepping for bisecting. */
-            static int bb_idle_disabled = -1;
-            if (bb_idle_disabled < 0)
-                bb_idle_disabled = getenv("DORADO_BB_ALWAYS_STEP") ? 1 : 0;
-            if (!bb_idle_disabled &&
-                cpu->cycles > BB_IDLE_AFTER_UOPS &&
-                cpu->cycles - bb_idle_last_touch_uop > BB_IDLE_TOUCH_WINDOW) {
-                /* 3.70 cycles per microinstruction, carried in hundredths
-                 * so the clock does not drift against the real average. */
-                static unsigned acc = 0;
-                acc += 370;
-                cpu->baseboard->cycles += acc / 100u;
-                acc %= 100u;
-            } else {
-                baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
-            }
-        }
+        baseboard_tick_uop(cpu);
     }
 
     /* IFU warmup tick. Each cycle the pipeline is filling, this

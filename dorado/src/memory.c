@@ -1173,7 +1173,9 @@ int dorado_cache_lookup(const dorado_memory *mem, uint32_t va, int *out_way)
     return 0;
 }
 
-void (*dorado_host_write_hook)(struct dorado_memory *mem, uint32_t va) = NULL;
+void (*dorado_host_write_hook)(struct dorado_memory *mem, uint32_t va,
+                               uint16_t value, int kind) = NULL;
+uint16_t (*dorado_host_read_hook)(const struct dorado_memory *mem, uint32_t va) = NULL;
 
 uint16_t dorado_storage_at_va(const dorado_memory *mem, uint32_t va)
 {
@@ -1204,13 +1206,14 @@ int dorado_storage_store_at_va(dorado_memory *mem, uint32_t va, uint16_t val)
             row->ways[w].vacant = 0;
         }
     }
-    if (dorado_host_write_hook) dorado_host_write_hook(mem, va);
+    if (dorado_host_write_hook) dorado_host_write_hook(mem, va, val, DORADO_HOST_WRITE_INVALIDATE);
     return 0;
 }
 
 uint16_t dorado_visible_word_at_va(const dorado_memory *mem, uint32_t va)
 {
     int way;
+    if (dorado_host_read_hook) return dorado_host_read_hook(mem, va);
     if (dorado_cache_lookup(mem, va, &way)) {
         const dorado_cache_line *line = &mem->cache[va_cache_row(va)].ways[way];
         return line->data[va_cache_offset(va)];
@@ -1245,7 +1248,7 @@ void dorado_poke_va(dorado_memory *mem, uint32_t va, uint16_t value)
         dorado_cache_line *line = &mem->cache[row].ways[way];
         if (line->valid && line->tag == tag) line->data[off] = value;
     }
-    if (dorado_host_write_hook) dorado_host_write_hook(mem, va);
+    if (dorado_host_write_hook) dorado_host_write_hook(mem, va, value, DORADO_HOST_WRITE_UPDATE);
 }
 
 /* Pick a way for a new fill in the row containing `va`. Prefer an
@@ -1415,7 +1418,7 @@ void dorado_memory_host_io_write(dorado_memory *mem, uint32_t va,
          * alias during a later eviction. */
         line->dirty = 0;
     }
-    if (dorado_host_write_hook) dorado_host_write_hook(mem, va);
+    if (dorado_host_write_hook) dorado_host_write_hook(mem, va, value, DORADO_HOST_WRITE_FILL);
 }
 
 /* Invalidate any cache entry for the munch containing `va`. Used by

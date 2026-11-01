@@ -552,6 +552,13 @@ static void machine_boot_switches_parse(const char *text)
  * restore. Resetting to 0 after a restore only makes the next poll happen
  * immediately, which is the safe direction. */
 #define GERM_POLL_INTERVAL 64ull
+/* The RTL split / HPS host: how many microinstructions one skipped step
+ * stands for, and the germ poll interval in BaseBoard cycles. On the ARM a
+ * guest-memory read is a mailbox round trip, so the host advances in coarse
+ * steps and polls less often. Defaults keep the native behaviour. */
+unsigned dorado_machine_skip_quantum = 1;
+int dorado_machine_host_only = 0;
+uint64_t dorado_machine_germ_poll_interval = GERM_POLL_INTERVAL;
 static uint64_t machine_germ_last_poll;
 /* Fields to hold each buffered key transition before applying the next.
  *
@@ -1045,7 +1052,8 @@ static void machine_store_va(dorado_memory *mem, uint32_t va, uint16_t value)
         dorado_cache_line *line = &mem->cache[row].ways[way];
         if (line->valid && line->tag == tag) line->data[off] = value;
     }
-    if (dorado_host_write_hook) dorado_host_write_hook(mem, va);
+    if (dorado_host_write_hook)
+        dorado_host_write_hook(mem, va, value, DORADO_HOST_WRITE_UPDATE);
 }
 
 static int alto_rda_to_vda(uint16_t rda, int cylinders, int sectors, int *vda)
@@ -3821,7 +3829,7 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
          * Alto, Lisp and Smalltalk are untouched: germ_word_count is 0
          * there, so this block never ran for them in the first place. */
         if (m->germ_word_count && (bb->cycles - machine_germ_last_poll >=
-                                   GERM_POLL_INTERVAL)) {
+                                   dorado_machine_germ_poll_interval)) {
             machine_germ_last_poll = bb->cycles;
             /* Complete the germ's disk IOCBs. Default: direct PDI copy. Under
              * --disk-real: the same IOCB bridge, but each page is read through
@@ -4180,8 +4188,20 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         machine_cedar_io(m, bb, disp);
 
         uint64_t ifu_dispatch_before = cpu->ifu_dispatch_count;
-        if (dorado_machine_step_hook && dorado_machine_step_hook(m, 0)) break;
-        if (dorado_cpu_step(cpu)) break;
+        if (dorado_machine_step_hook) {
+            int h = dorado_machine_step_hook(m, 0);
+            if (h == DORADO_STEP_HOOK_SKIP) {
+                /* The harness's RTL takes this step. Keep time as
+                 * dorado_cpu_step does for one microinstruction from IM:
+                 * the host services are paced by the BaseBoard clock. */
+                for (unsigned q = 0; q < dorado_machine_skip_quantum; q++)
+                    dorado_cpu_skip_step(cpu);
+            } else if (h) {
+                break;
+            } else if (dorado_cpu_step(cpu)) {
+                break;
+            }
+        } else if (dorado_cpu_step(cpu)) break;
         if (dorado_machine_step_hook && dorado_machine_step_hook(m, 1)) break;
         if (m->ether_loaded_world_cycle &&
             cpu->ifu_dispatch_count != ifu_dispatch_before &&
@@ -4397,7 +4417,8 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
              * to non-germ (Alto/Interlisp) worlds below. */
             /* Recomputed on the scanline cadence, not per cycle: see
              * machine_display_active_cached. */
-            if (bb->cycles >= machine_display_active_next_cycle) {
+            if (!dorado_machine_host_only &&
+                bb->cycles >= machine_display_active_next_cycle) {
                 int active = machine_alto_display_active(&m->mem) &&
                              (!m->germ_word_count || m->germ_data_done);
                 if (!m->germ_word_count)
@@ -4902,6 +4923,11 @@ void dorado_machine_set_mouse_buttons(dorado_machine *m, int buttons)
      * pointer position is maintained by the guest's delta accumulator. */
     dorado_display_keyboard_set_word(&m->display, 4,
                                      (uint16_t)~((unsigned)buttons & 07u));
+}
+
+struct dorado_ethernet *dorado_machine_ethernet(dorado_machine *m)
+{
+    return m ? &m->ethernet : NULL;
 }
 
 dorado_display *dorado_machine_display(dorado_machine *m)

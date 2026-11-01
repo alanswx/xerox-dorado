@@ -15,7 +15,12 @@ module dorado_rtl_top
     parameter int BOOT_WORDS    = 28619,
     parameter     BOOT_HEX      = "roms/bootfile.hex",
     parameter     BOL_HEX       = "roms/bol.hex",
-    parameter bit EXT_STORAGE   = 1'b0           // 1: storage on the sto_* port (MiSTer: DDR3)
+    parameter bit EXT_STORAGE   = 1'b0,          // 1: storage on the sto_* port (MiSTer: DDR3)
+    // 1 (with EXT_STORAGE): the HPS drives the host port and the Ethernet
+    // receive buffer through a mailbox in DDR3 (dorado_rtl_mailbox) instead
+    // of the hp_* / hx_rx_* ports, storage is not cleared at reset (the HPS
+    // loads it), and the core is held until the HPS says go.
+    parameter bit HPS_MAILBOX   = 1'b0
 ) (
     input  logic        clk,
     input  logic        rst,
@@ -62,6 +67,19 @@ module dorado_rtl_top
     output logic        hp_done,
     output logic [15:0] hp_rd,
     output logic        hp_between,    // the CPU is between microinstructions
+
+    // Ethernet receive buffer fill from the host (the HPS's Pup/STP server),
+    // used when the boot server is off: words (with their attention flags)
+    // at hx_rx_wr_addr, then hx_rx_load with the packet length. hx_rx_on and
+    // hx_rx_drained report the receiver (RxOn; every loaded word read).
+    input  logic        hx_rx_wr_en,
+    input  logic [11:0] hx_rx_wr_addr,
+    input  logic [15:0] hx_rx_wr_data,
+    input  logic        hx_rx_wr_att,
+    input  logic        hx_rx_load,
+    input  logic [12:0] hx_rx_load_count,
+    output logic        hx_rx_on,
+    output logic        hx_rx_drained,
 
     // External Slow I/O override (used when io_bridge_en=0)
     input  logic        io_attached,
@@ -126,6 +144,19 @@ module dorado_rtl_top
     logic [11:0]    srv_rx_wr_addr;
     logic [15:0]    srv_rx_wr_data;
     logic [12:0]    srv_rx_load_count;
+    logic           rx_wr_en, rx_wr_att, rx_load;
+    logic [11:0]    rx_wr_addr;
+    logic [15:0]    rx_wr_data;
+    logic [12:0]    rx_load_count;
+    wire            srv_on = bootsrv_en && io_bridge_en;
+    assign rx_wr_en      = srv_on ? srv_rx_wr_en      : HPS_MAILBOX ? mb_rx_wr_en      : hx_rx_wr_en;
+    assign rx_wr_addr    = srv_on ? srv_rx_wr_addr    : HPS_MAILBOX ? mb_rx_wr_addr    : hx_rx_wr_addr;
+    assign rx_wr_data    = srv_on ? srv_rx_wr_data    : HPS_MAILBOX ? mb_rx_wr_data    : hx_rx_wr_data;
+    assign rx_wr_att     = srv_on ? srv_rx_wr_att     : HPS_MAILBOX ? mb_rx_wr_att     : hx_rx_wr_att;
+    assign rx_load       = srv_on ? srv_rx_load       : HPS_MAILBOX ? mb_rx_load       : hx_rx_load;
+    assign rx_load_count = srv_on ? srv_rx_load_count : HPS_MAILBOX ? mb_rx_load_count : hx_rx_load_count;
+    assign hx_rx_on      = io_rx_on;
+    assign hx_rx_drained = io_rx_drained;
     logic [9:0]     srv_tx_rd_addr;
     logic [15:0]    io_tx_rd_data;
     logic           io_rx_on, io_rx_drained;
@@ -138,14 +169,39 @@ module dorado_rtl_top
     logic [27:0]    as_va;
     logic [15:0]    as_wd;
     wire            assist_on = assist_en && io_bridge_en;
-    assign ap_hold  = assist_on ? as_hold  : hp_hold;
-    assign ap_req   = assist_on ? as_req   : hp_req;
-    assign ap_op    = assist_on ? AP_ASSIST : hp_op;
-    assign ap_we    = assist_on ? as_we    : hp_we;
+    // the host port and receive fill: from the pins, or the mailbox
+    logic           h_hold, h_req, h_we, h_cache;
+    logic [2:0]     h_op;
+    logic [27:0]    h_va;
+    logic [15:0]    h_wd;
+    logic           mb_hold, mb_req, mb_we, mb_cache, mb_go;
+    logic [2:0]     mb_op;
+    logic [27:0]    mb_va;
+    logic [15:0]    mb_wd;
+    logic           mb_rx_wr_en, mb_rx_wr_att, mb_rx_load;
+    logic [11:0]    mb_rx_wr_addr;
+    logic [15:0]    mb_rx_wr_data;
+    logic [12:0]    mb_rx_load_count;
+    logic [9:0]     mb_tx_rd_addr;
+    logic           aux_req, aux_we, aux_ack;
+    logic [28:0]    aux_addr;
+    logic [63:0]    aux_wdata, aux_rdata;
+    logic [7:0]     aux_be;
+    assign h_hold  = HPS_MAILBOX ? mb_hold  : hp_hold;
+    assign h_req   = HPS_MAILBOX ? mb_req   : hp_req;
+    assign h_op    = HPS_MAILBOX ? mb_op    : hp_op;
+    assign h_we    = HPS_MAILBOX ? mb_we    : hp_we;
+    assign h_cache = HPS_MAILBOX ? mb_cache : hp_cache;
+    assign h_va    = HPS_MAILBOX ? mb_va    : hp_va;
+    assign h_wd    = HPS_MAILBOX ? mb_wd    : hp_wd;
+    assign ap_hold  = assist_on ? as_hold  : h_hold;
+    assign ap_req   = assist_on ? as_req   : h_req;
+    assign ap_op    = assist_on ? AP_ASSIST : h_op;
+    assign ap_we    = assist_on ? as_we    : h_we;
     assign ap_stk   = assist_on ? as_stk   : 1'b0;
-    assign ap_cache = assist_on ? as_cache : hp_cache;
-    assign ap_va    = assist_on ? as_va    : hp_va;
-    assign ap_wd    = assist_on ? as_wd    : hp_wd;
+    assign ap_cache = assist_on ? as_cache : h_cache;
+    assign ap_va    = assist_on ? as_va    : h_va;
+    assign ap_wd    = assist_on ? as_wd    : h_wd;
     assign hp_done  = !assist_on && ap_done;
     assign hp_rd    = ap_rd;
     assign hp_between = cpu_between;
@@ -212,10 +268,17 @@ module dorado_rtl_top
 
     generate
         if (EXT_STORAGE) begin : g_ddr
-            dorado_rtl_storage_ddr #(.STORAGE_WORDS(STORAGE_WORDS)) u_ddr (
+            dorado_rtl_storage_ddr #(.STORAGE_WORDS(STORAGE_WORDS), .CLEAR(!HPS_MAILBOX)) u_ddr (
                 .clk              (clk),
                 .rst              (rst),
                 .ready            (sto_ready),
+                .aux_req          (aux_req),
+                .aux_we           (aux_we),
+                .aux_addr         (aux_addr),
+                .aux_wdata        (aux_wdata),
+                .aux_be           (aux_be),
+                .aux_ack          (aux_ack),
+                .aux_rdata        (aux_rdata),
                 .req              (sto_req),
                 .we               (sto_we),
                 .addr             (sto_addr),
@@ -235,6 +298,8 @@ module dorado_rtl_top
                 .DDRAM_WE         (DDRAM_WE)
             );
         end else begin : g_no_ddr
+            assign aux_ack        = 1'b0;
+            assign aux_rdata      = 64'd0;
             assign ddr_dbg        = 64'd0;
             assign sto_ready      = 1'b1;
             assign sto_ack        = 1'b0;
@@ -247,7 +312,57 @@ module dorado_rtl_top
             assign DDRAM_WE       = 1'b0;
         end
     endgenerate
-    assign core_rst = rst || !sto_ready;
+    generate
+        if (EXT_STORAGE && HPS_MAILBOX) begin : g_mailbox
+            dorado_rtl_mailbox u_mb (
+                .clk           (clk),
+                .rst           (rst || !sto_ready),
+                .go            (mb_go),
+                .aux_req       (aux_req),
+                .aux_we        (aux_we),
+                .aux_addr      (aux_addr),
+                .aux_wdata     (aux_wdata),
+                .aux_be        (aux_be),
+                .aux_ack       (aux_ack),
+                .aux_rdata     (aux_rdata),
+                .hp_hold       (mb_hold),
+                .hp_req        (mb_req),
+                .hp_op         (mb_op),
+                .hp_we         (mb_we),
+                .hp_cache      (mb_cache),
+                .hp_va         (mb_va),
+                .hp_wd         (mb_wd),
+                .hp_done       (ap_done && !assist_on),
+                .hp_rd         (ap_rd),
+                .hp_between    (cpu_between),
+                .rx_wr_en      (mb_rx_wr_en),
+                .rx_wr_addr    (mb_rx_wr_addr),
+                .rx_wr_data    (mb_rx_wr_data),
+                .rx_wr_att     (mb_rx_wr_att),
+                .rx_load       (mb_rx_load),
+                .rx_load_count (mb_rx_load_count),
+                .rx_on         (io_rx_on),
+                .rx_drained    (io_rx_drained),
+                .tx_packet_stb (eth_tx_packet_stb),
+                .tx_packet_words(eth_tx_packet_words),
+                .tx_rd_addr    (mb_tx_rd_addr),
+                .tx_rd_data    (io_tx_rd_data),
+                .cycles        (dbg_cycles),
+                .kbd_words     (kbd_words),
+                .mouse_buttons (mouse_buttons),
+                .mouse_present (mouse_present),
+                .mouse_x       (mouse_x),
+                .mouse_y       (mouse_y)
+            );
+        end else begin : g_no_mailbox
+            assign mb_go = 1'b1;
+            assign {mb_hold, mb_req, mb_we, mb_cache, mb_op, mb_va, mb_wd} = '0;
+            assign {mb_rx_wr_en, mb_rx_wr_att, mb_rx_load, mb_rx_wr_addr, mb_rx_wr_data, mb_rx_load_count} = '0;
+            assign {aux_req, aux_we, aux_addr, aux_wdata, aux_be} = '0;
+            assign mb_tx_rd_addr = '0;
+        end
+    endgenerate
+    assign core_rst = rst || !sto_ready || !mb_go;
 
     dorado_rtl_cpu #(
         .STORAGE_WORDS (STORAGE_WORDS),
@@ -421,13 +536,13 @@ module dorado_rtl_top
         .fb_rd_addr              (fb_rd_addr),
         .fb_rd_data              (fb_rd_data),
         .io_busy                 (io_busy),
-        .rx_wr_en                (srv_rx_wr_en),
-        .rx_wr_addr              (srv_rx_wr_addr),
-        .rx_wr_data              (srv_rx_wr_data),
-        .rx_wr_att               (srv_rx_wr_att),
-        .rx_load                 (srv_rx_load),
-        .rx_load_count           (srv_rx_load_count),
-        .eth_tx_rd_addr          (srv_tx_rd_addr),
+        .rx_wr_en                (rx_wr_en),
+        .rx_wr_addr              (rx_wr_addr),
+        .rx_wr_data              (rx_wr_data),
+        .rx_wr_att               (rx_wr_att),
+        .rx_load                 (rx_load),
+        .rx_load_count           (rx_load_count),
+        .eth_tx_rd_addr          (HPS_MAILBOX ? mb_tx_rd_addr : srv_tx_rd_addr),
         .eth_tx_rd_data          (io_tx_rd_data),
         .eth_rx_on_out           (io_rx_on),
         .eth_rx_drained          (io_rx_drained),

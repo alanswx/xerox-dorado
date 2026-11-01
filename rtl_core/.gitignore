@@ -6,3 +6,8 @@ fpga-sim.pbm
 obj_fpga_ddr/
 fpga-sim-ddr.pbm
 obj_cedar/
+obj_split/
+obj_hps/
+hps/dorado-hps
+init_cedar/
+obj_dump/

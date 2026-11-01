@@ -292,6 +292,12 @@ module dorado_rtl_io
     int          eth_tx_count;
     (* ramstyle = "M10K" *) logic [15:0] eth_rx_words     [0:4095];
     (* ramstyle = "M10K" *) logic        eth_rx_attention [0:4095];
+`ifdef DORADO_CHECKPOINT
+    initial begin
+        $readmemh("init/eth_rx_words.hex", eth_rx_words);
+        $readmemh("init/eth_rx_attention.hex", eth_rx_attention);
+    end
+`endif
     logic [15:0] eth_rx_q;      // eth_rx_words[eth_rx_pos], one clock late
     logic        eth_rx_att_q;
     logic        eth_skip_busy; // WaitForBOP skip in progress
@@ -1384,6 +1390,9 @@ module dorado_rtl_io
             ext_subtask_we             = 1'b0;
             ext_subtask_task           = 4'd0;
             ext_subtask_val            = 2'd0;
+`ifdef DORADO_CHECKPOINT
+`include "checkpoint_io.svh"
+`endif
         end else if (eth_skip_busy) begin
             // WaitForBOP walk: phase 0 waits for eth_rx_att_q at eth_rx_pos.
             if (!eth_skip_phase) begin

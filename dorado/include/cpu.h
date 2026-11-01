@@ -474,6 +474,10 @@ void dorado_cpu_init(dorado_cpu *cpu, const dorado_microcode *mc,
 
 /* Single-step. Returns 0 on success, nonzero if halted. */
 int dorado_cpu_step(dorado_cpu *cpu);
+/* Account one microinstruction's time (cpu->cycles and the BaseBoard
+ * clock) without executing one: the RTL split harness, where the RTL is
+ * the CPU and this machine runs only its host services. */
+void dorado_cpu_skip_step(dorado_cpu *cpu);
 
 /* Run until halt or `max_cycles` reached. Returns the halt reason. */
 cpu_halt_reason dorado_cpu_run(dorado_cpu *cpu, uint64_t max_cycles);

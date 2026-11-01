@@ -20,6 +20,7 @@ SV_SRCS := \
 	dorado_rtl_io.sv \
 	dorado_rtl_bootsrv.sv \
 	dorado_rtl_assist.sv \
+	dorado_rtl_mailbox.sv \
 	dorado_rtl_top.sv
 
 C_REF_SRCS := \
@@ -52,7 +53,7 @@ VERILATOR_FLAGS := \
 	--top-module dorado_rtl_top \
 	-CFLAGS "$(CXXFLAGS)"
 
-.PHONY: all test clean lint fpga-sim fpga-sim-ddr init cedar
+.PHONY: hps-sim all test clean lint fpga-sim fpga-sim-ddr init cedar
 
 # The FPGA configuration in simulation: power-up images from init/, the
 # in-FPGA boot server and loader assists, no C model (sim_fpga.cpp).
@@ -102,6 +103,25 @@ $(CEDAR_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_cedar.cpp cosim_sync.h $(CEDAR_C_OB
 
 cedar: $(CEDAR_OBJ)/Vdorado_rtl_top
 	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./$(CEDAR_OBJ)/Vdorado_rtl_top $(CEDAR_STEPS)
+
+# The MiSTer Cedar configuration (DDR storage, HPS mailbox, the checkpoint in
+# init_cedar/ from `CEDAR_SPLIT=1 CEDAR_DUMP_INIT=../rtl_core/init_cedar
+# obj_cedar/Vdorado_rtl_top 0`), with the HPS program in-process (sim_hps.cpp).
+HPS_OBJ   := obj_hps
+HPS_STEPS ?= 2000000
+
+$(HPS_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.cpp hps/hps_host.h $(CEDAR_C_OBJS) init_cedar/checkpoint_cpu.svh
+	$(VERILATOR) --cc --exe --build -j 4 -O3 --x-assign fast --x-initial fast --noassert \
+	  -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-BLKSEQ \
+	  -GSTORAGE_WORDS=4194304 -GEXT_STORAGE=1 -GHPS_MAILBOX=1 \
+	  -DDORADO_INIT -DDORADO_CHECKPOINT -DDORADO_NO_DISK -I$(abspath init_cedar) \
+	  --top-module dorado_rtl_top -Mdir $(HPS_OBJ) \
+	  -CFLAGS "$(CXXFLAGS) -I$(abspath .)" \
+	  $(SV_SRCS) sim_hps.cpp $(abspath hps/hps_host.cpp) $(abspath $(CEDAR_C_OBJS)) -o Vdorado_rtl_top
+	ln -sfn ../init_cedar $(HPS_OBJ)/init
+
+hps-sim: $(HPS_OBJ)/Vdorado_rtl_top
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./$(HPS_OBJ)/Vdorado_rtl_top $(HPS_STEPS)
 
 all: $(OBJ_DIR)/Vdorado_rtl_top
 

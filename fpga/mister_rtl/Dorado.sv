@@ -6,6 +6,13 @@
 //  microcode (AEmu) preloaded, boots an Alto boot file over its own Ethernet
 //  controller from the in-FPGA boot server (Breath of Life, Mayday, EFTP),
 //  and shows the display controller's 1024x808 framebuffer.
+//
+//  Built with DORADO_CEDAR (build.sh CORE=cedar) it is instead the Cedar
+//  checkpoint core: it powers up in the Cedar desktop checkpoint baked into
+//  the image (rtl_core/init_cedar), with 4M words of storage in DDR3, and
+//  waits for dorado-hps on the ARM (rtl_core/hps) to load storage and say
+//  go; the host services and the file server then reach it through the
+//  mailbox in DDR3 (dorado_rtl_mailbox).
 //============================================================================
 
 module emu
@@ -206,9 +213,16 @@ dorado_keyboard keyboard
 // (bit 2 Red = left, bit 1 Blue = right, bit 0 Yellow = middle; machine.c).
 // PS/2 packet: byte 0 status (0 L, 1 R, 2 M, 4 X sign, 5 Y sign), 1 X, 2 Y;
 // PS/2 Y counts up, the Alto's down.
+`ifdef DORADO_CEDAR
+localparam bit        CEDAR = 1'b1;
+localparam int        MOUSE_W = 1024;      // Cedar's screen
+`else
+localparam bit        CEDAR = 1'b0;
+localparam int        MOUSE_W = 606;       // the Alto's
+`endif
 reg         mouse_present = 1'b0;
 reg   [2:0] mouse_buttons = 3'd0;
-reg  [15:0] mouse_x = 16'd303, mouse_y = 16'd404;
+reg  [15:0] mouse_x = 16'(MOUSE_W / 2), mouse_y = 16'd404;
 reg         mouse_stb_q = 1'b0;
 wire signed [9:0] ms_dx = {ps2_mouse[4], ps2_mouse[4], ps2_mouse[15:8]};
 wire signed [9:0] ms_dy = {ps2_mouse[5], ps2_mouse[5], ps2_mouse[23:16]};
@@ -219,7 +233,7 @@ always @(posedge clk_sys) begin
 	if (ps2_mouse[24] != mouse_stb_q) begin
 		mouse_present <= 1'b1;
 		mouse_buttons <= {ps2_mouse[0], ps2_mouse[1], ps2_mouse[2]};
-		mouse_x <= (ms_nx < 0) ? 16'd0 : (ms_nx > 605) ? 16'd605 : ms_nx[15:0];
+		mouse_x <= (ms_nx < 0) ? 16'd0 : (ms_nx > MOUSE_W - 1) ? 16'(MOUSE_W - 1) : ms_nx[15:0];
 		mouse_y <= (ms_ny < 0) ? 16'd0 : (ms_ny > 807) ? 16'd807 : ms_ny[15:0];
 	end
 end
@@ -231,12 +245,13 @@ wire [63:0] cycles;
 wire        halted;
 
 dorado_rtl_top #(
-	.STORAGE_WORDS (65536),
+	.STORAGE_WORDS (CEDAR ? 4 * 1024 * 1024 : 65536),
 	.RESET_PC      (`DORADO_RESET_PC),
 	.BOOT_WORDS    (`DORADO_BOOT_WORDS),
 	.BOOT_HEX      ("roms/bootfile.hex"),
 	.BOL_HEX       ("roms/bol.hex"),
-	.EXT_STORAGE   (1'b1)
+	.EXT_STORAGE   (1'b1),
+	.HPS_MAILBOX   (CEDAR)
 ) dorado
 (
 	.clk                (clk_sys),
@@ -249,14 +264,22 @@ dorado_rtl_top #(
 	.bb_mir_iw1         (16'd0),
 	.bb_mir_iw2         (16'd0),
 	.io_bridge_en       (1'b1),
-	.bootsrv_en         (1'b1),
-	.assist_en          (1'b1),
+	.bootsrv_en         (!CEDAR),
+	.assist_en          (!CEDAR),
 	.display_wake_gate  (1'b0),
 	.kbd_words          ({key_word3, key_word2, key_word1, key_word0}),
 	.mouse_buttons      (mouse_buttons),
 	.mouse_present      (mouse_present),
 	.mouse_x            (mouse_x),
 	.mouse_y            (mouse_y),
+	.hx_rx_wr_en        (1'b0),
+	.hx_rx_wr_addr      (12'd0),
+	.hx_rx_wr_data      (16'd0),
+	.hx_rx_wr_att       (1'b0),
+	.hx_rx_load         (1'b0),
+	.hx_rx_load_count   (13'd0),
+	.hx_rx_on           (),
+	.hx_rx_drained      (),
 	.hp_hold            (1'b0),
 	.hp_req             (1'b0),
 	.hp_op              (3'd0),

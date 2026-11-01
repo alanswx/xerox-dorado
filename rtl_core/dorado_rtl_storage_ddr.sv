@@ -14,12 +14,18 @@
 // word w at byte DDR_BASE*8 + 2*w, where the HPS can read and write it.
 //
 // After reset the region is cleared to zero (the block RAM it replaces
-// powered up zero); `ready` rises when that is done.
+// powered up zero); `ready` rises when that is done. With CLEAR = 0 the
+// region is left as it is (the HPS loads a checkpoint's storage into it) and
+// `ready` rises at once.
+//
+// A second client, the aux port, makes single-beat accesses anywhere in the
+// window (the HPS mailbox, dorado_rtl_mailbox); storage requests go first.
 // =============================================================================
 
 module dorado_rtl_storage_ddr #(
     parameter int          STORAGE_WORDS = 4 * 1024 * 1024,
-    parameter logic [28:0] DDR_BASE      = 29'h0600_0000     // byte 0x3000_0000
+    parameter logic [28:0] DDR_BASE      = 29'h0600_0000,    // byte 0x3000_0000
+    parameter bit          CLEAR         = 1'b1
 ) (
     input  logic         clk,
     input  logic         rst,
@@ -34,6 +40,14 @@ module dorado_rtl_storage_ddr #(
     output logic [255:0] rline,
     output logic [63:0]  dbg,      // {state, flags, read cmds, read beats, write beats}
 
+    input  logic         aux_req,
+    input  logic         aux_we,
+    input  logic [28:0]  aux_addr,     // beat address
+    input  logic [63:0]  aux_wdata,
+    input  logic [7:0]   aux_be,
+    output logic         aux_ack,
+    output logic [63:0]  aux_rdata,
+
     input  logic         DDRAM_BUSY,
     output logic [7:0]   DDRAM_BURSTCNT,
     output logic [28:0]  DDRAM_ADDR,
@@ -47,7 +61,7 @@ module dorado_rtl_storage_ddr #(
     localparam int MUNCHES = STORAGE_WORDS / 16;
     localparam int MAW     = $clog2(MUNCHES);
 
-    typedef enum logic [2:0] { S_CLEAR, S_IDLE, S_RD, S_RDW, S_WR } state_t;
+    typedef enum logic [2:0] { S_CLEAR, S_IDLE, S_RD, S_RDW, S_WR, S_AUX } state_t;
     state_t        st;
     logic [MAW:0]  clr;            // munch being cleared
     logic [1:0]    beat;
@@ -67,12 +81,16 @@ module dorado_rtl_storage_ddr #(
         return {w[3], w[3], w[2], w[2], w[1], w[1], w[0], w[0]};
     endfunction
 
-    assign DDRAM_DIN = line[64 * beat +: 64];
+    logic          aux_cur, aux_we_q;          // S_AUX: the aux access in progress
+    logic [63:0]   aux_d;
+    logic [7:0]    aux_be_q;
+    assign DDRAM_DIN = aux_cur ? aux_d : line[64 * beat +: 64];
     // A read carries all byte enables, as the MiSTer cores' clients do.
-    assign DDRAM_BE  = DDRAM_RD ? 8'hFF : beat_be(wmask, beat);
+    assign DDRAM_BE  = DDRAM_RD ? 8'hFF : (aux_cur ? aux_be_q : beat_be(wmask, beat));
 
     always_ff @(posedge clk) begin
         ack <= 1'b0;
+        aux_ack <= 1'b0;
         if (DDRAM_RD && !DDRAM_BUSY) n_rdcmd  <= n_rdcmd + 1'd1;
         if (DDRAM_DOUT_READY)        n_rdbeat <= n_rdbeat + 1'd1;
         if (DDRAM_WE && !DDRAM_BUSY) n_wrbeat <= n_wrbeat + 1'd1;
@@ -82,8 +100,9 @@ module dorado_rtl_storage_ddr #(
             n_rdbeat <= '0;
             n_wrbeat <= '0;
             n_busy   <= '0;
-            st             <= S_CLEAR;
-            ready          <= 1'b0;
+            st             <= CLEAR ? S_CLEAR : S_IDLE;
+            ready          <= !CLEAR;
+            aux_cur        <= 1'b0;
             clr            <= '0;
             beat           <= 2'd0;
             line           <= '0;
@@ -112,7 +131,17 @@ module dorado_rtl_storage_ddr #(
                 end
             end
             S_IDLE: begin
-                if (req && !ack) begin
+                if (!(req && !ack) && aux_req && !aux_ack) begin
+                    aux_cur        <= 1'b1;
+                    aux_we_q       <= aux_we;
+                    aux_d          <= aux_wdata;
+                    aux_be_q       <= aux_be;
+                    DDRAM_ADDR     <= aux_addr;
+                    DDRAM_BURSTCNT <= 8'd1;
+                    DDRAM_RD       <= !aux_we;
+                    DDRAM_WE       <= aux_we;
+                    st             <= S_AUX;
+                end else if (req && !ack) begin
                     wbase <= DDR_BASE + {addr[MAW+3:4], 2'b00};
                     beat  <= 2'd0;
                     if (we) begin
@@ -176,6 +205,26 @@ module dorado_rtl_storage_ddr #(
                         st  <= S_IDLE;
                     end
                     beat <= beat + 2'd1;
+                end
+            end
+            S_AUX: begin
+                // one beat: the command is taken when BUSY is low; a read
+                // then waits for its answer
+                if (DDRAM_RD || DDRAM_WE) begin
+                    if (!DDRAM_BUSY) begin
+                        DDRAM_RD <= 1'b0;
+                        DDRAM_WE <= 1'b0;
+                        if (aux_we_q) begin
+                            aux_ack <= 1'b1;
+                            aux_cur <= 1'b0;
+                            st      <= S_IDLE;
+                        end
+                    end
+                end else if (DDRAM_DOUT_READY) begin
+                    aux_rdata <= DDRAM_DOUT;
+                    aux_ack   <= 1'b1;
+                    aux_cur   <= 1'b0;
+                    st        <= S_IDLE;
                 end
             end
             default: st <= S_IDLE;

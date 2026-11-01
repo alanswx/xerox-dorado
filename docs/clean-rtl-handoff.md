@@ -31,6 +31,10 @@ All files are located in [`rtl_core/`](file:///Users/alans/dev2/Dorado/rtl_core/
 | [`dorado_rtl_top.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_top.sv) | Top-Level Core | CPU + I/O + boot server + assist; `bootsrv_en`/`assist_en` select the FPGA configuration. |
 | [`sim_cosim.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_cosim.cpp) | Cosimulation harness | Lock-step suites against the C emulator + Suite 6 boot; `RTL_DUMP_INIT`, `RTL_RX_LOG`. Steps the RTL by `step_done`. |
 | [`sim_cedar.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_cedar.cpp) | Cedar checkpoint harness | The whole C machine (host services included) beside the RTL from the Cedar desktop checkpoint, 4M words of storage (`make cedar`; section 8.1). |
+| [`dorado_rtl_mailbox.sv`](file:///Users/alans/dev2/Dorado/rtl_core/dorado_rtl_mailbox.sv) | HPS mailbox | The ARM's way in on the MiSTer (`HPS_MAILBOX`): command and result rings, status, receive fill and transmit slots in DDR3 through the storage engine's aux port (section 8.3). |
+| [`hps/`](file:///Users/alans/dev2/Dorado/rtl_core/hps) | dorado-hps | The C host services over the mailbox: `hps_host.cpp` (shared with the rehearsal), `hps_main.cpp` (the ARM program), `build_arm.sh` (static cross build on misterubuntu). |
+| [`sim_hps.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_hps.cpp) | MiSTer rehearsal | The Cedar checkpoint core (DDR storage, mailbox, `init_cedar/`) against the DDR model (`sim_ddr_model.h`) with dorado-hps in-process (`make hps-sim`). |
+| `init_cedar/` | Cedar checkpoint | The RTL state the Cedar core powers up in, from `sim_cedar.cpp` `CEDAR_DUMP_INIT` (generated; regenerate after any change to the state list). |
 | [`cosim_sync.h`](file:///Users/alans/dev2/Dorado/rtl_core/cosim_sync.h) | Shared cosim code | C-to-RTL state copy (`sync_c_to_rtl`), `rtl_step`, `compare_c_rtl`; used by both harnesses. |
 | [`sim_fpga.cpp`](file:///Users/alans/dev2/Dorado/rtl_core/sim_fpga.cpp) | FPGA-configuration testbench | No C model, no pokes: power-up images, RTL boot server, RTL assist (`make fpga-sim`). |
 | [`tools/make_boot_roms.py`](file:///Users/alans/dev2/Dorado/rtl_core/tools/make_boot_roms.py) | ROM generator | `roms/bol.hex` from ethernet.c's `eth_bol_loader`, `roms/bootfile.hex` from the boot file. |
@@ -484,3 +488,140 @@ slow-I/O answers come from:
   time. It fits a command ring in DDR3 that the FPGA polls, or the
   framework's UIO channel. Germ disk IOCBs and the Cedar field notify need
   no microinstruction-level latency.
+
+### 8.3 The MiSTer arrangement: split, mailbox, checkpoint core, dorado-hps (2026-10-31)
+
+The user chose the route: run the Cedar host services on the ARM, boot the
+checkpoint on the MiSTer, and do the screen properly afterwards (Cedar's own
+display tasks, not a host-side scanner). Four pieces, each run in simulation
+first.
+
+**1. Split mode (`sim_cedar.cpp`, `CEDAR_SPLIT=1`).** The RTL is the whole
+Dorado here, with its own slow-I/O devices (`io_bridge_en=1`). The C machine
+never steps its CPU: its step hook returns `DORADO_STEP_HOOK_SKIP`
+(machine.h), which accounts the step's time through `dorado_cpu_skip_step`.
+That routine is the BaseBoard timekeeping factored out of `dorado_cpu_step`,
+idle-6502 suppression included. So `dorado_machine_run_until` runs only the
+host services and the Pup/STP server. They reach the RTL through two paths
+only:
+
+- **The host port.** Host reads go through `dorado_host_read_hook`
+  (memory.h), which answers `dorado_visible_word_at_va`. Host writes go
+  through `dorado_host_write_hook`, which now carries the value and the kind
+  of store (`DORADO_HOST_WRITE_UPDATE/INVALIDATE/FILL`), because the C side's
+  memory is stale in this mode. Changes to RM and `reschedule_pending` go as
+  diffs.
+- **The Ethernet receive buffer** (`hx_rx_*` on `dorado_rtl_top`). Each
+  packet the server queues is copied in. `dorado_ethernet_rx_generation`
+  (ethernet.c, file-scope) tells the harness a new packet was queued.
+
+The slow-I/O census (sim_cedar now prints one) shows that the **Ethernet is
+the only slow-I/O device the Cedar desktop touches**: 1,486 data reads by
+task 7, IOAtten tests on 015 and 016, and 24 control writes. So the
+checkpoint needs only the Ethernet device's state beyond the CPU's.
+
+Bug found by split mode: when the guest reads a packet's last word, the C
+model sets a 60,000-tick hold, so the input task's WaitForBOP tail runs
+before the next BSP segment appears. That lived in `eth_read`, which never
+runs when the RTL is the receiver. It is now `dorado_ethernet_rx_consumed()`.
+`eth_read` calls it, and so do both bridges when the RTL reports the packet
+drained. Without it, Cedar received the first NetDir reply and stalled.
+
+**2. The DDR mailbox (`dorado_rtl_mailbox.sv`).** It sits on a new
+single-beat aux port of `dorado_rtl_storage_ddr`; storage requests go first.
+It is enabled with `HPS_MAILBOX=1` on `dorado_rtl_top`. Then the DDR clear at
+reset is skipped (`CLEAR=0`), and the core is held until the ARM writes
+`"DORA"` to the control beat. Layout (from byte 0x3080_0000, just past 8 MB
+of storage):
+
+- control;
+- status: microinstructions, keyboard words, mouse, receiver state, and the
+  receive-load count that makes `rx_drained` trustworthy;
+- a 256-entry command ring with per-lap sequence bytes (the ARM writes the
+  half holding the seq last);
+- a result ring;
+- the receive words and attention bitmap.
+
+Op 7 (RXLOAD) copies a packet into the receive buffer.
+
+**3. The checkpoint core.** `CEDAR_SPLIT=1 CEDAR_DUMP_INIT=../rtl_core/init_cedar
+obj_cedar/Vdorado_rtl_top 0` writes the restored state:
+
+- `$readmemh` images for IM, IFUM, ALUFM, RM, STK, the Map, cache data and the
+  receive buffer;
+- `checkpoint_cpu.svh` (2,375 register assignments, generated from
+  `sync_c_to_rtl`'s own field list);
+- `checkpoint_io.svh` (the Ethernet device).
+
+`reset_memory` and the I/O reset include these files under
+`DORADO_CHECKPOINT`, so a reset restores the checkpoint. The ARM loads
+storage itself, from the same snapshot.
+
+**4. dorado-hps (`rtl_core/hps/`).** `hps_host.cpp` is split mode with the
+mailbox as transport. It paces itself from the FPGA's microinstruction count
+(3.70 BaseBoard cycles each), in steps of `-q` microinstructions, with the
+germ poll every `-p` BaseBoard cycles; a read is a round trip there.
+`hps_main.cpp` maps DDR through `/dev/mem`. `hps/build_arm.sh` cross-builds a
+static binary on misterubuntu. The same host code runs in the Verilator
+rehearsal, `make -C rtl_core hps-sim` (`sim_hps.cpp`, through the DDR model
+now in `sim_ddr_model.h`).
+
+The mailbox also forwards packets out. Cedar's own Ethernet output
+microcode transmits through the RTL controller once the germ transmit bridge
+polls slowly, as the ARM's does. On each transmit strobe the mailbox holds
+the CPU, copies the packet into one of 8 DDR slots (`B_TX`, lengths at
+`B_TXLEN`), and bumps the status block's tx count; the ARM feeds the slots to
+the server in order. The mailbox clears the control beat after reset,
+because DDR keeps its contents across a core reload and a stale go started a
+reloaded core on the previous run's storage.
+
+**The 64-bit/32-bit snapshot question.** The C emulator's snapshots are raw
+structs, so the 64-bit native `cedar-desktop.snap` does not restore on the
+32-bit ARM. The browser build's `web-assets/cedar-desktop.snap` (wasm32)
+does: ILP32 with 8-byte-aligned 64-bit fields is the same layout as ARM
+EABI. It is the same machine. Storage hashes identically (FNV-1a
+`8d6a253a2a84bee1`, printed by dorado-hps at start) at the same CPU cycle,
+9,726,617,172. So the FPGA image comes from the native snapshot, and the ARM
+restores the wasm32 one.
+
+**Host-only mode** (`dorado_machine_host_only`). The C loop's Alto
+display-active probe walks a DCB chain every scan line, to wake display
+tasks on a CPU that is not running. Through the mailbox it was 215,000 reads
+a second and held the FPGA to 0.30x; skipping it gives about 5,000 reads a
+second and 0.38x.
+
+**Results.**
+
+| run | result |
+|---|---|
+| split mode, `CEDAR_LS=1` to 37.0B | 270.7M microinstructions, 23 packets in, 83 FTP trace lines (same as the C machine), 168,631 px on screen (same) |
+| `make hps-sim` rehearsal, `CEDAR_LS=1`, quantum 16, germ poll 4096 | 275M microinstructions, 29 packets in through the mailbox, 18 out through the RTL transmitter, listing on screen, 169,142 px (the native emulator's figure) |
+| **MiSTer14**, `dorado-hps -c 700,733 -t 'List [Cedar]<Cedar6.1>VersionMap>*\n'` | **the listing on screen** at 6.37M microinstructions/s = **0.38x a Dorado**: 33 packets in, 23 out, `docs/images/rtl-core-mister14-cedar-ls-2026-10-31.png` |
+
+Cedar core fit: 19,559 ALMs (47%), 356 RAM blocks (64%), +1.39 ns at 50 MHz.
+
+The screen is not yet on the MiSTer's video output. dorado-hps renders it
+from the DCB chain to `/tmp/dorado.pgm`, as the C emulator does. **Next is
+the screen, the authentic way**: Cedar's own display microcode tasks driving
+the RTL's DDC, so the core's video shows it (dorado/CLAUDE.md "Live display +
+interrupts for Cedar"). After that: speed (0.38x; the mailbox holds the CPU
+for each command), and live keyboard and mouse from the core
+(`dorado-hps` without `-c/-t` takes them from the status block, untested on
+hardware).
+
+MiSTer build: `CORE=cedar sh fpga/mister_rtl/build.sh ~/mister/Template_MiSTer
+~/mister/DoradoRtlCedar`, then Quartus **Lite**,
+`~/intelFPGA_lite/17.0/quartus/bin` (the `/opt/altera/17.0` install on
+misterubuntu is an expired evaluation). On MiSTer14 the runtime files live
+under `/media/fat/dorado/` in the repo's layout. The STP tree ships as
+`stp-root.tar.gz` and is unpacked into `/tmp/dorado` (tmpfs): its 4,948 small
+files would take about 600 MB of the SD card's 128 KB FAT clusters.
+
+```sh
+ssh mister14 'echo load_core /media/fat/_Development/DoradoRtlCedar.rbf > /dev/MiSTer_cmd'
+ssh mister14 'mkdir -p /tmp/dorado && tar -C /tmp/dorado -xzf /media/fat/dorado/stp-root.tar.gz;
+              /media/fat/dorado/dorado-hps -f /tmp/dorado/stp-root'
+# /media/fat/dorado/dorado/build/good-packs/cedar-desktop.snap must be the
+# wasm32 copy (web-assets/), the .pdi the native one
+# screen every 10 s in /tmp/dorado.pgm (and on SIGUSR1)
+```
