@@ -436,6 +436,7 @@ module dorado_rtl_top
         .dbg_halted         (dbg_halted),
         .dbg_halt_reason    (dbg_halt_reason),
         .step_done          (step_done),
+        .io_tick_early      (io_tick_early),
         .io_busy            (io_bridge_en && (io_busy || srv_stall)),
         .ap_hold            (ap_hold),
         .ap_req             (ap_req),
@@ -494,7 +495,13 @@ module dorado_rtl_top
     // until that tick consumes it.
     logic signed [15:0] ms_acc_dx, ms_acc_dy;
     logic               ms_acc_pend;
-    wire                io_tick = clk_en && io_bridge_en && step_done;
+    // The I/O module ticks once per microinstruction: in the clock it
+    // completes (io_tick_early), or, for one that completes otherwise, in
+    // the clock after (step_done, as before).
+    logic               io_tick_early, io_tick_early_q;
+    always_ff @(posedge clk) io_tick_early_q <= core_rst ? 1'b0 : io_tick_early;
+    wire                io_tick = clk_en && io_bridge_en &&
+                                  (io_tick_early || (step_done && !io_tick_early_q));
     always_ff @(posedge clk) begin
         if (core_rst) begin
             ms_acc_dx   <= '0;
@@ -516,7 +523,7 @@ module dorado_rtl_top
     dorado_rtl_io u_io (
         .clk                     (clk),
         .rst                     (core_rst),
-        .clk_en                  (clk_en && io_bridge_en && step_done),
+        .clk_en                  (io_tick),
         .cycles                  (dbg_cycles),
 
         .io_read_task            (cpu_io_read_task),

@@ -49,8 +49,15 @@ static void rtl_step(Vdorado_rtl_top *top) {
         top->eval();
         rtl_fabric_clocks++;
         static const bool fsm_trace = getenv("RTL_FSM_TRACE") != nullptr;
-        if (fsm_trace) fprintf(stderr, "  clk st=%d pc=0%o step_done=%d\n", (int)R_CPU(st),
-                               (unsigned)R_CPU(real_PC), (int)top->step_done);
+        if (fsm_trace) fprintf(stderr, "  clk st=%d pc=0%o step_done=%d x_np=0%o pred=0%o fresh=%d pre_ok=%d spec=%d\n",
+                               (int)R_CPU(st), (unsigned)R_CPU(real_PC), (int)top->step_done,
+                               (unsigned)R_CPU(x_np), (unsigned)R_CPU(x_pred_np), (int)R_CPU(x_pred_fresh),
+                               (int)R_CPU(rm_pre_ok), (int)R_CPU(spec_hit));
+        if (fsm_trace) fprintf(stderr, "      ex_u jcn=0%o iw0=%06o iw1=%06o iw2=%06o  x_u jcn=0%o  im_q=%06o %06o %06o\n",
+                               (unsigned)((R_CPU(ex_u)[1] >> 18) & 0xFF), (unsigned)(R_CPU(ex_u)[1] & 0xFFFF),
+                               (unsigned)(R_CPU(ex_u)[0] >> 16), (unsigned)(R_CPU(ex_u)[0] & 0xFFFF),
+                               (unsigned)((R_CPU(x_u)[1] >> 18) & 0xFF),
+                               (unsigned)R_CPU(im_q0), (unsigned)R_CPU(im_q1), (unsigned)R_CPU(im_q2));
         if (top->step_done || top->dbg_halted) return;
     }
     fprintf(stderr, "[RTL] no step_done after 4096 clocks (pc=0%o)\n",
