@@ -14,6 +14,7 @@
 // =============================================================================
 #include "Vdorado_rtl_top.h"
 #include "Vdorado_rtl_top___024root.h"
+#include "sim_census.h"
 #include "verilated.h"
 #include <chrono>
 #include <cstdio>
@@ -123,6 +124,7 @@ int main(int argc, char **argv) {
 
     int fb_px = 0;
     for (int i = 0; i < 1024 * 808; i++) fb_px += R_IO(fb)[i] & 1;
+    if (getenv("FPGA_CENSUS")) census_report(top);
     printf("[FPGA-SIM] %llu microinstructions, %llu clocks (%.2f clocks/uinstr), %.1fs\n",
            (unsigned long long)top->dbg_cycles, clocks, (double)clocks / top->dbg_cycles, s);
     printf("           halted=%u pc=0%o bol=%u eftp_max_seq=%u eth_tx=%llu ddc_lines=%llu fb_px=%d\n",

@@ -25,6 +25,7 @@
 #include "Vdorado_rtl_top.h"
 #include "Vdorado_rtl_top___024root.h"
 #include "sim_ddr_model.h"
+#include "sim_census.h"
 #include "hps/hps_host.h"
 
 extern "C" {
@@ -65,7 +66,6 @@ static void clock_n(int n) {
     }
 }
 static void wait_fn(void *) { clock_n(4); }
-
 int main(int argc, char **argv) {
     Verilated::commandArgs(argc, argv);
     setvbuf(stdout, nullptr, _IOLBF, 0);
@@ -228,6 +228,7 @@ int main(int argc, char **argv) {
                 printf("         %-10s -> %-10s %.2f\n", stname[a], stname[b],
                        (double)trans[a][b] / (S->rtl_cycles - start));
     }
+    if (getenv("HPS_CENSUS")) census_report(top);
     printf("[hps] DDR: %llu beats read, %llu written\n",
            (unsigned long long)ddr->beats_rd, (unsigned long long)ddr->beats_wr);
     if (const char *rtl = getenv("HPS_PGM_RTL")) {      // what the core's video shows

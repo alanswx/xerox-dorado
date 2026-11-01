@@ -272,6 +272,42 @@ module dorado_rtl_cpu
 
     // Execution Counters & Halt Status
     logic [63:0] cycles;
+
+    // Census of the events that decide a pipeline's throughput
+    // (docs/rtl-core-speed-plan.md, Phase 0). Counted as instructions
+    // retire; read by sim_hps (HPS_CENSUS). Nothing in the design reads
+    // them, so synthesis drops them.
+    logic [63:0] cen_retired  /* verilator public_flat_rd */;
+    logic [63:0] cen_task0    /* verilator public_flat_rd */;   // retired by the emulator task
+    logic [63:0] cen_ref_fs   /* verilator public_flat_rd */;   // Fetch, Store, LongFetch
+    logic [63:0] cen_store    /* verilator public_flat_rd */;
+    logic [63:0] cen_ref_other/* verilator public_flat_rd */;   // IO, Map, Flush, DummyRef, PreFetch
+    logic [63:0] cen_miss     /* verilator public_flat_rd */;   // processor references that missed
+    logic [63:0] cen_ifu_fetch/* verilator public_flat_rd */;
+    logic [63:0] cen_ifu_miss /* verilator public_flat_rd */;
+    logic [63:0] cen_md       /* verilator public_flat_rd */;   // instructions that read Md
+    logic [63:0] cen_md_imm1  /* verilator public_flat_rd */;   // ...immediately (A/B/shifter), the instruction after the reference
+    logic [63:0] cen_md_def1  /* verilator public_flat_rd */;   // ...deferred (T/RM/STK<-Md), the instruction after
+    logic [63:0] cen_md_imm2  /* verilator public_flat_rd */;   // two instructions after
+    logic [63:0] cen_md_def2  /* verilator public_flat_rd */;
+    logic [63:0] cen_md_3p    /* verilator public_flat_rd */;   // three or more after
+    logic [63:0] cen_ifujump  /* verilator public_flat_rd */;
+    logic [63:0] cen_ifu_hl [0:6] /* verilator public_flat_rd */; // instructions since the last IFUJump: 1,2,3,4,5-8,9-16,17+
+    logic [63:0] cen_ifu_len [0:3] /* verilator public_flat_rd */; // dispatched opcode length 1,2,3
+    logic [63:0] cen_ifu_odd  /* verilator public_flat_rd */;   // dispatched opcode at an odd byte
+    logic [63:0] cen_ifu_jump /* verilator public_flat_rd */;   // jump opcodes (the IFU restarts)
+    logic [63:0] cen_ifu_notready /* verilator public_flat_rd */;
+    logic [63:0] cen_pcf      /* verilator public_flat_rd */;   // PCF<-B: the IFU restarts
+    logic [63:0] cen_cond     /* verilator public_flat_rd */;   // conditional branches
+    logic [63:0] cen_imrw     /* verilator public_flat_rd */;   // Read IM / Write IM
+    logic [63:0] cen_io       /* verilator public_flat_rd */;   // slow or fast I/O instructions
+    logic [63:0] cen_block    /* verilator public_flat_rd */;
+    logic [63:0] cen_switch   /* verilator public_flat_rd */;   // task switches
+    logic [63:0] cen_hold     /* verilator public_flat_rd */;   // modeled holds (cycles that retire nothing)
+    logic [63:0] cen_iobusy   /* verilator public_flat_rd */;   // clocks waiting for the I/O engines
+    logic [63:0] cen_apwait   /* verilator public_flat_rd */;   // clocks on host-port operations
+    logic [63:0] cen_last_ref_at [0:NUM_TASKS-1];               // retirement index of the task's last Fetch/Store/LongFetch
+    logic [63:0] cen_last_ifuj_at;
     logic        halted;
     logic [3:0]  halt_reason;
 
@@ -1086,6 +1122,8 @@ module dorado_rtl_cpu
                         cache_select(va, way, srn);
                     end else begin
                         last_ref_miss = 1'b1;
+                        if (m_kind == DM_REF_IFETCH) cen_ifu_miss = cen_ifu_miss + 64'd1;
+                        else                         cen_miss     = cen_miss + 64'd1;
                         if (use_asrn) asrn_advance_count = 1;
                         f = va_translate_e(va, 1'b0, mA_rp, mA_wp, mA_dirty, phys);
                         if (f == DM_FAULT_NONE) begin
@@ -1110,6 +1148,8 @@ module dorado_rtl_cpu
                         end
                         if (f == DM_FAULT_NONE && (mcr_fdmiss() || !cache_lookup(va, dummy_way))) begin
                             last_ref_miss = 1'b1;
+                        if (m_kind == DM_REF_IFETCH) cen_ifu_miss = cen_ifu_miss + 64'd1;
+                        else                         cen_miss     = cen_miss + 64'd1;
                             victim        = cache_pick_victim(va);
                             dirty_victim  = rw_dirty[victim];
                             if (use_asrn) asrn_advance_count = dirty_victim ? 2 : 1;
@@ -1155,6 +1195,8 @@ module dorado_rtl_cpu
                         if (use_asrn) asrn_advance_count = 1;
                         if (f == DM_FAULT_NONE) begin
                             last_ref_miss = 1'b1;
+                        if (m_kind == DM_REF_IFETCH) cen_ifu_miss = cen_ifu_miss + 64'd1;
+                        else                         cen_miss     = cen_miss + 64'd1;
                             way           = cache_pick_victim(va);
                             dirty_victim  = rw_dirty[way];
                             if (use_asrn && dirty_victim) asrn_advance_count = 2;
@@ -1820,6 +1862,16 @@ module dorado_rtl_cpu
         ifu_save_stkp_pending = 1'b0;
         ifu_dispatch_rbase    = -1;
         ifu_dispatch_count    = 64'd0;
+        cen_retired = 64'd0; cen_task0 = 64'd0; cen_ref_fs = 64'd0; cen_store = 64'd0;
+        cen_ref_other = 64'd0; cen_miss = 64'd0; cen_ifu_fetch = 64'd0; cen_ifu_miss = 64'd0;
+        cen_md = 64'd0; cen_md_imm1 = 64'd0; cen_md_def1 = 64'd0; cen_md_imm2 = 64'd0;
+        cen_md_def2 = 64'd0; cen_md_3p = 64'd0; cen_ifujump = 64'd0; cen_ifu_odd = 64'd0;
+        cen_ifu_jump = 64'd0; cen_ifu_notready = 64'd0; cen_cond = 64'd0; cen_imrw = 64'd0;
+        cen_io = 64'd0; cen_block = 64'd0; cen_pcf = 64'd0; cen_switch = 64'd0; cen_hold = 64'd0;
+        cen_iobusy = 64'd0; cen_apwait = 64'd0; cen_last_ifuj_at = 64'd0;
+        for (int i = 0; i < 7; i++) cen_ifu_hl[i] = 64'd0;
+        for (int i = 0; i < 4; i++) cen_ifu_len[i] = 64'd0;
+        for (int i = 0; i < NUM_TASKS; i++) cen_last_ref_at[i] = 64'd0;
         reschedule_pending    = 8'd0;
         reschedule_cond       = 1'b0;
         brk_opcode            = 8'd0;
@@ -2047,6 +2099,7 @@ module dorado_rtl_cpu
                     wakeup_pending[bnt]      = 1'b0;
                     ready[bnt]               = 1'b1;
                     ctask                    = bnt;
+                    cen_switch               = cen_switch + 64'd1;
                     T                        = task_t[bnt];
                     chosen_pc                = task_tpc[bnt];
                     Link                     = task_link[bnt];
@@ -2157,6 +2210,7 @@ module dorado_rtl_cpu
     // address for this pc (map_addr below), so M_MAPA's work is done here.
     task automatic ifu_launch_fetch(input logic [15:0] pc, input cstate_t ret);
         m_byte_sel = pc[0];
+        cen_ifu_fetch = cen_ifu_fetch + 64'd1;
         mem_launch(DM_REF_IFETCH, ifu_va_fn(pc), 16'd0, 8'd0, 4'd0, 2'd0, ret);
         x_rowload = 1'b1;                    // mem_row_task, once, after the case
     endtask
@@ -2543,6 +2597,73 @@ module dorado_rtl_cpu
         end
     endgenerate
 
+    // Md as an A, B or shifter source: the data is wanted at t1 (HM 5.4
+    // "immediate <-Md"); the LC-only forms (T<-Md, RM/STK<-Md) want it at
+    // t3 ("deferred"). uinstr_reads_md_fn without its LC clause.
+    function automatic logic uinstr_md_immediate_fn(input dorado_uinstr_t u);
+        if (ff_decode_ok(u) && u.asel != 3'd7) begin
+            logic [5:0] f6;
+            if (u.asel == 3'd0 || u.asel == 3'd1) begin
+                f6 = u.ff[5:0];
+            end else if (u.asel == 3'd2 || u.asel == 3'd3) begin
+                if (u.ff[7:6] == 2'd0) return 1'b1;
+                f6 = 6'd0;
+            end else if (ff_full_function_ok(u) && ff_fa(u.ff) == 2'd0) begin
+                f6 = u.ff[5:0];
+            end else begin
+                f6 = 6'd0;
+            end
+            if (f6[5:3] == 3'd2 && f6[2:0] == 3'd2) return 1'b1;
+        end
+        if (u.bsel == 3'd0) return 1'b1;
+        return 1'b0;
+    endfunction
+
+    // The census, at the retirement of u by task ct.
+    task automatic cen_retire_task(input dorado_uinstr_t u, input logic [3:0] ct);
+        dm_ref_kind_t k;
+        logic [63:0]  d;
+        logic         fs, imm;
+        k  = decode_mem_ref(u);
+        fs = (k == DM_REF_FETCH || k == DM_REF_STORE || k == DM_REF_LONGFETCH);
+        cen_retired = cen_retired + 64'd1;
+        if (ct == 4'd0) cen_task0 = cen_task0 + 64'd1;
+        if (fs) cen_ref_fs = cen_ref_fs + 64'd1;
+        else if (k != DM_REF_NONE) cen_ref_other = cen_ref_other + 64'd1;
+        if (k == DM_REF_STORE) cen_store = cen_store + 64'd1;
+        if (uinstr_reads_md_fn(u)) begin
+            imm = uinstr_md_immediate_fn(u);
+            d   = cen_retired - cen_last_ref_at[ct];
+            cen_md = cen_md + 64'd1;
+            if (d == 64'd1)      begin if (imm) cen_md_imm1 = cen_md_imm1 + 64'd1; else cen_md_def1 = cen_md_def1 + 64'd1; end
+            else if (d == 64'd2) begin if (imm) cen_md_imm2 = cen_md_imm2 + 64'd1; else cen_md_def2 = cen_md_def2 + 64'd1; end
+            else                 cen_md_3p = cen_md_3p + 64'd1;
+        end
+        if (fs) cen_last_ref_at[ct] = cen_retired;
+        if (!u.jcn[7] && u.jcn[7:4] != 4'd0 && u.jcn[2:0] != 3'd7) cen_cond = cen_cond + 64'd1;
+        if (jcn_reads_im_at_link_fn(u)) cen_imrw = cen_imrw + 64'd1;
+        if (io_read_stb || io_write_stb || fastio_stb) cen_io = cen_io + 64'd1;
+        if (u.block && ct != 4'd0) cen_block = cen_block + 64'd1;   // in the emulator BLOCK is the StkP modifier
+    endtask
+
+    // The census, at an IFUJump dispatch (ifu_end_task).
+    task automatic cen_dispatch_task();
+        logic [63:0] d;
+        d = cen_retired - cen_last_ifuj_at;
+        cen_last_ifuj_at = cen_retired;
+        cen_ifujump = cen_ifujump + 64'd1;
+        if      (d <= 64'd1)  cen_ifu_hl[0] = cen_ifu_hl[0] + 64'd1;
+        else if (d == 64'd2)  cen_ifu_hl[1] = cen_ifu_hl[1] + 64'd1;
+        else if (d == 64'd3)  cen_ifu_hl[2] = cen_ifu_hl[2] + 64'd1;
+        else if (d == 64'd4)  cen_ifu_hl[3] = cen_ifu_hl[3] + 64'd1;
+        else if (d <= 64'd8)  cen_ifu_hl[4] = cen_ifu_hl[4] + 64'd1;
+        else if (d <= 64'd16) cen_ifu_hl[5] = cen_ifu_hl[5] + 64'd1;
+        else                  cen_ifu_hl[6] = cen_ifu_hl[6] + 64'd1;
+        if (ifu_length <= 8'd3) cen_ifu_len[ifu_length[1:0]] = cen_ifu_len[ifu_length[1:0]] + 64'd1;
+        if (ifu_pcx[0]) cen_ifu_odd = cen_ifu_odd + 64'd1;
+        if (ifu_type_jump && !x_cond_true && !ifu_type_pause) cen_ifu_jump = cen_ifu_jump + 64'd1;
+    endtask
+
     // The end of an IFUJump dispatch (formerly the state C_IFU_END): the
     // dispatch address, PCF, and the IFU bookkeeping. Called by whichever
     // state finishes the dispatch (C_IFU_DEC, _AW, _BW, _END).
@@ -2582,6 +2703,7 @@ module dorado_rtl_cpu
             ifu_idcnt             = 8'd0;
             ifu_save_stkp_pending = 1'b1;
             ifu_dispatch_count    = ifu_dispatch_count + 64'd1;
+            cen_dispatch_task();
 
             n_eff = x_n_slot | {1'b0, x_cond_true};
             tnia  = (x_ifaddr << 2) | {14'd0, n_eff};
@@ -2831,6 +2953,7 @@ module dorado_rtl_cpu
                                         ifu_idcnt  = 8'd0;
                                         ifu_active = 1'b1;
                                         ifu_warmup = 8'd5;
+                                        cen_pcf    = cen_pcf + 64'd1;
                                     end
                                     3'd1: begin // IFUTest <- B
                                         ifu_test         = b;
@@ -3108,6 +3231,8 @@ module dorado_rtl_cpu
         end else if (clk_en && !halted) begin
             do_exec   = (st == C_EXEC) || fexec;
             x_rowload = 1'b0;
+            if ((st == C_DEC || st == C_FETCH) && io_busy) cen_iobusy = cen_iobusy + 64'd1;
+            if (st == C_FETCH && ap_req && !ap_done_q)      cen_apwait = cen_apwait + 64'd1;
             if (md_from_q) begin
                 md        = cache_q;             // the hit word read in the booking clock
                 md_from_q = 1'b0;
@@ -3258,6 +3383,7 @@ module dorado_rtl_cpu
                             x_n_slot = jcn[4:3];
                             if (!ifu_active || ifu_warmup > 8'd0) begin
                                 evc_events |= EVC_EV_IFUNOTREADY;
+                                cen_ifu_notready = cen_ifu_notready + 64'd1;
                                 np = ifu_trap_addr_fn(6'o34, x_n_slot);
                                 if (!ff_loads_link_fn(u)) Link = real_PC + 16'd1;
                             end else begin
@@ -3567,6 +3693,7 @@ module dorado_rtl_cpu
                     task_schedule_task(x_np, x_sched_block, x_sched_freeze, chosen);
                     if (x_sched_freeze) begin
                         cycles = cycles + 64'd1;         // hold: PC and memory timers stand still
+                        cen_hold = cen_hold + 64'd1;
                     end else begin
                         real_PC  = chosen;
                         spec_hit = spec_ok && (chosen == x_np);
@@ -3577,6 +3704,7 @@ module dorado_rtl_cpu
                         if (x_from_im) begin
                             cycles = cycles + 64'd1;
                             memory_tick();
+                            cen_retire_task(x_u, ct0);
                         end
                         if (ifu_active && ifu_warmup > 8'd0) ifu_warmup = ifu_warmup - 8'd1;
                     end

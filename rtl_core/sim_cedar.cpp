@@ -41,6 +41,7 @@
 #include <verilated.h>
 #include "Vdorado_rtl_top.h"
 #include "Vdorado_rtl_top___024root.h"
+#include "sim_census.h"
 
 extern "C" {
 #include "cpu.h"
@@ -967,6 +968,7 @@ int main(int argc, char **argv) {
     }
     double secs = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
 
+    if (getenv("CEDAR_CENSUS")) census_report(top);
     printf("[cedar] %llu microinstructions in lock-step, %.1f s (%.0f/s), %.2f fabric clocks each\n",
            (unsigned long long)steps, secs, steps / secs,
            steps ? (double)rtl_fabric_clocks / steps : 0.0);
