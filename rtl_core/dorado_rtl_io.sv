@@ -1124,26 +1124,48 @@ module dorado_rtl_io
 
 
     // =========================================================================
-    // Framebuffer render engine. The main block posts at most one job per
-    // tick (a gathered display line, or one cursor row); this writes it into
-    // the framebuffer block RAM a byte at a time while io_busy holds the CPU,
-    // which keeps the framebuffer a two-port RAM (this port and scan-out).
+    // Framebuffer render engine, in two parts.
+    //
+    // The copy engine (a_*) owns the line buffer port: it copies the DWT's
+    // munches into ddc_cur_words, and for a render job it snapshots the
+    // words the line needs into a private buffer (r_line) and latches the
+    // job (rr_*). io_busy holds the CPU while it works -- a munch, or at most
+    // 64 words for a full LF line.
+    //
+    // The pixel engine (p_*) then writes the framebuffer from that snapshot,
+    // one pixel per clock, WITHOUT holding the CPU: a 1024-pixel line used to
+    // hold it for 1024 clocks, 12% of all clocks on Cedar's desktop. Only a
+    // new render job that arrives while it is still drawing waits for it.
+    // The framebuffer is a two-port RAM (this port and scan-out).
+    //
     // Line: pixels x < width take the word bits MSB first from
     // ddc_cur_words[ch][start_off + x/16] (0 past the gathered words); pixels
     // at or beyond width are left as they were (C model ddc_render_line).
     // Cursor: the 16 row bits are ORed in at x (C model's cursor overlay).
     // =========================================================================
-    typedef enum logic [2:0] { R_IDLE, R_WADDR, R_WWAIT, R_PIX, R_CUR, R_COPY } rstate_t;
-    rstate_t     r_st;
-    logic        r_rpend, r_wpend;    // render / copy job waiting
+    typedef enum logic [1:0] { A_IDLE, A_COPY, A_SNAP, A_HAND } astate_t;
+    typedef enum logic [2:0] { P_IDLE, P_WADDR, P_WWAIT, P_PIX, P_CUR } pstate_t;
+    astate_t     a_st;
+    pstate_t     p_st;
+    logic        r_rpend, r_wpend;    // render / copy job waiting for the copy engine
+    logic [4:0]  r_wj;                // copy index
+    logic [6:0]  a_k;                 // snapshot word index
+    logic        a_kv;                // a_k - 1's read is arriving (line buffer reads are one clock late)
+    logic [6:0]  a_kd;
+    logic        a_cursor;            // the snapshot is a cursor row
+    // the job being drawn
+    logic        rr_cursor;
+    logic [9:0]  rr_y;
+    logic [10:0] rr_width;
+    logic [15:0] rr_cx;
+    logic [15:0] rr_cbits;
     logic [10:0] r_x;                 // pixel being written
     logic [15:0] r_word;              // line word holding pixel r_x
     logic [4:0]  r_b;                 // cursor bit
-    logic [4:0]  r_wj;                // copy index
     logic [19:0] r_addr;
     logic        r_we, r_wd;
 
-    // Line buffer port: the copy engine writes, the renderer reads.
+    // Line buffer port: the copy engine writes munches and reads snapshots.
     logic [7:0]  cw_addr;
     logic        cw_we;
     logic [15:0] cw_wd;
@@ -1152,26 +1174,40 @@ module dorado_rtl_io
         if (cw_we) ddc_cur_words[cw_addr] <= cw_wd;
         cw_q <= ddc_cur_words[cw_addr];
     end
+    // The pixel engine's private copy of the line.
+    (* ramstyle = "M10K" *) logic [15:0] r_line [0:63];
+    logic        rl_we;
+    logic [5:0]  rl_waddr, rl_raddr;
+    logic [15:0] rl_wd, rl_q;
+    always_ff @(posedge clk) begin
+        if (rl_we) r_line[rl_waddr] <= rl_wd;
+        rl_q <= r_line[rl_raddr];
+    end
 
-    assign r_busy = r_rpend || r_wpend || (r_st != R_IDLE);
+    // held: the copy engine has work, or a job waits for the pixel engine
+    assign r_busy = r_rpend || r_wpend || (a_st != A_IDLE);
 
     always_comb begin
         logic [7:0] src;
         fb_addr_a = r_addr;
         fb_we_a   = r_we;
         fb_wd_a   = r_wd;
-        src       = {4'd0, rj_start_off} + {1'b0, r_x[10:4]};
-        cw_we     = (r_st == R_COPY);
-        cw_addr   = (r_st == R_COPY) ? {wc_ch, wc_base + {2'd0, r_wj}} : {rj_ch, src[6:0]};
+        src       = {4'd0, rj_start_off} + {1'b0, a_k};
+        cw_we     = (a_st == A_COPY);
+        cw_addr   = (a_st == A_COPY) ? {wc_ch, wc_base + {2'd0, r_wj}} : {rj_ch, src[6:0]};
         cw_wd     = fastio_out_munch[r_wj[3:0]];
+        rl_raddr  = r_x[9:4];
     end
 
     always_ff @(posedge clk) begin
-        r_we <= 1'b0;
+        r_we  <= 1'b0;
+        rl_we <= 1'b0;
         if (rst) begin
-            r_st                <= R_IDLE;
+            a_st                <= A_IDLE;
+            p_st                <= P_IDLE;
             r_rpend             <= 1'b0;
             r_wpend             <= 1'b0;
+            a_kv                <= 1'b0;
             ddc_pixels_rendered <= 64'd0;
         end else begin
             // A tick posts at most one render and one copy; the render (from
@@ -1179,57 +1215,96 @@ module dorado_rtl_io
             // goes first.
             if (rj_start) r_rpend <= 1'b1;
             if (wc_start) r_wpend <= 1'b1;
-            case (r_st)
-            R_IDLE: begin
+
+            // ---- copy engine --------------------------------------------
+            case (a_st)
+            A_IDLE: begin
+                // a render first, and only once the pixel engine has finished
+                // with r_line (a munch copy behind it waits too, in order)
                 if (r_rpend) begin
-                    r_rpend <= 1'b0;
-                    r_x     <= 11'd0;
-                    r_b     <= 5'd0;
-                    r_st    <= rj_cursor ? R_CUR : R_WADDR;
+                    if (p_st == P_IDLE) begin
+                    r_rpend  <= 1'b0;
+                    a_cursor <= rj_cursor;
+                    a_k      <= 7'd0;
+                    a_kv     <= 1'b0;
+                    a_st     <= rj_cursor ? A_HAND : A_SNAP;
+                    end
                 end else if (r_wpend) begin
                     r_wpend <= 1'b0;
                     r_wj    <= 5'd0;
-                    r_st    <= R_COPY;
+                    a_st    <= A_COPY;
                 end
             end
-            R_COPY: begin
-                if (r_wj == wc_n - 5'd1) r_st <= R_IDLE;
+            A_COPY: begin
+                if (r_wj == wc_n - 5'd1) a_st <= A_IDLE;
                 else                     r_wj <= r_wj + 5'd1;
             end
-            R_WADDR: r_st <= R_WWAIT;          // cw_addr = word holding r_x
-            R_WWAIT: begin
-                logic [7:0] src;
-                src    = {4'd0, rj_start_off} + {1'b0, r_x[10:4]};
-                r_word <= (src < rj_wcount && src < 8'd128) ? cw_q : 16'd0;
-                r_st   <= R_PIX;
+            A_SNAP: begin
+                // read word a_k this clock; store word a_k-1 that arrives
+                logic [7:0] srcd;
+                srcd = {4'd0, rj_start_off} + {1'b0, a_kd};
+                if (a_kv) begin
+                    rl_we    <= 1'b1;
+                    rl_waddr <= a_kd[5:0];
+                    rl_wd    <= (srcd < rj_wcount && srcd < 8'd128) ? cw_q : 16'd0;
+                end
+                a_kd <= a_k;
+                a_kv <= 1'b1;
+                if (a_kv && ({4'd0, a_kd} + 11'd1) * 16 >= rj_width) a_st <= A_HAND;
+                else a_k <= a_k + 7'd1;
             end
-            R_PIX: begin
+            A_HAND: begin
+                // hand the job to the pixel engine once it is free
+                if (p_st == P_IDLE) begin
+                    rr_cursor <= a_cursor;
+                    rr_y      <= rj_y;
+                    rr_width  <= rj_width;
+                    rr_cx     <= rj_cx;
+                    rr_cbits  <= rj_cbits;
+                    r_x       <= 11'd0;
+                    r_b       <= 5'd0;
+                    p_st      <= a_cursor ? P_CUR : P_WADDR;
+                    a_st      <= A_IDLE;
+                end
+            end
+            default: a_st <= A_IDLE;
+            endcase
+
+            // ---- pixel engine (does not hold the CPU) -------------------
+            case (p_st)
+            P_IDLE: ;
+            P_WADDR: p_st <= P_WWAIT;           // rl_raddr = word holding r_x
+            P_WWAIT: begin
+                r_word <= rl_q;
+                p_st   <= P_PIX;
+            end
+            P_PIX: begin
                 // line: pixels x < width take the word bits, MSB first
                 logic px;
                 px     = r_word[4'd15 - r_x[3:0]];
                 r_we   <= 1'b1;
                 r_wd   <= px;
-                r_addr <= {rj_y, r_x[9:0]};
+                r_addr <= {rr_y, r_x[9:0]};
                 if (px) ddc_pixels_rendered <= ddc_pixels_rendered + 64'd1;
-                if (r_x == rj_width - 11'd1)  r_st <= R_IDLE;
+                if (r_x == rr_width - 11'd1)  p_st <= P_IDLE;
                 else begin
                     r_x <= r_x + 11'd1;
-                    if (r_x[3:0] == 4'd15) r_st <= R_WADDR;
+                    if (r_x[3:0] == 4'd15) p_st <= P_WADDR;
                 end
             end
-            R_CUR: begin
+            P_CUR: begin
                 // cursor: OR the 16 row bits in at x (never clears)
                 logic signed [16:0] x;
-                x = $signed({rj_cx[15], rj_cx}) + $signed({12'd0, r_b});
-                if (rj_cbits[4'd15 - r_b[3:0]] && x >= 0 && x < DISPLAY_W) begin
+                x = $signed({rr_cx[15], rr_cx}) + $signed({12'd0, r_b});
+                if (rr_cbits[4'd15 - r_b[3:0]] && x >= 0 && x < DISPLAY_W) begin
                     r_we   <= 1'b1;
                     r_wd   <= 1'b1;
-                    r_addr <= {rj_y, x[9:0]};
+                    r_addr <= {rr_y, x[9:0]};
                 end
-                if (r_b == 5'd15) r_st <= R_IDLE;
+                if (r_b == 5'd15) p_st <= P_IDLE;
                 else              r_b  <= r_b + 5'd1;
             end
-            default: r_st <= R_IDLE;
+            default: p_st <= P_IDLE;
             endcase
         end
     end

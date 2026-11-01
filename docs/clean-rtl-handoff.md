@@ -706,3 +706,25 @@ microinstruction:
 
 The speculative IM read does work (FETCH->EXEC 0.98 per microinstruction).
 On MiSTer14: 5.6M microinstructions/s = 0.34x with the display running.
+
+**First speed step: the line renderer no longer holds the CPU.** The DDC
+render engine is now two engines.
+
+- The **copy engine** holds the CPU (`io_busy`). It copies munches into the
+  line buffer, and for a render job snapshots the line's words, at most 64,
+  into a private `r_line` and latches the job.
+- The **pixel engine** writes the framebuffer from that snapshot without
+  holding the CPU. A render job waits for it only if the previous line is
+  still being drawn, with any munch copy queued behind it in order.
+
+Results:
+
+- Rehearsal: 9.09 -> **8.15** clocks per microinstruction; the RTL
+  framebuffer is unchanged (167,459 px).
+- Galaxian unchanged (3,259 px).
+- MiSTer14: 0.34x -> **0.38x** (6.3M microinstructions/s).
+
+The clock: 55 MHz fails timing by 0.40 ns. Every one of the 12 worst paths
+runs `ifu_idcnt` -> `x_pd` (the IFU operand `A<-Id` through the ALU into Pd
+in one clock). Registering that operand ahead of C_EXEC is the next timing
+fix; the core stays at 50 MHz (+1.7 ns).
