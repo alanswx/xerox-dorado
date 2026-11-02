@@ -1447,18 +1447,17 @@ module dorado_rtl_cpu
     // C_PREF): Md for the task, and the fault wakeup.
     task automatic mem_pref_task();
         logic recorded_fault;
-        // a hit completing this clock (done_now) never faults
-        recorded_fault = !mem_done_now && ((mem_res_fault_r != DM_FAULT_NONE) ||
-                                           (fault_count != x_fcnt_before));
+        recorded_fault = (mem_res_fault_r != DM_FAULT_NONE) ||
+                         (fault_count != x_fcnt_before);
         evc_events |= EVC_EV_PROCREF;
-        if (!mem_done_now && mem_res_miss_r) evc_events |= EVC_EV_MISS;
+        if (mem_res_miss_r) evc_events |= EVC_EV_MISS;
 
-        if ((mem_done_now || mem_res_fault_r == DM_FAULT_NONE) &&
+        if (mem_res_fault_r == DM_FAULT_NONE &&
             (x_kind == DM_REF_FETCH || x_kind == DM_REF_IFETCH ||
              x_kind == DM_REF_LONGFETCH)) begin
-            task_md[ctask]       = md;
+            task_md[ctask]       = md_r;
             task_md_valid[ctask] = 1'b1;
-            task_md_ready[ctask] = cycles + 64'(mem_done_now ? 8'd3 : mem_res_latency_r);
+            task_md_ready[ctask] = cycles + 64'(mem_res_latency_r);
         end
 
         if (recorded_fault && x_kind != DM_REF_IFETCH && !mcr_nowake()) begin
@@ -1983,8 +1982,8 @@ module dorado_rtl_cpu
     // (registers only: a hit completes in C_NEXT and is consumed in C_FINISH,
     // which retires in the same clock; a pending request of the processor's
     // own means the result shown is an older one)
-    assign mem_fin = (mem_res_valid_r && (mem_res_tag_r == TAG_PROC) && !(mem_req && mem_req_tag == TAG_PROC)) ||
-                     (mem_done_now && mem_res_tag == TAG_PROC);
+    assign mem_fin = mem_res_valid_r && (mem_res_tag_r == TAG_PROC) &&
+                     !(mem_req && mem_req_tag == TAG_PROC);
     // the dispatched bytes' references are booked before the processor's next
     // instruction executes (or the assist runs, or the lock-step compares);
     assign ifu_bk_busy = (bk_n != 2'd0) || (mem_req && mem_req_tag == TAG_BK) ||
@@ -3099,7 +3098,10 @@ module dorado_rtl_cpu
                     // ...and with the operand read ahead the condition was in
                     // rm_q in this clock: the prediction stood and IM was
                     // read at it (pred_ok), so C_NF can follow directly
-                    if (pred_ok) begin
+                    // (not when a reference is outstanding: C_NF would wait,
+                    // and its RM port moves on to the next instruction's
+                    // operand, so the condition would be re-read wrong)
+                    if (pred_ok && !x_pref_pending) begin
                         st           = C_NF;
                         x_pred_fresh = 1'b1;
                         x_pred_np    = pred_np;

@@ -546,6 +546,18 @@ C_NEXT/C_FINISH (consuming from registers, as before the merge) and only
 the rest through C_NF -- or to register the hit in the execute clock,
 which the VA adder's path may not afford.
 
+**Timing closed at 44 MHz (2026-11-02).** C_NF consumes a reference's
+result from the registers again (`mem_fin` without `done_now`, `md_r`,
+`res_latency_r`), which takes the hit compare out of the scheduler's
+cone at a cost of 0.16 clocks (rehearsal 2.87 -> 3.03, 3M 2.59 -> 2.75,
+Galaxian 2.99). 48 MHz still misses by 1.71 ns; **44 MHz closes
+(+0.32 ns, 71% ALMs)**, and on MiSTer14 it runs **14.95 M/s = 0.90x a
+Dorado at 2.95 clocks, timing met**. The wait exposed a latent bug in the
+RM-condition shortcut: a C_NF that waits on a reference lets the RM port
+move on to the next instruction's operand, so the condition was re-read
+wrong (a branch on RM odd at step 604,046); the shortcut now requires no
+reference outstanding.
+
 Mistakes worth keeping: narrowing the byte-reference gate to "touches
 memory" let the RTL retire the next instruction before the lock-step's
 compare point (a `StkP`/`alu_zero` mismatch at step 15 -- the RTL was one
