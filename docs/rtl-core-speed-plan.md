@@ -567,6 +567,45 @@ holding for the bookings, not a narrower gate alone; and Quartus 17 rejects
 default values on input ports (`input logic x = 1'b0`), which Verilator
 accepts.
 
+**The byte-booking overlap (2026-11-02).** An IFUJump dispatched from the
+prefetch buffer still makes the C model's references for its bytes (one
+per word, booked after the dispatch). The next instruction used to wait
+for all of them; now only an execute that would interact with them waits
+(`ifu_bk_gate`): one that references memory, reads Md, reads the section's
+state (HM Table 11c FA=1 FB=6), or reads Id. Any other instruction executes
+beside them, as the real processor runs beside its IFU (HM 6.3), and its
+RETIRE waits for them, so the tick and the next dispatch stay ordered
+after them. The rehearsal goes from 3.03 to 2.91 clocks (clocks waiting
+for the byte references 34.6 -> 23.1 per 100 instructions); 44 MHz
+still closes (+0.008 ns, 70% ALMs); on MiSTer14 it runs **15.57 M/s =
+0.93x a Dorado at 2.83 clocks**, Cedar desktop live (167,657 px).
+Galaxian is unchanged at 2.99 (the Alto emulator's dispatches rarely
+leave bookings to overlap).
+
+How it is checked. The lock-step compares in two parts: the processor at
+`step_done`, then `rtl_settle` clocks to `cmp_done` (the bookings landed,
+read from registers only) and compares the memory section. During the
+settle the lock-step holds the next instruction (`hp_hold`): its I/O
+answers and the host's pokes come from the C model's next step, which has
+not run yet, so letting it run ahead there would compare against inputs
+the RTL could not have had. The run-ahead itself is checked by the
+free-running boot: a rolling hash of (cycles, PC, task) every 100,000
+steps (`RTL_STEP_LOG` in `sim_cosim`) is identical to the committed core's
+over all 80 M steps of the Galaxian boot.
+
+Three things it took. **Id readers must wait**: `id_r0`/`id_r1` are
+registered from the IFU state of the clock before, and the full gate had
+always given them that clock after a dispatch; without it an `A<-Id`
+straight after the dispatch read the previous opcode's operand (step 6
+of the 3M). **The compare point is registers only**: an earlier
+`cmp_done` that counted a booking completing in its accept clock compared
+`Mar` one reference early. And Suite 6 failed inside `make test`
+while the same boot run alone (`RTL_BOOT_ONLY`) passed: the likely cause is
+a static flag in the harness (`rtl_step_seen`) left set by an earlier
+suite's settle, making the boot's first step return at once. It is now
+cleared at every RTL reset and Suite 6 passes in `make test`; the fix went
+in together with the settle hold, so the cause is inferred, not isolated.
+
 ### Phase 3: the pipelined processor (3-5 weeks)
 
 `dorado_rtl_cpu_pipe.sv`, selected by a top-level parameter so the FSM core

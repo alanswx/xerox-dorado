@@ -890,6 +890,14 @@ module dorado_rtl_cpu
         return 1'b0;
     endfunction
 
+    // The instruction takes an Id operand: A<-Id (HM Table 8a), the FF
+    // A-source Id form (ASEL 2/3), or TisId/RisId.
+    function automatic logic uinstr_reads_id_fn(input dorado_uinstr_t u);
+        return (u.asel == 3'd5) ||
+               ((u.asel == 3'd2 || u.asel == 3'd3) && ff_decode_ok(u) && u.ff[7:6] == 2'd1) ||
+               ff_is_t_is_id(u) || ff_is_r_is_id(u);
+    endfunction
+
     function automatic logic uinstr_reads_md_fn(input dorado_uinstr_t u);
         if (ff_decode_ok(u) && u.asel != 3'd7) begin
             logic [5:0] f6;
@@ -1989,10 +1997,20 @@ module dorado_rtl_cpu
     assign ifu_bk_busy = (bk_n != 2'd0) || (mem_req && mem_req_tag == TAG_BK) ||
                          (mem_inflight && mem_inflight_tag == TAG_BK);
     assign cmp_done    = cmp_wait && !ifu_bk_busy;
-    // Every execute waits for them: the lock-step compares the machine at
-    // the instruction boundary with the bytes booked (an execute that does
-    // not touch memory could go ahead, but the compare point could not).
-    assign ifu_bk_gate = ifu_bk_busy;
+    // An execute that references memory (its request would pass theirs),
+    // reads Md, reads the section's state (FaultInfo', Pipe, Config',
+    // MapBufBusy: HM Table 11c FA=1 FB=6), or reads Id (id_r0/id_r1 are
+    // registered from the IFU state of the clock before, and the dispatch
+    // that owes the bookings has just changed it) waits for them; any other goes
+    // ahead, as the real processor does beside its IFU (HM 6.3). The RETIRE
+    // waits for them (finish_task), so the tick and the next dispatch stay
+    // ordered after them; the lock-step compares the processor at step_done
+    // and the memory section at cmp_done.
+    assign ifu_bk_gate = ifu_bk_busy &&
+                         ((cur_u.asel <= 3'd3 && !jcn_is_write_im_fn(cur_u) &&
+                           decode_ref_kind_fn(cur_u, ctask != 4'd0) != DM_REF_NONE) ||
+                          uinstr_reads_md_fn(cur_u) || uinstr_reads_id_fn(cur_u) ||
+                          (ff_fa(cur_u.ff) == 2'd1 && ff_fb(cur_u.ff) == 3'd6));
     assign fastio_stb = fastio_stb_r || mem_fastio_set;
 
     generate
@@ -2329,8 +2347,10 @@ module dorado_rtl_cpu
     task automatic finish_task(input logic is_finish, input logic is_sched, input logic from_nf, input logic pre_in);
         logic do_sched, spec_ok, pre;
         logic [3:0] ct0;
-      if (is_finish && io_busy_tick) begin
-        // the I/O engines are still on the last tick: wait (the read-ahead stands)
+      if (is_finish && (io_busy_tick || ifu_bk_busy)) begin
+        // the I/O engines are still on the last tick, or the last dispatch's
+        // byte references are still owed: wait (the read-ahead stands)
+        if (ifu_bk_busy) cen_bk_wait = cen_bk_wait + 64'd1;
       end else if (is_finish && x_pref_pending) begin
         x_pred_fresh = 1'b0;             // the reference is in flight: wait
       end else begin
@@ -2982,8 +3002,8 @@ module dorado_rtl_cpu
     // the clock the instruction completes: C_FINISH, unless it is waiting
     // for its memory reference (x_pref_pending until mem_fin)
     assign io_tick_early  = clk_en && !halted &&
-                            (((st == C_FINISH || st == C_NF) && !(x_pref_pending && !mem_fin) && !io_busy_tick) ||
-                             st == C_SCHED);
+                            (((st == C_FINISH || st == C_NF) && !(x_pref_pending && !mem_fin) && !io_busy_tick &&
+                              !ifu_bk_busy) || st == C_SCHED);
     assign dbg_ifu_active = ifu_active;
     assign dbg_st         = st;
     always @(posedge clk) begin
@@ -3187,7 +3207,8 @@ module dorado_rtl_cpu
             // the read-ahead, and the finish runs now. A reference still in
             // flight holds the whole clock (nothing of it runs twice).
             C_NF: begin
-                if (!x_pref_pending && !io_busy_tick) begin
+                if (ifu_bk_busy) cen_bk_wait = cen_bk_wait + 64'd1;
+                if (!x_pref_pending && !io_busy_tick && !ifu_bk_busy) begin
                     logic pre0;
                     pre0 = x_pred_fresh && (x_pred_np_x == pred_np);   // the execute's read is this clock's prediction
                     next_task();

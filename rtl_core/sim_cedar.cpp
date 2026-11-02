@@ -834,7 +834,12 @@ static int step_hook(dorado_machine *, int after) {
     top->io_atten_in = cap.atten_valid ? cap.atten : 0;
     rtl_step(top);
     steps++;
-    if (!compare_c_rtl(C, top, steps, "cedar", pc_before, task_before)) {
+    if (!compare_c_rtl(C, top, steps, "cedar", pc_before, task_before, 0)) {
+        failed = true;
+        return 1;
+    }
+    rtl_settle(top);
+    if (!compare_c_rtl(C, top, steps, "cedar", pc_before, task_before, 1)) {
         failed = true;
         return 1;
     }

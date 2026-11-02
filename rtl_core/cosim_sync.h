@@ -44,7 +44,9 @@ static void pack_uinstr_words(dorado_uinstr *u) {
 // One microinstruction of the RTL: clock until step_done (or a halt). The RTL
 // takes several fabric clocks per microinstruction; the C model takes one call.
 static uint64_t rtl_fabric_clocks = 0;
+static bool rtl_step_seen = false;        // a retire seen during rtl_settle
 static void rtl_step(Vdorado_rtl_top *top) {
+    if (rtl_step_seen) { rtl_step_seen = false; return; }   // retired during the last settle
     for (int i = 0; i < 4096; i++) {
         top->clk = 1;
         top->eval();
@@ -66,7 +68,36 @@ static void rtl_step(Vdorado_rtl_top *top) {
             (int)R_CPU(pf_ev), (int)R_CPU(pf_pres), (unsigned)R_CPU(pf_w0), (unsigned)R_CPU(pf_w1),
             (unsigned)R_CPU(pf_lh), (unsigned)R_CPU(pf_rh), (unsigned)R_CPU(pf_va0), (int)R_CPU(nx_fast),
             (int)R_CPU(bk_n), (int)R_CPU(mem_req), (int)R_CPU(mem_req_tag), (int)R_CPU(mem_req2));
-        if (top->cmp_done || top->dbg_halted) return;   // the instruction and what its dispatch owes
+        if (top->step_done || top->dbg_halted) return;  // the instruction retired
+    }
+    fprintf(stderr, "[RTL] no step_done after 4096 clocks (pc=0%o)\n",
+            (unsigned)top->dbg_real_pc);
+}
+// The references an IFUJump's dispatch owes are booked after the instruction
+// retires, while the next executes (if it does not touch the section): clock
+// until they are (cmp_done). The lock-step holds the next instruction while it
+// does (hp_hold, the host's between-instructions hold): its I/O answers and
+// the host's pokes come from the C model's NEXT step, which has not run yet.
+// The run-ahead itself is exercised by the free-running harnesses
+// (sim_cosim's boot, sim_hps), whose step sequence must not change.
+static void rtl_settle(Vdorado_rtl_top *top) {
+    struct hold_guard {
+        Vdorado_rtl_top *t; uint8_t prev;
+        ~hold_guard() { t->hp_hold = prev; t->eval(); }
+    } g{top, (uint8_t)top->hp_hold};
+    top->hp_hold = 1;
+    for (int i = 0; i < 4096; i++) {
+        if (top->cmp_done || top->dbg_halted) return;
+        top->clk = 1;
+        top->eval();
+        top->clk = 0;
+        top->eval();
+        rtl_fabric_clocks++;
+        static const bool fsm_trace = getenv("RTL_FSM_TRACE") != nullptr;
+        if (fsm_trace) fprintf(stderr, "  settle st=%d pc=0%o step_done=%d cmp_done=%d bk_n=%d req=%d/%d\n",
+                               (int)R_CPU(st), (unsigned)R_CPU(real_PC), (int)top->step_done,
+                               (int)top->cmp_done, (int)R_CPU(bk_n), (int)R_CPU(mem_req), (int)R_CPU(mem_req_tag));
+        if (top->step_done) rtl_step_seen = true;
     }
     fprintf(stderr, "[RTL] no cmp_done after 4096 clocks (pc=0%o)\n",
             (unsigned)top->dbg_real_pc);
@@ -91,6 +122,7 @@ static void sync_c_to_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top) {
     top->kbd_words = ~0ULL;
     top->mouse_buttons = 0; top->mouse_present = 0; top->mouse_x = 0; top->mouse_y = 0;
     top->eth_local_host = 042;
+    rtl_step_seen = false;               // a retire seen by a previous run's settle
     top->io_attached = 0;
     top->io_read_data = 0;
     top->io_read_bad_parity = 0;
@@ -329,9 +361,11 @@ static void sync_c_to_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top) {
 // -----------------------------------------------------------------------------
 // Step both C reference and Verilated RTL by 1 cycle and verify lock-step match
 // -----------------------------------------------------------------------------
+// part 0: the processor (at step_done); part 1: the memory section (at
+// cmp_done, once the dispatch's references are booked); 2: both.
 static bool compare_c_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top,
                           uint64_t step_idx, const char *test_name,
-                          uint16_t pc_before, uint8_t task_before) {
+                          uint16_t pc_before, uint8_t task_before, int part = 2) {
     const dorado_memory *c_mem = c_cpu->mem;
 
     bool ok = true;
@@ -353,6 +387,7 @@ static bool compare_c_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top,
         ok = false;
     };
 
+  if (part != 1) {
     if (c_cpu->real_PC != R_CPU(real_PC)) fail("real_PC", c_cpu->real_PC, R_CPU(real_PC));
     if (c_cpu->ctask   != R_CPU(ctask))   fail("ctask",   c_cpu->ctask,   R_CPU(ctask));
     if (c_cpu->ready   != R_CPU(ready))   fail("ready",   c_cpu->ready,   R_CPU(ready));
@@ -394,10 +429,21 @@ static bool compare_c_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top,
     }
 
     if (c_mem) {
-        if (c_mem->md  != R_MEM(md_q))  fail("mem.md",  c_mem->md,  R_MEM(md_q));
-        if (c_mem->mar != R_MEM(mar)) fail("mem.mar", c_mem->mar, R_MEM(mar));
         if (c_mem->mcr != R_CPU(mcr)) fail("mem.mcr", c_mem->mcr, R_CPU(mcr));
         if (c_mem->proc_srn != R_CPU(proc_srn)) fail("mem.proc_srn", c_mem->proc_srn, R_CPU(proc_srn));
+        for (int i = 0; i < DM_BR_COUNT; i++) {
+            if (c_mem->br[i] != R_CPU(br)[i]) {
+                char name[32];
+                snprintf(name, sizeof(name), "mem.br[%d]", i);
+                fail(name, c_mem->br[i], R_CPU(br)[i]);
+            }
+        }
+    }
+  }
+  if (part != 0 && c_mem) {
+    {
+        if (c_mem->md  != R_MEM(md_q))  fail("mem.md",  c_mem->md,  R_MEM(md_q));
+        if (c_mem->mar != R_MEM(mar)) fail("mem.mar", c_mem->mar, R_MEM(mar));
         if (c_mem->asrn     != R_MEM(asrn))     fail("mem.asrn",     c_mem->asrn,     R_MEM(asrn));
         // Data paths (the RTL moves lines over several clocks): every valid
         // cache line every step, all of storage every 256 steps.
@@ -430,14 +476,8 @@ static bool compare_c_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top,
                 }
             }
         }
-        for (int i = 0; i < DM_BR_COUNT; i++) {
-            if (c_mem->br[i] != R_CPU(br)[i]) {
-                char name[32];
-                snprintf(name, sizeof(name), "mem.br[%d]", i);
-                fail(name, c_mem->br[i], R_CPU(br)[i]);
-            }
-        }
     }
+  }
 
     return ok;
 }
@@ -450,8 +490,10 @@ static bool step_and_compare(dorado_cpu *c_cpu, Vdorado_rtl_top *top,
     // 1. Step C reference
     dorado_cpu_step(c_cpu);
 
-    // 2. Step RTL by one microinstruction
+    // 2. Step RTL by one microinstruction: the processor at its retire, the
+    //    memory section once the dispatch's references are booked
     rtl_step(top);
-
-    return compare_c_rtl(c_cpu, top, step_idx, test_name, pc_before, task_before);
+    if (!compare_c_rtl(c_cpu, top, step_idx, test_name, pc_before, task_before, 0)) return false;
+    rtl_settle(top);
+    return compare_c_rtl(c_cpu, top, step_idx, test_name, pc_before, task_before, 1);
 }

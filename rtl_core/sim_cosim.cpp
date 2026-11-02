@@ -806,6 +806,14 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
         uint32_t pre_br31 = R_CPU(br)[037];  // BR[Code, 37] -- the IFU code base
         uint16_t pre_ac[4] = { R_CPU(STK)[1], R_CPU(STK)[2], R_CPU(STK)[3], R_CPU(STK)[4] };
         rtl_step(top);
+        static FILE *step_log = getenv("RTL_STEP_LOG") ? fopen(getenv("RTL_STEP_LOG"), "w") : nullptr;
+        static uint64_t step_hash = 0, step_n = 0;
+        if (step_log) {
+            step_hash = step_hash * 1000003u ^ ((uint64_t)R_CPU(cycles) << 24 ^ (uint64_t)R_CPU(real_PC) << 4 ^ R_CPU(ctask));
+            if (++step_n % 100000 == 0)
+                fprintf(step_log, "%llu %llu %016llx\n", (unsigned long long)step_n,
+                        (unsigned long long)R_CPU(cycles), (unsigned long long)step_hash);
+        }
 
         // RTL_IFUDISP_TRACE=1: one line per IFU dispatch, comparable with the
         // C emulator's DORADO_IFUDISP_TRACE (pcx, opcode, Alto AC0..3 = STK[1..4]).
