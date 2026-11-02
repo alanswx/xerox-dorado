@@ -174,12 +174,31 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 ///////////////////////   CLOCKS   ///////////////////////////////
 
 wire clk_sys;   // CLK_MHZ (build.sh), 50 MHz by default
+wire pll_locked;
 pll pll
 (
 	.refclk(CLK_50M),
 	.rst(0),
-	.outclk_0(clk_sys)
+	.outclk_0(clk_sys),
+	.locked(pll_locked)
 );
+
+// The fabric clock measured against the board's 50 MHz: a count of CLK_50M
+// edges crosses into clk_sys as a Gray code (a torn sample is off by one),
+// and the host divides the two counts' rates. The PLL's own lock beside it.
+reg  [31:0] ref_bin = 32'd0;
+always @(posedge CLK_50M) ref_bin <= ref_bin + 32'd1;
+wire [31:0] ref_gray = ref_bin ^ (ref_bin >> 1);
+reg  [31:0] ref_g1, ref_g2;
+always @(posedge clk_sys) begin
+	ref_g1 <= ref_gray;
+	ref_g2 <= ref_g1;
+end
+wire [31:0] ref_cnt;
+genvar gi;
+generate for (gi = 0; gi < 32; gi = gi + 1) begin : g2b
+	assign ref_cnt[gi] = ^(ref_g2 >> gi);
+end endgenerate
 
 // The preloaded memories (IM, IFUM, RM, Map) take their contents only when
 // the FPGA is configured; a reset restarts from whatever they hold now, so
@@ -265,6 +284,8 @@ dorado_rtl_top #(
 	.clk                (clk_sys),
 	.rst                (reset),
 	.clk_en             (1'b1),
+	.pll_locked         (pll_locked),
+	.ref_cnt            (ref_cnt),
 	.bb_present         (1'b0),
 	.bb_running         (1'b1),
 	.bb_ss_inject       (1'b0),

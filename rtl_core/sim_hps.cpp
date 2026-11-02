@@ -42,7 +42,7 @@ static int mouse_tx, mouse_ty, mouse_tb;   // scripted pointer target and button
 static bool     hist_on;
 static uint64_t hist[32];              // fabric clocks per CPU state
 static uint64_t trans[32][32], same[32];  // state changes; clocks a state repeated
-static const char *stname[] = {"C_FETCH","C_DEC","C_EXEC","C_PREF","C_NEXTRD","C_NEXT","C_SCHED",
+static const char *stname[] = {"C_FETCH","C_DEC","C_EXEC","C_NF","C_NEXTRD","C_NEXT","C_SCHED",
     "C_IFU_W","C_IFU_DECW","C_IFU_DEC","C_IFU_AW","C_IFU_BETA","C_IFU_BW","C_IFU_END","C_FINISH","C_APW",
     "?","?","?","?","?","?","?","?","?","?","?","?","?","?","?","?"};
 
@@ -202,8 +202,10 @@ int main(int argc, char **argv) {
         }
     }
     double secs = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
-    printf("[hps] %llu microinstructions on the RTL in %.1f s, %llu clocks; host at cycle %llu\n",
+    printf("[hps] %llu microinstructions on the RTL in %.1f s, %llu clocks (%.2f each; the status beat's count says %.2f); host at cycle %llu\n",
            (unsigned long long)(S->rtl_cycles - start), secs, (unsigned long long)clocks,
+           (double)clocks / (double)(S->rtl_cycles - start),
+           (double)S->rtl_clocks64 / (double)(S->rtl_cycles - start),
            (unsigned long long)dorado_machine_cycles(M));
     printf("[hps] mailbox: %llu operations -- %llu reads, %llu stores, %llu NWW ors, %llu reschedules; "
            "%llu packets in, %llu out, %llu transmits lost, %llu inexpressible\n",

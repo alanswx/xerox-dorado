@@ -32,7 +32,16 @@ struct hps_stats {
     uint64_t ops, reads, stores, rm_or, resched, rx_packets, tx_packets, tx_unsupported, unported;
     uint64_t rtl_cycles, host_bb_cycles, host_target;   // host_target: where the FPGA is, in BaseBoard cycles
     uint64_t rtl_clocks;              // fabric clocks (status beat 8, top 24 bits, unwrapped)
+    uint64_t status_reads;            // read_status calls (the unwrap needs one per 0.3 s at least)
+    uint64_t rtl_clocks64;            // the whole fabric clock count (status beat 12)
+    uint64_t status_rounds;           // status rounds (one per 4096 clocks: an independent clock measure)
+    uint16_t last_status_n;
+    uint64_t st_cnt[16];              // clocks by sequencer state (status beats 16-31)
     uint32_t last_clk24;
+    uint64_t ref_clocks;              // CLK_50M edges (status beat 13, unwrapped): the fabric clock's reference
+    uint32_t last_ref32;
+    int      pll_locked;              // the core PLL's lock (beat 13 bit 32)
+    double   t_status;                // CLOCK_MONOTONIC at the last status read (rates are per read interval, not per report)
 };
 
 // Restore the snapshot, load storage, start the core. 0 on success.

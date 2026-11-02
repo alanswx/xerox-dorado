@@ -41,6 +41,14 @@ static inline void census_report(Vdorado_rtl_top *top) {
         printf("         peeks %.1f per 100 instr (retries %.1f, misses %.2f); clocks waiting for the byte references %.2f per 100 instr\n",
                per * C(peek), per * C(peek_retry), per * C(peek_miss), per * C(bk_wait));
     }
+    {
+        const auto &nn = top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__cen_nonf;
+        const auto &ns = top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__cen_nospec;
+        const auto &np = top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__cen_nopre;
+        printf("         merge: the execute went to C_NEXT for an RM condition %.1f, an IFUJump not from the buffer %.1f, a LoadRam exit %.2f, another JCN %.2f; "
+               "IM read-ahead lost to a task switch %.1f, another PC %.1f; RM read-ahead lost to RBase/StkP %.1f, to C_NF's own prediction %.1f\n",
+               per * nn[0], per * nn[1], per * nn[2], per * nn[3], per * ns[0], per * ns[1], per * np[0], per * np[1]);
+    }
     printf("         PCF<-B restarts %.2f; conditional branches %.1f; Read/Write IM %.2f; I/O instructions %.1f; BLOCKs %.1f; "
            "task switches %.1f; holds %.2f; clocks waiting: I/O engines %.2f, host port %.2f\n",
            per * C(pcf), per * C(cond), per * C(imrw), per * C(io), per * C(block), per * C(switch), per * C(hold),

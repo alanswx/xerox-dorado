@@ -25,6 +25,9 @@ module dorado_rtl_top
     input  logic        clk,
     input  logic        rst,
     input  logic        clk_en,
+    // the MiSTer wrapper's PLL lock and CLK_50M count (status beat 13)
+    input  logic        pll_locked,
+    input  logic [31:0] ref_cnt,
 
     // BaseBoard / MIR single-step injection interface
     input  logic        bb_present,
@@ -149,6 +152,7 @@ module dorado_rtl_top
     output logic         DDRAM_WE
 );
     logic           io_busy;
+    logic           io_jobs_busy;
     logic           srv_stall;
     logic           srv_rx_wr_en, srv_rx_wr_att, srv_rx_load;
     logic [11:0]    srv_rx_wr_addr;
@@ -331,6 +335,8 @@ module dorado_rtl_top
             dorado_rtl_mailbox u_mb (
                 .clk           (clk),
                 .rst           (rst || !sto_ready),
+                .pll_locked    (pll_locked),
+                .ref_cnt       (ref_cnt),
                 .go            (mb_go),
                 .aux_req       (aux_req),
                 .aux_we        (aux_we),
@@ -362,6 +368,7 @@ module dorado_rtl_top
                 .tx_rd_addr    (mb_tx_rd_addr),
                 .tx_rd_data    (io_tx_rd_data),
                 .cycles        (dbg_cycles),
+                .cpu_st        (cpu_st),
                 .kbd_words     (kbd_words),
                 .mouse_buttons (mouse_buttons),
                 .mouse_present (mouse_present),
@@ -440,6 +447,7 @@ module dorado_rtl_top
         .cmp_done           (cmp_done),
         .io_tick_early      (io_tick_early),
         .io_busy            (io_bridge_en && (io_busy || srv_stall)),
+        .io_busy_tick       (io_bridge_en && (io_jobs_busy || srv_stall)),
         .ap_hold            (ap_hold),
         .ap_req             (ap_req),
         .ap_op              (ap_op),
@@ -583,6 +591,7 @@ module dorado_rtl_top
         .fb_rd_addr              (fb_rd_addr),
         .fb_rd_data              (fb_rd_data),
         .io_busy                 (io_busy),
+        .io_jobs_busy            (io_jobs_busy),
         .rx_wr_en                (rx_wr_en),
         .rx_wr_addr              (rx_wr_addr),
         .rx_wr_data              (rx_wr_data),

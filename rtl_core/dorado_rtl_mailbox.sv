@@ -87,6 +87,9 @@ module dorado_rtl_mailbox #(
 
     // status
     input  logic [63:0]  cycles,
+    input  logic [4:0]   cpu_st,        // the sequencer's state, for the histogram
+    input  logic         pll_locked,    // the core PLL's lock (status beat 13 bit 32)
+    input  logic [31:0]  ref_cnt,       // a count of CLK_50M edges (beat 13 low word): the fabric clock against a known reference
     input  logic [63:0]  kbd_words,
     input  logic [2:0]   mouse_buttons,
     input  logic         mouse_present,
@@ -116,10 +119,14 @@ module dorado_rtl_mailbox #(
     logic [15:0] poll_t;
     logic [15:0] status_t;
     logic [23:0] clk_cnt;          // free-running: the host measures fabric clocks per microinstruction
+    logic [63:0] clk64;            // ...and the same, whole (status beat 12)
+    logic [39:0] st_cnt [0:15];    // clocks by sequencer state (status beats 16-31, every 16th round)
+    logic [3:0]  hist_t;
+    logic        hist_now;
     logic [15:0] status_n;
     logic [15:0] tx_count;
     logic [15:0] rxload_count;     // receive fills done (status: freshness of rx_drained)
-    logic [1:0]  sbeat;
+    logic [4:0]  sbeat;
     logic [63:0] cmd;
     logic [15:0] res_rd;
     logic [12:0] rx_n, rx_i;       // words to load, next word
@@ -164,8 +171,13 @@ module dorado_rtl_mailbox #(
         if (poll_t != 16'd0)   poll_t   <= poll_t - 16'd1;
         if (status_t != 16'd0) status_t <= status_t - 16'd1;
         clk_cnt <= clk_cnt + 24'd1;
+        clk64   <= clk64 + 64'd1;
+        st_cnt[cpu_st[3:0]] <= st_cnt[cpu_st[3:0]] + 40'd1;
         if (rst) begin
             st       <= M_CLR;
+            clk64    <= 64'd0;
+            hist_t   <= 4'd0;
+            for (int i = 0; i < 16; i++) st_cnt[i] <= 40'd0;
             go       <= 1'b0;
             aux_req  <= 1'b0;
             aux_we   <= 1'b0;
@@ -217,7 +229,9 @@ module dorado_rtl_mailbox #(
                 end else if (status_t == 16'd0) begin
                     status_t <= 16'(STATUS_PERIOD);
                     status_n <= status_n + 16'd1;
-                    sbeat    <= 2'd0;
+                    sbeat    <= 5'd0;
+                    hist_now <= (hist_t == 4'd0);
+                    hist_t   <= hist_t + 4'd1;
                     st       <= M_STATUS;
                 end else if (burst || poll_t == 16'd0) begin
                     beat_rd(B_CMD + {21'd0, tail});
@@ -226,14 +240,17 @@ module dorado_rtl_mailbox #(
             end
             M_STATUS: if (!aux_req || aux_ack) begin
                 case (sbeat)
-                2'd0: beat_wr(B_STATUS,          {clk_cnt, cycles[39:0]});
-                2'd1: beat_wr(B_STATUS + 29'd1,  kbd_words);
-                2'd2: beat_wr(B_STATUS + 29'd2,  {mouse_x, mouse_y, 6'd0, mouse_present,
+                5'd0: beat_wr(B_STATUS,          {clk_cnt, cycles[39:0]});
+                5'd1: beat_wr(B_STATUS + 29'd1,  kbd_words);
+                5'd2: beat_wr(B_STATUS + 29'd2,  {mouse_x, mouse_y, 6'd0, mouse_present,
                                                   mouse_buttons, 4'd0, rx_drained, rx_on, status_n});
-                2'd3: beat_wr(B_STATUS + 29'd3,  {16'd0, rxload_count, tx_count, 8'd0, tail});
+                5'd3: beat_wr(B_STATUS + 29'd3,  {16'd0, rxload_count, tx_count, 8'd0, tail});
+                5'd4: beat_wr(B_STATUS + 29'd4,  clk64);
+                5'd5: beat_wr(B_STATUS + 29'd5,  {31'd0, pll_locked, ref_cnt});
+                default: beat_wr(B_STATUS + 29'd8 + 29'(sbeat - 5'd6), {24'd0, st_cnt[4'(sbeat - 5'd6)]});
                 endcase
-                sbeat <= sbeat + 2'd1;
-                if (sbeat == 2'd3) st <= M_IDLE;
+                sbeat <= sbeat + 5'd1;
+                if (sbeat == (hist_now ? 5'd21 : 5'd5)) st <= M_IDLE;
             end
             M_CMDRD: if (aux_ack) begin
                 cmd <= aux_rdata;

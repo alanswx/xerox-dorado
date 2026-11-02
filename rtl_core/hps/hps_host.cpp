@@ -21,6 +21,7 @@
 // BaseBoard cycles per microinstruction, in steps of cfg.quantum.
 // =============================================================================
 #include "hps_host.h"
+#include <ctime>
 
 #include <cstdio>
 #include <cstdlib>
@@ -121,11 +122,33 @@ void write_hook(struct dorado_memory *, uint32_t va, uint16_t value, int kind) {
     S.stores++;
 }
 
+static double mono_s() {
+    timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec + ts.tv_nsec * 1e-9;
+}
+
 void read_status() {
     barrier();
+    S.t_status = mono_s();
     uint64_t b8 = T.mb[B_STATUS], b9 = T.mb[B_STATUS + 1];
     uint64_t b10 = T.mb[B_STATUS + 2], b11 = T.mb[B_STATUS + 3];
     S.rtl_cycles = b8 & 0xFFFFFFFFFFull;
+    S.status_reads++;
+    S.rtl_clocks64 = T.mb[B_STATUS + 4];
+    {
+        uint64_t b13 = T.mb[B_STATUS + 5];
+        uint32_t r = (uint32_t)b13;
+        S.ref_clocks += (uint32_t)(r - S.last_ref32);
+        S.last_ref32 = r;
+        S.pll_locked = (int)((b13 >> 32) & 1);
+    }
+    {
+        uint16_t n = (uint16_t)b10;
+        S.status_rounds += (uint16_t)(n - S.last_status_n);
+        S.last_status_n = n;
+    }
+    for (int i = 0; i < 16; i++) S.st_cnt[i] = T.mb[B_STATUS + 8 + i] & 0xFFFFFFFFFFull;
     {
         uint32_t c = (uint32_t)(b8 >> 40) & 0xFFFFFFu;
         S.rtl_clocks += (c - S.last_clk24) & 0xFFFFFFu;

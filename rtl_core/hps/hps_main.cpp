@@ -113,7 +113,12 @@ int main(int argc, char **argv) {
     const hps_stats *S = hps_get_stats();
     double t0 = now_s(), tl = t0;
     uint64_t c0 = S->rtl_cycles, cl = c0;
-    uint64_t kl = S->rtl_clocks;
+    uint64_t kl = S->rtl_clocks64;
+    uint64_t fl = S->ref_clocks;
+    double   ts_l = S->t_status;
+    uint64_t hl[16]; for (int i = 0; i < 16; i++) hl[i] = S->st_cnt[i];
+    static const char *stname[16] = {"C_FETCH","C_DEC","C_EXEC","C_NF","C_NEXTRD","C_NEXT","C_SCHED",
+        "C_IFU_W","C_IFU_DECW","C_IFU_DEC","C_IFU_AW","C_IFU_BETA","C_IFU_BW","C_IFU_END","C_FINISH","C_APW"};
     dorado_machine *M = (dorado_machine *)hps_machine();
     static dorado_typequeue tq;
     int click = 0;
@@ -148,14 +153,41 @@ int main(int argc, char **argv) {
             dorado_typequeue_pump(&tq, M);
         }
         if (tn - tl >= every || want_pgm) {
-            double mips = (S->rtl_cycles - cl) / (tn - tl) / 1e6;
-            double cpi  = (double)(S->rtl_clocks - kl) / (double)(S->rtl_cycles > cl ? S->rtl_cycles - cl : 1);
-            kl = S->rtl_clocks;
-            printf("[hps] %.0f s: %llu microinstructions (%.2f M/s = %.2fx a Dorado, %.2f clocks each); "
+            // Rates are over the interval between the status reads the counts
+            // came from (a poll can take seconds on the ARM, so the wall clock
+            // at the report is not when the counts were taken), and the
+            // FPGA's own rate needs no wall clock at all: microinstructions per
+            // fabric clock, times the fabric clock against the board's 50 MHz.
+            double dt    = S->t_status - ts_l;
+            double dn    = (double)(S->rtl_cycles > cl ? S->rtl_cycles - cl : 1);
+            double dclk  = (double)(S->rtl_clocks64 - kl);
+            double dref  = (double)(S->ref_clocks - fl);
+            double cpi   = dclk / dn;
+            double fclk  = dref > 0 ? 50.0 * dclk / dref : 0.0;            // MHz
+            double mips  = cpi > 0 ? fclk / cpi : 0.0;                     // M/s, the FPGA's own figure
+            printf("[hps] %.0f s: %llu microinstructions; FPGA %.2f M/s = %.2fx a Dorado (%.2f clocks each at %.3f MHz, "
+                   "%.4f x the 50 MHz reference, PLL locked %d); by the wall clock %.2f M/s over %.1f s; "
                    "%llu ops, %llu reads, %llu packets in, %llu out\n",
-                   tn - t0, (unsigned long long)(S->rtl_cycles - c0), mips, mips / 16.67, cpi,
+                   tn - t0, (unsigned long long)(S->rtl_cycles - c0), mips, mips / 16.67, cpi, fclk,
+                   dref > 0 ? dclk / dref : 0.0, S->pll_locked,
+                   dt > 0 ? dn / dt / 1e6 : 0.0, dt,
                    (unsigned long long)S->ops, (unsigned long long)S->reads,
                    (unsigned long long)S->rx_packets, (unsigned long long)S->tx_packets);
+            printf("[hps] by the wall clock: fabric %.2f MHz, reference %.2f MHz (%llu status reads so far)\n",
+                   dt > 0 ? dclk / dt / 1e6 : 0.0, dt > 0 ? dref / dt / 1e6 : 0.0,
+                   (unsigned long long)S->status_reads);
+            kl = S->rtl_clocks64;
+            fl = S->ref_clocks;
+            ts_l = S->t_status;
+            {
+                printf("[hps] clocks by sequencer state, per microinstruction:");
+                for (int i = 0; i < 16; i++) {
+                    double d = (double)(S->st_cnt[i] - hl[i]) / dn;
+                    hl[i] = S->st_cnt[i];
+                    if (d >= 0.01) printf(" %s %.2f", stname[i], d);
+                }
+                printf("\n");
+            }
             printf("[hps] host loop: %.1f ms of guest time behind the FPGA\n",
                    S->host_target > S->host_bb_cycles
                        ? (S->host_target - S->host_bb_cycles) / 3.7 * 60e-6 : 0.0);

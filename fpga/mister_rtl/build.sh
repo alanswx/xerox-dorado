@@ -30,6 +30,13 @@ cp -r "$TEMPLATE/rtl/pll" "$TEMPLATE/rtl/pll.v" "$TEMPLATE/rtl/pll.qip" "$OUT/rt
 # System clock (the CPU, I/O and video all run on it)
 CLK_MHZ=${CLK_MHZ:-50}
 sed -i "s/output_clock_frequency0(\"[^\"]*\")/output_clock_frequency0(\"$CLK_MHZ.000000 MHz\")/" "$OUT/rtl/pll/pll_0002.v"
+# PLL_FAST_OUT=<MHz>: a second, unused PLL output, to steer the IP's choice
+# of VCO (48 MHz alone gives M=48, N=5, a 480 MHz VCO; a 320 MHz second
+# output needs 960). An experiment on the fabric clock the board measures.
+if [ -n "$PLL_FAST_OUT" ]; then
+  sed -i 's/\.number_of_clocks(1)/.number_of_clocks(2)/; s/output_clock_frequency1("0 MHz")/output_clock_frequency1("'"$PLL_FAST_OUT"'.000000 MHz")/; s/output wire outclk_0,/output wire outclk_0,\n\toutput wire outclk_1,/; s/\.outclk\t({outclk_0})/.outclk\t({outclk_1, outclk_0})/' "$OUT/rtl/pll/pll_0002.v"
+  grep -q "outclk_1, outclk_0" "$OUT/rtl/pll/pll_0002.v" || { echo "PLL second output not applied"; exit 1; }
+fi
 cp "$TEMPLATE/mycore.sdc" "$OUT/Dorado.sdc"
 cp "$HERE/Dorado.sv" "$OUT/"
 for f in dorado_rtl_pkg.sv dorado_rtl_alu_shifter.sv dorado_rtl_storage.sv dorado_rtl_storage_ddr.sv dorado_rtl_mem.sv \

@@ -437,6 +437,124 @@ dispatch was the first test of it. The lock-step at 3M, with the
 dispatch-outcome census beside it, is the loop that found all of these in
 minutes each.
 
+### Phase 2.5: the NEXT+FINISH merge (the FSM's last step)
+
+With the memory section and the IFU beside it, every microinstruction is
+three sequencer clocks: the execute (C_FETCH with the read-ahead, or
+C_EXEC), C_NEXT (the next address) and C_FINISH (writes, scheduling, the
+read-ahead for the next). Two of these can be one:
+
+- **The IM read-ahead moves into the execute clock.** The prediction
+  (`pred_np`) depends on the executing instruction's JCN and on the
+  *previous* instruction's branch conditions -- the Dorado's own rule (HM
+  4.4) -- plus Link, the dispatch register and, for an IFUJump, the
+  prefetch buffer's entry; all registers at the start of the execute clock.
+  The IM port is free in that clock (C_FETCH read the instruction already
+  in ex_u; only Read IM / Write IM need it, and they keep the C_EXEC path).
+- **C_NEXT's work and C_FINISH's run in one clock (`C_NF`).** In that
+  clock the predicted next instruction has arrived from IM (`cur_u`), so
+  the RM/STK read-ahead at its operand address (`fin_*`) happens as it does
+  in C_FINISH today, the LC writeback goes to RM/STK through the same port
+  (write-first bypass as now), the branch condition reads the register
+  C_NEXTRD / the execute clock read for it, the next PC and the schedule
+  are computed, and `spec_hit`/`rm_pre_ok` are set for the next execute.
+- A reference still in flight (a miss) holds `C_NF` whole: nothing of it
+  runs until the result is in the registers (the registered consumption
+  makes that a register test), so no side effect of C_NEXT's repeats.
+- The IFU slow path (C_IFU_W, DEC, AW, BW) ends in the C_FINISH work as a
+  task; the fast dispatch is part of `C_NF`.
+
+Two clocks per microinstruction on the common path: rehearsal 3.51 ->
+about 2.5. At 48 MHz that is 19 M/s, **1.15x a Dorado**, within the FSM.
+The risk is the merged clock's depth (next PC -> scheduler -> chosen ->
+read-ahead address, beside the LC writeback); if it closes at 40 MHz
+rather than 48, 16 M/s is still 0.96x.
+
+**Done (2026-11-01), and the board measured right at last.** `C_NF` is
+the merged state; the execute reads IM at its own prediction (`pred_np`
+is computed for `ex_u` in the execute clock from the registers as the
+execute will leave them -- Link, the dispatch register, a Cnt<- of the
+same instruction -- and the *previous* instruction's branch conditions,
+HM 4.4, which is also how `cpu.c` orders `next_pc` before the flag
+update); `C_NF` runs `next_task()` (C_NEXT's body) then
+`finish_task()` (C_FINISH's) and reads IM again at the recomputed
+prediction for the read-ahead. The execute runs *before* the state case
+now, so the scheduler is never in its cone. Four follow-ups, each from
+the merge-miss counters the census grew (`merge:` line):
+
+- **RM/STK branch conditions predicted in the execute clock** -- the
+  condition register IS the operand register (`rm_address_fn` for both),
+  so with the operand read ahead (`fexec`, `rm_pre_ok`) it is in `rm_q`
+  already; unless the instruction moves StkP or the subtask (checked after
+  the execute, as before). 13.9 -> 1.0 per 100 instructions take C_NEXT
+  for this.
+- **A dispatch in C_NF reads its first byte's address ahead** (the
+  `mem_spec_*` terms had C_NEXT only): byte-reference waits 35 -> 23 per
+  100.
+- **The prefetch buffer keeps its words across a dispatch.** It restarted
+  from scratch whenever PCF moved -- every dispatch -- so 77 peeks per 100
+  instructions and no entry ready for a short handler. Now word0 is kept
+  when the new PC is still in it, word1 moves down when the PC is there,
+  and only the IFUM entry is re-read. Peeks 46 per 100; dispatches from
+  the buffer 99.8%; IFUJumps that cannot dispatch at their execute 20 ->
+  8.5 per 100 (the one-instruction handlers: the entry is addressed the
+  clock after the dispatch and arrives the one after).
+- **The execute overlaps the I/O engines.** Only an instruction that reads
+  or strobes I/O state (`uinstr_touches_io_fn`: Input<-/Output<-,
+  TIOA<-, a branch on IOAtten', a fast-I/O reference) waits for `io_busy`;
+  the retire -- whose tick drives the engines -- waits for their jobs
+  (`io_busy_tick`, the registered terms of `io_busy`).
+
+| | Phase 2 | merge | +RM cond | +C_NF spec | +buffer | +I/O overlap |
+|---|---|---|---|---|---|---|
+| Cedar rehearsal (2 M) | 3.52 | 3.25 | 3.23 | 2.96 | 2.88 | **2.87** |
+| Cedar lock-step (3 M) | 3.22 | 2.97 | 2.96 | - | **2.59** | 2.59 |
+| Galaxian fpga-sim (80 M) | 3.68 | 3.12 | - | - | 2.92 | |
+
+Where the rehearsal's 2.87 goes: 2.0 is the floor; 0.35 waiting for a
+dispatch's byte references (the next item); 0.13 C_EXEC (a fetch that
+could not execute from the read-ahead); 0.11 C_NF repeats (a reference in
+flight: munch transfers, misses, Map writes); 0.10 + 0.10 C_NEXT/C_FINISH
+(the one-instruction handlers); 0.08 I/O-engine waits; 0.04 other.
+
+**The board, measured right.** `dorado-hps` now reads the fabric clock
+against the board's 50 MHz (a Gray-coded count of `CLK_50M` crosses into
+`clk_sys`; status beat 13 carries it and the PLL's `locked`), and rates
+over the interval between the status reads the counts came from. The
+first merge build on MiSTer14: **48.000 MHz (0.9600 x the reference, PLL
+locked), 3.16 clocks per microinstruction, 15.2 M/s = 0.91x a Dorado**,
+desktop live. The "37 MHz fabric clock" of the day before was the host
+dividing a count read seconds earlier by the wall clock at the report --
+a poll on the ARM takes seconds -- and the "10.9 M/s = 0.65x" every
+build had shown since Phase 1 was the same arithmetic. The board was
+never slow; the ruler was. (A 240 MHz second PLL output to "fix the VCO"
+was built and refuted on the way: the IP chose the same 480 MHz VCO, and
+the PLL had always been locked.)
+
+**Timing at 48 MHz: -1.58 ns on the merge**, as the risk paragraph above
+predicted. The path is the memory section's hit compare (`ms.S_IDLE` ->
+`row_lookup` -> `hit` -> `res_tag`, 5.3 ns after an 8.6 ns clock
+network) feeding the whole finish: scheduler -> `bnt` -> RBase -> the
+`rm_pre_ok` compare, 30.4 ns against 28.8. The C_NF clock waits on
+`done_now` so a hit's `task_md_ready` carries the right `cycles` and a
+fault's wakeup reaches the same clock's scheduler, and that puts the tag
+compare in series with the scheduler. The core runs the desktop at 48
+with that violation (room temperature; the model is the slow corner);
+builds at 44 and 48 of the current RTL are the next measurement, and the
+structural fix is to take memory-referencing instructions through
+C_NEXT/C_FINISH (consuming from registers, as before the merge) and only
+the rest through C_NF -- or to register the hit in the execute clock,
+which the VA adder's path may not afford.
+
+Mistakes worth keeping: narrowing the byte-reference gate to "touches
+memory" let the RTL retire the next instruction before the lock-step's
+compare point (a `StkP`/`alu_zero` mismatch at step 15 -- the RTL was one
+instruction ahead), which is why that change needs a two-point compare
+(processor at `step_done`, memory section at `cmp_done`) and the retire
+holding for the bookings, not a narrower gate alone; and Quartus 17 rejects
+default values on input ports (`input logic x = 1'b0`), which Verilator
+accepts.
+
 ### Phase 3: the pipelined processor (3-5 weeks)
 
 `dorado_rtl_cpu_pipe.sv`, selected by a top-level parameter so the FSM core

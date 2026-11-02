@@ -101,6 +101,9 @@ module dorado_rtl_io
     // strobes (the CPU waits in C_FETCH): the tick itself, the clock after it
     // (registered read data settles), a framebuffer job, a receive skip.
     output logic           io_busy,
+    // ...and the same without the tick clock itself: the jobs (registered),
+    // which the CPU's retire -- the next tick -- waits for
+    output logic           io_jobs_busy,
 
     // Receive buffer fill (from the boot server): words, then rx_load with
     // the count restarts the controller's read position at 0.
@@ -144,6 +147,7 @@ module dorado_rtl_io
     logic [6:0]  wc_base;
     logic [4:0]  wc_n;
     assign io_busy = clk_en || rj_start || wc_start || r_busy || eth_skip_busy;
+    assign io_jobs_busy = rj_start || wc_start || r_busy || eth_skip_busy;
     // r_busy: a framebuffer/copy job is queued or running (set below)
     // =========================================================================
     // 1. Constants & Device Address Definitions
