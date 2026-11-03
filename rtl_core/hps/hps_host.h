@@ -49,6 +49,7 @@ int  hps_start(const hps_config *cfg, const hps_transport *t);
 // One pass: catch the host up with the FPGA's cycle count. Returns the
 // FPGA's microinstruction count.
 uint64_t hps_poll(void);
+void     hps_sync_rm(unsigned n);
 // Render the screen the way the C emulator does (dorado_machine_render_
 // display_list, reading through the mailbox) to a PGM file; pixels set.
 int  hps_snapshot_pgm(const char *path);

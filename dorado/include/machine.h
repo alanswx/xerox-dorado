@@ -151,6 +151,9 @@ void dorado_machine_destroy(dorado_machine *m);
 uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle);
 
 uint64_t dorado_machine_cycles(const dorado_machine *m);
+/* Pilot PDA (process table) dump to stderr; see machine.c. */
+void dorado_machine_dump_pda(dorado_machine *m);
+void dorado_machine_store_va(dorado_machine *m, uint32_t va, uint16_t value);
 
 /* Executed Dorado microinstructions. NOT the same as
  * dorado_machine_cycles(), which returns the BaseBoard 6502 counter

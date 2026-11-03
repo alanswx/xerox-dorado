@@ -1208,6 +1208,19 @@ static void machine_dump_pilot_pda(dorado_machine *m)
     fprintf(stderr, "\n");
 }
 
+/* The Pilot PDA dump, on demand (the FPGA host program's SIGUSR2): what
+ * every process is waiting on, read through the live storage. */
+void dorado_machine_dump_pda(dorado_machine *m)
+{
+    machine_dump_pilot_pda(m);
+}
+
+/* A guest store by virtual address, as the host services make them. */
+void dorado_machine_store_va(dorado_machine *m, uint32_t va, uint16_t value)
+{
+    machine_store_va(&m->mem, va, value);
+}
+
 static void machine_germ_complete_ethernet_rx(dorado_machine *m,
                                               uint16_t iocb_va)
 {

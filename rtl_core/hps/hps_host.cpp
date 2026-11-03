@@ -316,6 +316,15 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
     return 0;
 }
 
+// The FPGA's RM[0..n-1] into the host's copy (diagnostics: the PDA dump
+// reads the current PSB and NWW from it). An OR of 0 is a read.
+void hps_sync_rm(unsigned n) {
+    for (unsigned i = 0; i < n && i < RM_SIZE; i++) {
+        C->RM[i] = result(issue(AP_RM_OR, i, 0, 1, 0));
+        rm_prev[i] = C->RM[i];
+    }
+}
+
 uint64_t hps_poll(void) {
     read_status();
     // Packets the RTL's transmitter sent (Cedar's own output microcode), to

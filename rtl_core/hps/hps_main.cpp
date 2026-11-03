@@ -45,6 +45,8 @@ static const size_t MB_OFFSET  = 0x00800000;     // dorado_rtl_mailbox MB_BASE
 
 static volatile sig_atomic_t want_pgm = 0;
 static void on_usr1(int) { want_pgm = 1; }
+static volatile sig_atomic_t want_pda = 0;
+static void on_usr2(int) { want_pda = 1; }
 static void wait_fn(void *) { /* spin: a mailbox round trip is microseconds */ }
 
 static double now_s() {
@@ -109,6 +111,8 @@ int main(int argc, char **argv) {
     cfg.keyboard = scripted ? 0 : 1;
     if (hps_start(&cfg, &t) != 0) return 1;
     signal(SIGUSR1, on_usr1);
+    signal(SIGUSR2, on_usr2);     // the Pilot PDA (process table) to stderr
+    setvbuf(stdout, nullptr, _IOLBF, 0);
 
     const hps_stats *S = hps_get_stats();
     double t0 = now_s(), tl = t0;
@@ -127,10 +131,36 @@ int main(int argc, char **argv) {
     uint64_t next_frame = 0;
     for (;;) {
         hps_poll();
+        if (want_pda) {
+            want_pda = 0;
+            hps_sync_rm(32);
+            dorado_machine_dump_pda(M);
+            // "va value" lines in /tmp/hps-poke (octal) are stored first, once
+            if (FILE *f = fopen("/tmp/hps-poke", "r")) {
+                unsigned va, v;
+                while (fscanf(f, "%o %o", &va, &v) == 2) {
+                    dorado_machine_store_va(M, va, (uint16_t)v);
+                    fprintf(stderr, "[poke] %09o <- %06o\n", va, v);
+                }
+                fclose(f);
+                remove("/tmp/hps-poke");
+            }
+            // and any "va count" lines in /tmp/hps-dump-va (octal), word by word
+            if (FILE *f = fopen("/tmp/hps-dump-va", "r")) {
+                unsigned va, n;
+                while (fscanf(f, "%o %o", &va, &n) == 2) {
+                    fprintf(stderr, "[dump] %09o:", va);
+                    for (unsigned i = 0; i < n; i++)
+                        fprintf(stderr, " %06o", dorado_visible_word_at_va(dorado_machine_memory(M), va + i));
+                    fprintf(stderr, "\n");
+                }
+                fclose(f);
+            }
+        }
         double tn = now_s();
         uint64_t cyc = dorado_machine_cycles(M);
         if (click_x >= 0) {
-            if (click == 0 && tn - t0 >= 5) {
+            if (click == 0 && tn - t0 >= (getenv("HPS_CLICK_AT") ? atof(getenv("HPS_CLICK_AT")) : 5)) {
                 dorado_machine_set_mouse(M, click_x, click_y, 0);
                 click = 1; tclick = tn;
             } else if (click == 1 && tn - tclick >= 0.3) {

@@ -13,9 +13,15 @@
 //   CEDAR_LS=1   the verify-cedar-ls input (click, type a List over STP)
 //   CEDAR_PGM=f  render the screen to f at the end
 //   HPS_QUANTUM=n, HPS_GERM_POLL=n  the host's step and poll interval
+//   HPS_CLICK=x,y  click there instead of CEDAR_LS's (700,733), and type nothing
+//   HPS_PCHIST_FROM=n  from n microinstructions on, histogram task 0's
+//                IM address per clock; the top 40 at the end
 // =============================================================================
 
+#include <algorithm>
 #include <chrono>
+#include <vector>
+#include <map>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -46,6 +52,9 @@ static const char *stname[] = {"C_FETCH","C_DEC","C_EXEC","C_NF","C_NEXTRD","C_N
     "C_IFU_W","C_IFU_DECW","C_IFU_DEC","C_IFU_AW","C_IFU_BETA","C_IFU_BW","C_IFU_END","C_FINISH","C_APW",
     "C_PIPE","?","?","?","?","?","?","?","?","?","?","?","?","?","?","?"};
 
+static uint64_t pchist[4096];
+static std::map<uint32_t, uint64_t> vahist;     // (kind << 28 | va) -> references
+static bool     pchist_on, watch_on;
 static void clock_n(int n) {
     for (int i = 0; i < n; i++) {
         ddr->drive(top);
@@ -54,6 +63,49 @@ static void clock_n(int n) {
         top->clk = 1; top->eval();
         top->clk = 0; top->eval();
         clocks++;
+        if (pchist_on && top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__ctask == 0)
+            pchist[top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__real_PC & 07777]++;
+        if (watch_on) {
+            auto *r = top->rootp;
+            auto watched = [](uint32_t va) {
+                return va == 0200000u || (va >= 0202154u && va <= 0202157u) || (va >= 0202044u && va <= 0202047u);
+            };
+            if (r->dorado_rtl_top__DOT__u_cpu__DOT__mem_req && r->dorado_rtl_top__DOT__u_cpu__DOT__mem_accepted) {
+                uint32_t va = r->dorado_rtl_top__DOT__u_cpu__DOT__mem_req_va & 0x0FFFFFFFu;
+                unsigned k = r->dorado_rtl_top__DOT__u_cpu__DOT__mem_req_kind;
+                static uint64_t wlo = getenv("HPS_WATCH_CLK") ? strtoull(getenv("HPS_WATCH_CLK"), nullptr, 0) : ~0ull;
+                bool inwin = clocks >= wlo && clocks < wlo + 400;
+                static uint32_t wva = getenv("HPS_WATCH_VA") ? (uint32_t)strtoul(getenv("HPS_WATCH_VA"), nullptr, 8) : 0xFFFFFFFFu;
+                if (va == wva && (k == 5 || k == 10 || k == 4))
+                    printf("[wva] clk %llu %s b %06o task %u pc %04o psb %06o\n", (unsigned long long)clocks,
+                           k == 5 ? "STORE" : "fetch", (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__mem_req_b,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__mem_req_task,
+                           (unsigned)(r->dorado_rtl_top__DOT__u_cpu__DOT__real_PC & 07777),
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__RM[1]);
+                if ((watched(va) || inwin) && (k == 5 || k == 10 || k == 4))
+                    printf("[watch] clk %llu %s va %07o b %06o task %u pc %04o\n", (unsigned long long)clocks,
+                           k == 5 ? "STORE" : "fetch", va, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__mem_req_b,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__mem_req_task,
+                           (unsigned)(r->dorado_rtl_top__DOT__u_cpu__DOT__real_PC & 07777));
+            }
+            static bool ap_prev;
+            bool apq = r->dorado_rtl_top__DOT__mb_req;
+            if (apq && !ap_prev) {
+                uint32_t va = r->dorado_rtl_top__DOT__mb_va & 0x0FFFFFFFu;
+                unsigned op = r->dorado_rtl_top__DOT__mb_op;
+                if (op == 6 || op == 4 || (op <= 2 && watched(va)))
+                    printf("[watch] clk %llu AP op %u va %07o wd %06o pc %04o task %u\n", (unsigned long long)clocks, op, va,
+                           (unsigned)r->dorado_rtl_top__DOT__mb_wd,
+                           (unsigned)(r->dorado_rtl_top__DOT__u_cpu__DOT__real_PC & 07777),
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__ctask);
+            }
+            ap_prev = apq;
+        }
+        if (pchist_on && top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__mem_req &&
+            top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__mem_accepted &&
+            top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__mem_req_task == 0)
+            vahist[((uint32_t)top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__mem_req_kind << 28) |
+                   (top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__mem_req_va & 0x0FFFFFFFu)]++;
         if (hist_on) {
             unsigned stt = (top->dbg_vec[1] >> 24) & 31;
             hist[stt]++;
@@ -177,7 +229,7 @@ int main(int argc, char **argv) {
                     (unsigned long long)S->ops, (unsigned long long)S->reads,
                     (unsigned long long)S->stores, (unsigned long long)S->rx_packets);
         }
-        if (!ls) continue;
+        if (!ls && !getenv("HPS_CLICK")) continue;
         // Input reaches the core as the MiSTer's does: keyboard words and
         // mouse motion into dorado_rtl_top, where Cedar's display microcode
         // takes them from the terminal back channel. The script below drives
@@ -205,9 +257,15 @@ int main(int argc, char **argv) {
             next_frame += 2000000ull;
             if (typed) dorado_typequeue_pump(&tq, M);
         }
+        if (const char *wf = getenv("HPS_WATCH_FROM"))
+            watch_on = S->rtl_cycles - start >= strtoull(wf, nullptr, 0);
+        if (const char *pf = getenv("HPS_PCHIST_FROM"))
+            pchist_on = S->rtl_cycles - start >= strtoull(pf, nullptr, 0);
         if (click == 0 && now >= c0 + 100000000ull) {
-            printf("[hps] click (700,733) at cycle %llu\n", (unsigned long long)now);
-            mouse_tx = 700; mouse_ty = 733;
+            int cx = 700, cy = 733;
+            if (const char *hc = getenv("HPS_CLICK")) sscanf(hc, "%d,%d", &cx, &cy);
+            printf("[hps] click (%d,%d) at cycle %llu\n", cx, cy, (unsigned long long)now);
+            mouse_tx = cx; mouse_ty = cy;
             click = 1; click_at = now;
         } else if (click == 1 && now >= click_at + 20000000ull) {   // after the pointer arrives
             mouse_tb = DORADO_MOUSE_LEFT;
@@ -216,7 +274,7 @@ int main(int argc, char **argv) {
             mouse_tb = 0;
             click = 3;
         }
-        if (!typed && now >= c0 + 300000000ull) {
+        if (!typed && !getenv("HPS_CLICK") && now >= c0 + 300000000ull) {
             typed = true;
             printf("[hps] typing at cycle %llu\n", (unsigned long long)now);
             dorado_typequeue_start(&tq, "List [Cedar]<Cedar6.1>VersionMap>*\n", 800000ull, now);
@@ -253,6 +311,23 @@ int main(int argc, char **argv) {
             if (trans[a][b] * 50 > (S->rtl_cycles - start))
                 printf("         %-10s -> %-10s %.2f\n", stname[a], stname[b],
                        (double)trans[a][b] / (S->rtl_cycles - start));
+    }
+    if (pchist_on) {
+        std::vector<std::pair<uint64_t, unsigned>> v;
+        uint64_t tot = 0;
+        for (unsigned a = 0; a < 4096; a++) if (pchist[a]) { v.push_back({pchist[a], a}); tot += pchist[a]; }
+        std::sort(v.rbegin(), v.rend());
+        printf("[hps] task 0 IM addresses, %llu clocks:\n", (unsigned long long)tot);
+        for (size_t i = 0; i < v.size() && i < 40; i++)
+            printf("  %04o %6.2f%%\n", v[i].second, 100.0 * (double)v[i].first / (double)tot);
+        std::vector<std::pair<uint64_t, uint32_t>> w;
+        uint64_t nref = 0;
+        for (auto &e : vahist) { w.push_back({e.second, e.first}); nref += e.second; }
+        std::sort(w.rbegin(), w.rend());
+        printf("[hps] task 0 references, %llu, %zu distinct (kind va):\n", (unsigned long long)nref, w.size());
+        for (size_t i = 0; i < w.size() && i < 40; i++)
+            printf("  kind %u va %09o  %llu\n", w[i].second >> 28, w[i].second & 0x0FFFFFFFu,
+                   (unsigned long long)w[i].first);
     }
     if (getenv("HPS_CENSUS")) census_report(top);
     printf("[hps] DDR: %llu beats read, %llu written\n",

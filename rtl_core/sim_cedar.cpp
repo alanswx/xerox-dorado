@@ -1023,7 +1023,9 @@ int main(int argc, char **argv) {
     // the click at --type-at (+100M) run inline (move, 2M, press, hold
     // --key-hold 1.6M, release), the paste queued at --paste-at (+300M) and
     // pumped once per frame.
-    const bool ls = getenv("CEDAR_LS") != nullptr;
+    const bool ls = getenv("CEDAR_LS") != nullptr || getenv("CEDAR_CLICK") != nullptr;
+    int cx = 700, cy = 733;          // CEDAR_CLICK=x,y: click there instead, and type nothing
+    if (const char *cc = getenv("CEDAR_CLICK")) sscanf(cc, "%d,%d", &cx, &cy);
     const uint64_t c0 = dorado_machine_cycles(M);
     const uint64_t frame = 2000000ull;
     bool clicked = false, typed = false;
@@ -1050,15 +1052,15 @@ int main(int argc, char **argv) {
         if (typed) dorado_typequeue_pump(&tq, M);
         if (!clicked && now >= c0 + 100000000ull) {
             clicked = true;
-            printf("[cedar] click (700,733) at cycle %llu, step %llu\n",
+            printf("[cedar] click (%d,%d) at cycle %llu, step %llu\n", cx, cy,
                    (unsigned long long)now, (unsigned long long)steps);
-            dorado_machine_set_mouse(M, 700, 733, 0);
+            dorado_machine_set_mouse(M, cx, cy, 0);
             run_to(dorado_machine_cycles(M) + 2000000ull);
-            dorado_machine_set_mouse(M, 700, 733, DORADO_MOUSE_LEFT);
+            dorado_machine_set_mouse(M, cx, cy, DORADO_MOUSE_LEFT);
             run_to(dorado_machine_cycles(M) + 1600000ull);
-            dorado_machine_set_mouse(M, 700, 733, 0);
+            dorado_machine_set_mouse(M, cx, cy, 0);
         }
-        if (!typed && now >= c0 + 300000000ull) {
+        if (!typed && !getenv("CEDAR_CLICK") && now >= c0 + 300000000ull) {
             typed = true;
             printf("[cedar] typing at cycle %llu, step %llu\n",
                    (unsigned long long)now, (unsigned long long)steps);
