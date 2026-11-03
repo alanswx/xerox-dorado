@@ -278,7 +278,12 @@ dorado_rtl_top #(
 	.BOOT_HEX      ("roms/bootfile.hex"),
 	.BOL_HEX       ("roms/bol.hex"),
 	.EXT_STORAGE   (1'b1),
-	.HPS_MAILBOX   (CEDAR)
+	.HPS_MAILBOX   (CEDAR),
+`ifdef DORADO_PIPELINE
+	.PIPELINE      (1'b1)
+`else
+	.PIPELINE      (1'b0)
+`endif
 ) dorado
 (
 	.clk                (clk_sys),
@@ -314,6 +319,7 @@ dorado_rtl_top #(
 	.hx_rx_on           (),
 	.hx_rx_drained      (),
 	.hp_hold            (1'b0),
+	.ov_hold            (1'b0),
 	.hp_req             (1'b0),
 	.hp_op              (3'd0),
 	.hp_we              (1'b0),

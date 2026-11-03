@@ -630,6 +630,8 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
 
     // Enable the internal RTL I/O bridge!
     top->io_bridge_en = 1;
+    // free-running: C_PIPE may overlap (a PIPELINE build; RTL_OV_HOLD=1 not)
+    top->ov_hold = getenv("RTL_OV_HOLD") ? 1 : 0;
     top->display_wake_gate = 0;
     top->kbd_words = ~0ULL;
     top->mouse_buttons = 0; top->mouse_present = 0; top->mouse_x = 0; top->mouse_y = 0;
@@ -806,6 +808,44 @@ static bool test_rtl_io_boot(Vdorado_rtl_top *top, const char *eb_path,
         uint32_t pre_br31 = R_CPU(br)[037];  // BR[Code, 37] -- the IFU code base
         uint16_t pre_ac[4] = { R_CPU(STK)[1], R_CPU(STK)[2], R_CPU(STK)[3], R_CPU(STK)[4] };
         rtl_step(top);
+        // RTL_STEP_TRACE=<file>,<from>,<to>: the processor at each retire in
+        // that step range (as the finish left it: snap_* after a C_PIPE overlap)
+        // RTL_OV_WINDOW=<from>,<to>: the C_PIPE overlap only for steps in [from, to)
+        {
+            static long long ow_from = -1, ow_to = -1, ow_n = 0;
+            static bool ow_init = false;
+            if (!ow_init) { ow_init = true; if (const char *e = getenv("RTL_OV_WINDOW")) sscanf(e, "%lld,%lld", &ow_from, &ow_to); }
+            if (ow_from >= 0) { ow_n++; top->ov_hold = (ow_n >= ow_from && ow_n < ow_to) ? 0 : 1; }
+        }
+        static FILE *st_f = nullptr; static uint64_t st_from = 0, st_to = 0, st_n = 0;
+        static bool st_init = false;
+        if (!st_init) {
+            st_init = true;
+            if (const char *e = getenv("RTL_STEP_TRACE")) {
+                char fn[512]; unsigned long long a = 0, b = 0;
+                if (sscanf(e, "%511[^,],%llu,%llu", fn, &a, &b) == 3) { st_f = fopen(fn, "w"); st_from = a; st_to = b; }
+            }
+        }
+        if (st_f) g_fsm_trace = (st_n + 1 >= st_from && st_n + 1 <= st_to);
+        if (st_f && ++st_n >= st_from && st_n <= st_to) {
+            const bool sv = R_CPU(snap_valid) != 0;
+            {
+                unsigned xp = (unsigned)R_CPU(x_u)[1];
+                fprintf(st_f, "   x_u jcn=%03o ff=%03o asel=%o bsel=%o lc=%o  pcf=%o idcnt=%u op=%03o alpha=%03o ov=%d st=%d\n",
+                        (xp >> 18) & 0xFF, (unsigned)((R_CPU(x_u)[0] >> 8) & 0xFF) /*approx*/, 0u, 0u, 0u,
+                        (unsigned)R_CPU(ifu_pcf), (unsigned)R_CPU(ifu_idcnt), (unsigned)R_CPU(ifu_opcode),
+                        (unsigned)R_CPU(ifu_alpha), (int)R_CPU(snap_valid), (int)R_CPU(st));
+            }
+            fprintf(st_f, "%llu cyc=%llu pc=%o t=%u T=%o Link=%o StkP=%o RB=%o MB=%o Q=%o Cnt=%o fl=%x\n",
+                    (unsigned long long)st_n, (unsigned long long)R_CPU(cycles),
+                    (unsigned)(sv ? R_CPU(snap_real_PC) : R_CPU(real_PC)), (unsigned)R_CPU(ctask),
+                    (unsigned)(sv ? R_CPU(snap_T) : R_CPU(T)), (unsigned)(sv ? R_CPU(snap_Link) : R_CPU(Link)),
+                    (unsigned)(sv ? R_CPU(snap_StkP) : R_CPU(StkP)), (unsigned)(sv ? R_CPU(snap_RBase) : R_CPU(RBase)),
+                    (unsigned)(sv ? R_CPU(snap_MemBase) : R_CPU(MemBase)), (unsigned)(sv ? R_CPU(snap_Q) : R_CPU(Q)),
+                    (unsigned)(sv ? R_CPU(snap_Cnt) : R_CPU(Cnt)),
+                    sv ? (unsigned)R_CPU(snap_flags)
+                       : (unsigned)(R_CPU(alu_zero) << 3 | R_CPU(alu_lt0) << 2 | R_CPU(alu_carry) << 1 | R_CPU(alu_overflow)));
+        }
         static FILE *step_log = getenv("RTL_STEP_LOG") ? fopen(getenv("RTL_STEP_LOG"), "w") : nullptr;
         static uint64_t step_hash = 0, step_n = 0;
         if (step_log) {
@@ -981,9 +1021,11 @@ int main(int argc, char **argv) {
     if (!test_real_microcode_mb(top, "../chm/dorado/expanded/kernel.dm!38_/kernel.mb",       0xFFFF, 5000)) return 1;
     if (!test_real_microcode_mb(top, "../chm/dorado/expanded/memMisc.dm!11_/memMisc.mb",     0xFFFF, 5000)) return 1;
     if (!test_real_microcode_mb(top, "../chm/dorado/expanded/Ifu.dm!51_/IfuComplex.mb",      0xFFFF, 5000)) return 1;
-    if (!test_real_microcode_mb(top, "../chm/dorado/AEmu.mb!2",                              01076,  10000)) return 1;
-    if (!test_real_microcode_mb(top, "../chm/dorado/DSemu.mb!1",                             01076,  10000)) return 1;
-    if (!test_real_microcode_eb(top, "../chm/dorado/CedarDorado.eb!6",                       10000)) return 1;
+    // RTL_LOCKSTEP_N: the length of the three world lock-steps (default 10000)
+    const int lockstep_n = getenv("RTL_LOCKSTEP_N") ? atoi(getenv("RTL_LOCKSTEP_N")) : 10000;
+    if (!test_real_microcode_mb(top, "../chm/dorado/AEmu.mb!2",                              01076,  lockstep_n)) return 1;
+    if (!test_real_microcode_mb(top, "../chm/dorado/DSemu.mb!1",                             01076,  lockstep_n)) return 1;
+    if (!test_real_microcode_eb(top, "../chm/dorado/CedarDorado.eb!6",                       lockstep_n)) return 1;
 
     benchmark_rtl_speed(top, "../chm/dorado/AEmu.mb!2", 01076, 1000000);
 

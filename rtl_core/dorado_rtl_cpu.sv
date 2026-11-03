@@ -16,7 +16,8 @@ module dorado_rtl_cpu
     parameter int          STORAGE_WORDS = 4 * 1024 * 1024,
     parameter logic [15:0] RESET_PC      = 16'd0,     // FPGA: the preloaded world's start
     parameter bit          EXT_STORAGE   = 1'b0,      // 1: storage is served outside (sto_*)
-    parameter bit          READAHEAD     = 1'b1       // C_FETCH may execute a read-ahead instruction
+    parameter bit          READAHEAD     = 1'b1,      // C_FETCH may execute a read-ahead instruction
+    parameter bit          PIPELINE      = 1'b0       // C_PIPE: an instruction's finish beside the next one's execute
 ) (
     input  logic           clk,
     input  logic           rst,
@@ -99,6 +100,7 @@ module dorado_rtl_cpu
     // stand for the C machine's host services (Cedar on the HPS); 0 is the
     // assist's own storage/STK access described above.
     input  logic           ap_hold,
+    input  logic           ov_hold,      // no C_PIPE overlap: each instruction retires before the next executes
     input  logic           ap_req,
     input  logic [2:0]     ap_op,
     input  logic           ap_we,
@@ -308,6 +310,7 @@ module dorado_rtl_cpu
     logic [63:0] cen_nospec [0:1] /* verilator public_flat_rd */; // the IM read-ahead was not the instruction chosen: 0 task switch, 1 another PC
     logic [63:0] cen_nopre [0:1] /* verilator public_flat_rd */;  // the RM read-ahead lost: 0 RBase/StkP moved, 1 C_NF's prediction differed from the execute's
     logic [1:0]  pred_why;                                       // comb: why pred_ok is 0
+    logic [63:0] cen_ov [0:5] /* verilator public_flat_rd */;    // C_NF retires: 0 all, 1 next is the read-ahead, 2 no switch/plain JCN, 3 next plain, 4 next reads no RM/STK, 5 no I/O job ticked
     logic [63:0] cen_peek     /* verilator public_flat_rd */;   // peeks issued
     logic [63:0] cen_peek_retry /* verilator public_flat_rd */;
     logic [63:0] cen_peek_miss  /* verilator public_flat_rd */;
@@ -345,7 +348,7 @@ module dorado_rtl_cpu
     typedef enum logic [4:0] {
         C_FETCH, C_DEC, C_EXEC, C_NF, C_NEXTRD, C_NEXT, C_SCHED,
         C_IFU_W, C_IFU_DECW, C_IFU_DEC, C_IFU_AW, C_IFU_BETA, C_IFU_BW, C_IFU_END,
-        C_FINISH, C_APW
+        C_FINISH, C_APW, C_PIPE
     } cstate_t;
     cstate_t st;
     cstate_t m_ret;
@@ -536,6 +539,71 @@ module dorado_rtl_cpu
     logic [7:0]     fx_stkp;        // StkP and subtask the condition read (below) used
     logic [1:0]     fx_sub;
 
+    // C_PIPE (PIPELINE): in one clock the finish of x_u (W), the execute of
+    // ex_u (X), the RM/STK read of the instruction in cur_u (D) and the IM
+    // read of the one after it (F) -- HM 2.3's overlap. See the C_PIPE item.
+    logic           p_w /* verilator public_flat_rd */, p_x /* verilator public_flat_rd */, p_d /* verilator public_flat_rd */;   // x_u awaits its finish; ex_u (operand read) its execute; cur_u is the instruction after ex_u
+    logic [15:0]    p_pc_x, p_pc_d;  // the PCs of ex_u and cur_u
+    int             p_raddr;         // the RM/STK address ex_u's operand was read at
+    logic           pent;            // comb: C_NF enters C_PIPE (IM is read at f_np)
+    logic           ovx;             // comb: C_PIPE executes ex_u this clock
+    logic           pfwd;            // comb: C_PIPE finishes x_u this clock (its results are forwarded to the execute)
+    logic           f_ok;            // comb: f_np is the address of the instruction after cur_u
+    logic [8:0]     f_rb;            // comb: cur_u's dispatch RBase (an IFUJump)
+    logic [15:0]    f_np;
+    logic           d_ok;            // comb: d_raddr is cur_u's operand address after ex_u
+    int             d_raddr;
+    logic           sw_maybe;        // comb: the scheduler may switch tasks after x_u
+    logic [25:0]    ij_w, ij_x, ij_c;   // comb: ifujump_fn of x_u, ex_u, cur_u
+    logic           w_disp;          // comb: x_u's finish (beside the execute) dispatches
+    logic [7:0]     p_rb_x;          // the RBase ex_u's operand was read at (checked after a dispatch)
+    logic [8:0]     p_rb_d;          // cur_u is an IFUJump whose dispatch F predicted: {RBase changes, RBase}
+    logic [7:0]     d_rb;            // comb: the RBase cur_u's is read at
+    logic [7:0]     d_sp;            // ...and the StkP
+    logic           pexec_now;       // exec_task runs for C_PIPE
+    logic           p_wonly;         // (unused)
+    logic           x_elig, x_host, x_ready;   // comb: see ovx
+    logic           p_bub;           // comb: a bubble: x_u's finish runs alone, ex_u and cur_u held
+    logic [7:0]     p_sp_x;          // the StkP ex_u's operand was read at
+    logic           x_disp_v;        // (PIPELINE) x_u is an IFUJump the buffer could dispatch when it executed...
+    logic [7:0]     x_disp_rb;       // ...and the RBase that dispatch leaves
+    logic           p_fwd;           // x_u's finish writes the register ex_u's operand was read from
+    logic           p_stall;         // comb: x_u's finish waits (a reference, the I/O jobs, the byte references): nothing moves
+    logic [15:0]    T_x, Link_x;     // what the execute sees (forwarded from the finish in C_PIPE)
+    logic           carry_x, zero_x, lt0_x, ovf_x;
+    logic [15:0]    pc_p;            // the PC of the instruction the prediction is for
+    logic [3:0]     ctask_x;         // (PIPELINE) the execute's view: ctask, cycles, StkP, MemBase
+    dorado_uinstr_t ex_u_q;          // ...and the registers the sequencer's case may change before it
+    logic           ex_pres_q, ex_brk_q, blr_valid_q, blr_age_q;
+    logic [7:0]     idcnt_q;
+    logic [15:0]    Cnt_q;
+    logic [63:0]    cycles_x;
+    logic [7:0]     sp_wx, membase_x;
+    int             dr_raddr;        // comb: a drain re-reads ex_u's operand here, at...
+    logic [7:0]     dr_rb, dr_sp;    // ...this RBase and StkP (C_FETCH then executes it)
+    // the processor as the finish left it, before the execute beside it
+    // (the lock-step compares these when snap_valid)
+    logic           snap_valid   /* verilator public_flat_rd */;
+    logic [15:0]    snap_real_PC /* verilator public_flat_rd */;
+    logic [15:0]    snap_T       /* verilator public_flat_rd */;
+    logic [15:0]    snap_Q       /* verilator public_flat_rd */;
+    logic [15:0]    snap_Link    /* verilator public_flat_rd */;
+    logic [15:0]    snap_Cnt     /* verilator public_flat_rd */;
+    logic [15:0]    snap_ShC     /* verilator public_flat_rd */;
+    logic [15:0]    snap_mcr     /* verilator public_flat_rd */;
+    logic [15:0]    snap_ready   /* verilator public_flat_rd */;
+    logic [7:0]     snap_StkP    /* verilator public_flat_rd */;
+    logic [7:0]     snap_RBase   /* verilator public_flat_rd */;
+    logic [7:0]     snap_MemBase /* verilator public_flat_rd */;
+    logic [1:0]     snap_MemBX   /* verilator public_flat_rd */;
+    logic [3:0]     snap_ctask   /* verilator public_flat_rd */;
+    logic [3:0]     snap_proc_srn /* verilator public_flat_rd */;
+    logic [3:0]     snap_flags   /* verilator public_flat_rd */;   // zero, lt0, carry, overflow
+    logic [27:0]    snap_br [0:31] /* verilator public_flat_rd */;
+    logic [63:0]    cen_pdrain [0:11] /* verilator public_flat_rd */; // why a drain: 0 operand (d_ok), 1 I/O, 2 Id, 3 RM condition, 4 IFUJump/special, 5 section state/counters, 6 reference outstanding, 7 byte refs, 8 I/O jobs, 9 switch, 10 host, 11 other
+    logic [63:0]    cen_pnof [0:4] /* verilator public_flat_rd */;    // why no fetch after: 0 conditional jump, 1 FF condition, 2 IFUJump, 3 Return Link, 4 other
+    logic [63:0]    cen_pipe [0:9] /* verilator public_flat_rd */;  // C_PIPE: 0 clocks, 1 executes, 2 finish waits, 3 executes handed to the FSM (no fetch after), 4 entries, 5 entries refused, 6 execute left (hold, stack error), 7 executes beside a finish, 8 drains, 9 dispatches the pipeline followed
+
 
     // -------------------------------------------------------------------------
     // MCR tests the processor makes (the section has its own, on the same mcr)
@@ -635,6 +703,7 @@ module dorado_rtl_cpu
     // top of the sequencer), so the operand selection is not in the path
     // from ifu_idcnt to Pd.
     logic [15:0]    id_r0, id_r1;
+    logic [15:0]    id_x0, id_x1;   // ...as the execute sees them (C_PIPE: a dispatch beside it)
     logic [15:0]    shifter_unmasked_lo16;
     logic [15:0]    shifter_out_mask;
     logic [15:0]    shifter_out_fill;
@@ -664,10 +733,16 @@ module dorado_rtl_cpu
 
     // Pure helper for IFU operand byte at index cnt
     function automatic logic [15:0] ifu_id_at_fn(input logic [7:0] cnt);
-        logic [7:0] len;
+        return ifu_id_gen_fn(cnt, ifu_length, ifu_n, ifu_type_jump, ifu_packed_a, ifu_sign, ifu_alpha, ifu_beta);
+    endfunction
+
+    // Id for an opcode's operands (as ifu_id_at_fn, from given IFU fields)
+    function automatic logic [15:0] ifu_id_gen_fn(input logic [7:0] cnt, input logic [7:0] len,
+                                                  input logic [3:0] ifu_n, input logic ifu_type_jump,
+                                                  input logic ifu_packed_a, input logic ifu_sign,
+                                                  input logic [7:0] ifu_alpha, input logic [7:0] ifu_beta);
         logic       n_supplied, n_first;
         int         op_idx;
-        len        = ifu_length;
         n_supplied = (ifu_n != 4'o17);
         n_first    = n_supplied;
 
@@ -701,7 +776,7 @@ module dorado_rtl_cpu
             if (op_idx == 0) return {8'd0, ifu_beta};
             op_idx--;
         end
-        return {8'd0, ifu_length};
+        return {8'd0, len};
     endfunction
 
     // Pure helper for RM/STK read address (0..255 = RM, 256..511 = STK)
@@ -736,8 +811,13 @@ module dorado_rtl_cpu
 
         cur_task_md     = get_task_md();
         ridx            = rm_address_fn(cur_u, ctask, RBase, task_subtask[ctask], StkP);
+        cur_id_peek     = id_x0;
+    end
+    always_comb begin
         cur_rm_stk_read = rmq_is_stk ? stk_q : rm_q;   // read in C_DEC
-        cur_id_peek     = id_r0;
+        // C_PIPE: the finish beside the execute writes the operand's register
+        // (p_fwd: the address compare, made the clock before)
+        if (pfwd && p_fwd) cur_rm_stk_read = rms_wd;
     end
 
     // ex_u holds the instruction C_EXEC executes: captured by the sequencer
@@ -747,7 +827,7 @@ module dorado_rtl_cpu
 
     dorado_rtl_shifter u_shifter (
         .u             (ex_u),
-        .t_in          (T),
+        .t_in          (T_x),
         .r_in          (cur_rm_stk_read),
         .id_peek       (cur_id_peek),
         .shc           (ShC),
@@ -988,7 +1068,7 @@ module dorado_rtl_cpu
                     3'd4: b_val = ~event_cnt_b;
                     3'd5: b_val = dbuf;
                     3'd6: b_val = ~cpreg;
-                    3'd7: b_val = b_link_read_valid ? b_link_read : Link;
+                    3'd7: b_val = b_link_read_valid ? b_link_read : Link_x;
                 endcase
             end
         end
@@ -1001,7 +1081,7 @@ module dorado_rtl_cpu
                 case (ex_u.bsel)
                     3'd0: b_val = cur_task_md;
                     3'd1: b_val = cur_rm_stk_read;
-                    3'd2: b_val = T;
+                    3'd2: b_val = T_x;
                     3'd3: b_val = Q;
                     3'd4: b_val = {8'h00, ex_u.ff};
                     3'd5: b_val = {8'hFF, ex_u.ff};
@@ -1017,24 +1097,24 @@ module dorado_rtl_cpu
             3'd0, 3'd1, 3'd4: a_val = cur_rm_stk_read;
             3'd2, 3'd3: begin
                 if (!ff_decode_ok(ex_u)) begin
-                    a_val = T;
+                    a_val = T_x;
                 end else begin
                     case (ex_u.ff[7:6])
                         2'd0: a_val = cur_task_md;
                         2'd1: begin
-                            a_val         = id_r0;
+                            a_val         = id_x0;
                             idcnt_after_a = ifu_idcnt + 8'd1;
                         end
                         2'd2: a_val = Q;
-                        2'd3: a_val = T;
+                        2'd3: a_val = T_x;
                     endcase
                 end
             end
             3'd5: begin
-                a_val         = id_r0;
+                a_val         = id_x0;
                 idcnt_after_a = ifu_idcnt + 8'd1;
             end
-            3'd6: a_val = T;
+            3'd6: a_val = T_x;
             3'd7: a_val = ~shifter_unmasked_lo16;
         endcase
 
@@ -1053,7 +1133,7 @@ module dorado_rtl_cpu
                     a_overridden = 1'b1;
                 end else if (f6[5:3] == 3'd2) begin
                     case (f6[2:0])
-                        3'd1: begin a_val = T;           a_overridden = 1'b1; end
+                        3'd1: begin a_val = T_x;           a_overridden = 1'b1; end
                         3'd2: begin a_val = cur_task_md; a_overridden = 1'b1; end
                         3'd3: begin a_val = Q;           a_overridden = 1'b1; end
                         default: ;
@@ -1066,7 +1146,7 @@ module dorado_rtl_cpu
         end
 
         // 4. TisId / RisId bus substitutions
-        id_peek_post_a = (idcnt_after_a == ifu_idcnt) ? id_r0 : id_r1;
+        id_peek_post_a = (idcnt_after_a == ifu_idcnt) ? id_x0 : id_x1;
         if (ff_is_t_is_id(ex_u)) begin
             if (ex_u.bsel == 3'd2) b_val = id_peek_post_a;
             if (ex_u.asel == 3'd6) a_val = id_peek_post_a;
@@ -1082,7 +1162,7 @@ module dorado_rtl_cpu
 
         if (ff_is_table11a(ex_u, 8'o025, 8'o077)) begin
             // XorSavedCarry
-            comb_alufm_entry[5] ^= alu_carry;
+            comb_alufm_entry[5] ^= carry_x;
         end else if (ff_is_table11a(ex_u, 8'o024, 8'o077)) begin
             // XorCarry
             comb_alufm_entry[5] ^= 1'b1;
@@ -1180,6 +1260,10 @@ module dorado_rtl_cpu
         cen_peek = 64'd0; cen_peek_retry = 64'd0; cen_peek_miss = 64'd0;
         for (int i = 0; i < 8; i++) cen_nf[i] = 64'd0; cen_switch = 64'd0; cen_hold = 64'd0;
         for (int i = 0; i < 4; i++) cen_nonf[i] = 64'd0;
+        for (int i = 0; i < 6; i++) cen_ov[i] = 64'd0;
+        for (int i = 0; i < 10; i++) cen_pipe[i] = 64'd0;
+        for (int i = 0; i < 12; i++) cen_pdrain[i] = 64'd0;
+        for (int i = 0; i < 5; i++) cen_pnof[i] = 64'd0;
         for (int i = 0; i < 2; i++) begin cen_nospec[i] = 64'd0; cen_nopre[i] = 64'd0; end
         cen_iobusy = 64'd0; cen_apwait = 64'd0; cen_last_ifuj_at = 64'd0;
         for (int i = 0; i < 7; i++) cen_ifu_hl[i] = 64'd0;
@@ -1540,6 +1624,7 @@ module dorado_rtl_cpu
     // register; read data appears one clock later.
     // =========================================================================
     logic [11:0] im_addr;
+    logic [11:0] im_q_addr;
     logic        im_we;
     logic [15:0] im_wd0, im_wd1, im_wd2;
 
@@ -1557,7 +1642,10 @@ module dorado_rtl_cpu
         // scheduler keeps it, C_FETCH already has the instruction (spec_hit).
         // The execute reads IM at its prediction (C_NF then has the
         // instruction after); C_NF reads it again for C_FETCH.
-        im_addr = (exec_now && pred_ok) ? pred_np[11:0]
+        im_addr = pent ? f_np[11:0]
+                : (PIPELINE && st == C_PIPE) ? ((p_stall || p_bub) ? p_pc_d[11:0] : !ovx ? p_pc_x[11:0] :
+                                                p_d ? f_np[11:0] : pred_np[11:0])
+                : (exec_now && pred_ok) ? pred_np[11:0]
                 : (st == C_FETCH || st == C_DEC) ? real_PC[11:0]
                 : (st == C_EXEC)  ? Link[11:0]
                 : ((st == C_NEXT || st == C_NF || st == C_IFU_END || st == C_IFU_DEC ||
@@ -1592,6 +1680,7 @@ module dorado_rtl_cpu
         im_q1      <= im_iw1[im_addr];
         im_q2      <= im_iw2[im_addr];
         im_q_pres  <= im_present[im_addr];
+        im_q_addr  <= im_addr;              // the address the read data is from
         im_q_brk   <= im_breakpoint[im_addr];
     end
 
@@ -1616,18 +1705,309 @@ module dorado_rtl_cpu
         int          rm_a;
         logic [15:0] rv;
         rm_a = rm_address_fn(u, ctask, x_rbase_at_issue, task_subtask[ctask], StkP);
-        rv   = rmq_is_stk ? stk_q : rm_q;
-        case (cond)
-            3'd0: return alu_zero;
-            3'd1: return alu_lt0;
-            3'd2: return ~alu_carry;
+        rv   = cur_rm_stk_read;                          // (C_PIPE: with the finish's write)
+        case (cond)     // (the flags as C_PIPE's finish beside the execute leaves them)
+            3'd0: return zero_x;
+            3'd1: return lt0_x;
+            3'd2: return ~carry_x;
             3'd3: return (cnt_p == 16'd0);
             3'd4: return (rm_a < 512) && rv[15];
             3'd5: return (rm_a < 512) && rv[0];
             3'd6: return (ctask == 4'd0) ? reschedule_cond : ~atten_p;
-            default: return ~alu_overflow;
+            default: return ~ovf_x;
         endcase
     endfunction
+
+
+    // -------------------------------------------------------------------------
+    // C_PIPE's stages (PIPELINE). The finish of x_u, the execute of ex_u, the
+    // RM/STK read of cur_u and the IM read of the instruction after cur_u run
+    // in one clock, as HM 2.3 overlaps them; everything the pipeline does not
+    // take (a branch condition, an IFUJump, I/O, Id, task switches, holds, the
+    // host's operations) drains it into the FSM above, which stays as it was.
+    // -------------------------------------------------------------------------
+    // The FF as exec_task decodes it: {ok, FA, FB, FC} (Table 11a by ASEL<=3)
+    function automatic logic [8:0] ff_exec_decode_fn(input dorado_uinstr_t u);
+        if (ff_full_function_ok(u)) return {1'b1, ff_fa(u.ff), ff_fb(u.ff), ff_fc(u.ff)};
+        if (ff_decode_ok(u) && u.asel <= 3'd3) return {1'b1, 2'd0, u.ff[5:3], u.ff[2:0]};
+        return 9'd0;
+    endfunction
+
+    function automatic logic jcn_ifujump_fn(input dorado_uinstr_t u);
+        return u.jcn[2:0] == 3'd7 && u.jcn[7:5] == 3'd1;
+    endfunction
+
+    // the execute writes the IFU's state (PCF, IFUTest, IFUTick, the
+    // reschedule, InsSet, IFUM, IFUReset, BrkIns: HM Table 11c FA=1 FB=0/3)
+    function automatic logic ff_writes_ifu_fn(input dorado_uinstr_t u);
+        logic [8:0] d;
+        d = ff_exec_decode_fn(u);
+        return d[8] && d[7:6] == 2'd1 && (d[5:3] == 3'd0 || d[5:3] == 3'd3);
+    endfunction
+
+    // An IFUJump as next_task would take it now: {ok, RBase changes, the
+    // RBase the dispatch leaves, the address}. ok = 0 for the slow path, a
+    // breakpoint or IFUTest feed, an FF condition (it holds the IFU).
+    function automatic logic [25:0] ifujump_fn(input dorado_uinstr_t u);
+        logic [15:0] np;
+        if (u.bsel < 3'd4 && ff_fa(u.ff) == 2'd0 && ff_fb(u.ff) == 3'd6) return 26'd0;
+        if (!ifu_active || ifu_warmup > 8'd0) begin
+            np = ifu_trap_addr_fn(6'o34, u.jcn[4:3]);                    // NotReady
+            return ff_loads_link_fn(u) ? 26'd0 : {1'b1, 1'b0, 8'd0, np};
+        end
+        if (!nx_fast) return 26'd0;
+        np = (reschedule_pending == 8'd1) ? ifu_trap_addr_fn(6'o14, u.jcn[4:3])
+                                          : {4'd0, ~pf_rh_c[9:0], u.jcn[4:3]};
+        return {1'b1, 1'b1, {7'd0, ~pf_lh_c[9]}, np};
+    endfunction
+
+    // A JCN next_task resolves without the IFU or a TPC/IM special
+    function automatic logic jcn_plain_fn(input dorado_uinstr_t u);
+        if (u.jcn[7] || u.jcn[7:4] == 4'd0) return 1'b1;
+        if (u.jcn == 8'o045 && u.ff == 8'o147) return 1'b0;
+        if (u.jcn[2:0] != 3'd7) return 1'b1;                                 // conditional
+        return (u.jcn[7:5] != 3'd1) && u.jcn[6] && (u.jcn[5:3] == 3'd0);      // Return
+    endfunction
+
+    // next_task loads Link with CIA+1 (for a plain JCN)
+    function automatic logic jcn_calls_fn(input dorado_uinstr_t u);
+        logic [7:0] j;
+        j = u.jcn;
+        if (jcn_ifujump_fn(u)) return 1'b1;                              // the dispatch (ifu_end_task)
+        if (ff_loads_link_fn(u)) return 1'b0;
+        if (j[7]) return (j[7:6] == 2'd2) ? (j[3:0] == 4'd0) : 1'b1;   // Local Call / Global Call
+        if (j[7:4] == 4'd0) return (j[3:0] == 4'd0);                     // Long Call
+        if (j[2:0] == 3'd7) return 1'b1;                                  // Return, IFUJump (ifu_end_task)
+        return (j[4:3] == 2'd0);                                          // Conditional Call
+    endfunction
+
+    // the execute writes Link from B (an explicit Link<-, or a dispatch)
+    function automatic logic ff_writes_link_fn(input dorado_uinstr_t u);
+        logic [8:0] d;
+        d = ff_exec_decode_fn(u);
+        return ff_loads_link_fn(u) || (d[8] && d[7:6] == 2'd0 && d[5:3] == 3'd7 && d[2:0] <= 3'd1);
+    endfunction
+
+    // the execute writes the dispatch register (BigBDispatch, BDispatch, Multiply)
+    function automatic logic ff_writes_dispatch_fn(input dorado_uinstr_t u);
+        logic [8:0] d;
+        d = ff_exec_decode_fn(u);
+        return d[8] && d[7:6] == 2'd0 && d[5:3] == 3'd7 && d[2:0] <= 3'd2;
+    endfunction
+
+    // StkP after the finish (the emulator task's stack BLOCK; finish_task)
+    function automatic logic [7:0] stkp_after_fn(input dorado_uinstr_t u, input logic [7:0] sp,
+                                                 input logic [3:0] t);
+        logic [7:0] d8;
+        if (!(u.block && t == 4'd0)) return sp;
+        d8 = ff_is_dont_modify_stkp(u) ? 8'd0 : stk_signed_delta(u.rstk);
+        if (d8 != 8'd0 || (u.rstk[3] && !ff_is_dont_modify_stkp(u)))
+            return {sp[7:6], 6'(sp[5:0] + d8[5:0])};
+        return sp;
+    endfunction
+
+    // The address of u's successor when no branch condition decides it
+    // (next_task): {1, address}, or 0 for a conditional jump, a JCN or FF
+    // branch condition, an IFUJump, a TPC/IM special, the LoadRam exit, or a
+    // Return whose Link is not known yet (link_ok).
+    function automatic logic [16:0] succ_fn(input dorado_uinstr_t u, input logic [15:0] pc,
+                                            input logic [15:0] link_in, input logic [15:0] disp_in,
+                                            input logic link_ok);
+        logic [7:0] j;
+        logic       is_long, ffc_used;
+        j        = u.jcn;
+        is_long  = (j[7:4] == 4'd0);
+        ffc_used = (u.bsel < 3'd4) && !is_long &&
+                   ((u.asel <= 3'd3) ? ((u.ff[5:0] & 6'o70) == 6'o60)
+                                     : (ff_fa(u.ff) == 2'd0 && ff_fb(u.ff) == 3'd6));
+        if (j[7]) begin
+            if (ffc_used) return 17'd0;
+            if (j[7:6] == 2'd2)
+                return {1'b1, (pc & ~(16'(CPU_PAGE_SIZE - 1))) | {10'd0, j[5:0]} | disp_in};
+            return {1'b1, (pc & ~(16'(CPU_QUADRANT_SIZE - 1))) | ({10'd0, j[5:0]} * 16'(CPU_PAGE_SIZE)) | disp_in};
+        end
+        if (j == 8'o045 && u.ff == 8'o147) return 17'd0;
+        if (is_long) return {1'b1, (pc & ~(16'(CPU_QUADRANT_SIZE - 1))) | {4'd0, u.ff, j[3:0]} | disp_in};
+        if (j[2:0] == 3'd7 && j[7:5] != 3'd1 && j[6] && j[5:3] == 3'd0 && !ffc_used && link_ok)
+            return {1'b1, {4'd0, link_in[11:0]} | disp_in};
+        return 17'd0;
+    endfunction
+
+    logic [8:0] p_xd;                 // ex_u's FF as the execute decodes it
+    assign p_xd = ff_exec_decode_fn(ex_u);
+    assign ij_w   = ifujump_fn(x_u);
+    assign ij_x   = ifujump_fn(ex_u);
+    assign ij_c   = ifujump_fn(cur_u);
+    assign w_disp = 1'b0;   // (an IFUJump's finish runs alone in C_PIPE: nothing to forward)
+    always_comb begin
+        logic [7:0] len;
+        // Id: the dispatch beside the execute sets the operands (next_task)
+        len   = {6'd0, ~pf_lh_c[11:10]};
+        id_x0 = id_r0;
+        id_x1 = id_r1;
+        if (w_disp) begin
+            id_x0 = ifu_id_gen_fn(8'd0, len, pf_lh_c[3:0], ~pf_lh_c[4], pf_rh_c[10], pf_lh_c[15],
+                                  (len >= 8'd2) ? pf_b1 : ifu_alpha, (len >= 8'd3) ? pf_b2 : ifu_beta);
+            id_x1 = ifu_id_gen_fn(8'd1, len, pf_lh_c[3:0], ~pf_lh_c[4], pf_rh_c[10], pf_lh_c[15],
+                                  (len >= 8'd2) ? pf_b1 : ifu_alpha, (len >= 8'd3) ? pf_b2 : ifu_beta);
+        end
+    end
+
+    assign ctask_x   = ctask;
+    assign ex_u_q      = ex_u;
+    assign ex_pres_q   = ex_pres;
+    assign ex_brk_q    = ex_brk;
+    assign idcnt_q     = ifu_idcnt;
+    assign Cnt_q       = Cnt;
+    assign blr_valid_q = b_link_read_valid;
+    assign blr_age_q   = b_link_read_age;
+    assign cycles_x  = pfwd ? cycles + 64'd1 : cycles;
+    assign sp_wx     = pfwd ? stkp_after_fn(x_u, StkP, ctask) : StkP;
+    assign membase_x = !w_disp ? MemBase
+                     : (pf_lh_c[8] == 1'b0) ? {4'd0, MemBX, pf_lh_c[7:6]}
+                     : 8'o034 + {6'd0, pf_lh_c[7:6]};
+    assign p_stall = PIPELINE && (st == C_PIPE) && p_w &&
+                     ((x_pref_pending && !mem_fin) || io_busy_tick || ifu_bk_busy);
+    assign p_wonly = 1'b0;
+    always_comb begin
+        pfwd = PIPELINE && (st == C_PIPE) && p_w;
+        // What the execute sees: x_u's finish runs before it in the same clock.
+        T_x     = T;
+        carry_x = alu_carry;
+        zero_x  = alu_zero;
+        lt0_x   = alu_lt0;
+        ovf_x   = alu_overflow;
+        Link_x  = Link;
+        if (pfwd) begin
+            case (x_u.lc)
+                3'd1, 3'd7: T_x = x_pd;
+                3'd2, 3'd3: T_x = x_md_at_issue;
+                3'd5:       T_x = ff_is_t_gets_md(x_u) ? x_md_at_issue : x_pd;
+                default: ;
+            endcase
+            if (!(ff_full_function_ok(x_u) && ff_fa(x_u.ff) == 2'd0 &&
+                  ff_fb(x_u.ff) == 3'd7 && ff_fc(x_u.ff) == 3'd6)) begin
+                carry_x = x_new_carry;
+                zero_x  = x_new_alu_zero;
+                lt0_x   = x_new_alu_lt0;
+                ovf_x   = x_new_ovf;
+            end
+            if (jcn_calls_fn(x_u)) Link_x = real_PC + 16'd1;
+        end
+
+    end
+
+    always_comb begin
+        logic [15:0] avail;
+        // Would the schedule after x_u switch (task_schedule_task, from the
+        // registers it starts from; the finish ORs in the I/O tick's wakeups)?
+        avail = ready | wakeup_pending | wakeup_pipe[1] | ext_wakeup_req;
+        if (tasksim_fired || (!tasksim_loaded && tasksim == 7'o177)) avail[DORADO_TASKSIM_TASK] = 1'b1;
+        if (junk_tw_enabled && junk_tw_countdown <= 16'd1) avail[DORADO_JUNK_TASK] = 1'b1;   // the finish's pendulum tick
+        // (C_PIPE runs the emulator task alone: a switch is any other task ready)
+        sw_maybe = (tasking_on || tasking_resume_delay == 8'd1) &&
+                   (avail[15:1] != 15'd0 || ctask != 4'd0);
+
+    end
+
+    always_comb begin
+        logic [16:0] sn;
+        logic [15:0] link_d;
+        logic        link_ok;
+        link_ok = 1'b1;
+        // F: the instruction after cur_u. In C_NF cur_u executes next (the
+        // finish of x_u now loads Link); in C_PIPE it executes after ex_u.
+        if (st == C_NF) begin
+            link_d  = jcn_calls_fn(x_u) ? real_PC + 16'd1 : Link;
+            sn      = succ_fn(cur_u, x_pred_np, link_d, task_dispatch[ctask],
+                              jcn_plain_fn(x_u) || (jcn_ifujump_fn(x_u) && !ff_loads_link_fn(x_u)));
+        end else begin
+            link_d  = jcn_calls_fn(ex_u) ? p_pc_x + 16'd1 : Link_x;
+            link_ok = jcn_calls_fn(ex_u) || !ff_writes_link_fn(ex_u);
+            sn      = ff_writes_dispatch_fn(ex_u) ? 17'd0 : succ_fn(cur_u, p_pc_d, link_d, 16'd0, link_ok);
+            // an IFUJump: the dispatch the buffer offers now, if nothing
+            // before its finish moves the IFU (another dispatch, an FF)
+            if (jcn_ifujump_fn(cur_u))
+                sn = (ij_c[25] && !jcn_ifujump_fn(ex_u) && !ff_writes_ifu_fn(ex_u) &&
+                      !(pfwd && jcn_ifujump_fn(x_u))) ? {1'b1, ij_c[15:0]} : 17'd0;
+        end
+        f_ok = sn[16];
+        f_np = sn[15:0];
+        f_rb = {ij_c[24], ij_c[23:16]};
+
+    end
+
+    always_comb begin
+        logic [8:0]  xd;
+        logic [7:0]  rb_d, sp_w, sp_d;
+        // D: cur_u's operand, at the RBase and StkP its issue will see (after
+        // x_u's finish, ex_u's execute and ex_u's finish)
+        xd   = p_xd;
+        rb_d = (w_disp ? ij_w[23:16] : RBase);                          // x_u's dispatch (beside)
+        if (xd[8] && xd[7:6] == 2'd2 && xd[5:3] <= 3'd1) rb_d = {4'd0, ex_u.ff[3:0]};
+        if (jcn_ifujump_fn(ex_u) && p_rb_d[8]) rb_d = p_rb_d[7:0];        // ex_u's dispatch, as F predicted it
+        d_rb = rb_d;
+        sp_w = pfwd ? stkp_after_fn(x_u, StkP, ctask) : StkP;
+        sp_d = stkp_after_fn(ex_u, sp_w, ctask);
+        d_sp = sp_d;
+        d_ok = !(xd[8] && xd[7:6] == 2'd1 && xd[5:3] == 3'd0 && xd[2:1] == 2'b11) &&   // RBase<-B
+               !(xd[8] && xd[7:6] == 2'd1 && xd[5:3] == 3'd4 && xd[2:1] == 2'b10);    // StkP<-
+        d_raddr = rm_address_fn(cur_u, ctask, rb_d, task_subtask[ctask], sp_d);
+        dr_rb    = w_disp ? ij_w[23:16] : RBase;
+        dr_sp    = sp_w;
+        dr_raddr = p_w ? rm_address_fn(ex_u, ctask, dr_rb, task_subtask[ctask], dr_sp) : p_raddr;
+
+    end
+
+    always_comb begin
+        logic [8:0] xd;
+        xd   = p_xd;
+        // X: ex_u executes now, x_u finishing beside it. x_elig: ex_u can
+        // run in the pipeline at all; x_host: the host's operation wants
+        // C_FETCH; x_ready: nothing passing holds it this clock.
+        x_elig  = PIPELINE && (st == C_PIPE) && p_x && ctask == 4'd0 &&
+                  !bb_present && ex_pres && !ex_brk &&
+                  !uinstr_touches_io_fn(ex_u, 1'b0) &&
+                  !jcn_reads_im_at_link_fn(ex_u) && (jcn_plain_fn(ex_u) || jcn_ifujump_fn(ex_u)) &&
+                  !(next_reads_rm_fn(ex_u) && xd[8] && xd[7:6] == 2'd1 && xd[5:3] == 3'd4 && xd[2:1] == 2'b10) &&
+                  !(xd[8] && xd[7:6] == 2'd1 && (xd[5:3] == 3'd6 ||                     // the section's state
+                                                (xd[5:3] == 3'd7 && (xd[2:0] == 3'd1 || xd[2:0] == 3'd4)))) &&   // the event counters
+                  holdsim == 8'd0 && !holdsim_loaded && !holdsim_delay && !holdsim_hold;
+        // (a host operation is served in C_FETCH, and a hold -- the mailbox
+        // filling the receive buffer or emptying a transmit slot -- waits
+        // there for cpu_between: in C_PIPE it must drain, not bubble, or the
+        // mailbox and the pipeline wait on each other for ever)
+        x_host  = (ap_req && !ap_done_q) || ap_hold;
+        x_ready = // beside a finish: not in the per-step lock-step, not an
+                  // IFUJump's (the dispatch is checked after it), not a switch
+                  !(p_w && (ov_hold || jcn_ifujump_fn(x_u) || sw_maybe)) &&
+                  !p_stall && !(x_pref_pending && !mem_fin) && !io_busy_tick &&
+                  // a dispatch's byte references still booking: only an execute
+                  // that would meet them waits (as ifu_bk_gate; Id is current in
+                  // id_r0, which the clock that dispatched updated)
+                  !(ifu_bk_busy && ((ex_u.asel <= 3'd3 && !jcn_is_write_im_fn(ex_u) &&
+                                     decode_ref_kind_fn(ex_u, 1'b0) != DM_REF_NONE) ||
+                                    uinstr_reads_md_fn(ex_u) || (ff_fa(ex_u.ff) == 2'd1 && ff_fb(ex_u.ff) == 3'd6))) &&
+                  // a reference completing this clock is booked (mem_pref_task)
+                  // at its top: the Md file the datapath reads is the old one
+                  !(x_pref_pending && (uinstr_reads_md_fn(ex_u) || ex_u.asel == 3'd7));
+        ovx   = x_elig && !x_host && x_ready;
+        // otherwise a bubble: x_u's finish alone, ex_u and cur_u held
+        p_bub = x_elig && !x_host && !x_ready && !p_stall;
+    end
+
+    always_comb begin
+        // C_NF enters C_PIPE: cur_u (read at the execute's prediction) runs
+        // next, its operand read now, and IM reads the one after
+        // (IM's data must be the instruction at x_pred_np: a C_NF that waited
+        // may have read IM elsewhere meanwhile, and C_PIPE does not re-read it)
+        pent = PIPELINE && (st == C_NF) && !ov_hold && !ap_hold && ctask == 4'd0 && im_q_addr == x_pred_np[11:0] &&
+               !(x_pref_pending && !mem_fin) && !io_busy_tick && !ifu_bk_busy &&
+               x_pred_fresh && (x_pred_np_x == pred_np) && !sw_maybe && f_ok &&
+               (jcn_plain_fn(x_u) || (jcn_ifujump_fn(x_u) && x_disp_v && !ff_loads_link_fn(x_u))) &&
+               !uinstr_touches_io_fn(cur_u, 1'b0) &&
+               !jcn_reads_im_at_link_fn(cur_u) && !next_reads_rm_fn(cur_u);
+    end
 
     // C_FETCH executes the read-ahead instruction this clock (registers only:
     // the prediction below reads it)
@@ -1645,9 +2025,10 @@ module dorado_rtl_cpu
         // register and Cnt are as the execute will leave them (Link<-, the
         // dispatch register cleared, Cnt<-): the branch conditions are the
         // previous instruction's (HM 4.4), already in their registers.
-        exec_now = (st == C_EXEC) || fexec;
+        exec_now = (st == C_EXEC) || fexec || (PIPELINE && st == C_PIPE);   // (C_PIPE: used only when it executes)
         u       = exec_now ? ex_u : x_u;
-        link_p  = exec_now ? Link : link_at_issue;
+        link_p  = exec_now ? Link_x : link_at_issue;
+        pc_p    = (st == C_PIPE) ? p_pc_x : real_PC;
         disp_p  = exec_now ? task_dispatch[ctask] : dispatch_or;
         cnt_p   = Cnt;
         atten_p = exec_now ? ((io_attached && ctask != 4'd0) ? io_atten_in : 1'b0) : io_atten_at_issue;
@@ -1658,7 +2039,7 @@ module dorado_rtl_cpu
         is_long = (jcn[7:4] == 4'd0);
         pred_ok = 1'b0;
         pred_why = 2'd3;
-        pred_np = real_PC + 16'd1;
+        pred_np = pc_p + 16'd1;
         ffc     = 1'b0;
         if (u.bsel < 3'd4 && !is_long) begin
             if (u.asel <= 3'd3) begin
@@ -1670,17 +2051,17 @@ module dorado_rtl_cpu
         if (jcn[7]) begin
             pred_ok = 1'b1;
             if (jcn[7:6] == 2'd2)       // Local Jump/Call
-                pred_np = (real_PC & ~(16'(CPU_PAGE_SIZE - 1))) | {10'd0, jcn[5:0]} |
+                pred_np = (pc_p & ~(16'(CPU_PAGE_SIZE - 1))) | {10'd0, jcn[5:0]} |
                           {15'd0, ffc} | disp_p;
             else                        // Global Call
-                pred_np = (real_PC & ~(16'(CPU_QUADRANT_SIZE - 1))) |
+                pred_np = (pc_p & ~(16'(CPU_QUADRANT_SIZE - 1))) |
                           ({10'd0, jcn[5:0]} * 16'(CPU_PAGE_SIZE)) | {15'd0, ffc} | disp_p;
         end else if (jcn == 8'o045 && u.ff == 8'o147) begin
             pred_ok = 1'b0;             // LoadRam End-item exit
             pred_why = 2'd2;
         end else if (is_long) begin     // Long Jump/Call
             pred_ok = 1'b1;
-            pred_np = (real_PC & ~(16'(CPU_QUADRANT_SIZE - 1))) | {4'd0, u.ff, jcn[3:0]} | disp_p;
+            pred_np = (pc_p & ~(16'(CPU_QUADRANT_SIZE - 1))) | {4'd0, u.ff, jcn[3:0]} | disp_p;
         end else if (jcn[2:0] == 3'd7) begin
             if (jcn[7:5] != 3'd1 && jcn[6] && jcn[5:3] == 3'd0) begin   // Return
                 pred_ok = 1'b1;
@@ -1688,7 +2069,7 @@ module dorado_rtl_cpu
             end
         end else begin                  // Conditional Jump/Call
             pred_ok = 1'b1;
-            pred_np = (real_PC & ~(16'(CPU_PAGE_SIZE - 1))) |
+            pred_np = (pc_p & ~(16'(CPU_PAGE_SIZE - 1))) |
                       {10'd0, jcn[6:5], 1'b0, jcn[4:3], cond_pure_fn(u, jcn[2:0])} | disp_p;
         end
 
@@ -1724,7 +2105,7 @@ module dorado_rtl_cpu
         // instruction's own operand register: in the execute clock it is in
         // rm_q/stk_q only when the operand was read ahead (fexec, rm_pre_ok).
         // Otherwise C_NEXTRD reads it and C_NEXT branches.
-        if (exec_now && next_reads_rm_fn(u) && !(fexec && rm_pre_ok)) begin
+        if (exec_now && next_reads_rm_fn(u) && !(fexec && rm_pre_ok) && !(st == C_PIPE)) begin
             pred_ok  = 1'b0;
             pred_why = 2'd0;
         end
@@ -1738,6 +2119,10 @@ module dorado_rtl_cpu
 
         // what C_FINISH leaves in RBase and StkP (no task switch)
         fin_rbase = (ifu_dispatch_rbase >= 0) ? 8'(ifu_dispatch_rbase) : x_rbase_after_ff;
+        // (PIPELINE) In C_NF the execute's RBase is in RBase still, or x_u's
+        // dispatch sets it (x_disp_*, from the execute's clock)
+        if (PIPELINE && st == C_NF)
+            fin_rbase = (jcn_ifujump_fn(x_u) && x_disp_v) ? x_disp_rb : RBase;
         fin_stkp  = StkP;
         fin_d8    = ff_is_dont_modify_stkp(x_u) ? 8'd0 : stk_signed_delta(x_u.rstk);
         if (x_u.block && ctask == 4'd0 &&
@@ -1765,8 +2150,15 @@ module dorado_rtl_cpu
         // RBase in this clock), and C_NEXT can follow directly.
         if (fexec)
             rms_raddr = rm_address_fn(cur_u, ctask, RBase, task_subtask[ctask], StkP);
+        if (PIPELINE && st == C_PIPE)                          // D: the instruction after ex_u
+            rms_raddr = (p_stall || p_bub) ? p_raddr        // (waiting: ex_u's operand stays)
+                      : !ovx ? dr_raddr                       // (a drain: ex_u's again)
+                      : p_d  ? d_raddr
+                      :        p_raddr;                         // (no fetch after: ex_u's condition register, as fexec)
+    end
+    always_comb begin
         rms_waddr = lc_write_address_fn(x_u, ctask, x_rbase_at_issue, task_subtask[ctask], StkP);
-        rms_we    = (st == C_FINISH || st == C_NF) && !halted &&
+        rms_we    = (st == C_FINISH || st == C_NF || (st == C_PIPE && p_w)) && !halted &&
                     (x_u.lc == 3'd2 || x_u.lc == 3'd4 || x_u.lc == 3'd5 ||
                      x_u.lc == 3'd6 || x_u.lc == 3'd7);
         rms_wd    = (x_u.lc == 3'd4 || x_u.lc == 3'd5) ? x_md_at_issue : x_pd;
@@ -1921,7 +2313,7 @@ module dorado_rtl_cpu
         br_val = mcr_disbr() ? 28'd0 : br[mb_eff];
         idinc  = (ex_u.asel == 3'd5) ||
                  ((ex_u.asel == 3'd2 || ex_u.asel == 3'd3) && ff_decode_ok(ex_u) && ex_u.ff[7:6] == 2'd1);
-        if (kind == DM_REF_IFETCH) br_val = {br_val[27:8], (idinc ? id_r1[7:0] : id_r0[7:0])};
+        if (kind == DM_REF_IFETCH) br_val = {br_val[27:8], (idinc ? id_x1[7:0] : id_x0[7:0])};
         disp   = (kind == DM_REF_LONGFETCH) ? {comb_alu_b[11:0], comb_alu_a} : {12'd0, comb_alu_a};
         mem_spec_va  = (br_val + disp) & 28'h0FFFFFFF;
         case (st)
@@ -1972,7 +2364,7 @@ module dorado_rtl_cpu
                           (ifu_dl_valid && (!mem_req || mem_accepted)) ||
                           ((st == C_NEXT || st == C_NF) && x_u.jcn[7:5] == 3'd1 && x_u.jcn[2:0] == 3'd7) ||
                           (st == C_IFU_DEC || st == C_IFU_BETA || st == C_IFU_AW) ||
-                          ((st == C_EXEC || fexec) && ex_u.asel <= 3'd3 && !jcn_is_write_im_fn(ex_u) &&
+                          ((st == C_EXEC || fexec || (PIPELINE && st == C_PIPE && p_x)) && ex_u.asel <= 3'd3 && !jcn_is_write_im_fn(ex_u) &&
                            decode_ref_kind_fn(ex_u, ctask != 4'd0) != DM_REF_NONE);
     // the peek the buffer issues this clock: decided here, from the registers,
     // so the clocked issue and the read-ahead agree
@@ -2518,7 +2910,7 @@ module dorado_rtl_cpu
 
         // The I/O module ticked on step_done during C_FETCH; its
         // engines must be idle before this instruction runs.
-        if (!io_busy) begin
+        if (pexec_now ? !io_busy_tick : !io_busy) begin
         io_read_stb       = 1'b0;
         io_write_stb      = 1'b0;
         fastio_stb_r      = 1'b0;
@@ -3002,18 +3394,18 @@ module dorado_rtl_cpu
     // the clock the instruction completes: C_FINISH, unless it is waiting
     // for its memory reference (x_pref_pending until mem_fin)
     assign io_tick_early  = clk_en && !halted &&
-                            (((st == C_FINISH || st == C_NF) && !(x_pref_pending && !mem_fin) && !io_busy_tick &&
+                            (((st == C_FINISH || st == C_NF ||
+                               (st == C_PIPE && p_w && (!jcn_ifujump_fn(x_u) || !ifu_active ||
+                                                        ifu_warmup > 8'd0 || nx_fast))) &&
+                              !(x_pref_pending && !mem_fin) && !io_busy_tick &&
                               !ifu_bk_busy) || st == C_SCHED);
     assign dbg_ifu_active = ifu_active;
     assign dbg_st         = st;
     always @(posedge clk) begin
-        // From the IFU state at the start of this clock: in use in the next
-        // one, which is always correct because the clock before an execute
-        // (C_FINISH, C_DEC, or C_FETCH waiting) never changes the IFU state.
-        id_r0 = ifu_id_at_fn(ifu_idcnt);
-        id_r1 = ifu_id_at_fn(ifu_idcnt + 8'd1);
         x_ifum_wr = 1'b0;
         step_done = 1'b0;
+        snap_valid = 1'b0;
+        pexec_now  = 1'b0;
         ap_done_q = ap_done;
         if (st != C_FETCH && st != C_APW) ap_done = 1'b0;
         if (rst) begin
@@ -3024,6 +3416,9 @@ module dorado_rtl_cpu
             spec_hit = 1'b0;
             ap_rd    = 16'd0;
             x_rmor   = 1'b0;
+            p_w      = 1'b0;
+            p_x      = 1'b0;
+            p_d      = 1'b0;
             st      = C_FETCH;
             m_ret   = C_FETCH;
             x_im_wr = 1'b0;
@@ -3110,7 +3505,7 @@ module dorado_rtl_cpu
                 fx_sub  = task_subtask[ctask];
             end
             st0 = st;
-            if (do_exec) begin
+            if (do_exec && !PIPELINE) begin
                 exec_task();
                 // fexec read the branch-condition register this clock (unless
                 // the instruction moved StkP or the subtask)
@@ -3210,9 +3605,139 @@ module dorado_rtl_cpu
                 if (ifu_bk_busy) cen_bk_wait = cen_bk_wait + 64'd1;
                 if (!x_pref_pending && !io_busy_tick && !ifu_bk_busy) begin
                     logic pre0;
+                    logic [3:0] ct_s;
+                    logic       xplain, nplain;
                     pre0 = x_pred_fresh && (x_pred_np_x == pred_np);   // the execute's read is this clock's prediction
+                    ct_s   = ctask;
+                    xplain = !(x_u.jcn[2:0] == 3'd7 && x_u.jcn[7:4] != 4'd0 && x_u.jcn[7] == 1'b0 &&
+                               !(x_u.jcn[7:5] != 3'd1 && x_u.jcn[6] && x_u.jcn[5:3] == 3'd0)) &&
+                             !(x_u.jcn == 8'o045 && x_u.ff == 8'o147);
+                    nplain = !uinstr_touches_io_fn(cur_u, ctask != 4'd0) && !uinstr_reads_id_fn(cur_u) &&
+                             !jcn_reads_im_at_link_fn(cur_u) && !next_reads_rm_fn(cur_u) &&
+                             !(ap_req && !ap_done_q) && !ap_hold;
                     next_task();
                     if (st == C_FINISH) finish_task(1'b1, 1'b0, 1'b1, pre0);
+                    if (pent) begin
+                        // IM was read at the instruction after cur_u: C_PIPE
+                        // takes cur_u (latched in ex_u, its operand read now)
+                        if (st == C_FETCH && spec_hit && rm_pre_ok) begin
+                            st      = C_PIPE;
+                            p_w     = 1'b0;
+                            p_x     = 1'b1;
+                            p_d     = 1'b1;
+                            p_pc_x  = real_PC;
+                            p_pc_d  = f_np;
+                            p_rb_d  = f_rb;
+                            p_raddr = rms_raddr;
+                            p_rb_x  = fin_rbase;
+                            p_sp_x  = fin_stkp;
+                            cen_pipe[4] = cen_pipe[4] + 64'd1;
+                        end else begin
+                            cen_pipe[5] = cen_pipe[5] + 64'd1;
+                        end
+                        spec_hit  = 1'b0;
+                        rm_pre_ok = 1'b0;
+                    end
+                    if (st == C_FETCH) begin
+                        cen_ov[0] = cen_ov[0] + 64'd1;
+                        if (spec_hit && rm_pre_ok) begin
+                            cen_ov[1] = cen_ov[1] + 64'd1;
+                            if (ctask == ct_s && xplain) begin
+                                cen_ov[2] = cen_ov[2] + 64'd1;
+                                if (nplain) begin
+                                    cen_ov[3] = cen_ov[3] + 64'd1;
+                                    if (!(cur_u.asel == 3'd0 || cur_u.asel == 3'd1 || cur_u.asel == 3'd4 ||
+                                          cur_u.asel == 3'd7 || cur_u.bsel == 3'd1)) begin
+                                        cen_ov[4] = cen_ov[4] + 64'd1;
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+
+            // The pipeline (PIPELINE): x_u's finish, ex_u's execute (after it,
+            // in this clock: the C model's order), cur_u's operand read, the
+            // IM read after it. Anything it does not take drains it: the
+            // finish runs alone and C_FETCH reads IM at real_PC again.
+            C_PIPE: begin
+                cen_pipe[0] = cen_pipe[0] + 64'd1;
+                if (p_stall) begin
+                    cen_pipe[2] = cen_pipe[2] + 64'd1;   // the finish waits: nothing moves
+                    if (x_pref_pending && !mem_fin) cen_pdrain[6] = cen_pdrain[6] + 64'd1;
+                    else if (ifu_bk_busy)           cen_pdrain[7] = cen_pdrain[7] + 64'd1;
+                    else                            cen_pdrain[8] = cen_pdrain[8] + 64'd1;
+                end else begin
+                    if (p_w) begin
+                        // the I/O tick before x_u's finish: its wakeups and
+                        // subtask write (cpu.c applies them at the execute,
+                        // which here ran beside the tick, before its outputs)
+                        wakeup_pending |= ext_wakeup_req;
+                        if (ext_subtask_we) task_subtask[ext_subtask_task] = ext_subtask_val;
+                        next_task();
+                        if (st == C_FINISH) finish_task(1'b1, 1'b0, 1'b0, 1'b0);
+                        if (ovx && (x_np != p_pc_x || ctask != 4'd0))
+                            $display("[C_PIPE] finish chose 0%o task %0d, the pipeline has 0%o", x_np, ctask, p_pc_x);
+                    end
+                    if (ovx) begin
+                        cen_pipe[1] = cen_pipe[1] + 64'd1;
+                        if (p_w) begin
+                            cen_pipe[7]   = cen_pipe[7] + 64'd1;
+                            snap_valid    = 1'b1;
+                            snap_real_PC  = real_PC;  snap_ctask = ctask;  snap_ready = ready;
+                            snap_T        = T;        snap_Q     = Q;      snap_Link  = Link;
+                            snap_Cnt      = Cnt;      snap_ShC   = ShC;    snap_StkP  = StkP;
+                            snap_RBase    = RBase;    snap_MemBase = MemBase; snap_MemBX = MemBX;
+                            snap_flags    = {alu_zero, alu_lt0, alu_carry, alu_overflow};
+                            snap_mcr      = mcr;      snap_proc_srn = proc_srn;
+                            for (int i = 0; i < 32; i++) snap_br[i] = br[i];
+                            if (p_fwd != (rms_we && rms_waddr == p_raddr))
+                                $display("[C_PIPE] the registered operand forward differs at 0%o", real_PC);
+                            // the execute's own view (below) must be what the finish left
+                            if (real_PC != pc_p || ctask != 4'd0 || T != T_x || Link != Link_x ||
+                                StkP != sp_wx || RBase != dr_rb || MemBase != membase_x || cycles != cycles_x ||
+                                {alu_zero, alu_lt0, alu_carry, alu_overflow} != {zero_x, lt0_x, carry_x, ovf_x})
+                                $display("[C_PIPE] the forwarded view differs from the finish at 0%o", real_PC);
+                        end
+                        // the execute runs after the case (below)
+                    end else if (p_bub && !p_w) begin
+                        cen_pipe[2] = cen_pipe[2] + 64'd1;   // ex_u waits (nothing moves)
+                    end else if (p_bub && st == C_FETCH && real_PC == p_pc_x && ctask == 4'd0 &&
+                                 RBase == p_rb_x && StkP == p_sp_x) begin
+                        // x_u's finish left the PC, task, RBase and StkP the
+                        // pipeline read ahead for (an IFUJump's dispatch
+                        // went where it fetched): ex_u executes next clock
+                        // (its operand and cur_u held this clock)
+                        if (jcn_ifujump_fn(x_u)) cen_pipe[9] = cen_pipe[9] + 64'd1;
+                        st        = C_PIPE;
+                        p_w       = 1'b0;
+                        spec_hit  = 1'b0;
+                        rm_pre_ok = 1'b0;
+                    end else begin
+                        // drain: ex_u to C_FETCH, which executes it (fexec)
+                        // when the finish left the task and the PC alone; IM
+                        // and its operand are read again this clock
+                        cen_pipe[8] = cen_pipe[8] + 64'd1;
+                        begin
+                            int r;
+                            if (!p_x) r = 0;
+                            else if (ctask != 4'd0) r = 9;
+                            else if (uinstr_touches_io_fn(ex_u, 1'b0)) r = 1;
+                            else if (jcn_reads_im_at_link_fn(ex_u) || !(jcn_plain_fn(ex_u) || jcn_ifujump_fn(ex_u))) r = 4;
+                            else if (next_reads_rm_fn(ex_u)) r = 3;
+                            else if (p_xd[8] && p_xd[7:6] == 2'd1 && p_xd[5:3] >= 3'd6) r = 5;
+                            else if (x_host) r = 10;
+                            else if (!ex_pres || ex_brk || bb_present) r = 2;
+                            else r = 11;
+                            cen_pdrain[r] = cen_pdrain[r] + 64'd1;
+                        end
+                        if (st == C_PIPE) st = C_FETCH;
+                        spec_hit  = p_x && !p_bub && (st == C_FETCH) && (real_PC == p_pc_x) && (ctask == 4'd0);
+                        rm_pre_ok = spec_hit && (!p_w || (RBase == dr_rb && StkP == dr_sp));
+                        p_w = 1'b0; p_x = 1'b0; p_d = 1'b0;
+                    end
                 end
             end
 
@@ -3353,6 +3878,98 @@ module dorado_rtl_cpu
             default: st = C_FETCH;
             endcase
 
+            // (PIPELINE) The execute, for C_EXEC, a C_FETCH that executes and
+            // C_PIPE, from its own view of the registers: as the clock found
+            // them, with C_PIPE's finish forwarded (what the finish left, and
+            // the check above says so). The finish, the scheduler and C_NF's
+            // work are then not in the execute's paths.
+            if (PIPELINE && (do_exec || ovx)) begin
+                logic was_ovx;
+                was_ovx  = ovx;
+                ctask    = ctask_x;
+                ex_u     = ex_u_q;      // (a C_FETCH that executes: cur_u, the same word)
+                ex_pres  = ex_pres_q;
+                ex_brk   = ex_brk_q;
+                ifu_idcnt = idcnt_q;
+                Cnt      = Cnt_q;
+                b_link_read_valid = blr_valid_q;
+                b_link_read_age   = blr_age_q;
+                real_PC  = pc_p;
+                cycles   = cycles_x;
+                T        = T_x;
+                Link     = Link_x;
+                StkP     = sp_wx;
+                RBase    = dr_rb;
+                MemBase  = membase_x;
+                {alu_zero, alu_lt0, alu_carry, alu_overflow} = {zero_x, lt0_x, carry_x, ovf_x};
+                if (was_ovx) fx_stkp = StkP;
+                pexec_now = was_ovx;
+                exec_task();
+                pexec_now = 1'b0;
+                x_disp_v  = jcn_ifujump_fn(x_u) && nx_fast;
+                x_disp_rb = {7'd0, ~pf_lh_c[9]};
+                if (fexec && st == C_NEXTRD && StkP == fx_stkp && task_subtask[ctask] == fx_sub) begin
+                    if (pred_ok && !x_pref_pending) begin
+                        st           = C_NF;
+                        x_pred_fresh = 1'b1;
+                        x_pred_np    = pred_np;
+                        x_pred_np_x  = pred_np;
+                    end else begin
+                        st = C_NEXT;
+                    end
+                end
+                if (was_ovx) begin
+                    if (!p_d) begin
+                        begin
+                            int r;
+                            logic [7:0] j;
+                            j = x_u.jcn;      // (exec_task made ex_u x_u)
+                            if (j[7:4] != 4'd0 && !j[7] && j[2:0] != 3'd7) r = 0;
+                            else if (x_u.bsel < 3'd4 && j[7:4] != 4'd0 &&
+                                     ((x_u.asel <= 3'd3) ? ((x_u.ff[5:0] & 6'o70) == 6'o60)
+                                                         : (ff_fa(x_u.ff) == 2'd0 && ff_fb(x_u.ff) == 3'd6))) r = 1;
+                            else if (j[2:0] == 3'd7 && j[7:5] == 3'd1) r = 2;
+                            else if (j[2:0] == 3'd7 && j[6] && j[5:3] == 3'd0) r = 3;
+                            else r = 4;
+                            cen_pnof[r] = cen_pnof[r] + 64'd1;
+                        end
+                        // a condition on ex_u's own register: read this
+                        // clock (p_raddr), so C_NF can follow, as fexec
+                        if (st == C_NEXTRD && StkP == fx_stkp && pred_ok && !x_pref_pending) begin
+                            st           = C_NF;
+                            x_pred_fresh = 1'b1;
+                            x_pred_np    = pred_np;
+                            x_pred_np_x  = pred_np;
+                        end
+                        // the instruction after ex_u was not fetched: the
+                        // FSM takes it from here (IM was read at pred_np)
+                        cen_pipe[3] = cen_pipe[3] + 64'd1;
+                        p_w = 1'b0; p_x = 1'b0;
+                    end else if (st == C_NF || st == C_NEXT || st == C_NEXTRD) begin
+                        st      = C_PIPE;
+                        p_w     = 1'b1;
+                        p_x     = d_ok;
+                        p_d     = f_ok;
+                        ex_u    = cur_u;
+                        ex_pres = im_q_pres;
+                        ex_brk  = im_q_brk;
+                        p_pc_x  = p_pc_d;
+                        p_pc_d  = f_np;
+                        p_rb_d  = f_rb;
+                        p_raddr = d_raddr;
+                        p_rb_x  = d_rb;
+                        p_sp_x  = d_sp;
+                    end else begin
+                        cen_pipe[6] = cen_pipe[6] + 64'd1;   // a hold, a stack error, a halt
+                        p_w = 1'b0; p_x = 1'b0; p_d = 1'b0;
+                        x_pred_fresh = 1'b0;
+                    end
+                    if (st == C_PIPE) x_pred_fresh = 1'b0;
+                    spec_hit  = 1'b0;
+                    rm_pre_ok = 1'b0;
+                end
+            end
+
             // One instance of the execution logic, for C_EXEC and for a
             // C_FETCH that executes (fexec): calling it from both case items
             // built the whole datapath twice.
@@ -3420,6 +4037,16 @@ module dorado_rtl_cpu
                 end
             end
         end
+        // Id from the IFU state this clock leaves: what the next execute
+        // reads (a register, so the operand selection is not in the path from
+        // ifu_idcnt to Pd; C_PIPE forwards a dispatch beside the execute)
+        id_r0 = ifu_id_at_fn(ifu_idcnt);
+        id_r1 = ifu_id_at_fn(ifu_idcnt + 8'd1);
+        // the compare C_PIPE's operand forward uses next clock (rms_we and
+        // rms_waddr as the finish of x_u will have them)
+        p_fwd = !halted && (x_u.lc == 3'd2 || x_u.lc == 3'd4 || x_u.lc == 3'd5 ||
+                            x_u.lc == 3'd6 || x_u.lc == 3'd7) &&
+                lc_write_address_fn(x_u, ctask, x_rbase_at_issue, task_subtask[ctask], StkP) == p_raddr;
     end
 
 endmodule

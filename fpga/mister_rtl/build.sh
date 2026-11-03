@@ -1,7 +1,7 @@
 #!/bin/sh
 # Assemble the rtl_core MiSTer project from the framework template.
 #
-#   [CLK_MHZ=50] [CORE=cedar] fpga/mister_rtl/build.sh [TEMPLATE_DIR] [OUT_DIR]
+#   [CLK_MHZ=50] [CORE=cedar] [PIPELINE=1] fpga/mister_rtl/build.sh [TEMPLATE_DIR] [OUT_DIR]
 #
 # Needs rtl_core/init/ (make -C rtl_core init) and rtl_core/roms/ (built by
 # the rtl_core Makefile). Then: cd OUT_DIR && quartus_sh --flow compile Dorado
@@ -76,6 +76,10 @@ set_global_assignment -name VERILOG_MACRO "DORADO_CEDAR=1"
 set_global_assignment -name VERILOG_MACRO "DORADO_CHECKPOINT=1"
 set_global_assignment -name SEARCH_PATH init
 QIP
+fi
+# PIPELINE=1: the CPU with C_PIPE (rtl_core/dorado_rtl_cpu.sv PIPELINE)
+if [ "${PIPELINE:-0}" = 1 ]; then
+    echo 'set_global_assignment -name VERILOG_MACRO "DORADO_PIPELINE=1"' >> "$OUT/files.qip"
 fi
 sed -e 's/mycore/Dorado/g' "$TEMPLATE/mycore.qsf" > "$OUT/Dorado.qsf"
 sed -e 's/mycore/Dorado/g' "$TEMPLATE/mycore.qpf" > "$OUT/Dorado.qpf"

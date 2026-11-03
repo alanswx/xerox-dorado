@@ -134,6 +134,9 @@ module dorado_rtl_io
     // Framebuffer render jobs (main block -> engine)
     logic        rj_start;
     logic        rj_cursor;
+    logic [63:0] ddc_cursor_rows;   // cursor rows posted to the render engine
+    logic [63:0] ddc_cursor_wr;     // CursorHi writes (with or without bits)
+    logic [15:0] ddc_cursor_dbg_x, ddc_cursor_dbg_y, ddc_cursor_dbg_ymin;   // the last cursor row drawn; the field's first
     logic        rj_ch;
     logic [9:0]  rj_y;
     logic [10:0] rj_width;
@@ -206,7 +209,32 @@ module dorado_rtl_io
     always_ff @(posedge clk) begin
         if (fb_we_a) fb[fb_addr_a] <= fb_wd_a;
     end
-    always_ff @(posedge clk) fb_rd_data <= fb[fb_rd_addr];
+    // The cursor, mixed in at scan-out (as the display board mixes it into
+    // the video): the 16 cursor bits of each screen line, from the CursorLo/
+    // CursorHi outputs Cedar's display microcode ends every line with, and
+    // the cursor's X. Drawn into the framebuffer instead, a cursor row was
+    // overwritten by the same line's render, which is posted after it.
+    (* ramstyle = "M10K" *) logic [15:0] cur_line [0:1023];
+    logic        cl_we;
+    logic [9:0]  cl_addr;
+    logic [15:0] cl_wd;
+    logic [15:0] cur_x;
+    logic [15:0] cl_q;
+    logic [9:0]  cl_px;
+    logic        fb_q;
+    always_ff @(posedge clk) begin
+        if (cl_we) cur_line[cl_addr] <= cl_wd;
+    end
+    always_ff @(posedge clk) begin
+        fb_q  <= fb[fb_rd_addr];
+        cl_q  <= cur_line[fb_rd_addr[19:10]];
+        cl_px <= fb_rd_addr[9:0];
+    end
+    always_comb begin
+        logic [15:0] d;
+        d = {6'd0, cl_px} - cur_x;           // the pixel's place in the cursor row
+        fb_rd_data = fb_q || (d < 16'd16 && cl_q[4'd15 - d[3:0]]);
+    end
     logic [15:0] ddc_statics;
     logic [15:0] ddc_riob;
     logic [3:0]  ddc_terminal_task;
@@ -1323,6 +1351,7 @@ module dorado_rtl_io
     always @(posedge clk) begin
         rj_start = 1'b0;
         wc_start = 1'b0;
+        cl_we    = 1'b0;
         if (kbd0_poke && !rst) ddc_kbd_words[0] = kbd0_val;
         if (rst) begin
             wc_ch          = 1'b0;
@@ -1349,6 +1378,9 @@ module dorado_rtl_io
             ddc_nlcb_line           = 16'd0;
             ddc_nlcb_field_odd      = 1'b0;
             ddc_nlcb_cursor_x       = 16'd0;
+            ddc_cursor_rows         = 64'd0;
+            ddc_cursor_wr           = 64'd0;
+            ddc_cursor_dbg_ymin     = 16'hFFFF;
             ddc_nlcb_cursor_lo      = 8'd0;
             ddc_scan_line           = 32'd0;
             ddc_scan_pixel          = 32'd0;
@@ -1712,21 +1744,36 @@ module dorado_rtl_io
                             4'o16: begin // CursorLo
                                 ddc_nlcb_cursor_lo = val[7:0];
                                 ddc_nlcb_line      = ddc_nlcb_line + 16'd1;
+                                begin
+                                    int yl;
+                                    yl = (int'(ddc_nlcb_line) - 1) * 2 + int'(ddc_nlcb_field_odd)
+                                         - int'(display_top_lines);
+                                    if (yl >= 0 && yl < DISPLAY_H) begin
+                                        cl_we = 1'b1; cl_addr = 10'(yl); cl_wd = 16'd0;
+                                    end
+                                end
                             end
                             4'o17: begin // CursorHi
                                 logic [15:0] row_bits;
                                 row_bits = {val[7:0], ddc_nlcb_cursor_lo};
+                                ddc_cursor_wr = ddc_cursor_wr + 64'd1;
                                 if (row_bits != 16'd0) begin
                                     int x, y;
-                                    x = 3741 - int'(ddc_nlcb_cursor_x); // CURSOR_X_BIAS = 07235
+                                    // Cedar's DisplayMain.mc sends base - cursorX: measured
+                                    // on the Cedar desktop, cursor X 0 arrives as 3771 and
+                                    // X 700 as 3071 (was 07235 = 3741, 30 pixels left)
+                                    x = 3771 - int'(ddc_nlcb_cursor_x); // CURSOR_X_BIAS = 07273
                                     y = (int'(ddc_nlcb_line) - 1) * 2 + int'(ddc_nlcb_field_odd)
                                         - int'(display_top_lines);
                                     if (y >= 0 && y < DISPLAY_H && x > -16 && x < DISPLAY_W) begin
-                                        rj_start  = 1'b1;
-                                        rj_cursor = 1'b1;
-                                        rj_y      = 10'(y);
-                                        rj_cx     = 16'(x);
-                                        rj_cbits  = row_bits;
+                                        cl_we     = 1'b1;
+                                        cl_addr   = 10'(y);
+                                        cl_wd     = row_bits;
+                                        cur_x     = 16'(x);
+                                        ddc_cursor_rows = ddc_cursor_rows + 64'd1;
+                                        ddc_cursor_dbg_x = 16'(x);
+                                        ddc_cursor_dbg_y = 16'(y);
+                                        if (16'(y) < ddc_cursor_dbg_ymin) ddc_cursor_dbg_ymin = 16'(y);
                                     end
                                 end
                                 ddc_nlcb_cursor_lo = 8'd0;

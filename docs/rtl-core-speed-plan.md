@@ -632,6 +632,103 @@ Order of bring-up, each step in lock-step against the C emulator:
 Gate: all existing gates; Cedar on MiSTer14 with the OSD speed reporting the
 measured rate.
 
+**The first pipeline: C_PIPE (2026-11-02).** Not a new file after all: the
+pipeline lives in `dorado_rtl_cpu.sv` behind a `PIPELINE` parameter (default
+0, so the FSM build is unchanged; `make PIPE=1 ...` and `PIPELINE=1
+fpga/mister_rtl/build.sh` select it), because it hands everything it does
+not take to the FSM's own states, and a fork would have had to carry all of
+them. One new state, `C_PIPE`, does in one clock the finish of `x_u` (W:
+`next_task` and `finish_task`, unchanged), the execute of `ex_u` (X:
+`exec_task`, unchanged, after the W in program order -- cpu.c's order), the
+RM/STK read of the instruction in `cur_u` (D) and the IM read of the one
+after it (F). The FSM enters it from `C_NF` (`pent`) and it drains back to
+`C_FETCH`, or hands the next instruction to `C_NF`, whenever something is
+not its to take.
+
+What makes it work, each found by the lock-step or a gate:
+
+- **The execute reads its own view of the registers** (`T_x`, `Link_x`, the
+  flags, `pc_p`, `cycles_x`, `sp_wx`, `membase_x`, and `ex_u`, Id count, Cnt,
+  Link-read state as the clock found them), reloaded just before
+  `exec_task` and checked against what the finish actually left (a
+  `$display` that has never fired). Without the reloads the finish, the
+  scheduler and C_NF's work sat in front of the execute and the core missed
+  44 MHz by 7 ns; with them it closes with **+0.97 ns** (the FSM: +0.008),
+  69% ALMs (one execute datapath, not two).
+- **F needs no branch condition**: a successor that depends on one (a
+  conditional jump, an FF condition, a BDispatch) hands the instruction to
+  the FSM, which re-enters at its C_NF. IFUJumps are fetched for from the
+  prefetch buffer's entry two clocks ahead; their finish runs alone (a
+  bubble) and the dispatch is checked from registers before the handler's
+  first instruction executes, so the buffer's 28-bit compare is not in the
+  execute's enable.
+- **Id is computed at the end of the clock** (`id_r0/id_r1` from the state
+  the clock leaves), so consecutive Id readers need no gap; this also holds
+  for the FSM, where it changes nothing.
+- **The operand forward is registered** (`p_fwd`, the write-address compare
+  made the clock before): it was the last critical path.
+- **Passing conditions bubble, they do not drain** (`p_bub`): byte
+  references still booking, a reference completing this clock (an Md reader
+  waits a clock: the Md file is booked at the clock's top), the host's hold.
+- **The I/O tick beside an execute.** cpu.c applies a tick's wakeups and the
+  display word task's subtask write at the next execute, which in C_PIPE ran
+  beside the tick, before its outputs; the finish applies them instead.
+- **The entry must find IM holding the instruction** (`im_q_addr`): a C_NF
+  that waited may have read IM elsewhere meanwhile. The FSM recovers because
+  C_FETCH reads IM again; C_PIPE does not. Found by bisecting the free-running
+  Galaxian boot to a five-step overlap window (`RTL_OV_WINDOW`).
+
+How it is checked. The lock-step compares at each retire as before; after a
+retire with the next instruction executed beside it, the processor is
+compared from `snap_*` (taken between the finish and the execute) and the
+memory section at the next retire without one. `sim_cedar` now runs the RTL's
+step once the C's devices have also run (so it knows whether the host will
+poke before the next step, and holds the overlap if so), and skips its
+diff-based pokes after an overlapped step (the diff would see the execute's
+own effects -- a reschedule cleared -- as pokes; 251 M steps in, the first
+270 M run caught exactly that). `RTL_OV=1 RTL_LOCKSTEP_N=2000000` runs the
+three world lock-steps of `make test` with the overlap. The free-running
+boots cannot be compared step for step with the FSM: the boot server reacts
+in fabric clocks, so a wakeup lands an instruction earlier or later.
+
+| | FSM | C_PIPE |
+|---|---|---|
+| Cedar lock-step (3 M) | 2.75 | **2.49** |
+| Galaxian fpga-sim (80 M) | 2.99 | **2.41** |
+| Cedar rehearsal (2 M) | 2.91 | **2.65** |
+| MiSTer14, 44 MHz | 15.57 M/s, 0.93x | **17.15 M/s = 1.03x a Dorado**, 2.57 clocks |
+
+Where the rest goes (rehearsal census): the finish waits for its own
+reference (17 per 100 instructions -- it must, for a fault's wakeup and the
+Md-ready time), an IFUJump's bubble and its byte references (~23), and the
+FSM still runs about a quarter of the instructions: those after a
+conditional successor or an IFUJump the buffer could not predict. Next, in
+order of size: IM as an even/odd pair so F can fetch through a conditional
+branch (HM 4.4's late bit); the handler's first instruction beside the
+IFUJump's finish (the dispatch checked from registers a clock earlier); and
+the finish decoupled from a reference that cannot fault.
+
+**Two board faults the simulations could not see (2026-11-02).** Both
+MiSTers froze within minutes of using the network. (1) The mailbox's
+receive fill and transmit copy hold the CPU with `ap_hold` and wait for
+`cpu_between` (C_FETCH); C_PIPE counted `ap_hold` as a passing condition,
+so it bubbled in place for ever and the two waited on each other. A hold
+now drains the pipeline as a host operation does (`x_host`), and C_NF does
+not enter C_PIPE under one. The sims missed it because their packets never
+arrived while an eligible execute was in flight. (2) At 1.03x the ARM's
+host loop (`dorado-hps`) is slower than the core: each `run_until` covered
+the time the last one took, so the runs grew without bound, the host
+stopped polling, and the guest's packets went unanswered (the status line's
+"8.74x" was this). `dorado_cpu_skip_steps` advances the skipped
+microinstructions' clocks in one addition, and `hps_poll` caps a catch-up at
+1 M BaseBoard cycles; the host now holds 0.2-0.3 s behind.
+
+Still open: on the board, a CommandTool command file (`Schematic.cm`) never
+starts -- the line is echoed, nothing runs, no packet or disk transfer
+follows. Same on the FSM core and in `make hps-sim` with `CEDAR_LS`, and the
+native emulator runs it from the same click, so it is the HPS split's host
+services, not the CPU.
+
 ### Phase 4: the speed setting and real time (a few days)
 
 An OSD choice of 1x / 2x / 3x / max. Implement it as a retirement throttle

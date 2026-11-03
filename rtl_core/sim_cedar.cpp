@@ -800,9 +800,100 @@ static void dump_checkpoint(const char *dir) {
 static uint16_t pc_before;
 static uint8_t  task_before, tioa_before;
 static uint64_t rtl_storage_check_every = 0;
+static uint64_t overlapped_steps = 0;    // retires with the next execute beside them (C_PIPE)
+struct step_note { uint64_t step; uint16_t pc; uint8_t task; bool ov, poked; uint16_t rtl_pc; };
+static step_note notes[16];
+static bool poked_now = false;
+static void print_notes() {
+    for (int i = 0; i < 16; i++) {
+        const step_note &n = notes[(steps + i) & 15];
+        if (n.step) fprintf(stderr, "  step %llu pc 0%o task %u ov %d poked %d rtl_pc 0%o\n",
+                            (unsigned long long)n.step, n.pc, n.task, n.ov, n.poked, n.rtl_pc);
+    }
+}
+
+// The RTL runs a step once the C machine has also run its devices after it
+// (the next call's !after half): by then the host's pokes and writes before
+// the next step are known, and the RTL may execute the next instruction
+// beside this one's finish (C_PIPE) only when there are none -- they belong
+// before it. The C processor is compared as it was right after its step
+// (c_after), before the devices ran.
+static bool        rtl_pending = false;
+static dorado_cpu  c_after;
+static uint16_t    pend_rd, pend_pc;
+static uint8_t     pend_bad, pend_has_write, pend_atten, pend_task;
+static bool        ov_hold_env = false;
+
+static bool host_pokes_pending() {
+    if (!host_writes.empty()) return true;
+    if (memcmp(C->RM, c_after.RM, sizeof(C->RM)) != 0) return true;
+    if (memcmp(C->STK, c_after.STK, sizeof(C->STK)) != 0) return true;
+    return C->wakeup_pending != c_after.wakeup_pending || C->ready != c_after.ready ||
+           C->reschedule_pending != c_after.reschedule_pending ||
+           C->junk_tw_enabled != c_after.junk_tw_enabled ||
+           C->junk_tw_countdown != c_after.junk_tw_countdown;
+}
+
+static int rtl_catch_up(bool hold_next) {
+    rtl_pending = false;
+    top->io_attached = 1;
+    top->io_read_data = pend_rd;
+    top->io_read_bad_parity = pend_bad;
+    top->io_has_write_in = pend_has_write;
+    top->io_atten_in = pend_atten;
+    top->ov_hold = (ov_hold_env || hold_next) ? 1 : 0;
+    rtl_step(top);
+    steps++;
+    notes[steps & 15] = step_note{steps, pend_pc, pend_task, R_CPU(snap_valid) != 0, poked_now,
+                                  (uint16_t)R_CPU(real_PC)};
+    if (!compare_c_rtl(&c_after, top, steps, "cedar", pend_pc, pend_task, 0)) {
+        print_notes();
+        failed = true;
+        return 1;
+    }
+    // C_PIPE: the next instruction executed beside this one's finish. Its
+    // reference is in the memory section already, so the section is compared
+    // at the next retire that had no execute beside it. The host's writes
+    // (made by the C's devices since) are compared after they reach the RTL.
+    if (R_CPU(snap_valid)) {
+        overlapped_steps++;
+    } else {
+        rtl_settle(top);
+        if (host_writes.empty() &&
+            !compare_c_rtl(C, top, steps, "cedar", pend_pc, pend_task, 1)) {
+            print_notes();
+            failed = true;
+            return 1;
+        }
+    }
+    if (steps % 1000000 == 0) {
+        fprintf(stderr, "  [cedar] %llu steps lock-step, pc=0%o task=%u, host writes %llu words\n",
+                (unsigned long long)steps, (unsigned)C->real_PC, (unsigned)C->ctask,
+                (unsigned long long)ps.host_write_words);
+    }
+    return 0;
+}
 
 static int step_hook(dorado_machine *, int after) {
     if (!after) {
+        bool rtl_ahead = false;
+        if (rtl_pending) {
+            bool hold = host_pokes_pending();
+            if (rtl_catch_up(hold)) return 1;
+            // the next instruction executed beside the finish: allowed only
+            // when the C's devices changed nothing, so there is nothing to
+            // poke -- and a diff of the RTL against the C now would see that
+            // execute's own effects (a reschedule cleared, say) as pokes
+            rtl_ahead = R_CPU(snap_valid) != 0;
+        }
+        if (rtl_ahead) {
+            poked_now = false;
+            pc_before = C->real_PC;
+            task_before = C->ctask;
+            tioa_before = (uint8_t)C->TIOA;
+            cap = io_cap{};
+            return 0;
+        }
         if (!host_writes.empty()) {
             ps.host_write_steps++;
             ps.host_write_words += host_writes.size();
@@ -813,6 +904,7 @@ static int step_hook(dorado_machine *, int after) {
             }
             host_writes.clear();
         }
+        uint64_t ops0 = pst.ops + ps.rm + ps.wakeup + ps.resched + ps.ready + ps.junk + ps.stk;
         if (use_backdoor) {
             copy_host_pokes();
         } else {
@@ -820,35 +912,27 @@ static int step_hook(dorado_machine *, int after) {
             port_host_pokes();
             top->hp_hold = 0;
         }
+        poked_now = (pst.ops + ps.rm + ps.wakeup + ps.resched + ps.ready + ps.junk + ps.stk) != ops0;
         pc_before = C->real_PC;
         task_before = C->ctask;
         tioa_before = (uint8_t)C->TIOA;
         cap = io_cap{};
         return 0;
     }
-    // The C step has run; hand its device answers to the RTL and step it.
-    top->io_attached = 1;
-    top->io_read_data = cap.read_valid ? cap.read_val : 0xFFFF;
-    top->io_read_bad_parity = cap.read_valid ? (cap.read_bad ? 1 : 0) : 1;
-    top->io_has_write_in = dorado_io_has_write(IO, task_before, tioa_before) ? 1 : 0;
-    top->io_atten_in = cap.atten_valid ? cap.atten : 0;
-    rtl_step(top);
-    steps++;
-    if (!compare_c_rtl(C, top, steps, "cedar", pc_before, task_before, 0)) {
-        failed = true;
+    // The C step has run: note its device answers for the RTL's step.
+    c_after = *C;
+    pend_rd = cap.read_valid ? cap.read_val : 0xFFFF;
+    pend_bad = cap.read_valid ? (cap.read_bad ? 1 : 0) : 1;
+    pend_has_write = dorado_io_has_write(IO, task_before, tioa_before) ? 1 : 0;
+    pend_atten = cap.atten_valid ? cap.atten : 0;
+    pend_pc = pc_before;
+    pend_task = task_before;
+    rtl_pending = true;
+    if (steps + 1 >= max_steps) {
+        rtl_catch_up(true);
         return 1;
     }
-    rtl_settle(top);
-    if (!compare_c_rtl(C, top, steps, "cedar", pc_before, task_before, 1)) {
-        failed = true;
-        return 1;
-    }
-    if (steps % 1000000 == 0) {
-        fprintf(stderr, "  [cedar] %llu steps lock-step, pc=0%o task=%u, host writes %llu words\n",
-                (unsigned long long)steps, (unsigned)C->real_PC, (unsigned)C->ctask,
-                (unsigned long long)ps.host_write_words);
-    }
-    return steps >= max_steps ? 1 : 0;
+    return 0;
 }
 
 int main(int argc, char **argv) {
@@ -894,6 +978,7 @@ int main(int argc, char **argv) {
 
     top = new Vdorado_rtl_top;
     sync_c_to_rtl(C, top);
+    ov_hold_env = getenv("RTL_OV_HOLD") != nullptr;   // no C_PIPE overlap (a PIPELINE build)
     top->io_bridge_en = 0;
     use_backdoor = getenv("CEDAR_BACKDOOR") != nullptr;
     if (!compare_c_rtl(C, top, 0, "cedar-sync", C->real_PC, C->ctask)) {
@@ -988,6 +1073,7 @@ int main(int argc, char **argv) {
            steps ? (double)rtl_fabric_clocks / steps : 0.0);
     printf("[cedar] host writes: %llu words over %llu steps\n",
            (unsigned long long)ps.host_write_words, (unsigned long long)ps.host_write_steps);
+    printf("[cedar] C_PIPE: %llu of the retires had the next execute beside them\n", (unsigned long long)overlapped_steps);
     printf("[cedar] host register pokes: RM %llu, STK %llu, wakeup_pending %llu, ready %llu, "
            "reschedule %llu, junk %llu\n",
            (unsigned long long)ps.rm, (unsigned long long)ps.stk,

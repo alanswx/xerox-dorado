@@ -473,6 +473,7 @@ extern int dorado_mem_trace_ac3;
 #define BB_IDLE_AFTER_UOPS   40000000ull  /* boot is ~9 M microinstructions */
 #define BB_IDLE_TOUCH_WINDOW 16000000ull  /* stay awake after a CPReg access */
 static uint64_t bb_idle_last_touch_uop;
+static unsigned bb_idle_acc;           /* the 3.70 average, in hundredths */
 
 /* The BaseBoard's share of one microinstruction from IM. Suppress the idle
  * BaseBoard once boot is well behind us and the Dorado has not touched CPReg
@@ -490,10 +491,9 @@ static void baseboard_tick_uop(dorado_cpu *cpu)
         cpu->cycles - bb_idle_last_touch_uop > BB_IDLE_TOUCH_WINDOW) {
         /* 3.70 cycles per microinstruction, carried in hundredths
          * so the clock does not drift against the real average. */
-        static unsigned acc = 0;
-        acc += 370;
-        cpu->baseboard->cycles += acc / 100u;
-        acc %= 100u;
+        bb_idle_acc += 370;
+        cpu->baseboard->cycles += bb_idle_acc / 100u;
+        bb_idle_acc %= 100u;
     } else {
         baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
     }
@@ -503,6 +503,32 @@ void dorado_cpu_skip_step(dorado_cpu *cpu)
 {
     cpu->cycles++;
     baseboard_tick_uop(cpu);
+}
+
+/* n dorado_cpu_skip_step()s, with the suppressed BaseBoard's clock advanced
+ * in one addition where that is all baseboard_tick_uop would do. The result
+ * is the same as stepping one at a time (the 3.70 average is carried in the
+ * same hundredths); the FPGA host loop needs it to keep pace with a core
+ * that runs faster than the per-step loop. */
+void dorado_cpu_skip_steps(dorado_cpu *cpu, unsigned n)
+{
+    while (n) {
+        dorado_baseboard *bb = cpu->baseboard;
+        static int bb_idle_disabled = -1;
+        if (bb_idle_disabled < 0)
+            bb_idle_disabled = getenv("DORADO_BB_ALWAYS_STEP") ? 1 : 0;
+        if (bb && cpu->baseboard_cycles_per_uop > 0 && !bb_idle_disabled &&
+            cpu->cycles > BB_IDLE_AFTER_UOPS &&
+            cpu->cycles - bb_idle_last_touch_uop > BB_IDLE_TOUCH_WINDOW) {
+            cpu->cycles += n;
+            bb_idle_acc += 370u * n;
+            bb->cycles += bb_idle_acc / 100u;
+            bb_idle_acc %= 100u;
+            return;
+        }
+        dorado_cpu_skip_step(cpu);
+        n--;
+    }
 }
 #define DORADO_TASKSIM_TASK       012   /* HM §3.12 TASKSIM wakeup target: task 0o12
                                          * (=10 dec), backplane-jumpered; the kernel

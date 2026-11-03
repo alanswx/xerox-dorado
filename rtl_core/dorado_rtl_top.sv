@@ -20,7 +20,8 @@ module dorado_rtl_top
     // receive buffer through a mailbox in DDR3 (dorado_rtl_mailbox) instead
     // of the hp_* / hx_rx_* ports, storage is not cleared at reset (the HPS
     // loads it), and the core is held until the HPS says go.
-    parameter bit HPS_MAILBOX   = 1'b0
+    parameter bit HPS_MAILBOX   = 1'b0,
+    parameter bit PIPELINE      = 1'b0           // the CPU's C_PIPE (dorado_rtl_cpu)
 ) (
     input  logic        clk,
     input  logic        rst,
@@ -70,6 +71,7 @@ module dorado_rtl_top
     // between microinstructions, while hp_hold keeps the CPU there. hp_op is
     // an AP_* code (dorado_rtl_pkg). Used when the loader assist is off.
     input  logic        hp_hold,
+    input  logic        ov_hold,        // 1: no C_PIPE overlap (the per-step lock-step)
     input  logic        hp_req,
     input  logic [2:0]  hp_op,
     input  logic        hp_we,
@@ -388,7 +390,8 @@ module dorado_rtl_top
     dorado_rtl_cpu #(
         .STORAGE_WORDS (STORAGE_WORDS),
         .RESET_PC      (RESET_PC),
-        .EXT_STORAGE   (EXT_STORAGE)
+        .EXT_STORAGE   (EXT_STORAGE),
+        .PIPELINE      (PIPELINE)
     ) u_cpu (
         .clk                (clk),
         .rst                (core_rst),
@@ -449,6 +452,7 @@ module dorado_rtl_top
         .io_busy            (io_bridge_en && (io_busy || srv_stall)),
         .io_busy_tick       (io_bridge_en && (io_jobs_busy || srv_stall)),
         .ap_hold            (ap_hold),
+        .ov_hold            (ov_hold),
         .ap_req             (ap_req),
         .ap_op              (ap_op),
         .ap_we              (ap_we),

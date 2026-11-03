@@ -45,6 +45,7 @@ enum : size_t {
     B_TXLEN = 2112, B_TX = 4096, B_END = 6144
 };
 const uint32_t MB_MAGIC = 0x444F5241u;
+const uint64_t HOST_CHUNK_BB = 1000000;   // BaseBoard cycles: 270K microinstructions
 enum { AP_READ = 0, AP_STORE = 1, AP_STORE_INV = 2, AP_RM_OR = 4, AP_RESCHED = 6, OP_RXLOAD = 7 };
 
 hps_transport T;
@@ -157,6 +158,19 @@ void read_status() {
     status_drained = (b10 >> 17) & 1;
     status_tx      = (uint16_t)(b11 >> 16);
     status_rxloads = (uint16_t)(b11 >> 32);
+    // DORADO_HPS_KEYTRACE=1: the core's keyboard words and mouse beat, each
+    // time they change (the input path from the MiSTer's devices)
+    {
+        static const bool kt = getenv("DORADO_HPS_KEYTRACE") != nullptr;
+        static uint64_t k9 = ~0ull, k10 = 0;
+        const uint64_t m10 = b10 & 0xFFFFFFFF03C00000ull;   // x, y, present, buttons
+        if (kt && (b9 != k9 || m10 != k10)) {
+            printf("[hps] input: kbd %016llx  mouse x %d y %d buttons %d present %d\n",
+                   (unsigned long long)b9, (int)(int16_t)(b10 >> 48), (int)(int16_t)((b10 >> 32) & 0xFFFF),
+                   (int)((b10 >> 22) & 7), (int)((b10 >> 25) & 1));
+            k9 = b9; k10 = m10;
+        }
+    }
     if (CFG.keyboard) {
         dorado_display *d = dorado_machine_display(M);
         for (int i = 0; i < 4; i++)
@@ -325,8 +339,13 @@ uint64_t hps_poll(void) {
     C->RM[0] = result(issue(AP_RM_OR, 0, 0, 1, 0));
     rm_prev[0] = C->RM[0];
     uint64_t target = bb0 + (S.rtl_cycles - cyc0) * 37 / 10;
-    S.host_target = target;
-    if (target > dorado_machine_cycles(M)) dorado_machine_run_until(M, target);
+    S.host_target = target;                 // (reported uncapped: how far behind)
+    // At most ~16 ms of guest time per poll: if the host falls behind the
+    // FPGA, it catches up over several polls rather than in one ever-longer
+    // run, so the transmit ring and the receive fills are still served.
+    uint64_t now_bb = dorado_machine_cycles(M);
+    if (target > now_bb + HOST_CHUNK_BB) target = now_bb + HOST_CHUNK_BB;
+    if (target > now_bb) dorado_machine_run_until(M, target);
     ethernet_bridge();
     S.host_bb_cycles = dorado_machine_cycles(M);
     retire(1);                              // let queued commands finish

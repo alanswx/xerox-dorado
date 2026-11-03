@@ -45,6 +45,7 @@ static void pack_uinstr_words(dorado_uinstr *u) {
 // takes several fabric clocks per microinstruction; the C model takes one call.
 static uint64_t rtl_fabric_clocks = 0;
 static bool rtl_step_seen = false;        // a retire seen during rtl_settle
+static bool g_fsm_trace = false;          // RTL_FSM_TRACE for a step range (the harness sets it)
 static void rtl_step(Vdorado_rtl_top *top) {
     if (rtl_step_seen) { rtl_step_seen = false; return; }   // retired during the last settle
     for (int i = 0; i < 4096; i++) {
@@ -53,9 +54,11 @@ static void rtl_step(Vdorado_rtl_top *top) {
         top->clk = 0;
         top->eval();
         rtl_fabric_clocks++;
-        static const bool fsm_trace = getenv("RTL_FSM_TRACE") != nullptr;
-        if (fsm_trace) fprintf(stderr, "  clk st=%d pc=0%o step_done=%d x_np=0%o pred=0%o fresh=%d pre_ok=%d spec=%d\n",
-                               (int)R_CPU(st), (unsigned)R_CPU(real_PC), (int)top->step_done,
+        static const bool fsm_trace_env = getenv("RTL_FSM_TRACE") != nullptr;
+        const bool fsm_trace = fsm_trace_env || g_fsm_trace;
+        if (fsm_trace) fprintf(stderr, "  clk st=%d p=%d%d%d pc=0%o step_done=%d x_np=0%o pred=0%o fresh=%d pre_ok=%d spec=%d\n",
+                               (int)R_CPU(st), (int)R_CPU(p_w), (int)R_CPU(p_x), (int)R_CPU(p_d),
+                               (unsigned)R_CPU(real_PC), (int)top->step_done,
                                (unsigned)R_CPU(x_np), (unsigned)R_CPU(x_pred_np), (int)R_CPU(x_pred_fresh),
                                (int)R_CPU(rm_pre_ok), (int)R_CPU(spec_hit));
         if (fsm_trace) fprintf(stderr, "      ex_u jcn=0%o iw0=%06o iw1=%06o iw2=%06o  x_u jcn=0%o  im_q=%06o %06o %06o\n",
@@ -118,6 +121,7 @@ static void sync_c_to_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top) {
     top->bb_mir_iw1 = 0;
     top->bb_mir_iw2 = 0;
     top->io_bridge_en = 0;
+    top->ov_hold = 1;                    // per-step compares (sim_cedar may lift it)
     top->display_wake_gate = 0;
     top->kbd_words = ~0ULL;
     top->mouse_buttons = 0; top->mouse_present = 0; top->mouse_x = 0; top->mouse_y = 0;
@@ -388,23 +392,31 @@ static bool compare_c_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top,
     };
 
   if (part != 1) {
-    if (c_cpu->real_PC != R_CPU(real_PC)) fail("real_PC", c_cpu->real_PC, R_CPU(real_PC));
-    if (c_cpu->ctask   != R_CPU(ctask))   fail("ctask",   c_cpu->ctask,   R_CPU(ctask));
-    if (c_cpu->ready   != R_CPU(ready))   fail("ready",   c_cpu->ready,   R_CPU(ready));
-    if (c_cpu->T       != R_CPU(T))       fail("T",       c_cpu->T,       R_CPU(T));
-    if (c_cpu->Q       != R_CPU(Q))       fail("Q",       c_cpu->Q,       R_CPU(Q));
-    if (c_cpu->Link    != R_CPU(Link))    fail("Link",    c_cpu->Link,    R_CPU(Link));
-    if (c_cpu->Cnt     != R_CPU(Cnt))     fail("Cnt",     c_cpu->Cnt,     R_CPU(Cnt));
-    if (c_cpu->ShC     != R_CPU(ShC))     fail("ShC",     c_cpu->ShC,     R_CPU(ShC));
-    if (c_cpu->StkP    != R_CPU(StkP))    fail("StkP",    c_cpu->StkP,    R_CPU(StkP));
-    if (c_cpu->RBase   != R_CPU(RBase))   fail("RBase",   c_cpu->RBase,   R_CPU(RBase));
-    if (c_cpu->MemBase != R_CPU(MemBase)) fail("MemBase", c_cpu->MemBase, R_CPU(MemBase));
-    if (c_cpu->MemBX   != R_CPU(MemBX))   fail("MemBX",   c_cpu->MemBX,   R_CPU(MemBX));
-
-    if ((c_cpu->alu_zero ? 1 : 0)     != R_CPU(alu_zero))     fail("alu_zero",     c_cpu->alu_zero,     R_CPU(alu_zero));
-    if ((c_cpu->alu_lt0 ? 1 : 0)      != R_CPU(alu_lt0))      fail("alu_lt0",      c_cpu->alu_lt0,      R_CPU(alu_lt0));
-    if ((c_cpu->alu_carry ? 1 : 0)    != R_CPU(alu_carry))    fail("alu_carry",    c_cpu->alu_carry,    R_CPU(alu_carry));
-    if ((c_cpu->alu_overflow ? 1 : 0) != R_CPU(alu_overflow)) fail("alu_overflow", c_cpu->alu_overflow, R_CPU(alu_overflow));
+    // After an instruction whose finish shared its clock with the next one's
+    // execute (C_PIPE), the processor as the finish left it is in snap_*.
+    const bool sv = R_CPU(snap_valid) != 0;
+#define RSNAP(f) (sv ? (uint64_t)R_CPU(snap_##f) : (uint64_t)R_CPU(f))
+    const uint8_t fl = R_CPU(snap_flags);
+    if (c_cpu->real_PC != RSNAP(real_PC)) fail("real_PC", c_cpu->real_PC, RSNAP(real_PC));
+    if (c_cpu->ctask   != RSNAP(ctask))   fail("ctask",   c_cpu->ctask,   RSNAP(ctask));
+    if (c_cpu->ready   != RSNAP(ready))   fail("ready",   c_cpu->ready,   RSNAP(ready));
+    if (c_cpu->T       != RSNAP(T))       fail("T",       c_cpu->T,       RSNAP(T));
+    if (c_cpu->Q       != RSNAP(Q))       fail("Q",       c_cpu->Q,       RSNAP(Q));
+    if (c_cpu->Link    != RSNAP(Link))    fail("Link",    c_cpu->Link,    RSNAP(Link));
+    if (c_cpu->Cnt     != RSNAP(Cnt))     fail("Cnt",     c_cpu->Cnt,     RSNAP(Cnt));
+    if (c_cpu->ShC     != RSNAP(ShC))     fail("ShC",     c_cpu->ShC,     RSNAP(ShC));
+    if (c_cpu->StkP    != RSNAP(StkP))    fail("StkP",    c_cpu->StkP,    RSNAP(StkP));
+    if (c_cpu->RBase   != RSNAP(RBase))   fail("RBase",   c_cpu->RBase,   RSNAP(RBase));
+    if (c_cpu->MemBase != RSNAP(MemBase)) fail("MemBase", c_cpu->MemBase, RSNAP(MemBase));
+    if (c_cpu->MemBX   != RSNAP(MemBX))   fail("MemBX",   c_cpu->MemBX,   RSNAP(MemBX));
+    {
+        const unsigned rz = sv ? (fl >> 3) & 1 : R_CPU(alu_zero), rl = sv ? (fl >> 2) & 1 : R_CPU(alu_lt0);
+        const unsigned rc = sv ? (fl >> 1) & 1 : R_CPU(alu_carry), ro = sv ? fl & 1 : R_CPU(alu_overflow);
+        if ((c_cpu->alu_zero ? 1u : 0u)     != rz) fail("alu_zero",     c_cpu->alu_zero,     rz);
+        if ((c_cpu->alu_lt0 ? 1u : 0u)      != rl) fail("alu_lt0",      c_cpu->alu_lt0,      rl);
+        if ((c_cpu->alu_carry ? 1u : 0u)    != rc) fail("alu_carry",    c_cpu->alu_carry,    rc);
+        if ((c_cpu->alu_overflow ? 1u : 0u) != ro) fail("alu_overflow", c_cpu->alu_overflow, ro);
+    }
 
     for (int i = 0; i < RM_SIZE; i++) {
         if (c_cpu->RM[i] != R_CPU(RM)[i]) {
@@ -429,17 +441,19 @@ static bool compare_c_rtl(const dorado_cpu *c_cpu, Vdorado_rtl_top *top,
     }
 
     if (c_mem) {
-        if (c_mem->mcr != R_CPU(mcr)) fail("mem.mcr", c_mem->mcr, R_CPU(mcr));
-        if (c_mem->proc_srn != R_CPU(proc_srn)) fail("mem.proc_srn", c_mem->proc_srn, R_CPU(proc_srn));
+        if (c_mem->mcr != RSNAP(mcr)) fail("mem.mcr", c_mem->mcr, RSNAP(mcr));
+        if (c_mem->proc_srn != RSNAP(proc_srn)) fail("mem.proc_srn", c_mem->proc_srn, RSNAP(proc_srn));
         for (int i = 0; i < DM_BR_COUNT; i++) {
-            if (c_mem->br[i] != R_CPU(br)[i]) {
+            const uint64_t rb = sv ? (uint64_t)R_CPU(snap_br)[i] : (uint64_t)R_CPU(br)[i];
+            if (c_mem->br[i] != rb) {
                 char name[32];
                 snprintf(name, sizeof(name), "mem.br[%d]", i);
-                fail(name, c_mem->br[i], R_CPU(br)[i]);
+                fail(name, c_mem->br[i], rb);
             }
         }
     }
   }
+#undef RSNAP
   if (part != 0 && c_mem) {
     {
         if (c_mem->md  != R_MEM(md_q))  fail("mem.md",  c_mem->md,  R_MEM(md_q));
@@ -492,8 +506,14 @@ static bool step_and_compare(dorado_cpu *c_cpu, Vdorado_rtl_top *top,
 
     // 2. Step RTL by one microinstruction: the processor at its retire, the
     //    memory section once the dispatch's references are booked
+    //    RTL_OV=1 (a PIPELINE build): the next instruction may execute beside
+    //    this one's finish (C_PIPE); the processor is then compared as the
+    //    finish left it, and the memory section at the next retire without one.
+    static const bool ov = getenv("RTL_OV") != nullptr;
+    top->ov_hold = ov ? 0 : 1;
     rtl_step(top);
     if (!compare_c_rtl(c_cpu, top, step_idx, test_name, pc_before, task_before, 0)) return false;
+    if (R_CPU(snap_valid)) return true;
     rtl_settle(top);
     return compare_c_rtl(c_cpu, top, step_idx, test_name, pc_before, task_before, 1);
 }

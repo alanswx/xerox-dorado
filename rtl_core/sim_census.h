@@ -49,6 +49,22 @@ static inline void census_report(Vdorado_rtl_top *top) {
                "IM read-ahead lost to a task switch %.1f, another PC %.1f; RM read-ahead lost to RBase/StkP %.1f, to C_NF's own prediction %.1f\n",
                per * nn[0], per * nn[1], per * nn[2], per * nn[3], per * ns[0], per * ns[1], per * np[0], per * np[1]);
     }
+    {
+        const auto &ov = top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__cen_ov;
+        printf("         overlap: C_NF retires %.1f; the next is the read-ahead %.1f; no switch, plain JCN %.1f; next plain %.1f; next reads no RM/STK %.1f\n",
+               per * ov[0], per * ov[1], per * ov[2], per * ov[3], per * ov[4]);
+    }
+    {
+        const auto &pp = top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__cen_pipe;
+        if (pp[0]) printf("         C_PIPE: clocks %.1f, executes %.1f (beside a finish %.1f, then to the FSM %.1f); finish waits %.1f, drains %.1f, execute left %.1f; entries %.1f, refused %.1f; dispatches followed %.1f\n",
+                          per * pp[0], per * pp[1], per * pp[7], per * pp[3], per * pp[2], per * pp[8], per * pp[6], per * pp[4], per * pp[5], per * pp[9]);
+        const auto &pd = top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__cen_pdrain;
+        const auto &pn = top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__cen_pnof;
+        if (pp[0]) printf("         C_PIPE drains: operand %.1f, I/O %.1f, no code/breakpoint %.1f, RM condition %.1f, IFUJump/special %.1f, section state %.1f, (finish waits: reference %.1f, byte refs %.1f, I/O %.1f), other task %.1f, host %.1f, other %.1f\n"
+                          "         C_PIPE no fetch after: conditional jump %.1f, FF condition %.1f, IFUJump %.1f, Return Link %.1f, other %.1f\n",
+                          per * pd[0], per * pd[1], per * pd[2], per * pd[3], per * pd[4], per * pd[5], per * pd[6], per * pd[7], per * pd[8], per * pd[9], per * pd[10], per * pd[11],
+                          per * pn[0], per * pn[1], per * pn[2], per * pn[3], per * pn[4]);
+    }
     printf("         PCF<-B restarts %.2f; conditional branches %.1f; Read/Write IM %.2f; I/O instructions %.1f; BLOCKs %.1f; "
            "task switches %.1f; holds %.2f; clocks waiting: I/O engines %.2f, host port %.2f\n",
            per * C(pcf), per * C(cond), per * C(imrw), per * C(io), per * C(block), per * C(switch), per * C(hold),

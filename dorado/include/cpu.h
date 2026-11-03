@@ -478,6 +478,7 @@ int dorado_cpu_step(dorado_cpu *cpu);
  * clock) without executing one: the RTL split harness, where the RTL is
  * the CPU and this machine runs only its host services. */
 void dorado_cpu_skip_step(dorado_cpu *cpu);
+void dorado_cpu_skip_steps(dorado_cpu *cpu, unsigned n);
 
 /* Run until halt or `max_cycles` reached. Returns the halt reason. */
 cpu_halt_reason dorado_cpu_run(dorado_cpu *cpu, uint64_t max_cycles);

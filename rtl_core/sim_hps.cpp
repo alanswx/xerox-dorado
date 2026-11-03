@@ -44,7 +44,7 @@ static uint64_t hist[32];              // fabric clocks per CPU state
 static uint64_t trans[32][32], same[32];  // state changes; clocks a state repeated
 static const char *stname[] = {"C_FETCH","C_DEC","C_EXEC","C_NF","C_NEXTRD","C_NEXT","C_SCHED",
     "C_IFU_W","C_IFU_DECW","C_IFU_DEC","C_IFU_AW","C_IFU_BETA","C_IFU_BW","C_IFU_END","C_FINISH","C_APW",
-    "?","?","?","?","?","?","?","?","?","?","?","?","?","?","?","?"};
+    "C_PIPE","?","?","?","?","?","?","?","?","?","?","?","?","?","?","?"};
 
 static void clock_n(int n) {
     for (int i = 0; i < n; i++) {
@@ -89,6 +89,7 @@ int main(int argc, char **argv) {
     top->mouse_buttons = 0; top->mouse_present = 0; top->mouse_x = 0; top->mouse_y = 0;
     clock_n(4);
     top->rst = 0;
+    top->ov_hold = getenv("RTL_OV_HOLD") ? 1 : 0;   // (a PIPELINE build: no C_PIPE)
     clock_n(256);       // the mailbox clears the control beat first, as on the board
 
     const char *ddir = getenv("DORADO_DIR") ? getenv("DORADO_DIR") : "../../dorado";
@@ -137,6 +138,13 @@ int main(int argc, char **argv) {
                 for (unsigned a = 0177033; a <= 0177037; a++) printf(" %06o", dorado_visible_word_at_va(mem, a));
                 printf("  mouse %d %d\n", (short)dorado_visible_word_at_va(mem, 0424),
                        (short)dorado_visible_word_at_va(mem, 0425));
+#define RIO(x) top->rootp->dorado_rtl_top__DOT__u_io__DOT__##x
+                printf("        io: kbd words %04x %04x %04x %04x pending %x  term bits %llu messages %llu  msg type %u bit %u\n",
+                       (unsigned)RIO(ddc_kbd_words)[0], (unsigned)RIO(ddc_kbd_words)[1], (unsigned)RIO(ddc_kbd_words)[2],
+                       (unsigned)RIO(ddc_kbd_words)[3], (unsigned)RIO(ddc_kbd_pending),
+                       (unsigned long long)RIO(ddc_term_bits), (unsigned long long)RIO(ddc_term_messages),
+                       (unsigned)RIO(ddc_term_msg_type), (unsigned)RIO(ddc_term_msg_bit));
+#undef RIO
             };
             if (phase == 0 && u >= 1000000) { show("before"); phase = 1; }
             if (phase == 1 && u >= 2000000) {
@@ -145,10 +153,23 @@ int main(int argc, char **argv) {
                 clock_n(1); top->mouse_delta_stb = 0;
                 phase = 2;
             }
+            if (phase == 2 && (u == 2500000 || u >= 3000000) && u < 3010000) show("A held");
             if (phase == 2 && u >= 4000000) { show("A down"); top->kbd_words = ~0ULL; phase = 3; }
             if (phase == 3 && u >= 6000000) { show("A up"); phase = 4; }
         }
         if (S->rtl_cycles - start >= next_report) {
+            {
+                dorado_memory *mem = dorado_machine_memory(M);
+                printf("[hps] cursor at %llu: CursorX raw %u, rows %llu, last cursor row x %d y %u (lowest y %u); guest mouse %d %d cursor %d %d\n",
+                       (unsigned long long)(S->rtl_cycles - start),
+                       (unsigned)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_nlcb_cursor_x,
+                       (unsigned long long)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_cursor_rows,
+                       (int)(int16_t)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_cursor_dbg_x,
+                       (unsigned)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_cursor_dbg_y,
+                       (unsigned)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_cursor_dbg_ymin,
+                       (short)dorado_visible_word_at_va(mem, 0424), (short)dorado_visible_word_at_va(mem, 0425),
+                       (short)dorado_visible_word_at_va(mem, 0426), (short)dorado_visible_word_at_va(mem, 0427));
+            }
             next_report += 10000000;
             fprintf(stderr, "  [hps] %llu microinstructions, host cycle %llu; %llu ops (%llu reads, %llu stores), "
                     "%llu packets in\n",
@@ -207,6 +228,10 @@ int main(int argc, char **argv) {
            (double)clocks / (double)(S->rtl_cycles - start),
            (double)S->rtl_clocks64 / (double)(S->rtl_cycles - start),
            (unsigned long long)dorado_machine_cycles(M));
+    printf("[hps] cursor: %llu CursorHi writes, %llu rows drawn; CursorX %u\n",
+           (unsigned long long)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_cursor_wr,
+           (unsigned long long)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_cursor_rows,
+           (unsigned)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_nlcb_cursor_x);
     printf("[hps] mailbox: %llu operations -- %llu reads, %llu stores, %llu NWW ors, %llu reschedules; "
            "%llu packets in, %llu out, %llu transmits lost, %llu inexpressible\n",
            (unsigned long long)S->ops, (unsigned long long)S->reads, (unsigned long long)S->stores,
@@ -239,6 +264,11 @@ int main(int argc, char **argv) {
             fprintf(f, "P5\n1024 808\n255\n");
             for (int i = 0; i < 1024 * 808; i++) {
                 int b = top->rootp->dorado_rtl_top__DOT__u_io__DOT__fb[i] & 1;
+                {   // the cursor, mixed in as the scan-out does
+                    unsigned row = top->rootp->dorado_rtl_top__DOT__u_io__DOT__cur_line[i >> 10];
+                    unsigned d = (unsigned)((i & 1023) - top->rootp->dorado_rtl_top__DOT__u_io__DOT__cur_x) & 0xFFFF;
+                    if (d < 16 && ((row >> (15 - d)) & 1)) b = 1;
+                }
                 px += b;
                 fputc(b ? 0 : 255, f);
             }

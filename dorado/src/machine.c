@@ -4195,8 +4195,7 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 /* The harness's RTL takes this step. Keep time as
                  * dorado_cpu_step does for one microinstruction from IM:
                  * the host services are paced by the BaseBoard clock. */
-                for (unsigned q = 0; q < dorado_machine_skip_quantum; q++)
-                    dorado_cpu_skip_step(cpu);
+                dorado_cpu_skip_steps(cpu, dorado_machine_skip_quantum);
             } else if (h) {
                 break;
             } else if (dorado_cpu_step(cpu)) {
