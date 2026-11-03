@@ -21,6 +21,10 @@
 //             10  {mouse_x, mouse_y, 6'0, mouse_present, buttons[2:0],
 //                  4'0, rx_drained, rx_on, status count[15:0]}  (MSB first)
 //             11  {16'0, rx loads[15:0], tx packets[15:0], 8'0, cmd tail}
+//             12  fabric clocks; 13 {31'0, pll_locked, CLK_50M edges}
+//             14  the stall report (written only while an operation waits;
+//                 see stall_tick): dorado_rtl_cpu dbg_stall
+//             15  {dorado_rtl_storage_ddr dbg[63:16], stall reports[15:0]}
 //   256..511 command ring [0x0800]: {seq[7:0], 7'0, cache, we, op[2:0],
 //            va[27:0], wd[15:0]}. Entry i of lap L is valid when its seq is
 //            (L mod 255) + 1; the ARM writes the low word first and the word
@@ -88,6 +92,8 @@ module dorado_rtl_mailbox #(
     // status
     input  logic [63:0]  cycles,
     input  logic [4:0]   cpu_st,        // the sequencer's state, for the histogram
+    input  logic [63:0]  cpu_stall,     // the CPU's and memory section's state (dorado_rtl_cpu dbg_stall)
+    input  logic [63:0]  ddr_dbg,       // the storage DDR client's state (dorado_rtl_storage_ddr dbg)
     input  logic         pll_locked,    // the core PLL's lock (status beat 13 bit 32)
     input  logic [31:0]  ref_cnt,       // a count of CLK_50M edges (beat 13 low word): the fabric clock against a known reference
     input  logic [63:0]  kbd_words,
@@ -137,6 +143,27 @@ module dorado_rtl_mailbox #(
     logic [10:0] tx_len;
     logic [10:0] tx_i;
     logic [63:0] tx_beat;
+    // The stall report: a host operation (or the CPU's arrival between
+    // instructions for a receive fill or a transmit copy) that has waited
+    // 2^26 clocks (1.5 s at 44 MHz) writes the CPU's and the DDR client's
+    // state to status beats 14 and 15, and again every 2^26 clocks while it
+    // waits; the status itself is not written meanwhile (M_IDLE writes it).
+    logic [25:0] stall_t;
+    logic [1:0]  stall_ph;
+    logic [15:0] stall_n;
+    task automatic stall_tick();
+        stall_t <= stall_t + 26'd1;
+        if (stall_ph == 2'd0 && stall_t == 26'h3FFFFFF) begin
+            stall_ph <= 2'd1;
+            stall_n  <= stall_n + 16'd1;
+        end else if (stall_ph == 2'd1 && !aux_req) begin
+            beat_wr(B_STATUS + 29'd6, cpu_stall);
+            stall_ph <= 2'd2;
+        end else if (stall_ph == 2'd2 && !aux_req) begin
+            beat_wr(B_STATUS + 29'd7, {ddr_dbg[63:16], stall_n});
+            stall_ph <= 2'd0;
+        end
+    endtask
     assign hp_hold = hold_cmd || tx_pend;
 
     wire [7:0]  c_seq   = cmd[63:56];
@@ -200,6 +227,9 @@ module dorado_rtl_mailbox #(
             tx_count <= 16'd0;
             rxload_count <= 16'd0;
             tx_pend  <= 1'b0;
+            stall_t  <= 26'd0;
+            stall_ph <= 2'd0;
+            stall_n  <= 16'd0;
             tx_rd_addr <= '0;
             rx_load_count <= '0;
         end else begin
@@ -224,6 +254,8 @@ module dorado_rtl_mailbox #(
             end
             // ---- the loop ---------------------------------------------------
             M_IDLE: if (!aux_req) begin
+                stall_t  <= 26'd0;
+                stall_ph <= 2'd0;
                 if (tx_pend) begin
                     st <= M_TXHOLD;
                 end else if (status_t == 16'd0) begin
@@ -278,6 +310,8 @@ module dorado_rtl_mailbox #(
                     hp_req <= 1'b0;
                     res_rd <= hp_rd;
                     st     <= M_RES;
+                end else begin
+                    stall_tick();
                 end
             end
             M_RES: if (!aux_req) begin
@@ -287,10 +321,12 @@ module dorado_rtl_mailbox #(
                 st   <= M_IDLE;
             end
             // ---- an Ethernet receive-buffer fill ------------------------------
-            M_RXHOLD: if (hp_between) begin
+            M_RXHOLD: if (hp_between && stall_ph == 2'd0) begin
                 rx_n <= (c_wd[12:0] > 13'd4096) ? 13'd4096 : c_wd[12:0];
                 rx_i <= 13'd0;
                 st   <= M_RXATT;
+            end else begin
+                stall_tick();
             end
             M_RXATT: begin                        // next 64 words' attention bits
                 if (rx_i >= rx_n) begin
@@ -339,9 +375,11 @@ module dorado_rtl_mailbox #(
                 st            <= M_RES;
             end
             // ---- a transmitted packet, out to its slot ----------------------
-            M_TXHOLD: if (hp_between) begin
+            M_TXHOLD: if (hp_between && stall_ph == 2'd0) begin
                 tx_i <= 11'd0;
                 st   <= (tx_len == 11'd0) ? M_TXLEN : M_TXADDR;
+            end else begin
+                stall_tick();
             end
             M_TXADDR: begin                       // the buffer reads one clock late
                 tx_rd_addr <= tx_i[9:0];

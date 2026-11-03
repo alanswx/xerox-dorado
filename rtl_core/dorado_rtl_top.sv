@@ -284,6 +284,7 @@ module dorado_rtl_top
     logic         core_rst;
     logic [63:0]  ddr_dbg;
     logic [4:0]   cpu_st;
+    logic [63:0]  cpu_stall;
     assign dbg_vec = {ddr_dbg, 3'd0, cpu_st, 4'd0, dbg_real_pc, 4'd0, dbg_ctask, dbg_cycles[31:0]};
 
     generate
@@ -371,6 +372,8 @@ module dorado_rtl_top
                 .tx_rd_data    (io_tx_rd_data),
                 .cycles        (dbg_cycles),
                 .cpu_st        (cpu_st),
+                .cpu_stall     (cpu_stall),
+                .ddr_dbg       (ddr_dbg),
                 .kbd_words     (kbd_words),
                 .mouse_buttons (mouse_buttons),
                 .mouse_present (mouse_present),
@@ -465,6 +468,7 @@ module dorado_rtl_top
         .cpu_between        (cpu_between),
         .dbg_ifu_active     (dbg_ifu_active),
         .dbg_st             (cpu_st),
+        .dbg_stall          (cpu_stall),
         .sto_req            (sto_req),
         .sto_we             (sto_we),
         .sto_addr           (sto_addr),

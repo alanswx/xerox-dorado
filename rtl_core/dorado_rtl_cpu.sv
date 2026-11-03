@@ -113,6 +113,7 @@ module dorado_rtl_cpu
     output logic           cpu_between,  // in C_FETCH: assist conditions are current
     output logic           dbg_ifu_active,
     output logic [4:0]     dbg_st,
+    output logic [63:0]    dbg_stall,    // the mailbox's stall report (a host op unanswered)
 
     // Storage munch port (dorado_rtl_storage): served by the internal block
     // RAM unless EXT_STORAGE, when the sto_* ports go out (MiSTer: DDR3).
@@ -3401,6 +3402,10 @@ module dorado_rtl_cpu
                               !ifu_bk_busy) || st == C_SCHED);
     assign dbg_ifu_active = ifu_active;
     assign dbg_st         = st;
+    assign dbg_stall      = {mem_dbg_st, st, ifu_bk_busy, ap_req, ap_done_q, ap_hold,
+                             mem_ap_req, mem_req, mem_req_tag, mem_inflight, bk_n,
+                             sto_req, ov_hold, io_busy_tick, x_pref_pending, mem_fin,
+                             ctask, 4'd0, real_PC[11:0], 18'd0};
     always @(posedge clk) begin
         x_ifum_wr = 1'b0;
         step_done = 1'b0;

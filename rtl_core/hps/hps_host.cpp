@@ -68,8 +68,50 @@ inline void barrier() { __sync_synchronize(); }
 
 uint8_t seq_of(uint64_t n) { return (uint8_t)((n / 256) % 255 + 1); }
 
+static double mono_s();
+
+// A command the core has not answered: every 2 s of waiting, print the
+// mailbox's stall report (dorado_rtl_mailbox stall_tick; status beats 14-15)
+// if it has written a new one, else say there is none -- which itself says
+// the core's DDR client is not serving the aux port.
+void stall_watch(double &since, uint64_t n) {
+    double now = mono_s();
+    if (since == 0) { since = now; return; }
+    if (now - since < 2.0) return;
+    since = now;
+    static uint16_t last_n;
+    barrier();
+    uint64_t b14 = T.mb[B_STATUS + 6], b15 = T.mb[B_STATUS + 7];
+    uint64_t cmd = T.mb[B_CMD + (n & 255)];
+    if ((uint16_t)b15 == last_n) {
+        printf("[hps] STALL: command %llu (%016llx) unanswered; no new stall report (%u so far)\n",
+               (unsigned long long)n, (unsigned long long)cmd, (unsigned)last_n);
+        return;
+    }
+    last_n = (uint16_t)b15;
+    // dbg_stall: {mem st[63:59], cpu st[58:54], ifu_bk_busy, ap_req, ap_done_q, ap_hold,
+    //   mem_ap_req, mem_req, mem_req_tag[2], mem_inflight, bk_n[2], sto_req, ov_hold,
+    //   io_busy_tick, x_pref_pending, mem_fin, ctask[4], 4'0, real_PC[12], 18'0}
+    auto f = [&](int hi, int w) { return (unsigned)((b14 >> (hi - w + 1)) & ((1ull << w) - 1)); };
+    printf("[hps] STALL %u: command %llu (%016llx) unanswered; cpu st %u mem st %u ifu_bk_busy %u "
+           "ap_req %u ap_done_q %u ap_hold %u mem_ap_req %u mem_req %u tag %u inflight %u bk_n %u "
+           "sto_req %u ov_hold %u io_busy %u pref_pending %u mem_fin %u ctask %u pc %04o\n",
+           (unsigned)last_n, (unsigned long long)n, (unsigned long long)cmd,
+           f(58, 5), f(63, 5), f(53, 1), f(52, 1), f(51, 1), f(50, 1), f(49, 1), f(48, 1),
+           f(47, 2), f(45, 1), f(44, 2), f(42, 1), f(41, 1), f(40, 1), f(39, 1), f(38, 1),
+           f(37, 4), f(29, 12));
+    // storage_ddr dbg[63:16]: {0, st[3], ready, BUSY, RD, WE, DOUT_READY, rd cmds[12],
+    //   rd beats[16], wr beats[15:5]}
+    auto g = [&](int hi, int w) { return (unsigned)((b15 >> (hi - w + 1)) & ((1ull << w) - 1)); };
+    printf("[hps] STALL %u: ddr st %u ready %u BUSY %u RD %u WE %u DOUT_READY %u rd cmds %u "
+           "rd beats %u (low 12: %u)\n", (unsigned)last_n,
+           g(62, 3), g(59, 1), g(58, 1), g(57, 1), g(56, 1), g(55, 1), g(54, 12), g(42, 16),
+           g(42, 16) & 0xFFF);
+}
+
 // Retire finished commands; returns once fewer than `room` are outstanding.
 void retire(uint64_t room) {
+    double since = 0;
     for (;;) {
         while (completed < issued) {
             uint64_t r = T.mb[B_RES + (completed & 255)];
@@ -77,6 +119,7 @@ void retire(uint64_t room) {
             completed++;
         }
         if (issued - completed < room) return;
+        stall_watch(since, completed);
         T.wait(T.ctx);
     }
 }
@@ -98,12 +141,14 @@ uint64_t issue(int op, uint32_t va, uint16_t wd, int we, int cache) {
 }
 
 uint16_t result(uint64_t n) {
+    double since = 0;
     for (;;) {
         uint64_t r = T.mb[B_RES + (n & 255)];
         if ((uint8_t)(r >> 56) == seq_of(n)) {
             if (completed == n) completed++;
             return (uint16_t)r;
         }
+        stall_watch(since, n);
         T.wait(T.ctx);
     }
 }
@@ -123,7 +168,7 @@ void write_hook(struct dorado_memory *, uint32_t va, uint16_t value, int kind) {
     S.stores++;
 }
 
-static double mono_s() {
+static double mono_s(void) {
     timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return ts.tv_sec + ts.tv_nsec * 1e-9;
