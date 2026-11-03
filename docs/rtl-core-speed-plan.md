@@ -723,11 +723,25 @@ stopped polling, and the guest's packets went unanswered (the status line's
 microinstructions' clocks in one addition, and `hps_poll` caps a catch-up at
 1 M BaseBoard cycles; the host now holds 0.2-0.3 s behind.
 
-Still open: on the board, a CommandTool command file (`Schematic.cm`) never
-starts -- the line is echoed, nothing runs, no packet or disk transfer
-follows. Same on the FSM core and in `make hps-sim` with `CEDAR_LS`, and the
-native emulator runs it from the same click, so it is the HPS split's host
-services, not the CPU.
+**A third, and it was the CPU after all (2026-11-03).** `Schematic.cm`
+never started on the board: the click's process entered a monitor, took a
+stack-error trap inside it, and the catch path re-entered the same monitor
+and deadlocked. The trap was real -- the core ran the wrong microinstruction.
+A C_NF that waits (a reference in flight) can read IM elsewhere meanwhile;
+`pent` refuses C_PIPE unless `im_q_addr == x_pred_np` for exactly that
+reason, but the finish's read-ahead flag (`pre0`) only compared the
+predictions, so `finish_task` latched the stray word as the next
+instruction. Seen at ME's `IFUNext0` dispatching JZEQB (real 0174): C_NF
+waited, IM read 3073, and C_FETCH executed 3073's local jump at PC 0174,
+landing in JGB (0120), which popped twice. `pre0` now also requires the IM
+address. Only the board's DDR timing makes that C_NF wait at that point, so
+lock-step (which matched for 54.5 M microinstructions) never saw it; the
+FSM core has C_NF too, hence the same symptom there. Found by tracing
+process 2154's Mesa opcodes in sim_hps and C-only sim_cedar from the
+restore (`HPS_OPTRACE` / `CEDAR_OPTRACE`, with StkP) -- 217,473 opcodes
+agree, then the trap -- and then the sequencer clock by clock
+(`HPS_FLT`, `HPS_FLT_ALL`). The earlier note blaming the host services was
+wrong.
 
 ### Phase 4: the speed setting and real time (a few days)
 

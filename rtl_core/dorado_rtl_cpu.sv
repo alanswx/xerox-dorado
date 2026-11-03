@@ -3607,7 +3607,11 @@ module dorado_rtl_cpu
                     logic pre0;
                     logic [3:0] ct_s;
                     logic       xplain, nplain;
-                    pre0 = x_pred_fresh && (x_pred_np_x == pred_np);   // the execute's read is this clock's prediction
+                    // the execute's read is this clock's prediction, and IM's
+                    // data is still the instruction there (a C_NF that waited
+                    // may have read IM elsewhere meanwhile, as pent says: the
+                    // finish would latch that word as the next instruction)
+                    pre0 = x_pred_fresh && (x_pred_np_x == pred_np) && (im_q_addr == x_pred_np[11:0]);
                     ct_s   = ctask;
                     xplain = !(x_u.jcn[2:0] == 3'd7 && x_u.jcn[7:4] != 4'd0 && x_u.jcn[7] == 1'b0 &&
                                !(x_u.jcn[7:5] != 3'd1 && x_u.jcn[6] && x_u.jcn[5:3] == 3'd0)) &&

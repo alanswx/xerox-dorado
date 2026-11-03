@@ -63,6 +63,69 @@ static void clock_n(int n) {
         top->clk = 1; top->eval();
         top->clk = 0; top->eval();
         clocks++;
+        // HPS_OPTRACE=lo,hi[,psb]: task 0's Mesa opcodes in a fabric-clock window
+        // (code base BR31, byte PC, opcode, current PSB), one line per change
+        {
+            static uint64_t olo = 0, ohi = 0;
+            static unsigned opsb = 0;
+            static bool oparsed = false;
+            if (!oparsed) {
+                oparsed = true;
+                if (const char *o = getenv("HPS_OPTRACE")) sscanf(o, "%llu,%llu,%o", (unsigned long long *)&olo, (unsigned long long *)&ohi, &opsb);
+            }
+            auto *r = top->rootp;
+            if (clocks >= olo && clocks < ohi && r->dorado_rtl_top__DOT__u_cpu__DOT__ctask == 0 &&
+                (!opsb || r->dorado_rtl_top__DOT__u_cpu__DOT__RM[1] == opsb)) {
+                static uint32_t pb = ~0u; static unsigned pp = ~0u, po = ~0u;
+                uint32_t b = r->dorado_rtl_top__DOT__u_cpu__DOT__br[31] & 0x0FFFFFFFu;
+                unsigned pc = r->dorado_rtl_top__DOT__u_cpu__DOT__ifu_pcx, op = r->dorado_rtl_top__DOT__u_cpu__DOT__ifu_opcode;
+                if (b != pb || pc != pp || op != po)
+                    printf("[op] clk %llu cb %09o pc %06o op %03o psb %06o sp %03o\n", (unsigned long long)clocks, b, pc, op,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__RM[1], (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__StkP);
+                pb = b; pp = pc; po = op;
+            }
+        }
+        // HPS_FLT=lo,hi: each clock in the window where the task, real PC, StkP,
+        // the stack flags or the fault count change
+        if (const char *fw = getenv("HPS_FLT")) {
+            static uint64_t flo, fhi; static bool fp;
+            if (!fp) { fp = true; sscanf(fw, "%llu,%llu", (unsigned long long *)&flo, (unsigned long long *)&fhi); }
+            auto *r = top->rootp;
+            if (clocks >= flo && clocks < fhi) {
+                static unsigned pk = ~0u;
+                unsigned ct = r->dorado_rtl_top__DOT__u_cpu__DOT__ctask, rp = r->dorado_rtl_top__DOT__u_cpu__DOT__real_PC & 07777;
+                unsigned sp = r->dorado_rtl_top__DOT__u_cpu__DOT__StkP, fl = (r->dorado_rtl_top__DOT__u_cpu__DOT__stk_ovf << 1) | r->dorado_rtl_top__DOT__u_cpu__DOT__stk_und;
+                unsigned fc = (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__fault_count;
+                unsigned k = (ct << 28) ^ (rp << 12) ^ (sp << 4) ^ fl ^ (fc << 20);
+                if (getenv("HPS_FLT_ALL")) {
+                    auto bits = [](const VlWide<3> &w, int lo, int n) -> unsigned {
+                        uint64_t v = 0; for (int i = 0; i < n; i++) { int b = lo + i; v |= (uint64_t)((w[b / 32] >> (b % 32)) & 1) << i; } return (unsigned)v; };
+                    auto *cu = &r->dorado_rtl_top__DOT__u_cpu__DOT__cur_u, *xu = &r->dorado_rtl_top__DOT__u_cpu__DOT__x_u, *eu = &r->dorado_rtl_top__DOT__u_cpu__DOT__ex_u;
+                    printf("      cur ff %03o jcn %03o | x ff %03o jcn %03o | ex ff %03o jcn %03o | im_q_addr %04o pred_np %04o ok %u x_pred_np %04o x_pred_np_x %04o fresh %u pent %u exec_now %u fexec %u p_pc_x %04o pc_p %04o f_np %04o p_d %u\n",
+                           bits(*cu,58,8), bits(*cu,50,8), bits(*xu,58,8), bits(*xu,50,8), bits(*eu,58,8), bits(*eu,50,8),
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__im_q_addr, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__pred_np & 07777,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__pred_ok, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__x_pred_np & 07777,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__x_pred_np_x & 07777, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__x_pred_fresh,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__pent, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__exec_now,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__fexec, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__p_pc_x & 07777,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__pc_p & 07777, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__f_np & 07777,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__p_d);
+                }
+                if (getenv("HPS_FLT_ALL"))
+                    printf("[clk] %llu task %u pc %04o st %u np %04o ap_req %u ap_hold %u ap_done_q %u mb_req %u op %u va %07o pcf %06o pfpcf %06o fast %u StkP %03o\n",
+                           (unsigned long long)clocks, ct, rp, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__st,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__x_np & 07777,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__ap_req, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__ap_hold,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__ap_done_q, (unsigned)r->dorado_rtl_top__DOT__mb_req,
+                           (unsigned)r->dorado_rtl_top__DOT__mb_op, (unsigned)r->dorado_rtl_top__DOT__mb_va & 0x0FFFFFFF,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__ifu_pcf, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__pf_pcf,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__nx_fast, sp);
+                if (k != pk)
+                    printf("[flt] clk %llu task %u pc %04o StkP %03o ovf/und %u faults %u wake %04x\n", (unsigned long long)clocks, ct, rp, sp, fl, fc,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__wakeup_pending);
+                pk = k;
+            }
+        }
         if (pchist_on && top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__ctask == 0)
             pchist[top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__real_PC & 07777]++;
         if (watch_on) {

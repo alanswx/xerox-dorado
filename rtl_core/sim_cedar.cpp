@@ -1013,6 +1013,25 @@ int main(int argc, char **argv) {
         dorado_host_read_hook = split_read_hook;
         dorado_machine_step_hook = split_hook;
         dorado_machine_host_only = 1;
+    } else if (c_only && getenv("CEDAR_OPTRACE")) {
+        // CEDAR_OPTRACE=lo,hi[,psb]: the C machine's task-0 Mesa opcodes in a
+        // BaseBoard-cycle window, as sim_hps's HPS_OPTRACE prints the RTL's
+        dorado_machine_step_hook = [](dorado_machine *m, int after) -> int {
+            static uint64_t lo, hi; static unsigned want = 0; static bool parsed;
+            static uint64_t last_disp;
+            if (!parsed) { parsed = true; sscanf(getenv("CEDAR_OPTRACE"), "%llu,%llu,%o",
+                                                (unsigned long long *)&lo, (unsigned long long *)&hi, &want); }
+            if (!after) return 0;
+            dorado_cpu *c = (dorado_cpu *)dorado_machine_cpu(m);
+            uint64_t now = dorado_machine_cycles(m);
+            if (c->ifu_dispatch_count != last_disp && now >= lo && now < hi && c->ctask == 0 &&
+                (!want || (c->RM[1] & 0177777) == want))
+                printf("[op] cyc %llu cb %09o pc %06o op %03o psb %06o sp %03o\n", (unsigned long long)now,
+                       (unsigned)(dorado_machine_memory(m)->br[31] & 0x0FFFFFFFu), (unsigned)c->ifu_pcx,
+                       (unsigned)c->ifu_opcode, (unsigned)(c->RM[1] & 0177777), (unsigned)c->StkP);
+            last_disp = c->ifu_dispatch_count;
+            return 0;
+        };
     } else if (!c_only) {
         wrap_io_registry();
         dorado_host_write_hook = host_write_hook;
