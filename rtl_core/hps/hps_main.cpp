@@ -203,6 +203,13 @@ int main(int argc, char **argv) {
                    dt > 0 ? dn / dt / 1e6 : 0.0, dt,
                    (unsigned long long)S->ops, (unsigned long long)S->reads,
                    (unsigned long long)S->rx_packets, (unsigned long long)S->tx_packets);
+            // drop accounting: all but the NWW edges should stay 0
+            printf("[hps] accounting: %llu NWW edges, %llu reschedules; rx fills %u sent, %u applied; "
+                   "%llu transmits lost, %llu result tears, %llu rx lost, %llu unported\n",
+                   (unsigned long long)S->nww_posts, (unsigned long long)S->resched,
+                   (unsigned)(S->rx_packets & 0x7FFF), (unsigned)S->rx_applied,
+                   (unsigned long long)S->tx_unsupported, (unsigned long long)S->result_tears,
+                   (unsigned long long)S->rx_lost, (unsigned long long)S->unported);
             printf("[hps] by the wall clock: fabric %.2f MHz, reference %.2f MHz (%llu status reads so far)\n",
                    dt > 0 ? dclk / dt / 1e6 : 0.0, dt > 0 ? dref / dt / 1e6 : 0.0,
                    (unsigned long long)S->status_reads);

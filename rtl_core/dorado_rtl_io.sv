@@ -121,6 +121,7 @@ module dorado_rtl_io
     // Receiver state for the boot server
     output logic           eth_rx_on_out,
     output logic           eth_rx_drained,
+    output logic [14:0]    eth_rx_loads,    // receive fills applied (the mailbox's count, checked)
 
     // Loader assist (dorado_rtl_assist): set keyboard word 0 directly;
     // whether a display line is pending (feeds its display gate)
@@ -130,7 +131,14 @@ module dorado_rtl_io
 );
     assign next_wcb_any = ddc_next_wcb_flag[0] || ddc_next_wcb_flag[1];
     assign eth_rx_on_out  = eth_rx_on;
-    assign eth_rx_drained = (eth_rx_pos >= eth_rx_count);
+    // A fill (rx_load) waits in rx_load_pend while the WaitForBOP walk has
+    // the receive state, rather than being dropped; until it is applied the
+    // receiver is not drained. eth_rx_loads counts the fills applied, so the
+    // host can check every one it sent arrived (status beat 11).
+    logic        rx_load_pend;
+    logic [14:0] rx_applied;
+    assign eth_rx_drained = !rx_load_pend && (eth_rx_pos >= eth_rx_count);
+    assign eth_rx_loads   = rx_applied;
     // Framebuffer render jobs (main block -> engine)
     logic        rj_start;
     logic        rj_cursor;
@@ -1353,7 +1361,10 @@ module dorado_rtl_io
         wc_start = 1'b0;
         cl_we    = 1'b0;
         if (kbd0_poke && !rst) ddc_kbd_words[0] = kbd0_val;
+        if (rx_load && !rst) rx_load_pend = 1'b1;
         if (rst) begin
+            rx_load_pend   = 1'b0;
+            rx_applied     = 15'd0;
             wc_ch          = 1'b0;
             wc_base        = 7'd0;
             wc_n           = 5'd0;
@@ -1530,7 +1541,9 @@ module dorado_rtl_io
                     eth_skip_busy = 1'b0;
                 end
             end
-        end else if (rx_load) begin
+        end else if (rx_load_pend) begin
+            rx_load_pend = 1'b0;
+            rx_applied   = rx_applied + 15'd1;
             eth_rx_pos   = 0;
             eth_rx_count = int'(rx_load_count);
         end else if (clk_en) begin

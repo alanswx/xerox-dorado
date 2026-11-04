@@ -12,8 +12,14 @@
 //   - guest-memory writes (dorado_host_write_hook): AP_STORE / AP_STORE_INV,
 //     queued in order;
 //   - NWW (RM[0]) and reschedule_pending: the host's changes, as AP_RM_OR and
-//     AP_RESCHED. NWW is re-read from the FPGA each pass (AP_RM_OR with mask
-//     0), since the Pilot timer ORs only when its bit is clear;
+//     AP_RESCHED. Every NWW bit a host service sets is sent, as an edge: the
+//     host's copy of NWW is cleared after each push, never loaded from the
+//     FPGA. (It used to be re-read from the FPGA each pass and only the bits
+//     the copy did not already have were sent, so a completion whose bit was
+//     still pending in that copy -- while the guest had already taken and
+//     cleared it on the FPGA -- was never sent, and the guest waited for ever
+//     on a disk or Ethernet completion. An OR into a bit still pending is what
+//     the hardware does too: nothing.);
 //   - each packet the server queues goes into the receive buffer area and an
 //     RXLOAD command, once the FPGA has finished the last one and the
 //     guest has read it (status: rx loads, rx_drained).
@@ -145,6 +151,12 @@ uint16_t result(uint64_t n) {
     for (;;) {
         uint64_t r = T.mb[B_RES + (n & 255)];
         if ((uint8_t)(r >> 56) == seq_of(n)) {
+            // The ARM reads a beat as two 32-bit halves, so the seq (high
+            // half) can be the new one while rd (low half) is still last lap's.
+            // The FPGA writes the beat once; read it again until it holds.
+            barrier();
+            uint64_t r2 = T.mb[B_RES + (n & 255)];
+            if (r2 != r) { S.result_tears++; continue; }
             if (completed == n) completed++;
             return (uint16_t)r;
         }
@@ -200,9 +212,11 @@ void read_status() {
         S.rtl_clocks += (c - S.last_clk24) & 0xFFFFFFu;
         S.last_clk24 = c;
     }
-    status_drained = (b10 >> 17) & 1;
+    // the receive state, all in beat 11's high half (one 32-bit read)
+    status_drained = (b11 >> 48) & 1;
     status_tx      = (uint16_t)(b11 >> 16);
     status_rxloads = (uint16_t)(b11 >> 32);
+    S.rx_applied   = (uint16_t)(b11 >> 49);
     // DORADO_HPS_KEYTRACE=1: the core's keyboard words and mouse beat, each
     // time they change (the input path from the MiSTer's devices)
     {
@@ -229,8 +243,13 @@ void read_status() {
 }
 
 void push_regs() {
+    // NWW: each bit set since the last push, as an edge (see the header)
+    uint16_t nww = (uint16_t)(C->RM[0] & ~rm_prev[0]);
+    if (nww) { issue(AP_RM_OR, 0, nww, 1, 0); S.rm_or++; S.nww_posts++; }
+    C->RM[0] = 0;
+    rm_prev[0] = 0;
     if (!C->reschedule_pending && memcmp(C->RM, rm_prev, sizeof rm_prev) == 0) return;
-    for (int i = 0; i < RM_SIZE; i++) {
+    for (int i = 1; i < RM_SIZE; i++) {
         uint16_t d = (uint16_t)(C->RM[i] & ~rm_prev[i]);
         if (rm_prev[i] & ~C->RM[i]) S.unported++;
         if (d) { issue(AP_RM_OR, (uint32_t)i, d, 1, 0); S.rm_or++; }
@@ -243,7 +262,59 @@ void push_regs() {
     }
 }
 
+// DORADO_HPS_RXCHECK=1: end-to-end check of each received packet. At the
+// fill, note the input IOCB Cedar has armed (CSB nextInput, 177600B) and
+// the words sent; once the receive microcode has completed that IOCB, read
+// its buffer back out of guest memory and compare. Reports a packet that
+// arrived damaged, a short or long one, and an IOCB never completed.
+// Guest reads go through the mailbox, so this slows the host a little.
+const uint32_t CSB_VA = 0177600u;          // machine.c GERM_ETH_CSB_VA
+struct rx_check {
+    bool     armed;
+    uint16_t iocb;                         // nextInput at the fill
+    std::vector<uint16_t> words;           // as sent
+    double   t;                            // CLOCK_MONOTONIC at the fill
+    unsigned n;                            // fill number
+} RXC;
+uint64_t rxc_ok, rxc_bad;
+
+uint16_t guest(uint32_t va) { return dorado_visible_word_at_va(dorado_machine_memory(M), va); }
+
+void rx_check_poll() {
+    if (!RXC.armed) return;
+    uint16_t done = guest((uint32_t)RXC.iocb + 1u);
+    if (done == 0) {
+        if (mono_s() - RXC.t > 2.0) {
+            printf("[hps] RXCHECK %u: iocb %06o not completed 2 s after the fill (nextInput now %06o)\n",
+                   RXC.n, RXC.iocb, guest(CSB_VA));
+            RXC.armed = false;
+            rxc_bad++;
+        }
+        return;
+    }
+    RXC.armed = false;
+    uint16_t used = guest((uint32_t)RXC.iocb + 2u);
+    uint32_t buf  = ((uint32_t)guest((uint32_t)RXC.iocb + 6u) << 16) | guest((uint32_t)RXC.iocb + 5u);
+    size_t n = RXC.words.size() >= 2 ? RXC.words.size() - 2 : RXC.words.size();   // less the CRC/status trailer
+    size_t cmp = used < n ? used : n;
+    size_t bad = 0, first = (size_t)-1;
+    for (size_t i = 0; i < cmp; i++)
+        if (guest(buf + (uint32_t)i) != RXC.words[i]) { if (first == (size_t)-1) first = i; bad++; }
+    if (bad || used != n) {
+        rxc_bad++;
+        printf("[hps] RXCHECK %u: iocb %06o completion %06o used %u (sent %zu) buffer %08o: %zu words differ",
+               RXC.n, RXC.iocb, done, used, n, buf, bad);
+        if (first != (size_t)-1)
+            printf(", first at %zu: guest %06o sent %06o", first, guest(buf + (uint32_t)first), RXC.words[first]);
+        printf("; Pup type %06o\n", n > 3 ? RXC.words[3] : 0);
+    } else {
+        rxc_ok++;
+    }
+}
+
 void ethernet_bridge() {
+    static const bool rxcheck = getenv("DORADO_HPS_RXCHECK") != nullptr;
+    if (rxcheck) rx_check_poll();
     if (CFG.quantum > 1 && ETH->rx_hold)
         ETH->rx_hold = ETH->rx_hold > CFG.quantum - 1 ? ETH->rx_hold - (CFG.quantum - 1) : 0;
     bool fpga_done = status_rxloads == my_rxloads;   // the last fill is finished
@@ -263,6 +334,25 @@ void ethernet_bridge() {
             T.mb[B_RXA + b] = v;
         }
         barrier();
+        if (rxcheck) {
+            if (RXC.armed) rx_check_poll();
+            if (RXC.armed) {
+                printf("[hps] RXCHECK %u: iocb %06o still not completed at the next fill\n", RXC.n, RXC.iocb);
+                rxc_bad++;
+            }
+            RXC.armed = true;
+            RXC.iocb  = guest(CSB_VA);
+            RXC.words.assign(ETH->rx_words, ETH->rx_words + n);
+            RXC.t = mono_s();
+            RXC.n = (unsigned)my_rxloads + 1;
+            if (RXC.iocb == 0 || guest((uint32_t)RXC.iocb + 1u) != 0) {
+                printf("[hps] RXCHECK %u: filled with no input IOCB armed (nextInput %06o, its completion %06o); "
+                       "Pup type %06o -- the receiver will drop it\n", RXC.n, RXC.iocb,
+                       RXC.iocb ? guest((uint32_t)RXC.iocb + 1u) : 0, n > 3 ? ETH->rx_words[3] : 0);
+                rxc_bad++;
+                RXC.armed = false;
+            }
+        }
         issue(OP_RXLOAD, 0, (uint16_t)n, 1, 0);
         my_rxloads++;
         shipped_gen = dorado_ethernet_rx_generation;
@@ -366,7 +456,7 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
 void hps_sync_rm(unsigned n) {
     for (unsigned i = 0; i < n && i < RM_SIZE; i++) {
         C->RM[i] = result(issue(AP_RM_OR, i, 0, 1, 0));
-        rm_prev[i] = C->RM[i];
+        rm_prev[i] = C->RM[i];          // (NWW too: the next push sends none of it)
     }
 }
 
@@ -389,9 +479,24 @@ uint64_t hps_poll(void) {
         S.tx_packets++;
         last_tx++;
     }
-    // NWW as the FPGA has it (the timer tests it before ORing)
-    C->RM[0] = result(issue(AP_RM_OR, 0, 0, 1, 0));
-    rm_prev[0] = C->RM[0];
+    // Every receive fill sent must arrive: the receiver counts the fills it
+    // applied (15 bits). Once the mailbox has finished one, the receiver
+    // takes it at once unless a WaitForBOP walk holds it, which is
+    // microseconds, so a lag across 50 ms of polls is a lost fill.
+    {
+        static double lag_since;
+        bool lag = status_rxloads == my_rxloads &&
+                   (uint16_t)((S.rx_applied ^ my_rxloads) & 0x7FFF) != 0;
+        double now = mono_s();
+        if (!lag) lag_since = 0;
+        else if (lag_since == 0) lag_since = now;
+        else if (now - lag_since > 0.05) {
+            S.rx_lost++;
+            printf("[hps] RX LOST: %u fills sent, the receiver applied %u (15 bits)\n",
+                   (unsigned)my_rxloads, (unsigned)S.rx_applied);
+            lag_since = now + 10.0;          // report again in 10 s, not every poll
+        }
+    }
     uint64_t target = bb0 + (S.rtl_cycles - cyc0) * 37 / 10;
     S.host_target = target;                 // (reported uncapped: how far behind)
     // At most ~16 ms of guest time per poll: if the host falls behind the

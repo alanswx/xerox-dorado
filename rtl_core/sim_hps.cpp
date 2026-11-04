@@ -360,6 +360,9 @@ int main(int argc, char **argv) {
            (unsigned long long)S->rx_packets, (unsigned long long)S->tx_packets,
            (unsigned long long)S->tx_unsupported,
            (unsigned long long)S->unported);
+    printf("[hps] accounting: %llu NWW edges; rx fills %u sent, %u applied; %llu result tears, %llu rx lost\n",
+           (unsigned long long)S->nww_posts, (unsigned)(S->rx_packets & 0x7FFF), (unsigned)S->rx_applied,
+           (unsigned long long)S->result_tears, (unsigned long long)S->rx_lost);
     if (hist_on) {
         uint64_t tot = 0;
         for (int i = 0; i < 32; i++) tot += hist[i];

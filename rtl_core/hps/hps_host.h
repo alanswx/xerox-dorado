@@ -41,6 +41,11 @@ struct hps_stats {
     uint64_t ref_clocks;              // CLK_50M edges (status beat 13, unwrapped): the fabric clock's reference
     uint32_t last_ref32;
     int      pll_locked;              // the core PLL's lock (beat 13 bit 32)
+    // drop accounting (each should stay 0 but nww_posts)
+    uint64_t nww_posts;               // NWW edges sent (AP_RM_OR to RM[0])
+    uint64_t result_tears;            // result beats read half old, half new (re-read)
+    uint64_t rx_lost;                 // receive fills sent and not applied (reports)
+    uint16_t rx_applied;              // the receiver's count of fills applied (status beat 11)
     double   t_status;                // CLOCK_MONOTONIC at the last status read (rates are per read interval, not per report)
 };
 

@@ -176,6 +176,7 @@ module dorado_rtl_top
     logic [9:0]     srv_tx_rd_addr;
     logic [15:0]    io_tx_rd_data;
     logic           io_rx_on, io_rx_drained;
+    logic [14:0]    io_rx_loads;
     logic [15:0]    srv_eftp_max_seq, srv_bol_sent;
     logic           ap_hold, ap_req, ap_we, ap_stk, ap_cache, ap_done;
     logic [2:0]     ap_op;
@@ -366,6 +367,7 @@ module dorado_rtl_top
                 .rx_load_count (mb_rx_load_count),
                 .rx_on         (io_rx_on),
                 .rx_drained    (io_rx_drained),
+                .rx_loads      (io_rx_loads),
                 .tx_packet_stb (eth_tx_packet_stb),
                 .tx_packet_words(eth_tx_packet_words),
                 .tx_rd_addr    (mb_tx_rd_addr),
@@ -610,6 +612,7 @@ module dorado_rtl_top
         .eth_tx_rd_data          (io_tx_rd_data),
         .eth_rx_on_out           (io_rx_on),
         .eth_rx_drained          (io_rx_drained),
+        .eth_rx_loads            (io_rx_loads),
         .kbd0_poke               (kbd0_poke),
         .kbd0_val                (kbd0_val),
         .next_wcb_any            (io_next_wcb_any)
