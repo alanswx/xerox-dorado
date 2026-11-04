@@ -2093,6 +2093,27 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
     }
     machine_store_va(&m->mem, iocb + SA_IOCB_SEAL, 0);
     machine_store_va(&m->mem, GERM_DISK_CSB_VA, next);
+    /* DiskHeadDorado.mesa Initiate chains in two steps -- IF csb.head # NIL
+     * THEN csb.tail.next _ new; IF csb.head = NIL AND new.seal = sealValid
+     * THEN csb.head _ new -- which is safe only because the disk microcode
+     * reads iocb.next and stores csb.head indivisibly. Here `next` was read
+     * when this completion began; where the guest runs concurrently (the
+     * FPGA host, dorado-hps), it can append in between, see head # NIL and
+     * leave it to us, and the store above would then drop the new IOCB with
+     * its client waiting forever. Re-read: a non-NIL next now is the IOCB
+     * the guest chained, and head must name it -- the same value the
+     * guest's own second step would store. Single-threaded, this always
+     * reads `next` again. */
+    uint16_t next_now = dorado_visible_word_at_va(&m->mem,
+                                                  iocb + SA_IOCB_NEXT);
+    if (next_now != next && next_now != 0) {
+        machine_store_va(&m->mem, GERM_DISK_CSB_VA, next_now);
+        if (dorado_trace_flag("DORADO_DISK_IOCB_TRACE"))
+            fprintf(stderr,
+                    "[machine] PDI disk IOCB chained during completion: "
+                    "iocb=0o%o next 0o%o -> 0o%o\n", iocb, next, next_now);
+        next = next_now;
+    }
     if (csb_interrupt_mask) {
         m->cpu.RM[0] |= csb_interrupt_mask;
         m->cpu.reschedule_pending = 1;
