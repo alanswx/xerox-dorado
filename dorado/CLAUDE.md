@@ -571,6 +571,12 @@ controller. See the top-level `CLAUDE.md` 2026-07-21 status,
    transfer path (gaps F1-F5). This is not a functional blocker (read+write
    both work through the shim); replacing it with a cycle-accurate
    sequence-PROM/FIFO/ECC controller is a Verilog-fidelity item.
+   **The bridge must keep the controller's atomicity.**
+   `DiskHeadDorado.mesa` Initiate appends to the CSB chain assuming the
+   microcode reads `iocb.next` and stores `csb.head` indivisibly. When the
+   bridge runs concurrently with the guest (dorado-hps on the MiSTer ARM),
+   it must re-read `next` after storing head (9d0239812), or an IOCB chained
+   mid-completion is lost and its client waits forever.
 
 3. **Live display + interrupts for Cedar.** The display is rasterized in C
    (`dorado_machine_render_display_list`) and the field interrupt is injected

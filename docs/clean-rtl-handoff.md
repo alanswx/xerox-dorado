@@ -805,3 +805,37 @@ Three implementation rules learned the hard way:
 1x is 16.67M/s: about 3 clocks per microinstruction at 50 MHz, or 4 at
 67 MHz. Items 1 and 2 reach about 4 clocks, so 1x also needs the clock
 near 67 MHz.
+
+### 8.6 Where it stands (2026-11-05)
+
+Section 8.5's list is done and overtaken. The detail, from 2026-11-01 on, is
+in `docs/rtl-core-speed-plan.md` (Phases 1-3):
+
+- the memory section and the IFU prefetch became their own modules;
+- NEXT and FINISH merged (C_NF);
+- the pipelined core (C_PIPE, `PIPELINE=1`) runs at **17.15 M
+  microinstructions/s = 1.03x a Dorado** on MiSTer14 at 44 MHz.
+
+What a new session needs to know:
+
+- **The board build.** `/media/fat/Scripts/DoradoCedar.sh` loads
+  `DoradoRtlCedarPipe_20261103c_44.rbf` (the C_NF fix, the stall report
+  and the rx-load accounting; +1.388 ns at 44 MHz) and starts `/media/fat/dorado/dorado-hps`, built from
+  ac33c0c47 with `rtl_core/hps/build_arm.sh`. The host and the core must
+  come from matching commits: the status beat layout changed in d9926af49
+  (stall report, beats 14-15) and ac33c0c47 (`rx_loads`, beat 11). MiSTer14
+  is the development board; MiSTer11 belongs to the user.
+- **Fixed.** The Schematic.cm / Moon.cm stalls had two causes: a C_NF that
+  latched a stray IM word (9b57b5034), then a race in the PDI disk bridge
+  between the ARM and the running guest (9d0239812). Both pictures paint.
+- **Open: a hang in the DDR client.** About half of longer runs end with
+  the whole mailbox frozen, so `dorado_rtl_storage_ddr` is stuck in a DDR
+  wait. Next step and evidence: speed plan, "OPEN: a second, separate core
+  hang".
+- **Instruments.** The ARM/core accounting line, `DORADO_HPS_RXCHECK`,
+  `DORADO_DISK_IOCB_TRACE`, `SIGUSR2` PDA dumps, `/tmp/hps-poke` and
+  `/tmp/hps-dump-va`, all described in the speed plan. Tracing Mesa opcodes
+  in the rehearsal: `HPS_OPTRACE` / `CEDAR_OPTRACE`.
+- **Lock-step passing does not clear a board bug.** Both board-only bugs
+  depended on DDR timing or on the ARM running beside the guest, which no
+  simulation reproduces.

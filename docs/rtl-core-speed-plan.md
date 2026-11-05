@@ -743,6 +743,80 @@ agree, then the trap -- and then the sequencer clock by clock
 (`HPS_FLT`, `HPS_FLT_ALL`). The earlier note blaming the host services was
 wrong.
 
+**The remaining Schematic/Moon stalls were the host, not the core
+(2026-11-03/05).** With the C_NF fix, `Schematic.cm` and `Moon.cm` started
+but stalled part-way, after 55-85 packets, with the cursor still moving.
+Three commits:
+
+- **A stall report** (d9926af49). A host-port operation the core does not
+  answer within 2^26 clocks writes `dbg_stall` (CPU and memory-section
+  states, booking/request flags, task, PC) and the storage DDR client's
+  state to status beats 14-15. It repeats every 2^26 clocks while the wait
+  lasts, and dorado-hps prints it. If no report arrives, the DDR client is
+  not serving the mailbox's aux port.
+- **Accounting between the ARM and the core** (ac33c0c47).
+  - The host posts NWW bits as edges, the bits set since its last push,
+    instead of OR-ing back its stale copy.
+  - dorado_rtl_io latches an `rx_load` that arrives while the receiver is
+    skipping, and counts the loads it applies. Beat 11 carries that count
+    in the same 32-bit half as `rx_drained`, so a fill can never be paired
+    with a stale drained bit.
+  - The host re-reads each result beat to catch a torn 64-bit read, and
+    reports `RX LOST` when the load counts disagree.
+  - `DORADO_HPS_RXCHECK=1` checks each received packet against the IOCB
+    Cedar armed for it.
+  - A periodic accounting line lists every counter. Across about 20 board
+    runs every counter stayed at zero: nothing was being dropped.
+- **The cause: a race in the PDI disk bridge** (9d0239812, `machine.c
+  machine_germ_complete_disk_iocb`).
+  - `DiskHeadDorado.mesa` Initiate appends an IOCB in two steps:
+    `IF csb.head # nil THEN csb.tail.next _ new`, then
+    `IF csb.head = nil AND new.seal = sealValid THEN csb.head _ new`.
+    That is safe only because the disk microcode reads `iocb.next` and
+    stores `csb.head` indivisibly.
+  - The bridge read `next` when a completion began and stored it into
+    `csb.head` at the end. In one process that is indivisible too. On the
+    MiSTer the bridge runs on the ARM while Cedar keeps executing on the
+    FPGA, so Cedar could append in between. It saw head # nil, left the
+    IOCB to the controller, and the bridge's store then dropped it. Its
+    client waited forever, and the file system with it.
+  - Seen in the Pilot PDA dump at the stall: CSB head (VA 177520) = 0 while
+    IOCB 1275B's `next` = 1135B, sealed.
+  - The completion now re-reads `next` after storing head and takes a
+    non-nil value: the same store the guest's own second step would have
+    made. On MiSTer14 the race fired 3-12 times a run and was repaired each
+    time, and both pictures painted. The C emulator never interleaves like
+    this, so its behaviour is unchanged.
+
+Debugging hooks in dorado-hps, all used for this:
+
+- `SIGUSR2` syncs RM and dumps the Pilot PDA (the process table), with
+  `DORADO_PDA_DUMP_ALL=1` for every PSB. That is slow: it blocks the host
+  loop.
+- `/tmp/hps-poke` takes "va value" lines (octal), applied once.
+- `/tmp/hps-dump-va` takes "va count" lines, BOTH octal. A count of `8` is
+  not octal and dumps nothing. The file is not removed after use, so a big
+  dump left behind repeats every poll; delete it.
+- `DORADO_DISK_IOCB_TRACE=1` logs every IOCB completion, and each race the
+  bridge repairs.
+
+**OPEN: a second, separate core hang.** Two of the four verification runs
+(at about 30 s and about 128 s) ended differently:
+
+- a host-port READ went unanswered;
+- no stall report arrived;
+- every status beat froze, including beat 13's free-running CLK_50M count.
+
+The mailbox writes all of those through `dorado_rtl_storage_ddr`'s aux
+port, which is served only from `S_IDLE`. So the DDR client is stuck in a
+wait: a lost `DOUT_READY`, or `BUSY` held. A core reload clears it. This is
+probably also the idle freeze d9926af49 was written for.
+
+The stall report cannot catch it, because the report also goes through DDR.
+The next step is a watchdog inside `dorado_rtl_storage_ddr` that records
+which wait has run too long and reports it by a path that does not need
+DDR. One such path is the HDMI screen, which MiSTerKVMS can read.
+
 ### Phase 4: the speed setting and real time (a few days)
 
 An OSD choice of 1x / 2x / 3x / max. Implement it as a retirement throttle
