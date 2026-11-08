@@ -117,7 +117,14 @@ module emu
 
 assign ADC_BUS  = 'Z;
 assign USER_OUT = '1;
-assign {UART_RTS, UART_TXD, UART_DTR} = 0;
+assign {UART_RTS, UART_DTR} = 0;
+// Non-DDR debug sideband: stream dbg_vec continuously out UART_TXD (8N1,
+// 115200 at 44 MHz), read on the ARM at /dev/ttyS1. This survives a DDR
+// master wedge -- which freezes every status beat (all core->HPS state
+// rides the one DDRAM master) -- because it reads registers directly. Each
+// frame is AA 55, then dbg_vec MSB-first (16 bytes: ddr_dbg[63:0] = the
+// storage_ddr state, then cpu_st/real_PC/ctask/cycles[31:0]), then 0A.
+dorado_uart_dbg #(.DIV(382)) u_uart_dbg (.clk(clk_sys), .vec(dbg_vec), .tx(UART_TXD));
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
 assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;
 assign DDRAM_CLK = clk_sys;   // storage (dorado_rtl_storage_ddr) runs on the core clock
@@ -437,4 +444,54 @@ assign VGA_B     = de2 ? pix_out : 8'd0;
 // LED: lit while the machine runs (blinks on the microinstruction count).
 assign LED_USER = !halted && cycles[22];
 
+endmodule
+
+// Continuous 8N1 UART debug streamer (verified standalone). Transmits a
+// 19-byte frame: 0xAA, 0x55, `vec` MSB-first (16 bytes), 0x0A, then repeats;
+// `vec` is latched at frame start so each frame is coherent.
+module dorado_uart_dbg #(parameter int unsigned DIV = 382) (
+    input  wire         clk,
+    input  wire [127:0] vec,
+    output reg          tx
+);
+    localparam int NB = 19;
+    reg [127:0] snap = 128'd0;
+    reg [4:0]   bidx = 5'd0;
+    reg [9:0]   sh   = 10'h3FF;     // {stop, data[7:0], start}, indexed by bitn
+    reg [3:0]   bitn = 4'd0;
+    reg [15:0]  baud = 16'd0;
+    reg         busy = 1'b0;
+    initial tx = 1'b1;
+
+    function [7:0] bsel(input [4:0] i, input [127:0] v);
+        case (i)
+          5'd0:  bsel = 8'hAA;
+          5'd1:  bsel = 8'h55;
+          5'd18: bsel = 8'h0A;
+          default: bsel = v[8*(15 - (i - 5'd2)) +: 8]; // i=2->v[127:120], i=17->v[7:0]
+        endcase
+    endfunction
+
+    always @(posedge clk) begin
+        if (!busy) begin
+            if (bidx == 5'd0) snap <= vec;
+            sh   <= {1'b1, bsel(bidx, (bidx == 5'd0) ? vec : snap), 1'b0};
+            tx   <= 1'b0;                  // start bit (sh[0])
+            bitn <= 4'd0;
+            baud <= DIV - 1;
+            busy <= 1'b1;
+        end else if (baud != 16'd0) begin
+            baud <= baud - 16'd1;
+        end else begin
+            baud <= DIV - 1;
+            if (bitn == 4'd9) begin
+                busy <= 1'b0;
+                tx   <= 1'b1;             // idle
+                bidx <= (bidx == NB - 1) ? 5'd0 : bidx + 5'd1;
+            end else begin
+                bitn <= bitn + 4'd1;
+                tx   <= sh[bitn + 1];
+            end
+        end
+    end
 endmodule
