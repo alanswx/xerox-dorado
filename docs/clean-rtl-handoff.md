@@ -828,10 +828,27 @@ What a new session needs to know:
 - **Fixed.** The Schematic.cm / Moon.cm stalls had two causes: a C_NF that
   latched a stray IM word (9b57b5034), then a race in the PDI disk bridge
   between the ARM and the running guest (9d0239812). Both pictures paint.
-- **Open: a hang in the DDR client.** About half of longer runs end with
-  the whole mailbox frozen, so `dorado_rtl_storage_ddr` is stuck in a DDR
-  wait. Next step and evidence: speed plan, "OPEN: a second, separate core
-  hang".
+- **Fixed: the mailbox Ethernet-TX-strobe deadlock (2026-11-07).** The
+  intermittent freeze (~33% of longer runs) was NOT a DDR wait. UART
+  sideband capture at a hang showed `dorado_rtl_storage_ddr` idle and the
+  mailbox looping its TX states with `tx_pend` stuck high while the CPU sat
+  held in C_FETCH (pc frozen). `eth_tx_packet_stb` is a core-clock level
+  (`dorado_rtl_io`) cleared only under `io_tick` (a step tick); when a hold
+  stops the CPU stepping, the strobe never clears, and the free-running
+  mailbox re-armed `tx_pend` from that stuck level every clock -- so
+  `hp_hold` never dropped and the CPU could never step to clear it, a
+  self-sustaining deadlock. Intermittent because the hold must latch in the
+  narrow window after the same TXEOP microinstruction sets the strobe. The
+  mailbox now arms `tx_pend` on the RISING EDGE of `tx_packet_stb` only (a
+  level is not an event): `rtl_core/dorado_rtl_mailbox.sv`. Confirmed on
+  MiSTer14 -- 20/20 runs clean where the baseline wedged ~1 in 3 (p < 1e-3
+  by chance); lock-step still PASSES (13 suites, 0 mismatches). The removal
+  is total, not probabilistic: there is no re-arm from a level any more.
+  (The same build also turned on `TIMEQUEST_MULTICORNER_ANALYSIS` +
+  `OPTIMIZE_MULTI_CORNER_TIMING` -- the worst corner had never been analysed
+  -- which lifted worst-corner setup slack and fixed the HDMI path at no
+  speed cost. Strictly better, but not what fixed the wedge, and not yet
+  propagated into `fpga/mister_rtl/build.sh`.)
 - **Instruments.** The ARM/core accounting line, `DORADO_HPS_RXCHECK`,
   `DORADO_DISK_IOCB_TRACE`, `SIGUSR2` PDA dumps, `/tmp/hps-poke` and
   `/tmp/hps-dump-va`, all described in the speed plan. Tracing Mesa opcodes

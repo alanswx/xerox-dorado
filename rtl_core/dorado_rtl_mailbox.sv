@@ -144,6 +144,7 @@ module dorado_rtl_mailbox #(
     logic [1:0]  rx_lane;
     logic        hold_cmd;         // held for a command or a receive fill
     logic        tx_pend;          // a transmitted packet waits to be copied (CPU held)
+    logic        tx_stb_q;         // edge-detect tx_packet_stb (see below)
     logic [10:0] tx_len;
     logic [10:0] tx_i;
     logic [63:0] tx_beat;
@@ -194,7 +195,14 @@ module dorado_rtl_mailbox #(
     always_ff @(posedge clk) begin
         rx_wr_en <= 1'b0;
         rx_load  <= 1'b0;
-        if (tx_packet_stb) begin
+        // tx_packet_stb is a CORE-clock signal (dorado_rtl_io), cleared only on a
+        // step tick (io_tick = step_done...).  While the CPU is held it takes no
+        // steps, so a tx_packet_stb left high never clears and -- sampled here on
+        // the free-running mailbox clk -- would re-arm tx_pend every clock, so
+        // hp_hold could never drop and the CPU could never step to clear it: a
+        // deadlock.  Arm tx_pend on the RISING EDGE only (a level is not an event).
+        tx_stb_q <= tx_packet_stb;
+        if (tx_packet_stb && !tx_stb_q) begin
             tx_pend <= 1'b1;
             tx_len  <= tx_packet_words;
         end
@@ -231,6 +239,7 @@ module dorado_rtl_mailbox #(
             tx_count <= 16'd0;
             rxload_count <= 16'd0;
             tx_pend  <= 1'b0;
+            tx_stb_q <= 1'b0;
             stall_t  <= 26'd0;
             stall_ph <= 2'd0;
             stall_n  <= 16'd0;
