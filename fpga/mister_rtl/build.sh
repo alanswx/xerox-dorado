@@ -81,6 +81,15 @@ fi
 if [ "${PIPELINE:-0}" = 1 ]; then
     echo 'set_global_assignment -name VERILOG_MACRO "DORADO_PIPELINE=1"' >> "$OUT/files.qip"
 fi
-sed -e 's/mycore/Dorado/g' "$TEMPLATE/mycore.qsf" > "$OUT/Dorado.qsf"
 sed -e 's/mycore/Dorado/g' "$TEMPLATE/mycore.qpf" > "$OUT/Dorado.qpf"
+sed -e 's/mycore/Dorado/g' "$TEMPLATE/mycore.qsf" > "$OUT/Dorado.qsf"
+# Multicorner timing. The MiSTer template leaves TIMEQUEST_MULTICORNER_ANALYSIS
+# off, so the fitter analyses and optimizes only one corner and the worst
+# process/voltage/temperature corner can miss setup -- which showed up here as
+# an HDMI path at -0.050 ns and barely-positive core slack. Analyse and
+# optimize every corner instead (no speed cost; measured worst-corner setup
+# +0.227 -> +1.588 ns on the core and the HDMI path -0.050 -> +0.517 ns on the
+# Cedar pipelined build). Appended with a leading newline so it overrides the
+# template's default regardless of how that line is spelled or terminated.
+printf '\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON\nset_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON\n' >> "$OUT/Dorado.qsf"
 echo "assembled $OUT (RESET_PC=0$RESET_PC, boot file $BOOT_WORDS words)"
