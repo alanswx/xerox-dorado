@@ -40,6 +40,15 @@ module dorado_rtl_top
 
     // Mode select: 1 = use internal dorado_rtl_io bridge; 0 = external/disconnected
     input  logic        io_bridge_en,
+    // 1 = the internal Trident controller alone is the disk (task 014, TIOA
+    // 010-014, its DMux bits, its IOStore munch and its wakeup), whatever
+    // io_bridge_en says about the other devices. A lock-step harness sets it
+    // to check the RTL disk against the C one while the C answers the rest.
+    input  logic        disk_bridge_en,
+    // 1 = rotate the disk on disk_time instead of the microinstruction count
+    // (the C emulator's disk clock is bb.cycles, ~3.70 per microinstruction)
+    input  logic        disk_time_ext_en,
+    input  logic [63:0] disk_time,
     // 1 = the in-FPGA boot server (dorado_rtl_bootsrv) answers the Ethernet
     input  logic        bootsrv_en,
     // 1 = dorado_rtl_assist performs the loader assists (cold-Alto init,
@@ -201,6 +210,22 @@ module dorado_rtl_top
     logic [12:0]    mb_rx_load_count;
     logic [9:0]     mb_tx_rd_addr;
     logic           aux_req, aux_we, aux_ack;
+    logic           mb_aux_req, mb_aux_we, mb_aux_ack;
+`ifdef DORADO_DISK_DPI
+    localparam bit          DISK_ON_AUX    = 1'b0;
+    localparam logic [28:0] DISK_PACK_BASE = 29'd0;
+`else
+    localparam bit          DISK_ON_AUX    = EXT_STORAGE;
+    localparam logic [28:0] DISK_PACK_BASE = EXT_STORAGE ? 29'h0620_0000 : 29'd0;   // byte 0x3100_0000
+`endif
+    // the disk engine's pack memory port (see dorado_rtl_io's sector data engine)
+    logic        disk_mem_req, disk_mem_we, disk_mem_ack;
+    logic [28:0] disk_mem_addr;
+    logic [63:0] disk_mem_wdata, disk_mem_rdata;
+    logic [7:0]  disk_mem_be;
+    logic [28:0]    mb_aux_addr;
+    logic [63:0]    mb_aux_wdata;
+    logic [7:0]     mb_aux_be;
     logic [28:0]    aux_addr;
     logic [63:0]    aux_wdata, aux_rdata;
     logic [7:0]     aux_be;
@@ -233,6 +258,11 @@ module dorado_rtl_top
     logic [3:0]     cpu_io_read_task;
     logic [1:0]     cpu_io_read_subtask;
     logic [7:0]     cpu_io_read_tioa;
+    // The CPU takes this microinstruction's slow-I/O answer from the internal
+    // controller: every device (io_bridge_en), or the disk alone.
+    wire            io_int_sel = io_bridge_en ||
+                                 (disk_bridge_en && cpu_io_read_task == 4'o14 &&
+                                  cpu_io_read_tioa >= 8'o010 && cpu_io_read_tioa <= 8'o014);
     logic           cpu_io_read_stb;
     logic [3:0]     cpu_io_read_stb_task;
     logic [1:0]     cpu_io_read_stb_subtask;
@@ -270,7 +300,7 @@ module dorado_rtl_top
         // display microcode, a second writer of 177033B, agrees with the host.
         kbd_words_default[4] = ~{13'd0, mouse_buttons};
         for (int i = 0; i < 16; i++) begin
-            cpu_fastio_in_munch[i] = io_bridge_en ? fastio_in_munch[i] : 16'd0;
+            cpu_fastio_in_munch[i] = (io_bridge_en || (disk_bridge_en && fastio_task == 4'o14)) ? fastio_in_munch[i] : 16'd0;
         end
     end
 
@@ -342,12 +372,12 @@ module dorado_rtl_top
                 .pll_locked    (pll_locked),
                 .ref_cnt       (ref_cnt),
                 .go            (mb_go),
-                .aux_req       (aux_req),
-                .aux_we        (aux_we),
-                .aux_addr      (aux_addr),
-                .aux_wdata     (aux_wdata),
-                .aux_be        (aux_be),
-                .aux_ack       (aux_ack),
+                .aux_req       (mb_aux_req),
+                .aux_we        (mb_aux_we),
+                .aux_addr      (mb_aux_addr),
+                .aux_wdata     (mb_aux_wdata),
+                .aux_be        (mb_aux_be),
+                .aux_ack       (mb_aux_ack),
                 .aux_rdata     (aux_rdata),
                 .hp_hold       (mb_hold),
                 .hp_req        (mb_req),
@@ -386,10 +416,33 @@ module dorado_rtl_top
             assign mb_go = 1'b1;
             assign {mb_hold, mb_req, mb_we, mb_cache, mb_op, mb_va, mb_wd} = '0;
             assign {mb_rx_wr_en, mb_rx_wr_att, mb_rx_load, mb_rx_wr_addr, mb_rx_wr_data, mb_rx_load_count} = '0;
-            assign {aux_req, aux_we, aux_addr, aux_wdata, aux_be} = '0;
+            assign {mb_aux_req, mb_aux_we, mb_aux_addr, mb_aux_wdata, mb_aux_be} = '0;
             assign mb_tx_rd_addr = '0;
         end
     endgenerate
+    // The storage engine's aux port: the mailbox and the disk engine, one
+    // beat at a time (each holds its request until its one-clock ack).
+    logic [1:0] aux_owner;          // 0 free, 1 mailbox, 2 disk engine
+    always_ff @(posedge clk) begin
+        if (rst)                                aux_owner <= 2'd0;
+        else if (aux_owner != 2'd0)             begin if (aux_ack) aux_owner <= 2'd0; end
+        else if (mb_aux_req)                    aux_owner <= 2'd1;
+        else if (DISK_ON_AUX && disk_mem_req)   aux_owner <= 2'd2;
+    end
+    assign aux_req   = aux_owner == 2'd1 ? mb_aux_req   : aux_owner == 2'd2 ? disk_mem_req   : 1'b0;
+    assign aux_we    = aux_owner == 2'd1 ? mb_aux_we    : aux_owner == 2'd2 ? disk_mem_we    : 1'b0;
+    assign aux_addr  = aux_owner == 2'd1 ? mb_aux_addr  : aux_owner == 2'd2 ? disk_mem_addr  : 29'd0;
+    assign aux_wdata = aux_owner == 2'd1 ? mb_aux_wdata : aux_owner == 2'd2 ? disk_mem_wdata : 64'd0;
+    assign aux_be    = aux_owner == 2'd1 ? mb_aux_be    : aux_owner == 2'd2 ? disk_mem_be    : 8'd0;
+    assign mb_aux_ack = aux_owner == 2'd1 && aux_ack;
+`ifndef DORADO_DISK_DPI
+    generate
+        if (EXT_STORAGE) begin : g_disk_aux
+            assign disk_mem_ack   = aux_owner == 2'd2 && aux_ack;
+            assign disk_mem_rdata = aux_rdata;
+        end
+    endgenerate
+`endif
     assign core_rst = rst || !sto_ready || !mb_go;
 
     dorado_rtl_cpu #(
@@ -406,11 +459,11 @@ module dorado_rtl_top
         .bb_ss_inject       (bb_ss_inject),
         .bb_mir_uinstr      (bb_mir_uinstr),
 
-        .io_attached        (io_bridge_en ? 1'b1 : io_attached),
-        .io_read_data       (io_bridge_en ? bridge_io_read_data : io_read_data),
-        .io_read_bad_parity (io_bridge_en ? bridge_io_read_bad_parity : io_read_bad_parity),
-        .io_has_write_in    (io_bridge_en ? bridge_io_has_write : io_has_write_in),
-        .io_atten_in        (io_bridge_en ? bridge_io_atten : io_atten_in),
+        .io_attached        (io_int_sel ? 1'b1 : io_attached),
+        .io_read_data       (io_int_sel ? bridge_io_read_data : io_read_data),
+        .io_read_bad_parity (io_int_sel ? bridge_io_read_bad_parity : io_read_bad_parity),
+        .io_has_write_in    (io_int_sel ? bridge_io_has_write : io_has_write_in),
+        .io_atten_in        (io_int_sel ? bridge_io_atten : io_atten_in),
         .io_read_task       (cpu_io_read_task),
         .io_read_subtask    (cpu_io_read_subtask),
         .io_read_tioa       (cpu_io_read_tioa),
@@ -432,11 +485,12 @@ module dorado_rtl_top
         .fastio_out_munch   (fastio_out_munch),
         .fastio_in_munch    (cpu_fastio_in_munch),
 
-        .dmux_ext_handled   (io_bridge_en ? dmux_ext_handled : 1'b0),
-        .dmux_ext_val       (io_bridge_en ? dmux_ext_val : 16'd0),
+        .dmux_ext_handled   ((io_bridge_en || disk_bridge_en) ? dmux_ext_handled : 1'b0),
+        .dmux_ext_val       ((io_bridge_en || disk_bridge_en) ? dmux_ext_val : 16'd0),
         .dmux_cur_addr      (dmux_cur_addr),
 
-        .ext_wakeup_req     (io_bridge_en ? ext_wakeup_req : 16'd0),
+        .ext_wakeup_req     (io_bridge_en ? ext_wakeup_req :
+                             disk_bridge_en ? (ext_wakeup_req & 16'h1000) : 16'd0),   // TASK_DSK = 014
         .ext_subtask_we     (io_bridge_en ? ext_subtask_we : 1'b0),
         .ext_subtask_task   (ext_subtask_task),
         .ext_subtask_val    (ext_subtask_val),
@@ -454,8 +508,8 @@ module dorado_rtl_top
         .step_done          (step_done),
         .cmp_done           (cmp_done),
         .io_tick_early      (io_tick_early),
-        .io_busy            (io_bridge_en && (io_busy || srv_stall)),
-        .io_busy_tick       (io_bridge_en && (io_jobs_busy || srv_stall)),
+        .io_busy            ((io_bridge_en || disk_bridge_en) && (io_busy || srv_stall)),
+        .io_busy_tick       ((io_bridge_en || disk_bridge_en) && (io_jobs_busy || srv_stall)),
         .ap_hold            (ap_hold),
         .ov_hold            (ov_hold),
         .ap_req             (ap_req),
@@ -520,7 +574,7 @@ module dorado_rtl_top
     // the clock after (step_done, as before).
     logic               io_tick_early, io_tick_early_q;
     always_ff @(posedge clk) io_tick_early_q <= core_rst ? 1'b0 : io_tick_early;
-    wire                io_tick = clk_en && io_bridge_en &&
+    wire                io_tick = clk_en && (io_bridge_en || disk_bridge_en) &&
                                   (io_tick_early || (step_done && !io_tick_early_q));
     always_ff @(posedge clk) begin
         if (core_rst) begin
@@ -540,11 +594,39 @@ module dorado_rtl_top
         end
     end
 
-    dorado_rtl_io u_io (
+    // ---- the disk engine's pack memory ------------------------------------
+    // Simulation (DORADO_DISK_DPI): the lock-step harness's copy of the pack.
+    // MiSTer (EXT_STORAGE): DDR, the pack at byte 0x3100_0000 (dorado-hps puts
+    // it there), shared with the mailbox on the storage engine's aux port.
+    // Otherwise every beat reads zero.
+`ifdef DORADO_DISK_DPI
+    import "DPI-C" function longint dpi_disk_beat_read(input int addr);
+    import "DPI-C" function void    dpi_disk_beat_write(input int addr, input longint data, input int be);
+    always_ff @(posedge clk) begin
+        disk_mem_ack <= 1'b0;
+        if (disk_mem_req && !disk_mem_ack) begin
+            if (disk_mem_we) dpi_disk_beat_write(int'(disk_mem_addr), disk_mem_wdata, int'(disk_mem_be));
+            else             disk_mem_rdata <= dpi_disk_beat_read(int'(disk_mem_addr));
+            disk_mem_ack <= 1'b1;
+        end
+    end
+`else
+    generate
+        if (!EXT_STORAGE) begin : g_disk_zero
+            always_ff @(posedge clk) begin
+                disk_mem_ack   <= disk_mem_req && !disk_mem_ack;
+                disk_mem_rdata <= 64'd0;
+            end
+        end
+    endgenerate
+`endif
+
+    dorado_rtl_io #(.DISK_PACK_BEAT_BASE(DISK_PACK_BASE)) u_io (
         .clk                     (clk),
         .rst                     (core_rst),
         .clk_en                  (io_tick),
         .cycles                  (dbg_cycles),
+        .disk_time               (disk_time_ext_en ? disk_time : dbg_cycles),
 
         .io_read_task            (cpu_io_read_task),
         .io_read_subtask         (cpu_io_read_subtask),
@@ -598,6 +680,13 @@ module dorado_rtl_top
         .disk_cur_sector_out     (disk_cur_sector_out),
         .disk_sector_read_req    (disk_sector_read_req),
         .disk_sector_write_req   (disk_sector_write_req),
+        .disk_mem_req            (disk_mem_req),
+        .disk_mem_we             (disk_mem_we),
+        .disk_mem_addr           (disk_mem_addr),
+        .disk_mem_wdata          (disk_mem_wdata),
+        .disk_mem_be             (disk_mem_be),
+        .disk_mem_ack            (disk_mem_ack),
+        .disk_mem_rdata          (disk_mem_rdata),
         .fb_rd_addr              (fb_rd_addr),
         .fb_rd_data              (fb_rd_data),
         .io_busy                 (io_busy),

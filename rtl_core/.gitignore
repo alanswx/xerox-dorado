@@ -11,3 +11,8 @@ obj_hps/
 hps/dorado-hps
 init_cedar/
 obj_dump/
+# generated board checkpoints (sim_cedar.cpp CEDAR_DUMP_INIT) and build trees
+init_smalltalk/
+init_smalltalk.old/
+init_lisp/
+obj_*/

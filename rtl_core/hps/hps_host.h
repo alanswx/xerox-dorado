@@ -13,13 +13,18 @@ struct hps_transport {
     volatile uint64_t *mb;        // the mailbox, beat 0 = control
     volatile uint16_t *storage;   // storage word 0
     size_t             storage_words;
+    volatile uint64_t *pack;      // the Trident pack image (dorado_rtl_io's sector engine), or null
+    size_t             pack_beats;
     void (*wait)(void *ctx);      // called while waiting on the FPGA
     void *ctx;
 };
 
 struct hps_config {
     const char *snapshot;         // paths are relative to the dorado/ directory
-    const char *pdi;
+    const char *pdi;              // Pilot PDI (Cedar), or null
+    const char *pack;             // Trident pack on drive 0 (an Alto-world disk: Smalltalk), or null
+    const char *storage_image;    // raw storage words to load instead of the snapshot's (the
+                                  // native run the core's init came from), or null
     const char *ftp_root;
     const char *eb;
     const char *germ;

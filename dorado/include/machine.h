@@ -206,6 +206,9 @@ struct dorado_io *dorado_machine_io(dorado_machine *m);
 /* The display device (for framebuffer access / snapshot). */
 dorado_display *dorado_machine_display(dorado_machine *m);
 struct dorado_ethernet *dorado_machine_ethernet(dorado_machine *m);
+/* The DSK-task Trident controller (the RTL lock-step harness checks its
+ * own disk against it). A function, not a member: the snapshot ABI holds. */
+struct dorado_disk_controller *dorado_machine_disk(dorado_machine *m);
 
 /* Print a one-line Ethernet/EFTP/display state summary to stderr. */
 void dorado_machine_debug(dorado_machine *m);

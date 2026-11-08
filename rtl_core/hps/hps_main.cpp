@@ -42,6 +42,8 @@ extern "C" {
 static const off_t  DDR_PHYS   = 0x30000000;     // dorado_rtl_storage_ddr DDR_BASE
 static const size_t DDR_LEN    = 0x00810000;     // storage 8 MB + the mailbox
 static const size_t MB_OFFSET  = 0x00800000;     // dorado_rtl_mailbox MB_BASE
+static const off_t  PACK_PHYS  = 0x31000000;     // dorado_rtl_top DISK_PACK_BASE (beat 0x0620_0000)
+static const size_t PACK_LEN   = 0x04000000;     // 64 MB: a Trident pack's records
 
 static volatile sig_atomic_t want_pgm = 0;
 static void on_usr1(int) { want_pgm = 1; }
@@ -64,12 +66,14 @@ int main(int argc, char **argv) {
     int click_x = -1, click_y = -1;
     std::string text;
     int c;
-    while ((c = getopt(argc, argv, "d:f:q:p:s:c:t:")) != -1) {
+    const char *world = "cedar";
+    while ((c = getopt(argc, argv, "d:f:q:p:s:c:t:w:")) != -1) {
         switch (c) {
         case 'd': dir = optarg; break;
         case 'f': ftp_root = optarg; break;
         case 'q': quantum = (unsigned)atoi(optarg); break;
         case 'p': germ_poll = strtoull(optarg, nullptr, 0); break;
+        case 'w': world = optarg; break;
         case 's': every = atof(optarg); break;
         case 'c': sscanf(optarg, "%d,%d", &click_x, &click_y); break;
         case 't':
@@ -79,7 +83,7 @@ int main(int argc, char **argv) {
             }
             break;
         default:
-            fprintf(stderr, "usage: %s [-d DIR] [-f FTP_ROOT] [-q QUANTUM] [-p GERM_POLL] [-s SECONDS]\n", argv[0]);
+            fprintf(stderr, "usage: %s [-w cedar|smalltalk|lisp] [-d DIR] [-f FTP_ROOT] [-q QUANTUM] [-p GERM_POLL] [-s SECONDS]\n", argv[0]);
             return 2;
         }
     }
@@ -97,14 +101,48 @@ int main(int argc, char **argv) {
     t.mb = (volatile uint64_t *)((char *)p + MB_OFFSET);
     t.storage = (volatile uint16_t *)p;
     t.storage_words = 4u << 20;
+    t.pack = nullptr;
+    t.pack_beats = 0;
     t.wait = wait_fn;
     t.ctx = nullptr;
     hps_config cfg;
+    cfg.pack = nullptr;
+    cfg.storage_image = nullptr;
+    const bool lisp_w = !strcmp(world, "lisp");
+    if (!strcmp(world, "smalltalk") || lisp_w) {
+        // Smalltalk-76 (the CORE=smalltalk build): the XM Smalltalk pack on
+        // drive 0, served by the core's own Trident controller from DDR
+        void *pp = mmap(nullptr, PACK_LEN, PROT_READ | PROT_WRITE, MAP_SHARED, fd, PACK_PHYS);
+        if (pp == MAP_FAILED) { perror("mmap pack"); return 1; }
+        t.pack = (volatile uint64_t *)pp;
+        t.pack_beats = PACK_LEN / 8;
+        cfg.snapshot = "build/good-packs/smalltalk76.snap";
+        cfg.pdi = nullptr;
+        if (access("build/good-packs/smalltalk76.storage", R_OK) == 0)
+            cfg.storage_image = "build/good-packs/smalltalk76.storage";
+        cfg.pack = "build/good-packs/smalltalk76.pack";
+        cfg.ftp_root = nullptr;
+        cfg.eb = "../chm/microcode/SmalltalkDorado.eb!1";
+        cfg.germ = nullptr;
+        if (lisp_w) {
+            // Interlisp-D Lyric, full library (the CORE=lisp build): the Alto
+            // emulator on its Trident pack, Leaf/STP from FTP_ROOT (-f)
+            cfg.snapshot = "build/good-packs/lisp-lyric-full.snap";
+            if (access("build/good-packs/lisp-lyric-full.storage", R_OK) == 0)
+                cfg.storage_image = "build/good-packs/lisp-lyric-full.storage";
+            cfg.pack = "build/good-packs/lisp-lyric-full.pack";
+            cfg.eb = "worlds/aemu.eb";
+            // the Cedar tree is the default -f; Lisp's own is chm/lisp/ftp-root
+            cfg.ftp_root = strcmp(ftp_root, "../chm/cedar/stp-root") ? ftp_root : "../chm/lisp/ftp-root";
+            setenv("DORADO_DISPM_PRESENT", "1", 1);
+        }
+    } else {
     cfg.snapshot = "build/good-packs/cedar-desktop.snap";
     cfg.pdi = "build/good-packs/cedar-desktop.pdi";
     cfg.ftp_root = ftp_root;
     cfg.eb = "../chm/dorado/CedarDorado.eb!6";
     cfg.germ = "../chm/cedar/germ-alt/Dorado.germ-6.1.6";
+    }
     cfg.quantum = quantum;
     cfg.germ_poll = germ_poll;
     const bool scripted = click_x >= 0 || !text.empty();
@@ -166,7 +204,7 @@ int main(int argc, char **argv) {
             } else if (click == 1 && tn - tclick >= 0.3) {
                 dorado_machine_set_mouse(M, click_x, click_y, DORADO_MOUSE_LEFT);
                 click = 2; tclick = tn;
-            } else if (click == 2 && tn - tclick >= 0.3) {
+            } else if (click == 2 && tn - tclick >= (getenv("HPS_CLICK_HOLD") ? atof(getenv("HPS_CLICK_HOLD")) : 0.3)) {
                 dorado_machine_set_mouse(M, click_x, click_y, 0);
                 click = 3;
                 printf("[hps] clicked (%d,%d)\n", click_x, click_y);

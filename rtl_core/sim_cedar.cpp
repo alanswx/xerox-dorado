@@ -53,15 +53,22 @@ extern "C" {
 #include "machine.h"
 #include "typetext.h"
 #include "ethernet.h"
+#include "disk.h"
 }
 
 #include "cosim_sync.h"
+#include "Vdorado_rtl_top__Dpi.h"
 
 static Vdorado_rtl_top *top;
 static dorado_machine  *M;
 static dorado_cpu      *C;
 static dorado_memory   *MEM;
 static dorado_io       *IO;
+// SIM_DISK_RTL=1: the RTL's own Trident controller is the disk (see below)
+static bool            disk_rtl = false;
+static const uint16_t  DSK_BIT = 1u << 014;   // the DSK task's wakeup
+static dorado_disk_controller *CD = nullptr;  // the C machine's Trident controller (Alto worlds)
+static bool sync_disk();
 
 // ---- slow-I/O capture --------------------------------------------------------
 struct io_cap {
@@ -186,9 +193,14 @@ static void copy_host_pokes() {
     for (int i = 0; i < STK_SIZE; i++) {
         if (R_CPU(STK)[i] != C->STK[i]) { R_CPU(STK)[i] = C->STK[i]; ps.stk++; }
     }
-    if (R_CPU(wakeup_pending) != C->wakeup_pending) {
-        R_CPU(wakeup_pending) = C->wakeup_pending;
-        ps.wakeup++;
+    {
+        // with the RTL disk, its own wakeup (task 014) is the RTL's to raise
+        const uint16_t keep = disk_rtl ? DSK_BIT : 0;
+        const uint16_t want = (uint16_t)((C->wakeup_pending & ~keep) | (R_CPU(wakeup_pending) & keep));
+        if (R_CPU(wakeup_pending) != want) {
+            R_CPU(wakeup_pending) = want;
+            ps.wakeup++;
+        }
     }
     if (R_CPU(ready) != C->ready) { R_CPU(ready) = C->ready; ps.ready++; }
     if (R_CPU(reschedule_pending) != C->reschedule_pending) {
@@ -276,10 +288,11 @@ static void port_host_pokes() {
     for (int i = 0; i < STK_SIZE; i++) {
         if (R_CPU(STK)[i] != C->STK[i]) { R_CPU(STK)[i] = C->STK[i]; ps.stk++; pst.unported++; }
     }
-    if (R_CPU(wakeup_pending) != C->wakeup_pending) {
-        uint16_t r = R_CPU(wakeup_pending), c = C->wakeup_pending;
+    if (((R_CPU(wakeup_pending) ^ C->wakeup_pending) & ~(disk_rtl ? DSK_BIT : 0)) != 0) {
+        const uint16_t keep = disk_rtl ? DSK_BIT : 0;
+        uint16_t r = R_CPU(wakeup_pending) & ~keep, c = C->wakeup_pending & ~keep;
         ps.wakeup++;
-        if (r & ~c) { R_CPU(wakeup_pending) = c; pst.unported++; }
+        if (r & ~c) { R_CPU(wakeup_pending) = (uint16_t)(c | (R_CPU(wakeup_pending) & keep)); pst.unported++; }
         else { hp_op(AP_WAKEUP_OR, 0, (uint16_t)(c & ~r), 0); pst.wakeup++; }
     }
     if (R_CPU(reschedule_pending) != C->reschedule_pending) {
@@ -778,9 +791,19 @@ static void dump_checkpoint(const char *dir) {
     DI(eth_rx_count); DI(eth_rx_pos);
 #undef DI
     sync_display();
+    if (CD) sync_disk();       // an Alto-world (Trident) disk: Smalltalk
     fclose(ck_f);
     dump("eth_rx_words.hex",     [&](int i){ return R_IO(eth_rx_words)[i]; }, 4096, 4);
     dump("eth_rx_attention.hex", [&](int i){ return R_IO(eth_rx_attention)[i]; }, 4096, 1);
+
+    // the storage the core powers up beside, as raw little-endian words: the
+    // ARM's dorado-hps loads DDR from it (its own restore is a wasm32 bake of
+    // the world, which need not match this native one word for word)
+    path = std::string(dir) + "/storage.bin";
+    if (FILE *sf = fopen(path.c_str(), "wb")) {
+        fwrite(MEM->storage, sizeof(uint16_t), MEM->storage_words, sf);
+        fclose(sf);
+    }
 
     path = std::string(dir) + "/start.txt";
     FILE *f = fopen(path.c_str(), "w");
@@ -828,7 +851,8 @@ static bool host_pokes_pending() {
     if (!host_writes.empty()) return true;
     if (memcmp(C->RM, c_after.RM, sizeof(C->RM)) != 0) return true;
     if (memcmp(C->STK, c_after.STK, sizeof(C->STK)) != 0) return true;
-    return C->wakeup_pending != c_after.wakeup_pending || C->ready != c_after.ready ||
+    if (((C->wakeup_pending ^ c_after.wakeup_pending) & ~(disk_rtl ? DSK_BIT : 0)) != 0) return true;
+    return C->ready != c_after.ready ||
            C->reschedule_pending != c_after.reschedule_pending ||
            C->junk_tw_enabled != c_after.junk_tw_enabled ||
            C->junk_tw_countdown != c_after.junk_tw_countdown;
@@ -874,12 +898,294 @@ static int rtl_catch_up(bool hold_next) {
     return 0;
 }
 
+// ---- the RTL Trident controller (SIM_DISK_RTL=1) ------------------------------
+// The RTL's own disk answers the disk's slow I/O (disk_bridge_en) while the C
+// devices answer the rest, and rotates on the C disk's clock (bb.cycles). Its
+// sectors come from a private copy of the C machine's pack through DPI (the
+// load-at-start / commit-at-end protocol a board sector engine implements),
+// so the two disks never share media and a wrong write shows as a difference.
+// The C disk's DSK wakeup is not poked into the RTL; the RTL raises its own.
+// After every step the two controllers are compared field by field.
+static dorado_disk_pack rtl_pack[DORADO_DISK_NUM_DRIVES];
+static bool rtl_pack_ok[DORADO_DISK_NUM_DRIVES];
+static uint64_t rtl_disk_loads = 0, rtl_disk_words_put = 0, disk_compares = 0;
+
+// The pack image as the engine addresses it (dorado_rtl_io, the sector data
+// engine): drive d at DISK_DRIVE_BEATS * d (DISK_PACK_BEAT_BASE is 0 here),
+// a record per sector in the pack's flat CHS order, header | label | data,
+// ceil(words / 4) beats each, word 4b+l in lane l.
+static const uint32_t SIM_DRIVE_BEATS = 0x00800000u;
+static bool rtl_beat_word(uint32_t addr, uint32_t lane, uint16_t **wp) {
+    *wp = nullptr;
+    uint32_t dv = addr / SIM_DRIVE_BEATS, off = addr % SIM_DRIVE_BEATS;
+    if (dv >= (uint32_t)DORADO_DISK_NUM_DRIVES || !rtl_pack_ok[dv]) return false;
+    dorado_disk_pack *p = &rtl_pack[dv];
+    const int hw = dorado_disk_geom_header_words(&p->geometry);
+    const int lw = dorado_disk_geom_label_words(&p->geometry);
+    const int dw = dorado_disk_geom_data_words(&p->geometry);
+    const uint32_t stride = (uint32_t)(hw + lw + dw + 3) / 4;
+    const uint32_t rec = off / stride, wi = (off % stride) * 4 + lane;
+    if (rec >= (uint32_t)p->num_sectors) return false;
+    dorado_disk_sector *s = &p->sectors[rec];
+    if (wi < (uint32_t)hw) *wp = &s->header[wi];
+    else if (wi < (uint32_t)(hw + lw)) *wp = &s->label[wi - hw];
+    else if (wi < (uint32_t)(hw + lw + dw)) *wp = &s->data[wi - hw - lw];
+    return true;
+}
+extern "C" long long dpi_disk_beat_read(int addr) {
+    uint64_t v = 0;
+    rtl_disk_loads++;
+    for (uint32_t l = 0; l < 4; l++) {
+        uint16_t *w;
+        if (rtl_beat_word((uint32_t)addr, l, &w) && w) v |= (uint64_t)*w << (16 * l);
+    }
+    return (long long)v;
+}
+extern "C" void dpi_disk_beat_write(int addr, long long data, int be) {
+    for (uint32_t l = 0; l < 4; l++) {
+        if (((unsigned)be >> (2 * l) & 3) != 3) continue;
+        uint16_t *w;
+        if (rtl_beat_word((uint32_t)addr, l, &w) && w) {
+            *w = (uint16_t)((uint64_t)data >> (16 * l));
+            rtl_disk_words_put++;
+        }
+    }
+}
+
+// A deep copy of the C machine's pack, as it stands after the restore.
+static void copy_rtl_packs() {
+    for (int d = 0; d < DORADO_DISK_NUM_DRIVES; d++) {
+        const dorado_disk_pack *src = CD->drive[d].pack;
+        rtl_pack_ok[d] = false;
+        if (!src || !src->sectors) continue;
+        rtl_pack[d] = *src;
+        rtl_pack[d].path[0] = '\0';   // never saved
+        size_t n = (size_t)src->num_sectors * sizeof(dorado_disk_sector);
+        rtl_pack[d].sectors = (dorado_disk_sector *)malloc(n);
+        memcpy(rtl_pack[d].sectors, src->sectors, n);
+        rtl_pack_ok[d] = true;
+    }
+}
+
+#define DS(n, v)     do { if (ck_f) ds_emit(#n, -1, (uint64_t)(v)); else R_IO(n) = (v); } while (0)
+#define DSA(n, i, v) do { if (ck_f) ds_emit(#n, (i), (uint64_t)(v)); else R_IO(n)[i] = (v); } while (0)
+// The C controller's state into the RTL's (dorado_rtl_io's disk_* registers),
+// or, with ck_f open, into checkpoint_io.svh.
+static bool sync_disk() {
+    if (CD->read_stream_active || CD->write_stream_active) {
+        fprintf(stderr, "[disk] a transfer is in progress at the checkpoint; not synced\n");
+        return false;
+    }
+    DS(disk_selected_drive, CD->selected_drive & 3);
+    for (int i = 0; i < 4; i++) {
+        const dorado_disk_drive *d = &CD->drive[i];
+        const dorado_disk_geometry *g = d->pack ? &d->pack->geometry : nullptr;
+        DSA(disk_drv_online, i, d->online ? 1 : 0);
+        DSA(disk_drv_selected, i, d->selected ? 1 : 0);
+        DSA(disk_drv_read_only, i, d->read_only ? 1 : 0);
+        DSA(disk_drv_head_ovfl, i, d->head_overflow ? 1 : 0);
+        DSA(disk_drv_media, i, d->pack ? 1 : 0);
+        DSA(disk_drv_cyls, i, g ? (g->cylinders & 0xFFF) : 0);
+        if (g) {
+            DSA(disk_drv_heads, i, g->heads & 0x3F);
+            DSA(disk_drv_sectors, i, g->sectors & 0x7F);
+            DSA(disk_drv_hdr_words, i, dorado_disk_geom_header_words(g) & 0xF);
+            DSA(disk_drv_lbl_words, i, dorado_disk_geom_label_words(g) & 0x1F);
+            DSA(disk_drv_data_words, i, dorado_disk_geom_data_words(g) & 0x7FF);
+            DSA(disk_drv_is_diablo, i, (g->sectors == 29 && dorado_disk_geom_header_words(g) == 2 &&
+                                            dorado_disk_geom_label_words(g) == 8 &&
+                                            dorado_disk_geom_data_words(g) == 256) ? 1 : 0);
+        }
+        DSA(disk_drv_sectors_per_rev, i, d->sectors_per_revolution & 0x7F);
+        DSA(disk_drv_subsector_cnt, i, d->subsector_count & 0x3F);
+        DSA(disk_drv_cur_cyl, i, d->cur_cyl & 0xFFF);
+        DSA(disk_drv_cur_head, i, d->cur_head & 0x3F);
+        DSA(disk_drv_cur_sector, i, d->cur_sector & 0x7F);
+        DSA(disk_drv_seek_in_prog, i, d->seek_in_progress);
+        DSA(disk_drv_index_pulse, i, d->index_pulse ? 1 : 0);
+    }
+    DS(disk_control, CD->control);
+    DS(disk_tag, CD->tag);
+    DS(disk_muff_addr, CD->muff_addr);
+    for (int i = 0; i < DORADO_DISK_FORMAT_RAM_WORDS; i++) DSA(disk_format_ram, i, CD->format_ram[i]);
+    DS(disk_format_ram_addr, CD->format_ram_addr & 0xF);
+    DS(disk_enable_run, CD->enable_run);
+    DS(disk_debug_mode, CD->debug_mode);
+    DS(disk_block_till_index, CD->block_till_index);
+    DS(disk_active, CD->active);
+    DS(disk_xfer_pending, CD->xfer_pending);
+    DS(disk_restore_pending, CD->restore_pending);
+    DS(disk_transfer_restore, CD->transfer_restore);
+    DS(disk_restore_hdr_check, CD->restore_header_check);
+    DS(disk_index_tw, CD->index_tw);
+    DS(disk_sector_tw, CD->sector_tw);
+    DS(disk_tag_tw, CD->tag_tw);
+    DS(disk_rd_fifo_tw, CD->rd_fifo_tw);
+    DS(disk_wr_fifo_tw, CD->wr_fifo_tw);
+    DS(disk_compare_err, CD->compare_err);
+    DS(disk_read_data_err, CD->read_data_err);
+    DS(disk_fifo_underflow, CD->fifo_underflow);
+    DS(disk_fifo_overflow, CD->fifo_overflow);
+    for (int i = 0; i < DORADO_DISK_FIFO_WORDS; i++) DSA(disk_fifo, i, CD->fifo[i]);
+    DS(disk_fifo_head, CD->fifo_head);
+    DS(disk_fifo_tail, CD->fifo_tail);
+    DS(disk_fifo_count, CD->fifo_count);
+    DS(disk_read_stream_active, 0);
+    DS(disk_read_block_framing, CD->read_block_framing);
+    DS(disk_read_stream_index, CD->read_stream_index);
+    DS(disk_write_stream_active, 0);
+    DS(disk_write_block_framing, CD->write_block_framing);
+    DS(disk_write_stream_index, CD->write_stream_index);
+    DS(disk_current_block, CD->current_block & 7);
+    DS(disk_current_block_op, CD->current_block_op & 3);
+    DS(disk_current_block_words, CD->current_block_words);
+    DS(disk_current_block_pos, CD->current_block_pos);
+    DS(disk_current_block_prefix, CD->current_block_prefix);
+    DS(disk_current_block_trailer, CD->current_block_trailer & 0xF);
+    // dumping a checkpoint for the board: unarmed, so the RTL arms on its own
+    // microinstruction count at its real 3600 RPM (C's clock is bb.cycles)
+    DS(disk_next_sector_cycle, ck_f ? 0 : CD->next_sector_cycle);
+    return true;
+}
+
+#undef DS
+#undef DSA
+
+// The disk engine works between ticks (io_busy holds the CPU's next
+// instruction until it is done): clock it to idle before comparing, holding
+// the CPU as rtl_settle does.
+static void rtl_drain_disk() {
+    if (!R_IO(disk_eng_busy) && !R_IO(disk_stage)) return;
+    const uint8_t prev = top->hp_hold;
+    top->hp_hold = 1;
+    for (int i = 0; i < 65536 && (R_IO(disk_eng_busy) || R_IO(disk_stage)); i++) {
+        top->clk = 1; top->eval();
+        top->clk = 0; top->eval();
+        rtl_fabric_clocks++;
+        if (top->step_done) rtl_step_seen = true;
+    }
+    if (R_IO(disk_eng_busy) || R_IO(disk_stage)) fprintf(stderr, "[disk] the engine is still busy after 65536 clocks\n");
+    top->hp_hold = prev;
+    top->eval();
+}
+
+// The two controllers field by field; prints every difference.
+static bool compare_disk(uint64_t step) {
+    disk_compares++;
+    bool ok = true;
+    auto chk = [&](const char *f, uint64_t c, uint64_t r) {
+        if (c == r) return;
+        if (ok) fprintf(stderr, "[disk] step %llu: the RTL disk differs from the C disk (pc_before=0%o task=%u):\n",
+                        (unsigned long long)step, (unsigned)pend_pc, (unsigned)pend_task);
+        fprintf(stderr, "    %-22s C=0%llo RTL=0%llo\n", f, (unsigned long long)c, (unsigned long long)r);
+        ok = false;
+    };
+    const int sd = CD->selected_drive & 3;
+    const dorado_disk_drive *d = &CD->drive[sd];
+    chk("selected_drive", sd, R_IO(disk_selected_drive));
+    chk("drv.cur_cyl", d->cur_cyl & 0xFFF, R_IO(disk_drv_cur_cyl)[sd]);
+    chk("drv.cur_head", d->cur_head & 0x3F, R_IO(disk_drv_cur_head)[sd]);
+    chk("drv.cur_sector", d->cur_sector & 0x7F, R_IO(disk_drv_cur_sector)[sd]);
+    chk("drv.sectors_per_rev", d->sectors_per_revolution & 0x7F, R_IO(disk_drv_sectors_per_rev)[sd]);
+    chk("drv.seek_in_progress", (uint64_t)(int64_t)d->seek_in_progress, (uint64_t)(int64_t)(int32_t)R_IO(disk_drv_seek_in_prog)[sd]);
+    chk("drv.head_overflow", d->head_overflow ? 1 : 0, R_IO(disk_drv_head_ovfl)[sd]);
+    chk("control", CD->control, R_IO(disk_control));
+    chk("tag", CD->tag, R_IO(disk_tag));
+    chk("muff_addr", CD->muff_addr, R_IO(disk_muff_addr));
+    chk("format_ram_addr", CD->format_ram_addr & 0xF, R_IO(disk_format_ram_addr));
+    for (int i = 0; i < DORADO_DISK_FORMAT_RAM_WORDS; i++) {
+        char nm[32]; snprintf(nm, sizeof nm, "format_ram[%d]", i);
+        chk(nm, CD->format_ram[i], R_IO(disk_format_ram)[i]);
+    }
+    chk("enable_run", CD->enable_run, R_IO(disk_enable_run));
+    chk("debug_mode", CD->debug_mode, R_IO(disk_debug_mode));
+    chk("block_till_index", CD->block_till_index, R_IO(disk_block_till_index));
+    chk("active", CD->active, R_IO(disk_active));
+    chk("xfer_pending", CD->xfer_pending, R_IO(disk_xfer_pending));
+    chk("restore_pending", CD->restore_pending, R_IO(disk_restore_pending));
+    chk("transfer_restore", CD->transfer_restore, R_IO(disk_transfer_restore));
+    chk("index_tw", CD->index_tw, R_IO(disk_index_tw));
+    chk("sector_tw", CD->sector_tw, R_IO(disk_sector_tw));
+    chk("tag_tw", CD->tag_tw, R_IO(disk_tag_tw));
+    chk("rd_fifo_tw", CD->rd_fifo_tw, R_IO(disk_rd_fifo_tw));
+    chk("wr_fifo_tw", CD->wr_fifo_tw, R_IO(disk_wr_fifo_tw));
+    chk("compare_err", CD->compare_err, R_IO(disk_compare_err));
+    chk("read_data_err", CD->read_data_err, R_IO(disk_read_data_err));
+    chk("fifo_underflow", CD->fifo_underflow, R_IO(disk_fifo_underflow));
+    chk("fifo_overflow", CD->fifo_overflow, R_IO(disk_fifo_overflow));
+    chk("fifo_count", (uint64_t)CD->fifo_count, (uint64_t)(int64_t)(int32_t)R_IO(disk_fifo_count));
+    if (CD->fifo_count == (int)R_IO(disk_fifo_count)) {
+        for (int i = 0; i < CD->fifo_count; i++) {
+            char nm[32]; snprintf(nm, sizeof nm, "fifo+%d", i);
+            chk(nm, CD->fifo[(CD->fifo_tail + i) % DORADO_DISK_FIFO_WORDS],
+                R_IO(disk_fifo)[(R_IO(disk_fifo_tail) + i) % DORADO_DISK_FIFO_WORDS]);
+        }
+    }
+    chk("read_stream_active", CD->read_stream_active, R_IO(disk_read_stream_active));
+    chk("read_stream_index", (uint64_t)CD->read_stream_index, (uint64_t)(int64_t)(int32_t)R_IO(disk_read_stream_index));
+    chk("write_stream_active", CD->write_stream_active, R_IO(disk_write_stream_active));
+    chk("write_stream_index", (uint64_t)CD->write_stream_index, (uint64_t)(int64_t)(int32_t)R_IO(disk_write_stream_index));
+    chk("current_block", CD->current_block & 7, R_IO(disk_current_block));
+    chk("current_block_op", CD->current_block_op & 3, R_IO(disk_current_block_op));
+    chk("current_block_words", CD->current_block_words, R_IO(disk_current_block_words));
+    chk("current_block_pos", CD->current_block_pos, R_IO(disk_current_block_pos));
+    chk("current_block_prefix", CD->current_block_prefix, R_IO(disk_current_block_prefix));
+    chk("current_block_trailer", CD->current_block_trailer & 0xF, R_IO(disk_current_block_trailer));
+    chk("next_sector_cycle", CD->next_sector_cycle, R_IO(disk_next_sector_cycle));
+    return ok;
+}
+
+// The two packs, sector by sector (at the end of a run).
+static uint64_t compare_packs() {
+    uint64_t bad = 0;
+    for (int dv = 0; dv < DORADO_DISK_NUM_DRIVES; dv++) {
+        if (!rtl_pack_ok[dv] || !CD->drive[dv].pack) continue;
+        const dorado_disk_pack *c = CD->drive[dv].pack;
+        for (int i = 0; i < c->num_sectors; i++) {
+            const dorado_disk_sector *a = &c->sectors[i], *b = &rtl_pack[dv].sectors[i];
+            if (memcmp(a->header, b->header, sizeof a->header) || memcmp(a->label, b->label, sizeof a->label) ||
+                memcmp(a->data, b->data, sizeof a->data)) {
+                if (bad < 8) fprintf(stderr, "[disk] drive %d sector %d differs between the C and the RTL pack\n", dv, i);
+                bad++;
+            }
+        }
+    }
+    return bad;
+}
+
 static int step_hook(dorado_machine *, int after) {
     if (!after) {
         bool rtl_ahead = false;
         if (rtl_pending) {
             bool hold = host_pokes_pending();
+            if (disk_rtl) top->disk_time = dorado_machine_cycles(M);
             if (rtl_catch_up(hold)) return 1;
+            if (disk_rtl) {
+                // SIM_DISK_TRACE=from,to: both controllers' block state per step
+                static long long tr_from = -1, tr_to = -1;
+                static bool tr_init = false;
+                if (!tr_init) { tr_init = true; if (const char *e = getenv("SIM_DISK_TRACE")) sscanf(e, "%lld,%lld", &tr_from, &tr_to); }
+                if ((long long)steps >= tr_from && (long long)steps <= tr_to) {
+                    fprintf(stderr, "[dtr] %llu pc=0%o t=%u io:%s tioa=0%o | C blk%u op%u pos%u/%u tr%u pf%u fifo%d rd%u wr%u wi%d act%u | R blk%u op%u pos%u/%u tr%u pf%u fifo%d rd%u wr%u wi%d act%u\n",
+                        (unsigned long long)steps, (unsigned)pend_pc, (unsigned)pend_task,
+                        cap.read_valid ? "IN" : "--", (unsigned)tioa_before,
+                        CD->current_block, CD->current_block_op, CD->current_block_pos, CD->current_block_words,
+                        CD->current_block_trailer, CD->current_block_prefix, CD->fifo_count,
+                        CD->read_stream_active, CD->write_stream_active, CD->write_stream_index, CD->active,
+                        (unsigned)R_IO(disk_current_block), (unsigned)R_IO(disk_current_block_op),
+                        (unsigned)R_IO(disk_current_block_pos), (unsigned)R_IO(disk_current_block_words),
+                        (unsigned)R_IO(disk_current_block_trailer), (unsigned)R_IO(disk_current_block_prefix),
+                        (int)R_IO(disk_fifo_count), (unsigned)R_IO(disk_read_stream_active),
+                        (unsigned)R_IO(disk_write_stream_active), (int)R_IO(disk_write_stream_index),
+                        (unsigned)R_IO(disk_active));
+                }
+            }
+            if (disk_rtl) rtl_drain_disk();
+            if (disk_rtl && !R_CPU(snap_valid) && !compare_disk(steps)) {
+                print_notes();
+                failed = true;
+                return 1;
+            }
             // the next instruction executed beside the finish: allowed only
             // when the C's devices changed nothing, so there is nothing to
             // poke -- and a diff of the RTL against the C now would see that
@@ -939,8 +1245,27 @@ int main(int argc, char **argv) {
     Verilated::commandArgs(argc, argv);
     setvbuf(stdout, nullptr, _IOLBF, 0);
     max_steps = argc > 1 ? strtoull(argv[1], nullptr, 0) : 2000000;
-    const char *snap = argc > 2 ? argv[2] : "build/good-packs/cedar-desktop.snap";
-    const char *pdi  = argc > 3 ? argv[3] : "build/good-packs/cedar-desktop.pdi";
+    // SIM_WORLD=smalltalk: the Smalltalk-76 desktop (SmalltalkDorado.eb!1 =
+    // DSemu, on the XM Smalltalk Trident pack), checkpoint from
+    // `dorado --snapshot-out` after `Bootfrom xmsmall.boot`. Argument 3 is
+    // then the Trident pack the checkpoint was taken against.
+    const char *world = getenv("SIM_WORLD") ? getenv("SIM_WORLD") : "cedar";
+    // SIM_WORLD=lisp: Interlisp-D Lyric (worlds/aemu.eb on its Trident pack,
+    // the Leaf/STP server on ../chm/lisp/ftp-root), as make verify-lisp-serve
+    // runs it; the caller sets DORADO_DISPM_PRESENT=1 and DORADO_FAKE_TIME.
+    const bool lisp = !strcmp(world, "lisp");
+    const bool smalltalk = !strcmp(world, "smalltalk");
+    const bool alto_disk = smalltalk || lisp;     // a Trident-pack world
+    if (!smalltalk && !lisp && strcmp(world, "cedar")) {
+        fprintf(stderr, "SIM_WORLD=%s: want cedar, smalltalk or lisp\n", world);
+        return 2;
+    }
+    const char *snap = argc > 2 ? argv[2] : smalltalk ? "build/good-packs/smalltalk76.snap"
+                                          : lisp ? "build/good-packs/lisp-lyric-full.snap"
+                                                 : "build/good-packs/cedar-desktop.snap";
+    const char *pdi  = argc > 3 ? argv[3] : smalltalk ? "build/good-packs/smalltalk76.pack"
+                                          : lisp ? "build/run-disks/lisp-lockstep.pack"
+                                                 : "build/good-packs/cedar-desktop.pdi";
     const char *ddir = getenv("DORADO_DIR") ? getenv("DORADO_DIR") : "../dorado";
     if (chdir(ddir) != 0) { perror(ddir); return 2; }
     if (const char *m = getenv("CEDAR_STORAGE_CHECK_MASK"))
@@ -953,16 +1278,25 @@ int main(int argc, char **argv) {
     cfg.boot_keys_count = 0;
     cfg.boot_keys[cfg.boot_keys_count++] = DORADO_KEY_NONE;   // --boot-reason disk
     cfg.alto_ether_boot = 0;                                   // --no-alto-boot
-    cfg.eth_boot_110 = "../chm/dorado/CedarDorado.eb!6";
-    cfg.germ_path = "../chm/cedar/germ-alt/Dorado.germ-6.1.6";
-    cfg.pilot_disk_pdi[0] = pdi;
-    cfg.ftp_root = "../chm/cedar/stp-root";
+    if (smalltalk) {
+        cfg.eth_boot_110 = "../chm/microcode/SmalltalkDorado.eb!1";
+        cfg.disk_pack[0] = pdi;                                // --disk 0=PACK
+    } else if (lisp) {
+        cfg.eth_boot_110 = "worlds/aemu.eb";
+        cfg.disk_pack[0] = pdi;
+        cfg.ftp_root = "../chm/lisp/ftp-root";
+    } else {
+        cfg.eth_boot_110 = "../chm/dorado/CedarDorado.eb!6";
+        cfg.germ_path = "../chm/cedar/germ-alt/Dorado.germ-6.1.6";
+        cfg.pilot_disk_pdi[0] = pdi;
+        cfg.ftp_root = "../chm/cedar/stp-root";
+    }
 
     M = dorado_machine_create(&cfg);
     if (!M) { fprintf(stderr, "machine create failed\n"); return 1; }
     if (dorado_machine_restore(M, snap) != 0) { fprintf(stderr, "restore %s failed\n", snap); return 1; }
-    dorado_machine_set_ftp_source(M, cfg.ftp_sysout, cfg.ftp_root);
-    (void)dorado_machine_set_pilot_disk(M, 0, pdi);
+    if (!alto_disk) (void)dorado_machine_set_pilot_disk(M, 0, pdi);
+    if (cfg.ftp_root) dorado_machine_set_ftp_source(M, cfg.ftp_sysout, cfg.ftp_root);
 
     C = (dorado_cpu *)dorado_machine_cpu(M);
     MEM = dorado_machine_memory(M);
@@ -985,6 +1319,35 @@ int main(int argc, char **argv) {
         fprintf(stderr, "[cedar] state differs right after the copy\n");
         return 1;
     }
+    if (alto_disk) CD = dorado_machine_disk(M);
+    if (getenv("SIM_DISK_RTL")) {
+        CD = dorado_machine_disk(M);
+        copy_rtl_packs();
+        if (!sync_disk()) return 1;
+        disk_rtl = true;
+        top->disk_bridge_en = 1;
+        top->disk_time_ext_en = 1;
+        top->disk_time = dorado_machine_cycles(M);
+        top->eval();
+        if (!compare_disk(0)) {
+            fprintf(stderr, "[disk] the RTL disk differs right after the sync\n");
+            return 1;
+        }
+        // SIM_DISPLAY_SHADOW=1: the RTL DDC starts from the C display's state
+        // and draws the world's own screen from the display tasks' Outputs and
+        // fast-I/O munches, beside the C (its answers and wakeups stay the C's)
+        if (getenv("SIM_DISPLAY_SHADOW")) {
+            sync_display();
+            top->eval();
+            printf("[disk] the RTL DDC shadows the display\n");
+        }
+        printf("[disk] the RTL Trident controller is the disk: drive %d cyl %d head %d sector %d, "
+               "%d sectors/rev, enable_run %d, next pulse at %llu\n",
+               CD->selected_drive, CD->drive[CD->selected_drive].cur_cyl,
+               CD->drive[CD->selected_drive].cur_head, CD->drive[CD->selected_drive].cur_sector,
+               CD->drive[CD->selected_drive].sectors_per_revolution, CD->enable_run,
+               (unsigned long long)CD->next_sector_cycle);
+    }
 
     // CEDAR_C_ONLY=1: run the C machine alone (same script), to check the
     // input against the native emulator quickly. CEDAR_UNTIL=<BaseBoard
@@ -1004,6 +1367,16 @@ int main(int argc, char **argv) {
         top->eth_local_host = dorado_machine_ethernet(M)->local_host;
         split_sync_ethernet();
         sync_display();
+        // a Trident-pack world: the RTL's own disk, as on the board (its pack
+        // copy behind the DPI model; the rotation unarmed, so it arms on the
+        // RTL's microinstruction count at the real rate)
+        if (CD && !disk_rtl) {
+            copy_rtl_packs();
+            if (sync_disk()) {
+                R_IO(disk_next_sector_cycle) = 0;
+                printf("[cedar] split: the RTL Trident controller is the disk\n");
+            }
+        }
         split_refresh_regs();
         if (const char *dir = getenv("CEDAR_DUMP_INIT")) {
             dump_checkpoint(dir);
@@ -1042,7 +1415,18 @@ int main(int argc, char **argv) {
     // the click at --type-at (+100M) run inline (move, 2M, press, hold
     // --key-hold 1.6M, release), the paste queued at --paste-at (+300M) and
     // pumped once per frame.
-    const bool ls = getenv("CEDAR_LS") != nullptr || getenv("CEDAR_CLICK") != nullptr;
+    // CEDAR_TYPE=<text> types it (\n = Return) at CEDAR_TYPE_AT (an absolute
+    // BaseBoard cycle; default 300M past the restore), one key transition
+    // every CEDAR_TYPE_PACE cycles (default 800K; the Alto worlds take 3M)
+    std::string type_text;
+    if (const char *t = getenv("CEDAR_TYPE")) {
+        for (const char *q = t; *q; q++) {
+            if (q[0] == '\\' && q[1] == 'n') { type_text += '\n'; q++; }
+            else type_text += *q;
+        }
+    }
+    const bool want_click = getenv("CEDAR_LS") != nullptr || getenv("CEDAR_CLICK") != nullptr;
+    const bool ls = want_click || !type_text.empty();
     int cx = 700, cy = 733;          // CEDAR_CLICK=x,y: click there instead, and type nothing
     if (const char *cc = getenv("CEDAR_CLICK")) sscanf(cc, "%d,%d", &cx, &cy);
     const uint64_t c0 = dorado_machine_cycles(M);
@@ -1069,26 +1453,69 @@ int main(int argc, char **argv) {
         uint64_t now = dorado_machine_cycles(M);
         if (!ls) continue;
         if (typed) dorado_typequeue_pump(&tq, M);
-        if (!clicked && now >= c0 + 100000000ull) {
+        if (!clicked && want_click && now >= c0 + 100000000ull) {
             clicked = true;
             printf("[cedar] click (%d,%d) at cycle %llu, step %llu\n", cx, cy,
                    (unsigned long long)now, (unsigned long long)steps);
             dorado_machine_set_mouse(M, cx, cy, 0);
             run_to(dorado_machine_cycles(M) + 2000000ull);
             dorado_machine_set_mouse(M, cx, cy, DORADO_MOUSE_LEFT);
-            run_to(dorado_machine_cycles(M) + 1600000ull);
+            // CEDAR_CLICK_HOLD=<BaseBoard cycles>: how long the button stays
+            // down (Smalltalk's browser wants ~40M, as verify-smalltalk-input's
+            // --drag-hold; Cedar's --key-hold is 1.6M)
+            const char *ch = getenv("CEDAR_CLICK_HOLD");
+            run_to(dorado_machine_cycles(M) + (ch ? strtoull(ch, nullptr, 0) : 1600000ull));
             dorado_machine_set_mouse(M, cx, cy, 0);
         }
-        if (!typed && !getenv("CEDAR_CLICK") && now >= c0 + 300000000ull) {
+        const uint64_t type_at = getenv("CEDAR_TYPE_AT") ? strtoull(getenv("CEDAR_TYPE_AT"), nullptr, 0)
+                                                          : c0 + 300000000ull;
+        if (!typed && (!type_text.empty() || !getenv("CEDAR_CLICK")) && now >= type_at) {
             typed = true;
             printf("[cedar] typing at cycle %llu, step %llu\n",
                    (unsigned long long)now, (unsigned long long)steps);
-            dorado_typequeue_start(&tq, "List [Cedar]<Cedar6.1>VersionMap>*\n", 800000ull, now);
+            const uint64_t pace = getenv("CEDAR_TYPE_PACE") ? strtoull(getenv("CEDAR_TYPE_PACE"), nullptr, 0) : 800000ull;
+            static std::string typing;   // the queue keeps a pointer to the text
+            typing = type_text.empty() ? std::string("List [Cedar]<Cedar6.1>VersionMap>*\n") : type_text;
+            dorado_typequeue_start(&tq, typing.c_str(), pace, now);
         }
     }
     double secs = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
 
     if (getenv("CEDAR_CENSUS")) census_report(top);
+    {
+        // what is on the screen: the C machine's display list (its memory is
+        // the RTL's, compared every step), and the RTL DDC's own framebuffer
+        int c_px = dorado_machine_render_display_list(M);
+        int rtl_px = 0;
+        for (int i = 0; i < 1024 * 808; i++) rtl_px += R_IO(fb)[i] & 1;
+        printf("[cedar] screen: %d display-list pixels (C), RTL DDC framebuffer %d lit\n", c_px, rtl_px);
+        // RTL_FB_OUT=path.pbm: the RTL DDC framebuffer; C_FB_OUT=path.pgm: the C's
+        if (const char *fbp = getenv("RTL_FB_OUT")) {
+            if (FILE *pf = fopen(fbp, "wb")) {
+                fprintf(pf, "P4\n1024 808\n");
+                for (int i = 0; i < (1024 * 808) / 8; i++) {
+                    int byte = 0;
+                    for (int k = 0; k < 8; k++) byte = (byte << 1) | (R_IO(fb)[i * 8 + k] & 1);
+                    fputc(byte, pf);
+                }
+                fclose(pf);
+            }
+        }
+        if (const char *cp = getenv("C_FB_OUT")) {
+            dorado_display_vblank(dorado_machine_display(M));
+            dorado_display_snapshot_pgm(dorado_machine_display(M), cp);
+        }
+    }
+    if (disk_rtl) {
+        uint64_t bad = compare_packs();
+        printf("[disk] RTL disk: %llu beats read, %llu words written, %llu step compares; "
+               "C disk: %llu read starts, %llu sectors written; packs %s (%llu sectors differ)\n",
+               (unsigned long long)rtl_disk_loads, (unsigned long long)rtl_disk_words_put,
+               (unsigned long long)disk_compares, (unsigned long long)CD->read_stream_starts,
+               (unsigned long long)CD->write_sectors_committed, bad ? "DIFFER" : "agree",
+               (unsigned long long)bad);
+        if (bad) failed = true;
+    }
     printf("[cedar] %llu microinstructions in lock-step, %.1f s (%.0f/s), %.2f fabric clocks each\n",
            (unsigned long long)steps, secs, steps / secs,
            steps ? (double)rtl_fabric_clocks / steps : 0.0);

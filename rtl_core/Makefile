@@ -102,7 +102,7 @@ CEDAR_STEPS  ?= 2000000
 $(CEDAR_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_cedar.cpp cosim_sync.h $(CEDAR_C_OBJS) roms/bootfile.hex
 	$(VERILATOR) --cc --exe --build -j 4 -O3 --x-assign fast --x-initial fast --noassert \
 	  -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-BLKSEQ -GPIPELINE=$(PIPE) \
-	  -GSTORAGE_WORDS=4194304 --top-module dorado_rtl_top -Mdir $(CEDAR_OBJ) \
+	  -GSTORAGE_WORDS=4194304 +define+DORADO_DISK_DPI --top-module dorado_rtl_top -Mdir $(CEDAR_OBJ) \
 	  -CFLAGS "$(CXXFLAGS) -DCOSIM_STORAGE_WORDS=4194304u" \
 	  $(SV_SRCS) sim_cedar.cpp $(abspath $(CEDAR_C_OBJS)) -o Vdorado_rtl_top
 
@@ -124,6 +124,23 @@ $(HPS_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.
 	  -CFLAGS "$(CXXFLAGS) -I$(abspath .)" \
 	  $(SV_SRCS) sim_hps.cpp $(abspath hps/hps_host.cpp) $(abspath $(CEDAR_C_OBJS)) -o Vdorado_rtl_top
 	ln -sfn ../init_cedar $(HPS_OBJ)/init
+
+# The same MiSTer configuration for the Smalltalk-76 desktop: the checkpoint
+# in init_smalltalk/ (`SIM_WORLD=smalltalk CEDAR_SPLIT=1 CEDAR_DISPLAY=1
+# CEDAR_DUMP_INIT=../rtl_core/init_smalltalk obj_cedar/Vdorado_rtl_top 0`), the
+# Trident controller in (no DORADO_NO_DISK) with its sector engine on the DDR
+# aux port, the pack in DDR at byte 0x3100_0000 (dorado-hps puts it there).
+HPS_ST_OBJ ?= obj_hps_st
+HPS_ST_INIT ?= init_smalltalk   # init_lisp for the Lisp rehearsal
+$(HPS_ST_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.cpp hps/hps_host.h $(CEDAR_C_OBJS) $(HPS_ST_INIT)/checkpoint_cpu.svh $(HPS_ST_INIT)/checkpoint_mem.svh
+	$(VERILATOR) --cc --exe --build -j 4 -O3 --x-assign fast --x-initial fast --noassert \
+	  -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-BLKSEQ -GPIPELINE=$(PIPE) \
+	  -GSTORAGE_WORDS=4194304 -GEXT_STORAGE=1 -GHPS_MAILBOX=1 \
+	  -DDORADO_INIT -DDORADO_CHECKPOINT -I$(abspath $(HPS_ST_INIT)) \
+	  --top-module dorado_rtl_top -Mdir $(HPS_ST_OBJ) \
+	  -CFLAGS "$(CXXFLAGS) -I$(abspath .)" \
+	  $(SV_SRCS) sim_hps.cpp $(abspath hps/hps_host.cpp) $(abspath $(CEDAR_C_OBJS)) -o Vdorado_rtl_top
+	ln -sfn ../$(HPS_ST_INIT) $(HPS_ST_OBJ)/init
 
 hps-sim: $(HPS_OBJ)/Vdorado_rtl_top
 	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./$(HPS_OBJ)/Vdorado_rtl_top $(HPS_STEPS)

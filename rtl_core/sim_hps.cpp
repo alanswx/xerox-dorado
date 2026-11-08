@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <chrono>
 #include <vector>
+#include <string>
 #include <map>
 #include <cstdio>
 #include <cstdlib>
@@ -36,6 +37,7 @@
 
 extern "C" {
 #include "machine.h"
+#include "cpu.h"
 #include "display.h"
 #include "memory.h"
 #include "typetext.h"
@@ -45,6 +47,14 @@ static Vdorado_rtl_top *top;
 static ddr_model *ddr;
 static uint64_t clocks;
 static int mouse_tx, mouse_ty, mouse_tb;   // scripted pointer target and buttons
+// The Alto-family worlds (dorado-hps takes their keyboard from the core's
+// status block): the script's own key matrix stands for the MiSTer's PS/2
+// keyboard and drives kbd_words, so the host's copy of the core's keyboard
+// is not fed back into it.
+static dorado_display *script_kbd;
+struct key_tr { uint64_t at; dorado_display_key key; int down; };
+static std::vector<key_tr> script_keys;
+static size_t script_key_i = 0;
 static bool     hist_on;
 static uint64_t hist[32];              // fabric clocks per CPU state
 static uint64_t trans[32][32], same[32];  // state changes; clocks a state repeated
@@ -179,7 +189,25 @@ static void clock_n(int n) {
         }
     }
 }
-static void wait_fn(void *) { clock_n(4); }
+static void wait_fn(void *) {
+    clock_n(4);
+    // HPS_PROGRESS: a host wait that lasts (a mailbox operation the core does
+    // not answer) shows the core's state every 2^20 clocks of it
+    static const bool progress = getenv("HPS_PROGRESS") != nullptr;
+    static uint64_t waits = 0;
+    if (progress && (++waits & 0x3FFFF) == 0) {
+#define RIO(x) top->rootp->dorado_rtl_top__DOT__u_io__DOT__##x
+#define RCP(x) top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__##x
+        fprintf(stderr, "  [wait] %llu: pc=0%o task=%u cpu st=%d io_busy %d ap_req %d ap_hold %d; disk eng busy %d st %d jobs %d%d%d mem_req %d ack %d aux_owner %d\n",
+                (unsigned long long)waits, (unsigned)top->dbg_real_pc, (unsigned)top->dbg_ctask, (int)RCP(st),
+                (int)RIO(io_busy), (int)RCP(ap_req), (int)RCP(ap_hold),
+                (int)RIO(disk_eng_busy), (int)RIO(disk_eng), (int)RIO(disk_job_commit), (int)RIO(disk_job_load),
+                (int)RIO(disk_job_refill), (int)RIO(disk_mem_req), (int)RIO(disk_mem_ack),
+                (int)top->rootp->dorado_rtl_top__DOT__aux_owner);
+#undef RIO
+#undef RCP
+    }
+}
 int main(int argc, char **argv) {
     Verilated::commandArgs(argc, argv);
     setvbuf(stdout, nullptr, _IOLBF, 0);
@@ -214,18 +242,101 @@ int main(int argc, char **argv) {
     t.mb = &ddr->mem[0x100000];                    // byte 0x3080_0000
     t.storage = (volatile uint16_t *)&ddr->mem[0];  // byte 0x3000_0000
     t.storage_words = 4u << 20;
+    t.pack = &ddr->mem[0x200000];                   // byte 0x3100_0000
+    t.pack_beats = (1u << 24) - 0x200000;
     t.wait = wait_fn;
     t.ctx = nullptr;
     hps_config cfg;
+    // SIM_WORLD=smalltalk: the Smalltalk-76 desktop (an obj_hps_st build)
+    const bool lisp_w = getenv("SIM_WORLD") && !strcmp(getenv("SIM_WORLD"), "lisp");
+    const bool smalltalk = lisp_w || (getenv("SIM_WORLD") && !strcmp(getenv("SIM_WORLD"), "smalltalk"));
+    cfg.pack = nullptr;
+    cfg.storage_image = nullptr;
+    if (smalltalk) {
+        cfg.snapshot = "build/good-packs/smalltalk76.snap";
+        cfg.pdi = nullptr;
+        cfg.pack = getenv("SIM_PACK") ? getenv("SIM_PACK") : "build/good-packs/smalltalk76.pack";
+        cfg.ftp_root = nullptr;
+        cfg.eb = "../chm/microcode/SmalltalkDorado.eb!1";
+        cfg.germ = nullptr;
+        if (lisp_w) {
+            cfg.snapshot = "build/good-packs/lisp-lyric-full.snap";
+            cfg.pack = getenv("SIM_PACK") ? getenv("SIM_PACK") : "build/run-disks/lisp-lockstep.pack";
+            cfg.eb = "worlds/aemu.eb";
+            cfg.ftp_root = "../chm/lisp/ftp-root";
+        }
+    } else {
     cfg.snapshot = "build/good-packs/cedar-desktop.snap";
     cfg.pdi = "build/good-packs/cedar-desktop.pdi";
     cfg.ftp_root = "../chm/cedar/stp-root";
     cfg.eb = "../chm/dorado/CedarDorado.eb!6";
     cfg.germ = "../chm/cedar/germ-alt/Dorado.germ-6.1.6";
+    }
     cfg.quantum = getenv("HPS_QUANTUM") ? (unsigned)atoi(getenv("HPS_QUANTUM")) : 1;
     cfg.germ_poll = getenv("HPS_GERM_POLL") ? strtoull(getenv("HPS_GERM_POLL"), nullptr, 0) : 0;
-    cfg.keyboard = 0;
+    // Smalltalk, like the board: dorado-hps takes the keyboard and the
+    // absolute mouse from the core's status block (dorado-hps -w smalltalk)
+    cfg.keyboard = smalltalk ? 1 : 0;
     if (hps_start(&cfg, &t) != 0) return 1;
+    // HPS_INITCHECK=1: the core as it powered up (init/, DORADO_CHECKPOINT)
+    // against the C machine dorado-hps restored: map, BRs, cache
+    if (getenv("HPS_INITCHECK")) {
+#define RM_(f) (top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__u_mem__DOT__##f)
+#define RC_(f) (top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__##f)
+        dorado_machine *Mi = (dorado_machine *)hps_machine();
+        const dorado_memory *cm = dorado_machine_memory(Mi);
+        int bad = 0;
+        for (int i = 0; i < DM_MAP_ENTRIES; i++) {
+            if (RM_(map_rp)[i] != cm->map[i].rp || RM_(map_wp)[i] != (cm->map[i].wp ? 1 : 0)) {
+                if (bad++ < 10) printf("[init] map[%06o] RTL rp %06o wp %d, C rp %06o wp %d\n", i,
+                                       (unsigned)RM_(map_rp)[i], (int)RM_(map_wp)[i], (unsigned)cm->map[i].rp, cm->map[i].wp ? 1 : 0);
+            }
+        }
+        printf("[init] map: %d entries differ\n", bad);
+        bad = 0;
+        for (int i = 0; i < DM_BR_COUNT; i++)
+            if (RC_(br)[i] != (cm->br[i] & 0x0FFFFFFFu) && bad++ < 10)
+                printf("[init] br[%02o] RTL %09o C %09o\n", i, (unsigned)RC_(br)[i], (unsigned)cm->br[i]);
+        printf("[init] BRs: %d differ\n", bad);
+        bad = 0;
+        for (int r = 0; r < DM_CACHE_ROWS; r++)
+            for (int w = 0; w < DM_CACHE_WAYS; w++) {
+                const auto &cw = cm->cache[r].ways[w];
+                bool d = RM_(cache_tag)[r][w] != (cw.tag & 0x3FFFFu) || RM_(cache_valid)[r][w] != (cw.valid ? 1 : 0) ||
+                         RM_(cache_dirty)[r][w] != (cw.dirty ? 1 : 0);
+                for (int k = 0; k < DM_CACHE_LINE_W; k++) {
+                    const int ix = r * 16 + k;
+                    const uint16_t v = (w == 0) ? RM_(cache_w0)[ix] : (w == 1) ? RM_(cache_w1)[ix] : (w == 2) ? RM_(cache_w2)[ix] : RM_(cache_w3)[ix];
+                    if (v != cw.data[k]) d = true;
+                }
+                if (d && bad++ < 6)
+                    printf("[init] cache row %d way %d: RTL tag %06o v%d d%d, C tag %06o v%d d%d\n", r, w,
+                           (unsigned)RM_(cache_tag)[r][w], (int)RM_(cache_valid)[r][w], (int)RM_(cache_dirty)[r][w],
+                           (unsigned)cw.tag, cw.valid ? 1 : 0, cw.dirty ? 1 : 0);
+            }
+        printf("[init] cache: %d lines differ (the core has run a little since go)\n", bad);
+        {
+            const dorado_cpu *cc = (const dorado_cpu *)dorado_machine_cpu(Mi);
+            int b2 = 0;
+            for (int i = 0; i < 256; i++)
+                if (RC_(RM)[i] != cc->RM[i] && b2++ < 12)
+                    printf("[init] RM[%03o] RTL %06o C %06o\n", i, (unsigned)RC_(RM)[i], (unsigned)cc->RM[i]);
+            printf("[init] RM: %d differ\n", b2);
+            b2 = 0;
+            for (int i = 0; i < 256; i++)
+                if (RC_(STK)[i] != cc->STK[i] && b2++ < 6)
+                    printf("[init] STK[%03o] RTL %06o C %06o\n", i, (unsigned)RC_(STK)[i], (unsigned)cc->STK[i]);
+            printf("[init] STK: %d differ\n", b2);
+            for (int t = 0; t < 16; t++)
+                if (RC_(task_t)[t] != cc->task_t[t] || RC_(task_tpc)[t] != cc->task_tpc[t] ||
+                    RC_(task_link)[t] != cc->task_link[t] || RC_(task_membase)[t] != cc->task_membase[t])
+                    printf("[init] task %2d: RTL T %06o TPC %05o Link %06o MB %02o | C T %06o TPC %05o Link %06o MB %02o\n", t,
+                           (unsigned)RC_(task_t)[t], (unsigned)RC_(task_tpc)[t], (unsigned)RC_(task_link)[t], (unsigned)RC_(task_membase)[t],
+                           (unsigned)cc->task_t[t], (unsigned)cc->task_tpc[t], (unsigned)cc->task_link[t], (unsigned)cc->task_membase[t]);
+        }
+#undef RM_
+#undef RC_
+    }
     dorado_machine *M = (dorado_machine *)hps_machine();
     const hps_stats *S = hps_get_stats();
 
@@ -238,9 +349,20 @@ int main(int argc, char **argv) {
     uint64_t next_frame = c0 + 2000000ull, next_report = 0;
     static dorado_typequeue tq;
     auto t0 = std::chrono::steady_clock::now();
+    // HPS_PROGRESS=n: every n host loops, where the core is (and the disk engine)
+    const long progress = getenv("HPS_PROGRESS") ? atol(getenv("HPS_PROGRESS")) : 0;
+    long loops = 0;
     while (S->rtl_cycles - start < want) {
         clock_n(2048);
         hps_poll();
+        if (progress && ++loops % progress == 0) {
+#define RIO(x) top->rootp->dorado_rtl_top__DOT__u_io__DOT__##x
+            fprintf(stderr, "  [prog] loop %ld: %llu microinstructions; pc=0%o task=%u; disk eng busy %d st %d jobs %d%d%d mem_req %d aux_owner %d\n",
+                    loops, (unsigned long long)(S->rtl_cycles - start), (unsigned)top->dbg_real_pc, (unsigned)top->dbg_ctask,
+                    (int)RIO(disk_eng_busy), (int)RIO(disk_eng), (int)RIO(disk_job_commit), (int)RIO(disk_job_load),
+                    (int)RIO(disk_job_refill), (int)RIO(disk_mem_req), (int)top->rootp->dorado_rtl_top__DOT__aux_owner);
+#undef RIO
+        }
         uint64_t now = dorado_machine_cycles(M);
         // HPS_KEYTEST: A held at the core's keyboard (terminal back channel)
         // from 2M to 4M microinstructions; KeyBits and the mouse read back
@@ -292,19 +414,26 @@ int main(int argc, char **argv) {
                     (unsigned long long)S->ops, (unsigned long long)S->reads,
                     (unsigned long long)S->stores, (unsigned long long)S->rx_packets);
         }
-        if (!ls && !getenv("HPS_CLICK")) continue;
+        if (!ls && !getenv("HPS_CLICK") && !getenv("HPS_TYPE")) continue;
         // Input reaches the core as the MiSTer's does: keyboard words and
         // mouse motion into dorado_rtl_top, where Cedar's display microcode
         // takes them from the terminal back channel. The script below drives
         // the C machine's keyboard words (the typing queue) and a target
         // pointer position; they are forwarded here.
         {
-            dorado_display *d = dorado_machine_display(M);
+            dorado_display *d = smalltalk ? script_kbd : dorado_machine_display(M);
             uint64_t kw = 0;
-            for (int i = 0; i < 4; i++) kw |= (uint64_t)dorado_display_keyboard_word(d, i) << (16 * i);
+            if (d) for (int i = 0; i < 4; i++) kw |= (uint64_t)dorado_display_keyboard_word(d, i) << (16 * i);
+            else kw = ~0ull;
             top->kbd_words = kw;
             static int sent_x = 0, sent_y = 0;          // Cedar's pointer starts at 0,0
-            if (mouse_tx != sent_x || mouse_ty != sent_y) {
+            if (smalltalk) {
+                // the Alto world's way (Dorado.sv DORADO_SMALLTALK): the
+                // absolute position and buttons, through the status block
+                top->mouse_present = 1;
+                top->mouse_x = (uint16_t)mouse_tx;
+                top->mouse_y = (uint16_t)mouse_ty;
+            } else if (mouse_tx != sent_x || mouse_ty != sent_y) {
                 int dx = mouse_tx - sent_x, dy = mouse_ty - sent_y;
                 if (dx > 127) dx = 127; else if (dx < -127) dx = -127;
                 if (dy > 127) dy = 127; else if (dy < -127) dy = -127;
@@ -324,20 +453,59 @@ int main(int argc, char **argv) {
             watch_on = S->rtl_cycles - start >= strtoull(wf, nullptr, 0);
         if (const char *pf = getenv("HPS_PCHIST_FROM"))
             pchist_on = S->rtl_cycles - start >= strtoull(pf, nullptr, 0);
-        if (click == 0 && now >= c0 + 100000000ull) {
+        if (click == 0 && (ls || getenv("HPS_CLICK")) && now >= c0 + (getenv("HPS_CLICK_AT") ? strtoull(getenv("HPS_CLICK_AT"), nullptr, 0) : 100000000ull)) {
             int cx = 700, cy = 733;
             if (const char *hc = getenv("HPS_CLICK")) sscanf(hc, "%d,%d", &cx, &cy);
             printf("[hps] click (%d,%d) at cycle %llu\n", cx, cy, (unsigned long long)now);
             mouse_tx = cx; mouse_ty = cy;
             click = 1; click_at = now;
-        } else if (click == 1 && now >= click_at + 20000000ull) {   // after the pointer arrives
+        } else if (click == 1 && now >= click_at + (getenv("HPS_CLICK_AT") ? 2000000ull : 20000000ull)) {   // after the pointer arrives
             mouse_tb = DORADO_MOUSE_LEFT;
             click = 2; click_at = now;
-        } else if (click == 2 && now >= click_at + 1600000ull) {
+        } else if (click == 2 && now >= click_at + (getenv("HPS_CLICK_HOLD") ? strtoull(getenv("HPS_CLICK_HOLD"), nullptr, 0) : 1600000ull)) {
             mouse_tb = 0;
             click = 3;
         }
-        if (!typed && !getenv("HPS_CLICK") && now >= c0 + 300000000ull) {
+        // HPS_TYPE=<text> (\n = Return) at HPS_TYPE_AT BaseBoard cycles after
+        // the start, one key transition per 3M cycles, through the core's
+        // keyboard inputs as the MiSTer's are
+        if (const char *ht = getenv("HPS_TYPE")) {
+            static std::string txt;
+            const uint64_t at = getenv("HPS_TYPE_AT") ? strtoull(getenv("HPS_TYPE_AT"), nullptr, 0) : 20000000ull;
+            if (!typed && now >= c0 + at) {
+                typed = true;
+                for (const char *q = ht; *q; q++) {
+                    if (q[0] == '\\' && q[1] == 'n') { txt += '\n'; q++; } else txt += *q;
+                }
+                printf("[hps] typing at cycle %llu\n", (unsigned long long)now);
+                if (smalltalk) {
+                    // a typist: key down 3M cycles, up, 3M before the next
+                    script_kbd = (dorado_display *)calloc(1, sizeof(dorado_display));
+                    dorado_display_keyboard_all_up(script_kbd);
+                    uint64_t t = now;
+                    for (char c : txt) {
+                        int shift = 0;
+                        dorado_display_key k = dorado_char_to_key(c, &shift);
+                        if (k == DORADO_KEY_NONE) continue;
+                        // shift goes down well before the key and up after it, as
+                        // a typist's does: a shift that changes in the same
+                        // terminal message as the key can reach the guest second
+                        if (shift) { script_keys.push_back({t, DORADO_KEY_LSHIFT, 1}); t += 3000000ull; }
+                        script_keys.push_back({t, k, 1});
+                        t += 3000000ull;
+                        script_keys.push_back({t, k, 0});
+                        t += 3000000ull;
+                        if (shift) { script_keys.push_back({t, DORADO_KEY_LSHIFT, 0}); t += 3000000ull; }
+                    }
+                } else {
+                    dorado_typequeue_start(&tq, txt.c_str(), 3000000ull, now);
+                }
+            }
+            while (script_kbd && script_key_i < script_keys.size() && now >= script_keys[script_key_i].at) {
+                dorado_display_keyboard_set_key(script_kbd, script_keys[script_key_i].key, script_keys[script_key_i].down);
+                script_key_i++;
+            }
+        } else if (!typed && !getenv("HPS_CLICK") && now >= c0 + 300000000ull) {
             typed = true;
             printf("[hps] typing at cycle %llu\n", (unsigned long long)now);
             dorado_typequeue_start(&tq, "List [Cedar]<Cedar6.1>VersionMap>*\n", 800000ull, now);
@@ -416,6 +584,23 @@ int main(int argc, char **argv) {
             fclose(f);
         }
         printf("[hps] RTL display controller: %d pixels -> %s\n", px, rtl);
+    }
+    // RTL_FB_OUT=f.pbm: the RTL DDC framebuffer (what the HDMI shows)
+    if (const char *fbp = getenv("RTL_FB_OUT")) {
+        int lit = 0;
+        if (FILE *pf = fopen(fbp, "wb")) {
+            fprintf(pf, "P4\n1024 808\n");
+            for (int i = 0; i < (1024 * 808) / 8; i++) {
+                int byte = 0;
+                for (int k = 0; k < 8; k++) {
+                    int b = top->rootp->dorado_rtl_top__DOT__u_io__DOT__fb[i * 8 + k] & 1;
+                    byte = (byte << 1) | b; lit += b;
+                }
+                fputc(byte, pf);
+            }
+            fclose(pf);
+        }
+        printf("[hps] RTL DDC framebuffer: %d lit -> %s\n", lit, fbp);
     }
     if (const char *pgm = getenv("CEDAR_PGM")) {
         int px = hps_snapshot_pgm(pgm);

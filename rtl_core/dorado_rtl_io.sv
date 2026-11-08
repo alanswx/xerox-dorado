@@ -22,11 +22,21 @@
 /* verilator lint_off BLKSEQ */
 module dorado_rtl_io
     import dorado_rtl_pkg::*;
+#(
+    // The Trident pack image, in beats (8 bytes) of the disk engine's memory
+    // port: drive d's records start at DISK_PACK_BEAT_BASE + d * DISK_DRIVE_BEATS.
+    parameter logic [28:0] DISK_PACK_BEAT_BASE = 29'd0,
+    parameter logic [28:0] DISK_DRIVE_BEATS    = 29'h0080_0000      // 64 MB
+)
 (
     input  logic           clk,
     input  logic           rst,
     input  logic           clk_en,
     input  logic [63:0]    cycles,
+    // The disk's rotation time base (sector/index pulses). The top drives
+    // `cycles` here, or, in lock-step against the C emulator, the C
+    // machine's own disk clock (bb.cycles), so the two disks spin alike.
+    input  logic [63:0]    disk_time,
 
     // Slow I/O Bus Interface (to/from dorado_rtl_cpu)
     input  logic [3:0]     io_read_task,
@@ -91,6 +101,15 @@ module dorado_rtl_io
     output logic [6:0]     disk_cur_sector_out,
     output logic           disk_sector_read_req,
     output logic           disk_sector_write_req,
+    // The disk engine's memory port: single 64-bit beats, a request held until
+    // its one-clock ack (the DDR storage engine's aux port protocol)
+    output logic           disk_mem_req,
+    output logic           disk_mem_we,
+    output logic [28:0]    disk_mem_addr,
+    output logic [63:0]    disk_mem_wdata,
+    output logic [7:0]     disk_mem_be,
+    input  logic           disk_mem_ack,
+    input  logic [63:0]    disk_mem_rdata,
 
     // Video scan-out: registered read of the 1-bpp framebuffer on clk,
     // independent of clk_en (a second port, so the DDC write is unaffected).
@@ -157,8 +176,9 @@ module dorado_rtl_io
     logic        wc_ch;
     logic [6:0]  wc_base;
     logic [4:0]  wc_n;
-    assign io_busy = clk_en || rj_start || wc_start || r_busy || eth_skip_busy;
-    assign io_jobs_busy = rj_start || wc_start || r_busy || eth_skip_busy;
+    logic disk_eng_hold;     // the disk engine is at work (see the sector data engine)
+    assign io_busy = clk_en || rj_start || wc_start || r_busy || eth_skip_busy || disk_eng_hold;
+    assign io_jobs_busy = rj_start || wc_start || r_busy || eth_skip_busy || disk_eng_hold;
     // r_busy: a framebuffer/copy job is queued or running (set below)
     // =========================================================================
     // 1. Constants & Device Address Definitions
@@ -365,6 +385,13 @@ module dorado_rtl_io
     // 4. Trident Disk Controller State
     // =========================================================================
     localparam int DISK_FIFO_WORDS       = 16;
+    // DiskControl per-block operations, as dorado/include/disk.h numbers them
+    // (DORADO_DISK_OP_*). The C encoding is the one every disk-booted world
+    // runs on; this RTL first had READ and WRITE the other way round.
+    localparam logic [1:0] DISK_OP_DONE  = 2'd0;
+    localparam logic [1:0] DISK_OP_WRITE = 2'd1;
+    localparam logic [1:0] DISK_OP_RDCHK = 2'd2;
+    localparam logic [1:0] DISK_OP_READ  = 2'd3;
     localparam int DISK_FORMAT_RAM_WORDS = 16;
     localparam int DISK_MAX_SECTOR_WORDS = 1048; // 2 hdr + 10 lbl + 1024 data + 12 trailer
 
@@ -380,7 +407,7 @@ module dorado_rtl_io
     logic [11:0] disk_drv_cur_cyl        [0:3];
     logic [5:0]  disk_drv_cur_head       [0:3];
     logic [6:0]  disk_drv_cur_sector     [0:3];
-    int          disk_drv_seek_in_prog   [0:3];
+    logic [7:0]  disk_drv_seek_in_prog   [0:3];
     logic        disk_drv_index_pulse    [0:3];
     logic        disk_drv_is_diablo      [0:3];
     logic [3:0]  disk_drv_hdr_words      [0:3];
@@ -415,16 +442,16 @@ module dorado_rtl_io
     logic        disk_fifo_overflow;
 
     logic [15:0] disk_fifo [0:DISK_FIFO_WORDS-1];
-    int          disk_fifo_head;
-    int          disk_fifo_tail;
-    int          disk_fifo_count;
+    logic [3:0]  disk_fifo_head;
+    logic [3:0]  disk_fifo_tail;
+    logic [4:0]  disk_fifo_count;
 
     logic        disk_read_stream_active;
     logic        disk_read_block_framing;
-    int          disk_read_stream_index;
+    logic [11:0] disk_read_stream_index;
     logic        disk_write_stream_active;
     logic        disk_write_block_framing;
-    int          disk_write_stream_index;
+    logic [11:0] disk_write_stream_index;
 
     logic [2:0]  disk_current_block;
     logic [1:0]  disk_current_block_op;
@@ -433,20 +460,132 @@ module dorado_rtl_io
     logic        disk_current_block_prefix;
     logic [3:0]  disk_current_block_trailer;
 
-    // Latched sector buffer (populated by C++ testbench or FPGA HPS disk backend)
-    logic [15:0] disk_sec_hdr  [0:1];
-    logic [15:0] disk_sec_lbl  [0:9];
-    logic [15:0] disk_sec_data [0:1023];
-    logic        disk_sec_valid;
+    // ---- The sector data engine ---------------------------------------------
+    // A transfer's sector lives in block RAM, one 64-bit pack beat (four words,
+    // word 4b+l in lane l) per entry, the record's words in pack order:
+    // header | label | data. The pack image is a flat array of such records in
+    // CHS order -- (cyl * heads + head) * sectors + (sector mod sectors), as
+    // disk.c's dorado_disk_pack_sector -- ceil(words / 4) beats each, reached
+    // through the beat port (disk_mem_*): DDR on the MiSTer, a DPI model in the
+    // lock-step harness.
+    //
+    // The tick only asks for work (disk_job_*). The engine does it between
+    // ticks, one step a clock, holding io_busy so the CPU waits in C_FETCH: a
+    // load, a commit and a FIFO refill each complete between two
+    // microinstructions, which is how atomic they are in disk.c. (The first
+    // form did all three inside the tick, a 32-iteration loop reading the
+    // sector arrays combinationally -- a behavioural model no FPGA could run.)
+    localparam int DISK_SBUF_BEATS = 260;          // 2 + 10 + 1024 words, rounded up
+    // four 16-bit lane RAMs (word 4b+l is lane l of beat b), one block RAM
+    // each: a byte-enabled 64-bit RAM written lane by lane is not inferred
+    // as RAM by Quartus 17 -- it became 16,640 registers and a 260:1 mux
+    (* ramstyle = "M10K" *) logic [15:0] disk_sbuf0 [0:DISK_SBUF_BEATS-1];
+    (* ramstyle = "M10K" *) logic [15:0] disk_sbuf1 [0:DISK_SBUF_BEATS-1];
+    (* ramstyle = "M10K" *) logic [15:0] disk_sbuf2 [0:DISK_SBUF_BEATS-1];
+    (* ramstyle = "M10K" *) logic [15:0] disk_sbuf3 [0:DISK_SBUF_BEATS-1];
+    logic        sbuf_we;                           // these five are driven with <=
+    logic [3:0]  sbuf_wlane;
+    logic [8:0]  sbuf_waddr;
+    logic [63:0] sbuf_wdata;
+    logic [8:0]  sbuf_raddr;
+    logic [63:0] sbuf_q;
+    logic        disk_sec_valid;                    // the transfer's sector exists on the pack
     logic        disk_sec_modified;
+
+    logic        disk_job_load, disk_job_commit, disk_job_refill;
+    logic [1:0]  disk_stage;                        // 1, 2: the disk stage under way
+    logic        dk_rd_pop, dk_wr, dk_fio;          // the tick's disk strobes, latched
+    logic [7:0]  dk_wr_tioa;
+    logic [15:0] dk_wr_data;
+    dm_ref_kind_t dk_fio_kind;
+    logic [15:0] dk_fio_munch [0:15];
+    logic        disk_eng_busy;
+    typedef enum logic [3:0] {
+        DE_IDLE, DE_ADDR, DE_ADDR2, DE_ADDR3, DE_BEAT, DE_BEAT_WAIT, DE_CM_RD, DE_CM_RD2, DE_CM_WR,
+        DE_CM_WAIT, DE_RF_HEAD, DE_RF_RD, DE_RF_RD2, DE_RF_POST
+    } disk_eng_t;
+    disk_eng_t   disk_eng;
+    logic        disk_eng_commit;                   // the beat job under way is a commit
+    logic [8:0]  disk_eng_beat, disk_eng_beats;
+    logic [28:0] disk_eng_base;                     // the record's first beat
+    logic [1:0]  disk_eng_drv;                      // the record's drive, and the address
+    logic [17:0] disk_eng_ch;                       // arithmetic, a multiply a clock:
+    logic [6:0]  disk_eng_ms;                       //   cyl * heads + head, sector mod sectors
+    logic [24:0] disk_eng_rec;                      //   the record number
+    logic [5:0]  disk_rf_iter;                      // refill loop iterations
+    logic [1:0]  disk_rf_lane;
+    logic        disk_rf_restore;                   // OR the restore bit into this word
+    // the record a commit writes (latched at the write's end: a load may follow)
+    logic [1:0]  disk_cm_drv;
+    logic [11:0] disk_cm_cyl;
+    logic [5:0]  disk_cm_head;
+    logic [6:0]  disk_cm_sec;
+    logic [11:0] disk_drv_cyls  [0:3];
+    logic        disk_drv_media [0:3];
 
     logic [63:0] disk_next_sector_cycle;
     logic [31:0] disk_cycles_per_rev;
+    // Microinstruction cycles per sector pulse, DORADO_DISK_CYCLES_PER_REV /
+    // sectors per revolution: a table built at elaboration (a divider by a
+    // register in the tick would be a long combinational path).
+    localparam int DISK_CYCLES_PER_REV = 277778;
+    logic [31:0] disk_cps_rom [0:127];
+    initial for (int k = 0; k < 128; k++) disk_cps_rom[k] = (k == 0) ? 32'(DISK_CYCLES_PER_REV) : 32'(DISK_CYCLES_PER_REV / k);
+    // Controller sector pulses per revolution for a Tag subsector count: one
+    // every cnt + 1 of the drive's 117 subsector pulses, rounded up (disk.c
+    // disk_set_subsector_count; TriconD's SectorCounters test)
+    function automatic int disk_spr_fn(input logic [3:0] cnt);
+        case (cnt)
+            4'd0:  return 117;  4'd1:  return 59;  4'd2:  return 39;  4'd3:  return 30;
+            4'd4:  return 24;   4'd5:  return 20;  4'd6:  return 17;  4'd7:  return 15;
+            4'd8:  return 13;   4'd9:  return 12;  4'd10: return 11;  4'd11: return 10;
+            4'd12: return 9;    4'd13: return 9;   4'd14: return 8;   4'd15: return 8;
+        endcase
+    endfunction
+
+    // The sector a transfer works on, latched when it starts (disk.c's
+    // read_stream_sector / write_stream_sector): a transfer's drain spans
+    // many sector pulses, so it must keep the sector it began on, not the
+    // drive's advancing cur_sector.
+    logic [1:0]  disk_strm_drv;
+    logic [11:0] disk_strm_cyl;
+    logic [5:0]  disk_strm_head;
+    logic [6:0]  disk_strm_sec;
+
 
     assign disk_selected_drive_out = disk_selected_drive;
     assign disk_cur_cyl_out        = disk_drv_cur_cyl[disk_selected_drive];
     assign disk_cur_head_out       = disk_drv_cur_head[disk_selected_drive];
     assign disk_cur_sector_out     = disk_drv_cur_sector[disk_selected_drive];
+
+`ifndef DORADO_NO_DISK
+    // the sector buffer: one write (a lane mask of a beat) and one registered
+    // read a clock
+    always_ff @(posedge clk) begin
+        if (sbuf_we && sbuf_wlane[0]) disk_sbuf0[sbuf_waddr] <= sbuf_wdata[15:0];
+        sbuf_q[15:0] <= disk_sbuf0[sbuf_raddr];
+    end
+    always_ff @(posedge clk) begin
+        if (sbuf_we && sbuf_wlane[1]) disk_sbuf1[sbuf_waddr] <= sbuf_wdata[31:16];
+        sbuf_q[31:16] <= disk_sbuf1[sbuf_raddr];
+    end
+    always_ff @(posedge clk) begin
+        if (sbuf_we && sbuf_wlane[2]) disk_sbuf2[sbuf_waddr] <= sbuf_wdata[47:32];
+        sbuf_q[47:32] <= disk_sbuf2[sbuf_raddr];
+    end
+    always_ff @(posedge clk) begin
+        if (sbuf_we && sbuf_wlane[3]) disk_sbuf3[sbuf_waddr] <= sbuf_wdata[63:48];
+        sbuf_q[63:48] <= disk_sbuf3[sbuf_raddr];
+    end
+    assign disk_eng_hold = disk_eng_busy || disk_stage != 2'd0;
+`else
+    assign disk_eng_hold = 1'b0;
+    assign disk_mem_req = 1'b0;
+    assign disk_mem_we = 1'b0;
+    assign disk_mem_addr = 29'd0;
+    assign disk_mem_wdata = 64'd0;
+    assign disk_mem_be = 8'd0;
+`endif
 
     // =========================================================================
     // 5. Helper Functions & Tasks
@@ -650,8 +789,8 @@ module dorado_rtl_io
                            (disk_fifo_count < (DISK_FIFO_WORDS - 2));
             8'o010: return disk_enable_run;
             8'o011: return disk_debug_mode;
-            8'o012: return !(disk_active && disk_current_block_op == 2'd1); // !Read
-            8'o013: return !(disk_active && disk_current_block_op == 2'd3); // !Write
+            8'o012: return !(disk_active && disk_current_block_op == DISK_OP_READ);  // !Read
+            8'o013: return !(disk_active && disk_current_block_op == DISK_OP_WRITE); // !Write
             8'o014: return !(disk_active && disk_current_block_op == 2'd2); // !RdChk
             8'o015: return disk_active;
             8'o016: return drv[1];
@@ -714,35 +853,28 @@ module dorado_rtl_io
         return n;
     endfunction
 
-    function automatic logic [15:0] disk_block_word_fn(
+    // The record word (header | label | data) a framed block position reads;
+    // -1 past the block's geometry, which reads as 0.
+    function automatic int disk_block_addr_fn(
         input logic [1:0] drv,
         input int         blk,
         input int         pos
     );
-        if (pos < 0) return 16'd0;
+        int hw, lw, dw;
+        hw = int'(disk_drv_hdr_words[drv]);
+        lw = int'(disk_drv_lbl_words[drv]);
+        dw = int'(disk_drv_data_words[drv]);
+        if (pos < 0) return -1;
         case (blk)
-            0: return (pos < int'(disk_drv_hdr_words[drv]) && pos < 2)     ? disk_sec_hdr[pos]  : 16'd0;
-            1: return (pos < int'(disk_drv_lbl_words[drv]) && pos < 10)    ? disk_sec_lbl[pos]  : 16'd0;
-            2: return (pos < int'(disk_drv_data_words[drv]) && pos < 1024) ? disk_sec_data[pos] : 16'd0;
-            default: return 16'd0;
+            0: return (pos < hw) ? pos : -1;
+            1: return (pos < lw) ? hw + pos : -1;
+            2: return (pos < dw) ? hw + lw + pos : -1;
+            default: return -1;
         endcase
     endfunction
 
-    function automatic logic [15:0] disk_sector_word_fn(
-        input logic [1:0] drv,
-        input int         idx_in
-    );
-        int hw, lw, dw, idx;
-        hw  = int'(disk_drv_hdr_words[drv]);
-        lw  = int'(disk_drv_lbl_words[drv]);
-        dw  = int'(disk_drv_data_words[drv]);
-        idx = idx_in;
-        if (idx < hw) return (idx < 2) ? disk_sec_hdr[idx] : 16'd0;
-        idx -= hw;
-        if (idx < lw) return (idx < 10) ? disk_sec_lbl[idx] : 16'd0;
-        idx -= lw;
-        if (idx < dw) return (idx < 1024) ? disk_sec_data[idx] : 16'd0;
-        return 16'd0;
+    function automatic int disk_rec_words_fn(input logic [1:0] drv);
+        return int'(disk_drv_hdr_words[drv]) + int'(disk_drv_lbl_words[drv]) + int'(disk_drv_data_words[drv]);
     endfunction
 
     task automatic disk_update_fifo_tws_task();
@@ -769,8 +901,8 @@ module dorado_rtl_io
     );
         int start_idx;
         start_idx = 0;
-        for (int b = 0; b < blk; b++) begin
-            start_idx += disk_block_default_words_fn(drv, b);
+        for (int b = 0; b < 3; b++) begin
+            if (b < blk) start_idx += disk_block_default_words_fn(drv, b);
         end
         disk_read_stream_active    = 1'b0;
         disk_rd_fifo_tw            = 1'b0;
@@ -778,7 +910,7 @@ module dorado_rtl_io
         disk_write_block_framing   = 1'b1;
         disk_write_stream_index    = start_idx;
         disk_current_block         = 3'(blk);
-        disk_current_block_op      = 2'd3; // OP_WRITE
+        disk_current_block_op      = DISK_OP_WRITE;
         disk_current_block_words   = disk_format_block_words_fn(drv, blk);
         disk_current_block_pos     = 16'd0;
         disk_current_block_prefix  = 1'b1;
@@ -791,118 +923,561 @@ module dorado_rtl_io
         input  logic [1:0] drv,
         output logic       started
     );
+        // the first block from current_block on whose op is not DONE (at most
+        // four: a bounded loop, for synthesis)
         started = 1'b0;
-        while (disk_current_block < 3'd4) begin
-            logic [1:0] op;
-            op = disk_control_block_op_fn(disk_control, int'(disk_current_block));
-            if (op == 2'd0) begin
-                disk_current_block = disk_current_block + 3'd1;
-                continue;
-            end
-            if (op == 2'd3) begin
-                disk_arm_write_block_task(drv, int'(disk_current_block));
-                started = 1'b1;
-                return;
-            end
-            if (op == 2'd1 || op == 2'd2) begin
-                disk_write_stream_active   = 1'b0;
-                disk_read_stream_active    = 1'b1;
-                disk_current_block_op      = op;
-                disk_current_block_words   = disk_format_block_words_fn(drv, int'(disk_current_block));
-                disk_current_block_pos     = 16'd0;
-                disk_current_block_prefix  = 1'b0;
-                disk_current_block_trailer = 4'd0;
-                if (op == 2'd2) disk_compare_err = 1'b1;
-                disk_update_fifo_tws_task();
-                started = 1'b1;
-                return;
-            end
-            disk_current_block = disk_current_block + 3'd1;
-        end
-        disk_read_stream_active    = 1'b0;
-        disk_write_stream_active   = 1'b0;
-        disk_current_block_op      = 2'd0;
-        disk_current_block_words   = 16'd0;
-        disk_current_block_pos     = 16'd0;
-        disk_current_block_prefix  = 1'b0;
-        disk_current_block_trailer = 4'd0;
-    endtask
-
-    task automatic disk_refill_fifo_task();
-        logic [1:0] drv;
-        int         total;
-        logic       sequenced;
-        if (!disk_read_stream_active) return;
-        drv = disk_selected_drive;
-        if (!disk_drv_online[drv] || !disk_sec_valid) begin
-            disk_read_stream_active = 1'b0;
-            return;
-        end
-
-        total = int'(disk_drv_hdr_words[drv]) + int'(disk_drv_lbl_words[drv]) +
-                int'(disk_drv_data_words[drv]);
-        if (disk_read_block_framing) total += 12; // 3 * 4 trailer words
-        sequenced = disk_read_block_framing;
-
-        for (int iter = 0; iter < 32; iter++) begin
-            logic [15:0] w;
-            if (disk_fifo_count >= DISK_FIFO_WORDS) break;
-            w = 16'd0;
-            if (sequenced) begin
-                if (disk_current_block_op == 2'd0) break;
-                if (disk_current_block_pos < disk_current_block_words) begin
-                    w = disk_block_word_fn(drv, int'(disk_current_block), int'(disk_current_block_pos));
-                    if (disk_restore_hdr_check &&
-                        disk_current_block == 3'd0 &&
-                        disk_current_block_op == 2'd2 &&
-                        disk_current_block_pos == 16'd0) begin
-                        w |= 16'h0001;
-                    end
-                    disk_current_block_pos = disk_current_block_pos + 16'd1;
-                end else if (disk_current_block_trailer < 4'd4) begin
-                    w = 16'd0;
-                    disk_current_block_trailer = disk_current_block_trailer + 4'd1;
-                end else begin
-                    logic blk_started;
-                    if (disk_fifo_count > 0) break;
-                    disk_current_block = disk_current_block + 3'd1;
-                    if (disk_current_block < 3'd4) begin
-                        disk_start_current_block_task(drv, blk_started);
-                        if (blk_started) continue;
-                    end
-                    disk_read_stream_active    = 1'b0;
-                    disk_current_block_op      = 2'd0;
-                    disk_current_block_words   = 16'd0;
+        for (int k = 0; k < 4; k++) begin
+            if (!started && disk_current_block < 3'd4) begin
+                logic [1:0] op;
+                op = disk_control_block_op_fn(disk_control, int'(disk_current_block));
+                if (op == DISK_OP_WRITE) begin
+                    disk_arm_write_block_task(drv, int'(disk_current_block));
+                    started = 1'b1;
+                end else if (op == DISK_OP_READ || op == DISK_OP_RDCHK) begin
+                    disk_write_stream_active   = 1'b0;
+                    disk_read_stream_active    = 1'b1;
+                    disk_current_block_op      = op;
+                    disk_current_block_words   = disk_format_block_words_fn(drv, int'(disk_current_block));
                     disk_current_block_pos     = 16'd0;
                     disk_current_block_prefix  = 1'b0;
                     disk_current_block_trailer = 4'd0;
-                    break;
+                    if (op == DISK_OP_RDCHK) disk_compare_err = 1'b1;
+                    disk_update_fifo_tws_task();
+                    started = 1'b1;
+                end else begin
+                    disk_current_block = disk_current_block + 3'd1;
+                end
+            end
+        end
+        if (!started) begin
+            disk_read_stream_active    = 1'b0;
+            disk_write_stream_active   = 1'b0;
+            disk_current_block_op      = 2'd0;
+            disk_current_block_words   = 16'd0;
+            disk_current_block_pos     = 16'd0;
+            disk_current_block_prefix  = 1'b0;
+            disk_current_block_trailer = 4'd0;
+        end
+    endtask
+
+    // Start of a transfer: latch its sector and have the engine load it.
+    // disk.c refuses a sector the pack does not have (dorado_disk_pack_sector
+    // is NULL out of range): the same bounds here.
+    task automatic disk_load_sector_task();
+        logic [1:0] drv;
+        drv = disk_selected_drive;
+        disk_strm_drv  = drv;
+        disk_strm_cyl  = disk_drv_cur_cyl[drv];
+        disk_strm_head = disk_drv_cur_head[drv];
+        disk_strm_sec  = disk_drv_cur_sector[drv];
+        disk_sec_modified = 1'b0;
+        disk_sec_valid = disk_drv_online[drv] && disk_drv_media[drv] && disk_drv_sectors[drv] != 7'd0 &&
+                         disk_drv_cur_cyl[drv] < disk_drv_cyls[drv] &&
+                         disk_drv_cur_head[drv] < disk_drv_heads[drv];
+        if (disk_sec_valid) disk_job_load = 1'b1;
+    endtask
+
+    // End of a write: have the engine write the buffer back to its sector.
+    task automatic disk_commit_sector_task();
+        disk_cm_drv  = disk_strm_drv;
+        disk_cm_cyl  = disk_strm_cyl;
+        disk_cm_head = disk_strm_head;
+        disk_cm_sec  = disk_strm_sec;
+        if (disk_sec_valid) disk_job_commit = 1'b1;
+        disk_sec_modified = 1'b0;
+    endtask
+
+    // The FIFO refill: done by the engine, before the next microinstruction.
+    task automatic disk_refill_fifo_task();
+        if (disk_read_stream_active) disk_job_refill = 1'b1;
+    endtask
+
+    // A word of the sector into the FIFO (refill).
+    task automatic disk_push_word_task(input logic [15:0] w);
+        disk_fifo[disk_fifo_head] = w;
+        disk_fifo_head            = (disk_fifo_head + 1) % DISK_FIFO_WORDS;
+        disk_fifo_count           = disk_fifo_count + 1;
+        disk_read_stream_index    = disk_read_stream_index + 1;
+    endtask
+
+
+    // ---- The disk stage: the disk's share of an I/O tick, in the clocks after
+    // it (stage 1 the strobes the tick latched, stage 2 the rotation timer and
+    // the DSK wakeup); then the sector engine if they queued work. io_busy
+    // holds the CPU throughout, so to the microcode it is all one tick.
+    task automatic disk_stage1_task();
+        if (dk_rd_pop) begin
+                    if (disk_fifo_count > 0) begin
+                        disk_fifo_tail  = (disk_fifo_tail + 1) % DISK_FIFO_WORDS;
+                        disk_fifo_count = disk_fifo_count - 1;
+                        disk_refill_fifo_task();
+                        disk_update_fifo_tws_task();
+                    end else begin
+                        disk_fifo_underflow = 1'b1;
+                        disk_update_fifo_tws_task();
+                    end
+                end
+        if (dk_wr) begin
+                    case (dk_wr_tioa)
+                        TIOA_DISKCONTROL: begin
+                            if (disk_active) begin
+                                disk_active                = 1'b0;
+                                disk_read_stream_active    = 1'b0;
+                                disk_read_stream_index     = 0;
+                                disk_current_block         = 3'd0;
+                                disk_current_block_op      = 2'd0;
+                                disk_current_block_words   = 16'd0;
+                                disk_current_block_pos     = 16'd0;
+                                disk_current_block_prefix  = 1'b0;
+                                disk_current_block_trailer = 4'd0;
+                                disk_write_stream_active   = 1'b0;
+                                disk_write_block_framing   = 1'b0;
+                                disk_write_stream_index    = 0;
+                                disk_fifo_head             = 0;
+                                disk_fifo_tail             = 0;
+                                disk_fifo_count            = 0;
+                                disk_update_fifo_tws_task();
+                            end else begin
+                                disk_control = dk_wr_data;
+                                if (dk_wr_data[7:0] != 8'd0) begin
+                                    disk_xfer_pending     = 1'b1;
+                                    disk_transfer_restore = disk_restore_pending;
+                                    disk_restore_pending  = 1'b0;
+                                end
+                                disk_format_ram_addr = 4'd0;
+                                if (dk_wr_data[10]) begin // CLR_ENABLE_RUN (0x0400)
+                                    disk_enable_run       = 1'b0;
+                                    disk_debug_mode       = 1'b0;
+                                    disk_block_till_index = 1'b0;
+                                    disk_index_tw         = 1'b0;
+                                    disk_sector_tw        = 1'b0;
+                                    disk_tag_tw           = 1'b0;
+                                    disk_rd_fifo_tw       = 1'b0;
+                                    disk_wr_fifo_tw       = 1'b0;
+                                    disk_current_block_op = 2'd0;
+                                end
+                                if (dk_wr_data[9]) disk_debug_mode       = 1'b1; // SET_DEBUG_MODE (0x0200)
+                                if (dk_wr_data[8]) disk_block_till_index = 1'b1; // BLOCK_TILL_INDEX (0x0100)
+                                if (dk_wr_data[9] && (dk_wr_data[7:0] != 8'd0)) begin
+                                    disk_current_block    = 3'd0;
+                                    disk_current_block_op = (dk_wr_data[7:6] != 2'd0) ? dk_wr_data[7:6] :
+                                                            (dk_wr_data[5:4] != 2'd0) ? dk_wr_data[5:4] :
+                                                            (dk_wr_data[3:2] != 2'd0) ? dk_wr_data[3:2] :
+                                                                                           dk_wr_data[1:0];
+                                    disk_current_block_pos     = 16'd0;
+                                    disk_current_block_prefix  = 1'b0;
+                                    disk_current_block_trailer = 4'd0;
+                                    disk_active                = 1'b1;
+                                    disk_xfer_pending          = 1'b0;
+                                    disk_update_fifo_tws_task();
+                                end else begin
+                                    disk_start_pending_transfer_task();
+                                end
+                            end
+                        end
+
+                        TIOA_DISKMUFF: begin
+                            disk_muff_addr = dk_wr_data[7:0];
+                            if (dk_wr_data[11]) disk_index_tw    = 1'b0; // CLEAR_INDEX_TW (0x0800)
+                            if (dk_wr_data[10]) disk_sector_tw   = 1'b0; // CLEAR_SECTOR_TW (0x0400)
+                            if (dk_wr_data[9])  disk_tag_tw      = 1'b0; // CLEAR_SEEKTAG_TW (0x0200)
+                            if (dk_wr_data[13]) disk_compare_err = 1'b0; // CLEAR_COMPARE_ERR (0x2000)
+                            if (dk_wr_data[12]) disk_read_data_err = 1'b1; // SET_CHECKSUM_ERR (0x1000)
+                            if (dk_wr_data[8]) begin // CLEAR_ERRORS (0x0100)
+                                disk_compare_err    = 1'b0;
+                                disk_read_data_err  = 1'b0;
+                                disk_fifo_underflow = 1'b0;
+                                disk_fifo_overflow  = 1'b0;
+                            end
+                        end
+
+                        TIOA_DISKDATA: begin
+                            if (disk_write_stream_active) begin
+                                disk_write_stream_word_task(dk_wr_data);
+                                disk_update_fifo_tws_task();
+                            end else if (disk_fifo_count < DISK_FIFO_WORDS) begin
+                                disk_fifo[disk_fifo_head] = dk_wr_data;
+                                disk_fifo_head            = (disk_fifo_head + 1) % DISK_FIFO_WORDS;
+                                disk_fifo_count           = disk_fifo_count + 1;
+                                disk_update_fifo_tws_task();
+                            end else begin
+                                disk_fifo_overflow = 1'b1;
+                            end
+                        end
+
+                        TIOA_DISKRAM: begin
+                            disk_format_ram[disk_format_ram_addr] = dk_wr_data;
+                            disk_format_ram_writes                = disk_format_ram_writes + 1;
+                            if (disk_format_ram_addr == 4'd15) begin
+                                disk_enable_run = 1'b1;
+                            end
+                            disk_format_ram_addr = disk_format_ram_addr + 4'd1;
+                        end
+
+                        TIOA_DISKTAG: begin
+                            logic [11:0] bus;
+                            logic [1:0]  drv;
+                            disk_tag = dk_wr_data;
+                            bus      = dk_wr_data[11:0];
+                            drv      = disk_selected_drive;
+
+                            if (dk_wr_data[15]) begin // TAG_DRIVE (0x8000)
+                                if (bus[5]) begin
+                                    int cnt, spr;
+                                    cnt = int'(bus[9:6]);
+                                    disk_drv_subsector_cnt[drv] = 6'(cnt);
+                                    spr = disk_spr_fn(bus[9:6]);   // ceil(117 / (cnt + 1))
+                                    disk_drv_sectors_per_rev[drv] = 7'(spr);
+                                    if (disk_drv_cur_sector[drv] >= 7'(spr)) begin
+                                        disk_drv_cur_sector[drv] = 7'd0;
+                                    end
+                                end
+                                if (bus[4] && bus[3:0] <= 4'd3) begin
+                                    disk_selected_drive = bus[1:0];
+                                    for (int i = 0; i < 4; i++) begin
+                                        disk_drv_selected[i] = (i == int'(bus[1:0]));
+                                    end
+                                end
+                            end else if (dk_wr_data[13]) begin // TAG_HEAD (0x2000)
+                                logic [5:0] hd;
+                                hd = bus[5:0];
+                                if (disk_drv_heads[drv] > 6'd0 && hd < disk_drv_heads[drv]) begin
+                                    disk_drv_cur_head[drv]  = hd;
+                                    disk_drv_head_ovfl[drv] = 1'b0;
+                                    disk_sector_read_req    = 1'b1;
+                                end else if (disk_drv_online[drv]) begin
+                                    disk_drv_cur_head[drv]  = hd;
+                                    disk_drv_head_ovfl[drv] = 1'b1;
+                                end
+                                disk_tag_tw = 1'b1;
+                            end else if (dk_wr_data[14]) begin // TAG_CYLINDER (0x4000)
+                                if (disk_drv_online[drv]) begin
+                                    disk_drv_cur_cyl[drv]      = bus;
+                                    disk_drv_cur_sector[drv]   = 7'd0;
+                                    disk_drv_seek_in_prog[drv] = int'(disk_drv_sectors_per_rev[drv]);
+                                    disk_sector_read_req       = 1'b1;
+                                end
+                                disk_tag_tw = 1'b1;
+                            end else if (dk_wr_data[12]) begin // TAG_CONTROL (0x1000)
+                                if (bus[3]) begin // DiskReset
+                                    disk_drv_head_ovfl[drv] = 1'b0;
+                                end
+                                if (bus[1]) begin // ReZero
+                                    disk_drv_cur_cyl[drv]      = 12'd0;
+                                    disk_drv_cur_head[drv]     = 6'd0;
+                                    disk_drv_cur_sector[drv]   = 7'd0;
+                                    disk_drv_head_ovfl[drv]    = 1'b0;
+                                    disk_drv_seek_in_prog[drv] = int'(disk_drv_sectors_per_rev[drv]);
+                                    disk_restore_pending       = 1'b1;
+                                    disk_sector_read_req       = 1'b1;
+                                end
+                                if (bus[0]) begin // HeadAdvance
+                                    disk_drv_cur_head[drv] = disk_drv_cur_head[drv] + 6'd1;
+                                    disk_sector_read_req   = 1'b1;
+                                end
+                                if (bus[6]) begin // Read
+                                    logic ok;
+                                    disk_read_block_framing = 1'b0;
+                                    disk_begin_read_stream_task(ok);
+                                    if (ok) disk_active = 1'b1;
+                                end
+                                if (bus[7]) begin // Write
+                                    if (disk_drv_online[drv] && !disk_drv_read_only[drv]) begin
+                                        disk_load_sector_task();
+                                        disk_write_stream_active   = 1'b1;
+                                        disk_write_block_framing   = 1'b0;
+                                        disk_write_stream_index    = 0;
+                                        disk_current_block         = 3'd0;
+                                        disk_current_block_op      = DISK_OP_WRITE;
+                                        disk_current_block_words   = 16'(int'(disk_drv_hdr_words[drv]) +
+                                                                         int'(disk_drv_lbl_words[drv]) +
+                                                                         int'(disk_drv_data_words[drv]));
+                                        disk_current_block_pos     = 16'd0;
+                                        disk_current_block_prefix  = 1'b0;
+                                        disk_current_block_trailer = 4'd0;
+                                        disk_fifo_count            = 0;
+                                        disk_fifo_head             = 0;
+                                        disk_fifo_tail             = 0;
+                                    end
+                                    disk_active = 1'b1;
+                                    disk_update_fifo_tws_task();
+                                end
+                                disk_tag_tw = 1'b1;
+                            end
+                        end
+                        default: ;
+                    endcase
+                end
+        if (dk_fio) begin
+                    if (dk_fio_kind == DM_REF_IOFETCH) begin
+                // the munch into the FIFO, as many words as it has room for
+                logic [4:0] n;
+                n = 5'(DISK_FIFO_WORDS) - disk_fifo_count;
+                for (int i = 0; i < 16; i++)
+                    if (5'(i) < n) disk_fifo[4'(disk_fifo_head + 4'(i))] = dk_fio_munch[i];
+                disk_fifo_head  = disk_fifo_head + 4'(n);
+                disk_fifo_count = disk_fifo_count + n;
+                disk_update_fifo_tws_task();
+            end else if (dk_fio_kind == DM_REF_IOSTORE) begin
+                // the munch out of the FIFO (the engine refills it after)
+                if (disk_fifo_count > 5'd0) begin
+                    logic [4:0] n;
+                    n = (disk_fifo_count > 5'd16) ? 5'd16 : disk_fifo_count;
+                    disk_fifo_tail  = disk_fifo_tail + 4'(n);
+                    disk_fifo_count = disk_fifo_count - n;
+                    disk_refill_fifo_task();
+                end
+                disk_update_fifo_tws_task();
+            end
+                end
+    endtask
+
+    task automatic disk_stage2_task();
+        begin
+                logic [1:0] drv;
+                drv = disk_selected_drive;
+                if (disk_drv_online[drv] && disk_enable_run) begin
+                    int spr;
+                    logic [63:0] cps;
+                    spr = int'(disk_drv_sectors_per_rev[drv]);
+                    if (spr <= 0) spr = 1;
+                    cps = {32'd0, disk_cps_rom[disk_drv_sectors_per_rev[drv]]};
+
+                    if (disk_next_sector_cycle == 64'd0) begin
+                        disk_next_sector_cycle = disk_time + cps;
+                    end else if (disk_time >= disk_next_sector_cycle) begin
+                        logic at_index;
+                        // (cur + 1) mod spr: cur < spr (the Tag write that sets spr resets it)
+                        disk_drv_cur_sector[drv] = (int'(disk_drv_cur_sector[drv]) + 1 >= spr) ? 7'd0
+                                                   : disk_drv_cur_sector[drv] + 7'd1;
+                        at_index                 = (disk_drv_cur_sector[drv] == 7'd0);
+                        disk_sector_read_req     = 1'b1;
+
+                        if (disk_drv_seek_in_prog[drv] > 0) begin
+                            disk_drv_seek_in_prog[drv] = disk_drv_seek_in_prog[drv] - 1;
+                            if (at_index) disk_drv_seek_in_prog[drv] = 0;
+                        end
+                        if (at_index) begin
+                            disk_drv_index_pulse[drv] = 1'b1;
+                            disk_index_tw             = 1'b1;
+                            disk_sector_tw            = 1'b1;
+                            disk_block_till_index     = 1'b0;
+                            disk_start_pending_transfer_task();
+                        end else begin
+                            disk_drv_index_pulse[drv] = 1'b0;
+                            if (!disk_block_till_index) begin
+                                disk_sector_tw = 1'b1;
+                                disk_start_pending_transfer_task();
+                            end
+                        end
+                        disk_next_sector_cycle = disk_next_sector_cycle + cps;
+                    end
+                end
+                if (disk_index_tw || disk_sector_tw || disk_tag_tw ||
+                    disk_rd_fifo_tw || disk_wr_fifo_tw) begin
+                    ext_wakeup_req[TASK_DSK] = 1'b1;
+                end
+            end
+    endtask
+
+    // One clock of the engine (the main block runs it between ticks).
+    task automatic disk_engine_step_task();
+        logic [1:0] drv;
+        int         hw, lw, dw, total;
+        logic       sequenced;
+        drv       = disk_selected_drive;
+        hw        = int'(disk_drv_hdr_words[drv]);
+        lw        = int'(disk_drv_lbl_words[drv]);
+        dw        = int'(disk_drv_data_words[drv]);
+        total     = hw + lw + dw;
+        if (disk_read_block_framing) total += 12;  // 3 blocks x 4 trailer words
+        sequenced = disk_read_block_framing;
+        case (disk_eng)
+        DE_IDLE: begin
+            // a commit first (it writes the buffer a load would overwrite),
+            // then a load, then the refill that reads it
+            if (disk_job_commit) begin
+                disk_job_commit = 1'b0;
+                disk_eng_commit = 1'b1;
+                disk_eng        = DE_ADDR;
+            end else if (disk_job_load) begin
+                disk_job_load   = 1'b0;
+                disk_eng_commit = 1'b0;
+                disk_eng        = DE_ADDR;
+            end else if (disk_job_refill) begin
+                disk_job_refill = 1'b0;
+                if (disk_read_stream_active) begin
+                    if (!disk_drv_online[drv] || !disk_sec_valid) begin
+                        disk_read_stream_active = 1'b0;
+                    end else begin
+                        disk_rf_iter = 6'd0;
+                        disk_eng     = DE_RF_HEAD;
+                    end
                 end
             end else begin
-                if (disk_read_stream_index >= total) break;
-                w = disk_sector_word_fn(drv, disk_read_stream_index);
+                disk_eng_busy = 1'b0;
             end
-            disk_fifo[disk_fifo_head] = w;
-            disk_fifo_head            = (disk_fifo_head + 1) % DISK_FIFO_WORDS;
-            disk_fifo_count           = disk_fifo_count + 1;
-            disk_read_stream_index    = disk_read_stream_index + 1;
         end
-
-        disk_update_fifo_tws_task();
-        if ((disk_read_stream_index >= total ||
-             (sequenced && disk_current_block_op == 2'd0)) &&
-            disk_fifo_count == 0) begin
-            disk_read_stream_active = 1'b0;
-            disk_active             = 1'b0;
-            disk_rd_fifo_tw         = 1'b0;
-            disk_tag_tw             = 1'b1;
+        // the record's first beat: (cyl * heads + head) * sectors + sector mod
+        // sectors (disk_media_sector), ceil(words / 4) beats a record -- one
+        // multiply a clock (the CPU is held; the time is invisible to it)
+        DE_ADDR: begin
+            logic [11:0] c;
+            logic [5:0]  h;
+            int          ms;
+            disk_eng_drv = disk_eng_commit ? disk_cm_drv : disk_strm_drv;
+            c  = disk_eng_commit ? disk_cm_cyl  : disk_strm_cyl;
+            h  = disk_eng_commit ? disk_cm_head : disk_strm_head;
+            ms = int'(disk_eng_commit ? disk_cm_sec : disk_strm_sec);
+            for (int k = 0; k < 4; k++)
+                if (ms >= int'(disk_drv_sectors[disk_eng_drv])) ms -= int'(disk_drv_sectors[disk_eng_drv]);
+            disk_eng_ms = 7'(ms);
+            disk_eng_ch = 18'(int'(c) * int'(disk_drv_heads[disk_eng_drv]) + int'(h));
+            disk_eng    = DE_ADDR2;
         end
+        DE_ADDR2: begin
+            disk_eng_rec = 25'(int'(disk_eng_ch) * int'(disk_drv_sectors[disk_eng_drv]) + int'(disk_eng_ms));
+            disk_eng     = DE_ADDR3;
+        end
+        DE_ADDR3: begin
+            int stride;
+            stride = (disk_rec_words_fn(disk_eng_drv) + 3) / 4;
+            disk_eng_base  = DISK_PACK_BEAT_BASE + 29'(disk_eng_drv) * DISK_DRIVE_BEATS +
+                             29'(int'(disk_eng_rec) * stride);
+            disk_eng_beats = 9'(stride);
+            disk_eng_beat  = 9'd0;
+            disk_eng       = disk_eng_commit ? DE_CM_RD : DE_BEAT;
+        end
+        // load: beat by beat from the pack into the buffer
+        DE_BEAT: begin
+            disk_mem_req  <= 1'b1;
+            disk_mem_we   <= 1'b0;
+            disk_mem_addr <= disk_eng_base + 29'(disk_eng_beat);
+            disk_eng       = DE_BEAT_WAIT;
+        end
+        DE_BEAT_WAIT: begin
+            if (disk_mem_ack) begin
+                disk_mem_req <= 1'b0;
+                sbuf_we      <= 1'b1;
+                sbuf_wlane   <= 4'hF;
+                sbuf_waddr   <= disk_eng_beat;
+                sbuf_wdata   <= disk_mem_rdata;
+                disk_eng_beat = disk_eng_beat + 9'd1;
+                disk_eng      = (disk_eng_beat == disk_eng_beats) ? DE_IDLE : DE_BEAT;
+            end
+        end
+        // commit: beat by beat from the buffer back to the pack
+        DE_CM_RD: begin
+            sbuf_raddr <= disk_eng_beat;
+            disk_eng    = DE_CM_RD2;
+        end
+        DE_CM_RD2: disk_eng = DE_CM_WR;          // the buffer's registered read
+        DE_CM_WR: begin
+            disk_mem_req   <= 1'b1;
+            disk_mem_we    <= 1'b1;
+            disk_mem_addr  <= disk_eng_base + 29'(disk_eng_beat);
+            disk_mem_wdata <= sbuf_q;
+            disk_mem_be    <= 8'hFF;
+            disk_eng        = DE_CM_WAIT;
+        end
+        DE_CM_WAIT: begin
+            if (disk_mem_ack) begin
+                disk_mem_req  <= 1'b0;
+                disk_mem_we   <= 1'b0;
+                disk_eng_beat  = disk_eng_beat + 9'd1;
+                disk_eng       = (disk_eng_beat == disk_eng_beats) ? DE_IDLE : DE_CM_RD;
+            end
+        end
+        // the refill, one iteration of disk.c's loop a step
+        DE_RF_HEAD: begin
+            if (disk_fifo_count >= DISK_FIFO_WORDS || disk_rf_iter >= 6'd32) begin
+                disk_eng = DE_RF_POST;
+            end else begin
+                disk_rf_iter = disk_rf_iter + 6'd1;
+                if (sequenced) begin
+                    if (disk_current_block_op == DISK_OP_DONE) begin
+                        disk_eng = DE_RF_POST;
+                    end else if (disk_current_block_pos < disk_current_block_words) begin
+                        int a;
+                        a = disk_block_addr_fn(drv, int'(disk_current_block), int'(disk_current_block_pos));
+                        disk_rf_restore = disk_restore_hdr_check && disk_current_block == 3'd0 &&
+                                          disk_current_block_op == DISK_OP_RDCHK &&
+                                          disk_current_block_pos == 16'd0;
+                        disk_current_block_pos = disk_current_block_pos + 16'd1;
+                        if (a < 0) begin
+                            disk_push_word_task(disk_rf_restore ? 16'h0001 : 16'h0000);
+                        end else begin
+                            sbuf_raddr  <= 9'(a >> 2);
+                            disk_rf_lane = 2'(a & 3);
+                            disk_eng     = DE_RF_RD;
+                        end
+                    end else if (disk_current_block_trailer < 4'd4) begin
+                        disk_current_block_trailer = disk_current_block_trailer + 4'd1;
+                        disk_push_word_task(16'h0000);
+                    end else if (disk_fifo_count > 0) begin
+                        disk_eng = DE_RF_POST;
+                    end else begin
+                        logic blk_started;
+                        blk_started = 1'b0;
+                        disk_current_block = disk_current_block + 3'd1;
+                        if (disk_current_block < 3'd4)
+                            disk_start_current_block_task(drv, blk_started);
+                        if (blk_started) begin
+                            // a write block armed ends the read stream
+                            if (!disk_read_stream_active) disk_eng = DE_RF_POST;
+                        end else begin
+                            disk_read_stream_active    = 1'b0;
+                            disk_current_block_op      = DISK_OP_DONE;
+                            disk_current_block_words   = 16'd0;
+                            disk_current_block_pos     = 16'd0;
+                            disk_current_block_prefix  = 1'b0;
+                            disk_current_block_trailer = 4'd0;
+                            disk_eng = DE_RF_POST;
+                        end
+                    end
+                end else begin
+                    if (disk_read_stream_index >= total) begin
+                        disk_eng = DE_RF_POST;
+                    end else begin
+                        disk_rf_restore = 1'b0;
+                        sbuf_raddr  <= 9'(disk_read_stream_index >> 2);
+                        disk_rf_lane = 2'(disk_read_stream_index & 3);
+                        disk_eng     = DE_RF_RD;
+                    end
+                end
+            end
+        end
+        DE_RF_RD:  disk_eng = DE_RF_RD2;          // the buffer's registered read
+        DE_RF_RD2: begin
+            logic [15:0] w;
+            w = sbuf_q[16 * int'(disk_rf_lane) +: 16];
+            if (disk_rf_restore) w |= 16'h0001;
+            disk_push_word_task(w);
+            disk_eng = DE_RF_HEAD;
+        end
+        DE_RF_POST: begin
+            disk_update_fifo_tws_task();
+            if ((disk_read_stream_index >= total ||
+                 (sequenced && disk_current_block_op == DISK_OP_DONE)) &&
+                disk_fifo_count == 0) begin
+                disk_read_stream_active = 1'b0;
+                disk_active             = 1'b0;
+                disk_rd_fifo_tw         = 1'b0;
+                disk_tag_tw             = 1'b1;
+            end
+            if (disk_index_tw || disk_sector_tw || disk_tag_tw || disk_rd_fifo_tw || disk_wr_fifo_tw)
+                ext_wakeup_req[TASK_DSK] = 1'b1;
+            disk_eng = DE_IDLE;
+        end
+        default: disk_eng = DE_IDLE;
+        endcase
     endtask
 
     task automatic disk_begin_read_stream_task(output logic ok);
         logic [1:0] drv;
         logic       dummy_started;
         drv = disk_selected_drive;
+        if (disk_drv_online[drv]) disk_load_sector_task();
         if (!disk_drv_online[drv] || !disk_sec_valid) begin
             ok = 1'b0;
             return;
@@ -948,20 +1523,24 @@ module dorado_rtl_io
 
         pos = int'(disk_current_block_pos);
         if (!disk_compare_err) begin
+            int rw;   // the record word written: header | label | data
+            rw = -1;
             if (!disk_write_block_framing) begin
-                if (idx < hw && (hw - 1 - idx) < 2) begin
-                    disk_sec_hdr[hw - 1 - idx] = w;
-                end else if (idx < hw + lw && (lw - 1 - (idx - hw)) < 10) begin
-                    disk_sec_lbl[lw - 1 - (idx - hw)] = w;
-                end else if (idx < total && (dw - 1 - (idx - hw - lw)) < 1024) begin
-                    disk_sec_data[dw - 1 - (idx - hw - lw)] = w;
-                end
-            end else if (disk_current_block == 3'd0 && pos < hw && pos < 2) begin
-                disk_sec_hdr[pos] = w;
-            end else if (disk_current_block == 3'd1 && pos < lw && pos < 10) begin
-                disk_sec_lbl[pos] = w;
-            end else if (disk_current_block == 3'd2 && pos < dw && pos < 1024) begin
-                disk_sec_data[pos] = w;
+                if (idx < hw)                 rw = hw - 1 - idx;
+                else if (idx < hw + lw)       rw = hw + (lw - 1 - (idx - hw));
+                else if (idx < total)         rw = hw + lw + (dw - 1 - (idx - hw - lw));
+            end else if (disk_current_block == 3'd0 && pos < hw) begin
+                rw = pos;
+            end else if (disk_current_block == 3'd1 && pos < lw) begin
+                rw = hw + pos;
+            end else if (disk_current_block == 3'd2 && pos < dw) begin
+                rw = hw + lw + pos;
+            end
+            if (rw >= 0) begin
+                sbuf_we    <= 1'b1;
+                sbuf_wlane <= 4'(1 << (rw & 3));
+                sbuf_waddr <= 9'(rw >> 2);
+                sbuf_wdata <= {4{w}};
             end
             disk_sec_modified = 1'b1;
         end
@@ -981,6 +1560,7 @@ module dorado_rtl_io
                 disk_current_block_op  = 2'd0;
                 disk_tag_tw            = 1'b1;
                 disk_sector_write_req  = 1'b1;
+                disk_commit_sector_task();
                 disk_update_fifo_tws_task();
             end
         end
@@ -991,12 +1571,12 @@ module dorado_rtl_io
         logic       has_op, has_read_or_chk, has_write;
         drv = disk_selected_drive;
         has_op          = (disk_control[7:0] != 8'd0);
-        has_read_or_chk = (disk_control[7:6] == 2'd1 || disk_control[7:6] == 2'd2 ||
-                           disk_control[5:4] == 2'd1 || disk_control[5:4] == 2'd2 ||
-                           disk_control[3:2] == 2'd1 || disk_control[3:2] == 2'd2 ||
-                           disk_control[1:0] == 2'd1 || disk_control[1:0] == 2'd2);
-        has_write       = (disk_control[7:6] == 2'd3 || disk_control[5:4] == 2'd3 ||
-                           disk_control[3:2] == 2'd3 || disk_control[1:0] == 2'd3);
+        has_read_or_chk = (disk_control[7:6] == DISK_OP_READ || disk_control[7:6] == DISK_OP_RDCHK ||
+                           disk_control[5:4] == DISK_OP_READ || disk_control[5:4] == DISK_OP_RDCHK ||
+                           disk_control[3:2] == DISK_OP_READ || disk_control[3:2] == DISK_OP_RDCHK ||
+                           disk_control[1:0] == DISK_OP_READ || disk_control[1:0] == DISK_OP_RDCHK);
+        has_write       = (disk_control[7:6] == DISK_OP_WRITE || disk_control[5:4] == DISK_OP_WRITE ||
+                           disk_control[3:2] == DISK_OP_WRITE || disk_control[1:0] == DISK_OP_WRITE);
 
         if (disk_active || !disk_enable_run || !disk_xfer_pending || !has_op) return;
 
@@ -1010,6 +1590,7 @@ module dorado_rtl_io
             end
         end else if (has_write) begin
             logic started;
+            disk_load_sector_task();
             disk_current_block = 3'd0;
             disk_start_current_block_task(drv, started);
             if (started) begin
@@ -1360,6 +1941,9 @@ module dorado_rtl_io
         rj_start = 1'b0;
         wc_start = 1'b0;
         cl_we    = 1'b0;
+`ifndef DORADO_NO_DISK
+        sbuf_we <= 1'b0;
+`endif
         if (kbd0_poke && !rst) ddc_kbd_words[0] = kbd0_val;
         if (rx_load && !rst) rx_load_pend = 1'b1;
         if (rst) begin
@@ -1515,8 +2099,23 @@ module dorado_rtl_io
             disk_current_block_trailer = 4'd0;
             disk_sec_valid             = 1'b0;
             disk_sec_modified          = 1'b0;
+            disk_job_load              = 1'b0;
+            disk_job_commit            = 1'b0;
+            disk_job_refill            = 1'b0;
+            disk_eng_busy              = 1'b0;
+            disk_stage                 = 2'd0;
+            dk_rd_pop                  = 1'b0;
+            dk_wr                      = 1'b0;
+            dk_fio                     = 1'b0;
+            disk_eng                   = DE_IDLE;
+            disk_mem_req              <= 1'b0;
+            disk_mem_we               <= 1'b0;
+            for (int i = 0; i < 4; i++) begin
+                disk_drv_cyls[i]  = 12'd0;
+                disk_drv_media[i] = 1'b0;
+            end
             disk_next_sector_cycle     = 64'd0;
-            disk_cycles_per_rev        = 32'd277777;
+            disk_cycles_per_rev        = 32'd277778;   // DORADO_DISK_CYCLES_PER_REV
             disk_sector_read_req       = 1'b0;
             disk_sector_write_req      = 1'b0;
 
@@ -1546,6 +2145,18 @@ module dorado_rtl_io
             rx_applied   = rx_applied + 15'd1;
             eth_rx_pos   = 0;
             eth_rx_count = int'(rx_load_count);
+`ifndef DORADO_NO_DISK
+        end else if (disk_stage == 2'd1) begin
+            disk_stage1_task();
+            disk_stage = 2'd2;
+        end else if (disk_stage == 2'd2) begin
+            disk_stage2_task();
+            disk_stage = 2'd0;
+            // work the strobes or the timer queued for the sector engine
+            if (disk_job_load || disk_job_commit || disk_job_refill) disk_eng_busy = 1'b1;
+        end else if (disk_eng_busy) begin
+            disk_engine_step_task();
+`endif
         end else if (clk_en) begin
             eth_tx_packet_stb     = 1'b0;
             disk_sector_read_req  = 1'b0;
@@ -1590,18 +2201,7 @@ module dorado_rtl_io
                     end
                 end
 `ifndef DORADO_NO_DISK
-                // 3. Disk FIFO pop
-                else if (io_read_stb_task == TASK_DSK && io_read_stb_tioa == TIOA_DISKDATA) begin
-                    if (disk_fifo_count > 0) begin
-                        disk_fifo_tail  = (disk_fifo_tail + 1) % DISK_FIFO_WORDS;
-                        disk_fifo_count = disk_fifo_count - 1;
-                        disk_refill_fifo_task();
-                        disk_update_fifo_tws_task();
-                    end else begin
-                        disk_fifo_underflow = 1'b1;
-                        disk_update_fifo_tws_task();
-                    end
-                end
+                // 3. Disk FIFO pop: the disk stage (disk_tick_pend) does it
 `endif
             end
 
@@ -1854,199 +2454,7 @@ module dorado_rtl_io
                     end
                 end
 `ifndef DORADO_NO_DISK
-                // 3. Disk (Trident)
-                else if (io_write_task == TASK_DSK) begin
-                    case (io_write_tioa)
-                        TIOA_DISKCONTROL: begin
-                            if (disk_active) begin
-                                disk_active                = 1'b0;
-                                disk_read_stream_active    = 1'b0;
-                                disk_read_stream_index     = 0;
-                                disk_current_block         = 3'd0;
-                                disk_current_block_op      = 2'd0;
-                                disk_current_block_words   = 16'd0;
-                                disk_current_block_pos     = 16'd0;
-                                disk_current_block_prefix  = 1'b0;
-                                disk_current_block_trailer = 4'd0;
-                                disk_write_stream_active   = 1'b0;
-                                disk_write_block_framing   = 1'b0;
-                                disk_write_stream_index    = 0;
-                                disk_fifo_head             = 0;
-                                disk_fifo_tail             = 0;
-                                disk_fifo_count            = 0;
-                                disk_update_fifo_tws_task();
-                            end else begin
-                                disk_control = io_write_data;
-                                if (io_write_data[7:0] != 8'd0) begin
-                                    disk_xfer_pending     = 1'b1;
-                                    disk_transfer_restore = disk_restore_pending;
-                                    disk_restore_pending  = 1'b0;
-                                end
-                                disk_format_ram_addr = 4'd0;
-                                if (io_write_data[10]) begin // CLR_ENABLE_RUN (0x0400)
-                                    disk_enable_run       = 1'b0;
-                                    disk_debug_mode       = 1'b0;
-                                    disk_block_till_index = 1'b0;
-                                    disk_index_tw         = 1'b0;
-                                    disk_sector_tw        = 1'b0;
-                                    disk_tag_tw           = 1'b0;
-                                    disk_rd_fifo_tw       = 1'b0;
-                                    disk_wr_fifo_tw       = 1'b0;
-                                    disk_current_block_op = 2'd0;
-                                end
-                                if (io_write_data[9]) disk_debug_mode       = 1'b1; // SET_DEBUG_MODE (0x0200)
-                                if (io_write_data[8]) disk_block_till_index = 1'b1; // BLOCK_TILL_INDEX (0x0100)
-                                if (io_write_data[9] && (io_write_data[7:0] != 8'd0)) begin
-                                    disk_current_block    = 3'd0;
-                                    disk_current_block_op = (io_write_data[7:6] != 2'd0) ? io_write_data[7:6] :
-                                                            (io_write_data[5:4] != 2'd0) ? io_write_data[5:4] :
-                                                            (io_write_data[3:2] != 2'd0) ? io_write_data[3:2] :
-                                                                                           io_write_data[1:0];
-                                    disk_current_block_pos     = 16'd0;
-                                    disk_current_block_prefix  = 1'b0;
-                                    disk_current_block_trailer = 4'd0;
-                                    disk_active                = 1'b1;
-                                    disk_xfer_pending          = 1'b0;
-                                    disk_update_fifo_tws_task();
-                                end else begin
-                                    disk_start_pending_transfer_task();
-                                end
-                            end
-                        end
-
-                        TIOA_DISKMUFF: begin
-                            disk_muff_addr = io_write_data[7:0];
-                            if (io_write_data[11]) disk_index_tw    = 1'b0; // CLEAR_INDEX_TW (0x0800)
-                            if (io_write_data[10]) disk_sector_tw   = 1'b0; // CLEAR_SECTOR_TW (0x0400)
-                            if (io_write_data[9])  disk_tag_tw      = 1'b0; // CLEAR_SEEKTAG_TW (0x0200)
-                            if (io_write_data[13]) disk_compare_err = 1'b0; // CLEAR_COMPARE_ERR (0x2000)
-                            if (io_write_data[12]) disk_read_data_err = 1'b1; // SET_CHECKSUM_ERR (0x1000)
-                            if (io_write_data[8]) begin // CLEAR_ERRORS (0x0100)
-                                disk_compare_err    = 1'b0;
-                                disk_read_data_err  = 1'b0;
-                                disk_fifo_underflow = 1'b0;
-                                disk_fifo_overflow  = 1'b0;
-                            end
-                        end
-
-                        TIOA_DISKDATA: begin
-                            if (disk_write_stream_active) begin
-                                disk_write_stream_word_task(io_write_data);
-                                disk_update_fifo_tws_task();
-                            end else if (disk_fifo_count < DISK_FIFO_WORDS) begin
-                                disk_fifo[disk_fifo_head] = io_write_data;
-                                disk_fifo_head            = (disk_fifo_head + 1) % DISK_FIFO_WORDS;
-                                disk_fifo_count           = disk_fifo_count + 1;
-                                disk_update_fifo_tws_task();
-                            end else begin
-                                disk_fifo_overflow = 1'b1;
-                            end
-                        end
-
-                        TIOA_DISKRAM: begin
-                            disk_format_ram[disk_format_ram_addr] = io_write_data;
-                            disk_format_ram_writes                = disk_format_ram_writes + 1;
-                            if (disk_format_ram_addr == 4'd15) begin
-                                disk_enable_run = 1'b1;
-                            end
-                            disk_format_ram_addr = disk_format_ram_addr + 4'd1;
-                        end
-
-                        TIOA_DISKTAG: begin
-                            logic [11:0] bus;
-                            logic [1:0]  drv;
-                            disk_tag = io_write_data;
-                            bus      = io_write_data[11:0];
-                            drv      = disk_selected_drive;
-
-                            if (io_write_data[15]) begin // TAG_DRIVE (0x8000)
-                                if (bus[5]) begin
-                                    int cnt, div_val, spr;
-                                    cnt = int'(bus[9:6]);
-                                    disk_drv_subsector_cnt[drv] = 6'(cnt);
-                                    div_val = cnt + 1;
-                                    spr     = (117 + div_val - 1) / div_val;
-                                    if (spr <= 0) spr = 1;
-                                    disk_drv_sectors_per_rev[drv] = 7'(spr);
-                                    if (disk_drv_cur_sector[drv] >= 7'(spr)) begin
-                                        disk_drv_cur_sector[drv] = 7'd0;
-                                    end
-                                end
-                                if (bus[4] && bus[3:0] <= 4'd3) begin
-                                    disk_selected_drive = bus[1:0];
-                                    for (int i = 0; i < 4; i++) begin
-                                        disk_drv_selected[i] = (i == int'(bus[1:0]));
-                                    end
-                                end
-                            end else if (io_write_data[13]) begin // TAG_HEAD (0x2000)
-                                logic [5:0] hd;
-                                hd = bus[5:0];
-                                if (disk_drv_heads[drv] > 6'd0 && hd < disk_drv_heads[drv]) begin
-                                    disk_drv_cur_head[drv]  = hd;
-                                    disk_drv_head_ovfl[drv] = 1'b0;
-                                    disk_sector_read_req    = 1'b1;
-                                end else if (disk_drv_online[drv]) begin
-                                    disk_drv_cur_head[drv]  = hd;
-                                    disk_drv_head_ovfl[drv] = 1'b1;
-                                end
-                                disk_tag_tw = 1'b1;
-                            end else if (io_write_data[14]) begin // TAG_CYLINDER (0x4000)
-                                if (disk_drv_online[drv]) begin
-                                    disk_drv_cur_cyl[drv]      = bus;
-                                    disk_drv_cur_sector[drv]   = 7'd0;
-                                    disk_drv_seek_in_prog[drv] = int'(disk_drv_sectors_per_rev[drv]);
-                                    disk_sector_read_req       = 1'b1;
-                                end
-                                disk_tag_tw = 1'b1;
-                            end else if (io_write_data[12]) begin // TAG_CONTROL (0x1000)
-                                if (bus[3]) begin // DiskReset
-                                    disk_drv_head_ovfl[drv] = 1'b0;
-                                end
-                                if (bus[1]) begin // ReZero
-                                    disk_drv_cur_cyl[drv]      = 12'd0;
-                                    disk_drv_cur_head[drv]     = 6'd0;
-                                    disk_drv_cur_sector[drv]   = 7'd0;
-                                    disk_drv_head_ovfl[drv]    = 1'b0;
-                                    disk_drv_seek_in_prog[drv] = int'(disk_drv_sectors_per_rev[drv]);
-                                    disk_restore_pending       = 1'b1;
-                                    disk_sector_read_req       = 1'b1;
-                                end
-                                if (bus[0]) begin // HeadAdvance
-                                    disk_drv_cur_head[drv] = disk_drv_cur_head[drv] + 6'd1;
-                                    disk_sector_read_req   = 1'b1;
-                                end
-                                if (bus[6]) begin // Read
-                                    logic ok;
-                                    disk_read_block_framing = 1'b0;
-                                    disk_begin_read_stream_task(ok);
-                                    if (ok) disk_active = 1'b1;
-                                end
-                                if (bus[7]) begin // Write
-                                    if (disk_drv_online[drv] && !disk_drv_read_only[drv]) begin
-                                        disk_write_stream_active   = 1'b1;
-                                        disk_write_block_framing   = 1'b0;
-                                        disk_write_stream_index    = 0;
-                                        disk_current_block         = 3'd0;
-                                        disk_current_block_op      = 2'd3;
-                                        disk_current_block_words   = 16'(int'(disk_drv_hdr_words[drv]) +
-                                                                         int'(disk_drv_lbl_words[drv]) +
-                                                                         int'(disk_drv_data_words[drv]));
-                                        disk_current_block_pos     = 16'd0;
-                                        disk_current_block_prefix  = 1'b0;
-                                        disk_current_block_trailer = 4'd0;
-                                        disk_fifo_count            = 0;
-                                        disk_fifo_head             = 0;
-                                        disk_fifo_tail             = 0;
-                                    end
-                                    disk_active = 1'b1;
-                                    disk_update_fifo_tws_task();
-                                end
-                                disk_tag_tw = 1'b1;
-                            end
-                        end
-                        default: ;
-                    endcase
-                end
+                // 3. Disk (Trident): the disk stage (disk_tick_pend) does it
 `endif
             end
 
@@ -2084,26 +2492,6 @@ module dorado_rtl_io
                     end
                 end
 `ifndef DORADO_NO_DISK
-                else if (fastio_task == TASK_DSK) begin
-                    if (fastio_kind == DM_REF_IOFETCH) begin
-                        for (int i = 0; i < 16; i++) begin
-                            if (disk_fifo_count >= DISK_FIFO_WORDS) break;
-                            disk_fifo[disk_fifo_head] = fastio_out_munch[i];
-                            disk_fifo_head            = (disk_fifo_head + 1) % DISK_FIFO_WORDS;
-                            disk_fifo_count           = disk_fifo_count + 1;
-                        end
-                        disk_update_fifo_tws_task();
-                    end else if (fastio_kind == DM_REF_IOSTORE) begin
-                        for (int i = 0; i < 16; i++) begin
-                            if (disk_fifo_count > 0) begin
-                                disk_fifo_tail  = (disk_fifo_tail + 1) % DISK_FIFO_WORDS;
-                                disk_fifo_count = disk_fifo_count - 1;
-                                disk_refill_fifo_task();
-                            end
-                        end
-                        disk_update_fifo_tws_task();
-                    end
-                end
 `endif
             end
 
@@ -2136,6 +2524,12 @@ module dorado_rtl_io
 
             if (display_wake_gate) begin
                 logic dwt_woke;
+                logic [3:0] word_task;
+                // the word task the terminal's horizontal task pairs with: DWT
+                // for DHT (DispY), AWT for AHT (the DispM board's Alto-terminal
+                // interface, which Interlisp-D Lyric drives) -- machine.c's
+                // display wake does the same
+                word_task = (ddc_terminal_task == TASK_AHT) ? TASK_AWT : TASK_DWT;
                 dwt_woke = 1'b0;
                 for (int ch = 0; ch < 4; ch++) begin
                     if (!dwt_woke) begin
@@ -2143,16 +2537,16 @@ module dorado_rtl_io
                             ddc_raster_next_wt_flag[ch]    = 1'b0;
                             ddc_raster_current_wt_flag[ch] = 1'b1;
                             ext_subtask_we                 = 1'b1;
-                            ext_subtask_task               = TASK_DWT;
+                            ext_subtask_task               = word_task;
                             ext_subtask_val                = 2'(ch);
-                            ext_wakeup_req[TASK_DWT]       = 1'b1;
+                            ext_wakeup_req[word_task]       = 1'b1;
                             dwt_woke                       = 1'b1;
                         end else if (ddc_raster_current_wt_flag[ch] &&
                                      ddc_fifo_used_fn(ch) > 0 && ddc_fifo_free_fn(ch) >= 16) begin
                             ext_subtask_we           = 1'b1;
-                            ext_subtask_task         = TASK_DWT;
+                            ext_subtask_task         = word_task;
                             ext_subtask_val          = 2'(ch);
-                            ext_wakeup_req[TASK_DWT] = 1'b1;
+                            ext_wakeup_req[word_task] = 1'b1;
                             dwt_woke                 = 1'b1;
                         end
                     end
@@ -2165,9 +2559,9 @@ module dorado_rtl_io
                             ddc_wcb_draw_x[ch]       = 16'd0;
                             ddc_wcb_draw_y[ch]       = 16'(ddc_scan_line);
                             ext_subtask_we           = 1'b1;
-                            ext_subtask_task         = TASK_DWT;
+                            ext_subtask_task         = word_task;
                             ext_subtask_val          = ch ? 2'd2 : 2'd0;
-                            ext_wakeup_req[TASK_DWT] = 1'b1;
+                            ext_wakeup_req[word_task] = 1'b1;
                             dwt_woke                 = 1'b1;
                         end
                     end
@@ -2176,9 +2570,9 @@ module dorado_rtl_io
                         st = ch ? 2 : 0;
                         if (!dwt_woke && ddc_current_wcb_flag[ch] && ddc_fifo_free_fn(st) >= 16) begin
                             ext_subtask_we           = 1'b1;
-                            ext_subtask_task         = TASK_DWT;
+                            ext_subtask_task         = word_task;
                             ext_subtask_val          = 2'(st);
-                            ext_wakeup_req[TASK_DWT] = 1'b1;
+                            ext_wakeup_req[word_task] = 1'b1;
                             dwt_woke                 = 1'b1;
                         end
                     end
@@ -2200,51 +2594,27 @@ module dorado_rtl_io
             end
 
 `ifndef DORADO_NO_DISK
-            // 3. Disk Rotation Timer & Wakeups
-            begin
-                logic [1:0] drv;
-                drv = disk_selected_drive;
-                if (disk_drv_online[drv] && disk_enable_run) begin
-                    int spr;
-                    logic [63:0] cps;
-                    spr = int'(disk_drv_sectors_per_rev[drv]);
-                    if (spr <= 0) spr = 1;
-                    cps = {32'd0, disk_cycles_per_rev} / 64'(spr);
-                    if (cps == 64'd0) cps = 64'd1;
-
-                    if (disk_next_sector_cycle == 64'd0) begin
-                        disk_next_sector_cycle = cycles + cps;
-                    end else if (cycles >= disk_next_sector_cycle) begin
-                        logic at_index;
-                        disk_drv_cur_sector[drv] = 7'((int'(disk_drv_cur_sector[drv]) + 1) % spr);
-                        at_index                 = (disk_drv_cur_sector[drv] == 7'd0);
-                        disk_sector_read_req     = 1'b1;
-
-                        if (disk_drv_seek_in_prog[drv] > 0) begin
-                            disk_drv_seek_in_prog[drv] = disk_drv_seek_in_prog[drv] - 1;
-                            if (at_index) disk_drv_seek_in_prog[drv] = 0;
-                        end
-                        if (at_index) begin
-                            disk_drv_index_pulse[drv] = 1'b1;
-                            disk_index_tw             = 1'b1;
-                            disk_sector_tw            = 1'b1;
-                            disk_block_till_index     = 1'b0;
-                            disk_start_pending_transfer_task();
-                        end else begin
-                            disk_drv_index_pulse[drv] = 1'b0;
-                            if (!disk_block_till_index) begin
-                                disk_sector_tw = 1'b1;
-                                disk_start_pending_transfer_task();
-                            end
-                        end
-                        disk_next_sector_cycle = disk_next_sector_cycle + cps;
-                    end
-                end
-                if (disk_index_tw || disk_sector_tw || disk_tag_tw ||
-                    disk_rd_fifo_tw || disk_wr_fifo_tw) begin
-                    ext_wakeup_req[TASK_DSK] = 1'b1;
-                end
-            end
+            // 3. Disk: latch this tick's disk strobes; the disk stage handles
+            // them in the clocks after the tick (io_busy holds the CPU), so the
+            // disk's logic is not chained onto the rest of the tick's
+            dk_rd_pop  = io_read_stb && io_read_stb_task == TASK_DSK && io_read_stb_tioa == TIOA_DISKDATA;
+            dk_wr      = io_write_stb && io_write_task == TASK_DSK;
+            dk_wr_tioa = io_write_tioa;
+            dk_wr_data = io_write_data;
+            dk_fio     = fastio_stb && fastio_task == TASK_DSK;
+            dk_fio_kind = fastio_kind;
+            for (int i = 0; i < 16; i++) dk_fio_munch[i] = fastio_out_munch[i];
+            // the DSK wakeup stands while a TW latch is set (cheap: registers)
+            if (disk_index_tw || disk_sector_tw || disk_tag_tw || disk_rd_fifo_tw || disk_wr_fifo_tw)
+                ext_wakeup_req[TASK_DSK] = 1'b1;
+            // the stage only when there is disk work: this tick's strobes
+            // (stage 1, then 2), or a sector pulse due (stage 2 alone) --
+            // otherwise the rotation timer has nothing to do this tick
+            if (dk_rd_pop || dk_wr || dk_fio)
+                disk_stage = 2'd1;
+            else if (disk_drv_online[disk_selected_drive] && disk_enable_run &&
+                     (disk_next_sector_cycle == 64'd0 || disk_time >= disk_next_sector_cycle))
+                disk_stage = 2'd2;
 `endif
         end
     end

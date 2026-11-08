@@ -2165,6 +2165,28 @@ static void machine_germ_netboot_diag(dorado_machine *m)
     fprintf(stderr, "\n");
 }
 
+/* Host-only (dorado_machine_host_only: the FPGA is the Dorado and this
+ * machine supplies its host services, as dorado-hps does on the MiSTer ARM):
+ * every guest read and write is a mailbox round trip that holds the core. The
+ * Alto-world input cells below are re-presented on every microinstruction
+ * in-process, where a read-back is a cache lookup; through the mailbox that
+ * was ~17 round trips per host step and starved the core. Present them at the
+ * cadence the hardware itself updates them instead -- the terminal sends one
+ * HM Table 24 message per 32 scan lines, about every 2 ms -- which is 2 ms of
+ * guest time at 3.70 BaseBoard cycles per 60 ns microinstruction. In-process
+ * (not host-only) nothing changes. File-scope statics, not machine members:
+ * the snapshot ABI. */
+#define HOST_INPUT_INTERVAL_CYCLES 123333u
+static uint64_t machine_host_input_next = 0;
+static uint64_t machine_host_eic_next = 0;
+static int machine_host_input_due(uint64_t *next, uint64_t now)
+{
+    if (!dorado_machine_host_only) return 1;
+    if (now < *next) return 0;
+    *next = now + HOST_INPUT_INTERVAL_CYCLES;
+    return 1;
+}
+
 /* Seed the four Alto keyboard words (base+0177034..7) at each plausible
  * base (absolute, IOBR, MDS) so the loaded world's boot-key poll sees
  * them regardless of which space it reads. */
@@ -3841,7 +3863,8 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
          * input IOCBs through EthernetOne's CSB at VM 177600B and VM 604B is
          * unrelated state there. Keep the gate disabled for planted-germ
          * Route B runs (world_rx_words = 0xFFFF from init). */
-        if (m->ether_loaded_world_cycle && !m->germ_word_count)
+        if (m->ether_loaded_world_cycle && !m->germ_word_count &&
+            machine_host_input_due(&machine_host_eic_next, bb->cycles))
             eth->world_rx_words = dorado_visible_word_at_va(&m->mem, 0604u);
         /* CADENCE, not per-microinstruction. This whole block polls GUEST
          * MEMORY -- roughly five VA reads and three bridge calls -- to ask
@@ -3940,8 +3963,13 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
          * In disk mode, or once the boot file is downloading, the frontend's
          * live state drives the Alto input words directly (the DDC 7-wire
          * back-channel is not modeled; gap E2). */
+        /* (Host-only, the C CPU does not run -- the FPGA is the processor --
+         * so its ifu_active is whatever the checkpoint left and would gate
+         * the input off for good; the mailbox writes land between the
+         * FPGA's microinstructions anyway.) */
         if (m->ether_loaded_world_cycle && !m->germ_word_count &&
-            !cpu->ifu_active) {
+            (dorado_machine_host_only || !cpu->ifu_active) &&
+            machine_host_input_due(&machine_host_input_next, bb->cycles)) {
             int disk_boot_reason = machine_boot_chord_is_disk(m);
             if (m->alto_ether_boot && !disk_boot_reason &&
                 eth->eftp_max_seq == 0) {
@@ -4962,6 +4990,11 @@ void dorado_machine_set_mouse_buttons(dorado_machine *m, int buttons)
 struct dorado_ethernet *dorado_machine_ethernet(dorado_machine *m)
 {
     return m ? &m->ethernet : NULL;
+}
+
+struct dorado_disk_controller *dorado_machine_disk(dorado_machine *m)
+{
+    return m ? &m->disk : NULL;
 }
 
 dorado_display *dorado_machine_display(dorado_machine *m)

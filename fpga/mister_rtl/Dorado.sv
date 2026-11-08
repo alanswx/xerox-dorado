@@ -239,11 +239,32 @@ dorado_keyboard keyboard
 // (bit 2 Red = left, bit 1 Blue = right, bit 0 Yellow = middle; machine.c).
 // PS/2 packet: byte 0 status (0 L, 1 R, 2 M, 4 X sign, 5 Y sign), 1 X, 2 Y;
 // PS/2 Y counts up, the Alto's down.
+// CKPT: a checkpoint core (Cedar or Smalltalk): it powers up in a world's
+// checkpoint baked into init/, takes storage from dorado-hps over the DDR
+// mailbox and waits for its go. Cedar takes mouse motion through the terminal
+// (its display microcode); Smalltalk-76, an Alto-family world, takes the
+// absolute position as the C emulator gives it (dorado-hps -w smalltalk).
 `ifdef DORADO_CEDAR
+localparam bit        TRIDENT = 1'b0;
 localparam bit        CEDAR = 1'b1;
+localparam bit        CKPT  = 1'b1;
 localparam int        MOUSE_W = 1024;      // Cedar's screen
-`else
+`elsif DORADO_SMALLTALK
+localparam bit        TRIDENT = 1'b1;
 localparam bit        CEDAR = 1'b0;
+localparam bit        CKPT  = 1'b1;
+localparam int        MOUSE_W = 640;       // Smalltalk-76's bitmap
+`elsif DORADO_LISP
+// Interlisp-D Lyric: the same kind of world (the Alto emulator on a Trident
+// pack, the absolute mouse through dorado-hps -w lisp), on the full screen
+localparam bit        TRIDENT = 1'b1;
+localparam bit        CEDAR = 1'b0;
+localparam bit        CKPT  = 1'b1;
+localparam int        MOUSE_W = 1024;
+`else
+localparam bit        TRIDENT = 1'b0;
+localparam bit        CEDAR = 1'b0;
+localparam bit        CKPT  = 1'b0;
 localparam int        MOUSE_W = 606;       // the Alto's
 `endif
 reg         mouse_present = 1'b0;
@@ -279,13 +300,13 @@ wire [63:0] cycles;
 wire        halted;
 
 dorado_rtl_top #(
-	.STORAGE_WORDS (CEDAR ? 4 * 1024 * 1024 : 65536),
+	.STORAGE_WORDS (CKPT ? 4 * 1024 * 1024 : 65536),
 	.RESET_PC      (`DORADO_RESET_PC),
 	.BOOT_WORDS    (`DORADO_BOOT_WORDS),
 	.BOOT_HEX      ("roms/bootfile.hex"),
 	.BOL_HEX       ("roms/bol.hex"),
 	.EXT_STORAGE   (1'b1),
-	.HPS_MAILBOX   (CEDAR),
+	.HPS_MAILBOX   (CKPT),
 `ifdef DORADO_PIPELINE
 	.PIPELINE      (1'b1)
 `else
@@ -305,10 +326,13 @@ dorado_rtl_top #(
 	.bb_mir_iw1         (16'd0),
 	.bb_mir_iw2         (16'd0),
 	.io_bridge_en       (1'b1),
-	.bootsrv_en         (!CEDAR),
-	.assist_en          (!CEDAR),
-	.display_wake_gate  (CEDAR),        // Cedar's display microcode drives the DDC
-	.display_top_lines  (CEDAR ? 6'd22 : 6'd0),
+	.disk_bridge_en     (1'b0),
+	.disk_time_ext_en   (1'b0),
+	.disk_time          (64'd0),
+	.bootsrv_en         (!CKPT),
+	.assist_en          (!CKPT),
+	.display_wake_gate  (CKPT),         // the world's own display microcode drives the DDC
+	.display_top_lines  (CKPT ? 6'd22 : 6'd0),
 	.kbd_words          ({key_word3, key_word2, key_word1, key_word0}),
 	.mouse_buttons      (mouse_buttons),
 	.mouse_present      (mouse_present),
@@ -326,7 +350,7 @@ dorado_rtl_top #(
 	.hx_rx_on           (),
 	.hx_rx_drained      (),
 	.hp_hold            (1'b0),
-	.ov_hold            (1'b0),
+	.ov_hold            (TRIDENT),      // C_PIPE overlap off for the Trident worlds (clean-rtl-handoff 9.5, OPEN)
 	.hp_req             (1'b0),
 	.hp_op              (3'd0),
 	.hp_we              (1'b0),

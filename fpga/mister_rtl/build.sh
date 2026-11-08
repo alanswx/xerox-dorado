@@ -8,7 +8,8 @@
 #
 # CORE=cedar builds the Cedar checkpoint core instead: rtl_core/init_cedar/
 # (sim_cedar.cpp CEDAR_DUMP_INIT) becomes init/, and the core waits for
-# dorado-hps (rtl_core/hps) on the ARM.
+# dorado-hps (rtl_core/hps) on the ARM. CORE=smalltalk is the Smalltalk-76
+# checkpoint core (rtl_core/init_smalltalk; dorado-hps -w smalltalk).
 set -e
 TEMPLATE=${1:-$HOME/mister/Template_MiSTer}
 OUT=${2:-$HOME/mister/DoradoRtlCore}
@@ -18,6 +19,8 @@ CORE=$(cd "$HERE/../../rtl_core" && pwd)
 [ -d "$TEMPLATE/sys" ] || { echo "no framework at $TEMPLATE/sys"; exit 1; }
 INIT=init
 [ "$CORE_KIND" = cedar ] && INIT=init_cedar
+[ "$CORE_KIND" = smalltalk ] && INIT=init_smalltalk
+[ "$CORE_KIND" = lisp ] && INIT=init_lisp
 [ -f "$CORE/$INIT/start.txt" ] || { echo "no $CORE/$INIT -- see the comment at the top"; exit 1; }
 [ -f "$CORE/roms/bootfile.len" ] || { echo "no $CORE/roms -- run: make -C rtl_core roms/bootfile.hex"; exit 1; }
 
@@ -47,6 +50,7 @@ done
 cp "$CORE/../verilog/cells/dorado_keyboard.v" "$OUT/rtl/"
 rm -rf "$OUT/init" "$OUT/roms"
 cp -r "$CORE/$INIT" "$OUT/init"
+rm -f "$OUT/init/storage.bin"   # dorado-hps loads it into DDR; the bitstream does not need it
 cp -r "$CORE/roms" "$OUT/"
 
 cat > "$OUT/files.qip" <<QIP
@@ -66,13 +70,37 @@ set_global_assignment -name VERILOG_FILE rtl/dorado_keyboard.v
 set_global_assignment -name SDC_FILE Dorado.sdc
 set_global_assignment -name SYSTEMVERILOG_FILE Dorado.sv
 set_global_assignment -name VERILOG_MACRO "DORADO_INIT=1"
-set_global_assignment -name VERILOG_MACRO "DORADO_NO_DISK=1"
 set_global_assignment -name VERILOG_MACRO "DORADO_RESET_PC=16'o$RESET_PC"
 set_global_assignment -name VERILOG_MACRO "DORADO_BOOT_WORDS=$BOOT_WORDS"
 QIP
+# The Trident controller is in only where a world uses it (Smalltalk-76's
+# pack, through its sector engine on the DDR aux port).
+if [ "$CORE_KIND" != smalltalk ] && [ "$CORE_KIND" != lisp ]; then
+    echo 'set_global_assignment -name VERILOG_MACRO "DORADO_NO_DISK=1"' >> "$OUT/files.qip"
+fi
 if [ "$CORE_KIND" = cedar ]; then
     cat >> "$OUT/files.qip" <<QIP
 set_global_assignment -name VERILOG_MACRO "DORADO_CEDAR=1"
+set_global_assignment -name VERILOG_MACRO "DORADO_CHECKPOINT=1"
+set_global_assignment -name SEARCH_PATH init
+QIP
+fi
+# CORE=smalltalk: the Smalltalk-76 checkpoint core (rtl_core/init_smalltalk,
+# from sim_cedar.cpp SIM_WORLD=smalltalk CEDAR_SPLIT=1 CEDAR_DUMP_INIT); run
+# dorado-hps -w smalltalk on the ARM, which loads storage and the pack.
+if [ "$CORE_KIND" = smalltalk ]; then
+    cat >> "$OUT/files.qip" <<QIP
+set_global_assignment -name VERILOG_MACRO "DORADO_SMALLTALK=1"
+set_global_assignment -name VERILOG_MACRO "DORADO_CHECKPOINT=1"
+set_global_assignment -name SEARCH_PATH init
+QIP
+fi
+# CORE=lisp: Interlisp-D Lyric, full library (rtl_core/init_lisp, from
+# sim_cedar.cpp SIM_WORLD=lisp CEDAR_SPLIT=1 CEDAR_DISPLAY=1 CEDAR_DUMP_INIT,
+# DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME); dorado-hps -w lisp
+if [ "$CORE_KIND" = lisp ]; then
+    cat >> "$OUT/files.qip" <<QIP
+set_global_assignment -name VERILOG_MACRO "DORADO_LISP=1"
 set_global_assignment -name VERILOG_MACRO "DORADO_CHECKPOINT=1"
 set_global_assignment -name SEARCH_PATH init
 QIP
@@ -92,4 +120,10 @@ sed -e 's/mycore/Dorado/g' "$TEMPLATE/mycore.qsf" > "$OUT/Dorado.qsf"
 # Cedar pipelined build). Appended with a leading newline so it overrides the
 # template's default regardless of how that line is spelled or terminated.
 printf '\nset_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON\nset_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON\n' >> "$OUT/Dorado.qsf"
+# The Lisp build's HDMI scan-out path (the framework's, placement-sensitive)
+# missed by 0.278 ns at the worst corner with the default seed; seed 2 closes
+# every clock (core +1.189 ns, HDMI +0.223 ns, 2026-11-08).
+if [ "$CORE_KIND" = lisp ]; then
+    printf 'set_global_assignment -name SEED 2\n' >> "$OUT/Dorado.qsf"
+fi
 echo "assembled $OUT (RESET_PC=0$RESET_PC, boot file $BOOT_WORDS words)"

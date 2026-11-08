@@ -856,3 +856,193 @@ What a new session needs to know:
 - **Lock-step passing does not clear a board bug.** Both board-only bugs
   depended on DDR timing or on the ARM running beside the guest, which no
   simulation reproduces.
+
+## 9. Smalltalk-76 on the clean RTL core (2026-11-08)
+
+Smalltalk-76 (`SmalltalkDorado.eb!1` = DSemu, the XM Smalltalk pack) is the
+second world on the clean core and the first that needs the Trident disk:
+its object memory lives on the pack and it pages through the disk task. Cedar
+reaches its disk through the host's PDI bridge; Smalltalk drives the Dorado's
+own disk controller. The route was chosen by measurement first: the live
+desktop's slow I/O is the Trident disk and the display, and **no Ethernet**
+(Lisp needs a Leaf/STP file server as well, so it comes second).
+
+### 9.1 The CPU runs Smalltalk (lock-step)
+
+`sim_cedar.cpp` takes `SIM_WORLD=smalltalk` (checkpoint
+`build/good-packs/smalltalk76.snap`, argument 3 the pack). The pipelined and
+the sequential core each run **80,000,000 Smalltalk microinstructions** in
+lock-step with the C emulator, 0 mismatches, through a click on the browser's
+'Kernel Classes' (`CEDAR_CLICK=110,142 CEDAR_CLICK_HOLD=40000000`).
+Smalltalk takes 2.42 fabric clocks per microinstruction on the pipelined
+core (Cedar 2.57).
+
+### 9.2 The RTL Trident controller: never run before, now checked against disk.c
+
+Every MiSTer build had `DORADO_NO_DISK`, so the controller in
+`dorado_rtl_io.sv` had never executed. `SIM_DISK_RTL=1` makes it the disk:
+
+- `disk_bridge_en` (top) gives the CPU the RTL disk's answers for task 014 /
+  TIOA 010-014, its DMux bits, its IOStore munch and its wakeup, while the C
+  devices answer everything else; the C disk's wakeup is not poked into the
+  RTL, so a timing difference is a divergence.
+- `disk_time` / `disk_time_ext_en` rotate it on the C disk's clock. **C ticks
+  the disk with bb.cycles**, so its Trident turns ~3.7x faster than a real
+  3600-RPM drive (`DORADO_DISK_CYCLES_PER_REV` = 277,778 *bb* cycles =
+  75,075 microinstructions) -- the same bb.cycles class as the old Cedar
+  field-rate error. Left alone: C is the oracle and Smalltalk is proven on it.
+  The board's disk turns at the real rate (277,778 microinstructions).
+- After every step the two controllers are compared field by field
+  (`compare_disk`), and the two packs at the end.
+
+The checkpoint at the Alto Executive (`smalltalk76-exec.snap`, before
+`Bootfrom xmsmall.boot`) covers the whole image load. Three defects, each
+named by the compare at the step it happened:
+
+1. **READ and WRITE swapped.** disk.h numbers the block ops DONE 0, WRITE 1,
+   RDCHK 2, READ 3; the RTL had READ 1 and WRITE 3 (and the muffler's
+   Read/Write bits with them). Now named `DISK_OP_*`.
+2. **A read stream ran on into a write block.** When a read block ends and
+   the next is a write, disk.c's refill stops (`if (!read_stream_active)
+   break`); the RTL `continue`d and filled the write's FIFO with sector words.
+3. **The sector buffer was loaded too late.** The tick raised
+   `disk_sector_read_req` and started the read in the same clock, so the
+   stream read the previous sector. Replaced by the engine (9.3).
+
+Result (behavioural data path, all three fixed): **440,000,000
+microinstructions in lock-step from the Executive to the desktop** (124,945
+px), 286 transfers, 4 sector writes, every step's disk state equal to
+disk.c's, the packs equal sector for sector.
+
+### 9.3 The sector data engine (synthesizable)
+
+The first form did a FIFO refill inside the tick: a 32-iteration loop reading
+a 1,036-word sector array combinationally. Now the tick only asks
+(`disk_job_load/commit/refill`); an engine does the work between ticks, one
+step a clock, holding `io_busy` so the CPU waits in C_FETCH -- atomic
+between two microinstructions, as in disk.c:
+
+- the sector in four 260 x 16 lane RAMs (one M10K each; a lane-enabled
+  64-bit RAM was not inferred and cost 16,640 registers);
+- load/commit over a 64-bit beat port: DDR on the MiSTer (shared with the
+  mailbox on the storage engine's aux port by an arbiter in the top), a DPI
+  model over a private pack copy in lock-step;
+- the pack in DDR at byte **0x3100_0000**: a record per sector in the pack's
+  flat CHS order, header | label | data, ceil(words/4) beats (Smalltalk: 67);
+- record address one multiply a clock; the rotation's divider and modulo
+  replaced by tables (`disk_cps_rom`, `disk_spr_fn`); loops bounded for
+  Quartus.
+
+The harness drains the engine before each compare (`rtl_drain_disk`). The
+engine passes the same image load in lock-step: 440M microinstructions,
+19,162 beats read (286 loads x 67) and 1,064 words written (4 x 266), packs
+equal.
+
+**Out of the tick, for timing.** The first synthesis of the disk (it had never
+been through Quartus) failed by **44 ns** at 44 MHz: the disk's share of the
+single-clock I/O tick (strobes, block sequencing, the 16-iteration fast-I/O
+loops, the sector-pulse timer, the wakeup) on 32-bit `int` counters. The tick
+now latches the disk's strobes (`dk_*`) and a **disk stage** does the work in
+the clocks after it -- stage 1 the strobes, stage 2 the timer -- under
+`io_busy`; it runs only when the tick had a disk strobe or a sector pulse is
+due, and the DSK wakeup stands in the tick from the TW registers. Counters are
+narrowed, the fast-I/O FIFO moves are parallel. The sector buffer is four
+lane RAMs (a lane-enabled 64-bit array was not inferred: 16,640 registers).
+Result on the pipelined core: **32,715 ALMs (78%), +1.121 ns** core, +0.185
+HDMI; the stage costs 2.70 vs 2.67 clocks per microinstruction.
+
+### 9.4 The display: pixel-exact, no work needed
+
+`SIM_DISPLAY_SHADOW=1` syncs the RTL DDC from the C display and lets it draw
+from the display tasks' Outputs and munches. On the Smalltalk desktop it
+matches C on **477,888 of 477,888 pixels** once aligned: the RTL's 22-line
+offset is `display_top_lines`, and it shows 608 of the bitmap's 640 columns
+because that is the line width the display microcode programs into the DDC
+(C's rasterizer paints the whole bitmap). The XM bank-1 bitmap needs nothing
+special: the microcode supplies the bank in its fetch addresses.
+
+### 9.5 The board configuration (`CORE=smalltalk`)
+
+The Cedar checkpoint core with the disk in: `build.sh CORE=smalltalk`
+(`DORADO_SMALLTALK`, `DORADO_CHECKPOINT`, no `DORADO_NO_DISK`), init from
+`rtl_core/init_smalltalk` (`SIM_WORLD=smalltalk CEDAR_SPLIT=1 CEDAR_DISPLAY=1
+CEDAR_DUMP_INIT=../rtl_core/init_smalltalk obj_cedar/Vdorado_rtl_top 0`; the
+dump carries the disk, with the rotation timer unarmed so the board arms it
+at the real rate). `dorado-hps -w smalltalk` restores the snapshot, loads
+storage and the pack into DDR, and says go. Mouse: absolute (the Alto way),
+through the status block to the C machine, which writes MOUSELOC/UTILIN as
+the emulator does.
+
+Rehearsed in `sim_hps` (`make PIPE=0 HPS_ST_OBJ=obj_hps_st0
+obj_hps_st0/Vdorado_rtl_top`, run with `SIM_WORLD=smalltalk
+HPS_INIT_PARENT=obj_hps_st0`): the desktop draws (RTL DDC 112,145 lit, host
+render 124,945 px), and a click on 'Kernel Classes' **opens it in the
+browser** (128,535 px; C's `verify-smalltalk-input` is 128,547). Three things
+found on the way:
+
+- **The ARM's snapshot must be the wasm32 bake of the same run, with
+  `DORADO_FAKE_TIME`.** Without it the boot asks the Pup server for the date
+  and two bakes differ in storage at the same cycle (`ffc89879...` vs
+  `dfdba7db...`). Pinned, native and wasm32 hash alike (`00056671553d2315`).
+- **Host-only input cadence.** The emulator re-presents the Alto input cells
+  every microinstruction with a read-back; through the mailbox that was ~17
+  round trips per host step and held the core to 15.25 clocks per
+  microinstruction. Host-only now presents them every 2 ms of guest time --
+  the terminal's own message rate -- (2.42 clocks; 531,271 -> 1,041
+  operations per 2M microinstructions).
+- **Host-only input gate.** The seeding was gated on the C CPU's
+  `ifu_active`, frozen at the checkpoint's value in host-only mode; the time-
+  pinned checkpoint has it set, so no input reached the guest.
+
+**On MiSTer14 (2026-11-08):** `/media/fat/Scripts/DoradoSmalltalk.sh` (core
+`_Development/DoradoRtlSmalltalk_44.rbf`, host `dorado/dorado-hps-st -w
+smalltalk`). The core runs **16.5M microinstructions/s = 0.99x a Dorado**
+(2.67 clocks at 44 MHz), the desktop draws (124,945 px rendered from FPGA
+memory), and a scripted pointer move reaches Smalltalk's own cursor cells
+(426/427) and brings the Classes browser forward. A *scripted* button press
+(`dorado-hps -c`) does not select: the core's terminal model reports the PS/2
+mouse's buttons (up) to the terminal microcode, which rewrites UTILIN every
+~160,000 cycles over the host's press -- two writers of one cell. A real
+mouse feeds both alike (the rehearsal, which drives the core's mouse inputs,
+selects 'Kernel Classes').
+
+**OPEN: the C_PIPE overlap breaks Smalltalk under DDR timing.** With the
+pipelined core free-running against DDR (`sim_hps`), the screen is noise
+within 2M microinstructions. The sequential core, the pipelined core with
+`RTL_OV_HOLD=1`, and split mode (block-RAM storage) are all correct, and the
+pipelined core passes 80M steps in lock-step (where the harness suppresses
+the overlap whenever a device event lands). So it is the execute overlap,
+under DDR latency, in something the Alto-family display or disk microcode
+does and Cedar does not. The Smalltalk board build holds the overlap off
+(`Dorado.sv` ties `ov_hold` for the Trident worlds) until it is found. Reproduce:
+`make PIPE=1 obj_hps_st/Vdorado_rtl_top`, `SIM_WORLD=smalltalk
+HPS_INIT_PARENT=obj_hps_st RTL_FB_OUT=/tmp/fb.pbm obj_hps_st/Vdorado_rtl_top
+2000000`.
+
+### 9.6 Interlisp-D Lyric (2026-11-08, in progress)
+
+Lyric (`worlds/aemu.eb` on its Trident pack, the full-library sysout) needs
+the same disk and, it turned out, almost nothing else:
+
+- **CPU:** lock-step (`SIM_WORLD=lisp`, with `DORADO_DISPM_PRESENT=1
+  DORADO_FAKE_TIME=1783285880`) passes; 3.3 clocks per microinstruction.
+- **Display:** Lyric needs the DispM board present (without it,
+  `DisplayInitConfig` stops in Swat) and drives its desktop through DispM's
+  Alto-terminal interface -- tasks AHT (4) / AWT (011), TIOA 0360-0367 -- which
+  the RTL DDC already decodes. One defect: the DDC woke **DWT** for every word
+  request; the word task pairs with the terminal task (AHT -> AWT), as
+  machine.c's display wake has it. Fixed; split mode then draws the Lisp
+  desktop **pixel-identical to C (209,165)**.
+- **Input:** the board rehearsal (`obj_hps_lisp`, `HPS_ST_INIT=init_lisp`)
+  types through the core's keyboard inputs; `(PLUS 1 2)` reaches the XCL Exec
+  as typed and Lisp answers (`Undefined car of form PLUS` -- the XCL name is
+  `IL:PLUS`). A typist presses Shift before the key; a script that changes
+  both in one terminal message gets the key unshifted.
+- **Storage image.** The ARM restores a wasm32 bake; for Lisp the August
+  native and wasm32 bakes hash differently at the same cycle (`e323eed7...`
+  vs `79f27ddf...`) though both pin the time. So the checkpoint dump now also
+  writes `storage.bin` (the native run's exact storage) and dorado-hps loads
+  DDR from `build/good-packs/<world>.storage` when present: the core's init
+  and its storage always come from the same run.
+- **Board:** `build.sh CORE=lisp`, `dorado-hps -w lisp` (Leaf/STP from
+  `chm/lisp/ftp-root`, 426 files). The Lisp files are staged on MiSTer14.

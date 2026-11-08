@@ -33,6 +33,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <vector>
+#include <map>
+#include <algorithm>
 
 extern "C" {
 #include "cpu.h"
@@ -41,6 +43,7 @@ extern "C" {
 #include "display.h"
 #include "ethernet.h"
 #include "machine.h"
+#include "disk.h"
 }
 
 namespace {
@@ -166,6 +169,23 @@ uint16_t result(uint64_t n) {
 }
 
 uint16_t read_hook(const struct dorado_memory *, uint32_t va) {
+    // DORADO_HPS_READHIST=1: count the host's guest reads by VA (each is a
+    // mailbox round trip on the board); the top ones print at exit
+    static const bool rh = getenv("DORADO_HPS_READHIST") != nullptr;
+    if (rh) {
+        static std::map<uint32_t, uint64_t> *hist = nullptr;
+        if (!hist) {
+            hist = new std::map<uint32_t, uint64_t>;
+            atexit([] {
+                std::vector<std::pair<uint64_t, uint32_t>> v;
+                for (auto &kv : *hist) v.push_back({kv.second, kv.first});
+                std::sort(v.rbegin(), v.rend());
+                for (size_t k = 0; k < v.size() && k < 20; k++)
+                    fprintf(stderr, "[hps] read VA %08o: %llu\n", v[k].second, (unsigned long long)v[k].first);
+            });
+        }
+        (*hist)[va]++;
+    }
     S.reads++;
     return result(issue(AP_READ, va, 0, 0, 1));
 }
@@ -391,6 +411,7 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
     mc.eth_boot_110 = CFG.eb;
     mc.germ_path = CFG.germ;
     mc.pilot_disk_pdi[0] = CFG.pdi;
+    mc.disk_pack[0] = CFG.pack;
     mc.ftp_root = CFG.ftp_root;
     M = dorado_machine_create(&mc);
     if (!M) { fprintf(stderr, "[hps] machine create failed\n"); return 1; }
@@ -398,8 +419,8 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
         fprintf(stderr, "[hps] restore %s failed\n", CFG.snapshot);
         return 1;
     }
-    dorado_machine_set_ftp_source(M, mc.ftp_sysout, mc.ftp_root);
-    (void)dorado_machine_set_pilot_disk(M, 0, CFG.pdi);
+    if (CFG.ftp_root) dorado_machine_set_ftp_source(M, mc.ftp_sysout, mc.ftp_root);
+    if (CFG.pdi) (void)dorado_machine_set_pilot_disk(M, 0, CFG.pdi);
     C = (dorado_cpu *)dorado_machine_cpu(M);
     ETH = dorado_machine_ethernet(M);
     dorado_memory *mem = dorado_machine_memory(M);
@@ -412,7 +433,50 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
     // The mailbox starts clear (a stale seq could look like a command), and
     // storage holds the snapshot's; then the core may go.
     for (size_t b = 0; b < B_END; b++) T.mb[b] = 0;
+    // storage: the native run's image when given (the core's init/ came from
+    // that run; this restore may be a wasm32 bake that differs in a word),
+    // else the snapshot's -- and the host's own copy follows it either way
+    if (CFG.storage_image) {
+        FILE *sf = fopen(CFG.storage_image, "rb");
+        if (!sf) { perror(CFG.storage_image); return 1; }
+        size_t n = fread(mem->storage, sizeof(uint16_t), mem->storage_words, sf);
+        fclose(sf);
+        if (n != mem->storage_words) {
+            fprintf(stderr, "[hps] %s: %zu of %zu words\n", CFG.storage_image, n, (size_t)mem->storage_words);
+            return 1;
+        }
+        fprintf(stderr, "[hps] storage from %s\n", CFG.storage_image);
+    }
     for (size_t i = 0; i < mem->storage_words; i++) T.storage[i] = mem->storage[i];
+    // The pack, as dorado_rtl_io's sector engine reads it: a record per sector
+    // in the pack's flat CHS order, header | label | data, ceil(words / 4)
+    // beats each, word 4b+l in lane l (drive 0 only).
+    if (CFG.pack) {
+        const dorado_disk_pack *pk = dorado_machine_disk(M)->drive[0].pack;
+        if (!pk || !T.pack) { fprintf(stderr, "[hps] no pack, or no pack window\n"); return 1; }
+        const int hw = dorado_disk_geom_header_words(&pk->geometry);
+        const int lw = dorado_disk_geom_label_words(&pk->geometry);
+        const int dw = dorado_disk_geom_data_words(&pk->geometry);
+        const size_t stride = (size_t)(hw + lw + dw + 3) / 4;
+        if ((size_t)pk->num_sectors * stride > T.pack_beats) {
+            fprintf(stderr, "[hps] pack %d sectors x %zu beats > the %zu-beat window\n",
+                    pk->num_sectors, stride, T.pack_beats);
+            return 1;
+        }
+        for (int i = 0; i < pk->num_sectors; i++) {
+            const dorado_disk_sector *sec = &pk->sectors[i];
+            uint16_t rec[4 * 260] = {0};
+            int n = 0;
+            for (int k = 0; k < hw; k++) rec[n++] = sec->header[k];
+            for (int k = 0; k < lw; k++) rec[n++] = sec->label[k];
+            for (int k = 0; k < dw; k++) rec[n++] = sec->data[k];
+            for (size_t b = 0; b < stride; b++)
+                T.pack[(size_t)i * stride + b] = (uint64_t)rec[4*b] | (uint64_t)rec[4*b+1] << 16 |
+                                                 (uint64_t)rec[4*b+2] << 32 | (uint64_t)rec[4*b+3] << 48;
+        }
+        fprintf(stderr, "[hps] pack %s: %d sectors (%d/%d/%d words, %zu beats each) loaded\n",
+                CFG.pack, pk->num_sectors, hw, lw, dw, stride);
+    }
     barrier();
     T.mb[B_CTRL] = MB_MAGIC;
     barrier();

@@ -214,7 +214,7 @@ void dorado_disk_drive_attach_pack(dorado_disk_drive *drv,
  * timing model (dorado_disk_controller_tick). */
 #define DORADO_DISK_CYCLES_PER_REV    277778u
 
-typedef struct {
+typedef struct dorado_disk_controller {
     /* Slow-IO state (HM §9). */
     uint16_t control;                /* DiskControl bit field */
     uint8_t  enable_run;             /* set by completing Format RAM load */
