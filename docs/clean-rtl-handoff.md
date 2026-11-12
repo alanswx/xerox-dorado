@@ -1046,3 +1046,40 @@ the same disk and, it turned out, almost nothing else:
   and its storage always come from the same run.
 - **Board:** `build.sh CORE=lisp`, `dorado-hps -w lisp` (Leaf/STP from
   `chm/lisp/ftp-root`, 426 files). The Lisp files are staged on MiSTer14.
+
+### 9.7 To do: present each world at its own raster (2026-11-11)
+
+On MiSTer14 Smalltalk-76 shows a wide white band at the right: `Dorado.sv`
+scans out a fixed 1024x808 frame (Cedar's), Smalltalk's bitmap is 640x800,
+and the undrawn columns 640-1023 (and lines 800-807) show as white. The C
+emulator's frontends present each world at its native raster. Fix: for
+`DORADO_SMALLTALK`, limit DE to 640x800 and set `VIDEO_ARX/ARY` to 640:800 so
+the scaler centres it with black borders; Lisp and Cedar are 1024x808 already.
+Checked with a real keyboard and mouse the same day: Smalltalk's browser
+selects and its pop-up menus work.
+
+### 9.8 Lisp on the board with a real keyboard and mouse (2026-11-12)
+
+- **Cursor X.** The HDMI cursor stayed at one X while the guest's cursor
+  moved, so clicks landed away from the arrow. Lyric's display microcode
+  (`LispDisplayMain.mc` EndBootCheck) sends `CursorX_ CursorXConst - cursorX`,
+  and under `aemu.eb` the value arrives on TNLCB tagged register 03
+  (APointer), not 15 (CursorX) -- the same ReadIM select question as Cedar's
+  13. `dorado_rtl_io.sv` takes a TNLCB write of reg 03 >= 04000 from the AHT
+  as CursorX (measured in C: x = 4030 - val, rebased onto the draw's 3771).
+  Verified in sim (`HPS_CLICK=300,400`: cursor drawn at x 300) and on
+  MiSTer14.
+- **A one-button mouse.** `Dorado.sv` maps Option (Alt) + click to Yellow
+  (middle) and Command (GUI) + click to Blue (right), the Mac X11 convention;
+  neither key is in the Dorado keyboard matrix. The modifier is latched at the
+  press. Verified on MiSTer14: Blue gives the background and window menus,
+  Yellow selects words in TEdit.
+- **Busy cursors are Interlisp's own**: the whole cursor inverted during GC,
+  horizontal bars inverted for swap read/write and stack operations (Koto
+  `ChapTERMINAL` 30.4). Not a display bug.
+- **Timing.** With seed 2 every clock closes at every corner (core +1.543,
+  HDMI +0.136 ns at slow -40C). Seed 3 missed HDMI by 0.179 ns and seed 4 by
+  0.268 ns on the same RTL -- the HDMI path is placement noise, so re-check
+  it on every Lisp build.
+- `(IL:FILESLOAD HELPSYS)` + `(IL:LOAD '{DORADO}<IRM>IRMDEMO)` (Guest/Guest)
+  opens the IRM on the board, over Leaf from the ARM.

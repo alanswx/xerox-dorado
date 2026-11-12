@@ -269,6 +269,22 @@ localparam int        MOUSE_W = 606;       // the Alto's
 `endif
 reg         mouse_present = 1'b0;
 reg   [2:0] mouse_buttons = 3'd0;
+// A one-button mouse: Option (Alt) + click gives Yellow (middle) and Command
+// (GUI) + click gives Blue (right) -- the convention of the X11 servers on the
+// Mac. Neither key is in the Dorado keyboard matrix (dorado_keyboard), so the
+// guest never sees them. The modifier is taken when the button goes down and
+// held to its release, so letting go of the key mid-drag does not turn a Blue
+// press into a Red release.
+reg         kb_alt = 1'b0, kb_gui = 1'b0, kb_stb_q = 1'b0;
+reg   [1:0] click_as = 2'd0;               // 0 Red, 1 Yellow, 2 Blue
+always @(posedge clk_sys) begin
+	kb_stb_q <= ps2_key[10];
+	if (ps2_key[10] != kb_stb_q) begin
+		if (ps2_key[7:0] == 8'h11)                          kb_alt <= ps2_key[9];   // L/R Alt
+		if (ps2_key[8] && (ps2_key[7:0] == 8'h1F || ps2_key[7:0] == 8'h27))
+			                                                kb_gui <= ps2_key[9];   // L/R GUI
+	end
+end
 reg  [15:0] mouse_x = 16'(MOUSE_W / 2), mouse_y = 16'd404;
 reg         mouse_stb_q = 1'b0;
 reg  signed [15:0] mouse_dx = 16'sd0, mouse_dy = 16'sd0;   // the last report's motion
@@ -287,7 +303,18 @@ always @(posedge clk_sys) begin
 		mouse_dy        <= -{{6{ms_dy[9]}}, ms_dy};
 		mouse_delta_stb <= CEDAR;
 		mouse_present <= 1'b1;
-		mouse_buttons <= {ps2_mouse[0], ps2_mouse[1], ps2_mouse[2]};
+		// {Red, Blue, Yellow} = {left, right, middle}; a left press with a
+		// modifier stands in for the missing button
+		if (ps2_mouse[0] && !mouse_buttons[2] && !mouse_buttons[1] && !mouse_buttons[0])
+			click_as <= kb_gui ? 2'd2 : kb_alt ? 2'd1 : 2'd0;
+		begin : remap
+			logic [1:0] as;
+			as = (ps2_mouse[0] && !(mouse_buttons[2] | mouse_buttons[1] | mouse_buttons[0]))
+			     ? (kb_gui ? 2'd2 : kb_alt ? 2'd1 : 2'd0) : click_as;
+			mouse_buttons <= {ps2_mouse[0] && as == 2'd0,
+			                  ps2_mouse[1] || (ps2_mouse[0] && as == 2'd2),
+			                  ps2_mouse[2] || (ps2_mouse[0] && as == 2'd1)};
+		end
 		mouse_x <= (ms_nx < 0) ? 16'd0 : (ms_nx > MOUSE_W - 1) ? 16'(MOUSE_W - 1) : ms_nx[15:0];
 		mouse_y <= (ms_ny < 0) ? 16'd0 : (ms_ny > 807) ? 16'd807 : ms_ny[15:0];
 	end

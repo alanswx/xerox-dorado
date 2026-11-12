@@ -2354,6 +2354,22 @@ module dorado_rtl_io
                                     ddc_nlcb_cursor_x = {4'd0, val};
                                 end
                             end
+                            4'o03: begin // APointer -- or Lyric's CursorX
+                                // LispDisplayMain.mc EndBootCheck sends
+                                // CursorX_ CursorXConst - cursorX, the constant
+                                // from ReadIM[2]/[3]; under aemu.eb its select
+                                // bits arrive as 03 (Cedar's as 13, above), the
+                                // same open ReadIM question. APointer's own
+                                // writes (the reader pointer, `T_ APointer`)
+                                // are < 0400; a cursor value is >= 04000.
+                                // Measured in C (aemu.eb, Lyric): cursorX 100
+                                // -> 07532, 500 -> 06712, i.e. x = 4030 - val;
+                                // rebased onto the 3771 the draw below uses.
+                                if (io_write_tioa == TIOA_TNLCB && ddc_terminal_task == TASK_AHT &&
+                                    val >= 12'o4000) begin
+                                    ddc_nlcb_cursor_x = {4'd0, val} - 16'd259;
+                                end
+                            end
                             4'o16: begin // CursorLo
                                 ddc_nlcb_cursor_lo = val[7:0];
                                 ddc_nlcb_line      = ddc_nlcb_line + 16'd1;
