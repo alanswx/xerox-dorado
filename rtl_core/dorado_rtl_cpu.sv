@@ -548,6 +548,15 @@ module dorado_rtl_cpu
     int             p_raddr;         // the RM/STK address ex_u's operand was read at
     logic           pent;            // comb: C_NF enters C_PIPE (IM is read at f_np)
     logic           ovx;             // comb: C_PIPE executes ex_u this clock
+    logic           fin_fault;       // comb: the reference completing this clock faults (wakes task 15)
+    // DEBUG (sim only): +ovmask=N narrows the C_PIPE overlap, to bisect
+    logic [15:0]    ov_mask = 16'd0;
+`ifdef VERILATOR
+    initial begin
+        int v;
+        if ($value$plusargs("ovmask=%d", v)) ov_mask = 16'(v);
+    end
+`endif
     logic           pfwd;            // comb: C_PIPE finishes x_u this clock (its results are forwarded to the execute)
     logic           f_ok;            // comb: f_np is the address of the instruction after cur_u
     logic [8:0]     f_rb;            // comb: cur_u's dispatch RBase (an IFUJump)
@@ -1978,6 +1987,19 @@ module dorado_rtl_cpu
         // filling the receive buffer or emptying a transmit slot -- waits
         // there for cpu_between: in C_PIPE it must drain, not bubble, or the
         // mailbox and the pipeline wait on each other for ever)
+        // DEBUG knobs (sim): ex_u that may not run in the pipeline drains it
+        if (ov_mask[0] && ex_u.asel <= 3'd3)                 x_elig = 1'b0;   // ex_u references memory
+        if (ov_mask[1] && uinstr_reads_md_fn(ex_u))          x_elig = 1'b0;   // ex_u reads Md
+        if (ov_mask[2] && x_u.asel <= 3'd3)                  x_elig = 1'b0;   // x_u references memory
+        if (ov_mask[5] && jcn_ifujump_fn(ex_u))              x_elig = 1'b0;   // ex_u dispatches
+        if (ov_mask[6] && ff_fa(ex_u.ff) != 2'd0)            x_elig = 1'b0;   // ex_u FF not FA0
+        if (ov_mask[7] && ex_u.ff != 8'd0)                   x_elig = 1'b0;   // ex_u has any FF
+        if (ov_mask[8] && jcn_ifujump_fn(x_u))               x_elig = 1'b0;   // x_u dispatches
+        if (ov_mask[9] && ex_u.lc != 3'd0)                   x_elig = 1'b0;   // ex_u loads a register
+        if (ov_mask[10] && ff_full_function_ok(ex_u) && ff_fa(ex_u.ff) == 2'd1) x_elig = 1'b0;
+        if (ov_mask[11] && ff_full_function_ok(ex_u) && ff_fa(ex_u.ff) == 2'd2) x_elig = 1'b0;
+        if (ov_mask[12] && ff_full_function_ok(ex_u) && ff_fa(ex_u.ff) == 2'd3) x_elig = 1'b0;
+        if (ov_mask[13] && !ff_full_function_ok(ex_u) && ff_fa(ex_u.ff) != 2'd0) x_elig = 1'b0;
         x_host  = (ap_req && !ap_done_q) || ap_hold;
         x_ready = // beside a finish: not in the per-step lock-step, not an
                   // IFUJump's (the dispatch is checked after it), not a switch
@@ -1992,6 +2014,11 @@ module dorado_rtl_cpu
                   // a reference completing this clock is booked (mem_pref_task)
                   // at its top: the Md file the datapath reads is the old one
                   !(x_pref_pending && (uinstr_reads_md_fn(ex_u) || ex_u.asel == 3'd7));
+        // a reference completing this clock with a fault wakes the fault
+        // task (mem_pref_task) before the finish schedules: sw_maybe, from
+        // the registers, cannot see it, so ex_u must not execute beside it
+        x_ready = x_ready && !(p_w && fin_fault);
+        if (ov_mask[3] && p_w)                               x_ready = 1'b0;   // nothing beside a finish
         ovx   = x_elig && !x_host && x_ready;
         // otherwise a bubble: x_u's finish alone, ex_u and cur_u held
         p_bub = x_elig && !x_host && !x_ready && !p_stall;
@@ -2004,7 +2031,7 @@ module dorado_rtl_cpu
         // may have read IM elsewhere meanwhile, and C_PIPE does not re-read it)
         pent = PIPELINE && (st == C_NF) && !ov_hold && !ap_hold && ctask == 4'd0 && im_q_addr == x_pred_np[11:0] &&
                !(x_pref_pending && !mem_fin) && !io_busy_tick && !ifu_bk_busy &&
-               x_pred_fresh && (x_pred_np_x == pred_np) && !sw_maybe && f_ok &&
+               x_pred_fresh && (x_pred_np_x == pred_np) && !sw_maybe && !fin_fault && f_ok &&
                (jcn_plain_fn(x_u) || (jcn_ifujump_fn(x_u) && x_disp_v && !ff_loads_link_fn(x_u))) &&
                !uinstr_touches_io_fn(cur_u, 1'b0) &&
                !jcn_reads_im_at_link_fn(cur_u) && !next_reads_rm_fn(cur_u);
@@ -2385,6 +2412,8 @@ module dorado_rtl_cpu
     // own means the result shown is an older one)
     assign mem_fin = mem_res_valid_r && (mem_res_tag_r == TAG_PROC) &&
                      !(mem_req && mem_req_tag == TAG_PROC);
+    assign fin_fault = x_pref_pending && mem_fin &&
+                       ((mem_res_fault_r != DM_FAULT_NONE) || (fault_count != x_fcnt_before));
     // the dispatched bytes' references are booked before the processor's next
     // instruction executes (or the assist runs, or the lock-step compares);
     assign ifu_bk_busy = (bk_n != 2'd0) || (mem_req && mem_req_tag == TAG_BK) ||

@@ -146,9 +146,17 @@ assign LED_DISK = 0;
 assign LED_POWER = 0;
 assign BUTTONS = 0;
 
-// The framebuffer is 1024 x 808 square pixels.
-assign VIDEO_ARX = 13'd1024;
-assign VIDEO_ARY = 13'd808;
+// The framebuffer is 1024 x 808 square pixels. Each world is presented at
+// its own raster, as the C emulator's frontends do: Smalltalk-76's bitmap is
+// 640 x 800 (at the top left), so only that much is displayed and the scaler
+// centres it, rather than showing the undrawn rest of the frame as white.
+`ifdef DORADO_SMALLTALK
+localparam int DISP_W = 640, DISP_H = 800;
+`else
+localparam int DISP_W = 1024, DISP_H = 808;
+`endif
+assign VIDEO_ARX = 13'(DISP_W);
+assign VIDEO_ARY = 13'(DISP_H);
 
 `include "build_id.v"
 localparam CONF_STR = {
@@ -316,7 +324,7 @@ always @(posedge clk_sys) begin
 			                  ps2_mouse[2] || (ps2_mouse[0] && as == 2'd1)};
 		end
 		mouse_x <= (ms_nx < 0) ? 16'd0 : (ms_nx > MOUSE_W - 1) ? 16'(MOUSE_W - 1) : ms_nx[15:0];
-		mouse_y <= (ms_ny < 0) ? 16'd0 : (ms_ny > 807) ? 16'd807 : ms_ny[15:0];
+		mouse_y <= (ms_ny < 0) ? 16'd0 : (ms_ny > DISP_H - 1) ? 16'(DISP_H - 1) : ms_ny[15:0];
 	end
 end
 
@@ -472,7 +480,7 @@ always @(posedge clk_sys) begin
 	ovb2 <= ovb1;
 end
 always @(posedge clk_sys) begin
-	de1  <= (hc < H_VIS) && (vc < V_VIS);
+	de1  <= (hc < DISP_W) && (vc < DISP_H);   // the world's raster
 	hs1  <= (hc >= H_VIS + H_FP) && (hc < H_VIS + H_FP + H_SYNC);
 	vs1  <= (vc >= V_VIS + V_FP) && (vc < V_VIS + V_FP + V_SYNC);
 	de2  <= de1;

@@ -1083,3 +1083,46 @@ selects and its pop-up menus work.
   it on every Lisp build.
 - `(IL:FILESLOAD HELPSYS)` + `(IL:LOAD '{DORADO}<IRM>IRMDEMO)` (Guest/Guest)
   opens the IRM on the board, over Leaf from the ARM.
+
+### 9.9 Smalltalk at its own raster; the C_PIPE overlap bug narrowed (2026-11-12)
+
+- **Raster.** `Dorado.sv` now presents Smalltalk-76 at 640x800 (DE and
+  `VIDEO_ARX/ARY` from `DISP_W/DISP_H`; Lisp and Cedar stay 1024x808), so the
+  scaler centres it with black borders instead of a white band (9.7). Timing
+  closes at every corner (core +1.890, HDMI +0.162 ns). On MiSTer14.
+- **Speed: overlap is the only route to 1x for Lisp.** Sequential, Lisp is
+  3.27-3.30 clocks per microinstruction (0.81x at 44 MHz) and the core has
+  only ~7% clock margin. With the C_PIPE overlap it is 2.34-2.39 clocks
+  (~1.1x) -- but it is wrong. All numbers below are `sim_hps`, PIPE=1,
+  DDR model, deterministic, and need no board:
+  `make PIPE=1 HPS_ST_OBJ=obj_hps_lisp_pipe HPS_ST_INIT=init_lisp
+  obj_hps_lisp_pipe/Vdorado_rtl_top`, then `SIM_WORLD=lisp
+  HPS_INIT_PARENT=obj_hps_lisp_pipe DORADO_DISPM_PRESENT=1
+  DORADO_FAKE_TIME=1783285880 RTL_FB_OUT=fb.pbm ...Vdorado_rtl_top 30000000
+  [+ovmask=N]` (`RTL_OV_HOLD=1` is the reference: 209,165 lit at 30M).
+  Pass `HPS_ST_INIT` explicitly: the Makefile default carries trailing
+  blanks and a comment, which splits the dependency path.
+- **Bug 1, fixed (`fin_fault`).** A processor reference completing WITH A
+  FAULT in the clock C_PIPE executes ex_u beside x_u's finish:
+  `mem_pref_task` sets `wakeup_pending[15]` before the finish schedules, but
+  `sw_maybe` was computed from the registers, so the finish switched to the
+  fault task while ex_u ran as task 0 (Lisp printed `[C_PIPE] finish chose
+  ... task 15` and `the forwarded view differs`). `x_ready` and `pent` now
+  exclude it. Suite passes.
+- **Bug 2, Smalltalk: IFUJump in the overlap.** Smalltalk is noise in 2M
+  with overlap (233,918 lit vs 112,145). Taking a dispatching ex_u out of the
+  pipeline (`+ovmask=32`) -- or a dispatching x_u (`+ovmask=256`) -- fixes
+  the 2M screen, at 2.21 clocks. NOT yet a win: over 30M the same knob gives
+  3.87 clocks against 2.70 sequential (drain/re-entry thrash, unexplained).
+- **Bug 3, Lisp: open.** With bugs 1+2 excluded Lisp still Raids by 30M
+  ("Fault on resident page" {0,177777}; without the IFUJump knob, "Invalid
+  address" {1,66400}). No single exclusion fixes it: ex_u memory refs (1),
+  Md reads (2), x_u refs (4), FF by FA group (1024/2048/4096/8192), LC (512)
+  all still fail; only knobs that remove nearly all overlap pass (8, 64,
+  128), at no gain. The self-checks print nothing. Next tool: a lock-step
+  that does NOT suppress overlap at device events, or a per-task retired-
+  instruction diff of overlap vs `RTL_OV_HOLD` up to the first divergence.
+- `+ovmask` knobs (sim only, `dorado_rtl_cpu.sv`, `ov_mask`): 0 ex_u refs,
+  1 ex_u reads Md, 2 x_u refs, 3 nothing beside a finish, 5 ex_u IFUJump,
+  6 ex_u FF FA!=0, 7 ex_u any FF, 8 x_u IFUJump, 9 ex_u LC!=0, 10-12 FF
+  function FA=1/2/3, 13 FF as constant. Off by default; synthesis sees 0.
