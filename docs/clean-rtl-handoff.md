@@ -1126,3 +1126,53 @@ selects and its pop-up menus work.
   1 ex_u reads Md, 2 x_u refs, 3 nothing beside a finish, 5 ex_u IFUJump,
   6 ex_u FF FA!=0, 7 ex_u any FF, 8 x_u IFUJump, 9 ex_u LC!=0, 10-12 FF
   function FA=1/2/3, 13 FF as constant. Off by default; synthesis sees 0.
+
+### 9.10 The C_PIPE overlap bug: found and fixed (2026-11-12)
+
+Bugs 2 and 3 of 9.9 were ONE defect, and it was not in the overlap itself.
+
+- **The defect: a C_NF that waits loses its branch-condition register.** An
+  instruction whose branch tests its own RM/STK register (R odd/even, R<0)
+  has that register in `rm_q`/`stk_q` for exactly one clock after the
+  execute. C_NF evaluates the condition from it. But while C_NF is in
+  flight the RM port has already moved on to the NEXT instruction's operand
+  (`x_pred_fresh`), so if C_NF waits a clock (`ifu_bk_busy`, `io_busy_tick`)
+  the condition is evaluated from some other register. The fexec path
+  already guarded the `x_pref_pending` wait for this reason (its comment
+  says so); the other two waits were open. First seen at Smalltalk's
+  `I.Vars: T _ Id, B _ Mode, DblBranch[Push, Pull, R Even]`, the first
+  instruction after a dispatch (so `ifu_bk_busy` holds C_NF): it read RM[0]
+  where it wanted Mode. That is why every knob involving IFUJump "fixed" it.
+- **The fix** (`cw_valid`/`cw_rv`, `dorado_rtl_cpu.sv`): a waiting C_NF
+  latches the condition register in its first clock and `rm_q`/`stk_q`
+  present the latch until C_NF proceeds. It is not PIPELINE-specific: the
+  sequential core's fexec -> C_NF path had the same hole, only rarer.
+- **Result** (`sim_hps`, PIPE=1, 30M microinstructions, framebuffers
+  BYTE-IDENTICAL to `RTL_OV_HOLD`): Smalltalk 2.19 clocks (hold 2.70), Lisp
+  2.88 (hold 3.30). At 44 MHz that is 1.20x and 0.92x. `make test` and
+  `make PIPE=1 OBJ_DIR=obj_dir_pipe test` pass. `Dorado.sv` now ties
+  `ov_hold` to 0 for every world.
+- **The tool that found it**: `HPS_RETIRE=file[,from,to]` (sim_hps) writes
+  the processor after every retire (snap_* beside an overlap), and
+  `rtl_core/tools/retire_diff.py A B [task]` compares one task's retired
+  instructions between an overlap run and an `RTL_OV_HOLD` run. Compare per
+  TASK: wakeups land at different instructions in the two runs, so a
+  whole-machine diff diverges at the first task switch. The first task-0
+  difference after the fix (Smalltalk, instruction 43,511) is an IFU
+  dispatch taking an interrupt trap one opcode apart -- timing, not a bug.
+  (zsh trap: `env $E prog` does not split `$E`; the run silently became the
+  default Cedar world.)
+- **Lisp to 1x: what is left.** The census puts 0.64 clocks per instruction
+  in `finish waits: reference` -- Lisp makes 34 references per 100
+  instructions and each finish waits ~2 clocks for `mem_fin`. Needs 2.64
+  clocks at 44 MHz; either shorten the hit path in `dorado_rtl_mem.sv` or
+  let the finish retire before a non-faulting hit completes. Also 0.076
+  clocks per instruction waiting on the I/O engines.
+- **On MiSTer14** (both cores rebuilt with `ov_hold` = 0, 44 MHz, timing
+  closed at every corner): Smalltalk 20.39 M/s = **1.22x** (2.16 clocks,
+  124,945 px, the gate figure); Lisp 15.53 M/s = **0.93x** (2.83 clocks,
+  209,165 px, Exec prompt, no Raid). The `cw_*` mux on `rm_q` cost core
+  setup slack: Smalltalk +1.890 -> +0.127 ns, so there is no clock headroom
+  left to buy Lisp's last 7%; registering the latch select differently, or
+  the reference-wait work above, is the way. The previous non-overlap
+  bitstreams are kept on the board as `/media/fat/DoradoRtl*_44.noov.rbf`.

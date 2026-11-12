@@ -122,6 +122,15 @@ static void clock_n(int n) {
                            (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__p_d);
                 }
                 if (getenv("HPS_FLT_ALL"))
+                    printf("      rms_raddr %d p_raddr %d rm_q %06o byp %u RBase %o p_w %u p_x %u ovx %u p_bub %u we %u waddr %d wd %06o x_rb_iss %o\n",
+                           (int)r->dorado_rtl_top__DOT__u_cpu__DOT__rms_raddr, (int)r->dorado_rtl_top__DOT__u_cpu__DOT__p_raddr,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__rm_q, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__rms_byp,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__RBase, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__p_w,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__p_x, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__ovx,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__p_bub, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__rms_we,
+                           (int)r->dorado_rtl_top__DOT__u_cpu__DOT__rms_waddr, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__rms_wd,
+                           (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__x_rbase_at_issue);
+                if (getenv("HPS_FLT_ALL"))
                     printf("[clk] %llu task %u pc %04o st %u np %04o ap_req %u ap_hold %u ap_done_q %u mb_req %u op %u va %07o pcf %06o pfpcf %06o fast %u StkP %03o\n",
                            (unsigned long long)clocks, ct, rp, (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__st,
                            (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__x_np & 07777,
@@ -135,6 +144,45 @@ static void clock_n(int n) {
                            (unsigned)r->dorado_rtl_top__DOT__u_cpu__DOT__wakeup_pending);
                 pk = k;
             }
+        }
+        // HPS_RETIRE=file[,from,to]: the processor as each finish left it (snap_*
+        // when C_PIPE executed the next instruction beside it), one binary
+        // record per retired microinstruction: diff an overlap run against an
+        // RTL_OV_HOLD one (tools/retire_diff.py)
+        {
+            static FILE *rf = nullptr; static bool rinit = false;
+            static uint64_t rfrom = 0, rto = ~0ull, rn = 0;
+            if (!rinit) {
+                rinit = true;
+                if (const char *e = getenv("HPS_RETIRE")) {
+                    char fn[512]; unsigned long long a = 0, b = ~0ull;
+                    int k = sscanf(e, "%511[^,],%llu,%llu", fn, &a, &b);
+                    if (k >= 1) { rf = fopen(fn, "wb"); rfrom = a; if (k == 3) rto = b; }
+                }
+            }
+#define RC(x) top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__##x
+            if (rf && RC(step_done)) {
+                if (rn >= rfrom && rn < rto) {
+                    const bool sv = RC(snap_valid) != 0;
+                    uint16_t rec[12];
+                    rec[0]  = (uint16_t)(sv ? RC(snap_real_PC) : RC(real_PC));
+                    rec[1]  = (uint16_t)(sv ? RC(snap_ctask) : RC(ctask));
+                    rec[2]  = (uint16_t)(sv ? RC(snap_T) : RC(T));
+                    rec[3]  = (uint16_t)(sv ? RC(snap_Link) : RC(Link));
+                    rec[4]  = (uint16_t)(sv ? RC(snap_StkP) : RC(StkP));
+                    rec[5]  = (uint16_t)(sv ? RC(snap_RBase) : RC(RBase));
+                    rec[6]  = (uint16_t)(sv ? RC(snap_MemBase) : RC(MemBase));
+                    rec[7]  = (uint16_t)(sv ? RC(snap_Q) : RC(Q));
+                    rec[8]  = (uint16_t)(sv ? RC(snap_Cnt) : RC(Cnt));
+                    rec[9]  = (uint16_t)(sv ? RC(snap_ShC) : RC(ShC));
+                    rec[10] = (uint16_t)(sv ? (unsigned)RC(snap_flags)
+                                            : (unsigned)(RC(alu_zero) << 3 | RC(alu_lt0) << 2 | RC(alu_carry) << 1 | RC(alu_overflow)));
+                    rec[11] = (uint16_t)sv;
+                    fwrite(rec, sizeof rec, 1, rf);
+                }
+                rn++;
+            }
+#undef RC
         }
         if (pchist_on && top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__ctask == 0)
             pchist[top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__real_PC & 07777]++;

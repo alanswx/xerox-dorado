@@ -385,7 +385,7 @@ dorado_rtl_top #(
 	.hx_rx_on           (),
 	.hx_rx_drained      (),
 	.hp_hold            (1'b0),
-	.ov_hold            (TRIDENT),      // C_PIPE overlap off for the Trident worlds (clean-rtl-handoff 9.5, OPEN)
+	.ov_hold            (1'b0),         // C_PIPE overlap on for every world (clean-rtl-handoff 9.10)
 	.hp_req             (1'b0),
 	.hp_op              (3'd0),
 	.hp_we              (1'b0),

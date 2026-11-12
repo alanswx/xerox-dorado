@@ -359,8 +359,13 @@ module dorado_rtl_cpu
     logic [15:0] rm_qr, stk_qr;    // the RAM outputs (rm_q/stk_q add the bypass)
     logic        rms_byp;          // last clock's read was at the address it wrote
     logic [15:0] rms_bypv;
-    assign rm_q  = rms_byp ? rms_bypv : rm_qr;
-    assign stk_q = rms_byp ? rms_bypv : stk_qr;
+    // (cw_*: a C_NF that waits keeps the branch-condition register it found
+    // in its first clock; its RM port reads the next instruction's operand
+    // meanwhile, so the port's data is no longer x_u's register)
+    logic        cw_valid;
+    logic [15:0] cw_rv;
+    assign rm_q  = cw_valid ? cw_rv : rms_byp ? rms_bypv : rm_qr;
+    assign stk_q = cw_valid ? cw_rv : rms_byp ? rms_bypv : stk_qr;
     logic        rmq_is_stk;
     logic [15:0] im_q0, im_q1, im_q2;
     logic        im_q_pres, im_q_brk;
@@ -3453,6 +3458,7 @@ module dorado_rtl_cpu
             p_w      = 1'b0;
             p_x      = 1'b0;
             p_d      = 1'b0;
+            cw_valid = 1'b0;
             st      = C_FETCH;
             m_ret   = C_FETCH;
             x_im_wr = 1'b0;
@@ -3692,6 +3698,12 @@ module dorado_rtl_cpu
                             end
                         end
                     end
+                    cw_valid = 1'b0;
+                end else if (!cw_valid && next_reads_rm_fn(x_u)) begin
+                    // waiting: the condition register is in rm_q/stk_q in this
+                    // clock only (the execute's read)
+                    cw_rv    = rmq_is_stk ? stk_q : rm_q;
+                    cw_valid = 1'b1;
                 end
             end
 
