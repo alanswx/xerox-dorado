@@ -211,7 +211,18 @@ void read_status() {
     S.t_status = mono_s();
     uint64_t b8 = T.mb[B_STATUS], b9 = T.mb[B_STATUS + 1];
     uint64_t b10 = T.mb[B_STATUS + 2], b11 = T.mb[B_STATUS + 3];
-    S.rtl_cycles = b8 & 0xFFFFFFFFFFull;
+    {
+        // The status beat carries 40 bits of the microinstruction count,
+        // which wrap after 2^40 = 18.3 hours of a Dorado. Extend them here:
+        // a count that steps back leaves every "due at cycle N" test in the
+        // host (the live input seeding among them) waiting for a day.
+        static uint64_t last40;
+        static bool have40;
+        const uint64_t c40 = b8 & 0xFFFFFFFFFFull;
+        if (!have40) { S.rtl_cycles = c40; have40 = true; }
+        else S.rtl_cycles += (c40 - last40) & 0xFFFFFFFFFFull;
+        last40 = c40;
+    }
     S.status_reads++;
     S.rtl_clocks64 = T.mb[B_STATUS + 4];
     {
