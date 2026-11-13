@@ -488,6 +488,22 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
         fprintf(stderr, "[hps] pack %s: %d sectors (%d/%d/%d words, %zu beats each) loaded\n",
                 CFG.pack, pk->num_sectors, hw, lw, dw, stride);
     }
+    // DORADO_HPS_RM_OR="addr:bits,addr:bits" (octal): OR bits into RM
+    // registers once. Queued before the go, so the core applies them at its
+    // first microinstruction: a display-mode change (hps_main, Smalltalk)
+    // then takes effect at the end of the checkpoint's own field, before
+    // any whole field is drawn the old way.
+    if (const char *e = getenv("DORADO_HPS_RM_OR")) {
+        while (*e) {
+            char *end;
+            unsigned a = (unsigned)strtoul(e, &end, 8);
+            if (*end != ':') break;
+            unsigned v = (unsigned)strtoul(end + 1, &end, 8);
+            if (v) issue(AP_RM_OR, a, (uint16_t)v, 1, 0);
+            if (*end != ',') break;
+            e = end + 1;
+        }
+    }
     barrier();
     T.mb[B_CTRL] = MB_MAGIC;
     barrier();
@@ -523,6 +539,18 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
     fprintf(stderr, "[hps] FPGA at microinstruction %llu; quantum %u, germ poll %llu\n",
             (unsigned long long)cyc0, CFG.quantum,
             (unsigned long long)dorado_machine_germ_poll_interval);
+    // what DORADO_HPS_RM_OR (below, queued before go) left in the registers
+    if (const char *e = getenv("DORADO_HPS_RM_OR")) {
+        while (*e) {
+            char *end;
+            unsigned a = (unsigned)strtoul(e, &end, 8);
+            if (*end != ':') break;
+            strtoul(end + 1, &end, 8);
+            fprintf(stderr, "[hps] RM[%o] is %06o\n", a, result(issue(AP_RM_OR, a, 0, 1, 0)));
+            if (*end != ',') break;
+            e = end + 1;
+        }
+    }
     return 0;
 }
 

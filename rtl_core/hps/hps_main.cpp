@@ -117,6 +117,14 @@ int main(int argc, char **argv) {
         t.pack = (volatile uint64_t *)pp;
         t.pack_beats = PACK_LEN / 8;
         cfg.snapshot = "build/good-packs/smalltalk76.snap";
+        // Smalltalk-76's bitmap is 40 words wide, and the Alto display
+        // microcode clips each line to MaxWidthWordsAlto = 38 on an Alto
+        // monitor (DisplayMain.mc; the right 32 columns stayed white).
+        // Present an LF monitor in full-screen mode instead, as Alto opcode
+        // 61032B (SetDisplayConfigA, AC0 = -1) does: DisplayConfig (RM 166B)
+        // OR 3, and MaxWidthWords (RM 156B) OR MaxWidthWordsLF with 377 in
+        // the left half, which tells DHT to reinitialise at the next field.
+        if (!lisp_w) setenv("DORADO_HPS_RM_OR", "166:3,156:177500", 0);
         cfg.pdi = nullptr;
         if (access("build/good-packs/smalltalk76.storage", R_OK) == 0)
             cfg.storage_image = "build/good-packs/smalltalk76.storage";

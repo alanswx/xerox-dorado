@@ -367,7 +367,19 @@ dorado_rtl_top #(
 	.bootsrv_en         (!CKPT),
 	.assist_en          (!CKPT),
 	.display_wake_gate  (CKPT),         // the world's own display microcode drives the DDC
+	// The DDC's first visible line. Smalltalk runs the Alto display microcode
+	// in its LF-monitor full-width mode (dorado-hps -w smalltalk sets
+	// DisplayConfig), whose top border is TopBorderCntLF = 14 lines a field
+	// against TopBorderCntAlto = 12 (DisplayDefs.mc): four lines later.
+	// The cursor's X constant moves with it: 611 for an LF monitor at full
+	// width against 325 for an Alto monitor (the MargConst table), 286 more.
+`ifdef DORADO_SMALLTALK
+	.display_top_lines  (6'd26),
+	.display_cursor_dx  (10'd286),
+`else
 	.display_top_lines  (CKPT ? 6'd22 : 6'd0),
+	.display_cursor_dx  (10'd0),
+`endif
 	.kbd_words          ({key_word3, key_word2, key_word1, key_word0}),
 	.mouse_buttons      (mouse_buttons),
 	.mouse_present      (mouse_present),

@@ -1176,3 +1176,33 @@ Bugs 2 and 3 of 9.9 were ONE defect, and it was not in the overlap itself.
   left to buy Lisp's last 7%; registering the latch select differently, or
   the reference-wait work above, is the way. The previous non-overlap
   bitstreams are kept on the board as `/media/fat/DoradoRtl*_44.noov.rbf`.
+
+### 9.11 Board fixes found by use (2026-11-13)
+
+**The host's inputs died after 18 hours.** The status beat carries
+`cycles[39:0]`; at 2^40 microinstructions the host's count stepped back and
+`machine_host_input_due` waited for a cycle a day away, so the absolute
+mouse and UTILIN were no longer seeded (Lisp, Smalltalk; the keyboard goes
+through the terminal microcode and kept working). `read_status` accumulates
+the 40-bit difference now. Seen at 64,614 s of a Lisp session: the host's
+read rate fell to a third and no store was issued again.
+
+**Smalltalk's right 32 columns were white.** The Alto display microcode
+clips each line to `MaxWidthWordsAlto` = 38 words on an Alto monitor
+(`DisplayMain.mc`), and Smalltalk-76's bitmap is 40. `dorado-hps -w
+smalltalk` presents an LF monitor in full-screen mode instead, as Alto
+opcode 61032B (`SetDisplayConfigA`, AC0 = -1) does: `DisplayConfig` (RM
+166B) OR 3, `MaxWidthWords` (RM 156B) OR 177500B (the 377 in the left half
+makes DHT reinitialise at the end of the field). The ORs are queued in the
+mailbox BEFORE the go (`DORADO_HPS_RM_OR`, also usable by hand): issued
+after it, a few fields were drawn the old way first and left two stale rows
+at the top that nothing redraws (the bitmap's rows 0-1 carry no DCB line).
+The LF mode moves two constants, both in `Dorado.sv` for
+`DORADO_SMALLTALK`: `display_top_lines` 26 (`TopBorderCntLF` 14 against
+12) and the new `display_cursor_dx` 286 (the MargConst table's CursorX 611
+against 325). On mister14 the HDMI frame equals the host's render of the
+same memory, bit for bit apart from the cursor. `+ddcdbg` (sim only)
+traces the DDC's line starts.
+
+**A core loaded from the MiSTer menu shows a white screen**: it waits for
+`dorado-hps`. Use the Scripts entries (DoradoSmalltalk.sh, DoradoLisp.sh).

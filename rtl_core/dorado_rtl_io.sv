@@ -84,6 +84,7 @@ module dorado_rtl_io
     // which a monitor never shows). 0 for the Alto worlds; 22 measured for
     // Cedar's LF display (its first DCB line lands on frame line 22).
     input  logic [5:0]     display_top_lines,
+    input  logic [9:0]     display_cursor_dx,   // CursorX constant above the Alto-monitor one
     input  logic [15:0]    kbd_words_in [0:4],
     input  logic signed [15:0] mouse_dx_in,
     input  logic signed [15:0] mouse_dy_in,
@@ -2287,6 +2288,10 @@ module dorado_rtl_io
                             ddc_wcb_draw_x[ch]       = 16'd0;
                             ddc_wcb_draw_y[ch]       = 16'(draw_y);
                             ddc_start_line_task(ch, draw_y);
+`ifdef VERILATOR
+                            if (ddc_nlcb_line < 16'd18 && $test$plusargs("ddcdbg"))
+                                $display("[ddc] start ch%0d line %0d odd %0d pendvalid %0d width %0d", ch, ddc_nlcb_line, ddc_nlcb_field_odd, ddc_pend_valid[ch&1], ddc_pend_width[ch&1]);
+`endif
                         end else begin
                             // Render the line this channel has gathered: post a
                             // job to the framebuffer engine (it writes while
@@ -2294,6 +2299,10 @@ module dorado_rtl_io
                             // ddc_render_line guards.
                             int width_pixels, y;
                             width_pixels = ddc_decode_width_pixels_fn(ddc_cur_width[ch]);
+`ifdef VERILATOR
+                            if (ddc_nlcb_line < 16'd18 && $test$plusargs("ddcdbg"))
+                                $display("[ddc] end ch%0d line %0d odd %0d cury %0d valid %0d wc %0d wpx %0d", ch, ddc_nlcb_line, ddc_nlcb_field_odd, ddc_cur_y[ch], ddc_cur_valid[ch], ddc_cur_word_count[ch], width_pixels);
+`endif
                             y = (ddc_cur_abs_y[ch] ? int'(ddc_cur_y[ch])
                                                    : (int'(ddc_cur_line[ch]) * 2 + int'(ddc_cur_odd[ch])))
                                 - int'(display_top_lines);
@@ -2373,6 +2382,10 @@ module dorado_rtl_io
                             4'o16: begin // CursorLo
                                 ddc_nlcb_cursor_lo = val[7:0];
                                 ddc_nlcb_line      = ddc_nlcb_line + 16'd1;
+`ifdef VERILATOR
+                                if (ddc_nlcb_line < 16'd18 && $test$plusargs("ddcdbg"))
+                                    $display("[ddc] cursorlo -> line %0d odd %0d", ddc_nlcb_line, ddc_nlcb_field_odd);
+`endif
                                 begin
                                     int yl;
                                     yl = (int'(ddc_nlcb_line) - 1) * 2 + int'(ddc_nlcb_field_odd)
@@ -2391,7 +2404,8 @@ module dorado_rtl_io
                                     // Cedar's DisplayMain.mc sends base - cursorX: measured
                                     // on the Cedar desktop, cursor X 0 arrives as 3771 and
                                     // X 700 as 3071 (was 07235 = 3741, 30 pixels left)
-                                    x = 3771 - int'(ddc_nlcb_cursor_x); // CURSOR_X_BIAS = 07273
+                                    x = 3771 - int'(ddc_nlcb_cursor_x) // CURSOR_X_BIAS = 07273
+                                        - int'(display_cursor_dx);
                                     y = (int'(ddc_nlcb_line) - 1) * 2 + int'(ddc_nlcb_field_odd)
                                         - int'(display_top_lines);
                                     if (y >= 0 && y < DISPLAY_H && x > -16 && x < DISPLAY_W) begin
