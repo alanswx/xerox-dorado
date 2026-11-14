@@ -1317,21 +1317,21 @@ old one). `sim_hps` Cedar, 30M microinstructions: framebuffer byte-identical
 with and without the overlap. On the board the Schematic button paints
 ProcH BitSlice 07 (89,414 px).
 
-**Open, and older than this work: about half of Cedar's starts on the board
-are deaf to keys and mouse buttons.** The pointer moves and the clock ticks,
-but a click on a CommandTool button and typed text do nothing, for the whole
-session. Twelve starts with one scripted click each (`scratchpad
-cedar_try.sh`: start, move to the Schematic button, click, look for the
-screen to change): the 7 November core with the 4 November host 3 live, 2
-deaf; newer hosts and the new core 4 live, 6 deaf, with no pattern by
-binary. In a deaf session the core reports the key (`input: kbd`), and the
-guest's KeyBits shows it (177035B = 175777 with A held), so the terminal
-microcode on the FPGA is storing; Cedar is not acting on what is stored.
-Next probe: whether the field's naked notify (CSB.wakeupMask into NWW)
-reaches Mesa in a deaf session.
+**RETRACTED the same day: "about half of Cedar's starts are deaf to keys
+and buttons".** That was the test, not the machine. `misterkvms-cli mouse
+down left` followed by a separate `mouse up left` does not hold the button:
+the press ends when the first command exits, so the core saw a press about
+a millisecond long, which the status beat sometimes caught and Cedar's
+60 Hz sampling caught about half the time (a button held this way for 24 s
+never showed in `input:` at all). With `mouse click left`: five starts of
+the new core and host, five live (the Schematic button paints, 89,414 px),
+and text typed after a focus click arrives with no character doubled.
+**Use `mouse click`; never judge input from a down/up pair.**
 
 **MiSTerKVMS and Shift:** it presses Shift and the key in the same
-millisecond (one status sample shows both), so a world that polls the
-keyboard words fast (Smalltalk) can see the key first: "(3+4)" arrives as
-"93+40". A typist's Shift leads by far more than a terminal message (2.8
-ms).
+millisecond (one status sample shows both). Smalltalk then sometimes sees
+the key first ("(3+4)" arrives as "93+40"), and Cedar always does for keys
+in words 0-2 ("Echo (x)" arrives as "echo 9x0"; section 8.4 saw the same):
+Cedar samples KeyBits once a field and takes the changes of one sample in
+word order, so a Shift inside the same 17 ms as its key comes second. Lisp
+got every shifted character right. A typist's Shift leads by far more.
