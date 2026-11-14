@@ -1278,8 +1278,7 @@ the worst path before this work too); SEED 3 closes at every corner (core
 +0.249 ns, HDMI +0.124 ns, hold +0.107 ns, no combinational loops). The
 seed is line 82 of `Dorado.qsf` in `~/mister/DoradoRtlLispPipe44` on the
 build host, not in the repo. The previous bitstream is on the board as
-`/media/fat/DoradoRtlLisp_44.pre-early.rbf`. Smalltalk and Cedar are not
-rebuilt with this yet (Smalltalk would go 2.19 -> 2.09 clocks).
+`/media/fat/DoradoRtlLisp_44.pre-early.rbf`.
 
 **The doubled keys: two writers of the keyboard words (fixed, host
 only).** MiSTerKVMS typing 200 characters (`type --delay 150 --hold 60`)
@@ -1299,3 +1298,40 @@ the Dorado: of 100 key presses the core's own keyboard words
 (`DORADO_HPS_KEYTRACE`) showed 98-99, and Lisp printed every one the core
 saw. Deployed as `/media/fat/dorado/dorado-hps-st` (previous:
 `dorado-hps-st.pre-kbd`); Cedar's `dorado-hps` is not replaced.
+
+**All three cores rebuilt with it (2026-11-14), on mister14:**
+
+| world | before | now | seed that closes | previous bitstream on the board |
+|---|---|---|---|---|
+| Lisp | 0.93x | **1.04x** (17.36 M/s) | 3 | `/media/fat/DoradoRtlLisp_44.pre-early.rbf` |
+| Smalltalk | 1.26x | **1.29x** (21.55 M/s) | 7 | `/media/fat/DoradoRtlSmalltalk_44.pre-early.rbf` |
+| Cedar | 1.02x | **1.05x** (17.52 M/s) | 5 | `_Development/DoradoRtlCedarPipe_20261107fix_44.rbf` |
+
+Cedar's other seeds: 1 missed by 0.27 ns, 3 by 0.04, 7 by 0.12; seed 5
+closes with +0.013 ns to spare, so this core has no margin left at 44 MHz.
+The seeds live in each build directory's `Dorado.qsf` on the build host.
+Cedar now runs the same host program as the other two
+(`dorado-hps-st`, which has the 40-bit count fix); `DoradoCedar.sh` on the
+board points at the new core and host (`DoradoCedar.sh.bak-20261114` is the
+old one). `sim_hps` Cedar, 30M microinstructions: framebuffer byte-identical
+with and without the overlap. On the board the Schematic button paints
+ProcH BitSlice 07 (89,414 px).
+
+**Open, and older than this work: about half of Cedar's starts on the board
+are deaf to keys and mouse buttons.** The pointer moves and the clock ticks,
+but a click on a CommandTool button and typed text do nothing, for the whole
+session. Twelve starts with one scripted click each (`scratchpad
+cedar_try.sh`: start, move to the Schematic button, click, look for the
+screen to change): the 7 November core with the 4 November host 3 live, 2
+deaf; newer hosts and the new core 4 live, 6 deaf, with no pattern by
+binary. In a deaf session the core reports the key (`input: kbd`), and the
+guest's KeyBits shows it (177035B = 175777 with A held), so the terminal
+microcode on the FPGA is storing; Cedar is not acting on what is stored.
+Next probe: whether the field's naked notify (CSB.wakeupMask into NWW)
+reaches Mesa in a deaf session.
+
+**MiSTerKVMS and Shift:** it presses Shift and the key in the same
+millisecond (one status sample shows both), so a world that polls the
+keyboard words fast (Smalltalk) can see the key first: "(3+4)" arrives as
+"93+40". A typist's Shift leads by far more than a terminal message (2.8
+ms).
