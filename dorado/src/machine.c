@@ -2388,10 +2388,19 @@ static void machine_seed_alto_live_io(dorado_machine *m, dorado_display *disp)
         m->keys_live = 1;
     }
 
-    uint16_t w[4];
-    for (int i = 0; i < 4; i++)
-        w[i] = dorado_display_keyboard_word(disp, i);
-    machine_seed_keyboard(&m->mem, w);
+    /* With the display microcode running on the FPGA (dorado-hps), the
+     * terminal microcode stores the keyboard words itself (HM Table 24) and
+     * is their ONE writer. The host's copy of the keys comes from the status
+     * block and lags it, so seeding from it stored a stale word over the
+     * fresh one: a key went down, up, down (typed twice), and a Shift was
+     * taken back before its key arrived. The same two-writers-of-one-cell
+     * shape as the 2026-08-07 Interlisp menu bug. */
+    if (!dorado_machine_display_microcode) {
+        uint16_t w[4];
+        for (int i = 0; i < 4; i++)
+            w[i] = dorado_display_keyboard_word(disp, i);
+        machine_seed_keyboard(&m->mem, w);
+    }
     if (m->mouse_present)
         machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y, m->mouse_buttons);
     else

@@ -1281,10 +1281,21 @@ build host, not in the repo. The previous bitstream is on the board as
 `/media/fat/DoradoRtlLisp_44.pre-early.rbf`. Smalltalk and Cedar are not
 rebuilt with this yet (Smalltalk would go 2.19 -> 2.09 clocks).
 
-**The doubled keys are not from this change, and now have a recipe.**
-MiSTerKVMS typing 200 characters (`type --delay 150 --hold 60`) into the
-Lisp Exec doubles about 5 of them on the previous core and 7 on this one
-("11234", "55", "ss"); `sim_hps` with `HPS_TYPE` does not double any, at
-either setting. A lost Shift is separate and also on both cores ("(" typed
-as "9"). So it is in the path the simulation's typist does not take: the
-PS/2 side, or key transitions against the terminal's messages in real time.
+**The doubled keys: two writers of the keyboard words (fixed, host
+only).** MiSTerKVMS typing 200 characters (`type --delay 150 --hold 60`)
+into the Lisp Exec doubled about 5 of them on the previous core and 7 on
+this one ("11234", "55", "ss"), and lost Shifts ("(" typed as "9");
+`sim_hps` with `HPS_TYPE` did neither. The terminal microcode on the FPGA
+stores the keyboard words (177034B-177037B) itself, and
+`machine_seed_alto_live_io` on the ARM ALSO stored them, from the copy of
+the keys it reads out of the status block. That copy lags, so the host put
+a stale word over the fresh one: down, up, down. In `sim_hps` the host's
+copy is the script's own, never stale. With
+`dorado_machine_display_microcode` set (dorado-hps with live input) the
+host now leaves those four words alone; it still seeds the mouse cells.
+After: 100 characters at the same setting, no doubles; `(IPLUS 1234 4321)
+"Hello, World"` at 50/30 ms arrives exactly. What is left is upstream of
+the Dorado: of 100 key presses the core's own keyboard words
+(`DORADO_HPS_KEYTRACE`) showed 98-99, and Lisp printed every one the core
+saw. Deployed as `/media/fat/dorado/dorado-hps-st` (previous:
+`dorado-hps-st.pre-kbd`); Cedar's `dorado-hps` is not replaced.
