@@ -65,6 +65,11 @@ module dorado_rtl_mem
     output logic [5:0]     ref_row,       // the row of the reference in flight (registered)
     output logic           inflight,      // a reference is being processed (not idle, done or the assist)
     output logic [1:0]     inflight_tag,
+    output logic           sp_hit,        // (registered) the address read ahead last clock is in the
+                                          // cache, valid, in no MCR test mode: a Fetch, IFetch or
+                                          // LongFetch of it now completes this clock, and a Store
+                                          // unless the line is write-protected (sp_wp)
+    output logic           sp_wp,
     output logic           idle,          // nothing in flight (registered)
     output logic           done,          // the accepted reference is complete: a level
                                           // from completion until the next accept, or
@@ -560,6 +565,7 @@ module dorado_rtl_mem
         end
         ap_hit = 1'b0; ap_way = 2'd0; ap_phys = 32'd0; ap_cq = 16'd0; ap_rd = 16'd0;
         spec_done_q = 1'b0; spec_va_q = 28'd0; spec_peek_q = 1'b0;
+        sp_hit = 1'b0; sp_wp = 1'b0;
         res_valid = 1'b0; line_ok = 1'b0; sto_ret = S_IDLE; sto_stage = 0;
         cen_miss = 64'd0; cen_ifu_miss = 64'd0;
 `ifdef DORADO_CHECKPOINT
@@ -1611,6 +1617,19 @@ module dorado_rtl_mem
                     rw_vacant[w] = nr_vacant[w];
                     rw_bl[w]     = nr_bl[w];
                     rw_lru[w]    = nr_lru[w];
+                end
+            end
+            // the read-ahead address against the row as the row registers
+            // will hold it next clock (ld_en: the arrays' row; else the
+            // registers, kept: a hit booked this clock moves no tag)
+            sp_hit = 1'b0;
+            sp_wp  = 1'b0;
+            if (spec_take && !mcr_noref() && !mcr_fdmiss() && !mcr_dvavic()) begin
+                for (int w = DM_CACHE_WAYS - 1; w >= 0; w--) begin
+                    if (rw_valid[w] && !rw_vacant[w] && rw_tag[w] == va_cache_tag(spec_va)) begin
+                        sp_hit = 1'b1;
+                        sp_wp  = rw_wp[w];
+                    end
                 end
             end
             if (spec_take) begin

@@ -1206,3 +1206,85 @@ traces the DDC's line starts.
 
 **A core loaded from the MiSTer menu shows a white screen**: it waits for
 `dorado-hps`. Use the Scripts entries (DoradoSmalltalk.sh, DoradoLisp.sh).
+
+### 9.12 Lisp to 1x: the reference no longer stalls the pipeline (2026-11-14)
+
+Where the clocks went (`sim_hps`, Lisp, PIPE=1): 43 references per 100
+instructions, and EVERY cache hit cost C_PIPE one stalled clock, because
+the finish of the instruction that made the reference waited for the
+section's registered result (`mem_fin`), and one more when the next
+instruction read Md. The Dorado does neither (HM 5.4, "Memory Timing and
+Hold": "barring io activity and cache misses, the processor can make a
+fetch or store reference every cycle and never be held"; only "a fetch,
+store, or <-Md is held after a preceding fetch or store by the same task
+has missed", and an immediate <-Md in the cycle after a fetch).
+
+Three changes, all in C_PIPE and off under `ov_hold` (the per-step
+lock-step books a reference at its own instruction, as the C model does):
+
+- **The Md of a fetch completing this clock is forwarded** (`cur_task_md`
+  takes `md_r`, the section's register, when `mem_fin`/`d_fin` say a fetch
+  delivers now). The execute beside that finish used to bubble a clock for
+  the Md file to be written. 2.87 -> 2.72 clocks.
+- **The early retire** (`early_c`): the reference's instruction retires
+  while the result is outstanding when the next instruction neither refers
+  nor uses Md (`follow_safe_fn`). The reference becomes the DETACHED one
+  (`d_pending`, `d_kind`, `d_fcnt_before`); it is booked
+  (`mem_pref_task`) when its result arrives, and every later finish waits
+  for that (`d_wait` in `p_stall`, `finish_task`, C_NF). A fault then wakes
+  the fault task one instruction later than the C model, which is the
+  Dorado's own order: the instruction after a faulting fetch is not held
+  unless it refers or uses Md.
+- **The fast hit** (`early_f`): the same, beside an instruction that itself
+  makes a Fetch/IFetch/LongFetch/Store or loads T or RM/STK from Md --
+  allowed only when the first reference is KNOWN to be a hit that cannot
+  fault. `dorado_rtl_mem` registers that in the read-ahead clock (`sp_hit`,
+  `sp_wp`: the read-ahead address against the row as the row registers will
+  hold it), so the decision costs the processor two registers and no hit
+  compare in the execute clock; `x_spec_mine` says the read-ahead of the
+  clock before was this reference's. A deferred Md (`x_md_late`) is taken
+  when the detached result arrives (`x_md_eff` for the forwards in the same
+  clock). If the first reference misses, nothing is known until it is over
+  and the second instruction waits: the manual's hold.
+
+Why not let any reference follow any reference: the second would be booked
+(the emulator's Pipe entry overwritten) before the fault task had seen the
+first's fault, and its execute cannot be undone -- `exec_task` writes Q,
+Link, the dispatch register and Id at the execute.
+
+Result (`sim_hps`, 30M microinstructions, framebuffers BYTE-IDENTICAL to
+`RTL_OV_HOLD`): Lisp 2.58 clocks (was 2.87), Smalltalk 2.09 (was 2.19). At
+44 MHz that is 1.02x and 1.26x. A sim assertion checks every fast hit
+against the section (`[C_PIPE] fast_hit, but the section did not
+complete`): silent over both runs.
+
+What still stalls (Lisp, per 100 instructions): 21 clocks where the next
+instruction refers but the first was not a known hit -- mostly because a
+Store that writes keeps the words' port, so the next read-ahead is not
+taken (`spec_take`'s `!c_store_write`); 6 for deferred Md, 3 each for an
+immediate Md (the Dorado holds that too) and the shifter. C_NF still waits
+for a reference as before (20 clocks per 100, 3 of them with a safe next
+instruction).
+
+Sim-only census added (`+refhist`): `[refhist]` (clocks a reference is
+outstanding, by kind), `[refstall]` (why a finish waited), `[c_nf]`;
+`sim_hps` now calls `top->final()`.
+
+**On MiSTer14** (Lisp core rebuilt, 44 MHz): 17.36 M/s = **1.04x a
+Dorado** (2.53 clocks; it was 0.93x), 209,165 px, Exec live, mouse and
+keyboard work. Timing: the first fit (SEED 2) missed by 0.39 ns on the
+prefetch-to-dispatch path (`pf_pcf` -> `nx_fast` -> `pred_np` -> `ex_u`,
+the worst path before this work too); SEED 3 closes at every corner (core
++0.249 ns, HDMI +0.124 ns, hold +0.107 ns, no combinational loops). The
+seed is line 82 of `Dorado.qsf` in `~/mister/DoradoRtlLispPipe44` on the
+build host, not in the repo. The previous bitstream is on the board as
+`/media/fat/DoradoRtlLisp_44.pre-early.rbf`. Smalltalk and Cedar are not
+rebuilt with this yet (Smalltalk would go 2.19 -> 2.09 clocks).
+
+**The doubled keys are not from this change, and now have a recipe.**
+MiSTerKVMS typing 200 characters (`type --delay 150 --hold 60`) into the
+Lisp Exec doubles about 5 of them on the previous core and 7 on this one
+("11234", "55", "ss"); `sim_hps` with `HPS_TYPE` does not double any, at
+either setting. A lost Shift is separate and also on both cores ("(" typed
+as "9"). So it is in the path the simulation's typist does not take: the
+PS/2 side, or key transitions against the terminal's messages in real time.

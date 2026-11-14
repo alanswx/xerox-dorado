@@ -17,6 +17,7 @@ module dorado_rtl_cpu
     parameter logic [15:0] RESET_PC      = 16'd0,     // FPGA: the preloaded world's start
     parameter bit          EXT_STORAGE   = 1'b0,      // 1: storage is served outside (sto_*)
     parameter bit          READAHEAD     = 1'b1,      // C_FETCH may execute a read-ahead instruction
+    parameter bit          EARLY_RETIRE  = 1'b1,      // C_PIPE: a reference's instruction retires before the result (HM 5.4)
     parameter bit          PIPELINE      = 1'b0       // C_PIPE: an instruction's finish beside the next one's execute
 ) (
     input  logic           clk,
@@ -287,6 +288,8 @@ module dorado_rtl_cpu
     logic [63:0] cen_task0    /* verilator public_flat_rd */;   // retired by the emulator task
     logic [63:0] cen_ref_fs   /* verilator public_flat_rd */;   // Fetch, Store, LongFetch
     logic [63:0] cen_store    /* verilator public_flat_rd */;
+    logic [63:0] cen_fast     /* verilator public_flat_rd */;   // ...of those, beside a reference or a deferred Md (fast_hit)
+    logic [63:0] cen_early    /* verilator public_flat_rd */;   // finishes with the reference outstanding
     logic [63:0] cen_ref_other/* verilator public_flat_rd */;   // IO, Map, Flush, DummyRef, PreFetch
     logic [63:0] cen_miss     /* verilator public_flat_rd */;   // processor references that missed
     logic [63:0] cen_ifu_fetch/* verilator public_flat_rd */;
@@ -583,6 +586,24 @@ module dorado_rtl_cpu
     logic           x_disp_v;        // (PIPELINE) x_u is an IFUJump the buffer could dispatch when it executed...
     logic [7:0]     x_disp_rb;       // ...and the RBase that dispatch leaves
     logic           p_fwd;           // x_u's finish writes the register ex_u's operand was read from
+    logic           x_ready0, ref_wait;
+    logic           early_c;         // comb: x_u retires with its reference outstanding (see x_ready)
+    logic           early_f;         // comb: ...known a hit (fast_hit), beside an execute that may refer or defer Md
+    logic           fast_hit;        // comb: x_u's reference is being taken now and completes this clock
+    logic           mem_sp_hit, mem_sp_wp;
+    logic           x_spec_mine;     // x_u's reference was read ahead (spec) in its execute clock
+    logic           spec_proc_c;     // comb: this clock's read-ahead is the executing instruction's
+    // The detached reference: its instruction retired early; the result is
+    // booked (mem_pref_task) when it arrives, before any later finish.
+    logic           d_pending;
+    dm_ref_kind_t   d_kind;
+    logic [3:0]     d_fcnt_before;
+    logic           d_fin;           // comb: it completes now (the section's result registers)
+    logic           d_wait;          // comb: outstanding still
+    logic           x_md_late;       // x_u executed with the detached reference outstanding: its Md at issue is that result
+    logic [15:0]    x_md_eff;        // comb: x_md_at_issue, or the word arriving for it this clock
+    logic           d_md_now;        // comb: the detached reference delivers a word this clock
+    logic           fin_early;       // (blocking) this finish_task call is the early retire
     logic           p_stall;         // comb: x_u's finish waits (a reference, the I/O jobs, the byte references): nothing moves
     logic [15:0]    T_x, Link_x;     // what the execute sees (forwarded from the finish in C_PIPE)
     logic           carry_x, zero_x, lt0_x, ovf_x;
@@ -641,6 +662,8 @@ module dorado_rtl_cpu
     // -------------------------------------------------------------------------
     task automatic reset_memory();
         x_pref_pending = 1'b0;
+        d_pending = 1'b0; d_kind = DM_REF_NONE; d_fcnt_before = 4'd0; x_md_late = 1'b0; x_spec_mine = 1'b0;
+        fin_early = 1'b0; cen_early = 64'd0; cen_fast = 64'd0;
         x_pred_fresh = 1'b0;
         x_pred_np = 16'd0; x_pred_np_x = 16'd0;
         rm_pre_ok = 1'b0;
@@ -824,7 +847,12 @@ module dorado_rtl_cpu
         if (bb_present && bb_ss_inject) cur_u = bb_mir_uinstr;
         else                            cur_u = unpack_uinstr(im_q0, im_q1, im_q2);
 
-        cur_task_md     = get_task_md();
+        // a fetch completing this clock (mem_pref_task writes the file at
+        // the clock's top): its word, from the section's register
+        cur_task_md     = (d_md_now ||
+                           (x_pref_pending && mem_fin && mem_res_fault_r == DM_FAULT_NONE &&
+                            (x_kind == DM_REF_FETCH || x_kind == DM_REF_IFETCH || x_kind == DM_REF_LONGFETCH)))
+                          ? md_r : get_task_md();
         ridx            = rm_address_fn(cur_u, ctask, RBase, task_subtask[ctask], StkP);
         cur_id_peek     = id_x0;
     end
@@ -1552,22 +1580,27 @@ module dorado_rtl_cpu
 
     // When a processor memory reference completes (formerly the state
     // C_PREF): Md for the task, and the fault wakeup.
-    task automatic mem_pref_task();
+    task automatic mem_pref_task(input dm_ref_kind_t rk, input logic [3:0] fcnt0, input logic det);
         logic recorded_fault;
         recorded_fault = (mem_res_fault_r != DM_FAULT_NONE) ||
-                         (fault_count != x_fcnt_before);
+                         (fault_count != fcnt0);
         evc_events |= EVC_EV_PROCREF;
         if (mem_res_miss_r) evc_events |= EVC_EV_MISS;
 
         if (mem_res_fault_r == DM_FAULT_NONE &&
-            (x_kind == DM_REF_FETCH || x_kind == DM_REF_IFETCH ||
-             x_kind == DM_REF_LONGFETCH)) begin
-            task_md[ctask]       = md_r;
-            task_md_valid[ctask] = 1'b1;
-            task_md_ready[ctask] = cycles + 64'(mem_res_latency_r);
+            (rk == DM_REF_FETCH || rk == DM_REF_IFETCH ||
+             rk == DM_REF_LONGFETCH)) begin
+            // (det: the emulator's -- C_PIPE runs no other task -- and its
+            // instruction has retired, and was counted; the task may have
+            // changed since, at a stack error of the instruction after)
+            logic [3:0] rt;
+            rt = det ? 4'd0 : ctask;
+            task_md[rt]       = md_r;
+            task_md_valid[rt] = 1'b1;
+            task_md_ready[rt] = cycles + 64'(mem_res_latency_r) - (det ? 64'd1 : 64'd0);
         end
 
-        if (recorded_fault && x_kind != DM_REF_IFETCH && !mcr_nowake()) begin
+        if (recorded_fault && rk != DM_REF_IFETCH && !mcr_nowake()) begin
             wakeup_pending[15] = 1'b1;
         end
     endtask
@@ -1752,6 +1785,34 @@ module dorado_rtl_cpu
         return u.jcn[2:0] == 3'd7 && u.jcn[7:5] == 3'd1;
     endfunction
 
+    // ex_u may execute while the instruction before it has a reference
+    // outstanding: no reference of its own, no Md, no shifter-from-Md, and
+    // no FF of the FA=1 group (the section's and the IFU's registers) or ReadMap
+    function automatic logic follow_safe_fn(input dorado_uinstr_t u);
+        if (u.asel <= 3'd3 || u.asel == 3'd7) return 1'b0;
+        if (uinstr_reads_md_fn(u)) return 1'b0;
+        if (ff_full_function_ok(u) && ff_fa(u.ff) == 2'd1) return 1'b0;
+        if (ff_full_function_ok(u) && ff_fa(u.ff) == 2'd0 && ff_fb(u.ff) == 3'd3 && ff_fc(u.ff) == 3'd1) return 1'b0;
+        return 1'b1;
+    endfunction
+
+    // ...or, the reference known a hit: its own Fetch/IFetch/LongFetch/Store,
+    // and Md into T or RM/STK (LC, taken at the finish) but not onto a bus
+    function automatic logic follow_fast_fn(input dorado_uinstr_t u);
+        dm_ref_kind_t k;
+        if (u.asel == 3'd7) return 1'b0;
+        if (uinstr_reads_md_fn(u) && uinstr_md_immediate_fn(u)) return 1'b0;
+        if (ff_full_function_ok(u) && ff_fa(u.ff) == 2'd1) return 1'b0;
+        if (ff_full_function_ok(u) && ff_fa(u.ff) == 2'd0 && ff_fb(u.ff) == 3'd3 && ff_fc(u.ff) == 3'd1) return 1'b0;
+        if (u.asel <= 3'd3) begin
+            if (jcn_is_write_im_fn(u)) return 1'b0;
+            k = decode_ref_kind_fn(u, 1'b0);
+            if (!(k == DM_REF_FETCH || k == DM_REF_IFETCH || k == DM_REF_LONGFETCH || k == DM_REF_STORE)) return 1'b0;
+            if (ff_decode_ok(u) && u.ff[5:3] == 3'd3 && u.ff[2:0] == 3'd1) return 1'b0;   // ReadMap
+        end
+        return 1'b1;
+    endfunction
+
     // the execute writes the IFU's state (PCF, IFUTest, IFUTick, the
     // reschedule, InsSet, IFUM, IFUReset, BrkIns: HM Table 11c FA=1 FB=0/3)
     function automatic logic ff_writes_ifu_fn(input dorado_uinstr_t u);
@@ -1881,8 +1942,6 @@ module dorado_rtl_cpu
     assign membase_x = !w_disp ? MemBase
                      : (pf_lh_c[8] == 1'b0) ? {4'd0, MemBX, pf_lh_c[7:6]}
                      : 8'o034 + {6'd0, pf_lh_c[7:6]};
-    assign p_stall = PIPELINE && (st == C_PIPE) && p_w &&
-                     ((x_pref_pending && !mem_fin) || io_busy_tick || ifu_bk_busy);
     assign p_wonly = 1'b0;
     always_comb begin
         pfwd = PIPELINE && (st == C_PIPE) && p_w;
@@ -1896,8 +1955,8 @@ module dorado_rtl_cpu
         if (pfwd) begin
             case (x_u.lc)
                 3'd1, 3'd7: T_x = x_pd;
-                3'd2, 3'd3: T_x = x_md_at_issue;
-                3'd5:       T_x = ff_is_t_gets_md(x_u) ? x_md_at_issue : x_pd;
+                3'd2, 3'd3: T_x = x_md_eff;
+                3'd5:       T_x = ff_is_t_gets_md(x_u) ? x_md_eff : x_pd;
                 default: ;
             endcase
             if (!(ff_full_function_ok(x_u) && ff_fa(x_u.ff) == 2'd0 &&
@@ -2006,24 +2065,55 @@ module dorado_rtl_cpu
         if (ov_mask[12] && ff_full_function_ok(ex_u) && ff_fa(ex_u.ff) == 2'd3) x_elig = 1'b0;
         if (ov_mask[13] && !ff_full_function_ok(ex_u) && ff_fa(ex_u.ff) != 2'd0) x_elig = 1'b0;
         x_host  = (ap_req && !ap_done_q) || ap_hold;
-        x_ready = // beside a finish: not in the per-step lock-step, not an
+        x_ready0 = // beside a finish: not in the per-step lock-step, not an
                   // IFUJump's (the dispatch is checked after it), not a switch
                   !(p_w && (ov_hold || jcn_ifujump_fn(x_u) || sw_maybe)) &&
-                  !p_stall && !(x_pref_pending && !mem_fin) && !io_busy_tick &&
+                  !io_busy_tick && !(ov_mask[3] && p_w) &&
                   // a dispatch's byte references still booking: only an execute
                   // that would meet them waits (as ifu_bk_gate; Id is current in
                   // id_r0, which the clock that dispatched updated)
                   !(ifu_bk_busy && ((ex_u.asel <= 3'd3 && !jcn_is_write_im_fn(ex_u) &&
                                      decode_ref_kind_fn(ex_u, 1'b0) != DM_REF_NONE) ||
-                                    uinstr_reads_md_fn(ex_u) || (ff_fa(ex_u.ff) == 2'd1 && ff_fb(ex_u.ff) == 3'd6))) &&
-                  // a reference completing this clock is booked (mem_pref_task)
-                  // at its top: the Md file the datapath reads is the old one
-                  !(x_pref_pending && (uinstr_reads_md_fn(ex_u) || ex_u.asel == 3'd7));
+                                    uinstr_reads_md_fn(ex_u) || (ff_fa(ex_u.ff) == 2'd1 && ff_fb(ex_u.ff) == 3'd6)));
+        // The early retire (HM 5.4: only an instruction that uses Md, or
+        // makes a reference, waits for the one before): x_u's reference is
+        // taken by the section but its result is a clock away (a hit) or
+        // more. If ex_u meets neither the section nor Md, x_u retires now
+        // and ex_u executes beside it; the reference stays outstanding
+        // (ref_det) and ex_u's own finish waits for it, as any finish does.
+        // A fault then wakes the fault task one instruction later, as on the
+        // Dorado. Not in the per-step lock-step (ov_hold), which books the
+        // reference at its own instruction as the C model does.
+        ref_wait = x_pref_pending && !mem_fin;
+        // ...and when the reference is known to be a hit as the section takes
+        // it (fast_hit: it was read ahead in the execute clock and the line is
+        // there), ex_u may itself refer, or load a register from Md (which it
+        // then takes when the result arrives, x_md_late): "the processor can
+        // make a fetch or store reference every cycle and never be held", and
+        // a reference or <-Md after one that MISSED is held (HM 5.4) -- as
+        // here, where nothing is known of a miss until it is over.
+        fast_hit = x_pref_pending && x_spec_mine && mem_sp_hit && mem_req && mem_req_tag == TAG_PROC &&
+                   (x_kind == DM_REF_FETCH || x_kind == DM_REF_IFETCH || x_kind == DM_REF_LONGFETCH ||
+                    (x_kind == DM_REF_STORE && !mem_sp_wp));
+        early_c  = PIPELINE && EARLY_RETIRE && (st == C_PIPE) && p_w && ref_wait && !d_wait && !ov_hold &&
+                   !ov_mask[14] &&
+                   (x_kind == DM_REF_FETCH || x_kind == DM_REF_IFETCH ||
+                    x_kind == DM_REF_LONGFETCH || x_kind == DM_REF_STORE) &&
+                   (!(mem_req && mem_req_tag == TAG_PROC) || mem_accepted) &&
+                   follow_safe_fn(ex_u) && x_elig && !x_host && x_ready0 && !ifu_bk_busy;
+        early_f  = PIPELINE && EARLY_RETIRE && (st == C_PIPE) && p_w && ref_wait && !d_wait && !ov_hold &&
+                   !ov_mask[15] && fast_hit &&
+                   follow_fast_fn(ex_u) && x_elig && !x_host && x_ready0 && !ifu_bk_busy;
+        p_stall  = PIPELINE && (st == C_PIPE) && p_w &&
+                   ((ref_wait && !early_c && !early_f) || d_wait || io_busy_tick || ifu_bk_busy);
+        // (a fetch completing this clock: its word reaches the datapath from
+        // the section's register, cur_task_md)
+        x_ready  = x_ready0 && !p_stall && !(ref_wait && !early_c && !early_f) && !d_wait &&
+                   !(ov_mask[13] && x_pref_pending && (uinstr_reads_md_fn(ex_u) || ex_u.asel == 3'd7));
         // a reference completing this clock with a fault wakes the fault
         // task (mem_pref_task) before the finish schedules: sw_maybe, from
         // the registers, cannot see it, so ex_u must not execute beside it
         x_ready = x_ready && !(p_w && fin_fault);
-        if (ov_mask[3] && p_w)                               x_ready = 1'b0;   // nothing beside a finish
         ovx   = x_elig && !x_host && x_ready;
         // otherwise a bubble: x_u's finish alone, ex_u and cur_u held
         p_bub = x_elig && !x_host && !x_ready && !p_stall;
@@ -2035,7 +2125,7 @@ module dorado_rtl_cpu
         // (IM's data must be the instruction at x_pred_np: a C_NF that waited
         // may have read IM elsewhere meanwhile, and C_PIPE does not re-read it)
         pent = PIPELINE && (st == C_NF) && !ov_hold && !ap_hold && ctask == 4'd0 && im_q_addr == x_pred_np[11:0] &&
-               !(x_pref_pending && !mem_fin) && !io_busy_tick && !ifu_bk_busy &&
+               !(x_pref_pending && !mem_fin) && !d_wait && !io_busy_tick && !ifu_bk_busy &&
                x_pred_fresh && (x_pred_np_x == pred_np) && !sw_maybe && !fin_fault && f_ok &&
                (jcn_plain_fn(x_u) || (jcn_ifujump_fn(x_u) && x_disp_v && !ff_loads_link_fn(x_u))) &&
                !uinstr_touches_io_fn(cur_u, 1'b0) &&
@@ -2194,7 +2284,7 @@ module dorado_rtl_cpu
         rms_we    = (st == C_FINISH || st == C_NF || (st == C_PIPE && p_w)) && !halted &&
                     (x_u.lc == 3'd2 || x_u.lc == 3'd4 || x_u.lc == 3'd5 ||
                      x_u.lc == 3'd6 || x_u.lc == 3'd7);
-        rms_wd    = (x_u.lc == 3'd4 || x_u.lc == 3'd5) ? x_md_at_issue : x_pd;
+        rms_wd    = (x_u.lc == 3'd4 || x_u.lc == 3'd5) ? x_md_eff : x_pd;
         if (st == C_FETCH && ap_req && ap_stk && !ap_done_q) begin
             rms_waddr = 256 + int'(ap_va[7:0]);
             rms_we    = 1'b1;
@@ -2273,6 +2363,8 @@ module dorado_rtl_cpu
         .ref_row          (mem_ref_row),
         .inflight         (mem_inflight),
         .inflight_tag     (mem_inflight_tag),
+        .sp_hit           (mem_sp_hit),
+        .sp_wp            (mem_sp_wp),
         .idle             (mem_idle),
         .done             (mem_done),
         .done_now         (mem_done_now),
@@ -2415,10 +2507,20 @@ module dorado_rtl_cpu
     // (registers only: a hit completes in C_NEXT and is consumed in C_FINISH,
     // which retires in the same clock; a pending request of the processor's
     // own means the result shown is an older one)
+    // (the detached reference's result comes first: the section shows it at
+    // least a clock before it takes the next request)
     assign mem_fin = mem_res_valid_r && (mem_res_tag_r == TAG_PROC) &&
-                     !(mem_req && mem_req_tag == TAG_PROC);
-    assign fin_fault = x_pref_pending && mem_fin &&
-                       ((mem_res_fault_r != DM_FAULT_NONE) || (fault_count != x_fcnt_before));
+                     !(mem_req && mem_req_tag == TAG_PROC) && !d_pending;
+    assign d_fin   = d_pending && mem_res_valid_r && (mem_res_tag_r == TAG_PROC);
+    assign d_wait  = d_pending && !d_fin;
+    assign fin_fault = (x_pref_pending && mem_fin &&
+                        ((mem_res_fault_r != DM_FAULT_NONE) || (fault_count != x_fcnt_before))) ||
+                       (d_fin && ((mem_res_fault_r != DM_FAULT_NONE) || (fault_count != d_fcnt_before)));
+    assign d_md_now = d_fin && ctask == 4'd0 && mem_res_fault_r == DM_FAULT_NONE &&
+                      (d_kind == DM_REF_FETCH || d_kind == DM_REF_IFETCH || d_kind == DM_REF_LONGFETCH);
+    assign x_md_eff = (x_md_late && d_fin) ? (d_md_now ? md_r : get_task_md()) : x_md_at_issue;
+    assign spec_proc_c = !(ifu_dl_valid && (!mem_req || mem_accepted)) &&
+                         !(bk_n != 2'd0 && (!mem_req || mem_accepted));
     // the dispatched bytes' references are booked before the processor's next
     // instruction executes (or the assist runs, or the lock-step compares);
     assign ifu_bk_busy = (bk_n != 2'd0) || (mem_req && mem_req_tag == TAG_BK) ||
@@ -2778,7 +2880,7 @@ module dorado_rtl_cpu
         // the I/O engines are still on the last tick, or the last dispatch's
         // byte references are still owed: wait (the read-ahead stands)
         if (ifu_bk_busy) cen_bk_wait = cen_bk_wait + 64'd1;
-      end else if (is_finish && x_pref_pending) begin
+      end else if (is_finish && ((x_pref_pending && !fin_early) || d_pending)) begin
         x_pred_fresh = 1'b0;             // the reference is in flight: wait
       end else begin
         do_sched = 1'b1;
@@ -3408,6 +3510,7 @@ module dorado_rtl_cpu
                                 // returns straight to C_NEXT(RD); C_PREF's
                                 // bookkeeping runs at the top of that clock
                                 x_pref_pending = 1'b1;
+                                x_spec_mine    = spec_proc_c;
                                 mem_launch(kind, va, b, TIOA, ctask, task_subtask[ctask], TAG_PROC);
                             end
                         end
@@ -3473,7 +3576,21 @@ module dorado_rtl_cpu
             // the munch it moved.
             pf_st0 = pf_st;
             if (cmp_done) cmp_wait = 1'b0;                   // it was seen after last clock
+`ifdef VERILATOR
+                if (mem_req && mem_req_tag == TAG_PROC) begin
+                    if (mem_accepted) begin
+                        rh_acc[4'(x_kind)][0] = rh_acc[4'(x_kind)][0] + 1;
+                        if (mem_done_now) rh_acc[4'(x_kind)][1] = rh_acc[4'(x_kind)][1] + 1;
+                    end else rh_acc[4'(x_kind)][2] = rh_acc[4'(x_kind)][2] + 1;
+                end
+                if (x_pref_pending && !mem_fin) rh_n = rh_n + 8'd1;
+                else if (x_pref_pending && mem_fin) begin
+                    rh[4'(x_kind)][(rh_n > 8'd7) ? 7 : rh_n[2:0]] = rh[4'(x_kind)][(rh_n > 8'd7) ? 7 : rh_n[2:0]] + 1;
+                    rh_n = 8'd0;
+                end
+`endif
             if (mem_accepted) mem_req = 1'b0;
+            x_spec_mine = 1'b0;      // (set by a launch: true in the clock after it only)
             if (mem_accepted2) mem_req2 = 1'b0;
             mem_fault_clear_stb = 1'b0;
             mem_cflags_stb      = 1'b0;
@@ -3530,8 +3647,14 @@ module dorado_rtl_cpu
                 if (pf_v0 && mem_snoop_wr_addr == {pf_row0, pf_word0} && mem_snoop_wr_way == pf_way0) pf_v0 = 1'b0;
                 if (pf_v1 && mem_snoop_wr_addr == {pf_row1, pf_word1} && mem_snoop_wr_way == pf_way1) pf_v1 = 1'b0;
             end
+            if (d_pending && d_fin) begin
+                mem_pref_task(d_kind, d_fcnt_before, 1'b1);
+                d_pending = 1'b0;
+                if (x_md_late && ctask == 4'd0) x_md_at_issue = get_task_md();
+                x_md_late = 1'b0;
+            end
             if (x_pref_pending && mem_fin) begin
-                mem_pref_task();
+                mem_pref_task(x_kind, x_fcnt_before, 1'b0);
                 x_pref_pending = 1'b0;
             end
             if (mem_fastio_set) fastio_stb_r = 1'b1;
@@ -3556,7 +3679,7 @@ module dorado_rtl_cpu
                     // (not when a reference is outstanding: C_NF would wait,
                     // and its RM port moves on to the next instruction's
                     // operand, so the condition would be re-read wrong)
-                    if (pred_ok && !x_pref_pending) begin
+                    if (pred_ok && !x_pref_pending && !d_pending) begin
                         st           = C_NF;
                         x_pred_fresh = 1'b1;
                         x_pred_np    = pred_np;
@@ -3643,7 +3766,21 @@ module dorado_rtl_cpu
             // flight holds the whole clock (nothing of it runs twice).
             C_NF: begin
                 if (ifu_bk_busy) cen_bk_wait = cen_bk_wait + 64'd1;
-                if (!x_pref_pending && !io_busy_tick && !ifu_bk_busy) begin
+`ifdef VERILATOR
+                nfw[0] = nfw[0] + 1;
+                if (x_pref_pending) begin
+                    nfw[1] = nfw[1] + 1;
+                    if (x_kind == DM_REF_FETCH || x_kind == DM_REF_IFETCH || x_kind == DM_REF_LONGFETCH || x_kind == DM_REF_STORE) begin
+                        if (d_pending) nfw[5] = nfw[5] + 1;
+                        else if (!follow_safe_fn(cur_u)) nfw[6] = nfw[6] + 1;
+                        else nfw[7] = nfw[7] + 1;
+                    end
+                end
+                else if (io_busy_tick) nfw[2] = nfw[2] + 1;
+                else if (ifu_bk_busy)  nfw[3] = nfw[3] + 1;
+                else nfw[4] = nfw[4] + 1;
+`endif
+                if (!x_pref_pending && !d_pending && !io_busy_tick && !ifu_bk_busy) begin
                     logic pre0;
                     logic [3:0] ct_s;
                     logic       xplain, nplain;
@@ -3717,6 +3854,26 @@ module dorado_rtl_cpu
                 if (p_stall) begin
                     cen_pipe[2] = cen_pipe[2] + 64'd1;   // the finish waits: nothing moves
                     if (x_pref_pending && !mem_fin) cen_pdrain[6] = cen_pdrain[6] + 64'd1;
+`ifdef VERILATOR
+                    if (x_pref_pending && !mem_fin) begin
+                        int r;
+                        if (d_wait) r = 0;
+                        else if (!(x_kind == DM_REF_FETCH || x_kind == DM_REF_IFETCH || x_kind == DM_REF_LONGFETCH || x_kind == DM_REF_STORE)) r = 1;
+                        else if (mem_req && !mem_accepted) r = 2;
+                        else if (!p_x) r = 3;
+                        else if (ex_u.asel <= 3'd3) r = 4;
+                        else if (ex_u.asel == 3'd7) r = 5;
+                        else if (uinstr_reads_md_fn(ex_u)) r = uinstr_md_immediate_fn(ex_u) ? 6 : 7;
+                        else if (!follow_safe_fn(ex_u)) r = 8;
+                        else if (!x_elig) r = 9;
+                        else if (x_host) r = 10;
+                        else if (jcn_ifujump_fn(x_u)) r = 11;
+                        else if (sw_maybe) r = 12;
+                        else if (!x_ready0) r = 13;
+                        else r = 14;
+                        rs[r] = rs[r] + 1;
+                    end
+`endif
                     else if (ifu_bk_busy)           cen_pdrain[7] = cen_pdrain[7] + 64'd1;
                     else                            cen_pdrain[8] = cen_pdrain[8] + 64'd1;
                 end else begin
@@ -3727,7 +3884,25 @@ module dorado_rtl_cpu
                         wakeup_pending |= ext_wakeup_req;
                         if (ext_subtask_we) task_subtask[ext_subtask_task] = ext_subtask_val;
                         next_task();
+                        fin_early = early_c || early_f;
                         if (st == C_FINISH) finish_task(1'b1, 1'b0, 1'b0, 1'b0);
+                        fin_early = 1'b0;
+                        if (early_c || early_f) begin
+                            // the reference is detached; ex_u (executing after
+                            // the case) may issue its own
+                            d_pending      = 1'b1;
+                            d_kind         = x_kind;
+                            d_fcnt_before  = x_fcnt_before;
+                            x_pref_pending = 1'b0;
+                            x_md_late      = 1'b1;
+                            cen_early = cen_early + 64'd1;
+                            if (!early_c) cen_fast = cen_fast + 64'd1;
+`ifdef VERILATOR
+                            if (!early_c && !(mem_accepted && mem_done_now))
+                                $display("[C_PIPE] fast_hit, but the section did not complete the reference at 0%o", real_PC);
+`endif
+                            if (st != C_FETCH && st != C_PIPE) $display("[C_PIPE] early retire left state %0d", st);
+                        end
                         if (ovx && (x_np != p_pc_x || ctask != 4'd0))
                             $display("[C_PIPE] finish chose 0%o task %0d, the pipeline has 0%o", x_np, ctask, p_pc_x);
                     end
@@ -3959,7 +4134,7 @@ module dorado_rtl_cpu
                 x_disp_v  = jcn_ifujump_fn(x_u) && nx_fast;
                 x_disp_rb = {7'd0, ~pf_lh_c[9]};
                 if (fexec && st == C_NEXTRD && StkP == fx_stkp && task_subtask[ctask] == fx_sub) begin
-                    if (pred_ok && !x_pref_pending) begin
+                    if (pred_ok && !x_pref_pending && !d_pending) begin
                         st           = C_NF;
                         x_pred_fresh = 1'b1;
                         x_pred_np    = pred_np;
@@ -3985,7 +4160,7 @@ module dorado_rtl_cpu
                         end
                         // a condition on ex_u's own register: read this
                         // clock (p_raddr), so C_NF can follow, as fexec
-                        if (st == C_NEXTRD && StkP == fx_stkp && pred_ok && !x_pref_pending) begin
+                        if (st == C_NEXTRD && StkP == fx_stkp && pred_ok && !x_pref_pending && !d_pending) begin
                             st           = C_NF;
                             x_pred_fresh = 1'b1;
                             x_pred_np    = pred_np;
@@ -4099,5 +4274,27 @@ module dorado_rtl_cpu
                 lc_write_address_fn(x_u, ctask, x_rbase_at_issue, task_subtask[ctask], StkP) == p_raddr;
     end
 
+`ifdef VERILATOR
+    // DEBUG census (+refhist): clocks a processor reference is outstanding, by kind
+    logic [63:0] rh [0:15][0:7];
+    logic [63:0] rh_acc [0:15][0:3];   // 0 accepts, 1 ...complete in the accept clock, 2 clocks req waited unaccepted
+    logic [7:0]  rh_n;
+    logic [63:0] nfw [0:7];
+    initial for (int i = 0; i < 8; i++) nfw[i] = 0;
+    final if (rh_on) $display("[c_nf] clocks %0d: reference %0d (hit kinds: detached %0d, next unsafe %0d, next safe %0d), I/O %0d, byte refs %0d, proceeds %0d", nfw[0], nfw[1], nfw[5], nfw[6], nfw[7], nfw[2], nfw[3], nfw[4]);
+    logic [63:0] rs [0:15];
+    initial for (int i = 0; i < 16; i++) rs[i] = 0;
+    final if (rh_on) $display("[refstall] detached %0d, kind %0d, unaccepted %0d, no ex_u %0d, ex_u refs %0d, asel7 %0d, Md immediate %0d, Md deferred %0d, FF %0d, not elig %0d, host %0d, x_u IFUJump %0d, switch %0d, ready0 %0d, other %0d",
+                   rs[0], rs[1], rs[2], rs[3], rs[4], rs[5], rs[6], rs[7], rs[8], rs[9], rs[10], rs[11], rs[12], rs[13], rs[14]);
+    logic        rh_on;
+    initial begin
+        rh_on = $test$plusargs("refhist");
+        for (int i = 0; i < 16; i++) begin for (int j = 0; j < 8; j++) rh[i][j] = 0; for (int j = 0; j < 4; j++) rh_acc[i][j] = 0; end
+    end
+    final if (rh_on) $display("[refhist] early retires %0d, of them fast %0d", cen_early, cen_fast);
+    final if (rh_on) for (int i = 0; i < 16; i++) if (rh_acc[i][0] != 0)
+        $display("[refhist] kind %0d: accepts %0d, done in accept %0d, unaccepted clocks %0d; outstanding clocks 0..7+: %0d %0d %0d %0d %0d %0d %0d %0d",
+                 i, rh_acc[i][0], rh_acc[i][1], rh_acc[i][2], rh[i][0], rh[i][1], rh[i][2], rh[i][3], rh[i][4], rh[i][5], rh[i][6], rh[i][7]);
+`endif
 endmodule
 /* verilator lint_on BLKSEQ */

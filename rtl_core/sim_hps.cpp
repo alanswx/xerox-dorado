@@ -612,6 +612,7 @@ int main(int argc, char **argv) {
                    (unsigned long long)w[i].first);
     }
     if (getenv("HPS_CENSUS")) census_report(top);
+    top->final();
     printf("[hps] DDR: %llu beats read, %llu written\n",
            (unsigned long long)ddr->beats_rd, (unsigned long long)ddr->beats_wr);
     if (const char *rtl = getenv("HPS_PGM_RTL")) {      // what the core's video shows
