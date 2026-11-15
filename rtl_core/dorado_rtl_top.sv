@@ -202,6 +202,8 @@ module dorado_rtl_top
     logic [27:0]    h_va;
     logic [15:0]    h_wd;
     logic           mb_hold, mb_req, mb_we, mb_cache, mb_go;
+    // the state scan chain: the mailbox -> u_io -> u_cpu (its memory section, then itself)
+    logic           mb_scan_ph, mb_scan_en, mb_scan_in, scan_out_io, scan_out_cpu;
     logic [2:0]     mb_op;
     logic [27:0]    mb_va;
     logic [15:0]    mb_wd;
@@ -373,6 +375,10 @@ module dorado_rtl_top
                 .pll_locked    (pll_locked),
                 .ref_cnt       (ref_cnt),
                 .go            (mb_go),
+                .scan_ph       (mb_scan_ph),
+                .scan_en       (mb_scan_en),
+                .scan_in       (mb_scan_in),
+                .scan_out      (scan_out_cpu),
                 .aux_req       (mb_aux_req),
                 .aux_we        (mb_aux_we),
                 .aux_addr      (mb_aux_addr),
@@ -415,6 +421,7 @@ module dorado_rtl_top
             );
         end else begin : g_no_mailbox
             assign mb_go = 1'b1;
+            assign {mb_scan_ph, mb_scan_en, mb_scan_in} = '0;
             assign {mb_hold, mb_req, mb_we, mb_cache, mb_op, mb_va, mb_wd} = '0;
             assign {mb_rx_wr_en, mb_rx_wr_att, mb_rx_load, mb_rx_wr_addr, mb_rx_wr_data, mb_rx_load_count} = '0;
             assign {mb_aux_req, mb_aux_we, mb_aux_addr, mb_aux_wdata, mb_aux_be} = '0;
@@ -444,7 +451,14 @@ module dorado_rtl_top
         end
     endgenerate
 `endif
+    // (the scan phase: a DORADO_SCAN core is out of reset for it, doing
+    // nothing but the shift; a core with its registers compiled in stays
+    // in reset until go, whatever the host sends)
+`ifdef DORADO_SCAN
+    assign core_rst = rst || !sto_ready || !(mb_go || mb_scan_ph);
+`else
     assign core_rst = rst || !sto_ready || !mb_go;
+`endif
 
     dorado_rtl_cpu #(
         .STORAGE_WORDS (STORAGE_WORDS),
@@ -454,7 +468,11 @@ module dorado_rtl_top
     ) u_cpu (
         .clk                (clk),
         .rst                (core_rst),
-        .clk_en             (clk_en),
+        .clk_en             (clk_en && !mb_scan_ph),
+        .scan_ph            (mb_scan_ph),
+        .scan_en            (mb_scan_en),
+        .scan_si            (scan_out_io),
+        .scan_so            (scan_out_cpu),
         .bb_present         (bb_present),
         .bb_running         (bb_running),
         .bb_ss_inject       (bb_ss_inject),
@@ -625,7 +643,11 @@ module dorado_rtl_top
     dorado_rtl_io #(.DISK_PACK_BEAT_BASE(DISK_PACK_BASE)) u_io (
         .clk                     (clk),
         .rst                     (core_rst),
-        .clk_en                  (io_tick),
+        .clk_en                  (io_tick && !mb_scan_ph),
+        .scan_ph                 (mb_scan_ph),
+        .scan_en                 (mb_scan_en),
+        .scan_in                 (mb_scan_in),
+        .scan_out                (scan_out_io),
         .cycles                  (dbg_cycles),
         .disk_time               (disk_time_ext_en ? disk_time : dbg_cycles),
 

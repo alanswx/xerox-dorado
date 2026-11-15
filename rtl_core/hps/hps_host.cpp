@@ -34,6 +34,8 @@
 #include <cstring>
 #include <vector>
 #include <map>
+#include <string>
+#include "scan_map.h"
 #include <algorithm>
 
 extern "C" {
@@ -51,7 +53,8 @@ namespace {
 // Mailbox layout, in beats (dorado_rtl_mailbox.sv)
 enum : size_t {
     B_CTRL = 0, B_STATUS = 8, B_CMD = 256, B_RES = 512, B_RXW = 1024, B_RXA = 2048,
-    B_TXLEN = 2112, B_TX = 4096, B_END = 6144
+    B_TXLEN = 2112, B_TX = 4096, B_END = 6144,
+    B_SCAN = 16384               // the state scan bits (a DORADO_SCAN core)
 };
 const uint32_t MB_MAGIC = 0x444F5241u;
 const uint64_t HOST_CHUNK_BB = 1000000;   // BaseBoard cycles: 270K microinstructions
@@ -408,6 +411,41 @@ int step_hook(dorado_machine *, int after) {
     return 0;
 }
 
+// <snapshot>.regs into the scan region; returns the number of bits (0: no
+// file, or one that does not cover the chain).
+uint64_t load_scan_regs() {
+    std::string path = std::string(CFG.snapshot) + ".regs";
+    FILE *f = fopen(path.c_str(), "r");
+    if (!f) return 0;
+    std::map<std::string, uint64_t> v;
+    char line[256], mod[16] = "";
+    while (fgets(line, sizeof line, f)) {
+        char name[128];
+        unsigned long long x;
+        if (line[0] == '@') { sscanf(line + 1, "%15s", mod); continue; }
+        if (sscanf(line, "%127s %llx", name, &x) == 2) v[std::string(mod) + "." + name] = x;
+    }
+    fclose(f);
+    std::vector<uint64_t> beats((SCAN_BITS + 63) / 64, 0);
+    size_t bit = 0, missing = 0;
+    for (int i = 0; i < SCAN_REGS; i++) {
+        const bool pad = !strcmp(scan_map[i].mod, "pad");     // a module's scan_out register
+        auto it = pad ? v.end() : v.find(std::string(scan_map[i].mod) + "." + scan_map[i].name);
+        if (it == v.end() && !pad) missing++;
+        const uint64_t x = it == v.end() ? 0 : it->second;
+        for (int b = scan_map[i].bits - 1; b >= 0; b--, bit++)
+            if (b < 64 && ((x >> b) & 1)) beats[bit / 64] |= 1ull << (63 - bit % 64);
+    }
+    if (missing) {
+        fprintf(stderr, "[hps] %s: %zu of the scan chain's %d registers are not in it; not used\n",
+                path.c_str(), missing, SCAN_REGS);
+        return 0;
+    }
+    for (size_t i = 0; i < beats.size(); i++) T.mb[B_SCAN + i] = beats[i];
+    fprintf(stderr, "[hps] %s: %d registers, %d scan bits\n", path.c_str(), SCAN_REGS, SCAN_BITS);
+    return SCAN_BITS;
+}
+
 }  // namespace
 
 int hps_start(const hps_config *cfg, const hps_transport *t) {
@@ -458,6 +496,24 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
         }
         fprintf(stderr, "[hps] storage from %s\n", CFG.storage_image);
     }
+    // A core that takes the saved registers by scan starts with an EMPTY
+    // cache (its row arrays are not in the chain: tools/gen_scan.py), so
+    // the words the snapshot holds only in dirty cache lines go to storage
+    // here, as a writeback would put them.
+    if (FILE *rf = fopen((std::string(CFG.snapshot) + ".regs").c_str(), "r")) {
+        fclose(rf);
+        unsigned lines = 0;
+        for (int r = 0; r < DM_CACHE_ROWS; r++)
+            for (int w = 0; w < DM_CACHE_WAYS; w++) {
+                dorado_cache_line line = mem->cache[r].ways[w];      // (a copy: the store invalidates)
+                if (!line.valid || !line.dirty) continue;
+                const uint32_t va = (line.tag << 10) | ((uint32_t)r << 4);
+                for (int i = 0; i < DM_CACHE_LINE_W; i++)
+                    dorado_storage_store_at_va(mem, va + (uint32_t)i, line.data[i]);
+                lines++;
+            }
+        fprintf(stderr, "[hps] %u dirty cache lines written to storage (the core starts with an empty cache)\n", lines);
+    }
     for (size_t i = 0; i < mem->storage_words; i++) T.storage[i] = mem->storage[i];
     // The pack, as dorado_rtl_io's sector engine reads it: a record per sector
     // in the pack's flat CHS order, header | label | data, ceil(words / 4)
@@ -504,8 +560,14 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
             e = end + 1;
         }
     }
+    // The saved machine's registers, for a core that does not have them
+    // compiled in (DORADO_SCAN): <snapshot>.regs (tools/gen_scan.py --regs)
+    // packed in the scan chain's order (scan_map.h), first register's top
+    // bit first, into the scan region; the control word says how many bits.
+    // A core with the registers compiled in ignores the count.
+    uint64_t scan_bits = load_scan_regs();
     barrier();
-    T.mb[B_CTRL] = MB_MAGIC;
+    T.mb[B_CTRL] = MB_MAGIC | (scan_bits << 32);
     barrier();
     uint64_t h = 1469598103934665603ull;          // FNV-1a over storage, to match images
     for (size_t i = 0; i < mem->storage_words; i++) h = (h ^ mem->storage[i]) * 1099511628211ull;

@@ -115,7 +115,7 @@ cedar: $(CEDAR_OBJ)/Vdorado_rtl_top
 HPS_OBJ   := obj_hps
 HPS_STEPS ?= 2000000
 
-$(HPS_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.cpp hps/hps_host.h $(CEDAR_C_OBJS) init_cedar/checkpoint_cpu.svh init_cedar/checkpoint_mem.svh
+$(HPS_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.cpp hps/hps_host.h hps/scan_map.h $(CEDAR_C_OBJS) init_cedar/checkpoint_cpu.svh init_cedar/checkpoint_mem.svh
 	$(VERILATOR) --cc --exe --build -j 4 -O3 --x-assign fast --x-initial fast --noassert \
 	  -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-BLKSEQ -GPIPELINE=$(PIPE) \
 	  -GSTORAGE_WORDS=4194304 -GEXT_STORAGE=1 -GHPS_MAILBOX=1 \
@@ -130,13 +130,17 @@ $(HPS_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.
 # CEDAR_DUMP_INIT=../rtl_core/init_smalltalk obj_cedar/Vdorado_rtl_top 0`), the
 # Trident controller in (no DORADO_NO_DISK) with its sector engine on the DDR
 # aux port, the pack in DDR at byte 0x3100_0000 (dorado-hps puts it there).
+# SCAN=1: the saved machine's registers are not compiled in; the host shifts
+# them in through the state scan chain (DORADO_SCAN; tools/gen_scan.py).
+SCAN ?= 0
+SCAN_DEFS := $(if $(filter 1,$(SCAN)),-DDORADO_SCAN,)
 HPS_ST_OBJ ?= obj_hps_st
 HPS_ST_INIT ?= init_smalltalk   # init_lisp for the Lisp rehearsal
-$(HPS_ST_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.cpp hps/hps_host.h $(CEDAR_C_OBJS) $(HPS_ST_INIT)/checkpoint_cpu.svh $(HPS_ST_INIT)/checkpoint_mem.svh
+$(HPS_ST_OBJ)/Vdorado_rtl_top: $(SV_SRCS) sim_hps.cpp sim_ddr_model.h hps/hps_host.cpp hps/hps_host.h hps/scan_map.h $(CEDAR_C_OBJS) $(HPS_ST_INIT)/checkpoint_cpu.svh $(HPS_ST_INIT)/checkpoint_mem.svh
 	$(VERILATOR) --cc --exe --build -j 4 -O3 --x-assign fast --x-initial fast --noassert \
 	  -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-BLKSEQ -GPIPELINE=$(PIPE) \
 	  -GSTORAGE_WORDS=4194304 -GEXT_STORAGE=1 -GHPS_MAILBOX=1 \
-	  -DDORADO_INIT -DDORADO_CHECKPOINT -I$(abspath $(HPS_ST_INIT)) \
+	  -DDORADO_INIT -DDORADO_CHECKPOINT $(SCAN_DEFS) -I$(abspath $(HPS_ST_INIT)) \
 	  --top-module dorado_rtl_top -Mdir $(HPS_ST_OBJ) \
 	  -CFLAGS "$(CXXFLAGS) -I$(abspath .)" \
 	  $(SV_SRCS) sim_hps.cpp $(abspath hps/hps_host.cpp) $(abspath $(CEDAR_C_OBJS)) -o Vdorado_rtl_top

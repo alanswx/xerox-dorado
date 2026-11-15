@@ -27,6 +27,13 @@ module dorado_rtl_mem
     input  logic           clk,
     input  logic           rst,
     input  logic           clk_en,
+    // The state scan chain (DORADO_SCAN; scan_*.svh, tools/gen_scan.py):
+    // while scan_ph the module does nothing else, and each scan_en clock
+    // shifts every checkpoint register one place, scan_in to scan_out.
+    input  logic           scan_ph,
+    input  logic           scan_en,
+    input  logic           scan_in,
+    output logic           scan_out,
 
     // ---- the reference ----------------------------------------------------
     input  logic           spec_req,      // read the row, Map entry and words at spec_va now
@@ -569,9 +576,11 @@ module dorado_rtl_mem
         res_valid = 1'b0; line_ok = 1'b0; sto_ret = S_IDLE; sto_stage = 0;
         cen_miss = 64'd0; cen_ifu_miss = 64'd0;
 `ifdef DORADO_CHECKPOINT
+`ifndef DORADO_SCAN
         // A checkpoint build powers up in a saved machine state: sim_cedar.cpp
-        // CEDAR_DUMP_INIT.
+        // CEDAR_DUMP_INIT. (DORADO_SCAN: the host shifts it in instead.)
 `include "checkpoint_mem.svh"
+`endif
 `endif
     endtask
 
@@ -1406,6 +1415,14 @@ module dorado_rtl_mem
         mem_advance(0);
     endtask
 
+`ifdef DORADO_SCAN
+`include "scan_mem_decl.svh"
+`ifdef VERILATOR
+    initial if ($test$plusargs("scanmap")) begin
+`include "scan_mem_widths.svh"
+    end
+`endif
+`endif
     // =========================================================================
     // The state machine
     // =========================================================================
@@ -1420,6 +1437,14 @@ module dorado_rtl_mem
             sto_addr = 32'd0;
             sto_mask = 16'd0;
             sto_wline = 256'd0;
+            scan_out = 1'b0;
+`ifdef DORADO_SCAN
+        end else if (scan_en) begin
+            // (one condition, so the shift can use the registers' synchronous
+            // load; between shifts the module is idle: dorado_rtl_top holds
+            // its clock enable off for the whole scan phase)
+`include "scan_mem.svh"
+`endif
         end else if (clk_en) begin
             if (fault_clear_stb) fault_clear_task();
             if (cflags_stb)      cflags_load(cflags_val);

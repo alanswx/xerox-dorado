@@ -12,6 +12,11 @@
 // Layout, in 64-bit beats from MB_BASE (byte offsets in brackets):
 //   0        control [0x0000]: the ARM writes MB_MAGIC in bits 31:0 once
 //            storage holds the checkpoint; the core is held until then (go).
+//            Bits 63:32: the number of state-scan bits to shift in first
+//            (0: none), from the scan region, most significant bit of each
+//            beat first -- the saved machine's registers (a DORADO_SCAN
+//            core; scan_*.svh). The core leaves reset for the shift, does
+//            nothing else during it (scan_ph), and goes at its last bit.
 //            The mailbox clears it first after reset: DDR keeps its contents
 //            across a core reload, and a stale go would start the core on
 //            the last run's storage.
@@ -37,6 +42,7 @@
 //   2048..   receive attention bits [0x4000]: bit i of the bitmap = word i
 //   2112..2119 transmit lengths [0x4200], one beat per slot
 //   4096..   transmit slots [0x8000], 8 x 256 beats (1024 words each)
+//   16384..  the state scan bits [0x20000]
 // Each packet the Ethernet transmitter finishes (tx_packet_stb) is copied,
 // with the CPU held, into slot (n mod 8) and its length into that slot's
 // length beat; then status beat 11's tx count becomes n + 1. The ARM hands
@@ -56,6 +62,11 @@ module dorado_rtl_mailbox #(
     input  logic         clk,
     input  logic         rst,
     output logic         go,
+    // the state scan chain (dorado_rtl_top: io, the memory section, the cpu)
+    output logic         scan_ph,       // the chain is being loaded: the core does nothing else
+    output logic         scan_en,       // shift one place this clock
+    output logic         scan_in,
+    input  logic         scan_out,
 
     // DDR engine aux port
     output logic         aux_req,
@@ -114,10 +125,11 @@ module dorado_rtl_mailbox #(
     localparam logic [28:0] B_RXA    = MB_BASE + 29'd2048;
     localparam logic [28:0] B_TXLEN  = MB_BASE + 29'd2112;
     localparam logic [28:0] B_TX     = MB_BASE + 29'd4096;
+    localparam logic [28:0] B_SCAN   = MB_BASE + 29'd16384;
     localparam logic [2:0]  OP_RXLOAD = 3'd7;
 
     typedef enum logic [4:0] {
-        M_CLR, M_GO, M_GOWAIT, M_IDLE, M_STATUS, M_CMDRD, M_EXEC, M_RES,
+        M_CLR, M_GO, M_GOWAIT, M_SCANRD, M_SCANW, M_SCANSH, M_SCANEND, M_IDLE, M_STATUS, M_CMDRD, M_EXEC, M_RES,
         M_RXHOLD, M_RXATT, M_RXBEAT, M_RXWR, M_RXLOAD,
         M_TXHOLD, M_TXADDR, M_TXWAIT, M_TXDATA, M_TXBEAT, M_TXLEN
     } mstate_t;
@@ -138,6 +150,10 @@ module dorado_rtl_mailbox #(
     logic [15:0] rxload_count;     // receive fills done (status: freshness of rx_drained)
     logic [4:0]  sbeat;
     logic [63:0] cmd;
+    logic [31:0] scan_left;        // state-scan bits still to shift
+    logic [28:0] scan_beat;
+    logic [63:0] scan_sh;
+    logic [6:0]  scan_n;           // bits left in scan_sh
     logic [15:0] res_rd;
     logic [12:0] rx_n, rx_i;       // words to load, next word
     logic [63:0] rx_beat, rx_att;
@@ -212,7 +228,11 @@ module dorado_rtl_mailbox #(
         clk_cnt <= clk_cnt + 24'd1;
         clk64   <= clk64 + 64'd1;
         st_cnt[cpu_st[3:0]] <= st_cnt[cpu_st[3:0]] + 40'd1;
+        scan_en <= 1'b0;
         if (rst) begin
+            scan_ph  <= 1'b0;
+            scan_in  <= 1'b0;
+            scan_left <= 32'd0;
             st       <= M_CLR;
             clk64    <= 64'd0;
             hist_t   <= 4'd0;
@@ -258,12 +278,43 @@ module dorado_rtl_mailbox #(
             end
             M_GOWAIT: if (aux_ack) begin
                 poll_t <= 16'd1024;
-                if (aux_rdata[31:0] == MB_MAGIC) begin
+                if (aux_rdata[31:0] == MB_MAGIC && aux_rdata[63:32] != 32'd0) begin
+                    scan_ph   <= 1'b1;       // the core leaves reset, and waits
+                    scan_left <= aux_rdata[63:32];
+                    scan_beat <= B_SCAN;
+                    st <= M_SCANRD;
+                end else if (aux_rdata[31:0] == MB_MAGIC) begin
                     go <= 1'b1;
                     st <= M_IDLE;
                 end else begin
                     st <= M_GO;
                 end
+            end
+            // ---- the saved machine's registers, shifted in ---------------------
+            M_SCANRD: if (!aux_req) begin
+                beat_rd(scan_beat);
+                scan_beat <= scan_beat + 29'd1;
+                st <= M_SCANW;
+            end
+            M_SCANW: if (aux_ack) begin
+                scan_sh <= aux_rdata;
+                scan_n  <= 7'd64;
+                st <= M_SCANSH;
+            end
+            M_SCANSH: begin
+                scan_en   <= 1'b1;
+                scan_in   <= scan_sh[63];
+                scan_sh   <= {scan_sh[62:0], 1'b0};
+                scan_n    <= scan_n - 7'd1;
+                scan_left <= scan_left - 32'd1;
+                if (scan_left == 32'd1)   st <= M_SCANEND;
+                else if (scan_n == 7'd1)  st <= M_SCANRD;
+            end
+            // (scan_en is registered: the last shift happens in this clock)
+            M_SCANEND: begin
+                scan_ph <= 1'b0;
+                go      <= 1'b1;
+                st      <= M_IDLE;
             end
             // ---- the loop ---------------------------------------------------
             M_IDLE: if (!aux_req) begin

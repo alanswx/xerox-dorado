@@ -32,6 +32,13 @@ module dorado_rtl_io
     input  logic           clk,
     input  logic           rst,
     input  logic           clk_en,
+    // The state scan chain (DORADO_SCAN; scan_*.svh, tools/gen_scan.py):
+    // while scan_ph the module does nothing else, and each scan_en clock
+    // shifts every checkpoint register one place, scan_in to scan_out.
+    input  logic           scan_ph,
+    input  logic           scan_en,
+    input  logic           scan_in,
+    output logic           scan_out,
     input  logic [63:0]    cycles,
     // The disk's rotation time base (sector/index pulses). The top drives
     // `cycles` here, or, in lock-step against the C emulator, the C
@@ -1938,6 +1945,14 @@ module dorado_rtl_io
     //    fastio_stb) it left. The CPU does not start the next microinstruction
     //    until that clock has passed, so its I/O reads see the result.
     // =========================================================================
+`ifdef DORADO_SCAN
+`include "scan_io_decl.svh"
+`ifdef VERILATOR
+    initial if ($test$plusargs("scanmap")) begin
+`include "scan_io_widths.svh"
+    end
+`endif
+`endif
     always @(posedge clk) begin
         rj_start = 1'b0;
         wc_start = 1'b0;
@@ -2126,7 +2141,20 @@ module dorado_rtl_io
             ext_subtask_task           = 4'd0;
             ext_subtask_val            = 2'd0;
 `ifdef DORADO_CHECKPOINT
+`ifndef DORADO_SCAN
 `include "checkpoint_io.svh"
+`else
+            // (the horizontal RAM is not in the scan chain: still compiled in)
+`include "checkpoint_io_hram.svh"
+`endif
+`endif
+            scan_out = 1'b0;
+`ifdef DORADO_SCAN
+        end else if (scan_en) begin
+            // (one condition, so the shift can use the registers' synchronous
+            // load; between shifts the module is idle: dorado_rtl_top holds
+            // its clock enable off for the whole scan phase)
+`include "scan_io.svh"
 `endif
         end else if (eth_skip_busy) begin
             // WaitForBOP walk: phase 0 waits for eth_rx_att_q at eth_rx_pos.

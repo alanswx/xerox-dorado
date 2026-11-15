@@ -1335,3 +1335,70 @@ in words 0-2 ("Echo (x)" arrives as "echo 9x0"; section 8.4 saw the same):
 Cedar samples KeyBits once a field and takes the changes of one sample in
 word order, so a Shift inside the same 17 ms as its key comes second. Lisp
 got every shifted character right. A typist's Shift leads by far more.
+
+### 9.13 The checkpoint out of the bitstream: step 1, the registers by scan (2026-11-14, in progress)
+
+Why there are three cores: each has its world's saved state compiled in --
+the RAM contents as `$readmemh` files and about 3,100 register values as
+reset constants (`init_*/checkpoint_{cpu,mem,io}.svh`). The aim is one core
+that either boots or restores a checkpoint file, and can save one. Step 1
+moves the REGISTERS out, behind `DORADO_SCAN` (`make SCAN=1`); every build
+without it is unchanged (`make test`, `PIPE=1 test` pass; the compiled-in
+Lisp sim is cycle-identical).
+
+**The mechanism.** `tools/gen_scan.py` reads the checkpoint files' register
+names and writes `scan_{cpu,mem,io}.svh`: one statement per chunk of 32
+registers, `{sc[k], a, b, ...} = {a, b, ..., sc[k+1]}`, so the widths are
+the compiler's and the chain is in the files' order. Each module's main
+clocked block gets `else if (scan_en)` ahead of its normal work. The chain
+runs mailbox -> io -> memory section -> cpu, with one register between
+modules (`scan_out`; `pad` entries in the map). `dorado_rtl_mailbox` reads
+the bits from the scan region (beat 16384 on) when the control word's high
+half gives a count, holds the core out of reset but idle (`scan_ph`, clock
+enables off) while it shifts, and goes at the last bit. A core with the
+registers compiled in stays in reset through that and ignores it.
+
+The host (`hps_host.cpp load_scan_regs`) packs `<snapshot>.regs` (the
+three checkpoint files as `name hex` lines, `gen_scan.py --regs INIT_DIR
+OUT`) in the order of `hps/scan_map.h`, which `gen_scan.py --map` makes
+from a `+scanmap` run of the sim (each register's `$bits`). The map is
+part of the host binary: **regenerate it whenever a checkpoint register
+changes width or the lists change, or the restore is silently misaligned**
+(the first run was two bits out and started at cycles/4).
+
+**What it costs on the DE10-Nano, measured (Lisp core, seed 3):**
+
+| chain | bits | ALMs | registers | result |
+|---|---|---|---|---|
+| none (compiled in) | 0 | 33,744 (81%) | 31,092 | timing met |
+| every checkpoint register | 19,134 | 47,527 (113%) | 35,690 | does not fit |
+| ...shift as one `else if (scan_en)` | 19,134 | 45,237 (108%) | 35,690 | does not fit |
+| without the cache rows, HRam, task_md_ready | 7,614 | 38,477 (92%) | 34,890 | fits; setup -0.889 ns core, -0.336 HDMI |
+
+A scanned bit costs about a logic cell: Quartus does not put the shift on
+the registers' synchronous-load input for the big arrays, and constants and
+unused bits it used to remove must now exist. The single condition helped
+only the cpu (-5,000 cells). The two big arrays were the cache's row
+arrays (6,400 bits) and `ddc_hram` (4,096).
+
+**So the restored machine starts with an empty cache.** The cache rows are
+out of the chain (reset leaves every line invalid), and the host writes the
+snapshot's dirty lines to storage before the go (49 lines for Lisp). `sim_hps`
+Lisp, 30M microinstructions: framebuffer byte-identical to the compiled-in
+core. `ddc_hram` is still compiled in for a scan core
+(`init_*/checkpoint_io_hram.svh` = `grep ddc_hram checkpoint_io.svh`; the
+init directories are not in git).
+
+**Not done:**
+- The RAM-shaped state is still compiled in (IM, IFUM, RM, STK, ALUFM, the
+  Map, the receive buffer) and so is HRam. Plan: write ports fed from
+  registers where they exist (IFUM's `x_ifum_*`; IM's write address is
+  `link_at_issue`, so a separate write address costs nothing on the read
+  path), a mux at the RAM pins for RM/STK, the Map and the cache words, and
+  the mailbox's existing receive-buffer port. The Map's dirty and ref bits
+  must then come from the host AFTER its writeback (today's compiled-in Map
+  does not have them for the 49 lines).
+- Timing: -0.889 ns at 44 MHz on the one seed tried, at 92% full. 42.3 MHz
+  would still be 1.00x for Lisp at 2.53 clocks.
+- Saving (shift out through `scan_out`, the reverse map, a `.snap`
+  writer); Smalltalk and Cedar `.regs`; nothing of this has run on the board.

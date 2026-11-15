@@ -23,6 +23,14 @@ module dorado_rtl_cpu
     input  logic           clk,
     input  logic           rst,
     input  logic           clk_en,
+    // The state scan chain (DORADO_SCAN; scan_*.svh, tools/gen_scan.py):
+    // while scan_ph the module does nothing else, and each scan_en clock
+    // shifts every checkpoint register one place, scan_in to scan_out.
+    // (The chain runs scan_si -> the memory section -> this module -> scan_so.)
+    input  logic           scan_ph,
+    input  logic           scan_en,
+    input  logic           scan_si,
+    output logic           scan_so,
 
     // BaseBoard / MIR single-step injection interface
     input  logic           bb_present,
@@ -689,9 +697,12 @@ module dorado_rtl_cpu
         mem_fault_clear_stb = 1'b0; mem_cflags_stb = 1'b0; mem_cflags_val = 16'd0;
         m_byte_sel          = 1'b0;
 `ifdef DORADO_CHECKPOINT
+`ifndef DORADO_SCAN
         // A checkpoint build powers up in a saved machine state (reset_cpu
         // runs first, so this covers both): sim_cedar.cpp CEDAR_DUMP_INIT.
+        // (DORADO_SCAN: the host shifts it in instead.)
 `include "checkpoint_cpu.svh"
+`endif
 `endif
     endtask
 
@@ -2334,6 +2345,10 @@ module dorado_rtl_cpu
         .clk              (clk),
         .rst              (rst),
         .clk_en           (clk_en),
+        .scan_ph          (scan_ph),
+        .scan_en          (scan_en),
+        .scan_in          (scan_si),
+        .scan_out         (scan_in),
         .spec_req         (mem_spec_req),
         .spec_va          (mem_spec_va),
         .req              (mem_req),
@@ -3526,6 +3541,16 @@ module dorado_rtl_cpu
     // memory/IFU states, C_FINISH; step_done pulses for one clock after each
     // completed microinstruction (the cosimulation and I/O tick on it).
     // =========================================================================
+    logic scan_in, scan_out;       // the chain through this module's registers (from u_mem; to scan_so)
+    assign scan_so = scan_out;
+`ifdef DORADO_SCAN
+`include "scan_cpu_decl.svh"
+`ifdef VERILATOR
+    initial if ($test$plusargs("scanmap")) begin
+`include "scan_cpu_widths.svh"
+    end
+`endif
+`endif
     logic ap_done_q;
     logic spec_hit;                // IM (read in C_FINISH) holds the instruction at real_PC
     assign cpu_between    = (st == C_FETCH);
@@ -3565,6 +3590,14 @@ module dorado_rtl_cpu
             st      = C_FETCH;
             m_ret   = C_FETCH;
             x_im_wr = 1'b0;
+            scan_out = 1'b0;
+`ifdef DORADO_SCAN
+        end else if (scan_en) begin
+            // (one condition, so the shift can use the registers' synchronous
+            // load; between shifts the module is idle: dorado_rtl_top holds
+            // its clock enable off for the whole scan phase)
+`include "scan_cpu.svh"
+`endif
         end else if (clk_en && !halted) begin
             do_exec = (st == C_EXEC) || fexec;
             if (((st == C_DEC || st == C_FETCH) && io_busy && touches_io_c) ||
