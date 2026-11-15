@@ -38,6 +38,8 @@ module dorado_rtl_io
     input  logic           scan_ph,
     input  logic           scan_en,
     input  logic           scan_in,
+    input  logic           ld_we,         // a load record (dorado_rtl_mailbox): kind 10 is an entry of a register file
+    input  logic [63:0]    ld_d,
     output logic           scan_out,
     input  logic [63:0]    cycles,
     // The disk's rotation time base (sector/index pulses). The top drives
@@ -2154,6 +2156,8 @@ module dorado_rtl_io
             // load; between shifts the module is idle: dorado_rtl_top holds
             // its clock enable off for the whole scan phase)
 `include "scan_io.svh"
+        end else if (ld_we && ld_d[63:60] == 4'd10) begin    // an entry of a register file
+`include "scan_io_ld.svh"
 `endif
         end else if (eth_skip_busy) begin
             // WaitForBOP walk: phase 0 waits for eth_rx_att_q at eth_rx_pos.

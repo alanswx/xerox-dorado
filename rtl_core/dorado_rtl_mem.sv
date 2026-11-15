@@ -1469,6 +1469,8 @@ module dorado_rtl_mem
             // load; between shifts the module is idle: dorado_rtl_top holds
             // its clock enable off for the whole scan phase)
 `include "scan_mem.svh"
+        end else if (ld_we && ld_d[63:60] == 4'd9) begin     // an entry of a register file
+`include "scan_mem_ld.svh"
 `endif
         end else if (clk_en) begin
             if (fault_clear_stb) fault_clear_task();

@@ -14,22 +14,6 @@ $display("SCANMAP io ddc_riob %0d", $bits(ddc_riob));
 $display("SCANMAP io ddc_terminal_task %0d", $bits(ddc_terminal_task));
 $display("SCANMAP io ddc_ram_keep %0d", $bits(ddc_ram_keep));
 $display("SCANMAP io ddc_ram_addr %0d", $bits(ddc_ram_addr));
-$display("SCANMAP io ddc_nlcb[0] %0d", $bits(ddc_nlcb[0]));
-$display("SCANMAP io ddc_nlcb[1] %0d", $bits(ddc_nlcb[1]));
-$display("SCANMAP io ddc_nlcb[2] %0d", $bits(ddc_nlcb[2]));
-$display("SCANMAP io ddc_nlcb[3] %0d", $bits(ddc_nlcb[3]));
-$display("SCANMAP io ddc_nlcb[4] %0d", $bits(ddc_nlcb[4]));
-$display("SCANMAP io ddc_nlcb[5] %0d", $bits(ddc_nlcb[5]));
-$display("SCANMAP io ddc_nlcb[6] %0d", $bits(ddc_nlcb[6]));
-$display("SCANMAP io ddc_nlcb[7] %0d", $bits(ddc_nlcb[7]));
-$display("SCANMAP io ddc_nlcb[8] %0d", $bits(ddc_nlcb[8]));
-$display("SCANMAP io ddc_nlcb[9] %0d", $bits(ddc_nlcb[9]));
-$display("SCANMAP io ddc_nlcb[10] %0d", $bits(ddc_nlcb[10]));
-$display("SCANMAP io ddc_nlcb[11] %0d", $bits(ddc_nlcb[11]));
-$display("SCANMAP io ddc_nlcb[12] %0d", $bits(ddc_nlcb[12]));
-$display("SCANMAP io ddc_nlcb[13] %0d", $bits(ddc_nlcb[13]));
-$display("SCANMAP io ddc_nlcb[14] %0d", $bits(ddc_nlcb[14]));
-$display("SCANMAP io ddc_nlcb[15] %0d", $bits(ddc_nlcb[15]));
 $display("SCANMAP io ddc_nlcb_line %0d", $bits(ddc_nlcb_line));
 $display("SCANMAP io ddc_nlcb_field_odd %0d", $bits(ddc_nlcb_field_odd));
 $display("SCANMAP io ddc_nlcb_cursor_x %0d", $bits(ddc_nlcb_cursor_x));
@@ -287,54 +271,6 @@ $display("SCANMAP io disk_tag %0d", $bits(disk_tag));
 $display("SCANMAP io disk_muff_addr %0d", $bits(disk_muff_addr));
 `endif
 `ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[0] %0d", $bits(disk_format_ram[0]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[1] %0d", $bits(disk_format_ram[1]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[2] %0d", $bits(disk_format_ram[2]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[3] %0d", $bits(disk_format_ram[3]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[4] %0d", $bits(disk_format_ram[4]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[5] %0d", $bits(disk_format_ram[5]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[6] %0d", $bits(disk_format_ram[6]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[7] %0d", $bits(disk_format_ram[7]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[8] %0d", $bits(disk_format_ram[8]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[9] %0d", $bits(disk_format_ram[9]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[10] %0d", $bits(disk_format_ram[10]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[11] %0d", $bits(disk_format_ram[11]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[12] %0d", $bits(disk_format_ram[12]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[13] %0d", $bits(disk_format_ram[13]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[14] %0d", $bits(disk_format_ram[14]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_format_ram[15] %0d", $bits(disk_format_ram[15]));
-`endif
-`ifndef DORADO_NO_DISK
 $display("SCANMAP io disk_format_ram_addr %0d", $bits(disk_format_ram_addr));
 `endif
 `ifndef DORADO_NO_DISK
@@ -387,54 +323,6 @@ $display("SCANMAP io disk_fifo_underflow %0d", $bits(disk_fifo_underflow));
 `endif
 `ifndef DORADO_NO_DISK
 $display("SCANMAP io disk_fifo_overflow %0d", $bits(disk_fifo_overflow));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[0] %0d", $bits(disk_fifo[0]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[1] %0d", $bits(disk_fifo[1]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[2] %0d", $bits(disk_fifo[2]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[3] %0d", $bits(disk_fifo[3]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[4] %0d", $bits(disk_fifo[4]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[5] %0d", $bits(disk_fifo[5]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[6] %0d", $bits(disk_fifo[6]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[7] %0d", $bits(disk_fifo[7]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[8] %0d", $bits(disk_fifo[8]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[9] %0d", $bits(disk_fifo[9]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[10] %0d", $bits(disk_fifo[10]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[11] %0d", $bits(disk_fifo[11]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[12] %0d", $bits(disk_fifo[12]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[13] %0d", $bits(disk_fifo[13]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[14] %0d", $bits(disk_fifo[14]));
-`endif
-`ifndef DORADO_NO_DISK
-$display("SCANMAP io disk_fifo[15] %0d", $bits(disk_fifo[15]));
 `endif
 `ifndef DORADO_NO_DISK
 $display("SCANMAP io disk_fifo_head %0d", $bits(disk_fifo_head));

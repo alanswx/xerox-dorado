@@ -36,6 +36,7 @@
 #include <map>
 #include <string>
 #include "scan_map.h"
+#include "scan_ld.h"
 #include <algorithm>
 
 extern "C" {
@@ -460,10 +461,26 @@ uint64_t load_scan_regs() {
             if ((rec >> 60) == 6)
                 for (uint16_t pg : written_pages)
                     if (pg == (uint16_t)(rec >> 32)) { rec |= 3ull << 16; break; }
-            T.mb[B_LOAD + n++] = rec;
             if ((rec >> 60) == 15) { ended = true; break; }
+            T.mb[B_LOAD + n++] = rec;
         }
         if (r) fclose(r);
+        // the register files (scan_ld.h): an entry a record, from the .regs values
+        for (int i = 0; ended && i < SCAN_LD_FILES; i++)
+            for (int e = 0; e < scan_ld[i].n; e++) {
+                auto it = v.find(std::string(scan_ld[i].mod) + "." + scan_ld[i].name + "[" + std::to_string(e) + "]");
+                if (it == v.end()) {
+                    if (strncmp(scan_ld[i].name, "disk_", 5)) missing++;
+                    continue;
+                }
+                T.mb[B_LOAD + n++] = (uint64_t)scan_ld[i].kind << 60 | (uint64_t)scan_ld[i].id << 52 |
+                                     (uint64_t)e << 32 | (uint32_t)it->second;
+            }
+        if (missing) {
+            fprintf(stderr, "[hps] %s: %zu register-file entries are not in it; not used\n", path.c_str(), missing);
+            return 0;
+        }
+        T.mb[B_LOAD + n++] = 15ull << 60;
         if (!ended) {
             fprintf(stderr, "[hps] %s: no load records (or no end record); the registers are not used\n",
                     rpath.c_str());

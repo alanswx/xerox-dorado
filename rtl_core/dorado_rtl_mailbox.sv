@@ -58,7 +58,11 @@
 //              5 ALUFM    a[19:16], d[5:0]
 //              6 Map      a[47:32], WP [18], Dirty [17], Ref [16], RP [15:0]
 //              7 Ethernet receive word  a[27:16], attention [32], d[15:0]
-//            (0: nothing.) Kinds 1-6 go out on ld_we/ld_d; 7 is written here.
+//              8, 9, 10 an entry of a register file of the cpu, the memory
+//                section, io (BR, the per-task files, the Pipe, ...;
+//                tools/gen_scan.py): file [59:52], entry [47:32], d[31:0]
+//            (0: nothing.) Kind 7 is written here; the others go out on
+//            ld_we/ld_d.
 // Each packet the Ethernet transmitter finishes (tx_packet_stb) is copied,
 // with the CPU held, into slot (n mod 8) and its length into that slot's
 // length beat; then status beat 11's tx count becomes n + 1. The ARM hands

@@ -3645,6 +3645,8 @@ module dorado_rtl_cpu
         end else if (ld_aluf) begin
             alufm[ld_d[19:16]]         = ld_d[5:0];
             alufm_present[ld_d[19:16]] = 1'b1;
+        end else if (ld_we && ld_d[63:60] == 4'd8) begin     // an entry of a register file
+`include "scan_cpu_ld.svh"
 `endif
         end else if (clk_en && !halted) begin
             do_exec = (st == C_EXEC) || fexec;

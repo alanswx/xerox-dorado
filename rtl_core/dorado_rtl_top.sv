@@ -657,6 +657,8 @@ module dorado_rtl_top
         .scan_ph                 (mb_scan_ph),
         .scan_en                 (mb_scan_en),
         .scan_in                 (mb_scan_in),
+        .ld_we                   (mb_ld_we),
+        .ld_d                    (mb_ld_d),
         .scan_out                (scan_out_io),
         .cycles                  (dbg_cycles),
         .disk_time               (disk_time_ext_en ? disk_time : dbg_cycles),
