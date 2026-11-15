@@ -1589,6 +1589,17 @@ after Smalltalk is whole. `lisp-save.snap` restored over Cedar:
 loading the core. The bitstream and host before this are on the board as
 `DoradoRtlOne_44.save-f8.rbf.bak` and `dorado-hps-one.save-f8`.
 
+**Seeds (f10 RTL, 44 MHz, worst setup slack; all fit, 90% ALMs):** seed 3
+-0.805 ns, seed 5 -0.812, seed 7 -1.354, seed 1 -0.829, **seed 2 -0.089**
+(37,846 ALMs). Seed 2 is now the build default in `Dorado.qsf` (both SEED
+lines) and the bitstream on mister14 (`Dorado_one_final.rbf` in the build
+dir; the seed 3 one is on the board as `DoradoRtlOne_44.f10-s3.rbf.bak`).
+Checked on the board with it: Lisp (core loaded) 209,165 px at 1.05x,
+Smalltalk 124,945 at 1.29x and Cedar 167,653 at 1.05x in place;
+`lisp-disk-save.snap` restored over Cedar reads `{DSK}SAVETEST` (4244); a
+new save of that, Smalltalk over it, the save restored: reads it again
+(4245).
+
 A trap in the script, found on the board: the start runs from a file sh
 reads as it goes, so a second start that rewrote the same file made the
 first one's shell run the old world again. Each start has its own file now.
@@ -1623,7 +1634,8 @@ bytes), Smalltalk started in place, the save restored in place,
 `(WITH-OPEN-FILE (S "{DSK}SAVETEST") (+ 1 (READ S)))` -> 4243.
 
 **Not done:**
-- Timing: about -0.8 ns at 44 MHz. Seeds; or 42.3 MHz, still 1.00x for Lisp.
+- Timing: -0.089 ns at 44 MHz with seed 2 (below). Not closed; more seeds,
+  or 42.3 MHz, still 1.00x for Lisp.
 - A save and a switch are separate commands; nothing on the MiSTer's OSD
   asks for either.
 - Read-back of IM, IFUM, ALUFM and the receive buffer.
