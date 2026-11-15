@@ -39,10 +39,13 @@
 //             14  the stall report (written only while an operation waits;
 //                 see stall_tick): dorado_rtl_cpu dbg_stall
 //             15  {dorado_rtl_storage_ddr dbg[63:16], stall reports[15:0]}
-//   256..511 command ring [0x0800]: {seq[7:0], 7'0, cache, we, op[2:0],
+//   256..511 command ring [0x0800]: {seq[7:0], save, 6'0, cache, we, op[2:0],
 //            va[27:0], wd[15:0]}. Entry i of lap L is valid when its seq is
 //            (L mod 255) + 1; the ARM writes the low word first and the word
 //            holding seq last, so a half-written entry is never taken.
+//            save: not an operation but a save of the registers -- the scan
+//            chain (wd bits long) goes round once, out to the scan region
+//            and back in (M_SV*, below); the machine then carries on.
 //   512..767 result ring  [0x1000]: {seq, 40'0, rd[15:0]} for the entry.
 //   1024..   receive words [0x2000]: up to 4096 words, four to a beat
 //   2048..   receive attention bits [0x4000]: bit i of the bitmap = word i
@@ -111,6 +114,7 @@ module dorado_rtl_mailbox #(
     input  logic         hp_done,
     input  logic [15:0]  hp_rd,
     input  logic         hp_between,
+    input  logic         hp_quiet,      // ...with nothing in flight (dorado_rtl_cpu cpu_quiet)
 
     // Ethernet receive buffer (dorado_rtl_top hx_rx_*)
     output logic         rx_wr_en,
@@ -152,10 +156,11 @@ module dorado_rtl_mailbox #(
     localparam logic [28:0] B_LOAD   = MB_BASE + 29'd32768;
     localparam logic [2:0]  OP_RXLOAD = 3'd7;
 
-    typedef enum logic [4:0] {
+    typedef enum logic [5:0] {
         M_CLR, M_GO, M_GOWAIT, M_CFGRD, M_CFGW, M_LDRD, M_LDW, M_SCANRD, M_SCANW, M_SCANSH, M_SCANEND, M_IDLE, M_STATUS, M_CMDRD, M_EXEC, M_RES,
         M_RXHOLD, M_RXATT, M_RXBEAT, M_RXWR, M_RXLOAD,
-        M_TXHOLD, M_TXADDR, M_TXWAIT, M_TXDATA, M_TXBEAT, M_TXLEN
+        M_TXHOLD, M_TXADDR, M_TXWAIT, M_TXDATA, M_TXBEAT, M_TXLEN,
+        M_SVHOLD, M_SVSH, M_SVW, M_SVCAP, M_SVWR, M_SVEND, M_SVEND2
     } mstate_t;
     mstate_t     st;
 
@@ -409,7 +414,8 @@ module dorado_rtl_mailbox #(
                 if (aux_rdata[63:56] == lap_seq) begin
                     burst   <= 1'b1;
                     hold_cmd <= 1'b1;
-                    st      <= (aux_rdata[46:44] == OP_RXLOAD) ? M_RXHOLD : M_EXEC;
+                    st      <= aux_rdata[55] ? M_SVHOLD :
+                               (aux_rdata[46:44] == OP_RXLOAD) ? M_RXHOLD : M_EXEC;
                 end else begin
                     burst   <= 1'b0;
                     hold_cmd <= 1'b0;
@@ -493,6 +499,53 @@ module dorado_rtl_mailbox #(
                 status_t      <= 16'd0;     // refresh the status at once
                 res_rd        <= {3'd0, rx_n};
                 st            <= M_RES;
+            end
+            // ---- a save: the registers out, and back in ------------------------
+            // (command bit 55; wd = the chain's length.) With the CPU held
+            // between microinstructions and nothing in flight, the chain
+            // goes round once: each bit that leaves (scan_out, a register:
+            // the bit a shift pushes out) is kept for the host and fed in
+            // again on the next shift, and one shift more after the last
+            // puts every bit back where it was. Bit i of the chain, as the
+            // host packed it for a load, is bit 63 - (i mod 64) of scan-region
+            // beat i / 64 (a last short beat: the same, the rest 0).
+            M_SVHOLD: if (hp_quiet && stall_ph == 2'd0) begin
+                scan_ph   <= 1'b1;
+                scan_left <= {16'd0, c_wd};
+                scan_beat <= B_SCAN;
+                scan_n    <= 7'd0;
+                scan_sh   <= 64'd0;
+                st        <= M_SVSH;
+            end else begin
+                stall_tick();
+            end
+            M_SVSH: begin
+                scan_en <= 1'b1;             // (scan_in: the bit the last shift pushed out)
+                st      <= M_SVW;
+            end
+            M_SVW:  st <= M_SVCAP;           // the chain shifts in this clock
+            M_SVCAP: begin
+                scan_in   <= scan_out;
+                if (scan_out) scan_sh[6'd63 - scan_n[5:0]] <= 1'b1;
+                scan_n    <= scan_n + 7'd1;
+                scan_left <= scan_left - 32'd1;
+                st <= (scan_n == 7'd63 || scan_left == 32'd1) ? M_SVWR : M_SVSH;
+            end
+            M_SVWR: if (!aux_req) begin
+                beat_wr(scan_beat, scan_sh);
+                scan_beat <= scan_beat + 29'd1;
+                scan_sh   <= 64'd0;
+                scan_n    <= 7'd0;
+                st <= (scan_left == 32'd0) ? M_SVEND : M_SVSH;
+            end
+            M_SVEND: begin                   // the last bit out goes back in
+                scan_en <= 1'b1;
+                st      <= M_SVEND2;
+            end
+            M_SVEND2: if (!aux_req) begin    // (the write of the last beat is done)
+                scan_ph <= 1'b0;
+                res_rd  <= c_wd;
+                st      <= M_RES;
             end
             // ---- a transmitted packet, out to its slot ----------------------
             M_TXHOLD: if (hp_between && stall_ph == 2'd0) begin

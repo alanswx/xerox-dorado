@@ -253,7 +253,7 @@ module dorado_rtl_top
     assign hp_done  = !assist_on && ap_done;
     assign hp_rd    = ap_rd;
     assign hp_between = cpu_between;
-    logic           cpu_between, dbg_ifu_active;
+    logic           cpu_between, cpu_quiet, dbg_ifu_active;
     logic           kbd0_poke;
     logic [15:0]    kbd0_val;
     logic           assist_display_gate, io_next_wcb_any;
@@ -402,6 +402,7 @@ module dorado_rtl_top
                 .hp_done       (ap_done && !assist_on),
                 .hp_rd         (ap_rd),
                 .hp_between    (cpu_between),
+                .hp_quiet      (cpu_quiet),
                 .rx_wr_en      (mb_rx_wr_en),
                 .rx_wr_addr    (mb_rx_wr_addr),
                 .rx_wr_data    (mb_rx_wr_data),
@@ -551,6 +552,7 @@ module dorado_rtl_top
         .ap_done            (ap_done),
         .ap_rd              (ap_rd),
         .cpu_between        (cpu_between),
+        .cpu_quiet          (cpu_quiet),
         .dbg_ifu_active     (dbg_ifu_active),
         .dbg_st             (cpu_st),
         .dbg_stall          (cpu_stall),

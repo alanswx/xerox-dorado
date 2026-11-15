@@ -495,6 +495,42 @@ uint64_t load_scan_regs() {
 
 }  // namespace
 
+// A save of the running machine's registers (a DORADO_SCAN core): the
+// mailbox holds the CPU between microinstructions with nothing in flight
+// and takes the scan chain round once, out to the scan region and back in;
+// the machine carries on. <path>.regs is what load_scan_regs reads -- the
+// chain's registers only: the register files and the memories are not read
+// back yet.
+int hps_save_regs(const char *path) {
+    retire(1);
+    const uint64_t n = issued;
+    const uint64_t e = ((uint64_t)seq_of(n) << 56) | (1ull << 55) | (uint64_t)SCAN_BITS;
+    volatile uint32_t *w = (volatile uint32_t *)&T.mb[B_CMD + (n & 255)];
+    w[0] = (uint32_t)e;
+    barrier();
+    w[1] = (uint32_t)(e >> 32);
+    barrier();
+    issued++;
+    if (result(n) != (uint16_t)SCAN_BITS) return -1;
+    std::string p = std::string(path) + ".regs";
+    FILE *f = fopen(p.c_str(), "w");
+    if (!f) { perror(p.c_str()); return -1; }
+    const char *mod = "";
+    size_t bit = 0;
+    for (int i = 0; i < SCAN_REGS; i++) {
+        uint64_t x = 0;
+        for (int b = scan_map[i].bits - 1; b >= 0; b--, bit++)
+            if (b < 64 && ((T.mb[B_SCAN + bit / 64] >> (63 - bit % 64)) & 1)) x |= 1ull << b;
+        if (!strcmp(scan_map[i].mod, "pad")) continue;
+        if (strcmp(mod, scan_map[i].mod)) fprintf(f, "@%s\n", mod = scan_map[i].mod);
+        fprintf(f, "%s %llx\n", scan_map[i].name, (unsigned long long)x);
+    }
+    fclose(f);
+    printf("[hps] saved %d registers (%d bits) at %llu microinstructions -> %s\n",
+           SCAN_REGS, SCAN_BITS, (unsigned long long)S.rtl_cycles, p.c_str());
+    return 0;
+}
+
 int hps_start(const hps_config *cfg, const hps_transport *t) {
     CFG = *cfg;
     T = *t;
@@ -723,6 +759,17 @@ uint64_t hps_poll(void) {
     ethernet_bridge();
     S.host_bb_cycles = dorado_machine_cycles(M);
     retire(1);                              // let queued commands finish
+    // DORADO_HPS_SAVE=<microinstructions>,<path>: save the registers once there
+    {
+        static const char *sv = getenv("DORADO_HPS_SAVE");
+        static int left = 2;                 // (twice: the second must equal the first plus what ran)
+        unsigned long long at = 0; char sp[400];
+        if (sv && left && sscanf(sv, "%llu,%399s", &at, sp) == 2 && S.rtl_cycles >= at) {
+            std::string q = std::string(sp) + (left == 2 ? "" : ".2");
+            left--;
+            hps_save_regs(q.c_str());
+        }
+    }
     return S.rtl_cycles;
 }
 

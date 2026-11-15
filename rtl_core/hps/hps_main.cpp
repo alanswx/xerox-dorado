@@ -290,6 +290,12 @@ int main(int argc, char **argv) {
                        (short)dorado_visible_word_at_va(mem, 0424), (short)dorado_visible_word_at_va(mem, 0425),
                        (short)dorado_visible_word_at_va(mem, 0426), (short)dorado_visible_word_at_va(mem, 0427));
             }
+            // `touch /tmp/dorado-save`: the registers to /tmp/dorado-save.regs
+            // (a scan core; seen at the next status line)
+            if (access("/tmp/dorado-save", F_OK) == 0) {
+                unlink("/tmp/dorado-save");
+                hps_save_regs("/tmp/dorado-save");
+            }
             int px = hps_snapshot_pgm("/tmp/dorado.pgm");
             printf("[hps] screen: %d pixels -> /tmp/dorado.pgm\n", px);
             tl = now_s();

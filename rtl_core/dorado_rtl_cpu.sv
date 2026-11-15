@@ -125,6 +125,7 @@ module dorado_rtl_cpu
     output logic           ap_done,
     output logic [15:0]    ap_rd,
     output logic           cpu_between,  // in C_FETCH: assist conditions are current
+    output logic           cpu_quiet,    // ...and nothing is in flight: the registers are the whole state (a save)
     output logic           dbg_ifu_active,
     output logic [4:0]     dbg_st,
     output logic [63:0]    dbg_stall,    // the mailbox's stall report (a host op unanswered)
@@ -3594,6 +3595,8 @@ module dorado_rtl_cpu
     logic ap_done_q;
     logic spec_hit;                // IM (read in C_FINISH) holds the instruction at real_PC
     assign cpu_between    = (st == C_FETCH);
+    assign cpu_quiet      = (st == C_FETCH) && mem_idle && !mem_req && !mem_inflight && !ifu_bk_busy &&
+                            bk_n == 2'd0 && !sto_req && !x_pref_pending && !io_busy && !io_busy_tick;
     // the clock the instruction completes: C_FINISH, unless it is waiting
     // for its memory reference (x_pref_pending until mem_fin)
     assign io_tick_early  = clk_en && !halted &&
