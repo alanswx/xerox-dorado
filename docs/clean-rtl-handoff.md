@@ -1336,7 +1336,7 @@ Cedar samples KeyBits once a field and takes the changes of one sample in
 word order, so a Shift inside the same 17 ms as its key comes second. Lisp
 got every shifted character right. A typist's Shift leads by far more.
 
-### 9.13 The checkpoint out of the bitstream: step 1, the registers by scan (2026-11-14, in progress)
+### 9.13 The checkpoint out of the bitstream: one core restores any world (2026-11-14/15; saving not started)
 
 Why there are three cores: each has its world's saved state compiled in --
 the RAM contents as `$readmemh` files and about 3,100 register values as
@@ -1441,9 +1441,56 @@ mouse as terminal motion or absolute, the DDC's first line, the cursor's X
 offset; `hps_main.cpp` sets it from `-w`, `Dorado.sv` uses it under
 `DORADO_SCAN`). The wrapper change has not been through Quartus yet.
 
+**Register files by load record, and a shorter chain (2026-11-14/15).**
+Files of 16 or more entries (BR, the per-task files, the Pipe, the DDC's
+NLCB, the disk's format RAM and FIFO; 29 files, 4,880 bits) left the chain
+and are written by load records of kind 8/9/10 (`scan_<m>_ld.svh`,
+`hps/scan_ld.h`): 7,614 -> 2,734 bits. Then six registers nothing reads
+(dispatch and frame counts, the last-reference records) were dropped and
+fourteen ints holding a small index or -1 are carried as their low bits and
+sign-extended (`gen_scan.py` `SKIP`, `NARROW`; `--regs` refuses a value
+that does not fit): 2,162 bits. All three worlds 30M byte-identical in
+`sim_hps`; both lock-step suites pass.
+
+**The fit (Lisp tree, seed 3, 44 MHz).**
+
+| core | ALMs | result |
+|---|---|---|
+| compiled-in checkpoint | 33,744 (81%) | fits |
+| registers by scan, 7,614-bit chain | 38,477 (92%) | fits, -0.889 ns |
+| + memory load ports | 38,566 (92%) | routing fails (congestion) |
+| register files by record, 2,734-bit chain | 38,193 (91%) | routing fails |
+| ... MiSTer ALSA, YC, adaptive scaler off | 37,370 (89%) | routing fails |
+| ... 2,162-bit chain | **36,900 (88%)** | **fits, -0.995 ns** (TNS -33 ns; HDMI PLL -0.191) |
+
+The cost over the compiled-in core is combinational (about +5,000 ALUTs at
+the same register count): the per-bit shift and load multiplexers. Failure
+was a local hot spot (peak interconnect 74% around X11-21/Y35-45), not total
+area. `Dorado.qsf` in the scan build has `MISTER_DISABLE_ALSA`,
+`MISTER_DISABLE_YC` and `MISTER_DISABLE_ADAPTIVE` set (a Dorado has no
+sound).
+
+**ONE BITSTREAM RUNS ALL THREE WORLDS ON THE BOARD (mister14, 2026-11-15).**
+`_Development/DoradoRtlOne_44.rbf` has no world compiled in; `Scripts/
+DoradoOne.sh lisp|smalltalk|cedar` loads it and starts `dorado/dorado-hps-one`,
+which loads storage, the `.rams` records and the `.regs` chain and sends the
+world's presentation word. Log `/tmp/hps-one.log`.
+
+| world | speed | screen |
+|---|---|---|
+| Lisp | 17.47 M/s, 1.05x | 209,165 px; typed form evaluated |
+| Smalltalk | 21.56 M/s, 1.29x | 124,945 px at 640 x 800 |
+| Cedar | 17.53 M/s, 1.05x | 167,656 px; mouse to the Schematic button, click, the sheet fetched over STP and painted (`docs/images/rtl-one-core-cedar-schematic-2026-11-15.png`) |
+
+Each was started over the one before without reloading anything but the
+core. The negative slack has not shown itself in these runs; it is one seed.
+
 **Not done:**
-- Timing: -0.889 ns at 44 MHz on the one seed tried, at 92% full. 42.3 MHz
-  would still be 1.00x for Lisp at 2.53 clocks.
-- Saving (shift out through `scan_out`, the reverse map, a `.snap`
-  writer); Smalltalk and Cedar `.regs`/`.rams`; the three builds as one.
-- The full scan core (step 2) has not run on the board: no bitstream yet.
+- Timing: -0.995 ns at 44 MHz. Seeds; or 42.3 MHz, still 1.00x for Lisp.
+- Saving: registers out through `scan_out`, read-back of the memories and
+  register files, the reverse map, a `.snap` writer. A restore over a
+  running machine (no bitstream reload) must also clear what the records do
+  not write (IFUM/ALUFM presence, the cache's valid bits).
+- The host makes `.rams` offline from a simulation dump (`gen_scan.py
+  --rams/--regs`); it should build the records from the snapshot it restores.
+- Cold boot on the same core; then retire the three per-world bitstreams.
