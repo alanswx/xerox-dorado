@@ -469,12 +469,10 @@ uint64_t load_scan_regs() {
         for (int i = 0; ended && i < SCAN_LD_FILES; i++)
             for (int e = 0; e < scan_ld[i].n; e++) {
                 auto it = v.find(std::string(scan_ld[i].mod) + "." + scan_ld[i].name + "[" + std::to_string(e) + "]");
-                if (it == v.end()) {
-                    if (strncmp(scan_ld[i].name, "disk_", 5)) missing++;
-                    continue;
-                }
+                // (the file rotates an entry a record: all of them, first to last)
+                if (it == v.end() && strncmp(scan_ld[i].name, "disk_", 5)) missing++;
                 T.mb[B_LOAD + n++] = (uint64_t)scan_ld[i].kind << 60 | (uint64_t)scan_ld[i].id << 52 |
-                                     (uint64_t)e << 32 | (uint32_t)it->second;
+                                     (uint64_t)e << 32 | (it == v.end() ? 0u : (uint32_t)it->second);
             }
         if (missing) {
             fprintf(stderr, "[hps] %s: %zu register-file entries are not in it; not used\n", path.c_str(), missing);
@@ -503,6 +501,15 @@ uint64_t load_scan_regs() {
 // back yet.
 int hps_save_regs(const char *path) {
     retire(1);
+    // the register files: a record an entry, which the mailbox fills in
+    {
+        size_t k = 0;
+        for (int i = 0; i < SCAN_LD_FILES; i++)
+            for (int e = 0; e < scan_ld[i].n; e++)
+                T.mb[B_LOAD + k++] = (uint64_t)scan_ld[i].kind << 60 | (uint64_t)scan_ld[i].id << 52;
+        T.mb[B_LOAD + k] = 15ull << 60;
+        barrier();
+    }
     const uint64_t n = issued;
     const uint64_t e = ((uint64_t)seq_of(n) << 56) | (1ull << 55) | (uint64_t)SCAN_BITS;
     volatile uint32_t *w = (volatile uint32_t *)&T.mb[B_CMD + (n & 255)];
@@ -517,14 +524,25 @@ int hps_save_regs(const char *path) {
     if (!f) { perror(p.c_str()); return -1; }
     const char *mod = "";
     size_t bit = 0;
+    auto files = [&](const char *m) {        // the module's register files, after its registers
+        size_t k = 0;
+        for (int i = 0; i < SCAN_LD_FILES; i++)
+            for (int e = 0; e < scan_ld[i].n; e++, k++)
+                if (!strcmp(scan_ld[i].mod, m))
+                    fprintf(f, "%s[%d] %x\n", scan_ld[i].name, e, (unsigned)(uint32_t)T.mb[B_LOAD + k]);
+    };
     for (int i = 0; i < SCAN_REGS; i++) {
         uint64_t x = 0;
         for (int b = scan_map[i].bits - 1; b >= 0; b--, bit++)
             if (b < 64 && ((T.mb[B_SCAN + bit / 64] >> (63 - bit % 64)) & 1)) x |= 1ull << b;
         if (!strcmp(scan_map[i].mod, "pad")) continue;
-        if (strcmp(mod, scan_map[i].mod)) fprintf(f, "@%s\n", mod = scan_map[i].mod);
+        if (strcmp(mod, scan_map[i].mod)) {
+            if (*mod) files(mod);
+            fprintf(f, "@%s\n", mod = scan_map[i].mod);
+        }
         fprintf(f, "%s %llx\n", scan_map[i].name, (unsigned long long)x);
     }
+    if (*mod) files(mod);
     fclose(f);
     printf("[hps] saved %d registers (%d bits) at %llu microinstructions -> %s\n",
            SCAN_REGS, SCAN_BITS, (unsigned long long)S.rtl_cycles, p.c_str());

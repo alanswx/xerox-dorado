@@ -40,6 +40,7 @@ module dorado_rtl_io
     input  logic           scan_in,
     input  logic           ld_we,         // a load record (dorado_rtl_mailbox): kind 10 is an entry of a register file
     input  logic [63:0]    ld_d,
+    output logic [31:0]    fr_q,          // entry 0 of the register file ld_d names (a save reads the files through it)
     output logic           scan_out,
     input  logic [63:0]    cycles,
     // The disk's rotation time base (sector/index pulses). The top drives
@@ -1951,6 +1952,7 @@ module dorado_rtl_io
     // =========================================================================
 `ifdef DORADO_SCAN
 `include "scan_io_decl.svh"
+
 `ifdef VERILATOR
     initial if ($test$plusargs("scanmap")) begin
 `include "scan_io_widths.svh"
@@ -2680,5 +2682,12 @@ module dorado_rtl_io
         end
     end
 
+`ifdef DORADO_SCAN
+    always_comb begin
+`include "scan_io_rd.svh"
+    end
+`else
+    assign fr_q = 32'd0;
+`endif
 endmodule
 /* verilator lint_on BLKSEQ */

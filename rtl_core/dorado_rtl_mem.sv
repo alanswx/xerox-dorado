@@ -36,6 +36,7 @@ module dorado_rtl_mem
     output logic           scan_out,
     input  logic           ld_we,         // a load record (dorado_rtl_mailbox): kind 6 is a Map entry
     input  logic [63:0]    ld_d,
+    output logic [31:0]    fr_q,          // entry 0 of the register file ld_d names (a save reads the files through it)
 
     // ---- the reference ----------------------------------------------------
     input  logic           spec_req,      // read the row, Map entry and words at spec_va now
@@ -1442,6 +1443,7 @@ module dorado_rtl_mem
 
 `ifdef DORADO_SCAN
 `include "scan_mem_decl.svh"
+
 `ifdef VERILATOR
     initial if ($test$plusargs("scanmap")) begin
 `include "scan_mem_widths.svh"
@@ -1695,4 +1697,11 @@ module dorado_rtl_mem
             end
         end
     end
+`ifdef DORADO_SCAN
+    always_comb begin
+`include "scan_mem_rd.svh"
+    end
+`else
+    assign fr_q = 32'd0;
+`endif
 endmodule

@@ -61,9 +61,11 @@
 //              5 ALUFM    a[19:16], d[5:0]
 //              6 Map      a[47:32], WP [18], Dirty [17], Ref [16], RP [15:0]
 //              7 Ethernet receive word  a[27:16], attention [32], d[15:0]
-//              8, 9, 10 an entry of a register file of the cpu, the memory
-//                section, io (BR, the per-task files, the Pipe, ...;
-//                tools/gen_scan.py): file [59:52], entry [47:32], d[31:0]
+//              8, 9, 10 the next entry of a register file of the cpu, the
+//                memory section, io (BR, the per-task files, the Pipe, ...;
+//                tools/gen_scan.py): file [59:52], d[31:0]. The file
+//                rotates one entry and takes d as its last, so its entries
+//                come first to last.
 //            (0: nothing.) Kind 7 is written here; the others go out on
 //            ld_we/ld_d.
 // Each packet the Ethernet transmitter finishes (tx_packet_stb) is copied,
@@ -92,6 +94,7 @@ module dorado_rtl_mailbox #(
     input  logic         scan_out,
     output logic         ld_we,         // a load record (ld_d) this clock, during scan_ph
     output logic [63:0]  ld_d,
+    input  logic [31:0]  fr_q,          // entry 0 of the register file ld_d names, a clock after ld_d
     output logic [31:0]  world_cfg,     // control beat 1, read before a scan
 
     // DDR engine aux port
@@ -160,7 +163,7 @@ module dorado_rtl_mailbox #(
         M_CLR, M_GO, M_GOWAIT, M_CFGRD, M_CFGW, M_LDRD, M_LDW, M_SCANRD, M_SCANW, M_SCANSH, M_SCANEND, M_IDLE, M_STATUS, M_CMDRD, M_EXEC, M_RES,
         M_RXHOLD, M_RXATT, M_RXBEAT, M_RXWR, M_RXLOAD,
         M_TXHOLD, M_TXADDR, M_TXWAIT, M_TXDATA, M_TXBEAT, M_TXLEN,
-        M_SVHOLD, M_SVSH, M_SVW, M_SVCAP, M_SVWR, M_SVEND, M_SVEND2
+        M_SVHOLD, M_SVSH, M_SVW, M_SVCAP, M_SVWR, M_SVEND, M_SVEND2, M_XRD, M_XW, M_XQ0, M_XQ
     } mstate_t;
     mstate_t     st;
 
@@ -543,9 +546,38 @@ module dorado_rtl_mailbox #(
                 st      <= M_SVEND2;
             end
             M_SVEND2: if (!aux_req) begin    // (the write of the last beat is done)
-                scan_ph <= 1'b0;
-                res_rd  <= c_wd;
-                st      <= M_RES;
+                scan_beat <= B_LOAD;
+                st        <= M_XRD;
+            end
+            // ...then the register files: the host's list in the load region,
+            // a record (kind 8, 9 or 10: the file) for every entry of every
+            // file, ending in a record of kind 15. Each is done with the
+            // file's entry 0 as its value, which is also written back into
+            // the record for the host: the file goes round once.
+            M_XRD: if (!aux_req) begin
+                beat_rd(scan_beat);
+                st <= M_XW;
+            end
+            M_XW: if (aux_ack) begin
+                ld_d <= aux_rdata;
+                if (aux_rdata[63:60] == 4'd15) begin
+                    scan_ph <= 1'b0;
+                    res_rd  <= c_wd;
+                    st      <= M_RES;
+                end else if (aux_rdata[63:60] >= 4'd8 && aux_rdata[63:60] <= 4'd10) begin
+                    st <= M_XQ0;
+                end else begin
+                    scan_beat <= scan_beat + 29'd1;
+                    st <= M_XRD;
+                end
+            end
+            M_XQ0: st <= M_XQ;               // (fr_q is registered on its way here)
+            M_XQ: begin
+                ld_d[31:0] <= fr_q;
+                ld_we      <= 1'b1;
+                beat_wr(scan_beat, {ld_d[63:32], fr_q});
+                scan_beat  <= scan_beat + 29'd1;
+                st         <= M_XRD;
             end
             // ---- a transmitted packet, out to its slot ----------------------
             M_TXHOLD: if (hp_between && stall_ph == 2'd0) begin

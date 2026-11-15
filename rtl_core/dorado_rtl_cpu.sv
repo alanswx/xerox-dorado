@@ -36,6 +36,7 @@ module dorado_rtl_cpu
     // here and the Map in the memory section.
     input  logic           ld_we,
     input  logic [63:0]    ld_d,
+    output logic [31:0]    fr_q,          // entry 0 of the register file ld_d names (kind 8 here, 9 the memory section's)
 
     // BaseBoard / MIR single-step injection interface
     input  logic           bb_present,
@@ -2390,6 +2391,7 @@ module dorado_rtl_cpu
         .scan_out         (scan_in),
         .ld_we            (ld_we),
         .ld_d             (ld_d),
+        .fr_q             (mem_fr_q),
         .spec_req         (mem_spec_req),
         .spec_va          (mem_spec_va),
         .req              (mem_req),
@@ -4382,5 +4384,16 @@ module dorado_rtl_cpu
         $display("[refhist] kind %0d: accepts %0d, done in accept %0d, unaccepted clocks %0d; outstanding clocks 0..7+: %0d %0d %0d %0d %0d %0d %0d %0d",
                  i, rh_acc[i][0], rh_acc[i][1], rh_acc[i][2], rh[i][0], rh[i][1], rh[i][2], rh[i][3], rh[i][4], rh[i][5], rh[i][6], rh[i][7]);
 `endif
+    logic [31:0] mem_fr_q, cpu_fr_q;
+`ifdef DORADO_SCAN
+    always_comb begin
+        logic [31:0] fr_q;
+`include "scan_cpu_rd.svh"
+        cpu_fr_q = fr_q;
+    end
+`else
+    assign cpu_fr_q = 32'd0;
+`endif
+    assign fr_q = (ld_d[63:60] == 4'd9) ? mem_fr_q : cpu_fr_q;
 endmodule
 /* verilator lint_on BLKSEQ */

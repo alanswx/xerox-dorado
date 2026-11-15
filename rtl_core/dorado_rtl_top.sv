@@ -207,6 +207,7 @@ module dorado_rtl_top
     logic           mb_scan_ph, mb_scan_en, mb_scan_in, scan_out_io, scan_out_cpu;
     logic           mb_ld_we;
     logic [63:0]    mb_ld_d;
+    logic [31:0]    cpu_fr_q, io_fr_q, fr_q_r;      // a register file's entry 0, for a save
     logic [2:0]     mb_op;
     logic [27:0]    mb_va;
     logic [15:0]    mb_wd;
@@ -384,6 +385,7 @@ module dorado_rtl_top
                 .scan_out      (scan_out_cpu),
                 .ld_we         (mb_ld_we),
                 .ld_d          (mb_ld_d),
+                .fr_q          (fr_q_r),
                 .world_cfg     (world_cfg),
                 .aux_req       (mb_aux_req),
                 .aux_we        (mb_aux_we),
@@ -483,6 +485,7 @@ module dorado_rtl_top
         .scan_si            (scan_out_io),
         .ld_we              (mb_ld_we),
         .ld_d               (mb_ld_d),
+        .fr_q               (cpu_fr_q),
         .scan_so            (scan_out_cpu),
         .bb_present         (bb_present),
         .bb_running         (bb_running),
@@ -661,6 +664,7 @@ module dorado_rtl_top
         .scan_in                 (mb_scan_in),
         .ld_we                   (mb_ld_we),
         .ld_d                    (mb_ld_d),
+        .fr_q                    (io_fr_q),
         .scan_out                (scan_out_io),
         .cycles                  (dbg_cycles),
         .disk_time               (disk_time_ext_en ? disk_time : dbg_cycles),
@@ -772,4 +776,5 @@ module dorado_rtl_top
         .bol_sent       (srv_bol_sent)
     );
 
+    always_ff @(posedge clk) fr_q_r <= (mb_ld_d[63:60] == 4'd10) ? io_fr_q : cpu_fr_q;
 endmodule
