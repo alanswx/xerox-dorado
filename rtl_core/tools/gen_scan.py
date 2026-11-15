@@ -65,12 +65,24 @@ def cut(n): return f'{n}[{NARROW[n] - 1}:0]' if n in NARROW else n
 ARRAY_MIN = 16
 LD_KIND = {'cpu': 8, 'mem': 9, 'io': 10}
 
+# Registers of the RTL alone (no checkpoint file names them; a checkpoint
+# made from the C machine starts them at 0, as reset does) that a save of a
+# running core must carry: the terminal's serializer, which is part way
+# through a 32-bit message (HM Table 24) for most of the time -- restored
+# at bit 0 while the microcode holds half a message, the next keyboard word
+# is assembled wrong and the world sees keys go down.
+EXTRA = {'io': ['ddc_term_msg_bit', 'ddc_term_msg_word', 'ddc_term_msg_type',
+                'ddc_term_msg_body', 'ddc_term_msg_active']}
+NARROW.update({'ddc_term_msg_bit': 7, 'ddc_term_msg_word': 4, 'ddc_term_msg_type': 4})
+
 def all_names(mod):
     out = []
     for line in open(os.path.join(RTL, 'init_lisp', f'checkpoint_{mod}.svh')):
         m = re.match(r'\s*([A-Za-z_][\w\[\]]*)\s*=\s*64\'h[0-9a-fA-F]+;', line)
         if m and re.sub(r'\[.*', '', m.group(1)) not in SKIP: out.append(m.group(1))
-    return out
+    # (before the disk's registers, which end the io chain in chunks of their own)
+    k = next((i for i, n in enumerate(out) if n.startswith('disk_')), len(out))
+    return out[:k] + EXTRA.get(mod, []) + out[k:]
 
 def arrays(mod):
     """[(name, entries)] of the files loaded by record, in the files' order"""
@@ -184,6 +196,7 @@ def regs(d, out):
                     if lo >> (NARROW[n] - 1): lo |= 0xffffffff & ~((1 << NARROW[n]) - 1)
                     if lo != v: sys.exit(f'{n} = {v:#x} does not fit the {NARROW[n]} bits the chain carries')
                 f.write(f'{mm.group(1)} {mm.group(2)}\n')
+            for n in EXTRA.get(m, []): f.write(f'{n} 0\n')
 
 def rams(d, out):
     import struct

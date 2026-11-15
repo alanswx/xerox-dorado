@@ -295,11 +295,15 @@ int main(int argc, char **argv) {
                        (short)dorado_visible_word_at_va(mem, 0424), (short)dorado_visible_word_at_va(mem, 0425),
                        (short)dorado_visible_word_at_va(mem, 0426), (short)dorado_visible_word_at_va(mem, 0427));
             }
-            // `touch /tmp/dorado-save`: the machine to /tmp/dorado-save.snap (+ .regs, .rams)
+            // `touch /tmp/dorado-save`: the machine to /media/fat/dorado/dorado-save.snap (+ .regs, .rams)
             // (a scan core; seen at the next status line)
             if (access("/tmp/dorado-save", F_OK) == 0) {
+                // (a number in the file: hps_save_steps, a diagnosis)
+                extern unsigned hps_save_steps;
+                hps_save_steps = 63;
+                if (FILE *sf = fopen("/tmp/dorado-save", "r")) { unsigned v; if (fscanf(sf, "%u", &v) == 1) hps_save_steps = v; fclose(sf); }
                 unlink("/tmp/dorado-save");
-                hps_save("/tmp/dorado-save.snap");
+                hps_save("/media/fat/dorado/dorado-save.snap");   // (/tmp is a small tmpfs)
             }
             int px = hps_snapshot_pgm("/tmp/dorado.pgm");
             printf("[hps] screen: %d pixels -> /tmp/dorado.pgm\n", px);

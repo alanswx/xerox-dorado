@@ -518,10 +518,14 @@ static uint64_t issue_raw(uint64_t bits) {
 //    their records are the ones this run was loaded from (a world that has
 //    rewritten its microcode since is not saved correctly)
 int hps_save_regs(const char *path);
+// hps_save_steps: which parts run (a diagnosis: 1 the freeze, 2 the chain,
+// 4 RM/STK, 8 the Map, 16 the cache's lines, 32 the files written)
+unsigned hps_save_steps = 63;
 int hps_save(const char *path) {
-    result(issue_raw(3ull << 53));                       // freeze
+    const unsigned st = hps_save_steps;
+    if (st & 1) result(issue_raw(3ull << 53));           // freeze
     std::string snap = path;
-    if (hps_save_regs(snap.c_str()) != 0) { result(issue_raw(1ull << 54)); return -1; }
+    if ((st & 2) && hps_save_regs(snap.c_str()) != 0) { result(issue_raw(1ull << 54)); return -1; }
     std::vector<uint64_t> recs;
     {   // the memories this does not read: from the loaded file
         FILE *r = fopen((std::string(CFG.snapshot) + ".rams").c_str(), "rb");
@@ -533,13 +537,13 @@ int hps_save(const char *path) {
         if (r) fclose(r);
     }
     std::vector<uint64_t> q;
-    for (unsigned base = 0; base < 512; base += 64) {    // (in runs the command ring holds)
+    for (unsigned base = 0; (st & 4) && base < 512; base += 64) {    // (in runs the command ring holds)
         q.clear();
         for (unsigned a = base; a < base + 64; a++) q.push_back(issue(AP_RM_OR, a, 0, 1, 0));
         for (unsigned i = 0; i < 64; i++) recs.push_back(4ull << 60 | (uint64_t)(base + i) << 16 | result(q[i]));
     }
     std::vector<uint16_t> rp(65536), fl(65536);
-    for (unsigned base = 0; base < 65536; base += 64) {  // (in runs the command ring holds)
+    for (unsigned base = 0; (st & 8) && base < 65536; base += 64) {  // (in runs the command ring holds)
         q.clear();
         for (unsigned pg = base; pg < base + 64; pg++) {
             q.push_back(issue(AP_PEEK, pg << 8, 0, 0, 0));
@@ -550,7 +554,7 @@ int hps_save(const char *path) {
     dorado_memory *mem = dorado_machine_memory(M);
     for (size_t i = 0; i < mem->storage_words; i++) mem->storage[i] = T.storage[i];
     unsigned lines = 0;
-    for (unsigned r = 0; r < DM_CACHE_ROWS; r++)
+    for (unsigned r = 0; (st & 16) && r < DM_CACHE_ROWS; r++)
         for (unsigned w = 0; w < DM_CACHE_WAYS; w++) {
             const uint16_t t0 = result(issue(AP_PEEK, r << 4, (uint16_t)(2 | w << 4), 0, 0));
             const uint16_t t1 = result(issue(AP_PEEK, r << 4, (uint16_t)(3 | w << 4), 0, 0));
@@ -570,6 +574,11 @@ int hps_save(const char *path) {
     for (unsigned pg = 0; pg < 65536; pg++)
         recs.push_back(6ull << 60 | (uint64_t)pg << 32 | (uint64_t)(fl[pg] & 7) << 16 | rp[pg]);
     recs.push_back(15ull << 60);
+    if (!(st & 32)) {
+        if (st & 1) result(issue_raw(1ull << 54));
+        printf("[hps] save steps %u done (no files)\n", st);
+        return 0;
+    }
     {
         FILE *r = fopen((snap + ".rams").c_str(), "wb");
         if (!r) { perror((snap + ".rams").c_str()); result(issue_raw(1ull << 54)); return -1; }
@@ -776,6 +785,8 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
     read_status();
     cyc0 = S.rtl_cycles;
     S.rtl_clocks = 0;
+    // DORADO_HPS_SAVE0=<path>: save at once (a restore's fidelity: against the save it loaded)
+    if (const char *s0 = getenv("DORADO_HPS_SAVE0")) hps_save(s0);
     bb0 = dorado_machine_cycles(M);
     shipped_gen = dorado_ethernet_rx_generation;   // the checkpoint's packet is in the image
     shipped = ETH->rx_count > 0;

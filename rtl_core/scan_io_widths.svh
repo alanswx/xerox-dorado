@@ -82,6 +82,11 @@ $display("SCANMAP io ddc_kbd_words[1] %0d", $bits(ddc_kbd_words[1]));
 $display("SCANMAP io ddc_kbd_words[2] %0d", $bits(ddc_kbd_words[2]));
 $display("SCANMAP io ddc_kbd_words[3] %0d", $bits(ddc_kbd_words[3]));
 $display("SCANMAP io ddc_kbd_words[4] %0d", $bits(ddc_kbd_words[4]));
+$display("SCANMAP io ddc_term_msg_bit %0d", 7);
+$display("SCANMAP io ddc_term_msg_word %0d", 4);
+$display("SCANMAP io ddc_term_msg_type %0d", 4);
+$display("SCANMAP io ddc_term_msg_body %0d", $bits(ddc_term_msg_body));
+$display("SCANMAP io ddc_term_msg_active %0d", $bits(ddc_term_msg_active));
 `ifndef DORADO_NO_DISK
 $display("SCANMAP io disk_selected_drive %0d", $bits(disk_selected_drive));
 `endif

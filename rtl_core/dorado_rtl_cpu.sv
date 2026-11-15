@@ -2337,7 +2337,7 @@ module dorado_rtl_cpu
         if (st == C_APW && x_rmor) begin            // RM[a] |= wd, read in C_FETCH
             rms_waddr = int'(ap_va[8:0]);
             rms_we    = 1'b1;
-            rms_wd    = rm_q | ap_wd;
+            rms_wd    = (ap_va[8] ? stk_q : rm_q) | ap_wd;   // (STK is its own RAM)
         end
 `ifdef DORADO_SCAN
         if (ld_rms) begin
@@ -4176,7 +4176,7 @@ module dorado_rtl_cpu
             // section's word (mem_ap_done)
             C_APW: begin
                 if (x_rmor) begin
-                    ap_rd   = rm_q;
+                    ap_rd   = ap_va[8] ? stk_q : rm_q;
                     ap_done = 1'b1;
                     x_rmor  = 1'b0;
                     st      = C_FETCH;
