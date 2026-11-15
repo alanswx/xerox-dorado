@@ -1627,7 +1627,7 @@ bytes), Smalltalk started in place, the save restored in place,
 - A save and a switch are separate commands; nothing on the MiSTer's OSD
   asks for either.
 - Read-back of IM, IFUM, ALUFM and the receive buffer.
-- A disk write on the board has only been tried in Lisp; Cedar's `.pdi` and Smalltalk's pack only unchanged, in simulation.
+- A disk write on the board has only been tried in Lisp. Cedar and Smalltalk saves (with their `.pdi` / `.pack`) were restored in place on mister14 and took input -- Cedar: a click in the CommandTool set the caret and typed text went in there; Smalltalk: the pointer and a click in the Classes browser filled its first pane, 124,945 -> 126,636 px -- but nothing had written their disks.
 - The host makes the stock `.rams`/`.regs` offline from a simulation dump
   (`gen_scan.py --rams/--regs`); it should build them from the snapshot.
 - A save file is tied to the host that wrote it (the ARM's 32-bit snapshot
