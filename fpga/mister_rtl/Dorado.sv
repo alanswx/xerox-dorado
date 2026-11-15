@@ -150,7 +150,13 @@ assign BUTTONS = 0;
 // its own raster, as the C emulator's frontends do: Smalltalk-76's bitmap is
 // 640 x 800 (at the top left), so only that much is displayed and the scaler
 // centres it, rather than showing the undrawn rest of the frame as white.
-`ifdef DORADO_SMALLTALK
+`ifdef DORADO_SCAN
+// A scan core runs any world: dorado-hps says how this one is presented
+// (dorado_rtl_mailbox, control beat 1).
+wire [31:0] world_cfg;
+wire [10:0] DISP_W = world_cfg[0] ? 11'd640 : 11'd1024;
+wire [10:0] DISP_H = world_cfg[0] ? 11'd800 : 11'd808;
+`elsif DORADO_SMALLTALK
 localparam int DISP_W = 640, DISP_H = 800;
 `else
 localparam int DISP_W = 1024, DISP_H = 808;
@@ -252,7 +258,12 @@ dorado_keyboard keyboard
 // mailbox and waits for its go. Cedar takes mouse motion through the terminal
 // (its display microcode); Smalltalk-76, an Alto-family world, takes the
 // absolute position as the C emulator gives it (dorado-hps -w smalltalk).
-`ifdef DORADO_CEDAR
+`ifdef DORADO_SCAN
+localparam bit        TRIDENT = 1'b1;
+wire                  CEDAR = world_cfg[1];
+localparam bit        CKPT  = 1'b1;
+wire [10:0]           MOUSE_W = DISP_W;
+`elsif DORADO_CEDAR
 localparam bit        TRIDENT = 1'b0;
 localparam bit        CEDAR = 1'b1;
 localparam bit        CKPT  = 1'b1;
@@ -293,7 +304,11 @@ always @(posedge clk_sys) begin
 			                                                kb_gui <= ps2_key[9];   // L/R GUI
 	end
 end
+`ifdef DORADO_SCAN
+reg  [15:0] mouse_x = 16'd512, mouse_y = 16'd404;
+`else
 reg  [15:0] mouse_x = 16'(MOUSE_W / 2), mouse_y = 16'd404;
+`endif
 reg         mouse_stb_q = 1'b0;
 reg  signed [15:0] mouse_dx = 16'sd0, mouse_dy = 16'sd0;   // the last report's motion
 reg         mouse_delta_stb = 1'b0;
@@ -323,8 +338,8 @@ always @(posedge clk_sys) begin
 			                  ps2_mouse[1] || (ps2_mouse[0] && as == 2'd2),
 			                  ps2_mouse[2] || (ps2_mouse[0] && as == 2'd1)};
 		end
-		mouse_x <= (ms_nx < 0) ? 16'd0 : (ms_nx > MOUSE_W - 1) ? 16'(MOUSE_W - 1) : ms_nx[15:0];
-		mouse_y <= (ms_ny < 0) ? 16'd0 : (ms_ny > DISP_H - 1) ? 16'(DISP_H - 1) : ms_ny[15:0];
+		mouse_x <= (ms_nx < 0) ? 16'd0 : (ms_nx > $signed({7'd0, 11'(MOUSE_W)}) - 1) ? 16'(MOUSE_W) - 16'd1 : ms_nx[15:0];
+		mouse_y <= (ms_ny < 0) ? 16'd0 : (ms_ny > $signed({7'd0, 11'(DISP_H)}) - 1) ? 16'(DISP_H) - 16'd1 : ms_ny[15:0];
 	end
 end
 
@@ -373,7 +388,11 @@ dorado_rtl_top #(
 	// against TopBorderCntAlto = 12 (DisplayDefs.mc): four lines later.
 	// The cursor's X constant moves with it: 611 for an LF monitor at full
 	// width against 325 for an Alto monitor (the MargConst table), 286 more.
-`ifdef DORADO_SMALLTALK
+`ifdef DORADO_SCAN
+	.world_cfg          (world_cfg),
+	.display_top_lines  (world_cfg[13:8]),
+	.display_cursor_dx  (world_cfg[25:16]),
+`elsif DORADO_SMALLTALK
 	.display_top_lines  (6'd26),
 	.display_cursor_dx  (10'd286),
 `else

@@ -109,6 +109,13 @@ int main(int argc, char **argv) {
     cfg.pack = nullptr;
     cfg.storage_image = nullptr;
     const bool lisp_w = !strcmp(world, "lisp");
+    // The world's presentation on a scan core (dorado_rtl_mailbox, control
+    // beat 1; Dorado.sv): Cedar and Lisp on the full 1024 x 808 screen from
+    // line 22, Cedar's mouse through the terminal; Smalltalk-76's 640 x 800
+    // bitmap in the LF full-width mode, four lines later, cursor 286 over.
+    cfg.world_cfg = !strcmp(world, "smalltalk") ? (1u | 26u << 8 | 286u << 16)
+                  : lisp_w                      ? (22u << 8)
+                  :                               (2u | 22u << 8);
     if (!strcmp(world, "smalltalk") || lisp_w) {
         // Smalltalk-76 (the CORE=smalltalk build): the XM Smalltalk pack on
         // drive 0, served by the core's own Trident controller from DDR

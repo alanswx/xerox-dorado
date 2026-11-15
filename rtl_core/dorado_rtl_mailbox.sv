@@ -17,6 +17,12 @@
 //            beat first -- the saved machine's registers (a DORADO_SCAN
 //            core; scan_*.svh). The core leaves reset for the shift, does
 //            nothing else during it (scan_ph), and goes at its last bit.
+//            Beat 1 is then read too, the world's presentation
+//            (world_cfg, for the MiSTer wrapper; one scan core runs any
+//            world): bit 0 a 640 x 800 raster (else 1024 x 808), bit 1 the
+//            mouse as terminal motion (Cedar; else the absolute position),
+//            bits 13:8 the DDC's first visible line, bits 25:16 the
+//            cursor's X offset.
 //            The mailbox clears it first after reset: DDR keeps its contents
 //            across a core reload, and a stale go would start the core on
 //            the last run's storage.
@@ -79,6 +85,7 @@ module dorado_rtl_mailbox #(
     input  logic         scan_out,
     output logic         ld_we,         // a load record (ld_d) this clock, during scan_ph
     output logic [63:0]  ld_d,
+    output logic [31:0]  world_cfg,     // control beat 1, read before a scan
 
     // DDR engine aux port
     output logic         aux_req,
@@ -142,7 +149,7 @@ module dorado_rtl_mailbox #(
     localparam logic [2:0]  OP_RXLOAD = 3'd7;
 
     typedef enum logic [4:0] {
-        M_CLR, M_GO, M_GOWAIT, M_LDRD, M_LDW, M_SCANRD, M_SCANW, M_SCANSH, M_SCANEND, M_IDLE, M_STATUS, M_CMDRD, M_EXEC, M_RES,
+        M_CLR, M_GO, M_GOWAIT, M_CFGRD, M_CFGW, M_LDRD, M_LDW, M_SCANRD, M_SCANW, M_SCANSH, M_SCANEND, M_IDLE, M_STATUS, M_CMDRD, M_EXEC, M_RES,
         M_RXHOLD, M_RXATT, M_RXBEAT, M_RXWR, M_RXLOAD,
         M_TXHOLD, M_TXADDR, M_TXWAIT, M_TXDATA, M_TXBEAT, M_TXLEN
     } mstate_t;
@@ -245,6 +252,7 @@ module dorado_rtl_mailbox #(
         ld_we   <= 1'b0;
         if (rst) begin
             ld_d     <= 64'd0;
+            world_cfg <= 32'd0;
             scan_ph  <= 1'b0;
             scan_in  <= 1'b0;
             scan_left <= 32'd0;
@@ -297,7 +305,7 @@ module dorado_rtl_mailbox #(
                     scan_ph   <= 1'b1;       // the core leaves reset, and waits
                     scan_left <= aux_rdata[63:32];
                     scan_beat <= B_LOAD;
-                    st <= M_LDRD;
+                    st <= M_CFGRD;
                 end else if (aux_rdata[31:0] == MB_MAGIC) begin
                     go <= 1'b1;
                     st <= M_IDLE;
@@ -306,6 +314,14 @@ module dorado_rtl_mailbox #(
                 end
             end
             // ---- the saved machine's memories, a record a beat ------------------
+            M_CFGRD: if (!aux_req) begin
+                beat_rd(B_CTRL + 29'd1);
+                st <= M_CFGW;
+            end
+            M_CFGW: if (aux_ack) begin
+                world_cfg <= aux_rdata[31:0];
+                st <= M_LDRD;
+            end
             M_LDRD: if (!aux_req) begin
                 beat_rd(scan_beat);
                 scan_beat <= scan_beat + 29'd1;

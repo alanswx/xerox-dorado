@@ -434,7 +434,9 @@ uint64_t load_scan_regs() {
     for (int i = 0; i < SCAN_REGS; i++) {
         const bool pad = !strcmp(scan_map[i].mod, "pad");     // a module's scan_out register
         auto it = pad ? v.end() : v.find(std::string(scan_map[i].mod) + "." + scan_map[i].name);
-        if (it == v.end() && !pad) missing++;
+        // (a world saved without the Trident controller, Cedar: the
+        // controller's registers as reset leaves them, which is 0)
+        if (it == v.end() && !pad && strncmp(scan_map[i].name, "disk_", 5)) missing++;
         const uint64_t x = it == v.end() ? 0 : it->second;
         for (int b = scan_map[i].bits - 1; b >= 0; b--, bit++)
             if (b < 64 && ((x >> b) & 1)) beats[bit / 64] |= 1ull << (63 - bit % 64);
@@ -595,6 +597,8 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
     // bit first, into the scan region; the control word says how many bits.
     // A core with the registers compiled in ignores the count.
     uint64_t scan_bits = load_scan_regs();
+    barrier();
+    T.mb[B_CTRL + 1] = CFG.world_cfg;
     barrier();
     T.mb[B_CTRL] = MB_MAGIC | (scan_bits << 32);
     barrier();

@@ -30,6 +30,7 @@ struct hps_config {
     const char *germ;
     unsigned    quantum;          // microinstructions per host step
     uint64_t    germ_poll;        // BaseBoard cycles between germ IOCB polls
+    unsigned    world_cfg;        // the world's presentation, for a scan core (mailbox control beat 1)
     int         keyboard;         // take the keyboard and mouse from the status block
 };
 

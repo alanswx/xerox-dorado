@@ -1428,6 +1428,19 @@ step 1 routed at 38,477. By module, against the compiled-in core: cpu
 bits: cpu 3,534 (BR 896, the per-task files 1,700), io 2,368, memory
 section 1,710 (the Pipe 1,400).
 
+**One core, three worlds, in simulation (2026-11-14).** The scan sim built
+from the Lisp tree (`obj_hps_lisp_scan`, Trident controller in) runs each
+world from its own `.regs`/`.rams`, 30M microinstructions, framebuffer
+byte-identical to that world's dedicated core: Lisp 209,165, Smalltalk
+112,145 (`SIM_WORLD=smalltalk`), Cedar 167,656. The three register lists are
+the same except that Cedar's dump (a `DORADO_NO_DISK` core) has no `disk_*`;
+the host loads those as 0. What the builds still differed in was the
+wrapper's presentation constants, which a scan core now takes from the
+host: mailbox control beat 1 (`world_cfg`: raster 640 x 800 or 1024 x 808,
+mouse as terminal motion or absolute, the DDC's first line, the cursor's X
+offset; `hps_main.cpp` sets it from `-w`, `Dorado.sv` uses it under
+`DORADO_SCAN`). The wrapper change has not been through Quartus yet.
+
 **Not done:**
 - Timing: -0.889 ns at 44 MHz on the one seed tried, at 92% full. 42.3 MHz
   would still be 1.00x for Lisp at 2.53 clocks.

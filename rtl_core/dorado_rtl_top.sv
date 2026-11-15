@@ -142,6 +142,7 @@ module dorado_rtl_top
     output logic [15:0] dbg_cnt,
     output logic [7:0]  dbg_stkp,
     output logic [63:0] dbg_cycles,
+    output logic [31:0] world_cfg,      // the world's presentation (dorado_rtl_mailbox, control beat 1)
     output logic        dbg_halted,
     output logic [3:0]  dbg_halt_reason,
     output logic        step_done,     // pulses one clock after each microinstruction
@@ -383,6 +384,7 @@ module dorado_rtl_top
                 .scan_out      (scan_out_cpu),
                 .ld_we         (mb_ld_we),
                 .ld_d          (mb_ld_d),
+                .world_cfg     (world_cfg),
                 .aux_req       (mb_aux_req),
                 .aux_we        (mb_aux_we),
                 .aux_addr      (mb_aux_addr),
@@ -427,6 +429,7 @@ module dorado_rtl_top
             assign mb_go = 1'b1;
             assign {mb_scan_ph, mb_scan_en, mb_scan_in} = '0;
             assign {mb_ld_we, mb_ld_d} = '0;
+            assign world_cfg = 32'd0;
             assign {mb_hold, mb_req, mb_we, mb_cache, mb_op, mb_va, mb_wd} = '0;
             assign {mb_rx_wr_en, mb_rx_wr_att, mb_rx_load, mb_rx_wr_addr, mb_rx_wr_data, mb_rx_load_count} = '0;
             assign {mb_aux_req, mb_aux_we, mb_aux_addr, mb_aux_wdata, mb_aux_be} = '0;
