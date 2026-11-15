@@ -1336,7 +1336,7 @@ Cedar samples KeyBits once a field and takes the changes of one sample in
 word order, so a Shift inside the same 17 ms as its key comes second. Lisp
 got every shifted character right. A typist's Shift leads by far more.
 
-### 9.13 The checkpoint out of the bitstream: one core restores any world (2026-11-14/15; saving not started)
+### 9.13 The checkpoint out of the bitstream: one core restores any world, and saves the running one (2026-11-14/15)
 
 Why there are three cores: each has its world's saved state compiled in --
 the RAM contents as `$readmemh` files and about 3,100 register values as
@@ -1485,12 +1485,69 @@ world's presentation word. Log `/tmp/hps-one.log`.
 Each was started over the one before without reloading anything but the
 core. The negative slack has not shown itself in these runs; it is one seed.
 
+#### Saving (2026-11-15): the running machine to a snapshot the same core restores
+
+`touch /tmp/dorado-save` on the board (or `DORADO_HPS_SAVE=<microinstructions>,<path>`
+in simulation) writes `<snap>`, `<snap>.regs`, `<snap>.rams`;
+`DoradoOne.sh <world> <snap>` (`dorado-hps-one -S`, sim `HPS_SNAPSHOT`)
+restores it. `hps_save` (`hps/hps_host.cpp`) does, with the CPU frozen
+between microinstructions (mailbox command bit 54, `frozen` into `hp_hold`):
+
+| what | how |
+|---|---|
+| the chain's registers | command bit 55: the chain round once, each bit out of `scan_out` captured and fed back in (`M_SV*`) |
+| the register files | the load record that rotates a file one entry, with entry 0 (`fr_q`) as its own value, once per entry (`M_X*`) |
+| RM, STK | the host port, `AP_RM_OR` at 0..511 with nothing to OR |
+| the Map, the cache's tags | `AP_PEEK` (no storage request) |
+| storage | copied from DDR; each valid dirty line read by address and put at its real page, the Map entry marked Ref and Dirty |
+| the host's machine | `dorado_machine_snapshot`, with the core's storage |
+
+Not read back: IM, IFUM, ALUFM and the Ethernet receive buffer (their
+records are copied from the file the run was loaded from, so a world that
+has rewritten its microcode since is not saved correctly), and the Trident
+pack in DDR (a restore loads the original pack).
+
+Two faults only the board showed, both fixed in `59551f02a`:
+- **STK is its own RAM.** The widened `AP_RM_OR` took STK's value from the
+  RM RAM's output and wrote it back, so each save copied RM over STK.
+  Smalltalk broke about four saves in ten ("Message not understood"); Lisp
+  and Cedar did not show it, and neither did simulation, where the
+  restored run was compared with the saving run -- both damaged alike.
+  The check now also compares the saving run with a run that does not save.
+- **The terminal's message serializer was not in the chain.**
+  `ddc_term_msg_*` exists only in the RTL, no checkpoint file names it,
+  and a restore resumed it at bit 0 with half a message (HM Table 24) in
+  the microcode: a restored Lisp or Smalltalk showed two or three typed
+  characters. `gen_scan.py` `EXTRA` adds it (chain 2,194 bits). Other
+  RTL-only registers of `dorado_rtl_io` (`ddc_scanline_cd`, the pending
+  keyboard and mouse) restart from reset; none has shown a difference.
+
+Simulation, each world: the saving run's framebuffer equals a run with no
+save, and the save restored into a fresh core and run on equals both
+(Lisp 209,165, Smalltalk 112,145, Cedar 167,380 at 5 M microinstructions).
+
+mister14, the save core (`~/mister/DoradoRtlOneB` on misterubuntu: the
+seed-3 tree with `FITTER_AGGRESSIVE_ROUTABILITY_OPTIMIZATION ALWAYS`,
+without which the register-save build failed routing at 37,011 ALMs):
+37,665 ALMs (90%), worst setup slack -0.902 ns at 44 MHz (the same tree
+ranged -0.231 to -1.032 over four builds).
+
+| world | test | result |
+|---|---|---|
+| Lisp | `(SETQ SAVED 4242)`, save, core reloaded, restore, `(+ SAVED 1)` | 4243 (`docs/images/rtl-one-core-lisp-save-restore-2026-11-15.png`) |
+| Smalltalk | five saves of the running desktop, then restore of the last | 124,945 px each time |
+| Cedar | save, restore | 167,657 px both |
+
+A save takes about 13 s on the board (131,000 host-port operations for
+the Map).
+
 **Not done:**
-- Timing: -0.995 ns at 44 MHz. Seeds; or 42.3 MHz, still 1.00x for Lisp.
-- Saving: registers out through `scan_out`, read-back of the memories and
-  register files, the reverse map, a `.snap` writer. A restore over a
-  running machine (no bitstream reload) must also clear what the records do
-  not write (IFUM/ALUFM presence, the cache's valid bits).
-- The host makes `.rams` offline from a simulation dump (`gen_scan.py
-  --rams/--regs`); it should build the records from the snapshot it restores.
+- Timing: about -0.9 ns at 44 MHz. Seeds; or 42.3 MHz, still 1.00x for Lisp.
+- Read-back of IM, IFUM, ALUFM and the receive buffer; the pack's contents.
+- A restore over a running machine (no bitstream reload) must also clear
+  what the records do not write (IFUM/ALUFM presence, the cache's valid bits).
+- The host makes the stock `.rams`/`.regs` offline from a simulation dump
+  (`gen_scan.py --rams/--regs`); it should build them from the snapshot.
+- A save file is tied to the host that wrote it (the ARM's 32-bit snapshot
+  does not restore in the 64-bit simulation).
 - Cold boot on the same core; then retire the three per-world bitstreams.
