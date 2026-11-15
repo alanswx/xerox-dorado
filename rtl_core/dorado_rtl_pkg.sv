@@ -226,7 +226,13 @@ package dorado_rtl_pkg;
                                                 // any resident line (drive ap_cache=1)
     localparam logic [2:0] AP_STORE_INV = 3'd2; // dorado_storage_store_at_va: storage, and
                                                 // the resident line is dropped
-    localparam logic [2:0] AP_RM_OR     = 3'd4; // RM[ap_va[7:0]] |= ap_wd (naked notify)
+    localparam logic [2:0] AP_PEEK      = 3'd3; // a save's look at the memory section, by ap_wd:
+                                                // 0 the Map entry of ap_va's page: RP; 1 its
+                                                // {WP, Dirty, Ref}; 2, 3 (way in ap_wd[5:4]) the
+                                                // cache line of ap_va's row: tag[15:0];
+                                                // {being loaded, WP, vacant, dirty, valid, tag[17:16]}
+    localparam logic [2:0] AP_RM_OR     = 3'd4; // RM/STK[ap_va[8:0]] |= ap_wd (naked notify; STK at 400B up;
+                                                // with ap_wd 0, a read)
     localparam logic [2:0] AP_WAKEUP_OR = 3'd5; // wakeup_pending |= ap_wd (dorado_cpu_wakeup)
     localparam logic [2:0] AP_RESCHED   = 3'd6; // reschedule_pending = ap_wd[7:0]
 

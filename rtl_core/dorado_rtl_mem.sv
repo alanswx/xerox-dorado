@@ -1634,12 +1634,22 @@ module dorado_rtl_mem
                 // word goes to storage[va] (pre-map planting)
                 if (ap_op == AP_STORE && map_wp_q && map_dirty_q) ap_phys = {4'd0, m_va};
                 ap_cq = cw_q[ap_way];
+                if (ap_op == AP_PEEK) begin      // (ap_rd is ap_cq on a "hit")
+                    ap_hit = 1'b1;
+                    case (ap_wd[1:0])
+                    2'd0: ap_cq = map_rp_q;
+                    2'd1: ap_cq = {13'd0, map_wp_q, map_dirty_q, map_ref_q};
+                    2'd2: ap_cq = rw_tag[ap_wd[5:4]][15:0];
+                    2'd3: ap_cq = {9'd0, rw_bl[ap_wd[5:4]], rw_wp[ap_wd[5:4]], rw_vacant[ap_wd[5:4]],
+                                   rw_dirty[ap_wd[5:4]], rw_valid[ap_wd[5:4]], rw_tag[ap_wd[5:4]][17:16]};
+                    endcase
+                end
                 // dorado_storage_store_at_va drops the resident line instead
                 if (ap_op == AP_STORE_INV && ap_hit) begin
                     cache_valid[va_cache_row(m_va)][ap_way]  = 1'b0;
                     cache_vacant[va_cache_row(m_va)][ap_way] = 1'b0;
                 end
-                if (ap_phys < STORAGE_WORDS) begin
+                if (ap_phys < STORAGE_WORDS && ap_op != AP_PEEK) begin
                     sto_req   = 1'b1;
                     sto_we    = ap_we;
                     sto_addr  = ap_phys;

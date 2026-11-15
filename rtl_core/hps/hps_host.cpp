@@ -60,7 +60,7 @@ enum : size_t {
 };
 const uint32_t MB_MAGIC = 0x444F5241u;
 const uint64_t HOST_CHUNK_BB = 1000000;   // BaseBoard cycles: 270K microinstructions
-enum { AP_READ = 0, AP_STORE = 1, AP_STORE_INV = 2, AP_RM_OR = 4, AP_RESCHED = 6, OP_RXLOAD = 7 };
+enum { AP_READ = 0, AP_STORE = 1, AP_STORE_INV = 2, AP_PEEK = 3, AP_RM_OR = 4, AP_RESCHED = 6, OP_RXLOAD = 7 };
 
 hps_transport T;
 hps_config    CFG;
@@ -493,6 +493,99 @@ uint64_t load_scan_regs() {
 
 }  // namespace
 
+static uint64_t issue_raw(uint64_t bits) {
+    retire(255);
+    const uint64_t n = issued;
+    const uint64_t e = ((uint64_t)seq_of(n) << 56) | bits;
+    volatile uint32_t *w = (volatile uint32_t *)&T.mb[B_CMD + (n & 255)];
+    w[0] = (uint32_t)e;
+    barrier();
+    w[1] = (uint32_t)(e >> 32);
+    barrier();
+    issued++;
+    return n;
+}
+
+// A save of the running machine, as a snapshot this program restores:
+// <path> (the host's machine, with the core's storage), <path>.regs and
+// <path>.rams. The CPU is held between microinstructions for all of it.
+//  - the registers and register files: hps_save_regs
+//  - RM and STK: read through the host port; the Map and the cache's rows:
+//    AP_PEEK; a dirty line's words are read by address (the cache answers)
+//    and put in the storage image, as a writeback would
+//  - storage: the core's, from DDR
+//  - IM, IFUM, ALUFM and the Ethernet receive buffer are NOT read back:
+//    their records are the ones this run was loaded from (a world that has
+//    rewritten its microcode since is not saved correctly)
+int hps_save_regs(const char *path);
+int hps_save(const char *path) {
+    result(issue_raw(3ull << 53));                       // freeze
+    std::string snap = path;
+    if (hps_save_regs(snap.c_str()) != 0) { result(issue_raw(1ull << 54)); return -1; }
+    std::vector<uint64_t> recs;
+    {   // the memories this does not read: from the loaded file
+        FILE *r = fopen((std::string(CFG.snapshot) + ".rams").c_str(), "rb");
+        uint64_t rec;
+        while (r && fread(&rec, 8, 1, r) == 1) {
+            const unsigned k = (unsigned)(rec >> 60);
+            if (k == 1 || k == 2 || k == 3 || k == 5 || k == 7) recs.push_back(rec);
+        }
+        if (r) fclose(r);
+    }
+    std::vector<uint64_t> q;
+    for (unsigned base = 0; base < 512; base += 64) {    // (in runs the command ring holds)
+        q.clear();
+        for (unsigned a = base; a < base + 64; a++) q.push_back(issue(AP_RM_OR, a, 0, 1, 0));
+        for (unsigned i = 0; i < 64; i++) recs.push_back(4ull << 60 | (uint64_t)(base + i) << 16 | result(q[i]));
+    }
+    std::vector<uint16_t> rp(65536), fl(65536);
+    for (unsigned base = 0; base < 65536; base += 64) {  // (in runs the command ring holds)
+        q.clear();
+        for (unsigned pg = base; pg < base + 64; pg++) {
+            q.push_back(issue(AP_PEEK, pg << 8, 0, 0, 0));
+            q.push_back(issue(AP_PEEK, pg << 8, 1, 0, 0));
+        }
+        for (unsigned i = 0; i < 64; i++) { rp[base + i] = result(q[2 * i]); fl[base + i] = result(q[2 * i + 1]); }
+    }
+    dorado_memory *mem = dorado_machine_memory(M);
+    for (size_t i = 0; i < mem->storage_words; i++) mem->storage[i] = T.storage[i];
+    unsigned lines = 0;
+    for (unsigned r = 0; r < DM_CACHE_ROWS; r++)
+        for (unsigned w = 0; w < DM_CACHE_WAYS; w++) {
+            const uint16_t t0 = result(issue(AP_PEEK, r << 4, (uint16_t)(2 | w << 4), 0, 0));
+            const uint16_t t1 = result(issue(AP_PEEK, r << 4, (uint16_t)(3 | w << 4), 0, 0));
+            const bool valid = t1 & 4, dirty = t1 & 8, vacant = t1 & 16;
+            if (!valid || !dirty || vacant) continue;
+            const uint32_t va = ((uint32_t)(t1 & 3) << 16 | t0) << 10 | r << 4;
+            const uint32_t phys = (uint32_t)rp[va >> 8] << 8 | (va & 0xF0);
+            q.clear();
+            for (unsigned i = 0; i < DM_CACHE_LINE_W; i++) q.push_back(issue(AP_READ, va + i, 0, 0, 1));
+            for (unsigned i = 0; i < DM_CACHE_LINE_W; i++) {
+                const uint16_t d = result(q[i]);
+                if (phys + i < mem->storage_words) mem->storage[phys + i] = d;
+            }
+            fl[va >> 8] |= 3;                            // Ref and Dirty, as the writeback sets them
+            lines++;
+        }
+    for (unsigned pg = 0; pg < 65536; pg++)
+        recs.push_back(6ull << 60 | (uint64_t)pg << 32 | (uint64_t)(fl[pg] & 7) << 16 | rp[pg]);
+    recs.push_back(15ull << 60);
+    {
+        FILE *r = fopen((snap + ".rams").c_str(), "wb");
+        if (!r) { perror((snap + ".rams").c_str()); result(issue_raw(1ull << 54)); return -1; }
+        fwrite(recs.data(), 8, recs.size(), r);
+        fclose(r);
+    }
+    // the host's machine, with the core's storage and no cache of its own
+    for (int r = 0; r < DM_CACHE_ROWS; r++)
+        for (int w = 0; w < DM_CACHE_WAYS; w++) mem->cache[r].ways[w].valid = 0;
+    const int rc = dorado_machine_snapshot(M, snap.c_str());
+    result(issue_raw(1ull << 54));                       // let it go
+    printf("[hps] saved the machine -> %s (+ .regs, .rams): %zu records, %u dirty cache lines into storage%s\n",
+           snap.c_str(), recs.size(), lines, rc ? "; THE SNAPSHOT WRITE FAILED" : "");
+    return rc;
+}
+
 // A save of the running machine's registers (a DORADO_SCAN core): the
 // mailbox holds the CPU between microinstructions with nothing in flight
 // and takes the scan chain round once, out to the scan region and back in;
@@ -777,15 +870,14 @@ uint64_t hps_poll(void) {
     ethernet_bridge();
     S.host_bb_cycles = dorado_machine_cycles(M);
     retire(1);                              // let queued commands finish
-    // DORADO_HPS_SAVE=<microinstructions>,<path>: save the registers once there
+    // DORADO_HPS_SAVE=<microinstructions from the start>,<path>: save the machine once there
     {
         static const char *sv = getenv("DORADO_HPS_SAVE");
-        static int left = 2;                 // (twice: the second must equal the first plus what ran)
+        static int left = 1;
         unsigned long long at = 0; char sp[400];
-        if (sv && left && sscanf(sv, "%llu,%399s", &at, sp) == 2 && S.rtl_cycles >= at) {
-            std::string q = std::string(sp) + (left == 2 ? "" : ".2");
+        if (sv && left && sscanf(sv, "%llu,%399s", &at, sp) == 2 && S.rtl_cycles - cyc0 >= at) {
             left--;
-            hps_save_regs(q.c_str());
+            hps_save(sp);
         }
     }
     return S.rtl_cycles;

@@ -67,13 +67,15 @@ int main(int argc, char **argv) {
     std::string text;
     int c;
     const char *world = "cedar";
-    while ((c = getopt(argc, argv, "d:f:q:p:s:c:t:w:")) != -1) {
+    const char *saved = nullptr;
+    while ((c = getopt(argc, argv, "d:f:q:p:s:c:t:w:S:")) != -1) {
         switch (c) {
         case 'd': dir = optarg; break;
         case 'f': ftp_root = optarg; break;
         case 'q': quantum = (unsigned)atoi(optarg); break;
         case 'p': germ_poll = strtoull(optarg, nullptr, 0); break;
         case 'w': world = optarg; break;
+        case 'S': saved = optarg; break;      // a save (hps_save) in the world's place
         case 's': every = atof(optarg); break;
         case 'c': sscanf(optarg, "%d,%d", &click_x, &click_y); break;
         case 't':
@@ -83,7 +85,7 @@ int main(int argc, char **argv) {
             }
             break;
         default:
-            fprintf(stderr, "usage: %s [-w cedar|smalltalk|lisp] [-d DIR] [-f FTP_ROOT] [-q QUANTUM] [-p GERM_POLL] [-s SECONDS]\n", argv[0]);
+            fprintf(stderr, "usage: %s [-w cedar|smalltalk|lisp] [-S SAVED.snap] [-d DIR] [-f FTP_ROOT] [-q QUANTUM] [-p GERM_POLL] [-s SECONDS]\n", argv[0]);
             return 2;
         }
     }
@@ -158,6 +160,9 @@ int main(int argc, char **argv) {
     cfg.eb = "../chm/dorado/CedarDorado.eb!6";
     cfg.germ = "../chm/cedar/germ-alt/Dorado.germ-6.1.6";
     }
+    // -S: the machine a save wrote (<snap>, .regs, .rams), its storage in
+    // the snapshot itself; an absolute path, or one under DIR/dorado
+    if (saved) { cfg.snapshot = saved; cfg.storage_image = nullptr; }
     cfg.quantum = quantum;
     cfg.germ_poll = germ_poll;
     const bool scripted = click_x >= 0 || !text.empty();
@@ -290,11 +295,11 @@ int main(int argc, char **argv) {
                        (short)dorado_visible_word_at_va(mem, 0424), (short)dorado_visible_word_at_va(mem, 0425),
                        (short)dorado_visible_word_at_va(mem, 0426), (short)dorado_visible_word_at_va(mem, 0427));
             }
-            // `touch /tmp/dorado-save`: the registers to /tmp/dorado-save.regs
+            // `touch /tmp/dorado-save`: the machine to /tmp/dorado-save.snap (+ .regs, .rams)
             // (a scan core; seen at the next status line)
             if (access("/tmp/dorado-save", F_OK) == 0) {
                 unlink("/tmp/dorado-save");
-                hps_save_regs("/tmp/dorado-save");
+                hps_save("/tmp/dorado-save.snap");
             }
             int px = hps_snapshot_pgm("/tmp/dorado.pgm");
             printf("[hps] screen: %d pixels -> /tmp/dorado.pgm\n", px);

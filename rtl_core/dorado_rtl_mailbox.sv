@@ -39,13 +39,16 @@
 //             14  the stall report (written only while an operation waits;
 //                 see stall_tick): dorado_rtl_cpu dbg_stall
 //             15  {dorado_rtl_storage_ddr dbg[63:16], stall reports[15:0]}
-//   256..511 command ring [0x0800]: {seq[7:0], save, 6'0, cache, we, op[2:0],
+//   256..511 command ring [0x0800]: {seq[7:0], save, freeze, frozen, 4'0, cache, we, op[2:0],
 //            va[27:0], wd[15:0]}. Entry i of lap L is valid when its seq is
 //            (L mod 255) + 1; the ARM writes the low word first and the word
 //            holding seq last, so a half-written entry is never taken.
 //            save: not an operation but a save of the registers -- the scan
 //            chain (wd bits long) goes round once, out to the scan region
 //            and back in (M_SV*, below); the machine then carries on.
+//            Bit 54: hold the CPU between microinstructions from now on
+//            (bit 53 set) or let it go (clear), so that a save's many
+//            commands see one instant of the machine.
 //   512..767 result ring  [0x1000]: {seq, 40'0, rd[15:0]} for the entry.
 //   1024..   receive words [0x2000]: up to 4096 words, four to a beat
 //   2048..   receive attention bits [0x4000]: bit i of the bitmap = word i
@@ -191,6 +194,7 @@ module dorado_rtl_mailbox #(
     logic [63:0] rx_beat, rx_att;
     logic [1:0]  rx_lane;
     logic        hold_cmd;         // held for a command or a receive fill
+    logic        frozen;           // held by the host, until it says otherwise (a save)
     logic        tx_pend;          // a transmitted packet waits to be copied (CPU held)
     logic        tx_stb_q;         // edge-detect tx_packet_stb (see below)
     logic [10:0] tx_len;
@@ -217,7 +221,7 @@ module dorado_rtl_mailbox #(
             stall_ph <= 2'd0;
         end
     endtask
-    assign hp_hold = hold_cmd || tx_pend;
+    assign hp_hold = hold_cmd || tx_pend || frozen;
 
     wire [7:0]  c_seq   = cmd[63:56];
     wire        c_cache = cmd[48];
@@ -279,6 +283,7 @@ module dorado_rtl_mailbox #(
             aux_wdata <= '0;
             aux_be   <= 8'hFF;
             hold_cmd <= 1'b0;
+            frozen   <= 1'b0;
             hp_req   <= 1'b0;
             hp_op    <= 3'd0;
             hp_we    <= 1'b0;
@@ -417,7 +422,10 @@ module dorado_rtl_mailbox #(
                 if (aux_rdata[63:56] == lap_seq) begin
                     burst   <= 1'b1;
                     hold_cmd <= 1'b1;
-                    st      <= aux_rdata[55] ? M_SVHOLD :
+                    if (aux_rdata[54]) frozen <= aux_rdata[53];
+                    res_rd  <= 16'd0;
+                    st      <= aux_rdata[54] ? M_RES :
+                               aux_rdata[55] ? M_SVHOLD :
                                (aux_rdata[46:44] == OP_RXLOAD) ? M_RXHOLD : M_EXEC;
                 end else begin
                     burst   <= 1'b0;

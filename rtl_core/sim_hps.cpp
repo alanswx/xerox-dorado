@@ -320,6 +320,8 @@ int main(int argc, char **argv) {
     cfg.eb = "../chm/dorado/CedarDorado.eb!6";
     cfg.germ = "../chm/cedar/germ-alt/Dorado.germ-6.1.6";
     }
+    // HPS_SNAPSHOT=<path>: restore this snapshot (a save: hps_save) in the world's place
+    if (getenv("HPS_SNAPSHOT")) cfg.snapshot = getenv("HPS_SNAPSHOT");
     cfg.quantum = getenv("HPS_QUANTUM") ? (unsigned)atoi(getenv("HPS_QUANTUM")) : 1;
     cfg.germ_poll = getenv("HPS_GERM_POLL") ? strtoull(getenv("HPS_GERM_POLL"), nullptr, 0) : 0;
     // Smalltalk, like the board: dorado-hps takes the keyboard and the

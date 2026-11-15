@@ -2309,7 +2309,7 @@ module dorado_rtl_cpu
             rms_raddr = rm_address_fn((st == C_FETCH || st == C_DEC) ? cur_u : ex_u,
                                       ctask, RBase, task_subtask[ctask], StkP);
         if (st == C_FETCH && ap_req && ap_op == AP_RM_OR)
-            rms_raddr = int'(ap_va[7:0]);
+            rms_raddr = int'(ap_va[8:0]);
         if ((st == C_FINISH || st == C_NF) && x_pred_fresh)   // the next instruction's operand
             rms_raddr = rm_address_fn(cur_u, ctask, fin_rbase, task_subtask[ctask], fin_stkp);
         // C_FETCH executing: its operand is already here, so the port reads
@@ -2335,7 +2335,7 @@ module dorado_rtl_cpu
             rms_wd    = ap_wd;
         end
         if (st == C_APW && x_rmor) begin            // RM[a] |= wd, read in C_FETCH
-            rms_waddr = int'(ap_va[7:0]);
+            rms_waddr = int'(ap_va[8:0]);
             rms_we    = 1'b1;
             rms_wd    = rm_q | ap_wd;
         end
