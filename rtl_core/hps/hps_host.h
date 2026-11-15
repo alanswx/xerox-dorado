@@ -32,6 +32,7 @@ struct hps_config {
     uint64_t    germ_poll;        // BaseBoard cycles between germ IOCB polls
     unsigned    world_cfg;        // the world's presentation, for a scan core (mailbox control beat 1)
     int         keyboard;         // take the keyboard and mouse from the status block
+    int         need_core;        // hps_start returns 3, having written nothing else, if no core answers the restart
 };
 
 struct hps_stats {
@@ -57,6 +58,9 @@ struct hps_stats {
 
 // Restore the snapshot, load storage, start the core. 0 on success.
 int  hps_start(const hps_config *cfg, const hps_transport *t);
+// The same over a running core, in this process (the simulation's rehearsal
+// of starting the program again on the board).
+int  hps_restart(const hps_config *cfg);
 // One pass: catch the host up with the FPGA's cycle count. Returns the
 // FPGA's microinstruction count.
 uint64_t hps_poll(void);

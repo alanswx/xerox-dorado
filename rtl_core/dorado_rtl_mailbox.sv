@@ -26,6 +26,12 @@
 //            The mailbox clears it first after reset: DDR keeps its contents
 //            across a core reload, and a stale go would start the core on
 //            the last run's storage.
+//            MB_RESTART in bits 31:0 (the ARM, starting over a core that may
+//            be running another world): the mailbox, which reads the beat
+//            after each status, holds the CPU between microinstructions with
+//            nothing in flight, then puts the core and itself back in reset
+//            and clears the beat -- the ARM waits for that 0 -- and waits
+//            for a go as after a reload. The DDR engine is not reset.
 //   8..11    status  [0x0040], written every STATUS_PERIOD clocks:
 //              8  cycles (microinstructions)
 //              9  the four keyboard words (word i = bits 16i+15:16i)
@@ -84,6 +90,7 @@
 module dorado_rtl_mailbox #(
     parameter logic [28:0] MB_BASE       = 29'h0610_0000,    // byte 0x3080_0000
     parameter logic [31:0] MB_MAGIC      = 32'h444F_5241,    // "DORA"
+    parameter logic [31:0] MB_RESTART    = 32'h5253_4554,    // "RSET"
     parameter int          STATUS_PERIOD = 4096,
     parameter int          POLL_PERIOD   = 32
 ) (
@@ -166,7 +173,8 @@ module dorado_rtl_mailbox #(
         M_CLR, M_GO, M_GOWAIT, M_CFGRD, M_CFGW, M_LDRD, M_LDW, M_SCANRD, M_SCANW, M_SCANSH, M_SCANEND, M_IDLE, M_STATUS, M_CMDRD, M_EXEC, M_RES,
         M_RXHOLD, M_RXATT, M_RXBEAT, M_RXWR, M_RXLOAD,
         M_TXHOLD, M_TXADDR, M_TXWAIT, M_TXDATA, M_TXBEAT, M_TXLEN,
-        M_SVHOLD, M_SVSH, M_SVW, M_SVCAP, M_SVWR, M_SVEND, M_SVEND2, M_XRD, M_XW, M_XQ0, M_XQ
+        M_SVHOLD, M_SVSH, M_SVW, M_SVCAP, M_SVWR, M_SVEND, M_SVEND2, M_XRD, M_XW, M_XQ0, M_XQ,
+        M_RSRD, M_RSW, M_RSHOLD, M_RSGO
     } mstate_t;
     mstate_t     st;
 
@@ -195,6 +203,8 @@ module dorado_rtl_mailbox #(
     logic [1:0]  rx_lane;
     logic        hold_cmd;         // held for a command or a receive fill
     logic        frozen;           // held by the host, until it says otherwise (a save)
+    logic        restart;          // the host's restart: this clock is a reset
+    logic [20:0] settle;           // clocks since reset, to 2^20: the framebuffer's clear (dorado_rtl_io fb_clr, in reset)
     logic        tx_pend;          // a transmitted packet waits to be copied (CPU held)
     logic        tx_stb_q;         // edge-detect tx_packet_stb (see below)
     logic [10:0] tx_len;
@@ -266,7 +276,10 @@ module dorado_rtl_mailbox #(
         st_cnt[cpu_st[3:0]] <= st_cnt[cpu_st[3:0]] + 40'd1;
         scan_en <= 1'b0;
         ld_we   <= 1'b0;
-        if (rst) begin
+        if (!settle[20]) settle <= settle + 21'd1;
+        if (rst || restart) begin
+            restart  <= 1'b0;
+            settle   <= 21'd0;
             ld_d     <= 64'd0;
             world_cfg <= 32'd0;
             scan_ph  <= 1'b0;
@@ -318,7 +331,10 @@ module dorado_rtl_mailbox #(
             end
             M_GOWAIT: if (aux_ack) begin
                 poll_t <= 16'd1024;
-                if (aux_rdata[31:0] == MB_MAGIC && aux_rdata[63:32] != 32'd0) begin
+                // (the core stays in reset 2^20 clocks at least: its framebuffer's clear)
+                if (aux_rdata[31:0] == MB_MAGIC && !settle[20]) begin
+                    st <= M_GO;
+                end else if (aux_rdata[31:0] == MB_MAGIC && aux_rdata[63:32] != 32'd0) begin
                     scan_ph   <= 1'b1;       // the core leaves reset, and waits
                     scan_left <= aux_rdata[63:32];
                     scan_beat <= B_LOAD;
@@ -326,6 +342,8 @@ module dorado_rtl_mailbox #(
                 end else if (aux_rdata[31:0] == MB_MAGIC) begin
                     go <= 1'b1;
                     st <= M_IDLE;
+                end else if (aux_rdata[31:0] == MB_RESTART) begin
+                    st <= M_CLR;             // (nothing runs: the beat cleared is the answer)
                 end else begin
                     st <= M_GO;
                 end
@@ -415,7 +433,7 @@ module dorado_rtl_mailbox #(
                 default: beat_wr(B_STATUS + 29'd8 + 29'(sbeat - 5'd6), {24'd0, st_cnt[4'(sbeat - 5'd6)]});
                 endcase
                 sbeat <= sbeat + 5'd1;
-                if (sbeat == (hist_now ? 5'd21 : 5'd5)) st <= M_IDLE;
+                if (sbeat == (hist_now ? 5'd21 : 5'd5)) st <= M_RSRD;
             end
             M_CMDRD: if (aux_ack) begin
                 cmd <= aux_rdata;
@@ -434,6 +452,27 @@ module dorado_rtl_mailbox #(
                     st      <= M_IDLE;
                 end
             end
+            // ---- the host's restart (MB_RESTART in the control beat) ---------
+            M_RSRD: if (!aux_req) begin
+                beat_rd(B_CTRL);
+                st <= M_RSW;
+            end
+            M_RSW: if (aux_ack) begin
+                if (aux_rdata[31:0] == MB_RESTART) begin
+                    frozen <= 1'b1;
+                    st     <= M_RSHOLD;
+                end else begin
+                    st <= M_IDLE;
+                end
+            end
+            // (a CPU that never comes to rest is reset all the same, after 2^24 clocks)
+            M_RSHOLD: if (hp_quiet || stall_t[24]) begin
+                poll_t <= 16'd8192;          // the disk engine's beat in flight, if any, ends
+                st     <= M_RSGO;
+            end else begin
+                stall_t <= stall_t + 26'd1;
+            end
+            M_RSGO: if (poll_t == 16'd0 && !aux_req) restart <= 1'b1;
             // ---- a host-port operation ---------------------------------------
             M_EXEC: begin
                 if (!hp_req && !hp_done) begin

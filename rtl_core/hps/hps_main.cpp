@@ -110,6 +110,7 @@ int main(int argc, char **argv) {
     hps_config cfg;
     cfg.pack = nullptr;
     cfg.storage_image = nullptr;
+    cfg.need_core = 1;
     const bool lisp_w = !strcmp(world, "lisp");
     // The world's presentation on a scan core (dorado_rtl_mailbox, control
     // beat 1; Dorado.sv): Cedar and Lisp on the full 1024 x 808 screen from
@@ -167,7 +168,8 @@ int main(int argc, char **argv) {
     cfg.germ_poll = germ_poll;
     const bool scripted = click_x >= 0 || !text.empty();
     cfg.keyboard = scripted ? 0 : 1;
-    if (hps_start(&cfg, &t) != 0) return 1;
+    // (3: no core answered -- DoradoOne.sh loads the core and runs this again)
+    if (int rc = hps_start(&cfg, &t)) return rc;
     signal(SIGUSR1, on_usr1);
     signal(SIGUSR2, on_usr2);     // the Pilot PDA (process table) to stderr
     setvbuf(stdout, nullptr, _IOLBF, 0);

@@ -1798,6 +1798,8 @@ module dorado_rtl_io
     logic [4:0]  r_b;                 // cursor bit
     logic [19:0] r_addr;
     logic        r_we, r_wd;
+    logic [19:0] fb_clr;            // free-running: every pixel once in any 2^20 clocks
+    always_ff @(posedge clk) fb_clr <= fb_clr + 20'd1;
 
     // Line buffer port: the copy engine writes munches and reads snapshots.
     logic [7:0]  cw_addr;
@@ -1826,6 +1828,17 @@ module dorado_rtl_io
         fb_addr_a = r_addr;
         fb_we_a   = r_we;
         fb_wd_a   = r_wd;
+        // In reset the framebuffer is cleared (fb_clr, below): a world
+        // started over another one, with no reload of the core, must not
+        // show the other's pixels where it draws none of its own. The
+        // mailbox keeps the core in reset 2^20 clocks at least.
+`ifdef DORADO_SCAN
+        if (rst) begin
+            fb_addr_a = fb_clr;
+            fb_we_a   = 1'b1;
+            fb_wd_a   = 1'b0;
+        end
+`endif
         src       = {4'd0, rj_start_off} + {1'b0, a_k};
         cw_we     = (a_st == A_COPY);
         cw_addr   = (a_st == A_COPY) ? {wc_ch, wc_base + {2'd0, r_wj}} : {rj_ch, src[6:0]};

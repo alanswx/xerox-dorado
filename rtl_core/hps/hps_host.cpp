@@ -59,6 +59,7 @@ enum : size_t {
     B_LOAD = 32768, B_LOAD_END = 1 << 20     // ...and its load records, to the mailbox's end
 };
 const uint32_t MB_MAGIC = 0x444F5241u;
+const uint32_t MB_RESTART = 0x52534554u;  // "RSET": the core back to waiting for a go
 const uint64_t HOST_CHUNK_BB = 1000000;   // BaseBoard cycles: 270K microinstructions
 enum { AP_READ = 0, AP_STORE = 1, AP_STORE_INV = 2, AP_PEEK = 3, AP_RM_OR = 4, AP_RESCHED = 6, OP_RXLOAD = 7 };
 
@@ -76,6 +77,8 @@ uint16_t status_rxloads, my_rxloads;
 bool     status_drained;
 uint16_t status_tx, last_tx;
 unsigned long shipped_gen;
+uint64_t last40;               // the status beat's 40-bit count, last read
+bool     have40;
 bool     shipped;
 
 inline void barrier() { __sync_synchronize(); }
@@ -221,8 +224,6 @@ void read_status() {
         // which wrap after 2^40 = 18.3 hours of a Dorado. Extend them here:
         // a count that steps back leaves every "due at cycle N" test in the
         // host (the live input seeding among them) waiting for a day.
-        static uint64_t last40;
-        static bool have40;
         const uint64_t c40 = b8 & 0xFFFFFFFFFFull;
         if (!have40) { S.rtl_cycles = c40; have40 = true; }
         else S.rtl_cycles += (c40 - last40) & 0xFFFFFFFFFFull;
@@ -651,6 +652,30 @@ int hps_save_regs(const char *path) {
     return 0;
 }
 
+// Another world, or a save, in the running one's place without a reload of
+// the core: what a new run of this program does, in this one (the simulation;
+// on the board DoradoOne.sh starts the program again).
+int hps_restart(const hps_config *cfg) {
+    const hps_transport t = T;
+    if (M) dorado_machine_destroy(M);
+    M = nullptr;
+    issued = completed = 0;
+    cyc0 = bb0 = 0;
+    status_rxloads = my_rxloads = status_tx = last_tx = 0;
+    status_drained = shipped = false;
+    shipped_gen = 0;
+    memset(&S, 0, sizeof S);
+    written_pages.clear();
+    have40 = false;
+    // (the hooks of the run before would send the new start's own writes to a stopped core)
+    dorado_host_read_hook = nullptr;
+    dorado_host_write_hook = nullptr;
+    dorado_machine_step_hook = nullptr;
+    dorado_machine_host_only = 0;
+    dorado_machine_display_microcode = 0;
+    return hps_start(cfg, &t);
+}
+
 int hps_start(const hps_config *cfg, const hps_transport *t) {
     CFG = *cfg;
     T = *t;
@@ -682,6 +707,28 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
         return 1;
     }
 
+    // The core may be running a world already (this program started again
+    // without a reload of the core): ask the mailbox to stop it and wait for
+    // a go, which it answers by clearing the control beat. Nothing of the
+    // new world is written before that -- the old one is still using storage.
+    // A core just loaded answers the same way; one without the restart (an
+    // older bitstream) does not, and is taken to be waiting.
+    {
+        T.mb[B_CTRL] = MB_RESTART;
+        barrier();
+        const double t0 = mono_s();
+        unsigned long waits = 0;
+        while ((uint32_t)T.mb[B_CTRL] != 0 && (mono_s() - t0 < 3.0 || waits < 200000)) { T.wait(T.ctx); waits++; }
+        if ((uint32_t)T.mb[B_CTRL] != 0 && CFG.need_core) {
+            fprintf(stderr, "[hps] no core answered the restart (not loaded, or not this core)\n");
+            T.mb[B_CTRL] = 0;
+            return 3;
+        }
+        if ((uint32_t)T.mb[B_CTRL] != 0)
+            fprintf(stderr, "[hps] the core did not answer the restart; taken to be waiting for a go\n");
+        else
+            fprintf(stderr, "[hps] the core is stopped and waits for a go (%.0f ms)\n", (mono_s() - t0) * 1e3);
+    }
     // The mailbox starts clear (a stale seq could look like a command), and
     // storage holds the snapshot's; then the core may go.
     for (size_t b = 0; b < B_END; b++) T.mb[b] = 0;

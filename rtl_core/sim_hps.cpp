@@ -295,38 +295,46 @@ int main(int argc, char **argv) {
     t.wait = wait_fn;
     t.ctx = nullptr;
     hps_config cfg;
-    // SIM_WORLD=smalltalk: the Smalltalk-76 desktop (an obj_hps_st build)
-    const bool lisp_w = getenv("SIM_WORLD") && !strcmp(getenv("SIM_WORLD"), "lisp");
-    const bool smalltalk = lisp_w || (getenv("SIM_WORLD") && !strcmp(getenv("SIM_WORLD"), "smalltalk"));
-    cfg.pack = nullptr;
-    cfg.storage_image = nullptr;
-    if (smalltalk) {
-        cfg.snapshot = "build/good-packs/smalltalk76.snap";
-        cfg.pdi = nullptr;
-        cfg.pack = getenv("SIM_PACK") ? getenv("SIM_PACK") : "build/good-packs/smalltalk76.pack";
-        cfg.ftp_root = nullptr;
-        cfg.eb = "../chm/microcode/SmalltalkDorado.eb!1";
-        cfg.germ = nullptr;
+    // SIM_WORLD=smalltalk|lisp (else Cedar): the world's files
+    auto world = [&](const char *w, const char *snap) {
+        const bool lisp_w = w && !strcmp(w, "lisp");
+        const bool smalltalk = lisp_w || (w && !strcmp(w, "smalltalk"));
+        cfg.pack = nullptr;
+        cfg.storage_image = nullptr;
+        cfg.world_cfg = 0;
+        cfg.need_core = 0;
         if (lisp_w) {
             cfg.snapshot = "build/good-packs/lisp-lyric-full.snap";
+            cfg.pdi = nullptr;
             cfg.pack = getenv("SIM_PACK") ? getenv("SIM_PACK") : "build/run-disks/lisp-lockstep.pack";
             cfg.eb = "worlds/aemu.eb";
             cfg.ftp_root = "../chm/lisp/ftp-root";
+            cfg.germ = nullptr;
+        } else if (smalltalk) {
+            cfg.snapshot = "build/good-packs/smalltalk76.snap";
+            cfg.pdi = nullptr;
+            cfg.pack = getenv("SIM_PACK") ? getenv("SIM_PACK") : "build/good-packs/smalltalk76.pack";
+            cfg.ftp_root = nullptr;
+            cfg.eb = "../chm/microcode/SmalltalkDorado.eb!1";
+            cfg.germ = nullptr;
+        } else {
+            cfg.snapshot = "build/good-packs/cedar-desktop.snap";
+            cfg.pdi = "build/good-packs/cedar-desktop.pdi";
+            cfg.ftp_root = "../chm/cedar/stp-root";
+            cfg.eb = "../chm/dorado/CedarDorado.eb!6";
+            cfg.germ = "../chm/cedar/germ-alt/Dorado.germ-6.1.6";
         }
-    } else {
-    cfg.snapshot = "build/good-packs/cedar-desktop.snap";
-    cfg.pdi = "build/good-packs/cedar-desktop.pdi";
-    cfg.ftp_root = "../chm/cedar/stp-root";
-    cfg.eb = "../chm/dorado/CedarDorado.eb!6";
-    cfg.germ = "../chm/cedar/germ-alt/Dorado.germ-6.1.6";
-    }
-    // HPS_SNAPSHOT=<path>: restore this snapshot (a save: hps_save) in the world's place
-    if (getenv("HPS_SNAPSHOT")) cfg.snapshot = getenv("HPS_SNAPSHOT");
-    cfg.quantum = getenv("HPS_QUANTUM") ? (unsigned)atoi(getenv("HPS_QUANTUM")) : 1;
-    cfg.germ_poll = getenv("HPS_GERM_POLL") ? strtoull(getenv("HPS_GERM_POLL"), nullptr, 0) : 0;
-    // Smalltalk, like the board: dorado-hps takes the keyboard and the
-    // absolute mouse from the core's status block (dorado-hps -w smalltalk)
-    cfg.keyboard = smalltalk ? 1 : 0;
+        // a save (hps_save) in the world's place
+        if (snap && *snap) cfg.snapshot = snap;
+        cfg.quantum = getenv("HPS_QUANTUM") ? (unsigned)atoi(getenv("HPS_QUANTUM")) : 1;
+        cfg.germ_poll = getenv("HPS_GERM_POLL") ? strtoull(getenv("HPS_GERM_POLL"), nullptr, 0) : 0;
+        // Smalltalk, like the board: dorado-hps takes the keyboard and the
+        // absolute mouse from the core's status block (dorado-hps -w smalltalk)
+        cfg.keyboard = smalltalk ? 1 : 0;
+    };
+    // HPS_SNAPSHOT=<path>: restore this snapshot in the world's place
+    world(getenv("SIM_WORLD"), getenv("HPS_SNAPSHOT"));
+    const bool smalltalk = getenv("SIM_WORLD") && (!strcmp(getenv("SIM_WORLD"), "lisp") || !strcmp(getenv("SIM_WORLD"), "smalltalk"));
     if (hps_start(&cfg, &t) != 0) return 1;
     // HPS_INITCHECK=1: the core as it powered up (init/, DORADO_CHECKPOINT)
     // against the C machine dorado-hps restored: map, BRs, cache
@@ -402,9 +410,29 @@ int main(int argc, char **argv) {
     // HPS_PROGRESS=n: every n host loops, where the core is (and the disk engine)
     const long progress = getenv("HPS_PROGRESS") ? atol(getenv("HPS_PROGRESS")) : 0;
     long loops = 0;
+    // SIM_RESTART=<microinstructions>,<world>[,<snapshot>]: there, start that
+    // world (cedar|lisp|smalltalk; or a save of it) over the running one,
+    // without a reset of the model -- the program started again on the board
+    // with the core left loaded. The run then counts from the new start.
+    static char rs_world[32], rs_snap[400];
+    unsigned long long rs_at = ~0ull;
+    if (const char *rs = getenv("SIM_RESTART")) {
+        char *e;
+        rs_at = strtoull(rs, &e, 0);
+        if (*e == ',') sscanf(e + 1, "%31[^,],%399s", rs_world, rs_snap);
+    }
     while (S->rtl_cycles - start < want) {
         clock_n(2048);
         hps_poll();
+        if (S->rtl_cycles - start >= rs_at) {
+            rs_at = ~0ull;
+            world(rs_world, rs_snap);
+            if (hps_restart(&cfg) != 0) return 1;
+            M = (dorado_machine *)hps_machine();
+            start = S->rtl_cycles;
+            fprintf(stderr, "[sim] restarted as %s at microinstruction %llu\n", rs_world, (unsigned long long)start);
+            continue;
+        }
         if (progress && ++loops % progress == 0) {
 #define RIO(x) top->rootp->dorado_rtl_top__DOT__u_io__DOT__##x
             fprintf(stderr, "  [prog] loop %ld: %llu microinstructions; pc=0%o task=%u; disk eng busy %d st %d jobs %d%d%d mem_req %d aux_owner %d\n",

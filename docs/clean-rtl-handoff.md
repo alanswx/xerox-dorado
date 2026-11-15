@@ -1541,11 +1541,63 @@ ranged -0.231 to -1.032 over four builds).
 A save takes about 13 s on the board (131,000 host-port operations for
 the Map).
 
+#### Another world, or a save, over the running one: no reload of the core (2026-11-15)
+
+`DoradoOne.sh lisp|smalltalk|cedar [SAVED.snap]` (now in the repo,
+`rtl_core/hps/DoradoOne.sh`) no longer loads the bitstream when the core is
+there: about 6 s from the command to the new world running, against the
+reload's 8 s wait and the load after it. `-r` loads the core anyway.
+
+- **The request.** `hps_start` writes `MB_RESTART` ("RSET") in the control
+  beat before it writes anything else -- the old world is still using
+  storage -- and waits for the beat to read 0. The mailbox reads the beat
+  after each status (`M_RSRD`); on the request it holds the CPU, waits for
+  `cpu_quiet` (or 2^24 clocks, for a machine that never comes to rest),
+  8,192 clocks more for a disk-engine beat in flight, then takes its own
+  reset branch (`restart`). `go` falls, so `core_rst` holds the cpu, the
+  memory section and io; the DDR engine is not reset. `M_CLR` clears the
+  beat, and the load is the one a fresh core gets. A mailbox still waiting
+  for its first go answers the same way.
+- **What reset does not clear.** Everything the load does not write is
+  either reset (the cache's valid bits, the registers out of the chain) or
+  not read before it is written, with one exception found in simulation:
+  the framebuffer RAM. A world that draws less than the last one showed the
+  last one's pixels there (Smalltalk's 608 columns with Lisp's desktop to
+  the right). io now clears it while in reset (`fb_clr`, a free-running
+  address; `DORADO_SCAN` builds only) and the mailbox keeps the core in
+  reset 2^20 clocks at least (`settle`).
+- **The host.** On the board every start is a new process, so nothing of
+  the last world's host is left. `dorado-hps-one` exits 3, having written
+  only the request, when no core answers in 3 s (`need_core`); the script
+  then loads the core and runs it again. The simulation rehearses it in
+  one process: `SIM_RESTART=<microinstructions>,<world>[,<snapshot>]`
+  (`hps_restart`: the C machine destroyed, the host's counters and hooks
+  cleared).
+
+Simulation (3 M microinstructions after the switch, framebuffer against a
+fresh start of the same world): Smalltalk -> Lisp, Cedar -> Lisp,
+Lisp -> Smalltalk, Lisp -> Cedar all byte-identical; and Lisp saved at 1 M,
+that save restored in place at 1.5 M and run 2 M equals an uninterrupted
+3 M. Both lock-step suites pass.
+
+mister14 (`DoradoRtlOneB` build f10: 37,889 ALMs, 90%; worst setup slack
+-0.805 ns at 44 MHz): Lisp (core loaded) -> Smalltalk -> Lisp -> Cedar ->
+Smalltalk -> Cedar, each without a reload: 209,165 / 124,945 / 209,165 /
+167,657 / 124,945 / 167,657 px at 1.05x / 1.29x / 1.05x. Cedar's picture
+after Smalltalk is whole. `lisp-save.snap` restored over Cedar:
+`(+ SAVED 1)` -> 4243. From the MiSTer menu core the script falls back to
+loading the core. The bitstream and host before this are on the board as
+`DoradoRtlOne_44.save-f8.rbf.bak` and `dorado-hps-one.save-f8`.
+
+A trap in the script, found on the board: the start runs from a file sh
+reads as it goes, so a second start that rewrote the same file made the
+first one's shell run the old world again. Each start has its own file now.
+
 **Not done:**
-- Timing: about -0.9 ns at 44 MHz. Seeds; or 42.3 MHz, still 1.00x for Lisp.
+- Timing: about -0.8 ns at 44 MHz. Seeds; or 42.3 MHz, still 1.00x for Lisp.
+- A save and a switch are separate commands; nothing on the MiSTer's OSD
+  asks for either.
 - Read-back of IM, IFUM, ALUFM and the receive buffer; the pack's contents.
-- A restore over a running machine (no bitstream reload) must also clear
-  what the records do not write (IFUM/ALUFM presence, the cache's valid bits).
 - The host makes the stock `.rams`/`.regs` offline from a simulation dump
   (`gen_scan.py --rams/--regs`); it should build them from the snapshot.
 - A save file is tied to the host that wrote it (the ARM's 32-bit snapshot
