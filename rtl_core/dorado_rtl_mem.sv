@@ -34,6 +34,8 @@ module dorado_rtl_mem
     input  logic           scan_en,
     input  logic           scan_in,
     output logic           scan_out,
+    input  logic           ld_we,         // a load record (dorado_rtl_mailbox): kind 6 is a Map entry
+    input  logic [63:0]    ld_d,
 
     // ---- the reference ----------------------------------------------------
     input  logic           spec_req,      // read the row, Map entry and words at spec_va now
@@ -1340,6 +1342,26 @@ module dorado_rtl_mem
         endcase
     end
 
+`ifdef DORADO_SCAN
+    // A second address for the write, so a load record does not go through
+    // the read address: the section writes at the reference's entry, or at
+    // the victim's.
+    wire         ld_map = ld_we && ld_d[63:60] == 4'd6;
+    logic [15:0] map_waddr;
+    assign map_waddr = ld_map ? ld_d[47:32] : (ms == S_WRV) ? m_idx_v : m_idx_a;
+    always_ff @(posedge clk) begin
+        if (map_we || ld_map) begin
+            map_rp[map_waddr]    <= ld_map ? ld_d[15:0] : map_wd_rp;
+            map_wp[map_waddr]    <= ld_map ? ld_d[18]   : map_wd_wp;
+            map_dirty[map_waddr] <= ld_map ? ld_d[17]   : map_wd_dirty;
+            map_ref[map_waddr]   <= ld_map ? ld_d[16]   : map_wd_ref;
+        end
+`ifdef VERILATOR
+        if (map_we && map_addr != map_waddr) $fatal(1, "Map write not at the reference's or the victim's entry");
+`endif
+    end
+    always_ff @(posedge clk) begin
+`else
     always_ff @(posedge clk) begin
         if (map_we) begin
             map_rp[map_addr]    <= map_wd_rp;
@@ -1347,6 +1369,7 @@ module dorado_rtl_mem
             map_dirty[map_addr] <= map_wd_dirty;
             map_ref[map_addr]   <= map_wd_ref;
         end
+`endif
         map_rp_q    <= map_rp[map_addr];
         map_wp_q    <= map_wp[map_addr];
         map_dirty_q <= map_dirty[map_addr];
@@ -1364,6 +1387,7 @@ module dorado_rtl_mem
         cw_q[3] <= cache_w3[cw_addr];
     end
 
+`ifndef DORADO_SCAN    // (DORADO_SCAN: the Map from load records; the cache starts empty)
 `ifdef DORADO_INIT
     initial begin
         $readmemh("init/map_rp.hex", map_rp);
@@ -1377,6 +1401,7 @@ module dorado_rtl_mem
         $readmemh("init/cache_w3.hex", cache_w3);
 `endif
     end
+`endif
 `endif
 
     // =========================================================================

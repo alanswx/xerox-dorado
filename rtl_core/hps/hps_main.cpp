@@ -40,7 +40,7 @@ extern "C" {
 #include <unistd.h>
 
 static const off_t  DDR_PHYS   = 0x30000000;     // dorado_rtl_storage_ddr DDR_BASE
-static const size_t DDR_LEN    = 0x00810000;     // storage 8 MB + the mailbox
+static const size_t DDR_LEN    = 0x01000000;     // storage 8 MB + the mailbox (with its scan and load regions), up to the pack
 static const size_t MB_OFFSET  = 0x00800000;     // dorado_rtl_mailbox MB_BASE
 static const off_t  PACK_PHYS  = 0x31000000;     // dorado_rtl_top DISK_PACK_BASE (beat 0x0620_0000)
 static const size_t PACK_LEN   = 0x04000000;     // 64 MB: a Trident pack's records

@@ -1385,20 +1385,52 @@ arrays (6,400 bits) and `ddc_hram` (4,096).
 out of the chain (reset leaves every line invalid), and the host writes the
 snapshot's dirty lines to storage before the go (49 lines for Lisp). `sim_hps`
 Lisp, 30M microinstructions: framebuffer byte-identical to the compiled-in
-core. `ddc_hram` is still compiled in for a scan core
-(`init_*/checkpoint_io_hram.svh` = `grep ddc_hram checkpoint_io.svh`; the
-init directories are not in git).
+core.
+
+**Step 2, the memories by load record (2026-11-14).** Nothing of the world
+is compiled into a scan core now. Before the shift the mailbox reads load
+records from DDR (`B_LOAD`, mailbox beat 32768; one 64-bit record a beat,
+kind in bits 63:60, ended by kind 15; the kinds are listed in
+`dorado_rtl_mailbox.sv`) and puts each on `ld_we`/`ld_d`:
+
+| memory | how it is written |
+|---|---|
+| IM | a second (write) address: the record's, else `link_at_issue` -- the read address is untouched |
+| IFUM | through the `x_ifum_*` registers of the IFUMRH/IFUMLH write, one record a half |
+| RM, STK | a third case of the write port's address/data |
+| ALUFM | assigned in the main sequencer's load branch |
+| Map | a second (write) address: the record's, else the reference's or the victim's entry |
+| Ethernet receive buffer | the mailbox's own `rx_wr` port |
+
+The cache words are not loaded (the cache starts empty) and `ddc_hram` is
+not either: the RTL display does not read it. `gen_scan.py --rams INIT_DIR
+OUT` writes `<snapshot>.rams` (76,305 records for Lisp) from the directory's
+`.hex` files; the host copies it to the load region, setting Ref and Dirty on
+the Map entries of the pages whose dirty lines it wrote back, as the memory
+section's own writeback would. Two simulation assertions guard the second
+addresses (a Write IM is at Link as issued; a Map write is at the
+reference's or the victim's entry). `sim_hps` Lisp, 30M microinstructions:
+framebuffer byte-identical; `make test` and the PIPE suite pass.
+
+**On the board (mister14, 2026-11-14).** The registers-by-scan bitstream
+(memories still compiled in; the one that fit) with the new host: Lisp comes
+up at 17.55 M/s (1.05x), 209,146 pixels, and takes typed input. The host's
+DDR mapping had to grow (`hps_main.cpp DDR_LEN`, 0x810000 -> 0x1000000): it
+stopped before the scan region and the host died at the first scan beat.
+Files on the board: `_Development/DoradoRtlLispScan_44.rbf`,
+`dorado/dorado-hps-scan`, `Scripts/DoradoLispScan.sh`, and `.regs`/`.rams`
+beside the snapshot.
+
+**The fit is the open problem.** With the load ports the core is 38,566
+ALMs (92%, +89 over step 1) and seed 3 fails in ROUTING (congestion), where
+step 1 routed at 38,477. By module, against the compiled-in core: cpu
++1,820 ALMs, memory section +1,133, io +1,667, mailbox +160. The chain's
+bits: cpu 3,534 (BR 896, the per-task files 1,700), io 2,368, memory
+section 1,710 (the Pipe 1,400).
 
 **Not done:**
-- The RAM-shaped state is still compiled in (IM, IFUM, RM, STK, ALUFM, the
-  Map, the receive buffer) and so is HRam. Plan: write ports fed from
-  registers where they exist (IFUM's `x_ifum_*`; IM's write address is
-  `link_at_issue`, so a separate write address costs nothing on the read
-  path), a mux at the RAM pins for RM/STK, the Map and the cache words, and
-  the mailbox's existing receive-buffer port. The Map's dirty and ref bits
-  must then come from the host AFTER its writeback (today's compiled-in Map
-  does not have them for the 49 lines).
 - Timing: -0.889 ns at 44 MHz on the one seed tried, at 92% full. 42.3 MHz
   would still be 1.00x for Lisp at 2.53 clocks.
 - Saving (shift out through `scan_out`, the reverse map, a `.snap`
-  writer); Smalltalk and Cedar `.regs`; nothing of this has run on the board.
+  writer); Smalltalk and Cedar `.regs`/`.rams`; the three builds as one.
+- The full scan core (step 2) has not run on the board: no bitstream yet.

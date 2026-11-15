@@ -204,6 +204,8 @@ module dorado_rtl_top
     logic           mb_hold, mb_req, mb_we, mb_cache, mb_go;
     // the state scan chain: the mailbox -> u_io -> u_cpu (its memory section, then itself)
     logic           mb_scan_ph, mb_scan_en, mb_scan_in, scan_out_io, scan_out_cpu;
+    logic           mb_ld_we;
+    logic [63:0]    mb_ld_d;
     logic [2:0]     mb_op;
     logic [27:0]    mb_va;
     logic [15:0]    mb_wd;
@@ -379,6 +381,8 @@ module dorado_rtl_top
                 .scan_en       (mb_scan_en),
                 .scan_in       (mb_scan_in),
                 .scan_out      (scan_out_cpu),
+                .ld_we         (mb_ld_we),
+                .ld_d          (mb_ld_d),
                 .aux_req       (mb_aux_req),
                 .aux_we        (mb_aux_we),
                 .aux_addr      (mb_aux_addr),
@@ -422,6 +426,7 @@ module dorado_rtl_top
         end else begin : g_no_mailbox
             assign mb_go = 1'b1;
             assign {mb_scan_ph, mb_scan_en, mb_scan_in} = '0;
+            assign {mb_ld_we, mb_ld_d} = '0;
             assign {mb_hold, mb_req, mb_we, mb_cache, mb_op, mb_va, mb_wd} = '0;
             assign {mb_rx_wr_en, mb_rx_wr_att, mb_rx_load, mb_rx_wr_addr, mb_rx_wr_data, mb_rx_load_count} = '0;
             assign {mb_aux_req, mb_aux_we, mb_aux_addr, mb_aux_wdata, mb_aux_be} = '0;
@@ -472,6 +477,8 @@ module dorado_rtl_top
         .scan_ph            (mb_scan_ph),
         .scan_en            (mb_scan_en),
         .scan_si            (scan_out_io),
+        .ld_we              (mb_ld_we),
+        .ld_d               (mb_ld_d),
         .scan_so            (scan_out_cpu),
         .bb_present         (bb_present),
         .bb_running         (bb_running),

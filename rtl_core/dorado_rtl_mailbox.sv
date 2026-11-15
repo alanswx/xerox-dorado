@@ -43,6 +43,16 @@
 //   2112..2119 transmit lengths [0x4200], one beat per slot
 //   4096..   transmit slots [0x8000], 8 x 256 beats (1024 words each)
 //   16384..  the state scan bits [0x20000]
+//   32768..  the load records [0x40000]: the saved machine's memories, done
+//            before the shift when the scan count is not 0. One record a
+//            beat, kind in bits 63:60, until a record of kind 15:
+//              1 IM       a[59:48], IW0 [47:32], IW1 [31:16], IW2 [15:0]
+//              2 IFUM low word, 3 IFUM high word   a[25:16], d[15:0]
+//              4 RM/STK   a[24:16] (bit 24: STK), d[15:0]
+//              5 ALUFM    a[19:16], d[5:0]
+//              6 Map      a[47:32], WP [18], Dirty [17], Ref [16], RP [15:0]
+//              7 Ethernet receive word  a[27:16], attention [32], d[15:0]
+//            (0: nothing.) Kinds 1-6 go out on ld_we/ld_d; 7 is written here.
 // Each packet the Ethernet transmitter finishes (tx_packet_stb) is copied,
 // with the CPU held, into slot (n mod 8) and its length into that slot's
 // length beat; then status beat 11's tx count becomes n + 1. The ARM hands
@@ -67,6 +77,8 @@ module dorado_rtl_mailbox #(
     output logic         scan_en,       // shift one place this clock
     output logic         scan_in,
     input  logic         scan_out,
+    output logic         ld_we,         // a load record (ld_d) this clock, during scan_ph
+    output logic [63:0]  ld_d,
 
     // DDR engine aux port
     output logic         aux_req,
@@ -126,10 +138,11 @@ module dorado_rtl_mailbox #(
     localparam logic [28:0] B_TXLEN  = MB_BASE + 29'd2112;
     localparam logic [28:0] B_TX     = MB_BASE + 29'd4096;
     localparam logic [28:0] B_SCAN   = MB_BASE + 29'd16384;
+    localparam logic [28:0] B_LOAD   = MB_BASE + 29'd32768;
     localparam logic [2:0]  OP_RXLOAD = 3'd7;
 
     typedef enum logic [4:0] {
-        M_CLR, M_GO, M_GOWAIT, M_SCANRD, M_SCANW, M_SCANSH, M_SCANEND, M_IDLE, M_STATUS, M_CMDRD, M_EXEC, M_RES,
+        M_CLR, M_GO, M_GOWAIT, M_LDRD, M_LDW, M_SCANRD, M_SCANW, M_SCANSH, M_SCANEND, M_IDLE, M_STATUS, M_CMDRD, M_EXEC, M_RES,
         M_RXHOLD, M_RXATT, M_RXBEAT, M_RXWR, M_RXLOAD,
         M_TXHOLD, M_TXADDR, M_TXWAIT, M_TXDATA, M_TXBEAT, M_TXLEN
     } mstate_t;
@@ -229,7 +242,9 @@ module dorado_rtl_mailbox #(
         clk64   <= clk64 + 64'd1;
         st_cnt[cpu_st[3:0]] <= st_cnt[cpu_st[3:0]] + 40'd1;
         scan_en <= 1'b0;
+        ld_we   <= 1'b0;
         if (rst) begin
+            ld_d     <= 64'd0;
             scan_ph  <= 1'b0;
             scan_in  <= 1'b0;
             scan_left <= 32'd0;
@@ -281,13 +296,34 @@ module dorado_rtl_mailbox #(
                 if (aux_rdata[31:0] == MB_MAGIC && aux_rdata[63:32] != 32'd0) begin
                     scan_ph   <= 1'b1;       // the core leaves reset, and waits
                     scan_left <= aux_rdata[63:32];
-                    scan_beat <= B_SCAN;
-                    st <= M_SCANRD;
+                    scan_beat <= B_LOAD;
+                    st <= M_LDRD;
                 end else if (aux_rdata[31:0] == MB_MAGIC) begin
                     go <= 1'b1;
                     st <= M_IDLE;
                 end else begin
                     st <= M_GO;
+                end
+            end
+            // ---- the saved machine's memories, a record a beat ------------------
+            M_LDRD: if (!aux_req) begin
+                beat_rd(scan_beat);
+                scan_beat <= scan_beat + 29'd1;
+                st <= M_LDW;
+            end
+            M_LDW: if (aux_ack) begin
+                ld_d <= aux_rdata;
+                st   <= M_LDRD;
+                if (aux_rdata[63:60] == 4'd15) begin
+                    scan_beat <= B_SCAN;
+                    st <= M_SCANRD;
+                end else if (aux_rdata[63:60] == 4'd7) begin
+                    rx_wr_en   <= 1'b1;
+                    rx_wr_addr <= aux_rdata[27:16];
+                    rx_wr_data <= aux_rdata[15:0];
+                    rx_wr_att  <= aux_rdata[32];
+                end else if (aux_rdata[63:60] != 4'd0) begin
+                    ld_we <= 1'b1;
                 end
             end
             // ---- the saved machine's registers, shifted in ---------------------

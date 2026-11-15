@@ -370,11 +370,13 @@ module dorado_rtl_io
     int          eth_tx_count;
     (* ramstyle = "M10K" *) logic [15:0] eth_rx_words     [0:4095];
     (* ramstyle = "M10K" *) logic        eth_rx_attention [0:4095];
+`ifndef DORADO_SCAN    // (DORADO_SCAN: load records, through the mailbox's write port)
 `ifdef DORADO_CHECKPOINT
     initial begin
         $readmemh("init/eth_rx_words.hex", eth_rx_words);
         $readmemh("init/eth_rx_attention.hex", eth_rx_attention);
     end
+`endif
 `endif
     logic [15:0] eth_rx_q;      // eth_rx_words[eth_rx_pos], one clock late
     logic        eth_rx_att_q;
@@ -2143,9 +2145,6 @@ module dorado_rtl_io
 `ifdef DORADO_CHECKPOINT
 `ifndef DORADO_SCAN
 `include "checkpoint_io.svh"
-`else
-            // (the horizontal RAM is not in the scan chain: still compiled in)
-`include "checkpoint_io_hram.svh"
 `endif
 `endif
             scan_out = 1'b0;

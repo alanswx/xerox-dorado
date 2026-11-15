@@ -54,7 +54,8 @@ namespace {
 enum : size_t {
     B_CTRL = 0, B_STATUS = 8, B_CMD = 256, B_RES = 512, B_RXW = 1024, B_RXA = 2048,
     B_TXLEN = 2112, B_TX = 4096, B_END = 6144,
-    B_SCAN = 16384               // the state scan bits (a DORADO_SCAN core)
+    B_SCAN = 16384,              // the state scan bits (a DORADO_SCAN core)
+    B_LOAD = 32768, B_LOAD_END = 1 << 20     // ...and its load records, to the mailbox's end
 };
 const uint32_t MB_MAGIC = 0x444F5241u;
 const uint64_t HOST_CHUNK_BB = 1000000;   // BaseBoard cycles: 270K microinstructions
@@ -411,6 +412,8 @@ int step_hook(dorado_machine *, int after) {
     return 0;
 }
 
+std::vector<uint16_t> written_pages;     // Map entries of the dirty lines written back at the start
+
 // <snapshot>.regs into the scan region; returns the number of bits (0: no
 // file, or one that does not cover the chain).
 uint64_t load_scan_regs() {
@@ -440,6 +443,31 @@ uint64_t load_scan_regs() {
         fprintf(stderr, "[hps] %s: %zu of the scan chain's %d registers are not in it; not used\n",
                 path.c_str(), missing, SCAN_REGS);
         return 0;
+    }
+    // <snapshot>.rams: the load records (IM, IFUM, RM/STK, ALUFM, the Map,
+    // the Ethernet receive buffer), as the mailbox takes them
+    {
+        std::string rpath = std::string(CFG.snapshot) + ".rams";
+        FILE *r = fopen(rpath.c_str(), "rb");
+        size_t n = 0;
+        uint64_t rec = 0;
+        bool ended = false;
+        while (r && B_LOAD + n < B_LOAD_END && fread(&rec, 8, 1, r) == 1) {
+            // a Map entry whose page took a writeback at the start: Ref and
+            // Dirty, as the memory section's own writeback sets them
+            if ((rec >> 60) == 6)
+                for (uint16_t pg : written_pages)
+                    if (pg == (uint16_t)(rec >> 32)) { rec |= 3ull << 16; break; }
+            T.mb[B_LOAD + n++] = rec;
+            if ((rec >> 60) == 15) { ended = true; break; }
+        }
+        if (r) fclose(r);
+        if (!ended) {
+            fprintf(stderr, "[hps] %s: no load records (or no end record); the registers are not used\n",
+                    rpath.c_str());
+            return 0;
+        }
+        fprintf(stderr, "[hps] %s: %zu load records\n", rpath.c_str(), n);
     }
     for (size_t i = 0; i < beats.size(); i++) T.mb[B_SCAN + i] = beats[i];
     fprintf(stderr, "[hps] %s: %d registers, %d scan bits\n", path.c_str(), SCAN_REGS, SCAN_BITS);
@@ -510,6 +538,7 @@ int hps_start(const hps_config *cfg, const hps_transport *t) {
                 const uint32_t va = (line.tag << 10) | ((uint32_t)r << 4);
                 for (int i = 0; i < DM_CACHE_LINE_W; i++)
                     dorado_storage_store_at_va(mem, va + (uint32_t)i, line.data[i]);
+                written_pages.push_back((uint16_t)(va >> 8));
                 lines++;
             }
         fprintf(stderr, "[hps] %u dirty cache lines written to storage (the core starts with an empty cache)\n", lines);

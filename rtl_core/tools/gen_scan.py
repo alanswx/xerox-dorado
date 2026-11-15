@@ -15,6 +15,10 @@ scan_<m>_widths.svh, which prints each register's width in simulation
     tools/gen_scan.py --regs INIT_DIR OUT   # a world's registers as one file for
                                         # the host (<snapshot>.regs): the three
                                         # checkpoint files under @cpu, @mem, @io
+    tools/gen_scan.py --rams INIT_DIR OUT   # and its memories (<snapshot>.rams):
+                                        # the load records of dorado_rtl_mailbox,
+                                        # 64 bits each, low byte first, from the
+                                        # directory's .hex files
 
 The registers are shifted in chunks, last chunk first, each handing its
 old top bit to the chunk before it (sc[k]); a disk register is in a chunk
@@ -29,7 +33,8 @@ CHUNK = 32
 #    (reset leaves every line invalid); whoever writes the checkpoint puts
 #    the dirty lines into storage first. 6,400 bits that cost a logic cell
 #    each as a chain, and the cache words need not be loaded either.
-#  - ddc_hram, the display's horizontal RAM (4,096 bits): loaded apart.
+#  - ddc_hram, the display's horizontal RAM (4,096 bits): the RTL display
+#    does not read it (its timing is fixed), so a restored core leaves it 0.
 #  - task_md_ready: the Md-ready time of the hold model; 0 (ready) will do.
 SKIP = ('cache_tag', 'cache_lru', 'cache_valid', 'cache_dirty', 'cache_wp', 'cache_vacant',
         'cache_being_loaded', 'ddc_hram', 'task_md_ready')
@@ -110,7 +115,31 @@ def regs(d, out):
                 mm = re.match(r"\s*([A-Za-z_][\w\[\]]*)\s*=\s*64'h([0-9a-fA-F]+);", line)
                 if mm: f.write(f'{mm.group(1)} {mm.group(2)}\n')
 
+def rams(d, out):
+    import struct
+    def hexf(n): return [int(x, 16) for x in open(os.path.join(d, n + '.hex')).read().split()]
+    recs = []
+    w0, w1, w2, pr = hexf('im_iw0'), hexf('im_iw1'), hexf('im_iw2'), hexf('im_present')
+    recs += [1 << 60 | a << 48 | w0[a] << 32 | w1[a] << 16 | w2[a] for a in range(4096) if pr[a]]
+    lo, hi, pr = hexf('ifum_lo'), hexf('ifum_hi'), hexf('ifum_present')
+    for a in range(1024):
+        if pr[a]: recs += [2 << 60 | a << 16 | lo[a], 3 << 60 | a << 16 | hi[a]]
+    rm, stk = hexf('rm'), hexf('stk')
+    recs += [4 << 60 | a << 16 | rm[a] for a in range(256)]
+    recs += [4 << 60 | (256 + a) << 16 | stk[a] for a in range(256)]
+    al, pr = hexf('alufm'), hexf('alufm_present')
+    recs += [5 << 60 | a << 16 | al[a] for a in range(16) if pr[a]]
+    rp, wp, di, rf = hexf('map_rp'), hexf('map_wp'), hexf('map_dirty'), hexf('map_ref')
+    recs += [6 << 60 | a << 32 | wp[a] << 18 | di[a] << 17 | rf[a] << 16 | rp[a] for a in range(len(rp))]
+    rx, at = hexf('eth_rx_words'), hexf('eth_rx_attention')
+    recs += [7 << 60 | at[a] << 32 | a << 16 | rx[a] for a in range(4096)]
+    recs.append(15 << 60)
+    with open(out, 'wb') as f:
+        for r in recs: f.write(struct.pack('<Q', r))
+    print(f'{len(recs)} load records')
+
 if len(sys.argv) > 2 and sys.argv[1] == '--map': mapfile(sys.argv[2])
+elif len(sys.argv) > 3 and sys.argv[1] == '--rams': rams(sys.argv[2], sys.argv[3])
 elif len(sys.argv) > 3 and sys.argv[1] == '--regs': regs(sys.argv[2], sys.argv[3])
 else:
     for m in ('cpu', 'mem', 'io'): print(m, gen(m))

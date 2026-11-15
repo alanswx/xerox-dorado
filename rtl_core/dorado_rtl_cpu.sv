@@ -31,6 +31,11 @@ module dorado_rtl_cpu
     input  logic           scan_en,
     input  logic           scan_si,
     output logic           scan_so,
+    // ...and its memories, before the shift: one load record a clock
+    // (dorado_rtl_mailbox, the record kinds) into IM, IFUM, RM/STK, ALUFM
+    // here and the Map in the memory section.
+    input  logic           ld_we,
+    input  logic [63:0]    ld_d,
 
     // BaseBoard / MIR single-step injection interface
     input  logic           bb_present,
@@ -1661,6 +1666,12 @@ module dorado_rtl_cpu
     // the standard ALUFM, the Map (tools: RTL_DUMP_INIT in sim_cosim.cpp).
     // Storage and cache data power up zero.
     // =========================================================================
+`ifdef DORADO_SCAN
+    wire ld_im   = ld_we && ld_d[63:60] == 4'd1;
+    wire ld_ifum = ld_we && (ld_d[63:60] == 4'd2 || ld_d[63:60] == 4'd3);
+    wire ld_rms  = ld_we && ld_d[63:60] == 4'd4;
+    wire ld_aluf = ld_we && ld_d[63:60] == 4'd5;
+`else
 `ifdef DORADO_INIT
     initial begin
         $readmemh("init/im_iw0.hex", im_iw0);
@@ -1676,6 +1687,7 @@ module dorado_rtl_cpu
         $readmemh("init/alufm.hex", alufm);
         $readmemh("init/alufm_present.hex", alufm_present);
     end
+`endif
 `endif
 
     // =========================================================================
@@ -1728,6 +1740,24 @@ module dorado_rtl_cpu
         ifum_wd     = x_ifum_wd;
     end
 
+`ifdef DORADO_SCAN
+    // A second address for the write, so a load record does not go through
+    // the read address: a Write IM is at Link as it was at issue.
+    logic [11:0] im_waddr;
+    assign im_waddr = ld_im ? ld_d[59:48] : link_at_issue[11:0];
+    always_ff @(posedge clk) begin
+        if (im_we || ld_im) begin
+            im_iw0[im_waddr]     <= ld_im ? ld_d[47:32] : im_wd0;
+            im_iw1[im_waddr]     <= ld_im ? ld_d[31:16] : im_wd1;
+            im_iw2[im_waddr]     <= ld_im ? ld_d[15:0]  : im_wd2;
+            im_present[im_waddr] <= 1'b1;
+        end
+`ifdef VERILATOR
+        if (im_we && im_addr != link_at_issue[11:0]) $fatal(1, "Write IM not at Link as issued");
+`endif
+    end
+    always_ff @(posedge clk) begin
+`else
     always_ff @(posedge clk) begin
         if (im_we) begin
             im_iw0[im_addr]     <= im_wd0;
@@ -1735,6 +1765,7 @@ module dorado_rtl_cpu
             im_iw2[im_addr]     <= im_wd2;
             im_present[im_addr] <= 1'b1;
         end
+`endif
         im_q0      <= im_iw0[im_addr];
         im_q1      <= im_iw1[im_addr];
         im_q2      <= im_iw2[im_addr];
@@ -2306,6 +2337,13 @@ module dorado_rtl_cpu
             rms_we    = 1'b1;
             rms_wd    = rm_q | ap_wd;
         end
+`ifdef DORADO_SCAN
+        if (ld_rms) begin
+            rms_waddr = int'(ld_d[24:16]);
+            rms_we    = 1'b1;
+            rms_wd    = ld_d[15:0];
+        end
+`endif
     end
     always_ff @(posedge clk) begin
         if (rms_we && rms_waddr >= 256)  STK[rms_waddr[7:0]] <= rms_wd;
@@ -2349,6 +2387,8 @@ module dorado_rtl_cpu
         .scan_en          (scan_en),
         .scan_in          (scan_si),
         .scan_out         (scan_in),
+        .ld_we            (ld_we),
+        .ld_d             (ld_d),
         .spec_req         (mem_spec_req),
         .spec_va          (mem_spec_va),
         .req              (mem_req),
@@ -3597,6 +3637,14 @@ module dorado_rtl_cpu
             // load; between shifts the module is idle: dorado_rtl_top holds
             // its clock enable off for the whole scan phase)
 `include "scan_cpu.svh"
+        end else if (ld_ifum) begin          // through the IFUMRH/IFUMLH write's registers
+            x_ifum_wr    = 1'b1;
+            x_ifum_hi    = (ld_d[63:60] == 4'd3);
+            x_ifum_waddr = ld_d[25:16];
+            x_ifum_wd    = ld_d[15:0];
+        end else if (ld_aluf) begin
+            alufm[ld_d[19:16]]         = ld_d[5:0];
+            alufm_present[ld_d[19:16]] = 1'b1;
 `endif
         end else if (clk_en && !halted) begin
             do_exec = (st == C_EXEC) || fexec;
