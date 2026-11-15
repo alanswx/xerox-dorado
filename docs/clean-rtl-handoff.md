@@ -1593,11 +1593,41 @@ A trap in the script, found on the board: the start runs from a file sh
 reads as it goes, so a second start that rewrote the same file made the
 first one's shell run the old world again. Each start has its own file now.
 
+#### A save takes the disk with it, and does not stop the machine for it (2026-11-15)
+
+- **The disk.** A save now writes `<snap>.pack` (Lisp, Smalltalk: the
+  Trident pack copied out of DDR, where the core's controller writes it) or
+  `<snap>.pdi` (Cedar: the Pilot volume the host's germ bridge holds), and
+  `hps_start` takes that file in the world's own disk's place when it is
+  beside the snapshot. Before this a restore put the saved memory over the
+  ORIGINAL pack: a file written since boot was in the world's directory
+  cache and not on its disk.
+- **Not with a sector in flight.** The Trident controller's sector buffer
+  and engine are RTL-only and not saved. After the chain is out the host
+  looks at `disk_read_stream_active` / `disk_write_stream_active` in it
+  (`scan_reg`); while either is set it lets the machine run 5 ms and
+  starts the save again (up to 400 times, then says so and saves anyway).
+- **The files are written by a child.** 63 MB of pack takes about 90 s on
+  the MiSTer's SD card. `hps_save` copies everything into its own memory
+  with the CPU held, forks, and lets the machine go; the child writes the
+  files and removes `<snap>.writing` when the last is whole. It ignores
+  SIGTERM (a new start's `killall`), and `hps_start` waits for the mark to
+  go. The machine is held under 3 s. The simulation writes in line.
+
+Simulation, each world: saved at 1 M, the save restored in place at 1.5 M
+and run 2 M, framebuffer equal to an uninterrupted 3 M; the saved
+Smalltalk pack and Cedar PDI are byte-identical to the originals (nothing
+wrote them). mister14, Lisp: `(WITH-OPEN-FILE (S "{DSK}SAVETEST" :DIRECTION
+:OUTPUT) (PRINT 4242 S))`, save (pack differs from the stock one in 87
+bytes), Smalltalk started in place, the save restored in place,
+`(WITH-OPEN-FILE (S "{DSK}SAVETEST") (+ 1 (READ S)))` -> 4243.
+
 **Not done:**
 - Timing: about -0.8 ns at 44 MHz. Seeds; or 42.3 MHz, still 1.00x for Lisp.
 - A save and a switch are separate commands; nothing on the MiSTer's OSD
   asks for either.
-- Read-back of IM, IFUM, ALUFM and the receive buffer; the pack's contents.
+- Read-back of IM, IFUM, ALUFM and the receive buffer.
+- A disk write on the board has only been tried in Lisp; Cedar's `.pdi` and Smalltalk's pack only unchanged, in simulation.
 - The host makes the stock `.rams`/`.regs` offline from a simulation dump
   (`gen_scan.py --rams/--regs`); it should build them from the snapshot.
 - A save file is tied to the host that wrote it (the ARM's 32-bit snapshot

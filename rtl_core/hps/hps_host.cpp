@@ -28,6 +28,9 @@
 // =============================================================================
 #include "hps_host.h"
 #include <ctime>
+#include <csignal>
+#include <unistd.h>
+#include <sys/wait.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -519,6 +522,20 @@ static uint64_t issue_raw(uint64_t bits) {
 //    their records are the ones this run was loaded from (a world that has
 //    rewritten its microcode since is not saved correctly)
 int hps_save_regs(const char *path);
+// a register of the chain as the last save left it in the scan region
+static uint64_t scan_reg(const char *mod, const char *name) {
+    size_t bit = 0;
+    for (int i = 0; i < SCAN_REGS; i++) {
+        if (!strcmp(scan_map[i].mod, mod) && !strcmp(scan_map[i].name, name)) {
+            uint64_t x = 0;
+            for (int b = scan_map[i].bits - 1; b >= 0; b--, bit++)
+                if (b < 64 && ((T.mb[B_SCAN + bit / 64] >> (63 - bit % 64)) & 1)) x |= 1ull << b;
+            return x;
+        }
+        bit += scan_map[i].bits;
+    }
+    return 0;
+}
 // hps_save_steps: which parts run (a diagnosis: 1 the freeze, 2 the chain,
 // 4 RM/STK, 8 the Map, 16 the cache's lines, 32 the files written)
 unsigned hps_save_steps = 63;
@@ -526,7 +543,21 @@ int hps_save(const char *path) {
     const unsigned st = hps_save_steps;
     if (st & 1) result(issue_raw(3ull << 53));           // freeze
     std::string snap = path;
-    if ((st & 2) && hps_save_regs(snap.c_str()) != 0) { result(issue_raw(1ull << 54)); return -1; }
+    // Not with a sector in flight: the Trident controller's sector buffer is
+    // not saved (a restore's engine starts idle), so a save taken inside a
+    // sector's read or write would lose it. The streams are in the chain;
+    // while either is active the machine runs a little longer and the save
+    // starts again (a sector is 5.6 ms of a Dorado).
+    for (int tries = 0; (st & 2); tries++) {
+        if (hps_save_regs(snap.c_str()) != 0) { result(issue_raw(1ull << 54)); return -1; }
+        const bool busy = scan_reg("io", "disk_read_stream_active") || scan_reg("io", "disk_write_stream_active");
+        if (!busy || !(st & 1)) { if (tries) printf("[hps] save: waited for the disk %d times\n", tries); break; }
+        if (tries == 400) { printf("[hps] save: the disk never came to rest; saving with a sector in flight\n"); break; }
+        result(issue_raw(1ull << 54));                   // let it go...
+        const double t0 = mono_s();
+        for (int k = 0; k < 2000 || mono_s() - t0 < 0.005; k++) T.wait(T.ctx);
+        result(issue_raw(3ull << 53));                   // ...and hold it again
+    }
     std::vector<uint64_t> recs;
     {   // the memories this does not read: from the loaded file
         FILE *r = fopen((std::string(CFG.snapshot) + ".rams").c_str(), "rb");
@@ -580,19 +611,89 @@ int hps_save(const char *path) {
         printf("[hps] save steps %u done (no files)\n", st);
         return 0;
     }
-    {
-        FILE *r = fopen((snap + ".rams").c_str(), "wb");
-        if (!r) { perror((snap + ".rams").c_str()); result(issue_raw(1ull << 54)); return -1; }
-        fwrite(recs.data(), 8, recs.size(), r);
-        fclose(r);
-    }
     // the host's machine, with the core's storage and no cache of its own
     for (int r = 0; r < DM_CACHE_ROWS; r++)
         for (int w = 0; w < DM_CACHE_WAYS; w++) mem->cache[r].ways[w].valid = 0;
-    const int rc = dorado_machine_snapshot(M, snap.c_str());
+    // The disk as it is now goes beside the snapshot (hps_start takes
+    // <snapshot>.pack / .pdi in the world's own disk's place): the Trident
+    // pack out of DDR, where the core's controller has written it; the
+    // Pilot volume is the host's (its germ bridge holds it).
+    dorado_disk_pack *pk = (CFG.pack && T.pack) ? dorado_machine_disk(M)->drive[0].pack : nullptr;
+    if (pk) {
+        const int hw = dorado_disk_geom_header_words(&pk->geometry);
+        const int lw = dorado_disk_geom_label_words(&pk->geometry);
+        const int dw = dorado_disk_geom_data_words(&pk->geometry);
+        const size_t stride = (size_t)(hw + lw + dw + 3) / 4;
+        for (int i = 0; i < pk->num_sectors; i++) {
+            dorado_disk_sector *sec = &pk->sectors[i];
+            uint16_t rec[4 * 260];
+            for (size_t b = 0; b < stride; b++) {
+                const uint64_t v = T.pack[(size_t)i * stride + b];
+                for (int l = 0; l < 4; l++) rec[4 * b + l] = (uint16_t)(v >> (16 * l));
+            }
+            int n = 0;
+            for (int k = 0; k < hw; k++) sec->header[k] = rec[n++];
+            for (int k = 0; k < lw; k++) sec->label[k] = rec[n++];
+            for (int k = 0; k < dw; k++) sec->data[k] = rec[n++];
+        }
+    }
+    // Everything is in this process's memory now. The files (the pack is
+    // 63 MB: a minute on the MiSTer's SD card) are written by a child, a
+    // copy of this process at this instant, and the machine goes on at
+    // once. <snap>.writing is there until the last file is whole, and
+    // hps_start waits for it to go. The simulation (and a fork that fails)
+    // writes them here instead.
+    static pid_t writer;
+    if (writer > 0 && waitpid(writer, nullptr, WNOHANG) == 0) {
+        printf("[hps] save: the last save's files are still being written; not saved\n");
+        result(issue_raw(1ull << 54));
+        return -1;
+    }
+    fflush(stdout);
+    fflush(stderr);
+    const std::string mark = snap + ".writing";
+    if (FILE *m = fopen(mark.c_str(), "w")) fclose(m);
+    writer = CFG.need_core ? fork() : -1;
+    if (writer > 0) {
+        result(issue_raw(1ull << 54));                   // let it go
+        printf("[hps] save: the machine goes on; %s is being written\n", snap.c_str());
+        return 0;
+    }
+    if (writer == 0) signal(SIGTERM, SIG_IGN);           // (a new start's killall: the save is finished first)
+    int rc = 0;
+    {
+        FILE *r = fopen((snap + ".rams").c_str(), "wb");
+        if (!r) { perror((snap + ".rams").c_str()); rc = -1; }
+        else {
+            if (fwrite(recs.data(), 8, recs.size(), r) != recs.size()) rc = -1;
+            fclose(r);
+        }
+    }
+    if (dorado_machine_snapshot(M, snap.c_str()) != 0) rc = -1;
+    const char *disk = "";
+    if (pk) {
+        char keep[sizeof pk->path];
+        const int ro = pk->read_only;
+        memcpy(keep, pk->path, sizeof keep);
+        snprintf(pk->path, sizeof pk->path, "%s.pack", snap.c_str());
+        pk->read_only = 0;
+        if (dorado_disk_pack_save(pk) != 0) rc = -1;
+        memcpy(pk->path, keep, sizeof keep);
+        pk->read_only = ro;
+        disk = ", .pack";
+    } else if (dorado_machine_has_pilot_disk(M, 0)) {
+        char err[200] = "";
+        if (dorado_machine_save_pilot_disk(M, 0, (snap + ".pdi").c_str(), err, sizeof err) != 0) {
+            printf("[hps] save: the Pilot disk: %s\n", err);
+            rc = -1;
+        }
+        disk = ", .pdi";
+    }
+    remove(mark.c_str());
+    printf("[hps] saved the machine -> %s (+ .regs, .rams%s): %zu records, %u dirty cache lines into storage%s\n",
+           snap.c_str(), disk, recs.size(), lines, rc ? "; A WRITE FAILED" : "");
+    if (writer == 0) { fflush(stdout); _exit(rc ? 1 : 0); }
     result(issue_raw(1ull << 54));                       // let it go
-    printf("[hps] saved the machine -> %s (+ .regs, .rams): %zu records, %u dirty cache lines into storage%s\n",
-           snap.c_str(), recs.size(), lines, rc ? "; THE SNAPSHOT WRITE FAILED" : "");
     return rc;
 }
 
@@ -679,6 +780,24 @@ int hps_restart(const hps_config *cfg) {
 int hps_start(const hps_config *cfg, const hps_transport *t) {
     CFG = *cfg;
     T = *t;
+    // a save whose files are still being written (hps_save's child): wait for it
+    {
+        const std::string mark = std::string(CFG.snapshot) + ".writing";
+        for (int i = 0; i < 1800 && access(mark.c_str(), F_OK) == 0; i++) {
+            if (i == 0) fprintf(stderr, "[hps] %s is still being written; waiting\n", CFG.snapshot);
+            usleep(100000);
+        }
+    }
+    // a save's own disk (hps_save), in the world's disk's place
+    {
+        static std::string own;
+        own = std::string(CFG.snapshot) + (CFG.pack ? ".pack" : ".pdi");
+        if (FILE *f = (CFG.pack || CFG.pdi) ? fopen(own.c_str(), "rb") : nullptr) {
+            fclose(f);
+            (CFG.pack ? CFG.pack : CFG.pdi) = own.c_str();
+            fprintf(stderr, "[hps] the disk is the save's own: %s\n", own.c_str());
+        }
+    }
     if (!CFG.quantum) CFG.quantum = 1;
     dorado_machine_config mc;
     dorado_machine_config_default(&mc);
