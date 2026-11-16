@@ -94,6 +94,12 @@ module dorado_rtl_io
     // which a monitor never shows). 0 for the Alto worlds; 22 measured for
     // Cedar's LF display (its first DCB line lands on frame line 22).
     input  logic [5:0]     display_top_lines,
+    // 1: a DispM board is installed (dispm.c, DORADO_DISPM_PRESENT): its
+    //    presence cells answer the emulator task -- 360B all ones, 361B the
+    //    type (17B, standard, in bits 0..3), the other two 0 -- and the Alto
+    //    world's DisplayInitConfig then takes the terminal through AHT/AWT.
+    //    Only a world booting asks; a restored one has made its choice.
+    input  logic           dispm_present,
     input  logic [9:0]     display_cursor_dx,   // CursorX constant above the Alto-monitor one
     input  logic [15:0]    kbd_words_in [0:4],
     input  logic signed [15:0] mouse_dx_in,
@@ -350,6 +356,17 @@ module dorado_rtl_io
     logic [7:0]  ddc_term_msg_type;
     logic [15:0] ddc_term_msg_body;
     logic        ddc_term_msg_active;
+    // A machine restored at the LoadRam handoff (a cold start): Initial has
+    // driven the terminal task, the loaded world has not initialised its
+    // display tasks' TPCs. Their wakeups are held until the loaded world's
+    // own terminal task drives the controller, or a channel has a control
+    // block, or the raster interrupt is on -- machine.c
+    // machine_ddc_display_active against its LoadRam baseline. 0 in every
+    // other restore, and after reset.
+    logic        ddc_wake_held;
+    wire         ddc_wake_gate = display_wake_gate &&
+                     (!ddc_wake_held || ddc_next_wcb_flag[0] || ddc_next_wcb_flag[1] ||
+                      ddc_current_wcb_flag[0] || ddc_current_wcb_flag[1] || ddc_raster_lt_enabled);
     logic [63:0] ddc_term_bits;
     logic [63:0] ddc_term_messages;
 
@@ -1654,8 +1671,16 @@ module dorado_rtl_io
         io_read_data       = 16'hFFFF;
         io_read_bad_parity = 1'b1;
 
+        // 0. The DispM board's cells, to the emulator task (dispm.c dispm_input)
+        if (dispm_present && io_read_task == TASK_EMU &&
+            (io_read_tioa == 8'o360 || io_read_tioa == 8'o361 ||
+             io_read_tioa == 8'o362 || io_read_tioa == 8'o365)) begin
+            io_read_bad_parity = 1'b0;
+            io_read_data = (io_read_tioa == 8'o360) ? 16'hFFFF :
+                           (io_read_tioa == 8'o361) ? 16'hF000 : 16'h0000;
+        end
         // 1. Display (DDC)
-        if ((is_display_task_fn(io_read_task) && is_display_tioa_fn(io_read_tioa)) ||
+        else if ((is_display_task_fn(io_read_task) && is_display_tioa_fn(io_read_tioa)) ||
             (io_read_task == TASK_EMU &&
              (io_read_tioa == TIOA_TSTATUS ||
               io_read_tioa == TIOA_DDCSTATUS ||
@@ -2049,6 +2074,7 @@ module dorado_rtl_io
             ddc_term_msg_type       = 8'd0;
             ddc_term_msg_body       = 16'd0;
             ddc_term_msg_active     = 1'b0;
+            ddc_wake_held           = 1'b0;
             ddc_term_bits           = 64'd0;
             ddc_term_messages       = 64'd0;
             ddc_scanline_cd         = 16'(SCANLINE_PERIOD_CYCLES);
@@ -2265,6 +2291,9 @@ module dorado_rtl_io
                     logic old_ram_keep;
                     old_ram_keep = ddc_ram_keep;
                     ddc_riob     = io_write_data;
+                    if (io_write_task == ddc_terminal_task &&
+                        (io_write_task == TASK_DHT || io_write_task == TASK_AHT))
+                        ddc_wake_held = 1'b0;
 
                     if ((io_write_task == TASK_DHT || io_write_task == TASK_AHT) &&
                         (io_write_tioa == TIOA_STATICS || io_write_tioa == TIOA_TSTATICS)) begin
@@ -2581,7 +2610,7 @@ module dorado_rtl_io
             end
             if (ddc_scanline_cd == 16'd0) begin
                 ddc_scanline_cd = 16'(SCANLINE_PERIOD_CYCLES);
-                if (display_wake_gate) begin
+                if (ddc_wake_gate) begin
                     // Advance scanline position
                     ddc_scan_line = ddc_scan_line + 32'd1;
                     if (ddc_scan_line >= 32'(DISPLAY_H)) begin
@@ -2598,7 +2627,7 @@ module dorado_rtl_io
                 end
             end
 
-            if (display_wake_gate) begin
+            if (ddc_wake_gate) begin
                 logic dwt_woke;
                 logic [3:0] word_task;
                 // the word task the terminal's horizontal task pairs with: DWT

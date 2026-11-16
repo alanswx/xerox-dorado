@@ -163,6 +163,11 @@ uint64_t dorado_machine_uinstructions(const dorado_machine *m);
 
 /* 1 once Initial has LoadRam'd the Alto/Mesa world and it is running. */
 int dorado_machine_booted(const dorado_machine *m);
+/* Has the loaded world installed a sane Alto display list (DASTART, by any
+ * of the bases the worlds use; a germ world: once the germ is planted)?
+ * The content half of the run loop's display-wake predicate, for a
+ * host-only machine (rtl_core/hps), whose core cannot look at storage. */
+int dorado_machine_alto_display_active(dorado_machine *m);
 /* 1 when the EFTP-served image is a Mesa/Pilot outload (see machine.c). */
 int dorado_machine_boot_is_mesa_outload(const dorado_machine *m);
 

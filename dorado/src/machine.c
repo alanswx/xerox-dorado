@@ -5922,6 +5922,12 @@ static int machine_alto_display_active(dorado_memory *mem)
     return chosen >= 0;
 }
 
+int dorado_machine_alto_display_active(dorado_machine *m)
+{
+    return m && machine_alto_display_active(&m->mem) &&
+           (!m->germ_word_count || m->germ_data_done);
+}
+
 static int machine_ddc_display_active(dorado_machine *m)
 {
     if (!m || !m->ether_loaded_world_cycle) return 0;

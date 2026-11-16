@@ -1,6 +1,6 @@
 #!/bin/sh
 # One Dorado RTL core for every world (the scan core), on the MiSTer:
-#   DoradoOne.sh [-r] lisp|smalltalk|cedar [SAVED.snap]
+#   DoradoOne.sh [-r] lisp|smalltalk|cedar [SAVED.snap|cold]
 # The core has no world compiled in; dorado-hps-one loads the checkpoint
 # (storage, <snapshot>.rams, <snapshot>.regs) and says how it is presented.
 # SAVED.snap: a save of that world (touch /tmp/dorado-save while it runs
@@ -13,6 +13,12 @@ R=0
 [ "$1" = -r ] && { R=1; shift; }
 W=${1:-lisp}
 S=${2:+-S $2}
+# cold: the world from the moment its microcode is loaded (its own boot from
+# the disk, as the machine did it), not the saved desktop:
+#   smalltalk: at the Alto Executive, Bootfrom xmsmall.boot
+#   lisp:      at the Alto Executive, lisp.run/M {DORADO}LISP.SYSOUT
+#   cedar:     at the login, Guest and two Returns
+[ "$2" = cold ] && S="-S /media/fat/dorado/$W-cold.snap"
 # (a file of its own: a start still running reads its script as it goes)
 T=/tmp/dorado-one-start.$$.sh
 cat > $T <<INNER

@@ -12,7 +12,7 @@ scan_<m>_widths.svh, which prints each register's width in simulation
 
     tools/gen_scan.py                   # the three .svh pairs, from init_lisp
     tools/gen_scan.py --map LOGFILE     # hps/scan_map.h from a +scanmap run
-    tools/gen_scan.py --regs INIT_DIR OUT   # a world's registers as one file for
+    tools/gen_scan.py --regs INIT_DIR OUT [--cold]   # a world's registers as one file for
                                         # the host (<snapshot>.regs): the three
                                         # checkpoint files under @cpu, @mem, @io
     tools/gen_scan.py --rams INIT_DIR OUT   # and its memories (<snapshot>.rams):
@@ -72,7 +72,7 @@ LD_KIND = {'cpu': 8, 'mem': 9, 'io': 10}
 # at bit 0 while the microcode holds half a message, the next keyboard word
 # is assembled wrong and the world sees keys go down.
 EXTRA = {'io': ['ddc_term_msg_bit', 'ddc_term_msg_word', 'ddc_term_msg_type',
-                'ddc_term_msg_body', 'ddc_term_msg_active']}
+                'ddc_term_msg_body', 'ddc_term_msg_active', 'ddc_wake_held']}
 NARROW.update({'ddc_term_msg_bit': 7, 'ddc_term_msg_word': 4, 'ddc_term_msg_type': 4})
 
 def all_names(mod):
@@ -183,7 +183,7 @@ def mapfile(log):
         f.write('};\n')
     print(f'{len(rows)} registers, {total} bits')
 
-def regs(d, out):
+def regs(d, out, cold=False):
     with open(out, 'w') as f:
         for m in ('cpu', 'mem', 'io'):
             f.write(f'@{m}\n')
@@ -195,8 +195,14 @@ def regs(d, out):
                     lo = v & ((1 << NARROW[n]) - 1)
                     if lo >> (NARROW[n] - 1): lo |= 0xffffffff & ~((1 << NARROW[n]) - 1)
                     if lo != v: sys.exit(f'{n} = {v:#x} does not fit the {NARROW[n]} bits the chain carries')
+                # (a cold start: the receiver's copy of the Alto world's input
+                # buffer size, which nothing in the core refreshes -- no limit
+                # there; the host holds the packet, hps_host.cpp)
+                if cold and n == 'eth_world_rx_words': f.write(f'{n} ffff\n'); continue
                 f.write(f'{mm.group(1)} {mm.group(2)}\n')
-            for n in EXTRA.get(m, []): f.write(f'{n} 0\n')
+            # (a cold start -- the machine at the LoadRam handoff: the display
+            # tasks' wakeups held until the loaded world drives the controller)
+            for n in EXTRA.get(m, []): f.write(f'{n} {int(cold and n == "ddc_wake_held")}\n')
 
 def rams(d, out):
     import struct
@@ -223,7 +229,7 @@ def rams(d, out):
 
 if len(sys.argv) > 2 and sys.argv[1] == '--map': mapfile(sys.argv[2])
 elif len(sys.argv) > 3 and sys.argv[1] == '--rams': rams(sys.argv[2], sys.argv[3])
-elif len(sys.argv) > 3 and sys.argv[1] == '--regs': regs(sys.argv[2], sys.argv[3])
+elif len(sys.argv) > 3 and sys.argv[1] == '--regs': regs(sys.argv[2], sys.argv[3], '--cold' in sys.argv[4:])
 else:
     for m in ('cpu', 'mem', 'io'): print(m, gen(m))
     ldfile()

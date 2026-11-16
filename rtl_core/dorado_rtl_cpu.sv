@@ -409,6 +409,16 @@ module dorado_rtl_cpu
     logic [15:0]    x_im_wd0, x_im_wd1, x_im_wd2;
     logic           x_sched_block, x_sched_freeze;
     logic           x_rmor;        // an AP_RM_OR request is in C_APW
+`ifdef DORADO_SCAN
+    logic           x_pk;          // an AP_PEEK of IM, IFUM or ALUFM is in C_APW
+    // A save's look at the control store (AP_PEEK with ap_wd[3]; ap_wd[2:0]:
+    // 0-2 the three words of IM[ap_va], 3 its present bit, 4 5 IFUM[ap_va]
+    // low and high, 6 its present bit, 7 ALUFM[ap_va] {present, entry}).
+    // A read port of their own on the memories, at ap_va whatever it holds:
+    // nothing is added to the fetch's or the IFU's addresses.
+    logic [15:0]    pk_im0, pk_im1, pk_im2, pk_ifl, pk_ifh;
+    logic           pk_imp, pk_ifp;
+`endif
     logic           x_ifum_wr, x_ifum_hi;
     logic [9:0]     x_ifum_waddr;
     logic [15:0]    x_ifum_wd;
@@ -1747,6 +1757,15 @@ module dorado_rtl_cpu
     // the read address: a Write IM is at Link as it was at issue.
     logic [11:0] im_waddr;
     assign im_waddr = ld_im ? ld_d[59:48] : link_at_issue[11:0];
+    always_ff @(posedge clk) begin
+        pk_im0 <= im_iw0[ap_va[11:0]];
+        pk_im1 <= im_iw1[ap_va[11:0]];
+        pk_im2 <= im_iw2[ap_va[11:0]];
+        pk_imp <= im_present[ap_va[11:0]];
+        pk_ifl <= ifum_lo[ap_va[9:0]];
+        pk_ifh <= ifum_hi[ap_va[9:0]];
+        pk_ifp <= ifum_present[ap_va[9:0]];
+    end
     always_ff @(posedge clk) begin
         if (im_we || ld_im) begin
             im_iw0[im_waddr]     <= ld_im ? ld_d[47:32] : im_wd0;
@@ -3628,6 +3647,9 @@ module dorado_rtl_cpu
             spec_hit = 1'b0;
             ap_rd    = 16'd0;
             x_rmor   = 1'b0;
+`ifdef DORADO_SCAN
+            x_pk     = 1'b0;
+`endif
             p_w      = 1'b0;
             p_x      = 1'b0;
             p_d      = 1'b0;
@@ -3799,6 +3821,11 @@ module dorado_rtl_cpu
                     end else if (ap_op == AP_RM_OR) begin
                         x_rmor = 1'b1;           // RM read this clock, written in C_APW
                         st     = C_APW;
+`ifdef DORADO_SCAN
+                    end else if (ap_op == AP_PEEK && ap_wd[3]) begin
+                        x_pk = 1'b1;             // (pk_*: read at ap_va since it was put there)
+                        st   = C_APW;
+`endif
                     end else begin
                         mem_ap_req = 1'b1;       // the memory section serves it
                         st         = C_APW;
@@ -4180,6 +4207,22 @@ module dorado_rtl_cpu
                     ap_done = 1'b1;
                     x_rmor  = 1'b0;
                     st      = C_FETCH;
+`ifdef DORADO_SCAN
+                end else if (x_pk) begin
+                    case (ap_wd[2:0])
+                    3'd0: ap_rd = pk_im0;
+                    3'd1: ap_rd = pk_im1;
+                    3'd2: ap_rd = pk_im2;
+                    3'd3: ap_rd = {15'd0, pk_imp};
+                    3'd4: ap_rd = pk_ifl;
+                    3'd5: ap_rd = pk_ifh;
+                    3'd6: ap_rd = {15'd0, pk_ifp};
+                    default: ap_rd = {9'd0, alufm_present[ap_va[3:0]], alufm[ap_va[3:0]]};
+                    endcase
+                    ap_done = 1'b1;
+                    x_pk    = 1'b0;
+                    st      = C_FETCH;
+`endif
                 end else if (mem_ap_done) begin
                     mem_ap_req = 1'b0;
                     ap_rd      = mem_ap_rd;

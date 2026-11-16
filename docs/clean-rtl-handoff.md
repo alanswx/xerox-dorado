@@ -1633,15 +1633,93 @@ wrote them). mister14, Lisp: `(WITH-OPEN-FILE (S "{DSK}SAVETEST" :DIRECTION
 bytes), Smalltalk started in place, the save restored in place,
 `(WITH-OPEN-FILE (S "{DSK}SAVETEST") (+ 1 (READ S)))` -> 4243.
 
+#### Cold boot on the one core: each world boots itself (2026-11-15)
+
+`DoradoOne.sh lisp|smalltalk|cedar cold` starts the world from the moment
+its microcode is loaded, not from a saved desktop, and the core does the
+rest as the machine did:
+
+| world | the start | then, at the keyboard | to the desktop |
+|---|---|---|---|
+| Smalltalk-76 | the Alto Executive, off the Trident pack | `Bootfrom xmsmall.boot` | about 30 s; 124,945 px |
+| Interlisp-D | the Alto Executive | `lisp.run/M {DORADO}LISP.SYSOUT` | about 5 min: the 4.8 MB sysout over the Ethernet bridge (9,447 packets); 209,122 px |
+| Cedar 6.1 | the login (`Please login ... Name:`) | `Guest`, Return, Return | about 10 min at 1.05x: 34 loadees and the installer's BringOvers over STP (3,472 packets in) |
+
+All three were run on mister14. A cold start is an ordinary restore: the
+files are `<world>-cold.snap` with its `.regs`, `.rams` and `.pack`/`.pdi`
+in `/media/fat/dorado/`, made by `rtl_core/hps/make_cold.sh` from the C
+emulator stopped at 33 M BaseBoard cycles (the LoadRam handoff is at
+about 31 M; Cedar at 70 M, after the germ is planted at 67.3 M). The
+BaseBoard, Initial and its netboot of the `.eb` are still the emulator's;
+so is Cedar's germ plant, which hangs on the C CPU's program counter.
+
+What a restore at that point needed, each found by running it:
+
+- **The display tasks' wakeups, held (`ddc_wake_held`, a chain register:
+  298 registers, 2,195 bits).** At the handoff Initial has driven the
+  terminal task and the loaded world has not initialised its display
+  tasks' TPCs; the one core's wake gate is always open, so task 3 ran a
+  stale TPC and starved the emulator task (Smalltalk: 0 px). The emulator
+  has the same hazard and a predicate for it (`machine_ddc_display_active`
+  against its LoadRam baseline). The register, set only by `gen_scan.py
+  --regs --cold`, holds the scan-line and word-task wakeups until the
+  loaded world's terminal task writes the controller, or a channel has a
+  control block, or the raster interrupt is on. A `.regs` file without it
+  loads as 0. The C emulator's own resume from so early a snapshot does
+  NOT work for Smalltalk (its baseline is a file-scope static, zero after
+  a restore; it resumes from 68 M on, when DSemu's display code has run):
+  the core is not checked against it there, but against the straight run.
+- **The DispM board's presence cells (`dispm_present`, `world_cfg` bit 2,
+  Lisp).** With `DORADO_DISPM_PRESENT` the emulator answers the emulator
+  task at 360B (all ones) and 361B (type 17B), and the Alto world's
+  DisplayInitConfig takes the terminal through AHT/AWT. The core answered
+  0, the world initialised DHT/DWT, and the controller still had AHT as
+  its terminal task: no picture, and TPC[4] = 177777. A restored desktop
+  never asks.
+- **Cedar's display task is started by the host.** The emulator never
+  wakes Cedar's DHT during the boot to the login -- it paints the login
+  from storage -- and on the board the picture is the display microcode's.
+  For a germ world with the hold set, `hps_poll` looks a field apart for
+  Cedar's CSB at LONG[420B] naming a DCB with the long-bitmap seal
+  (177423B), or the emulator's Alto display-list predicate
+  (`dorado_machine_alto_display_active`, new in machine.c), and wakes the
+  terminal task with `AP_WAKEUP_OR`; its first output ends the hold.
+  **Only for a germ world**: the same wake in the Lisp world, before the
+  presence cells were in, woke task 4 at TPC 177777 and hung the core.
+- **The receiver's buffer limit.** `eth_world_rx_words` is the Alto
+  world's posted input buffer size (EICLOC), which the emulator refreshes
+  from storage and the core cannot: restored as 0 it refused every
+  packet (`No such host: DORADO`). A cold `.regs` has 177777 and the host
+  holds a packet that would not fit (`ethernet_bridge`, from the
+  emulator's own `world_rx_words`).
+- **A save reads IM, IFUM and ALUFM (`AP_PEEK` with `ap_wd[3]`).** A save
+  used to copy them from the loaded `.rams`. `lisp.run` loads the Lisp
+  microcode after the start, so a save of a cold-started Lisp came back
+  with the Alto emulator's control store alone: storage whole (the host
+  drew the desktop from it), a white screen. The memories have a read
+  port of their own at `ap_va` -- nothing is added to the fetch's or the
+  IFU's addresses -- and the processor answers in `C_APW`. In simulation a
+  save of the Lisp desktop has the 4,096 + 1,024 + 1,024 + 16 records of
+  the loaded file.
+
+`lisp.run` is served the root's `LISP.SYSOUT` (Lyric, 27-Apr-87), not the
+full-library `Released-Full.sysout!2` the stock desktop was made from.
+Cedar's cold boot ran the served user profile and stopped in it at
+`Run BiScrollersImpl` with an UnboundProcedure signal in an event viewer
+beside a live CommandTool; whether the emulator does the same with this
+tree was not checked.
+
 **Not done:**
 - Timing: -0.089 ns at 44 MHz with seed 2 (below). Not closed; more seeds,
   or 42.3 MHz, still 1.00x for Lisp.
+- The start of a cold boot is the emulator's: the BaseBoard, Initial and
+  the EFTP of the `.eb`, and Cedar's germ plant, are in the snapshot.
 - A save and a switch are separate commands; nothing on the MiSTer's OSD
   asks for either.
-- Read-back of IM, IFUM, ALUFM and the receive buffer.
+- Read-back of the Ethernet receive buffer.
 - A disk write on the board has only been tried in Lisp. Cedar and Smalltalk saves (with their `.pdi` / `.pack`) were restored in place on mister14 and took input -- Cedar: a click in the CommandTool set the caret and typed text went in there; Smalltalk: the pointer and a click in the Classes browser filled its first pane, 124,945 -> 126,636 px -- but nothing had written their disks.
 - The host makes the stock `.rams`/`.regs` offline from a simulation dump
   (`gen_scan.py --rams/--regs`); it should build them from the snapshot.
 - A save file is tied to the host that wrote it (the ARM's 32-bit snapshot
   does not restore in the 64-bit simulation).
-- Cold boot on the same core; then retire the three per-world bitstreams.
+- Retire the three per-world bitstreams.

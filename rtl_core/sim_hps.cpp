@@ -302,6 +302,7 @@ int main(int argc, char **argv) {
         cfg.pack = nullptr;
         cfg.storage_image = nullptr;
         cfg.world_cfg = 0;
+        top->dispm_present = lisp_w;      // (Dorado.sv: world_cfg bit 2)
         cfg.need_core = 0;
         if (lisp_w) {
             cfg.snapshot = "build/good-packs/lisp-lyric-full.snap";
@@ -599,6 +600,14 @@ int main(int argc, char **argv) {
            (unsigned long long)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_cursor_wr,
            (unsigned long long)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_cursor_rows,
            (unsigned)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_nlcb_cursor_x);
+    printf("[hps] TPC[3] %o TPC[4] %o TPC[11] %o TPC[13] %o\n",
+           (unsigned)top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__task_tpc[3], (unsigned)top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__task_tpc[4],
+           (unsigned)top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__task_tpc[9], (unsigned)top->rootp->dorado_rtl_top__DOT__u_cpu__DOT__task_tpc[11]);
+    printf("[hps] display: wake held %u, terminal task %o, statics %o, %llu frames\n",
+           (unsigned)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_wake_held,
+           (unsigned)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_terminal_task,
+           (unsigned)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_statics,
+           (unsigned long long)top->rootp->dorado_rtl_top__DOT__u_io__DOT__ddc_frame_count);
     printf("[hps] mailbox: %llu operations -- %llu reads, %llu stores, %llu NWW ors, %llu reschedules; "
            "%llu packets in, %llu out, %llu transmits lost, %llu inexpressible\n",
            (unsigned long long)S->ops, (unsigned long long)S->reads, (unsigned long long)S->stores,

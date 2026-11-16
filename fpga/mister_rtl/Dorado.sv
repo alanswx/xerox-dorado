@@ -391,6 +391,7 @@ dorado_rtl_top #(
 `ifdef DORADO_SCAN
 	.world_cfg          (world_cfg),
 	.display_top_lines  (world_cfg[13:8]),
+	.dispm_present      (world_cfg[2]),
 	.display_cursor_dx  (world_cfg[25:16]),
 `elsif DORADO_SMALLTALK
 	.display_top_lines  (6'd26),

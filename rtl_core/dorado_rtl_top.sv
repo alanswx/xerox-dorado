@@ -56,6 +56,7 @@ module dorado_rtl_top
     input  logic        assist_en,
     input  logic        display_wake_gate,
     input  logic [5:0]  display_top_lines,   // see dorado_rtl_io
+    input  logic        dispm_present,       // see dorado_rtl_io
     input  logic [9:0]  display_cursor_dx,   // see dorado_rtl_io
     // Live keyboard, the four Alto keyboard words 177034B-177037B, active
     // low (Alto HW Manual: depressed = 0): word i = kbd_words[16*i +: 16].
@@ -706,6 +707,7 @@ module dorado_rtl_top
 
         .display_wake_gate       (assist_en ? assist_display_gate : display_wake_gate),
         .display_top_lines       (display_top_lines),
+        .dispm_present           (dispm_present),
         .display_cursor_dx       (display_cursor_dx),
         .kbd_words_in            (kbd_words_default),
         .mouse_dx_in             (ms_acc_dx),

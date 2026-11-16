@@ -64,7 +64,7 @@ enum : size_t {
 const uint32_t MB_MAGIC = 0x444F5241u;
 const uint32_t MB_RESTART = 0x52534554u;  // "RSET": the core back to waiting for a go
 const uint64_t HOST_CHUNK_BB = 1000000;   // BaseBoard cycles: 270K microinstructions
-enum { AP_READ = 0, AP_STORE = 1, AP_STORE_INV = 2, AP_PEEK = 3, AP_RM_OR = 4, AP_RESCHED = 6, OP_RXLOAD = 7 };
+enum { AP_READ = 0, AP_STORE = 1, AP_STORE_INV = 2, AP_PEEK = 3, AP_RM_OR = 4, AP_WAKEUP_OR = 5, AP_RESCHED = 6, OP_RXLOAD = 7 };
 
 hps_transport T;
 hps_config    CFG;
@@ -358,8 +358,15 @@ void ethernet_bridge() {
     if (CFG.quantum > 1 && ETH->rx_hold)
         ETH->rx_hold = ETH->rx_hold > CFG.quantum - 1 ? ETH->rx_hold - (CFG.quantum - 1) : 0;
     bool fpga_done = status_rxloads == my_rxloads;   // the last fill is finished
+    // An Alto world's posted input buffer (EICLOC, VM 604B): the emulator
+    // keeps its size in world_rx_words (machine.c, a poll of storage) and
+    // holds a packet that would overflow it. The core's copy of that size is
+    // the one it was restored with -- it cannot look at storage -- so a cold
+    // start is given 177777 there (gen_scan.py --cold) and the packet is
+    // held here instead. (A germ world: 177777, no hold.)
+    const bool room = ETH->rx_count <= (size_t)ETH->world_rx_words + 2;
     if (dorado_ethernet_rx_generation != shipped_gen && ETH->rx_count > 0 &&
-        ETH->rx_hold == 0 && fpga_done) {
+        ETH->rx_hold == 0 && fpga_done && room) {
         size_t n = ETH->rx_count < 4096 ? ETH->rx_count : 4096;
         for (size_t b = 0; b < (n + 3) / 4; b++) {
             uint64_t v = 0;
@@ -421,6 +428,19 @@ std::vector<uint16_t> written_pages;     // Map entries of the dirty lines writt
 
 // <snapshot>.regs into the scan region; returns the number of bits (0: no
 // file, or one that does not cover the chain).
+// A cold start of a germ world (Cedar; the .regs file has io.ddc_wake_held
+// set: the machine as the germ was planted). The core holds the display
+// tasks' wakeups until the loaded world's terminal task drives the
+// controller, and Cedar's does not until it is woken: the emulator starts
+// the scan-line wakeups of a germ world when the world has installed a
+// display list (machine.c, machine_alto_display_active). The core cannot
+// look at storage, so the host does, a field apart, and wakes the terminal
+// task -- whose first output to the controller ends the hold. (An Alto
+// world's display microcode starts its own tasks; no wake from here.)
+bool     cold_held;
+uint64_t cold_next;
+unsigned cold_wakes;
+
 uint64_t load_scan_regs() {
     std::string path = std::string(CFG.snapshot) + ".regs";
     FILE *f = fopen(path.c_str(), "r");
@@ -434,6 +454,8 @@ uint64_t load_scan_regs() {
         if (sscanf(line, "%127s %llx", name, &x) == 2) v[std::string(mod) + "." + name] = x;
     }
     fclose(f);
+    cold_held = CFG.germ && v.count("io.ddc_wake_held") && v["io.ddc_wake_held"] != 0;
+    cold_next = 0; cold_wakes = 0;
     std::vector<uint64_t> beats((SCAN_BITS + 63) / 64, 0);
     size_t bit = 0, missing = 0;
     for (int i = 0; i < SCAN_REGS; i++) {
@@ -441,7 +463,9 @@ uint64_t load_scan_regs() {
         auto it = pad ? v.end() : v.find(std::string(scan_map[i].mod) + "." + scan_map[i].name);
         // (a world saved without the Trident controller, Cedar: the
         // controller's registers as reset leaves them, which is 0)
-        if (it == v.end() && !pad && strncmp(scan_map[i].name, "disk_", 5)) missing++;
+        // (ddc_wake_held: a save from before a cold start could be loaded; 0)
+        if (it == v.end() && !pad && strncmp(scan_map[i].name, "disk_", 5) &&
+            strcmp(scan_map[i].name, "ddc_wake_held")) missing++;
         const uint64_t x = it == v.end() ? 0 : it->second;
         for (int b = scan_map[i].bits - 1; b >= 0; b--, bit++)
             if (b < 64 && ((x >> b) & 1)) beats[bit / 64] |= 1ull << (63 - bit % 64);
@@ -559,16 +583,52 @@ int hps_save(const char *path) {
         result(issue_raw(3ull << 53));                   // ...and hold it again
     }
     std::vector<uint64_t> recs;
-    {   // the memories this does not read: from the loaded file
+    std::vector<uint64_t> q;
+    // The control store, as it is now -- a world can load microcode after it
+    // starts (lisp.run does: a cold-started Lisp saved with the loaded
+    // file's IM came back with the Alto emulator's alone). AP_PEEK with
+    // ap_wd[3], answered by the processor (dorado_rtl_cpu x_pk).
+    for (unsigned base = 0; (st & 4) && base < 4096; base += 16) {
+        q.clear();
+        for (unsigned a = base; a < base + 16; a++)
+            for (unsigned k = 0; k < 4; k++) q.push_back(issue(AP_PEEK, a, (uint16_t)(8 | k), 0, 0));
+        for (unsigned i = 0; i < 16; i++) {
+            const uint64_t w0 = result(q[4 * i]), w1 = result(q[4 * i + 1]), w2 = result(q[4 * i + 2]);
+            if (result(q[4 * i + 3]) & 1)
+                recs.push_back(1ull << 60 | (uint64_t)(base + i) << 48 | w0 << 32 | w1 << 16 | w2);
+        }
+    }
+    for (unsigned base = 0; (st & 4) && base < 1024; base += 16) {
+        q.clear();
+        for (unsigned a = base; a < base + 16; a++)
+            for (unsigned k = 4; k < 7; k++) q.push_back(issue(AP_PEEK, a, (uint16_t)(8 | k), 0, 0));
+        for (unsigned i = 0; i < 16; i++) {
+            const uint64_t lo = result(q[3 * i]), hi = result(q[3 * i + 1]);
+            if (result(q[3 * i + 2]) & 1) {
+                recs.push_back(2ull << 60 | (uint64_t)(base + i) << 16 | lo);
+                recs.push_back(3ull << 60 | (uint64_t)(base + i) << 16 | hi);
+            }
+        }
+    }
+    {
+        q.clear();
+        for (unsigned a = 0; a < 16; a++) q.push_back(issue(AP_PEEK, a, 8 | 7, 0, 0));
+        for (unsigned a = 0; a < 16; a++) {
+            const uint16_t v = result(q[a]);
+            if ((st & 4) && (v & 0100)) recs.push_back(5ull << 60 | (uint64_t)a << 16 | (v & 077));
+        }
+    }
+    {   // the memory this does not read (the Ethernet receive buffer): from
+        // the loaded file -- and the control store, if this core has no look at it
         FILE *r = fopen((std::string(CFG.snapshot) + ".rams").c_str(), "rb");
         uint64_t rec;
+        const bool have = !recs.empty();
         while (r && fread(&rec, 8, 1, r) == 1) {
             const unsigned k = (unsigned)(rec >> 60);
-            if (k == 1 || k == 2 || k == 3 || k == 5 || k == 7) recs.push_back(rec);
+            if (k == 7 || (!have && (k == 1 || k == 2 || k == 3 || k == 5))) recs.push_back(rec);
         }
         if (r) fclose(r);
     }
-    std::vector<uint64_t> q;
     for (unsigned base = 0; (st & 4) && base < 512; base += 64) {    // (in runs the command ring holds)
         q.clear();
         for (unsigned a = base; a < base + 64; a++) q.push_back(issue(AP_RM_OR, a, 0, 1, 0));
@@ -1046,6 +1106,22 @@ uint64_t hps_poll(void) {
     if (target > now_bb) dorado_machine_run_until(M, target);
     ethernet_bridge();
     S.host_bb_cycles = dorado_machine_cycles(M);
+    if (cold_held && S.host_bb_cycles >= cold_next) {
+        cold_next = S.host_bb_cycles + 1000000;             // about a field
+        const unsigned tt = dorado_machine_display(M)->terminal_task;
+        // (Cedar's own: the CSB at LONG[420B] names a DCB with the long-bitmap
+        // seal, TerminalHeadDorado.mesa -- what the emulator paints the login
+        // from, where the board must have the display microcode run)
+        const uint16_t dcb = guest(0420);
+        if (dorado_machine_alto_display_active(M) || (dcb > 1 && guest((uint32_t)dcb + 2) == 0177423)) {
+            if (!cold_wakes)
+                fprintf(stderr, "[hps] cold start: the world has a display list at BaseBoard cycle %llu; waking task %o\n",
+                        (unsigned long long)S.host_bb_cycles, tt);
+            if (tt == DORADO_DISPLAY_TASK_DHT || tt == DORADO_DISPLAY_TASK_AHT)
+                issue(AP_WAKEUP_OR, 0, (uint16_t)(1u << tt), 1, 0);
+            if (++cold_wakes >= 8) cold_held = false;
+        }
+    }
     retire(1);                              // let queued commands finish
     // DORADO_HPS_SAVE=<microinstructions from the start>,<path>: save the machine once there
     {

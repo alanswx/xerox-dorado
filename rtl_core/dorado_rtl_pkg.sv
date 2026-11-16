@@ -231,6 +231,8 @@ package dorado_rtl_pkg;
                                                 // {WP, Dirty, Ref}; 2, 3 (way in ap_wd[5:4]) the
                                                 // cache line of ap_va's row: tag[15:0];
                                                 // {being loaded, WP, vacant, dirty, valid, tag[17:16]}
+                                                // with ap_wd[3] (a scan core): the control store,
+                                                // from the processor (dorado_rtl_cpu x_pk)
     localparam logic [2:0] AP_RM_OR     = 3'd4; // RM/STK[ap_va[8:0]] |= ap_wd (naked notify; STK at 400B up;
                                                 // with ap_wd 0, a read)
     localparam logic [2:0] AP_WAKEUP_OR = 3'd5; // wakeup_pending |= ap_wd (dorado_cpu_wakeup)
