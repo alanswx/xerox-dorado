@@ -1700,7 +1700,24 @@ What a restore at that point needed, each found by running it:
   port of their own at `ap_va` -- nothing is added to the fetch's or the
   IFU's addresses -- and the processor answers in `C_APW`. In simulation a
   save of the Lisp desktop has the 4,096 + 1,024 + 1,024 + 16 records of
-  the loaded file.
+  the loaded file, and a Smalltalk cold start saved 5 M microinstructions
+  in and restored goes on to the Executive. On mister14: Lisp cold-booted,
+  `(SETQ SAVED 4242)`, saved, Smalltalk started over it, the save
+  restored: `(+ SAVED 1)` -> 4243 at 1.05x, the picture whole.
+
+**The fit with all of this (build f13, 44 MHz):** seed 2 -1.588 ns (37,864
+ALMs), seed 3 **-0.351 ns** (37,894 ALMs, 90%; 403 of 553 RAM blocks -- the
+read ports are a second copy of IM and IFUM). The seed is not a property
+of the design: seed 2 was the best of five for f10 (-0.089) and is the
+worst here. **At -1.588 the HDMI picture has colour fringes** (107,991
+pixels of a Lisp screenshot not grey; 0 with seed 3) while the machine
+itself ran correctly -- the first build in this series whose negative
+slack showed. Seed 3 is on mister14 (`Dorado_one_f13_s3.rbf`); the ones
+before are beside it as `DoradoRtlOne_44.f12.rbf.bak` (no control-store
+read-back) and `.f10-s2.rbf.bak` (no cold boot), with their hosts
+`dorado-hps-one.f12` and `.f10`. Checked with it: the cold-booted Lisp's
+save 209,618 px, the stock Lisp 209,165, Smalltalk 124,945, Cedar
+167,657, Smalltalk cold to the Executive 2,697, each in place.
 
 `lisp.run` is served the root's `LISP.SYSOUT` (Lyric, 27-Apr-87), not the
 full-library `Released-Full.sysout!2` the stock desktop was made from.
@@ -1710,8 +1727,8 @@ beside a live CommandTool; whether the emulator does the same with this
 tree was not checked.
 
 **Not done:**
-- Timing: -0.089 ns at 44 MHz with seed 2 (below). Not closed; more seeds,
-  or 42.3 MHz, still 1.00x for Lisp.
+- Timing: -0.351 ns at 44 MHz (f13, seed 3). Not closed, and a bad seed
+  now shows on the screen; more seeds, or 42.3 MHz, still 1.00x for Lisp.
 - The start of a cold boot is the emulator's: the BaseBoard, Initial and
   the EFTP of the `.eb`, and Cedar's germ plant, are in the snapshot.
 - A save and a switch are separate commands; nothing on the MiSTer's OSD
